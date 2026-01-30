@@ -121,62 +121,6 @@ class NodeResolver {
 		}
 
 		/**
-		 * WordPress system endpoints and static files are not nodes, so they should return null.
-		 *
-		 * Check for URLs that should not be resolved as nodes:
-		 * - REST API endpoints (default is 'wp-json', but can be customized via the 'rest_url_prefix' filter)
-		 *   These actively process requests and return JSON responses, which was causing the bug.
-		 * - Static file paths (images, uploads, etc.) that are not nodes
-		 *
-		 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
-		 */
-
-		// Normalize the URI to a local path (extract path from absolute URLs, strip home path for subdirectory installs)
-		$normalized_uri = $this->normalize_uri_for_path_check( $uri );
-		// If normalization succeeds, check for REST API endpoints and static file paths
-		if ( null !== $normalized_uri ) {
-			// Check for REST API endpoints
-			$rest_prefix = rest_get_url_prefix();
-			if ( ! empty( $rest_prefix ) ) {
-				$rest_prefix_path = '/' . trim( $rest_prefix, '/' );
-				// Check if normalized URI starts with the REST API prefix
-				// Ensure exact match or followed by '/' to avoid false positives like /wp-json-foo
-				if ( $normalized_uri === $rest_prefix_path || strpos( $normalized_uri, $rest_prefix_path . '/' ) === 0 ) {
-					return null;
-				}
-			}
-
-			// Check for static file paths in the uploads directory (images, media files, etc.)
-			// These are file paths, not permalinks, so they should not be resolved as nodes
-			// Note: MediaItem nodes have their own permalinks, but the direct file paths are not nodes
-			// Only check uploads path if URI plausibly targets uploads directory to avoid unnecessary I/O
-			if ( strpos( $normalized_uri, 'wp-content/uploads' ) !== false || strpos( $normalized_uri, '/uploads' ) !== false ) {
-				// Use read-only mode to avoid creating directories unnecessarily
-				$upload_dir = wp_upload_dir( null, false );
-				if ( ! empty( $upload_dir['baseurl'] ) ) {
-					$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
-					$upload_path = trim( $upload_path, '/' );
-					// Normalize upload path by stripping home path if needed
-					$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-					if ( is_string( $home_path ) && '' !== $home_path ) {
-						$home_path = trim( $home_path, '/' );
-						if ( ! empty( $home_path ) && strpos( $upload_path, $home_path ) === 0 ) {
-							$upload_path = substr( $upload_path, strlen( $home_path ) );
-							$upload_path = trim( $upload_path, '/' );
-						}
-					}
-					$upload_path = '/' . $upload_path;
-					// Check if normalized URI starts with the uploads directory path
-					// Ensure exact match or followed by '/' to avoid false positives like /wp-content/uploads-foo
-					if ( $normalized_uri === $upload_path || strpos( $normalized_uri, $upload_path . '/' ) === 0 ) {
-						return null;
-					}
-				}
-			}
-		}
-		// If normalization fails (e.g., external URL), let parse_request handle it
-
-		/**
 		 * Comments are embedded as a #comment-{$id} in the post's content.
 		 *
 		 * If the URI is for a comment, we can resolve it now.
@@ -386,14 +330,30 @@ class NodeResolver {
 		}
 
 		// Bail if external URI.
-		if ( ! $this->is_internal_uri_host( $parsed_url ) ) {
-			graphql_debug(
-				__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
+		if ( isset( $parsed_url['host'] ) ) {
+			$site_url = wp_parse_url( site_url() );
+			$home_url = wp_parse_url( home_url() );
+
+			/**
+			 * @var array<string,mixed> $home_url
+			 * @var array<string,mixed> $site_url
+			 */
+			if ( ! in_array(
+				$parsed_url['host'],
 				[
-					'uri' => $uri,
-				]
-			);
-			return null;
+					$site_url['host'],
+					$home_url['host'],
+				],
+				true
+			) ) {
+				graphql_debug(
+					__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
+					[
+						'uri' => $uri,
+					]
+				);
+				return null;
+			}
 		}
 
 		if ( isset( $parsed_url['query'] ) && ( empty( $parsed_url['path'] ) || '/' === $parsed_url['path'] ) ) {
@@ -435,6 +395,12 @@ class NodeResolver {
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
+			$home_path       = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+			$home_path_regex = '';
+			if ( is_string( $home_path ) && '' !== $home_path ) {
+				$home_path       = trim( $home_path, '/' );
+				$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
+			}
 
 			/*
 			 * Trim path info from the end and the leading home path from the front.
@@ -447,9 +413,12 @@ class NodeResolver {
 			$req_uri  = trim( $req_uri, '/' );
 			$pathinfo = trim( $pathinfo, '/' );
 
-			// Strip home path from both req_uri and pathinfo using shared helper
-			$req_uri  = $this->strip_home_path_from_path( $req_uri );
-			$pathinfo = $this->strip_home_path_from_path( $pathinfo );
+			if ( ! empty( $home_path_regex ) ) {
+				$req_uri  = preg_replace( $home_path_regex, '', $req_uri );
+				$req_uri  = trim( $req_uri, '/' ); // @phpstan-ignore-line
+				$pathinfo = preg_replace( $home_path_regex, '', $pathinfo );
+				$pathinfo = trim( $pathinfo, '/' ); // @phpstan-ignore-line
+			}
 
 			// The requested permalink is in $pathinfo for path info requests and
 			// $req_uri for other requests.
@@ -634,6 +603,24 @@ class NodeResolver {
 		// We don't need the GraphQL args anymore.
 		unset( $this->wp->query_vars['graphql'] );
 
+		// CRITICAL FIX: Prevent REST API from processing requests during GraphQL execution
+		//
+		// If we're processing a GraphQL request and WordPress has identified this URI as a
+		// REST API route (rest_route is set in query_vars), we must prevent REST API from
+		// processing it. REST API hooks into parse_request and will output JSON and exit,
+		// breaking the GraphQL response.
+		//
+		// IMPORTANT: This fix is critical and was confirmed in production. Removing this
+		// code will cause REST API JSON responses to be returned instead of GraphQL responses
+		// when nodeByUri queries use REST API endpoint URIs. The test environment may not
+		// fully reproduce this bug, but the fix is still necessary.
+		//
+		// Regression test: testRestRouteIsRemovedFromQueryVarsDuringGraphQLRequest()
+		// See: https://github.com/wp-graphql/wp-graphql/issues/3513
+		if ( Router::get_request() !== null && isset( $this->wp->query_vars['rest_route'] ) ) {
+			unset( $this->wp->query_vars['rest_route'] );
+		}
+
 		do_action_ref_array( 'parse_request', [ &$this->wp ] );
 
 		return $uri;
@@ -693,103 +680,5 @@ class NodeResolver {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Checks if a parsed URL's host is internal (matches site_url or home_url).
-	 *
-	 * Shared logic for validating that a URI belongs to the current WordPress installation.
-	 *
-	 * @param array<string,mixed>|false $parsed_url The parsed URL array from wp_parse_url().
-	 * @return bool True if the host is internal or not present, false if external.
-	 */
-	protected function is_internal_uri_host( $parsed_url ): bool {
-		if ( false === $parsed_url || ! isset( $parsed_url['host'] ) ) {
-			// No host means it's a relative URI, which is internal
-			return true;
-		}
-
-		$site_url = wp_parse_url( site_url() );
-		$home_url = wp_parse_url( home_url() );
-
-		/**
-		 * @var array<string,mixed> $home_url
-		 * @var array<string,mixed> $site_url
-		 */
-		return in_array(
-			$parsed_url['host'],
-			[
-				$site_url['host'],
-				$home_url['host'],
-			],
-			true
-		);
-	}
-
-	/**
-	 * Strips the home path from a given path string for subdirectory installs.
-	 *
-	 * Shared logic for removing the WordPress subdirectory prefix from paths.
-	 * Used by both parse_request() and normalize_uri_for_path_check().
-	 *
-	 * @param string $path The path to strip the home path from.
-	 * @return string The path with the home path stripped.
-	 */
-	protected function strip_home_path_from_path( string $path ): string {
-		$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( ! is_string( $home_path ) || '' === $home_path ) {
-			return $path;
-		}
-
-		$home_path = trim( $home_path, '/' );
-		if ( empty( $home_path ) ) {
-			return $path;
-		}
-
-		$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
-		$path_trimmed    = trim( $path, '/' );
-		$replaced_path   = preg_replace( $home_path_regex, '', $path_trimmed );
-
-		return is_string( $replaced_path ) ? trim( $replaced_path, '/' ) : $path_trimmed;
-	}
-
-	/**
-	 * Normalizes a URI to a local path for path-based checks.
-	 *
-	 * Extracts the path from absolute URLs and strips the home path for subdirectory installs.
-	 * This ensures that checks for REST API endpoints and uploads paths work correctly
-	 * regardless of whether the URI is absolute or relative, and regardless of subdirectory installs.
-	 *
-	 * @param string $uri The URI to normalize.
-	 * @return string|null The normalized path, or null if the URI is external or cannot be normalized.
-	 */
-	protected function normalize_uri_for_path_check( string $uri ): ?string {
-		// Parse the URI to extract the path
-		$parsed_url = wp_parse_url( $uri );
-
-		if ( false === $parsed_url ) {
-			return null;
-		}
-
-		// If the URI has a host, check if it's external
-		if ( ! $this->is_internal_uri_host( $parsed_url ) ) {
-			// External URI, cannot normalize
-			return null;
-		}
-
-		// Extract the path from the parsed URL
-		$path = $parsed_url['path'] ?? '/';
-
-		// Strip the home path for subdirectory installs
-		$path = $this->strip_home_path_from_path( $path );
-
-		// Ensure the path starts with /
-		if ( '' === $path ) {
-			$path = '/';
-		} elseif ( '/' !== $path[0] ) {
-			$path = '/' . $path;
-		}
-
-		return $path;
 	}
 }

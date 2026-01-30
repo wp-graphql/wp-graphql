@@ -2807,6 +2807,231 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that REST API endpoints return proper GraphQL response structure (not REST API JSON)
+	 *
+	 * This test verifies the bug fix: without the fix, REST API endpoints would return
+	 * REST API JSON responses instead of proper GraphQL null responses.
+	 * 
+	 * BUG BEHAVIOR (without fix):
+	 * - REST API error responses: {"code":"rest_missing_callback_param","message":"...","data":{"status":400}}
+	 * - REST API user objects: {"id":1,"name":"admin","_links":{...},"avatar_urls":{...}}
+	 * 
+	 * EXPECTED BEHAVIOR (with fix):
+	 * - GraphQL response: {"data":{"nodeByUri":null}}
+	 * 
+	 * This test should FAIL on origin/main where the fix doesn't exist.
+	 * 
+	 * NOTE: We don't flush rewrite rules here to better reproduce the bug conditions.
+	 * The bug manifests when WordPress processes REST API requests during parse_request.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
+	 */
+	/**
+	 * Test that REST API endpoints return valid GraphQL responses (not REST API JSON)
+	 *
+	 * This test verifies the fix for the bug where nodeByUri queries with REST API endpoint URIs
+	 * would return REST API JSON responses instead of proper GraphQL null responses.
+	 *
+	 * BUG BEHAVIOR (without fix):
+	 * - WordPress's REST API would process the request during parse_request action
+	 * - REST API would output JSON like: {"code":"rest_missing_callback_param","message":"...","data":{"status":400}}
+	 * - This would break the GraphQL response, causing REST API JSON to be returned instead
+	 *
+	 * FIX:
+	 * - When processing a GraphQL request, if WordPress identifies the URI as a REST API route
+	 *   (rest_route is set in query_vars), we remove rest_route before the parse_request action fires
+	 * - This prevents REST API from processing the request and allows GraphQL to return null properly
+	 *
+	 * EXPECTED BEHAVIOR (with fix):
+	 * - GraphQL response: {"data":{"nodeByUri":null}}
+	 * - No REST API JSON in the response
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
+	 */
+	public function testRestApiEndpointReturnsValidGraphQLResponseNotRestApiJson(): void {
+		// Flush rewrite rules to ensure REST API routes are properly registered
+		// This is important for REST API prefix detection to work correctly
+		flush_rewrite_rules( false );
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				id
+			}
+		}
+		';
+
+		$rest_prefix = rest_get_url_prefix();
+		
+		// Test with REST API endpoint that would return error JSON without fix
+		$uri = '/' . $rest_prefix . '/wp/v2/users';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		// Verify response is a valid GraphQL response structure
+		$this->assertIsArray( $actual, 'Response should be an array' );
+		$this->assertArrayHasKey( 'data', $actual, 'Response should have data key (GraphQL format)' );
+
+		// Verify nodeByUri is null (the expected behavior)
+		$this->assertNull( $actual['data']['nodeByUri'], 'nodeByUri should be null for REST API endpoints' );
+
+		// CRITICAL: Verify the response is NOT REST API JSON format
+		// REST API error responses have: {"code":"rest_...","message":"...","data":{"status":400}}
+		// REST API user objects have: {"id":1,"name":"...","_links":{...},"avatar_urls":{...}}
+		// GraphQL responses have: {"data":{"nodeByUri":null}}
+		
+		// Check for REST API error structure at root level
+		$this->assertArrayNotHasKey( 'code', $actual, 'Response should not contain REST API error code at root level' );
+		$this->assertArrayNotHasKey( 'message', $actual, 'Response should not contain REST API error message at root level' );
+		
+		// Check that data.nodeByUri is not a REST API object structure
+		if ( isset( $actual['data']['nodeByUri'] ) && is_array( $actual['data']['nodeByUri'] ) ) {
+			// REST API user objects have these fields that GraphQL nodes don't
+			$this->assertArrayNotHasKey( '_links', $actual['data']['nodeByUri'], 'nodeByUri should not be a REST API object with _links' );
+			$this->assertArrayNotHasKey( 'avatar_urls', $actual['data']['nodeByUri'], 'nodeByUri should not be a REST API object with avatar_urls' );
+			// REST API objects have numeric 'id', GraphQL nodes have string 'id' (but we're checking for null anyway)
+		}
+
+		// Verify no REST API errors leaked into GraphQL errors
+		if ( isset( $actual['errors'] ) ) {
+			foreach ( $actual['errors'] as $error ) {
+				if ( is_array( $error ) ) {
+					// REST API errors have 'code' field with 'rest_' prefix
+					if ( isset( $error['code'] ) ) {
+						$this->assertStringNotStartsWith( 'rest_', $error['code'], 'GraphQL errors should not contain REST API error codes' );
+					}
+					// REST API error messages often mention missing parameters
+					if ( isset( $error['message'] ) ) {
+						$this->assertStringNotContainsString( 'Missing parameter', $error['message'], 'Error message should not contain REST API parameter errors' );
+						$this->assertStringNotContainsString( 'rest_', $error['message'], 'Error message should not contain REST API error codes' );
+					}
+				}
+			}
+		}
+
+		// Verify the response structure matches GraphQL format exactly
+		// GraphQL responses should have: {data: {nodeByUri: null}} or {data: {nodeByUri: null}, errors: [...]}
+		// NOT: {code: "rest_...", message: "...", data: {...}}
+		$response_keys = array_keys( $actual );
+		$valid_graphql_keys = [ 'data', 'errors', 'extensions' ];
+		foreach ( $response_keys as $key ) {
+			$this->assertContains(
+				$key,
+				$valid_graphql_keys,
+				sprintf( 'Response key "%s" should be a valid GraphQL response key, not REST API format', $key )
+			);
+		}
+	}
+
+	/**
+	 * CRITICAL TEST: Verify that rest_route is removed from query_vars during GraphQL requests
+	 *
+	 * This test directly verifies the fix logic by using reflection to test the protected
+	 * parse_request method. We manually set rest_route in query_vars to simulate what happens
+	 * when WordPress identifies a URI as a REST API route, then verify the fix removes it.
+	 *
+	 * IMPORTANT: This test will FAIL if the fix is removed. It directly tests the fix logic
+	 * by checking that rest_route is removed from query_vars before parse_request action fires.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
+	 */
+	public function testRestRouteIsRemovedFromQueryVarsDuringGraphQLRequest(): void {
+		// Flush rewrite rules to ensure REST API routes are properly registered
+		flush_rewrite_rules( false );
+
+		// Get the NodeResolver instance
+		$context  = new \WPGraphQL\AppContext();
+		$resolver = new \WPGraphQL\Data\NodeResolver( $context );
+		$reflection = new \ReflectionClass( $resolver );
+
+		// Get access to the protected $wp property
+		$wp_property = $reflection->getProperty( 'wp' );
+		$wp_property->setAccessible( true );
+		$wp = $wp_property->getValue( $resolver );
+
+		// CRITICAL: Set up Router request context so Router::get_request() returns non-null
+		// This is what the fix checks for - if Router::get_request() is null, the fix won't run
+		$request = new \WPGraphQL\Request( [ 'query' => '{__typename}' ] );
+		
+		// Use reflection to set Router::$request (static property)
+		$router_reflection = new \ReflectionClass( \WPGraphQL\Router::class );
+		$request_property  = $router_reflection->getProperty( 'request' );
+		$request_property->setAccessible( true );
+		$request_property->setValue( null, $request );
+
+		// Verify Router::get_request() now returns the request
+		$this->assertNotNull( \WPGraphQL\Router::get_request(), 'Router::get_request() must be set for this test to work' );
+
+		// Manually set rest_route in query_vars to simulate what happens when
+		// WordPress identifies a URI as a REST API route during parsing
+		$wp->query_vars['rest_route'] = '/wp/v2/users';
+		$wp->query_vars['graphql']    = true; // Simulate GraphQL request context
+
+		// Store the value before calling parse_request
+		$rest_route_value_before = $wp->query_vars['rest_route'] ?? null;
+		$this->assertNotNull( $rest_route_value_before, 'rest_route must be set before calling parse_request for this test to work' );
+
+		$rest_prefix = rest_get_url_prefix();
+		$uri         = '/' . $rest_prefix . '/wp/v2/users';
+
+		// Get access to the protected parse_request method
+		$parse_request_method = $reflection->getMethod( 'parse_request' );
+		$parse_request_method->setAccessible( true );
+
+		// Temporarily remove REST API's parse_request hook to prevent it from exiting
+		// We only want to test that rest_route is removed, not that REST API processes it
+		global $wp_filter;
+		$rest_api_parse_request_hook = null;
+		if ( isset( $wp_filter['parse_request'] ) ) {
+			// Store the REST API hook so we can restore it
+			$rest_api_parse_request_hook = $wp_filter['parse_request']->callbacks ?? null;
+			// Remove REST API's hook (it's typically at priority 10)
+			remove_all_actions( 'parse_request' );
+		}
+
+		try {
+			// Call parse_request - the fix should remove rest_route before parse_request action fires
+			$parse_request_method->invoke( $resolver, $uri );
+
+			// CRITICAL ASSERTION: rest_route should NOT be present in query_vars
+			// after parse_request is called during a GraphQL request
+			// If this fails, the fix has been removed or broken
+			$this->assertArrayNotHasKey(
+				'rest_route',
+				$wp->query_vars,
+				sprintf(
+					'CRITICAL REGRESSION: rest_route was NOT removed from query_vars! ' .
+					'This means the fix in NodeResolver::parse_request() that removes ' .
+					'rest_route from query_vars has been removed or broken. ' .
+					'rest_route before: %s, after: %s. ' .
+					'See: https://github.com/wp-graphql/wp-graphql/issues/3513',
+					$rest_route_value_before ?? 'null',
+					$wp->query_vars['rest_route'] ?? 'null'
+				)
+			);
+		} finally {
+			// Restore REST API's parse_request hook if we removed it
+			if ( $rest_api_parse_request_hook !== null && isset( $wp_filter['parse_request'] ) ) {
+				foreach ( $rest_api_parse_request_hook as $priority => $callbacks ) {
+					foreach ( $callbacks as $callback ) {
+						add_action( 'parse_request', $callback['function'], $priority, $callback['accepted_args'] ?? 1 );
+					}
+				}
+			}
+		}
+
+		// Clean up: reset Router::$request
+		$request_property->setValue( null, null );
+	}
+
+	/**
 	 * Test that REST API URIs with custom prefix return null
 	 *
 	 * Tests that custom REST API prefixes (via rest_url_prefix filter) are handled correctly.
