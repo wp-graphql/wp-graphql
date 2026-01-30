@@ -167,8 +167,8 @@ jobs:
       - name: Fix coverage paths
         if: ${{ inputs.coverage }}
         run: |
-          # Strip Docker container path prefix from coverage report
-          sed -i 's|/var/www/html/wp-content/plugins/${{ inputs.plugin_name }}/||g' ${{ inputs.plugin_path }}/tests/_output/coverage.xml
+          # Map Docker container paths to repo-relative paths for Codecov
+          sed -i "s|/var/www/html/wp-content/plugins/${{ inputs.plugin_name }}/|${{ inputs.plugin_path }}/|g" ${{ inputs.plugin_path }}/tests/_output/coverage.xml
 
       - name: Upload coverage to Codecov
         if: ${{ inputs.coverage }}
@@ -177,6 +177,8 @@ jobs:
           files: ${{ inputs.plugin_path }}/tests/_output/coverage.xml
           flags: wpunit,${{ inputs.theme }},${{ inputs.multisite && 'multisite' || 'single' }}
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN || '' }}
+          slug: wp-graphql/wp-graphql
 
       - name: Upload HTML coverage report as artifact
         if: ${{ inputs.coverage }}
