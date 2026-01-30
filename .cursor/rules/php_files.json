@@ -14,7 +14,7 @@
     },
     "php_version": {
       "min": "7.4",
-      "max": "8.3"
+      "recommended": "8.x (8.4 tested in CI)"
     },
     "wordpress_version": {
       "min": "6.0"
