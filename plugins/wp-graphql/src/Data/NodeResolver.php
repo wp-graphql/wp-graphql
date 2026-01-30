@@ -386,30 +386,14 @@ class NodeResolver {
 		}
 
 		// Bail if external URI.
-		if ( isset( $parsed_url['host'] ) ) {
-			$site_url = wp_parse_url( site_url() );
-			$home_url = wp_parse_url( home_url() );
-
-			/**
-			 * @var array<string,mixed> $home_url
-			 * @var array<string,mixed> $site_url
-			 */
-			if ( ! in_array(
-				$parsed_url['host'],
+		if ( ! $this->is_internal_uri_host( $parsed_url ) ) {
+			graphql_debug(
+				__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
 				[
-					$site_url['host'],
-					$home_url['host'],
-				],
-				true
-			) ) {
-				graphql_debug(
-					__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
-					[
-						'uri' => $uri,
-					]
-				);
-				return null;
-			}
+					'uri' => $uri,
+				]
+			);
+			return null;
 		}
 
 		if ( isset( $parsed_url['query'] ) && ( empty( $parsed_url['path'] ) || '/' === $parsed_url['path'] ) ) {
@@ -451,12 +435,6 @@ class NodeResolver {
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
-			$home_path       = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-			$home_path_regex = '';
-			if ( is_string( $home_path ) && '' !== $home_path ) {
-				$home_path       = trim( $home_path, '/' );
-				$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
-			}
 
 			/*
 			 * Trim path info from the end and the leading home path from the front.
@@ -469,12 +447,9 @@ class NodeResolver {
 			$req_uri  = trim( $req_uri, '/' );
 			$pathinfo = trim( $pathinfo, '/' );
 
-			if ( ! empty( $home_path_regex ) ) {
-				$req_uri  = preg_replace( $home_path_regex, '', $req_uri );
-				$req_uri  = trim( $req_uri, '/' ); // @phpstan-ignore-line
-				$pathinfo = preg_replace( $home_path_regex, '', $pathinfo );
-				$pathinfo = trim( $pathinfo, '/' ); // @phpstan-ignore-line
-			}
+			// Strip home path from both req_uri and pathinfo using shared helper
+			$req_uri  = $this->strip_home_path_from_path( $req_uri );
+			$pathinfo = $this->strip_home_path_from_path( $pathinfo );
 
 			// The requested permalink is in $pathinfo for path info requests and
 			// $req_uri for other requests.
@@ -721,6 +696,64 @@ class NodeResolver {
 	}
 
 	/**
+	 * Checks if a parsed URL's host is internal (matches site_url or home_url).
+	 *
+	 * Shared logic for validating that a URI belongs to the current WordPress installation.
+	 *
+	 * @param array<string,mixed>|false $parsed_url The parsed URL array from wp_parse_url().
+	 * @return bool True if the host is internal or not present, false if external.
+	 */
+	protected function is_internal_uri_host( $parsed_url ): bool {
+		if ( false === $parsed_url || ! isset( $parsed_url['host'] ) ) {
+			// No host means it's a relative URI, which is internal
+			return true;
+		}
+
+		$site_url = wp_parse_url( site_url() );
+		$home_url = wp_parse_url( home_url() );
+
+		/**
+		 * @var array<string,mixed> $home_url
+		 * @var array<string,mixed> $site_url
+		 */
+		return in_array(
+			$parsed_url['host'],
+			[
+				$site_url['host'],
+				$home_url['host'],
+			],
+			true
+		);
+	}
+
+	/**
+	 * Strips the home path from a given path string for subdirectory installs.
+	 *
+	 * Shared logic for removing the WordPress subdirectory prefix from paths.
+	 * Used by both parse_request() and normalize_uri_for_path_check().
+	 *
+	 * @param string $path The path to strip the home path from.
+	 * @return string The path with the home path stripped.
+	 */
+	protected function strip_home_path_from_path( string $path ): string {
+		$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( ! is_string( $home_path ) || '' === $home_path ) {
+			return $path;
+		}
+
+		$home_path = trim( $home_path, '/' );
+		if ( empty( $home_path ) ) {
+			return $path;
+		}
+
+		$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
+		$path_trimmed    = trim( $path, '/' );
+		$replaced_path   = preg_replace( $home_path_regex, '', $path_trimmed );
+
+		return is_string( $replaced_path ) ? trim( $replaced_path, '/' ) : $path_trimmed;
+	}
+
+	/**
 	 * Normalizes a URI to a local path for path-based checks.
 	 *
 	 * Extracts the path from absolute URLs and strips the home path for subdirectory installs.
@@ -739,43 +772,16 @@ class NodeResolver {
 		}
 
 		// If the URI has a host, check if it's external
-		if ( isset( $parsed_url['host'] ) ) {
-			$site_url = wp_parse_url( site_url() );
-			$home_url = wp_parse_url( home_url() );
-
-			/**
-			 * @var array<string,mixed> $home_url
-			 * @var array<string,mixed> $site_url
-			 */
-			if ( ! in_array(
-				$parsed_url['host'],
-				[
-					$site_url['host'],
-					$home_url['host'],
-				],
-				true
-			) ) {
-				// External URI, cannot normalize
-				return null;
-			}
+		if ( ! $this->is_internal_uri_host( $parsed_url ) ) {
+			// External URI, cannot normalize
+			return null;
 		}
 
 		// Extract the path from the parsed URL
 		$path = $parsed_url['path'] ?? '/';
 
 		// Strip the home path for subdirectory installs
-		// Follow the same pattern as parse_request(): trim the path before applying the regex
-		$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( is_string( $home_path ) && '' !== $home_path ) {
-			$home_path = trim( $home_path, '/' );
-			if ( ! empty( $home_path ) ) {
-				// Trim leading/trailing slashes from path before applying regex (matches parse_request behavior)
-				$path_trimmed    = trim( $path, '/' );
-				$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
-				$replaced_path   = preg_replace( $home_path_regex, '', $path_trimmed );
-				$path            = is_string( $replaced_path ) ? trim( $replaced_path, '/' ) : $path_trimmed;
-			}
-		}
+		$path = $this->strip_home_path_from_path( $path );
 
 		// Ensure the path starts with /
 		if ( '' === $path ) {
