@@ -145,29 +145,149 @@ class I18nTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that load_textdomain() calls load_plugin_textdomain() with correct parameters.
+	 *
+	 * @covers WPGraphQL::load_textdomain
+	 */
+	public function testLoadTextdomainCallsLoadPluginTextdomain(): void {
+		// Track if load_plugin_textdomain was called with correct parameters
+		$called = false;
+		$called_domain = '';
+		$called_path = '';
+
+		// Mock load_plugin_textdomain to track calls
+		// We use the 'override_load_textdomain' filter which is called before load_plugin_textdomain
+		add_filter(
+			'override_load_textdomain',
+			function( $override, $domain, $mofile ) use ( &$called, &$called_domain, &$called_path ) {
+				if ( 'wp-graphql' === $domain ) {
+					$called = true;
+					$called_domain = $domain;
+					// Extract the path from mofile (it's the languages directory)
+					$called_path = dirname( $mofile );
+				}
+				return false; // Don't override, let WordPress handle it normally
+			},
+			10,
+			3
+		);
+
+		// Call load_textdomain directly
+		\WPGraphQL::load_textdomain();
+
+		// Verify it was called with correct parameters
+		$this->assertTrue( $called, 'load_plugin_textdomain should be called for wp-graphql domain' );
+		$this->assertEquals( 'wp-graphql', $called_domain, 'Text domain should be wp-graphql' );
+		$this->assertStringEndsWith( 'languages', $called_path, 'Path should end with languages directory' );
+		
+		// Also verify the textdomain is actually loaded
+		// Note: is_textdomain_loaded() may return false if no .mo files exist, but the domain should be registered
+		global $l10n;
+		$this->assertTrue( 
+			isset( $l10n['wp-graphql'] ) || did_action( 'load_textdomain' ) > 0,
+			'Text domain should be registered or load_textdomain action should have fired'
+		);
+
+		remove_all_filters( 'override_load_textdomain' );
+	}
+
+	/**
 	 * Test that script translations are set up for GraphiQL.
 	 *
-	 * Note: This test verifies the setup, not the actual translation loading,
-	 * since we're in a unit test environment without the full admin context.
+	 * @covers WPGraphQL\Admin\GraphiQL\GraphiQL::enqueue_asset
 	 */
 	public function testGraphiQLScriptTranslationsSetup(): void {
-		// Verify the GraphiQL class has the enqueue_graphiql method and it's public
-		$reflection = new \ReflectionMethod( \WPGraphQL\Admin\GraphiQL\GraphiQL::class, 'enqueue_graphiql' );
-		$this->assertTrue(
-			$reflection->isPublic(),
-			'GraphiQL::enqueue_graphiql should be a public method'
+		// Create a mock asset file so enqueue_asset doesn't bail early
+		$asset_path = WPGRAPHQL_PLUGIN_DIR . 'build/test.asset.php';
+		$asset_dir = dirname( $asset_path );
+		
+		if ( ! is_dir( $asset_dir ) ) {
+			wp_mkdir_p( $asset_dir );
+		}
+		
+		file_put_contents(
+			$asset_path,
+			"<?php\nreturn [ 'dependencies' => [], 'version' => '1.0.0' ];"
 		);
+
+		// Clear any existing scripts
+		wp_deregister_script( 'test-handle' );
+
+		// Create GraphiQL instance and call enqueue_asset
+		$graphiql = new \WPGraphQL\Admin\GraphiQL\GraphiQL();
+		$reflection = new \ReflectionMethod( $graphiql, 'enqueue_asset' );
+		$reflection->setAccessible( true );
+		
+		$reflection->invoke( $graphiql, 'test-handle', [
+			'file' => 'test',
+			'script_deps' => [],
+		] );
+
+		// Verify script is enqueued and translations are set
+		global $wp_scripts;
+		$this->assertTrue( wp_script_is( 'test-handle', 'enqueued' ), 'Script should be enqueued' );
+		
+		// Check if script translations were set by verifying the script is registered
+		// wp_set_script_translations stores data in $wp_scripts->registered[$handle]
+		$registered = $wp_scripts->registered['test-handle'] ?? null;
+		$this->assertNotNull( $registered, 'Script should be registered' );
+		
+		// Verify translations were set (wp_set_script_translations adds textdomain to extra data)
+		// The textdomain is stored in the script's extra data
+		$extra = $registered->extra ?? [];
+		$this->assertArrayHasKey( 'textdomain', $extra, 'Script translations should be set' );
+		$this->assertEquals( 'wp-graphql', $extra['textdomain'], 'Text domain should be wp-graphql' );
+
+		// Cleanup
+		wp_deregister_script( 'test-handle' );
+		if ( file_exists( $asset_path ) ) {
+			unlink( $asset_path );
+		}
 	}
 
 	/**
 	 * Test that Extensions script translations are set up.
+	 *
+	 * @covers WPGraphQL\Admin\Extensions\Extensions::enqueue_scripts
 	 */
 	public function testExtensionsScriptTranslationsSetup(): void {
-		// Verify the Extensions class has the enqueue_scripts method and it's public
-		$reflection = new \ReflectionMethod( \WPGraphQL\Admin\Extensions\Extensions::class, 'enqueue_scripts' );
-		$this->assertTrue(
-			$reflection->isPublic(),
-			'Extensions::enqueue_scripts should be a public method'
+		// Create a mock asset file so enqueue_scripts doesn't bail early
+		$asset_path = WPGRAPHQL_PLUGIN_DIR . 'build/extensions.asset.php';
+		$asset_dir = dirname( $asset_path );
+		
+		if ( ! is_dir( $asset_dir ) ) {
+			wp_mkdir_p( $asset_dir );
+		}
+		
+		file_put_contents(
+			$asset_path,
+			"<?php\nreturn [ 'dependencies' => [], 'version' => '1.0.0' ];"
 		);
+
+		// Clear any existing scripts
+		wp_deregister_script( 'wpgraphql-extensions' );
+
+		// Create Extensions instance and call enqueue_scripts with correct hook
+		$extensions = new \WPGraphQL\Admin\Extensions\Extensions();
+		$extensions->enqueue_scripts( 'graphql_page_wpgraphql-extensions' );
+
+		// Verify script is enqueued and translations are set
+		global $wp_scripts;
+		$this->assertTrue( wp_script_is( 'wpgraphql-extensions', 'enqueued' ), 'Script should be enqueued' );
+		
+		// Check if script translations were set by verifying the script is registered
+		$registered = $wp_scripts->registered['wpgraphql-extensions'] ?? null;
+		$this->assertNotNull( $registered, 'Script should be registered' );
+		
+		// Verify translations were set (wp_set_script_translations adds textdomain to extra data)
+		$extra = $registered->extra ?? [];
+		$this->assertArrayHasKey( 'textdomain', $extra, 'Script translations should be set' );
+		$this->assertEquals( 'wp-graphql', $extra['textdomain'], 'Text domain should be wp-graphql' );
+
+		// Cleanup
+		wp_deregister_script( 'wpgraphql-extensions' );
+		if ( file_exists( $asset_path ) ) {
+			unlink( $asset_path );
+		}
 	}
 }
