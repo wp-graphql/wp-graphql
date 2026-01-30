@@ -7,6 +7,7 @@
 #
 # 1. Replaces x-release-please-version placeholders with actual version
 # 2. Updates the Upgrade Notice section in readme.txt if there are breaking changes
+# 3. Regenerates the POT file for translations (if languages/ directory exists)
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
@@ -27,8 +28,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-upgrade-notice:
-    name: Update Upgrade Notice
+  update-release-pr:
+    name: Update Release PR
     # Only run on release-please PRs
     if: startsWith(github.head_ref, 'release-please--')
     runs-on: ubuntu-latest
@@ -44,6 +45,13 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "22"
+
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --info
 
       - name: Extract version and component from PR
         id: version_info
@@ -127,6 +135,30 @@ jobs:
             --version=${{ steps.version_info.outputs.version }} \
             --plugin-dir=${{ steps.version_info.outputs.plugin_dir }}
 
+      - name: Check for languages directory
+        id: i18n
+        run: |
+          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
+          if [ -d "${PLUGIN_DIR}/languages" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+            echo "Languages directory found - will regenerate POT file"
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "No languages directory - skipping POT generation"
+          fi
+
+      - name: Regenerate POT file
+        if: steps.i18n.outputs.enabled == 'true' && steps.version_info.outputs.version != ''
+        working-directory: ${{ steps.version_info.outputs.plugin_dir }}
+        run: |
+          COMPONENT="${{ steps.version_info.outputs.component }}"
+          wp i18n make-pot . languages/${COMPONENT}.pot \
+            --slug=${COMPONENT} \
+            --domain=${COMPONENT} \
+            --include=src,access-functions.php,*.php \
+            --exclude=node_modules,vendor,tests,build,packages
+          echo "POT file regenerated: languages/${COMPONENT}.pot"
+
       - name: Check for changes
         id: changes
         run: |
@@ -156,5 +188,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add "$PLUGIN_DIR"
-          git commit -m "chore: replace x-release-please-version placeholders and update upgrade notice for ${COMPONENT}"
+          git commit -m "chore: replace x-release-please-version placeholders, update upgrade notice, and regenerate translations for ${COMPONENT}"
           git push
