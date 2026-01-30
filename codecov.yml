@@ -1,5 +1,12 @@
 # Codecov configuration
 # https://docs.codecov.com/docs/codecov-yaml
+#
+# NOTE: If coverage reports aren't showing on PRs after switching from master to main,
+# CodeCov's dashboard doesn't have a UI option to change the default branch.
+# You need to contact CodeCov support to have them update your repository's default
+# branch from "master" to "main" on their backend.
+# 
+# Reference: https://github.com/codecov/codecov-action/issues/242
 
 codecov:
   notify:
@@ -45,36 +52,12 @@ comment:
   require_head: yes
 
 # Group coverage by test type and configuration
-# Using wildcard patterns to automatically include all plugins
+# Flags are now combined as: plugin-wpunit-theme-multisite (e.g., wp-graphql-wpunit-twentytwentyfive-single)
+# Using wildcard patterns to match all flag combinations
 # Includes: src/ directory, root-level PHP files, and deprecated/ directory
 flags:
-  wpunit:
-    paths:
-      - plugins/*/src/
-      - plugins/*/*.php
-      - plugins/*/deprecated/
-    carryforward: true
-  # Theme flags
-  twentytwentyfive:
-    paths:
-      - plugins/*/src/
-      - plugins/*/*.php
-      - plugins/*/deprecated/
-    carryforward: true
-  twentytwentyone:
-    paths:
-      - plugins/*/src/
-      - plugins/*/*.php
-      - plugins/*/deprecated/
-    carryforward: true
-  # Multisite flags
-  single:
-    paths:
-      - plugins/*/src/
-      - plugins/*/*.php
-      - plugins/*/deprecated/
-    carryforward: true
-  multisite:
+  # Match all combined flags (plugin-wpunit-theme-multisite)
+  "*-wpunit-*-*":
     paths:
       - plugins/*/src/
       - plugins/*/*.php
