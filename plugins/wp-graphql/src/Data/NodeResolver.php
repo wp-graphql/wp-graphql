@@ -149,24 +149,28 @@ class NodeResolver {
 			// Check for static file paths in the uploads directory (images, media files, etc.)
 			// These are file paths, not permalinks, so they should not be resolved as nodes
 			// Note: MediaItem nodes have their own permalinks, but the direct file paths are not nodes
-			$upload_dir = wp_upload_dir();
-			if ( ! empty( $upload_dir['baseurl'] ) ) {
-				$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
-				$upload_path = trim( $upload_path, '/' );
-				// Normalize upload path by stripping home path if needed
-				$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-				if ( is_string( $home_path ) && '' !== $home_path ) {
-					$home_path = trim( $home_path, '/' );
-					if ( ! empty( $home_path ) && strpos( $upload_path, $home_path ) === 0 ) {
-						$upload_path = substr( $upload_path, strlen( $home_path ) );
-						$upload_path = trim( $upload_path, '/' );
+			// Only check uploads path if URI plausibly targets uploads directory to avoid unnecessary I/O
+			if ( strpos( $normalized_uri, 'wp-content/uploads' ) !== false || strpos( $normalized_uri, '/uploads' ) !== false ) {
+				// Use read-only mode to avoid creating directories unnecessarily
+				$upload_dir = wp_upload_dir( null, false );
+				if ( ! empty( $upload_dir['baseurl'] ) ) {
+					$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+					$upload_path = trim( $upload_path, '/' );
+					// Normalize upload path by stripping home path if needed
+					$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+					if ( is_string( $home_path ) && '' !== $home_path ) {
+						$home_path = trim( $home_path, '/' );
+						if ( ! empty( $home_path ) && strpos( $upload_path, $home_path ) === 0 ) {
+							$upload_path = substr( $upload_path, strlen( $home_path ) );
+							$upload_path = trim( $upload_path, '/' );
+						}
 					}
-				}
-				$upload_path = '/' . $upload_path;
-				// Check if normalized URI starts with the uploads directory path
-				// Ensure exact match or followed by '/' to avoid false positives like /wp-content/uploads-foo
-				if ( $normalized_uri === $upload_path || strpos( $normalized_uri, $upload_path . '/' ) === 0 ) {
-					return null;
+					$upload_path = '/' . $upload_path;
+					// Check if normalized URI starts with the uploads directory path
+					// Ensure exact match or followed by '/' to avoid false positives like /wp-content/uploads-foo
+					if ( $normalized_uri === $upload_path || strpos( $normalized_uri, $upload_path . '/' ) === 0 ) {
+						return null;
+					}
 				}
 			}
 		}
