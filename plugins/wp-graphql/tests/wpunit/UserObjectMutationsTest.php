@@ -374,6 +374,67 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $updated_email, $actual['data']['updateUser']['user']['email'] );
 	}
 
+	public function testUpdateUserDoesNotChangePasswordWhenNotProvided() {
+		wp_set_current_user( $this->admin );
+
+		$user_login    = 'test_user_password_update';
+		$user_email    = 'testUserPasswordUpdate@test.com';
+		$original_pass = 'originalPassword123';
+		$user_role     = 'editor';
+
+		// Create a user with a known password
+		$user_id = $this->factory->user->create(
+			[
+				'user_login' => $user_login,
+				'user_email' => $user_email,
+				'user_pass'  => $original_pass,
+				'role'       => $user_role,
+			]
+		);
+
+		// Verify we can authenticate with the original password
+		wp_set_current_user( 0 );
+		$authenticated_user = wp_authenticate( $user_login, $original_pass );
+		$this->assertNotInstanceOf( \WP_Error::class, $authenticated_user, 'User should be able to authenticate with original password before update' );
+		$this->assertEquals( $user_id, $authenticated_user->ID );
+
+		// Set admin user again for the mutation
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		mutation updateUser($input:UpdateUserInput!) {
+			updateUser(input:$input){
+				user{
+					id
+					databaseId
+					username
+					email
+				}
+			}
+		}
+		';
+
+		// Update user WITHOUT providing password field
+		$variables = [
+			'input' => [
+				'id'        => $user_id,
+				'lastName'  => 'UpdatedLastName',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Verify mutation succeeded
+		$this->assertArrayNotHasKey( 'errors', $actual, 'Mutation should succeed without errors' );
+		$this->assertEquals( $user_id, $actual['data']['updateUser']['user']['databaseId'] );
+
+		// Verify password has NOT changed by trying to authenticate with original password
+		wp_set_current_user( 0 );
+		$authenticated_user_after = wp_authenticate( $user_login, $original_pass );
+		$this->assertNotInstanceOf( \WP_Error::class, $authenticated_user_after, 'User should still be able to authenticate with original password after update without password field' );
+		$this->assertEquals( $user_id, $authenticated_user_after->ID );
+	}
+
 	public function testDeleteUserWithoutCapability() {
 
 		$username = 'user_to_delete_without_capability';
