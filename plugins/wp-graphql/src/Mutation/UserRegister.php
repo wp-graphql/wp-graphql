@@ -93,7 +93,7 @@ class UserRegister {
 			// Flag this as a create operation so prepare_user_object() will generate
 			// a password if one isn't provided (required by WP 6.9+).
 			$input['is_create'] = true;
-			$user_args           = UserMutation::prepare_user_object( $input, 'registerUser' );
+			$user_args          = UserMutation::prepare_user_object( $input, 'registerUser' );
 
 			/**
 			 * Register the new user
