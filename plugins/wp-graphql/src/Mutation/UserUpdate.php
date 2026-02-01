@@ -90,6 +90,12 @@ class UserUpdate {
 			$user_args       = UserMutation::prepare_user_object( $input, 'updateUser' );
 			$user_args['ID'] = $user_id;
 
+			// If password was not explicitly provided, ensure it's not set to prevent
+			// WordPress from changing the password when updating other fields.
+			if ( empty( $input['password'] ) ) {
+				unset( $user_args['user_pass'] );
+			}
+
 			/**
 			 * Update the user
 			 */
