@@ -33,7 +33,12 @@ parameters:
         - activation.php
         - deactivation.php
         - src/
+    scanFiles:
+        - vendor/wp-cli/wp-cli/php/class-wp-cli-command.php
     excludePaths:
+      analyse:
+        - tests/
+        - vendor/
       analyseAndScan:
         - node_modules (?)
 

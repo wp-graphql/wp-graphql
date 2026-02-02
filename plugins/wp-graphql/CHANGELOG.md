@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.6.0...wp-graphql/v2.7.0) (2026-01-22)
+
+
+### New Features
+
+* add siteIcon and siteIconUrl fields to GeneralSettings ([#3475](https://github.com/wp-graphql/wp-graphql/issues/3475)) ([f5a2567](https://github.com/wp-graphql/wp-graphql/commit/f5a25673aa3545e42cbed784afa41eeaa2e140a6))
+
+
+### Bug Fixes
+
+* add sanitization to additional settings fields ([#3480](https://github.com/wp-graphql/wp-graphql/issues/3480)) ([ffc8aa8](https://github.com/wp-graphql/wp-graphql/commit/ffc8aa86ed6c62f4982667bc30a50bf0bc3acbb8))
+* add sanitization to graphql_endpoint setting ([#3476](https://github.com/wp-graphql/wp-graphql/issues/3476)) ([7cbb246](https://github.com/wp-graphql/wp-graphql/commit/7cbb246bd32be13f8f7cdc28ec6e662f34bf7e64))
+* **deps:** bump webonyx/graphql-php from 15.29.3 to 15.29.4 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3487](https://github.com/wp-graphql/wp-graphql/issues/3487)) ([1d7762f](https://github.com/wp-graphql/wp-graphql/commit/1d7762f4ba2a6d982d990a8e877f157f8b53aaa4))
+* GraphiQL IDE improvements for LocalWP and toolbar buttons ([#3486](https://github.com/wp-graphql/wp-graphql/issues/3486)) ([8230dad](https://github.com/wp-graphql/wp-graphql/commit/8230dadc3796b6098f0868d0313b055a581ac4f8))
+
 ## v2.6.0 - 2026-01-12
 
 ### New Features
@@ -261,4 +276,3 @@ In [#3293](https://github.com/wp-graphql/wp-graphql/pull/3293) a bug was fixed i
 - [#3298](https://github.com/wp-graphql/wp-graphql/pull/3298): chore: submit GF, Rank Math, and Headless Login plugins
 - [#3287](https://github.com/wp-graphql/wp-graphql/pull/3287): chore: fixes the syntax of the readme.txt so that the short description is shown on WordPress.org
 - [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: Updated docs link for example of hierarchical data
-

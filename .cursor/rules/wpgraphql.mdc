@@ -1,9 +1,69 @@
 ---
-description:
-globs:
+description: Quick reference guide for working with the WPGraphQL monorepo
+globs: ["**/*"]
 ---
 
-# Your rule content
+# WPGraphQL Monorepo Quick Reference
 
-- You can @ files here
-- You can use markdown but dont have to
+## Repository Structure
+
+This is a monorepo containing multiple WordPress plugins:
+- `plugins/wp-graphql/` - Core WPGraphQL plugin
+- `plugins/wp-graphql-smart-cache/` - Smart Cache extension
+- Future plugins will be added to `plugins/` directory
+
+## Common Commands
+
+### Development Environment
+- `npm run wp-env start` - Start WordPress environment (dev: localhost:8888, test: localhost:8889)
+- `npm run wp-env stop` - Stop environment
+- `npm run wp-env destroy` - Remove all data and containers
+
+### Testing
+- `npm run -w @wpgraphql/wp-graphql test:codecept:wpunit` - Run WPUnit tests
+- `npm run -w @wpgraphql/wp-graphql test:codecept:acceptance` - Run acceptance tests
+- `npm run -w @wpgraphql/wp-graphql test:codecept:functional` - Run functional tests
+- `npm run -w @wpgraphql/wp-graphql test:e2e` - Run E2E (Playwright) tests
+- `PCOV_ENABLED=1 npm run wp-env start` - Start with coverage enabled
+
+### Building
+- `npm run build` - Build all plugins (uses Turborepo)
+- `npm run -w @wpgraphql/wp-graphql build` - Build specific plugin
+
+### Dependencies
+- `npm install` - Install all workspace dependencies
+- `npm install <package> -w @wpgraphql/wp-graphql` - Add dependency to specific plugin
+
+## Key Files
+
+- `@.cursor/prd.md` - Product Requirements Document
+- `@docs/DEVELOPMENT.md` - Development setup guide
+- `@docs/CONTRIBUTING.md` - Contributing guide with conventional commits
+- `@docs/ARCHITECTURE.md` - Monorepo architecture overview
+- `@.wp-env.json` - WordPress environment configuration
+- `@turbo.json` - Turborepo build configuration
+- `@package.json` - Root workspace configuration
+
+## Conventional Commits
+
+PR titles must follow conventional commits format:
+- `feat:` - New feature (minor version)
+- `fix:` - Bug fix (patch version)
+- `feat!:` - Breaking change (major version)
+- See `@.cursor/rules/wpgraphql.json` for full list
+
+## File Paths
+
+All file paths in this monorepo are relative to the repository root:
+- Core plugin: `plugins/wp-graphql/src/**/*.php`
+- Smart Cache: `plugins/wp-graphql-smart-cache/src/**/*.php`
+- Tests: `plugins/*/tests/**/*.php`
+- Documentation: `docs/**/*.md`
+
+## Plugin Structure
+
+Each plugin in `plugins/` is a self-contained WordPress plugin with:
+- Main plugin file: `plugins/{plugin-name}/{plugin-name}.php`
+- Source code: `plugins/{plugin-name}/src/`
+- Tests: `plugins/{plugin-name}/tests/`
+- `composer.json` and `package.json` for dependencies

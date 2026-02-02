@@ -1,9 +1,45 @@
 # WPGraphQL Product Requirements Document
 
-## Product Overview
-WPGraphQL is a free, open-source WordPress plugin that provides an extendable GraphQL API for WordPress websites. 
+## Monorepo Structure
 
-It provides a modern, performant GraphQL API that directly interfaces with WordPress internal data structures and registries, allowing developers to build headless WordPress applications.
+This repository is a monorepo containing the WPGraphQL ecosystem of plugins and related projects. The repository is organized as follows:
+
+```
+wp-graphql/
+├── plugins/
+│   ├── wp-graphql/              # Core WPGraphQL plugin
+│   ├── wp-graphql-smart-cache/  # Smart Cache extension plugin
+│   └── [future plugins]         # WPGraphQL IDE, WPGraphQL for ACF, etc.
+├── docs/                        # Shared contributor documentation
+├── bin/                         # Shared scripts
+├── .wp-env.json                 # Shared WordPress environment config
+├── package.json                 # Root workspace configuration
+└── turbo.json                   # Turborepo build orchestration
+```
+
+Each plugin in the `plugins/` directory is a self-contained WordPress plugin with its own `composer.json`, `package.json`, and plugin structure. The monorepo uses npm workspaces and Turborepo for managing dependencies and builds across all plugins.
+
+### Benefits of Monorepo Structure
+
+- **Unified Testing**: Test plugins together to catch integration issues
+- **Shared Infrastructure**: One CI/CD setup, one test environment
+- **Atomic Changes**: Changes across plugins can be a single PR
+- **Simplified Dependencies**: Easier to keep plugins compatible
+- **Consistent Tooling**: Same linting, testing, and build tools across all plugins
+
+## Product Overview
+
+WPGraphQL is a free, open-source WordPress plugin that provides an extendable GraphQL API for WordPress websites. This monorepo contains the core WPGraphQL plugin as well as official extension plugins that enhance the WPGraphQL ecosystem.
+
+The core WPGraphQL plugin provides a modern, performant GraphQL API that directly interfaces with WordPress internal data structures and registries, allowing developers to build headless WordPress applications.
+
+### WPGraphQL Ecosystem
+
+- **WPGraphQL** (core): The main GraphQL API plugin for WordPress
+- **WPGraphQL Smart Cache**: Provides caching and cache invalidation for WPGraphQL queries
+- **WPGraphQL IDE** (planned): Enhanced debugging and development tools
+- **WPGraphQL for ACF** (planned): Advanced Custom Fields integration
+- **wpgraphql.com website** (planned): Official website and documentation
 
 ### Core Value Proposition
 - Enable headless WordPress architecture with a modern GraphQL API
@@ -63,7 +99,8 @@ It provides a modern, performant GraphQL API that directly interfaces with WordP
 ### Security & Authentication
 - Can integrate with WordPress authentication
 - Respects WordPress capabilities
-- Supports JWT authentication
+- Supports JWT authentication via extension plugins (e.g., WPGraphQL JWT Authentication)
+- Application Passwords support (WordPress 5.6+, may be enhanced in future releases)
 - Provides options for field-level access control
 - Maintains WordPress access-control model
 
@@ -90,9 +127,9 @@ It provides a modern, performant GraphQL API that directly interfaces with WordP
 ## Technical Requirements
 
 ### WordPress Compatibility
-- WordPress (6.0+ preferred)
-- PHP (7.4+ preferred)
-- MySQL (8+ preferred) or MariaDB (10.0+ preferred)
+- WordPress 6.0+ (required)
+- PHP 7.4+ (required), PHP 8.x recommended
+- MySQL/MariaDB (as required by WordPress, latest versions recommended)
 - Standard WordPress plugin installation. Can be installed via composer as well.
 
 ### Security Requirements
@@ -161,17 +198,18 @@ It provides a modern, performant GraphQL API that directly interfaces with WordP
 
 ### Planned Features
 - Real-time subscriptions
-- Enhanced caching system (see WPGraphQL Smart Cache)
-- Improved debugging tools (see WPGraphQL IDE)
+- Improved debugging tools (WPGraphQL IDE - planned)
 - Better error reporting
 - Performance optimizations
 - Custom Scalars
 - Support for additional directives
 
+**Note:** WPGraphQL Smart Cache is already available in `plugins/wp-graphql-smart-cache/` and is listed in the WPGraphQL Ecosystem section above.
+
 ### Scalability Goals
 - Increased Support for high-traffic sites
 - Enterprise-level performance
-- Multi-site network support (tbd)
+- Multi-site network support (currently works with per-site endpoints; network-level endpoint may be considered in the future)
 
 ### Community Growth
 - Documentation expansion
@@ -185,7 +223,7 @@ It provides a modern, performant GraphQL API that directly interfaces with WordP
 ### Code Standards
 - WordPress Coding Standards
 - PHPStan Level 10 compliance
-- 85+% unit test coverage
+- Code coverage maintained and improved (enforced via Codecov with auto-target and 1% threshold)
 - Integration test suite
 - E2E test coverage
 

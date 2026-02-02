@@ -19,6 +19,8 @@
 		"check-engines": "wp-scripts check-engines",
 		"build": "wp-scripts build",
 		"start": "wp-scripts start",
+		"i18n:pot": "npm run wp-env:cli -- wp i18n make-pot . languages/wp-graphql.pot --slug=wp-graphql --domain=wp-graphql --include=src,access-functions.php,wp-graphql.php --exclude=node_modules,vendor,tests,build,packages",
+		"i18n:json": "npm run wp-env:cli -- wp i18n make-json languages languages --no-purge",
 		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
 		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
 		"test:unit": "wp-scripts test-unit-js",
@@ -82,5 +84,5 @@
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1"
 	},
-	"version": "2.6.0"
+	"version": "2.7.0"
 }

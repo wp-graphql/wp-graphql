@@ -29,27 +29,35 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_cache_delete( 'plugins', 'plugins' );
 
-		// Filter out unrelated test plugins from possible dependents.
-		add_filter(
-			'graphql_get_possible_dependents',
-			static function ( $plugins, $all_plugins ) {
-				$test_plugin_patterns = [
-					'settings-page-spec/', // E2E test plugin in wp-env
-				];
+		// Filter out all plugins except the test plugins created by this test from dependents and possible dependents.
+		// This prevents monorepo plugins and other extensions from being detected as untested dependencies.
+		$filter_test_plugins = static function ( $plugins, $all_plugins ) {
+			// Whitelist: only keep the test plugins that this test explicitly creates
+			$allowed_patterns = [
+				'plugin-with-headers/',
+				'plugin-with-requires/',
+				'plugin-with-meta/',
+				'plugin-incompatible-version/',
+			];
 
-				foreach ( array_keys( $plugins ) as $plugin_path ) {
-					foreach ( $test_plugin_patterns as $pattern ) {
-						if ( str_contains( $plugin_path, $pattern ) ) {
-							unset( $plugins[ $plugin_path ] );
-						}
+			foreach ( array_keys( $plugins ) as $plugin_path ) {
+				$keep = false;
+				foreach ( $allowed_patterns as $pattern ) {
+					if ( false !== strpos( $plugin_path, $pattern ) ) {
+						$keep = true;
+						break;
 					}
 				}
+				if ( ! $keep ) {
+					unset( $plugins[ $plugin_path ] );
+				}
+			}
 
-				return $plugins;
-			},
-			10,
-			2
-		);
+			return $plugins;
+		};
+
+		add_filter( 'graphql_get_dependents', $filter_test_plugins, 10, 2 );
+		add_filter( 'graphql_get_possible_dependents', $filter_test_plugins, 10, 2 );
 	}
 
 	/**
@@ -65,7 +73,8 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->reset_current_screen();
 
-		// Clean up the filter added in setUp
+		// Clean up the filters added in setUp
+		remove_all_filters( 'graphql_get_dependents' );
 		remove_all_filters( 'graphql_get_possible_dependents' );
 
 		parent::tearDown();

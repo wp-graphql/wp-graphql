@@ -11,48 +11,7 @@ on:
         description: "Name of the plugin (e.g., wp-graphql)"
         required: true
         type: string
-
 jobs:
-  pre_run:
-    name: Check ${{ inputs.plugin_name }} for changes
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    timeout-minutes: 20
-    outputs:
-      any_changed_phpcs: ${{ steps.changed-files-phpcs.outputs.any_changed }}
-      any_changed_phpstan: ${{ steps.changed-files-phpstan.outputs.any_changed }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
-        with:
-          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
-          persist-credentials: false
-
-      - name: Get changed files for PHPCS
-        id: changed-files-phpcs
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891
-        with:
-          files: |
-            .github/workflows/lint-reusable.yml
-            .github/workflows/lint.yml
-            ${{ inputs.plugin_path }}/**/*.php
-            ${{ inputs.plugin_path }}/composer.json
-            ${{ inputs.plugin_path }}/composer.lock
-            ${{ inputs.plugin_path }}/phpcs.xml.dist
-
-      - name: Get changed files for PHPStan
-        id: changed-files-phpstan
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891
-        with:
-          files: |
-            .github/workflows/lint-reusable.yml
-            .github/workflows/lint.yml
-            ${{ inputs.plugin_path }}/**/*.php
-            ${{ inputs.plugin_path }}/composer.json
-            ${{ inputs.plugin_path }}/composer.lock
-            ${{ inputs.plugin_path }}/phpstan.neon.dist
-
   # Runs the PHP coding standards checks.
   #
   # Violations are reported inline with annotations.
@@ -67,8 +26,6 @@ jobs:
   phpcs:
     name: PHP Coding Standards (${{ inputs.plugin_name }})
     runs-on: ubuntu-24.04
-    needs: pre_run
-    if: needs.pre_run.outputs.any_changed_phpcs == 'true'
     permissions:
       contents: read
     timeout-minutes: 20
@@ -78,7 +35,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
@@ -97,10 +54,11 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHPCS scan cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ./tests/_output/phpcs-cache.json
-          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path)) }}
+          # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
+          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
@@ -130,8 +88,6 @@ jobs:
   phpstan:
     name: PHP static analysis (${{ inputs.plugin_name }})
     runs-on: ubuntu-24.04
-    needs: pre_run
-    if: needs.pre_run.outputs.any_changed_phpstan == 'true'
     permissions:
       contents: read
     timeout-minutes: 20
@@ -141,7 +97,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
@@ -160,7 +116,7 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHP Static Analysis scan cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
           key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"
@@ -180,7 +136,7 @@ jobs:
         run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
 
       - name: Save result cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         if: ${{ !cancelled() }}
         with:
           path: ${{ inputs.plugin_path }}/tests/_output

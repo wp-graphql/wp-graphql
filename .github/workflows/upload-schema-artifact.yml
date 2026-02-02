@@ -52,9 +52,6 @@ jobs:
       - name: Start wp-env
         run: npm run wp-env start
 
-      - name: Run setup script
-        run: bash bin/setup-wp-env.sh
-
       - name: Generate the Static Schema
         run: |
           npm run wp-env run cli -- wp graphql generate-static-schema --output=/var/www/html/schema.graphql

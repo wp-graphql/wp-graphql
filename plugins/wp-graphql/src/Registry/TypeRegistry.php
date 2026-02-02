@@ -3,8 +3,11 @@
 namespace WPGraphQL\Registry;
 
 use GraphQL\Error\Error;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL;
+use WPGraphQL\AppContext;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
@@ -589,6 +592,73 @@ class TypeRegistry {
 				]
 			);
 		}
+
+		/**
+		 * Register the siteIconUrl field on GeneralSettings.
+		 *
+		 * WordPress Site Icon is a feature that allows users to set a favicon/icon
+		 * for their site. This exposes that icon URL to the GraphQL Schema.
+		 *
+		 * @see https://developer.wordpress.org/reference/functions/get_site_icon_url/
+		 */
+		$this->register_field(
+			'GeneralSettings',
+			'siteIconUrl',
+			[
+				'type'        => 'String',
+				'description' => static function () {
+					return __( 'Site icon URL configured in site settings, used as the site\'s favicon and app icon.', 'wp-graphql' );
+				},
+				'args'        => [
+					'size' => [
+						'type'        => 'Int',
+						'description' => static function () {
+							return __( 'Size of the site icon in pixels. Defaults to 512. Max 512.', 'wp-graphql' );
+						},
+					],
+				],
+				'resolve'     => static function ( $source, array $args ) {
+					$size = ! empty( $args['size'] ) ? absint( $args['size'] ) : 512;
+					// WordPress site icons are uploaded at 512x512 max, clamp the size.
+					$size = min( $size, 512 );
+					$url  = get_site_icon_url( $size );
+
+					return ! empty( $url ) ? $url : null;
+				},
+			]
+		);
+
+		/**
+		 * Register the siteIcon connection on GeneralSettings.
+		 *
+		 * This provides access to the MediaItem that is set as the site icon,
+		 * allowing clients to access all media properties (alt text, sizes, etc).
+		 *
+		 * @see https://developer.wordpress.org/reference/functions/get_option/ (site_icon option)
+		 */
+		register_graphql_connection(
+			[
+				'fromType'      => 'GeneralSettings',
+				'toType'        => 'MediaItem',
+				'fromFieldName' => 'siteIcon',
+				'oneToOne'      => true,
+				'description'   => static function () {
+					return __( 'The media item representing the site icon configured in site settings, used as the site\'s favicon and app icon.', 'wp-graphql' );
+				},
+				'resolve'       => static function ( $source, array $args, AppContext $context, ResolveInfo $info ) {
+					$site_icon_id = get_option( 'site_icon' );
+
+					if ( empty( $site_icon_id ) ) {
+						return null;
+					}
+
+					$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, 'attachment' );
+					$resolver->set_query_arg( 'p', absint( $site_icon_id ) );
+
+					return $resolver->one_to_one()->get_connection();
+				},
+			]
+		);
 
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {
 			foreach ( $allowed_setting_types as $group_name => $setting_type ) {
