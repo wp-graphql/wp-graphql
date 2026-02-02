@@ -83,6 +83,7 @@ final class WPGraphQL {
 			self::$instance->filters();
 			self::$instance->upgrade();
 			self::$instance->deprecated();
+			self::$instance->commands();
 		}
 
 		/**
@@ -204,6 +205,9 @@ final class WPGraphQL {
 			}
 		);
 
+		// Load plugin textdomain for translations
+		add_action( 'init', [ self::class, 'load_textdomain' ], 0 );
+
 		// Initialize the plugin url constant
 		// see: https://developer.wordpress.org/reference/functions/plugins_url/#more-information
 		add_action( 'init', [ $this, 'setup_plugin_url' ] );
@@ -253,6 +257,32 @@ final class WPGraphQL {
 
 		// Initialize Update functionality.
 		( new \WPGraphQL\Admin\Updates\Updates() )->init();
+	}
+
+	/**
+	 * Registers WP-CLI commands.
+	 *
+	 * @since 2.7.0
+	 */
+	private function commands(): void {
+		if ( ! class_exists( 'WP_CLI' ) || ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+			return;
+		}
+
+		// Ensure the Commands class is loaded before trying to register it
+		// If the class doesn't exist, try to require the file directly
+		// (in case the autoloader hasn't loaded it yet)
+		if ( ! class_exists( \WPGraphQL\CLI\Commands::class ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- WPGRAPHQL_PLUGIN_DIR is a constant, not user input
+			if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'src/CLI/Commands.php' ) ) {
+				require_once WPGRAPHQL_PLUGIN_DIR . 'src/CLI/Commands.php';
+			}
+		}
+
+		// Only register if the class exists after attempting to load it
+		if ( class_exists( \WPGraphQL\CLI\Commands::class ) ) {
+			\WP_CLI::add_command( 'graphql', \WPGraphQL\CLI\Commands::class );
+		}
 	}
 
 	/**
@@ -321,6 +351,19 @@ final class WPGraphQL {
 		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
 			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( dirname( __DIR__ ) . '/wp-graphql.php' ) );
 		}
+	}
+
+	/**
+	 * Load the plugin textdomain for translations.
+	 *
+	 * @since 2.7.0
+	 */
+	public static function load_textdomain(): void {
+		load_plugin_textdomain(
+			'wp-graphql',
+			false,
+			dirname( plugin_basename( WPGRAPHQL_PLUGIN_FILE ) ) . '/languages/'
+		);
 	}
 
 	/**

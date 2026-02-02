@@ -1,3 +1,4 @@
 {
-	"plugins/wp-graphql": "2.6.0"
+  "plugins/wp-graphql": "2.7.0",
+  "plugins/wp-graphql-smart-cache": "2.0.1"
 }

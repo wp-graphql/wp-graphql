@@ -3,7 +3,7 @@
 /.idea
 /.log
 /.vscode
-/.wordpress-org
+# .wordpress-org is kept (contains WordPress.org assets like banners, icons, screenshots)
 /bin
 /github
 /plugin-build
@@ -14,6 +14,7 @@
 /tests
 /tests
 /node_modules
+**/node_modules
 /packages
 /artifacts
 /.changeset

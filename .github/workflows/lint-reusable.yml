@@ -1,0 +1,143 @@
+name: Reusable Lint
+
+on:
+  workflow_call:
+    inputs:
+      plugin_path:
+        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        required: true
+        type: string
+      plugin_name:
+        description: "Name of the plugin (e.g., wp-graphql)"
+        required: true
+        type: string
+jobs:
+  # Runs the PHP coding standards checks.
+  #
+  # Violations are reported inline with annotations.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up PHP.
+  # - Configures caching for PHPCS scans.
+  # - Installs Composer dependencies.
+  # - Runs PHPCS on the full codebase.
+  # - Generate a report for displaying issues as pull request annotations.
+  phpcs:
+    name: PHP Coding Standards (${{ inputs.plugin_name }})
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.plugin_path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
+        with:
+          php-version: "8.3"
+          coverage: none
+          tools: cs2pr
+
+      # This date is used to ensure that the PHPCS cache is cleared at least once every week.
+      # http://man7.org/linux/man-pages/man1/date.1.html
+      - name: "Get last Monday's date"
+        id: get-date
+        run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache PHPCS scan cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ./tests/_output/phpcs-cache.json
+          # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
+          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: ${{ inputs.plugin_path }}
+
+      - name: Run PHPCS
+        id: phpcs
+        run: composer check-cs -- --report-full --report-checkstyle=./tests/_output/phpcs-report.xml
+
+      - name: Show PHPCS results in PR
+        if: ${{ always() && steps.phpcs.outcome == 'failure' }}
+        run: cs2pr ./tests/_output/phpcs-report.xml
+
+  # Runs PHP static analysis tests.
+  #
+  # Violations are reported inline with annotations.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up PHP.
+  # - Configures caching for PHP static analysis scans.
+  # - Installs Composer dependencies.
+  # - Makes Composer packages available globally.
+  # - Runs PHPStan static analysis (with Pull Request annotations).
+  # - Saves the PHPStan result cache.
+  phpstan:
+    name: PHP static analysis (${{ inputs.plugin_name }})
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.plugin_path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
+        with:
+          php-version: "8.3"
+          coverage: none
+          tools: cs2pr
+
+      # This date is used to ensure that the PHPStan result cache is cleared at least once every week.
+      # http://man7.org/linux/man-pages/man1/date.1.html
+      - name: "Get last Monday's date"
+        id: get-date
+        run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache PHP Static Analysis scan cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
+          key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"
+          restore-keys: |
+            phpstan-result-cache-
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: ${{ inputs.plugin_path }}
+
+      - name: Make Composer packages available globally
+        run: echo "${PWD}/vendor/bin" >> "$GITHUB_PATH"
+
+      - name: Run PHP static analysis tests
+        id: phpstan
+        run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
+
+      - name: Save result cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        if: ${{ !cancelled() }}
+        with:
+          path: ${{ inputs.plugin_path }}/tests/_output
+          key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"

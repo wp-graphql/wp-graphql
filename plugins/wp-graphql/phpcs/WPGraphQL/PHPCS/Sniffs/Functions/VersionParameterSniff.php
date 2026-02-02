@@ -35,7 +35,7 @@ class VersionParameterSniff implements Sniff
      * @var array<string>
      */
     private $validPlaceholders = [
-        'x-release-please-version',
+        '2.7.0',
     ];
 
     public function __construct()
@@ -112,7 +112,7 @@ class VersionParameterSniff implements Sniff
         // Validate semver
         if (!$this->isValidSemver($version)) {
             $fix = $phpcsFile->addFixableError(
-                'Invalid version "%s" in %s(). Must be a valid semver version or "x-release-please-version"',
+                'Invalid version "%s" in %s(). Must be a valid semver version or "2.7.0"',
                 $parameters[$paramPosition - 1]['start'],
                 'InvalidVersion',
                 [$version, $functionName]
@@ -218,7 +218,7 @@ class VersionParameterSniff implements Sniff
         }
 
         $phpcsFile->fixer->beginChangeset();
-        $phpcsFile->fixer->replaceToken($parameter['start'], "'x-release-please-version'");
+        $phpcsFile->fixer->replaceToken($parameter['start'], "'2.7.0'");
 
         // Clear any remaining tokens
         for ($i = $parameter['start'] + 1; $i <= $parameter['end']; $i++) {

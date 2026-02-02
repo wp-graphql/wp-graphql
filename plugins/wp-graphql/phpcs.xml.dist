@@ -56,6 +56,7 @@
 	<rule ref="WordPress-VIP-Go">
 		<!-- Deprecated. @todo: remove after PHPCS4-->
 		<exclude name="WordPressVIPMinimum.JS" />
+		<exclude name="WordPressVIPMinimum.Classes.RestrictedExtendClasses.wp_cli" />
 	</rule>
 
 	<!-- Load WordPress Coding standards -->

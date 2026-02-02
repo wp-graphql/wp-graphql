@@ -1,0 +1,30 @@
+<?php
+/**
+ * This stub file fixes return type from appsero client class function.
+ **/
+
+namespace Appsero;
+
+/**
+ * Appsero Insights
+ *
+ * This is a tracker class to track plugin usage based on if the customer has opted in.
+ * No personal information is being tracked by this class, only general settings, active plugins, environment details
+ * and admin email.
+ */
+class Insights {}
+
+/**
+ * Appsero Client
+ *
+ * This class is necessary to set project data
+ */
+class Client {
+
+    /**
+     * Initialize insights class
+     *
+     * @return \Appsero\Insights
+     */
+    public function insights();
+}

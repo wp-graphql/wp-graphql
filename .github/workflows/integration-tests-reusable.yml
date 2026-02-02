@@ -1,0 +1,204 @@
+name: Reusable Integration Tests
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: "Display name for the job (e.g., WP 6.9 / PHP 8.4)"
+        required: true
+        type: string
+      plugin_path:
+        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        required: true
+        type: string
+      plugin_name:
+        description: "Name of the plugin (e.g., wp-graphql)"
+        required: true
+        type: string
+      wp:
+        description: "WordPress version (e.g., 6.9, trunk)"
+        required: true
+        type: string
+      php:
+        description: "PHP version (e.g., 8.4)"
+        required: true
+        type: string
+      theme:
+        description: "Theme to activate (e.g., twentytwentyfive)"
+        required: true
+        type: string
+      multisite:
+        description: "Whether to run as multisite"
+        required: true
+        type: boolean
+      coverage:
+        description: "Whether to collect code coverage"
+        required: true
+        type: boolean
+      experimental:
+        description: "Whether this is an experimental job (allowed to fail)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # Job naming strategy:
+  # The parent workflow sets name to "Integration: plugin / WP X.X / PHP X.X".
+  # The child job name shows theme + modifiers (no PHP to avoid duplication).
+  # Full header: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / twentytwentyfive 📊"
+  # Note: GitHub's sidebar may not show all info, but header/branch protection will.
+  #
+  # Runs integration tests for a WordPress plugin using Codeception.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up PHP with the specified version.
+  # - Installs Composer and NPM dependencies.
+  # - Builds JavaScript assets.
+  # - Starts the wp-env Docker testing environment.
+  # - Activates the test theme.
+  # - Runs Acceptance, Functional, and WPUnit tests.
+  # - Uploads test failure artifacts and code coverage reports.
+  test:
+    name: "${{ inputs.theme }}${{ inputs.multisite && ' (Multisite)' || '' }}${{ inputs.coverage && ' 📊' || '' }}${{ inputs.experimental && ' 🧪' || '' }}"
+    runs-on: ubuntu-24.04
+    continue-on-error: ${{ inputs.experimental }}
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    env:
+      WP_ENV_PHP_VERSION: ${{ inputs.php }}
+      WP_ENV_CORE: ${{ inputs.wp == 'trunk' && 'WordPress/WordPress' || format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
+
+    steps:
+      - name: Configure environment variables
+        run: |
+          echo "PHP_FPM_UID=$(id -u)" >> "$GITHUB_ENV"
+          echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php }}
+          tools: composer:v2
+          extensions: json, mbstring
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: ${{ inputs.plugin_path }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          cache: "npm"
+          node-version-file: ".nvmrc"
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build JavaScript assets
+        run: npm run build
+
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-${{ inputs.php }}-${{ inputs.wp }}
+
+      - name: Start the Docker testing environment
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
+      - name: Log versions
+        run: |
+          npm run wp-env -- run cli php -- -v
+          npm run wp-env -- run cli wp core version
+
+      - name: Activate test theme
+        run: |
+          echo "Activating theme: ${{ inputs.theme }}"
+          npm run wp-env run tests-cli -- wp theme activate ${{ inputs.theme }}
+          npm run wp-env run tests-cli -- wp theme list
+
+      - name: Verify test environment
+        run: |
+          echo "Checking mu-plugin installation..."
+          npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
+          echo "Checking site URL..."
+          npm run wp-env run tests-cli -- wp option get siteurl
+          echo "Active theme..."
+          npm run wp-env run tests-cli -- wp theme status
+          echo "Testing GraphQL endpoint..."
+          npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
+
+      - name: Run Acceptance Tests
+        run: |
+          npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}
+
+      - name: Run Functional Tests
+        run: |
+          npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
+      - name: Run WPUnit Tests
+        env:
+          MULTISITE: ${{ inputs.multisite && 'true' || '' }}
+          TEST_THEME: ${{ inputs.theme }}
+        run: |
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}'
+
+      - name: Upload test failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.plugin_name }}-test-failures-php${{ inputs.php }}-wp${{ inputs.wp }}${{ inputs.multisite && '-multisite' || '' }}
+          path: ${{ inputs.plugin_path }}/tests/_output/*.fail.html
+          if-no-files-found: ignore
+
+      - name: Fix coverage paths
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
+        run: |
+          # Map Docker container paths to repo-relative paths for Codecov
+          sed -i "s|/var/www/html/wp-content/plugins/${{ inputs.plugin_name }}/|${{ inputs.plugin_path }}/|g" ${{ inputs.plugin_path }}/tests/_output/coverage.xml
+
+      - name: Verify coverage file exists
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
+        run: |
+          if [ ! -f "${{ inputs.plugin_path }}/tests/_output/coverage.xml" ]; then
+            echo "❌ Coverage file not found!"
+            exit 1
+          fi
+          echo "✅ Coverage file exists: ${{ inputs.plugin_path }}/tests/_output/coverage.xml"
+          echo "File size: $(wc -c < "${{ inputs.plugin_path }}/tests/_output/coverage.xml") bytes"
+
+      - name: Upload coverage to Codecov
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
+        uses: codecov/codecov-action@v5
+        with:
+          files: ${{ inputs.plugin_path }}/tests/_output/coverage.xml
+          flags: ${{ inputs.plugin_name }}-wpunit-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN || '' }}
+          slug: wp-graphql/wp-graphql
+          verbose: true
+
+      - name: Upload HTML coverage report as artifact
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.plugin_name }}-code-coverage-${{ inputs.php }}-${{ inputs.wp }}-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
+          path: ${{ inputs.plugin_path }}/tests/_output/html
+          overwrite: true
