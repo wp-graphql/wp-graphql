@@ -117,7 +117,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            ${{ inputs.coverage && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
       - name: Log versions
         run: |
@@ -143,7 +143,7 @@ jobs:
 
       - name: Run Acceptance Tests
         run: |
-          npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && '--coverage --coverage-xml' || '' }}
+          npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}
 
       - name: Run Functional Tests
         run: |
@@ -154,7 +154,7 @@ jobs:
           MULTISITE: ${{ inputs.multisite && 'true' || '' }}
           TEST_THEME: ${{ inputs.theme }}
         run: |
-          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && '--coverage --coverage-xml' || '' }}'
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}'
 
       - name: Upload test failure artifacts
         if: failure()
@@ -165,13 +165,15 @@ jobs:
           if-no-files-found: ignore
 
       - name: Fix coverage paths
-        if: ${{ inputs.coverage }}
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
         run: |
           # Map Docker container paths to repo-relative paths for Codecov
           sed -i "s|/var/www/html/wp-content/plugins/${{ inputs.plugin_name }}/|${{ inputs.plugin_path }}/|g" ${{ inputs.plugin_path }}/tests/_output/coverage.xml
 
       - name: Verify coverage file exists
-        if: ${{ inputs.coverage }}
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
         run: |
           if [ ! -f "${{ inputs.plugin_path }}/tests/_output/coverage.xml" ]; then
             echo "❌ Coverage file not found!"
@@ -181,7 +183,8 @@ jobs:
           echo "File size: $(wc -c < "${{ inputs.plugin_path }}/tests/_output/coverage.xml") bytes"
 
       - name: Upload coverage to Codecov
-        if: ${{ inputs.coverage }}
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
         uses: codecov/codecov-action@v5
         with:
           files: ${{ inputs.plugin_path }}/tests/_output/coverage.xml
@@ -192,7 +195,8 @@ jobs:
           verbose: true
 
       - name: Upload HTML coverage report as artifact
-        if: ${{ inputs.coverage }}
+        # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
+        if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.plugin_name }}-code-coverage-${{ inputs.php }}-${{ inputs.wp }}-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
