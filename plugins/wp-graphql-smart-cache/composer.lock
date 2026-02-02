@@ -117,16 +117,16 @@
         },
         {
             "name": "axepress/wp-graphql-stubs",
-            "version": "v2.3.3",
+            "version": "v2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AxeWP/wp-graphql-stubs.git",
-                "reference": "6ca5c5ee37012743e09e2f9e7c3c272c5e273bb8"
+                "reference": "6f796f9dd0d058a68c5fab15774f37aad0e8ea97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/6ca5c5ee37012743e09e2f9e7c3c272c5e273bb8",
-                "reference": "6ca5c5ee37012743e09e2f9e7c3c272c5e273bb8",
+                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/6f796f9dd0d058a68c5fab15774f37aad0e8ea97",
+                "reference": "6f796f9dd0d058a68c5fab15774f37aad0e8ea97",
                 "shasum": ""
             },
             "require": {
@@ -138,6 +138,7 @@
                 "phpstan/phpstan": "^2.1.5"
             },
             "suggest": {
+                "axepress/wp-graphql-cs": "Coding standards for WPGraphQL projects",
                 "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
             },
             "type": "library",
@@ -157,7 +158,7 @@
             ],
             "support": {
                 "issues": "https://github.com/AxeWP/wp-graphql-stubs/issues",
-                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.3.3"
+                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.6.0"
             },
             "funding": [
                 {
@@ -165,7 +166,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-18T02:06:46+00:00"
+            "time": "2026-01-20T23:19:07+00:00"
         },
         {
             "name": "behat/gherkin",
