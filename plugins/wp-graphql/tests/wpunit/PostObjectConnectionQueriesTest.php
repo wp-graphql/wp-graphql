@@ -1878,7 +1878,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		);
 
 		add_action(
-			'graphql_map_input_fields_to_wp_query',
+			'graphql_map_input_fields_to_wp_query_args',
 			static function ( $query_args, $input_args ) {
 				if ( isset( $input_args['postsWithoutTags'] ) ) {
 					$query_args['tax_query'] = [
