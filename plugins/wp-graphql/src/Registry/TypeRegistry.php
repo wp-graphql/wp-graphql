@@ -1297,17 +1297,17 @@ class TypeRegistry {
 					if ( ( is_callable( $existing_field_type ) || is_string( $existing_field_type ) ) && ( is_string( $new_field_type ) || ( is_array( $new_field_type ) && ! empty( $new_field_type ) ) ) ) {
 						// Get the new type name (unmodified) first, before any type resolution
 						$unmodified_new_type_name = is_string( $new_field_type ) ? $new_field_type : $this->get_unmodified_type_name( $new_field_type );
-						$type_key = $this->format_key( $unmodified_new_type_name ?? '' );
-						$current_type_key = $this->format_key( $type_name );
+						$type_key                 = $this->format_key( ! empty( $unmodified_new_type_name ) ? $unmodified_new_type_name : '' );
+						$current_type_key         = $this->format_key( $type_name );
 
 						// Only check compatibility if:
 						// 1. We're not already checking compatibility (prevents nested checks)
 						// 2. The type is already loaded (not currently being loaded, which would cause recursion)
 						// 3. We're not checking compatibility for the same type we're currently processing (prevents recursion)
 						// If the type is in type_loaders but not in types, it's currently being loaded
-						$type_is_loaded = isset( $this->types[ $type_key ] );
-						$type_is_loading = isset( $this->type_loaders[ $type_key ] ) && ! $type_is_loaded;
-						$is_same_type = $type_key === $current_type_key;
+						$type_is_loaded         = isset( $this->types[ $type_key ] );
+						$type_is_loading        = isset( $this->type_loaders[ $type_key ] ) && ! $type_is_loaded;
+						$is_same_type           = $type_key === $current_type_key;
 						$current_type_is_loaded = isset( $this->types[ $current_type_key ] );
 
 						// Check if new type is registered (in loaders or types)
@@ -1315,7 +1315,7 @@ class TypeRegistry {
 
 						// Track if we found an interface but couldn't verify compatibility
 						$found_interface_but_couldnt_verify = false;
-						$interface_name = null;
+						$interface_name                     = null;
 
 						// Check compatibility when:
 						// 1. Not already checking compatibility (prevents nested checks)
@@ -1358,24 +1358,22 @@ class TypeRegistry {
 												}
 											}
 										}
-									} else {
+									} elseif ( $type_is_loaded ) {
 										// For different type scenario, check if new type implements the interface
 										// If type is loaded, check directly
-										if ( $type_is_loaded ) {
-											$new_type_obj = $this->types[ $type_key ];
-											if ( $new_type_obj instanceof \GraphQL\Type\Definition\ObjectType ) {
-												$new_type_interfaces = $new_type_obj->getInterfaces();
-												foreach ( $new_type_interfaces as $iface ) {
-													if ( $iface->name === $interface_name ) {
-														$is_compatible_override = true;
-														break;
-													}
+										$new_type_obj = $this->types[ $type_key ];
+										if ( $new_type_obj instanceof \GraphQL\Type\Definition\ObjectType ) {
+											$new_type_interfaces = $new_type_obj->getInterfaces();
+											foreach ( $new_type_interfaces as $iface ) {
+												if ( $iface->name === $interface_name ) {
+													$is_compatible_override = true;
+													break;
 												}
 											}
-										} elseif ( $new_type_is_registered ) {
-											// Type is registered but not loaded yet - can't verify, but mark that we found an interface
-											$found_interface_but_couldnt_verify = true;
 										}
+									} elseif ( $new_type_is_registered ) {
+										// Type is registered but not loaded yet - can't verify, but mark that we found an interface
+										$found_interface_but_couldnt_verify = true;
 									}
 								}
 							} catch ( \Throwable $e ) {
