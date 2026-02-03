@@ -1,0 +1,31 @@
+# This file is for unifying the coding style for different editors and IDEs
+# editorconfig.org
+
+# WordPress Coding Standards
+# https://developer.wordpress.org/coding-standards/wordpress-coding-standards/
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.json]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+[*.txt]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+insert_final_newline = false
+quote_type = single
+indent_style = space
+indent_size = 2

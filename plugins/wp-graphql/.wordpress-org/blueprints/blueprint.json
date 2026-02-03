@@ -1,19 +1,17 @@
 {
-  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-  "meta": {
-    "title": "Use WPGraphQL to query WordPress",
-    "description": "Example that loads WordPress with WPGraphQL active and defaults to the WPGraphQL IDE page to allow users to test GraphQL queries and explore the GraphQL Schema.",
-    "author": "jasonbahl",
-    "categories": ["API", "wpgraphql"]
-  },
-  "landingPage": "/wp-admin/admin.php?page=graphiql-ide&query=I4VwpgTgngBA4mALgBQPYGdHpgbwFAwwAOGWuBhMAdqgCZjb6WUCWtFziLiANmB5VoBDRP2YBfCpPFA",
-  "plugins": [
-    "wp-graphql"
-  ],
-  "steps": [
-    {
-      "step": "login",
-      "username": "admin"
-    }
-  ]
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Use WPGraphQL to query WordPress",
+		"description": "Example that loads WordPress with WPGraphQL active and defaults to the WPGraphQL IDE page to allow users to test GraphQL queries and explore the GraphQL Schema.",
+		"author": "jasonbahl",
+		"categories": ["API", "wpgraphql"]
+	},
+	"landingPage": "/wp-admin/admin.php?page=graphiql-ide&query=I4VwpgTgngBA4mALgBQPYGdHpgbwFAwwAOGWuBhMAdqgCZjb6WUCWtFziLiANmB5VoBDRP2YBfCpPFA",
+	"plugins": ["wp-graphql"],
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin"
+		}
+	]
 }

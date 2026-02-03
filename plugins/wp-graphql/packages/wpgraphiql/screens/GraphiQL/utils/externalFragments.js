@@ -7,32 +7,32 @@ const { parse } = window.wpGraphiQL.GraphQL;
  * @returns {[]|*[]}
  */
 export const getExternalFragments = () => {
-  const externalFragments = wpGraphiQLSettings?.externalFragments ?? null;
+	const externalFragments = wpGraphiQLSettings?.externalFragments ?? null;
 
-  if (!externalFragments) {
-    return [];
-  }
+	if (!externalFragments) {
+		return [];
+	}
 
-  const fragmentsAsAst = [];
+	const fragmentsAsAst = [];
 
-  // Map over the fragments
-  externalFragments.map((fragment) => {
-    let parsed;
-    let parsedDefinition;
+	// Map over the fragments
+	externalFragments.map((fragment) => {
+		let parsed;
+		let parsedDefinition;
 
-    try {
-      parsed = parse(fragment);
+		try {
+			parsed = parse(fragment);
 
-      // Get the fragment definition
-      parsedDefinition = parsed?.definitions[0] ?? null;
-    } catch (e) {
-      // the fragment couldn't be parsed into AST
-    }
+			// Get the fragment definition
+			parsedDefinition = parsed?.definitions[0] ?? null;
+		} catch (e) {
+			// the fragment couldn't be parsed into AST
+		}
 
-    if (parsedDefinition) {
-      fragmentsAsAst.push(parsedDefinition);
-    }
-  });
+		if (parsedDefinition) {
+			fragmentsAsAst.push(parsedDefinition);
+		}
+	});
 
-  return fragmentsAsAst;
+	return fragmentsAsAst;
 };

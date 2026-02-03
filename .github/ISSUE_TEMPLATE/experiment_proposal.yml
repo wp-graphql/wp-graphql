@@ -58,12 +58,12 @@ body:
         - Include schema changes or code examples if helpful
       placeholder: >-
         Add an EmailAddress scalar type that validates email format using WordPress's is_email() function.
-        
+
         Schema Changes:
         ```graphql
         scalar EmailAddress @specifiedBy(url: "...")
         ```
-        
+
         Usage:
         ```php
         register_graphql_field('MyType', 'email', [
@@ -113,7 +113,7 @@ body:
         - Requires server-specific tooling enhancements
         - Learning curve for developers across multiple APIs
         - Code generators may need server-specific configuration
-        
+
         We need to validate that the benefits outweigh these tradeoffs.
   - type: textarea
     attributes:
@@ -176,7 +176,7 @@ body:
             'resolve' => fn() => 'test@example.com',
         ]);
         ```
-        
+
         Test queries:
         - Query testEmail → should return valid email
         - Mutation with invalid email → should return validation error
@@ -213,10 +213,10 @@ body:
         - Scalar implementation
         - Tests (59 tests, 194 assertions)
         - Documentation
-        
+
         ⏳ In Progress:
         - Community feedback gathering
-        
+
         Branch: `experiment/email-scalar`
         Test Coverage: 100% for scalar validation logic
   - type: checkboxes

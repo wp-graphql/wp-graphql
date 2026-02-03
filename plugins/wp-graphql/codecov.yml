@@ -2,68 +2,67 @@
 # https://docs.codecov.com/docs/codecov-yaml
 
 codecov:
-  notify:
-    require_ci_to_pass: yes
+    notify:
+        require_ci_to_pass: yes
 
 # Fix path prefixes from Docker container paths to repo-relative paths
 fixes:
-  - "/var/www/html/wp-content/plugins/wp-graphql/::"
+    - '/var/www/html/wp-content/plugins/wp-graphql/::'
 
 # Ignore test files and tools from coverage calculations
 ignore:
-  - '**/tests'
-  - '**/test'
-  - '**/*.test.*'
-  - '**/*Test.php'
-  - 'tools/**'
-  - 'bin/**'
+    - '**/tests'
+    - '**/test'
+    - '**/*.test.*'
+    - '**/*Test.php'
+    - 'tools/**'
+    - 'bin/**'
 
 coverage:
-  precision: 1
-  round: nearest
-  status:
-    project:
-      default:
-        # Require coverage to maintain or increase compared to base branch
-        # Allows up to 1% drop to account for flaky tests
-        target: auto
-        threshold: 1%
-    patch:
-      default:
-        # Require new code coverage to maintain or increase (auto target)
-        # This is more lenient than 100% but still enforces improvement
-        target: auto
+    precision: 1
+    round: nearest
+    status:
+        project:
+            default:
+                # Require coverage to maintain or increase compared to base branch
+                # Allows up to 1% drop to account for flaky tests
+                target: auto
+                threshold: 1%
+        patch:
+            default:
+                # Require new code coverage to maintain or increase (auto target)
+                # This is more lenient than 100% but still enforces improvement
+                target: auto
 
 comment:
-  # Show coverage diff in PR comments
-  layout: "reach,diff,flags,files"
-  behavior: default
-  require_changes: false
-  require_base: no
-  require_head: yes
+    # Show coverage diff in PR comments
+    layout: 'reach,diff,flags,files'
+    behavior: default
+    require_changes: false
+    require_base: no
+    require_head: yes
 
 # Group coverage by test type and configuration
 flags:
-  wpunit:
-    paths:
-      - src/
-    carryforward: true
-  # Theme flags
-  twentytwentyfive:
-    paths:
-      - src/
-    carryforward: true
-  twentytwentyone:
-    paths:
-      - src/
-    carryforward: true
-  # Multisite flags
-  single:
-    paths:
-      - src/
-    carryforward: true
-  multisite:
-    paths:
-      - src/
-    carryforward: true
-
+    wpunit:
+        paths:
+            - src/
+        carryforward: true
+    # Theme flags
+    twentytwentyfive:
+        paths:
+            - src/
+        carryforward: true
+    twentytwentyone:
+        paths:
+            - src/
+        carryforward: true
+    # Multisite flags
+    single:
+        paths:
+            - src/
+        carryforward: true
+    multisite:
+        paths:
+            - src/
+        carryforward: true

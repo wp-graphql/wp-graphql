@@ -2,7 +2,7 @@ name: Upload Schema Artifact
 
 on:
   release:
-    types: [ published ]
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -38,8 +38,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-            cache: 'npm'
-            node-version-file: '.nvmrc'
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
         run: npm ci
