@@ -208,6 +208,13 @@ class TypeRegistry {
 	protected $excluded_connections = null;
 
 	/**
+	 * Flag to prevent infinite recursion when checking field type compatibility during interface field overrides.
+	 *
+	 * @var bool
+	 */
+	protected $checking_compatibility = false;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
@@ -1288,11 +1295,9 @@ class TypeRegistry {
 					$is_compatible_override = false;
 					if ( is_callable( $existing_field_type ) && ( is_string( $new_field_type ) || ( is_array( $new_field_type ) && ! empty( $new_field_type ) ) ) ) {
 						// Try to safely resolve the existing field type (interface) and new field type (object)
-						// Use a static flag to prevent infinite recursion
-						static $checking_compatibility = false;
-
-						if ( ! $checking_compatibility ) {
-							$checking_compatibility = true;
+						// Use a class property flag to prevent infinite recursion
+						if ( ! $this->checking_compatibility ) {
+							$this->checking_compatibility = true;
 
 							try {
 								// Resolve the existing field type (should be an interface)
@@ -1325,7 +1330,7 @@ class TypeRegistry {
 								// The $is_compatible_override flag remains false, so the duplicate field error will be thrown
 								unset( $e );
 							} finally {
-								$checking_compatibility = false;
+								$this->checking_compatibility = false;
 							}
 						}
 					}
