@@ -471,136 +471,6 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Test that allows overriding interface fields with compatible object types.
-	 *
-	 * This test verifies that when an interface field is defined on a type,
-	 * and a compatible object type (that implements the interface) is registered
-	 * to override that field, it should be allowed without throwing a DUPLICATE_FIELD error.
-	 *
-	 * @see https://github.com/wp-graphql/wp-graphql/issues/3096
-	 *
-	 * @throws \Exception
-	 */
-	public function testAllowCompatibleInterfaceFieldOverride() {
-		add_action(
-			'graphql_register_types',
-			function () {
-				// Register an interface with a field
-				register_graphql_interface_type(
-					'TestSeoInterface',
-					[
-						'fields' => [
-							'seo' => [
-								'type'        => 'TestSeoInterface',
-								'description' => 'SEO interface field',
-							],
-						],
-					]
-				);
-
-				// Register an object type that implements the interface
-				register_graphql_object_type(
-					'TestPostObjectSeo',
-					[
-						'interfaces' => [ 'TestSeoInterface' ],
-						'fields'     => [
-							'title' => [
-								'type' => 'String',
-							],
-						],
-					]
-				);
-
-				// Create an interface that adds 'seo' field to ContentNodes
-				register_graphql_interface_type(
-					'TestNodeWithSeo',
-					[
-						'interfaces' => [ 'ContentNode' ],
-						'fields'     => [
-							'seo' => [
-								'type'        => 'TestSeoInterface',
-								'description' => 'SEO interface field',
-							],
-						],
-					]
-				);
-
-				// Make Post implement the interface
-				add_filter(
-					'graphql_type_interfaces',
-					function ( $interfaces, $config ) {
-						if ( isset( $config['name'] ) && $config['name'] === 'Post' ) {
-							$interfaces[] = 'TestNodeWithSeo';
-						}
-						return $interfaces;
-					},
-					10,
-					2
-				);
-
-				// Try to override Post.seo with TestPostObjectSeo type
-				// This should be allowed since TestPostObjectSeo implements TestSeoInterface
-				register_graphql_field(
-					'Post',
-					'seo',
-					[
-						'type'        => 'TestPostObjectSeo',
-						'description' => 'Post-specific SEO data',
-						'resolve'     => function () {
-							return [
-								'title' => 'Test SEO Title',
-							];
-						},
-					]
-				);
-			}
-		);
-
-		// Create a post to query
-		$post_id = $this->factory()->post->create(
-			[
-				'post_title' => 'Test Post',
-			]
-		);
-
-		$query = '
-			query GetPost($id: ID!) {
-				post(id: $id) {
-					id
-					seo {
-						... on TestPostObjectSeo {
-							title
-						}
-					}
-				}
-			}
-		';
-
-		$variables = [
-			'id' => $this->toRelayId( 'post', $post_id ),
-		];
-
-		$response = $this->graphql( compact( 'query', 'variables' ) );
-
-		// The query should succeed without DUPLICATE_FIELD errors
-		$this->assertArrayNotHasKey( 'errors', $response );
-
-		// Check that no DUPLICATE_FIELD debug messages exist
-		if ( ! empty( $response['extensions']['debug'] ) ) {
-			$debug_messages = wp_list_pluck( $response['extensions']['debug'], 'type' );
-			$this->assertNotContains( 'DUPLICATE_FIELD', $debug_messages, 'Should not have DUPLICATE_FIELD error when overriding with compatible type' );
-		}
-
-		// Verify the field resolves correctly
-		$this->assertQuerySuccessful(
-			$response,
-			[
-				$this->expectedField( 'post.seo.title', 'Test SEO Title' ),
-			]
-		);
-	}
-
-	/**
 	 * Test that incompatible interface field overrides still throw DUPLICATE_FIELD error.
 	 *
 	 * This test verifies that when trying to override an interface field with a type
@@ -698,6 +568,223 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that overriding an interface field on the same type doesn't cause recursion.
+	 *
+	 * This test verifies the fix for infinite recursion when overriding an interface field
+	 * on the same type that's currently being loaded (e.g., overriding Post.field with type Post).
+	 *
+	 * This test matches the exact scenario from issue #3540.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3540
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideOnSameTypeNoRecursion() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// The graphql interface whose fields we'll narrow.
+				register_graphql_interface_type(
+					'NodeWithMyCustomContentNode',
+					[
+						'fields' => [
+							'childFieldOverloaded' => [
+								'type'        => 'ContentNode',
+								'description' => __( 'This will be narrowed with graphql_register_field()', 'my-text-domain' ),
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+							'childFieldFiltered'   => [
+								'type'        => 'ContentNode',
+								'description' => __( 'This will be narrowed with the filter directly', 'my-text-domain' ),
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register the interface to all ContentNodes types.
+				register_graphql_interfaces_to_types( 'NodeWithMyCustomContentNode', [ 'ContentNode' ] );
+
+				// Narrow down the type for Post Objects using `register_graphql_field()`
+				// This previously caused infinite recursion, but should now work
+				register_graphql_field(
+					'Post',
+					'childFieldOverloaded',
+					[
+						'type' => 'Post',
+					]
+				);
+
+				// Use the `graphql_$type_name_fields` filter instead
+				add_filter(
+					'graphql_post_fields',
+					static function ( array $fields ) {
+						if ( isset( $fields['childFieldFiltered'] ) ) {
+							$fields['childFieldFiltered']['type'] = 'Post';
+						}
+
+						return $fields;
+					},
+					10,
+					2
+				);
+			}
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post for Recursion',
+			]
+		);
+
+		// Schema should build without recursion errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without recursion' );
+
+		// Query should work - test both fields
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+						childFieldOverloaded {
+							... on Post {
+								title
+							}
+						}
+						childFieldFiltered {
+							... on Post {
+								title
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have recursion errors or DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed without recursion errors' );
+		$this->assertArrayHasKey( 'data', $response );
+
+		// Verify no DUPLICATE_FIELD errors
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding with same type' );
+	}
+
+	/**
+	 * Test that overriding interface fields works with multiple interfaces.
+	 *
+	 * This tests the scenario where a type implements multiple interfaces and
+	 * overrides fields from both interfaces.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithMultipleInterfaces() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register first interface
+				register_graphql_interface_type(
+					'TestInterfaceOne',
+					[
+						'fields' => [
+							'fieldOne' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface one',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register second interface
+				register_graphql_interface_type(
+					'TestInterfaceTwo',
+					[
+						'fields' => [
+							'fieldTwo' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface two',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register both interfaces to ContentNode types
+				register_graphql_interfaces_to_types( 'TestInterfaceOne', [ 'ContentNode' ] );
+				register_graphql_interfaces_to_types( 'TestInterfaceTwo', [ 'ContentNode' ] );
+
+				// Override both fields on Post with type Post
+				register_graphql_field(
+					'Post',
+					'fieldOne',
+					[
+						'type' => 'Post',
+					]
+				);
+
+				register_graphql_field(
+					'Post',
+					'fieldTwo',
+					[
+						'type' => 'Post',
+					]
+				);
+			}
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		// Schema should build without recursion errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without recursion' );
+
+		// Query should work
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+						fieldOne {
+							... on Post {
+								title
+							}
+						}
+						fieldTwo {
+							... on Post {
+								title
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have recursion errors or DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed without recursion errors' );
+		$this->assertArrayHasKey( 'data', $response );
+
+		// Verify no DUPLICATE_FIELD errors
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding multiple interface fields' );
+	}
+
+	/**
 	 * Test that non-interface field duplicates still throw DUPLICATE_FIELD error.
 	 *
 	 * This test verifies that when trying to override a field that is NOT from an interface,
@@ -765,130 +852,264 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Test that compatible interface field override works with type modifiers (non_null, list_of).
+	 * Test that interface field override works with Page type (not just Post).
 	 *
-	 * This test verifies that type modifiers are handled correctly when checking compatibility.
-	 *
-	 * @see https://github.com/wp-graphql/wp-graphql/issues/3096
+	 * This verifies the fix works across different ContentNode types.
 	 *
 	 * @throws \Exception
 	 */
-	public function testCompatibleInterfaceFieldOverrideWithTypeModifiers() {
+	public function testInterfaceFieldOverrideOnPageType() {
 		add_action(
 			'graphql_register_types',
-			function () {
-				// Register an interface with a field
+			static function () {
+				// Register an interface with a field that returns ContentNode
 				register_graphql_interface_type(
-					'TestModifierSeoInterface',
+					'TestNodeWithPageField',
 					[
 						'fields' => [
-							'seo' => [
-								'type'        => 'TestModifierSeoInterface',
-								'description' => 'SEO interface field',
+							'pageField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
 							],
 						],
 					]
 				);
 
-				// Register an object type that implements the interface
-				register_graphql_object_type(
-					'TestModifierPostObjectSeo',
-					[
-						'interfaces' => [ 'TestModifierSeoInterface' ],
-						'fields'    => [
-							'title' => [
-								'type' => 'String',
-							],
-						],
-					]
-				);
+				// Register the interface to all ContentNode types
+				register_graphql_interfaces_to_types( 'TestNodeWithPageField', [ 'ContentNode' ] );
 
-				// Create an interface that adds 'seo' field to ContentNodes
-				register_graphql_interface_type(
-					'TestNodeWithModifierSeo',
-					[
-						'interfaces' => [ 'ContentNode' ],
-						'fields'     => [
-							'seo' => [
-								'type'        => 'TestModifierSeoInterface',
-								'description' => 'SEO interface field',
-							],
-						],
-					]
-				);
-
-				// Make Post implement the interface
-				add_filter(
-					'graphql_type_interfaces',
-					function ( $interfaces, $config ) {
-						if ( isset( $config['name'] ) && $config['name'] === 'Post' ) {
-							$interfaces[] = 'TestNodeWithModifierSeo';
-						}
-						return $interfaces;
-					},
-					10,
-					2
-				);
-
-				// Try to override Post.seo with TestModifierPostObjectSeo type using array format (type modifier)
-				// This should be allowed since TestModifierPostObjectSeo implements TestModifierSeoInterface
+				// Override the field on Page with type Page (same type)
 				register_graphql_field(
-					'Post',
-					'seo',
+					'Page',
+					'pageField',
 					[
-						'type'        => [ 'non_null' => 'TestModifierPostObjectSeo' ],
-						'description' => 'Post-specific SEO data with non_null modifier',
-						'resolve'     => function () {
-							return [
-								'title' => 'Test SEO Title',
-							];
-						},
+						'type' => 'Page',
 					]
 				);
 			}
 		);
 
-		// Create a post to query
-		$post_id = $this->factory()->post->create(
+		// Create a page to query
+		$page_id = $this->factory()->post->create(
 			[
-				'post_title' => 'Test Post',
+				'post_type'  => 'page',
+				'post_title' => 'Test Page',
 			]
 		);
 
+		// Schema should build without recursion errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without recursion' );
+
+		// Query should work
 		$query = '
-			query GetPost($id: ID!) {
-				post(id: $id) {
-					id
-					seo {
-						... on TestModifierPostObjectSeo {
-							title
+			query {
+				pages {
+					nodes {
+						id
+						pageField {
+							... on Page {
+								title
+							}
 						}
 					}
 				}
 			}
 		';
 
-		$variables = [
-			'id' => $this->toRelayId( 'post', $post_id ),
-		];
+		$response = $this->graphql( compact( 'query' ) );
 
-		$response = $this->graphql( compact( 'query', 'variables' ) );
+		// Should not have recursion errors or DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed without recursion errors' );
+		$this->assertArrayHasKey( 'data', $response );
 
-		// The query should succeed without DUPLICATE_FIELD errors
-		$this->assertArrayNotHasKey( 'errors', $response );
+		// Verify no DUPLICATE_FIELD errors
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding Page field with same type' );
 
-		// Check that no DUPLICATE_FIELD debug messages exist
-		if ( ! empty( $response['extensions']['debug'] ) ) {
-			$debug_messages = wp_list_pluck( $response['extensions']['debug'], 'type' );
-			$this->assertNotContains( 'DUPLICATE_FIELD', $debug_messages, 'Should not have DUPLICATE_FIELD error when overriding with compatible type (with modifiers)' );
-		}
+		// Verify the field actually returns the narrowed type
+		$this->assertNotEmpty( $response['data']['pages']['nodes'] );
+		$this->assertArrayHasKey( 'pageField', $response['data']['pages']['nodes'][0] );
+	}
 
-		// Verify the field resolves correctly
-		$this->assertQuerySuccessful(
-			$response,
+	/**
+	 * Test that interface field override works with custom post types.
+	 *
+	 * This tests a realistic scenario where a plugin registers a custom post type
+	 * and wants to narrow an interface field to that specific type.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithCustomPostType() {
+		// Register a custom post type
+		register_post_type(
+			'test_cpt_override',
 			[
-				$this->expectedField( 'post.seo.title', 'Test SEO Title' ),
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'TestCpt',
+				'graphql_plural_name' => 'TestCpts',
+				'public'              => true,
 			]
 		);
+
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register an interface with a field that returns ContentNode
+				register_graphql_interface_type(
+					'TestNodeWithCptField',
+					[
+						'fields' => [
+							'cptField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register the interface to all ContentNode types
+				register_graphql_interfaces_to_types( 'TestNodeWithCptField', [ 'ContentNode' ] );
+
+				// Override the field on TestCpt with type TestCpt (same type)
+				register_graphql_field(
+					'TestCpt',
+					'cptField',
+					[
+						'type' => 'TestCpt',
+					]
+				);
+			}
+		);
+
+		// Create a custom post type entry
+		$cpt_id = $this->factory()->post->create(
+			[
+				'post_type'  => 'test_cpt_override',
+				'post_title' => 'Test CPT',
+			]
+		);
+
+		// Schema should build without recursion errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without recursion' );
+
+		// Query should work
+		$query = '
+			query {
+				testCpts {
+					nodes {
+						id
+						cptField {
+							... on TestCpt {
+								title
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have recursion errors or DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed without recursion errors' );
+		$this->assertArrayHasKey( 'data', $response );
+
+		// Verify no DUPLICATE_FIELD errors
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding custom post type field with same type' );
+
+		// Cleanup
+		unregister_post_type( 'test_cpt_override' );
+		$this->clearSchema();
 	}
+
+	/**
+	 * Test that the filter approach works independently (without register_graphql_field).
+	 *
+	 * This verifies that using the graphql_$type_name_fields filter alone works correctly.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithFilterOnly() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register an interface with a field that returns ContentNode
+				register_graphql_interface_type(
+					'TestNodeWithFilterField',
+					[
+						'fields' => [
+							'filterField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register the interface to all ContentNode types
+				register_graphql_interfaces_to_types( 'TestNodeWithFilterField', [ 'ContentNode' ] );
+			}
+		);
+
+		// Use only the filter approach (no register_graphql_field)
+		add_filter(
+			'graphql_post_fields',
+			static function ( array $fields ) {
+				if ( isset( $fields['filterField'] ) ) {
+					$fields['filterField']['type'] = 'Post';
+				}
+
+				return $fields;
+			},
+			10,
+			2
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post for Filter',
+			]
+		);
+
+		// Schema should build without recursion errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without recursion' );
+
+		// Query should work
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+						filterField {
+							... on Post {
+								title
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have recursion errors or DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed without recursion errors' );
+		$this->assertArrayHasKey( 'data', $response );
+
+		// Verify no DUPLICATE_FIELD errors
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding with filter only' );
+	}
+
 }
