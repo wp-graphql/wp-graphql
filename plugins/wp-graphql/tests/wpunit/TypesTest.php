@@ -469,4 +469,426 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// $this->assertTrue( isset( $actual['extensions']['debug'] ) );
 		// $this->assertNotEmpty( $actual['extensions']['debug'] );
 	}
+
+	/**
+	 * Test that allows overriding interface fields with compatible object types.
+	 *
+	 * This test verifies that when an interface field is defined on a type,
+	 * and a compatible object type (that implements the interface) is registered
+	 * to override that field, it should be allowed without throwing a DUPLICATE_FIELD error.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3096
+	 *
+	 * @throws \Exception
+	 */
+	public function testAllowCompatibleInterfaceFieldOverride() {
+		add_action(
+			'graphql_register_types',
+			function () {
+				// Register an interface with a field
+				register_graphql_interface_type(
+					'TestSeoInterface',
+					[
+						'fields' => [
+							'seo' => [
+								'type'        => 'TestSeoInterface',
+								'description' => 'SEO interface field',
+							],
+						],
+					]
+				);
+
+				// Register an object type that implements the interface
+				register_graphql_object_type(
+					'TestPostObjectSeo',
+					[
+						'interfaces' => [ 'TestSeoInterface' ],
+						'fields'     => [
+							'title' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Create an interface that adds 'seo' field to ContentNodes
+				register_graphql_interface_type(
+					'TestNodeWithSeo',
+					[
+						'interfaces' => [ 'ContentNode' ],
+						'fields'     => [
+							'seo' => [
+								'type'        => 'TestSeoInterface',
+								'description' => 'SEO interface field',
+							],
+						],
+					]
+				);
+
+				// Make Post implement the interface
+				add_filter(
+					'graphql_type_interfaces',
+					function ( $interfaces, $config ) {
+						if ( isset( $config['name'] ) && $config['name'] === 'Post' ) {
+							$interfaces[] = 'TestNodeWithSeo';
+						}
+						return $interfaces;
+					},
+					10,
+					2
+				);
+
+				// Try to override Post.seo with TestPostObjectSeo type
+				// This should be allowed since TestPostObjectSeo implements TestSeoInterface
+				register_graphql_field(
+					'Post',
+					'seo',
+					[
+						'type'        => 'TestPostObjectSeo',
+						'description' => 'Post-specific SEO data',
+						'resolve'     => function () {
+							return [
+								'title' => 'Test SEO Title',
+							];
+						},
+					]
+				);
+			}
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		$query = '
+			query GetPost($id: ID!) {
+				post(id: $id) {
+					id
+					seo {
+						... on TestPostObjectSeo {
+							title
+						}
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $this->toRelayId( 'post', $post_id ),
+		];
+
+		$response = $this->graphql( compact( 'query', 'variables' ) );
+
+		// The query should succeed without DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response );
+
+		// Check that no DUPLICATE_FIELD debug messages exist
+		if ( ! empty( $response['extensions']['debug'] ) ) {
+			$debug_messages = wp_list_pluck( $response['extensions']['debug'], 'type' );
+			$this->assertNotContains( 'DUPLICATE_FIELD', $debug_messages, 'Should not have DUPLICATE_FIELD error when overriding with compatible type' );
+		}
+
+		// Verify the field resolves correctly
+		$this->assertQuerySuccessful(
+			$response,
+			[
+				$this->expectedField( 'post.seo.title', 'Test SEO Title' ),
+			]
+		);
+	}
+
+	/**
+	 * Test that incompatible interface field overrides still throw DUPLICATE_FIELD error.
+	 *
+	 * This test verifies that when trying to override an interface field with a type
+	 * that does NOT implement the interface, it should still throw a DUPLICATE_FIELD error.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3096
+	 *
+	 * @throws \Exception
+	 */
+	public function testIncompatibleInterfaceFieldOverrideStillErrors() {
+		add_action(
+			'graphql_register_types',
+			function () {
+				// Register an interface with a field
+				register_graphql_interface_type(
+					'TestAnotherSeoInterface',
+					[
+						'fields' => [
+							'seo' => [
+								'type'        => 'TestAnotherSeoInterface',
+								'description' => 'SEO interface field',
+							],
+						],
+					]
+				);
+
+				// Register an object type that does NOT implement the interface
+				register_graphql_object_type(
+					'TestIncompatibleSeo',
+					[
+						'fields' => [
+							'title' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Create an interface that adds 'seo' field to ContentNodes
+				register_graphql_interface_type(
+					'TestNodeWithAnotherSeo',
+					[
+						'interfaces' => [ 'ContentNode' ],
+						'fields'     => [
+							'seo' => [
+								'type'        => 'TestAnotherSeoInterface',
+								'description' => 'SEO interface field',
+							],
+						],
+					]
+				);
+
+				// Make Post implement the interface
+				add_filter(
+					'graphql_type_interfaces',
+					function ( $interfaces, $config ) {
+						if ( isset( $config['name'] ) && $config['name'] === 'Post' ) {
+							$interfaces[] = 'TestNodeWithAnotherSeo';
+						}
+						return $interfaces;
+					},
+					10,
+					2
+				);
+
+				// Try to override Post.seo with TestIncompatibleSeo type
+				// This should FAIL since TestIncompatibleSeo does NOT implement TestAnotherSeoInterface
+				register_graphql_field(
+					'Post',
+					'seo',
+					[
+						'type'        => 'TestIncompatibleSeo',
+						'description' => 'Incompatible SEO data',
+					]
+				);
+			}
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should have DUPLICATE_FIELD error since the override is incompatible
+		$this->assertNotEmpty( $response['extensions']['debug'] ?? [] );
+		$debug_types = wp_list_pluck( $response['extensions']['debug'], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should have DUPLICATE_FIELD error when overriding with incompatible type' );
+	}
+
+	/**
+	 * Test that non-interface field duplicates still throw DUPLICATE_FIELD error.
+	 *
+	 * This test verifies that when trying to override a field that is NOT from an interface,
+	 * it should still throw a DUPLICATE_FIELD error (existing behavior should be preserved).
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3096
+	 *
+	 * @throws \Exception
+	 */
+	public function testNonInterfaceFieldDuplicateStillErrors() {
+		add_action(
+			'graphql_register_types',
+			function () {
+				// Register a type with a direct field (not from interface)
+				register_graphql_object_type(
+					'TestTypeWithDirectField',
+					[
+						'fields' => [
+							'customField' => [
+								'type'        => 'String',
+								'description' => 'Direct field on type',
+							],
+						],
+					]
+				);
+
+				// Try to register the same field again - should error
+				register_graphql_field(
+					'TestTypeWithDirectField',
+					'customField',
+					[
+						'type'        => 'String',
+						'description' => 'Duplicate field',
+					]
+				);
+			}
+		);
+
+		// Register the type on RootQuery so we can query it and trigger schema building
+		register_graphql_field(
+			'RootQuery',
+			'testTypeWithDirectField',
+			[
+				'type'    => 'TestTypeWithDirectField',
+				'resolve' => function () {
+					return [ 'customField' => 'test' ];
+				},
+			]
+		);
+
+		$query = '
+			query {
+				testTypeWithDirectField {
+					customField
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should have DUPLICATE_FIELD error since it's not an interface override scenario
+		$this->assertNotEmpty( $response['extensions']['debug'] ?? [] );
+		$debug_types = wp_list_pluck( $response['extensions']['debug'], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should have DUPLICATE_FIELD error for non-interface field duplicates' );
+	}
+
+	/**
+	 * Test that compatible interface field override works with type modifiers (non_null, list_of).
+	 *
+	 * This test verifies that type modifiers are handled correctly when checking compatibility.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3096
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleInterfaceFieldOverrideWithTypeModifiers() {
+		add_action(
+			'graphql_register_types',
+			function () {
+				// Register an interface with a field
+				register_graphql_interface_type(
+					'TestModifierSeoInterface',
+					[
+						'fields' => [
+							'seo' => [
+								'type'        => 'TestModifierSeoInterface',
+								'description' => 'SEO interface field',
+							],
+						],
+					]
+				);
+
+				// Register an object type that implements the interface
+				register_graphql_object_type(
+					'TestModifierPostObjectSeo',
+					[
+						'interfaces' => [ 'TestModifierSeoInterface' ],
+						'fields'    => [
+							'title' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Create an interface that adds 'seo' field to ContentNodes
+				register_graphql_interface_type(
+					'TestNodeWithModifierSeo',
+					[
+						'interfaces' => [ 'ContentNode' ],
+						'fields'     => [
+							'seo' => [
+								'type'        => 'TestModifierSeoInterface',
+								'description' => 'SEO interface field',
+							],
+						],
+					]
+				);
+
+				// Make Post implement the interface
+				add_filter(
+					'graphql_type_interfaces',
+					function ( $interfaces, $config ) {
+						if ( isset( $config['name'] ) && $config['name'] === 'Post' ) {
+							$interfaces[] = 'TestNodeWithModifierSeo';
+						}
+						return $interfaces;
+					},
+					10,
+					2
+				);
+
+				// Try to override Post.seo with TestModifierPostObjectSeo type using array format (type modifier)
+				// This should be allowed since TestModifierPostObjectSeo implements TestModifierSeoInterface
+				register_graphql_field(
+					'Post',
+					'seo',
+					[
+						'type'        => [ 'non_null' => 'TestModifierPostObjectSeo' ],
+						'description' => 'Post-specific SEO data with non_null modifier',
+						'resolve'     => function () {
+							return [
+								'title' => 'Test SEO Title',
+							];
+						},
+					]
+				);
+			}
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		$query = '
+			query GetPost($id: ID!) {
+				post(id: $id) {
+					id
+					seo {
+						... on TestModifierPostObjectSeo {
+							title
+						}
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $this->toRelayId( 'post', $post_id ),
+		];
+
+		$response = $this->graphql( compact( 'query', 'variables' ) );
+
+		// The query should succeed without DUPLICATE_FIELD errors
+		$this->assertArrayNotHasKey( 'errors', $response );
+
+		// Check that no DUPLICATE_FIELD debug messages exist
+		if ( ! empty( $response['extensions']['debug'] ) ) {
+			$debug_messages = wp_list_pluck( $response['extensions']['debug'], 'type' );
+			$this->assertNotContains( 'DUPLICATE_FIELD', $debug_messages, 'Should not have DUPLICATE_FIELD error when overriding with compatible type (with modifiers)' );
+		}
+
+		// Verify the field resolves correctly
+		$this->assertQuerySuccessful(
+			$response,
+			[
+				$this->expectedField( 'post.seo.title', 'Test SEO Title' ),
+			]
+		);
+	}
 }
