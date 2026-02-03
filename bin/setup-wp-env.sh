@@ -22,8 +22,8 @@ setup_wp() {
 	# Install test themes (using WP-CLI to get correct slugs, not .latest-stable suffix)
 	if [ "$ENV_NAME" = "tests-cli" ]; then
 		echo "Installing test themes..."
-		npm run wp-env run tests-cli -- wp theme install twentytwentyone --force 2>/dev/null || echo "twentytwentyone already installed"
-		npm run wp-env run tests-cli -- wp theme install twentytwentyfive --force 2>/dev/null || echo "twentytwentyfive already installed"
+		npm run wp-env run $ENV_NAME -- wp theme install twentytwentyone --force 2>/dev/null || echo "twentytwentyone already installed"
+		npm run wp-env run $ENV_NAME -- wp theme install twentytwentyfive --force 2>/dev/null || echo "twentytwentyfive already installed"
 	fi
 
 	# Activate wp-graphql-smart-cache in tests-cli environment (where all tests run)
