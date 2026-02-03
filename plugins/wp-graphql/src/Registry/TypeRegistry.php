@@ -1262,6 +1262,8 @@ class TypeRegistry {
 
 				// if a field has already been registered with the same name output a debug message
 				if ( isset( $fields[ $field_name ] ) ) {
+					$existing_field_type = $fields[ $field_name ]['type'] ?? null;
+					$new_field_type      = $config['type'] ?? null;
 
 					// if the existing field is a connection type
 					// and the new field is also a connection type
@@ -1279,6 +1281,62 @@ class TypeRegistry {
 						$fields[ $field_name ]['toType'] === $config['toType'] &&
 						$fields[ $field_name ]['connectionTypeName'] === $config['connectionTypeName']
 					) {
+						return $fields;
+					}
+
+					// Check if this is an interface field override scenario and if the new type is compatible
+					$is_compatible_override = false;
+					if ( is_callable( $existing_field_type ) && ( is_string( $new_field_type ) || ( is_array( $new_field_type ) && ! empty( $new_field_type ) ) ) ) {
+						// Try to safely resolve the existing field type (interface) and new field type (object)
+						// Use a static flag to prevent infinite recursion
+						static $checking_compatibility = false;
+
+						if ( ! $checking_compatibility ) {
+							$checking_compatibility = true;
+
+							try {
+								// Resolve the existing field type (should be an interface)
+								$resolved_existing_type = $existing_field_type();
+
+								// Get the new type name (unmodified)
+								$unmodified_new_type_name = is_string( $new_field_type ) ? $new_field_type : $this->get_unmodified_type_name( $new_field_type );
+
+								// If the existing type is an interface and we have a new type name
+								if ( $resolved_existing_type instanceof \GraphQL\Type\Definition\InterfaceType && ! empty( $unmodified_new_type_name ) ) {
+									$interface_name = $resolved_existing_type->name;
+
+									// Try to get the new type from registry
+									$new_type_obj = $this->get_type( $unmodified_new_type_name );
+
+									// Check if the new type implements the interface
+									if ( $new_type_obj instanceof \GraphQL\Type\Definition\ObjectType ) {
+										$new_type_interfaces = $new_type_obj->getInterfaces();
+										foreach ( $new_type_interfaces as $iface ) {
+											if ( $iface->name === $interface_name ) {
+												$is_compatible_override = true;
+												break;
+											}
+										}
+									}
+								}
+							} catch ( \Throwable $e ) {
+								// If resolution fails, fall back to error (don't allow override)
+								// Silently catch to prevent errors during type resolution
+								// The $is_compatible_override flag remains false, so the duplicate field error will be thrown
+								unset( $e );
+							} finally {
+								$checking_compatibility = false;
+							}
+						}
+					}
+
+					// If the override is compatible, allow it by returning early
+					if ( $is_compatible_override ) {
+						// Prepare and add the new field, overriding the interface field
+						$field = $this->prepare_field( $field_name, $config, $type_name );
+						if ( ! empty( $field ) ) {
+							$fields[ $field_name ] = $field;
+						}
 						return $fields;
 					}
 
