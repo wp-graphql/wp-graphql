@@ -391,22 +391,52 @@ your-plugin-name:
 
 ### 7. Test Setup
 
+**⚠️ Important:** The CI workflow expects all plugins to have test suite configurations and npm scripts, even if you don't have tests yet. Codeception will run successfully with no tests (reporting "No tests executed"), but it will fail if the suite files or scripts are missing.
+
 **Codeception Configuration:**
 
 1. Create `codeception.dist.yml` in your plugin directory (see `plugins/wp-graphql/codeception.dist.yml` as a reference)
-2. Create test suite files (`wpunit.suite.yml`, `acceptance.suite.yml`, `functional.suite.yml`)
-3. Use the shared bootstrap file:
+
+2. **Create all three test suite files** (even if you don't have tests yet):
+   - `tests/wpunit.suite.yml` - For unit/integration tests
+   - `tests/acceptance.suite.yml` - For acceptance tests (see `plugins/wp-graphql-smart-cache/tests/acceptance.suite.yml` as reference)
+   - `tests/functional.suite.yml` - For functional tests (see `plugins/wp-graphql-smart-cache/tests/functional.suite.yml` as reference)
+
+3. **Create bootstrap files** for acceptance and functional tests:
 
 ```php
-// In tests/acceptance/bootstrap.php or tests/functional/bootstrap.php
+// In tests/acceptance/bootstrap.php
 <?php
+/**
+ * Bootstrap file for acceptance tests.
+ *
+ * @package YourPlugin\Tests\Acceptance
+ */
+
 // Load common bootstrap from wp-graphql plugin (shared across monorepo)
+// Path: plugins/your-plugin-name/tests/acceptance -> plugins/wp-graphql/tests
+require_once dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/wp-graphql/tests/bootstrap-common.php';
+```
+
+```php
+// In tests/functional/bootstrap.php
+<?php
+/**
+ * Bootstrap file for functional tests.
+ *
+ * @package YourPlugin\Tests\Functional
+ */
+
+// Load common bootstrap from wp-graphql plugin (shared across monorepo)
+// Path: plugins/your-plugin-name/tests/functional -> plugins/wp-graphql/tests
 require_once dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/wp-graphql/tests/bootstrap-common.php';
 ```
 
 **Test Scripts in `package.json`:**
 
-Add test scripts that export required environment variables:
+**⚠️ Required:** You must add all three test scripts to your `package.json`, even if you don't have tests yet. The CI workflow calls these scripts and will fail if they're missing.
+
+Add these test scripts that export required environment variables:
 
 ```json
 {
@@ -415,6 +445,14 @@ Add test scripts that export required environment variables:
   }
 }
 ```
+
+**Note:** The example above shows only `test:codecept:wpunit`. You must also add `test:codecept:acceptance` and `test:codecept:functional` scripts. See the reference examples below for complete implementations.
+
+**Reference Examples:**
+
+- See `plugins/wp-graphql-smart-cache/package.json` for complete script examples
+- See `plugins/wp-graphql-ide/tests/` for suite file examples
+- See `plugins/wp-graphql-smart-cache/tests/` for bootstrap file examples
 
 ### 8. UpdatesTest Filtering (if needed)
 

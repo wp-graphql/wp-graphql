@@ -15,11 +15,11 @@ class AdminSettingsQueriesCest
 		$I->loginAsAdmin();
 
 		$I->amOnPage('/wp-admin/admin.php?page=graphql-settings#graphql_persisted_queries_section');
-		$I->selectOption("form input[type=radio]", 'only_allowed');
+		$I->selectOption("input[name='graphql_persisted_queries_section[grant_mode]']", 'only_allowed');
 
 		// Save and see the selection after form submit
 		$I->click('Save Changes');
-		$I->seeOptionIsSelected('form input[type=radio]', 'only_allowed');
+		$I->seeOptionIsSelected("input[name='graphql_persisted_queries_section[grant_mode]']", 'only_allowed');
 	}
 
 	public function testChangeAllowTriggersPurge( FunctionalTester $I ) {
@@ -39,7 +39,7 @@ class AdminSettingsQueriesCest
 		// change the allow/deny setting in admin
 		$I->loginAsAdmin();
 		$I->amOnPage('/wp-admin/admin.php?page=graphql-settings#graphql_persisted_queries_section');
-		$I->selectOption("form input[type=radio]", 'only_allowed');
+		$I->selectOption("input[name='graphql_persisted_queries_section[grant_mode]']", 'only_allowed');
 		$I->click('Save Changes');
 
 		// verify the transient is gone
