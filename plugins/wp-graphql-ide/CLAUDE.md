@@ -39,9 +39,8 @@ composer phpstan           # Run PHP static analysis (level 8 - strict)
 
 ### Version Management
 ```bash
-npm run changeset          # Create a changeset for version updates
-npm run version            # Update versions based on changesets
-npm run release            # Publish release
+# Version management is handled automatically by release-please in the monorepo
+# See docs/CONTRIBUTING.md for release process details
 ```
 
 ## Architecture Overview
@@ -88,11 +87,12 @@ WPGraphQL IDE is a WordPress plugin that provides a modern GraphQL query editor.
 
 ### Development Environment
 
-- **WordPress Environment** (.wp-env.json)
+- **WordPress Environment** (monorepo .wp-env.json)
   - Port: 8888
-  - Includes WPGraphQL plugin from WordPress.org
+  - Includes WPGraphQL core plugin and IDE plugin from monorepo
   - WP_DEBUG enabled
   - Docker required
+  - Run from monorepo root: `npm run wp-env start`
 
 - **Requirements**
   - PHP 7.4+ (composer.json requires 8.0+)

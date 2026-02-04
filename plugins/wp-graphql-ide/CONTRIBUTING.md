@@ -2,13 +2,17 @@
 
 ## Local Development
 
+This plugin is part of the WPGraphQL monorepo. See the main [CONTRIBUTING.md](../../docs/CONTRIBUTING.md) for full details.
+
+### Quick Start
+
 ```bash
-# Setup
+# From monorepo root
 npm install
 npm run wp-env start
 
-# Development
-npm start
+# Development (from plugin directory or monorepo root)
+npm start -w @wpgraphql/wp-graphql-ide
 
 # Access
 # http://localhost:8888/wp-admin (admin/password)
