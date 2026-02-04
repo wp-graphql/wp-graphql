@@ -221,8 +221,8 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		);
 
-		// Invoke the shema and type registry actions.
-		$schema = \WPGraphQL::get_schema();
+		// Invoke the schema and type registry actions.
+		\WPGraphQL::get_schema();
 	}
 
 	/**
@@ -483,7 +483,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testIncompatibleInterfaceFieldOverrideStillErrors() {
 		add_action(
 			'graphql_register_types',
-			function () {
+			static function () {
 				// Register an interface with a field
 				register_graphql_interface_type(
 					'TestAnotherSeoInterface',
@@ -526,8 +526,8 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				// Make Post implement the interface
 				add_filter(
 					'graphql_type_interfaces',
-					function ( $interfaces, $config ) {
-						if ( isset( $config['name'] ) && $config['name'] === 'Post' ) {
+					static function ( $interfaces, $config ) {
+						if ( isset( $config['name'] ) && 'Post' === $config['name'] ) {
 							$interfaces[] = 'TestNodeWithAnotherSeo';
 						}
 						return $interfaces;
@@ -590,13 +590,13 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'fields' => [
 							'childFieldOverloaded' => [
 								'type'        => 'ContentNode',
-								'description' => __( 'This will be narrowed with graphql_register_field()', 'my-text-domain' ),
+								'description' => __( 'This will be narrowed with graphql_register_field()', 'wp-graphql' ),
 								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
 								'resolve'     => static fn ( $source ) => $source,
 							],
 							'childFieldFiltered'   => [
 								'type'        => 'ContentNode',
-								'description' => __( 'This will be narrowed with the filter directly', 'my-text-domain' ),
+								'description' => __( 'This will be narrowed with the filter directly', 'wp-graphql' ),
 								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
 								'resolve'     => static fn ( $source ) => $source,
 							],
@@ -634,7 +634,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a post to query
-		$post_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_title' => 'Test Post for Recursion',
 			]
@@ -742,7 +742,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a post to query
-		$post_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_title' => 'Test Post',
 			]
@@ -797,7 +797,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testNonInterfaceFieldDuplicateStillErrors() {
 		add_action(
 			'graphql_register_types',
-			function () {
+			static function () {
 				// Register a type with a direct field (not from interface)
 				register_graphql_object_type(
 					'TestTypeWithDirectField',
@@ -829,7 +829,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'testTypeWithDirectField',
 			[
 				'type'    => 'TestTypeWithDirectField',
-				'resolve' => function () {
+				'resolve' => static function () {
 					return [ 'customField' => 'test' ];
 				},
 			]
@@ -892,7 +892,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a page to query
-		$page_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_type'  => 'page',
 				'post_title' => 'Test Page',
@@ -987,7 +987,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a custom post type entry
-		$cpt_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_type'  => 'test_cpt_override',
 				'post_title' => 'Test CPT',
@@ -1075,7 +1075,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a post to query
-		$post_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_title' => 'Test Post for Filter',
 			]
@@ -1143,7 +1143,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'toType'             => 'TestConnectionType',
 						'fromFieldName'      => 'testConnection',
 						'connectionTypeName' => 'TestConnection',
-						'resolve'             => static function () {
+						'resolve'            => static function () {
 							return null;
 						},
 					]
@@ -1157,7 +1157,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'toType'             => 'TestConnectionType',
 						'fromFieldName'      => 'testConnection',
 						'connectionTypeName' => 'TestConnection',
-						'resolve'             => static function () {
+						'resolve'            => static function () {
 							return null;
 						},
 					]
@@ -1452,15 +1452,14 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a post to query
-		$post_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_title' => 'Test Post',
 			]
 		);
 
 		// Schema should build without errors
-		$schema = \WPGraphQL::get_schema();
-		$this->assertNotNull( $schema, 'Schema should build without errors' );
+		\WPGraphQL::get_schema();
 
 		$query = '
 			query {
@@ -1656,15 +1655,14 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Create a post to query
-		$post_id = $this->factory()->post->create(
+		$this->factory()->post->create(
 			[
 				'post_title' => 'Test Post',
 			]
 		);
 
 		// Schema should build without errors
-		$schema = \WPGraphQL::get_schema();
-		$this->assertNotNull( $schema, 'Schema should build without errors' );
+		\WPGraphQL::get_schema();
 
 		$query = '
 			query {
@@ -1693,11 +1691,11 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testConnectionFieldWithAllowFieldUnderscores() {
 		register_graphql_connection(
 			[
-				'fromType'           => 'RootQuery',
-				'toType'             => 'Post',
-				'fromFieldName'      => 'connection_with_underscores',
+				'fromType'              => 'RootQuery',
+				'toType'                => 'Post',
+				'fromFieldName'         => 'connection_with_underscores',
 				'allowFieldUnderscores' => true,
-				'resolve'            => static function () {
+				'resolve'               => static function () {
 					return null;
 				},
 			]
@@ -1719,5 +1717,4 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertArrayHasKey( 'connection_with_underscores', $response['data'] );
 	}
-
 }

@@ -249,6 +249,7 @@ trait WPInterfaceTrait {
 						// Use merge_field_args which handles type compatibility checking
 						// Pass new_args as field args and existing_args as interface args
 						// This will merge new args into existing, keeping all unique args
+						// @phpstan-ignore-next-line - Args are already in correct format from interface field configs
 						$new_field['args'] = $this->merge_field_args( $interface_field_name, $new_args, $existing_args );
 					}
 
@@ -300,6 +301,7 @@ trait WPInterfaceTrait {
 
 			// If the args on both the field and the interface are set, we need to merge them.
 			if ( 'args' === $key ) {
+				// @phpstan-ignore-next-line - Args are already in correct format from field and interface configs
 				$field[ $key ] = $this->merge_field_args( $field_name, $field[ $key ], $interface_field[ $key ] );
 			}
 		}

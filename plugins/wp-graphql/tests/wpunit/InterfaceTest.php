@@ -15,8 +15,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	// Validate schema.
 	public function testSchemaIsValid() {
 		try {
-			$request = new \WPGraphQL\Request();
-			$schema  = WPGraphQL::get_schema();
+			$schema = WPGraphQL::get_schema();
 			$schema->assertValid();
 
 			// Assert true upon success.
@@ -866,27 +865,27 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'fields' => [
 					'fieldWithComplexTypes' => [
-						'type' => [
+						'type'    => [
 							'non_null' => [
 								'list_of' => [
-									'non_null' => 'String'
-								]
-							]
+									'non_null' => 'String',
+								],
+							],
 						],
-						'args' => [
+						'args'    => [
 							'complexArg' => [
 								'type' => [
 									'list_of' => [
-										'non_null' => 'String'
-									]
-								]
-							]
+										'non_null' => 'String',
+									],
+								],
+							],
 						],
-						'resolve' => static function() {
-							return ['test1', 'test2'];
-						}
-					]
-				]
+						'resolve' => static function () {
+							return [ 'test1', 'test2' ];
+						},
+					],
+				],
 			]
 		);
 
@@ -894,29 +893,29 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'ObjectWithComplexTypes',
 			[
 				'interfaces' => [ 'InterfaceWithComplexTypes' ],
-				'fields' => [
+				'fields'     => [
 					'fieldWithComplexTypes' => [
-						'type' => [
+						'type'    => [
 							'non_null' => [
 								'list_of' => [
-									'non_null' => 'String'
-								]
-							]
+									'non_null' => 'String',
+								],
+							],
 						],
-						'args' => [
+						'args'    => [
 							'complexArg' => [
 								'type' => [
 									'list_of' => [
-										'non_null' => 'String'
-									]
-								]
-							]
+										'non_null' => 'String',
+									],
+								],
+							],
 						],
-						'resolve' => static function() {
-							return ['test1', 'test2'];
-						}
-					]
-				]
+						'resolve' => static function () {
+							return [ 'test1', 'test2' ];
+						},
+					],
+				],
 			]
 		);
 
@@ -924,10 +923,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testComplexTypes',
 			[
-				'type' => 'ObjectWithComplexTypes',
-				'resolve' => static function() {
+				'type'    => 'ObjectWithComplexTypes',
+				'resolve' => static function () {
 					return true;
-				}
+				},
 			]
 		);
 
@@ -937,11 +936,15 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful($actual, [
-			$this->expectedField('testComplexTypes.fieldWithComplexTypes', ['test1', 'test2'])
-		], 'The query should be valid with complex type arguments');
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testComplexTypes.fieldWithComplexTypes', [ 'test1', 'test2' ] ),
+			],
+			'The query should be valid with complex type arguments'
+		);
 	}
 
 	public function testInterfaceFieldInheritanceWithMissingFields() {
@@ -950,10 +953,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'fields' => [
 					'parentField' => [
-						'type' => 'String',
-						'description' => 'Parent field'
-					]
-				]
+						'type'        => 'String',
+						'description' => 'Parent field',
+					],
+				],
 			]
 		);
 
@@ -961,12 +964,12 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'ChildInterface',
 			[
 				'interfaces' => [ 'ParentInterface' ],
-				'fields' => [
+				'fields'     => [
 					'childField' => [
-						'type' => 'String',
-						'description' => 'Child field'
-					]
-				]
+						'type'        => 'String',
+						'description' => 'Child field',
+					],
+				],
 			]
 		);
 
@@ -974,12 +977,12 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'TestObject',
 			[
 				'interfaces' => [ 'ChildInterface' ],
-				'fields' => [
+				'fields'     => [
 					'objectField' => [
-						'type' => 'String',
-						'description' => 'Object field'
-					]
-				]
+						'type'        => 'String',
+						'description' => 'Object field',
+					],
+				],
 			]
 		);
 
@@ -987,14 +990,14 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testInheritance',
 			[
-				'type' => 'TestObject',
-				'resolve' => static function() {
+				'type'    => 'TestObject',
+				'resolve' => static function () {
 					return [
 						'parentField' => 'parent value',
-						'childField' => 'child value',
-						'objectField' => 'object value'
+						'childField'  => 'child value',
+						'objectField' => 'object value',
 					];
-				}
+				},
 			]
 		);
 
@@ -1006,14 +1009,18 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
-		$this->assertEmpty($actual['extensions']['debug'], 'The interface should be implemented with no debug messages.');
-		$this->assertQuerySuccessful($actual, [
-			$this->expectedField('testInheritance.parentField', 'parent value'),
-			$this->expectedField('testInheritance.childField', 'child value'),
-			$this->expectedField('testInheritance.objectField', 'object value')
-		], 'The query should be valid and return all fields from the inheritance chain');
+		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testInheritance.parentField', 'parent value' ),
+				$this->expectedField( 'testInheritance.childField', 'child value' ),
+				$this->expectedField( 'testInheritance.objectField', 'object value' ),
+			],
+			'The query should be valid and return all fields from the inheritance chain'
+		);
 	}
 
 	public function testInterfaceFieldArgumentValidation() {
@@ -1022,20 +1029,20 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'fields' => [
 					'fieldWithStrictArgs' => [
-						'type' => 'String',
-						'args' => [
+						'type'    => 'String',
+						'args'    => [
 							'requiredArg' => [
-								'type' => [ 'non_null' => 'String' ]
+								'type' => [ 'non_null' => 'String' ],
 							],
 							'optionalArg' => [
-								'type' => 'String'
-							]
+								'type' => 'String',
+							],
 						],
-						'resolve' => static function($_, $args) {
+						'resolve' => static function ( $_, $args ) {
 							return $args['requiredArg'] ?? null;
-						}
-					]
-				]
+						},
+					],
+				],
 			]
 		);
 
@@ -1043,22 +1050,22 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'ObjectWithStrictArgs',
 			[
 				'interfaces' => [ 'InterfaceWithStrictArgs' ],
-				'fields' => [
+				'fields'     => [
 					'fieldWithStrictArgs' => [
-						'type' => 'String',
-						'args' => [
+						'type'    => 'String',
+						'args'    => [
 							'requiredArg' => [
-								'type' => [ 'non_null' => 'String' ]
+								'type' => [ 'non_null' => 'String' ],
 							],
 							'optionalArg' => [
-								'type' => 'String'
-							]
+								'type' => 'String',
+							],
 						],
-						'resolve' => static function($_, $args) {
+						'resolve' => static function ( $_, $args ) {
 							return $args['requiredArg'] ?? null;
-						}
-					]
-				]
+						},
+					],
+				],
 			]
 		);
 
@@ -1066,10 +1073,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testStrictArgs',
 			[
-				'type' => 'ObjectWithStrictArgs',
-				'resolve' => static function() {
+				'type'    => 'ObjectWithStrictArgs',
+				'resolve' => static function () {
 					return true;
-				}
+				},
 			]
 		);
 
@@ -1080,12 +1087,12 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// Check for errors in the response
-		$this->assertArrayHasKey('errors', $actual, 'The query should have errors for missing required argument');
-		$this->assertNotEmpty($actual['errors'], 'The query should have errors for missing required argument');
-		$this->assertStringContainsString('requiredArg', $actual['errors'][0]['message']);
+		$this->assertArrayHasKey( 'errors', $actual, 'The query should have errors for missing required argument' );
+		$this->assertNotEmpty( $actual['errors'], 'The query should have errors for missing required argument' );
+		$this->assertStringContainsString( 'requiredArg', $actual['errors'][0]['message'] );
 
 		// Test with required argument
 		$query = 'query {
@@ -1094,11 +1101,15 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful($actual, [
-			$this->expectedField('testStrictArgs.fieldWithStrictArgs', 'test')
-		], 'The query should be valid with required argument');
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testStrictArgs.fieldWithStrictArgs', 'test' ),
+			],
+			'The query should be valid with required argument'
+		);
 	}
 
 	public function testInterfaceFieldInheritanceWithConflictingTypes() {
@@ -1110,11 +1121,11 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'type' => 'String',
 						'args' => [
 							'testArg' => [
-								'type' => 'String'
-							]
-						]
-					]
-				]
+								'type' => 'String',
+							],
+						],
+					],
+				],
 			]
 		);
 
@@ -1122,16 +1133,16 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'TestObject',
 			[
 				'interfaces' => [ 'ParentInterface' ],
-				'fields' => [
+				'fields'     => [
 					'conflictingField' => [
 						'type' => 'Int', // This should conflict with the interface's String type
 						'args' => [
 							'testArg' => [
-								'type' => 'Int' // This should conflict with the interface's String type
-							]
-						]
-					]
-				]
+								'type' => 'Int', // This should conflict with the interface's String type
+							],
+						],
+					],
+				],
 			]
 		);
 
@@ -1139,10 +1150,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testConflictingTypes',
 			[
-				'type' => 'TestObject',
-				'resolve' => static function() {
+				'type'    => 'TestObject',
+				'resolve' => static function () {
 					return true;
-				}
+				},
 			]
 		);
 
@@ -1152,12 +1163,12 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// Before PR #3383, this would pass without debug messages
 		// With PR #3383, this should have debug messages about type conflicts
-		$this->assertNotEmpty($actual['extensions']['debug'], 'The interface should have debug messages about type conflicts');
-		$this->assertStringContainsString('expected to be of type "String"', $actual['extensions']['debug'][0]['message']);
+		$this->assertNotEmpty( $actual['extensions']['debug'], 'The interface should have debug messages about type conflicts' );
+		$this->assertStringContainsString( 'expected to be of type "String"', $actual['extensions']['debug'][0]['message'] );
 	}
 
 	public function testInterfaceFieldInheritanceWithMissingRequiredArgs() {
@@ -1166,17 +1177,17 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'fields' => [
 					'fieldWithRequiredArgs' => [
-						'type' => 'String',
-						'args' => [
+						'type'    => 'String',
+						'args'    => [
 							'requiredArg' => [
-								'type' => [ 'non_null' => 'String' ]
-							]
+								'type' => [ 'non_null' => 'String' ],
+							],
 						],
-						'resolve' => static function($_, $args) {
+						'resolve' => static function ( $_, $args ) {
 							return $args['requiredArg'] ?? null;
-						}
-					]
-				]
+						},
+					],
+				],
 			]
 		);
 
@@ -1184,14 +1195,14 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'ObjectWithMissingArgs',
 			[
 				'interfaces' => [ 'InterfaceWithRequiredArgs' ],
-				'fields' => [
+				'fields'     => [
 					'fieldWithRequiredArgs' => [
-						'type' => 'String',
-						'resolve' => static function($_, $args) {
+						'type'    => 'String',
+						'resolve' => static function ( $_, $args ) {
 							return $args['requiredArg'] ?? null;
-						}
-					]
-				]
+						},
+					],
+				],
 			]
 		);
 
@@ -1199,10 +1210,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testMissingArgs',
 			[
-				'type' => 'ObjectWithMissingArgs',
-				'resolve' => static function() {
+				'type'    => 'ObjectWithMissingArgs',
+				'resolve' => static function () {
 					return true;
-				}
+				},
 			]
 		);
 
@@ -1213,12 +1224,12 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// The query should fail because the required argument is missing
-		$this->assertArrayHasKey('errors', $actual, 'The query should have errors for missing required argument');
-		$this->assertNotEmpty($actual['errors'], 'The query should have errors for missing required argument');
-		$this->assertStringContainsString('requiredArg', $actual['errors'][0]['message']);
+		$this->assertArrayHasKey( 'errors', $actual, 'The query should have errors for missing required argument' );
+		$this->assertNotEmpty( $actual['errors'], 'The query should have errors for missing required argument' );
+		$this->assertStringContainsString( 'requiredArg', $actual['errors'][0]['message'] );
 
 		// Test with the required argument
 		$query = 'query {
@@ -1227,12 +1238,16 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// The query should succeed when the required argument is provided
-		$this->assertQuerySuccessful($actual, [
-			$this->expectedField('testMissingArgs.fieldWithRequiredArgs', 'test')
-		], 'The query should be valid with required argument');
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testMissingArgs.fieldWithRequiredArgs', 'test' ),
+			],
+			'The query should be valid with required argument'
+		);
 	}
 
 	public function testInterfaceFieldInheritanceWithNestedTypes() {
@@ -1244,21 +1259,21 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'type' => [
 							'non_null' => [
 								'list_of' => [
-									'non_null' => 'String'
-								]
-							]
+									'non_null' => 'String',
+								],
+							],
 						],
 						'args' => [
 							'nestedArg' => [
 								'type' => [
 									'list_of' => [
-										'non_null' => 'String'
-									]
-								]
-							]
-						]
-					]
-				]
+										'non_null' => 'String',
+									],
+								],
+							],
+						],
+					],
+				],
 			]
 		);
 
@@ -1266,18 +1281,18 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'ObjectWithNestedTypes',
 			[
 				'interfaces' => [ 'InterfaceWithNestedTypes' ],
-				'fields' => [
+				'fields'     => [
 					'fieldWithNestedTypes' => [
 						'type' => [
-							'list_of' => 'String' // This should conflict with the interface's non-null list of non-null String
+							'list_of' => 'String', // This should conflict with the interface's non-null list of non-null String
 						],
 						'args' => [
 							'nestedArg' => [
-								'type' => 'String' // This should conflict with the interface's list of non-null String
-							]
-						]
-					]
-				]
+								'type' => 'String', // This should conflict with the interface's list of non-null String
+							],
+						],
+					],
+				],
 			]
 		);
 
@@ -1285,10 +1300,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testNestedTypes',
 			[
-				'type' => 'ObjectWithNestedTypes',
-				'resolve' => static function() {
+				'type'    => 'ObjectWithNestedTypes',
+				'resolve' => static function () {
 					return true;
-				}
+				},
 			]
 		);
 
@@ -1298,17 +1313,21 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// Before PR #3383, this would pass without debug messages
 		// With PR #3383, this should have debug messages about type conflicts
-		$this->assertNotEmpty($actual['extensions']['debug'], 'The interface should have debug messages about nested type conflicts');
-		$this->assertStringContainsString('expected to be of type', $actual['extensions']['debug'][0]['message']);
+		$this->assertNotEmpty( $actual['extensions']['debug'], 'The interface should have debug messages about nested type conflicts' );
+		$this->assertStringContainsString( 'expected to be of type', $actual['extensions']['debug'][0]['message'] );
 	}
 
 	/**
-	 * mark as skipped
-
+	 * Test that interface field arguments are properly merged across inheritance chains.
+	 *
+	 * This test verifies that when interfaces implement other interfaces, and object types
+	 * implement those interfaces, all arguments from the inheritance chain are properly merged.
+	 *
+	 * @throws \Exception
 	 */
 	public function testInterfaceFieldInheritanceAndMerging() {
 		// TODO: determine if this test is valid.
@@ -1323,20 +1342,20 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'fields' => [
 					'inheritedField' => [
-						'type' => 'String',
+						'type'        => 'String',
 						'description' => 'Parent field description',
-						'args' => [
+						'args'        => [
 							'parentArg' => [
-								'type' => 'String',
-								'description' => 'Parent arg description',
-								'defaultValue' => 'parent default'
-							]
+								'type'         => 'String',
+								'description'  => 'Parent arg description',
+								'defaultValue' => 'parent default',
+							],
 						],
-						'resolve' => static function($_, $args) {
+						'resolve'     => static function ( $_, $args ) {
 							return $args['parentArg'] ?? 'parent default';
-						}
-					]
-				]
+						},
+					],
+				],
 			]
 		);
 
@@ -1345,19 +1364,19 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'ChildInterface',
 			[
 				'interfaces' => [ 'ParentInterface' ],
-				'fields' => [
+				'fields'     => [
 					'inheritedField' => [
-						'type' => 'String',
+						'type'        => 'String',
 						'description' => 'Child field description',
-						'args' => [
+						'args'        => [
 							'childArg' => [
-								'type' => 'String',
-								'description' => 'Child arg description',
-								'defaultValue' => 'child default'
-							]
-						]
-					]
-				]
+								'type'         => 'String',
+								'description'  => 'Child arg description',
+								'defaultValue' => 'child default',
+							],
+						],
+					],
+				],
 			]
 		);
 
@@ -1366,33 +1385,33 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'TestObject',
 			[
 				'interfaces' => [ 'ChildInterface' ],
-				'fields' => [
+				'fields'     => [
 					'inheritedField' => [
-						'type' => 'String',
+						'type'        => 'String',
 						'description' => 'Object field description',
-						'args' => [
+						'args'        => [
 							'objectArg' => [
-								'type' => 'String',
-								'description' => 'Object arg description',
-								'defaultValue' => 'object default'
-							]
+								'type'         => 'String',
+								'description'  => 'Object arg description',
+								'defaultValue' => 'object default',
+							],
 						],
-						'resolve' => static function($_, $args) {
+						'resolve'     => static function ( $_, $args ) {
 							// Return a string that includes all provided arguments
 							$result = [];
-							if (isset($args['parentArg'])) {
+							if ( isset( $args['parentArg'] ) ) {
 								$result[] = 'parent: ' . $args['parentArg'];
 							}
-							if (isset($args['childArg'])) {
+							if ( isset( $args['childArg'] ) ) {
 								$result[] = 'child: ' . $args['childArg'];
 							}
-							if (isset($args['objectArg'])) {
+							if ( isset( $args['objectArg'] ) ) {
 								$result[] = 'object: ' . $args['objectArg'];
 							}
-							return implode(', ', $result);
-						}
-					]
-				]
+							return implode( ', ', $result );
+						},
+					],
+				],
 			]
 		);
 
@@ -1400,10 +1419,10 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			'testInheritance',
 			[
-				'type' => 'TestObject',
-				'resolve' => static function() {
+				'type'    => 'TestObject',
+				'resolve' => static function () {
 					return true;
-				}
+				},
 			]
 		);
 
@@ -1422,37 +1441,40 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// Debug the response
-		codecept_debug('Type query response:');
-		codecept_debug($actual);
+		codecept_debug( 'Type query response:' );
+		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful($actual, [], 'The type query should be successful');
+		$this->assertQuerySuccessful( $actual, [], 'The type query should be successful' );
 
 		// Find the inheritedField in the response
 		$inheritedField = null;
-		foreach ($actual['data']['__type']['fields'] as $field) {
-			if ($field['name'] === 'inheritedField') {
+		foreach ( $actual['data']['__type']['fields'] as $field ) {
+			if ( 'inheritedField' === $field['name'] ) {
 				$inheritedField = $field;
 				break;
 			}
 		}
 
-		$this->assertNotNull($inheritedField, 'The inheritedField should exist on the type');
+		$this->assertNotNull( $inheritedField, 'The inheritedField should exist on the type' );
 
 		// Debug the field we found
-		codecept_debug('Found inheritedField:');
-		codecept_debug($inheritedField);
+		codecept_debug( 'Found inheritedField:' );
+		codecept_debug( $inheritedField );
 
 		// Before this PR, this might not have all arguments
 		// After this PR, it should have all arguments from the inheritance chain
-		$argNames = array_map(function($arg) {
-			return $arg['name'];
-		}, $inheritedField['args']);
+		$argNames = array_map(
+			static function ( $arg ) {
+				return $arg['name'];
+			},
+			$inheritedField['args']
+		);
 
-		codecept_debug('Found argument names:');
-		codecept_debug($argNames);
+		codecept_debug( 'Found argument names:' );
+		codecept_debug( $argNames );
 
 		// Debug the interfaces
 		$query = 'query {
@@ -1463,9 +1485,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
-		codecept_debug('Interfaces query response:');
-		codecept_debug($actual);
+		$actual = $this->graphql( [ 'query' => $query ] );
+		codecept_debug( 'Interfaces query response:' );
+		codecept_debug( $actual );
 
 		// Debug the ChildInterface
 		$query = 'query {
@@ -1482,9 +1504,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
-		codecept_debug('ChildInterface query response:');
-		codecept_debug($actual);
+		$actual = $this->graphql( [ 'query' => $query ] );
+		codecept_debug( 'ChildInterface query response:' );
+		codecept_debug( $actual );
 
 		// Debug the ParentInterface
 		$query = 'query {
@@ -1498,13 +1520,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
-		codecept_debug('ParentInterface query response:');
-		codecept_debug($actual);
+		$actual = $this->graphql( [ 'query' => $query ] );
+		codecept_debug( 'ParentInterface query response:' );
+		codecept_debug( $actual );
 
-		$this->assertContains('parentArg', $argNames, 'The field should have the parent interface argument');
-		$this->assertContains('childArg', $argNames, 'The field should have the child interface argument');
-		$this->assertContains('objectArg', $argNames, 'The field should have the object type argument');
+		$this->assertContains( 'parentArg', $argNames, 'The field should have the parent interface argument' );
+		$this->assertContains( 'childArg', $argNames, 'The field should have the child interface argument' );
+		$this->assertContains( 'objectArg', $argNames, 'The field should have the object type argument' );
 
 		// Test that the field can be queried with all arguments
 		$query = 'query {
@@ -1517,16 +1539,20 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql([ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// Debug the response
-		codecept_debug('Field query response:');
-		codecept_debug($actual);
+		codecept_debug( 'Field query response:' );
+		codecept_debug( $actual );
 
 		// Before this fix, this might fail if arguments aren't properly merged
 		// After this fix, it should succeed
-		$this->assertQuerySuccessful($actual, [
-			$this->expectedField('testInheritance.inheritedField', 'parent: parent value, child: child value, object: object value')
-		], 'The query should be valid with all arguments from the inheritance chain');
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testInheritance.inheritedField', 'parent: parent value, child: child value, object: object value' ),
+			],
+			'The query should be valid with all arguments from the inheritance chain'
+		);
 	}
 }
