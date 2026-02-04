@@ -56,10 +56,10 @@
 			"# Note: WordPress.org requires 'wpgraphql-ide' (no hyphen between wp and graphql)",
 			"# We keep the directory name as 'wp-graphql-ide' to match core 'wp-graphql' convention",
 			"# but the zip must use the WordPress.org-compliant slug for deployment",
-			"mkdir -p ../../plugin-build/wp-graphql-ide",
-			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wp-graphql-ide/ --delete --delete-excluded -v",
-			"cd ../../plugin-build ; zip -r wpgraphql-ide.zip wp-graphql-ide",
-			"rm -rf ../../plugin-build/wp-graphql-ide/"
+			"mkdir -p ../../plugin-build/wpgraphql-ide",
+			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wpgraphql-ide/ --delete --delete-excluded -v",
+			"cd ../../plugin-build ; zip -r wpgraphql-ide.zip wpgraphql-ide",
+			"rm -rf ../../plugin-build/wpgraphql-ide/"
 		]
 	},
 	"config": {

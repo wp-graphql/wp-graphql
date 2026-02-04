@@ -226,6 +226,7 @@ jobs:
       # Note: WordPress.org slug is wpgraphql-ide (no hyphen between wp and graphql)
       # This is because WordPress.org doesn't allow "wp-" prefix for new plugins.
       # The directory name (wp-graphql-ide) and GitHub component name can differ.
+      # The zip contains a directory named wpgraphql-ide, so that's the plugin slug.
       plugin_slug: wpgraphql-ide
       requires_wp_graphql: true
       smoke_test_script: bin/smoke-test.sh
