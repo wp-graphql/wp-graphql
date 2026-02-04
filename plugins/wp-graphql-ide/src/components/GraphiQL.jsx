@@ -107,9 +107,6 @@ export function GraphiQL({
 	);
 }
 
-// Export main windows/panes to be used separately if desired.
-GraphiQL.Logo = GraphiQLLogo;
-
 export function GraphiQLInterface(props) {
 	const isHeadersEditorEnabled = props.isHeadersEditorEnabled ?? true;
 	const editorContext = useEditorContext({ nonNull: true });
@@ -378,6 +375,9 @@ function GraphiQLLogo(props) {
 }
 
 GraphiQLLogo.displayName = 'GraphiQLLogo';
+
+// Export main windows/panes to be used separately if desired.
+GraphiQL.Logo = GraphiQLLogo;
 
 // Determines if the React child is of the same type of the provided React component
 function isChildComponentType(child, component) {

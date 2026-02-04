@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { QueryComposer } from './components/QueryComposer';
-import { edit as editIcon, Icon } from '@wordpress/icons';
+import { pencil as editIcon, Icon } from '@wordpress/icons';
 
 window.addEventListener('WPGraphQLIDE_Window_Ready', function (event) {
 	if (!window.WPGraphQLIDE) {

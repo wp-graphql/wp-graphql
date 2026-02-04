@@ -156,16 +156,26 @@ export async function visitPluginsPage(page) {
 }
 
 export async function openDrawer(page) {
+	// Wait for the IDE scripts to load and the IDE to be ready
+	// The WPGraphQLIDEReady event is dispatched after the IDE is rendered
+	await page.waitForFunction(() => {
+		return window.WPGraphQLIDE !== undefined;
+	}, { timeout: 10000 });
+
+	// Wait for the drawer button to be available
+	await page.waitForSelector('.AppDrawerButton', {
+		state: 'visible',
+		timeout: 10000,
+	});
+
 	const isDrawerVisible = await page
 		.locator('.graphiql-container')
 		.isVisible();
 	if (!isDrawerVisible) {
-		await page.waitForSelector('.AppDrawerButton', {
-			state: 'visible',
-		});
 		await clickDrawerButton(page);
 		await page.waitForSelector('.graphiql-container', {
 			state: 'visible',
+			timeout: 10000,
 		});
 	}
 

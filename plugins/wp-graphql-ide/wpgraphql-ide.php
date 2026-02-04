@@ -503,6 +503,7 @@ function enqueue_react_app_with_styles(): void {
 	);
 
 	wp_enqueue_style( 'wpgraphql-ide-app', plugins_url( 'build/wpgraphql-ide.css', __FILE__ ), [], $asset_file['version'] );
+	// @wordpress/scripts generates CSS files with 'style-' prefix
 	wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/style-wpgraphql-ide-render.css', __FILE__ ), [], $asset_file['version'] );
 
 	// Avoid running custom styles through a build process for an improved developer experience.
