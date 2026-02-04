@@ -1335,6 +1335,10 @@ class TypeRegistry {
 									$interface_name = $resolved_existing_type->name;
 								} elseif ( is_string( $existing_field_type ) ) {
 									// If existing field type is a string, check if it's an interface
+									// This can happen when a field is added directly in a filter with a string type
+									// (e.g., via add_filter('graphql_{$type_name}_fields')) before prepare_fields
+									// converts string types to callables. The duplicate check happens inside the
+									// filter callback, before type_registry->prepare_fields() is called.
 									$existing_type_key = $this->format_key( $existing_field_type );
 									if ( isset( $this->types[ $existing_type_key ] ) ) {
 										$existing_type_obj = $this->types[ $existing_type_key ];
