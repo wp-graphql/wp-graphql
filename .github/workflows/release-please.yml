@@ -187,6 +187,9 @@ jobs:
             wp-graphql-smart-cache)
               WP_ORG_SLUG="wpgraphql-smart-cache"
               ;;
+            wp-graphql-ide)
+              WP_ORG_SLUG="wpgraphql-ide"
+              ;;
             *)
               WP_ORG_SLUG="$COMPONENT"
               ;;
