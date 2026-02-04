@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 5.7
 Tested up to: 6.8
-Stable tag: 4.0.24
+Stable tag: x-release-please-version
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -22,8 +22,8 @@ GraphQL IDE for WPGraphQL.
 
 The non-compressed source code for the JavaScript and CSS files is available in the following directories:
 
-- **Scripts**: [src/ directory](https://github.com/wp-graphql/wpgraphql-ide/tree/main/src)
-- **Styles**: [styles/ directory](https://github.com/wp-graphql/wpgraphql-ide/tree/main/styles)
+- **Scripts**: [src/ directory](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-ide/src)
+- **Styles**: [styles/ directory](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-ide/styles)
 
 You can view or download the source code directly from the GitHub repository.
 
@@ -37,24 +37,12 @@ The WPGraphQL IDE plugin includes several important dependencies. You can learn 
 
 == Screenshots ==
 
+== Upgrade Notice ==
+
+WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
+
 == Changelog ==
 
-= 4.0.24 =
+WPGraphQL IDE publishes [release notes on GitHub](https://github.com/wp-graphql/wp-graphql/releases). Look for releases tagged with `wp-graphql-ide/v*`.
 
-### Patch Changes
-
-- fde59ee: test13
-
-= 4.0.23 =
-
-### Patch Changes
-
-- dc527b3: test12
-
-= 4.0.22 =
-
-### Patch Changes
-
-- 3af6609: test11
-
-[View the full changelog](https://github.com/wp-graphql/wpgraphql-ide/blob/main/CHANGELOG.md)
+[View the full changelog](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-ide/CHANGELOG.md)
