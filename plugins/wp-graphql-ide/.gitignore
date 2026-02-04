@@ -1,0 +1,69 @@
+# Hidden files on Windows machines
+.DS_Store
+
+# Hidden files for users using JetBrains IDEs (PHPStorm, WebStorm, etc)
+.idea
+
+# Hidden files for users using VSCode as their IDE.
+.vscode
+
+# Composer dependencies. These should be installed on the users machine
+vendor
+
+# We _do_ want to version our tests!
+!/tests
+
+# PHPCS cached files.
+/tests/_output/*.json
+
+# Directory used to generate the .zip for deploying to WordPress.org
+plugin-build
+
+# Output of testing code coverage
+coverage/*
+
+# Generated Schema used in some tooling. Versioned Schema is uploaded as a Release artifact to Github.
+schema.graphql
+
+# Used to override phpcs.xml.dist
+phpcs.xml
+
+# Config for phpunit. Used to override phpunit.xml.dist
+phpunit.xml
+
+# Files output by Docker
+docker-output
+
+# JavaScript dependencies. Should be installed locally on the machine, not versioned
+node_modules
+
+# Config for Codeception. Used to override the codeception.dist.yml
+codeception.yml
+
+# Used to send code coverage to Coveralls
+php-coveralls.phar
+
+# Log files
+.log
+
+# File used for Codeception to track test coverage
+c3.php
+
+# Used for setting local environment variables when testing
+.env
+.env.testing
+
+# output from e2e tests
+artifacts
+
+# build/release artifacts
+build/
+wpgraphql-ide/
+wpgraphql-ide.zip
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/@wpgraphql/
+
+**/package-lock.json
