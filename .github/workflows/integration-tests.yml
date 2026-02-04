@@ -86,6 +86,7 @@ jobs:
               - plugins/wp-graphql-ide/package.json
               - plugins/wp-graphql-ide/package-lock.json
               - plugins/wp-graphql-ide/tests/**
+              - plugins/wp-graphql-ide/codeception.dist.yml
               - plugins/wp-graphql/**/*.php
               - package.json
               - package-lock.json

@@ -90,6 +90,7 @@ jobs:
               - plugins/wp-graphql-ide/composer.lock
               - plugins/wp-graphql-ide/phpcs.xml.dist
               - plugins/wp-graphql-ide/phpstan.neon.dist
+              - plugins/wp-graphql-ide/codeception.dist.yml
               # IDE depends on wp-graphql, so wp-graphql changes trigger IDE linting
               - plugins/wp-graphql/**/*.php
             # Add additional plugins here:
