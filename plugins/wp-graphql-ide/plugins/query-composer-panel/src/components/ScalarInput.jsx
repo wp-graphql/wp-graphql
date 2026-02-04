@@ -3,8 +3,8 @@ import { unwrapInputType } from '../utils';
 
 class ScalarInput extends React.PureComponent {
 	_ref;
-	_handleChange = ( event ) => {
-		this.props.setArgValue( event, true );
+	_handleChange = (event) => {
+		this.props.setArgValue(event, true);
 	};
 
 	componentDidMount() {
@@ -13,43 +13,40 @@ class ScalarInput extends React.PureComponent {
 		if (
 			input &&
 			activeElement &&
-			! ( activeElement instanceof HTMLTextAreaElement )
+			!(activeElement instanceof HTMLTextAreaElement)
 		) {
 			input.focus();
-			input.setSelectionRange( 0, input.value.length );
+			input.setSelectionRange(0, input.value.length);
 		}
 	}
 
 	render() {
 		const { arg, argValue, styleConfig } = this.props;
-		const argType = unwrapInputType( arg.type );
+		const argType = unwrapInputType(arg.type);
 		const value = typeof argValue.value === 'string' ? argValue.value : '';
 		const color =
 			this.props.argValue.kind === 'StringValue'
 				? styleConfig.colors.string
 				: styleConfig.colors.number;
 		return (
-			<span style={ { color } }>
-				{ argType.name === 'String' ? '"' : '' }
+			<span style={{ color }}>
+				{argType.name === 'String' ? '"' : ''}
 				<input
-					style={ {
+					style={{
 						border: 'none',
 						borderBottom: '1px solid #888',
 						outline: 'none',
-						width: `${ Math.max(
-							1,
-							Math.min( 15, value.length )
-						) }ch`,
+						width: `${Math.max(1, Math.min(15, value.length))}ch`,
 						color,
-					} }
-					ref={ ( ref ) => {
+					}}
+					ref={(ref) => {
 						this._ref = ref;
-					} }
+					}}
 					type="text"
-					onChange={ this._handleChange }
-					value={ value }
+					onChange={this._handleChange}
+					value={value}
 				/>
-				{ argType.name === 'String' ? '"' : '' }
+				{argType.name === 'String' ? '"' : ''}
 			</span>
 		);
 	}

@@ -33,7 +33,7 @@ import { EditorGroup } from './EditorGroup';
  * @see https://github.com/graphql/graphiql#usage
  */
 
-export function GraphiQL( {
+export function GraphiQL({
 	dangerouslyAssumeSchemaIsValid,
 	defaultQuery,
 	defaultTabs,
@@ -61,9 +61,9 @@ export function GraphiQL( {
 	visiblePlugin,
 	defaultHeaders,
 	...props
-} ) {
+}) {
 	// Ensure props are correct
-	if ( typeof fetcher !== 'function' ) {
+	if (typeof fetcher !== 'function') {
 		throw new TypeError(
 			'The `GraphiQL` component requires a `fetcher` function to be passed as prop.'
 		);
@@ -71,37 +71,37 @@ export function GraphiQL( {
 
 	return (
 		<GraphiQLProvider
-			getDefaultFieldNames={ getDefaultFieldNames }
-			dangerouslyAssumeSchemaIsValid={ dangerouslyAssumeSchemaIsValid }
-			defaultQuery={ defaultQuery }
-			defaultHeaders={ defaultHeaders }
-			defaultTabs={ defaultTabs }
-			externalFragments={ externalFragments }
-			fetcher={ fetcher }
-			headers={ headers }
-			inputValueDeprecation={ inputValueDeprecation }
-			introspectionQueryName={ introspectionQueryName }
-			maxHistoryLength={ maxHistoryLength }
-			onEditOperationName={ onEditOperationName }
-			onSchemaChange={ onSchemaChange }
-			onTabChange={ onTabChange }
-			onTogglePluginVisibility={ onTogglePluginVisibility }
-			plugins={ plugins }
-			visiblePlugin={ visiblePlugin }
-			operationName={ operationName }
-			query={ query }
-			response={ response }
-			schema={ schema }
-			schemaDescription={ schemaDescription }
-			shouldPersistHeaders={ shouldPersistHeaders }
-			storage={ storage }
-			validationRules={ validationRules }
-			variables={ variables }
+			getDefaultFieldNames={getDefaultFieldNames}
+			dangerouslyAssumeSchemaIsValid={dangerouslyAssumeSchemaIsValid}
+			defaultQuery={defaultQuery}
+			defaultHeaders={defaultHeaders}
+			defaultTabs={defaultTabs}
+			externalFragments={externalFragments}
+			fetcher={fetcher}
+			headers={headers}
+			inputValueDeprecation={inputValueDeprecation}
+			introspectionQueryName={introspectionQueryName}
+			maxHistoryLength={maxHistoryLength}
+			onEditOperationName={onEditOperationName}
+			onSchemaChange={onSchemaChange}
+			onTabChange={onTabChange}
+			onTogglePluginVisibility={onTogglePluginVisibility}
+			plugins={plugins}
+			visiblePlugin={visiblePlugin}
+			operationName={operationName}
+			query={query}
+			response={response}
+			schema={schema}
+			schemaDescription={schemaDescription}
+			shouldPersistHeaders={shouldPersistHeaders}
+			storage={storage}
+			validationRules={validationRules}
+			variables={variables}
 		>
 			<GraphiQLInterface
-				showPersistHeadersSettings={ shouldPersistHeaders !== false }
-				disableTabs={ props.disableTabs ?? false }
-				{ ...props }
+				showPersistHeadersSettings={shouldPersistHeaders !== false}
+				disableTabs={props.disableTabs ?? false}
+				{...props}
 			/>
 		</GraphiQLProvider>
 	);
@@ -110,11 +110,11 @@ export function GraphiQL( {
 // Export main windows/panes to be used separately if desired.
 GraphiQL.Logo = GraphiQLLogo;
 
-export function GraphiQLInterface( props ) {
+export function GraphiQLInterface(props) {
 	const isHeadersEditorEnabled = props.isHeadersEditorEnabled ?? true;
-	const editorContext = useEditorContext( { nonNull: true } );
-	const executionContext = useExecutionContext( { nonNull: true } );
-	const schemaContext = useSchemaContext( { nonNull: true } );
+	const editorContext = useEditorContext({ nonNull: true });
+	const executionContext = useExecutionContext({ nonNull: true });
+	const schemaContext = useSchemaContext({ nonNull: true });
 	const storageContext = useStorageContext();
 	const pluginContext = usePluginContext();
 
@@ -122,26 +122,26 @@ export function GraphiQLInterface( props ) {
 
 	const PluginContent = pluginContext?.visiblePlugin?.content;
 
-	const pluginResize = useDragResize( {
+	const pluginResize = useDragResize({
 		defaultSizeRelation: 1 / 3,
 		direction: 'horizontal',
 		initiallyHidden: pluginContext?.visiblePlugin ? undefined : 'first',
-		onHiddenElementChange( resizableElement ) {
-			if ( resizableElement === 'first' ) {
-				pluginContext?.setVisiblePlugin( null );
+		onHiddenElementChange(resizableElement) {
+			if (resizableElement === 'first') {
+				pluginContext?.setVisiblePlugin(null);
 			}
 		},
 		sizeThresholdSecond: 200,
 		storageKey: 'docExplorerFlex',
-	} );
-	const editorResize = useDragResize( {
+	});
+	const editorResize = useDragResize({
 		direction: 'horizontal',
 		storageKey: 'editorFlex',
-	} );
-	const editorToolsResize = useDragResize( {
+	});
+	const editorToolsResize = useDragResize({
 		defaultSizeRelation: 3,
 		direction: 'vertical',
-		initiallyHidden: ( () => {
+		initiallyHidden: (() => {
 			if (
 				props.defaultEditorToolsVisibility === 'variables' ||
 				props.defaultEditorToolsVisibility === 'headers'
@@ -149,7 +149,7 @@ export function GraphiQLInterface( props ) {
 				return;
 			}
 
-			if ( typeof props.defaultEditorToolsVisibility === 'boolean' ) {
+			if (typeof props.defaultEditorToolsVisibility === 'boolean') {
 				return props.defaultEditorToolsVisibility
 					? undefined
 					: 'second';
@@ -159,130 +159,128 @@ export function GraphiQLInterface( props ) {
 				editorContext.initialHeaders
 				? undefined
 				: 'second';
-		} )(),
+		})(),
 		sizeThresholdSecond: 60,
 		storageKey: 'secondaryEditorFlex',
-	} );
+	});
 
-	const [ activeSecondaryEditor, setActiveSecondaryEditor ] = useState(
-		() => {
-			if (
-				props.defaultEditorToolsVisibility === 'variables' ||
-				props.defaultEditorToolsVisibility === 'headers'
-			) {
-				return props.defaultEditorToolsVisibility;
-			}
-			return ! editorContext.initialVariables &&
-				editorContext.initialHeaders &&
-				isHeadersEditorEnabled
-				? 'headers'
-				: 'variables';
+	const [activeSecondaryEditor, setActiveSecondaryEditor] = useState(() => {
+		if (
+			props.defaultEditorToolsVisibility === 'variables' ||
+			props.defaultEditorToolsVisibility === 'headers'
+		) {
+			return props.defaultEditorToolsVisibility;
 		}
-	);
-	const [ showDialog, setShowDialog ] = useState( null );
-	const [ clearStorageStatus, setClearStorageStatus ] = useState( null );
+		return !editorContext.initialVariables &&
+			editorContext.initialHeaders &&
+			isHeadersEditorEnabled
+			? 'headers'
+			: 'variables';
+	});
+	const [showDialog, setShowDialog] = useState(null);
+	const [clearStorageStatus, setClearStorageStatus] = useState(null);
 
-	const children = React.Children.toArray( props.children );
+	const children = React.Children.toArray(props.children);
 
-	const logo = children.find( ( child ) =>
-		isChildComponentType( child, GraphiQL.Logo )
+	const logo = children.find((child) =>
+		isChildComponentType(child, GraphiQL.Logo)
 	) || <GraphiQL.Logo />;
 
-	const onClickReference = useCallback( () => {
-		if ( pluginResize.hiddenElement === 'first' ) {
-			pluginResize.setHiddenElement( null );
+	const onClickReference = useCallback(() => {
+		if (pluginResize.hiddenElement === 'first') {
+			pluginResize.setHiddenElement(null);
 		}
-	}, [ pluginResize ] );
+	}, [pluginResize]);
 
-	const handleClearData = useCallback( () => {
+	const handleClearData = useCallback(() => {
 		try {
 			storageContext?.clear();
-			setClearStorageStatus( 'success' );
+			setClearStorageStatus('success');
 		} catch {
-			setClearStorageStatus( 'error' );
+			setClearStorageStatus('error');
 		}
-	}, [ storageContext ] );
+	}, [storageContext]);
 
 	const handlePersistHeaders = useCallback(
-		( event ) => {
+		(event) => {
 			editorContext.setShouldPersistHeaders(
 				event.currentTarget.dataset.value === 'true'
 			);
 		},
-		[ editorContext ]
+		[editorContext]
 	);
 
 	const handleChangeTheme = useCallback(
-		( event ) => {
+		(event) => {
 			const selectedTheme =
 				event.currentTarget.dataset.theme || undefined;
-			setTheme( selectedTheme || null );
+			setTheme(selectedTheme || null);
 		},
-		[ setTheme ]
+		[setTheme]
 	);
 
 	const handleAddTab = editorContext.addTab;
 	const handleRefetchSchema = schemaContext.introspect;
 	const handleReorder = editorContext.moveTab;
 
-	const handleShowDialog = useCallback( ( event ) => {
-		setShowDialog( event.currentTarget.dataset.value );
-	}, [] );
+	const handleShowDialog = useCallback((event) => {
+		setShowDialog(event.currentTarget.dataset.value);
+	}, []);
 
 	const handlePluginClick = useCallback(
-		( e ) => {
+		(e) => {
 			const context = pluginContext;
-			const pluginIndex = Number( e.currentTarget.dataset.index );
+			const pluginIndex = Number(e.currentTarget.dataset.index);
 			const plugin = context.plugins.find(
-				( _, index ) => pluginIndex === index
+				(_, index) => pluginIndex === index
 			);
 			const isVisible = plugin === context.visiblePlugin;
-			if ( isVisible ) {
-				context.setVisiblePlugin( null );
-				pluginResize.setHiddenElement( 'first' );
+			if (isVisible) {
+				context.setVisiblePlugin(null);
+				pluginResize.setHiddenElement('first');
 			} else {
-				context.setVisiblePlugin( plugin );
-				pluginResize.setHiddenElement( null );
+				context.setVisiblePlugin(plugin);
+				pluginResize.setHiddenElement(null);
 			}
 		},
-		[ pluginContext, pluginResize ]
+		[pluginContext, pluginResize]
 	);
 
 	const handleToolsTabClick = useCallback(
-		( event ) => {
-			if ( editorToolsResize.hiddenElement === 'second' ) {
-				editorToolsResize.setHiddenElement( null );
+		(event) => {
+			if (editorToolsResize.hiddenElement === 'second') {
+				editorToolsResize.setHiddenElement(null);
 			}
-			setActiveSecondaryEditor( event.currentTarget.dataset.name );
+			setActiveSecondaryEditor(event.currentTarget.dataset.name);
 		},
-		[ editorToolsResize ]
+		[editorToolsResize]
 	);
 
-	const toggleEditorTools = useCallback( () => {
+	const toggleEditorTools = useCallback(() => {
 		editorToolsResize.setHiddenElement(
 			editorToolsResize.hiddenElement === 'second' ? null : 'second'
 		);
-	}, [ editorToolsResize ] );
+	}, [editorToolsResize]);
 
-	const handleOpenShortKeysDialog = useCallback( ( isOpen ) => {
-		if ( ! isOpen ) {
-			setShowDialog( null );
+	const handleOpenShortKeysDialog = useCallback((isOpen) => {
+		if (!isOpen) {
+			setShowDialog(null);
 		}
-	}, [] );
+	}, []);
 
-	const handleOpenSettingsDialog = useCallback( ( isOpen ) => {
-		if ( ! isOpen ) {
-			setShowDialog( null );
-			setClearStorageStatus( null );
+	const handleOpenSettingsDialog = useCallback((isOpen) => {
+		if (!isOpen) {
+			setShowDialog(null);
+			setClearStorageStatus(null);
 		}
-	}, [] );
+	}, []);
 
 	const addTab = (
 		<Tooltip label="Add tab">
 			<UnStyledButton
 				type="button"
 				className="graphiql-tab-add"
-				onClick={ handleAddTab }
+				onClick={handleAddTab}
 				aria-label="Add tab"
 			>
 				<PlusIcon aria-hidden="true" />
@@ -297,62 +295,62 @@ export function GraphiQLInterface( props ) {
 				className="graphiql-container"
 			>
 				<ActivityBar
-					handlePluginClick={ handlePluginClick }
-					handleRefetchSchema={ handleRefetchSchema }
-					handleShowDialog={ handleShowDialog }
-					pluginContext={ pluginContext }
-					schemaContext={ schemaContext }
+					handlePluginClick={handlePluginClick}
+					handleRefetchSchema={handleRefetchSchema}
+					handleShowDialog={handleShowDialog}
+					pluginContext={pluginContext}
+					schemaContext={schemaContext}
 				/>
 				<div className="graphiql-main">
 					<ActivityPanel
-						pluginContext={ pluginContext }
-						schemaContext={ schemaContext }
-						PluginContent={ PluginContent }
-						firstRef={ pluginResize.firstRef }
-						dragBarRef={ pluginResize.dragBarRef }
+						pluginContext={pluginContext}
+						schemaContext={schemaContext}
+						PluginContent={PluginContent}
+						firstRef={pluginResize.firstRef}
+						dragBarRef={pluginResize.dragBarRef}
 					/>
 					<EditorGroup
-						secondRef={ pluginResize.secondRef }
-						disableTabs={ props.disableTabs }
-						editorContext={ editorContext }
-						handleReorder={ handleReorder }
-						executionContext={ executionContext }
-						onClickReference={ onClickReference }
-						editorTheme={ props.editorTheme }
-						keyMap={ props.keyMap }
-						editorToolsResize={ editorToolsResize }
-						addTab={ addTab }
-						logo={ logo }
-						onCopyQuery={ props.onCopyQuery }
-						onEditQuery={ props.onEditQuery }
-						readOnly={ props.readOnly }
-						activeSecondaryEditor={ activeSecondaryEditor }
-						handleToolsTabClick={ handleToolsTabClick }
-						toggleEditorTools={ toggleEditorTools }
-						onEditVariables={ props.onEditVariables }
-						onEditHeaders={ props.onEditHeaders }
-						editorResize={ editorResize }
-						responseTooltip={ props.responseTooltip }
+						secondRef={pluginResize.secondRef}
+						disableTabs={props.disableTabs}
+						editorContext={editorContext}
+						handleReorder={handleReorder}
+						executionContext={executionContext}
+						onClickReference={onClickReference}
+						editorTheme={props.editorTheme}
+						keyMap={props.keyMap}
+						editorToolsResize={editorToolsResize}
+						addTab={addTab}
+						logo={logo}
+						onCopyQuery={props.onCopyQuery}
+						onEditQuery={props.onEditQuery}
+						readOnly={props.readOnly}
+						activeSecondaryEditor={activeSecondaryEditor}
+						handleToolsTabClick={handleToolsTabClick}
+						toggleEditorTools={toggleEditorTools}
+						onEditVariables={props.onEditVariables}
+						onEditHeaders={props.onEditHeaders}
+						editorResize={editorResize}
+						responseTooltip={props.responseTooltip}
 					/>
 				</div>
 				<ShortKeysDialog
-					keyMap={ props.keyMap }
-					handleOpenShortKeysDialog={ handleOpenSettingsDialog }
-					showDialog={ showDialog }
+					keyMap={props.keyMap}
+					handleOpenShortKeysDialog={handleOpenSettingsDialog}
+					showDialog={showDialog}
 				/>
 				<SettingsDialog
-					showDialog={ showDialog }
-					handleOpenSettingsDialog={ handleOpenSettingsDialog }
+					showDialog={showDialog}
+					handleOpenSettingsDialog={handleOpenSettingsDialog}
 					showPersistHeadersSettings={
 						props.showPersistHeadersSettings || false
 					}
-					editorContext={ editorContext }
-					handlePersistHeaders={ handlePersistHeaders }
-					theme={ theme }
-					handleChangeTheme={ handleChangeTheme }
-					storageContext={ storageContext }
-					clearStorageStatus={ clearStorageStatus }
-					handleClearData={ handleClearData }
+					editorContext={editorContext}
+					handlePersistHeaders={handlePersistHeaders}
+					theme={theme}
+					handleChangeTheme={handleChangeTheme}
+					storageContext={storageContext}
+					clearStorageStatus={clearStorageStatus}
+					handleClearData={handleClearData}
 				/>
 			</div>
 		</Tooltip.Provider>
@@ -360,10 +358,10 @@ export function GraphiQLInterface( props ) {
 }
 
 // Configure the UI by providing this Component as a child of GraphiQL.
-function GraphiQLLogo( props ) {
+function GraphiQLLogo(props) {
 	return (
 		<div className="graphiql-logo">
-			{ props.children || (
+			{props.children || (
 				<a
 					className="graphiql-logo-link"
 					href="https://github.com/graphql/graphiql"
@@ -374,7 +372,7 @@ function GraphiQLLogo( props ) {
 					<em>i</em>
 					QL
 				</a>
-			) }
+			)}
 		</div>
 	);
 }
@@ -382,7 +380,7 @@ function GraphiQLLogo( props ) {
 GraphiQLLogo.displayName = 'GraphiQLLogo';
 
 // Determines if the React child is of the same type of the provided React component
-function isChildComponentType( child, component ) {
+function isChildComponentType(child, component) {
 	if (
 		child?.type?.displayName &&
 		child.type.displayName === component.displayName

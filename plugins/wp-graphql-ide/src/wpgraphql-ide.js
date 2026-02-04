@@ -19,7 +19,7 @@ import { initializeRegistry } from './registry';
 const init = () => {
 	registerStores();
 	initializeRegistry();
-	hooks.doAction( 'wpgraphql-ide.init' );
+	hooks.doAction('wpgraphql-ide.init');
 };
 
 init();
@@ -33,4 +33,4 @@ window.WPGraphQLIDE = {
 	...accessFunctions,
 };
 
-window.dispatchEvent( new Event( 'WPGraphQLIDE_Window_Ready' ) );
+window.dispatchEvent(new Event('WPGraphQLIDE_Window_Ready'));

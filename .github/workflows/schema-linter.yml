@@ -21,7 +21,7 @@ jobs:
   lint-schema:
     runs-on: ubuntu-latest
     # Matrix strategy to lint schemas for each plugin
-    # 
+    #
     # To add a new plugin:
     # 1. Add a new entry to the include array below
     # 2. Set component to match the release tag prefix (from release-please-config.json)
@@ -44,13 +44,13 @@ jobs:
             composer_working_dir: plugins/wp-graphql
             # Plugins to activate (relative to plugins/ directory)
             # Empty means only wp-graphql will be active
-            active_plugins: ""
+            active_plugins: ''
           # WPGraphQL Smart Cache - test with wp-graphql + smart-cache active
           - component: wp-graphql-smart-cache
             plugin_path: plugins/wp-graphql-smart-cache
             composer_working_dir: plugins/wp-graphql-smart-cache
             # Activate both core and smart-cache for schema generation
-            active_plugins: "wp-graphql,wp-graphql-smart-cache"
+            active_plugins: 'wp-graphql,wp-graphql-smart-cache'
     name: Lint ${{ matrix.component }} Schema
 
     steps:
@@ -69,7 +69,7 @@ jobs:
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: ${{ matrix.composer_working_dir }}
-      
+
       # For plugins that depend on wp-graphql, we also need to install wp-graphql's dependencies
       # BEFORE wp-env starts so the vendor directory is available when WordPress loads the plugin
       # (wp-env maps plugin dirs as volumes, so host vendor dirs are available in containers)
@@ -78,7 +78,7 @@ jobs:
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
-      
+
       # Verify vendor directories exist before starting wp-env
       - name: Verify vendor directories exist
         run: |
@@ -91,8 +91,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-            cache: 'npm'
-            node-version-file: '.nvmrc'
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
         run: npm ci
@@ -114,10 +114,10 @@ jobs:
           # which registers the CLI command. We MUST NOT deactivate wp-graphql or the CLI
           # command will be lost. Instead, we deactivate only other plugins, then activate
           # the target plugin(s) if needed.
-          
+
           echo "Current plugin status (before configuration):"
           npm run wp-env run cli -- wp plugin list --status=active
-          
+
           # Determine which plugins should be active for this component
           REQUIRED_PLUGINS="wp-graphql"
           if [ -n "${{ matrix.active_plugins }}" ]; then
@@ -128,14 +128,14 @@ jobs:
               fi
             done
           fi
-          
+
           echo "Required plugins for schema generation: $REQUIRED_PLUGINS"
-          
+
           # Get list of currently active plugins (excluding wp-graphql)
           # Parse the tabular output and extract just the plugin names from the first column
           # Skip header line (NR>1) and filter out wp-graphql
           ACTIVE_PLUGINS=$(npm run wp-env run cli -- wp plugin list --status=active 2>/dev/null | awk 'NR>1 {print $1}' | grep -v "^wp-graphql$" || true)
-          
+
           # Deactivate plugins that shouldn't be active (but keep wp-graphql active!)
           echo "Deactivating unnecessary plugins (keeping wp-graphql active)..."
           if [ -n "$ACTIVE_PLUGINS" ]; then
@@ -160,7 +160,7 @@ jobs:
               fi
             done
           fi
-          
+
           # Activate any required plugins that aren't already active
           for plugin in $REQUIRED_PLUGINS; do
             if [ "$plugin" != "wp-graphql" ]; then
@@ -168,11 +168,11 @@ jobs:
               npm run wp-env run cli -- wp plugin activate "$plugin" 2>/dev/null || echo "Warning: Could not activate $plugin"
             fi
           done
-          
+
           # Show final active plugins (should only be wp-graphql + target plugin)
           echo "Active plugins for schema generation:"
           npm run wp-env run cli -- wp plugin list --status=active
-          
+
           # Verify wp-graphql CLI command is available (critical for schema generation)
           # The WPGraphQL plugin should automatically register the CLI command when it loads
           echo "Verifying wp graphql CLI command is registered..."
@@ -187,7 +187,7 @@ jobs:
             npm run wp-env run cli -- wp help 2>&1 | grep -E "^  [a-z]" | head -10
             exit 1
           fi
-          
+
           # Flush rewrite rules to ensure GraphQL endpoint is registered
           npm run wp-env run cli -- wp rewrite flush 2>/dev/null || true
 
@@ -218,11 +218,11 @@ jobs:
           # Tags are formatted as: {component}/{version} (e.g., wp-graphql/v2.7.0)
           COMPONENT="${{ matrix.component }}"
           echo "Looking for latest tag with prefix: $COMPONENT/"
-          
+
           # Fetch all tags from remote and filter by component prefix
           git fetch origin --tags --force
           LATEST_TAG=$(git tag -l "$COMPONENT/v*" | sort -V | tail -1)
-          
+
           if [ -z "$LATEST_TAG" ]; then
             echo "::warning::No tags found for component $COMPONENT. Schema comparison will be skipped."
             echo "tag=" >> $GITHUB_OUTPUT
@@ -250,10 +250,10 @@ jobs:
           SCHEMA_URL="https://github.com/wp-graphql/wp-graphql/releases/download/$ENCODED_TAG/schema.graphql"
           SCHEMA_FILE="/tmp/$SAFE_TAG.graphql"
           echo "Downloading schema from: $SCHEMA_URL"
-          
+
           # Download with error checking
           HTTP_CODE=$(curl -sL -w "%{http_code}" "$SCHEMA_URL" -o "$SCHEMA_FILE")
-          
+
           if [ "$HTTP_CODE" != "200" ]; then
             echo "::warning::Could not download previous schema (HTTP $HTTP_CODE). Schema comparison will be skipped."
             echo "schema_available=false" >> $GITHUB_OUTPUT
@@ -280,7 +280,7 @@ jobs:
         run: |
           # This schema and previous release schema
           node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-previous-schema.outputs.safe_tag }}.graphql /tmp/schema-${{ matrix.component }}.graphql
-      
+
       - name: Schema comparison skipped
         if: steps.get-latest-tag.outputs.tag_found != 'true' || steps.get-previous-schema.outputs.schema_available != 'true'
         run: |
@@ -301,10 +301,10 @@ jobs:
   # ===========================================
 
   status-check:
-    name: "Schema Linter"
+    name: 'Schema Linter'
     runs-on: ubuntu-latest
     needs: [lint-schema]
-    if: always()  # Run even if previous job failed
+    if: always() # Run even if previous job failed
     steps:
       - name: Check schema lint results
         run: |

@@ -9,47 +9,47 @@
 	display: none;
 }
 
-[vaul-drawer] {
-  touch-action: none;
-  transform: translate3d(0, 100%, 0);
-  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+[data-vaul-drawer] {
+  touch-action: none !important;
+  /* Let Vaul handle transform and transition for animation */
 
-  background-color: rgb(244 244 245/1);
-  position: fixed;
-  backface-visibility: hidden;
-  bottom: 0;
-  z-index: 100001; /* #wpadminar's z-index of 99999 + 2 */
-  width: 100vw;
-  height: 90vh;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  overflow: hidden;
-  box-sizing: border-box;
+  background-color: rgb(244 244 245/1) !important;
+  position: fixed !important;
+  backface-visibility: hidden !important;
+  bottom: 0 !important;
+  z-index: 999999 !important; /* High z-index to appear above WordPress admin panels */
+  width: 100vw !important;
+  height: 90vh !important;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .vaul-dragging .vaul-scrollable {
   overflow-y: hidden !important;
 }
 
-[vaul-drawer][vaul-drawer-visible='true'] {
-  transform: translate3d(0, var(--snap-point-height, 0), 0);
+/* Don't override transform - let Vaul handle the animation */
+[data-vaul-drawer][data-state='open'] {
+  /* Vaul handles the transform animation, we just ensure position/fixed */
 }
 
-[vaul-overlay] {
-  opacity: 0;
-  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+[data-vaul-overlay] {
+  opacity: 0 !important;
+  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1) !important;
 
-  background-color: rgba(0,0,0,0.4);
-  inset: 0;
-  position: fixed;
-  z-index: 100000; /* #wpadminar's z-index of 99999 + 1 */
+  background-color: rgba(0,0,0,0.4) !important;
+  inset: 0 !important;
+  position: fixed !important;
+  z-index: 999998 !important; /* Just below drawer, above WordPress admin panels */
 }
 
-[vaul-overlay][vaul-drawer-visible='true'] {
-  opacity: 1;
+[data-vaul-overlay][data-state='open'] {
+  opacity: 1 !important;
 }
 
-[vaul-drawer]::after {
+[data-vaul-drawer]::after {
   content: '';
   position: absolute;
   top: 100%;
@@ -60,11 +60,11 @@
   height: 200%;
 }
 
-[vaul-overlay][vaul-snap-points='true']:not([vaul-snap-points-overlay='true']):not([data-state='closed']) {
+[data-vaul-overlay][data-vaul-snap-points='true']:not([data-vaul-snap-points-overlay='true']):not([data-state='closed']) {
   opacity: 0;
 }
 
-[vaul-overlay][vaul-snap-points-overlay='true']:not([vaul-drawer-visible='false']) {
+[data-vaul-overlay][data-vaul-snap-points-overlay='true']:not([data-state='closed']) {
   opacity: 1;
 }
 
@@ -77,7 +77,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  [vaul-drawer] {
+  [data-vaul-drawer] {
     user-select: auto !important; /* !important is needed for text selection within drawer */
   }
 }
@@ -102,23 +102,21 @@
 }
 
 /* Fix layout shift from drawer opening everywhere except the dedicated IDE page */
-body:not(.graphql_page_graphql-ide) {
-  top: var(--wp-admin--admin-bar--height) !important;
-}
+/* Removed - was causing jump when drawer opens. Vaul handles body scroll locking. */
 
 .graphiql-dialog,
 .graphiql-dialog-overlay {
-  z-index: 100002; /* #wpadminar's z-index of 99999 + 3 */
+  z-index: 1000000; /* Above drawer */
 }
 
 /* Fix popover visibility within drawer */
 [data-radix-popper-content-wrapper] {
-  z-index: 100002 !important; /* #wpadminar's z-index of 99999 + 3 */
+  z-index: 1000000 !important; /* Above drawer */
 }
 
 /* Fix GraphiQL tooltips and hover popovers within drawer */
 .CodeMirror-lint-tooltip{
-  z-index: 100002 !important; /* #wpadminar's z-index of 99999 + 3 */
+  z-index: 1000000 !important; /* Above drawer */
 }
 
 .graphiql-dialog-title,

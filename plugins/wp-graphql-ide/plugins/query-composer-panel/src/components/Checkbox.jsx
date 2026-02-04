@@ -3,12 +3,12 @@ import React from 'react';
 export const checkboxUnchecked = (
 	<svg
 		viewBox="0 0 15 15"
-		style={ {
+		style={{
 			color: 'hsla(var(--color-neutral), var(--alpha-tertiary, 0.4))',
 			marginRight: 'var(--px-4)',
 			height: 'var(--px-16)',
 			width: 'var(--px-16)',
-		} }
+		}}
 	>
 		<circle cx="7.5" cy="7.5" r="6" stroke="currentColor" fill="none" />
 	</svg>
@@ -17,12 +17,12 @@ export const checkboxUnchecked = (
 export const checkboxChecked = (
 	<svg
 		viewBox="0 0 15 15"
-		style={ {
+		style={{
 			color: 'hsl(var(--color-info))',
 			marginRight: 'var(--px-4)',
 			height: 'var(--px-16)',
 			width: 'var(--px-16)',
-		} }
+		}}
 	>
 		<circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" />
 		<path
@@ -36,7 +36,7 @@ export const checkboxChecked = (
 
 export const defaultCheckboxChecked = (
 	<svg
-		style={ { marginRight: '3px', marginLeft: '-3px' } }
+		style={{ marginRight: '3px', marginLeft: '-3px' }}
 		width="12"
 		height="12"
 		viewBox="0 0 18 18"
@@ -52,7 +52,7 @@ export const defaultCheckboxChecked = (
 
 export const defaultCheckboxUnchecked = (
 	<svg
-		style={ { marginRight: '3px', marginLeft: '-3px' } }
+		style={{ marginRight: '3px', marginLeft: '-3px' }}
 		width="12"
 		height="12"
 		viewBox="0 0 18 18"
@@ -66,7 +66,7 @@ export const defaultCheckboxUnchecked = (
 	</svg>
 );
 
-export default function Checkbox( props ) {
+export default function Checkbox(props) {
 	return props.checked
 		? props.styleConfig.checkboxChecked
 		: props.styleConfig.checkboxUnchecked;

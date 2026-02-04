@@ -131,11 +131,14 @@ function updateVersionConstant(filePath, constantName, version) {
 	);
 
 	let replacementCount = 0;
-	content = content.replace(pattern, (match, leadingWhitespace, oldVersion) => {
-		replacementCount++;
-		// Preserve leading whitespace (tabs/spaces) for indentation
-		return `${leadingWhitespace}define( '${constantName}', '${version}' );`;
-	});
+	content = content.replace(
+		pattern,
+		(match, leadingWhitespace, oldVersion) => {
+			replacementCount++;
+			// Preserve leading whitespace (tabs/spaces) for indentation
+			return `${leadingWhitespace}define( '${constantName}', '${version}' );`;
+		}
+	);
 
 	if (content === originalContent) {
 		// Check if constant exists at all
@@ -220,17 +223,23 @@ function updatePluginVersionHeader(filePath, version) {
 	// Pattern 1: Version header (most common format)
 	const versionHeaderPattern = /^(\s*\*\s*Version:\s*)([^\s\n]+)/gm;
 	let replacementCount = 0;
-	content = content.replace(versionHeaderPattern, (match, prefix, oldVersion) => {
-		replacementCount++;
-		return `${prefix}${version}`;
-	});
+	content = content.replace(
+		versionHeaderPattern,
+		(match, prefix, oldVersion) => {
+			replacementCount++;
+			return `${prefix}${version}`;
+		}
+	);
 
 	// Pattern 2: @version docblock tag
 	const versionDocblockPattern = /^(\s*\*\s*@version\s+)([^\s\n]+)/gm;
-	content = content.replace(versionDocblockPattern, (match, prefix, oldVersion) => {
-		replacementCount++;
-		return `${prefix}${version}`;
-	});
+	content = content.replace(
+		versionDocblockPattern,
+		(match, prefix, oldVersion) => {
+			replacementCount++;
+			return `${prefix}${version}`;
+		}
+	);
 
 	if (content === originalContent) {
 		// Check if Version header exists at all
@@ -260,7 +269,10 @@ function updatePluginVersionHeader(filePath, version) {
 	}
 
 	// Verify the update
-	if (content.includes(`Version: ${version}`) || content.includes(`@version ${version}`)) {
+	if (
+		content.includes(`Version: ${version}`) ||
+		content.includes(`@version ${version}`)
+	) {
 		return {
 			updated: true,
 			message: `Updated Version header to ${version} in ${path.basename(filePath)} (${replacementCount} replacement${replacementCount === 1 ? '' : 's'})`,
@@ -288,26 +300,34 @@ function main() {
 		// Validate required arguments
 		if (!args.version) {
 			console.error('❌ Error: --version is required');
-			console.error('Usage: node scripts/update-version-constants.js --version=1.0.0 --component=wp-graphql --plugin-dir=plugins/wp-graphql');
+			console.error(
+				'Usage: node scripts/update-version-constants.js --version=1.0.0 --component=wp-graphql --plugin-dir=plugins/wp-graphql'
+			);
 			process.exit(1);
 		}
 
 		if (!args.component) {
 			console.error('❌ Error: --component is required');
-			console.error('Usage: node scripts/update-version-constants.js --version=1.0.0 --component=wp-graphql --plugin-dir=plugins/wp-graphql');
+			console.error(
+				'Usage: node scripts/update-version-constants.js --version=1.0.0 --component=wp-graphql --plugin-dir=plugins/wp-graphql'
+			);
 			process.exit(1);
 		}
 
 		if (!args['plugin-dir']) {
 			console.error('❌ Error: --plugin-dir is required');
-			console.error('Usage: node scripts/update-version-constants.js --version=1.0.0 --component=wp-graphql --plugin-dir=plugins/wp-graphql');
+			console.error(
+				'Usage: node scripts/update-version-constants.js --version=1.0.0 --component=wp-graphql --plugin-dir=plugins/wp-graphql'
+			);
 			process.exit(1);
 		}
 
 		// Validate version format
 		if (!isValidVersion(args.version)) {
 			console.error(`❌ Error: Invalid version format: ${args.version}`);
-			console.error('Expected format: x.y.z or x.y.z-beta.n (semantic versioning)');
+			console.error(
+				'Expected format: x.y.z or x.y.z-beta.n (semantic versioning)'
+			);
 			process.exit(1);
 		}
 
@@ -315,25 +335,46 @@ function main() {
 		const component = args.component;
 		const pluginDir = args['plugin-dir'];
 
-		console.log(`🔄 Updating version constants for ${component} to ${version}...`);
+		console.log(
+			`🔄 Updating version constants for ${component} to ${version}...`
+		);
 
 		const mapping = getConstantMapping(component);
 		if (!mapping) {
-			console.warn(`⚠️  No version constant mapping for component: ${component}`);
-			console.warn(`   Supported components: wp-graphql, wp-graphql-smart-cache, wp-graphql-ide`);
+			console.warn(
+				`⚠️  No version constant mapping for component: ${component}`
+			);
+			console.warn(
+				`   Supported components: wp-graphql, wp-graphql-smart-cache, wp-graphql-ide`
+			);
 			process.exit(0);
 		}
 
 		// Resolve plugin directory paths
 		const repoRoot = process.cwd();
-		const constantFilePath = path.resolve(repoRoot, pluginDir, mapping.fileName);
-		const mainPluginFilePath = path.resolve(repoRoot, pluginDir, mapping.mainPluginFile);
+		const constantFilePath = path.resolve(
+			repoRoot,
+			pluginDir,
+			mapping.fileName
+		);
+		const mainPluginFilePath = path.resolve(
+			repoRoot,
+			pluginDir,
+			mapping.mainPluginFile
+		);
 
 		// Update version constant
-		const constantResult = updateVersionConstant(constantFilePath, mapping.constantName, version);
-		
+		const constantResult = updateVersionConstant(
+			constantFilePath,
+			mapping.constantName,
+			version
+		);
+
 		// Update Version header in main plugin file
-		const headerResult = updatePluginVersionHeader(mainPluginFilePath, version);
+		const headerResult = updatePluginVersionHeader(
+			mainPluginFilePath,
+			version
+		);
 
 		let hasErrors = false;
 		let hasUpdates = false;
@@ -380,4 +421,8 @@ if (require.main === module) {
 	main();
 }
 
-module.exports = { updateVersionConstant, updatePluginVersionHeader, getConstantMapping };
+module.exports = {
+	updateVersionConstant,
+	updatePluginVersionHeader,
+	getConstantMapping,
+};

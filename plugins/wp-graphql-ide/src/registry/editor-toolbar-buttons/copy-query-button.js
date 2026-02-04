@@ -4,7 +4,7 @@ import { select } from '@wordpress/data';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 
 export const copyQueryButton = () => {
-	const [ copyToClipboard ] = useCopyToClipboard();
+	const [copyToClipboard] = useCopyToClipboard();
 
 	return {
 		label: 'Copy query (Shift-Ctrl-C)',
@@ -12,8 +12,8 @@ export const copyQueryButton = () => {
 			<CopyIcon className="graphiql-toolbar-icon" aria-hidden="true" />
 		),
 		onClick: async () => {
-			const query = select( 'wpgraphql-ide/app' ).getQuery();
-			await copyToClipboard( query );
+			const query = select('wpgraphql-ide/app').getQuery();
+			await copyToClipboard(query);
 		},
 	};
 };

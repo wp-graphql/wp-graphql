@@ -5,16 +5,16 @@
 
 actor: FunctionalTester
 modules:
-    enabled:
-        - Asserts
-        - REST
-        - lucatume\WPBrowser\Module\WPBrowser
-        - lucatume\WPBrowser\Module\WPDb
-        - lucatume\WPBrowser\Module\WPLoader
-    config:
-        lucatume\WPBrowser\Module\WPDb:
-            cleanup: false
-        lucatume\WPBrowser\Module\WPLoader:
-            loadOnly: true
-            wpRootFolder: "%TEST_WP_ROOT_FOLDER%"
+  enabled:
+    - Asserts
+    - REST
+    - lucatume\WPBrowser\Module\WPBrowser
+    - lucatume\WPBrowser\Module\WPDb
+    - lucatume\WPBrowser\Module\WPLoader
+  config:
+    lucatume\WPBrowser\Module\WPDb:
+      cleanup: false
+    lucatume\WPBrowser\Module\WPLoader:
+      loadOnly: true
+      wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
 bootstrap: bootstrap.php

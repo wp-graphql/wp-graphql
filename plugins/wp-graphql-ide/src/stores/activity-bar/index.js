@@ -7,8 +7,8 @@ import actions from './activity-bar-actions';
 /**
  * The store for the app.
  */
-export const store = createReduxStore( 'wpgraphql-ide/activity-bar', {
+export const store = createReduxStore('wpgraphql-ide/activity-bar', {
 	reducer,
 	selectors,
 	actions,
-} );
+});

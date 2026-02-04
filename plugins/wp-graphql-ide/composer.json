@@ -11,7 +11,7 @@
 		}
 	],
 	"require": {
-		"php": "^8.0"
+		"php": "^7.4 || ^8.0"
 	},
 	"autoload-dev": {
 		"files": [
@@ -27,14 +27,13 @@
 		"lucatume/wp-browser": "^3.7.0",
 		"codeception/module-rest": "^2.0",
 		"phpunit/php-timer": "^5.0",
-		"phpstan/phpstan": "^1.11",
-		"phpstan/extension-installer": "^1.4",
+		"phpstan/phpstan": "^1.10",
+		"phpstan/extension-installer": "^1.3",
 		"szepeviktor/phpstan-wordpress": "^1.3",
 		"axepress/wp-graphql-stubs": "^2.3",
 		"wp-graphql/wp-graphql": "^2.0",
-		"automattic/vipwpcs": "^3.0",
-		"slevomat/coding-standard": "^8.9",
-		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9"
+		"automattic/vipwpcs": "^2.3",
+		"slevomat/coding-standard": "^8.9"
 	},
 	"scripts": {
 		"phpcs-i": [
@@ -48,9 +47,25 @@
 		],
 		"phpstan": [
 			"phpstan analyze --ansi --memory-limit=2G"
+		],
+		"build-plugin": [
+			"@php -r \"if (!is_dir('build')) { echo 'WARNING: build/ directory missing. Run npm ci && npm run build first.\\n'; exit(1); }\"",
+			"composer install --no-dev --optimize-autoloader && composer run-script zip && composer install"
+		],
+		"zip": [
+			"# Note: WordPress.org requires 'wpgraphql-ide' (no hyphen between wp and graphql)",
+			"# We keep the directory name as 'wp-graphql-ide' to match core 'wp-graphql' convention",
+			"# but the zip must use the WordPress.org-compliant slug for deployment",
+			"mkdir -p ../../plugin-build/wp-graphql-ide",
+			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wp-graphql-ide/ --delete --delete-excluded -v",
+			"cd ../../plugin-build ; zip -r wpgraphql-ide.zip wp-graphql-ide",
+			"rm -rf ../../plugin-build/wp-graphql-ide/"
 		]
 	},
 	"config": {
+		"platform": {
+			"php": "7.4"
+		},
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"phpstan/extension-installer": true

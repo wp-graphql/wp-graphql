@@ -28,6 +28,8 @@ plugins/ai-assistant-panel/node_modules
 # Files
 plugins/*/.npmrc
 .DS_Store
+@wpgraphql/
+*.zip
 .coveralls.yml
 .distignore
 .dockerignore

@@ -21,7 +21,7 @@ class ExplorerView extends React.PureComponent {
 	_ref;
 	_resetScroll = () => {
 		const container = this._ref;
-		if ( container ) {
+		if (container) {
 			container.scrollLeft = 0;
 		}
 	};
@@ -29,20 +29,20 @@ class ExplorerView extends React.PureComponent {
 		this._resetScroll();
 	}
 
-	_onEdit = ( query ) => this.props.onEdit( query );
+	_onEdit = (query) => this.props.onEdit(query);
 
-	_setAddOperationType = ( value ) => {
-		this.setState( { newOperationType: value } );
+	_setAddOperationType = (value) => {
+		this.setState({ newOperationType: value });
 	};
 
-	_handleRootViewMount = ( rootViewElId ) => {
+	_handleRootViewMount = (rootViewElId) => {
 		if (
-			!! this.state.operationToScrollTo &&
+			!!this.state.operationToScrollTo &&
 			this.state.operationToScrollTo === rootViewElId
 		) {
-			const selector = `.graphiql-explorer-root #${ rootViewElId }`;
+			const selector = `.graphiql-explorer-root #${rootViewElId}`;
 
-			const el = document.querySelector( selector );
+			const el = document.querySelector(selector);
 			el && el.scrollIntoView();
 		}
 	};
@@ -50,10 +50,10 @@ class ExplorerView extends React.PureComponent {
 	render() {
 		const { schema, query, makeDefaultArg } = this.props;
 
-		if ( ! schema ) {
+		if (!schema) {
 			return (
 				<div
-					style={ { fontFamily: 'sans-serif' } }
+					style={{ fontFamily: 'sans-serif' }}
 					className="error-container"
 				>
 					No Schema Available
@@ -72,13 +72,13 @@ class ExplorerView extends React.PureComponent {
 				? {
 						...defaultStyles,
 						...this.props.styles,
-				  }
+					}
 				: defaultStyles,
 		};
 		const queryType = schema.getQueryType();
 		const mutationType = schema.getMutationType();
 		const subscriptionType = schema.getSubscriptionType();
-		if ( ! queryType && ! mutationType && ! subscriptionType ) {
+		if (!queryType && !mutationType && !subscriptionType) {
 			return <div>Missing query type</div>;
 		}
 		const queryFields = queryType && queryType.getFields();
@@ -86,7 +86,7 @@ class ExplorerView extends React.PureComponent {
 		const subscriptionFields =
 			subscriptionType && subscriptionType.getFields();
 
-		const parsedQuery = memoizeParseQuery( query );
+		const parsedQuery = memoizeParseQuery(query);
 		const getDefaultFieldNames =
 			this.props.getDefaultFieldNames || defaultGetDefaultFieldNames;
 		const getDefaultScalarArgValue =
@@ -96,22 +96,22 @@ class ExplorerView extends React.PureComponent {
 		const definitions = parsedQuery.definitions;
 
 		const _relevantOperations = definitions
-			.map( ( definition ) => {
-				if ( definition.kind === 'FragmentDefinition' ) {
+			.map((definition) => {
+				if (definition.kind === 'FragmentDefinition') {
 					return definition;
-				} else if ( definition.kind === 'OperationDefinition' ) {
+				} else if (definition.kind === 'OperationDefinition') {
 					return definition;
 				}
 				return null;
-			} )
-			.filter( Boolean );
+			})
+			.filter(Boolean);
 
 		const relevantOperations =
 			_relevantOperations.length === 0
 				? DEFAULT_DOCUMENT.definitions
 				: _relevantOperations;
 
-		const renameOperation = ( targetOperation, name ) => {
+		const renameOperation = (targetOperation, name) => {
 			const newName =
 				name == null || name === ''
 					? null
@@ -120,12 +120,12 @@ class ExplorerView extends React.PureComponent {
 
 			const existingDefs = parsedQuery.definitions;
 
-			const newDefinitions = existingDefs.map( ( existingOperation ) => {
-				if ( targetOperation === existingOperation ) {
+			const newDefinitions = existingDefs.map((existingOperation) => {
+				if (targetOperation === existingOperation) {
 					return newOperation;
 				}
 				return existingOperation;
-			} );
+			});
 
 			return {
 				...parsedQuery,
@@ -133,17 +133,17 @@ class ExplorerView extends React.PureComponent {
 			};
 		};
 
-		const cloneOperation = ( targetOperation ) => {
+		const cloneOperation = (targetOperation) => {
 			let kind;
-			if ( targetOperation.kind === 'FragmentDefinition' ) {
+			if (targetOperation.kind === 'FragmentDefinition') {
 				kind = 'fragment';
 			} else {
 				kind = targetOperation.operation;
 			}
 
 			const newOperationName =
-				( ( targetOperation.name && targetOperation.name.value ) ||
-					'' ) + 'Copy';
+				((targetOperation.name && targetOperation.name.value) || '') +
+				'Copy';
 
 			const newName = {
 				kind: 'Name',
@@ -155,11 +155,11 @@ class ExplorerView extends React.PureComponent {
 
 			const existingDefs = parsedQuery.definitions;
 
-			const newDefinitions = [ ...existingDefs, newOperation ];
+			const newDefinitions = [...existingDefs, newOperation];
 
-			this.setState( {
-				operationToScrollTo: `${ kind }-${ newOperationName }`,
-			} );
+			this.setState({
+				operationToScrollTo: `${kind}-${newOperationName}`,
+			});
 
 			return {
 				...parsedQuery,
@@ -167,17 +167,15 @@ class ExplorerView extends React.PureComponent {
 			};
 		};
 
-		const destroyOperation = ( targetOperation ) => {
+		const destroyOperation = (targetOperation) => {
 			const existingDefs = parsedQuery.definitions;
 
-			const newDefinitions = existingDefs.filter(
-				( existingOperation ) => {
-					if ( targetOperation === existingOperation ) {
-						return false;
-					}
-					return true;
+			const newDefinitions = existingDefs.filter((existingOperation) => {
+				if (targetOperation === existingOperation) {
+					return false;
 				}
-			);
+				return true;
+			});
 
 			return {
 				...parsedQuery,
@@ -185,24 +183,23 @@ class ExplorerView extends React.PureComponent {
 			};
 		};
 
-		const addOperation = ( kind ) => {
+		const addOperation = (kind) => {
 			const existingDefs = parsedQuery.definitions;
 
 			const viewingDefaultOperation =
 				parsedQuery.definitions.length === 1 &&
-				parsedQuery.definitions[ 0 ] ===
-					DEFAULT_DOCUMENT.definitions[ 0 ];
+				parsedQuery.definitions[0] === DEFAULT_DOCUMENT.definitions[0];
 
 			const MySiblingDefs = viewingDefaultOperation
 				? []
-				: existingDefs.filter( ( def ) => {
-						if ( def.kind === 'OperationDefinition' ) {
+				: existingDefs.filter((def) => {
+						if (def.kind === 'OperationDefinition') {
 							return def.operation === kind;
 						}
 						return false;
-				  } );
+					});
 
-			const newOperationName = `My${ capitalize( kind ) }${
+			const newOperationName = `My${capitalize(kind)}${
 				MySiblingDefs.length === 0 ? '' : MySiblingDefs.length + 1
 			}`;
 
@@ -238,110 +235,108 @@ class ExplorerView extends React.PureComponent {
 			};
 
 			const newDefinitions = viewingDefaultOperation
-				? [ newDefinition ]
-				: [ ...parsedQuery.definitions, newDefinition ];
+				? [newDefinition]
+				: [...parsedQuery.definitions, newDefinition];
 
 			const newOperationDef = {
 				...parsedQuery,
 				definitions: newDefinitions,
 			};
 
-			this.setState( {
-				operationToScrollTo: `${ kind }-${ newOperationName }`,
-			} );
+			this.setState({
+				operationToScrollTo: `${kind}-${newOperationName}`,
+			});
 
-			this.props.onEdit( print( newOperationDef ) );
+			this.props.onEdit(print(newOperationDef));
 		};
 
 		const actionsOptions = [
-			!! queryFields ? (
+			!!queryFields ? (
 				<option
 					key="query"
-					className={ 'toolbar-button' }
-					style={ styleConfig.styles.buttonStyle }
+					className={'toolbar-button'}
+					style={styleConfig.styles.buttonStyle}
 					type="link"
 					value="query"
 				>
 					Query
 				</option>
 			) : null,
-			!! mutationFields ? (
+			!!mutationFields ? (
 				<option
 					key="mutation"
-					className={ 'toolbar-button' }
-					style={ styleConfig.styles.buttonStyle }
+					className={'toolbar-button'}
+					style={styleConfig.styles.buttonStyle}
 					type="link"
 					value="mutation"
 				>
 					Mutation
 				</option>
 			) : null,
-			!! subscriptionFields ? (
+			!!subscriptionFields ? (
 				<option
 					key="subscription"
-					className={ 'toolbar-button' }
-					style={ styleConfig.styles.buttonStyle }
+					className={'toolbar-button'}
+					style={styleConfig.styles.buttonStyle}
 					type="link"
 					value="subscription"
 				>
 					Subscription
 				</option>
 			) : null,
-		].filter( Boolean );
+		].filter(Boolean);
 
 		const actionsEl =
 			actionsOptions.length === 0 || this.props.hideActions ? null : (
 				<div
-					style={ {
+					style={{
 						minHeight: '50px',
 						maxHeight: '50px',
 						overflow: 'none',
-					} }
+					}}
 				>
 					<form
 						className="variable-editor-title graphiql-explorer-actions"
-						style={ {
+						style={{
 							...styleConfig.styles.explorerActionsStyle,
 							display: 'flex',
 							flexDirection: 'row',
 							alignItems: 'center',
 							borderTop: '1px solid rgb(214, 214, 214)',
-						} }
-						onSubmit={ ( event ) => event.preventDefault() }
+						}}
+						onSubmit={(event) => event.preventDefault()}
 					>
 						<span
-							style={ {
+							style={{
 								display: 'inline-block',
 								flexGrow: '0',
 								textAlign: 'right',
-							} }
+							}}
 						>
-							Add new{ ' ' }
+							Add new{' '}
 						</span>
 						<select
-							onChange={ ( event ) =>
-								this._setAddOperationType( event.target.value )
+							onChange={(event) =>
+								this._setAddOperationType(event.target.value)
 							}
-							value={ this.state.newOperationType }
-							style={ { flexGrow: '2' } }
+							value={this.state.newOperationType}
+							style={{ flexGrow: '2' }}
 						>
-							{ actionsOptions }
+							{actionsOptions}
 						</select>
 						<button
 							type="submit"
 							className="toolbar-button"
-							onClick={ () =>
+							onClick={() =>
 								this.state.newOperationType
-									? addOperation(
-											this.state.newOperationType
-									  )
+									? addOperation(this.state.newOperationType)
 									: null
 							}
-							style={ {
+							style={{
 								...styleConfig.styles.buttonStyle,
 								height: '22px',
 								width: '22px',
-							} }
+							}}
 						>
 							<span>+</span>
 						</button>
@@ -351,41 +346,37 @@ class ExplorerView extends React.PureComponent {
 
 		const externalFragments =
 			this.props.externalFragments &&
-			this.props.externalFragments.reduce( ( acc, fragment ) => {
-				if ( fragment.kind === 'FragmentDefinition' ) {
+			this.props.externalFragments.reduce((acc, fragment) => {
+				if (fragment.kind === 'FragmentDefinition') {
 					const fragmentTypeName = fragment.typeCondition.name.value;
 					const existingFragmentsForType =
-						acc[ fragmentTypeName ] || [];
+						acc[fragmentTypeName] || [];
 					const newFragmentsForType = [
 						...existingFragmentsForType,
 						fragment,
-					].sort( ( a, b ) =>
-						a.name.value.localeCompare( b.name.value )
-					);
+					].sort((a, b) => a.name.value.localeCompare(b.name.value));
 					return {
 						...acc,
-						[ fragmentTypeName ]: newFragmentsForType,
+						[fragmentTypeName]: newFragmentsForType,
 					};
 				}
 
 				return acc;
-			}, {} );
+			}, {});
 
 		const documentFragments = relevantOperations.reduce(
-			( acc, operation ) => {
-				if ( operation.kind === 'FragmentDefinition' ) {
+			(acc, operation) => {
+				if (operation.kind === 'FragmentDefinition') {
 					const fragmentTypeName = operation.typeCondition.name.value;
 					const existingFragmentsForType =
-						acc[ fragmentTypeName ] || [];
+						acc[fragmentTypeName] || [];
 					const newFragmentsForType = [
 						...existingFragmentsForType,
 						operation,
-					].sort( ( a, b ) =>
-						a.name.value.localeCompare( b.name.value )
-					);
+					].sort((a, b) => a.name.value.localeCompare(b.name.value));
 					return {
 						...acc,
-						[ fragmentTypeName ]: newFragmentsForType,
+						[fragmentTypeName]: newFragmentsForType,
 					};
 				}
 
@@ -403,10 +394,10 @@ class ExplorerView extends React.PureComponent {
 
 		return (
 			<div
-				ref={ ( ref ) => {
+				ref={(ref) => {
 					this._ref = ref;
-				} }
-				style={ {
+				}}
+				style={{
 					fontSize: 12,
 					textOverflow: 'ellipsis',
 					whiteSpace: 'nowrap',
@@ -417,50 +408,46 @@ class ExplorerView extends React.PureComponent {
 					display: 'flex',
 					flexDirection: 'column',
 					height: '100%',
-				} }
+				}}
 				className="graphiql-explorer-root"
 			>
 				<div
-					style={ {
+					style={{
 						flexGrow: '1',
 						overflow: 'scroll',
-					} }
+					}}
 				>
-					{ relevantOperations.map( ( operation, index ) => {
+					{relevantOperations.map((operation, index) => {
 						const operationName =
 							operation && operation.name && operation.name.value;
 
 						const operationType =
 							operation.kind === 'FragmentDefinition'
 								? 'fragment'
-								: ( operation && operation.operation ) ||
-								  'query';
+								: (operation && operation.operation) || 'query';
 
-						const onOperationRename = ( newName ) => {
+						const onOperationRename = (newName) => {
 							const newOperationDef = renameOperation(
 								operation,
 								newName
 							);
-							this.props.onEdit( print( newOperationDef ) );
+							this.props.onEdit(print(newOperationDef));
 						};
 
 						const onOperationClone = () => {
-							const newOperationDef = cloneOperation( operation );
-							this.props.onEdit( print( newOperationDef ) );
+							const newOperationDef = cloneOperation(operation);
+							this.props.onEdit(print(newOperationDef));
 						};
 
 						const onOperationDestroy = () => {
-							const newOperationDef =
-								destroyOperation( operation );
-							this.props.onEdit( print( newOperationDef ) );
+							const newOperationDef = destroyOperation(operation);
+							this.props.onEdit(print(newOperationDef));
 						};
 
 						const fragmentType =
 							operation.kind === 'FragmentDefinition' &&
 							operation.typeCondition.kind === 'NamedType' &&
-							schema.getType(
-								operation.typeCondition.name.value
-							);
+							schema.getType(operation.typeCondition.name.value);
 
 						const fragmentFields =
 							fragmentType instanceof GraphQLObjectType
@@ -471,41 +458,40 @@ class ExplorerView extends React.PureComponent {
 							operationType === 'query'
 								? queryFields
 								: operationType === 'mutation'
-								? mutationFields
-								: operationType === 'subscription'
-								? subscriptionFields
-								: operation.kind === 'FragmentDefinition'
-								? fragmentFields
-								: null;
+									? mutationFields
+									: operationType === 'subscription'
+										? subscriptionFields
+										: operation.kind ===
+											  'FragmentDefinition'
+											? fragmentFields
+											: null;
 
 						const fragmentTypeName =
 							operation.kind === 'FragmentDefinition'
 								? operation.typeCondition.name.value
 								: null;
 
-						const onCommit = ( parsedDocument ) => {
-							const textualNewDocument = print( parsedDocument );
+						const onCommit = (parsedDocument) => {
+							const textualNewDocument = print(parsedDocument);
 
-							this.props.onEdit( textualNewDocument );
+							this.props.onEdit(textualNewDocument);
 						};
 
 						return (
 							<RootView
-								key={ index }
-								isLast={
-									index === relevantOperations.length - 1
-								}
-								fields={ fields }
-								operationType={ operationType }
-								name={ operationName }
-								definition={ operation }
-								onOperationRename={ onOperationRename }
-								onOperationDestroy={ onOperationDestroy }
-								onOperationClone={ onOperationClone }
-								onTypeName={ fragmentTypeName }
-								onMount={ this._handleRootViewMount }
-								onCommit={ onCommit }
-								onEdit={ ( newDefinition, options ) => {
+								key={index}
+								isLast={index === relevantOperations.length - 1}
+								fields={fields}
+								operationType={operationType}
+								name={operationName}
+								definition={operation}
+								onOperationRename={onOperationRename}
+								onOperationDestroy={onOperationDestroy}
+								onOperationClone={onOperationClone}
+								onTypeName={fragmentTypeName}
+								onMount={this._handleRootViewMount}
+								onCommit={onCommit}
+								onEdit={(newDefinition, options) => {
 									let commit;
 									if (
 										typeof options === 'object' &&
@@ -516,12 +502,12 @@ class ExplorerView extends React.PureComponent {
 										commit = true;
 									}
 
-									if ( !! newDefinition ) {
+									if (!!newDefinition) {
 										const newQuery = {
 											...parsedQuery,
 											definitions:
 												parsedQuery.definitions.map(
-													( existingDefinition ) =>
+													(existingDefinition) =>
 														existingDefinition ===
 														operation
 															? newDefinition
@@ -529,36 +515,36 @@ class ExplorerView extends React.PureComponent {
 												),
 										};
 
-										if ( commit ) {
-											onCommit( newQuery );
+										if (commit) {
+											onCommit(newQuery);
 											return newQuery;
 										}
 										return newQuery;
 									}
 									return parsedQuery;
-								} }
-								schema={ schema }
-								getDefaultFieldNames={ getDefaultFieldNames }
+								}}
+								schema={schema}
+								getDefaultFieldNames={getDefaultFieldNames}
 								getDefaultScalarArgValue={
 									getDefaultScalarArgValue
 								}
-								makeDefaultArg={ makeDefaultArg }
-								onRunOperation={ () => {
-									if ( !! this.props.onRunOperation ) {
+								makeDefaultArg={makeDefaultArg}
+								onRunOperation={() => {
+									if (!!this.props.onRunOperation) {
 										this.props.onRunOperation(
 											operationName
 										);
 									}
-								} }
-								styleConfig={ styleConfig }
-								availableFragments={ availableFragments }
+								}}
+								styleConfig={styleConfig}
+								availableFragments={availableFragments}
 							/>
 						);
-					} ) }
-					{ attribution }
+					})}
+					{attribution}
 				</div>
 
-				{ actionsEl }
+				{actionsEl}
 			</div>
 		);
 	}

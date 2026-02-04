@@ -16,14 +16,19 @@ export function registerDocumentEditorToolbarButton(
 	priority = 10
 ) {
 	try {
-		dispatch( 'wpgraphql-ide/document-editor' ).registerButton(
+		dispatch('wpgraphql-ide/document-editor').registerButton(
 			name,
 			config,
 			priority
 		);
-		hooks.doAction( 'wpgraphql-ide.afterRegisterToolbarButton', name, config, priority );
-	} catch ( error ) {
-		console.error( `Failed to register button: ${ name }`, error );
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterToolbarButton',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register button: ${name}`, error);
 		hooks.doAction(
 			'wpgraphql-ide.registerToolbarButtonError',
 			name,
@@ -34,9 +39,9 @@ export function registerDocumentEditorToolbarButton(
 	}
 }
 
-export function registerActivityBarPanel( name, config, priority = 10 ) {
+export function registerActivityBarPanel(name, config, priority = 10) {
 	try {
-		dispatch( 'wpgraphql-ide/activity-bar' ).registerPanel(
+		dispatch('wpgraphql-ide/activity-bar').registerPanel(
 			name,
 			config,
 			priority
@@ -47,11 +52,8 @@ export function registerActivityBarPanel( name, config, priority = 10 ) {
 			config,
 			priority
 		);
-	} catch ( error ) {
-		console.error(
-			`Failed to register activity bar panel: ${ name }`,
-			error
-		);
+	} catch (error) {
+		console.error(`Failed to register activity bar panel: ${name}`, error);
 		hooks.doAction(
 			'wpgraphql-ide.registerActivityBarPanelError',
 			name,

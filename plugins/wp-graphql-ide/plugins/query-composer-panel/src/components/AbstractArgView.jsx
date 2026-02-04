@@ -15,24 +15,24 @@ class AbstractArgView extends React.PureComponent {
 	state = { displayArgActions: false };
 	render() {
 		const { argValue, arg, styleConfig } = this.props;
-		const argType = unwrapInputType( arg.type );
+		const argType = unwrapInputType(arg.type);
 
 		let input = null;
-		if ( argValue ) {
-			if ( argValue.kind === 'Variable' ) {
+		if (argValue) {
+			if (argValue.kind === 'Variable') {
 				input = (
-					<span style={ { color: styleConfig.colors.variable } }>
-						${ argValue.name.value }
+					<span style={{ color: styleConfig.colors.variable }}>
+						${argValue.name.value}
 					</span>
 				);
-			} else if ( isScalarType( argType ) ) {
-				if ( argType.name === 'Boolean' ) {
+			} else if (isScalarType(argType)) {
+				if (argType.name === 'Boolean') {
 					input = (
 						<select
-							style={ {
+							style={{
 								color: styleConfig.colors.builtin,
-							} }
-							onChange={ this.props.setArgValue }
+							}}
+							onChange={this.props.setArgValue}
 							value={
 								argValue.kind === 'BooleanValue'
 									? argValue.value
@@ -50,30 +50,30 @@ class AbstractArgView extends React.PureComponent {
 				} else {
 					input = (
 						<ScalarInput
-							setArgValue={ this.props.setArgValue }
-							arg={ arg }
-							argValue={ argValue }
-							onRunOperation={ this.props.onRunOperation }
-							styleConfig={ this.props.styleConfig }
+							setArgValue={this.props.setArgValue}
+							arg={arg}
+							argValue={argValue}
+							onRunOperation={this.props.onRunOperation}
+							styleConfig={this.props.styleConfig}
 						/>
 					);
 				}
-			} else if ( isEnumType( argType ) ) {
-				if ( argValue.kind === 'EnumValue' ) {
+			} else if (isEnumType(argType)) {
+				if (argValue.kind === 'EnumValue') {
 					input = (
 						<select
-							style={ {
+							style={{
 								backgroundColor: 'white',
 								color: styleConfig.colors.string2,
-							} }
-							onChange={ this.props.setArgValue }
-							value={ argValue.value }
+							}}
+							onChange={this.props.setArgValue}
+							value={argValue.value}
 						>
-							{ argType.getValues().map( ( value ) => (
-								<option key={ value.name } value={ value.name }>
-									{ value.name }
+							{argType.getValues().map((value) => (
+								<option key={value.name} value={value.name}>
+									{value.name}
 								</option>
-							) ) }
+							))}
 						</select>
 					);
 				} else {
@@ -83,20 +83,20 @@ class AbstractArgView extends React.PureComponent {
 						argValue
 					);
 				}
-			} else if ( isInputObjectType( argType ) ) {
-				if ( argValue.kind === 'ObjectValue' ) {
+			} else if (isInputObjectType(argType)) {
+				if (argValue.kind === 'ObjectValue') {
 					const fields = argType.getFields();
 					input = (
-						<div style={ { marginLeft: 16 } }>
-							{ Object.keys( fields )
+						<div style={{ marginLeft: 16 }}>
+							{Object.keys(fields)
 								.sort()
-								.map( ( fieldName ) => (
+								.map((fieldName) => (
 									<InputArgView
-										key={ fieldName }
-										arg={ fields[ fieldName ] }
-										parentField={ this.props.parentField }
-										selection={ argValue }
-										modifyFields={ this.props.setArgFields }
+										key={fieldName}
+										arg={fields[fieldName]}
+										parentField={this.props.parentField}
+										selection={argValue}
+										modifyFields={this.props.setArgFields}
 										getDefaultScalarArgValue={
 											this.props.getDefaultScalarArgValue
 										}
@@ -106,11 +106,11 @@ class AbstractArgView extends React.PureComponent {
 										onRunOperation={
 											this.props.onRunOperation
 										}
-										styleConfig={ this.props.styleConfig }
-										onCommit={ this.props.onCommit }
-										definition={ this.props.definition }
+										styleConfig={this.props.styleConfig}
+										onCommit={this.props.onCommit}
+										definition={this.props.definition}
 									/>
-								) ) }
+								))}
 						</div>
 					);
 				} else {
@@ -127,18 +127,18 @@ class AbstractArgView extends React.PureComponent {
 			const baseVariableName = arg.name;
 			const conflictingNameCount = (
 				this.props.definition.variableDefinitions || []
-			).filter( ( varDef ) =>
-				varDef.variable.name.value.startsWith( baseVariableName )
+			).filter((varDef) =>
+				varDef.variable.name.value.startsWith(baseVariableName)
 			).length;
 
 			let variableName;
-			if ( conflictingNameCount > 0 ) {
-				variableName = `${ baseVariableName }${ conflictingNameCount }`;
+			if (conflictingNameCount > 0) {
+				variableName = `${baseVariableName}${conflictingNameCount}`;
 			} else {
 				variableName = baseVariableName;
 			}
 			const argPrintedType = arg.type.toString();
-			const argType = parseType( argPrintedType );
+			const argType = parseType(argPrintedType);
 
 			const base = {
 				kind: 'VariableDefinition',
@@ -153,31 +153,31 @@ class AbstractArgView extends React.PureComponent {
 				directives: [],
 			};
 
-			const variableDefinitionByName = ( name ) =>
-				( this.props.definition.variableDefinitions || [] ).find(
-					( varDef ) => varDef.variable.name.value === name
+			const variableDefinitionByName = (name) =>
+				(this.props.definition.variableDefinitions || []).find(
+					(varDef) => varDef.variable.name.value === name
 				);
 
 			let variable;
 
 			const subVariableUsageCountByName = {};
 
-			if ( typeof argValue !== 'undefined' && argValue !== null ) {
-				const cleanedDefaultValue = visit( argValue, {
-					Variable( node ) {
+			if (typeof argValue !== 'undefined' && argValue !== null) {
+				const cleanedDefaultValue = visit(argValue, {
+					Variable(node) {
 						const varName = node.name.value;
-						const varDef = variableDefinitionByName( varName );
+						const varDef = variableDefinitionByName(varName);
 
-						subVariableUsageCountByName[ varName ] =
-							subVariableUsageCountByName[ varName ] + 1 || 1;
+						subVariableUsageCountByName[varName] =
+							subVariableUsageCountByName[varName] + 1 || 1;
 
-						if ( ! varDef ) {
+						if (!varDef) {
 							return;
 						}
 
 						return varDef.defaultValue;
 					},
-				} );
+				});
 
 				const isNonNullable = base.type.kind === 'NonNullType';
 
@@ -196,21 +196,21 @@ class AbstractArgView extends React.PureComponent {
 			const newlyUnusedVariables = Object.entries(
 				subVariableUsageCountByName
 			)
-				.filter( ( [ _, usageCount ] ) => usageCount < 2 )
-				.map( ( [ varName, _ ] ) => varName );
+				.filter(([_, usageCount]) => usageCount < 2)
+				.map(([varName, _]) => varName);
 
-			if ( variable ) {
-				const newDoc = this.props.setArgValue( variable, false );
+			if (variable) {
+				const newDoc = this.props.setArgValue(variable, false);
 
-				if ( newDoc ) {
+				if (newDoc) {
 					const targetOperation = newDoc.definitions.find(
-						( definition ) => {
+						(definition) => {
 							if (
-								!! definition.operation &&
-								!! definition.name &&
-								!! definition.name.value &&
-								!! this.props.definition.name &&
-								!! this.props.definition.name.value
+								!!definition.operation &&
+								!!definition.name &&
+								!!definition.name.value &&
+								!!this.props.definition.name &&
+								!!this.props.definition.name.value
 							) {
 								return (
 									definition.name.value ===
@@ -222,10 +222,10 @@ class AbstractArgView extends React.PureComponent {
 					);
 
 					const newVariableDefinitions = [
-						...( targetOperation.variableDefinitions || [] ),
+						...(targetOperation.variableDefinitions || []),
 						variable,
 					].filter(
-						( varDef ) =>
+						(varDef) =>
 							newlyUnusedVariables.indexOf(
 								varDef.variable.name.value
 							) === -1
@@ -239,8 +239,8 @@ class AbstractArgView extends React.PureComponent {
 					const existingDefs = newDoc.definitions;
 
 					const newDefinitions = existingDefs.map(
-						( existingOperation ) => {
-							if ( targetOperation === existingOperation ) {
+						(existingOperation) => {
+							if (targetOperation === existingOperation) {
 								return newOperation;
 							}
 							return existingOperation;
@@ -252,59 +252,58 @@ class AbstractArgView extends React.PureComponent {
 						definitions: newDefinitions,
 					};
 
-					this.props.onCommit( finalDoc );
+					this.props.onCommit(finalDoc);
 				}
 			}
 		};
 
 		const devariablize = () => {
-			if ( ! argValue || ! argValue.name || ! argValue.name.value ) {
+			if (!argValue || !argValue.name || !argValue.name.value) {
 				return;
 			}
 
 			const variableName = argValue.name.value;
 			const variableDefinition = (
 				this.props.definition.variableDefinitions || []
-			).find( ( varDef ) => varDef.variable.name.value === variableName );
+			).find((varDef) => varDef.variable.name.value === variableName);
 
-			if ( ! variableDefinition ) {
+			if (!variableDefinition) {
 				return;
 			}
 
 			const defaultValue = variableDefinition.defaultValue;
 
-			const newDoc = this.props.setArgValue( defaultValue, {
+			const newDoc = this.props.setArgValue(defaultValue, {
 				commit: false,
-			} );
+			});
 
-			if ( newDoc ) {
+			if (newDoc) {
 				const targetOperation = newDoc.definitions.find(
-					( definition ) =>
+					(definition) =>
 						definition.name.value ===
 						this.props.definition.name.value
 				);
 
-				if ( ! targetOperation ) {
+				if (!targetOperation) {
 					return;
 				}
 
 				let variableUseCount = 0;
 
-				visit( targetOperation, {
-					Variable( node ) {
-						if ( node.name.value === variableName ) {
+				visit(targetOperation, {
+					Variable(node) {
+						if (node.name.value === variableName) {
 							variableUseCount = variableUseCount + 1;
 						}
 					},
-				} );
+				});
 
 				let newVariableDefinitions =
 					targetOperation.variableDefinitions || [];
 
-				if ( variableUseCount < 2 ) {
+				if (variableUseCount < 2) {
 					newVariableDefinitions = newVariableDefinitions.filter(
-						( varDef ) =>
-							varDef.variable.name.value !== variableName
+						(varDef) => varDef.variable.name.value !== variableName
 					);
 				}
 
@@ -315,27 +314,25 @@ class AbstractArgView extends React.PureComponent {
 
 				const existingDefs = newDoc.definitions;
 
-				const newDefinitions = existingDefs.map(
-					( existingOperation ) => {
-						if ( targetOperation === existingOperation ) {
-							return newOperation;
-						}
-						return existingOperation;
+				const newDefinitions = existingDefs.map((existingOperation) => {
+					if (targetOperation === existingOperation) {
+						return newOperation;
 					}
-				);
+					return existingOperation;
+				});
 
 				const finalDoc = {
 					...newDoc,
 					definitions: newDefinitions,
 				};
 
-				this.props.onCommit( finalDoc );
+				this.props.onCommit(finalDoc);
 			}
 		};
 
 		const isArgValueVariable = argValue && argValue.kind === 'Variable';
 
-		const variablizeActionButton = ! this.state.displayArgActions ? null : (
+		const variablizeActionButton = !this.state.displayArgActions ? null : (
 			<button
 				type="submit"
 				className="toolbar-button"
@@ -344,81 +341,81 @@ class AbstractArgView extends React.PureComponent {
 						? 'Remove the variable'
 						: 'Extract the current value into a GraphQL variable'
 				}
-				onClick={ ( event ) => {
+				onClick={(event) => {
 					event.preventDefault();
 					event.stopPropagation();
 
-					if ( isArgValueVariable ) {
+					if (isArgValueVariable) {
 						devariablize();
 					} else {
 						variablize();
 					}
-				} }
-				style={ styleConfig.styles.actionButtonStyle }
+				}}
+				style={styleConfig.styles.actionButtonStyle}
 			>
-				<span style={ { color: styleConfig.colors.variable } }>
-					{ '$' }
+				<span style={{ color: styleConfig.colors.variable }}>
+					{'$'}
 				</span>
 			</button>
 		);
 
 		return (
 			<div
-				style={ {
+				style={{
 					cursor: 'pointer',
 					minHeight: '16px',
 					WebkitUserSelect: 'none',
 					userSelect: 'none',
-				} }
-				data-arg-name={ arg.name }
-				data-arg-type={ argType.name }
-				className={ `graphiql-explorer-${ arg.name }` }
+				}}
+				data-arg-name={arg.name}
+				data-arg-type={argType.name}
+				className={`graphiql-explorer-${arg.name}`}
 			>
 				<span
-					style={ { cursor: 'pointer' } }
-					onClick={ ( event ) => {
-						const shouldAdd = ! argValue;
-						if ( shouldAdd ) {
-							this.props.addArg( true );
+					style={{ cursor: 'pointer' }}
+					onClick={(event) => {
+						const shouldAdd = !argValue;
+						if (shouldAdd) {
+							this.props.addArg(true);
 						} else {
-							this.props.removeArg( true );
+							this.props.removeArg(true);
 						}
-						this.setState( { displayArgActions: shouldAdd } );
-					} }
+						this.setState({ displayArgActions: shouldAdd });
+					}}
 				>
-					{ isInputObjectType( argType ) ? (
+					{isInputObjectType(argType) ? (
 						<span>
-							{ !! argValue
+							{!!argValue
 								? this.props.styleConfig.arrowOpen
-								: this.props.styleConfig.arrowClosed }
+								: this.props.styleConfig.arrowClosed}
 						</span>
 					) : (
 						<Checkbox
-							checked={ !! argValue }
-							styleConfig={ this.props.styleConfig }
+							checked={!!argValue}
+							styleConfig={this.props.styleConfig}
 						/>
-					) }
+					)}
 					<span
-						style={ { color: styleConfig.colors.attribute } }
-						title={ arg.description }
-						onMouseEnter={ () => {
+						style={{ color: styleConfig.colors.attribute }}
+						title={arg.description}
+						onMouseEnter={() => {
 							if (
 								argValue !== null &&
 								typeof argValue !== 'undefined'
 							) {
-								this.setState( { displayArgActions: true } );
+								this.setState({ displayArgActions: true });
 							}
-						} }
-						onMouseLeave={ () =>
-							this.setState( { displayArgActions: false } )
+						}}
+						onMouseLeave={() =>
+							this.setState({ displayArgActions: false })
 						}
 					>
-						{ arg.name }
-						{ isRequiredArgument( arg ) ? '*' : '' }:{ ' ' }
-						{ variablizeActionButton }{ ' ' }
-					</span>{ ' ' }
+						{arg.name}
+						{isRequiredArgument(arg) ? '*' : ''}:{' '}
+						{variablizeActionButton}{' '}
+					</span>{' '}
 				</span>
-				{ input || <span /> }{ ' ' }
+				{input || <span />}{' '}
 			</div>
 		);
 	}

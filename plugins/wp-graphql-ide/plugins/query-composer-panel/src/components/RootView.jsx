@@ -6,7 +6,7 @@ class RootView extends React.PureComponent {
 	state = { newOperationType: 'query', displayTitleActions: false };
 	_previousOperationDef;
 
-	_modifySelections = ( selections, options ) => {
+	_modifySelections = (selections, options) => {
 		let operationDef = this.props.definition;
 
 		if (
@@ -18,7 +18,7 @@ class RootView extends React.PureComponent {
 
 		let newOperationDef;
 
-		if ( operationDef.kind === 'FragmentDefinition' ) {
+		if (operationDef.kind === 'FragmentDefinition') {
 			newOperationDef = {
 				...operationDef,
 				selectionSet: {
@@ -26,15 +26,15 @@ class RootView extends React.PureComponent {
 					selections,
 				},
 			};
-		} else if ( operationDef.kind === 'OperationDefinition' ) {
-			let cleanedSelections = selections.filter( ( selection ) => {
-				return ! (
+		} else if (operationDef.kind === 'OperationDefinition') {
+			let cleanedSelections = selections.filter((selection) => {
+				return !(
 					selection.kind === 'Field' &&
 					selection.name.value === '__typename'
 				);
-			} );
+			});
 
-			if ( cleanedSelections.length === 0 ) {
+			if (cleanedSelections.length === 0) {
 				cleanedSelections = [
 					{
 						kind: 'Field',
@@ -55,31 +55,31 @@ class RootView extends React.PureComponent {
 			};
 		}
 
-		return this.props.onEdit( newOperationDef, options );
+		return this.props.onEdit(newOperationDef, options);
 	};
 
-	_onOperationRename = ( event ) =>
-		this.props.onOperationRename( event.target.value );
+	_onOperationRename = (event) =>
+		this.props.onOperationRename(event.target.value);
 
-	_handlePotentialRun = ( event ) => {
+	_handlePotentialRun = (event) => {
 		if (
-			isRunShortcut( event ) &&
-			canRunOperation( this.props.definition.kind )
+			isRunShortcut(event) &&
+			canRunOperation(this.props.definition.kind)
 		) {
-			this.props.onRunOperation( this.props.name );
+			this.props.onRunOperation(this.props.name);
 		}
 	};
 
 	_rootViewElId = () => {
 		const { operationType, name } = this.props;
-		const rootViewElId = `${ operationType }-${ name || 'unknown' }`;
+		const rootViewElId = `${operationType}-${name || 'unknown'}`;
 		return rootViewElId;
 	};
 
 	componentDidMount() {
 		const rootViewElId = this._rootViewElId();
 
-		this.props.onMount( rootViewElId );
+		this.props.onMount(rootViewElId);
 	}
 
 	render() {
@@ -97,115 +97,111 @@ class RootView extends React.PureComponent {
 		const selections = operationDef.selectionSet.selections;
 
 		const operationDisplayName =
-			this.props.name || `${ capitalize( operationType ) } Name`;
+			this.props.name || `${capitalize(operationType)} Name`;
 
 		return (
 			<div
-				id={ rootViewElId }
+				id={rootViewElId}
 				tabIndex="0"
-				onKeyDown={ this._handlePotentialRun }
-				style={ {
+				onKeyDown={this._handlePotentialRun}
+				style={{
 					borderBottom: this.props.isLast
 						? 'none'
 						: '1px solid #d6d6d6',
 					marginBottom: '0em',
 					paddingBottom: '1em',
-				} }
+				}}
 			>
 				<div
-					style={ {
+					style={{
 						color: styleConfig.colors.keyword,
 						paddingBottom: 4,
-					} }
+					}}
 					className="graphiql-operation-title-bar"
-					onMouseEnter={ () =>
-						this.setState( { displayTitleActions: true } )
+					onMouseEnter={() =>
+						this.setState({ displayTitleActions: true })
 					}
-					onMouseLeave={ () =>
-						this.setState( { displayTitleActions: false } )
+					onMouseLeave={() =>
+						this.setState({ displayTitleActions: false })
 					}
 				>
-					{ operationType }{ ' ' }
-					<span style={ { color: styleConfig.colors.def } }>
+					{operationType}{' '}
+					<span style={{ color: styleConfig.colors.def }}>
 						<input
-							style={ {
+							style={{
 								color: styleConfig.colors.def,
 								border: 'none',
 								borderBottom: '1px solid #888',
 								outline: 'none',
-								width: `${ Math.max(
+								width: `${Math.max(
 									4,
 									operationDisplayName.length
-								) }ch`,
-							} }
+								)}ch`,
+							}}
 							autoComplete="false"
-							placeholder={ `${ capitalize(
-								operationType
-							) } Name` }
-							value={ this.props.name }
-							onKeyDown={ this._handlePotentialRun }
-							onChange={ this._onOperationRename }
+							placeholder={`${capitalize(operationType)} Name`}
+							value={this.props.name}
+							onKeyDown={this._handlePotentialRun}
+							onChange={this._onOperationRename}
 						/>
 					</span>
-					{ !! this.props.onTypeName ? (
+					{!!this.props.onTypeName ? (
 						<span>
 							<br />
-							{ `on ${ this.props.onTypeName }` }
+							{`on ${this.props.onTypeName}`}
 						</span>
 					) : (
 						''
-					) }
-					{ !! this.state.displayTitleActions ? (
+					)}
+					{!!this.state.displayTitleActions ? (
 						<React.Fragment>
 							<button
 								type="submit"
 								className="toolbar-button"
-								onClick={ () =>
-									this.props.onOperationDestroy()
-								}
-								style={ {
+								onClick={() => this.props.onOperationDestroy()}
+								style={{
 									...styleConfig.styles.actionButtonStyle,
-								} }
+								}}
 							>
-								<span>{ '\u2715' }</span>
+								<span>{'\u2715'}</span>
 							</button>
 							<button
 								type="submit"
 								className="toolbar-button"
-								onClick={ () => this.props.onOperationClone() }
-								style={ {
+								onClick={() => this.props.onOperationClone()}
+								style={{
 									...styleConfig.styles.actionButtonStyle,
-								} }
+								}}
 							>
-								<span>{ '⎘' }</span>
+								<span>{'⎘'}</span>
 							</button>
 						</React.Fragment>
 					) : (
 						''
-					) }
+					)}
 				</div>
 
-				{ Object.keys( fields )
+				{Object.keys(fields)
 					.sort()
-					.map( ( fieldName ) => (
+					.map((fieldName) => (
 						<FieldView
-							key={ fieldName }
-							field={ fields[ fieldName ] }
-							selections={ selections }
-							modifySelections={ this._modifySelections }
-							schema={ schema }
-							getDefaultFieldNames={ getDefaultFieldNames }
+							key={fieldName}
+							field={fields[fieldName]}
+							selections={selections}
+							modifySelections={this._modifySelections}
+							schema={schema}
+							getDefaultFieldNames={getDefaultFieldNames}
 							getDefaultScalarArgValue={
 								this.props.getDefaultScalarArgValue
 							}
-							makeDefaultArg={ this.props.makeDefaultArg }
-							onRunOperation={ this.props.onRunOperation }
-							styleConfig={ this.props.styleConfig }
-							onCommit={ this.props.onCommit }
-							definition={ this.props.definition }
-							availableFragments={ this.props.availableFragments }
+							makeDefaultArg={this.props.makeDefaultArg}
+							onRunOperation={this.props.onRunOperation}
+							styleConfig={this.props.styleConfig}
+							onCommit={this.props.onCommit}
+							definition={this.props.definition}
+							availableFragments={this.props.availableFragments}
 						/>
-					) ) }
+					))}
 			</div>
 		);
 	}
@@ -214,7 +210,7 @@ class RootView extends React.PureComponent {
 function Attribution() {
 	return (
 		<div
-			style={ {
+			style={{
 				fontFamily: 'sans-serif',
 				display: 'flex',
 				flexDirection: 'column',
@@ -223,21 +219,21 @@ function Attribution() {
 				marginTop: 0,
 				flexGrow: 1,
 				justifyContent: 'flex-end',
-			} }
+			}}
 		>
 			<div
-				style={ {
+				style={{
 					borderTop: '1px solid #d6d6d6',
 					paddingTop: '1em',
 					width: '100%',
 					textAlign: 'center',
-				} }
+				}}
 			>
-				GraphiQL Explorer by{ ' ' }
+				GraphiQL Explorer by{' '}
 				<a href="https://www.onegraph.com">OneGraph</a>
 			</div>
 			<div>
-				Contribute on{ ' ' }
+				Contribute on{' '}
 				<a href="https://github.com/OneGraph/graphiql-explorer">
 					GitHub
 				</a>

@@ -4,33 +4,33 @@
  */
 const selectors = {
 	// TODO: update "getQuery" to simply "query" since we are in the context of selectors.
-	getQuery: ( state ) => {
+	getQuery: (state) => {
 		return state.query;
 	},
-	schema: ( state ) => {
+	schema: (state) => {
 		return state.schema;
 	},
-	isDrawerOpen: ( state ) => {
+	isDrawerOpen: (state) => {
 		return state.isDrawerOpen;
 	},
-	shouldRenderStandalone: ( state ) => {
+	shouldRenderStandalone: (state) => {
 		return state.shouldRenderStandalone;
 	},
-	isInitialStateLoaded: ( state ) => {
+	isInitialStateLoaded: (state) => {
 		return state.isInitialStateLoaded;
 	},
-	getPluginsArray: ( state ) => {
+	getPluginsArray: (state) => {
 		const registeredPlugins = state.registeredPlugins;
 		const pluginsArray = [];
-		Object.entries( registeredPlugins ).map( ( [ key, config ] ) => {
+		Object.entries(registeredPlugins).map(([key, config]) => {
 			const plugin = () => {
 				return config;
 			};
-			pluginsArray.push( plugin() );
-		} );
+			pluginsArray.push(plugin());
+		});
 		return pluginsArray;
 	},
-	isAuthenticated: ( state ) => {
+	isAuthenticated: (state) => {
 		return state.isAuthenticated;
 	},
 };

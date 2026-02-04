@@ -5,7 +5,7 @@ import FieldView from './FieldView';
 class AbstractView extends React.PureComponent {
 	_previousSelection;
 	_addFragment = () => {
-		this.props.modifySelections( [
+		this.props.modifySelections([
 			...this.props.selections,
 			this._previousSelection || {
 				kind: 'InlineFragment',
@@ -19,43 +19,43 @@ class AbstractView extends React.PureComponent {
 				selectionSet: {
 					kind: 'SelectionSet',
 					selections: this.props
-						.getDefaultFieldNames( this.props.implementingType )
-						.map( ( fieldName ) => ( {
+						.getDefaultFieldNames(this.props.implementingType)
+						.map((fieldName) => ({
 							kind: 'Field',
 							name: { kind: 'Name', value: fieldName },
-						} ) ),
+						})),
 				},
 			},
-		] );
+		]);
 	};
 	_removeFragment = () => {
 		const thisSelection = this._getSelection();
 		this._previousSelection = thisSelection;
 		this.props.modifySelections(
-			this.props.selections.filter( ( s ) => s !== thisSelection )
+			this.props.selections.filter((s) => s !== thisSelection)
 		);
 	};
 	_getSelection = () => {
 		const selection = this.props.selections.find(
-			( selection ) =>
+			(selection) =>
 				selection.kind === 'InlineFragment' &&
 				selection.typeCondition &&
 				this.props.implementingType.name ===
 					selection.typeCondition.name.value
 		);
-		if ( ! selection ) {
+		if (!selection) {
 			return null;
 		}
-		if ( selection.kind === 'InlineFragment' ) {
+		if (selection.kind === 'InlineFragment') {
 			return selection;
 		}
 	};
 
-	_modifyChildSelections = ( selections, options ) => {
+	_modifyChildSelections = (selections, options) => {
 		const thisSelection = this._getSelection();
 		return this.props.modifySelections(
-			this.props.selections.map( ( selection ) => {
-				if ( selection === thisSelection ) {
+			this.props.selections.map((selection) => {
+				if (selection === thisSelection) {
 					return {
 						directives: selection.directives,
 						kind: 'InlineFragment',
@@ -73,7 +73,7 @@ class AbstractView extends React.PureComponent {
 					};
 				}
 				return selection;
-			} ),
+			}),
 			options
 		);
 	};
@@ -90,52 +90,50 @@ class AbstractView extends React.PureComponent {
 			: [];
 
 		return (
-			<div className={ `graphiql-explorer-${ implementingType.name }` }>
+			<div className={`graphiql-explorer-${implementingType.name}`}>
 				<span
-					style={ { cursor: 'pointer' } }
+					style={{ cursor: 'pointer' }}
 					onClick={
 						selection ? this._removeFragment : this._addFragment
 					}
 				>
 					<Checkbox
-						checked={ !! selection }
-						styleConfig={ this.props.styleConfig }
+						checked={!!selection}
+						styleConfig={this.props.styleConfig}
 					/>
-					<span style={ { color: styleConfig.colors.atom } }>
-						{ this.props.implementingType.name }
+					<span style={{ color: styleConfig.colors.atom }}>
+						{this.props.implementingType.name}
 					</span>
 				</span>
-				{ selection ? (
-					<div style={ { marginLeft: 16 } }>
-						{ Object.keys( fields )
+				{selection ? (
+					<div style={{ marginLeft: 16 }}>
+						{Object.keys(fields)
 							.sort()
-							.map( ( fieldName ) => (
+							.map((fieldName) => (
 								<FieldView
-									key={ fieldName }
-									field={ fields[ fieldName ] }
-									selections={ childSelections }
+									key={fieldName}
+									field={fields[fieldName]}
+									selections={childSelections}
 									modifySelections={
 										this._modifyChildSelections
 									}
-									schema={ schema }
-									getDefaultFieldNames={
-										getDefaultFieldNames
-									}
+									schema={schema}
+									getDefaultFieldNames={getDefaultFieldNames}
 									getDefaultScalarArgValue={
 										this.props.getDefaultScalarArgValue
 									}
-									makeDefaultArg={ this.props.makeDefaultArg }
-									onRunOperation={ this.props.onRunOperation }
-									onCommit={ this.props.onCommit }
-									styleConfig={ this.props.styleConfig }
-									definition={ this.props.definition }
+									makeDefaultArg={this.props.makeDefaultArg}
+									onRunOperation={this.props.onRunOperation}
+									onCommit={this.props.onCommit}
+									styleConfig={this.props.styleConfig}
+									definition={this.props.definition}
 									availableFragments={
 										this.props.availableFragments
 									}
 								/>
-							) ) }
+							))}
 					</div>
-				) : null }
+				) : null}
 			</div>
 		);
 	}

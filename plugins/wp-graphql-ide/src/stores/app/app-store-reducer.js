@@ -22,28 +22,28 @@ const initialState = {
  *
  * @return {Object}
  */
-const setQuery = ( state, action ) => {
+const setQuery = (state, action) => {
 	const editedQuery = action.query;
 	const query = state.query;
 
 	let update = false;
 
-	if ( editedQuery === query ) {
+	if (editedQuery === query) {
 		return { ...state };
 	}
 
-	if ( null === editedQuery || '' === editedQuery ) {
+	if (null === editedQuery || '' === editedQuery) {
 		update = true;
 	} else {
 		try {
-			parse( editedQuery );
+			parse(editedQuery);
 			update = true;
-		} catch ( error ) {
+		} catch (error) {
 			return { ...state };
 		}
 	}
 
-	if ( ! update ) {
+	if (!update) {
 		return { ...state };
 	}
 
@@ -59,15 +59,15 @@ const setQuery = ( state, action ) => {
  * @param {Object} action The action to be performed.
  * @return {Object}
  */
-const reducer = ( state = initialState, action ) => {
-	switch ( action.type ) {
+const reducer = (state = initialState, action) => {
+	switch (action.type) {
 		case 'SET_RENDER_STANDALONE':
 			return {
 				...state,
 				shouldRenderStandalone: action.shouldRenderStandalone,
 			};
 		case 'SET_QUERY':
-			return setQuery( state, action );
+			return setQuery(state, action);
 		case 'SET_SCHEMA':
 			return {
 				...state,
@@ -88,13 +88,13 @@ const reducer = ( state = initialState, action ) => {
 				...state,
 				registeredPlugins: {
 					...state.registeredPlugins,
-					[ action.name ]: action.config,
+					[action.name]: action.config,
 				},
 			};
 		case 'TOGGLE_AUTHENTICATION':
 			return {
 				...state,
-				isAuthenticated: ! state.isAuthenticated,
+				isAuthenticated: !state.isAuthenticated,
 			};
 	}
 	return state;

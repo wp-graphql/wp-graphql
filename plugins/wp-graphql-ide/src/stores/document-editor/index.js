@@ -7,8 +7,8 @@ import actions from './document-editor-store-actions';
 /**
  * The store for the app.
  */
-export const store = createReduxStore( 'wpgraphql-ide/document-editor', {
+export const store = createReduxStore('wpgraphql-ide/document-editor', {
 	reducer,
 	selectors,
 	actions,
-} );
+});

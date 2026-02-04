@@ -39,34 +39,30 @@ const styles = {
 	},
 };
 
-export const QueryComposer = ( props ) => {
-	const schema = useSelect( ( select ) =>
-		select( 'wpgraphql-ide/app' ).schema()
-	);
+export const QueryComposer = (props) => {
+	const schema = useSelect((select) => select('wpgraphql-ide/app').schema());
 
-	const query = useSelect( ( select ) =>
-		select( 'wpgraphql-ide/app' ).getQuery()
-	);
+	const query = useSelect((select) => select('wpgraphql-ide/app').getQuery());
 
-	const { setQuery } = useDispatch( 'wpgraphql-ide/app' );
+	const { setQuery } = useDispatch('wpgraphql-ide/app');
 
 	return (
 		<>
 			<ExplorerWrapper
-				{ ...props }
-				schema={ schema }
-				query={ query }
+				{...props}
+				schema={schema}
+				query={query}
 				explorerIsOpen
-				colors={ colors }
-				arrowOpen={ ArrowOpen }
-				arrowClosed={ ArrowClosed }
-				checkboxUnchecked={ checkboxUnchecked }
-				checkboxChecked={ checkboxChecked }
-				styles={ styles }
-				title={ 'Query Composer' }
-				onEdit={ ( newQuery ) => {
-					setQuery( newQuery );
-				} }
+				colors={colors}
+				arrowOpen={ArrowOpen}
+				arrowClosed={ArrowClosed}
+				checkboxUnchecked={checkboxUnchecked}
+				checkboxChecked={checkboxChecked}
+				styles={styles}
+				title={'Query Composer'}
+				onEdit={(newQuery) => {
+					setQuery(newQuery);
+				}}
 			/>
 		</>
 	);

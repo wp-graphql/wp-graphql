@@ -13,18 +13,18 @@ import copy from 'copy-to-clipboard';
  * the second element is a boolean state indicating whether the text has been copied.
  */
 export const useCopyToClipboard = () => {
-	const [ isCopied, setIsCopied ] = useState( false );
+	const [isCopied, setIsCopied] = useState(false);
 
 	/**
 	 * Copies the provided text to the clipboard and shows a WordPress admin notice.
 	 *
 	 * @param {string} text The text to be copied to the clipboard.
 	 */
-	const copyToClipboard = async ( text ) => {
-		const wasCopied = copy( text );
-		await setIsCopied( wasCopied );
-		setTimeout( () => setIsCopied( false ), 2500 );
+	const copyToClipboard = async (text) => {
+		const wasCopied = copy(text);
+		await setIsCopied(wasCopied);
+		setTimeout(() => setIsCopied(false), 2500);
 	};
 
-	return [ copyToClipboard, isCopied ];
+	return [copyToClipboard, isCopied];
 };

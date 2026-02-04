@@ -2,12 +2,12 @@ import React, { useEffect, useCallback } from 'react';
 import { GraphiQL } from './GraphiQL';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { parse, visit } from 'graphql';
-import 'graphiql/graphiql.min.css';
+import 'graphiql/graphiql.css';
 
 export function App() {
 	const { query, shouldRenderStandalone, isAuthenticated, schema } =
-		useSelect( ( select ) => {
-			const wpgraphqlIDEApp = select( 'wpgraphql-ide/app' );
+		useSelect((select) => {
+			const wpgraphqlIDEApp = select('wpgraphql-ide/app');
 			return {
 				query: wpgraphqlIDEApp.getQuery(),
 				shouldRenderStandalone:
@@ -15,12 +15,12 @@ export function App() {
 				isAuthenticated: wpgraphqlIDEApp.isAuthenticated(),
 				schema: wpgraphqlIDEApp.schema(),
 			};
-		} );
+		});
 
 	const { setQuery, setDrawerOpen, setSchema } =
-		useDispatch( 'wpgraphql-ide/app' );
+		useDispatch('wpgraphql-ide/app');
 
-	useEffect( () => {
+	useEffect(() => {
 		// create a ref
 		const ref = React.createRef();
 		// find the target element in the DOM
@@ -28,34 +28,34 @@ export function App() {
 			'[aria-label="Re-fetch GraphQL schema"]'
 		);
 		// if the element exists
-		if ( element ) {
+		if (element) {
 			// assign the ref to the element
 			element.ref = ref;
 			// listen to click events on the element
-			element.addEventListener( 'click', () => {
-				setSchema( undefined );
-			} );
+			element.addEventListener('click', () => {
+				setSchema(undefined);
+			});
 		}
-	}, [ schema ] );
+	}, [schema]);
 
-	useEffect( () => {
+	useEffect(() => {
 		localStorage.setItem(
 			'graphiql:isAuthenticated',
 			isAuthenticated.toString()
 		);
-	}, [ isAuthenticated ] );
+	}, [isAuthenticated]);
 
 	const fetcher = useCallback(
-		async ( graphQLParams ) => {
+		async (graphQLParams) => {
 			let isIntrospectionQuery = false;
 
 			try {
 				// Parse the GraphQL query to AST only once and in a try-catch to handle potential syntax errors gracefully
-				const queryAST = parse( graphQLParams.query );
+				const queryAST = parse(graphQLParams.query);
 
 				// Visit each node in the AST efficiently to check for introspection fields
-				visit( queryAST, {
-					Field( node ) {
+				visit(queryAST, {
+					Field(node) {
 						if (
 							node.name.value === '__schema' ||
 							node.name.value === '__type'
@@ -64,9 +64,9 @@ export function App() {
 							return visit.BREAK; // Early exit if introspection query is detected
 						}
 					},
-				} );
-			} catch ( error ) {
-				console.error( 'Error parsing GraphQL query:', error );
+				});
+			} catch (error) {
+				console.error('Error parsing GraphQL query:', error);
 			}
 
 			const { graphqlEndpoint } = window.WPGRAPHQL_IDE_DATA;
@@ -81,55 +81,48 @@ export function App() {
 					? 'include'
 					: 'omit';
 
-			console.log({credentials});
-			const response = await fetch( graphqlEndpoint, {
+			const response = await fetch(graphqlEndpoint, {
 				method: 'POST',
 				headers,
-				body: JSON.stringify( graphQLParams ),
+				body: JSON.stringify(graphQLParams),
 				credentials,
-			} );
+			});
 
 			return response.json();
 		},
-		[ isAuthenticated ]
+		[isAuthenticated]
 	);
 
-	const activityPanels = useSelect( ( select ) => {
-		const activityPanels = select(
-			'wpgraphql-ide/activity-bar'
-		).activityPanels();
-		console.log( {
-			activityPanels,
-		} );
-		return activityPanels;
-	} );
+	const activityPanels = useSelect((select) => {
+		return select('wpgraphql-ide/activity-bar').activityPanels();
+	});
 
 	return (
 		<span id="wpgraphql-ide-app">
 			<GraphiQL
-				query={ query }
-				fetcher={ fetcher }
-				onEditQuery={ setQuery }
-				schema={ schema }
-				onSchemaChange={ ( newSchema ) => {
-					if ( schema !== newSchema ) {
-						setSchema( newSchema );
+				query={query}
+				fetcher={fetcher}
+				onEditQuery={setQuery}
+				schema={schema}
+				onSchemaChange={(newSchema) => {
+					if (schema !== newSchema) {
+						setSchema(newSchema);
 					}
-				} }
-				plugins={ activityPanels }
+				}}
+				plugins={activityPanels}
 			>
 				<GraphiQL.Logo>
-					{ ! shouldRenderStandalone && (
+					{!shouldRenderStandalone && (
 						<button
 							className="button AppDrawerCloseButton"
-							onClick={ () => setDrawerOpen( false ) }
+							onClick={() => setDrawerOpen(false)}
 						>
-							X{ ' ' }
+							X{' '}
 							<span className="screen-reader-text">
 								close drawer
 							</span>
 						</button>
-					) }
+					)}
 				</GraphiQL.Logo>
 			</GraphiQL>
 		</span>

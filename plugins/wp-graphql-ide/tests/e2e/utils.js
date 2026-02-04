@@ -34,21 +34,21 @@ export const wpAdminUrl = 'http://localhost:8888/wp-admin';
  * Log in to the WordPress admin dashboard.
  * @param {import('@playwright/test').Page} page The Playwright page object.
  */
-export async function loginToWordPressAdmin( page ) {
-	const isLoggedIn = await page.$( '#wpadminbar' );
+export async function loginToWordPressAdmin(page) {
+	const isLoggedIn = await page.$('#wpadminbar');
 
 	// If already logged in, return early
-	if ( isLoggedIn ) {
+	if (isLoggedIn) {
 		return;
 	}
 
-	await page.goto( 'http://localhost:8888/wp-admin', {
+	await page.goto('http://localhost:8888/wp-admin', {
 		waitUntil: 'networkidle',
-	} );
-	await page.fill( selectors.loginUsername, 'admin' );
-	await page.fill( selectors.loginPassword, 'password' );
-	await page.click( selectors.submitButton );
-	await page.waitForSelector( '#wpadminbar' ); // Confirm login by waiting for the admin bar
+	});
+	await page.fill(selectors.loginUsername, 'admin');
+	await page.fill(selectors.loginPassword, 'password');
+	await page.click(selectors.submitButton);
+	await page.waitForSelector('#wpadminbar'); // Confirm login by waiting for the admin bar
 }
 
 /**
@@ -56,12 +56,12 @@ export async function loginToWordPressAdmin( page ) {
  * @param  locator The Playwright locator for the CodeMirror editor.
  * @return {Promise<*>}
  */
-export async function getCodeMirrorValue( locator ) {
-	return await locator.evaluate( ( queryEditorElement ) => {
+export async function getCodeMirrorValue(locator) {
+	return await locator.evaluate((queryEditorElement) => {
 		// Access the CodeMirror instance and get its value
 		const codeMirrorInstance = queryEditorElement.CodeMirror;
 		return codeMirrorInstance.getValue();
-	} );
+	});
 }
 
 /**
@@ -71,12 +71,12 @@ export async function getCodeMirrorValue( locator ) {
  * @param  value
  * @return {Promise<*>}
  */
-export async function setCodeMirrorValue( locator, value ) {
-	return await locator.evaluate( ( queryEditorElement, val ) => {
+export async function setCodeMirrorValue(locator, value) {
+	return await locator.evaluate((queryEditorElement, val) => {
 		// Access the CodeMirror instance and get its value
 		const codeMirrorInstance = queryEditorElement.CodeMirror;
-		codeMirrorInstance.setValue( val );
-	}, value );
+		codeMirrorInstance.setValue(val);
+	}, value);
 }
 
 /**
@@ -84,11 +84,11 @@ export async function setCodeMirrorValue( locator, value ) {
  * @param {import('@playwright/test').Page} page  The Playwright page object.
  * @param {string}                          query The GraphQL query to type.
  */
-export async function typeQuery( page, query ) {
+export async function typeQuery(page, query) {
 	const querySelector = '[aria-label="Query Editor"] .CodeMirror';
-	await page.click( querySelector );
-	await clearCodeMirror( page, querySelector );
-	await page.keyboard.type( query );
+	await page.click(querySelector);
+	await clearCodeMirror(page, querySelector);
+	await page.keyboard.type(query);
 }
 
 /**
@@ -96,16 +96,16 @@ export async function typeQuery( page, query ) {
  * @param {import('@playwright/test').Page} page      The Playwright page object.
  * @param {Object}                          variables The GraphQL variables to type (as an object).
  */
-export async function typeVariables( page, variables ) {
-	const variablesString = JSON.stringify( variables, null, 2 );
+export async function typeVariables(page, variables) {
+	const variablesString = JSON.stringify(variables, null, 2);
 	// remove trailing curly brace. As users type, the IDE adds a trailing brace, so we're going to trim it
 	// as a user wouldn't actually type an extra trailing brace
-	const trimmedVariableString = variablesString.substring( 0, -1 );
-	await page.click( '[data-name="variables"]' );
+	const trimmedVariableString = variablesString.substring(0, -1);
+	await page.click('[data-name="variables"]');
 	const variablesSelector =
 		'.graphiql-editor-tool[aria-label="Variables"]:not(.hidden)';
-	await clearCodeMirror( page, variablesSelector );
-	await page.keyboard.type( trimmedVariableString );
+	await clearCodeMirror(page, variablesSelector);
+	await page.keyboard.type(trimmedVariableString);
 }
 
 /**
@@ -113,19 +113,19 @@ export async function typeVariables( page, variables ) {
  * @param {import('@playwright/test').Page} page      The Playwright page object.
  * @param {string}                          variables The GraphQL variables to type (as a string).
  */
-export async function pasteVariables( page, variables ) {
-	const trimmedVariableString = variablesString.substring( 0, -1 );
+export async function pasteVariables(page, variables) {
+	const trimmedVariableString = variablesString.substring(0, -1);
 
 	// open the variable editor
-	await page.click( '[data-name="variables"]' );
+	await page.click('[data-name="variables"]');
 	// await clearCodeMirror(page, variablesSelector);
 
 	// set the value on the CodeMirror editor
 	const variablesSelector =
 		'.graphiql-editor-tool[aria-label="Variables"]:not(.hidden) .cm-s-graphiql';
-	const variableEditor = await page.locator( variablesSelector );
+	const variableEditor = await page.locator(variablesSelector);
 	const variableEditorInstance = variableEditor.CodeMirror;
-	await variableEditorInstance.setValue( trimmedVariableString );
+	await variableEditorInstance.setValue(trimmedVariableString);
 }
 
 /**
@@ -133,122 +133,122 @@ export async function pasteVariables( page, variables ) {
  * @param {import('@playwright/test').Page} page     The Playwright page object.
  * @param {string}                          selector The CSS selector for the CodeMirror editor.
  */
-export async function clearCodeMirror( page, selector ) {
-	await page.click( selector );
+export async function clearCodeMirror(page, selector) {
+	await page.click(selector);
 	// Use the appropriate select all command based on the OS
 	const selectAllCommand =
 		process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
-	await page.keyboard.press( selectAllCommand ); // Select all text
-	await page.keyboard.press( 'Backspace' ); // Clear the selection
+	await page.keyboard.press(selectAllCommand); // Select all text
+	await page.keyboard.press('Backspace'); // Clear the selection
 }
-export async function visitPublicFacingPage( page ) {
-	await page.goto( wpHomeUrl, { waitUntil: 'networkidle' } );
-}
-
-export async function visitAdminFacingPage( page ) {
-	await page.goto( wpAdminUrl, { waitUntil: 'networkidle' } );
+export async function visitPublicFacingPage(page) {
+	await page.goto(wpHomeUrl, { waitUntil: 'networkidle' });
 }
 
-export async function visitPluginsPage( page ) {
-	await page.goto( `${ wpAdminUrl }/plugins.php`, {
+export async function visitAdminFacingPage(page) {
+	await page.goto(wpAdminUrl, { waitUntil: 'networkidle' });
+}
+
+export async function visitPluginsPage(page) {
+	await page.goto(`${wpAdminUrl}/plugins.php`, {
 		waitUntil: 'networkidle',
-	} );
+	});
 }
 
-export async function openDrawer( page ) {
+export async function openDrawer(page) {
 	const isDrawerVisible = await page
-		.locator( '.graphiql-container' )
+		.locator('.graphiql-container')
 		.isVisible();
-	if ( ! isDrawerVisible ) {
-		await page.waitForSelector( '.AppDrawerButton', {
+	if (!isDrawerVisible) {
+		await page.waitForSelector('.AppDrawerButton', {
 			state: 'visible',
-		} );
-		await clickDrawerButton( page );
-		await page.waitForSelector( '.graphiql-container', {
+		});
+		await clickDrawerButton(page);
+		await page.waitForSelector('.graphiql-container', {
 			state: 'visible',
-		} );
+		});
 	}
 
-	await page.waitForLoadState( 'networkidle' );
+	await page.waitForLoadState('networkidle');
 }
 
-export async function closeDrawer( page ) {
+export async function closeDrawer(page) {
 	const isDrawerVisible = await page
-		.locator( '.graphiql-container' )
+		.locator('.graphiql-container')
 		.isVisible();
 
-	if ( isDrawerVisible ) {
-		const overlay = await page.locator( '[vaul-overlay]' );
-		if ( overlay ) {
+	if (isDrawerVisible) {
+		const overlay = await page.locator('[vaul-overlay]');
+		if (overlay) {
 			await overlay.click();
 		}
-		await expect( page.locator( '.graphiql-container' ) ).toBeHidden();
-		await page.waitForSelector( '.AppDrawerButton', {
+		await expect(page.locator('.graphiql-container')).toBeHidden();
+		await page.waitForSelector('.AppDrawerButton', {
 			state: 'visible',
-		} );
-		await clickDrawerCloseButton( page );
-		await page.waitForSelector( '.graphiql-container', {
+		});
+		await clickDrawerCloseButton(page);
+		await page.waitForSelector('.graphiql-container', {
 			state: 'hidden',
-		} );
+		});
 	}
 }
 
-export async function clickDrawerButton( page ) {
-	await page.click( '.AppDrawerButton' );
+export async function clickDrawerButton(page) {
+	await page.click('.AppDrawerButton');
 }
 
-export async function clickDrawerCloseButton( page ) {
-	await page.click( '.AppDrawerCloseButton' );
+export async function clickDrawerCloseButton(page) {
+	await page.click('.AppDrawerCloseButton');
 }
 
-export async function executeQuery( page ) {
-	await page.click( '.graphiql-execute-button' );
+export async function executeQuery(page) {
+	await page.click('.graphiql-execute-button');
 }
 
-async function selectAndClearTextUsingKeyboard( page, selector ) {
-	await page.click( selector ); // Focus the element
+async function selectAndClearTextUsingKeyboard(page, selector) {
+	await page.click(selector); // Focus the element
 
 	// Determine the operating system to use the correct "Select All" shortcut
 	const selectAllCommand =
 		process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
-	await page.keyboard.press( selectAllCommand ); // Select all text using OS-specific shortcut
-	await page.keyboard.press( 'Backspace' ); // Clear selected text
+	await page.keyboard.press(selectAllCommand); // Select all text using OS-specific shortcut
+	await page.keyboard.press('Backspace'); // Clear selected text
 }
 
-export async function simulateHeavyJSLoad( page ) {
-	await page.evaluate( () => {
+export async function simulateHeavyJSLoad(page) {
+	await page.evaluate(() => {
 		// Simulate heavy DOM manipulations
-		for ( let i = 0; i < 500; i++ ) {
-			const div = document.createElement( 'div' );
-			div.textContent = `Heavy content ${ i }`;
+		for (let i = 0; i < 500; i++) {
+			const div = document.createElement('div');
+			div.textContent = `Heavy content ${i}`;
 			div.style.backgroundColor =
-				'#' + Math.floor( Math.random() * 16777215 ).toString( 16 );
-			document.body.appendChild( div );
+				'#' + Math.floor(Math.random() * 16777215).toString(16);
+			document.body.appendChild(div);
 		}
 
 		// Simulate heavy computations
 		const heavyComputation = Array.from(
 			{ length: 50000 },
-			( _, i ) => i ** 2
-		).reduce( ( a, b ) => a + b );
-		console.log( 'Heavy computation result:', heavyComputation );
+			(_, i) => i ** 2
+		).reduce((a, b) => a + b);
+		console.log('Heavy computation result:', heavyComputation);
 
 		// Simulate asynchronous operations
-		new Promise( ( resolve ) => setTimeout( resolve, 5000 ) ).then( () =>
-			console.log( 'Delayed operation completed' )
+		new Promise((resolve) => setTimeout(resolve, 5000)).then(() =>
+			console.log('Delayed operation completed')
 		);
 
 		// Simulate frequent DOM updates
-		setInterval( () => {
+		setInterval(() => {
 			const randomDiv = document.querySelector(
-				`div:nth-child(${ Math.floor( Math.random() * 500 ) + 1 })`
+				`div:nth-child(${Math.floor(Math.random() * 500) + 1})`
 			);
-			if ( randomDiv ) {
+			if (randomDiv) {
 				randomDiv.style.backgroundColor =
-					'#' + Math.floor( Math.random() * 16777215 ).toString( 16 );
+					'#' + Math.floor(Math.random() * 16777215).toString(16);
 			}
-		}, 10 );
-	} );
+		}, 10);
+	});
 }
 
 /**
@@ -257,10 +257,10 @@ export async function simulateHeavyJSLoad( page ) {
  * @param {string}                          value The value to set for the 'graphiql:query' key in local storage.
  * @return {Promise<void>}
  */
-export async function setQueryInLocalStorage( page, value ) {
-	await page.evaluate( ( val ) => {
-		localStorage.setItem( 'graphiql:query', val );
-	}, value );
+export async function setQueryInLocalStorage(page, value) {
+	await page.evaluate((val) => {
+		localStorage.setItem('graphiql:query', val);
+	}, value);
 }
 
 /**
@@ -268,8 +268,8 @@ export async function setQueryInLocalStorage( page, value ) {
  * @param {import('@playwright/test').Page} page The Playwright page object.
  * @return {Promise<string>} The value of the 'graphiql:query' key from local storage.
  */
-export async function getQueryFromLocalStorage( page ) {
-	return await page.evaluate( () => {
-		return localStorage.getItem( 'graphiql:query' );
-	} );
+export async function getQueryFromLocalStorage(page) {
+	return await page.evaluate(() => {
+		return localStorage.getItem('graphiql:query');
+	});
 }

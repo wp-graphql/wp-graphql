@@ -7,8 +7,8 @@ import actions from './primary-sidebar-actions';
 /**
  * The store for the primary sidebar.
  */
-export const store = createReduxStore( 'wpgraphql-ide/primary-sidebar', {
+export const store = createReduxStore('wpgraphql-ide/primary-sidebar', {
 	reducer,
 	selectors,
 	actions,
-} );
+});

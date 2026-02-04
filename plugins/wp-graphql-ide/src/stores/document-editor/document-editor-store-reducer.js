@@ -2,16 +2,16 @@ const initialState = {
 	buttons: {},
 };
 
-const reducer = ( state = initialState, action ) => {
-	switch ( action.type ) {
+const reducer = (state = initialState, action) => {
+	switch (action.type) {
 		case 'REGISTER_BUTTON':
 			// Ensure button name is unique
-			if ( action.name in state.buttons ) {
-				console.warn( {
-					message: `The "${ action.name }" button already exists. Name must be unique.`,
-					existingButton: state.buttons[ action.name ],
+			if (action.name in state.buttons) {
+				console.warn({
+					message: `The "${action.name}" button already exists. Name must be unique.`,
+					existingButton: state.buttons[action.name],
 					duplicateButton: action.config,
-				} );
+				});
 				return state;
 			}
 
@@ -24,7 +24,7 @@ const reducer = ( state = initialState, action ) => {
 				...state,
 				buttons: {
 					...state.buttons,
-					[ action.name ]: button,
+					[action.name]: button,
 				},
 			};
 		default:

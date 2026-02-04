@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Dialog } from '@graphiql/react';
 import React from 'react';
 
-export const SettingsDialog = ( props ) => {
+export const SettingsDialog = (props) => {
 	const {
 		showDialog,
 		handleOpenSettingsDialog,
@@ -16,8 +16,8 @@ export const SettingsDialog = ( props ) => {
 	} = props;
 	return (
 		<Dialog
-			open={ showDialog === 'settings' }
-			onOpenChange={ handleOpenSettingsDialog }
+			open={showDialog === 'settings'}
+			onOpenChange={handleOpenSettingsDialog}
 		>
 			<div className="graphiql-dialog-header graphiql-settings-dialog-header">
 				<Dialog.Title className="graphiql-dialog-title">
@@ -25,14 +25,14 @@ export const SettingsDialog = ( props ) => {
 				</Dialog.Title>
 				<Dialog.Close />
 			</div>
-			{ showPersistHeadersSettings ? (
+			{showPersistHeadersSettings ? (
 				<div className="graphiql-dialog-section">
 					<div>
 						<div className="graphiql-dialog-section-title">
 							Persist headers
 						</div>
 						<div className="graphiql-dialog-section-caption">
-							Save headers upon reloading.{ ' ' }
+							Save headers upon reloading.{' '}
 							<span className="graphiql-warning-text">
 								Only enable if you trust this device.
 							</span>
@@ -48,7 +48,7 @@ export const SettingsDialog = ( props ) => {
 									: ''
 							}
 							data-value="true"
-							onClick={ handlePersistHeaders }
+							onClick={handlePersistHeaders}
 						>
 							On
 						</Button>
@@ -60,13 +60,13 @@ export const SettingsDialog = ( props ) => {
 									? ''
 									: 'active'
 							}
-							onClick={ handlePersistHeaders }
+							onClick={handlePersistHeaders}
 						>
 							Off
 						</Button>
 					</ButtonGroup>
 				</div>
-			) : null }
+			) : null}
 			<div className="graphiql-dialog-section">
 				<div>
 					<div className="graphiql-dialog-section-title">Theme</div>
@@ -77,30 +77,30 @@ export const SettingsDialog = ( props ) => {
 				<ButtonGroup>
 					<Button
 						type="button"
-						className={ theme === null ? 'active' : '' }
-						onClick={ handleChangeTheme }
+						className={theme === null ? 'active' : ''}
+						onClick={handleChangeTheme}
 					>
 						System
 					</Button>
 					<Button
 						type="button"
-						className={ theme === 'light' ? 'active' : '' }
+						className={theme === 'light' ? 'active' : ''}
 						data-theme="light"
-						onClick={ handleChangeTheme }
+						onClick={handleChangeTheme}
 					>
 						Light
 					</Button>
 					<Button
 						type="button"
-						className={ theme === 'dark' ? 'active' : '' }
+						className={theme === 'dark' ? 'active' : ''}
 						data-theme="dark"
-						onClick={ handleChangeTheme }
+						onClick={handleChangeTheme}
 					>
 						Dark
 					</Button>
 				</ButtonGroup>
 			</div>
-			{ storageContext ? (
+			{storageContext ? (
 				<div className="graphiql-dialog-section">
 					<div>
 						<div className="graphiql-dialog-section-title">
@@ -112,17 +112,17 @@ export const SettingsDialog = ( props ) => {
 					</div>
 					<Button
 						type="button"
-						state={ clearStorageStatus || undefined }
-						disabled={ clearStorageStatus === 'success' }
-						onClick={ handleClearData }
+						state={clearStorageStatus || undefined}
+						disabled={clearStorageStatus === 'success'}
+						onClick={handleClearData}
 					>
-						{ {
+						{{
 							success: 'Cleared data',
 							error: 'Failed',
-						}[ clearStorageStatus ] || 'Clear data' }
+						}[clearStorageStatus] || 'Clear data'}
 					</Button>
 				</div>
-			) : null }
+			) : null}
 		</Dialog>
 	);
 };

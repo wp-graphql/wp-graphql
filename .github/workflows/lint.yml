@@ -152,10 +152,10 @@ jobs:
   # ===========================================
 
   status-check:
-    name: "Lint"
+    name: 'Lint'
     runs-on: ubuntu-latest
     needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide]
-    if: always()  # Run even if previous jobs were skipped
+    if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check lint results
         run: |

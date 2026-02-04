@@ -44,7 +44,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: '22'
 
       - name: Install WP-CLI
         run: |
@@ -59,21 +59,21 @@ jobs:
           # Extract version and component from the PR title or branch name
           # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
           # Branch names are like "release-please--branches--main--components--wp-graphql"
-          
+
           PR_TITLE="${{ github.event.pull_request.title }}"
           BRANCH_NAME="${{ github.head_ref }}"
-          
+
           # Extract component from PR title (e.g., "wp-graphql" from "release wp-graphql 2.7.0")
           COMPONENT=$(echo "$PR_TITLE" | grep -oE 'release\s+([a-z0-9-]+)' | awk '{print $2}' || echo "")
-          
+
           if [ -z "$COMPONENT" ]; then
             # Fallback: extract from branch name
             COMPONENT=$(echo "$BRANCH_NAME" | sed 's/.*--components--//' || echo "wp-graphql")
           fi
-          
+
           # Try to get version from PR title first
           VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          
+
           if [ -z "$VERSION" ]; then
             # Fallback: extract from CHANGELOG.md (first version header)
             PLUGIN_DIR="plugins/${COMPONENT}"
@@ -81,7 +81,7 @@ jobs:
               VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "${PLUGIN_DIR}/CHANGELOG.md" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
             fi
           fi
-          
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "component=$COMPONENT" >> $GITHUB_OUTPUT
           echo "plugin_dir=plugins/${COMPONENT}" >> $GITHUB_OUTPUT
@@ -93,11 +93,11 @@ jobs:
         run: |
           VERSION="${{ steps.version_info.outputs.version }}"
           echo "🔄 Replacing x-release-please-version placeholders with ${VERSION}..."
-          
+
           # Replace in all PHP files
           find . -type f -name "*.php" -exec sed -i.bak "s/x-release-please-version/${VERSION}/g" {} \;
           find . -type f -name "*.php.bak" -delete
-          
+
           # Replace in readme.txt (Stable tag field)
           # Handle both placeholder format and existing version numbers
           if [[ -f "readme.txt" ]]; then
@@ -116,9 +116,9 @@ jobs:
               grep "^Stable tag:" readme.txt || echo "  (not found)"
             fi
           fi
-          
+
           echo "✅ Placeholders replaced"
-          
+
           # Count remaining placeholders (excluding docs which are examples)
           REMAINING=$(grep -r "x-release-please-version" . 2>/dev/null | grep -v "docs/" | grep -v ".git" | wc -l || echo "0")
           if [ "$REMAINING" -gt 0 ]; then
@@ -172,7 +172,7 @@ jobs:
         run: |
           PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
           CHANGED_FILES=""
-          
+
           # Check if any files changed
           if ! git diff --quiet "$PLUGIN_DIR"; then
             CHANGED_FILES=$(git diff --name-only "$PLUGIN_DIR")
@@ -192,7 +192,7 @@ jobs:
         run: |
           PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
           COMPONENT="${{ steps.version_info.outputs.component }}"
-          
+
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add "$PLUGIN_DIR"

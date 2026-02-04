@@ -6,12 +6,12 @@ import { mergeFragmentsButton } from './merge-fragments-button';
 import { copyQueryButton } from './copy-query-button';
 
 export const registerEditorToolbarButtons = () => {
-	registerDocumentEditorToolbarButton( 'toggle-auth', toggleAuthButton, 1 );
-	registerDocumentEditorToolbarButton( 'prettify', prettifyButton );
-	registerDocumentEditorToolbarButton( 'share', shareButton );
+	registerDocumentEditorToolbarButton('toggle-auth', toggleAuthButton, 1);
+	registerDocumentEditorToolbarButton('prettify', prettifyButton);
+	registerDocumentEditorToolbarButton('share', shareButton);
 	registerDocumentEditorToolbarButton(
 		'merge-fragments',
 		mergeFragmentsButton
 	);
-	registerDocumentEditorToolbarButton( 'copy-query', copyQueryButton );
+	registerDocumentEditorToolbarButton('copy-query', copyQueryButton);
 };

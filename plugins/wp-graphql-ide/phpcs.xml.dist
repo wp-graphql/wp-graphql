@@ -80,23 +80,14 @@
 	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
 		<!-- Definitely should not be added back -->
-		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
-		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
-		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 
 		<!-- This would be a breaking change to fix-->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
-	</rule>
-
-	<rule ref="WordPress.WP.Capabilities">
-		<properties>
-			<property name="custom_capabilities" type="array">
-				<element value="manage_graphql_ide" />
-			</property>
-		</properties>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->

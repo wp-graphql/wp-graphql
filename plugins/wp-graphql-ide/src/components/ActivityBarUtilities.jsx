@@ -7,18 +7,18 @@ import {
 } from '@graphiql/react';
 import React from 'react';
 
-export const ActivityBarUtilities = ( {
+export const ActivityBarUtilities = ({
 	schemaContext,
 	handleRefetchSchema,
 	handleShowDialog,
-} ) => {
+}) => {
 	return (
 		<div className="graphiql-sidebar-section graphiql-activity-bar-utilities">
 			<Tooltip label="Re-fetch GraphQL schema">
 				<UnStyledButton
 					type="button"
-					disabled={ schemaContext.isFetching }
-					onClick={ handleRefetchSchema }
+					disabled={schemaContext.isFetching}
+					onClick={handleRefetchSchema}
 					aria-label="Re-fetch GraphQL schema"
 				>
 					<ReloadIcon
@@ -33,7 +33,7 @@ export const ActivityBarUtilities = ( {
 				<UnStyledButton
 					type="button"
 					data-value="short-keys"
-					onClick={ handleShowDialog }
+					onClick={handleShowDialog}
 					aria-label="Open short keys dialog"
 				>
 					<KeyboardShortcutIcon aria-hidden="true" />
@@ -43,7 +43,7 @@ export const ActivityBarUtilities = ( {
 				<UnStyledButton
 					type="button"
 					data-value="settings"
-					onClick={ handleShowDialog }
+					onClick={handleShowDialog}
 					aria-label="Open settings dialog"
 				>
 					<SettingsIcon aria-hidden="true" />

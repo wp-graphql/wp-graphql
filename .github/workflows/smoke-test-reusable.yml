@@ -4,23 +4,23 @@ on:
   workflow_call:
     inputs:
       name:
-        description: "Display name for the job (e.g., WP 6.8 / PHP 8.3)"
+        description: 'Display name for the job (e.g., WP 6.8 / PHP 8.3)'
         required: true
         type: string
       plugin_path:
-        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        description: 'Path to the plugin directory (e.g., plugins/wp-graphql)'
         required: true
         type: string
       plugin_name:
-        description: "Name of the plugin (e.g., wp-graphql)"
+        description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
       composer_working_dir:
-        description: "Working directory for composer (usually plugins/wp-graphql for dependencies)"
+        description: 'Working directory for composer (usually plugins/wp-graphql for dependencies)'
         required: true
         type: string
       zip_name:
-        description: "Name of the zip file (e.g., wp-graphql.zip)"
+        description: 'Name of the zip file (e.g., wp-graphql.zip)'
         required: true
         type: string
       plugin_slug:
@@ -28,29 +28,29 @@ on:
         required: true
         type: string
       requires_wp_graphql:
-        description: "Whether this plugin requires wp-graphql to be active"
+        description: 'Whether this plugin requires wp-graphql to be active'
         required: true
         type: boolean
       smoke_test_script:
-        description: "Path to smoke test script"
+        description: 'Path to smoke test script'
         required: true
         type: string
       needs_build:
-        description: "Whether this plugin needs JS assets built"
+        description: 'Whether this plugin needs JS assets built'
         required: true
         type: boolean
       wp:
-        description: "WordPress version (e.g., 6.8)"
+        description: 'WordPress version (e.g., 6.8)'
         required: true
         type: string
       php:
-        description: "PHP version (e.g., 8.3)"
+        description: 'PHP version (e.g., 8.3)'
         required: true
         type: string
 
 jobs:
   smoke-test:
-    name: "${{ inputs.name }}"
+    name: '${{ inputs.name }}'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -70,7 +70,7 @@ jobs:
         with:
           working-directory: ${{ inputs.composer_working_dir }}
           # Use --no-dev to match the production release build
-          composer-options: "--no-dev --optimize-autoloader"
+          composer-options: '--no-dev --optimize-autoloader'
 
       - name: Setup Node.js
         if: inputs.needs_build == true || inputs.requires_wp_graphql == true
@@ -174,11 +174,11 @@ jobs:
           if [ ! -f "$ZIP_PATH" ]; then
             ZIP_PATH="${{ inputs.plugin_path }}/plugin-build/${{ inputs.zip_name }}"
           fi
-          
+
           echo "📦 Copying zip to container..."
           CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1)
           docker cp "$ZIP_PATH" "$CONTAINER_NAME":/tmp/${{ inputs.zip_name }}
-          
+
           # Install wp-graphql first if required
           if [ "${{ inputs.requires_wp_graphql }}" = "true" ]; then
             echo "📦 Installing wp-graphql first (required dependency)..."
@@ -191,14 +191,14 @@ jobs:
               echo "For now, we'll try to install the plugin and see if wp-graphql is available."
             fi
           fi
-          
+
           echo "📦 Installing ${{ inputs.plugin_name }} from zip..."
           npm run wp-env -- run cli wp plugin install /tmp/${{ inputs.zip_name }} --activate
-          
+
           echo "🔄 Flushing permalinks..."
           npm run wp-env -- run cli wp rewrite structure '/%postname%/' --hard
           npm run wp-env -- run cli wp rewrite flush --hard
-          
+
           # Only enable GraphQL settings if wp-graphql is active
           if npm run wp-env -- run cli wp plugin is-active wp-graphql 2>/dev/null; then
             echo "⚙️ Enabling public introspection..."

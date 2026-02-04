@@ -14,16 +14,16 @@ const initialState = {
  * @param {Object} action The action to be performed.
  * @return {Object}
  */
-const reducer = ( state = initialState, action ) => {
-	switch ( action.type ) {
+const reducer = (state = initialState, action) => {
+	switch (action.type) {
 		case 'REGISTER_UTILITY':
 			// Ensure button name is unique
-			if ( action.name in state.utilities ) {
-				console.warn( {
-					message: `The "${ action.name }" utility already exists. Name must be unique.`,
-					existingUtility: state.utilities[ action.name ],
+			if (action.name in state.utilities) {
+				console.warn({
+					message: `The "${action.name}" utility already exists. Name must be unique.`,
+					existingUtility: state.utilities[action.name],
 					duplicateUtility: action.config,
-				} );
+				});
 				return state;
 			}
 
@@ -36,38 +36,41 @@ const reducer = ( state = initialState, action ) => {
 				...state,
 				utilities: {
 					...state.utilities,
-					[ action.name ]: utility,
+					[action.name]: utility,
 				},
 			};
 		case 'REGISTER_PANEL':
 			// Ensure panel name is unique
-			if ( action.name in state.activityPanels ) {
-				console.warn( {
-					message: `The "${ action.name }" panel already exists. Name must be unique.`,
-					existingPanel: state.activityPanels[ action.name ],
+			if (action.name in state.activityPanels) {
+				console.warn({
+					message: `The "${action.name}" panel already exists. Name must be unique.`,
+					existingPanel: state.activityPanels[action.name],
 					duplicatePanel: action.config,
-				} );
+				});
 				return state;
 			}
 
 			// Ensure config is a function before calling it
-			if ( typeof action.config.content !== 'function' ) {
+			if (typeof action.config.content !== 'function') {
 				console.error(
-					`Config for panel "${ action.name }" requires a content callback.`
+					`Config for panel "${action.name}" requires a content callback.`
 				);
 				return state;
 			}
 
-			if ( 'icon' in action.config && typeof action.config.icon !== 'function' ) {
+			if (
+				'icon' in action.config &&
+				typeof action.config.icon !== 'function'
+			) {
 				console.error(
-					`Config for panel "${ action.name }" requires an icon callback.`
+					`Config for panel "${action.name}" requires an icon callback.`
 				);
 				return state;
 			}
 
-			if ( ! 'title' in action.config ) {
+			if ((!'title') in action.config) {
 				console.error(
-					`Config for panel "${ action.name }" requires a title.`
+					`Config for panel "${action.name}" requires a title.`
 				);
 				return state;
 			}
@@ -82,14 +85,14 @@ const reducer = ( state = initialState, action ) => {
 				...state,
 				activityPanels: {
 					...state.activityPanels,
-					[ action.name ]: panel,
+					[action.name]: panel,
 				},
 			};
 		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY':
-			console.log( {
+			console.log({
 				message: `Toggling panel visibility.`,
 				panel: action.panel,
-			} );
+			});
 			return {
 				...state,
 				visiblePanel:

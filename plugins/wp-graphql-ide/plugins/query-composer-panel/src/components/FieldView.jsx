@@ -15,15 +15,15 @@ class FieldView extends React.PureComponent {
 	state = { displayFieldActions: false };
 
 	_previousSelection;
-	_addAllFieldsToSelections = ( rawSubfields ) => {
-		const subFields = !! rawSubfields
-			? Object.keys( rawSubfields ).map( ( fieldName ) => {
+	_addAllFieldsToSelections = (rawSubfields) => {
+		const subFields = !!rawSubfields
+			? Object.keys(rawSubfields).map((fieldName) => {
 					return {
 						kind: 'Field',
 						name: { kind: 'Name', value: fieldName },
 						arguments: [],
 					};
-			  } )
+				})
 			: [];
 
 		const subSelectionSet = {
@@ -32,12 +32,12 @@ class FieldView extends React.PureComponent {
 		};
 
 		const nextSelections = [
-			...this.props.selections.filter( ( selection ) => {
-				if ( selection.kind === 'InlineFragment' ) {
+			...this.props.selections.filter((selection) => {
+				if (selection.kind === 'InlineFragment') {
 					return true;
 				}
 				return selection.name.value !== this.props.field.name;
-			} ),
+			}),
 			{
 				kind: 'Field',
 				name: { kind: 'Name', value: this.props.field.name },
@@ -50,10 +50,10 @@ class FieldView extends React.PureComponent {
 			},
 		];
 
-		this.props.modifySelections( nextSelections );
+		this.props.modifySelections(nextSelections);
 	};
 
-	_addFieldToSelections = ( rawSubfields ) => {
+	_addFieldToSelections = (rawSubfields) => {
 		const nextSelections = [
 			...this.props.selections,
 			this._previousSelection || {
@@ -67,23 +67,23 @@ class FieldView extends React.PureComponent {
 			},
 		];
 
-		this.props.modifySelections( nextSelections );
+		this.props.modifySelections(nextSelections);
 	};
 
-	_handleUpdateSelections = ( event ) => {
+	_handleUpdateSelections = (event) => {
 		const selection = this._getSelection();
-		if ( selection && ! event.altKey ) {
+		if (selection && !event.altKey) {
 			this._removeFieldFromSelections();
 		} else {
-			const fieldType = getNamedType( this.props.field.type );
+			const fieldType = getNamedType(this.props.field.type);
 			const rawSubfields =
-				isObjectType( fieldType ) && fieldType.getFields();
+				isObjectType(fieldType) && fieldType.getFields();
 
-			const shouldSelectAllSubfields = !! rawSubfields && event.altKey;
+			const shouldSelectAllSubfields = !!rawSubfields && event.altKey;
 
 			shouldSelectAllSubfields
-				? this._addAllFieldsToSelections( rawSubfields )
-				: this._addFieldToSelections( rawSubfields );
+				? this._addAllFieldsToSelections(rawSubfields)
+				: this._addFieldToSelections(rawSubfields);
 		}
 	};
 
@@ -92,27 +92,27 @@ class FieldView extends React.PureComponent {
 		this._previousSelection = previousSelection;
 		this.props.modifySelections(
 			this.props.selections.filter(
-				( selection ) => selection !== previousSelection
+				(selection) => selection !== previousSelection
 			)
 		);
 	};
 	_getSelection = () => {
 		const selection = this.props.selections.find(
-			( selection ) =>
+			(selection) =>
 				selection.kind === 'Field' &&
 				this.props.field.name === selection.name.value
 		);
-		if ( ! selection ) {
+		if (!selection) {
 			return null;
 		}
-		if ( selection.kind === 'Field' ) {
+		if (selection.kind === 'Field') {
 			return selection;
 		}
 	};
 
-	_setArguments = ( argumentNodes, options ) => {
+	_setArguments = (argumentNodes, options) => {
 		const selection = this._getSelection();
-		if ( ! selection ) {
+		if (!selection) {
 			console.error(
 				'Missing selection when setting arguments',
 				argumentNodes
@@ -120,7 +120,7 @@ class FieldView extends React.PureComponent {
 			return;
 		}
 		return this.props.modifySelections(
-			this.props.selections.map( ( s ) =>
+			this.props.selections.map((s) =>
 				s === selection
 					? {
 							alias: selection.alias,
@@ -129,22 +129,22 @@ class FieldView extends React.PureComponent {
 							kind: 'Field',
 							name: selection.name,
 							selectionSet: selection.selectionSet,
-					  }
+						}
 					: s
 			),
 			options
 		);
 	};
 
-	_modifyChildSelections = ( selections, options ) => {
+	_modifyChildSelections = (selections, options) => {
 		return this.props.modifySelections(
-			this.props.selections.map( ( selection ) => {
+			this.props.selections.map((selection) => {
 				if (
 					selection.kind === 'Field' &&
 					this.props.field.name === selection.name.value
 				) {
-					if ( selection.kind !== 'Field' ) {
-						throw new Error( 'invalid selection' );
+					if (selection.kind !== 'Field') {
+						throw new Error('invalid selection');
 					}
 					return {
 						alias: selection.alias,
@@ -159,7 +159,7 @@ class FieldView extends React.PureComponent {
 					};
 				}
 				return selection;
-			} ),
+			}),
 			options
 		);
 	};
@@ -167,97 +167,93 @@ class FieldView extends React.PureComponent {
 	render() {
 		const { field, schema, getDefaultFieldNames, styleConfig } = this.props;
 		const selection = this._getSelection();
-		const type = unwrapOutputType( field.type );
-		const args = field.args.sort( ( a, b ) =>
-			a.name.localeCompare( b.name )
-		);
-		let className = `graphiql-explorer-node graphiql-explorer-${ field.name }`;
+		const type = unwrapOutputType(field.type);
+		const args = field.args.sort((a, b) => a.name.localeCompare(b.name));
+		let className = `graphiql-explorer-node graphiql-explorer-${field.name}`;
 
-		if ( field.isDeprecated ) {
+		if (field.isDeprecated) {
 			className += ' graphiql-explorer-deprecated';
 		}
 
 		const applicableFragments =
-			isObjectType( type ) ||
-			isInterfaceType( type ) ||
-			isUnionType( type )
+			isObjectType(type) || isInterfaceType(type) || isUnionType(type)
 				? this.props.availableFragments &&
-				  this.props.availableFragments[ type.name ]
+					this.props.availableFragments[type.name]
 				: null;
 
 		const node = (
-			<div className={ className }>
+			<div className={className}>
 				<span
-					title={ field.description }
-					style={ {
+					title={field.description}
+					style={{
 						cursor: 'pointer',
 						display: 'inline-flex',
 						alignItems: 'center',
 						minHeight: '16px',
 						WebkitUserSelect: 'none',
 						userSelect: 'none',
-					} }
-					data-field-name={ field.name }
-					data-field-type={ type.name }
-					onClick={ this._handleUpdateSelections }
-					onMouseEnter={ () => {
+					}}
+					data-field-name={field.name}
+					data-field-type={type.name}
+					onClick={this._handleUpdateSelections}
+					onMouseEnter={() => {
 						const containsMeaningfulSubselection =
-							isObjectType( type ) &&
+							isObjectType(type) &&
 							selection &&
 							selection.selectionSet &&
 							selection.selectionSet.selections.filter(
-								( selection ) =>
+								(selection) =>
 									selection.kind !== 'FragmentSpread'
 							).length > 0;
 
-						if ( containsMeaningfulSubselection ) {
-							this.setState( { displayFieldActions: true } );
+						if (containsMeaningfulSubselection) {
+							this.setState({ displayFieldActions: true });
 						}
-					} }
-					onMouseLeave={ () =>
-						this.setState( { displayFieldActions: false } )
+					}}
+					onMouseLeave={() =>
+						this.setState({ displayFieldActions: false })
 					}
 				>
-					{ isObjectType( type ) ? (
+					{isObjectType(type) ? (
 						<span>
-							{ !! selection
+							{!!selection
 								? this.props.styleConfig.arrowOpen
-								: this.props.styleConfig.arrowClosed }
+								: this.props.styleConfig.arrowClosed}
 						</span>
-					) : null }
-					{ isObjectType( type ) ? null : (
+					) : null}
+					{isObjectType(type) ? null : (
 						<Checkbox
-							checked={ !! selection }
-							styleConfig={ this.props.styleConfig }
+							checked={!!selection}
+							styleConfig={this.props.styleConfig}
 						/>
-					) }
+					)}
 					<span
-						style={ { color: styleConfig.colors.property } }
+						style={{ color: styleConfig.colors.property }}
 						className="graphiql-explorer-field-view"
 					>
-						{ field.name }
+						{field.name}
 					</span>
-					{ ! this.state.displayFieldActions ? null : (
+					{!this.state.displayFieldActions ? null : (
 						<button
 							type="submit"
 							className="toolbar-button"
 							title="Extract selections into a new reusable fragment"
-							onClick={ ( event ) => {
+							onClick={(event) => {
 								event.preventDefault();
 								event.stopPropagation();
 								const typeName = type.name;
-								let newFragmentName = `${ typeName }Fragment`;
+								let newFragmentName = `${typeName}Fragment`;
 
 								const conflictingNameCount = (
 									applicableFragments || []
-								).filter( ( fragment ) => {
+								).filter((fragment) => {
 									return fragment.name.value.startsWith(
 										newFragmentName
 									);
-								} ).length;
+								}).length;
 
-								if ( conflictingNameCount > 0 ) {
-									newFragmentName = `${ newFragmentName }${ conflictingNameCount }`;
+								if (conflictingNameCount > 0) {
+									newFragmentName = `${newFragmentName}${conflictingNameCount}`;
 								}
 
 								const childSelections = selection
@@ -302,7 +298,7 @@ class FieldView extends React.PureComponent {
 									false
 								);
 
-								if ( newDoc ) {
+								if (newDoc) {
 									const newDocWithFragment = {
 										...newDoc,
 										definitions: [
@@ -311,126 +307,120 @@ class FieldView extends React.PureComponent {
 										],
 									};
 
-									this.props.onCommit( newDocWithFragment );
+									this.props.onCommit(newDocWithFragment);
 								} else {
 									console.warn(
 										'Unable to complete extractFragment operation'
 									);
 								}
-							} }
-							style={ {
+							}}
+							style={{
 								...styleConfig.styles.actionButtonStyle,
-							} }
+							}}
 						>
-							<span>{ '…' }</span>
+							<span>{'…'}</span>
 						</button>
-					) }
+					)}
 				</span>
-				{ selection && args.length ? (
+				{selection && args.length ? (
 					<div
-						style={ { marginLeft: 16 } }
+						style={{ marginLeft: 16 }}
 						className="graphiql-explorer-graphql-arguments"
 					>
-						{ args.map( ( arg ) => (
+						{args.map((arg) => (
 							<ArgView
-								key={ arg.name }
-								parentField={ field }
-								arg={ arg }
-								selection={ selection }
-								modifyArguments={ this._setArguments }
+								key={arg.name}
+								parentField={field}
+								arg={arg}
+								selection={selection}
+								modifyArguments={this._setArguments}
 								getDefaultScalarArgValue={
 									this.props.getDefaultScalarArgValue
 								}
-								makeDefaultArg={ this.props.makeDefaultArg }
-								onRunOperation={ this.props.onRunOperation }
-								styleConfig={ this.props.styleConfig }
-								onCommit={ this.props.onCommit }
-								definition={ this.props.definition }
+								makeDefaultArg={this.props.makeDefaultArg}
+								onRunOperation={this.props.onRunOperation}
+								styleConfig={this.props.styleConfig}
+								onCommit={this.props.onCommit}
+								definition={this.props.definition}
 							/>
-						) ) }
+						))}
 					</div>
-				) : null }
+				) : null}
 			</div>
 		);
 
 		if (
 			selection &&
-			( isObjectType( type ) ||
-				isInterfaceType( type ) ||
-				isUnionType( type ) )
+			(isObjectType(type) || isInterfaceType(type) || isUnionType(type))
 		) {
-			const fields = isUnionType( type ) ? {} : type.getFields();
+			const fields = isUnionType(type) ? {} : type.getFields();
 			const childSelections = selection
 				? selection.selectionSet
 					? selection.selectionSet.selections
 					: []
 				: [];
 			return (
-				<div className={ `graphiql-explorer-${ field.name }` }>
-					{ node }
-					<div style={ { marginLeft: 16 } }>
-						{ !! applicableFragments
-							? applicableFragments.map( ( fragment ) => {
+				<div className={`graphiql-explorer-${field.name}`}>
+					{node}
+					<div style={{ marginLeft: 16 }}>
+						{!!applicableFragments
+							? applicableFragments.map((fragment) => {
 									const type = schema.getType(
 										fragment.typeCondition.name.value
 									);
 									const fragmentName = fragment.name.value;
-									return ! type ? null : (
+									return !type ? null : (
 										<FragmentView
-											key={ fragmentName }
-											fragment={ fragment }
-											selections={ childSelections }
+											key={fragmentName}
+											fragment={fragment}
+											selections={childSelections}
 											modifySelections={
 												this._modifyChildSelections
 											}
-											schema={ schema }
-											styleConfig={
-												this.props.styleConfig
-											}
-											onCommit={ this.props.onCommit }
+											schema={schema}
+											styleConfig={this.props.styleConfig}
+											onCommit={this.props.onCommit}
 										/>
 									);
-							  } )
-							: null }
-						{ Object.keys( fields )
+								})
+							: null}
+						{Object.keys(fields)
 							.sort()
-							.map( ( fieldName ) => (
+							.map((fieldName) => (
 								<FieldView
-									key={ fieldName }
-									field={ fields[ fieldName ] }
-									selections={ childSelections }
+									key={fieldName}
+									field={fields[fieldName]}
+									selections={childSelections}
 									modifySelections={
 										this._modifyChildSelections
 									}
-									schema={ schema }
-									getDefaultFieldNames={
-										getDefaultFieldNames
-									}
+									schema={schema}
+									getDefaultFieldNames={getDefaultFieldNames}
 									getDefaultScalarArgValue={
 										this.props.getDefaultScalarArgValue
 									}
-									makeDefaultArg={ this.props.makeDefaultArg }
-									onRunOperation={ this.props.onRunOperation }
-									styleConfig={ this.props.styleConfig }
-									onCommit={ this.props.onCommit }
-									definition={ this.props.definition }
+									makeDefaultArg={this.props.makeDefaultArg}
+									onRunOperation={this.props.onRunOperation}
+									styleConfig={this.props.styleConfig}
+									onCommit={this.props.onCommit}
+									definition={this.props.definition}
 									availableFragments={
 										this.props.availableFragments
 									}
 								/>
-							) ) }
-						{ isInterfaceType( type ) || isUnionType( type )
+							))}
+						{isInterfaceType(type) || isUnionType(type)
 							? schema
-									.getPossibleTypes( type )
-									.map( ( type ) => (
+									.getPossibleTypes(type)
+									.map((type) => (
 										<AbstractView
-											key={ type.name }
-											implementingType={ type }
-											selections={ childSelections }
+											key={type.name}
+											implementingType={type}
+											selections={childSelections}
 											modifySelections={
 												this._modifyChildSelections
 											}
-											schema={ schema }
+											schema={schema}
 											getDefaultFieldNames={
 												getDefaultFieldNames
 											}
@@ -444,14 +434,12 @@ class FieldView extends React.PureComponent {
 											onRunOperation={
 												this.props.onRunOperation
 											}
-											styleConfig={
-												this.props.styleConfig
-											}
-											onCommit={ this.props.onCommit }
-											definition={ this.props.definition }
+											styleConfig={this.props.styleConfig}
+											onCommit={this.props.onCommit}
+											definition={this.props.definition}
 										/>
-									) )
-							: null }
+									))
+							: null}
 					</div>
 				</div>
 			);

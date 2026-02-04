@@ -13,8 +13,12 @@ const {
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
 
-const url = new URL( window.location.href );
-const params = url.searchParams;
+// Safely get window.location - it should always exist, but be defensive
+const url =
+	typeof window !== 'undefined' && window.location
+		? new URL(window.location.href)
+		: null;
+const params = url ? url.searchParams : new URLSearchParams();
 
 const setInitialState = () => {
 	const {
@@ -22,17 +26,17 @@ const setInitialState = () => {
 		setQuery,
 		setShouldRenderStandalone,
 		setInitialStateLoaded,
-	} = useDispatch( 'wpgraphql-ide/app' );
+	} = useDispatch('wpgraphql-ide/app');
 
-	if ( isDedicatedIdePage ) {
-		setShouldRenderStandalone( true );
+	if (isDedicatedIdePage) {
+		setShouldRenderStandalone(true);
 	}
 
-	if ( params.has( 'wpgraphql_ide' ) ) {
-		const queryParam = params.get( 'wpgraphql_ide' );
+	if (url && params.has('wpgraphql_ide')) {
+		const queryParam = params.get('wpgraphql_ide');
 		const queryParamShareObjectString =
-			LZString.decompressFromEncodedURIComponent( queryParam );
-		const queryParamShareObject = JSON.parse( queryParamShareObjectString );
+			LZString.decompressFromEncodedURIComponent(queryParam);
+		const queryParamShareObject = JSON.parse(queryParamShareObjectString);
 
 		const { query } = queryParamShareObject;
 
@@ -42,34 +46,31 @@ const setInitialState = () => {
 		// convert the query from a string to an AST
 		// console errors if there are any
 		try {
-			parsedQuery = parse( query );
-		} catch ( error ) {
-			console.error(
-				`Error parsing the query "${ query }"`,
-				error.message
-			);
+			parsedQuery = parse(query);
+		} catch (error) {
+			console.error(`Error parsing the query "${query}"`, error.message);
 			parsedQuery = null;
 		}
 
 		// Convert the AST back to a formatted printed document
 		// console errors if there are any
-		if ( null !== parsedQuery ) {
+		if (null !== parsedQuery) {
 			try {
-				printedQuery = print( parsedQuery );
-			} catch ( error ) {
+				printedQuery = print(parsedQuery);
+			} catch (error) {
 				console.error(
-					`Error printing the query "${ query }"`,
+					`Error printing the query "${query}"`,
 					error.message
 				);
 				printedQuery = null;
 			}
 		}
 
-		if ( null !== printedQuery ) {
-			setDrawerOpen( true );
-			setQuery( printedQuery );
-			params.delete( 'wpgraphql_ide' );
-			history.pushState( {}, '', url.toString() );
+		if (null !== printedQuery && url) {
+			setDrawerOpen(true);
+			setQuery(printedQuery);
+			params.delete('wpgraphql_ide');
+			history.pushState({}, '', url.toString());
 		}
 	}
 
@@ -84,7 +85,7 @@ const setInitialState = () => {
 export function AppWrapper() {
 	setInitialState();
 
-	useEffect( () => {
+	useEffect(() => {
 		/**
 		 * Perform actions on component mount.
 		 *
@@ -93,7 +94,7 @@ export function AppWrapper() {
 		 * the current state of `drawerOpen` to any listeners, providing context
 		 * about the application's UI state.
 		 */
-		doAction( 'wpgraphql-ide.rendered' );
+		doAction('wpgraphql-ide.rendered');
 
 		/**
 		 * Cleanup action on component unmount.
@@ -103,26 +104,26 @@ export function AppWrapper() {
 		 * any necessary cleanup or teardown operations in response to the App
 		 * component's lifecycle.
 		 */
-		return () => doAction( 'wpgraphql-ide.destroyed' );
-	}, [] );
+		return () => doAction('wpgraphql-ide.destroyed');
+	}, []);
 
 	return <RenderAppWrapper />;
 }
 
 export function RenderAppWrapper() {
-	const isInitialStateLoaded = useSelect( ( select ) => {
-		return select( 'wpgraphql-ide/app' ).isInitialStateLoaded();
-	} );
+	const isInitialStateLoaded = useSelect((select) => {
+		return select('wpgraphql-ide/app').isInitialStateLoaded();
+	});
 
-	const shouldRenderStandalone = useSelect( ( select ) => {
-		return select( 'wpgraphql-ide/app' ).shouldRenderStandalone();
-	} );
+	const shouldRenderStandalone = useSelect((select) => {
+		return select('wpgraphql-ide/app').shouldRenderStandalone();
+	});
 
-	if ( ! isInitialStateLoaded ) {
+	if (!isInitialStateLoaded) {
 		return null;
 	}
 
-	if ( shouldRenderStandalone ) {
+	if (shouldRenderStandalone) {
 		return (
 			<div className="AppRoot">
 				<App />
@@ -132,7 +133,7 @@ export function RenderAppWrapper() {
 
 	return (
 		<div className="AppRoot">
-			<AppDrawer buttonLabel={ drawerButtonLabel }>
+			<AppDrawer buttonLabel={drawerButtonLabel}>
 				<App />
 			</AppDrawer>
 		</div>
