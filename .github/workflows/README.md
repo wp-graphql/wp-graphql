@@ -202,7 +202,8 @@ When adding a new plugin:
    - Set `needs_build: true` if plugin requires JS asset building
    - Add WP/PHP version matrix entries
 5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
-6. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
+6. **Add version constant mapping** in `scripts/update-version-constants.js` if your plugin defines a version constant (see [Architecture Docs](../docs/ARCHITECTURE.md#4-version-constants-script))
+7. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
    - Set `component` to match release tag prefix
    - Configure `active_plugins` for schema generation
 

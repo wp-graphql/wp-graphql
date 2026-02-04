@@ -128,6 +128,14 @@ jobs:
             echo "✅ All placeholders replaced (docs examples excluded)"
           fi
 
+      - name: Update version constants
+        if: steps.version_info.outputs.version != ''
+        run: |
+          node scripts/update-version-constants.js \
+            --version=${{ steps.version_info.outputs.version }} \
+            --component=${{ steps.version_info.outputs.component }} \
+            --plugin-dir=${{ steps.version_info.outputs.plugin_dir }}
+
       - name: Update Upgrade Notice
         if: steps.version_info.outputs.version != ''
         run: |

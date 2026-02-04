@@ -278,7 +278,41 @@ Add a new entry in the `packages` object:
 - `package.json` (if it has a version field)
 - Any PHP constants files with version constants
 
-### 4. WordPress Environment
+### 4. Version Constants Script
+
+**Update `scripts/update-version-constants.js`:**
+
+If your plugin defines a version constant (e.g., `define( 'YOUR_PLUGIN_VERSION', '1.0.0' );`), add a mapping in the `getConstantMapping()` function:
+
+```javascript
+function getConstantMapping(component) {
+	const mappings = {
+		'wp-graphql': {
+			constantName: 'WPGRAPHQL_VERSION',
+			fileName: 'constants.php',
+		},
+		'wp-graphql-smart-cache': {
+			constantName: 'WPGRAPHQL_SMART_CACHE_VERSION',
+			fileName: 'wp-graphql-smart-cache.php',
+		},
+		'wp-graphql-ide': {
+			constantName: 'WPGRAPHQL_IDE_VERSION',
+			fileName: 'wpgraphql-ide.php',
+		},
+		'your-plugin-name': {
+			constantName: 'YOUR_PLUGIN_VERSION',
+			fileName: 'your-plugin-name.php', // or constants.php if separate file
+		},
+	};
+	return mappings[component] || null;
+}
+```
+
+This ensures that version constants are automatically updated during the release PR process. The script handles both hardcoded versions and `x-release-please-version` placeholders.
+
+**Note:** If your plugin doesn't use a version constant, you can skip this step. The script will gracefully handle missing mappings.
+
+### 5. WordPress Environment
 
 **Update `.wp-env.json`:**
 
@@ -304,7 +338,7 @@ Add the plugin to both `plugins` and `env.tests.plugins` arrays:
 }
 ```
 
-### 5. Integration Tests
+### 6. Integration Tests
 
 **Add to `.github/workflows/integration-tests.yml`:**
 
@@ -355,7 +389,7 @@ your-plugin-name:
 
 **Note:** For Release PRs (branches starting with `release-please--`), all tests run for all plugins to ensure compatibility.
 
-### 6. Test Setup
+### 7. Test Setup
 
 **Codeception Configuration:**
 
@@ -382,7 +416,7 @@ Add test scripts that export required environment variables:
 }
 ```
 
-### 7. UpdatesTest Filtering (if needed)
+### 8. UpdatesTest Filtering (if needed)
 
 If your plugin extends WPGraphQL and has a "Requires WPGraphQL" header, you may need to update `plugins/wp-graphql/tests/wpunit/UpdatesTest.php` to filter it out. The test currently uses a whitelist approach, keeping only explicitly created test plugins. If your plugin is being detected as an untested dependency, you may need to adjust the filter logic.
 
