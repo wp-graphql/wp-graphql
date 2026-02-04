@@ -68,7 +68,7 @@ const reducer = (state = initialState, action) => {
 				return state;
 			}
 
-			if ((!'title') in action.config) {
+			if (!('title' in action.config)) {
 				console.error(
 					`Config for panel "${action.name}" requires a title.`
 				);
