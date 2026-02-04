@@ -7,7 +7,9 @@ This document describes the architecture of the WPGraphQL monorepo.
 ```
 wp-graphql/
 ├── plugins/                    # WordPress plugins
-│   └── wp-graphql/            # WPGraphQL core plugin
+│   ├── wp-graphql/            # WPGraphQL core plugin
+│   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
+│   └── wp-graphql-ide/        # IDE extension plugin
 ├── docs/                      # Contributor documentation
 ├── bin/                       # Shared scripts
 ├── .github/                   # GitHub workflows and templates
