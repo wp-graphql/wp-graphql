@@ -10,7 +10,7 @@ namespace WPGraphQLIDE;
 /**
  * Test script and style enqueuing
  */
-class ScriptEnqueueTest extends \Codeception\TestCase\WPTestCase {
+class ScriptEnqueueTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	/**
 	 * Set up test environment
@@ -23,11 +23,7 @@ class ScriptEnqueueTest extends \Codeception\TestCase\WPTestCase {
 		$test_theme = getenv( 'TEST_THEME' ) ?: 'twentytwentyone';
 		if ( 'twentytwentyfive' === $test_theme ) {
 			// Set expectation before WordPress initialization
-			// Note: setExpectedIncorrectUsage may not exist on Codeception\TestCase\WPTestCase
-			// but we'll try it, and if it doesn't work, the filter below will handle it
-			if ( method_exists( $this, 'setExpectedIncorrectUsage' ) ) {
-				$this->setExpectedIncorrectUsage( 'WP_Block_Bindings_Registry::register' );
-			}
+			$this->setExpectedIncorrectUsage( 'WP_Block_Bindings_Registry::register' );
 		}
 
 		// Suppress doing_it_wrong notices before parent::setUp() to catch theme notices early.
@@ -46,7 +42,7 @@ class ScriptEnqueueTest extends \Codeception\TestCase\WPTestCase {
 		
 		// Ensure WPGraphQL is loaded and capabilities are set up
 		// This ensures the init hook has run and capabilities are available
-		if ( class_exists( '\WPGraphQL\Router' ) ) {
+		if ( class_exists( '\WPGraphQL' ) ) {
 			do_action( 'init' );
 		}
 		
