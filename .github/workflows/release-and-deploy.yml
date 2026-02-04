@@ -1,0 +1,223 @@
+name: Release and Deploy to WordPress.org
+
+# Single consolidated workflow that:
+# 1. Creates GitHub releases using changesets
+# 2. Deploys to WordPress.org automatically
+# Matches wp-graphql's proven approach for consistency across the organization
+
+# Prevent multiple releases from running simultaneously
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Force a specific release type (leave empty for auto-detection)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+        default: 'auto'
+      deploy_only:
+        description: 'Only deploy an existing tag (skip release creation)'
+        required: false
+        type: boolean
+        default: false
+      deploy_tag:
+        description: 'Specific tag to deploy (required if deploy_only is true)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  prepare-release:
+    name: Prepare Release
+    if: github.event.inputs.deploy_only != 'true'
+    runs-on: ubuntu-22.04
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      version: ${{ steps.get-version.outputs.version }}
+      release_created: ${{ steps.changesets.outputs.published == 'true' }}
+    steps:
+      - name: Debug workflow information
+        run: |
+          echo "=== RELEASE WORKFLOW DEBUG INFO ==="
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event inputs: ${{ toJSON(github.event.inputs) }}"
+          echo "Deploy only: ${{ github.event.inputs.deploy_only }}"
+          echo "Release type: ${{ github.event.inputs.release_type }}"
+          echo "Current ref: ${{ github.ref }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow run ID: ${{ github.run_id }}"
+          echo "====================================="
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create Release Pull Request or Create GitHub Release
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: npm run version
+          publish: npm run release
+          title: "release: 📦 Release Plugin"
+          commit: "release: 📦 Release Plugin"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Check published output
+        run: |
+          echo "Published: ${{ steps.changesets.outputs.published }}"
+          echo "Published packages: ${{ steps.changesets.outputs.publishedPackages }}"
+
+      - name: Get version from published packages
+        id: get-version
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[0].version')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Published version: ${VERSION}"
+
+      - name: Validate version consistency
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          RELEASE_VERSION="${{ steps.get-version.outputs.version }}"
+
+          # Use jq to properly parse JSON and get only the top-level version field
+          PACKAGE_VERSION=$(jq -r '.version' package.json)
+
+          echo "Version in package.json: '${PACKAGE_VERSION}'"
+          echo "Release version: '${RELEASE_VERSION}'"
+
+          if [[ "${PACKAGE_VERSION}" != "${RELEASE_VERSION}" ]]; then
+            echo "::error::Version mismatch! package.json: '${PACKAGE_VERSION}', expected: '${RELEASE_VERSION}'"
+            exit 1
+          fi
+
+          echo "✅ Version consistency validated: ${RELEASE_VERSION}"
+
+      - name: Release Summary
+        if: always()
+        run: |
+          echo "=== RELEASE WORKFLOW SUMMARY ==="
+          echo "Version: ${{ steps.get-version.outputs.version }}"
+          echo "Published: ${{ steps.changesets.outputs.published }}"
+          echo "Workflow run ID: ${{ github.run_id }}"
+          echo "================================="
+
+  deploy-wordpress:
+    name: Deploy to WordPress.org
+    needs: prepare-release
+    if: |
+      always() &&
+      (
+        (needs.prepare-release.outputs.release_created == 'true') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only == 'true' && github.event.inputs.deploy_tag != '')
+      )
+    runs-on: ubuntu-22.04
+    environment: actions
+    steps:
+      - name: Determine tag and version to deploy
+        id: get_version_info
+        run: |
+          if [[ "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
+            DEPLOY_TAG="${{ github.event.inputs.deploy_tag }}"
+          else
+            DEPLOY_TAG="v${{ needs.prepare-release.outputs.version }}"
+          fi
+
+          # Accept both 'vX.Y.Z' and 'X.Y.Z' tag formats
+          if [[ ! "$DEPLOY_TAG" =~ ^(v)?[0-9]+\.[0-9]+\.[0-9]+([-.].+)?$ ]]; then
+            echo "::error::Invalid tag format: '$DEPLOY_TAG'. Expected format: X.Y.Z, vX.Y.Z, X.Y.Z-suffix, or vX.Y.Z-suffix"
+            exit 1
+          fi
+
+          # Extract version number without 'v'
+          VERSION_NUMBER=$(echo "$DEPLOY_TAG" | sed 's/^v//')
+
+          echo "tag_name=${DEPLOY_TAG}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION_NUMBER}" >> $GITHUB_OUTPUT
+          echo "Deploying Tag: ${DEPLOY_TAG}, Version Number: ${VERSION_NUMBER}"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get_version_info.outputs.tag_name }}
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, intl
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install Node dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: WordPress Plugin Deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SLUG: wpgraphql-ide
+          VERSION: ${{ steps.get_version_info.outputs.version_number }}
+          ASSETS_DIR: ''
+
+      - name: Create plugin artifact
+        run: npm run build:zip
+
+      - name: Upload artifact to workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: wpgraphql-ide
+          path: wpgraphql-ide.zip
+
+      - name: Upload artifact to release
+        if: github.event.inputs.deploy_only != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version_info.outputs.tag_name }}
+          files: wpgraphql-ide.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Deploy Summary
+        if: always()
+        run: |
+          echo "=== DEPLOY WORKFLOW SUMMARY ==="
+          echo "Tag: ${{ steps.get_version_info.outputs.tag_name }}"
+          echo "Version: ${{ steps.get_version_info.outputs.version_number }}"
+          echo "Deploy only mode: ${{ github.event.inputs.deploy_only }}"
+          echo "================================="

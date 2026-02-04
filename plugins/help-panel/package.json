@@ -1,0 +1,20 @@
+{
+	"name": "@wpgraphql-ide/help-panel",
+	"private": true,
+	"main": "build/help-panel.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"format": "wp-scripts format",
+		"format:src": "wp-scripts format ./src",
+		"lint:js": "wp-scripts lint-js ./src",
+		"lint:js:fix": "wp-scripts lint-js --fix ./src",
+		"lint:js:src": "wp-scripts lint-js ./src"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^27.9.0"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^10.0.0"
+	}
+}

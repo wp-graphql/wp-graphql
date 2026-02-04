@@ -1,0 +1,45 @@
+{
+	"name": "wp-graphql/wpgraphql-ide",
+	"description": "A next-gen query editor for WPGraphQL.",
+	"type": "wordpress-plugin",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Joseph Fusco",
+			"homepage": "https://github.com/josephfusco",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": "^8.0"
+	},
+	"require-dev": {
+		"automattic/vipwpcs": "^3.0",
+		"slevomat/coding-standard": "^8.9",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9",
+		"phpstan/phpstan": "^1.11",
+		"phpstan/extension-installer": "^1.4",
+		"szepeviktor/phpstan-wordpress": "^1.3"
+	},
+	"scripts": {
+		"phpcs-i": [
+			"php ./vendor/bin/phpcs -i"
+		],
+		"check-cs": [
+			"php ./vendor/bin/phpcs"
+		],
+		"fix-cs": [
+			"php ./vendor/bin/phpcbf"
+		],
+		"phpstan": [
+			"phpstan analyze --ansi --memory-limit=2G"
+		]
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
+		}
+	}
+}
