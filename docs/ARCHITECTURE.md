@@ -389,7 +389,73 @@ your-plugin-name:
 
 **Note:** For Release PRs (branches starting with `release-please--`), all tests run for all plugins to ensure compatibility.
 
-### 7. Test Setup
+### 7. Smoke Tests
+
+**Add to `.github/workflows/smoke-test.yml`:**
+
+1. **Add change detection pattern** in the `detect-changes` job (similar to integration tests)
+
+2. **Add smoke test job** that calls the reusable workflow:
+
+```yaml
+your-plugin-name:
+  name: 'Smoke Test: ${{ matrix.name }}'
+  needs: detect-changes
+  if: needs.detect-changes.outputs.your-plugin-name == 'true' || needs.detect-changes.outputs.test_all == 'true'
+  strategy:
+    fail-fast: false
+    matrix:
+      include:
+        - name: 'your-plugin-name / WP 6.8 / PHP 8.3'
+          wp: '6.8'
+          php: '8.3'
+        - name: 'your-plugin-name / WP 6.1 / PHP 7.4'
+          wp: '6.1'
+          php: '7.4'
+  uses: ./.github/workflows/smoke-test-reusable.yml
+  with:
+    name: ${{ matrix.name }}
+    plugin_path: plugins/your-plugin-name
+    plugin_name: your-plugin-name
+    composer_working_dir: plugins/your-plugin-name
+    zip_name: wpgraphql-your-plugin.zip  # WordPress.org-compliant name (no hyphen between wp and graphql)
+    plugin_slug: wpgraphql-your-plugin  # Must match directory name inside zip
+    requires_wp_graphql: true  # Set to false if plugin doesn't depend on wp-graphql
+    smoke_test_script: bin/smoke-test.sh
+    needs_build: true  # Set to false if plugin has no JS assets
+    wp: ${{ matrix.wp }}
+    php: ${{ matrix.php }}
+```
+
+**⚠️ Critical: Zip Build Script Configuration**
+
+The `composer.json` zip script must create a directory with the **WordPress.org slug name** (not the directory name). This is because WordPress uses the directory name inside the zip as the plugin identifier.
+
+**Example for a plugin that needs WordPress.org-compliant naming:**
+
+```json
+{
+  "scripts": {
+    "zip": [
+      "# Note: WordPress.org requires 'wpgraphql-your-plugin' (no hyphen between wp and graphql)",
+      "# We keep the directory name as 'wp-graphql-your-plugin' to match core 'wp-graphql' convention",
+      "# but the zip must use the WordPress.org-compliant slug for deployment",
+      "mkdir -p ../../plugin-build/wpgraphql-your-plugin",
+      "rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wpgraphql-your-plugin/ --delete --delete-excluded -v",
+      "cd ../../plugin-build ; zip -r wpgraphql-your-plugin.zip wpgraphql-your-plugin",
+      "rm -rf ../../plugin-build/wpgraphql-your-plugin/"
+    ]
+  }
+}
+```
+
+**Important points:**
+- The directory created inside the zip (`wpgraphql-your-plugin`) must match the `plugin_slug` in the smoke test workflow
+- The zip filename (`wpgraphql-your-plugin.zip`) should also use the WordPress.org slug
+- WordPress uses the directory name inside the zip to identify the plugin when checking if it's active
+- See [Plugin Naming Conventions](../.github/workflows/README.md#plugin-naming-conventions) for more details
+
+### 8. Test Setup
 
 **⚠️ Important:** The CI workflow expects all plugins to have test suite configurations and npm scripts, even if you don't have tests yet. Codeception will run successfully with no tests (reporting "No tests executed"), but it will fail if the suite files or scripts are missing.
 
@@ -454,7 +520,7 @@ Add these test scripts that export required environment variables:
 - See `plugins/wp-graphql-ide/tests/` for suite file examples
 - See `plugins/wp-graphql-smart-cache/tests/` for bootstrap file examples
 
-### 8. UpdatesTest Filtering (if needed)
+### 9. UpdatesTest Filtering (if needed)
 
 If your plugin extends WPGraphQL and has a "Requires WPGraphQL" header, you may need to update `plugins/wp-graphql/tests/wpunit/UpdatesTest.php` to filter it out. The test currently uses a whitelist approach, keeping only explicitly created test plugins. If your plugin is being detected as an untested dependency, you may need to adjust the filter logic.
 
