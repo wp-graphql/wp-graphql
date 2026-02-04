@@ -107,11 +107,11 @@ jobs:
 
           if [[ -z "$COMPONENTS" ]]; then
             echo "No components with releases found"
-            echo "components=" >> $GITHUB_OUTPUT
+            echo "components=[]" >> $GITHUB_OUTPUT
           else
             echo "Components to deploy: $COMPONENTS"
-            # Convert to JSON array for matrix
-            COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s .)
+            # Convert to JSON array for matrix (compact format, no whitespace)
+            COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
             echo "components=$COMPONENTS_JSON" >> $GITHUB_OUTPUT
             echo "components_list=$COMPONENTS" >> $GITHUB_OUTPUT
           fi
@@ -123,6 +123,9 @@ jobs:
           echo "=== RELEASE PLEASE OUTPUTS ==="
           echo "releases_created: ${{ steps.release.outputs.releases_created }}"
           echo "Components with releases: ${{ steps.components.outputs.components_list }}"
+          echo "Components JSON: ${{ steps.components.outputs.components }}"
+          echo "All release outputs:"
+          echo '${{ toJSON(steps.release.outputs) }}' | jq .
           echo "=============================="
 
   detect-deploy-components:
@@ -136,6 +139,7 @@ jobs:
       - name: Detect components for deployment
         id: detect
         run: |
+          echo "=== DETECTING COMPONENTS FOR DEPLOYMENT ==="
           if [[ "${{ github.event.inputs.redeploy_tag }}" != "" ]]; then
             # Re-deploy: extract component from full tag format (e.g., wp-graphql/v2.7.0)
             TAG="${{ github.event.inputs.redeploy_tag }}"
@@ -151,13 +155,19 @@ jobs:
           else
             # New release: use components detected from release-please
             COMPONENTS="${{ needs.release-please.outputs.components }}"
-            if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "" ]]; then
+            echo "Release-please components output: '$COMPONENTS'"
+            echo "Release-please result: ${{ needs.release-please.result }}"
+            
+            if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "[]" && "$COMPONENTS" != "" ]]; then
+              echo "Setting components for deployment: $COMPONENTS"
               echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
             else
-              echo "No components to deploy"
+              echo "No components to deploy (no releases were created)"
+              echo "This is expected if a release PR already exists and was just updated"
               echo "components=[]" >> $GITHUB_OUTPUT
             fi
           fi
+          echo "=============================="
 
   deploy-plugin:
     name: Deploy ${{ matrix.component }} to WordPress.org

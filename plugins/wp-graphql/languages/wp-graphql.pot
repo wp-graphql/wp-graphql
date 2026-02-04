@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.6.0\n"
+"Project-Id-Version: WPGraphQL 2.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-22T17:21:39+00:00\n"
+"POT-Creation-Date: 2026-02-04T21:36:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -33,6 +33,57 @@ msgstr ""
 #. Author URI of the plugin
 #: wp-graphql.php
 msgid "http://www.wpgraphql.com"
+msgstr ""
+
+#. translators: %s is the current class name, %s is the new class name
+#: deprecated/Comments.php:20
+#: deprecated/MenuItems.php:20
+#: deprecated/PostObjects.php:20
+#: deprecated/Taxonomies.php:20
+#: deprecated/TermObjects.php:20
+#: deprecated/Users.php:20
+#, php-format
+msgid "The %1$s class is deprecated and will be removed in the next major version of WPGraphQL. Use %2$s instead."
+msgstr ""
+
+#: deprecated/MenuItemObjectUnion.php:32
+msgid "Deprecated in favor of MenuItemLinkable Interface"
+msgstr ""
+
+#: deprecated/MenuItemObjectUnion.php:37
+msgid "The MenuItemObjectUnion GraphQL type is deprecated in favor of MenuItemLinkable Interface and will be removed in a future version of WPGraphQL"
+msgstr ""
+
+#. translators: %s is the class name that is deprecated.
+#: deprecated/PostObject.php:29
+#: deprecated/PostObject.php:53
+#: deprecated/TermObject.php:28
+#, php-format
+msgid "This function will be removed in the next major version of WPGraphQL. Use %s instead."
+msgstr ""
+
+#: deprecated/PostObjectUnion.php:28
+msgid "Union between the post, page and media item types"
+msgstr ""
+
+#: deprecated/PostObjectUnion.php:33
+msgid "The PostObjectUnion GraphQL type is deprecated. Use the ContentNode interface instead."
+msgstr ""
+
+#: deprecated/TermObjectUnion.php:27
+msgid "Union between the Category, Tag and PostFormatPost types"
+msgstr ""
+
+#: deprecated/TermObjectUnion.php:32
+msgid "The TermObjectUnion GraphQL type is deprecated and will be removed in the next version of WordPress. Use the TermNode interface instead."
+msgstr ""
+
+#. translators: %s is the class name
+#: deprecated/Types.php:26
+#: deprecated/Types.php:45
+#: src/Router.php:628
+#, php-format
+msgid "This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead."
 msgstr ""
 
 #: src/Admin/AdminNotices.php:81
@@ -661,23 +712,23 @@ msgid "User's locale."
 msgstr ""
 
 #. Translators: The placeholder is the name of the user role
-#: src/Data/UserMutation.php:291
+#: src/Data/UserMutation.php:294
 #, php-format
 msgid "The %s role cannot be added to this user"
 msgstr ""
 
 #. Translators: The placeholder is the name of the user role
-#: src/Data/UserMutation.php:313
+#: src/Data/UserMutation.php:316
 #, php-format
 msgid "The role %s does not exist"
 msgstr ""
 
-#: src/Data/UserMutation.php:325
+#: src/Data/UserMutation.php:328
 msgid "Sorry, you cannot remove user editing permissions for your own account."
 msgstr ""
 
 #. Translators: %s is the name of the role that can't be added to the user.
-#: src/Data/UserMutation.php:339
+#: src/Data/UserMutation.php:342
 #, php-format
 msgid "Sorry, you are not allowed to give this the following role: %s."
 msgstr ""
@@ -1123,14 +1174,14 @@ msgstr ""
 
 #: src/Mutation/CommentCreate.php:201
 #: src/Mutation/PostObjectCreate.php:340
-#: src/Mutation/UserCreate.php:198
+#: src/Mutation/UserCreate.php:201
 msgid "The object failed to create but no error was provided"
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:209
 #: src/Mutation/PostObjectCreate.php:323
 #: src/Mutation/TermObjectCreate.php:184
-#: src/Mutation/UserCreate.php:206
+#: src/Mutation/UserCreate.php:209
 msgid "The object failed to create"
 msgstr ""
 
@@ -1853,11 +1904,11 @@ msgstr ""
 msgid "An email address was not provided."
 msgstr ""
 
-#: src/Mutation/UserRegister.php:108
+#: src/Mutation/UserRegister.php:111
 msgid "The user failed to register but no error was provided"
 msgstr ""
 
-#: src/Mutation/UserRegister.php:116
+#: src/Mutation/UserRegister.php:119
 msgid "The user failed to create"
 msgstr ""
 
@@ -1883,93 +1934,105 @@ msgid "The user failed to update"
 msgstr ""
 
 #. translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
-#: src/Registry/TypeRegistry.php:459
+#: src/Registry/TypeRegistry.php:462
 #, php-format
 msgid "List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
-#: src/Registry/TypeRegistry.php:470
+#: src/Registry/TypeRegistry.php:473
 #, php-format
 msgid "The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:481
+#: src/Registry/TypeRegistry.php:484
 #, php-format
 msgid "The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:491
+#: src/Registry/TypeRegistry.php:494
 #, php-format
 msgid "The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:501
+#: src/Registry/TypeRegistry.php:504
 #, php-format
 msgid "The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:516
+#: src/Registry/TypeRegistry.php:519
 #, php-format
 msgid "Set relationships between the %1$s to %2$s"
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:527
+#: src/Registry/TypeRegistry.php:530
 #, php-format
 msgid "If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:538
+#: src/Registry/TypeRegistry.php:541
 msgid "The input list of items to set."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:584
+#: src/Registry/TypeRegistry.php:587
 msgid "Site URL."
 msgstr ""
 
-#. translators: %s is the GraphQL name of the settings group.
 #: src/Registry/TypeRegistry.php:610
+msgid "Site icon URL configured in site settings, used as the site's favicon and app icon."
+msgstr ""
+
+#: src/Registry/TypeRegistry.php:616
+msgid "Size of the site icon in pixels. Defaults to 512. Max 512."
+msgstr ""
+
+#: src/Registry/TypeRegistry.php:646
+msgid "The media item representing the site icon configured in site settings, used as the site's favicon and app icon."
+msgstr ""
+
+#. translators: %s is the GraphQL name of the settings group.
+#: src/Registry/TypeRegistry.php:680
 #, php-format
 msgid "Fields of the '%s' settings group"
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:705
+#: src/Registry/TypeRegistry.php:775
 #, php-format
 msgid "The Type name '%1$s' is invalid and has not been added to the GraphQL Schema."
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:723
+#: src/Registry/TypeRegistry.php:793
 #, php-format
 msgid "You cannot register duplicate Types to the Schema. The Type '%1$s' already exists in the Schema. Make sure to give new Types a unique name."
 msgstr ""
 
 #. translators: %s is the Field name.
-#: src/Registry/TypeRegistry.php:1021
+#: src/Registry/TypeRegistry.php:1091
 #, php-format
 msgid "The registered field '%s' does not have a Type defined. Make sure to define a type for all fields."
 msgstr ""
 
 #. translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
-#: src/Registry/TypeRegistry.php:1050
+#: src/Registry/TypeRegistry.php:1120
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is configured to return '%3$s' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with '%3$s', or it needs to be registered to the Schema."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1180
+#: src/Registry/TypeRegistry.php:1250
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is invalid. Field names cannot start with a number."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1218
+#: src/Registry/TypeRegistry.php:1288
 #, php-format
 msgid "You cannot register duplicate fields on the same Type. The field '%1$s' already exists on the type '%2$s'. Make sure to give the field a unique name."
 msgstr ""
@@ -2172,12 +2235,6 @@ msgstr ""
 
 #: src/Router.php:333
 msgid "If you're reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!"
-msgstr ""
-
-#. translators: %s is the class name
-#: src/Router.php:628
-#, php-format
-msgid "This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead."
 msgstr ""
 
 #: src/Router.php:747
@@ -5205,52 +5262,52 @@ msgstr ""
 msgid "The `graphql_pre_format_name` filter must return a string or null."
 msgstr ""
 
-#: src/WPGraphQL.php:104
+#: src/WPGraphQL.php:105
 msgid "The WPGraphQL class should not be cloned."
 msgstr ""
 
-#: src/WPGraphQL.php:115
+#: src/WPGraphQL.php:116
 msgid "De-serializing instances of the WPGraphQL class is not allowed"
 msgstr ""
 
 #. translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
-#: src/WPGraphQL.php:310
+#: src/WPGraphQL.php:337
 #, php-format
 msgid "The server's current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s"
 msgstr ""
 
-#: src/WPGraphQL.php:524
+#: src/WPGraphQL.php:551
 msgid "Represents uploaded media, including images, videos, documents, and audio files."
 msgstr ""
 
-#: src/WPGraphQL.php:529
+#: src/WPGraphQL.php:556
 msgid "A standalone content entry generally used for static, non-chronological content such as \"About Us\" or \"Contact\" pages."
 msgstr ""
 
-#: src/WPGraphQL.php:534
+#: src/WPGraphQL.php:561
 msgid "A chronological content entry typically used for blog posts, news articles, or similar date-based content."
 msgstr ""
 
-#: src/WPGraphQL.php:555
+#: src/WPGraphQL.php:582
 msgid "A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure."
 msgstr ""
 
-#: src/WPGraphQL.php:560
+#: src/WPGraphQL.php:587
 msgid "A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications."
 msgstr ""
 
-#: src/WPGraphQL.php:565
+#: src/WPGraphQL.php:592
 msgid "A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as \"standard\", \"gallery\", \"video\", etc."
 msgstr ""
 
 #. translators: %s will replaced with the registered type
-#: src/WPGraphQL.php:730
+#: src/WPGraphQL.php:757
 #, php-format
 msgid "The \"%s\" post_type isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
 
 #. translators: %s will replaced with the registered taxonomy
-#: src/WPGraphQL.php:814
+#: src/WPGraphQL.php:841
 #, php-format
 msgid "The \"%s\" taxonomy isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
@@ -5260,7 +5317,7 @@ msgid "WPGraphQL appears to have been installed without it's dependencies. It wi
 msgstr ""
 
 #. translators: %s is the error message
-#: wp-graphql.php:188
+#: wp-graphql.php:184
 #, php-format
 msgid "Error initializing Appsero: %s"
 msgstr ""

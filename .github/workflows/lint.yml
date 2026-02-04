@@ -48,7 +48,7 @@ jobs:
           # Check if Release PR
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BRANCH_NAME="${{ github.head_ref }}"
-            if [[ "$BRANCH_NAME" == release-please--* ]]; then
+            if [[ "$BRANCH_NAME" =~ ^release-please-- ]]; then
               TEST_ALL=true
               echo "🔔 Detected Release PR - will lint all plugins"
             fi
@@ -72,6 +72,7 @@ jobs:
               - plugins/wp-graphql/composer.lock
               - plugins/wp-graphql/phpcs.xml.dist
               - plugins/wp-graphql/phpstan.neon.dist
+              - .release-please-manifest.json
             wp-graphql-smart-cache:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
@@ -93,6 +94,7 @@ jobs:
               - plugins/wp-graphql-ide/codeception.dist.yml
               # IDE depends on wp-graphql, so wp-graphql changes trigger IDE linting
               - plugins/wp-graphql/**/*.php
+              - .release-please-manifest.json
             # Add additional plugins here:
             # wpgraphql-acf:
             #   - .github/workflows/lint-reusable.yml

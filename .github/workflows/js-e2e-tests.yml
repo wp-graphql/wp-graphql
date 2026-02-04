@@ -65,6 +65,7 @@ jobs:
               - plugins/wp-graphql/tests/e2e/**
               - plugins/wp-graphql/package.json
               - plugins/wp-graphql/package-lock.json
+              - .release-please-manifest.json
               - package.json
               - package-lock.json
               - .wp-env.json
