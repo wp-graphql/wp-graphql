@@ -24,8 +24,6 @@
 		"build:zip": "wp-scripts plugin-zip",
 		"start": "concurrently --kill-others-on-fail -n 'Main,Plugins' -c 'blue,green' \"wp-scripts start\" \"node bin/start-plugins.js\"",
 		"test:unit": "jest --config tests/unit/jest.config.js",
-		"pretest:e2e": "npm run build && npm run wp-env start",
-		"pretest:e2e:ui": "npm run build && npm run wp-env start",
 		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
 		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
 		"pretest:codecept": "npm run build:main || echo '⚠️  Build failed, tests may fail if build assets are missing'",
