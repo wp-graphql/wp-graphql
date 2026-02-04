@@ -70,7 +70,7 @@ jobs:
           # Check if Release PR
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BRANCH_NAME="${{ github.head_ref }}"
-            if [[ "$BRANCH_NAME" == release-please--* ]]; then
+            if [[ "$BRANCH_NAME" =~ ^release-please-- ]]; then
               TEST_ALL=true
               echo "🔔 Detected Release PR - will smoke test all plugins"
             fi
@@ -94,6 +94,7 @@ jobs:
               - plugins/wp-graphql/package.json
               - plugins/wp-graphql/packages/**
               - plugins/wp-graphql/webpack.config.js
+              - .release-please-manifest.json
               - package.json
               - .wp-env.json
               - bin/smoke-test.sh
@@ -103,6 +104,7 @@ jobs:
               - plugins/wp-graphql-smart-cache/composer.json
               - plugins/wp-graphql-smart-cache/.distignore
               - plugins/wp-graphql-smart-cache/package.json
+              - .release-please-manifest.json
               - package.json
               - .wp-env.json
               - bin/smoke-test.sh

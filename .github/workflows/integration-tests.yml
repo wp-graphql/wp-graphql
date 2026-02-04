@@ -24,6 +24,7 @@ jobs:
   # ===========================================
   # Detects which plugins have changes to determine which test suites to run.
   # Each plugin job depends on this and only runs if its files changed.
+  # Release-please PRs (branches starting with "release-please--") will run all tests.
   # ===========================================
 
   detect-changes:
@@ -36,9 +37,20 @@ jobs:
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       # Add outputs for additional plugins here:
       # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
+      is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Check if release-please PR
+        id: check-release-pr
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+            echo "is-release-pr=true" >> $GITHUB_OUTPUT
+            echo "🔔 Detected Release PR - will run integration tests for all plugins"
+          else
+            echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Detect changed files
         id: filter
@@ -55,6 +67,7 @@ jobs:
               - plugins/wp-graphql/package-lock.json
               - plugins/wp-graphql/tests/**
               - plugins/wp-graphql/codeception.dist.yml
+              - .release-please-manifest.json
               - package.json
               - package-lock.json
               - .wp-env.json
@@ -70,6 +83,7 @@ jobs:
               - plugins/wp-graphql-smart-cache/tests/**
               - plugins/wp-graphql-smart-cache/codeception.dist.yml
               - plugins/wp-graphql/**/*.php
+              - .release-please-manifest.json
               - package.json
               - package-lock.json
               - .wp-env.json
@@ -84,6 +98,7 @@ jobs:
         run: |
           echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
+          echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
 
   # ===========================================
   # TEST MATRIX
@@ -111,7 +126,11 @@ jobs:
   wp-graphql:
     name: "Integration: ${{ matrix.name }}"
     needs: detect-changes
-    if: needs.detect-changes.outputs.wp-graphql == 'true' || github.event_name == 'workflow_dispatch'
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wp-graphql == 'true' || 
+       needs.detect-changes.outputs.is-release-pr == 'true' || 
+       github.event_name == 'workflow_dispatch')
     strategy:
       fail-fast: false
       matrix:
@@ -194,7 +213,11 @@ jobs:
   wp-graphql-smart-cache:
     name: "Integration: ${{ matrix.name }}"
     needs: detect-changes
-    if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || github.event_name == 'workflow_dispatch'
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || 
+       needs.detect-changes.outputs.is-release-pr == 'true' || 
+       github.event_name == 'workflow_dispatch')
     strategy:
       fail-fast: false
       matrix:
