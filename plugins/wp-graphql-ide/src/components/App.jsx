@@ -69,11 +69,17 @@ export function App() {
 				console.error('Error parsing GraphQL query:', error);
 			}
 
-			const { graphqlEndpoint } = window.WPGRAPHQL_IDE_DATA;
+			const { graphqlEndpoint, nonce } = window.WPGRAPHQL_IDE_DATA;
 
 			const headers = {
 				'Content-Type': 'application/json',
+				Accept: 'application/json',
 			};
+
+			// Add nonce header for authenticated requests or introspection queries
+			if (nonce && (isIntrospectionQuery || isAuthenticated)) {
+				headers['X-WP-Nonce'] = nonce;
+			}
 
 			const credentials = isIntrospectionQuery
 				? 'include'
