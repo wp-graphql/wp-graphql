@@ -1313,7 +1313,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testInterfaceFieldInheritanceAndMerging() {
 		// TODO: determine if this test is valid.
 		// SEE: https://github.com/wp-graphql/wp-graphql/pull/3383#issuecomment-2977950698
-		$this->markTestSkipped();
+		// Unskipping to test if interface field argument merging works across inheritance chains
+		// This test verifies that arguments from parent interfaces are merged with child interfaces
+		// and then with object types that implement those interfaces.
 
 		// Register a parent interface with a field that has a resolver and args
 		register_graphql_interface_type(

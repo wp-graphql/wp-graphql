@@ -1112,4 +1112,612 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding with filter only' );
 	}
 
+	/**
+	 * Test that duplicate connection fields with same toType and connectionTypeName are allowed.
+	 *
+	 * This tests the scenario where a connection field is registered multiple times
+	 * with the same toType and connectionTypeName, which should be allowed.
+	 *
+	 * @throws \Exception
+	 */
+	public function testDuplicateConnectionFieldWithSameToTypeAndConnectionTypeNameIsAllowed() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register a custom type
+				register_graphql_object_type(
+					'TestConnectionType',
+					[
+						'fields' => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Register first connection
+				register_graphql_connection(
+					[
+						'fromType'           => 'RootQuery',
+						'toType'             => 'TestConnectionType',
+						'fromFieldName'      => 'testConnection',
+						'connectionTypeName' => 'TestConnection',
+						'resolve'             => static function () {
+							return null;
+						},
+					]
+				);
+
+				// Register duplicate connection with same toType and connectionTypeName
+				// This should be allowed (no DUPLICATE_FIELD error)
+				register_graphql_connection(
+					[
+						'fromType'           => 'RootQuery',
+						'toType'             => 'TestConnectionType',
+						'fromFieldName'      => 'testConnection',
+						'connectionTypeName' => 'TestConnection',
+						'resolve'             => static function () {
+							return null;
+						},
+					]
+				);
+			}
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have DUPLICATE_FIELD error for connection fields with same toType and connectionTypeName
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should allow duplicate connection fields with same toType and connectionTypeName' );
+	}
+
+	/**
+	 * Test that duplicate connection fields with different toType should error.
+	 *
+	 * This tests the scenario where a connection field is registered multiple times
+	 * with different toType values, which should show a DUPLICATE_FIELD error.
+	 *
+	 * @throws \Exception
+	 */
+	public function testDuplicateConnectionFieldWithDifferentToTypeShouldError() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register first connection to Post
+				register_graphql_connection(
+					[
+						'fromType'      => 'RootQuery',
+						'toType'        => 'Post',
+						'fromFieldName' => 'testConnection',
+						'resolve'       => static function () {
+							return null;
+						},
+					]
+				);
+
+				// Register duplicate connection with different toType (Page instead of Post)
+				// This should show DUPLICATE_FIELD error
+				register_graphql_connection(
+					[
+						'fromType'      => 'RootQuery',
+						'toType'        => 'Page',
+						'fromFieldName' => 'testConnection',
+						'resolve'       => static function () {
+							return null;
+						},
+					]
+				);
+			}
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should have DUPLICATE_FIELD error for connection fields with different toType
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD error when connection fields have different toType' );
+	}
+
+	/**
+	 * Test that duplicate connection fields with different connectionTypeName should error.
+	 *
+	 * This tests the scenario where a connection field is registered multiple times
+	 * with different connectionTypeName values, which should show a DUPLICATE_FIELD error.
+	 *
+	 * @throws \Exception
+	 */
+	public function testDuplicateConnectionFieldWithDifferentConnectionTypeNameShouldError() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register first connection with connectionTypeName
+				register_graphql_connection(
+					[
+						'fromType'           => 'RootQuery',
+						'toType'             => 'Post',
+						'fromFieldName'      => 'testConnection',
+						'connectionTypeName' => 'FirstConnection',
+						'resolve'            => static function () {
+							return null;
+						},
+					]
+				);
+
+				// Register duplicate connection with different connectionTypeName
+				// This should show DUPLICATE_FIELD error
+				register_graphql_connection(
+					[
+						'fromType'           => 'RootQuery',
+						'toType'             => 'Post',
+						'fromFieldName'      => 'testConnection',
+						'connectionTypeName' => 'SecondConnection',
+						'resolve'            => static function () {
+							return null;
+						},
+					]
+				);
+			}
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should have DUPLICATE_FIELD error for connection fields with different connectionTypeName
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD error when connection fields have different connectionTypeName' );
+	}
+
+	/**
+	 * Test that field name starting with number after formatting shows INVALID_FIELD_NAME error.
+	 *
+	 * This tests the scenario where a field name, after formatting, starts with a number.
+	 *
+	 * @throws \Exception
+	 */
+	public function testFieldNameStartingWithNumberAfterFormattingShowsError() {
+		// Register a field that, after formatting, would start with a number
+		register_graphql_field(
+			'RootQuery',
+			'123_formatted_field',
+			[
+				'type' => 'String',
+			]
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should have INVALID_FIELD_NAME error
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'INVALID_FIELD_NAME', $debug_types, 'Should show INVALID_FIELD_NAME error when field name starts with number after formatting' );
+	}
+
+	/**
+	 * Test that field name with allowFieldUnderscores preserves underscores.
+	 *
+	 * This tests that when allowFieldUnderscores is true, underscores are preserved in the field name.
+	 *
+	 * @throws \Exception
+	 */
+	public function testFieldNameWithAllowFieldUnderscoresPreservesUnderscores() {
+		$expected_value = uniqid( 'test', true );
+
+		register_graphql_field(
+			'RootQuery',
+			'field_with_underscores',
+			[
+				'type'                  => 'String',
+				'resolve'               => static function () use ( $expected_value ) {
+					return $expected_value;
+				},
+				'allowFieldUnderscores' => true,
+			]
+		);
+
+		$query = '
+			query {
+				field_with_underscores
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( $expected_value, $response['data']['field_with_underscores'] );
+	}
+
+	/**
+	 * Test that field name without allowFieldUnderscores formats underscores to camelCase.
+	 *
+	 * This tests that when allowFieldUnderscores is false (default), underscores are formatted to camelCase.
+	 *
+	 * @throws \Exception
+	 */
+	public function testFieldNameWithoutAllowFieldUnderscoresFormatsToCamelCase() {
+		$expected_value = uniqid( 'test', true );
+
+		register_graphql_field(
+			'RootQuery',
+			'field_with_underscores',
+			[
+				'type'    => 'String',
+				'resolve' => static function () use ( $expected_value ) {
+					return $expected_value;
+				},
+			]
+		);
+
+		$query = '
+			query {
+				fieldWithUnderscores
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( $expected_value, $response['data']['fieldWithUnderscores'] );
+	}
+
+	/**
+	 * Test that interface field override works when new type is registered but not loaded.
+	 *
+	 * This tests the scenario where a type is registered but not yet loaded when
+	 * checking compatibility for interface field override.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWhenTypeIsRegisteredButNotLoaded() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register an interface with a field
+				register_graphql_interface_type(
+					'TestInterfaceForNotLoaded',
+					[
+						'fields' => [
+							'notLoadedField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register the interface to ContentNode types
+				register_graphql_interfaces_to_types( 'TestInterfaceForNotLoaded', [ 'ContentNode' ] );
+
+				// Register a custom type that will implement the interface
+				register_graphql_object_type(
+					'TestNotLoadedType',
+					[
+						'interfaces' => [ 'TestInterfaceForNotLoaded' ],
+						'fields'     => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Override the field on Post with the new type (which may not be loaded yet)
+				register_graphql_field(
+					'Post',
+					'notLoadedField',
+					[
+						'type' => 'TestNotLoadedType',
+					]
+				);
+			}
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		// Schema should build without errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without errors' );
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have errors (the override should be allowed even if type wasn't loaded during check)
+		$this->assertArrayNotHasKey( 'errors', $response );
+	}
+
+	/**
+	 * Test that interface field override with incompatible type on different type shows error.
+	 *
+	 * This tests the scenario where we override an interface field on one type
+	 * with an incompatible type (not implementing the interface).
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithIncompatibleTypeOnDifferentType() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register an interface with a field
+				register_graphql_interface_type(
+					'TestIncompatibleInterface',
+					[
+						'fields' => [
+							'incompatibleField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register the interface to ContentNode types
+				register_graphql_interfaces_to_types( 'TestIncompatibleInterface', [ 'ContentNode' ] );
+
+				// Register a type that does NOT implement the interface
+				register_graphql_object_type(
+					'TestIncompatibleType',
+					[
+						'fields' => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Override the field on Post with incompatible type
+				register_graphql_field(
+					'Post',
+					'incompatibleField',
+					[
+						'type' => 'TestIncompatibleType',
+					]
+				);
+			}
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should have DUPLICATE_FIELD error since the override is incompatible
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD error when overriding with incompatible type on different type' );
+	}
+
+	/**
+	 * Test that field registration with array type modifiers works.
+	 *
+	 * This tests registering a field with array type modifiers (non_null, list_of).
+	 *
+	 * @throws \Exception
+	 */
+	public function testRegisterFieldWithArrayTypeModifiers() {
+		register_graphql_field(
+			'RootQuery',
+			'testNonNullString',
+			[
+				'type'    => [
+					'non_null' => 'String',
+				],
+				'resolve' => static function () {
+					return 'test';
+				},
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'testListOfString',
+			[
+				'type'    => [
+					'list_of' => 'String',
+				],
+				'resolve' => static function () {
+					return [ 'test1', 'test2' ];
+				},
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'testNonNullListOfString',
+			[
+				'type'    => [
+					'non_null' => [
+						'list_of' => 'String',
+					],
+				],
+				'resolve' => static function () {
+					return [ 'test1', 'test2' ];
+				},
+			]
+		);
+
+		$query = '
+			query {
+				testNonNullString
+				testListOfString
+				testNonNullListOfString
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( 'test', $response['data']['testNonNullString'] );
+		$this->assertEquals( [ 'test1', 'test2' ], $response['data']['testListOfString'] );
+		$this->assertEquals( [ 'test1', 'test2' ], $response['data']['testNonNullListOfString'] );
+	}
+
+	/**
+	 * Test that field registration with callable existing field type works.
+	 *
+	 * This tests the scenario where an existing field has a callable type.
+	 *
+	 * @throws \Exception
+	 */
+	public function testRegisterFieldWithCallableExistingFieldType() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register an interface with a field that has a callable type
+				register_graphql_interface_type(
+					'TestCallableInterface',
+					[
+						'fields' => [
+							'callableField' => [
+								'type'        => static function () {
+									return \WPGraphQL::get_type_registry()->get_type( 'ContentNode' );
+								},
+								'description' => 'Field with callable type',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				// Register the interface to ContentNode types
+				register_graphql_interfaces_to_types( 'TestCallableInterface', [ 'ContentNode' ] );
+
+				// Override the field on Post with type Post
+				register_graphql_field(
+					'Post',
+					'callableField',
+					[
+						'type' => 'Post',
+					]
+				);
+			}
+		);
+
+		// Create a post to query
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		// Schema should build without errors
+		$schema = \WPGraphQL::get_schema();
+		$this->assertNotNull( $schema, 'Schema should build without errors' );
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have DUPLICATE_FIELD error
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should allow override when existing field has callable type' );
+	}
+
+	/**
+	 * Test that connection field registration with allowFieldUnderscores works.
+	 *
+	 * This tests that connection fields can use allowFieldUnderscores.
+	 *
+	 * @throws \Exception
+	 */
+	public function testConnectionFieldWithAllowFieldUnderscores() {
+		register_graphql_connection(
+			[
+				'fromType'           => 'RootQuery',
+				'toType'             => 'Post',
+				'fromFieldName'      => 'connection_with_underscores',
+				'allowFieldUnderscores' => true,
+				'resolve'            => static function () {
+					return null;
+				},
+			]
+		);
+
+		$query = '
+			query {
+				connection_with_underscores {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have errors and field name should preserve underscores
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertArrayHasKey( 'connection_with_underscores', $response['data'] );
+	}
+
 }
