@@ -1,10 +1,11 @@
 {
-  "name": "wpgraphql-ide",
+  "name": "@wpgraphql/wp-graphql-ide",
   "version": "4.0.24",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/wpgraphql/wpgraphql-ide.git"
+    "url": "git+https://github.com/wp-graphql/wp-graphql.git",
+    "directory": "plugins/wp-graphql-ide"
   },
   "files": [
     "build",
