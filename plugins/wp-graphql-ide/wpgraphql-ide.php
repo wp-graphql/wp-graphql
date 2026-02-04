@@ -408,22 +408,9 @@ function enqueue_react_app_with_styles(): void {
 		return;
 	}
 
-	// On frontend, only enqueue if admin bar is showing and IDE node is registered
+	// On frontend, only enqueue if admin bar is showing
 	if ( ! is_admin() ) {
-		// Check if admin bar is showing
 		if ( ! is_admin_bar_showing() ) {
-			return;
-		}
-		
-		// Check if the IDE admin bar node is actually registered
-		global $wp_admin_bar;
-		if ( ! $wp_admin_bar instanceof \WP_Admin_Bar ) {
-			return;
-		}
-		
-		// Verify the IDE node exists in the admin bar
-		$ide_node = $wp_admin_bar->get_node( 'wpgraphql-ide' );
-		if ( ! $ide_node ) {
 			return;
 		}
 	}
