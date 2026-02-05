@@ -156,9 +156,6 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: ${{ inputs.plugin_path }}
 
     steps:
       - name: Checkout repository
@@ -171,13 +168,14 @@ jobs:
         uses: actions/setup-node@v6
         with:
           cache: 'npm'
-          node-version: '22'
+          node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
         run: npm ci
 
       - name: Check if lint:js script exists
         id: check-script
+        working-directory: ${{ inputs.plugin_path }}
         run: |
           if grep -q '"lint:js"' package.json; then
             echo "has_js_lint=true" >> $GITHUB_OUTPUT
@@ -187,4 +185,5 @@ jobs:
 
       - name: Run JavaScript linting
         if: steps.check-script.outputs.has_js_lint == 'true'
+        working-directory: ${{ inputs.plugin_path }}
         run: npm run lint:js
