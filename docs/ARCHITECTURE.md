@@ -278,6 +278,20 @@ Add a new entry in the `packages` object:
 - `package.json` (if it has a version field)
 - Any PHP constants files with version constants
 
+**Add to `.release-please-manifest.json`:**
+
+After adding the plugin to `release-please-config.json`, you **must** also add it to `.release-please-manifest.json` with the current version number:
+
+```json
+{
+  "plugins/wp-graphql": "2.8.0",
+  "plugins/wp-graphql-smart-cache": "2.0.1",
+  "plugins/your-plugin-name": "1.0.0"
+}
+```
+
+> **⚠️ Critical:** The manifest file tells release-please what the current version is. If you forget this step, release-please will default to `1.0.0` for the first release, even if your plugin is already at a higher version (e.g., `4.0.24`). Always check the plugin's main PHP file for the current version number and add it to the manifest.
+
 ### 4. Version Constants Script
 
 **Update `scripts/update-version-constants.js`:**
