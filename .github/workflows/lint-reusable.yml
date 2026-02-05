@@ -141,3 +141,50 @@ jobs:
         with:
           path: ${{ inputs.plugin_path }}/tests/_output
           key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+
+  # Runs JavaScript linting checks.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up Node.js.
+  # - Installs NPM dependencies.
+  # - Runs ESLint on JavaScript files.
+  # - Only runs if the plugin has JavaScript source files.
+  lintjs:
+    name: JavaScript Lint (${{ inputs.plugin_name }})
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ${{ inputs.plugin_path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+          node-version: '22'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Check if lint:js script exists
+        id: check-script
+        run: |
+          if grep -q '"lint:js"' package.json; then
+            echo "has_js_lint=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_js_lint=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run JavaScript linting
+        if: steps.check-script.outputs.has_js_lint == 'true'
+        run: npm run lint:js

@@ -68,6 +68,12 @@ jobs:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
               - plugins/wp-graphql/**/*.php
+              - plugins/wp-graphql/**/*.js
+              - plugins/wp-graphql/**/*.jsx
+              - plugins/wp-graphql/**/*.ts
+              - plugins/wp-graphql/**/*.tsx
+              - plugins/wp-graphql/package.json
+              - plugins/wp-graphql/package-lock.json
               - plugins/wp-graphql/composer.json
               - plugins/wp-graphql/composer.lock
               - plugins/wp-graphql/phpcs.xml.dist
@@ -87,6 +93,12 @@ jobs:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
               - plugins/wp-graphql-ide/**/*.php
+              - plugins/wp-graphql-ide/**/*.js
+              - plugins/wp-graphql-ide/**/*.jsx
+              - plugins/wp-graphql-ide/**/*.ts
+              - plugins/wp-graphql-ide/**/*.tsx
+              - plugins/wp-graphql-ide/package.json
+              - plugins/wp-graphql-ide/package-lock.json
               - plugins/wp-graphql-ide/composer.json
               - plugins/wp-graphql-ide/composer.lock
               - plugins/wp-graphql-ide/phpcs.xml.dist
