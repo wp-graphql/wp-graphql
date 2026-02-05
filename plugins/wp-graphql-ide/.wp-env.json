@@ -1,9 +1,0 @@
-{
-	"core": "WordPress/WordPress",
-	"plugins": ["https://downloads.wordpress.org/plugin/wp-graphql.zip", "."],
-	"themes": [],
-	"port": 8888,
-	"config": {
-		"WP_DEBUG": true
-	}
-}

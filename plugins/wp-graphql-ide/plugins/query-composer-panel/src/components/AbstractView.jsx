@@ -36,19 +36,20 @@ class AbstractView extends React.PureComponent {
 		);
 	};
 	_getSelection = () => {
-		const selection = this.props.selections.find(
+		const foundSelection = this.props.selections.find(
 			(selection) =>
 				selection.kind === 'InlineFragment' &&
 				selection.typeCondition &&
 				this.props.implementingType.name ===
 					selection.typeCondition.name.value
 		);
-		if (!selection) {
+		if (!foundSelection) {
 			return null;
 		}
-		if (selection.kind === 'InlineFragment') {
-			return selection;
+		if (foundSelection.kind === 'InlineFragment') {
+			return foundSelection;
 		}
+		return null;
 	};
 
 	_modifyChildSelections = (selections, options) => {
@@ -83,19 +84,30 @@ class AbstractView extends React.PureComponent {
 			this.props;
 		const selection = this._getSelection();
 		const fields = implementingType.getFields();
-		const childSelections = selection
-			? selection.selectionSet
-				? selection.selectionSet.selections
-				: []
-			: [];
+		let childSelections = [];
+		if (selection && selection.selectionSet) {
+			childSelections = selection.selectionSet.selections;
+		}
 
 		return (
 			<div className={`graphiql-explorer-${implementingType.name}`}>
 				<span
+					role="button"
+					tabIndex="0"
 					style={{ cursor: 'pointer' }}
 					onClick={
 						selection ? this._removeFragment : this._addFragment
 					}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							if (selection) {
+								this._removeFragment();
+							} else {
+								this._addFragment();
+							}
+						}
+					}}
 				>
 					<Checkbox
 						checked={!!selection}

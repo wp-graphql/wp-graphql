@@ -32,9 +32,11 @@ export function App() {
 				setSchema(undefined);
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [schema]);
 
 	useEffect(() => {
+		// eslint-disable-next-line no-undef
 		localStorage.setItem(
 			'graphiql:isAuthenticated',
 			isAuthenticated.toString()
@@ -62,6 +64,7 @@ export function App() {
 					},
 				});
 			} catch (error) {
+				// eslint-disable-next-line no-console
 				console.error('Error parsing GraphQL query:', error);
 			}
 
@@ -77,11 +80,10 @@ export function App() {
 				headers['X-WP-Nonce'] = nonce;
 			}
 
-			const credentials = isIntrospectionQuery
-				? 'include'
-				: isAuthenticated
-					? 'include'
-					: 'omit';
+			let credentials = 'omit';
+			if (isIntrospectionQuery || isAuthenticated) {
+				credentials = 'include';
+			}
 
 			const response = await fetch(graphqlEndpoint, {
 				method: 'POST',

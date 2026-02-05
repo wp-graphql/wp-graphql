@@ -53,7 +53,7 @@ class FieldView extends React.PureComponent {
 		this.props.modifySelections(nextSelections);
 	};
 
-	_addFieldToSelections = (rawSubfields) => {
+	_addFieldToSelections = () => {
 		const nextSelections = [
 			...this.props.selections,
 			this._previousSelection || {
@@ -81,9 +81,11 @@ class FieldView extends React.PureComponent {
 
 			const shouldSelectAllSubfields = !!rawSubfields && event.altKey;
 
-			shouldSelectAllSubfields
-				? this._addAllFieldsToSelections(rawSubfields)
-				: this._addFieldToSelections(rawSubfields);
+			if (shouldSelectAllSubfields) {
+				this._addAllFieldsToSelections(rawSubfields);
+			} else {
+				this._addFieldToSelections();
+			}
 		}
 	};
 
@@ -97,22 +99,24 @@ class FieldView extends React.PureComponent {
 		);
 	};
 	_getSelection = () => {
-		const selection = this.props.selections.find(
+		const foundSelection = this.props.selections.find(
 			(selection) =>
 				selection.kind === 'Field' &&
 				this.props.field.name === selection.name.value
 		);
-		if (!selection) {
+		if (!foundSelection) {
 			return null;
 		}
-		if (selection.kind === 'Field') {
-			return selection;
+		if (foundSelection.kind === 'Field') {
+			return foundSelection;
 		}
+		return null;
 	};
 
 	_setArguments = (argumentNodes, options) => {
 		const selection = this._getSelection();
 		if (!selection) {
+			// eslint-disable-next-line no-console
 			console.error(
 				'Missing selection when setting arguments',
 				argumentNodes
@@ -184,6 +188,8 @@ class FieldView extends React.PureComponent {
 		const node = (
 			<div className={className}>
 				<span
+					role="button"
+					tabIndex="0"
 					title={field.description}
 					style={{
 						cursor: 'pointer',
@@ -196,14 +202,20 @@ class FieldView extends React.PureComponent {
 					data-field-name={field.name}
 					data-field-type={type.name}
 					onClick={this._handleUpdateSelections}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							this._handleUpdateSelections();
+						}
+					}}
 					onMouseEnter={() => {
 						const containsMeaningfulSubselection =
 							isObjectType(type) &&
 							selection &&
 							selection.selectionSet &&
 							selection.selectionSet.selections.filter(
-								(selection) =>
-									selection.kind !== 'FragmentSpread'
+								(subSelection) =>
+									subSelection.kind !== 'FragmentSpread'
 							).length > 0;
 
 						if (containsMeaningfulSubselection) {
@@ -256,11 +268,11 @@ class FieldView extends React.PureComponent {
 									newFragmentName = `${newFragmentName}${conflictingNameCount}`;
 								}
 
-								const childSelections = selection
-									? selection.selectionSet
-										? selection.selectionSet.selections
-										: []
-									: [];
+								let childSelections = [];
+								if (selection && selection.selectionSet) {
+									childSelections =
+										selection.selectionSet.selections;
+								}
 
 								const nextSelections = [
 									{
@@ -309,6 +321,7 @@ class FieldView extends React.PureComponent {
 
 									this.props.onCommit(newDocWithFragment);
 								} else {
+									// eslint-disable-next-line no-console
 									console.warn(
 										'Unable to complete extractFragment operation'
 									);
@@ -354,22 +367,21 @@ class FieldView extends React.PureComponent {
 			(isObjectType(type) || isInterfaceType(type) || isUnionType(type))
 		) {
 			const fields = isUnionType(type) ? {} : type.getFields();
-			const childSelections = selection
-				? selection.selectionSet
-					? selection.selectionSet.selections
-					: []
-				: [];
+			let childSelections = [];
+			if (selection && selection.selectionSet) {
+				childSelections = selection.selectionSet.selections;
+			}
 			return (
 				<div className={`graphiql-explorer-${field.name}`}>
 					{node}
 					<div style={{ marginLeft: 16 }}>
 						{!!applicableFragments
 							? applicableFragments.map((fragment) => {
-									const type = schema.getType(
+									const fragmentType = schema.getType(
 										fragment.typeCondition.name.value
 									);
 									const fragmentName = fragment.name.value;
-									return !type ? null : (
+									return !fragmentType ? null : (
 										<FragmentView
 											key={fragmentName}
 											fragment={fragment}
@@ -412,10 +424,10 @@ class FieldView extends React.PureComponent {
 						{isInterfaceType(type) || isUnionType(type)
 							? schema
 									.getPossibleTypes(type)
-									.map((type) => (
+									.map((possibleType) => (
 										<AbstractView
-											key={type.name}
-											implementingType={type}
+											key={possibleType.name}
+											implementingType={possibleType}
 											selections={childSelections}
 											modifySelections={
 												this._modifyChildSelections

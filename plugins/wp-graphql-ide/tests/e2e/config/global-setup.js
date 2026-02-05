@@ -26,12 +26,8 @@ async function globalSetup(config) {
 		storageStatePath,
 	});
 
-	try {
-		await requestUtils.setupRest();
-	} catch (error) {
-		console.error('🚧 Consider checking WordPress for PHP errors.');
-		throw error;
-	}
+	// Authenticate and save the storageState to disk.
+	await requestUtils.setupRest();
 
 	// Reset the test environment before running the tests.
 	await Promise.all([

@@ -26,14 +26,14 @@ class FragmentView extends React.PureComponent {
 		);
 	};
 	_getSelection = () => {
-		const selection = this.props.selections.find((selection) => {
+		const foundSelection = this.props.selections.find((selection) => {
 			return (
 				selection.kind === 'FragmentSpread' &&
 				selection.name.value === this.props.fragment.name.value
 			);
 		});
 
-		return selection;
+		return foundSelection;
 	};
 
 	render() {
@@ -44,10 +44,22 @@ class FragmentView extends React.PureComponent {
 				className={`graphiql-explorer-${this.props.fragment.name.value}`}
 			>
 				<span
+					role="button"
+					tabIndex="0"
 					style={{ cursor: 'pointer' }}
 					onClick={
 						selection ? this._removeFragment : this._addFragment
 					}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							if (selection) {
+								this._removeFragment();
+							} else {
+								this._addFragment();
+							}
+						}
+					}}
 				>
 					<Checkbox
 						checked={!!selection}

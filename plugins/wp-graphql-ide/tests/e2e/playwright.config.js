@@ -18,13 +18,10 @@ process.env.STORAGE_STATE_PATH ??= path.join(
 const config = defineConfig({
 	...baseConfig,
 	globalSetup: require.resolve('./config/global-setup.js'),
-	// Only start webServer if not in CI (wp-env is already started by GitHub Actions)
-	webServer: process.env.CI
-		? undefined
-		: {
-				...baseConfig.webServer,
-				command: 'npm run wp-env -- start',
-			},
+	webServer: {
+		...baseConfig.webServer,
+		command: 'npm run wp-env -- start',
+	},
 });
 
 export default config;

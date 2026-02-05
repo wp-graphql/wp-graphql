@@ -1,5 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql",
+	"version": "2.8.0",
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -11,32 +12,39 @@
 		"doc": "docs",
 		"test": "tests"
 	},
-	"engines": {
-		"node": ">=22",
-		"npm": ">=10"
-	},
 	"scripts": {
-		"check-engines": "wp-scripts check-engines",
 		"build": "wp-scripts build",
-		"start": "wp-scripts start",
-		"i18n:pot": "npm run wp-env:cli -- wp i18n make-pot . languages/wp-graphql.pot --slug=wp-graphql --domain=wp-graphql --include=src,access-functions.php,wp-graphql.php --exclude=node_modules,vendor,tests,build,packages",
+		"check-engines": "wp-scripts check-engines",
+		"format": "wp-scripts format",
 		"i18n:json": "npm run wp-env:cli -- wp i18n make-json languages languages --no-purge",
+		"i18n:pot": "npm run wp-env:cli -- wp i18n make-pot . languages/wp-graphql.pot --slug=wp-graphql --domain=wp-graphql --include=src,access-functions.php,wp-graphql.php --exclude=node_modules,vendor,tests,build,packages",
+		"lint": "npm run lint:js && npm run lint:php",
+		"lint:js": "wp-scripts lint-js ./packages",
+		"lint:js:fix": "wp-scripts lint-js --fix ./packages",
+		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
+		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
+		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
+		"start": "wp-scripts start",
+		"test:codecept": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept \"$@\"' --",
+		"test:codecept:acceptance": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_WP_URL=http://tests-wordpress TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept run acceptance \"$@\"' --",
+		"test:codecept:coverage": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'XDEBUG_MODE=coverage TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept \"$@\"' --",
+		"test:codecept:functional": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_WP_URL=http://tests-wordpress TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept run functional \"$@\"' --",
+		"test:codecept:wpunit": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept run wpunit \"$@\"' --",
 		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
 		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
 		"test:unit": "wp-scripts test-unit-js",
-		"test:codecept": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept \"$@\"' --",
-		"test:codecept:wpunit": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept run wpunit \"$@\"' --",
-		"test:codecept:acceptance": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_WP_URL=http://tests-wordpress TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept run acceptance \"$@\"' --",
-		"test:codecept:functional": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'TEST_WP_URL=http://tests-wordpress TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept run functional \"$@\"' --",
-		"test:codecept:coverage": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'XDEBUG_MODE=coverage TEST_THEME=${TEST_THEME:-twentytwentyone} vendor/bin/codecept \"$@\"' --",
-		"format": "wp-scripts format",
-		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
-		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
-		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
-		"lint:js:fix": "wp-scripts lint-js --fix ./packages",
-		"lint:js": "wp-scripts lint-js ./packages",
 		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql/ --",
 		"zip": "composer run-script build-plugin"
+	},
+	"lint-staged": {
+		"package.json": "sort-package-json",
+		"packages/**/*.{js,jsx,ts,tsx}": "wp-scripts lint-js"
+	},
+	"overrides": {
+		"@babel/runtime": "^7.27.6",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"webpack-dev-server@<=5.2.0": ">=5.2.1"
 	},
 	"dependencies": {
 		"@ant-design/icons": "5.6.1",
@@ -75,14 +83,8 @@
 		"sort-package-json": "^3.6.1",
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
-	"lint-staged": {
-		"package.json": "sort-package-json"
-	},
-	"overrides": {
-		"@babel/runtime": "^7.27.6",
-		"webpack-dev-server@<=5.2.0": ">=5.2.1",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1"
-	},
-	"version": "2.8.0"
+	"engines": {
+		"node": ">=22",
+		"npm": ">=10"
+	}
 }

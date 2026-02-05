@@ -1,0 +1,2 @@
+# Run lint-staged for all workspaces
+npx lint-staged || exit 1

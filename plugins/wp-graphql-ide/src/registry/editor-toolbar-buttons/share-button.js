@@ -1,21 +1,9 @@
-import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { external, Icon } from '@wordpress/icons';
-import { useSelect } from '@wordpress/data';
+import { select } from '@wordpress/data';
 import LZString from 'lz-string';
+import copy from 'copy-to-clipboard';
 
 export const shareButton = () => {
-	const [copyToClipboard] = useCopyToClipboard();
-	const { dedicatedIdeBaseUrl } = window.WPGRAPHQL_IDE_DATA;
-	const query = useSelect((select) => select('wpgraphql-ide/app').getQuery());
-
-	const generateShareLink = async () => {
-		const hashedQueryParamObject = getHashedQueryParams({ query });
-		const fullUrl = `${dedicatedIdeBaseUrl}&wpgraphql_ide=${hashedQueryParamObject}`;
-		await copyToClipboard(fullUrl);
-
-		// TODO: notify user that a shareable link is copied to clipboard
-	};
-
 	return {
 		label: 'Share current document',
 		// component: ShareDocumentButton
@@ -27,8 +15,14 @@ export const shareButton = () => {
 				}}
 			/>
 		),
-		onClick: async () => {
-			await generateShareLink();
+		onClick: () => {
+			const { dedicatedIdeBaseUrl } = window.WPGRAPHQL_IDE_DATA;
+			const query = select('wpgraphql-ide/app').getQuery();
+			const hashedQueryParamObject = getHashedQueryParams({ query });
+			const fullUrl = `${dedicatedIdeBaseUrl}&wpgraphql_ide=${hashedQueryParamObject}`;
+			copy(fullUrl);
+
+			// TODO: notify user that a shareable link is copied to clipboard
 		},
 	};
 };
@@ -41,6 +35,7 @@ export const shareButton = () => {
  */
 export function getHashedQueryParams(obj) {
 	if (typeof obj !== 'object' || obj === null) {
+		// eslint-disable-next-line no-console
 		console.error('Input must be a non-null object');
 		return '';
 	}
@@ -48,6 +43,7 @@ export function getHashedQueryParams(obj) {
 		const queryParamString = JSON.stringify(obj);
 		return LZString.compressToEncodedURIComponent(queryParamString);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.error('Failed to compress query parameter object:', error);
 		return '';
 	}
