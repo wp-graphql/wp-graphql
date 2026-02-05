@@ -130,12 +130,12 @@ export function AppDrawer({ children, buttonLabel }) {
 					if (open) {
 						const triggerButton =
 							document.querySelector('.AppDrawerButton');
-					if (
-						triggerButton &&
-						// eslint-disable-next-line @wordpress/no-global-active-element
-						document.activeElement === triggerButton
-					) {
-						triggerButton.blur();
+						if (
+							triggerButton &&
+							// eslint-disable-next-line @wordpress/no-global-active-element
+							document.activeElement === triggerButton
+						) {
+							triggerButton.blur();
 						}
 					}
 					setLocalOpen(open);
