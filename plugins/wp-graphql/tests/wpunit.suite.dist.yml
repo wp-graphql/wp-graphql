@@ -3,6 +3,6 @@
 # Suite for unit or integration tests that require WordPress functions and classes.
 actor: WpunitTester
 modules:
-    enabled:
-        - Asserts
-        - lucatume\WPBrowser\Module\WPLoader
+  enabled:
+    - Asserts
+    - lucatume\WPBrowser\Module\WPLoader

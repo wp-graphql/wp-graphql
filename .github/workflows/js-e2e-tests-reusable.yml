@@ -4,15 +4,15 @@ on:
   workflow_call:
     inputs:
       name:
-        description: "Display name for the job (e.g., wp-graphql)"
+        description: 'Display name for the job (e.g., wp-graphql)'
         required: true
         type: string
       plugin_path:
-        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        description: 'Path to the plugin directory (e.g., plugins/wp-graphql)'
         required: true
         type: string
       plugin_name:
-        description: "Name of the plugin (e.g., wp-graphql)"
+        description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
 
@@ -29,7 +29,7 @@ jobs:
   # - Runs Playwright e2e tests.
   # - Uploads test failure artifacts.
   test:
-    name: "${{ inputs.name }}"
+    name: '${{ inputs.name }}'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -45,8 +45,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          cache: "npm"
-          node-version-file: ".nvmrc"
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -59,7 +59,7 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           working-directory: ${{ inputs.plugin_path }}
-          composer-options: "--no-progress"
+          composer-options: '--no-progress'
 
       - name: Install NPM dependencies
         run: npm ci

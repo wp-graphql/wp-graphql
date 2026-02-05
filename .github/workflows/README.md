@@ -202,7 +202,8 @@ When adding a new plugin:
    - Set `needs_build: true` if plugin requires JS asset building
    - Add WP/PHP version matrix entries
 5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
-6. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
+6. **Add version constant mapping** in `scripts/update-version-constants.js` if your plugin defines a version constant (see [Architecture Docs](../docs/ARCHITECTURE.md#4-version-constants-script))
+7. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
    - Set `component` to match release tag prefix
    - Configure `active_plugins` for schema generation
 
@@ -225,5 +226,12 @@ When adding plugins to the monorepo, be aware of the difference between director
 - GitHub release tag: `wp-graphql-smart-cache/v2.0.1`
 - WordPress.org slug: `wpgraphql-smart-cache` (WordPress.org policy requirement)
 - Zip file: `wpgraphql-smart-cache.zip` (created by build script with WordPress.org-compliant name)
+- Zip directory: `wpgraphql-smart-cache/` (directory inside the zip, matches WordPress.org slug)
+- Plugin slug: `wpgraphql-smart-cache` (used in smoke tests, must match zip directory name)
+
+**Important for smoke tests:**
+- The `composer.json` zip script must create a directory with the WordPress.org slug name (e.g., `wpgraphql-smart-cache`, not `wp-graphql-smart-cache`)
+- The `plugin_slug` in `smoke-test.yml` must match the directory name inside the zip file
+- WordPress uses the directory name inside the zip as the plugin identifier when checking if it's active
 
 The release workflow automatically maps component names to WordPress.org slugs when deploying. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.
