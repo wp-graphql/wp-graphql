@@ -1021,4 +1021,96 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['user'] );
 	}
+
+	/**
+	 * Test querying user admin preferences fields
+	 *
+	 * Tests the new core user meta fields:
+	 * - adminColor
+	 * - hasRichEditingEnabled
+	 * - hasSyntaxHighlightingEnabled
+	 * - hasCommentShortcutsEnabled
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/479
+	 */
+	public function testUserAdminPreferencesFields() {
+		// Create a user
+		$user_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		// Set user meta values
+		update_user_meta( $user_id, 'admin_color', 'midnight' );
+		update_user_meta( $user_id, 'rich_editing', 'true' );
+		update_user_meta( $user_id, 'syntax_highlighting', 'false' );
+		update_user_meta( $user_id, 'comment_shortcuts', 'true' );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$query = "
+		query {
+			user(id: \"{$global_id}\") {
+				adminColor
+				hasRichEditingEnabled
+				hasSyntaxHighlightingEnabled
+				hasCommentShortcutsEnabled
+			}
+		}";
+
+		// Authenticate as admin to see these fields
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'midnight', $actual['data']['user']['adminColor'] );
+		$this->assertTrue( $actual['data']['user']['hasRichEditingEnabled'] );
+		$this->assertFalse( $actual['data']['user']['hasSyntaxHighlightingEnabled'] );
+		$this->assertTrue( $actual['data']['user']['hasCommentShortcutsEnabled'] );
+	}
+
+	/**
+	 * Test user admin preferences fields with default values
+	 *
+	 * Tests that default values are returned when user meta is not set.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/479
+	 */
+	public function testUserAdminPreferencesDefaultValues() {
+		// Create a user without setting any meta
+		$user_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$query = "
+		query {
+			user(id: \"{$global_id}\") {
+				adminColor
+				hasRichEditingEnabled
+				hasSyntaxHighlightingEnabled
+				hasCommentShortcutsEnabled
+			}
+		}";
+
+		// Authenticate as admin to see these fields
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// Default admin color in WordPress is 'fresh'
+		$this->assertEquals( 'fresh', $actual['data']['user']['adminColor'] );
+		// Rich editing defaults to enabled
+		$this->assertTrue( $actual['data']['user']['hasRichEditingEnabled'] );
+		// Syntax highlighting defaults to enabled
+		$this->assertTrue( $actual['data']['user']['hasSyntaxHighlightingEnabled'] );
+		// Comment shortcuts default to disabled
+		$this->assertFalse( $actual['data']['user']['hasCommentShortcutsEnabled'] );
+	}
 }
