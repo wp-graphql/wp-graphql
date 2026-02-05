@@ -77,6 +77,7 @@ class AbstractArgView extends React.PureComponent {
 						</select>
 					);
 				} else {
+					// eslint-disable-next-line no-console
 					console.error(
 						'arg mismatch between arg and selection',
 						argType,
@@ -114,6 +115,7 @@ class AbstractArgView extends React.PureComponent {
 						</div>
 					);
 				} else {
+					// eslint-disable-next-line no-console
 					console.error(
 						'arg mismatch between arg and selection',
 						argType,
@@ -371,9 +373,22 @@ class AbstractArgView extends React.PureComponent {
 				data-arg-type={argType.name}
 				className={`graphiql-explorer-${arg.name}`}
 			>
-				<span
-					style={{ cursor: 'pointer' }}
-					onClick={(event) => {
+			<span
+				role="button"
+				tabIndex="0"
+				style={{ cursor: 'pointer' }}
+				onClick={(event) => {
+					const shouldAdd = !argValue;
+					if (shouldAdd) {
+						this.props.addArg(true);
+					} else {
+						this.props.removeArg(true);
+					}
+					this.setState({ displayArgActions: shouldAdd });
+				}}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
 						const shouldAdd = !argValue;
 						if (shouldAdd) {
 							this.props.addArg(true);
@@ -381,8 +396,9 @@ class AbstractArgView extends React.PureComponent {
 							this.props.removeArg(true);
 						}
 						this.setState({ displayArgActions: shouldAdd });
-					}}
-				>
+					}
+				}}
+			>
 					{isInputObjectType(argType) ? (
 						<span>
 							{!!argValue

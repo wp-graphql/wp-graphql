@@ -9,10 +9,12 @@ class ScalarInput extends React.PureComponent {
 
 	componentDidMount() {
 		const input = this._ref;
+		// eslint-disable-next-line @wordpress/no-global-active-element
 		const activeElement = document.activeElement;
 		if (
 			input &&
 			activeElement &&
+			// eslint-disable-next-line no-undef
 			!(activeElement instanceof HTMLTextAreaElement)
 		) {
 			input.focus();

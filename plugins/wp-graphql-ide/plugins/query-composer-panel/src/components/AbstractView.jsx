@@ -91,12 +91,24 @@ class AbstractView extends React.PureComponent {
 
 		return (
 			<div className={`graphiql-explorer-${implementingType.name}`}>
-				<span
-					style={{ cursor: 'pointer' }}
-					onClick={
-						selection ? this._removeFragment : this._addFragment
+			<span
+				role="button"
+				tabIndex="0"
+				style={{ cursor: 'pointer' }}
+				onClick={
+					selection ? this._removeFragment : this._addFragment
+				}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						if (selection) {
+							this._removeFragment();
+						} else {
+							this._addFragment();
+						}
 					}
-				>
+				}}
+			>
 					<Checkbox
 						checked={!!selection}
 						styleConfig={this.props.styleConfig}

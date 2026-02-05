@@ -13,6 +13,7 @@ const plugins = glob.sync(`${pluginsPath}/*`);
 // Function to start a plugin using wp-scripts
 const startPlugin = (plugin) => {
 	const pluginName = path.basename(plugin);
+	// eslint-disable-next-line no-console
 	console.log(`Starting plugin: ${pluginName}`);
 	execSync('wp-scripts start', {
 		cwd: plugin,

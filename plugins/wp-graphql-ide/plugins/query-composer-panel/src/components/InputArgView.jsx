@@ -1,5 +1,9 @@
 import React from 'react';
-import { coerceArgValue, unwrapInputType } from '../utils';
+import {
+	coerceArgValue,
+	unwrapInputType,
+	defaultInputObjectFields,
+} from '../utils';
 import { isInputObjectType, isLeafType } from 'graphql';
 import AbstractArgView from './AbstractArgView';
 
@@ -58,6 +62,7 @@ class InputArgView extends React.PureComponent {
 		}
 
 		if (!argSelection) {
+			// eslint-disable-next-line no-console
 			console.error('Unable to add arg for argType', argType);
 		} else {
 			return this.props.modifyFields(
@@ -86,6 +91,7 @@ class InputArgView extends React.PureComponent {
 		const argSelection = this._getArgSelection();
 
 		if (!argSelection) {
+			// eslint-disable-next-line no-console
 			console.error('missing arg selection when setting arg value');
 			return;
 		}
@@ -98,6 +104,7 @@ class InputArgView extends React.PureComponent {
 			settingToLiteralValue;
 
 		if (!handleable) {
+			// eslint-disable-next-line no-console
 			console.warn(
 				'Unable to handle non leaf types in InputArgView.setArgValue',
 				event

@@ -20,7 +20,7 @@ const initialState = {
  * @param {Object} state  The current state of the store.
  * @param {Object} action The action to be performed.
  *
- * @return {Object}
+ * @return {Object} The new state after applying the action.
  */
 const setQuery = (state, action) => {
 	const editedQuery = action.query;
@@ -50,7 +50,7 @@ const setQuery = (state, action) => {
  * The reducer for the app store.
  * @param {Object} state  The current state of the store.
  * @param {Object} action The action to be performed.
- * @return {Object}
+ * @return {Object} The new state after applying the action.
  */
 const reducer = (state = initialState, action) => {
 	switch (action.type) {

@@ -29,6 +29,7 @@ async function globalSetup(config) {
 	try {
 		await requestUtils.setupRest();
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.error('🚧 Consider checking WordPress for PHP errors.');
 		throw error;
 	}

@@ -41,6 +41,7 @@ export const shareButton = () => {
  */
 export function getHashedQueryParams(obj) {
 	if (typeof obj !== 'object' || obj === null) {
+		// eslint-disable-next-line no-console
 		console.error('Input must be a non-null object');
 		return '';
 	}
@@ -48,6 +49,7 @@ export function getHashedQueryParams(obj) {
 		const queryParamString = JSON.stringify(obj);
 		return LZString.compressToEncodedURIComponent(queryParamString);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.error('Failed to compress query parameter object:', error);
 		return '';
 	}

@@ -25,6 +25,7 @@ const actions = {
 		try {
 			editedQuery = print(parse(editedQuery));
 		} catch (error) {
+			// eslint-disable-next-line no-console
 			console.warn(error);
 		}
 

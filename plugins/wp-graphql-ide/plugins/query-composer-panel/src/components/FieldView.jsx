@@ -113,6 +113,7 @@ class FieldView extends React.PureComponent {
 	_setArguments = (argumentNodes, options) => {
 		const selection = this._getSelection();
 		if (!selection) {
+			// eslint-disable-next-line no-console
 			console.error(
 				'Missing selection when setting arguments',
 				argumentNodes
@@ -183,19 +184,27 @@ class FieldView extends React.PureComponent {
 
 		const node = (
 			<div className={className}>
-				<span
-					title={field.description}
-					style={{
-						cursor: 'pointer',
-						display: 'inline-flex',
-						alignItems: 'center',
-						minHeight: '16px',
-						WebkitUserSelect: 'none',
-						userSelect: 'none',
-					}}
-					data-field-name={field.name}
-					data-field-type={type.name}
-					onClick={this._handleUpdateSelections}
+			<span
+				role="button"
+				tabIndex="0"
+				title={field.description}
+				style={{
+					cursor: 'pointer',
+					display: 'inline-flex',
+					alignItems: 'center',
+					minHeight: '16px',
+					WebkitUserSelect: 'none',
+					userSelect: 'none',
+				}}
+				data-field-name={field.name}
+				data-field-type={type.name}
+				onClick={this._handleUpdateSelections}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						this._handleUpdateSelections();
+					}
+				}}
 					onMouseEnter={() => {
 						const containsMeaningfulSubselection =
 							isObjectType(type) &&
@@ -309,6 +318,7 @@ class FieldView extends React.PureComponent {
 
 									this.props.onCommit(newDocWithFragment);
 								} else {
+									// eslint-disable-next-line no-console
 									console.warn(
 										'Unable to complete extractFragment operation'
 									);
@@ -365,11 +375,11 @@ class FieldView extends React.PureComponent {
 					<div style={{ marginLeft: 16 }}>
 						{!!applicableFragments
 							? applicableFragments.map((fragment) => {
-									const type = schema.getType(
+									const fragmentType = schema.getType(
 										fragment.typeCondition.name.value
 									);
 									const fragmentName = fragment.name.value;
-									return !type ? null : (
+									return !fragmentType ? null : (
 										<FragmentView
 											key={fragmentName}
 											fragment={fragment}

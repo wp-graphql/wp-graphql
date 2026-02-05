@@ -48,6 +48,7 @@ const setInitialState = () => {
 		try {
 			parsedQuery = parse(query);
 		} catch (error) {
+			// eslint-disable-next-line no-console
 			console.error(`Error parsing the query "${query}"`, error.message);
 			parsedQuery = null;
 		}
@@ -58,6 +59,7 @@ const setInitialState = () => {
 			try {
 				printedQuery = print(parsedQuery);
 			} catch (error) {
+				// eslint-disable-next-line no-console
 				console.error(
 					`Error printing the query "${query}"`,
 					error.message

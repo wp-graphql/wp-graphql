@@ -158,9 +158,12 @@ export async function visitPluginsPage(page) {
 export async function openDrawer(page) {
 	// Wait for the IDE scripts to load and the IDE to be ready
 	// The WPGraphQLIDEReady event is dispatched after the IDE is rendered
-	await page.waitForFunction(() => {
-		return window.WPGraphQLIDE !== undefined;
-	}, { timeout: 10000 });
+	await page.waitForFunction(
+		() => {
+			return window.WPGraphQLIDE !== undefined;
+		},
+		{ timeout: 10000 }
+	);
 
 	// Wait for the drawer button to be available
 	await page.waitForSelector('.AppDrawerButton', {
@@ -241,12 +244,14 @@ export async function simulateHeavyJSLoad(page) {
 			{ length: 50000 },
 			(_, i) => i ** 2
 		).reduce((a, b) => a + b);
+		// eslint-disable-next-line no-console
 		console.log('Heavy computation result:', heavyComputation);
 
 		// Simulate asynchronous operations
-		new Promise((resolve) => setTimeout(resolve, 5000)).then(() =>
-			console.log('Delayed operation completed')
-		);
+		new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
+			// eslint-disable-next-line no-console
+			console.log('Delayed operation completed');
+		});
 
 		// Simulate frequent DOM updates
 		setInterval(() => {

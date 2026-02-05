@@ -7,6 +7,7 @@ const reducer = (state = initialState, action) => {
 		case 'REGISTER_BUTTON':
 			// Ensure button name is unique
 			if (action.name in state.buttons) {
+				// eslint-disable-next-line no-console
 				console.warn({
 					message: `The "${action.name}" button already exists. Name must be unique.`,
 					existingButton: state.buttons[action.name],

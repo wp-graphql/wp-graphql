@@ -16,6 +16,8 @@
 	"dependencies": {
 		"@wordpress/data": "^9.26.0",
 		"@wordpress/element": "^5.33.0",
+		"@wordpress/icons": "^9.43.0",
+		"graphql": "^16.8.1",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1"
 	}
