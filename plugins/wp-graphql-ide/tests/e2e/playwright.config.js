@@ -25,9 +25,16 @@ const config = defineConfig({
 				...baseConfig.webServer,
 				command: 'npm run wp-env -- start',
 			},
-	// Use GitHub Actions reporter in CI for better test output visibility
+	// Use multiple reporters in CI for better test output visibility
+	// - 'line' shows real-time test-by-test progress
+	// - 'github' provides GitHub Actions annotations
+	// - 'list' shows final summary
 	reporter: process.env.CI
-		? [['github'], ['list']]
+		? [
+				['line'], // Real-time test progress
+				['github'], // GitHub Actions annotations
+				['list'], // Final summary
+			]
 		: baseConfig.reporter || 'list',
 });
 
