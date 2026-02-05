@@ -64,11 +64,22 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
-      - name: Build JavaScript assets
-        run: npm run build
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install Playwright dependencies
-        run: npx playwright install chromium firefox webkit --with-deps
+        run: npx playwright install chromium --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Build JavaScript assets
+        run: npm run build
 
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0
