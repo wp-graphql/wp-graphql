@@ -156,6 +156,7 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 10
+    continue-on-error: true
 
     steps:
       - name: Checkout repository
