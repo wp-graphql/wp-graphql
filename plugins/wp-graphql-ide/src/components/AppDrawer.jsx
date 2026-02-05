@@ -35,7 +35,6 @@ export function AppDrawer({ children, buttonLabel }) {
 		adminBar.removeAttribute('aria-hidden');
 
 		// Watch for WordPress trying to set aria-hidden and prevent it
-		// eslint-disable-next-line no-undef
 		const observer = new MutationObserver((mutations) => {
 			mutations.forEach((mutation) => {
 				if (
@@ -71,7 +70,6 @@ export function AppDrawer({ children, buttonLabel }) {
 		if (localOpen) {
 			// Immediately blur the trigger button to prevent aria-hidden conflict
 			const triggerButton = document.querySelector('.AppDrawerButton');
-			// eslint-disable-next-line @wordpress/no-global-active-element
 			if (triggerButton && document.activeElement === triggerButton) {
 				triggerButton.blur();
 			}
@@ -132,7 +130,6 @@ export function AppDrawer({ children, buttonLabel }) {
 							document.querySelector('.AppDrawerButton');
 						if (
 							triggerButton &&
-							// eslint-disable-next-line @wordpress/no-global-active-element
 							document.activeElement === triggerButton
 						) {
 							triggerButton.blur();

@@ -39,21 +39,18 @@ export const EditorToolbar = () => {
 const isValidButton = (config, name) => {
 	let hasError = false;
 	if (undefined === config.label) {
-		// eslint-disable-next-line no-console
 		console.warn(`Button "${name}" needs a "label" defined`, {
 			config,
 		});
 		hasError = true;
 	}
 	if (undefined === config.children) {
-		// eslint-disable-next-line no-console
 		console.warn(`Button "${name}" needs "children" defined`, {
 			config,
 		});
 		hasError = true;
 	}
 	if (undefined === config.onClick) {
-		// eslint-disable-next-line no-console
 		console.warn(`Button "${name}" needs "onClick" defined`, {
 			config,
 		});

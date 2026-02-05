@@ -28,7 +28,6 @@ export function registerDocumentEditorToolbarButton(
 			priority
 		);
 	} catch (error) {
-		// eslint-disable-next-line no-console
 		console.error(`Failed to register button: ${name}`, error);
 		hooks.doAction(
 			'wpgraphql-ide.registerToolbarButtonError',
@@ -54,7 +53,6 @@ export function registerActivityBarPanel(name, config, priority = 10) {
 			priority
 		);
 	} catch (error) {
-		// eslint-disable-next-line no-console
 		console.error(`Failed to register activity bar panel: ${name}`, error);
 		hooks.doAction(
 			'wpgraphql-ide.registerActivityBarPanelError',

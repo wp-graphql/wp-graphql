@@ -4,7 +4,7 @@
 import { QueryComposer } from './components/QueryComposer';
 import { pencil as editIcon, Icon } from '@wordpress/icons';
 
-window.addEventListener('WPGraphQLIDE_Window_Ready', function () {
+window.addEventListener('WPGraphQLIDE_Window_Ready', function (event) {
 	if (!window.WPGraphQLIDE) {
 		return;
 	}

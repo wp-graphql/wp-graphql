@@ -1,7 +1,7 @@
 import { HelpIcon } from './components/HelpIcon';
 import { HelpPanel } from './components/HelpPanel';
 
-window.addEventListener('WPGraphQLIDE_Window_Ready', () => {
+window.addEventListener('WPGraphQLIDE_Window_Ready', (event) => {
 	if (!window.WPGraphQLIDE) {
 		return;
 	}

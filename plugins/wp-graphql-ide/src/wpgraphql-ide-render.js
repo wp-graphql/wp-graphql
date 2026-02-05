@@ -65,7 +65,6 @@ window.addEventListener('WPGraphQLIDE_Window_Ready', function () {
 
 		window.dispatchEvent(new Event('WPGraphQLIDEReady'));
 	} else {
-		// eslint-disable-next-line no-console
 		console.error(
 			`WPGraphQL IDE mount point not found. Please ensure an element with ID "${rootElementId}" exists.`
 		);

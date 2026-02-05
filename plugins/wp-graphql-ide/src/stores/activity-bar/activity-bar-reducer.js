@@ -12,14 +12,13 @@ const initialState = {
  * The reducer for the app store.
  * @param {Object} state  The current state of the store.
  * @param {Object} action The action to be performed.
- * @return {Object} The new state after applying the action.
+ * @return {Object}
  */
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
 		case 'REGISTER_UTILITY':
 			// Ensure button name is unique
 			if (action.name in state.utilities) {
-				// eslint-disable-next-line no-console
 				console.warn({
 					message: `The "${action.name}" utility already exists. Name must be unique.`,
 					existingUtility: state.utilities[action.name],
@@ -43,7 +42,6 @@ const reducer = (state = initialState, action) => {
 		case 'REGISTER_PANEL':
 			// Ensure panel name is unique
 			if (action.name in state.activityPanels) {
-				// eslint-disable-next-line no-console
 				console.warn({
 					message: `The "${action.name}" panel already exists. Name must be unique.`,
 					existingPanel: state.activityPanels[action.name],
@@ -54,7 +52,6 @@ const reducer = (state = initialState, action) => {
 
 			// Ensure config is a function before calling it
 			if (typeof action.config.content !== 'function') {
-				// eslint-disable-next-line no-console
 				console.error(
 					`Config for panel "${action.name}" requires a content callback.`
 				);
@@ -65,7 +62,6 @@ const reducer = (state = initialState, action) => {
 				'icon' in action.config &&
 				typeof action.config.icon !== 'function'
 			) {
-				// eslint-disable-next-line no-console
 				console.error(
 					`Config for panel "${action.name}" requires an icon callback.`
 				);
@@ -73,7 +69,6 @@ const reducer = (state = initialState, action) => {
 			}
 
 			if (!('title' in action.config)) {
-				// eslint-disable-next-line no-console
 				console.error(
 					`Config for panel "${action.name}" requires a title.`
 				);
@@ -94,7 +89,6 @@ const reducer = (state = initialState, action) => {
 				},
 			};
 		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY':
-			// eslint-disable-next-line no-console
 			console.log({
 				message: `Toggling panel visibility.`,
 				panel: action.panel,

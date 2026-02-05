@@ -22,16 +22,8 @@ class ExplorerWrapper extends React.PureComponent {
 					<div className="doc-explorer-title">{this.props.title}</div>
 					<div className="doc-explorer-rhs">
 						<div
-							role="button"
-							tabIndex="0"
 							className="docExplorerHide"
 							onClick={this.props.onToggleExplorer}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ' ') {
-									e.preventDefault();
-									this.props.onToggleExplorer();
-								}
-							}}
 						>
 							{'\u2715'}
 						</div>

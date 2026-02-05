@@ -148,7 +148,6 @@ export function coerceArgValue(argType, value) {
 					};
 			}
 		} catch (e) {
-			// eslint-disable-next-line no-console
 			console.error('error coercing arg value', e, value);
 			return { kind: 'StringValue', value };
 		}
@@ -187,7 +186,7 @@ export function defaultInputObjectFields(
 		) {
 			const fieldType = unwrapInputType(field.type);
 			if (isInputObjectType(fieldType)) {
-				const inputFields = fieldType.getFields();
+				const fields = fieldType.getFields();
 				nodes.push({
 					kind: 'ObjectField',
 					name: { kind: 'Name', value: field.name },
@@ -197,7 +196,7 @@ export function defaultInputObjectFields(
 							getDefaultScalarArgValue,
 							makeDefaultArg,
 							parentField,
-							Object.keys(inputFields).map((k) => inputFields[k])
+							Object.keys(fields).map((k) => fields[k])
 						),
 					},
 				});
