@@ -269,10 +269,16 @@ function updatePluginVersionHeader(filePath, version) {
 	}
 
 	// Verify the update
-	if (
-		content.includes(`Version: ${version}`) ||
-		content.includes(`@version ${version}`)
-	) {
+	// Use regex to match Version header with variable whitespace
+	// Matches: "Version: 4.1.0", "Version:    4.1.0", "@version 4.1.0", etc.
+	const versionHeaderRegex = new RegExp(
+		`Version:\\s+${version.replace(/\./g, '\\.')}`
+	);
+	const versionDocblockRegex = new RegExp(
+		`@version\\s+${version.replace(/\./g, '\\.')}`
+	);
+
+	if (versionHeaderRegex.test(content) || versionDocblockRegex.test(content)) {
 		return {
 			updated: true,
 			message: `Updated Version header to ${version} in ${path.basename(filePath)} (${replacementCount} replacement${replacementCount === 1 ? '' : 's'})`,
