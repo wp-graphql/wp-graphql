@@ -1,7 +1,6 @@
 import { describe, test, beforeEach } from '@playwright/test';
 import {
 	getCodeMirrorValue,
-	getQueryFromLocalStorage,
 	loginToWordPressAdmin,
 	openDrawer,
 	setQueryInLocalStorage,
@@ -212,10 +211,6 @@ describe('Toolbar Buttons', () => {
 			await mergeButton.click();
 
 			const queryEditorLocator = page.locator(selectors.queryInput);
-
-			const queryEditorTextContent = await queryEditorLocator.evaluate(
-				(node) => node.textContent
-			);
 
 			// wait for the merge to complete
 			await page.waitForTimeout(1000);

@@ -190,16 +190,6 @@ export async function executeQuery(page) {
 	await page.click('.graphiql-execute-button');
 }
 
-export async function selectAndClearTextUsingKeyboard(page, selector) {
-	await page.click(selector); // Focus the element
-
-	// Determine the operating system to use the correct "Select All" shortcut
-	const selectAllCommand =
-		process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
-	await page.keyboard.press(selectAllCommand); // Select all text using OS-specific shortcut
-	await page.keyboard.press('Backspace'); // Clear selected text
-}
-
 export async function loadGraphiQL(
 	page,
 	queryParams = { query: null, variables: null, isQueryComposerOpen: null }
