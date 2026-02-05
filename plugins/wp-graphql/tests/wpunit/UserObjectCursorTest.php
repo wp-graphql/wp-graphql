@@ -532,7 +532,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		update_user_meta( $this->created_user_ids[9], 'test_meta', $this->formatNumber( 6 ) );
 
 		// Must use dummy where args here to force
-		// graphql_map_input_fields_to_wp_query to be executed
+		// graphql_map_input_fields_to_wp_query_args to be executed
 		$this->assertQueryInCursor(
 			[
 				'roleIn' => [
