@@ -10,6 +10,9 @@ import {
 } from '../utils';
 import { GraphQLObjectType, print } from 'graphql';
 import RootView from './RootView';
+import { defaultCheckboxChecked, defaultCheckboxUnchecked } from './Checkbox';
+import ArrowOpen from './ArrowOpen';
+import ArrowClosed from './ArrowClosed';
 
 class ExplorerView extends React.PureComponent {
 	state = {
@@ -42,7 +45,9 @@ class ExplorerView extends React.PureComponent {
 			const selector = `.graphiql-explorer-root #${rootViewElId}`;
 
 			const el = document.querySelector(selector);
-			el && el.scrollIntoView();
+			if (el) {
+				el.scrollIntoView();
+			}
 		}
 	};
 
@@ -65,8 +70,8 @@ class ExplorerView extends React.PureComponent {
 				this.props.checkboxChecked || defaultCheckboxChecked,
 			checkboxUnchecked:
 				this.props.checkboxUnchecked || defaultCheckboxUnchecked,
-			arrowClosed: this.props.arrowClosed || defaultArrowClosed,
-			arrowOpen: this.props.arrowOpen || defaultArrowOpen,
+			arrowClosed: this.props.arrowClosed || ArrowClosed,
+			arrowOpen: this.props.arrowOpen || ArrowOpen,
 			styles: this.props.styles
 				? {
 						...defaultStyles,
@@ -112,7 +117,7 @@ class ExplorerView extends React.PureComponent {
 
 		const renameOperation = (targetOperation, name) => {
 			const newName =
-				name == null || name === ''
+				name === null || name === undefined || name === ''
 					? null
 					: { kind: 'Name', value: name, loc: undefined };
 			const newOperation = { ...targetOperation, name: newName };
@@ -389,8 +394,6 @@ class ExplorerView extends React.PureComponent {
 			...externalFragments,
 		};
 
-		const attribution = this.props.showAttribution ? <Attribution /> : null;
-
 		return (
 			<div
 				ref={(ref) => {
@@ -453,17 +456,16 @@ class ExplorerView extends React.PureComponent {
 								? fragmentType.getFields()
 								: null;
 
-						const fields =
-							operationType === 'query'
-								? queryFields
-								: operationType === 'mutation'
-									? mutationFields
-									: operationType === 'subscription'
-										? subscriptionFields
-										: operation.kind ===
-											  'FragmentDefinition'
-											? fragmentFields
-											: null;
+						let fields = null;
+						if (operationType === 'query') {
+							fields = queryFields;
+						} else if (operationType === 'mutation') {
+							fields = mutationFields;
+						} else if (operationType === 'subscription') {
+							fields = subscriptionFields;
+						} else if (operation.kind === 'FragmentDefinition') {
+							fields = fragmentFields;
+						}
 
 						const fragmentTypeName =
 							operation.kind === 'FragmentDefinition'
@@ -540,7 +542,6 @@ class ExplorerView extends React.PureComponent {
 							/>
 						);
 					})}
-					{attribution}
 				</div>
 
 				{actionsEl}

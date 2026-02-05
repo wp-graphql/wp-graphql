@@ -140,7 +140,7 @@ class AbstractArgView extends React.PureComponent {
 				variableName = baseVariableName;
 			}
 			const argPrintedType = arg.type.toString();
-			const argType = parseType(argPrintedType);
+			const parsedArgType = parseType(argPrintedType);
 
 			const base = {
 				kind: 'VariableDefinition',
@@ -151,7 +151,7 @@ class AbstractArgView extends React.PureComponent {
 						value: variableName,
 					},
 				},
-				type: argType,
+				type: parsedArgType,
 				directives: [],
 			};
 
@@ -198,8 +198,8 @@ class AbstractArgView extends React.PureComponent {
 			const newlyUnusedVariables = Object.entries(
 				subVariableUsageCountByName
 			)
-				.filter(([_, usageCount]) => usageCount < 2)
-				.map(([varName, _]) => varName);
+				.filter(([, usageCount]) => usageCount < 2)
+				.map(([varName]) => varName);
 
 			if (variable) {
 				const newDoc = this.props.setArgValue(variable, false);
@@ -373,22 +373,11 @@ class AbstractArgView extends React.PureComponent {
 				data-arg-type={argType.name}
 				className={`graphiql-explorer-${arg.name}`}
 			>
-			<span
-				role="button"
-				tabIndex="0"
-				style={{ cursor: 'pointer' }}
-				onClick={(event) => {
-					const shouldAdd = !argValue;
-					if (shouldAdd) {
-						this.props.addArg(true);
-					} else {
-						this.props.removeArg(true);
-					}
-					this.setState({ displayArgActions: shouldAdd });
-				}}
-				onKeyDown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						e.preventDefault();
+				<span
+					role="button"
+					tabIndex="0"
+					style={{ cursor: 'pointer' }}
+					onClick={() => {
 						const shouldAdd = !argValue;
 						if (shouldAdd) {
 							this.props.addArg(true);
@@ -396,9 +385,20 @@ class AbstractArgView extends React.PureComponent {
 							this.props.removeArg(true);
 						}
 						this.setState({ displayArgActions: shouldAdd });
-					}
-				}}
-			>
+					}}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							const shouldAdd = !argValue;
+							if (shouldAdd) {
+								this.props.addArg(true);
+							} else {
+								this.props.removeArg(true);
+							}
+							this.setState({ displayArgActions: shouldAdd });
+						}
+					}}
+				>
 					{isInputObjectType(argType) ? (
 						<span>
 							{!!argValue

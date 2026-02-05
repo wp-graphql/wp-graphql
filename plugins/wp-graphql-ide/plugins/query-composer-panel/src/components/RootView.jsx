@@ -99,8 +99,8 @@ class RootView extends React.PureComponent {
 		const operationDisplayName =
 			this.props.name || `${capitalize(operationType)} Name`;
 
-		// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
 		return (
+			// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
 			<div
 				id={rootViewElId}
 				role="group"
@@ -206,7 +206,6 @@ class RootView extends React.PureComponent {
 					))}
 			</div>
 		);
-		/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */
 	}
 }
 

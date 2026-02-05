@@ -22,7 +22,7 @@ const selectors = {
 	getPluginsArray: (state) => {
 		const registeredPlugins = state.registeredPlugins;
 		const pluginsArray = [];
-		Object.entries(registeredPlugins).map(([key, config]) => {
+		Object.entries(registeredPlugins).forEach(([, config]) => {
 			const plugin = () => {
 				return config;
 			};

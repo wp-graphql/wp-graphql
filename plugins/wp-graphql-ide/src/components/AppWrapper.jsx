@@ -1,4 +1,3 @@
-/* global WPGRAPHQL_IDE_DATA */
 import { useEffect } from '@wordpress/element';
 import { doAction } from '@wordpress/hooks';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -8,6 +7,7 @@ import LZString from 'lz-string';
 import { AppDrawer } from './AppDrawer';
 import { App } from './App';
 
+// eslint-disable-next-line no-undef
 const {
 	isDedicatedIdePage,
 	context: { drawerButtonLabel },
@@ -20,13 +20,13 @@ const url =
 		: null;
 const params = url ? url.searchParams : new URLSearchParams();
 
-const setInitialState = () => {
+const setInitialState = (dispatch) => {
 	const {
 		setDrawerOpen,
 		setQuery,
 		setShouldRenderStandalone,
 		setInitialStateLoaded,
-	} = useDispatch('wpgraphql-ide/app');
+	} = dispatch;
 
 	if (isDedicatedIdePage) {
 		setShouldRenderStandalone(true);
@@ -72,7 +72,7 @@ const setInitialState = () => {
 			setDrawerOpen(true);
 			setQuery(printedQuery);
 			params.delete('wpgraphql_ide');
-			history.pushState({}, '', url.toString());
+			window.history.pushState({}, '', url.toString());
 		}
 	}
 
@@ -85,7 +85,11 @@ const setInitialState = () => {
  * @return {JSX.Element} The application component.
  */
 export function AppWrapper() {
-	setInitialState();
+	const dispatch = useDispatch('wpgraphql-ide/app');
+
+	useEffect(() => {
+		setInitialState(dispatch);
+	}, [dispatch]);
 
 	useEffect(() => {
 		/**
