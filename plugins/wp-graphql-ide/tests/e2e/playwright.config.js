@@ -36,6 +36,29 @@ const config = defineConfig({
 				['list'], // Final summary
 			]
 		: baseConfig.reporter || 'list',
+	// Increase timeouts in CI where the environment may be slower
+	...(process.env.CI && {
+		timeout: 60000, // Test timeout: 60 seconds (default is usually 30s)
+		expect: {
+			timeout: 10000, // Assertion timeout: 10 seconds (default is usually 5s)
+		},
+		actionTimeout: 15000, // Action timeout: 15 seconds (default is usually 5s)
+	}),
+	// Only use chromium in CI to avoid downloading unnecessary browsers
+	// Preserve baseURL and other settings from baseConfig
+	...(process.env.CI && {
+		projects: [
+			{
+				name: 'chromium',
+				use: {
+					...baseConfig.projects?.[0]?.use,
+					browserName: 'chromium',
+					// Ensure baseURL is set (wp-scripts should set this, but be explicit)
+					baseURL: baseConfig.projects?.[0]?.use?.baseURL || 'http://localhost:8888',
+				},
+			},
+		],
+	}),
 });
 
 export default config;
