@@ -1,6 +1,6 @@
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { GraphiQL } from './GraphiQL';
-import { useDispatch, useSelect, dispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { parse, visit } from 'graphql';
 import 'graphiql/graphiql.css';
 
@@ -21,16 +21,12 @@ export function App() {
 		useDispatch('wpgraphql-ide/app');
 
 	useEffect(() => {
-		// create a ref
-		const ref = React.createRef();
 		// find the target element in the DOM
 		const element = document.querySelector(
 			'[aria-label="Re-fetch GraphQL schema"]'
 		);
 		// if the element exists
 		if (element) {
-			// assign the ref to the element
-			element.ref = ref;
 			// listen to click events on the element
 			element.addEventListener('click', () => {
 				setSchema(undefined);

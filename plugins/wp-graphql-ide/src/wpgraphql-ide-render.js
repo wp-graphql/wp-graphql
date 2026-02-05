@@ -1,12 +1,11 @@
 import { createRoot } from '@wordpress/element';
-import { dispatch } from '@wordpress/data';
 import AppWrapper from './components/AppWrapper';
 
 // Store root reference to prevent multiple root creation
 let reactRoot = null;
 let isRendered = false;
 
-window.addEventListener('WPGraphQLIDE_Window_Ready', function (event) {
+window.addEventListener('WPGraphQLIDE_Window_Ready', function () {
 	/**
 	 * Get our root element id from the localized script.
 	 */

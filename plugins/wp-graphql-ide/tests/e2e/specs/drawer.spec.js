@@ -1,7 +1,6 @@
 import {
 	loginToWordPressAdmin,
 	openDrawer,
-	pasteVariables,
 	simulateHeavyJSLoad,
 	typeQuery,
 	typeVariables,

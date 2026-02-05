@@ -3,7 +3,7 @@ import { canRunOperation, capitalize, isRunShortcut } from '../utils';
 import FieldView from './FieldView';
 
 class RootView extends React.PureComponent {
-	state = { newOperationType: 'query', displayTitleActions: false };
+	state = { displayTitleActions: false };
 	_previousOperationDef;
 
 	_modifySelections = (selections, options) => {
@@ -205,41 +205,6 @@ class RootView extends React.PureComponent {
 			</div>
 		);
 	}
-}
-
-function Attribution() {
-	return (
-		<div
-			style={{
-				fontFamily: 'sans-serif',
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				margin: '1em',
-				marginTop: 0,
-				flexGrow: 1,
-				justifyContent: 'flex-end',
-			}}
-		>
-			<div
-				style={{
-					borderTop: '1px solid #d6d6d6',
-					paddingTop: '1em',
-					width: '100%',
-					textAlign: 'center',
-				}}
-			>
-				GraphiQL Explorer by{' '}
-				<a href="https://www.onegraph.com">OneGraph</a>
-			</div>
-			<div>
-				Contribute on{' '}
-				<a href="https://github.com/OneGraph/graphiql-explorer">
-					GitHub
-				</a>
-			</div>
-		</div>
-	);
 }
 
 export default RootView;

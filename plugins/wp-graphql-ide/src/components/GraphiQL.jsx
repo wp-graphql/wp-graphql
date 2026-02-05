@@ -259,12 +259,6 @@ export function GraphiQLInterface(props) {
 		);
 	}, [editorToolsResize]);
 
-	const handleOpenShortKeysDialog = useCallback((isOpen) => {
-		if (!isOpen) {
-			setShowDialog(null);
-		}
-	}, []);
-
 	const handleOpenSettingsDialog = useCallback((isOpen) => {
 		if (!isOpen) {
 			setShowDialog(null);

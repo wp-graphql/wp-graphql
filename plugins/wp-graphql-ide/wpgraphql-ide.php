@@ -10,7 +10,7 @@
  * Text Domain:       wpgraphql-ide
  * Version:           4.0.24
  * Requires PHP:      7.4
- * Tested up to:      6.5
+ * Tested up to:      6.8
  * Requires Plugins:  wp-graphql
  *
  * @package WPGraphQLIDE

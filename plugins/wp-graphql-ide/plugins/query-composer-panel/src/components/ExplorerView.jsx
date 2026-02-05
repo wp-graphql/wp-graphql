@@ -14,7 +14,6 @@ import RootView from './RootView';
 class ExplorerView extends React.PureComponent {
 	state = {
 		newOperationType: 'query',
-		operation: null,
 		operationToScrollTo: null,
 	};
 

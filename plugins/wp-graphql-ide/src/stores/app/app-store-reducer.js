@@ -26,25 +26,18 @@ const setQuery = (state, action) => {
 	const editedQuery = action.query;
 	const query = state.query;
 
-	let update = false;
-
 	if (editedQuery === query) {
 		return { ...state };
 	}
 
 	if (null === editedQuery || '' === editedQuery) {
-		update = true;
+		// allow clearing the query without parsing
 	} else {
 		try {
 			parse(editedQuery);
-			update = true;
 		} catch (error) {
 			return { ...state };
 		}
-	}
-
-	if (!update) {
-		return { ...state };
 	}
 
 	return {

@@ -1,4 +1,3 @@
-import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { useSelect } from '@wordpress/data';
 import { ToolbarButton } from '@graphiql/react';
