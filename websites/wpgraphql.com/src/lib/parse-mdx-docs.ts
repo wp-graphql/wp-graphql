@@ -28,7 +28,7 @@ const DOCS_OWNER = "wp-graphql"
 const DOCS_BRANCH = "main"
 // Docs are now in plugins/wp-graphql/docs/ in the monorepo
 const DOCS_FOLDER = "plugins/wp-graphql/docs"
-const DOCS_EXT_REG = new RegExp(`${DOCS_FOLDER}\/(?<slug>.*)\.md(x?)$`, "i")
+const DOCS_EXT_REG = new RegExp(`${DOCS_FOLDER}/(?<slug>.*)\\.md(x?)$`, "i")
 const IMG_PATH_REG = /^(\.\/)?(?<slug>.+)$/i
 
 const DOCS_PATH = `https://raw.githubusercontent.com/${DOCS_OWNER}/${DOCS_REPO}/${DOCS_BRANCH}/${DOCS_FOLDER}`
