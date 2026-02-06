@@ -24,9 +24,10 @@ const octokit = new Octokit({
 
 const DOCS_REPO = "wp-graphql"
 const DOCS_OWNER = "wp-graphql"
-// @TODO: Change to `master` for production
-const DOCS_BRANCH = "develop"
-const DOCS_FOLDER = "docs"
+// Using main branch now that docs are in monorepo
+const DOCS_BRANCH = "main"
+// Docs are now in plugins/wp-graphql/docs/ in the monorepo
+const DOCS_FOLDER = "plugins/wp-graphql/docs"
 const DOCS_EXT_REG = new RegExp(`${DOCS_FOLDER}\/(?<slug>.*)\.md(x?)$`, "i")
 const IMG_PATH_REG = /^(\.\/)?(?<slug>.+)$/i
 
@@ -84,7 +85,12 @@ export async function getAllDocUri(): Promise<string[]> {
 
   return data.reduce((acc, file) => {
     if (DOCS_EXT_REG.test(file.path)) {
-      acc.push(`/docs/${file.path.match(DOCS_EXT_REG).groups.slug}`)
+      // Extract slug from path like "plugins/wp-graphql/docs/introduction.md"
+      // The regex captures everything after the docs folder
+      const match = file.path.match(DOCS_EXT_REG)
+      if (match && match.groups?.slug) {
+        acc.push(`/docs/${match.groups.slug}`)
+      }
     }
 
     return acc

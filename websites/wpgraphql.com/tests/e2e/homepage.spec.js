@@ -6,7 +6,13 @@ import { test, expect } from '@playwright/test';
 test.describe('Homepage', () => {
 	test('should load the homepage', async ({ page }) => {
 		// Navigate to homepage with longer timeout
-		await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+		const response = await page.goto('/', { 
+			waitUntil: 'domcontentloaded', 
+			timeout: 30000 
+		});
+		
+		// Check that we got a valid response
+		expect(response?.status()).toBe(200);
 		
 		// Wait for page to be fully loaded
 		await page.waitForLoadState('networkidle', { timeout: 30000 });
@@ -21,13 +27,15 @@ test.describe('Homepage', () => {
 		// Get the actual title for debugging
 		const title = await page.title();
 		console.log('Page title:', title);
+		console.log('Page URL:', page.url());
 		
 		// Check page title contains WPGraphQL (with fallback if title is empty)
-		if (title) {
+		if (title && title.trim() !== '') {
 			await expect(page).toHaveTitle(/WPGraphQL/i, { timeout: 5000 });
 		} else {
 			// If title is empty, check for WPGraphQL in the page content instead
 			const pageContent = await page.textContent('body');
+			console.log('Page content preview:', pageContent?.substring(0, 200));
 			expect(pageContent).toContain('WPGraphQL');
 		}
 	});
