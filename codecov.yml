@@ -5,7 +5,7 @@
 # CodeCov's dashboard doesn't have a UI option to change the default branch.
 # You need to contact CodeCov support to have them update your repository's default
 # branch from "master" to "main" on their backend.
-# 
+#
 # Reference: https://github.com/codecov/codecov-action/issues/242
 
 codecov:
@@ -45,7 +45,7 @@ coverage:
 
 comment:
   # Show coverage diff in PR comments
-  layout: "reach,diff,flags,files"
+  layout: 'reach,diff,flags,files'
   behavior: default
   require_changes: false
   require_base: no
@@ -57,7 +57,7 @@ comment:
 # Includes: src/ directory, root-level PHP files, and deprecated/ directory
 flags:
   # Match all combined flags (plugin-wpunit-theme-multisite)
-  "*-wpunit-*-*":
+  '*-wpunit-*-*':
     paths:
       - plugins/*/src/
       - plugins/*/*.php

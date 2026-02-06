@@ -4,11 +4,11 @@ on:
   workflow_call:
     inputs:
       plugin_path:
-        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        description: 'Path to the plugin directory (e.g., plugins/wp-graphql)'
         required: true
         type: string
       plugin_name:
-        description: "Name of the plugin (e.g., wp-graphql)"
+        description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
 jobs:
@@ -43,7 +43,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
         with:
-          php-version: "8.3"
+          php-version: '8.3'
           coverage: none
           tools: cs2pr
 
@@ -105,7 +105,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
         with:
-          php-version: "8.3"
+          php-version: '8.3'
           coverage: none
           tools: cs2pr
 
@@ -119,7 +119,7 @@ jobs:
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
-          key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"
+          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
           restore-keys: |
             phpstan-result-cache-
 
@@ -140,4 +140,51 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           path: ${{ inputs.plugin_path }}/tests/_output
-          key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"
+          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+
+  # Runs JavaScript linting checks.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up Node.js.
+  # - Installs NPM dependencies.
+  # - Runs ESLint on JavaScript files.
+  # - Only runs if the plugin has JavaScript source files.
+  lintjs:
+    name: JavaScript Lint (${{ inputs.plugin_name }})
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Check if lint:js script exists
+        id: check-script
+        working-directory: ${{ inputs.plugin_path }}
+        run: |
+          if grep -q '"lint:js"' package.json; then
+            echo "has_js_lint=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_js_lint=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run JavaScript linting
+        if: steps.check-script.outputs.has_js_lint == 'true'
+        working-directory: ${{ inputs.plugin_path }}
+        run: npm run lint:js

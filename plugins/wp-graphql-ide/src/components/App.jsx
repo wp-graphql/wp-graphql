@@ -1,0 +1,134 @@
+import { useEffect, useCallback } from 'react';
+import { GraphiQL } from './GraphiQL';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { parse, visit } from 'graphql';
+import 'graphiql/graphiql.css';
+
+export function App() {
+	const { query, shouldRenderStandalone, isAuthenticated, schema } =
+		useSelect((select) => {
+			const wpgraphqlIDEApp = select('wpgraphql-ide/app');
+			return {
+				query: wpgraphqlIDEApp.getQuery(),
+				shouldRenderStandalone:
+					wpgraphqlIDEApp.shouldRenderStandalone(),
+				isAuthenticated: wpgraphqlIDEApp.isAuthenticated(),
+				schema: wpgraphqlIDEApp.schema(),
+			};
+		});
+
+	const { setQuery, setDrawerOpen, setSchema } =
+		useDispatch('wpgraphql-ide/app');
+
+	useEffect(() => {
+		// find the target element in the DOM
+		const element = document.querySelector(
+			'[aria-label="Re-fetch GraphQL schema"]'
+		);
+		// if the element exists
+		if (element) {
+			// listen to click events on the element
+			element.addEventListener('click', () => {
+				setSchema(undefined);
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [schema]);
+
+	useEffect(() => {
+		// eslint-disable-next-line no-undef
+		localStorage.setItem(
+			'graphiql:isAuthenticated',
+			isAuthenticated.toString()
+		);
+	}, [isAuthenticated]);
+
+	const fetcher = useCallback(
+		async (graphQLParams) => {
+			let isIntrospectionQuery = false;
+
+			try {
+				// Parse the GraphQL query to AST only once and in a try-catch to handle potential syntax errors gracefully
+				const queryAST = parse(graphQLParams.query);
+
+				// Visit each node in the AST efficiently to check for introspection fields
+				visit(queryAST, {
+					Field(node) {
+						if (
+							node.name.value === '__schema' ||
+							node.name.value === '__type'
+						) {
+							isIntrospectionQuery = true;
+							return visit.BREAK; // Early exit if introspection query is detected
+						}
+					},
+				});
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Error parsing GraphQL query:', error);
+			}
+
+			const { graphqlEndpoint, nonce } = window.WPGRAPHQL_IDE_DATA;
+
+			const headers = {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+			};
+
+			// Add nonce header for authenticated requests or introspection queries
+			if (nonce && (isIntrospectionQuery || isAuthenticated)) {
+				headers['X-WP-Nonce'] = nonce;
+			}
+
+			let credentials = 'omit';
+			if (isIntrospectionQuery || isAuthenticated) {
+				credentials = 'include';
+			}
+
+			const response = await fetch(graphqlEndpoint, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify(graphQLParams),
+				credentials,
+			});
+
+			return response.json();
+		},
+		[isAuthenticated]
+	);
+
+	const activityPanels = useSelect((select) => {
+		return select('wpgraphql-ide/activity-bar').activityPanels();
+	});
+
+	return (
+		<span id="wpgraphql-ide-app">
+			<GraphiQL
+				query={query}
+				fetcher={fetcher}
+				onEditQuery={setQuery}
+				schema={schema}
+				onSchemaChange={(newSchema) => {
+					if (schema !== newSchema) {
+						setSchema(newSchema);
+					}
+				}}
+				plugins={activityPanels}
+			>
+				<GraphiQL.Logo>
+					{!shouldRenderStandalone && (
+						<button
+							className="button AppDrawerCloseButton"
+							onClick={() => setDrawerOpen(false)}
+						>
+							X{' '}
+							<span className="screen-reader-text">
+								close drawer
+							</span>
+						</button>
+					)}
+				</GraphiQL.Logo>
+			</GraphiQL>
+		</span>
+	);
+}

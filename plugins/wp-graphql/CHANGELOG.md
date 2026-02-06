@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.7.0...wp-graphql/v2.8.0) (2026-02-04)
+
+
+### New Features
+
+* Add internationalization (i18n) support for translations ([#3501](https://github.com/wp-graphql/wp-graphql/issues/3501)) ([9218222](https://github.com/wp-graphql/wp-graphql/commit/92182220fff63fb9beec1e5ae3599fa5c466eb06))
+* import wp-graphql-smart-cache into monorepo ([#3504](https://github.com/wp-graphql/wp-graphql/issues/3504)) ([c496bd6](https://github.com/wp-graphql/wp-graphql/commit/c496bd633c127fbe58047d94fc5898d2b52375fa))
+
+
+### Bug Fixes
+
+* add step to replace x-release-please-version placeholders during deployment ([727a9ea](https://github.com/wp-graphql/wp-graphql/commit/727a9ea814eee8c99535d78c7becaad8cf5fbd6f))
+* **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521)) ([77d5e92](https://github.com/wp-graphql/wp-graphql/commit/77d5e9277597db77dd128400d4534e48734e5ada))
+* nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530)) ([1790771](https://github.com/wp-graphql/wp-graphql/commit/17907714ef845190b27507f25701d051dbd7d71b))
+* Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532)) ([7c0ea91](https://github.com/wp-graphql/wp-graphql/commit/7c0ea911a43f467be19752b017fb00b04a48ba3a))
+* replace x-release-please-version placeholders with 2.7.0 ([143f407](https://github.com/wp-graphql/wp-graphql/commit/143f407b6fb5ff9fb698ee6f253fbe7bd7d960fb))
+* use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502)) ([55298a4](https://github.com/wp-graphql/wp-graphql/commit/55298a4157060b2d032e8a2ccb9e6c17e58dd260))
+
 ## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.6.0...wp-graphql/v2.7.0) (2026-01-22)
 
 

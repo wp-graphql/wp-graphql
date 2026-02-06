@@ -56,6 +56,7 @@ jobs:
     outputs:
       wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
+      wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
       # Add outputs for additional plugins here:
       # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
       test_all: ${{ steps.check-context.outputs.test_all }}
@@ -70,7 +71,7 @@ jobs:
           # Check if Release PR
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BRANCH_NAME="${{ github.head_ref }}"
-            if [[ "$BRANCH_NAME" == release-please--* ]]; then
+            if [[ "$BRANCH_NAME" =~ ^release-please-- ]]; then
               TEST_ALL=true
               echo "🔔 Detected Release PR - will smoke test all plugins"
             fi
@@ -94,6 +95,7 @@ jobs:
               - plugins/wp-graphql/package.json
               - plugins/wp-graphql/packages/**
               - plugins/wp-graphql/webpack.config.js
+              - .release-please-manifest.json
               - package.json
               - .wp-env.json
               - bin/smoke-test.sh
@@ -103,10 +105,25 @@ jobs:
               - plugins/wp-graphql-smart-cache/composer.json
               - plugins/wp-graphql-smart-cache/.distignore
               - plugins/wp-graphql-smart-cache/package.json
+              - .release-please-manifest.json
               - package.json
               - .wp-env.json
               - bin/smoke-test.sh
               # Smart cache depends on wp-graphql, so wp-graphql changes trigger smart-cache smoke tests
+              - plugins/wp-graphql/**/*.php
+            wp-graphql-ide:
+              - .github/workflows/smoke-test.yml
+              - plugins/wp-graphql-ide/**/*.php
+              - plugins/wp-graphql-ide/**/*.js
+              - plugins/wp-graphql-ide/**/*.jsx
+              - plugins/wp-graphql-ide/composer.json
+              - plugins/wp-graphql-ide/.distignore
+              - plugins/wp-graphql-ide/package.json
+              - plugins/wp-graphql-ide/webpack.config.js
+              - package.json
+              - .wp-env.json
+              - bin/smoke-test.sh
+              # IDE depends on wp-graphql, so wp-graphql changes trigger IDE smoke tests
               - plugins/wp-graphql/**/*.php
             # Add additional plugins here:
             # wpgraphql-acf:
@@ -119,6 +136,7 @@ jobs:
         run: |
           echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
+          echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
 
   # ===========================================
   # SMOKE TEST JOBS
@@ -128,19 +146,19 @@ jobs:
   # ===========================================
 
   wp-graphql:
-    name: "Smoke Test: ${{ matrix.name }}"
+    name: 'Smoke Test: ${{ matrix.name }}'
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql == 'true' || needs.detect-changes.outputs.test_all == 'true'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: "wp-graphql / WP 6.8 / PHP 8.3"
-            wp: "6.8"
-            php: "8.3"
-          - name: "wp-graphql / WP 6.1 / PHP 7.4"
-            wp: "6.1"
-            php: "7.4"
+          - name: 'wp-graphql / WP 6.8 / PHP 8.3'
+            wp: '6.8'
+            php: '8.3'
+          - name: 'wp-graphql / WP 6.1 / PHP 7.4'
+            wp: '6.1'
+            php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
     with:
       name: ${{ matrix.name }}
@@ -156,19 +174,19 @@ jobs:
       php: ${{ matrix.php }}
 
   wp-graphql-smart-cache:
-    name: "Smoke Test: ${{ matrix.name }}"
+    name: 'Smoke Test: ${{ matrix.name }}'
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || needs.detect-changes.outputs.test_all == 'true'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: "wp-graphql-smart-cache / WP 6.8 / PHP 8.3"
-            wp: "6.8"
-            php: "8.3"
-          - name: "wp-graphql-smart-cache / WP 6.1 / PHP 7.4"
-            wp: "6.1"
-            php: "7.4"
+          - name: 'wp-graphql-smart-cache / WP 6.8 / PHP 8.3'
+            wp: '6.8'
+            php: '8.3'
+          - name: 'wp-graphql-smart-cache / WP 6.1 / PHP 7.4'
+            wp: '6.1'
+            php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
     with:
       name: ${{ matrix.name }}
@@ -186,6 +204,38 @@ jobs:
       wp: ${{ matrix.wp }}
       php: ${{ matrix.php }}
 
+  wp-graphql-ide:
+    name: 'Smoke Test: ${{ matrix.name }}'
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql-ide == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: 'wp-graphql-ide / WP 6.8 / PHP 8.3'
+            wp: '6.8'
+            php: '8.3'
+          - name: 'wp-graphql-ide / WP 6.1 / PHP 7.4'
+            wp: '6.1'
+            php: '7.4'
+    uses: ./.github/workflows/smoke-test-reusable.yml
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql-ide
+      plugin_name: wp-graphql-ide
+      composer_working_dir: plugins/wp-graphql-ide
+      zip_name: wpgraphql-ide.zip
+      # Note: WordPress.org slug is wpgraphql-ide (no hyphen between wp and graphql)
+      # This is because WordPress.org doesn't allow "wp-" prefix for new plugins.
+      # The directory name (wp-graphql-ide) and GitHub component name can differ.
+      # The zip contains a directory named wpgraphql-ide, so that's the plugin slug.
+      plugin_slug: wpgraphql-ide
+      requires_wp_graphql: true
+      smoke_test_script: bin/smoke-test.sh
+      needs_build: true
+      wp: ${{ matrix.wp }}
+      php: ${{ matrix.php }}
+
   # ===========================================
   # FINAL STATUS CHECK
   # ===========================================
@@ -196,10 +246,10 @@ jobs:
   # ===========================================
 
   status-check:
-    name: "Smoke Test"
+    name: 'Smoke Test'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache]
-    if: always()  # Run even if previous jobs were skipped
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide]
+    if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check smoke test results
         run: |
@@ -219,5 +269,12 @@ jobs:
           fi
           if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-smart-cache smoke tests skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-ide.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-ide smoke tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-ide.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-ide smoke tests skipped (no changes detected)"
           fi
           echo "✅ All required smoke tests passed"

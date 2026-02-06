@@ -7,7 +7,9 @@ This document describes the architecture of the WPGraphQL monorepo.
 ```
 wp-graphql/
 ├── plugins/                    # WordPress plugins
-│   └── wp-graphql/            # WPGraphQL core plugin
+│   ├── wp-graphql/            # WPGraphQL core plugin
+│   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
+│   └── wp-graphql-ide/        # IDE extension plugin
 ├── docs/                      # Contributor documentation
 ├── bin/                       # Shared scripts
 ├── .github/                   # GitHub workflows and templates
@@ -276,7 +278,55 @@ Add a new entry in the `packages` object:
 - `package.json` (if it has a version field)
 - Any PHP constants files with version constants
 
-### 4. WordPress Environment
+**Add to `.release-please-manifest.json`:**
+
+After adding the plugin to `release-please-config.json`, you **must** also add it to `.release-please-manifest.json` with the current version number:
+
+```json
+{
+  "plugins/wp-graphql": "2.8.0",
+  "plugins/wp-graphql-smart-cache": "2.0.1",
+  "plugins/your-plugin-name": "1.0.0"
+}
+```
+
+> **⚠️ Critical:** The manifest file tells release-please what the current version is. If you forget this step, release-please will default to `1.0.0` for the first release, even if your plugin is already at a higher version (e.g., `4.0.24`). Always check the plugin's main PHP file for the current version number and add it to the manifest.
+
+### 4. Version Constants Script
+
+**Update `scripts/update-version-constants.js`:**
+
+If your plugin defines a version constant (e.g., `define( 'YOUR_PLUGIN_VERSION', '1.0.0' );`), add a mapping in the `getConstantMapping()` function:
+
+```javascript
+function getConstantMapping(component) {
+	const mappings = {
+		'wp-graphql': {
+			constantName: 'WPGRAPHQL_VERSION',
+			fileName: 'constants.php',
+		},
+		'wp-graphql-smart-cache': {
+			constantName: 'WPGRAPHQL_SMART_CACHE_VERSION',
+			fileName: 'wp-graphql-smart-cache.php',
+		},
+		'wp-graphql-ide': {
+			constantName: 'WPGRAPHQL_IDE_VERSION',
+			fileName: 'wpgraphql-ide.php',
+		},
+		'your-plugin-name': {
+			constantName: 'YOUR_PLUGIN_VERSION',
+			fileName: 'your-plugin-name.php', // or constants.php if separate file
+		},
+	};
+	return mappings[component] || null;
+}
+```
+
+This ensures that version constants are automatically updated during the release PR process. The script handles both hardcoded versions and `x-release-please-version` placeholders.
+
+**Note:** If your plugin doesn't use a version constant, you can skip this step. The script will gracefully handle missing mappings.
+
+### 5. WordPress Environment
 
 **Update `.wp-env.json`:**
 
@@ -302,7 +352,7 @@ Add the plugin to both `plugins` and `env.tests.plugins` arrays:
 }
 ```
 
-### 5. Integration Tests
+### 6. Integration Tests
 
 **Add to `.github/workflows/integration-tests.yml`:**
 
@@ -353,24 +403,120 @@ your-plugin-name:
 
 **Note:** For Release PRs (branches starting with `release-please--`), all tests run for all plugins to ensure compatibility.
 
-### 6. Test Setup
+### 7. Smoke Tests
+
+**Add to `.github/workflows/smoke-test.yml`:**
+
+1. **Add change detection pattern** in the `detect-changes` job (similar to integration tests)
+
+2. **Add smoke test job** that calls the reusable workflow:
+
+```yaml
+your-plugin-name:
+  name: 'Smoke Test: ${{ matrix.name }}'
+  needs: detect-changes
+  if: needs.detect-changes.outputs.your-plugin-name == 'true' || needs.detect-changes.outputs.test_all == 'true'
+  strategy:
+    fail-fast: false
+    matrix:
+      include:
+        - name: 'your-plugin-name / WP 6.8 / PHP 8.3'
+          wp: '6.8'
+          php: '8.3'
+        - name: 'your-plugin-name / WP 6.1 / PHP 7.4'
+          wp: '6.1'
+          php: '7.4'
+  uses: ./.github/workflows/smoke-test-reusable.yml
+  with:
+    name: ${{ matrix.name }}
+    plugin_path: plugins/your-plugin-name
+    plugin_name: your-plugin-name
+    composer_working_dir: plugins/your-plugin-name
+    zip_name: wpgraphql-your-plugin.zip  # WordPress.org-compliant name (no hyphen between wp and graphql)
+    plugin_slug: wpgraphql-your-plugin  # Must match directory name inside zip
+    requires_wp_graphql: true  # Set to false if plugin doesn't depend on wp-graphql
+    smoke_test_script: bin/smoke-test.sh
+    needs_build: true  # Set to false if plugin has no JS assets
+    wp: ${{ matrix.wp }}
+    php: ${{ matrix.php }}
+```
+
+**⚠️ Critical: Zip Build Script Configuration**
+
+The `composer.json` zip script must create a directory with the **WordPress.org slug name** (not the directory name). This is because WordPress uses the directory name inside the zip as the plugin identifier.
+
+**Example for a plugin that needs WordPress.org-compliant naming:**
+
+```json
+{
+  "scripts": {
+    "zip": [
+      "# Note: WordPress.org requires 'wpgraphql-your-plugin' (no hyphen between wp and graphql)",
+      "# We keep the directory name as 'wp-graphql-your-plugin' to match core 'wp-graphql' convention",
+      "# but the zip must use the WordPress.org-compliant slug for deployment",
+      "mkdir -p ../../plugin-build/wpgraphql-your-plugin",
+      "rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wpgraphql-your-plugin/ --delete --delete-excluded -v",
+      "cd ../../plugin-build ; zip -r wpgraphql-your-plugin.zip wpgraphql-your-plugin",
+      "rm -rf ../../plugin-build/wpgraphql-your-plugin/"
+    ]
+  }
+}
+```
+
+**Important points:**
+- The directory created inside the zip (`wpgraphql-your-plugin`) must match the `plugin_slug` in the smoke test workflow
+- The zip filename (`wpgraphql-your-plugin.zip`) should also use the WordPress.org slug
+- WordPress uses the directory name inside the zip to identify the plugin when checking if it's active
+- See [Plugin Naming Conventions](../.github/workflows/README.md#plugin-naming-conventions) for more details
+
+### 8. Test Setup
+
+**⚠️ Important:** The CI workflow expects all plugins to have test suite configurations and npm scripts, even if you don't have tests yet. Codeception will run successfully with no tests (reporting "No tests executed"), but it will fail if the suite files or scripts are missing.
 
 **Codeception Configuration:**
 
 1. Create `codeception.dist.yml` in your plugin directory (see `plugins/wp-graphql/codeception.dist.yml` as a reference)
-2. Create test suite files (`wpunit.suite.yml`, `acceptance.suite.yml`, `functional.suite.yml`)
-3. Use the shared bootstrap file:
+
+2. **Create all three test suite files** (even if you don't have tests yet):
+   - `tests/wpunit.suite.yml` - For unit/integration tests
+   - `tests/acceptance.suite.yml` - For acceptance tests (see `plugins/wp-graphql-smart-cache/tests/acceptance.suite.yml` as reference)
+   - `tests/functional.suite.yml` - For functional tests (see `plugins/wp-graphql-smart-cache/tests/functional.suite.yml` as reference)
+
+3. **Create bootstrap files** for acceptance and functional tests:
 
 ```php
-// In tests/acceptance/bootstrap.php or tests/functional/bootstrap.php
+// In tests/acceptance/bootstrap.php
 <?php
+/**
+ * Bootstrap file for acceptance tests.
+ *
+ * @package YourPlugin\Tests\Acceptance
+ */
+
 // Load common bootstrap from wp-graphql plugin (shared across monorepo)
+// Path: plugins/your-plugin-name/tests/acceptance -> plugins/wp-graphql/tests
+require_once dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/wp-graphql/tests/bootstrap-common.php';
+```
+
+```php
+// In tests/functional/bootstrap.php
+<?php
+/**
+ * Bootstrap file for functional tests.
+ *
+ * @package YourPlugin\Tests\Functional
+ */
+
+// Load common bootstrap from wp-graphql plugin (shared across monorepo)
+// Path: plugins/your-plugin-name/tests/functional -> plugins/wp-graphql/tests
 require_once dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/wp-graphql/tests/bootstrap-common.php';
 ```
 
 **Test Scripts in `package.json`:**
 
-Add test scripts that export required environment variables:
+**⚠️ Required:** You must add all three test scripts to your `package.json`, even if you don't have tests yet. The CI workflow calls these scripts and will fail if they're missing.
+
+Add these test scripts that export required environment variables:
 
 ```json
 {
@@ -380,7 +526,15 @@ Add test scripts that export required environment variables:
 }
 ```
 
-### 7. UpdatesTest Filtering (if needed)
+**Note:** The example above shows only `test:codecept:wpunit`. You must also add `test:codecept:acceptance` and `test:codecept:functional` scripts. See the reference examples below for complete implementations.
+
+**Reference Examples:**
+
+- See `plugins/wp-graphql-smart-cache/package.json` for complete script examples
+- See `plugins/wp-graphql-ide/tests/` for suite file examples
+- See `plugins/wp-graphql-smart-cache/tests/` for bootstrap file examples
+
+### 9. UpdatesTest Filtering (if needed)
 
 If your plugin extends WPGraphQL and has a "Requires WPGraphQL" header, you may need to update `plugins/wp-graphql/tests/wpunit/UpdatesTest.php` to filter it out. The test currently uses a whitelist approach, keeping only explicitly created test plugins. If your plugin is being detected as an untested dependency, you may need to adjust the filter logic.
 

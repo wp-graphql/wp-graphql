@@ -4,15 +4,15 @@ on:
   workflow_call:
     inputs:
       name:
-        description: "Display name for the job (e.g., wp-graphql)"
+        description: 'Display name for the job (e.g., wp-graphql)'
         required: true
         type: string
       plugin_path:
-        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        description: 'Path to the plugin directory (e.g., plugins/wp-graphql)'
         required: true
         type: string
       plugin_name:
-        description: "Name of the plugin (e.g., wp-graphql)"
+        description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
 
@@ -29,7 +29,7 @@ jobs:
   # - Runs Playwright e2e tests.
   # - Uploads test failure artifacts.
   test:
-    name: "${{ inputs.name }}"
+    name: '${{ inputs.name }}'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -45,8 +45,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          cache: "npm"
-          node-version-file: ".nvmrc"
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -59,16 +59,50 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           working-directory: ${{ inputs.plugin_path }}
-          composer-options: "--no-progress"
+          composer-options: '--no-progress'
+
+      # For plugins that depend on wp-graphql, we also need to install wp-graphql's dependencies
+      # BEFORE wp-env starts so the vendor directory is available when WordPress loads the plugin
+      # (wp-env maps plugin dirs as volumes, so host vendor dirs are available in containers)
+      - name: Install wp-graphql dependencies (if needed)
+        if: inputs.plugin_name != 'wp-graphql'
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: plugins/wp-graphql
+          composer-options: '--no-progress'
 
       - name: Install NPM dependencies
         run: npm ci
 
+      # Build wp-graphql JS assets if this plugin depends on it
+      # This must happen before wp-env starts so the built files are available in the container
+      - name: Build wp-graphql (if required as dependency)
+        if: inputs.plugin_name != 'wp-graphql'
+        run: |
+          echo "📦 Building wp-graphql (required dependency for ${{ inputs.plugin_name }})..."
+          npm run build -w @wpgraphql/wp-graphql
+          echo "✅ wp-graphql built successfully"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright system dependencies
+        run: npx playwright install-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
       - name: Build JavaScript assets
         run: npm run build
-
-      - name: Install Playwright dependencies
-        run: npx playwright install chromium firefox webkit --with-deps
 
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0
@@ -96,6 +130,17 @@ jobs:
           npm run wp-env run tests-cli -- wp option get siteurl
           echo "Testing GraphQL endpoint..."
           npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
+          echo "Waiting for WordPress to be fully ready..."
+          for i in {1..30}; do
+            if curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null 2>&1 || curl -f -s http://localhost:8888/wp-admin > /dev/null 2>&1; then
+              echo "WordPress is ready!"
+              break
+            fi
+            echo "Waiting for WordPress... ($i/30)"
+            sleep 2
+          done
+          echo "Verifying WordPress is accessible from host..."
+          curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8888/wp-admin > /dev/null || (echo "WordPress is not accessible!" && exit 1)
 
       - name: Run E2E tests
         run: |

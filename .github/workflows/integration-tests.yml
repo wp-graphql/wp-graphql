@@ -24,6 +24,7 @@ jobs:
   # ===========================================
   # Detects which plugins have changes to determine which test suites to run.
   # Each plugin job depends on this and only runs if its files changed.
+  # Release-please PRs (branches starting with "release-please--") will run all tests.
   # ===========================================
 
   detect-changes:
@@ -34,11 +35,23 @@ jobs:
     outputs:
       wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
+      wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
       # Add outputs for additional plugins here:
       # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
+      is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Check if release-please PR
+        id: check-release-pr
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+            echo "is-release-pr=true" >> $GITHUB_OUTPUT
+            echo "🔔 Detected Release PR - will run integration tests for all plugins"
+          else
+            echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Detect changed files
         id: filter
@@ -55,6 +68,7 @@ jobs:
               - plugins/wp-graphql/package-lock.json
               - plugins/wp-graphql/tests/**
               - plugins/wp-graphql/codeception.dist.yml
+              - .release-please-manifest.json
               - package.json
               - package-lock.json
               - .wp-env.json
@@ -70,6 +84,24 @@ jobs:
               - plugins/wp-graphql-smart-cache/tests/**
               - plugins/wp-graphql-smart-cache/codeception.dist.yml
               - plugins/wp-graphql/**/*.php
+              - .release-please-manifest.json
+              - package.json
+              - package-lock.json
+              - .wp-env.json
+              - bin/**
+            wp-graphql-ide:
+              - .github/workflows/integration-tests-reusable.yml
+              - .github/workflows/integration-tests.yml
+              - plugins/wp-graphql-ide/**/*.php
+              - plugins/wp-graphql-ide/**/*.js
+              - plugins/wp-graphql-ide/**/*.jsx
+              - plugins/wp-graphql-ide/composer.json
+              - plugins/wp-graphql-ide/composer.lock
+              - plugins/wp-graphql-ide/package.json
+              - plugins/wp-graphql-ide/package-lock.json
+              - plugins/wp-graphql-ide/tests/**
+              - plugins/wp-graphql-ide/codeception.dist.yml
+              - plugins/wp-graphql/**/*.php
               - package.json
               - package-lock.json
               - .wp-env.json
@@ -84,6 +116,8 @@ jobs:
         run: |
           echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
+          echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
+          echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
 
   # ===========================================
   # TEST MATRIX
@@ -109,62 +143,66 @@ jobs:
   # - Child job name: "theme (modifiers)" (from reusable workflow)
   # - Full name in branch protection: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / twentytwentyfive 📊"
   wp-graphql:
-    name: "Integration: ${{ matrix.name }}"
+    name: 'Integration: ${{ matrix.name }}'
     needs: detect-changes
-    if: needs.detect-changes.outputs.wp-graphql == 'true' || github.event_name == 'workflow_dispatch'
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wp-graphql == 'true' || 
+       needs.detect-changes.outputs.is-release-pr == 'true' || 
+       github.event_name == 'workflow_dispatch')
     strategy:
       fail-fast: false
       matrix:
         include:
           # Coverage jobs: Latest WP/PHP with all theme × multisite combinations
-          - name: "wp-graphql / WP 6.9 / PHP 8.4"
-            php: "8.4"
-            wp: "6.9"
+          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
             theme: twentytwentyfive
             multisite: false
             coverage: true
-          - name: "wp-graphql / WP 6.9 / PHP 8.4"
-            php: "8.4"
-            wp: "6.9"
+          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
             theme: twentytwentyfive
             multisite: true
             coverage: true
-          - name: "wp-graphql / WP 6.9 / PHP 8.4"
-            php: "8.4"
-            wp: "6.9"
+          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
             theme: twentytwentyone
             multisite: false
             coverage: true
-          - name: "wp-graphql / WP 6.9 / PHP 8.4"
-            php: "8.4"
-            wp: "6.9"
+          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
             theme: twentytwentyone
             multisite: true
             coverage: true
           # Boundary: Current stable
-          - name: "wp-graphql / WP 6.8 / PHP 8.3"
-            php: "8.3"
-            wp: "6.8"
+          - name: 'wp-graphql / WP 6.8 / PHP 8.3'
+            php: '8.3'
+            wp: '6.8'
             theme: twentytwentyfive
             multisite: false
             coverage: false
           # Boundary: Mid-range
-          - name: "wp-graphql / WP 6.5 / PHP 8.1"
-            php: "8.1"
-            wp: "6.5"
+          - name: 'wp-graphql / WP 6.5 / PHP 8.1'
+            php: '8.1'
+            wp: '6.5'
             theme: twentytwentyone
             multisite: false
             coverage: false
           # Boundary: Oldest supported
-          - name: "wp-graphql / WP 6.1 / PHP 7.4"
-            php: "7.4"
-            wp: "6.1"
+          - name: 'wp-graphql / WP 6.1 / PHP 7.4'
+            php: '7.4'
+            wp: '6.1'
             theme: twentytwentyone
             multisite: false
             coverage: false
           # Experimental: WordPress trunk (allowed to fail)
-          - name: "wp-graphql / WP trunk / PHP 8.4"
-            php: "8.4"
+          - name: 'wp-graphql / WP trunk / PHP 8.4'
+            php: '8.4'
             wp: trunk
             theme: twentytwentyfive
             multisite: false
@@ -192,37 +230,41 @@ jobs:
   # ===========================================
 
   wp-graphql-smart-cache:
-    name: "Integration: ${{ matrix.name }}"
+    name: 'Integration: ${{ matrix.name }}'
     needs: detect-changes
-    if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || github.event_name == 'workflow_dispatch'
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || 
+       needs.detect-changes.outputs.is-release-pr == 'true' || 
+       github.event_name == 'workflow_dispatch')
     strategy:
       fail-fast: false
       matrix:
         include:
           # Coverage job: Latest WP/PHP
-          - name: "wp-graphql-smart-cache / WP 6.9 / PHP 8.4"
-            php: "8.4"
-            wp: "6.9"
+          - name: 'wp-graphql-smart-cache / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
             theme: twentytwentyfive
             multisite: false
             coverage: true
           # Boundary: Current stable
-          - name: "wp-graphql-smart-cache / WP 6.8 / PHP 8.3"
-            php: "8.3"
-            wp: "6.8"
+          - name: 'wp-graphql-smart-cache / WP 6.8 / PHP 8.3'
+            php: '8.3'
+            wp: '6.8'
             theme: twentytwentyfive
             multisite: false
             coverage: false
           # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement)
-          - name: "wp-graphql-smart-cache / WP 6.1 / PHP 7.4"
-            php: "7.4"
-            wp: "6.1"
+          - name: 'wp-graphql-smart-cache / WP 6.1 / PHP 7.4'
+            php: '7.4'
+            wp: '6.1'
             theme: twentytwentyone
             multisite: false
             coverage: false
           # Experimental: WordPress trunk (allowed to fail)
-          - name: "wp-graphql-smart-cache / WP trunk / PHP 8.4"
-            php: "8.4"
+          - name: 'wp-graphql-smart-cache / WP trunk / PHP 8.4'
+            php: '8.4'
             wp: trunk
             theme: twentytwentyfive
             multisite: false
@@ -242,6 +284,64 @@ jobs:
       experimental: ${{ matrix.experimental || false }}
 
   # ===========================================
+  # WP GraphQL IDE
+  # ===========================================
+  # Tests the WP GraphQL IDE plugin.
+  # IDE depends on WPGraphQL, so wp-graphql changes trigger these tests.
+  # Uses a smaller matrix since coverage is collected from the core plugin.
+  # ===========================================
+
+  wp-graphql-ide:
+    name: 'Integration: ${{ matrix.name }}'
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql-ide == 'true' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Coverage job: Latest WP/PHP
+          - name: 'wp-graphql-ide / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
+            theme: twentytwentyfive
+            multisite: false
+            coverage: true
+          # Boundary: Current stable
+          - name: 'wp-graphql-ide / WP 6.8 / PHP 8.3'
+            php: '8.3'
+            wp: '6.8'
+            theme: twentytwentyfive
+            multisite: false
+            coverage: false
+          # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement)
+          - name: 'wp-graphql-ide / WP 6.1 / PHP 7.4'
+            php: '7.4'
+            wp: '6.1'
+            theme: twentytwentyone
+            multisite: false
+            coverage: false
+          # Experimental: WordPress trunk (allowed to fail)
+          - name: 'wp-graphql-ide / WP trunk / PHP 8.4'
+            php: '8.4'
+            wp: trunk
+            theme: twentytwentyfive
+            multisite: false
+            coverage: false
+            experimental: true
+    uses: ./.github/workflows/integration-tests-reusable.yml
+    secrets: inherit
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql-ide
+      plugin_name: wp-graphql-ide
+      wp: ${{ matrix.wp }}
+      php: ${{ matrix.php }}
+      theme: ${{ matrix.theme }}
+      multisite: ${{ matrix.multisite }}
+      coverage: ${{ matrix.coverage }}
+      experimental: ${{ matrix.experimental || false }}
+
+  # ===========================================
   # FINAL STATUS CHECK
   # ===========================================
   # This job always runs and provides a consistent status check name
@@ -250,10 +350,10 @@ jobs:
   # ===========================================
 
   status-check:
-    name: "Integration Tests"
+    name: 'Integration Tests'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache]
-    if: always()  # Run even if previous jobs were skipped
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide]
+    if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check integration test results
         run: |
@@ -272,5 +372,12 @@ jobs:
           fi
           if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-smart-cache tests skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-ide.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-ide integration tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-ide.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-ide tests skipped (no changes detected)"
           fi
           echo "✅ All required integration tests passed"

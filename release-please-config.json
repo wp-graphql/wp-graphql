@@ -1,115 +1,203 @@
 {
-  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "packages": {
-    "plugins/wp-graphql": {
-      "release-type": "simple",
-      "component": "wp-graphql",
-      "package-name": "wp-graphql",
-      "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false,
-      "draft": false,
-      "prerelease": false,
-      "changelog-path": "CHANGELOG.md",
-      "changelog-sections": [
-        { "type": "feat", "section": "New Features", "hidden": false },
-        { "type": "fix", "section": "Bug Fixes", "hidden": false },
-        { "type": "perf", "section": "Performance Improvements", "hidden": false },
-        { "type": "revert", "section": "Reverts", "hidden": false },
-        { "type": "docs", "section": "Documentation", "hidden": true },
-        { "type": "style", "section": "Styles", "hidden": true },
-        { "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
-        { "type": "refactor", "section": "Code Refactoring", "hidden": true },
-        { "type": "test", "section": "Tests", "hidden": true },
-        { "type": "build", "section": "Build System", "hidden": true },
-        { "type": "ci", "section": "Continuous Integration", "hidden": true }
-      ],
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "constants.php",
-          "glob": false
-        },
-        {
-          "type": "json",
-          "path": "package.json",
-          "jsonpath": "$.version"
-        },
-        {
-          "type": "generic",
-          "path": "wp-graphql.php",
-          "glob": false
-        },
-        {
-          "type": "generic",
-          "path": "readme.txt",
-          "glob": false
-        },
-        {
-          "type": "generic",
-          "path": "*.php",
-          "glob": true
-        },
-        {
-          "type": "generic",
-          "path": "src/**/*.php",
-          "glob": true
-        },
-        {
-          "type": "generic",
-          "path": "src/Experimental/Experiment/**/README.md",
-          "glob": true
-        }
-      ]
-    },
-    "plugins/wp-graphql-smart-cache": {
-      "release-type": "simple",
-      "component": "wp-graphql-smart-cache",
-      "package-name": "wp-graphql-smart-cache",
-      "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false,
-      "draft": false,
-      "prerelease": false,
-      "changelog-path": "CHANGELOG.md",
-      "changelog-sections": [
-        { "type": "feat", "section": "New Features", "hidden": false },
-        { "type": "fix", "section": "Bug Fixes", "hidden": false },
-        { "type": "perf", "section": "Performance Improvements", "hidden": false },
-        { "type": "revert", "section": "Reverts", "hidden": false },
-        { "type": "docs", "section": "Documentation", "hidden": true },
-        { "type": "style", "section": "Styles", "hidden": true },
-        { "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
-        { "type": "refactor", "section": "Code Refactoring", "hidden": true },
-        { "type": "test", "section": "Tests", "hidden": true },
-        { "type": "build", "section": "Build System", "hidden": true },
-        { "type": "ci", "section": "Continuous Integration", "hidden": true }
-      ],
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "wp-graphql-smart-cache.php",
-          "glob": false
-        },
-        {
-          "type": "generic",
-          "path": "readme.txt",
-          "glob": false
-        },
-        {
-          "type": "json",
-          "path": "package.json",
-          "jsonpath": "$.version"
-        },
-        {
-          "type": "generic",
-          "path": "src/**/*.php",
-          "glob": true
-        }
-      ]
-    }
-  },
-  "separate-pull-requests": true,
-  "sequential-calls": false,
-  "tag-separator": "/",
-  "include-component-in-tag": true,
-  "include-v-in-tag": true
+	"$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+	"packages": {
+		"plugins/wp-graphql": {
+			"release-type": "simple",
+			"component": "wp-graphql",
+			"package-name": "wp-graphql",
+			"bump-minor-pre-major": false,
+			"bump-patch-for-minor-pre-major": false,
+			"draft": false,
+			"prerelease": false,
+			"changelog-path": "CHANGELOG.md",
+			"changelog-sections": [
+				{ "type": "feat", "section": "New Features", "hidden": false },
+				{ "type": "fix", "section": "Bug Fixes", "hidden": false },
+				{
+					"type": "perf",
+					"section": "Performance Improvements",
+					"hidden": false
+				},
+				{ "type": "revert", "section": "Reverts", "hidden": false },
+				{ "type": "docs", "section": "Documentation", "hidden": true },
+				{ "type": "style", "section": "Styles", "hidden": true },
+				{
+					"type": "chore",
+					"section": "Miscellaneous Chores",
+					"hidden": true
+				},
+				{
+					"type": "refactor",
+					"section": "Code Refactoring",
+					"hidden": true
+				},
+				{ "type": "test", "section": "Tests", "hidden": true },
+				{ "type": "build", "section": "Build System", "hidden": true },
+				{
+					"type": "ci",
+					"section": "Continuous Integration",
+					"hidden": true
+				}
+			],
+			"extra-files": [
+				{
+					"type": "generic",
+					"path": "constants.php",
+					"glob": false
+				},
+				{
+					"type": "json",
+					"path": "package.json",
+					"jsonpath": "$.version"
+				},
+				{
+					"type": "generic",
+					"path": "wp-graphql.php",
+					"glob": false
+				},
+				{
+					"type": "generic",
+					"path": "readme.txt",
+					"glob": false
+				},
+				{
+					"type": "generic",
+					"path": "*.php",
+					"glob": true
+				},
+				{
+					"type": "generic",
+					"path": "src/**/*.php",
+					"glob": true
+				},
+				{
+					"type": "generic",
+					"path": "src/Experimental/Experiment/**/README.md",
+					"glob": true
+				}
+			]
+		},
+		"plugins/wp-graphql-smart-cache": {
+			"release-type": "simple",
+			"component": "wp-graphql-smart-cache",
+			"package-name": "wp-graphql-smart-cache",
+			"bump-minor-pre-major": false,
+			"bump-patch-for-minor-pre-major": false,
+			"draft": false,
+			"prerelease": false,
+			"changelog-path": "CHANGELOG.md",
+			"changelog-sections": [
+				{ "type": "feat", "section": "New Features", "hidden": false },
+				{ "type": "fix", "section": "Bug Fixes", "hidden": false },
+				{
+					"type": "perf",
+					"section": "Performance Improvements",
+					"hidden": false
+				},
+				{ "type": "revert", "section": "Reverts", "hidden": false },
+				{ "type": "docs", "section": "Documentation", "hidden": true },
+				{ "type": "style", "section": "Styles", "hidden": true },
+				{
+					"type": "chore",
+					"section": "Miscellaneous Chores",
+					"hidden": true
+				},
+				{
+					"type": "refactor",
+					"section": "Code Refactoring",
+					"hidden": true
+				},
+				{ "type": "test", "section": "Tests", "hidden": true },
+				{ "type": "build", "section": "Build System", "hidden": true },
+				{
+					"type": "ci",
+					"section": "Continuous Integration",
+					"hidden": true
+				}
+			],
+			"extra-files": [
+				{
+					"type": "generic",
+					"path": "wp-graphql-smart-cache.php",
+					"glob": false
+				},
+				{
+					"type": "generic",
+					"path": "readme.txt",
+					"glob": false
+				},
+				{
+					"type": "json",
+					"path": "package.json",
+					"jsonpath": "$.version"
+				},
+				{
+					"type": "generic",
+					"path": "src/**/*.php",
+					"glob": true
+				}
+			]
+		},
+		"plugins/wp-graphql-ide": {
+			"release-type": "simple",
+			"component": "wp-graphql-ide",
+			"package-name": "wp-graphql-ide",
+			"bump-minor-pre-major": false,
+			"bump-patch-for-minor-pre-major": false,
+			"draft": false,
+			"prerelease": false,
+			"changelog-path": "CHANGELOG.md",
+			"changelog-sections": [
+				{ "type": "feat", "section": "New Features", "hidden": false },
+				{ "type": "fix", "section": "Bug Fixes", "hidden": false },
+				{
+					"type": "perf",
+					"section": "Performance Improvements",
+					"hidden": false
+				},
+				{ "type": "revert", "section": "Reverts", "hidden": false },
+				{ "type": "docs", "section": "Documentation", "hidden": true },
+				{ "type": "style", "section": "Styles", "hidden": true },
+				{
+					"type": "chore",
+					"section": "Miscellaneous Chores",
+					"hidden": true
+				},
+				{
+					"type": "refactor",
+					"section": "Code Refactoring",
+					"hidden": true
+				},
+				{ "type": "test", "section": "Tests", "hidden": true },
+				{ "type": "build", "section": "Build System", "hidden": true },
+				{
+					"type": "ci",
+					"section": "Continuous Integration",
+					"hidden": true
+				}
+			],
+			"extra-files": [
+				{
+					"type": "generic",
+					"path": "wpgraphql-ide.php",
+					"glob": false
+				},
+				{
+					"type": "generic",
+					"path": "readme.txt",
+					"glob": false
+				},
+				{
+					"type": "json",
+					"path": "package.json",
+					"jsonpath": "$.version"
+				}
+			]
+		}
+	},
+	"separate-pull-requests": true,
+	"sequential-calls": false,
+	"tag-separator": "/",
+	"include-component-in-tag": true,
+	"include-v-in-tag": true
 }

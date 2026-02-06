@@ -34,6 +34,13 @@
 		"@wordpress/prettier-config": "^4.38.0",
 		"@wordpress/scripts": "^31.3.0",
 		"husky": "^9.1.7",
+		"lint-staged": "^16.2.7",
 		"turbo": "^2.7.6"
+	},
+	"overrides": {
+		"@wpgraphql/wp-graphql-ide": {
+			"@graphiql/react": "^0.22.2",
+			"graphiql": "^3.0.10"
+		}
 	}
 }

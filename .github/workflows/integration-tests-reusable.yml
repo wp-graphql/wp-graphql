@@ -4,39 +4,39 @@ on:
   workflow_call:
     inputs:
       name:
-        description: "Display name for the job (e.g., WP 6.9 / PHP 8.4)"
+        description: 'Display name for the job (e.g., WP 6.9 / PHP 8.4)'
         required: true
         type: string
       plugin_path:
-        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        description: 'Path to the plugin directory (e.g., plugins/wp-graphql)'
         required: true
         type: string
       plugin_name:
-        description: "Name of the plugin (e.g., wp-graphql)"
+        description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
       wp:
-        description: "WordPress version (e.g., 6.9, trunk)"
+        description: 'WordPress version (e.g., 6.9, trunk)'
         required: true
         type: string
       php:
-        description: "PHP version (e.g., 8.4)"
+        description: 'PHP version (e.g., 8.4)'
         required: true
         type: string
       theme:
-        description: "Theme to activate (e.g., twentytwentyfive)"
+        description: 'Theme to activate (e.g., twentytwentyfive)'
         required: true
         type: string
       multisite:
-        description: "Whether to run as multisite"
+        description: 'Whether to run as multisite'
         required: true
         type: boolean
       coverage:
-        description: "Whether to collect code coverage"
+        description: 'Whether to collect code coverage'
         required: true
         type: boolean
       experimental:
-        description: "Whether this is an experimental job (allowed to fail)"
+        description: 'Whether this is an experimental job (allowed to fail)'
         required: false
         type: boolean
         default: false
@@ -97,8 +97,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          cache: "npm"
-          node-version-file: ".nvmrc"
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
         run: npm ci

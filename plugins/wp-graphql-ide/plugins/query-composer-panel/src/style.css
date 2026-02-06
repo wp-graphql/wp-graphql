@@ -1,0 +1,77 @@
+/**
+ * GraphiQL Explorer Styles
+ */
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap {
+	width: 100% !important;
+
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .doc-explorer-title {
+	font-weight: var(--font-weight-medium);
+	font-size: var(--font-size-h2);
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#wpgraphql-ide-app .graphiql-plugin .docExplorerWrap .doc-explorer-title-bar {
+	padding: var(--px-16);
+	padding-bottom: 0;
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .doc-explorer-rhs {
+	display: none!important;
+}
+
+#wpgraphql-ide-app .graphiql-plugin .doc-explorer-contents {
+	height: 100%;
+}
+
+#wpgraphql-ide-app .graphiql-plugin .docExplorerWrap .graphiql-explorer-root {
+	padding: 0!important;
+}
+
+#wpgraphql-ide-app .graphiql-plugin:has(div.docExplorerWrap) {
+	padding: 0!important;
+}
+
+#wpgraphql-ide-app .graphiql-plugin .docExplorerWrap .graphiql-explorer-root > div:first-of-type {
+	padding: 20px!important;
+	flex: 3 1 0!important;
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root input {
+	width: auto!important;
+	padding: 0 8px;
+	line-height: 2;
+	min-height: 30px;
+	box-shadow: 0 0 0 transparent;
+	border-radius: 4px;
+	border: 1px solid
+	hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
+	background: transparent;
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root .graphiql-explorer-actions {
+	border-top: 1px solid
+	hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
+}
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root .graphiql-explorer-actions > span:first-of-type{
+	padding: 10px;
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root>div>div {
+	border-bottom: 1px solid hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
+	margin-bottom: 15px!important;
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root>div>div:last-of-type {
+	border-bottom: none!important;
+	margin-bottom: 0!important;
+}
+
+#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root .graphiql-explorer-actions > select {
+	color: hsl(var(--color-primary));
+	border: 1px solid
+	hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
+	background: transparent;
+}
