@@ -99,10 +99,32 @@ jobs:
           NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
           FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
 
+      - name: Start production server
+        run: |
+          cd websites/wpgraphql.com
+          npm run start &
+          echo $! > /tmp/nextjs.pid
+          sleep 10
+          timeout 30 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 1; done' || exit 1
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
+          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
+          FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
+
       - name: Run Playwright tests
         run: npm run test:e2e -w @wpgraphql/wpgraphql-com
         env:
+          CI: true
           PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f /tmp/nextjs.pid ]; then
+            kill $(cat /tmp/nextjs.pid) || true
+          fi
+          pkill -f "next start" || true
 
       - name: Upload test results
         if: always()
