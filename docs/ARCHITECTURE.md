@@ -10,6 +10,8 @@ wp-graphql/
 │   ├── wp-graphql/            # WPGraphQL core plugin
 │   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
 │   └── wp-graphql-ide/        # IDE extension plugin
+├── websites/                  # Next.js websites
+│   └── wpgraphql.com/         # WPGraphQL.com website
 ├── docs/                      # Contributor documentation
 ├── bin/                       # Shared scripts
 ├── .github/                   # GitHub workflows and templates
@@ -42,7 +44,7 @@ The root `package.json` defines workspaces:
 
 ```json
 {
-  "workspaces": ["plugins/*"]
+  "workspaces": ["plugins/*", "websites/*"]
 }
 ```
 

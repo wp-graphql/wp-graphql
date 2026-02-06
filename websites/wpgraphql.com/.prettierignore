@@ -1,0 +1,7 @@
+dist
+node_modules
+.cache
+WordPress
+.yarn
+.next
+possibleTypes.json

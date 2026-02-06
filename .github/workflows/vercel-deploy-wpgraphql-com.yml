@@ -1,0 +1,77 @@
+name: Deploy wpgraphql.com to Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'websites/wpgraphql.com/**'
+      - '.github/workflows/vercel-deploy-wpgraphql-com.yml'
+  workflow_dispatch:
+
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      website-changed: ${{ steps.filter.outputs.wpgraphql-com_any_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Detect changed files
+        id: filter
+        uses: tj-actions/changed-files@v47
+        with:
+          files_yaml: |
+            wpgraphql-com:
+              - websites/wpgraphql.com/**
+              - .github/workflows/vercel-deploy-wpgraphql-com.yml
+
+      - name: Log detected changes
+        run: |
+          echo "wpgraphql.com changed: ${{ steps.filter.outputs.wpgraphql-com_any_changed }}"
+
+  deploy:
+    name: Deploy to Vercel
+    needs: detect-changes
+    if: needs.detect-changes.outputs.website-changed == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build website
+        run: npm run build -w @wpgraphql/wpgraphql-com
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
+          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
+          FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_WPGRAPHQL_COM }}
+          vercel-args: '--prod'
+          working-directory: websites/wpgraphql.com
