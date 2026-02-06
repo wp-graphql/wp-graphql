@@ -239,26 +239,44 @@ class User extends Model {
 					return 'true' === $toolbar_preference_meta;
 				},
 				'adminColor'                   => function () {
-					$admin_color = get_user_meta( $this->data->ID, 'admin_color', true );
+					$admin_color = get_user_option( 'admin_color', $this->data->ID );
 
 					return ! empty( $admin_color ) ? $admin_color : 'fresh';
 				},
 				'hasRichEditingEnabled'        => function () {
-					$rich_editing = get_user_meta( $this->data->ID, 'rich_editing', true );
+					$rich_editing = get_user_option( 'rich_editing', $this->data->ID );
 
 					// WordPress defaults to 'true' when not set
-					return '' === $rich_editing || 'true' === $rich_editing;
+					// get_user_option returns false if not set, so default to true
+					if ( false === $rich_editing || '' === $rich_editing ) {
+						return true;
+					}
+
+					// WordPress stores these as strings 'true' or 'false'
+					return 'true' === $rich_editing;
 				},
 				'hasSyntaxHighlightingEnabled' => function () {
-					$syntax_highlighting = get_user_meta( $this->data->ID, 'syntax_highlighting', true );
+					$syntax_highlighting = get_user_option( 'syntax_highlighting', $this->data->ID );
 
 					// WordPress defaults to 'true' when not set
-					return '' === $syntax_highlighting || 'true' === $syntax_highlighting;
+					// get_user_option returns false if not set, so default to true
+					if ( false === $syntax_highlighting || '' === $syntax_highlighting ) {
+						return true;
+					}
+
+					// WordPress stores these as strings 'true' or 'false'
+					return 'true' === $syntax_highlighting;
 				},
 				'hasCommentShortcutsEnabled'   => function () {
-					$comment_shortcuts = get_user_meta( $this->data->ID, 'comment_shortcuts', true );
+					$comment_shortcuts = get_user_option( 'comment_shortcuts', $this->data->ID );
 
 					// WordPress defaults to 'false' when not set
+					// get_user_option returns false if not set, so default to false
+					if ( false === $comment_shortcuts || '' === $comment_shortcuts ) {
+						return false;
+					}
+
+					// WordPress stores these as strings 'true' or 'false'
 					return 'true' === $comment_shortcuts;
 				},
 				'slug'                         => function () {
