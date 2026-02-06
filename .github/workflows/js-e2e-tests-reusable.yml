@@ -148,7 +148,7 @@ jobs:
 
       - name: Stop WordPress Environment
         if: always()
-        run: npm run wp-env -- stop
+        run: npm run wp-env -- stop || echo "wp-env not running or already stopped"
 
       - name: Upload test failure artifacts
         if: failure()
