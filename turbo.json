@@ -3,7 +3,15 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["build/**", ".next/**"]
+			"outputs": ["build/**", ".next/**"],
+			"env": [
+				"NEXT_PUBLIC_SITE_URL",
+				"NEXT_PUBLIC_WORDPRESS_URL",
+				"WPGRAPHQL_URL",
+				"FAUSTWP_SECRET_KEY",
+				"FAUST_NO_INTERACTIVE",
+				"GITHUB_TOKEN"
+			]
 		},
 		"start": {
 			"cache": false,
