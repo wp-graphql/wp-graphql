@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.0.24...wp-graphql-ide/v4.1.0) (2026-02-06)
+
+
+### New Features
+
+* import WPGraphQL IDE into monorepo ([#3542](https://github.com/wp-graphql/wp-graphql/issues/3542)) ([e7c1e33](https://github.com/wp-graphql/wp-graphql/commit/e7c1e336ee82e8fe020ca5d6052fa9d330185387))
+
+
+### Bug Fixes
+
+* resolve all JavaScript linting errors in wp-graphql-ide ([#3548](https://github.com/wp-graphql/wp-graphql/issues/3548)) ([52c39e2](https://github.com/wp-graphql/wp-graphql/commit/52c39e24483344874ab742e9698da4ea5fabe9b6))
+
 ## 4.0.24
 
 ### Patch Changes
