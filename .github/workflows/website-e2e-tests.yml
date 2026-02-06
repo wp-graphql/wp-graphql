@@ -102,10 +102,21 @@ jobs:
       - name: Start production server
         run: |
           cd websites/wpgraphql.com
-          npm run start &
+          npm run start > /tmp/nextjs.log 2>&1 &
           echo $! > /tmp/nextjs.pid
-          sleep 10
-          timeout 30 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 1; done' || exit 1
+          echo "Waiting for server to start..."
+          for i in {1..60}; do
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is ready!"
+              curl -s http://localhost:3000 | head -20
+              exit 0
+            fi
+            echo "Attempt $i: Server not ready yet, waiting..."
+            sleep 2
+          done
+          echo "Server failed to start. Logs:"
+          cat /tmp/nextjs.log
+          exit 1
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
           WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
