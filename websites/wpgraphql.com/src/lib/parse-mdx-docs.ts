@@ -43,6 +43,14 @@ function normalizeSlug(rawSlug: unknown): string {
   // Strip a leading "/docs/" prefix if present (as used elsewhere in this file)
   let slug = rawSlug.replace(/^\/?docs\//i, "").replace(/^\/+/, "")
 
+  // Decode any percent-encoded characters once, to prevent encoded path traversal
+  try {
+    slug = decodeURIComponent(slug)
+  } catch {
+    // Malformed encoding results in a notFound to avoid leaking errors
+    throw { notFound: true }
+  }
+
   // Basic validation: no path traversal, no protocol, no query/fragment
   if (
     slug.length === 0 ||
@@ -53,6 +61,12 @@ function normalizeSlug(rawSlug: unknown): string {
     slug.includes("?") ||
     slug.includes("#")
   ) {
+    throw { notFound: true }
+  }
+
+  // Allow only expected characters in slugs: lowercase letters, numbers,
+  // forward slashes, underscores, and dashes.
+  if (!/^[a-z0-9\/_-]+$/.test(slug)) {
     throw { notFound: true }
   }
 
