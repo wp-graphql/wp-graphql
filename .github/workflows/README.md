@@ -66,12 +66,12 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Currently tests: wpgraphql.com
 - Workflow always runs on PRs to provide consistent status checks for branch protection
 
-### 8. Vercel Deployment (`vercel-deploy-wpgraphql-com.yml`)
+### 8. Vercel Deployment
 
-- Automatically deploys wpgraphql.com to Vercel on pushes to main
-- Uses change detection to only deploy when website files change
-- Builds the Next.js site before deployment
-- Requires Vercel secrets configured in GitHub repository settings
+- Vercel is configured to monitor the repository directly
+- Deploys automatically when changes are pushed to main branch
+- Configured via Vercel dashboard with root directory set to `websites/wpgraphql.com`
+- Environment variables are managed in Vercel dashboard
 
 ## PR Validation
 
@@ -219,11 +219,7 @@ When adding a new website:
    - Add file patterns in `files_yaml` section
    - Add website job following the wpgraphql-com pattern
 6. **Add website to status-check job** in `website-e2e-tests.yml`
-7. **Create Vercel deployment workflow** (if deploying to Vercel):
-   - Copy `vercel-deploy-wpgraphql-com.yml` as template
-   - Update paths and secrets for new website
-   - Add change detection for website files
-8. **Configure Vercel project**:
+7. **Configure Vercel project** (if deploying to Vercel):
    - Set root directory to `websites/website-name`
    - Configure build command: `npm run build -w @wpgraphql/website-name`
    - Set install command: `npm ci` (from monorepo root)
