@@ -159,8 +159,18 @@ jobs:
             echo "Release-please result: ${{ needs.release-please.result }}"
             
             if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "[]" && "$COMPONENTS" != "" ]]; then
-              echo "Setting components for deployment: $COMPONENTS"
-              echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
+              # Validate and ensure COMPONENTS is valid JSON array
+              # If it's not valid JSON, try to parse it as a space-separated list and convert to JSON
+              if echo "$COMPONENTS" | jq -e . >/dev/null 2>&1; then
+                # Valid JSON, use as-is
+                COMPONENTS_JSON="$COMPONENTS"
+              else
+                # Not valid JSON, treat as space-separated list and convert to JSON array
+                echo "⚠️  Components output is not valid JSON, converting from space-separated list"
+                COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+              fi
+              echo "Setting components for deployment: $COMPONENTS_JSON"
+              echo "components=$COMPONENTS_JSON" >> $GITHUB_OUTPUT
             else
               echo "No components to deploy (no releases were created)"
               echo "This is expected if a release PR already exists and was just updated"
