@@ -35,7 +35,31 @@ const DOCS_PATH = `https://raw.githubusercontent.com/${DOCS_OWNER}/${DOCS_REPO}/
 
 const DOCS_NAV_CONFIG_URL = `${DOCS_PATH}/docs_nav.json`
 
-function docUrlFromSlug(slug) {
+function normalizeSlug(rawSlug: unknown): string {
+  if (typeof rawSlug !== "string") {
+    throw { notFound: true }
+  }
+
+  // Strip a leading "/docs/" prefix if present (as used elsewhere in this file)
+  let slug = rawSlug.replace(/^\/?docs\//i, "").replace(/^\/+/, "")
+
+  // Basic validation: no path traversal, no protocol, no query/fragment
+  if (
+    slug.length === 0 ||
+    slug.includes("..") ||
+    slug.startsWith("/") ||
+    slug.includes("\\") ||
+    slug.includes("://") ||
+    slug.includes("?") ||
+    slug.includes("#")
+  ) {
+    throw { notFound: true }
+  }
+
+  return slug
+}
+
+function docUrlFromSlug(slug: string) {
   return `${DOCS_PATH}/${slug}.md`
 }
 
@@ -98,7 +122,10 @@ export async function getAllDocUri(): Promise<string[]> {
 }
 
 export async function getDocContent(slug) {
-  const resp = await fetch(docUrlFromSlug(slug))
+  // Normalize and validate the incoming slug before constructing the URL
+  const safeSlug = normalizeSlug(slug)
+
+  const resp = await fetch(docUrlFromSlug(safeSlug))
 
   if (!resp.ok) {
     if (resp.status >= 400 && resp.status < 500) {
