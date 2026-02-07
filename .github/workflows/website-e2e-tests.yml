@@ -1,0 +1,173 @@
+name: Website E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+    paths:
+      - 'websites/wpgraphql.com/**'
+      - '.github/workflows/website-e2e-tests.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths:
+      - 'websites/wpgraphql.com/**'
+      - '.github/workflows/website-e2e-tests.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      wpgraphql-com: ${{ steps.filter.outputs.wpgraphql-com_any_changed }}
+      is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check if release-please PR
+        id: check-release-pr
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+            echo "is-release-pr=true" >> $GITHUB_OUTPUT
+            echo "🔔 Detected Release PR - will run e2e tests for all websites"
+          else
+            echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect changed files
+        id: filter
+        uses: tj-actions/changed-files@v47
+        with:
+          files_yaml: |
+            wpgraphql-com:
+              - websites/wpgraphql.com/**
+              - .github/workflows/website-e2e-tests.yml
+              - package.json
+              - package-lock.json
+
+      - name: Log detected changes
+        run: |
+          echo "wpgraphql.com changed: ${{ steps.filter.outputs.wpgraphql-com_any_changed }}"
+          echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
+
+  wpgraphql-com:
+    name: 'E2E: wpgraphql.com'
+    needs: detect-changes
+    # Run if: website has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wpgraphql-com == 'true' || 
+       needs.detect-changes.outputs.is-release-pr == 'true' || 
+       github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: websites/wpgraphql.com
+
+      - name: Build website
+        run: npm run build -w @wpgraphql/wpgraphql-com
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
+          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
+          FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
+
+      - name: Start production server
+        run: |
+          cd websites/wpgraphql.com
+          npm run start > /tmp/nextjs.log 2>&1 &
+          echo $! > /tmp/nextjs.pid
+          echo "Waiting for server to start..."
+          for i in {1..60}; do
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is ready!"
+              curl -s http://localhost:3000 | head -20
+              exit 0
+            fi
+            echo "Attempt $i: Server not ready yet, waiting..."
+            sleep 2
+          done
+          echo "Server failed to start. Logs:"
+          cat /tmp/nextjs.log
+          exit 1
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
+          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
+          FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
+
+      - name: Run Playwright tests
+        run: npm run test:e2e -w @wpgraphql/wpgraphql-com
+        env:
+          CI: true
+          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f /tmp/nextjs.pid ]; then
+            kill $(cat /tmp/nextjs.pid) || true
+          fi
+          pkill -f "next start" || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-wpgraphql-com
+          path: websites/wpgraphql.com/playwright-report/
+          retention-days: 30
+
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-wpgraphql-com
+          path: websites/wpgraphql.com/test-results/
+          retention-days: 30
+
+  status-check:
+    name: 'Website E2E Tests'
+    runs-on: ubuntu-latest
+    needs: [detect-changes, wpgraphql-com]
+    if: always() # Run even if previous jobs were skipped
+    steps:
+      - name: Check website e2e test results
+        run: |
+          # Check if any required jobs failed (excluding skipped)
+          if [ "${{ needs.wpgraphql-com.result }}" == "failure" ]; then
+            echo "❌ wpgraphql.com e2e tests failed"
+            exit 1
+          fi
+          # Allow skipped jobs (expected when files don't change)
+          if [ "${{ needs.wpgraphql-com.result }}" == "skipped" ]; then
+            echo "ℹ️ wpgraphql.com e2e tests skipped (no changes detected)"
+          fi
+          echo "✅ All required website e2e tests passed"

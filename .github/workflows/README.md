@@ -56,6 +56,23 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Identifies potential vulnerabilities
 - Runs on schedule and on code changes
 
+## Website Deployment & Testing
+
+### 7. Website E2E Tests (`website-e2e-tests.yml`)
+
+- End-to-end testing of Next.js websites using Playwright
+- Uses change detection to only run tests for websites that have changed files
+- Tests website functionality after dependency updates
+- Currently tests: wpgraphql.com
+- Workflow always runs on PRs to provide consistent status checks for branch protection
+
+### 8. Vercel Deployment
+
+- Vercel is configured to monitor the repository directly
+- Deploys automatically when changes are pushed to main branch
+- Configured via Vercel dashboard with root directory set to `websites/wpgraphql.com`
+- Environment variables are managed in Vercel dashboard
+
 ## PR Validation
 
 ### PR Title Validation (`lint-pr.yml`)
@@ -187,6 +204,26 @@ When adding or modifying workflows:
 2. Update the flowchart if process changes
 3. Ensure proper error handling and notifications
 4. Test workflows in a feature branch first
+
+When adding a new website:
+
+1. **Add website to `websites/` directory** with proper structure
+2. **Update website `package.json`**:
+   - Set `name` to `@wpgraphql/website-name` format
+   - Add `test:e2e` script: `"test:e2e": "playwright test"`
+   - Ensure all scripts use `npm` instead of `yarn`
+3. **Add Playwright configuration** (`playwright.config.js`) in website root
+4. **Create e2e tests** in `tests/e2e/` directory
+5. **Add change detection** in `website-e2e-tests.yml`:
+   - Add website output in `detect-changes` job
+   - Add file patterns in `files_yaml` section
+   - Add website job following the wpgraphql-com pattern
+6. **Add website to status-check job** in `website-e2e-tests.yml`
+7. **Configure Vercel project** (if deploying to Vercel):
+   - Set root directory to `websites/website-name`
+   - Configure build command: `npm run build -w @wpgraphql/website-name`
+   - Set install command: `npm ci` (from monorepo root)
+   - Add required environment variables
 
 When adding a new plugin:
 

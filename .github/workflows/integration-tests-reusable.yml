@@ -104,7 +104,7 @@ jobs:
         run: npm ci
 
       - name: Build JavaScript assets
-        run: npm run build
+        run: npm run build -- --filter='./plugins/*'
 
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0

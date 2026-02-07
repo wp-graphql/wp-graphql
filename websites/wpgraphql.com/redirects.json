@@ -1,0 +1,17 @@
+[
+  {
+    "source": "/discord",
+    "destination": "https://discord.gg/AGVBqqyaUY",
+    "permanent": true
+  },
+  {
+    "source": "/acf",
+    "destination": "https://acf.wpgraphql.com",
+    "permanent": true
+  },
+  {
+    "source":"/2024/12/16/wpgraphql-v2-0-is-co",
+    "destination":"https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know",
+    "permanent": true
+  }
+]
