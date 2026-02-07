@@ -22,7 +22,7 @@
     "> 1%"
   ],
   "dependencies": {
-    "@apollo/client": "3.8.0",
+    "@apollo/client": "^3.14.0",
     "@docsearch/react": "^3.3.0",
     "@faustwp/cli": "3.1.0",
     "@faustwp/core": "3.1.0",
@@ -79,5 +79,8 @@
   "lint-staged": {
     "src/*.{js, ts}": "npm run lint -- --cache",
     "*.": "npm run format"
+  },
+  "overrides": {
+    "@apollo/client": "^3.14.0"
   }
 }
