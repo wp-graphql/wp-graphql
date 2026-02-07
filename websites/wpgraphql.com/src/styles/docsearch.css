@@ -2,6 +2,18 @@
   @apply overflow-hidden !important;
 }
 
+.DocSearch-VisuallyHiddenForAccessibility {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .DocSearch-Container {
   @apply w-screen h-screen fixed z-[200] top-0 left-0 cursor-auto flex flex-col bg-black/20 backdrop-blur-sm p-4 sm:p-6 md:p-[10vh] lg:p-[12vh] dark:bg-slate-900/80;
 }
