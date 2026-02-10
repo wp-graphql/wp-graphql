@@ -101,10 +101,13 @@
       "cp ./build/Updater.php ./vendor/appsero/client/src/"
     ],
     "zip": [
-      "mkdir -p plugin-build/wpgraphql-acf",
-      "rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wpgraphql-acf/ --delete --delete-excluded -v",
-      "cd plugin-build ; zip -r wpgraphql-acf.zip wpgraphql-acf",
-      "rm -rf plugin-build/wpgraphql-acf/"
+      "# Note: WordPress.org requires 'wpgraphql-acf' (no hyphen between wp and graphql)",
+      "# We keep the directory name as 'wp-graphql-acf' to match core 'wp-graphql' convention",
+      "# but the zip must use the WordPress.org-compliant slug for deployment",
+      "mkdir -p ../../plugin-build/wpgraphql-acf",
+      "rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wpgraphql-acf/ --delete --delete-excluded -v",
+      "cd ../../plugin-build ; zip -r wpgraphql-acf.zip wpgraphql-acf",
+      "rm -rf ../../plugin-build/wpgraphql-acf/"
     ]
   }
 }

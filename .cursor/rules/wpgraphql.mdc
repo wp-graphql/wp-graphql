@@ -10,6 +10,8 @@ globs: ["**/*"]
 This is a monorepo containing multiple WordPress plugins:
 - `plugins/wp-graphql/` - Core WPGraphQL plugin
 - `plugins/wp-graphql-smart-cache/` - Smart Cache extension
+- `plugins/wp-graphql-ide/` - IDE extension
+- `plugins/wp-graphql-acf/` - ACF extension
 - Future plugins will be added to `plugins/` directory
 
 ## Common Commands
@@ -57,6 +59,8 @@ PR titles must follow conventional commits format:
 All file paths in this monorepo are relative to the repository root:
 - Core plugin: `plugins/wp-graphql/src/**/*.php`
 - Smart Cache: `plugins/wp-graphql-smart-cache/src/**/*.php`
+- IDE: `plugins/wp-graphql-ide/src/**/*.php`
+- ACF: `plugins/wp-graphql-acf/src/**/*.php`
 - Tests: `plugins/*/tests/**/*.php`
 - Documentation: `docs/**/*.md`
 

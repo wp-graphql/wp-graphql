@@ -4,7 +4,8 @@
 	"plugins": [
 		"./plugins/wp-graphql",
 		"./plugins/wp-graphql-smart-cache",
-		"./plugins/wp-graphql-ide"
+		"./plugins/wp-graphql-ide",
+		"./plugins/wp-graphql-acf"
 	],
 	"themes": [
 		"https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip",
@@ -22,6 +23,7 @@
 				"./plugins/wp-graphql",
 				"./plugins/wp-graphql-smart-cache",
 				"./plugins/wp-graphql-ide",
+				"./plugins/wp-graphql-acf",
 				"./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
 			],
 			"config": {
@@ -32,6 +34,7 @@
 				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist",
 				"/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache",
 				"/wp-content/plugins/wp-graphql-ide": "./plugins/wp-graphql-ide",
+				"/wp-content/plugins/wp-graphql-acf": "./plugins/wp-graphql-acf",
 				"/var/www/html/tests": "./tests"
 			}
 		}

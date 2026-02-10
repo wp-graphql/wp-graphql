@@ -40,6 +40,31 @@ on:
         required: false
         type: boolean
         default: false
+      acf_pro:
+        description: 'Whether to install ACF Pro (requires ACF_LICENSE_KEY secret)'
+        required: false
+        type: boolean
+        default: false
+      acf_version:
+        description: 'Specific ACF version to install (optional, defaults to latest)'
+        required: false
+        type: string
+        default: ''
+      acf_extended:
+        description: 'Whether to install ACF Extended Free'
+        required: false
+        type: boolean
+        default: false
+      acf_extended_pro:
+        description: 'Whether to install ACF Extended Pro (requires ACF_EXTENDED_LICENSE_KEY secret)'
+        required: false
+        type: boolean
+        default: false
+      wpgraphql_content_blocks:
+        description: 'Whether to install WPGraphQL Content Blocks'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   # Job naming strategy:
@@ -130,6 +155,65 @@ jobs:
           npm run wp-env run tests-cli -- wp theme activate ${{ inputs.theme }}
           npm run wp-env run tests-cli -- wp theme list
 
+      - name: Install ACF plugins (if configured)
+        if: inputs.acf_pro == 'true' || inputs.acf_extended == 'true' || inputs.wpgraphql_content_blocks == 'true'
+        env:
+          ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
+          ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
+        run: |
+          echo "Installing ACF plugins based on configuration..."
+          
+          # Install jq for JSON parsing (needed for ACF Extended Pro)
+          npm run wp-env run tests-cli -- bash -c 'apt-get update -qq && apt-get install -y -qq jq > /dev/null 2>&1 || true'
+          
+          # Determine ACF plugin slug based on Pro/Free
+          ACF_PLUGIN_SLUG="advanced-custom-fields/acf.php"
+          if [ "${{ inputs.acf_pro }}" == "true" ] && [ -n "$ACF_LICENSE_KEY" ] && [ "$ACF_LICENSE_KEY" != "" ]; then
+            echo "Installing ACF Pro..."
+            ACF_VERSION_PARAM=""
+            if [ -n "${{ inputs.acf_version }}" ] && [ "${{ inputs.acf_version }}" != "" ]; then
+              ACF_VERSION_PARAM="&t=${{ inputs.acf_version }}"
+            fi
+            npm run wp-env run tests-cli -- wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_LICENSE_KEY}${ACF_VERSION_PARAM}" --activate --quiet --allow-root
+            ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
+          elif [ "${{ inputs.acf_pro }}" == "true" ] || [ "${{ inputs.acf_extended }}" == "true" ] || [ "${{ inputs.wpgraphql_content_blocks }}" == "true" ]; then
+            echo "Installing ACF Free..."
+            if [ -n "${{ inputs.acf_version }}" ] && [ "${{ inputs.acf_version }}" != "" ]; then
+              npm run wp-env run tests-cli -- wp plugin install advanced-custom-fields --version=${{ inputs.acf_version }} --activate --allow-root
+            else
+              npm run wp-env run tests-cli -- wp plugin install advanced-custom-fields --activate --allow-root
+            fi
+          fi
+          
+          # Install ACF Extended
+          ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
+          if [ "${{ inputs.acf_extended }}" == "true" ]; then
+            if [ "${{ inputs.acf_extended_pro }}" == "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
+              echo "Installing ACF Extended Pro..."
+              DOWNLOAD_LINK=$(npm run wp-env run tests-cli -- bash -c "curl -s --location --request GET 'https://acf-extended.com?edd_action=get_version&license=${ACF_EXTENDED_LICENSE_KEY}&item_name=ACF%20Extended%20Pro&url=https://acf.wpgraphql.com' | jq -r '.download_link'")
+              npm run wp-env run tests-cli -- wp plugin install "${DOWNLOAD_LINK}" --activate --quiet --allow-root
+              ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
+            else
+              echo "Installing ACF Extended Free..."
+              npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+            fi
+          fi
+          
+          # Install WPGraphQL Content Blocks if requested
+          if [ "${{ inputs.wpgraphql_content_blocks }}" == "true" ]; then
+            echo "Installing WPGraphQL Content Blocks..."
+            CONTENT_BLOCKS_VERSION=$(npm run wp-env run tests-cli -- bash -c "curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | jq -r '.tag_name'")
+            npm run wp-env run tests-cli -- wp plugin install "https://github.com/wpengine/wp-graphql-content-blocks/releases/download/${CONTENT_BLOCKS_VERSION}/wp-graphql-content-blocks.zip" --activate --allow-root
+          fi
+          
+          # Set environment variables for test scripts
+          echo "ACF_PLUGIN_SLUG=${ACF_PLUGIN_SLUG}" >> $GITHUB_ENV
+          echo "ACF_EXTENDED_PLUGIN_SLUG=${ACF_EXTENDED_PLUGIN_SLUG}" >> $GITHUB_ENV
+          
+          # List installed plugins for verification
+          echo "Installed plugins:"
+          npm run wp-env run tests-cli -- wp plugin list --allow-root
+
       - name: Verify test environment
         run: |
           echo "Checking mu-plugin installation..."
@@ -153,8 +237,10 @@ jobs:
         env:
           MULTISITE: ${{ inputs.multisite && 'true' || '' }}
           TEST_THEME: ${{ inputs.theme }}
+          ACF_PLUGIN_SLUG: ${{ env.ACF_PLUGIN_SLUG }}
+          ACF_EXTENDED_PLUGIN_SLUG: ${{ env.ACF_EXTENDED_PLUGIN_SLUG }}
         run: |
-          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}'
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} ACF_PLUGIN_SLUG=${ACF_PLUGIN_SLUG:-} ACF_EXTENDED_PLUGIN_SLUG=${ACF_EXTENDED_PLUGIN_SLUG:-} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}'
 
       - name: Upload test failure artifacts
         if: failure()

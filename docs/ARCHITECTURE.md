@@ -9,7 +9,8 @@ wp-graphql/
 ├── plugins/                    # WordPress plugins
 │   ├── wp-graphql/            # WPGraphQL core plugin
 │   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
-│   └── wp-graphql-ide/        # IDE extension plugin
+│   ├── wp-graphql-ide/        # IDE extension plugin
+│   └── wp-graphql-acf/        # ACF extension plugin
 ├── websites/                  # Next.js websites
 │   └── wpgraphql.com/         # WPGraphQL.com website
 ├── docs/                      # Contributor documentation

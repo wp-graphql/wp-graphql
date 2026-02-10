@@ -64,6 +64,11 @@ function getConstantMapping(component) {
 			fileName: 'wpgraphql-ide.php',
 			mainPluginFile: 'wpgraphql-ide.php',
 		},
+		'wp-graphql-acf': {
+			constantName: 'WPGRAPHQL_FOR_ACF_VERSION',
+			fileName: 'wpgraphql-acf.php',
+			mainPluginFile: 'wpgraphql-acf.php',
+		},
 	};
 
 	return mappings[component] || null;
@@ -351,7 +356,7 @@ function main() {
 				`⚠️  No version constant mapping for component: ${component}`
 			);
 			console.warn(
-				`   Supported components: wp-graphql, wp-graphql-smart-cache, wp-graphql-ide`
+				`   Supported components: wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf`
 			);
 			process.exit(0);
 		}

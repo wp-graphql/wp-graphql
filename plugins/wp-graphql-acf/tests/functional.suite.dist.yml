@@ -4,6 +4,7 @@
 # Emulate web requests and make WordPress process them
 
 actor: FunctionalTester
+bootstrap: bootstrap.php
 modules:
   enabled:
     - Asserts
