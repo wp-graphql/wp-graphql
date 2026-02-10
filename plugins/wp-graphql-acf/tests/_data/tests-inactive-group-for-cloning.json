@@ -1,0 +1,91 @@
+[
+    {
+        "key": "group_647a24a63a244",
+        "title": "Docs: Inactive Group for Cloning",
+        "fields": [
+            {
+                "key": "field_647a24a72d63c",
+                "label": "Cloned Text Field",
+                "name": "cloned_text_field",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "acfe_save_meta": 0,
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": "",
+                "show_in_graphql": 1,
+                "graphql_description": "",
+                "graphql_field_name": "clonedTextField"
+            },
+            {
+                "key": "field_647a24f42d63d",
+                "label": "Cloned Image Field",
+                "name": "cloned_image_field",
+                "aria-label": "",
+                "type": "image",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "acfe_save_meta": 0,
+                "uploader": "",
+                "return_format": "array",
+                "upload_folder": "",
+                "acfe_thumbnail": 0,
+                "min_width": "",
+                "min_height": "",
+                "min_size": "",
+                "max_width": "",
+                "max_height": "",
+                "max_size": "",
+                "mime_types": "",
+                "preview_size": "medium",
+                "show_in_graphql": 1,
+                "graphql_description": "",
+                "graphql_field_name": "clonedImageField",
+                "library": "all"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "left",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "",
+        "show_in_rest": 0,
+        "acfe_autosync": "",
+        "acfe_form": 0,
+        "acfe_display_title": "",
+        "show_in_graphql": 1,
+        "graphql_field_name": "inactiveGroupForCloning",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": "",
+        "acfe_meta": "",
+        "acfe_note": "This Field Group is inactive so that it will not show in the WP Admin anywhere by default (i.e. the location rules won't add it to any admin screens). However, it _will_ show up anywhere it has been cloned. WPGraphQL will add the Types to the Schema since the field group is set to \"show_in_graphql\"."
+    }
+]

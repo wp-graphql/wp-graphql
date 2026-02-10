@@ -1,0 +1,173 @@
+[
+  {
+    "key": "group_611676144f01a",
+    "title": "Basic Fields",
+    "fields": [
+      {
+        "key": "field_611676173246b",
+        "label": "Basic Text",
+        "name": "basic_text",
+        "type": "text",
+        "instructions": "Enter a value for the text field.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "Default value for basic text",
+        "placeholder": "Placeholder text",
+        "prepend": "",
+        "append": "",
+        "maxlength": 30
+      },
+      {
+        "key": "field_611676423246c",
+        "label": "Basic Text Area",
+        "name": "basic_textarea",
+        "type": "textarea",
+        "instructions": "Enter a value for the text area.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "Default value for the text area",
+        "placeholder": "Placeholder for the text area",
+        "maxlength": "",
+        "rows": "",
+        "new_lines": ""
+      },
+      {
+        "key": "field_611676883246d",
+        "label": "Basic Number",
+        "name": "basic_number",
+        "type": "number",
+        "instructions": "Enter a value for the number field.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "default_value": 1,
+        "placeholder": 1,
+        "prepend": "",
+        "append": "",
+        "min": "",
+        "max": "",
+        "step": ""
+      },
+      {
+        "key": "field_611676a33246e",
+        "label": "Basic Range",
+        "name": "basic_range",
+        "type": "range",
+        "instructions": "Enter a value for the range field.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "default_value": 50,
+        "min": "",
+        "max": "",
+        "step": "",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_611676bf3246f",
+        "label": "Basic Email",
+        "name": "basic_email",
+        "type": "email",
+        "instructions": "Enter a value for the email field.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "default@example.com",
+        "placeholder": "placeholder@example.com",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_611676e732470",
+        "label": "Basic URL",
+        "name": "basic_url",
+        "type": "url",
+        "instructions": "Enter a value for the URL field.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "https://default.example.com",
+        "placeholder": "https://placeholder.example.com"
+      },
+      {
+        "key": "field_6116770132471",
+        "label": "Basic Password",
+        "name": "basic_password",
+        "type": "password",
+        "instructions": "Enter a value for the password field.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "placeholder": "Placeholder123#",
+        "prepend": "",
+        "append": ""
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "block",
+          "operator": "==",
+          "value": "acf/acf-basic-fields"
+        }
+      ],
+      [
+        {
+          "param": "options_page",
+          "operator": "==",
+          "value": "acf-options-basic-fields"
+        }
+      ],
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "post"
+        }
+      ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": false,
+    "show_in_graphql": true,
+    "graphql_field_name": "basicFields",
+    "modified": 1631121681
+  }
+]

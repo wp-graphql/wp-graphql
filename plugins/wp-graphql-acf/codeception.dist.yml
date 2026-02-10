@@ -1,0 +1,86 @@
+paths:
+  tests: '%TESTS_DIR%'
+  output: '%TESTS_OUTPUT%'
+  data: '%TESTS_DATA%'
+  support: '%TESTS_SUPPORT%'
+  envs: '%TESTS_ENVS%'
+params:
+    - .env.testing
+actor_suffix: Tester
+settings:
+  colors: true
+  memory_limit: 1024M
+coverage:
+  enabled: true
+  remote: false
+  c3_url: '%WP_URL%/wp-content/plugins/wpgraphql-acf/wpgraphql-acf.php'
+  include:
+    - src/*
+  exclude:
+    - wpgraphql-acf.php
+    - vendor/*
+  show_only_summary: false
+extensions:
+  enabled:
+    - Codeception\Extension\RunFailed
+  commands:
+    - Codeception\Command\GenerateWPUnit
+    - Codeception\Command\GenerateWPRestApi
+    - Codeception\Command\GenerateWPRestController
+    - Codeception\Command\GenerateWPRestPostTypeController
+    - Codeception\Command\GenerateWPAjax
+    - Codeception\Command\GenerateWPCanonical
+    - Codeception\Command\GenerateWPXMLRPC
+modules:
+  config:
+    WPDb:
+      dsn: 'mysql:host=%DB_HOST%;dbname=%DB_NAME%'
+      user: '%DB_USER%'
+      password: '%DB_PASSWORD%'
+      populator: 'mysql -u $user -p$password -h $host $dbname < $dump'
+      dump: 'tests/_data/dump.sql'
+      populate: false
+      cleanup: true
+      waitlock: 0
+      url: '%WP_URL%'
+      urlReplacement: true
+      tablePrefix: '%WP_TABLE_PREFIX%'
+    WPBrowser:
+      url: '%WP_URL%'
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      adminUsername: '%ADMIN_USERNAME%'
+      adminPassword: '%ADMIN_PASSWORD%'
+      adminPath: '/wp-admin'
+      cookies: false
+    REST:
+      depends: WPBrowser
+      url: '%WP_URL%'
+    WPFilesystem:
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      plugins: '/wp-content/plugins'
+      mu-plugins: '/wp-content/mu-plugins'
+      themes: '/wp-content/themes'
+      uploads: '/wp-content/uploads'
+    WPLoader:
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      dbName: '%TEST_DB_NAME%'
+      dbHost: '%TEST_DB_HOST%'
+      dbUser: '%TEST_DB_USER%'
+      dbPassword: '%TEST_DB_PASSWORD%'
+      tablePrefix: '%TEST_TABLE_PREFIX%'
+      domain: '%TEST_SITE_WP_DOMAIN%'
+      adminEmail: '%TEST_SITE_ADMIN_EMAIL%'
+      title: 'Test'
+      plugins:
+        - '%ACF_PLUGIN_SLUG%'
+        - '%ACF_EXTENDED_PLUGIN_SLUG%'
+        - wp-graphql/wp-graphql.php
+        - wpgraphql-acf/wpgraphql-acf.php
+        - '%WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG%'
+      activatePlugins:
+        - '%ACF_PLUGIN_SLUG%'
+        - '%ACF_EXTENDED_PLUGIN_SLUG%'
+        - wp-graphql/wp-graphql.php
+        - wpgraphql-acf/wpgraphql-acf.php
+        - '%WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG%'
+      configFile: 'tests/_data/config.php'
