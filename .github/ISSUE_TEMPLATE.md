@@ -1,4 +1,4 @@
-Remember, an issue is not the place to ask general questions. You can use [Slack](https://wp-graphql.slack.com) for that ([join here](https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA)).
+Remember, an issue is not the place to ask general questions. You can use [Discord](https://wpgraphql.com/discord) for that.
 
 Before you open an issue, please check if a similar issue already exists or has been closed before.
 
