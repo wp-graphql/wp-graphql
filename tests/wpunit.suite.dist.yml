@@ -1,0 +1,10 @@
+# Codeception Test Suite Configuration
+#
+# Suite for unit or integration tests that require WordPress functions and classes.
+actor: WpunitTester
+modules:
+  enabled:
+    - WPLoader
+  disabled:
+    - WPDb
+    - WPBrowser

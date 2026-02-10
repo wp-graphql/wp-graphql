@@ -1,0 +1,61 @@
+version: '3.3'
+
+services:
+  app:
+    depends_on:
+      - app_db
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: wpgraphql-acf:latest-wp${WP_VERSION}-php${PHP_VERSION}
+    volumes:
+      - '.:/var/www/html/wp-content/plugins/wpgraphql-acf'
+      - './.log/app:/var/log/apache2'
+    env_file:
+      - .env
+    environment:
+      USING_XDEBUG: ${USING_XDEBUG:-}
+    ports:
+      - '8091:80'
+    networks:
+      local:
+
+  app_db:
+    image: mariadb:10.2
+    env_file:
+      - .env
+    ports:
+      - '3306'
+    networks:
+      local:
+
+  testing:
+    depends_on:
+      - testing_db
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.testing
+    image: wpgraphql-acf-testing:latest-wp${WP_VERSION}-php${PHP_VERSION}
+    volumes:
+      - '.:/var/www/html/wp-content/plugins/wpgraphql-acf'
+      - './.log/testing:/var/log/apache2'
+      - './codeception.dist.yml:/var/www/html/wp-content/plugins/wpgraphql-acf/codeception.yml'
+    env_file:
+      - .env.testing
+    environment:
+      WP_URL: http://localhost
+      USING_XDEBUG: ${USING_XDEBUG:-}
+    networks:
+      local:
+
+  testing_db:
+    image: mariadb:10.2
+    env_file:
+      - .env.testing
+    ports:
+      - '3306'
+    networks:
+      local:
+
+networks:
+  local:

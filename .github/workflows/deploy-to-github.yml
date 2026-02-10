@@ -1,0 +1,35 @@
+name: Build the plugin zip file for GitHub
+on:
+  release:
+    types: [ published ]
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Create Artifact
+        run: |
+          composer run-script zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: wpgraphql-acf
+          path: plugin-build/wpgraphql-acf.zip
+
+      - name: Upload release asset to github
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugin-build/wpgraphql-acf.zip
