@@ -34,6 +34,22 @@ To build the website:
 npm run build -w @wpgraphql/wpgraphql-com
 ```
 
+### Testing the possibleTypes.json Fix
+
+To test that the build works when `possibleTypes.json` is missing (simulating Vercel deployment):
+
+```bash
+npm run test:build-without-possibletypes -w @wpgraphql/wpgraphql-com
+```
+
+This script will:
+1. Backup the existing `possibleTypes.json` file (if it exists)
+2. Delete the file to simulate the Vercel scenario
+3. Run the build without the prebuild hook
+4. Restore the file after testing
+
+If the build succeeds, the fix is working correctly.
+
 ### Required Environment Variables
 
 Copy `.env.local.example` to `.env.local` and fill in the values:
