@@ -1,4 +1,13 @@
 const { withFaust, getWpHostname } = require("@faustwp/core")
+const path = require("path")
+const fs = require("fs")
+
+// Ensure possibleTypes.json exists before webpack processes faust.config.js
+// This must happen at the top level, before any webpack configuration
+const possibleTypesPath = path.join(__dirname, "possibleTypes.json")
+if (!fs.existsSync(possibleTypesPath)) {
+  fs.writeFileSync(possibleTypesPath, JSON.stringify({}), "utf-8")
+}
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -57,6 +66,8 @@ const nextConfig = withFaust(
       const fs = require("fs")
       
       // Provide fallback for possibleTypes.json if it doesn't exist
+      // This runs during webpack compilation, but the file should already exist
+      // from the top-level check or from the prebuild step
       const possibleTypesPath = path.join(__dirname, "possibleTypes.json")
       if (!fs.existsSync(possibleTypesPath)) {
         // Create empty fallback file if it doesn't exist
