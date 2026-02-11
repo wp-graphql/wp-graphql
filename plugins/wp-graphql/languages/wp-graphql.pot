@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.7.0\n"
+"Project-Id-Version: WPGraphQL 2.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-04T21:36:44+00:00\n"
+"POT-Creation-Date: 2026-02-11T17:56:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -4032,17 +4032,17 @@ msgid "The url the comment author."
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:60
-#: src/Type/ObjectType/User.php:219
+#: src/Type/ObjectType/User.php:243
 msgid "The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels."
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:67
-#: src/Type/ObjectType/User.php:226
+#: src/Type/ObjectType/User.php:250
 msgid "Whether to always show the default image, never the Gravatar. Default false"
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:73
-#: src/Type/ObjectType/User.php:232
+#: src/Type/ObjectType/User.php:256
 msgid "The rating level of the avatar."
 msgstr ""
 
@@ -5031,6 +5031,22 @@ msgstr ""
 
 #: src/Type/ObjectType/User.php:211
 msgid "Whether the Toolbar should be displayed when the user is viewing the site."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:217
+msgid "The admin color scheme preference for the user. Possible values include \"fresh\", \"light\", \"blue\", \"coffee\", \"ectoplasm\", \"midnight\", \"ocean\", \"sunrise\". Default is \"fresh\"."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:223
+msgid "Whether the user has enabled the visual editor. When enabled, the WYSIWYG editor is used for content editing. Defaults to true."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:229
+msgid "Whether the user has enabled syntax highlighting when editing code within the post editor. Defaults to true."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:235
+msgid "Whether the user has enabled keyboard shortcuts for comment moderation. Defaults to false."
 msgstr ""
 
 #: src/Type/ObjectType/UserRole.php:19
