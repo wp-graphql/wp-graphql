@@ -54,7 +54,7 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHPCS scan cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         with:
           path: ./tests/_output/phpcs-cache.json
           # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
@@ -116,7 +116,7 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHP Static Analysis scan cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         with:
           path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
           key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
@@ -136,7 +136,7 @@ jobs:
         run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
 
       - name: Save result cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         if: ${{ !cancelled() }}
         with:
           path: ${{ inputs.plugin_path }}/tests/_output
