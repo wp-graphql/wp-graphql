@@ -22,6 +22,14 @@ abstract class AcfFieldCest {
 	 */
 	protected static $field_group_post_ids = [];
 
+	/**
+	 * Static cache to store field group titles per test class
+	 * This allows us to look up the correct field group name from the JSON
+	 *
+	 * @var array<string, string>
+	 */
+	protected static $field_group_titles = [];
+
 
 	/**
 	 * Before the tests run, we:
@@ -55,10 +63,16 @@ abstract class AcfFieldCest {
 			$I->importJson( $json_file );
 			self::$json_imported[$import_key] = true;
 			
-			// Cache the field group post ID for faster navigation
-			$field_group_id = $I->getFieldGroupPostId( 'Foo Name' );
-			if ( $field_group_id ) {
-				self::$field_group_post_ids[$test_class] = $field_group_id;
+			// Extract field group title from JSON file for caching
+			$field_group_title = $this->_getFieldGroupTitle( $json_file );
+			if ( $field_group_title ) {
+				self::$field_group_titles[$test_class] = $field_group_title;
+				
+				// Cache the field group post ID for faster navigation
+				$field_group_id = $I->getFieldGroupPostId( $field_group_title );
+				if ( $field_group_id ) {
+					self::$field_group_post_ids[$test_class] = $field_group_id;
+				}
 			}
 		}
 
@@ -78,7 +92,9 @@ abstract class AcfFieldCest {
 		} else {
 			// Fallback: navigate through the list page (slower)
 			$I->amOnPage( '/wp-admin/edit.php?post_type=acf-field-group' );
-			$I->click( 'Foo Name' );
+			// Use cached field group title or fallback to "Foo Name"
+			$field_group_title = self::$field_group_titles[$test_class] ?? 'Foo Name';
+			$I->click( $field_group_title );
 		}
 
 		// Click edit on the field
@@ -191,6 +207,38 @@ abstract class AcfFieldCest {
 	 */
 	public function _getJsonToImport(): string {
 		return 'acf-export-2023-01-26.json';
+	}
+
+	/**
+	 * Extract the field group title from a JSON file
+	 * 
+	 * @param string $json_file The JSON file path relative to tests/_data/
+	 * @return string|null The field group title or null if not found
+	 */
+	protected function _getFieldGroupTitle( string $json_file ): ?string {
+		$json_path = __DIR__ . '/../../_data/' . $json_file;
+		if ( ! file_exists( $json_path ) ) {
+			return null;
+		}
+		
+		$json_content = file_get_contents( $json_path );
+		$json_data = json_decode( $json_content, true );
+		
+		if ( ! is_array( $json_data ) || empty( $json_data ) ) {
+			return null;
+		}
+		
+		// Handle array of field groups (most common case)
+		if ( isset( $json_data[0] ) && is_array( $json_data[0] ) && isset( $json_data[0]['title'] ) ) {
+			return $json_data[0]['title'];
+		}
+		
+		// Handle single field group object
+		if ( isset( $json_data['title'] ) ) {
+			return $json_data['title'];
+		}
+		
+		return null;
 	}
 
 	/**
