@@ -17,6 +17,7 @@
     "format": "npm run test:format -- --write",
     "generate": "faust generatePossibleTypes",
     "ensure-possibletypes": "node scripts/ensure-possibletypes.js",
+    "postinstall": "npm run ensure-possibletypes",
     "prepare": "husky install",
     "prebuild": "npm run ensure-possibletypes && npm run generate && npm run ensure-possibletypes"
   },
