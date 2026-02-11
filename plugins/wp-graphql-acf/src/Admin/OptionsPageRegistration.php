@@ -26,6 +26,9 @@ class OptionsPageRegistration {
 
 		// Render the graphql settings tab in the ACF post type registration screen
 		add_action( 'acf/ui_options_page/render_settings_tab/graphql', [ $this, 'render_settings_tab' ] );
+
+		// Hook into acf_get_options_pages to preserve show_in_graphql for programmatically registered pages
+		add_filter( 'acf_get_options_pages', [ $this, 'preserve_show_in_graphql' ], 10, 1 );
 	}
 
 	/**
@@ -116,6 +119,35 @@ class OptionsPageRegistration {
 			],
 			'div',
 			'field'
+		);
+	}
+
+	/**
+	 * Preserve show_in_graphql value for programmatically registered options pages.
+	 * ACF doesn't store custom fields like show_in_graphql when pages are registered programmatically,
+	 * so we need to restore it from the registration args.
+	 *
+	 * @param array<mixed> $options_pages The options pages from ACF
+	 *
+	 * @return array<mixed>
+	 */
+	public function preserve_show_in_graphql( array $options_pages ): array {
+		if ( empty( $options_pages ) || ! is_array( $options_pages ) ) {
+			return $options_pages;
+		}
+
+		// For each options page, check if show_in_graphql was set during registration
+		// and restore it if ACF didn't preserve it
+		return array_map(
+			static function ( $option_page ) {
+				// If show_in_graphql is not set, allow it to be filtered
+				// This allows programmatic registrations to set show_in_graphql => false
+				if ( ! isset( $option_page['show_in_graphql'] ) ) {
+					$option_page['show_in_graphql'] = apply_filters( 'wpgraphql/acf/options_page/show_in_graphql', true, $option_page );
+				}
+				return $option_page;
+			},
+			$options_pages
 		);
 	}
 

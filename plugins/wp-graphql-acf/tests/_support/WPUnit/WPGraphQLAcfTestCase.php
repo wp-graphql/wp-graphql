@@ -440,7 +440,7 @@ class WPGraphQLAcfTestCase extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'display' => 'seamless',
 			'layout' => 'block',
 			'prefix_label' => 0,
-			'prefix_name' => 0,
+			'prefix_name' => 1,
 			'acfe_seamless_style' => 0,
 			'acfe_clone_modal' => 0,
 			'acfe_clone_modal_close' => 0,

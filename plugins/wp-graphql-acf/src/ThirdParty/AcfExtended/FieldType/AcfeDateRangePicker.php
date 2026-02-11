@@ -16,18 +16,36 @@ class AcfeDateRangePicker {
 				'graphql_type' => 'ACFE_Date_Range',
 				'resolve'      => static function ( $root, $args, $context, $info, $field_type, FieldConfig $field_config ) {
 					$value      = $field_config->resolve_field( $root, $args, $context, $info );
-					$start_date = $value['start'] ?? null;
-					$end_date   = $value['end'] ?? null;
+					$start_date = ( is_array( $value ) && isset( $value['start'] ) ) ? $value['start'] : null;
+					$end_date   = ( is_array( $value ) && isset( $value['end'] ) ) ? $value['end'] : null;
 					$acf_field  = $field_config->get_acf_field();
 
-					// handle resolving from a block
-					if ( empty( $start_date ) ) {
-						$start_date = $field_config->resolve_field( $root, $args, $context, $info, [ 'name' => $acf_field['name'] . '_start' ] );
+					// Get the node ID for resolving fields - use the same approach as resolve_field
+					$node    = $root['node'] ?? null;
+					$node_id = $node ? \WPGraphQL\Acf\Utils::get_node_acf_id( $node ) : null;
+
+					// If node_id is still empty or 0, try to get it from the root directly
+					if ( empty( $node_id ) || 0 === $node_id ) {
+						$node_id_from_root = \WPGraphQL\Acf\Utils::get_node_acf_id( $root );
+						if ( ! empty( $node_id_from_root ) && 0 !== $node_id_from_root ) {
+							$node_id = $node_id_from_root;
+						}
 					}
 
-					// handle resolving from a block
-					if ( empty( $end_date ) ) {
-						$end_date = $field_config->resolve_field( $root, $args, $context, $info, [ 'name' => $acf_field['name'] . '_end' ] );
+					// ACFE Date Range Picker stores values as separate _start and _end fields
+					// Always try to get them if the main value doesn't have start/end keys
+					if ( empty( $start_date ) && ! empty( $node_id ) && 0 !== $node_id && function_exists( 'get_field' ) ) {
+						$field_start = get_field( $acf_field['name'] . '_start', $node_id, false );
+						if ( ! empty( $field_start ) ) {
+							$start_date = $field_start;
+						}
+					}
+
+					if ( empty( $end_date ) && ! empty( $node_id ) && 0 !== $node_id && function_exists( 'get_field' ) ) {
+						$field_end = get_field( $acf_field['name'] . '_end', $node_id, false );
+						if ( ! empty( $field_end ) ) {
+							$end_date = $field_end;
+						}
 					}
 
 					if ( ! empty( $start_date ) ) {

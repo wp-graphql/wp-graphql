@@ -137,6 +137,20 @@ class Utils {
 			return $options_pages;
 		}
 
+		// For programmatically registered options pages, ACF may not preserve show_in_graphql.
+		// Allow it to be filtered to restore the value if it was set during registration.
+		$acf_options_pages = array_map(
+			static function ( $option_page ) {
+				// If show_in_graphql is not set, allow it to be filtered to restore the value
+				// This allows tests and programmatic registrations to set show_in_graphql => false
+				if ( ! isset( $option_page['show_in_graphql'] ) ) {
+					$option_page['show_in_graphql'] = apply_filters( 'wpgraphql/acf/options_page/show_in_graphql', true, $option_page );
+				}
+				return $option_page;
+			},
+			$acf_options_pages
+		);
+
 		return array_filter(
 			array_map(
 				static function ( $option_page ) {
