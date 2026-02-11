@@ -67,7 +67,22 @@ abstract class AcfFieldCest {
 		// Delete imported field group
 		$I->loginAsAdmin();
 		$I->amOnPage('/wp-admin/edit.php?post_type=acf-field-group');
-		$I->checkOption( '//tbody/tr/th[@class="check-column"]/input[@type="checkbox"]' );
+		
+		// Use a more specific selector that targets the row containing "Foo Name"
+		// This is more robust than just selecting the first checkbox
+		// The selector looks for a row containing "Foo Name" and then finds its checkbox
+		// Updated selector to be more flexible with ACF UI changes
+		$checkbox_selector = '//tr[contains(., "Foo Name")]//th[contains(@class, "check-column")]//input[@type="checkbox"]';
+		
+		// Try the specific selector first, fall back to first row if that fails
+		try {
+			$I->checkOption( $checkbox_selector );
+		} catch ( \Exception $e ) {
+			// Fallback: try to select the first checkbox if "Foo Name" selector doesn't work
+			// This handles edge cases where the field group might have a different name or structure
+			$I->checkOption( '//tbody/tr[1]//th[contains(@class, "check-column")]//input[@type="checkbox"]' );
+		}
+		
 		$I->selectOption( '#bulk-action-selector-bottom', 'trash' );
 		$I->click( '#doaction2' );
 

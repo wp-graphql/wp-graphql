@@ -64,7 +64,30 @@ if [ "$ACF_PRO" == "true" ]; then
     ACF_VERSION_PARAM="&t=$ACF_VERSION"
   fi
   
-  npm run --prefix ../.. wp-env run tests-cli -- wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_LICENSE_KEY}${ACF_VERSION_PARAM}" --activate --quiet --allow-root
+  # Try to install ACF Pro
+  if ! npm run --prefix ../.. wp-env run tests-cli -- wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_LICENSE_KEY}${ACF_VERSION_PARAM}" --activate --quiet --allow-root 2>&1; then
+    echo "" >&2
+    echo "❌ Error: Failed to install ACF Pro" >&2
+    echo "   This usually means:" >&2
+    echo "     - The license key is invalid or expired" >&2
+    echo "     - The license key doesn't have developer access" >&2
+    echo "     - There's a network issue connecting to ACF servers" >&2
+    echo "" >&2
+    echo "   You can try:" >&2
+    echo "     1. Verify your license key is correct" >&2
+    echo "     2. Use ACF Free instead: npm run install-acf" >&2
+    echo "     3. Check your internet connection" >&2
+    exit 1
+  fi
+  
+  # Verify the plugin was actually installed
+  if ! npm run --prefix ../.. wp-env run tests-cli -- wp plugin is-installed advanced-custom-fields-pro --allow-root 2>/dev/null; then
+    echo "" >&2
+    echo "❌ Error: ACF Pro installation appeared to succeed but plugin is not installed" >&2
+    echo "   The download URL may have returned an invalid file" >&2
+    exit 1
+  fi
+  
   ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
 else
   echo "Installing ACF Free..."
