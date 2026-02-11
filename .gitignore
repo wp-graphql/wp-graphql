@@ -86,3 +86,5 @@ test-results
 # Changesets
 # Note: Do NOT ignore .changeset/*.md files as they are needed for release management
 .changeset/pre.json
+
+external-plugins
