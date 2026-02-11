@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.9.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.8.0...wp-graphql/v2.9.0) (2026-02-11)
+
+
+### New Features
+
+* add core user admin preferences fields to User type ([#3571](https://github.com/wp-graphql/wp-graphql/issues/3571)) ([2ee4e9b](https://github.com/wp-graphql/wp-graphql/commit/2ee4e9b774e33e6f6a47f8ed0f16300a0009c284))
+* import WPGraphQL IDE into monorepo ([#3542](https://github.com/wp-graphql/wp-graphql/issues/3542)) ([e7c1e33](https://github.com/wp-graphql/wp-graphql/commit/e7c1e336ee82e8fe020ca5d6052fa9d330185387))
+
+
+### Bug Fixes
+
+* correct version numbers in plugin files and improve version update script ([#3574](https://github.com/wp-graphql/wp-graphql/issues/3574)) ([caa1249](https://github.com/wp-graphql/wp-graphql/commit/caa1249a76ac39216367cd7f62df7b6358f81ffd))
+* resolve all JavaScript linting errors in wp-graphql-ide ([#3548](https://github.com/wp-graphql/wp-graphql/issues/3548)) ([52c39e2](https://github.com/wp-graphql/wp-graphql/commit/52c39e24483344874ab742e9698da4ea5fabe9b6))
+
 ## [2.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.7.0...wp-graphql/v2.8.0) (2026-02-04)
 
 

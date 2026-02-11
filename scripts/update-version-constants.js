@@ -43,30 +43,46 @@ function isValidVersion(version) {
 }
 
 /**
- * Map component name to constant name and file
+ * Load release-please config to get constant mappings
+ * @returns {Object} Config object with packages
+ */
+function loadReleasePleaseConfig() {
+	const repoRoot = process.cwd();
+	const configPath = path.join(repoRoot, 'release-please-config.json');
+	
+	if (!fs.existsSync(configPath)) {
+		throw new Error(`release-please-config.json not found at ${configPath}`);
+	}
+
+	try {
+		return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+	} catch (error) {
+		throw new Error(`Failed to parse release-please-config.json: ${error.message}`);
+	}
+}
+
+/**
+ * Map component name to constant name and file from release-please-config.json
  * @param {string} component - Component name
  * @returns {Object|null} Object with constantName, fileName, and mainPluginFile, or null if not found
  */
 function getConstantMapping(component) {
-	const mappings = {
-		'wp-graphql': {
-			constantName: 'WPGRAPHQL_VERSION',
-			fileName: 'constants.php',
-			mainPluginFile: 'wp-graphql.php',
-		},
-		'wp-graphql-smart-cache': {
-			constantName: 'WPGRAPHQL_SMART_CACHE_VERSION',
-			fileName: 'wp-graphql-smart-cache.php',
-			mainPluginFile: 'wp-graphql-smart-cache.php',
-		},
-		'wp-graphql-ide': {
-			constantName: 'WPGRAPHQL_IDE_VERSION',
-			fileName: 'wpgraphql-ide.php',
-			mainPluginFile: 'wpgraphql-ide.php',
-		},
-	};
+	const config = loadReleasePleaseConfig();
+	const packages = config.packages || {};
 
-	return mappings[component] || null;
+	// Find the package that matches this component
+	for (const packageConfig of Object.values(packages)) {
+		if (packageConfig.component === component) {
+			// Check if constantMap is defined
+			if (packageConfig.constantMap) {
+				return packageConfig.constantMap;
+			}
+			// If no constantMap, return null (plugin doesn't need version constant updates)
+			return null;
+		}
+	}
+
+	return null;
 }
 
 /**
@@ -351,7 +367,10 @@ function main() {
 				`⚠️  No version constant mapping for component: ${component}`
 			);
 			console.warn(
-				`   Supported components: wp-graphql, wp-graphql-smart-cache, wp-graphql-ide`
+				`   This component may not need version constant updates, or constantMap is missing in release-please-config.json`
+			);
+			console.warn(
+				`   To enable version updates, add a "constantMap" entry to the plugin's config in release-please-config.json`
 			);
 			process.exit(0);
 		}
