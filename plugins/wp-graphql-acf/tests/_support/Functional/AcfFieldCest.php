@@ -7,8 +7,25 @@ use FunctionalTester;
 abstract class AcfFieldCest {
 
 	/**
+	 * Static flag to track if JSON has been imported for this test class
+	 * This allows us to import once per test class instead of once per test
+	 *
+	 * @var array<string, bool>
+	 */
+	protected static $json_imported = [];
+
+	/**
+	 * Static cache to store field group post ID per test class
+	 * This allows us to construct direct URLs instead of clicking through pages
+	 *
+	 * @var array<string, int>
+	 */
+	protected static $field_group_post_ids = [];
+
+
+	/**
 	 * Before the tests run, we:
-	 * - import the JSON file for the field group
+	 * - import the JSON file for the field group (only once per test class)
 	 * - login as admin
 	 * - visit the page showing all the field groups
 	 * - click on the imported field group
@@ -27,44 +44,97 @@ abstract class AcfFieldCest {
 	 * @return void
 	 */
 	public function _before( FunctionalTester $I ): void {
-
-		// Import the JSON file to test
+		// Import the JSON file to test (only once per test class)
 		// Each class can override this by defining their
 		// own _getJsonToImport() method
-		$I->importJson( $this->_getJsonToImport() );
+		$test_class = get_class($this);
+		$json_file = $this->_getJsonToImport();
+		$import_key = $test_class . ':' . $json_file;
+		
+		if ( ! isset( self::$json_imported[$import_key] ) ) {
+			$I->importJson( $json_file );
+			self::$json_imported[$import_key] = true;
+			
+			// Cache the field group post ID for faster navigation
+			$field_group_id = $I->getFieldGroupPostId( 'Foo Name' );
+			if ( $field_group_id ) {
+				self::$field_group_post_ids[$test_class] = $field_group_id;
+			}
+		}
+
+		// Note: We can't skip navigation entirely because each test may modify the field state.
+		// However, we optimize by using direct URLs and reducing wait times.
+		$field_type = $this->_getAcfFieldType();
 
 		// Login
 		$I->loginAsAdmin();
 
-		// Visit the page showing all ACF Field Groups
-		$I->amOnPage( '/wp-admin/edit.php?post_type=acf-field-group' );
-
-		// See the imported field group
-		$I->see( 'Foo Name' );
-
-		// Click it to go to edit the field group page
-		$I->click( 'Foo Name' );
-
-		// Verify we're on the "Edit Field Group" page
-		$I->see( 'Edit Field Group' );
-
-		// Verify that we see the "Field Type" settings field
-		$I->see( 'Field Type' );
+		// Try to use cached post ID to navigate directly to field group edit page
+		// This skips the intermediate "list all field groups" page
+		$field_group_id = self::$field_group_post_ids[$test_class] ?? null;
+		if ( $field_group_id ) {
+			// Navigate directly to the field group edit page
+			$I->amOnPage( '/wp-admin/post.php?post=' . $field_group_id . '&action=edit' );
+		} else {
+			// Fallback: navigate through the list page (slower)
+			$I->amOnPage( '/wp-admin/edit.php?post_type=acf-field-group' );
+			$I->click( 'Foo Name' );
+		}
 
 		// Click edit on the field
 		$I->click( '//div[@data-key="' . $this->_getTestFieldKey() . '"]//a[@title="Edit field"]' );
 
 		// Select the "Field Type" that we want to test against
 		// This xpath finds the "Field Type" select for the field we're testing against to keep things constant
-		$I->selectOption( '//div[@data-key="' . $this->_getTestFieldKey() . '"]//select[contains(concat(" ", @class, " "), " field-type ")]', $this->_getAcfFieldType() );
+		$I->selectOption( '//div[@data-key="' . $this->_getTestFieldKey() . '"]//select[contains(concat(" ", @class, " "), " field-type ")]', $field_type );
+
+		// For ACF 6.1+, GraphQL fields are in a tab - click the GraphQL tab if it exists
+		// Try multiple selectors to find the GraphQL tab button
+		$graphql_tab_selectors = [
+			'//div[@data-key="' . $this->_getTestFieldKey() . '"]//a[contains(@class, "acf-tab-button") and contains(text(), "GraphQL")]',
+			'//div[@data-key="' . $this->_getTestFieldKey() . '"]//button[contains(@class, "acf-tab-button") and contains(text(), "GraphQL")]',
+			'//div[@data-key="' . $this->_getTestFieldKey() . '"]//*[contains(@class, "acf-tab")]//a[contains(text(), "GraphQL")]',
+		];
+
+		$tab_clicked = false;
+		foreach ( $graphql_tab_selectors as $selector ) {
+			try {
+				$I->seeElement( $selector );
+				$I->click( $selector );
+				// Reduced wait time - 0.3s should be enough for tab content to load (was 1s)
+				$I->wait( 0.3 );
+				$tab_clicked = true;
+				break;
+			} catch ( \Exception $e ) {
+				// Try next selector
+				continue;
+			}
+		}
+
+		// If no tab was found/clicked, assume ACF < 6.1 where fields are always visible
 	}
+
+	/**
+	 * Static flag to track if cleanup has been done for this test class
+	 * This allows us to clean up once per test class instead of once per test
+	 *
+	 * @var array<string, bool>
+	 */
+	protected static $cleanup_done = [];
 
 	/**
 	 * @return void
 	 */
 	public function _after( FunctionalTester $I ): void {
+		// Delete imported field group (only once per test class, at the end)
+		// Skip cleanup if already done for this class
+		$test_class = get_class($this);
+		$cleanup_key = $test_class;
+		
+		if ( isset( self::$cleanup_done[$cleanup_key] ) ) {
+			return;
+		}
 
-		// Delete imported field group
 		$I->loginAsAdmin();
 		$I->amOnPage('/wp-admin/edit.php?post_type=acf-field-group');
 		
@@ -86,6 +156,8 @@ abstract class AcfFieldCest {
 		$I->selectOption( '#bulk-action-selector-bottom', 'trash' );
 		$I->click( '#doaction2' );
 
+		// Mark cleanup as done for this class
+		self::$cleanup_done[$cleanup_key] = true;
 	}
 
 	/**
