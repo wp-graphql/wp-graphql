@@ -41,6 +41,52 @@ node scripts/update-upgrade-notice.js --version=X.Y.Z --plugin-dir=plugins/wp-gr
 Please review these changes before upgrading.
 ```
 
+### `update-version-constants.js`
+
+Updates version constants and Version headers in plugin files during the release PR update process.
+
+**Purpose**: Ensures that version numbers in PHP constants and plugin headers are synchronized when release-please creates a Release PR.
+
+**Usage**:
+```bash
+node scripts/update-version-constants.js --version=X.Y.Z --component=wp-graphql --plugin-dir=plugins/wp-graphql
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--version` | Yes | The version number to set |
+| `--component` | Yes | Component name (e.g., `wp-graphql`, `wp-graphql-smart-cache`) |
+| `--plugin-dir` | Yes | Path to plugin directory (relative to repo root) |
+
+**How it works**:
+1. Reads `release-please-config.json` to get the `constantMap` for the component
+2. Updates the version constant (e.g., `WPGRAPHQL_VERSION`) in the specified file
+3. Updates the `Version:` header in the main plugin file
+4. Updates the `@version` docblock tag if present
+
+**Configuration**:
+
+Version constant mappings are configured in `release-please-config.json` under each plugin's `constantMap` key:
+
+```json
+"plugins/your-plugin-name": {
+  "component": "your-plugin-name",
+  "constantMap": {
+    "constantName": "YOUR_PLUGIN_VERSION",
+    "fileName": "your-plugin-name.php",
+    "mainPluginFile": "your-plugin-name.php"
+  }
+}
+```
+
+**Configuration fields**:
+- `constantName`: The PHP constant name (e.g., `YOUR_PLUGIN_VERSION`)
+- `fileName`: The file containing the constant definition
+- `mainPluginFile`: The main plugin file with the `Version:` header
+
+**Note**: When adding a new plugin, simply add the `constantMap` to `release-please-config.json`. No code changes to the script are needed!
+
 ## Testing
 
 ### Running Tests Locally
