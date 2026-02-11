@@ -14,6 +14,10 @@ const assert = require('assert');
 const SCRIPT_PATH = path.join(__dirname, 'update-version-constants.js');
 const TEST_DIR = path.join(__dirname, '..', '.test-version-constants');
 
+function escapeRegExp(str) {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * Setup test directory with test files
  */
