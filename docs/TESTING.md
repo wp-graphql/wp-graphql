@@ -83,6 +83,96 @@ Tests that interact with WordPress functions:
 npm run -w @wpgraphql/wp-graphql test:codecept:functional
 ```
 
+## Testing wp-graphql-acf
+
+The `wp-graphql-acf` plugin requires Advanced Custom Fields (ACF) to be installed for tests to run. You have several options:
+
+### Option 1: Install ACF Free (Recommended for Local Development)
+
+```bash
+# Install ACF Free + ACF Extended Free
+cd plugins/wp-graphql-acf
+npm run install-acf
+
+# Then run tests
+npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit
+```
+
+### Option 2: Install ACF Pro (Requires License Key)
+
+You can provide the license key in three ways:
+
+**Option A: Using a .env file (Recommended)**
+```bash
+# Create or edit plugins/wp-graphql-acf/.env
+echo "ACF_LICENSE_KEY=your_license_key_here" >> plugins/wp-graphql-acf/.env
+
+# Install ACF Pro + ACF Extended Free
+npm run -w @wpgraphql/wp-graphql-acf install-acf:pro
+```
+
+**Option B: Environment variable (session)**
+```bash
+export ACF_LICENSE_KEY=your_license_key_here
+npm run -w @wpgraphql/wp-graphql-acf install-acf:pro
+```
+
+**Option C: Inline (one-time use)**
+```bash
+ACF_LICENSE_KEY=your_license_key_here npm run -w @wpgraphql/wp-graphql-acf install-acf:pro
+```
+
+Then run tests:
+```bash
+npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit
+```
+
+### Option 3: Install ACF Pro + ACF Extended Pro (Requires Both License Keys)
+
+**Using a .env file (Recommended):**
+```bash
+# Create or edit plugins/wp-graphql-acf/.env
+cat >> plugins/wp-graphql-acf/.env << EOF
+ACF_LICENSE_KEY=your_acf_pro_license_key
+ACF_EXTENDED_LICENSE_KEY=your_acf_extended_pro_license_key
+EOF
+
+# Install ACF Pro + ACF Extended Pro
+npm run -w @wpgraphql/wp-graphql-acf install-acf:pro-extended
+```
+
+**Or using environment variables:**
+```bash
+export ACF_LICENSE_KEY=your_acf_pro_license_key
+export ACF_EXTENDED_LICENSE_KEY=your_acf_extended_pro_license_key
+npm run -w @wpgraphql/wp-graphql-acf install-acf:pro-extended
+```
+
+Then run tests:
+```bash
+npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit
+```
+
+**Note:** For local development, you can use ACF Free (Option 1) which doesn't require any license keys. The `.env` file is gitignored, so your license keys won't be committed.
+
+### Manual Installation
+
+You can also install ACF plugins manually via WP-CLI:
+
+```bash
+# Install ACF Free
+npm run wp-env run tests-cli -- wp plugin install advanced-custom-fields --activate --allow-root
+
+# Install ACF Extended Free
+npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+
+# Or install ACF Pro (requires license key)
+export ACF_LICENSE_KEY=your_license_key
+npm run wp-env run tests-cli -- wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_LICENSE_KEY}" --activate --allow-root
+```
+
+**Note:** ACF plugins only need to be installed once. They will persist in your wp-env environment until you destroy it (`npm run wp-env destroy`).
+
 ### E2E Tests (GraphiQL)
 
 Playwright-based browser tests:

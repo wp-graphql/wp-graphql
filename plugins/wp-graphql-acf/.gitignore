@@ -40,6 +40,9 @@ node_modules
 # Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
 
+# Auto-generated suite file with detected ACF plugins
+tests/wpunit.suite.yml
+
 # Used to send code coverage to Coveralls
 php-coveralls.phar
 
