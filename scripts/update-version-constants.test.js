@@ -642,7 +642,7 @@ define( 'WPGRAPHQL_IDE_VERSION', 'x-release-please-version' );
 						`Plugin ${component}: Constant should be updated to ${testVersion}`
 					);
 					// Check for Version header with flexible whitespace
-					const versionRegex = new RegExp(`Version:\\s+${testVersion.replace(/\./g, '\\.')}`);
+					const versionRegex = new RegExp(`Version:\\s+${escapeRegExp(testVersion)}`);
 					assert(
 						versionRegex.test(updatedFile),
 						`Plugin ${component}: Version header should be updated to ${testVersion}`
@@ -655,7 +655,7 @@ define( 'WPGRAPHQL_IDE_VERSION', 'x-release-please-version' );
 						`Plugin ${component}: Constant should be updated to ${testVersion}`
 					);
 					// Check for Version header with flexible whitespace
-					const versionRegex = new RegExp(`Version:\\s+${testVersion.replace(/\./g, '\\.')}`);
+					const versionRegex = new RegExp(`Version:\\s+${escapeRegExp(testVersion)}`);
 					assert(
 						versionRegex.test(updatedMain),
 						`Plugin ${component}: Version header should be updated to ${testVersion}`
@@ -676,6 +676,13 @@ function incrementVersion(version) {
 	const parts = version.split('.');
 	parts[parts.length - 1] = String(parseInt(parts[parts.length - 1]) + 1);
 	return parts.join('.');
+}
+
+/**
+ * Escape a string so it can be safely embedded into a regular expression.
+ */
+function escapeRegExp(str) {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // ===========================================
