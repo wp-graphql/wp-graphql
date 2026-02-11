@@ -52,6 +52,31 @@ const nextConfig = withFaust(
         destination: "/api/feeds/feed.json",
       },
     ],
+    webpack: (config, { isServer }) => {
+      const path = require("path")
+      const fs = require("fs")
+      
+      // Provide fallback for possibleTypes.json if it doesn't exist
+      const possibleTypesPath = path.join(__dirname, "possibleTypes.json")
+      if (!fs.existsSync(possibleTypesPath)) {
+        // Create empty fallback file if it doesn't exist
+        fs.writeFileSync(possibleTypesPath, JSON.stringify({}), "utf-8")
+      }
+      
+      // Mark Node.js built-in modules as external for faust.config.js
+      if (isServer) {
+        config.externals = config.externals || []
+        if (Array.isArray(config.externals)) {
+          config.externals.push({
+            "fs": "commonjs fs",
+            "path": "commonjs path",
+            "url": "commonjs url",
+            "module": "commonjs module",
+          })
+        }
+      }
+      return config
+    },
   })
 )
 
