@@ -71,7 +71,7 @@ function getConstantMapping(component) {
 	const packages = config.packages || {};
 
 	// Find the package that matches this component
-	for (const [packagePath, packageConfig] of Object.entries(packages)) {
+	for (const packageConfig of Object.values(packages)) {
 		if (packageConfig.component === component) {
 			// Check if constantMap is defined
 			if (packageConfig.constantMap) {
