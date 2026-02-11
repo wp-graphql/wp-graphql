@@ -87,8 +87,6 @@ jobs:
               - plugins/wp-graphql-smart-cache/composer.lock
               - plugins/wp-graphql-smart-cache/phpcs.xml.dist
               - plugins/wp-graphql-smart-cache/phpstan.neon.dist
-              # Smart cache depends on wp-graphql, so wp-graphql changes trigger smart-cache linting
-              - plugins/wp-graphql/**/*.php
             wp-graphql-ide:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
@@ -104,8 +102,6 @@ jobs:
               - plugins/wp-graphql-ide/phpcs.xml.dist
               - plugins/wp-graphql-ide/phpstan.neon.dist
               - plugins/wp-graphql-ide/codeception.dist.yml
-              # IDE depends on wp-graphql, so wp-graphql changes trigger IDE linting
-              - plugins/wp-graphql/**/*.php
               - .release-please-manifest.json
             # Add additional plugins here:
             # wpgraphql-acf:

@@ -111,9 +111,11 @@ jobs:
           else
             echo "Components to deploy: $COMPONENTS"
             # Convert to JSON array for matrix (compact format, no whitespace)
+            # Split space-separated list, quote each component, and create JSON array
             COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
             echo "components=$COMPONENTS_JSON" >> $GITHUB_OUTPUT
             echo "components_list=$COMPONENTS" >> $GITHUB_OUTPUT
+            echo "Debug: Components JSON = $COMPONENTS_JSON"
           fi
           echo "=============================="
 
@@ -151,30 +153,62 @@ jobs:
             
             COMPONENT=$(echo "$TAG" | sed 's|/v.*||')
             echo "Re-deploying component: $COMPONENT (tag: $TAG)"
-            echo "components=[\"$COMPONENT\"]" >> $GITHUB_OUTPUT
+            # Output as JSON array using multiline format for consistency
+            {
+              echo "components<<EOF"
+              echo "[\"$COMPONENT\"]"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
           else
             # New release: use components detected from release-please
-            COMPONENTS="${{ needs.release-please.outputs.components }}"
-            echo "Release-please components output: '$COMPONENTS'"
-            echo "Release-please result: ${{ needs.release-please.result }}"
-            
-            if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "[]" && "$COMPONENTS" != "" ]]; then
-              # Validate and ensure COMPONENTS is valid JSON array
-              # If it's not valid JSON, try to parse it as a space-separated list and convert to JSON
-              if echo "$COMPONENTS" | jq -e . >/dev/null 2>&1; then
-                # Valid JSON, use as-is
-                COMPONENTS_JSON="$COMPONENTS"
-              else
-                # Not valid JSON, treat as space-separated list and convert to JSON array
-                echo "⚠️  Components output is not valid JSON, converting from space-separated list"
-                COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
-              fi
-              echo "Setting components for deployment: $COMPONENTS_JSON"
-              echo "components=$COMPONENTS_JSON" >> $GITHUB_OUTPUT
-            else
-              echo "No components to deploy (no releases were created)"
-              echo "This is expected if a release PR already exists and was just updated"
+            # Check if release-please job ran (it might be skipped for workflow_dispatch without redeploy_tag)
+            if [[ "${{ needs.release-please.result }}" == "skipped" ]]; then
+              echo "Release-please job was skipped (likely workflow_dispatch without redeploy_tag)"
+              echo "No components to deploy"
               echo "components=[]" >> $GITHUB_OUTPUT
+            else
+              COMPONENTS="${{ needs.release-please.outputs.components }}"
+              echo "Release-please components output: '$COMPONENTS'"
+              echo "Release-please result: ${{ needs.release-please.result }}"
+              
+              if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "[]" && "$COMPONENTS" != "" ]]; then
+                # Validate and ensure COMPONENTS is valid JSON array
+                # The components output from release-please job should already be a JSON array string
+                if echo "$COMPONENTS" | jq -e . >/dev/null 2>&1; then
+                  # Valid JSON, ensure it's a proper array
+                  COMPONENTS_JSON=$(echo "$COMPONENTS" | jq -c '.')
+                  # Verify it's an array
+                  if echo "$COMPONENTS_JSON" | jq -e 'type == "array"' >/dev/null 2>&1; then
+                    echo "✅ Components is valid JSON array: $COMPONENTS_JSON"
+                  else
+                    # Not an array, try to wrap it or convert
+                    echo "⚠️  Components is JSON but not an array, converting"
+                    # If it's a single string value, wrap it in an array
+                    COMPONENTS_JSON=$(echo "$COMPONENTS_JSON" | jq -R . | jq -s -c '.')
+                  fi
+                else
+                  # Not valid JSON, treat as space-separated list and convert to JSON array
+                  echo "⚠️  Components output is not valid JSON, converting from space-separated list"
+                  COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+                fi
+                echo "Setting components for deployment: $COMPONENTS_JSON"
+                # Verify it's a valid JSON array before outputting
+                if ! echo "$COMPONENTS_JSON" | jq -e 'type == "array"' >/dev/null 2>&1; then
+                  echo "::error::Components JSON is not a valid array: $COMPONENTS_JSON"
+                  exit 1
+                fi
+                # Output as JSON array string - fromJSON() will parse this correctly in the matrix
+                # Use multiline format to ensure proper handling of JSON (same as workflow_dispatch path)
+                {
+                  echo "components<<EOF"
+                  echo "$COMPONENTS_JSON"
+                  echo "EOF"
+                } >> $GITHUB_OUTPUT
+              else
+                echo "No components to deploy (no releases were created)"
+                echo "This is expected if a release PR already exists and was just updated"
+                echo "components=[]" >> $GITHUB_OUTPUT
+              fi
             fi
           fi
           echo "=============================="
@@ -197,6 +231,15 @@ jobs:
         id: plugin_info
         run: |
           COMPONENT="${{ matrix.component }}"
+          
+          # Debug: Check if component has brackets (indicates JSON parsing issue)
+          if [[ "$COMPONENT" =~ ^\[.*\]$ ]]; then
+            echo "::error::Component appears to be a JSON array string instead of component name: $COMPONENT"
+            echo "This indicates the matrix component parsing failed. Expected component name, got: $COMPONENT"
+            echo "Components output was: ${{ needs.detect-deploy-components.outputs.components }}"
+            exit 1
+          fi
+          
           PACKAGE_PATH="plugins/${COMPONENT}"
 
           # Map component name to WordPress.org slug
