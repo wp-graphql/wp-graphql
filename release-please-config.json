@@ -5,6 +5,11 @@
 			"release-type": "simple",
 			"component": "wp-graphql",
 			"package-name": "wp-graphql",
+			"constantMap": {
+				"constantName": "WPGRAPHQL_VERSION",
+				"fileName": "constants.php",
+				"mainPluginFile": "wp-graphql.php"
+			},
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
@@ -81,6 +86,11 @@
 			"release-type": "simple",
 			"component": "wp-graphql-smart-cache",
 			"package-name": "wp-graphql-smart-cache",
+			"constantMap": {
+				"constantName": "WPGRAPHQL_SMART_CACHE_VERSION",
+				"fileName": "wp-graphql-smart-cache.php",
+				"mainPluginFile": "wp-graphql-smart-cache.php"
+			},
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
@@ -142,6 +152,11 @@
 			"release-type": "simple",
 			"component": "wp-graphql-ide",
 			"package-name": "wp-graphql-ide",
+			"constantMap": {
+				"constantName": "WPGRAPHQL_IDE_VERSION",
+				"fileName": "wpgraphql-ide.php",
+				"mainPluginFile": "wpgraphql-ide.php"
+			},
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
