@@ -11,12 +11,15 @@
     "test:lint": "faust lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "prebuild": "npm run generate",
+    "test:build-without-possibletypes": "node scripts/test-build-without-possibletypes.js",
     "postbuild": "next-sitemap",
     "predev": "npm run generate",
     "format": "npm run test:format -- --write",
     "generate": "faust generatePossibleTypes",
-    "prepare": "husky install"
+    "ensure-possibletypes": "node scripts/ensure-possibletypes.js",
+    "postinstall": "npm run ensure-possibletypes",
+    "prepare": "husky install",
+    "prebuild": "npm run ensure-possibletypes && npm run generate && npm run ensure-possibletypes"
   },
   "browserslist": [
     "> 1%"
