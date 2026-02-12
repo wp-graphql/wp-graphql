@@ -213,6 +213,11 @@
 			"release-type": "simple",
 			"component": "wp-graphql-acf",
 			"package-name": "wp-graphql-acf",
+			"constantMap": {
+				"constantName": "WPGRAPHQL_FOR_ACF_VERSION",
+				"fileName": "wpgraphql-acf.php",
+				"mainPluginFile": "wpgraphql-acf.php"
+			},
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
