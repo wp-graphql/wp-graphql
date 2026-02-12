@@ -63,13 +63,21 @@ abstract class AcfFieldCest {
 			$I->importJson( $json_file );
 			self::$json_imported[$import_key] = true;
 			
-			// Extract field group title from JSON file for caching
-			$field_group_title = $this->_getFieldGroupTitle( $json_file );
-			if ( $field_group_title ) {
-				self::$field_group_titles[$test_class] = $field_group_title;
+			// Extract field group title and key from JSON file for caching
+			$field_group_data = $this->_getFieldGroupData( $json_file );
+			if ( $field_group_data && isset( $field_group_data['title'] ) ) {
+				self::$field_group_titles[$test_class] = $field_group_data['title'];
 				
 				// Cache the field group post ID for faster navigation
-				$field_group_id = $I->getFieldGroupPostId( $field_group_title );
+				// Use the field group key to find the correct one (more reliable than title)
+				$field_group_id = null;
+				if ( isset( $field_group_data['key'] ) ) {
+					$field_group_id = $I->getFieldGroupPostIdByKey( $field_group_data['key'] );
+				}
+				// Fallback to title lookup if key lookup fails
+				if ( ! $field_group_id ) {
+					$field_group_id = $I->getFieldGroupPostId( $field_group_data['title'] );
+				}
 				if ( $field_group_id ) {
 					self::$field_group_post_ids[$test_class] = $field_group_id;
 				}
@@ -89,6 +97,14 @@ abstract class AcfFieldCest {
 		if ( $field_group_id ) {
 			// Navigate directly to the field group edit page
 			$I->amOnPage( '/wp-admin/post.php?post=' . $field_group_id . '&action=edit' );
+			
+			// Check if we got redirected back to the list page
+			$current_url = $I->grabFromCurrentUrl();
+			if ( strpos( $current_url, 'edit.php?post_type=acf-field-group' ) !== false ) {
+				// We were redirected - try clicking the field group link instead
+				$field_group_title = self::$field_group_titles[$test_class] ?? 'Foo Name';
+				$I->click( $field_group_title );
+			}
 		} else {
 			// Fallback: navigate through the list page (slower)
 			$I->amOnPage( '/wp-admin/edit.php?post_type=acf-field-group' );
@@ -98,11 +114,109 @@ abstract class AcfFieldCest {
 		}
 
 		// Click edit on the field
-		$I->click( '//div[@data-key="' . $this->_getTestFieldKey() . '"]//a[@title="Edit field"]' );
+		// Codeception functional tests handle page loads automatically
+		
+		// Verify we're on the field group edit page before trying to click the field
+		// Try multiple ways to verify we're on the edit page (ACF UI may have changed)
+		$on_edit_page = false;
+		$edit_page_indicators = [
+			'Edit Field Group',
+			'Field Group',
+			'Foo Name', // The field group title should be visible
+		];
+		
+		foreach ( $edit_page_indicators as $indicator ) {
+			try {
+				$I->see( $indicator );
+				$on_edit_page = true;
+				break;
+			} catch ( \Exception $e ) {
+				continue;
+			}
+		}
+		
+		if ( ! $on_edit_page ) {
+			// If we can't verify we're on the edit page, log details and try to continue anyway
+			// Don't throw - just log and continue, as the page might be correct but UI changed
+		}
+		
+		// Original check for backward compatibility
+		try {
+			$I->see( 'Edit Field Group' );
+		} catch ( \Exception $e ) {
+			// If we're not on the edit page, log the current URL for debugging
+			$current_url = $I->grabFromCurrentUrl();
+			codecept_debug( 'Not on field group edit page. Current URL: ' . $current_url );
+			throw $e;
+		}
+		
+		try {
+			$I->click( '//div[@data-key="' . $this->_getTestFieldKey() . '"]//a[@title="Edit field"]' );
+		} catch ( \Exception $e ) {
+			throw $e;
+		}
 
 		// Select the "Field Type" that we want to test against
 		// This xpath finds the "Field Type" select for the field we're testing against to keep things constant
-		$I->selectOption( '//div[@data-key="' . $this->_getTestFieldKey() . '"]//select[contains(concat(" ", @class, " "), " field-type ")]', $field_type );
+		
+		// First, check if the field is already the correct type
+		// For ACF Extended fields, the field type might be locked and not changeable
+		$page_source = $I->grabPageSource();
+		$field_already_correct_type = false;
+		// Check if the field type is already set correctly by looking for data-type attribute
+		if ( preg_match('/data-key="' . preg_quote($this->_getTestFieldKey(), '/') . '"[^>]*data-type="' . preg_quote($field_type, '/') . '"/', $page_source) ) {
+			$field_already_correct_type = true;
+		}
+		// Also check for type input value or selected option
+		if ( ! $field_already_correct_type ) {
+			// Check for input with name containing [type] and value matching
+			if ( preg_match('/<input[^>]*name="[^"]*\[type\][^"]*"[^>]*value="' . preg_quote($field_type, '/') . '"/', $page_source) ) {
+				$field_already_correct_type = true;
+			}
+			// Check for select option with value matching and selected attribute
+			if ( ! $field_already_correct_type && preg_match('/<select[^>]*name="[^"]*\[type\][^"]*"[^>]*>.*?<option[^>]*value="' . preg_quote($field_type, '/') . '"[^>]*selected/i', $page_source) ) {
+				$field_already_correct_type = true;
+			}
+		}
+		
+		// If field is already the correct type, skip selection
+		if ( $field_already_correct_type ) {
+			// Field is already correct type, skip selection
+		} else {
+			// Field type needs to be selected - try to find and use the field type select
+			try {
+				$field_type_select_selector = '//div[@data-key="' . $this->_getTestFieldKey() . '"]//select[contains(concat(" ", @class, " "), " field-type ")]';
+				
+				// Check if the select element exists (seeElement throws if not found)
+				$I->seeElement( $field_type_select_selector );
+				
+				// Get available options
+				$available_options = $I->grabMultiple( $field_type_select_selector . '//option/@value' );
+				
+				// Check if the field type is available
+				if ( ! in_array( $field_type, $available_options, true ) ) {
+					// Field type not available - this might be an ACF Extended field that's locked
+					// Check again if field is correct type (might have been missed in initial check)
+					$page_source_after = $I->grabPageSource();
+					$field_still_correct = false;
+					if ( preg_match('/data-key="' . preg_quote($this->_getTestFieldKey(), '/') . '"[^>]*data-type="' . preg_quote($field_type, '/') . '"/', $page_source_after) ) {
+						$field_still_correct = true;
+					}
+					
+					if ( $field_still_correct ) {
+						// Field is already correct type, just not available in dropdown (locked field)
+						// Skip selection
+					} else {
+						throw new \Exception( 'Field type "' . $field_type . '" not available in dropdown. Available types: ' . implode( ', ', $available_options ) );
+					}
+				} else {
+					$I->selectOption( $field_type_select_selector, $field_type );
+				}
+			} catch ( \Exception $e ) {
+				// Field type select not found or selection failed
+				throw $e;
+			}
+		}
 
 		// For ACF 6.1+, GraphQL fields are in a tab - click the GraphQL tab if it exists
 		// Try multiple selectors to find the GraphQL tab button
@@ -117,8 +231,7 @@ abstract class AcfFieldCest {
 			try {
 				$I->seeElement( $selector );
 				$I->click( $selector );
-				// Reduced wait time - 0.3s should be enough for tab content to load (was 1s)
-				$I->wait( 0.3 );
+				// Codeception handles page loads automatically - no need for explicit wait
 				$tab_clicked = true;
 				break;
 			} catch ( \Exception $e ) {
@@ -146,7 +259,7 @@ abstract class AcfFieldCest {
 		// Skip cleanup if already done for this class
 		$test_class = get_class($this);
 		$cleanup_key = $test_class;
-		
+
 		if ( isset( self::$cleanup_done[$cleanup_key] ) ) {
 			return;
 		}
@@ -154,17 +267,17 @@ abstract class AcfFieldCest {
 		$I->loginAsAdmin();
 		$I->amOnPage('/wp-admin/edit.php?post_type=acf-field-group');
 		
-		// Use a more specific selector that targets the row containing "Foo Name"
-		// This is more robust than just selecting the first checkbox
-		// The selector looks for a row containing "Foo Name" and then finds its checkbox
-		// Updated selector to be more flexible with ACF UI changes
-		$checkbox_selector = '//tr[contains(., "Foo Name")]//th[contains(@class, "check-column")]//input[@type="checkbox"]';
+		// Use cached field group title or fallback to "Foo Name"
+		$field_group_title = self::$field_group_titles[$test_class] ?? 'Foo Name';
+		
+		// Use a more specific selector that targets the row containing the field group title
+		$checkbox_selector = '//tr[contains(., "' . $field_group_title . '")]//th[contains(@class, "check-column")]//input[@type="checkbox"]';
 		
 		// Try the specific selector first, fall back to first row if that fails
 		try {
 			$I->checkOption( $checkbox_selector );
 		} catch ( \Exception $e ) {
-			// Fallback: try to select the first checkbox if "Foo Name" selector doesn't work
+			// Fallback: try to select the first checkbox if the field group title selector doesn't work
 			// This handles edge cases where the field group might have a different name or structure
 			$I->checkOption( '//tbody/tr[1]//th[contains(@class, "check-column")]//input[@type="checkbox"]' );
 		}
@@ -210,12 +323,12 @@ abstract class AcfFieldCest {
 	}
 
 	/**
-	 * Extract the field group title from a JSON file
+	 * Extract the field group data (title and key) from a JSON file
 	 * 
 	 * @param string $json_file The JSON file path relative to tests/_data/
-	 * @return string|null The field group title or null if not found
+	 * @return array|null The field group data (title, key) or null if not found
 	 */
-	protected function _getFieldGroupTitle( string $json_file ): ?string {
+	protected function _getFieldGroupData( string $json_file ): ?array {
 		$json_path = __DIR__ . '/../../_data/' . $json_file;
 		if ( ! file_exists( $json_path ) ) {
 			return null;
@@ -229,13 +342,19 @@ abstract class AcfFieldCest {
 		}
 		
 		// Handle array of field groups (most common case)
-		if ( isset( $json_data[0] ) && is_array( $json_data[0] ) && isset( $json_data[0]['title'] ) ) {
-			return $json_data[0]['title'];
+		if ( isset( $json_data[0] ) && is_array( $json_data[0] ) ) {
+			return [
+				'title' => $json_data[0]['title'] ?? null,
+				'key' => $json_data[0]['key'] ?? null,
+			];
 		}
 		
 		// Handle single field group object
 		if ( isset( $json_data['title'] ) ) {
-			return $json_data['title'];
+			return [
+				'title' => $json_data['title'],
+				'key' => $json_data['key'] ?? null,
+			];
 		}
 		
 		return null;

@@ -1,9 +1,11 @@
 # Codeception Test Suite Configuration
 #
-# Suite for functional tests
-# Emulate web requests and make WordPress process them
+# Suite for acceptance tests.
+# Perform tests in browser using the WPWebDriver or WPBrowser.
+# Use WPDb to set up your initial database fixture.
+# If you need both WPWebDriver and WPBrowser tests - create a separate suite.
 
-actor: FunctionalTester
+actor: AcceptanceTester
 modules:
   enabled:
     - Asserts
@@ -11,7 +13,6 @@ modules:
     - lucatume\WPBrowser\Module\WPBrowser
     - lucatume\WPBrowser\Module\WPDb
     - lucatume\WPBrowser\Module\WPLoader
-    - Helper\Utils
   config:
     lucatume\WPBrowser\Module\WPDb:
       cleanup: false

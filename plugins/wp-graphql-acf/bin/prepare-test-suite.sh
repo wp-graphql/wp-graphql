@@ -13,10 +13,16 @@ ACTIVATE_PLUGINS_YAML=""
 
 # Start with required plugins
 # Note: Plugin directory is wp-graphql-acf, file is wpgraphql-acf.php
-PLUGINS_YAML="        - wp-graphql/wp-graphql.php"$'\n'"        - wp-graphql-acf/wpgraphql-acf.php"
-ACTIVATE_PLUGINS_YAML="        - wp-graphql/wp-graphql.php"$'\n'"        - wp-graphql-acf/wpgraphql-acf.php"
+# IMPORTANT: Activation order matters!
+# 1. WPGraphQL must be activated first
+# 2. ACF must be activated before wp-graphql-acf (wp-graphql-acf requires ACF to be active)
+# 3. wp-graphql-acf can then be activated
+# 4. ACF Extended (if present) can be activated last
 
-# Add ACF plugins if detected
+PLUGINS_YAML="        - wp-graphql/wp-graphql.php"
+ACTIVATE_PLUGINS_YAML="        - wp-graphql/wp-graphql.php"
+
+# Add ACF plugins if detected (must be before wp-graphql-acf)
 if [ -n "$ACF_PLUGIN_SLUG" ]; then
   PLUGINS_YAML="${PLUGINS_YAML}"$'\n'"        - ${ACF_PLUGIN_SLUG}"
   ACTIVATE_PLUGINS_YAML="${ACTIVATE_PLUGINS_YAML}"$'\n'"        - ${ACF_PLUGIN_SLUG}"
@@ -28,6 +34,11 @@ else
   echo "" >&2
 fi
 
+# Add wp-graphql-acf (must be after ACF)
+PLUGINS_YAML="${PLUGINS_YAML}"$'\n'"        - wp-graphql-acf/wpgraphql-acf.php"
+ACTIVATE_PLUGINS_YAML="${ACTIVATE_PLUGINS_YAML}"$'\n'"        - wp-graphql-acf/wpgraphql-acf.php"
+
+# Add ACF Extended if detected (can be last)
 if [ -n "$ACF_EXTENDED_PLUGIN_SLUG" ]; then
   PLUGINS_YAML="${PLUGINS_YAML}"$'\n'"        - ${ACF_EXTENDED_PLUGIN_SLUG}"
   ACTIVATE_PLUGINS_YAML="${ACTIVATE_PLUGINS_YAML}"$'\n'"        - ${ACF_EXTENDED_PLUGIN_SLUG}"
@@ -78,6 +89,44 @@ modules:
     - lucatume\WPBrowser\Module\WPBrowser
     - lucatume\WPBrowser\Module\WPDb
     - lucatume\WPBrowser\Module\WPLoader
+    - Helper\Utils
+  config:
+    lucatume\WPBrowser\Module\WPDb:
+      cleanup: false
+    lucatume\WPBrowser\Module\WPLoader:
+      wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
+      dbName: '%TEST_DB_NAME%'
+      dbHost: '%TEST_DB_HOST%'
+      dbUser: '%TEST_DB_USER%'
+      dbPassword: '%TEST_DB_PASSWORD%'
+      tablePrefix: '%TEST_WP_TABLE_PREFIX%'
+      domain: '%TEST_WP_DOMAIN%'
+      adminEmail: '%TEST_ADMIN_EMAIL%'
+      multisite: '%MULTISITE%'
+      title: 'Test'
+      theme: '%TEST_THEME%'
+      plugins:
+${PLUGINS_YAML}
+      activatePlugins:
+${ACTIVATE_PLUGINS_YAML}
+      configFile: 'tests/_data/config.php'
+bootstrap: bootstrap.php
+EOF
+
+# Create acceptance suite file
+ACCEPTANCE_SUITE_FILE="tests/acceptance.suite.yml"
+cat > "$ACCEPTANCE_SUITE_FILE" << EOF
+# Codeception Test Suite Configuration
+# Auto-generated - includes detected ACF plugins
+# This file extends codeception.dist.yml and overrides only the WPLoader plugins list
+actor: AcceptanceTester
+modules:
+  enabled:
+    - Asserts
+    - REST
+    - lucatume\WPBrowser\Module\WPBrowser
+    - lucatume\WPBrowser\Module\WPDb
+    - lucatume\WPBrowser\Module\WPLoader
   config:
     lucatume\WPBrowser\Module\WPDb:
       cleanup: false
@@ -102,4 +151,4 @@ ${ACTIVATE_PLUGINS_YAML}
 bootstrap: bootstrap.php
 EOF
 
-echo "Created $WPUNIT_SUITE_FILE and $FUNCTIONAL_SUITE_FILE with plugins: wp-graphql/wp-graphql.php wpgraphql-acf/wpgraphql-acf.php${ACF_PLUGIN_SLUG:+ }${ACF_PLUGIN_SLUG}${ACF_EXTENDED_PLUGIN_SLUG:+ }${ACF_EXTENDED_PLUGIN_SLUG}"
+echo "Created $WPUNIT_SUITE_FILE, $FUNCTIONAL_SUITE_FILE, and $ACCEPTANCE_SUITE_FILE with plugins: wp-graphql/wp-graphql.php wpgraphql-acf/wpgraphql-acf.php${ACF_PLUGIN_SLUG:+ }${ACF_PLUGIN_SLUG}${ACF_EXTENDED_PLUGIN_SLUG:+ }${ACF_EXTENDED_PLUGIN_SLUG}"

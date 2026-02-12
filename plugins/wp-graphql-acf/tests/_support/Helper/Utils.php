@@ -55,6 +55,63 @@ class Utils extends \Codeception\Module
 			return false;
 		}
 	}
+
+	/**
+	 * Get the post ID of a field group by its ACF key (more reliable than title)
+	 * 
+	 * @param string $key The field group key (e.g., 'group_63d2bb751c4f6')
+	 * @return int|false The post ID or false if not found
+	 */
+	public function getFieldGroupPostIdByKey( $key ) {
+		try {
+			// ACF stores the field group key in the post_name field
+			// This is the most reliable way to find the correct field group
+			$post_id = $this->getWPDb()->grabFromDatabase(
+				$this->getWPDb()->grabPrefixedTableNameFor( 'posts' ),
+				'ID',
+				[
+					'post_name' => $key,
+					'post_type' => 'acf-field-group',
+					'post_status' => 'publish'
+				]
+			);
+			if ( $post_id ) {
+				return (int) $post_id;
+			}
+			
+			// Fallback: Try postmeta (less reliable, but some ACF versions might use it)
+			$possible_keys = [
+				'acf_field_group_key',
+				'_acf_field_group_key',
+				'field_group_key',
+				'_field_group_key',
+			];
+			
+			foreach ( $possible_keys as $meta_key ) {
+				try {
+					$post_id = $this->getWPDb()->grabFromDatabase(
+						$this->getWPDb()->grabPrefixedTableNameFor( 'postmeta' ),
+						'post_id',
+						[
+							'meta_key' => $meta_key,
+							'meta_value' => $key
+						]
+					);
+					if ( $post_id ) {
+						return (int) $post_id;
+					}
+				} catch ( \Exception $e ) {
+					// Try next meta_key
+					continue;
+				}
+			}
+			
+			return false;
+		} catch ( \Exception $e ) {
+			// If query fails, return false (fallback to title lookup)
+			return false;
+		}
+	}
 	
 	/**
 	 * @return bool

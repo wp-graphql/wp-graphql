@@ -294,6 +294,28 @@
                 "placeholder": "",
                 "return_format": "number",
                 "geolocation_token": ""
+            },
+            {
+                "key": "field_6449a1432046d",
+                "label": "ACFE Date Range Picker",
+                "name": "acfe_date_range_picker",
+                "aria-label": "",
+                "type": "acfe_date_range_picker",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "acfe_save_meta": 0,
+                "display_format": "d/m/Y",
+                "return_format": "Ymd",
+                "first_day": 1,
+                "show_in_graphql": 1,
+                "graphql_description": "",
+                "graphql_field_name": "acfeDateRangePicker"
             }
         ],
         "location": [
