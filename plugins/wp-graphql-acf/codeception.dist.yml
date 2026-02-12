@@ -6,7 +6,6 @@ paths:
   envs: tests/_envs
 params:
   - env
-  - .env
 actor_suffix: Tester
 settings:
   colors: true
