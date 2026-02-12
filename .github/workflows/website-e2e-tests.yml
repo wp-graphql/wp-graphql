@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report-wpgraphql-com
           path: websites/wpgraphql.com/playwright-report/
@@ -147,7 +147,7 @@ jobs:
 
       - name: Upload test artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-artifacts-wpgraphql-com
           path: websites/wpgraphql.com/test-results/
