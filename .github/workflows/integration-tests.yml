@@ -445,9 +445,9 @@ jobs:
       multisite: ${{ matrix.multisite }}
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
-      acf_pro: ${{ matrix.acf_pro || false }}
-      acf_extended: ${{ matrix.acf_extended || false }}
-      acf_extended_pro: ${{ matrix.acf_extended_pro || false }}
+      acf_pro: ${{ matrix.acf_pro && 'true' || 'false' }}
+      acf_extended: ${{ matrix.acf_extended && 'true' || 'false' }}
+      acf_extended_pro: ${{ matrix.acf_extended_pro && 'true' || 'false' }}
 
   # ===========================================
   # FINAL STATUS CHECK

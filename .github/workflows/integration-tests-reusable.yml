@@ -41,25 +41,25 @@ on:
         type: boolean
         default: false
       acf_pro:
-        description: 'Whether to install ACF Pro (requires ACF_LICENSE_KEY secret)'
+        description: "Whether to install ACF Pro (requires ACF_LICENSE_KEY secret). Pass 'true' or 'false'."
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
       acf_version:
         description: 'Specific ACF version to install (optional, defaults to latest)'
         required: false
         type: string
         default: ''
       acf_extended:
-        description: 'Whether to install ACF Extended Free'
+        description: "Whether to install ACF Extended. Pass 'true' or 'false'."
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
       acf_extended_pro:
-        description: 'Whether to install ACF Extended Pro (requires ACF_EXTENDED_LICENSE_KEY secret)'
+        description: "Whether to install ACF Extended Pro (requires ACF_EXTENDED_LICENSE_KEY secret). Pass 'true' or 'false'."
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
       wpgraphql_content_blocks:
         description: 'Whether to install WPGraphQL Content Blocks'
         required: false
@@ -158,7 +158,7 @@ jobs:
       - name: Install ACF plugins (if configured)
         # Always install ACF for wp-graphql-acf plugin (it's required)
         # For other plugins, only install if explicitly requested
-        if: inputs.plugin_name == 'wp-graphql-acf' || inputs.acf_pro == true || inputs.acf_extended == true || inputs.wpgraphql_content_blocks == true
+        if: inputs.plugin_name == 'wp-graphql-acf' || inputs.acf_pro == 'true' || inputs.acf_extended == 'true' || inputs.wpgraphql_content_blocks == true
         env:
           ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
           ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
@@ -195,7 +195,8 @@ jobs:
           # Otherwise install ACF Extended Free
           # Use PHP to parse JSON (PHP is available in WordPress containers, more reliable than jq)
           ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
-          if [ "$INPUT_ACF_EXTENDED" = "true" ]; then
+          # Install ACF Extended when requested OR for wp-graphql-acf (functional tests expect it)
+          if [ "$INPUT_ACF_EXTENDED" = "true" ] || [ "$INPUT_PLUGIN_NAME" = "wp-graphql-acf" ]; then
             # If ACF Pro is installed, automatically try ACF Extended Pro (if license key available)
             # This matches the behavior of the local install-acf.sh script
             if [ "$INPUT_ACF_PRO" = "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then

@@ -55,6 +55,21 @@ if ( ! function_exists( 'graphql_acf_init' ) ) {
 		$wp_graphql_acf = new \WPGraphQLAcf();
 		add_action( 'plugins_loaded', [ $wp_graphql_acf, 'init' ], 50 );
 	}
+
+	/**
+	 * Load plugin text domain at init so translations are loaded at the correct time (WordPress 6.7+).
+	 * Prevents _load_textdomain_just_in_time "triggered too early" notice.
+	 *
+	 * @return void
+	 */
+	function graphql_acf_load_textdomain() {
+		load_plugin_textdomain(
+			'wpgraphql-acf',
+			false,
+			dirname( plugin_basename( __FILE__ ) ) . '/languages'
+		);
+	}
+	add_action( 'init', 'graphql_acf_load_textdomain', 0 );
 }
 graphql_acf_init();
 

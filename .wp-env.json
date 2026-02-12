@@ -1,47 +1,45 @@
 {
-	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
-	"core": null,
-	"plugins": [
-		"./plugins/wp-graphql",
-		"./plugins/wp-graphql-smart-cache",
-		"./plugins/wp-graphql-ide",
-		"./plugins/wp-graphql-acf"
-	],
-	"themes": [
-		"https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip",
-		"https://downloads.wordpress.org/theme/twentytwentyfive.latest-stable.zip"
-	],
-	"env": {
-		"development": {
-			"config": {
-				"WP_DEBUG_LOG": "/var/www/html/wp-content/plugins/wp-graphql/tests/_output/debug.log",
-				"WP_DEVELOPMENT_MODE": "plugin",
-				"WP_DEBUG_DISPLAY": false
-			}
-		},
-		"tests": {
-			"plugins": [
-				"./plugins/wp-graphql",
-				"./plugins/wp-graphql-smart-cache",
-				"./plugins/wp-graphql-ide",
-				"./plugins/wp-graphql-acf",
-				"./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
-			],
-			"config": {
-				"FS_METHOD": "direct",
-				"WP_DEBUG_DISPLAY": false
-			},
-			"mappings": {
-				"/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
-				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist",
-				"/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache",
-				"/wp-content/plugins/wp-graphql-ide": "./plugins/wp-graphql-ide",
-				"/wp-content/plugins/wp-graphql-acf": "./plugins/wp-graphql-acf",
-				"/var/www/html/tests": "./tests"
-			}
-		}
-	},
-	"lifecycleScripts": {
-		"afterStart": "bash bin/setup-wp-env.sh"
-	}
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "core": null,
+  "plugins": [
+    "./plugins/wp-graphql",
+    "./plugins/wp-graphql-smart-cache",
+    "./plugins/wp-graphql-ide",
+    "./plugins/wp-graphql-acf"
+  ],
+  "themes": [
+    "https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip",
+    "https://downloads.wordpress.org/theme/twentytwentyfive.latest-stable.zip"
+  ],
+  "env": {
+    "development": {
+      "config": {
+        "WP_DEBUG_LOG": "/var/www/html/wp-content/plugins/wp-graphql/tests/_output/debug.log",
+        "WP_DEVELOPMENT_MODE": "plugin"
+      }
+    },
+    "tests": {
+      "plugins": [
+        "./plugins/wp-graphql",
+        "./plugins/wp-graphql-smart-cache",
+        "./plugins/wp-graphql-ide",
+        "./plugins/wp-graphql-acf",
+        "./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
+      ],
+      "config": {
+        "FS_METHOD": "direct"
+      },
+      "mappings": {
+        "/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
+        "/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist",
+        "/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache",
+        "/wp-content/plugins/wp-graphql-ide": "./plugins/wp-graphql-ide",
+        "/wp-content/plugins/wp-graphql-acf": "./plugins/wp-graphql-acf",
+        "/var/www/html/tests": "./tests"
+      }
+    }
+  },
+  "lifecycleScripts": {
+    "afterStart": "bash bin/setup-wp-env.sh"
+  }
 }
