@@ -15,7 +15,8 @@
 		"development": {
 			"config": {
 				"WP_DEBUG_LOG": "/var/www/html/wp-content/plugins/wp-graphql/tests/_output/debug.log",
-				"WP_DEVELOPMENT_MODE": "plugin"
+				"WP_DEVELOPMENT_MODE": "plugin",
+				"WP_DEBUG_DISPLAY": false
 			}
 		},
 		"tests": {
