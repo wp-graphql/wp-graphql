@@ -158,16 +158,22 @@ jobs:
       - name: Install ACF plugins (if configured)
         # Always install ACF for wp-graphql-acf plugin (it's required)
         # For other plugins, only install if explicitly requested
-        if: inputs.plugin_name == 'wp-graphql-acf' || inputs.acf_pro == 'true' || inputs.acf_extended == 'true' || inputs.wpgraphql_content_blocks == 'true'
+        if: inputs.plugin_name == 'wp-graphql-acf' || inputs.acf_pro == true || inputs.acf_extended == true || inputs.wpgraphql_content_blocks == true
         env:
           ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
           ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
+          # Pass boolean inputs via env so shell conditions work reliably (workflow_call booleans)
+          INPUT_ACF_PRO: ${{ inputs.acf_pro }}
+          INPUT_ACF_EXTENDED: ${{ inputs.acf_extended }}
+          INPUT_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
+          INPUT_PLUGIN_NAME: ${{ inputs.plugin_name }}
         run: |
           echo "Installing ACF plugins based on configuration..."
+          echo "  INPUT_ACF_PRO=$INPUT_ACF_PRO INPUT_ACF_EXTENDED=$INPUT_ACF_EXTENDED INPUT_ACF_EXTENDED_PRO=$INPUT_ACF_EXTENDED_PRO"
           
           # Determine ACF plugin slug based on Pro/Free
           ACF_PLUGIN_SLUG="advanced-custom-fields/acf.php"
-          if [ "${{ inputs.acf_pro }}" == "true" ] && [ -n "$ACF_LICENSE_KEY" ] && [ "$ACF_LICENSE_KEY" != "" ]; then
+          if [ "$INPUT_ACF_PRO" = "true" ] && [ -n "$ACF_LICENSE_KEY" ] && [ "$ACF_LICENSE_KEY" != "" ]; then
             echo "Installing ACF Pro..."
             ACF_VERSION_PARAM=""
             if [ -n "${{ inputs.acf_version }}" ] && [ "${{ inputs.acf_version }}" != "" ]; then
@@ -175,7 +181,7 @@ jobs:
             fi
             npm run wp-env run tests-cli -- wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_LICENSE_KEY}${ACF_VERSION_PARAM}" --activate --quiet --allow-root
             ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
-          elif [ "${{ inputs.acf_pro }}" == "true" ] || [ "${{ inputs.acf_extended }}" == "true" ] || [ "${{ inputs.wpgraphql_content_blocks }}" == "true" ] || [ "${{ inputs.plugin_name }}" == "wp-graphql-acf" ]; then
+          elif [ "$INPUT_ACF_PRO" = "true" ] || [ "$INPUT_ACF_EXTENDED" = "true" ] || [ "${{ inputs.wpgraphql_content_blocks }}" == "true" ] || [ "$INPUT_PLUGIN_NAME" = "wp-graphql-acf" ]; then
             echo "Installing ACF Free..."
             if [ -n "${{ inputs.acf_version }}" ] && [ "${{ inputs.acf_version }}" != "" ]; then
               npm run wp-env run tests-cli -- wp plugin install advanced-custom-fields --version=${{ inputs.acf_version }} --activate --allow-root
@@ -189,10 +195,10 @@ jobs:
           # Otherwise install ACF Extended Free
           # Use PHP to parse JSON (PHP is available in WordPress containers, more reliable than jq)
           ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
-          if [ "${{ inputs.acf_extended }}" == "true" ]; then
+          if [ "$INPUT_ACF_EXTENDED" = "true" ]; then
             # If ACF Pro is installed, automatically try ACF Extended Pro (if license key available)
             # This matches the behavior of the local install-acf.sh script
-            if [ "${{ inputs.acf_pro }}" == "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
+            if [ "$INPUT_ACF_PRO" = "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
               echo "Installing ACF Extended Pro (matching ACF Pro)..."
               # Use PHP to parse JSON instead of jq (PHP is available in WordPress containers)
               INSTALL_RESULT=$(npm run wp-env run tests-cli -- bash -c "
@@ -220,7 +226,7 @@ jobs:
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
               fi
             # Explicit request for ACF Extended Pro (even with ACF Free) - respect the flag
-            elif [ "${{ inputs.acf_extended_pro }}" == "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
+            elif [ "$INPUT_ACF_EXTENDED_PRO" = "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
               echo "Installing ACF Extended Pro (explicit request)..."
               # Use PHP to parse JSON instead of jq (PHP is available in WordPress containers)
               INSTALL_RESULT=$(npm run wp-env run tests-cli -- bash -c "
@@ -254,7 +260,7 @@ jobs:
           fi
           
           # Install WPGraphQL Content Blocks if requested
-          if [ "${{ inputs.wpgraphql_content_blocks }}" == "true" ]; then
+          if [ "${{ inputs.wpgraphql_content_blocks }}" = "true" ]; then
             echo "Installing WPGraphQL Content Blocks..."
             CONTENT_BLOCKS_VERSION=$(npm run wp-env run tests-cli -- bash -c "curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | jq -r '.tag_name'")
             npm run wp-env run tests-cli -- wp plugin install "https://github.com/wpengine/wp-graphql-content-blocks/releases/download/${CONTENT_BLOCKS_VERSION}/wp-graphql-content-blocks.zip" --activate --allow-root
