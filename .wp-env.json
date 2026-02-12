@@ -28,7 +28,8 @@
 				"./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
 			],
 			"config": {
-				"FS_METHOD": "direct"
+				"FS_METHOD": "direct",
+				"WP_DEBUG_DISPLAY": false
 			},
 			"mappings": {
 				"/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
