@@ -1,6 +1,10 @@
 # Codeception Test Suite Configuration
-# Auto-generated - includes detected ACF plugins
-# This file extends codeception.dist.yml and overrides only the WPLoader plugins list
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WPWebDriver or WPBrowser.
+# Use WPDb to set up your initial database fixture.
+# If you need both WPWebDriver and WPBrowser tests - create a separate suite.
+
 actor: AcceptanceTester
 modules:
   enabled:
@@ -14,26 +18,4 @@ modules:
       cleanup: false
     lucatume\WPBrowser\Module\WPLoader:
       loadOnly: true
-      wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
-      dbName: '%TEST_DB_NAME%'
-      dbHost: '%TEST_DB_HOST%'
-      dbUser: '%TEST_DB_USER%'
-      dbPassword: '%TEST_DB_PASSWORD%'
-      tablePrefix: '%TEST_WP_TABLE_PREFIX%'
-      domain: '%TEST_WP_DOMAIN%'
-      adminEmail: '%TEST_ADMIN_EMAIL%'
-      multisite: '%MULTISITE%'
-      title: 'Test'
-      theme: '%TEST_THEME%'
-      plugins:
-        - wp-graphql/wp-graphql.php
-        - advanced-custom-fields-pro/acf.php
-        - wp-graphql-acf/wpgraphql-acf.php
-        - acf-extended-pro/acf-extended.php
-      activatePlugins:
-        - wp-graphql/wp-graphql.php
-        - advanced-custom-fields-pro/acf.php
-        - wp-graphql-acf/wpgraphql-acf.php
-        - acf-extended-pro/acf-extended.php
-      configFile: 'tests/_data/config.php'
 bootstrap: bootstrap.php
