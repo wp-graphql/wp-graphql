@@ -188,7 +188,15 @@ if [ "$ACF_PRO" == "true" ]; then
     echo "   The download URL may have returned an invalid file" >&2
     exit 1
   fi
-  
+
+  # Activate the license in WordPress so the "Activate your license" notice doesn't show (uses ACF's API).
+  echo "Activating ACF Pro license..."
+  if npm run --prefix ../.. wp-env run tests-cli -- wp eval 'if ( function_exists( "acf_pro_activate_license" ) ) { acf_pro_activate_license( "'"$ACF_LICENSE_KEY"'" ); } elseif ( function_exists( "acf_pro_update_license" ) ) { acf_pro_update_license( "'"$ACF_LICENSE_KEY"'" ); }' 2>/dev/null; then
+    echo "  License activated."
+  else
+    echo "  Note: License activation skipped (ACF may require network). You can activate in ACF > Updates if the notice appears."
+  fi
+
   ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
 else
   echo "Installing ACF Free..."
