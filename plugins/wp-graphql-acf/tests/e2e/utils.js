@@ -84,11 +84,13 @@ export async function importAcfJson(page, filename) {
 }
 
 /**
- * Delete all ACF field groups via the admin list screen (bulk Move to Trash).
- * Use in afterEach so each test suite leaves no field groups behind.
+ * Delete all ACF field groups: bulk Move to Trash, then bulk Delete Permanently from Trash.
+ * Use in afterEach so each test suite leaves no field groups behind and trash does not grow.
  *
  * @param {import('@playwright/test').Page} page
  */
+const BATCH_SIZE = 50;
+
 export async function deleteAllAcfFieldGroups(page) {
 	await visitAdminFacingPage(
 		page,
@@ -96,14 +98,61 @@ export async function deleteAllAcfFieldGroups(page) {
 	);
 
 	const table = page.locator('.wp-list-table').first();
-	// Rows that are real items (exclude the "No items" placeholder row)
 	let rows = table.locator('tbody tr:not(.no-items)');
 
 	while ((await rows.count()) > 0) {
-		await table.locator('thead .check-column input[type="checkbox"]').check();
+		const count = await rows.count();
+		const batchCount = Math.min(BATCH_SIZE, count);
+		for (let i = 0; i < batchCount; i++) {
+			await rows.nth(i).locator('.check-column input[type="checkbox"]').check();
+		}
 		await page.locator('#bulk-action-selector-bottom').selectOption('trash');
 		await page.locator('#doaction2').click();
 		await page.waitForLoadState('networkidle');
 		rows = table.locator('tbody tr:not(.no-items)');
 	}
+
+	// Empty trash so trashed field groups don't accumulate (bulk Delete Permanently).
+	await visitAdminFacingPage(
+		page,
+		`${wpAdminUrl}/edit.php?post_type=acf-field-group&post_status=trash`
+	);
+	const trashTable = page.locator('.wp-list-table').first();
+	rows = trashTable.locator('tbody tr:not(.no-items)');
+	while ((await rows.count()) > 0) {
+		const count = await rows.count();
+		const batchCount = Math.min(BATCH_SIZE, count);
+		for (let i = 0; i < batchCount; i++) {
+			await rows.nth(i).locator('.check-column input[type="checkbox"]').check();
+		}
+		await page.locator('#bulk-action-selector-bottom').selectOption('delete');
+		await page.locator('#doaction2').click();
+		await page.waitForLoadState('networkidle');
+		rows = trashTable.locator('tbody tr:not(.no-items)');
+	}
+}
+
+/**
+ * Execute a GraphQL request (POST /graphql). Use from specs that need to assert on schema or query results.
+ *
+ * @param {import('@playwright/test').APIRequestContext} request - Playwright request fixture (uses project baseURL).
+ * @param {string} query - GraphQL query string.
+ * @param {Record<string, unknown>} [variables] - Optional variables.
+ * @returns {Promise<{ data?: unknown; errors?: unknown }>} Parsed JSON response body.
+ */
+export async function graphqlRequest(request, query, variables = null) {
+	const body = variables ? { query, variables } : { query };
+	const response = await request.post('/graphql', {
+		data: body,
+		headers: { 'Content-Type': 'application/json' },
+	});
+	const text = await response.text();
+	if (!response.ok()) {
+		const excerpt =
+			text.length > 2000 ? `${text.slice(0, 2000)}...` : text;
+		throw new Error(
+			`GraphQL request failed: ${response.status()} ${excerpt || '(empty body)'}`
+		);
+	}
+	return JSON.parse(text);
 }

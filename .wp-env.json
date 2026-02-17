@@ -27,7 +27,9 @@
         "./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
       ],
       "config": {
-        "FS_METHOD": "direct"
+        "FS_METHOD": "direct",
+        "WP_MEMORY_LIMIT": "256M",
+        "WP_MAX_MEMORY_LIMIT": "512M"
       },
       "mappings": {
         "/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
