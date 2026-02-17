@@ -156,3 +156,67 @@ export async function graphqlRequest(request, query, variables = null) {
 	}
 	return JSON.parse(text);
 }
+
+// --- Field group / field edit helpers (Suite 3 – Field types GraphQL UI) ---
+
+/**
+ * Navigate to a field group edit screen by title (from the list).
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {string} [fieldGroupTitle='Foo Name'] - Title of the field group row to click.
+ */
+export async function navigateToFieldGroupEdit(page, fieldGroupTitle = 'Foo Name') {
+	await visitAdminFacingPage(
+		page,
+		`${wpAdminUrl}/edit.php?post_type=acf-field-group`
+	);
+	await page.waitForLoadState('networkidle');
+	const row = page
+		.locator('.wp-list-table tbody tr')
+		.filter({ hasText: fieldGroupTitle })
+		.first();
+	await row.locator('a.row-title').click();
+	await page.waitForLoadState('networkidle');
+	await page.locator('.acf-page-title').waitFor({ state: 'visible' });
+}
+
+/**
+ * On a field group edit page: open the field by key (click "Edit field") and optionally set field type, then open the GraphQL tab.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {string} fieldKey - ACF field key (e.g. field_63d2bb765f5af).
+ * @param {string|null} [fieldType=null] - If set, select this type from the field type dropdown (e.g. 'checkbox').
+ */
+export async function openFieldByKeyAndGraphQLTab(page, fieldKey, fieldType = null) {
+	const panel = page.locator(`div[data-key="${fieldKey}"]`).first();
+	await panel.locator('a[title="Edit field"]').first().click();
+	await page.waitForLoadState('networkidle');
+
+	if (fieldType) {
+		const typeSelect = panel.locator('select.field-type').first();
+		if ((await typeSelect.count()) > 0) {
+			await typeSelect.selectOption(fieldType);
+			await page.waitForLoadState('networkidle');
+		}
+	}
+
+	const graphqlTab = panel.locator('.acf-tab-button', { hasText: 'GraphQL' }).first();
+	if ((await graphqlTab.count()) > 0) {
+		await graphqlTab.click();
+		await page.waitForLoadState('networkidle');
+	}
+}
+
+/**
+ * Submit the field group form (Save). Caller should assert #message.notice-success and no .notice-error.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+export async function submitFieldGroupForm(page) {
+	await page
+		.locator('#submitpost')
+		.locator('#save, button[type="submit"]')
+		.first()
+		.click();
+	await page.waitForLoadState('networkidle');
+}
