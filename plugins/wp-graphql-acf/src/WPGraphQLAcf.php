@@ -26,7 +26,6 @@ class WPGraphQLAcf {
 	protected $registry;
 
 	/**
-	 * @return void
 	 * Initialize the plugin
 	 */
 	public function init(): void {
@@ -61,8 +60,6 @@ class WPGraphQLAcf {
 
 	/**
 	 * Fires the wpgraphql/acf/init action. Called on the init hook so translations load at init or later.
-	 *
-	 * @return void
 	 */
 	public function fire_wpgraphql_acf_init(): void {
 		do_action( 'wpgraphql/acf/init' );
@@ -206,8 +203,6 @@ class WPGraphQLAcf {
 	/**
 	 * Whether the plugin can load. Uses only boolean checks so it is safe to call before the init action
 	 * (avoids triggering translation loading too early for WordPress 6.7+).
-	 *
-	 * @return bool
 	 */
 	public function can_load_plugin(): bool {
 		if ( ! class_exists( 'ACF' ) ) {
