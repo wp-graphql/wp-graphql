@@ -33,7 +33,7 @@ function getDataPath() {
  * @param {import('@playwright/test').Page} page
  */
 export async function loginToWordPressAdmin(page) {
-	await page.goto(`${wpAdminUrl}`, { waitUntil: 'networkidle' });
+	await page.goto(`${wpAdminUrl}`, { waitUntil: 'domcontentloaded' });
 
 	const isLoggedIn = await page.$('#wpadminbar');
 	if (isLoggedIn) {
@@ -43,7 +43,7 @@ export async function loginToWordPressAdmin(page) {
 	await page.fill(selectors.loginUsername, 'admin');
 	await page.fill(selectors.loginPassword, 'password');
 	await page.click(selectors.submitButton);
-	await page.waitForSelector('#wpadminbar');
+	await page.waitForSelector('#wpadminbar', { state: 'visible' });
 }
 
 /**
@@ -51,7 +51,7 @@ export async function loginToWordPressAdmin(page) {
  * @param {string} path
  */
 export async function visitAdminFacingPage(page, path = null) {
-	await page.goto(path ?? wpAdminUrl, { waitUntil: 'networkidle' });
+	await page.goto(path ?? wpAdminUrl, { waitUntil: 'domcontentloaded' });
 }
 
 /**
@@ -80,7 +80,7 @@ export async function importAcfJson(page, filename) {
 		.locator('#acf-admin-tool-import')
 		.getByRole('button', { name: 'Import JSON' })
 		.click();
-	await page.waitForLoadState('networkidle');
+	await page.locator('.notice-success, .wp-list-table tbody tr').first().waitFor({ state: 'visible', timeout: 15000 });
 }
 
 /**
@@ -108,7 +108,7 @@ export async function deleteAllAcfFieldGroups(page) {
 		}
 		await page.locator('#bulk-action-selector-bottom').selectOption('trash');
 		await page.locator('#doaction2').click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForLoadState('load');
 		rows = table.locator('tbody tr:not(.no-items)');
 	}
 
@@ -127,7 +127,7 @@ export async function deleteAllAcfFieldGroups(page) {
 		}
 		await page.locator('#bulk-action-selector-bottom').selectOption('delete');
 		await page.locator('#doaction2').click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForLoadState('load');
 		rows = trashTable.locator('tbody tr:not(.no-items)');
 	}
 }
@@ -170,13 +170,12 @@ export async function navigateToFieldGroupEdit(page, fieldGroupTitle = 'Foo Name
 		page,
 		`${wpAdminUrl}/edit.php?post_type=acf-field-group`
 	);
-	await page.waitForLoadState('networkidle');
+	await page.locator('.wp-list-table tbody tr').first().waitFor({ state: 'visible', timeout: 10000 });
 	const row = page
 		.locator('.wp-list-table tbody tr')
 		.filter({ hasText: fieldGroupTitle })
 		.first();
 	await row.locator('a.row-title').click();
-	await page.waitForLoadState('networkidle');
 	await page.locator('.acf-page-title').waitFor({ state: 'visible' });
 }
 
@@ -190,20 +189,34 @@ export async function navigateToFieldGroupEdit(page, fieldGroupTitle = 'Foo Name
 export async function openFieldByKeyAndGraphQLTab(page, fieldKey, fieldType = null) {
 	const panel = page.locator(`div[data-key="${fieldKey}"]`).first();
 	await panel.locator('a[title="Edit field"]').first().click();
-	await page.waitForLoadState('networkidle');
+	// Wait for the tab bar to load (first tab e.g. General is visible); then we click GraphQL (ACFE can show GraphQL tab as hidden until selected).
+	await panel.locator('.acf-tab-button').first().waitFor({ state: 'visible', timeout: 10000 });
 
 	if (fieldType) {
 		const typeSelect = panel.locator('select.field-type').first();
 		if ((await typeSelect.count()) > 0) {
-			await typeSelect.selectOption(fieldType);
-			await page.waitForLoadState('networkidle');
+			const isSelect2 = await typeSelect.evaluate((el) => el.classList.contains('select2-hidden-accessible'));
+			if (isSelect2) {
+				// Set value via Select2/jQuery so we don't depend on option label (e.g. "Text Area", "True / False", ACFE names).
+				await typeSelect.evaluate((el, value) => {
+					if (typeof jQuery !== 'undefined' && jQuery(el).data('select2')) {
+						jQuery(el).val(value).trigger('change');
+					} else {
+						el.value = value;
+						el.dispatchEvent(new Event('change', { bubbles: true }));
+					}
+				}, fieldType);
+			} else {
+				await typeSelect.selectOption(fieldType);
+			}
+			await panel.locator('.acf-tab-button').first().waitFor({ state: 'visible', timeout: 5000 });
 		}
 	}
 
 	const graphqlTab = panel.locator('.acf-tab-button', { hasText: 'GraphQL' }).first();
 	if ((await graphqlTab.count()) > 0) {
 		await graphqlTab.click();
-		await page.waitForLoadState('networkidle');
+		await panel.locator('[data-name="show_in_graphql"]').first().waitFor({ state: 'visible' });
 	}
 }
 
@@ -218,5 +231,5 @@ export async function submitFieldGroupForm(page) {
 		.locator('#save, button[type="submit"]')
 		.first()
 		.click();
-	await page.waitForLoadState('networkidle');
+	await page.locator('#message.notice-success').waitFor({ state: 'visible', timeout: 10000 });
 }

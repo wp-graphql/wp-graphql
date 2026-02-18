@@ -15,6 +15,11 @@ process.env.STORAGE_STATE_PATH ??= path.join(
 	'storage-states/admin.json'
 );
 
+const storageStatePath = process.env.STORAGE_STATE_PATH ?? path.join(
+	process.env.WP_ARTIFACTS_PATH || path.join(process.cwd(), 'artifacts'),
+	'storage-states/admin.json'
+);
+
 const config = defineConfig({
 	...baseConfig,
 	testDir: path.join(__dirname, 'specs'),
@@ -23,6 +28,13 @@ const config = defineConfig({
 		...baseConfig.webServer,
 		command: 'npm run wp-env -- start',
 	},
+	projects: baseConfig.projects?.map((project) => ({
+		...project,
+		use: {
+			...project.use,
+			storageState: storageStatePath,
+		},
+	})) ?? baseConfig.projects,
 });
 
 module.exports = config;
