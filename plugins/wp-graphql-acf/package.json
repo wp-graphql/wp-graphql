@@ -10,6 +10,13 @@
 	},
 	"license": "GPL-3.0-or-later",
 	"scripts": {
+		"lint": "npm run lint:js && npm run lint:php",
+		"lint:js": "wp-scripts lint-js ./tests/e2e",
+		"lint:js:fix": "wp-scripts lint-js --fix ./tests/e2e",
+		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
+		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
+		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
+		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql-acf/ --",
 		"install-acf": "bash bin/install-acf.sh",
 		"install-acf:pro": "bash bin/install-acf.sh --pro",
 		"install-acf:pro-extended": "bash bin/install-acf.sh --pro --extended-pro",

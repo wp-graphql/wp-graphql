@@ -1,7 +1,6 @@
 parameters:
     level: 8
     inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
     stubFiles:
         # Simulate added properties
@@ -28,3 +27,4 @@ parameters:
         - */node_modules/*
         - */vendor/*
     ignoreErrors:
+        - identifier: missingType.iterableValue

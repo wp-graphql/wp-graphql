@@ -24,8 +24,8 @@ class AcfeDateRangePicker {
 					$node    = $root['node'] ?? null;
 					$node_id = $node ? \WPGraphQL\Acf\Utils::get_node_acf_id( $node ) : null;
 
-					// If node_id is still empty or 0, try to get it from the root directly
-					if ( empty( $node_id ) || 0 === $node_id ) {
+					// If node_id is still empty, try to get it from the root directly
+					if ( empty( $node_id ) ) {
 						$node_id_from_root = \WPGraphQL\Acf\Utils::get_node_acf_id( $root );
 						if ( ! empty( $node_id_from_root ) && 0 !== $node_id_from_root ) {
 							$node_id = $node_id_from_root;
