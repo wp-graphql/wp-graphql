@@ -113,18 +113,19 @@ ${ACTIVATE_PLUGINS_YAML}
 bootstrap: bootstrap.php
 EOF
 
-# Create acceptance suite file (uses WPWebDriver = real browser for JS-heavy ACF admin UI)
+# Create acceptance suite file.
+# Use WPBrowser (same as acceptance.suite.dist.yml and global config) so the suite does not conflict with merged config.
+# No acceptance tests are run currently; this suite exists so the workflow step succeeds.
 ACCEPTANCE_SUITE_FILE="tests/acceptance.suite.yml"
 cat > "$ACCEPTANCE_SUITE_FILE" << EOF
 # Codeception Test Suite Configuration
 # Auto-generated - includes detected ACF plugins
-# Uses WPWebDriver (Chrome) so ACF admin UI and import work with JavaScript
 actor: AcceptanceTester
 modules:
   enabled:
     - Asserts
     - REST
-    - lucatume\WPBrowser\Module\WPWebDriver
+    - lucatume\WPBrowser\Module\WPBrowser
     - lucatume\WPBrowser\Module\WPDb
     - lucatume\WPBrowser\Module\WPLoader
     - Helper\Utils
@@ -149,25 +150,6 @@ ${PLUGINS_YAML}
       activatePlugins:
 ${ACTIVATE_PLUGINS_YAML}
       configFile: 'tests/_data/config.php'
-    lucatume\WPBrowser\Module\WPWebDriver:
-      url: '%TEST_WP_URL%'
-      adminUsername: '%TEST_ADMIN_USERNAME%'
-      adminPassword: '%TEST_ADMIN_PASSWORD%'
-      adminPath: '%TEST_ADMIN_PATH%'
-      browser: chrome
-      host: localhost
-      port: 9515
-      path: /
-      window_size: 1920,1080
-      capabilities:
-        goog:chromeOptions:
-          args:
-            - "--headless=new"
-            - "--disable-gpu"
-            - "--disable-dev-shm-usage"
-            - "--no-sandbox"
-            - "--proxy-server='direct://'"
-            - "--proxy-bypass-list=*"
 bootstrap: bootstrap.php
 EOF
 
