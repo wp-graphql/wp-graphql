@@ -448,6 +448,7 @@ jobs:
       acf_pro: ${{ matrix.acf_pro && 'true' || 'false' }}
       acf_extended: ${{ matrix.acf_extended && 'true' || 'false' }}
       acf_extended_pro: ${{ matrix.acf_extended_pro && 'true' || 'false' }}
+      install_wp_graphql_core_deps: true
 
   # ===========================================
   # FINAL STATUS CHECK

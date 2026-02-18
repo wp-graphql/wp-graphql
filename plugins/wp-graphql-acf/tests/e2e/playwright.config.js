@@ -22,6 +22,8 @@ const storageStatePath = process.env.STORAGE_STATE_PATH ?? path.join(
 
 const config = defineConfig({
 	...baseConfig,
+	// In CI, use both 'list' (streaming progress) and 'github' (annotations). Base config uses only 'github' so no live output.
+	reporter: process.env.CI ? [['list'], ['github']] : baseConfig.reporter,
 	testDir: path.join(__dirname, 'specs'),
 	globalSetup: path.join(__dirname, 'config', 'global-setup.js'),
 	webServer: {

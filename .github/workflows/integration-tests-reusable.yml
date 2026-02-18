@@ -65,6 +65,11 @@ on:
         required: false
         type: boolean
         default: false
+      install_wp_graphql_core_deps:
+        description: 'Whether this plugin depends on WPGraphQL core; if true, runs composer install in plugins/wp-graphql so core classes are available in tests'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   # Job naming strategy:
@@ -118,6 +123,12 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           working-directory: ${{ inputs.plugin_path }}
+
+      - name: Install WPGraphQL core Composer dependencies
+        if: inputs.install_wp_graphql_core_deps
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: plugins/wp-graphql
 
       - name: Setup Node
         uses: actions/setup-node@v6
