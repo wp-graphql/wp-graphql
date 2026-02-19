@@ -170,6 +170,18 @@ jobs:
           ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
         run: npm run install-test-deps
 
+      # When ACF Pro is requested, verify the license is active. Without it, Pro fields (clone, repeater, etc.) are restricted and clone-schema E2E will fail.
+      - name: Verify ACF Pro license (when Pro)
+        if: inputs.plugin_name == 'wp-graphql-acf' && inputs.acf_pro == 'true'
+        run: |
+          STATUS=$(npm run wp-env run tests-cli -- wp eval 'echo ( function_exists( "acf_pro_is_license_active" ) && acf_pro_is_license_active() ) ? "active" : "inactive";' 2>/dev/null || echo "unknown")
+          echo "ACF Pro license status: $STATUS"
+          if [ "$STATUS" != "active" ]; then
+            echo "::error::ACF Pro license is not active. Pro fields (clone, repeater, flexible content) will be restricted and clone-schema E2E tests will fail."
+            echo "Ensure ACF_LICENSE_KEY repository secret is set and that the install step can reach ACF servers to activate the license."
+            exit 1
+          fi
+
       - name: Run E2E tests
         env:
           CI: true

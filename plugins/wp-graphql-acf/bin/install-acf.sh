@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 # Script to install ACF Free/Pro and optionally ACF Extended (only with ACF Pro).
+# All install steps run via "wp-env run tests-cli", i.e. on the test WordPress instance
+# (localhost:8889). E2E (Playwright) and Codeception use this same test site.
+#
 # Usage:
 #   ./bin/install-acf.sh                    # Install ACF Free only (no ACF Extended)
 #   ./bin/install-acf.sh --pro              # Install ACF Pro + ACF Extended Free
@@ -204,10 +207,15 @@ if [ "$ACF_PRO" == "true" ]; then
 
   # Activate the license in WordPress so the "Activate your license" notice doesn't show (uses ACF's API).
   echo "Activating ACF Pro license..."
+  ACF_PRO_LICENSE_ACTIVATED="no"
   if npm run --prefix ../.. wp-env run tests-cli -- wp eval 'if ( function_exists( "acf_pro_activate_license" ) ) { acf_pro_activate_license( "'"$ACF_LICENSE_KEY"'" ); } elseif ( function_exists( "acf_pro_update_license" ) ) { acf_pro_update_license( "'"$ACF_LICENSE_KEY"'" ); }' 2>/dev/null; then
-    echo "  License activated."
+    ACF_PRO_LICENSE_ACTIVATED="yes"
+  fi
+  echo "  ✅ ACF Pro license key is set and was used for installation."
+  if [ "$ACF_PRO_LICENSE_ACTIVATED" = "yes" ]; then
+    echo "  ✅ ACF Pro license activated in WordPress."
   else
-    echo "  Note: License activation skipped (ACF may require network). You can activate in ACF > Updates if the notice appears."
+    echo "  ⚠️  ACF Pro license activation in WordPress was skipped (ACF may require network). Activate in ACF > Updates if the notice appears."
   fi
 
   ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
@@ -250,6 +258,7 @@ if [ "$ACF_PRO" == "true" ]; then
     # Check if installation succeeded
     if echo "$INSTALL_RESULT" | grep -q "SUCCESS"; then
       ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
+      echo "  ✅ ACF Extended Pro license key is set and was used for installation."
     elif echo "$INSTALL_RESULT" | grep -q "ERROR: Invalid license key"; then
       echo "⚠️  Warning: ACF Extended Pro license key appears invalid or expired"
       echo "   Falling back to ACF Extended Free..."
@@ -279,8 +288,16 @@ echo ""
 echo "✅ ACF plugins installed successfully!"
 echo "   ACF Plugin: $ACF_PLUGIN_SLUG"
 echo "   ACF Extended: ${ACF_EXTENDED_PLUGIN_SLUG:-(not installed)}"
+if [ "$ACF_PRO" = "true" ]; then
+  echo "   ACF Pro: license key set and used for installation."
+  if [ -n "$ACF_EXTENDED_PLUGIN_SLUG" ] && [ "$ACF_EXTENDED_PLUGIN_SLUG" = "acf-extended-pro/acf-extended.php" ]; then
+    echo "   ACF Extended Pro: license key set and used for installation."
+  else
+    echo "   ACF Extended: Free (no Extended Pro key, or Pro key not used)."
+  fi
+fi
 echo ""
-echo "💡 Tip: You can store license keys in a .env file:"
+echo "💡 Tip: You can store license keys in a .env file (never commit them):"
 echo "   ACF_LICENSE_KEY=your_key"
 echo "   ACF_EXTENDED_LICENSE_KEY=your_key"
 echo ""
