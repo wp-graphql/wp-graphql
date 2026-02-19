@@ -18,6 +18,7 @@
 		"format": "wp-scripts format",
 		"i18n:json": "npm run wp-env:cli -- wp i18n make-json languages languages --no-purge",
 		"i18n:pot": "npm run wp-env:cli -- wp i18n make-pot . languages/wp-graphql.pot --slug=wp-graphql --domain=wp-graphql --include=src,access-functions.php,wp-graphql.php --exclude=node_modules,vendor,tests,build,packages",
+		"install-test-deps": "true",
 		"lint": "npm run lint:js && npm run lint:php",
 		"lint:js": "wp-scripts lint-js ./packages",
 		"lint:js:fix": "wp-scripts lint-js --fix ./packages",

@@ -25,6 +25,7 @@
 		"check-engines": "wp-scripts check-engines",
 		"clean": "rimraf node_modules plugins/*/node_modules plugins/*/build build",
 		"format": "wp-scripts format",
+		"install-test-deps": "true",
 		"lint": "npm run lint:js",
 		"lint:js": "wp-scripts lint-js ./src",
 		"lint:js:fix": "wp-scripts lint-js --fix ./src",
