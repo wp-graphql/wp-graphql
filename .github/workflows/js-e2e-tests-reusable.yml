@@ -105,7 +105,7 @@ jobs:
 
       - name: Install Playwright system dependencies
         run: npx playwright install-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        # Always run so host has required libs (cache only stores browser binaries, not system deps)
 
       - name: Install Playwright browsers
         run: npx playwright install chromium
@@ -138,19 +138,28 @@ jobs:
           npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
           echo "Checking site URL..."
           npm run wp-env run tests-cli -- wp option get siteurl
-          echo "Testing GraphQL endpoint..."
+          echo "Testing GraphQL endpoint (from container)..."
           npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
-          echo "Waiting for WordPress to be fully ready..."
+          echo "Waiting for dev site (localhost:8888)..."
           for i in {1..30}; do
             if curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null 2>&1 || curl -f -s http://localhost:8888/wp-admin > /dev/null 2>&1; then
-              echo "WordPress is ready!"
+              echo "Dev site ready."
               break
             fi
-            echo "Waiting for WordPress... ($i/30)"
+            echo "Waiting... ($i/30)"
             sleep 2
           done
-          echo "Verifying WordPress is accessible from host..."
-          curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8888/wp-admin > /dev/null || (echo "WordPress is not accessible!" && exit 1)
+          curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8888/wp-admin > /dev/null || (echo "Dev site (8888) not accessible!" && exit 1)
+          echo "Waiting for test site (localhost:8889) – used by Playwright E2E..."
+          for i in {1..30}; do
+            if curl -f -s http://localhost:8889/wp-admin/install.php > /dev/null 2>&1 || curl -f -s http://localhost:8889/wp-admin > /dev/null 2>&1; then
+              echo "Test site ready."
+              break
+            fi
+            echo "Waiting for test site... ($i/30)"
+            sleep 2
+          done
+          curl -f -s http://localhost:8889/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8889/wp-admin > /dev/null || (echo "Test site (8889) not accessible – E2E tests use this port!" && exit 1)
 
       - name: Install plugin-specific test dependencies
         working-directory: ${{ inputs.plugin_path }}
@@ -163,6 +172,8 @@ jobs:
 
       - name: Run E2E tests
         env:
+          CI: true
+          WP_BASE_URL: http://localhost:8889
           INSTALL_ACF_PRO: ${{ inputs.acf_pro }}
           INSTALL_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
         run: |

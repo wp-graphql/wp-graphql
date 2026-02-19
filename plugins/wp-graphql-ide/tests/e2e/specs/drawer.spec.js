@@ -220,7 +220,7 @@ test.describe('query params', () => {
 	// It also tests that the query parameter will populate the query input
 	// test.skip( 'graphiql loads with ?wpgraphql_ide populated from query parameter', async ({ page }) => {
 	// 	const query = 'query TestQuery{posts{nodes{databaseId}}}';
-	// 	const url = `http://localhost:8888/wp-admin?wpgraphql-ide=open&query=${query}`;
+	// 	const url = `http://localhost:8889/wp-admin?wpgraphql-ide=open&query=${query}`;
 	// 	await page.goto(url, { waitUntil: 'networkidle' });
 	// 	await expect(page.locator(selectors.graphiqlContainer)).toBeVisible();
 	// 	await page.waitForSelector(selectors.queryInput);

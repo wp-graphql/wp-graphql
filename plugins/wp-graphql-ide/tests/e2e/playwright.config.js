@@ -17,6 +17,9 @@ process.env.STORAGE_STATE_PATH ??= path.join(
 
 const config = defineConfig({
 	...baseConfig,
+	// CI: list reporter for checkmarks/x's in logs; github for annotations. Fail fast (no retries). Standard port 8889.
+	reporter: process.env.CI ? [['list'], ['github']] : baseConfig.reporter,
+	retries: process.env.CI ? 0 : baseConfig.retries ?? 0,
 	globalSetup: require.resolve('./config/global-setup.js'),
 	webServer: {
 		...baseConfig.webServer,

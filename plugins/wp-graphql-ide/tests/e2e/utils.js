@@ -27,8 +27,8 @@ const selectors = {
 	submitButton: '#wp-submit',
 };
 
-export const wpHomeUrl = 'http://localhost:8888';
-export const wpAdminUrl = 'http://localhost:8888/wp-admin';
+export const wpHomeUrl = 'http://localhost:8889';
+export const wpAdminUrl = 'http://localhost:8889/wp-admin';
 
 /**
  * Log in to the WordPress admin dashboard.
@@ -42,7 +42,7 @@ export async function loginToWordPressAdmin(page) {
 		return;
 	}
 
-	await page.goto('http://localhost:8888/wp-admin', {
+	await page.goto('http://localhost:8889/wp-admin', {
 		waitUntil: 'networkidle',
 	});
 	await page.fill(selectors.loginUsername, 'admin');
