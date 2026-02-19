@@ -17,6 +17,7 @@
 		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
 		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
 		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql-acf/ --",
+		"install-test-deps": "bash bin/install-acf.sh",
 		"install-acf": "bash bin/install-acf.sh",
 		"install-acf:pro": "bash bin/install-acf.sh --pro",
 		"install-acf:pro-extended": "bash bin/install-acf.sh --pro --extended-pro",

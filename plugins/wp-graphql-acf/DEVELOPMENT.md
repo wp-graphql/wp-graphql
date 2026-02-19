@@ -1,5 +1,7 @@
 # Using Docker For Local Development
 
+This document describes standalone Docker-based development. When working in the **WPGraphQL monorepo**, use the root test environment (wp-env) and see the repo [Testing Guide](../../docs/TESTING.md#testing-wp-graphql-acf). For a full local run that mirrors CI (build, wp-env, install ACF, Playwright E2E, stop), use `./bin/run-acf-e2e-local.sh` from the monorepo root.
+
 ## WordPress Site
 
 The `app` docker image starts a running WordPress site with the local wpgraphql-acf directory installed and activated. Local changes to the source code is immediately reflects in the app.

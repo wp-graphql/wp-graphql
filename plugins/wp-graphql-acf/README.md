@@ -16,6 +16,7 @@ Learn more at [https://acf.wpgraphql.com](https://acf.wpgraphql.com)
 - [Plugin Overview](#plugin-overview)
 - [Requirements](#requirements)
 - [Installation and Activation](#installation-and-activation)
+- [Testing](#testing)
 - [How WPGraphQL for ACF maps Field Groups to the Schema](#how-wpgraphql-for-acf-maps-field-groups-to-the-schema)
 - [ACF Post Type and Taxonomy Support](#acf-post-type-and-taxonomy-support)
 - [FAQs](#faqs)
@@ -56,6 +57,25 @@ default logic.
 ## Installation and Activation
 
 See our [Installation and Activation](https://acf.wpgraphql.com/installation-and-activation/) guide.
+
+## Testing
+
+When developing in the [WPGraphQL monorepo](https://github.com/wp-graphql/wp-graphql), tests require ACF to be installed in the wp-env test environment. Full instructions (ACF Free vs Pro, license keys, E2E) are in the monorepo [Testing Guide](../../docs/TESTING.md#testing-wp-graphql-acf). Quick reference:
+
+- **Install ACF (from monorepo root):**  
+  `cd plugins/wp-graphql-acf && npm run install-test-deps`  
+  Uses ACF Free by default; set `INSTALL_ACF_PRO=true` (and optionally `ACF_EXTENDED_LICENSE_KEY`) for Pro. License keys can go in `plugins/wp-graphql-acf/.env`.
+
+- **WPUnit (Codeception):**  
+  `npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit`
+
+- **E2E (Playwright):**  
+  `npm run -w @wpgraphql/wp-graphql-acf test:e2e`  
+  (Run after installing ACF. Pro/Extended-only tests are skipped when using ACF Free.)
+
+- **Full local CI-like run** (build, wp-env, install ACF, E2E, stop):  
+  `./bin/run-acf-e2e-local.sh`  
+  Optional: `INSTALL_ACF_PRO=false ./bin/run-acf-e2e-local.sh` for ACF Free.
 
 ## How WPGraphQL for ACF maps Field Groups to the Schema
 

@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 
-# Script to install ACF Free/Pro and ACF Extended for local testing
+# Script to install ACF Free/Pro and optionally ACF Extended (only with ACF Pro).
 # Usage:
-#   ./bin/install-acf.sh                    # Install ACF Free + ACF Extended Free
-#   ./bin/install-acf.sh --pro              # Install ACF Pro + ACF Extended Pro (requires ACF_LICENSE_KEY, optionally ACF_EXTENDED_LICENSE_KEY)
-#   ./bin/install-acf.sh --pro --extended-pro # Explicitly install ACF Pro + ACF Extended Pro (requires both license keys)
+#   ./bin/install-acf.sh                    # Install ACF Free only (no ACF Extended)
+#   ./bin/install-acf.sh --pro              # Install ACF Pro + ACF Extended Free
+#   ./bin/install-acf.sh --pro --extended-pro # Install ACF Pro + ACF Extended Pro (requires ACF_LICENSE_KEY and ACF_EXTENDED_LICENSE_KEY)
 #
-# Note: When installing ACF Pro, ACF Extended Pro will be automatically installed if ACF_EXTENDED_LICENSE_KEY is provided.
-#       If ACF_EXTENDED_LICENSE_KEY is not provided, it will fall back to ACF Extended Free with a warning.
+# Note: ACF Extended is only installed when using ACF Pro. With ACF Free, ACF Extended is not installed.
 #
 # License keys can be provided via:
 #   - Environment variables: export ACF_LICENSE_KEY=your_key
 #   - .env file: ACF_LICENSE_KEY=your_key (in plugins/wp-graphql-acf/.env)
+#
+# CI/matrix (env, no CLI args):
+#   INSTALL_ACF_PRO=false, INSTALL_ACF_EXTENDED_PRO=false - ACF Free only
+#   INSTALL_ACF_PRO=true,  INSTALL_ACF_EXTENDED_PRO=false - ACF Pro + ACF Extended Free
+#   INSTALL_ACF_PRO=true,  INSTALL_ACF_EXTENDED_PRO=true  - ACF Pro + ACF Extended Pro (requires ACF_EXTENDED_LICENSE_KEY)
 
 set -e
 
@@ -61,6 +65,15 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+# Allow CI/workflow to set variant via env (INSTALL_ACF_PRO, INSTALL_ACF_EXTENDED_PRO).
+# ACF Extended is only installed when ACF Pro is used.
+if [ "${INSTALL_ACF_PRO}" = "true" ]; then
+  ACF_PRO=true
+fi
+if [ "${INSTALL_ACF_EXTENDED_PRO}" = "true" ]; then
+  ACF_EXTENDED_PRO=true
+fi
 
 echo "Installing ACF plugins for local testing..."
 
@@ -206,16 +219,18 @@ else
     npm run --prefix ../.. wp-env run tests-cli -- wp plugin install advanced-custom-fields --activate --allow-root
   fi
   ACF_PLUGIN_SLUG="advanced-custom-fields/acf.php"
+  # When ACF Free: ensure ACF Extended is not present (clean state; Extended only works with ACF Pro)
+  echo "Ensuring ACF Extended is not active (ACF Free mode)..."
+  npm run --prefix ../.. wp-env run tests-cli -- wp plugin deactivate acf-extended acf-extended-pro --allow-root 2>/dev/null || true
+  npm run --prefix ../.. wp-env run tests-cli -- wp plugin uninstall acf-extended acf-extended-pro --allow-root 2>/dev/null || true
 fi
 
-# Install ACF Extended
-# Auto-detect: If ACF Pro is installed, try to install ACF Extended Pro (if license key available)
-# Otherwise install ACF Extended Free
+# Install ACF Extended (only when ACF Pro is installed; not used with ACF Free)
+ACF_EXTENDED_PLUGIN_SLUG=""
 if [ "$ACF_PRO" == "true" ]; then
-  # When ACF Pro is installed, try to install ACF Extended Pro
-  # If license key is not available, fall back to Free with a warning
-  if [ -n "$ACF_EXTENDED_LICENSE_KEY" ]; then
-    echo "Installing ACF Extended Pro (matching ACF Pro)..."
+  # When ACF Pro: install Extended Pro (if flag + key) or Extended Free
+  if [ "$ACF_EXTENDED_PRO" == "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ]; then
+    echo "Installing ACF Extended Pro..."
     # Make a request to the Easy Digital Downloads endpoint for ACF Extended to get the download link
     # See: https://gist.github.com/acf-extended/b65882979cdf7c4f5e6a0e5ed733aca7#file-acfe-pro-api-download-postman_collection-json
     # Do everything in one command inside the container to avoid variable expansion issues
@@ -250,45 +265,20 @@ if [ "$ACF_PRO" == "true" ]; then
       ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
     fi
   else
-    echo "⚠️  Warning: ACF_EXTENDED_LICENSE_KEY not provided"
-    echo "   Installing ACF Extended Free (ACF Extended Pro features will not be available)"
-    echo "   To install ACF Extended Pro, set ACF_EXTENDED_LICENSE_KEY in your .env file"
-    echo ""
+    echo "Installing ACF Extended Free (with ACF Pro)..."
     npm run --prefix ../.. wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
     ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
   fi
-elif [ "$ACF_EXTENDED_PRO" == "true" ]; then
-  # Explicit request for ACF Extended Pro (even with ACF Free)
-  if [ -z "$ACF_EXTENDED_LICENSE_KEY" ]; then
-    echo "❌ Error: ACF_EXTENDED_LICENSE_KEY is required for ACF Extended Pro"
-    echo "   Set it via:"
-    echo "     - Environment variable: export ACF_EXTENDED_LICENSE_KEY=your_license_key"
-    echo "     - .env file: ACF_EXTENDED_LICENSE_KEY=your_license_key (in plugins/wp-graphql-acf/.env)"
-    exit 1
-  fi
-  
-  echo "Installing ACF Extended Pro..."
-  # Make a request to the Easy Digital Downloads endpoint for ACF Extended to get the download link
-  # Do everything in one command inside the container to avoid variable expansion issues
-  # Use PHP to parse JSON (PHP is available in WordPress containers, similar to jq in the old script)
-  npm run --prefix ../.. wp-env run tests-cli -- bash -c "
-    download_link=\$(curl -s --location --request GET 'https://acf-extended.com?edd_action=get_version&license=${ACF_EXTENDED_LICENSE_KEY}&item_name=ACF%20Extended%20Pro&url=https://acf.wpgraphql.com' | php -r 'echo json_decode(file_get_contents(\"php://stdin\"), true)[\"download_link\"] ?? \"\";');
-    download_link=\${download_link%\\\"};
-    download_link=\${download_link#\\\"};
-    wp plugin install \"\$download_link\" --activate --quiet --allow-root
-  "
-  ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
-else
-  # ACF Free is installed, install ACF Extended Free
-  echo "Installing ACF Extended Free (matching ACF Free)..."
-  npm run --prefix ../.. wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
-  ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
 fi
+
+# Ensure WPGraphQL for ACF is active (E2E tests require it)
+echo "Activating WPGraphQL for ACF..."
+npm run --prefix ../.. wp-env run tests-cli -- wp plugin activate wp-graphql-acf --allow-root 2>/dev/null || true
 
 echo ""
 echo "✅ ACF plugins installed successfully!"
 echo "   ACF Plugin: $ACF_PLUGIN_SLUG"
-echo "   ACF Extended: $ACF_EXTENDED_PLUGIN_SLUG"
+echo "   ACF Extended: ${ACF_EXTENDED_PLUGIN_SLUG:-(not installed)}"
 echo ""
 echo "💡 Tip: You can store license keys in a .env file:"
 echo "   ACF_LICENSE_KEY=your_key"

@@ -196,13 +196,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: 'wp-graphql-acf'
+          - name: 'wp-graphql-acf / ACF Free'
+            acf_pro: 'false'
+            acf_extended_pro: 'false'
+          - name: 'wp-graphql-acf / ACF Pro, Extended Free'
+            acf_pro: 'true'
+            acf_extended_pro: 'false'
+          - name: 'wp-graphql-acf / ACF Pro, Extended Pro'
+            acf_pro: 'true'
+            acf_extended_pro: 'true'
     uses: ./.github/workflows/js-e2e-tests-reusable.yml
     secrets: inherit
     with:
       name: ${{ matrix.name }}
       plugin_path: plugins/wp-graphql-acf
       plugin_name: wp-graphql-acf
+      acf_pro: ${{ matrix.acf_pro }}
+      acf_extended_pro: ${{ matrix.acf_extended_pro }}
 
   # ===========================================
   # FINAL STATUS CHECK

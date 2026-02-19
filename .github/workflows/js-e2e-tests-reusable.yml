@@ -15,6 +15,16 @@ on:
         description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
+      acf_pro:
+        description: "For wp-graphql-acf: install ACF Pro when 'true' (requires ACF_LICENSE_KEY). Default 'false' = ACF Free (ACF Extended is not installed with ACF Free)."
+        required: false
+        type: string
+        default: 'false'
+      acf_extended_pro:
+        description: "For wp-graphql-acf with ACF Pro: install ACF Extended Pro when 'true' (requires ACF_EXTENDED_LICENSE_KEY). Only used when acf_pro is 'true'; ignored when ACF Free. Default 'false' = ACF Extended Free."
+        required: false
+        type: string
+        default: 'false'
 
 jobs:
   # Runs JavaScript e2e tests for a WordPress plugin using Playwright.
@@ -142,7 +152,19 @@ jobs:
           echo "Verifying WordPress is accessible from host..."
           curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8888/wp-admin > /dev/null || (echo "WordPress is not accessible!" && exit 1)
 
+      - name: Install plugin-specific test dependencies
+        working-directory: ${{ inputs.plugin_path }}
+        env:
+          INSTALL_ACF_PRO: ${{ inputs.acf_pro }}
+          INSTALL_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
+          ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
+          ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
+        run: npm run install-test-deps
+
       - name: Run E2E tests
+        env:
+          INSTALL_ACF_PRO: ${{ inputs.acf_pro }}
+          INSTALL_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:e2e
 

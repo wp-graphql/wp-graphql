@@ -5,13 +5,15 @@ import {
 	deleteAllAcfFieldGroups,
 	graphqlRequest,
 } from '../utils.js';
+import { skipWhenNotAcfPro } from '../env.js';
 
 /**
  * E2E tests for clone/schema behavior: import JSON, then assert GraphQL schema and query results.
  * Mirrors functional tests: TestCloneWithRepeaterCest, TestCloneFieldsCest, TestCloneGroupWithoutPrefixCest,
  * TestCloneWithGroupCest, TestCloneFieldOnMultipleFlexibleFieldLayoutsCest.
- * Requires ACF Pro (clone fields). Each suite: beforeEach imports its JSON, afterEach deletes all field groups.
+ * Requires ACF Pro (clone fields). Skipped when ACF Free (mirrors AcfProFieldCest). Each suite: beforeEach imports its JSON, afterEach deletes all field groups.
  */
+const describeClone = skipWhenNotAcfPro() ? describe.skip : describe;
 
 const GET_TYPE_QUERY = `
   query GetType($type: String!) {
@@ -49,7 +51,7 @@ function findField(fields, name) {
 	return fields?.find((f) => f.name === name) ?? null;
 }
 
-describe('Clone with repeater (import + schema)', () => {
+describeClone('Clone with repeater (import + schema)', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -132,7 +134,7 @@ describe('Clone with repeater (import + schema)', () => {
 	});
 });
 
-describe('Clone fields (cloned group vs individual)', () => {
+describeClone('Clone fields (cloned group vs individual)', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -170,7 +172,7 @@ describe('Clone fields (cloned group vs individual)', () => {
 	});
 });
 
-describe('Clone group without prefix (issue-172-b)', () => {
+describeClone('Clone group without prefix (issue-172-b)', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -236,7 +238,7 @@ describe('Clone group without prefix (issue-172-b)', () => {
 	});
 });
 
-describe('Clone with group (issue-172 content blocks)', () => {
+describeClone('Clone with group (issue-172 content blocks)', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -298,7 +300,7 @@ describe('Clone with group (issue-172 content blocks)', () => {
 	});
 });
 
-describe('Clone field on multiple flexible layouts (issue-197)', () => {
+describeClone('Clone field on multiple flexible layouts (issue-197)', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);

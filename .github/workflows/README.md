@@ -31,11 +31,12 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ### 4. JS E2E Tests (`js-e2e-tests.yml` and `js-e2e-tests-reusable.yml`)
 
-- End-to-end testing of GraphiQL interface and admin pages using Playwright
+- End-to-end testing using Playwright for plugins with JavaScript E2E tests
 - Uses change detection to only run tests for plugins that have JavaScript changes
 - `js-e2e-tests.yml` detects changes and triggers `js-e2e-tests-reusable.yml` for each affected plugin
-- Ensures GraphiQL functionality, settings pages, and extensions pages work as expected
-- Tests user interactions and UI components
+- **wp-graphql**: GraphiQL interface, settings pages, and extensions pages
+- **wp-graphql-ide**: IDE UI and panels
+- **wp-graphql-acf**: Field types GraphQL UI, clone/schema, ACF UI registration (CPT, taxonomy, options page). Runs a matrix: ACF Free, ACF Pro + Extended Free, ACF Pro + Extended Pro (requires `ACF_LICENSE_KEY` and optionally `ACF_EXTENDED_LICENSE_KEY` secrets for Pro rows). Each run installs the matching ACF variant via `install-test-deps` then runs Playwright; Pro/Extended-only tests are skipped when not active
 - Workflow always runs on PRs to provide consistent status checks for branch protection
 
 ### 5. Smoke Test (`smoke-test.yml` and `smoke-test-reusable.yml`)

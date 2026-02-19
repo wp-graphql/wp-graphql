@@ -4,14 +4,16 @@ import {
 	visitAdminFacingPage,
 	wpAdminUrl,
 } from '../utils.js';
+import { skipWhenNotAcfPro } from '../env.js';
 
 /**
  * E2E tests for ACF UI Registration: Custom Post Types, Taxonomies, and Options Pages.
  * Flow: add new entity → enable advanced configuration → GraphQL tab → fill form → save
  * → Tools → Generate PHP → assert exported PHP contains show_in_graphql and graphql_* keys.
- * Requires ACF Pro 6.1+ (CPT/Taxonomy) or 6.2+ (Options Page).
+ * Requires ACF Pro 6.1+ (CPT/Taxonomy) or 6.2+ (Options Page). Skipped when ACF Free.
  * Mirrors: CustomPostTypeRegistrationCest, CustomTaxonomyRegistrationCest, OptionsPageUiRegistrationCest.
  */
+const describeAcfUi = skipWhenNotAcfPro() ? describe.skip : describe;
 
 const TOOLS_URL = `${wpAdminUrl}/edit.php?post_type=acf-field-group&page=acf-tools`;
 
@@ -38,7 +40,7 @@ async function deleteAcfUiEntity(page, listUrl, rowLabel) {
 	await page.waitForLoadState('networkidle');
 }
 
-describe('ACF UI Registration – Custom Post Type', () => {
+describeAcfUi('ACF UI Registration – Custom Post Type', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 	});
@@ -87,7 +89,7 @@ describe('ACF UI Registration – Custom Post Type', () => {
 	});
 });
 
-describe('ACF UI Registration – Custom Taxonomy', () => {
+describeAcfUi('ACF UI Registration – Custom Taxonomy', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 	});
@@ -136,7 +138,7 @@ describe('ACF UI Registration – Custom Taxonomy', () => {
 	});
 });
 
-describe('ACF UI Registration – Options Page', () => {
+describeAcfUi('ACF UI Registration – Options Page', () => {
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 	});

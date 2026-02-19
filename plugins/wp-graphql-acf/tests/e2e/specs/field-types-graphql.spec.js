@@ -8,6 +8,7 @@ import {
 	openFieldByKeyAndGraphQLTab,
 	submitFieldGroupForm,
 } from '../utils.js';
+import { acfPro, acfExtendedPro } from '../env.js';
 
 /**
  * E2E tests for Field Types GraphQL UI: each ACF field type shows GraphQL tab fields
@@ -20,6 +21,11 @@ const DEFAULT_JSON = 'acf-export-2023-01-26.json';
 const ACFE_JSON = 'tests-acf-extended-pro-kitchen-sink.json';
 const DEFAULT_FIELD_KEY = 'field_63d2bb765f5af';
 const FIELD_GROUP_TITLE = 'Foo Name';
+
+/** ACF field types that require ACF Pro (not in Free). Mirrors AcfProFieldCest skip. */
+const ACF_PRO_ONLY_TYPES = ['group', 'repeater', 'flexible_content', 'gallery'];
+/** ACFE types that require ACF Extended Pro (kitchen sink JSON). Mirrors AcfeProFieldCest skip. */
+const ACFE_PRO_ONLY_TYPES = ['acfe_date_range_picker', 'acfe_currencies', 'acfe_countries'];
 
 /** ACFE field types skipped for now: GraphQL description save / tab visibility flaky; to fix later. */
 const SKIP_FIELD_TYPES_GRAPHQL = ['acfe_date_range_picker', 'acfe_currencies', 'acfe_countries'];
@@ -90,7 +96,13 @@ function getStorageStatePath() {
 
 test.describe('Field types GraphQL UI', () => {
 	for (const config of FIELD_TYPE_CONFIGS) {
-		test.describe(`${config.type} field`, () => {
+		const isAcfeType = config.type.startsWith('acfe_');
+		const needsAcfPro = ACF_PRO_ONLY_TYPES.includes(config.type) || isAcfeType;
+		const needsAcfePro = ACFE_PRO_ONLY_TYPES.includes(config.type);
+		const skipThisType =
+			(needsAcfPro && !acfPro) || (needsAcfePro && !acfExtendedPro);
+		const describeField = skipThisType ? test.describe.skip : test.describe;
+		describeField(`${config.type} field`, () => {
 			beforeAll(async ({ browser }) => {
 				const storageStatePath = getStorageStatePath();
 				const context = await browser.newContext({
