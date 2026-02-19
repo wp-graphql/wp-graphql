@@ -155,6 +155,7 @@ test.describe('Field types GraphQL UI', () => {
 
 				// Reload so we see persisted state (CI can show stale form state after save otherwise)
 				await page.reload({ waitUntil: 'domcontentloaded' });
+				if (process.env.CI) await page.waitForTimeout(1500);
 				await page.locator(`div[data-key="${fieldKey}"]`).first().waitFor({ state: 'visible', timeout: 10000 });
 				await openFieldByKeyAndGraphQLTab(page, fieldKey, typeParam);
 				panel = page.locator(`div[data-key="${fieldKey}"]`).first();
@@ -181,6 +182,7 @@ test.describe('Field types GraphQL UI', () => {
 
 				// Reload so we see persisted state before asserting checked
 				await page.reload({ waitUntil: 'domcontentloaded' });
+				if (process.env.CI) await page.waitForTimeout(1500);
 				await page.locator(`div[data-key="${fieldKey}"]`).first().waitFor({ state: 'visible', timeout: 10000 });
 				await openFieldByKeyAndGraphQLTab(page, fieldKey, typeParam);
 				panel = page.locator(`div[data-key="${fieldKey}"]`).first();

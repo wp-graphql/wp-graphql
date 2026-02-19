@@ -8,6 +8,9 @@
 const rawPro = process.env.INSTALL_ACF_PRO;
 const rawExtendedPro = process.env.INSTALL_ACF_EXTENDED_PRO;
 
+/** True when running in GitHub Actions / CI. Use to skip specs that pass locally but are flaky in CI (timing, browser env). */
+export const isCI = process.env.CI === 'true' || process.env.CI === true;
+
 /** ACF Pro is active (when env is set; unset = assume true so we don't skip locally). */
 export const acfPro =
 	rawPro === undefined || rawPro === '' || rawPro === 'true';

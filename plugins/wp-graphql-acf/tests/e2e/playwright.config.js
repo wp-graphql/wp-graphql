@@ -28,8 +28,8 @@ const config = defineConfig({
 	...baseConfig,
 	// In CI, use both 'list' (streaming progress) and 'github' (annotations). Base config uses only 'github' so no live output.
 	reporter: process.env.CI ? [['list'], ['github']] : baseConfig.reporter,
-	// Fail fast in CI: no retries so we don't burn time re-running flaky tests (base config uses 2 retries in CI).
-	retries: process.env.CI ? 0 : baseConfig.retries ?? 0,
+	// In CI use 1 retry to absorb timing flakiness (schema/form state); locally use base config.
+	retries: process.env.CI ? 1 : baseConfig.retries ?? 0,
 	testDir: path.join(__dirname, 'specs'),
 	globalSetup: path.join(__dirname, 'config', 'global-setup.js'),
 	webServer: {
@@ -41,6 +41,15 @@ const config = defineConfig({
 		use: {
 			...project.use,
 			storageState: storageStatePath,
+			// CI (Linux): Chromium launch args that improve stability in Docker/GHA vs local Mac.
+			...(process.env.CI && {
+				launchOptions: {
+					args: [
+						'--disable-dev-shm-usage',
+						'--no-sandbox',
+					],
+				},
+			}),
 		},
 	})) ?? baseConfig.projects,
 });

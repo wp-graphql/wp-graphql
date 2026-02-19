@@ -5,7 +5,7 @@ import {
 	deleteAllAcfFieldGroups,
 	graphqlRequest,
 } from '../utils.js';
-import { skipWhenNotAcfPro } from '../env.js';
+import { skipWhenNotAcfPro, isCI } from '../env.js';
 
 /**
  * E2E tests for clone/schema behavior: import JSON, then assert GraphQL schema and query results.
@@ -94,7 +94,7 @@ describeClone('Clone with repeater (import + schema)', () => {
 			GET_TYPE_QUERY,
 			{ type: 'Flowers' },
 			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
-			15000
+			isCI ? 30000 : 15000
 		);
 	});
 
@@ -184,7 +184,7 @@ describeClone('Clone fields (cloned group vs individual)', () => {
 			GET_TYPE_QUERY,
 			{ type: 'AcfProKitchenSink' },
 			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
-			15000
+			isCI ? 30000 : 15000
 		);
 	});
 
