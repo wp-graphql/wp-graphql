@@ -54,19 +54,33 @@ function findField(fields, name) {
 /**
  * Poll GraphQL until a type appears in the schema (or timeout). Use after importing field groups
  * so CI sees the updated schema (avoids timing/cache issues where schema lags behind import).
+ * On timeout, throws with a diagnostic summary of the last response (errors, __type) for CI logs.
  */
 async function waitForSchemaType(request, query, variables, check, timeoutMs = 15000) {
 	const step = 500;
 	let elapsed = 0;
+	let lastRes = null;
 	while (elapsed < timeoutMs) {
-		const res = await graphqlRequest(request, query, variables);
-		if (check(res)) return;
+		lastRes = await graphqlRequest(request, query, variables);
+		if (check(lastRes)) return;
 		await new Promise((r) => setTimeout(r, step));
 		elapsed += step;
 	}
-	const res = await graphqlRequest(request, query, variables);
-	if (check(res)) return;
-	throw new Error(`Schema type not ready within ${timeoutMs}ms (CI schema may lag after import)`);
+	lastRes = await graphqlRequest(request, query, variables);
+	if (check(lastRes)) return;
+	const errCount = lastRes?.errors?.length ?? 0;
+	const errPreview =
+		errCount > 0 && lastRes?.errors?.[0]?.message
+			? lastRes.errors[0].message.slice(0, 200)
+			: '';
+	const typeName = lastRes?.data?.__type?.name ?? (lastRes?.data?.__type ? '(no name)' : null);
+	const diagnostic = [
+		`errors: ${errCount}${errPreview ? `, first: ${errPreview}` : ''}`,
+		`__type: ${typeName ?? 'null'}`,
+	].join('; ');
+	throw new Error(
+		`Schema type not ready within ${timeoutMs}ms (CI schema may lag after import). Last response: ${diagnostic}`
+	);
 }
 
 describeClone('Clone with repeater (import + schema)', () => {

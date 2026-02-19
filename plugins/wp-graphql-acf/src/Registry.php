@@ -719,6 +719,9 @@ class Registry {
 	/**
 	 * Given an array of Acf Field Groups, add them to the Schema
 	 *
+	 * Can be re-entered when a clone/flexible/group field's type callback runs during schema
+	 * build and registers synthetic groups. Guard prevents runaway recursion from circular refs.
+	 *
 	 * @param array<mixed> $acf_field_groups ACF Field Groups to register to the WPGraphQL Schema
 	 * @throws \Exception
 	 */
@@ -727,6 +730,36 @@ class Registry {
 			return;
 		}
 
+		static $depth = 0;
+		$max_depth = 15;
+		if ( $depth >= $max_depth ) {
+			graphql_debug(
+				sprintf(
+					/* translators: 1: max depth, 2: number of groups */
+					__( 'WPGraphQL for ACF: register_acf_field_groups_to_graphql re-entry guard (depth %1$d >= %2$d). Skipping %3$d group(s) to prevent recursion.', 'wpgraphql-acf' ),
+					$depth,
+					$max_depth,
+					count( $acf_field_groups )
+				)
+			);
+			return;
+		}
+
+		++$depth;
+		try {
+			$this->register_acf_field_groups_to_graphql_impl( $acf_field_groups );
+		} finally {
+			--$depth;
+		}
+	}
+
+	/**
+	 * Implementation of register_acf_field_groups_to_graphql (called with depth guard).
+	 *
+	 * @param array<mixed> $acf_field_groups ACF Field Groups to register to the WPGraphQL Schema
+	 * @throws \Exception
+	 */
+	protected function register_acf_field_groups_to_graphql_impl( array $acf_field_groups ): void {
 		// Iterate over the field groups and add them to the Schema
 		foreach ( $acf_field_groups as $acf_field_group ) {
 			$type_name = $this->get_field_group_graphql_type_name( $acf_field_group );
