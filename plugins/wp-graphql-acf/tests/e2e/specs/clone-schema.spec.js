@@ -51,12 +51,37 @@ function findField(fields, name) {
 	return fields?.find((f) => f.name === name) ?? null;
 }
 
+/**
+ * Poll GraphQL until a type appears in the schema (or timeout). Use after importing field groups
+ * so CI sees the updated schema (avoids timing/cache issues where schema lags behind import).
+ */
+async function waitForSchemaType(request, query, variables, check, timeoutMs = 15000) {
+	const step = 500;
+	let elapsed = 0;
+	while (elapsed < timeoutMs) {
+		const res = await graphqlRequest(request, query, variables);
+		if (check(res)) return;
+		await new Promise((r) => setTimeout(r, step));
+		elapsed += step;
+	}
+	const res = await graphqlRequest(request, query, variables);
+	if (check(res)) return;
+	throw new Error(`Schema type not ready within ${timeoutMs}ms (CI schema may lag after import)`);
+}
+
 describeClone('Clone with repeater (import + schema)', () => {
-	beforeEach(async ({ page }) => {
+	beforeEach(async ({ page, request }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
 		await importAcfJson(page, 'acf-export-clone-repeater.json');
 		await importAcfJson(page, 'tests-acf-pro-kitchen-sink.json');
+		await waitForSchemaType(
+			request,
+			GET_TYPE_QUERY,
+			{ type: 'Flowers' },
+			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
+			15000
+		);
 	});
 
 	afterEach(async ({ page }) => {
@@ -135,11 +160,18 @@ describeClone('Clone with repeater (import + schema)', () => {
 });
 
 describeClone('Clone fields (cloned group vs individual)', () => {
-	beforeEach(async ({ page }) => {
+	beforeEach(async ({ page, request }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
 		await importAcfJson(page, 'tests-inactive-group-for-cloning.json');
 		await importAcfJson(page, 'tests-acf-pro-kitchen-sink.json');
+		await waitForSchemaType(
+			request,
+			GET_TYPE_QUERY,
+			{ type: 'AcfProKitchenSink' },
+			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
+			15000
+		);
 	});
 
 	afterEach(async ({ page }) => {
