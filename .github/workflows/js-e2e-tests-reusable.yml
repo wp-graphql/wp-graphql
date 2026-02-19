@@ -174,8 +174,9 @@ jobs:
       - name: Verify ACF Pro license (when Pro)
         if: inputs.plugin_name == 'wp-graphql-acf' && inputs.acf_pro == 'true'
         run: |
-          STATUS=$(npm run wp-env run tests-cli -- wp eval 'echo ( function_exists( "acf_pro_is_license_active" ) && acf_pro_is_license_active() ) ? "active" : "inactive";' 2>/dev/null || echo "unknown")
-          echo "ACF Pro license status: $STATUS"
+          RAW=$(npm run wp-env run tests-cli -- wp eval 'echo ( function_exists( "acf_pro_is_license_active" ) && acf_pro_is_license_active() ) ? "active" : "inactive";' 2>/dev/null) || true
+          STATUS=$(echo "$RAW" | tail -1 | tr -d '[:space:]')
+          echo "ACF Pro license status: ${STATUS:-unknown}"
           if [ "$STATUS" != "active" ]; then
             echo "::error::ACF Pro license is not active. Pro fields (clone, repeater, flexible content) will be restricted and clone-schema E2E tests will fail."
             echo "Ensure ACF_LICENSE_KEY repository secret is set and that the install step can reach ACF servers to activate the license."
