@@ -153,6 +153,9 @@ test.describe('Field types GraphQL UI', () => {
 				await expect(page.locator('#message.notice-error')).not.toBeVisible();
 				await expect(page.locator('#message.notice-success')).toBeVisible();
 
+				// Reload so we see persisted state (CI can show stale form state after save otherwise)
+				await page.reload({ waitUntil: 'domcontentloaded' });
+				await page.locator(`div[data-key="${fieldKey}"]`).first().waitFor({ state: 'visible', timeout: 10000 });
 				await openFieldByKeyAndGraphQLTab(page, fieldKey, typeParam);
 				panel = page.locator(`div[data-key="${fieldKey}"]`).first();
 				const checkbox2 = panel.locator('[data-name="show_in_graphql"] input[type="checkbox"]');
@@ -176,6 +179,9 @@ test.describe('Field types GraphQL UI', () => {
 				await expect(page.locator('#message.notice-error')).not.toBeVisible();
 				await expect(page.locator('#message.notice-success')).toBeVisible();
 
+				// Reload so we see persisted state before asserting checked
+				await page.reload({ waitUntil: 'domcontentloaded' });
+				await page.locator(`div[data-key="${fieldKey}"]`).first().waitFor({ state: 'visible', timeout: 10000 });
 				await openFieldByKeyAndGraphQLTab(page, fieldKey, typeParam);
 				panel = page.locator(`div[data-key="${fieldKey}"]`).first();
 				const checkbox3 = panel.locator('[data-name="show_in_graphql"] input[type="checkbox"]');
