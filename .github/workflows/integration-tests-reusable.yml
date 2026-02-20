@@ -346,7 +346,7 @@ jobs:
           echo "✅ Coverage file exists: ${{ inputs.plugin_path }}/tests/_output/coverage.xml"
           echo "File size: $(wc -c < "${{ inputs.plugin_path }}/tests/_output/coverage.xml") bytes"
 
-      - name: Upload coverage to Codecov`
+      - name: Upload coverage to Codecov
         # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
         if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
         uses: codecov/codecov-action@v5
