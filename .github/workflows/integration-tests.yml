@@ -412,10 +412,10 @@ jobs:
             acf_pro: false
             acf_extended: true
             acf_extended_pro: false
-          # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement) with ACF Free
-          - name: 'wp-graphql-acf / WP 6.1 / PHP 7.4 / ACF Free'
+          # Boundary: Oldest WP supported by ACF (6.2+) with PHP 7.4 / ACF Free
+          - name: 'wp-graphql-acf / WP 6.2 / PHP 7.4 / ACF Free'
             php: '7.4'
-            wp: '6.1'
+            wp: '6.2'
             theme: twentytwentyone
             multisite: false
             coverage: false
