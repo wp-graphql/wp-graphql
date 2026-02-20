@@ -32,23 +32,22 @@ export const wpAdminUrl = 'http://localhost:8889/wp-admin';
 
 /**
  * Log in to the WordPress admin dashboard.
+ * Uses domcontentloaded (not networkidle) so CI doesn't hang; waits for login form before filling.
  * @param {import('@playwright/test').Page} page The Playwright page object.
  */
 export async function loginToWordPressAdmin(page) {
-	const isLoggedIn = await page.$('#wpadminbar');
+	await page.goto(wpAdminUrl, { waitUntil: 'domcontentloaded' });
 
-	// If already logged in, return early
+	const isLoggedIn = await page.$('#wpadminbar');
 	if (isLoggedIn) {
 		return;
 	}
 
-	await page.goto('http://localhost:8889/wp-admin', {
-		waitUntil: 'networkidle',
-	});
+	await page.waitForSelector(selectors.loginUsername, { state: 'visible', timeout: 15000 });
 	await page.fill(selectors.loginUsername, 'admin');
 	await page.fill(selectors.loginPassword, 'password');
 	await page.click(selectors.submitButton);
-	await page.waitForSelector('#wpadminbar'); // Confirm login by waiting for the admin bar
+	await page.waitForSelector('#wpadminbar', { state: 'visible' });
 }
 
 /**
