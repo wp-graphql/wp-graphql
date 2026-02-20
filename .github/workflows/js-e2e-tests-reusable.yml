@@ -103,9 +103,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
+      - name: Cache Playwright system dependencies (apt)
+        uses: actions/cache@v5
+        id: playwright-apt-cache
+        with:
+          path: ~/playwright-apt-cache
+          key: ${{ runner.os }}-playwright-apt-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-apt-
+
+      - name: Restore apt cache for Playwright deps
+        if: steps.playwright-apt-cache.outputs.cache-hit == 'true'
+        run: |
+          mkdir -p ~/playwright-apt-cache
+          sudo cp -n ~/playwright-apt-cache/*.deb /var/cache/apt/archives/ 2>/dev/null || true
+
       - name: Install Playwright system dependencies
         run: npx playwright install-deps chromium
-        # Always run so host has required libs (cache only stores browser binaries, not system deps)
+
+      - name: Save apt cache for Playwright deps
+        if: success()
+        run: |
+          mkdir -p ~/playwright-apt-cache
+          sudo cp -n /var/cache/apt/archives/*.deb ~/playwright-apt-cache/ 2>/dev/null || true
+          sudo chown -R "$(whoami):$(whoami)" ~/playwright-apt-cache 2>/dev/null || true
 
       - name: Install Playwright browsers
         run: npx playwright install chromium
