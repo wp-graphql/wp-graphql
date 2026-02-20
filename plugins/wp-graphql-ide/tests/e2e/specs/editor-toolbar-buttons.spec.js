@@ -202,6 +202,7 @@ describe('Toolbar Buttons', () => {
 		test('Clicking the merge fragments button merges the fragment into the query', async ({
 			page,
 		}) => {
+			// Make sure the prettify button is visible and interactable
 			const mergeButton = page.locator(selectors.mergeButton);
 			await expect(mergeButton).toBeVisible();
 			await expect(mergeButton).toBeEnabled();
@@ -209,16 +210,34 @@ describe('Toolbar Buttons', () => {
 			await mergeButton.click();
 
 			const queryEditorLocator = page.locator(selectors.queryInput);
+
+			// wait for the merge to complete
 			await page.waitForTimeout(1000);
 
+			// Get the value from the CodeMirror instance
 			const codeMirrorValue =
 				await getCodeMirrorValue(queryEditorLocator);
 
-			// Merged result varies by environment (with/without ... on RootQuery wrapper, formatting).
-			// Assert semantics: fragment body is inlined (viewer, name) and fragment definition is gone.
-			expect(codeMirrorValue).toContain('viewer');
-			expect(codeMirrorValue).toContain('name');
-			expect(codeMirrorValue).not.toContain('TestFragment');
+			// Verify that the query is now merged properly and formatted
+			const expectedMergedQueryOnGithub = `{
+  viewer {
+    name
+  }
+}`;
+
+			const expectedMergedQueryForLocalhostTestsButWeDontFullyUnderstandWhyItsDifferentThanGithub = `{
+  ... on RootQuery {
+    viewer {
+      name
+    }
+  }
+}`;
+
+			expect(
+				codeMirrorValue === expectedMergedQueryOnGithub ||
+					codeMirrorValue ===
+						expectedMergedQueryForLocalhostTestsButWeDontFullyUnderstandWhyItsDifferentThanGithub
+			).toBeTruthy();
 		});
 	});
 
