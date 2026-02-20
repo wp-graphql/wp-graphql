@@ -135,7 +135,7 @@ const InputArgView = (props) => {
 				const newField = isTarget
 					? {
 							...field,
-							value: value,
+							value,
 						}
 					: field;
 
@@ -155,7 +155,7 @@ const InputArgView = (props) => {
 							...field,
 							value: {
 								kind: 'ObjectValue',
-								fields: fields,
+								fields,
 							},
 						}
 					: field

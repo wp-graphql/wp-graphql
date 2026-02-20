@@ -9,8 +9,9 @@ import {
 	loginToWordPressAdmin,
 	visitAdminFacingPage,
 	wpAdminUrl,
+	activatePlugin,
+	deactivatePlugin,
 } from '../utils';
-import { activatePlugin, deactivatePlugin } from '../utils';
 
 /**
  * @file settings-page.spec.js

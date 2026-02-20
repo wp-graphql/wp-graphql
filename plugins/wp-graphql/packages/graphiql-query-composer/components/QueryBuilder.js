@@ -106,9 +106,8 @@ const QueryBuilder = (props) => {
 				return definition;
 			} else if (definition.kind === 'OperationDefinition') {
 				return definition;
-			} else {
-				return null;
 			}
+			return null;
 		})
 		.filter(Boolean);
 
@@ -131,9 +130,8 @@ const QueryBuilder = (props) => {
 		const newDefinitions = existingDefs.map((existingOperation) => {
 			if (targetOperation === existingOperation) {
 				return newOperation;
-			} else {
-				return existingOperation;
 			}
+			return existingOperation;
 		});
 
 		return {
@@ -199,10 +197,9 @@ const QueryBuilder = (props) => {
 			: existingDefs.filter((def) => {
 					if (def.kind === 'OperationDefinition') {
 						return def.operation === kind;
-					} else {
-						// Don't support adding fragments from explorer
-						return false;
 					}
+					// Don't support adding fragments from explorer
+					return false;
 				});
 
 		const newOperationName = `My${capitalize(kind)}${
@@ -237,7 +234,7 @@ const QueryBuilder = (props) => {
 			name: { kind: 'Name', value: newOperationName },
 			variableDefinitions: [],
 			directives: [],
-			selectionSet: selectionSet,
+			selectionSet,
 			loc: null,
 		};
 
@@ -258,7 +255,7 @@ const QueryBuilder = (props) => {
 		props.onEdit(print(newOperationDef));
 	};
 
-	let actionsOptions = [];
+	const actionsOptions = [];
 
 	if (queryFields) {
 		actionsOptions.push({
@@ -443,12 +440,10 @@ const QueryBuilder = (props) => {
 									if (commit) {
 										onCommit(newQuery);
 										return newQuery;
-									} else {
-										return newQuery;
 									}
-								} else {
-									return parsedQuery;
+									return newQuery;
 								}
+								return parsedQuery;
 							}}
 							schema={schema}
 							getDefaultFieldNames={getDefaultFieldNames}

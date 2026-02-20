@@ -1,0 +1,13 @@
+# Generated / output dirs (Codeception, PHPCS, coverage, etc.)
+tests/_output/
+build/
+coverage/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Config overrides (may contain generated content)
+phpcs.xml
+phpunit.xml
+*.suite.yml

@@ -44,8 +44,8 @@ const StyledWrapper = styled.div`
 /**
  * Validate whether a string is valid JSON
  *
- * @param str
- * @returns {any|boolean}
+ * @param  str
+ * @return {any|boolean}
  */
 const isValidJson = (str) => {
 	try {
@@ -58,7 +58,7 @@ const isValidJson = (str) => {
 /**
  * The GraphiQL screen.
  *
- * @returns
+ * @return
  */
 const GraphiQLScreen = () => {
 	const graphiqlRef = useRef(null);

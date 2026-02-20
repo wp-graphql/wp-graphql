@@ -4,7 +4,7 @@ const { parse } = window.wpGraphiQL.GraphQL;
  * Convert fragment strings to Fragment Definitions for use
  * in GraphiQL type hinting
  *
- * @returns {[]|*[]}
+ * @return {[]|*[]}
  */
 export const getExternalFragments = () => {
 	const externalFragments = wpGraphiQLSettings?.externalFragments ?? null;

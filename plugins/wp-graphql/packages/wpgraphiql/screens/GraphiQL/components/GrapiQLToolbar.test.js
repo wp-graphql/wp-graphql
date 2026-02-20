@@ -120,7 +120,7 @@ describe('Filter all Toolbar Buttons', () => {
 		hooks.removeAllFilters('graphiql_toolbar_buttons');
 	});
 
-	test('test button should be the only button', () => {
+	test('button should be the only button', () => {
 		render(<GraphiQLToolbar />);
 
 		// expect test button to render after the prettify button

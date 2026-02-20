@@ -6,9 +6,9 @@ const { useEffect } = wp.element;
  *
  * This provides the wrapping markup and sets up the initial visible state
  *
- * @param props
- * @returns {JSX.Element|null}
- * @constructor
+ * @param  props
+ * @return {JSX.Element|null}
+ * @class
  */
 const ExplorerWrapper = (props) => {
 	const { isQueryComposerOpen, toggleExplorer } = useExplorer();
@@ -21,7 +21,7 @@ const ExplorerWrapper = (props) => {
 			className="docExplorerWrap doc-explorer-app query-composer-wrap"
 			style={{
 				height: '100%',
-				width: width,
+				width,
 				minWidth: width,
 				zIndex: 8,
 				display: isQueryComposerOpen ? 'flex' : 'none',

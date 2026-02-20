@@ -64,12 +64,11 @@ const ArgView = (props) => {
 		if (!argSelection) {
 			console.error('Unable to add arg for argType', argType);
 			return null;
-		} else {
-			return props.modifyArguments(
-				[...(selection.arguments || []), argSelection],
-				commit
-			);
 		}
+		return props.modifyArguments(
+			[...(selection.arguments || []), argSelection],
+			commit
+		);
 	};
 
 	const _setArgValue = (event, options) => {
@@ -126,7 +125,7 @@ const ArgView = (props) => {
 				a === argSelection
 					? {
 							...a,
-							value: value,
+							value,
 						}
 					: a
 			),

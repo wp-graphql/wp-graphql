@@ -26,7 +26,7 @@ const GraphiQLToolbar = (props) => {
 	const historyContext = useHistoryContext();
 
 	// Configure initial buttons to load into the Toolbar
-	let defaultButtonsConfig = [
+	const defaultButtonsConfig = [
 		{
 			label: `Prettify`,
 			title: `Prettify Query (Shift-Ctrl-P)`,

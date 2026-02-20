@@ -1,9 +1,9 @@
 /**
  * Returns the authenticated fetcher
  *
- * @param endpoint
- * @param options
- * @returns {function(*=): Promise<*>}
+ * @param  endpoint
+ * @param  options
+ * @return {function(*=): Promise<*>}
  */
 export const getFetcher = (endpoint, options) => {
 	const { nonce } = options;
