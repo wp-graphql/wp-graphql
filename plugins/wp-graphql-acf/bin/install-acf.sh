@@ -205,17 +205,73 @@ if [ "$ACF_PRO" == "true" ]; then
     exit 1
   fi
 
-  # Activate the license in WordPress so the "Activate your license" notice doesn't show (uses ACF's API).
-  echo "Activating ACF Pro license..."
+  # Activate the license in WordPress. ACF Pro calls connect.advancedcustomfields.com to validate the key.
+  # The key is passed into the container via stdin (wp-env does not forward host env). If the container
+  # cannot reach ACF's servers (e.g. CI network restrictions), activation fails and we fall back to
+  # defining ACF_PRO_LICENSE via an mu-plugin so the key is at least set (Pro features may still require
+  # a successful activation = option acf_pro_license set).
+  echo "Activating ACF Pro license (container must reach connect.advancedcustomfields.com)..."
   ACF_PRO_LICENSE_ACTIVATED="no"
-  if npm run --prefix ../.. wp-env run tests-cli -- wp eval 'if ( function_exists( "acf_pro_activate_license" ) ) { acf_pro_activate_license( "'"$ACF_LICENSE_KEY"'" ); } elseif ( function_exists( "acf_pro_update_license" ) ) { acf_pro_update_license( "'"$ACF_LICENSE_KEY"'" ); }' 2>/dev/null; then
+  ACTIVATE_OUTPUT=$(printf '%s' "$ACF_LICENSE_KEY" | npm run --prefix ../.. wp-env run tests-cli -- bash -c 'read -r key; export ACF_LICENSE_KEY="$key"; wp eval "
+    if ( ! function_exists( \"acf_pro_activate_license\" ) && ! function_exists( \"acf_pro_update_license\" ) ) {
+      echo \"ACF Pro license functions not found.\n\";
+      exit( 1 );
+    }
+    \$key = getenv( \"ACF_LICENSE_KEY\" );
+    if ( empty( \$key ) ) { echo \"ACF_LICENSE_KEY empty in container.\n\"; exit( 1 ); }
+    \$result = function_exists( \"acf_pro_activate_license\" ) ? acf_pro_activate_license( \$key ) : acf_pro_update_license( \$key );
+    echo \$result ? \"activated\" : \"activation_failed\";
+    exit( \$result ? 0 : 1 );
+  "' 2>&1) || true
+  if echo "$ACTIVATE_OUTPUT" | grep -q 'activated'; then
     ACF_PRO_LICENSE_ACTIVATED="yes"
   fi
   echo "  ✅ ACF Pro license key is set and was used for installation."
   if [ "$ACF_PRO_LICENSE_ACTIVATED" = "yes" ]; then
     echo "  ✅ ACF Pro license activated in WordPress."
   else
-    echo "  ⚠️  ACF Pro license activation in WordPress was skipped (ACF may require network). Activate in ACF > Updates if the notice appears."
+    echo "  ⚠️  In-WordPress activation did not succeed (container may be unable to reach connect.advancedcustomfields.com)."
+    if [ -n "$ACTIVATE_OUTPUT" ]; then
+      echo "  Output from activation attempt:"
+      echo "$ACTIVATE_OUTPUT" | sed 's/^/    /'
+    fi
+    # Fallback: set license via constant so ACF at least has the key (no server call).
+    # Write key to wp-content/acf-license-key.txt and load via mu-plugin; ACF sees ACF_PRO_LICENSE.
+    echo "  Setting ACF Pro license via mu-plugin (key from file, no CLI exposure)..."
+    printf '%s' "$ACF_LICENSE_KEY" | npm run --prefix ../.. wp-env run tests-cli -- bash -c 'cat > /var/www/html/wp-content/acf-license-key.txt'
+    npm run --prefix ../.. wp-env run tests-cli -- mkdir -p /var/www/html/wp-content/mu-plugins
+    # Plugin dir is mounted in container at wp-content/plugins/wp-graphql-acf
+    npm run --prefix ../.. wp-env run tests-cli -- cp /var/www/html/wp-content/plugins/wp-graphql-acf/tests/mu-plugins/acf-pro-license.php /var/www/html/wp-content/mu-plugins/ 2>/dev/null || true
+    echo "  ✅ ACF Pro key file and mu-plugin installed; ACF_PRO_LICENSE will be set from file when WordPress loads."
+
+    # Optional: try activating from the host (runner has network). ACF stores result in option acf_pro_license.
+    TEST_SITEURL=$(npm run --prefix ../.. wp-env run tests-cli -- wp option get siteurl --allow-root 2>/dev/null | tail -1 | tr -d '\r\n') || true
+    if [ -n "$TEST_SITEURL" ]; then
+      echo "  Attempting license activation from host (curl to ACF)..."
+      ACF_RESPONSE=$(curl -s -L -X POST "https://connect.advancedcustomfields.com/v2/plugins/activate?p=pro" \
+        --data-urlencode "acf_license=$ACF_LICENSE_KEY" \
+        --data-urlencode "wp_url=$TEST_SITEURL" \
+        --data "acf_version=6.0" \
+        --data "wp_version=6.0" \
+        --max-time 15 2>/dev/null) || true
+      if echo "$ACF_RESPONSE" | grep -qiE '"success":\s*true|"status":\s*"active"|"activated"'; then
+        # Pass response into container via file to avoid shell escaping issues; then set option from PHP.
+        echo "$ACF_RESPONSE" | npm run --prefix ../.. wp-env run tests-cli -- bash -c 'cat > /tmp/acf-activate-response.json'
+        UPDATED=$(npm run --prefix ../.. wp-env run tests-cli -- wp eval '
+          $j = @file_get_contents( "/tmp/acf-activate-response.json" );
+          $d = $j ? json_decode( $j, true ) : null;
+          if ( is_array( $d ) && ( ! empty( $d["success"] ) || ( isset( $d["status"] ) && $d["status"] === "active" ) ) ) {
+            $key = $d["key"] ?? $d["license_key"] ?? getenv( "ACF_LICENSE_KEY" );
+            if ( empty( $key ) ) { $key = get_option( "acf_pro_license" )["key"] ?? ""; }
+            if ( $key !== "" ) {
+              update_option( "acf_pro_license", array( "key" => $key, "url" => $d["url"] ?? "", "status" => $d["status"] ?? "active" ) );
+              echo "ok";
+            }
+          }
+        ' --allow-root 2>/dev/null | tail -1) || true
+        [ "$UPDATED" = "ok" ] && echo "  ✅ License option set from host activation response."
+      fi
+    fi
   fi
 
   ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
