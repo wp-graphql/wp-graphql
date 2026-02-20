@@ -1,4 +1,10 @@
-import { describe, test, expect, beforeEach, afterEach } from '@playwright/test';
+import {
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+} from '@playwright/test';
 import {
 	loginToWordPressAdmin,
 	visitAdminFacingPage,
@@ -37,13 +43,19 @@ describe('Admin settings (ACF field group list)', () => {
 
 		const table = page.locator('.wp-list-table').first();
 		await expect(
-			table.locator('thead').getByRole('columnheader', { name: /graphql type/i })
+			table
+				.locator('thead')
+				.getByRole('columnheader', { name: /graphql type/i })
 		).toBeVisible();
 		await expect(
-			table.locator('thead').getByRole('columnheader', { name: /graphql interfaces/i })
+			table
+				.locator('thead')
+				.getByRole('columnheader', { name: /graphql interfaces/i })
 		).toBeVisible();
 		await expect(
-			table.locator('thead').getByRole('columnheader', { name: /graphql locations/i })
+			table
+				.locator('thead')
+				.getByRole('columnheader', { name: /graphql locations/i })
 		).toBeVisible();
 	});
 

@@ -9,10 +9,13 @@
 		"directory": "plugins/wp-graphql-acf"
 	},
 	"license": "GPL-3.0-or-later",
+	"devDependencies": {
+		"eslint": "^8.57.0"
+	},
 	"scripts": {
 		"lint": "npm run lint:js && npm run lint:php",
-		"lint:js": "wp-scripts lint-js ./tests/e2e",
-		"lint:js:fix": "wp-scripts lint-js --fix ./tests/e2e",
+		"lint:js": "eslint ./src ./tests/e2e",
+		"lint:js:fix": "eslint ./src ./tests/e2e --fix",
 		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
 		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
 		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
