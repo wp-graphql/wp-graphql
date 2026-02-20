@@ -210,7 +210,10 @@ if [ "$ACF_PRO" == "true" ]; then
   # cannot reach ACF's servers (e.g. CI network restrictions), activation fails and we fall back to
   # defining ACF_PRO_LICENSE via an mu-plugin so the key is at least set (Pro features may still require
   # a successful activation = option acf_pro_license set).
-  echo "Activating ACF Pro license (container must reach connect.advancedcustomfields.com)..."
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "::group::ACF Pro license activation"
+  fi
+  echo "Step 1: Activating ACF Pro license in WordPress (container must reach connect.advancedcustomfields.com)..."
   ACF_PRO_LICENSE_ACTIVATED="no"
   ACTIVATE_OUTPUT=$(printf '%s' "$ACF_LICENSE_KEY" | npm run --prefix ../.. wp-env run tests-cli -- bash -c 'read -r key; export ACF_LICENSE_KEY="$key"; wp eval "
     if ( ! function_exists( \"acf_pro_activate_license\" ) && ! function_exists( \"acf_pro_update_license\" ) ) {
@@ -228,26 +231,27 @@ if [ "$ACF_PRO" == "true" ]; then
   fi
   echo "  ✅ ACF Pro license key is set and was used for installation."
   if [ "$ACF_PRO_LICENSE_ACTIVATED" = "yes" ]; then
-    echo "  ✅ ACF Pro license activated in WordPress."
+    echo "  ✅ Step 1 result: ACF Pro license activated in WordPress."
   else
-    echo "  ⚠️  In-WordPress activation did not succeed (container may be unable to reach connect.advancedcustomfields.com)."
+    echo "  ⚠️  Step 1 result: In-WordPress activation did not succeed (container may be unable to reach connect.advancedcustomfields.com)."
     if [ -n "$ACTIVATE_OUTPUT" ]; then
       echo "  Output from activation attempt:"
       echo "$ACTIVATE_OUTPUT" | sed 's/^/    /'
     fi
     # Fallback: set license via constant so ACF at least has the key (no server call).
     # Write key to wp-content/acf-license-key.txt and load via mu-plugin; ACF sees ACF_PRO_LICENSE.
-    echo "  Setting ACF Pro license via mu-plugin (key from file, no CLI exposure)..."
+    echo "Step 2: Setting ACF Pro license via mu-plugin (key from file, no CLI exposure)..."
     printf '%s' "$ACF_LICENSE_KEY" | npm run --prefix ../.. wp-env run tests-cli -- bash -c 'cat > /var/www/html/wp-content/acf-license-key.txt'
     npm run --prefix ../.. wp-env run tests-cli -- mkdir -p /var/www/html/wp-content/mu-plugins
     # Plugin dir is mounted in container at wp-content/plugins/wp-graphql-acf
     npm run --prefix ../.. wp-env run tests-cli -- cp /var/www/html/wp-content/plugins/wp-graphql-acf/tests/mu-plugins/acf-pro-license.php /var/www/html/wp-content/mu-plugins/ 2>/dev/null || true
-    echo "  ✅ ACF Pro key file and mu-plugin installed; ACF_PRO_LICENSE will be set from file when WordPress loads."
+    echo "  ✅ Step 2 result: ACF Pro key file and mu-plugin installed; ACF_PRO_LICENSE will be set from file when WordPress loads."
 
     # Optional: try activating from the host (runner has network). ACF stores result in option acf_pro_license.
+    echo "Step 3: Attempting license activation from host (curl to ACF; runner has network)..."
     TEST_SITEURL=$(npm run --prefix ../.. wp-env run tests-cli -- wp option get siteurl --allow-root 2>/dev/null | tail -1 | tr -d '\r\n') || true
     if [ -n "$TEST_SITEURL" ]; then
-      echo "  Attempting license activation from host (curl to ACF)..."
+      echo "  Test site URL: $TEST_SITEURL"
       ACF_RESPONSE=$(curl -s -L -X POST "https://connect.advancedcustomfields.com/v2/plugins/activate?p=pro" \
         --data-urlencode "acf_license=$ACF_LICENSE_KEY" \
         --data-urlencode "wp_url=$TEST_SITEURL" \
@@ -269,9 +273,20 @@ if [ "$ACF_PRO" == "true" ]; then
             }
           }
         ' --allow-root 2>/dev/null | tail -1) || true
-        [ "$UPDATED" = "ok" ] && echo "  ✅ License option set from host activation response."
+        if [ "$UPDATED" = "ok" ]; then
+          echo "  ✅ Step 3 result: License option set from host activation response (acf_pro_license updated)."
+        else
+          echo "  ⚠️  Step 3 result: Host got a success-like response but option could not be set (response format may differ)."
+        fi
+      else
+        echo "  ⚠️  Step 3 result: Host activation response did not indicate success; acf_pro_license not set from host (container will rely on mu-plugin constant)."
       fi
+    else
+      echo "  ⚠️  Step 3 skipped: Could not get test site URL from container."
     fi
+  fi
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "::endgroup::"
   fi
 
   ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
