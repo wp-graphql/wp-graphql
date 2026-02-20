@@ -731,7 +731,7 @@ class Registry {
 		}
 
 		static $depth = 0;
-		$max_depth = 15;
+		$max_depth    = 15;
 		if ( $depth >= $max_depth ) {
 			graphql_debug(
 				sprintf(
@@ -762,7 +762,7 @@ class Registry {
 	 * @throws \Exception
 	 */
 	protected function ensure_nested_types_registered( array $acf_field_group ): void {
-		$raw_fields = $acf_field_group['sub_fields'] ?? $this->get_acf_fields( $acf_field_group );
+		$raw_fields   = $acf_field_group['sub_fields'] ?? $this->get_acf_fields( $acf_field_group );
 		$nested_types = [ 'clone', 'group', 'flexible_content' ];
 
 		foreach ( $raw_fields as $acf_field ) {
