@@ -2,7 +2,7 @@ $j = jQuery.noConflict();
 
 $j(document).ready(function () {
 
-	var graphqlPostTypeSettings = new acf.Model({
+	new acf.Model({
 		id: 'graphqlPostTypeSettings',
 		events: {
 			'blur .acf_singular_label': 'onChangeSingularLabel',

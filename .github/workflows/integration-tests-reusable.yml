@@ -203,13 +203,12 @@ jobs:
             fi
           fi
           
-          # Install ACF Extended
+          # Install ACF Extended only when explicitly requested (respects matrix acf_extended flag)
           # Auto-match version: If ACF Pro is installed, try to install ACF Extended Pro (if license key available)
           # Otherwise install ACF Extended Free
           # Use PHP to parse JSON (PHP is available in WordPress containers, more reliable than jq)
-          ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
-          # Install ACF Extended when requested OR for wp-graphql-acf (functional tests expect it)
-          if [ "$INPUT_ACF_EXTENDED" = "true" ] || [ "$INPUT_PLUGIN_NAME" = "wp-graphql-acf" ]; then
+          ACF_EXTENDED_PLUGIN_SLUG=""
+          if [ "$INPUT_ACF_EXTENDED" = "true" ]; then
             # If ACF Pro is installed, automatically try ACF Extended Pro (if license key available)
             # This matches the behavior of the local install-acf.sh script
             if [ "$INPUT_ACF_PRO" = "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
@@ -233,11 +232,13 @@ jobs:
                 echo "⚠️  Warning: ACF Extended Pro license key appears invalid or expired"
                 echo "   Falling back to ACF Extended Free..."
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+                ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
               else
                 echo "⚠️  Warning: Failed to install ACF Extended Pro"
                 echo "   Error: $INSTALL_RESULT"
                 echo "   Falling back to ACF Extended Free..."
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+                ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
               fi
             # Explicit request for ACF Extended Pro (even with ACF Free) - respect the flag
             elif [ "$INPUT_ACF_EXTENDED_PRO" = "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ] && [ "$ACF_EXTENDED_LICENSE_KEY" != "" ]; then
@@ -261,22 +262,25 @@ jobs:
                 echo "⚠️  Warning: ACF Extended Pro license key appears invalid or expired"
                 echo "   Falling back to ACF Extended Free..."
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+                ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
               else
                 echo "⚠️  Warning: Failed to install ACF Extended Pro"
                 echo "   Error: $INSTALL_RESULT"
                 echo "   Falling back to ACF Extended Free..."
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+                ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
               fi
             else
               echo "Installing ACF Extended Free..."
               npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
+              ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
             fi
           fi
           
           # Install WPGraphQL Content Blocks if requested
           if [ "${{ inputs.wpgraphql_content_blocks }}" = "true" ]; then
             echo "Installing WPGraphQL Content Blocks..."
-            CONTENT_BLOCKS_VERSION=$(npm run wp-env run tests-cli -- bash -c "curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | jq -r '.tag_name'")
+            CONTENT_BLOCKS_VERSION=$(npm run wp-env run tests-cli -- bash -c "curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | php -r 'echo json_decode(file_get_contents(\"php://stdin\"), true)[\"tag_name\"] ?? \"\";'")
             npm run wp-env run tests-cli -- wp plugin install "https://github.com/wpengine/wp-graphql-content-blocks/releases/download/${CONTENT_BLOCKS_VERSION}/wp-graphql-content-blocks.zip" --activate --allow-root
           fi
           
@@ -342,7 +346,7 @@ jobs:
           echo "✅ Coverage file exists: ${{ inputs.plugin_path }}/tests/_output/coverage.xml"
           echo "File size: $(wc -c < "${{ inputs.plugin_path }}/tests/_output/coverage.xml") bytes"
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage to Codecov`
         # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
         if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
         uses: codecov/codecov-action@v5

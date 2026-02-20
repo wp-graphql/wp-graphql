@@ -4,7 +4,7 @@ $j(document).ready(function () {
 
 	// Update the "graphql_field_name" when
 	// the "name" field is updated.
-	var graphqlFieldSettings = new acf.Model({
+	new acf.Model({
 		actions: {
 			'change_field_name': 'updateGraphqlFieldName',
 			'render_field_settings': 'updateGraphqlFieldName',

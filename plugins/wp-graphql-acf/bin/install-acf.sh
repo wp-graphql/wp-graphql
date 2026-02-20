@@ -106,10 +106,13 @@ if [ "$ACF_PRO" == "true" ]; then
   
   # Download to temp file first to verify it's a valid zip
   # Download the file (suppress npm output to stderr, capture curl errors)
+  # Use set +e so we can capture exit code and show a friendly message instead of exiting immediately
   echo "  Downloading..."
+  set +e
   npm run --prefix ../.. wp-env run tests-cli -- bash -c "curl -L -f -s -o '${TEMP_FILE}' --max-time 30 '${DOWNLOAD_URL}'" >/dev/null 2>&1
   CURL_EXIT=$?
-  
+  set -e
+
   if [ $CURL_EXIT -ne 0 ]; then
     echo "" >&2
     echo "❌ Error: Failed to download ACF Pro (curl exit code: $CURL_EXIT)" >&2
@@ -149,15 +152,6 @@ if [ "$ACF_PRO" == "true" ]; then
     echo "     2. Use ACF Free instead: npm run install-acf" >&2
     echo "     3. Check your internet connection" >&2
     exit 1
-  fi
-  
-  # Check if ACF Pro is already installed and remove it first
-  echo "Checking for existing ACF Pro installation..."
-  if npm run --prefix ../.. wp-env run tests-cli -- wp plugin is-installed advanced-custom-fields-pro --allow-root 2>/dev/null; then
-    echo "  Removing existing ACF Pro installation..."
-    npm run --prefix ../.. wp-env run tests-cli -- wp plugin uninstall advanced-custom-fields-pro --deactivate --allow-root 2>/dev/null || true
-    # Also remove the directory if it still exists
-    npm run --prefix ../.. wp-env run tests-cli -- rm -rf /var/www/html/wp-content/plugins/advanced-custom-fields-pro 2>/dev/null || true
   fi
   
   # Check if ACF Pro is already installed and remove it first

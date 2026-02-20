@@ -1,8 +1,0 @@
-blank_issues_enabled: false
-contact_links:
-  - name: General Help Request
-    url: https://github.com/wp-graphql/wpgraphql-acf/discussions
-    about: For general questions and help requests, create a new topic in Github Discussions
-  - name: Discord Community
-    url: https://www.wpgraphql.com/discord
-    about: The WPGraphQL Discord is a great place to communicate in real-time. Ask questions, discuss features, get to know other folks using WPGraphQL.
