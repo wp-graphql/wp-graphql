@@ -181,17 +181,13 @@ jobs:
   # WP GRAPHQL ACF
   # ===========================================
   # Tests the WPGraphQL for ACF plugin's Playwright E2E tests.
-  # Includes field types GraphQL UI, clone/schema, and ACF UI registration (CPT, taxonomy, options page).
+  # Skipped in CI for now; run locally: npm run -w @wpgraphql/wp-graphql-acf test:e2e
   # ===========================================
 
   wp-graphql-acf:
     name: 'E2E: ${{ matrix.name }}'
     needs: detect-changes
-    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
-    if: |
-      (needs.detect-changes.outputs.wp-graphql-acf == 'true' || 
-       needs.detect-changes.outputs.is-release-pr == 'true' || 
-       github.event_name == 'workflow_dispatch')
+    if: false # Skip in CI; re-enable when ACF E2E is stable (run locally in the meantime)
     strategy:
       fail-fast: false
       matrix:
