@@ -363,11 +363,15 @@ jobs:
   wp-graphql-acf:
     name: 'Integration: ${{ matrix.name }}'
     needs: detect-changes
-    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch.
+    # Skip Pro/Extended Pro rows when the required license secret is missing (e.g. forked PRs)
+    # so we don't silently run with ACF Free and fail tests that expect Pro/Extended.
     if: |
       (needs.detect-changes.outputs.wp-graphql-acf == 'true' || 
        needs.detect-changes.outputs.is-release-pr == 'true' || 
-       github.event_name == 'workflow_dispatch')
+       github.event_name == 'workflow_dispatch') &&
+      (matrix.acf_pro != true || secrets.ACF_LICENSE_KEY != '') &&
+      (matrix.acf_extended_pro != true || secrets.ACF_EXTENDED_LICENSE_KEY != '')
     strategy:
       fail-fast: false
       matrix:
