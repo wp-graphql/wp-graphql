@@ -307,6 +307,10 @@ fi
 # Install ACF Extended (only when ACF Pro is installed; not used with ACF Free)
 ACF_EXTENDED_PLUGIN_SLUG=""
 if [ "$ACF_PRO" == "true" ]; then
+  # ACF Extended allows only one version (Free or Pro) active at a time. Deactivate both before installing the one we want.
+  echo "Ensuring only one ACF Extended version (deactivating any existing)..."
+  npm run --prefix ../.. wp-env run tests-cli -- wp plugin deactivate acf-extended acf-extended-pro --allow-root 2>/dev/null || true
+
   # When ACF Pro: install Extended Pro (if flag + key) or Extended Free
   if [ "$ACF_EXTENDED_PRO" == "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ]; then
     echo "Installing ACF Extended Pro..."

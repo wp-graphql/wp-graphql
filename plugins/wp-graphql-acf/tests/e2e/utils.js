@@ -216,7 +216,10 @@ export async function openFieldByKeyAndGraphQLTab(page, fieldKey, fieldType = nu
 	const graphqlTab = panel.locator('.acf-tab-button', { hasText: 'GraphQL' }).first();
 	if ((await graphqlTab.count()) > 0) {
 		await graphqlTab.click();
-		await panel.locator('[data-name="show_in_graphql"]').first().waitFor({ state: 'visible' });
+		const tabReadyTimeout = process.env.CI ? 20000 : 10000;
+		await panel.locator('[data-name="show_in_graphql"]').first().waitFor({ state: 'visible', timeout: tabReadyTimeout });
+		// Ensure tab content is rendered (CI can be slow to paint).
+		await panel.locator('[data-name="show_in_graphql"]').getByText('Show in GraphQL').first().waitFor({ state: 'visible', timeout: tabReadyTimeout });
 	}
 }
 
@@ -231,5 +234,6 @@ export async function submitFieldGroupForm(page) {
 		.locator('#save, button[type="submit"]')
 		.first()
 		.click();
-	await page.locator('#message.notice-success').waitFor({ state: 'visible', timeout: 10000 });
+	const saveTimeout = process.env.CI ? 15000 : 10000;
+	await page.locator('#message.notice-success').waitFor({ state: 'visible', timeout: saveTimeout });
 }

@@ -51,12 +51,19 @@ function findField(fields, name) {
 	return fields?.find((f) => f.name === name) ?? null;
 }
 
+/** In CI the schema can lag after import (slower runner, no GPU); use a longer wait. */
+const SCHEMA_WAIT_MS = isCI ? 60000 : 15000;
+
 /**
  * Poll GraphQL until a type appears in the schema (or timeout). Use after importing field groups
  * so CI sees the updated schema (avoids timing/cache issues where schema lags behind import).
  * On timeout, throws with a diagnostic summary of the last response (errors, __type) for CI logs.
  */
 async function waitForSchemaType(request, query, variables, check, timeoutMs = 15000) {
+	// Give the server a moment to process the import before polling (CI is slower).
+	if (timeoutMs >= 30000) {
+		await new Promise((r) => setTimeout(r, 2000));
+	}
 	const step = 500;
 	let elapsed = 0;
 	let lastRes = null;
@@ -84,6 +91,7 @@ async function waitForSchemaType(request, query, variables, check, timeoutMs = 1
 }
 
 describeClone('Clone with repeater (import + schema)', () => {
+	if (isCI) test.setTimeout(90000);
 	beforeEach(async ({ page, request }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -94,7 +102,7 @@ describeClone('Clone with repeater (import + schema)', () => {
 			GET_TYPE_QUERY,
 			{ type: 'Flowers' },
 			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
-			isCI ? 30000 : 15000
+			SCHEMA_WAIT_MS
 		);
 	});
 
@@ -174,6 +182,7 @@ describeClone('Clone with repeater (import + schema)', () => {
 });
 
 describeClone('Clone fields (cloned group vs individual)', () => {
+	if (isCI) test.setTimeout(90000);
 	beforeEach(async ({ page, request }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -184,7 +193,7 @@ describeClone('Clone fields (cloned group vs individual)', () => {
 			GET_TYPE_QUERY,
 			{ type: 'AcfProKitchenSink' },
 			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
-			isCI ? 30000 : 15000
+			SCHEMA_WAIT_MS
 		);
 	});
 
@@ -219,6 +228,7 @@ describeClone('Clone fields (cloned group vs individual)', () => {
 });
 
 describeClone('Clone group without prefix (issue-172-b)', () => {
+	if (isCI) test.setTimeout(90000);
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -285,6 +295,7 @@ describeClone('Clone group without prefix (issue-172-b)', () => {
 });
 
 describeClone('Clone with group (issue-172 content blocks)', () => {
+	if (isCI) test.setTimeout(90000);
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
@@ -347,6 +358,7 @@ describeClone('Clone with group (issue-172 content blocks)', () => {
 });
 
 describeClone('Clone field on multiple flexible layouts (issue-197)', () => {
+	if (isCI) test.setTimeout(90000);
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);

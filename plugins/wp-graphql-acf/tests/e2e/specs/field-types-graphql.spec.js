@@ -129,15 +129,16 @@ test.describe('Field types GraphQL UI', () => {
 			runGraphQLTabTest('GraphQL tab: visibility and save of Show in GraphQL, Description, Field Name', async ({ page }) => {
 				const fieldKey = config.fieldKey;
 				const typeParam = config.type === 'text' ? null : config.type;
+				const visibilityTimeout = process.env.CI ? 15000 : 5000;
 
 				// 1) Show in GraphQL + breaking change note
 				let panel = page.locator(`div[data-key="${fieldKey}"]`).first();
 				await expect(
 					panel.locator('[data-name="show_in_graphql"]').getByText('Show in GraphQL')
-				).toBeVisible();
+				).toBeVisible({ timeout: visibilityTimeout });
 				await expect(
 					panel.locator('[data-name="show_in_graphql"] .description').getByText(/breaking change/i)
-				).toBeVisible();
+				).toBeVisible({ timeout: visibilityTimeout });
 
 				// 2) Save Show in GraphQL (uncheck then check + field name)
 				const showInGraphql = panel.locator('[data-name="show_in_graphql"]').first();
