@@ -80,7 +80,7 @@
 		"babel-jest": "^30.2.0",
 		"babel-plugin-inline-json-import": "^0.3.2",
 		"lint-staged": "^16.2.7",
-		"sort-package-json": "^3.6.1",
+		"sort-package-json": "^3.6.0",
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
 	"engines": {
