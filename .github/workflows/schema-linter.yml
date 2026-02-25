@@ -125,6 +125,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/schema-linter-reusable.yml
+    secrets: inherit
     with:
       component: wp-graphql
       plugin_path: plugins/wp-graphql
@@ -138,6 +139,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/schema-linter-reusable.yml
+    secrets: inherit
     with:
       component: wp-graphql-smart-cache
       plugin_path: plugins/wp-graphql-smart-cache

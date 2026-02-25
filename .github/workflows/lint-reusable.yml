@@ -178,7 +178,10 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          command: npm ci
 
       - name: Check if lint:js script exists
         id: check-script

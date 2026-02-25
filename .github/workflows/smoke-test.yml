@@ -167,6 +167,7 @@ jobs:
             wp: '6.1'
             php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
+    secrets: inherit
     with:
       name: ${{ matrix.name }}
       plugin_path: plugins/wp-graphql
@@ -195,6 +196,7 @@ jobs:
             wp: '6.1'
             php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
+    secrets: inherit
     with:
       name: ${{ matrix.name }}
       plugin_path: plugins/wp-graphql-smart-cache
@@ -226,6 +228,7 @@ jobs:
             wp: '6.1'
             php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
+    secrets: inherit
     with:
       name: ${{ matrix.name }}
       plugin_path: plugins/wp-graphql-ide
@@ -258,6 +261,7 @@ jobs:
             wp: '6.2'
             php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
+    secrets: inherit
     with:
       name: ${{ matrix.name }}
       plugin_path: plugins/wp-graphql-acf

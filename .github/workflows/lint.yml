@@ -131,6 +131,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
     with:
       plugin_path: plugins/wp-graphql
       plugin_name: wp-graphql
@@ -140,6 +141,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
     with:
       plugin_path: plugins/wp-graphql-smart-cache
       plugin_name: wp-graphql-smart-cache
@@ -149,6 +151,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql-ide == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
     with:
       plugin_path: plugins/wp-graphql-ide
       plugin_name: wp-graphql-ide
@@ -158,6 +161,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql-acf == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
     with:
       plugin_path: plugins/wp-graphql-acf
       plugin_name: wp-graphql-acf

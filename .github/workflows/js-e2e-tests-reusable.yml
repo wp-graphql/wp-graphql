@@ -82,7 +82,10 @@ jobs:
           composer-options: '--no-progress'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          command: npm ci
 
       # Build wp-graphql JS assets if this plugin depends on it
       # This must happen before wp-env starts so the built files are available in the container

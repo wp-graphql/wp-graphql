@@ -42,7 +42,10 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          command: npm ci
 
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0

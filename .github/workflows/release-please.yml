@@ -346,12 +346,17 @@ jobs:
         working-directory: ${{ steps.plugin_info.outputs.package_path }}
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Install NPM dependencies
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          command: npm ci
+
       - name: Install Node dependencies and build
         env:
           PLUGIN_DIR: ${{ steps.plugin_info.outputs.package_path }}
           MATRIX_COMPONENT: ${{ matrix.component }}
         run: |
-          npm ci
           # Try to build the specific component
           # First, try to detect the workspace name from the plugin's package.json
           COMPONENT="$MATRIX_COMPONENT"
