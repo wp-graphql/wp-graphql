@@ -34,6 +34,9 @@ set -e
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# Ensure wp-env is stopped on script exit (success or failure)
+trap 'npm run wp-env stop 2>/dev/null || true' EXIT
+
 echo "=== 1. npm ci ==="
 npm ci
 
