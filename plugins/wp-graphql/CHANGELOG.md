@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.9.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.0...wp-graphql/v2.9.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* Add class_exists check to is_graphql_http_request() to prevent fatal errors ([#3580](https://github.com/wp-graphql/wp-graphql/issues/3580)) ([51143f4](https://github.com/wp-graphql/wp-graphql/commit/51143f4295a7d3a1b0d961537557d802e8946971))
+* **deps:** bump webonyx/graphql-php from 15.30.0 to 15.30.1 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3564](https://github.com/wp-graphql/wp-graphql/issues/3564)) ([6f72a6f](https://github.com/wp-graphql/wp-graphql/commit/6f72a6f48727d689418b8eca312ba28656613b2e))
+* **deps:** bump webonyx/graphql-php from 15.30.1 to 15.30.2 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3584](https://github.com/wp-graphql/wp-graphql/issues/3584)) ([083d93a](https://github.com/wp-graphql/wp-graphql/commit/083d93a5bde9bc36af533b55aa8441018ae315c6))
+
 ## [2.9.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.8.0...wp-graphql/v2.9.0) (2026-02-11)
 
 
