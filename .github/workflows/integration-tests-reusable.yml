@@ -112,6 +112,24 @@ jobs:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
 
+      - name: Check ACF license (Pro/Extended Pro)
+        if: inputs.plugin_name == 'wp-graphql-acf' && (inputs.acf_pro == 'true' || inputs.acf_extended_pro == 'true')
+        env:
+          ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
+          ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
+          INPUT_ACF_PRO: ${{ inputs.acf_pro }}
+          INPUT_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
+        run: |
+          if [ "$INPUT_ACF_PRO" = "true" ] && [ -z "${ACF_LICENSE_KEY}" ]; then
+            echo "::error::ACF Pro is required for this matrix row but ACF_LICENSE_KEY is not set. Add the secret to this repo or run without ACF Pro (e.g. forked PRs)."
+            exit 1
+          fi
+          if [ "$INPUT_ACF_EXTENDED_PRO" = "true" ] && [ -z "${ACF_EXTENDED_LICENSE_KEY}" ]; then
+            echo "::error::ACF Extended Pro is required for this matrix row but ACF_EXTENDED_LICENSE_KEY is not set. Add the secret to this repo or run without ACF Extended Pro (e.g. forked PRs)."
+            exit 1
+          fi
+          echo "Required ACF license secret(s) are set."
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
