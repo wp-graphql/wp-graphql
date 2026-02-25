@@ -56,6 +56,10 @@ node_modules
 # These are built during release/deployment workflows
 build
 
+# Next.js build outputs
+.next
+out
+
 # Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
 
@@ -76,7 +80,11 @@ c3.php
 
 # output from e2e tests
 artifacts
+playwright-report
+test-results
 
 # Changesets
 # Note: Do NOT ignore .changeset/*.md files as they are needed for release management
 .changeset/pre.json
+
+external-plugins

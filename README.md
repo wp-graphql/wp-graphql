@@ -23,12 +23,16 @@ Whether you're a WordPress developer exploring GraphQL or a GraphQL expert divin
 
 ### 📁 **Repository Structure**
 
-This is a monorepo containing the WPGraphQL ecosystem of plugins:
+This is a monorepo containing the WPGraphQL ecosystem of plugins and websites:
 
 ```
 wp-graphql/
 ├── plugins/
-│   └── wp-graphql/          # WPGraphQL core plugin
+│   ├── wp-graphql/          # WPGraphQL core plugin
+│   ├── wp-graphql-ide/      # IDE extension plugin
+│   └── wp-graphql-smart-cache/ # Smart Cache extension plugin
+├── websites/
+│   └── wpgraphql.com/        # WPGraphQL.com Next.js website
 ├── .wp-env.json             # Shared WordPress environment config
 ├── package.json             # Root workspace configuration
 └── turbo.json               # Turborepo build orchestration

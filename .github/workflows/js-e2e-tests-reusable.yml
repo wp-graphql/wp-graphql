@@ -84,7 +84,7 @@ jobs:
           echo "✅ wp-graphql built successfully"
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: playwright-cache
         with:
           path: |
@@ -102,7 +102,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Build JavaScript assets
-        run: npm run build
+        run: npm run build -- --filter='./plugins/*'
 
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0
@@ -148,7 +148,7 @@ jobs:
 
       - name: Stop WordPress Environment
         if: always()
-        run: npm run wp-env -- stop
+        run: npm run wp-env -- stop || echo "wp-env not running or already stopped"
 
       - name: Upload test failure artifacts
         if: failure()

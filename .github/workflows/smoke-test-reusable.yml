@@ -85,7 +85,7 @@ jobs:
 
       - name: Build JavaScript assets
         if: inputs.needs_build == true
-        run: npm run build
+        run: npm run build -- --filter='./plugins/*'
 
       - name: Build wp-graphql zip (if required as dependency)
         if: inputs.requires_wp_graphql == true
@@ -98,7 +98,7 @@ jobs:
             # Build JS assets if needed
             if [ -f "plugins/wp-graphql/package.json" ]; then
               npm ci
-              npm run build
+              npm run build -- --filter='./plugins/*'
             fi
             # Build production zip
             cd plugins/wp-graphql
@@ -239,4 +239,4 @@ jobs:
 
       - name: Stop WordPress environment
         if: always()
-        run: npm run wp-env stop
+        run: npm run wp-env stop || echo "wp-env not running or already stopped"

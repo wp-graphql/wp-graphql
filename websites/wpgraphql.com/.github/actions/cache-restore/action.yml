@@ -1,0 +1,26 @@
+name: "Cache restoration"
+description: "Setup a NodeJS environment and restore cache if any, given a node version"
+
+outputs:
+  cache-hit:
+    description: "Forward actions/cache cache-hit output"
+    value: ${{ steps.node-cache.outputs.cache-hit }}
+
+runs:
+  using: "composite" # Mandatory parameter
+  steps:
+    # Setup a Node environment given a node version
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      id: node-setup
+      with:
+        node-version-file: '.nvmrc'
+
+    - name: Cache Node Modules
+      id: node-cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        # testing: the package-lock.json would be the same so an additional
+        # criteria is required to distinguish the caches
+        key: node-modules-${{ hashFiles('yarn.lock') }}
