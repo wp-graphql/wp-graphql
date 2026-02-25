@@ -797,4 +797,33 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 
 	}
 
+	/**
+	 * Test LocationRules::get_rules() returns empty when no mapped field groups.
+	 */
+	public function testGetRulesReturnsEmptyWhenNoMappedFieldGroups(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_location_rules();
+		$this->assertSame( [], $rules->get_rules() );
+	}
+
+	/**
+	 * Test LocationRules::set_graphql_type() and get_rules() return mapped types.
+	 */
+	public function testSetGraphqlTypeAndGetRules(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'MyGroup', 'Post' );
+		$rules->set_graphql_type( 'MyGroup', 'Page' );
+		$this->assertSame( [ 'mygroup' => [ 'Post', 'Page' ] ], $rules->get_rules() );
+	}
+
+	/**
+	 * Test LocationRules::get_rules() when unset_types has no matching mapped group returns as-is.
+	 */
+	public function testGetRulesUnsetWithNoMatchingMappedGroupReturnsAsIs(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'GroupA', 'Post' );
+		$rules->unset_graphql_type( 'GroupB', 'Post' );
+		$this->assertSame( [ 'groupa' => [ 'Post' ] ], $rules->get_rules() );
+	}
+
 }
