@@ -70,7 +70,7 @@
 		"@testing-library/jest-dom": "^6.4.2",
 		"@testing-library/react": "^14.2.1",
 		"@types/node": "^22.19.3",
-		"@wordpress/e2e-test-utils-playwright": "^0.19.0",
+		"@wordpress/e2e-test-utils-playwright": "^1.39.0",
 		"@wordpress/env": "^10.37.0",
 		"@wordpress/prettier-config": "^4.38.0",
 		"@wordpress/scripts": "^27.9.0",
