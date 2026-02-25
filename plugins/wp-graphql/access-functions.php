@@ -687,6 +687,9 @@ function is_graphql_request(): bool {
  * @since 0.4.1
  */
 function is_graphql_http_request(): bool {
+	if ( ! class_exists( '\WPGraphQL\Router' ) ) {
+		return false;
+	}
 	return Router::is_graphql_http_request();
 }
 
