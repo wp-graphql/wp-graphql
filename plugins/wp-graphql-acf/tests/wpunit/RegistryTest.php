@@ -97,4 +97,39 @@ class RegistryTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 		$this->assertArrayNotHasKey( 'group_no_graphql', $groups );
 		acf_remove_local_field_group( 'group_no_graphql' );
 	}
+
+	public function test_get_field_group_name_delegates_to_utils(): void {
+		$registry = new Registry( null );
+		$this->assertSame( 'MyGroup', $registry->get_field_group_name( [ 'graphql_field_name' => 'MyGroup' ] ) );
+		$this->assertNotEmpty( $registry->get_field_group_name( [ 'title' => 'Some Group' ] ) );
+	}
+
+	public function test_get_field_group_graphql_type_name_returns_formatted_type(): void {
+		$registry = new Registry( null );
+		$this->assertSame( 'MyGroup', $registry->get_field_group_graphql_type_name( [ 'graphql_field_name' => 'MyGroup' ] ) );
+		$this->assertSame( 'SomeGroup', $registry->get_field_group_graphql_type_name( [ 'title' => 'Some Group' ] ) );
+	}
+
+	public function test_get_field_group_graphql_type_name_returns_null_when_empty_name(): void {
+		$registry = new Registry( null );
+		$this->assertNull( $registry->get_field_group_graphql_type_name( [] ) );
+	}
+
+	public function test_get_graphql_field_name_returns_formatted_name(): void {
+		$registry = new Registry( null );
+		$this->assertNotEmpty( $registry->get_graphql_field_name( [ 'name' => 'myField' ] ) );
+		$this->assertNotEmpty( $registry->get_graphql_field_name( [ 'graphql_field_name' => 'MyGroup' ] ) );
+		$this->assertIsString( $registry->get_graphql_field_name( [ 'title' => 'Some Field' ] ) );
+	}
+
+	public function test_get_location_rules_returns_empty_when_all_groups_have_graphql_types(): void {
+		$registry = new Registry( null );
+		$groups   = [
+			[ 'key' => 'g1', 'graphql_types' => [ 'Post' ] ],
+			[ 'key' => 'g2', 'graphql_types' => [ 'Page' ] ],
+		];
+		$rules = $registry->get_location_rules( $groups );
+		$this->assertIsArray( $rules );
+		$this->assertEmpty( $rules );
+	}
 }

@@ -1164,4 +1164,36 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$this->assertSame( 'DefaultTemplate', $templates['default'] );
 	}
 
+	// --- determine_post_format_rules ---
+
+	public function testDeterminePostFormatRulesWhenPostSupportsFormat(): void {
+		$tax = get_taxonomy( 'post_format' );
+		if ( ! $tax || empty( $tax->object_type ) || ! in_array( 'post', $tax->object_type, true ) ) {
+			$this->markTestSkipped( 'post_format taxonomy or post type support not available' );
+		}
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_format_rules( 'MyGroup', 'post_format', '==', 'post' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'Post', $result['mygroup'] );
+	}
+
+	// --- determine_rules default / do_action ---
+
+	public function testDetermineRulesDefaultFiresMatchLocationRuleAction(): void {
+		$fired = false;
+		add_action( 'wpgraphql/acf/match_location_rule', function ( $fg_name, $param, $operator, $value, $rules_instance ) use ( &$fired ) {
+			$fired = true;
+			$this->assertSame( 'MyGroup', $fg_name );
+			$this->assertSame( 'custom_param', $param );
+			$this->assertSame( '==', $operator );
+			$this->assertSame( 'custom_value', $value );
+			$this->assertInstanceOf( \WPGraphQL\Acf\LocationRules\LocationRules::class, $rules_instance );
+		}, 10, 5 );
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_rules( 'MyGroup', 'custom_param', '==', 'custom_value' );
+		remove_all_filters( 'wpgraphql/acf/match_location_rule' );
+		$this->assertTrue( $fired, 'wpgraphql/acf/match_location_rule should fire for unknown param' );
+	}
+
 }
