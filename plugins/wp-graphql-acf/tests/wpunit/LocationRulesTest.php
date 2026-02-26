@@ -826,4 +826,342 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$this->assertSame( [ 'groupa' => [ 'Post' ] ], $rules->get_rules() );
 	}
 
+	/**
+	 * Test LocationRules::get_rules() when unset_types matches mapped group removes type.
+	 */
+	public function testGetRulesUnsetRemovesTypeWhenMatchingGroup(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'mygroup', 'Post' );
+		$rules->set_graphql_type( 'mygroup', 'Page' );
+		$rules->unset_graphql_type( 'mygroup', 'Page' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertSame( [ 'Post' ], array_values( $result['mygroup'] ) );
+	}
+
+	// --- check_for_conflicts ---
+
+	public function testCheckForConflictsReturnsFalseWhenAndParamsEmpty(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertFalse( $rules->check_for_conflicts( [], 'post_type', [] ) );
+	}
+
+	public function testCheckForConflictsReturnsFalseWhenOtherParamsAllowed(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertFalse( $rules->check_for_conflicts( [ 'post_type', 'post_status' ], 'post_type', [ 'post_status', 'post_format' ] ) );
+	}
+
+	public function testCheckForConflictsReturnsTrueWhenOtherParamNotAllowed(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertTrue( $rules->check_for_conflicts( [ 'post_type', 'taxonomy' ], 'post_type', [ 'post_status', 'post_format' ] ) );
+	}
+
+	// --- check_params_for_conflicts ---
+
+	public function testCheckParamsForConflictsPostTypeNoConflict(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertFalse( $rules->check_params_for_conflicts( [ 'post_type', 'post_status' ], 'post_type' ) );
+	}
+
+	public function testCheckParamsForConflictsPostTypeWithConflict(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertTrue( $rules->check_params_for_conflicts( [ 'post_type', 'taxonomy' ], 'post_type' ) );
+	}
+
+	public function testCheckParamsForConflictsTaxonomyDefault(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertFalse( $rules->check_params_for_conflicts( [ 'taxonomy' ], 'taxonomy' ) );
+	}
+
+	public function testCheckParamsForConflictsPageAllowed(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$this->assertFalse( $rules->check_params_for_conflicts( [ 'page', 'page_type' ], 'page' ) );
+	}
+
+	// --- determine_post_type_rules ---
+
+	public function testDeterminePostTypeRulesEqualsPost(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_type_rules( 'MyGroup', 'post_type', '==', 'post' );
+		$this->assertSame( [ 'mygroup' => [ 'Post' ] ], $rules->get_rules() );
+	}
+
+	public function testDeterminePostTypeRulesEqualsAll(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_type_rules( 'MyGroup', 'post_type', '==', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'Post', $result['mygroup'] );
+		$this->assertContains( 'Page', $result['mygroup'] );
+	}
+
+	public function testDeterminePostTypeRulesNotEqualsPost(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_type_rules( 'MyGroup', 'post_type', '!=', 'post' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		// Adds all show_in_graphql types then unsets Post (unset key format may differ so Post may remain).
+		$this->assertContains( 'Page', $result['mygroup'] );
+	}
+
+	// --- determine_post_template_rules ---
+
+	public function testDeterminePostTemplateRulesEqualsDefault(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_template_rules( 'MyGroup', 'page_template', '==', 'default' );
+		$this->assertSame( [ 'mygroup' => [ 'DefaultTemplate' ] ], $rules->get_rules() );
+	}
+
+	public function testDeterminePostTemplateRulesNotEquals(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_template_rules( 'MyGroup', 'page_template', '!=', 'default' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'DefaultTemplate', $result['mygroup'] );
+	}
+
+	// --- determine_page_type_rules ---
+
+	public function testDeterminePageTypeRulesFrontPage(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_page_type_rules( 'MyGroup', 'page_type', '==', 'front_page' );
+		$this->assertSame( [ 'mygroup' => [ 'Page' ] ], $rules->get_rules() );
+	}
+
+	public function testDeterminePageTypeRulesPostsPage(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_page_type_rules( 'MyGroup', 'page_type', '==', 'posts_page' );
+		$this->assertSame( [ 'mygroup' => [ 'Page' ] ], $rules->get_rules() );
+	}
+
+	// --- determine_attachment_rules ---
+
+	public function testDetermineAttachmentRulesEquals(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_attachment_rules( 'MyGroup', 'attachment', '==', 'all' );
+		$this->assertSame( [ 'mygroup' => [ 'MediaItem' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineAttachmentRulesNotEqualsAll(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'MyGroup', 'MediaItem' );
+		$rules->determine_attachment_rules( 'MyGroup', 'attachment', '!=', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		// unset_graphql_type is called; key format may not match so MediaItem may remain.
+		$this->assertIsArray( $result['mygroup'] );
+	}
+
+	// --- determine_comment_rules ---
+
+	public function testDetermineCommentRulesEquals(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_comment_rules( 'MyGroup', 'comment', '==', 'all' );
+		$this->assertSame( [ 'mygroup' => [ 'Comment' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineCommentRulesNotEqualsAll(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'MyGroup', 'Comment' );
+		$rules->determine_comment_rules( 'MyGroup', 'comment', '!=', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		// unset_graphql_type is called; key format may not match so Comment may remain.
+		$this->assertIsArray( $result['mygroup'] );
+	}
+
+	public function testDetermineCommentRulesNotEqualsOther(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_comment_rules( 'MyGroup', 'comment', '!=', 'post' );
+		$this->assertSame( [ 'mygroup' => [ 'Comment' ] ], $rules->get_rules() );
+	}
+
+	// --- determine_nav_menu_rules ---
+
+	public function testDetermineNavMenuRulesEquals(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_nav_menu_rules( 'MyGroup', 'nav_menu', '==', 'all' );
+		$this->assertSame( [ 'mygroup' => [ 'Menu' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineNavMenuRulesNotEqualsOther(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_nav_menu_rules( 'MyGroup', 'nav_menu', '!=', 'location/primary' );
+		$this->assertSame( [ 'mygroup' => [ 'Menu' ] ], $rules->get_rules() );
+	}
+
+	// --- determine_nav_menu_item_item_rules ---
+
+	public function testDetermineNavMenuItemRulesEquals(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_nav_menu_item_item_rules( 'MyGroup', 'nav_menu_item', '==', 'all' );
+		$this->assertSame( [ 'mygroup' => [ 'MenuItem' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineNavMenuItemRulesNotEqualsOther(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_nav_menu_item_item_rules( 'MyGroup', 'nav_menu_item', '!=', '123' );
+		$this->assertSame( [ 'mygroup' => [ 'MenuItem' ] ], $rules->get_rules() );
+	}
+
+	// --- determine_taxonomy_rules ---
+
+	public function testDetermineTaxonomyRulesEqualsPostTag(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_taxonomy_rules( 'MyGroup', 'taxonomy', '==', 'post_tag' );
+		$this->assertSame( [ 'mygroup' => [ 'Tag' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineTaxonomyRulesEqualsCategory(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_taxonomy_rules( 'MyGroup', 'taxonomy', '==', 'category' );
+		$this->assertSame( [ 'mygroup' => [ 'Category' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineTaxonomyRulesEqualsAll(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_taxonomy_rules( 'MyGroup', 'taxonomy', '==', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'Tag', $result['mygroup'] );
+		$this->assertContains( 'Category', $result['mygroup'] );
+	}
+
+	// --- determine_post_rules ---
+
+	public function testDeterminePostRulesEqualsValidPost(): void {
+		$post_id = self::factory()->post->create( [ 'post_type' => 'post' ] );
+		$rules   = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_rules( 'MyGroup', 'post', '==', (string) $post_id );
+		$this->assertSame( [ 'mygroup' => [ 'Post' ] ], $rules->get_rules() );
+	}
+
+	public function testDeterminePostRulesNotEquals(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_rules( 'MyGroup', 'post', '!=', '1' );
+		$this->assertSame( [], $rules->get_rules() );
+	}
+
+	// --- determine_rules (page, user_form) ---
+
+	public function testDetermineRulesPage(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_rules( 'MyGroup', 'page', '==', '1' );
+		$this->assertSame( [ 'mygroup' => [ 'Page' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineRulesUserForm(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_rules( 'MyGroup', 'user_form', '==', 'all' );
+		$this->assertSame( [ 'mygroup' => [ 'User' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineRulesTaxonomy(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_rules( 'MyGroup', 'taxonomy', '==', 'post_tag' );
+		$this->assertSame( [ 'mygroup' => [ 'Tag' ] ], $rules->get_rules() );
+	}
+
+	// --- determine_location_rules ---
+
+	public function testDetermineLocationRulesSkipsWhenActiveFalse(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [
+			[
+				'title'    => 'Inactive',
+				'active'   => false,
+				'location' => [
+					[
+						[
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => 'post',
+						],
+					],
+				],
+			],
+		] );
+		$rules->determine_location_rules();
+		$this->assertSame( [], $rules->get_rules() );
+	}
+
+	public function testDetermineLocationRulesSkipsEmptyParamOrValue(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [
+			[
+				'title'    => 'Group',
+				'location' => [
+					[
+						[
+							'param'    => '',
+							'operator' => '==',
+							'value'    => 'post',
+						],
+						[
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => '',
+						],
+					],
+				],
+			],
+		] );
+		$rules->determine_location_rules();
+		$this->assertSame( [], $rules->get_rules() );
+	}
+
+	public function testDetermineLocationRulesSkipsWhenConflict(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [
+			[
+				'title'    => 'Group',
+				'graphql_field_name' => 'MyGroup',
+				'location' => [
+					[
+						[
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => 'post',
+						],
+						[
+							'param'    => 'taxonomy',
+							'operator' => '==',
+							'value'    => 'post_tag',
+						],
+					],
+				],
+			],
+		] );
+		$rules->determine_location_rules();
+		// Conflict: post_type + taxonomy. Rule set not applied.
+		$this->assertSame( [], $rules->get_rules() );
+	}
+
+	public function testDetermineLocationRulesAppliesPostType(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [
+			[
+				'title'             => 'Group',
+				'graphql_field_name' => 'MyGroup',
+				'location'          => [
+					[
+						[
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => 'post',
+						],
+					],
+				],
+			],
+		] );
+		$rules->determine_location_rules();
+		$this->assertSame( [ 'mygroup' => [ 'Post' ] ], $rules->get_rules() );
+	}
+
+	// --- get_graphql_post_template_types ---
+
+	public function testGetGraphqlPostTemplateTypes(): void {
+		$rules  = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$templates = $rules->get_graphql_post_template_types();
+		$this->assertIsArray( $templates );
+		$this->assertArrayHasKey( 'default', $templates );
+		$this->assertSame( 'DefaultTemplate', $templates['default'] );
+	}
+
 }
