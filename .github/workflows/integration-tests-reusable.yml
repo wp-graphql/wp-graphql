@@ -302,7 +302,12 @@ jobs:
           # Install WPGraphQL Content Blocks if requested
           if [ "${{ inputs.wpgraphql_content_blocks }}" = "true" ]; then
             echo "Installing WPGraphQL Content Blocks..."
-            CONTENT_BLOCKS_VERSION=$(npm run wp-env run tests-cli -- bash -c "curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | php -r 'echo json_decode(file_get_contents(\"php://stdin\"), true)[\"tag_name\"] ?? \"\";'")
+            # Fetch latest tag from GitHub API on the runner to avoid wp-env stdout mixing with the version string
+            CONTENT_BLOCKS_VERSION=$(curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | jq -r '.tag_name // empty')
+            if [ -z "$CONTENT_BLOCKS_VERSION" ]; then
+              echo "::error::Failed to resolve WPGraphQL Content Blocks latest release tag"
+              exit 1
+            fi
             npm run wp-env run tests-cli -- wp plugin install "https://github.com/wpengine/wp-graphql-content-blocks/releases/download/${CONTENT_BLOCKS_VERSION}/wp-graphql-content-blocks.zip" --activate --allow-root
           fi
           
