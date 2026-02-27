@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.4.1...wp-graphql-acf/v2.5.0) (2026-02-27)
+
+
+### New Features
+
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581)) ([40967cb](https://github.com/wp-graphql/wp-graphql/commit/40967cb5e68a3e6964828d054a4323b2327b271d))
+
 ## 2.4.1
 
 ### Chores / Bugfixes
