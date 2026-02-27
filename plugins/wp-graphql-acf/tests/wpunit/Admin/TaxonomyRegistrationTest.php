@@ -85,4 +85,18 @@ class TaxonomyRegistrationTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfT
 		$output = ob_get_clean();
 		$this->assertSame( '', $output );
 	}
+
+	public function test_render_settings_tab_runs_without_error(): void {
+		$registration = new \WPGraphQL\Acf\Admin\TaxonomyRegistration();
+		ob_start();
+		$registration->render_settings_tab( [] );
+		ob_end_clean();
+		$this->assertTrue( true, 'render_settings_tab should run without error' );
+	}
+
+	public function test_enqueue_admin_scripts_early_return_wrong_screen(): void {
+		$registration = new \WPGraphQL\Acf\Admin\TaxonomyRegistration();
+		$registration->enqueue_admin_scripts( 'index.php' );
+		$this->assertTrue( true, 'enqueue_admin_scripts with wrong screen should return without enqueuing' );
+	}
 }

@@ -143,4 +143,11 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 		$this->assertNotEmpty( $wp_meta_boxes['acf-field-group'] );
 		$this->assertArrayHasKey( 'wpgraphql-acf-meta-box', $wp_meta_boxes['acf-field-group']['normal']['default'] ?? [] );
 	}
+
+	public function test_wpgraphql_admin_table_columns_html_default_column_echoes_null(): void {
+		ob_start();
+		$this->settings->wpgraphql_admin_table_columns_html( 'unknown-column', 0 );
+		$output = ob_get_clean();
+		$this->assertSame( '', $output );
+	}
 }

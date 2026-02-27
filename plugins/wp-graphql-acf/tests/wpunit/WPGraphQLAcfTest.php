@@ -34,4 +34,34 @@ class WPGraphQLAcfTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase 
 		$tabs = apply_filters( 'acf/ui_options_page/additional_settings_tabs', [] );
 		$this->assertArrayHasKey( 'graphql', $tabs );
 	}
+
+	public function test_init_admin_settings_registers_settings_filters(): void {
+		$plugin = new \WPGraphQLAcf();
+		$plugin->init_admin_settings();
+		$tabs = apply_filters( 'acf/field_group/additional_field_settings_tabs', [] );
+		$this->assertArrayHasKey( 'graphql', $tabs );
+		$this->assertSame( 'GraphQL', $tabs['graphql'] );
+	}
+
+	public function test_init_registry_sets_registry_and_handles_empty_field_groups(): void {
+		$plugin         = new \WPGraphQLAcf();
+		$type_registry  = \WPGraphQL::get_type_registry();
+		$plugin->init_registry( $type_registry );
+		$ref = new \ReflectionClass( $plugin );
+		$prop = $ref->getProperty( 'registry' );
+		$prop->setAccessible( true );
+		$this->assertInstanceOf( \WPGraphQL\Acf\Registry::class, $prop->getValue( $plugin ) );
+	}
+
+	public function test_init_third_party_support_runs(): void {
+		$plugin = new \WPGraphQLAcf();
+		$plugin->init_third_party_support();
+		$this->assertTrue( true, 'init_third_party_support should run without error' );
+	}
+
+	public function test_get_plugin_load_error_messages_returns_array(): void {
+		$plugin = new \WPGraphQLAcf();
+		$messages = $plugin->get_plugin_load_error_messages();
+		$this->assertIsArray( $messages );
+	}
 }

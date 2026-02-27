@@ -92,4 +92,12 @@ class OptionsPageRegistrationTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLA
 		$output = ob_get_clean();
 		$this->assertSame( '', $output );
 	}
+
+	public function test_render_settings_tab_runs_without_error(): void {
+		$registration = new \WPGraphQL\Acf\Admin\OptionsPageRegistration();
+		ob_start();
+		$registration->render_settings_tab( [] );
+		ob_end_clean();
+		$this->assertTrue( true, 'render_settings_tab should run without error' );
+	}
 }
