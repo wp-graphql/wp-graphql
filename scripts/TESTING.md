@@ -21,6 +21,7 @@ The `update-version-constants.test.js` test suite includes:
 - ✅ `wp-graphql` (uses `constants.php` + `wp-graphql.php`)
 - ✅ `wp-graphql-smart-cache` (uses `wp-graphql-smart-cache.php` for both)
 - ✅ `wp-graphql-ide` (uses `wpgraphql-ide.php` for both)
+- ✅ `wp-graphql-acf` (uses `wpgraphql-acf.php` for both)
 - Edge cases, placeholders, error handling, etc.
 
 **Integration Test (1 test)** that:

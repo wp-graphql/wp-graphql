@@ -30,7 +30,8 @@ wp-graphql/
 ├── plugins/
 │   ├── wp-graphql/          # WPGraphQL core plugin
 │   ├── wp-graphql-ide/      # IDE extension plugin
-│   └── wp-graphql-smart-cache/ # Smart Cache extension plugin
+│   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
+│   └── wp-graphql-acf/      # ACF extension plugin
 ├── websites/
 │   └── wpgraphql.com/        # WPGraphQL.com Next.js website
 ├── .wp-env.json             # Shared WordPress environment config
@@ -102,7 +103,7 @@ This focus keeps WPGraphQL maintainable while enabling a rich ecosystem of exten
 
 - **Flexible API**: Access posts, pages, custom post types, taxonomies, users, and more.
 - **Extendable Schema**: Easily add functionality with functions like `register_graphql_field` and `register_graphql_connection`.
-  - Plugins like [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache), [WPGraphQL for ACF](https://github.com/wp-graphql/wp-graphql-acf) and [other extension plugins](https://wpgraphql.com/extensions) demonstrate the power of extendability.
+  - Plugins like [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache), [WPGraphQL for ACF](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-acf) and [other extension plugins](https://wpgraphql.com/extensions) demonstrate the power of extendability.
 - **Modern Framework Integration**: Works seamlessly with [Next.js](https://vercel.com/guides/wordpress-with-vercel), [Svelte](https://www.okupter.com/blog/headless-wordpress-graphql-sveltekit), [Astro](https://docs.astro.build/en/guides/cms/wordpress/) and other frameworks.
 - **Optimized Performance**: Query only the data you need. Collect multiple resources in one request, reducing round-trips. Use [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache) for enhanced performance and network-level caching and cache-invalidation.
 - **Developer Tools**: Explore the schema with tools like the [GraphiQL IDE](https://www.wpgraphql.com/docs/wp-graphiql) and [WordPress Playground](https://wordpress.org/plugins/wp-graphql/?preview=1).

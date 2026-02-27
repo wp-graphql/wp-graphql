@@ -21,6 +21,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Compares schema against previous releases to detect breaking changes
 - Each plugin's schema is compared against its own release history (e.g., `wp-graphql/v2.7.0`, `wp-graphql-smart-cache/v1.0.0`)
 - Supports plugins that extend the schema (e.g., smart-cache tests with both wp-graphql and smart-cache active)
+- wp-graphql-acf is in the monorepo; a commented example job in `schema-linter.yml` can be uncommented to enable schema linting for it
 
 ### 3. Testing Integration (`testing-integration.yml`)
 
@@ -49,7 +50,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Handles plugin dependencies (e.g., builds wp-graphql first if required by another plugin)
 - Installs plugins in a clean WordPress environment
 - Runs smoke tests to verify core functionality
-- Currently tests: wp-graphql (WP 6.8/PHP 8.3, WP 6.1/PHP 7.4) and wp-graphql-smart-cache (same versions)
+- Currently tests: wp-graphql, wp-graphql-ide, wp-graphql-smart-cache, and wp-graphql-acf (WP 6.8/PHP 8.3, WP 6.1–6.2/PHP 7.4 boundary versions)
 
 ### 6. CodeQL Analysis (`codeql-analysis.yml`)
 

@@ -56,7 +56,7 @@ node scripts/update-version-constants.js --version=X.Y.Z --component=wp-graphql 
 | Argument | Required | Description |
 |----------|----------|-------------|
 | `--version` | Yes | The version number to set |
-| `--component` | Yes | Component name (e.g., `wp-graphql`, `wp-graphql-smart-cache`) |
+| `--component` | Yes | Component name (e.g., `wp-graphql`, `wp-graphql-smart-cache`, `wp-graphql-acf`) |
 | `--plugin-dir` | Yes | Path to plugin directory (relative to repo root) |
 
 **How it works**:
