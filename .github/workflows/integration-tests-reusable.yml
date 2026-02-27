@@ -371,6 +371,9 @@ jobs:
           echo "✅ Coverage file exists: ${{ inputs.plugin_path }}/tests/_output/coverage.xml"
           echo "File size: $(wc -c < "${{ inputs.plugin_path }}/tests/_output/coverage.xml") bytes"
 
+      # Upload is tied to the commit that triggered this run (GITHUB_SHA). With
+      # concurrency cancel-in-progress, only the latest commit gets a completed
+      # run, so older commits in the PR show "Upload: X" in Codecov—that is expected.
       - name: Upload coverage to Codecov
         # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
         if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
