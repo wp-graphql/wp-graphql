@@ -151,12 +151,12 @@ class WPGraphQLAcf {
 	 *
 	 * NOTE: this currently only works if classic editor is not being used
 	 *
-	 * @param bool   $should Whether to resolve using the parent object. Default true.
-	 * @param int    $object_id The ID of the object to resolve meta for
-	 * @param string $meta_key The key for the meta to resolve
-	 * @param bool   $single Whether a single value should be returned
+	 * @param bool    $should Whether to resolve using the parent object. Default true.
+	 * @param int     $object_id The ID of the object to resolve meta for
+	 * @param ?string $meta_key The key for the meta to resolve (null when get_post_meta is called with only object_id).
+	 * @param ?bool   $single Whether a single value should be returned
 	 */
-	public function preview_support( bool $should, int $object_id, string $meta_key, bool $single ): bool {
+	public function preview_support( bool $should, int $object_id, ?string $meta_key, ?bool $single ): bool {
 		if ( ! $this->registry instanceof Registry ) {
 			return (bool) $should;
 		}
@@ -171,6 +171,11 @@ class WPGraphQLAcf {
 		// see: https://github.com/WordPress/gutenberg/issues/16006#issuecomment-657965028
 		if ( \use_block_editor_for_post( $preview_post ) ) {
 			graphql_debug( __( 'The post you are querying as a preview uses the Block Editor and saving & previewing meta is not fully supported by the block editor. This is a WordPress block editor bug. See: https://github.com/WordPress/gutenberg/issues/16006#issuecomment-657965028', 'wpgraphql-acf' ) );
+			return (bool) $should;
+		}
+
+		// When meta_key is null or empty (e.g. get_post_meta( $id ) with one argument), passthrough.
+		if ( $meta_key === null || $meta_key === '' ) {
 			return (bool) $should;
 		}
 
