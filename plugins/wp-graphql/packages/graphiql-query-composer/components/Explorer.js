@@ -11,6 +11,8 @@ const { useState, useEffect } = wp.element;
  *
  * Provides helpful context, especially for URL mismatch issues that commonly
  * occur with local development tools like LocalWP.
+ * @param root0
+ * @param root0.error
  */
 const SchemaErrorMessage = ({ error }) => {
 	const hasUrlMismatch = error?.urlMismatch;
@@ -107,12 +109,16 @@ const SchemaErrorMessage = ({ error }) => {
 /**
  * Establish some markup to wrap the Explorer with. Sets up some dimension and styling constraints.
  *
- * @param schema
- * @param schemaError
- * @param schemaLoading
- * @param children
- * @returns {JSX.Element}
- * @constructor
+ * @param  schema.schema
+ * @param  schema
+ * @param  schemaError
+ * @param  schemaLoading
+ * @param  children
+ * @param  schema.schemaError
+ * @param  schema.schemaLoading
+ * @param  schema.children
+ * @return {JSX.Element}
+ * @class
  */
 const Wrapper = ({ schema, schemaError, schemaLoading, children }) => {
 	if (schemaLoading) {
@@ -168,8 +174,9 @@ const Wrapper = ({ schema, schemaError, schemaLoading, children }) => {
 /**
  * This is the main Explorer component that adds the "Query Builder" UI to GraphiQL
  *
- * @returns {JSX.Element}
- * @constructor
+ * @param  props
+ * @return {JSX.Element}
+ * @class
  */
 const Explorer = (props) => {
 	const { query, setQuery } = props;
@@ -185,7 +192,7 @@ const Explorer = (props) => {
 		if (document !== parsedQuery) {
 			setDocument(parsedQuery);
 		}
-	}, [query]);
+	}, [query, document]);
 
 	return (
 		<>

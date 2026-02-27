@@ -54,6 +54,8 @@ npm run -w @wpgraphql/wp-graphql test:codecept:functional
 
 # E2E (Playwright)
 npm run -w @wpgraphql/wp-graphql test:e2e
+npm run -w @wpgraphql/wp-graphql-acf test:e2e   # wp-graphql-acf (requires wp-env + install-test-deps)
+# Local-only: full CI-like run for wp-graphql-acf (build, wp-env, install ACF, test, stop): ./bin/run-acf-e2e-local.sh
 
 # Other plugins
 npm run -w @wpgraphql/wp-graphql-smart-cache test:codecept:wpunit

@@ -5,8 +5,8 @@ const { hooks, useAppContext } = window.wpGraphiQL;
 /**
  * Returns a public fetcher with no credentials/nonce used
  *
- * @param endpoint
- * @returns {function(*=): Promise<*>}
+ * @param  endpoint
+ * @return {function(*=): Promise<*>}
  */
 export const getPublicFetcher = (endpoint) => {
 	return (params) => {

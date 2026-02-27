@@ -85,7 +85,11 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install dependencies
-        run: npm ci
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

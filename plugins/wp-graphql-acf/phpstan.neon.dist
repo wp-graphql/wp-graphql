@@ -1,0 +1,30 @@
+parameters:
+    level: 8
+    inferPrivatePropertyTypeFromConstructor: true
+    treatPhpDocTypesAsCertain: false
+    stubFiles:
+        # Simulate added properties
+        - phpstan/class-wp-post-type.stub
+        - phpstan/class-wp-taxonomy.stub
+        - phpstan/class-wp-dependency.stub
+    bootstrapFiles:
+        - vendor/php-stubs/acf-pro-stubs/acf-pro-stubs.php
+        - phpstan/constants.php
+        - wpgraphql-acf.php
+        - access-functions.php
+        - activation.php
+        - deactivation.php
+    paths:
+        - wpgraphql-acf.php
+        - access-functions.php
+        - activation.php
+        - deactivation.php
+        - src/
+    scanFiles:
+        - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
+    excludePaths:
+      analyseAndScan:
+        - */node_modules/*
+        - */vendor/*
+    ignoreErrors:
+        - identifier: missingType.iterableValue

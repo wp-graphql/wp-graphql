@@ -1,0 +1,113 @@
+{
+  "name": "wp-graphql/wpgraphql-acf",
+  "description": "Use field groups and fields from Advanced Custom Fields in your WPGraphQL API",
+  "type": "wordpress-plugin",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Jason Bahl",
+      "email": "jasonbahl@mac.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1 || ^8.0",
+    "appsero/client": "1.2.1"
+  },
+  "require-dev": {
+    "automattic/vipwpcs": "^3.0",
+    "lucatume/wp-browser": "^3.7.0",
+    "codeception/module-asserts": "^1.3",
+    "codeception/module-phpbrowser": "^1.0",
+    "codeception/module-webdriver": "^1.4",
+    "codeception/module-db": "^1.2",
+    "codeception/module-filesystem": "^1.0",
+    "codeception/module-cli": "^1.1",
+    "codeception/util-universalframework": "^1.0",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpstan/phpstan": "^1.10",
+    "szepeviktor/phpstan-wordpress": "~1.3.0",
+    "codeception/module-rest": "^2.0",
+    "wp-graphql/wp-graphql-testcase": "~2.3",
+    "phpunit/phpunit": "^9.5",
+    "slevomat/coding-standard": "^8.9",
+    "phpstan/extension-installer": "^1.3",
+    "php-stubs/acf-pro-stubs": "6.*",
+    "wp-cli/wp-cli-bundle": "^2.8",
+    "axepress/wp-graphql-stubs": "^1.16",
+    "guzzlehttp/psr7": "^2.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4"
+    },
+    "optimize-autoloader": true,
+    "process-timeout": 0,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "files": [
+      "access-functions.php",
+      "activation.php",
+      "deactivation.php"
+    ],
+    "psr-4": {
+      "WPGraphQL\\Acf\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\WPGraphQL\\Acf\\": "tests/_support/"
+    }
+  },
+  "scripts": {
+    "install-test-env": "bash bin/install-test-env.sh",
+    "docker-build": "bash bin/run-docker.sh build",
+    "docker-run": "bash bin/run-docker.sh run",
+    "docker-destroy": "docker compose down",
+    "build-and-run": [
+      "@docker-build",
+      "@docker-run"
+    ],
+    "build-app": "@docker-build -a",
+    "build-test": "@docker-build -t",
+    "build-plugin": [
+      "composer install --no-dev",
+      "composer run-script zip",
+      "composer install"
+    ],
+    "run-app": "@docker-run -a",
+    "run-test": [
+      "php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+      "bash bin/run-docker.sh run -t"
+    ],
+    "lint": "vendor/bin/phpcs",
+    "phpcs-i": [
+      "php ./vendor/bin/phpcs -i"
+    ],
+    "check-cs": [
+      "php ./vendor/bin/phpcs"
+    ],
+    "fix-cs": [
+      "php ./vendor/bin/phpcbf"
+    ],
+    "phpstan": [
+      "phpstan analyze --ansi --memory-limit=1G"
+    ],
+    "post-install-cmd": [
+      "rm ./vendor/appsero/client/src/Updater.php",
+      "cp ./build/Updater.php ./vendor/appsero/client/src/"
+    ],
+    "zip": [
+      "# Note: WordPress.org requires 'wpgraphql-acf' (no hyphen between wp and graphql)",
+      "# We keep the directory name as 'wp-graphql-acf' to match core 'wp-graphql' convention",
+      "# but the zip must use the WordPress.org-compliant slug for deployment",
+      "mkdir -p ../../plugin-build/wpgraphql-acf",
+      "rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wpgraphql-acf/ --delete --delete-excluded -v",
+      "cd ../../plugin-build ; zip -r wpgraphql-acf.zip wpgraphql-acf",
+      "rm -rf ../../plugin-build/wpgraphql-acf/"
+    ]
+  }
+}

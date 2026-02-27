@@ -12,7 +12,7 @@ import { getNonce } from '../context/AppContext';
  * are properly authenticated when the user is logged into WordPress.
  *
  * @param {string} uri The GraphQL endpoint URL
- * @returns {ApolloClient} Configured Apollo Client instance
+ * @return {ApolloClient} Configured Apollo Client instance
  */
 export const client = (uri) => {
 	const nonce = getNonce();

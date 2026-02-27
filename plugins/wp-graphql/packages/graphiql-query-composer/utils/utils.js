@@ -36,8 +36,8 @@ const DEFAULT_OPERATION = {
 /**
  * Parse the GraphQL Query document
  *
- * @param query
- * @returns {Error|null|*}
+ * @param  query
+ * @return {Error|null|*}
  */
 const parseQuery = (query) => {
 	try {
@@ -59,27 +59,27 @@ export const defaultGetDefaultFieldNames = (type) => {
 	const fields = type.getFields();
 
 	// Is there an `id` field?
-	if (fields['id']) {
+	if (fields.id) {
 		const res = ['id'];
-		if (fields['email']) {
+		if (fields.email) {
 			res.push('email');
-		} else if (fields['name']) {
+		} else if (fields.name) {
 			res.push('name');
 		}
 		return res;
 	}
 
 	// Is there an `edges` field?
-	if (fields['edges']) {
+	if (fields.edges) {
 		return ['edges'];
 	}
 
 	// Is there an `node` field?
-	if (fields['node']) {
+	if (fields.node) {
 		return ['node'];
 	}
 
-	if (fields['nodes']) {
+	if (fields.nodes) {
 		return ['nodes'];
 	}
 
@@ -213,28 +213,25 @@ export const DEFAULT_DOCUMENT = {
 /**
  * Memoize the parsed query
  *
- * @param query
- * @returns {{kind: string, definitions: {selectionSet: {selections: *[], kind: string}, variableDefinitions: *[], directives: *[], kind: string, name: {kind: string, value: string}, operation: string}[]}|*}
+ * @param  query
+ * @return {{kind: string, definitions: {selectionSet: {selections: *[], kind: string}, variableDefinitions: *[], directives: *[], kind: string, name: {kind: string, value: string}, operation: string}[]}|*}
  */
 export const memoizeParseQuery = (query) => {
 	if (parseQueryMemoize && parseQueryMemoize[0] === query) {
 		return parseQueryMemoize[1];
-	} else {
-		const result = parseQuery(query);
-
-		if (!result) {
-			return DEFAULT_DOCUMENT;
-		} else if (result instanceof Error) {
-			if (parseQueryMemoize) {
-				return parseQueryMemoize[1] ?? '';
-			} else {
-				return DEFAULT_DOCUMENT;
-			}
-		} else {
-			parseQueryMemoize = [query, result];
-			return result;
-		}
 	}
+	const result = parseQuery(query);
+
+	if (!result) {
+		return DEFAULT_DOCUMENT;
+	} else if (result instanceof Error) {
+		if (parseQueryMemoize) {
+			return parseQueryMemoize[1] ?? '';
+		}
+		return DEFAULT_DOCUMENT;
+	}
+	parseQueryMemoize = [query, result];
+	return result;
 };
 
 // Capitalize a string
@@ -246,27 +243,27 @@ export const getDefaultFieldNames = (type) => {
 	const fields = type.getFields();
 
 	// Is there an `id` field?
-	if (fields['id']) {
+	if (fields.id) {
 		const res = ['id'];
-		if (fields['email']) {
+		if (fields.email) {
 			res.push('email');
-		} else if (fields['name']) {
+		} else if (fields.name) {
 			res.push('name');
 		}
 		return res;
 	}
 
 	// Is there an `edges` field?
-	if (fields['edges']) {
+	if (fields.edges) {
 		return ['edges'];
 	}
 
 	// Is there an `node` field?
-	if (fields['node']) {
+	if (fields.node) {
 		return ['node'];
 	}
 
-	if (fields['nodes']) {
+	if (fields.nodes) {
 		return ['nodes'];
 	}
 
@@ -332,9 +329,8 @@ export const coerceArgValue = (argType, value) => {
 						const parsed = JSON.parse(value);
 						if (typeof parsed === 'boolean') {
 							return { kind: 'BooleanValue', value: parsed };
-						} else {
-							return { kind: 'BooleanValue', value: false };
 						}
+						return { kind: 'BooleanValue', value: false };
 					} catch (e) {
 						return {
 							kind: 'BooleanValue',
@@ -349,19 +345,18 @@ export const coerceArgValue = (argType, value) => {
 			}
 		} catch (e) {
 			console.error('error coercing arg value', e, value);
-			return { kind: 'StringValue', value: value };
+			return { kind: 'StringValue', value };
 		}
 	} else {
 		try {
 			const parsedValue = argType.parseValue(value);
 			if (parsedValue) {
 				return { kind: 'EnumValue', value: String(parsedValue) };
-			} else {
-				return {
-					kind: 'EnumValue',
-					value: argType.getValues()[0].name,
-				};
 			}
+			return {
+				kind: 'EnumValue',
+				value: argType.getValues()[0].name,
+			};
 		} catch (e) {
 			return { kind: 'EnumValue', value: argType.getValues()[0].name };
 		}
@@ -454,19 +449,18 @@ export const defaultArgs = (
 export const defaultValue = (argType) => {
 	if (isEnumType(argType)) {
 		return { kind: 'EnumValue', value: argType.getValues()[0].name };
-	} else {
-		switch (argType.name) {
-			case 'String':
-				return { kind: 'StringValue', value: '' };
-			case 'Float':
-				return { kind: 'FloatValue', value: '1.5' };
-			case 'Int':
-				return { kind: 'IntValue', value: '10' };
-			case 'Boolean':
-				return { kind: 'BooleanValue', value: false };
-			default:
-				return { kind: 'StringValue', value: '' };
-		}
+	}
+	switch (argType.name) {
+		case 'String':
+			return { kind: 'StringValue', value: '' };
+		case 'Float':
+			return { kind: 'FloatValue', value: '1.5' };
+		case 'Int':
+			return { kind: 'IntValue', value: '10' };
+		case 'Boolean':
+			return { kind: 'BooleanValue', value: false };
+		default:
+			return { kind: 'StringValue', value: '' };
 	}
 };
 

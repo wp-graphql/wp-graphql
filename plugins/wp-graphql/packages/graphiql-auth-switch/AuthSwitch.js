@@ -13,8 +13,8 @@ const StyledAvatar = styled.div`
  * Provides the AuthSwitch button allowing users to toggle between executing as a public user and the
  * logged-in user.
  *
- * @returns {JSX.Element}
- * @constructor
+ * @return {JSX.Element}
+ * @class
  */
 const AuthSwitch = () => {
 	const authSwitch = useAuthSwitchContext();

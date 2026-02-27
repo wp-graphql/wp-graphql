@@ -64,9 +64,9 @@ export async function typeQuery(page, query = '') {
 
 	// Set the value
 	await page.evaluate(
-		async ({ query, selector }) => {
-			const editor = document.querySelector(selector).CodeMirror;
-			await editor.setValue(query);
+		async ({ query: q, selector: sel }) => {
+			const editor = document.querySelector(sel).CodeMirror;
+			await editor.setValue(q);
 		},
 		{ query, selector }
 	);
@@ -98,7 +98,7 @@ export async function typeVariables(page, variables) {
  * @param {string}                          variables The GraphQL variables to type (as a string).
  */
 export async function pasteVariables(page, variables) {
-	const trimmedVariableString = variablesString.substring(0, -1);
+	const trimmedVariableString = variables.substring(0, -1);
 
 	// open the variable editor
 	await page.click('[data-name="variables"]');
@@ -221,8 +221,8 @@ export async function loadGraphiQL(
  * Activates the specified plugin in WordPress admin.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page object.
- * @param {string} slug - The slug of the plugin to activate.
- * @returns {Promise<void>}
+ * @param {string}                          slug - The slug of the plugin to activate.
+ * @return {Promise<void>}
  */
 export async function activatePlugin(page, slug) {
 	await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
@@ -237,8 +237,8 @@ export async function activatePlugin(page, slug) {
  * Deactivates the specified plugin in WordPress admin.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page object.
- * @param {string} slug - The slug of the plugin to deactivate.
- * @returns {Promise<void>}
+ * @param {string}                          slug - The slug of the plugin to deactivate.
+ * @return {Promise<void>}
  */
 export async function deactivatePlugin(page, slug) {
 	await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');

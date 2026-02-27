@@ -1,0 +1,34 @@
+{
+	"name": "@wpgraphql/wp-graphql-acf",
+	"version": "2.4.1",
+	"private": true,
+	"description": "WPGraphQL for ACF seamlessly integrates Advanced Custom Fields with WPGraphQL",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/wp-graphql/wp-graphql.git",
+		"directory": "plugins/wp-graphql-acf"
+	},
+	"license": "GPL-3.0-or-later",
+	"devDependencies": {
+		"eslint": "^8.57.0"
+	},
+	"scripts": {
+		"lint": "npm run lint:js && npm run lint:php",
+		"lint:js": "eslint ./src ./tests/e2e",
+		"lint:js:fix": "eslint ./src ./tests/e2e --fix",
+		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
+		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
+		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
+		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql-acf/ --",
+		"install-test-deps": "bash bin/install-acf.sh",
+		"install-acf": "bash bin/install-acf.sh",
+		"install-acf:pro": "bash bin/install-acf.sh --pro",
+		"install-acf:pro-extended": "bash bin/install-acf.sh --pro --extended-pro",
+		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
+		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
+		"wp-env": "npm run --prefix ../.. wp-env",
+		"test:codecept:wpunit": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql-acf/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} TEST_THEME=${TEST_THEME:-twentytwentyone} && bash bin/prepare-test-suite.sh && vendor/bin/codecept run wpunit \"$@\"' --",
+		"test:codecept:acceptance": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql-acf/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_URL=${TEST_WP_URL:-http://tests-wordpress} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} TEST_ADMIN_USERNAME=${TEST_ADMIN_USERNAME:-admin} TEST_ADMIN_PASSWORD=${TEST_ADMIN_PASSWORD:-password} TEST_ADMIN_PATH=${TEST_ADMIN_PATH:-/wp-admin} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_THEME=${TEST_THEME:-twentytwentyone} && bash bin/prepare-test-suite.sh && vendor/bin/codecept run acceptance \"$@\"' --",
+		"test:codecept:functional": "npm run --prefix ../.. wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql-acf/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_URL=${TEST_WP_URL:-http://tests-wordpress} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} TEST_ADMIN_USERNAME=${TEST_ADMIN_USERNAME:-admin} TEST_ADMIN_PASSWORD=${TEST_ADMIN_PASSWORD:-password} TEST_ADMIN_PATH=${TEST_ADMIN_PATH:-/wp-admin} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_THEME=${TEST_THEME:-twentytwentyone} && bash bin/prepare-test-suite.sh && vendor/bin/codecept run functional \"$@\"' --"
+	}
+}

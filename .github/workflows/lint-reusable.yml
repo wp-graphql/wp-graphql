@@ -65,6 +65,9 @@ jobs:
         with:
           working-directory: ${{ inputs.plugin_path }}
 
+      - name: Create tests output directory
+        run: mkdir -p tests/_output
+
       - name: Run PHPCS
         id: phpcs
         run: composer check-cs -- --report-full --report-checkstyle=./tests/_output/phpcs-report.xml
@@ -128,12 +131,15 @@ jobs:
         with:
           working-directory: ${{ inputs.plugin_path }}
 
+      - name: Create tests output directory
+        run: mkdir -p tests/_output
+
       - name: Make Composer packages available globally
         run: echo "${PWD}/vendor/bin" >> "$GITHUB_PATH"
 
       - name: Run PHP static analysis tests
         id: phpstan
-        run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
+        run: phpstan analyse -vvv --memory-limit=2G --error-format=checkstyle | cs2pr
 
       - name: Save result cache
         uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
@@ -172,7 +178,11 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
 
       - name: Check if lint:js script exists
         id: check-script

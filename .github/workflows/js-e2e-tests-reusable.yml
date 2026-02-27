@@ -15,6 +15,16 @@ on:
         description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
+      acf_pro:
+        description: "For wp-graphql-acf: install ACF Pro when 'true' (requires ACF_LICENSE_KEY). Default 'false' = ACF Free (ACF Extended is not installed with ACF Free)."
+        required: false
+        type: string
+        default: 'false'
+      acf_extended_pro:
+        description: "For wp-graphql-acf with ACF Pro: install ACF Extended Pro when 'true' (requires ACF_EXTENDED_LICENSE_KEY). Only used when acf_pro is 'true'; ignored when ACF Free. Default 'false' = ACF Extended Free."
+        required: false
+        type: string
+        default: 'false'
 
 jobs:
   # Runs JavaScript e2e tests for a WordPress plugin using Playwright.
@@ -72,7 +82,11 @@ jobs:
           composer-options: '--no-progress'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
 
       # Build wp-graphql JS assets if this plugin depends on it
       # This must happen before wp-env starts so the built files are available in the container
@@ -93,9 +107,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
+      - name: Cache Playwright system dependencies (apt)
+        uses: actions/cache@v5
+        id: playwright-apt-cache
+        with:
+          path: ~/playwright-apt-cache
+          key: ${{ runner.os }}-playwright-apt-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-apt-
+
+      - name: Restore apt cache for Playwright deps
+        if: steps.playwright-apt-cache.outputs.cache-hit == 'true'
+        run: |
+          mkdir -p ~/playwright-apt-cache
+          sudo cp -n ~/playwright-apt-cache/*.deb /var/cache/apt/archives/ 2>/dev/null || true
+
       - name: Install Playwright system dependencies
         run: npx playwright install-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Save apt cache for Playwright deps
+        if: success()
+        run: |
+          mkdir -p ~/playwright-apt-cache
+          sudo cp -n /var/cache/apt/archives/*.deb ~/playwright-apt-cache/ 2>/dev/null || true
+          sudo chown -R "$(whoami):$(whoami)" ~/playwright-apt-cache 2>/dev/null || true
 
       - name: Install Playwright browsers
         run: npx playwright install chromium
@@ -128,21 +163,57 @@ jobs:
           npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
           echo "Checking site URL..."
           npm run wp-env run tests-cli -- wp option get siteurl
-          echo "Testing GraphQL endpoint..."
+          echo "Testing GraphQL endpoint (from container)..."
           npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
-          echo "Waiting for WordPress to be fully ready..."
+          echo "Waiting for dev site (localhost:8888)..."
           for i in {1..30}; do
             if curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null 2>&1 || curl -f -s http://localhost:8888/wp-admin > /dev/null 2>&1; then
-              echo "WordPress is ready!"
+              echo "Dev site ready."
               break
             fi
-            echo "Waiting for WordPress... ($i/30)"
+            echo "Waiting... ($i/30)"
             sleep 2
           done
-          echo "Verifying WordPress is accessible from host..."
-          curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8888/wp-admin > /dev/null || (echo "WordPress is not accessible!" && exit 1)
+          curl -f -s http://localhost:8888/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8888/wp-admin > /dev/null || (echo "Dev site (8888) not accessible!" && exit 1)
+          echo "Waiting for test site (localhost:8889) – used by Playwright E2E..."
+          for i in {1..30}; do
+            if curl -f -s http://localhost:8889/wp-admin/install.php > /dev/null 2>&1 || curl -f -s http://localhost:8889/wp-admin > /dev/null 2>&1; then
+              echo "Test site ready."
+              break
+            fi
+            echo "Waiting for test site... ($i/30)"
+            sleep 2
+          done
+          curl -f -s http://localhost:8889/wp-admin/install.php > /dev/null || curl -f -s http://localhost:8889/wp-admin > /dev/null || (echo "Test site (8889) not accessible – E2E tests use this port!" && exit 1)
+
+      - name: Install plugin-specific test dependencies
+        working-directory: ${{ inputs.plugin_path }}
+        env:
+          INSTALL_ACF_PRO: ${{ inputs.acf_pro }}
+          INSTALL_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
+          ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
+          ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
+        run: npm run install-test-deps
+
+      # When ACF Pro is requested, verify the license is active. Without it, Pro fields (clone, repeater, etc.) are restricted and clone-schema E2E will fail.
+      - name: Verify ACF Pro license (when Pro)
+        if: inputs.plugin_name == 'wp-graphql-acf' && inputs.acf_pro == 'true'
+        run: |
+          RAW=$(npm run wp-env run tests-cli -- wp eval 'echo ( function_exists( "acf_pro_is_license_active" ) && acf_pro_is_license_active() ) ? "active" : "inactive";' 2>/dev/null) || true
+          STATUS=$(echo "$RAW" | tail -1 | tr -d '[:space:]')
+          echo "ACF Pro license status: ${STATUS:-unknown}"
+          if [ "$STATUS" != "active" ]; then
+            echo "::error::ACF Pro license is not active. Pro fields (clone, repeater, flexible content) will be restricted and clone-schema E2E tests will fail."
+            echo "Ensure ACF_LICENSE_KEY repository secret is set and that the install step can reach ACF servers to activate the license."
+            exit 1
+          fi
 
       - name: Run E2E tests
+        env:
+          CI: true
+          WP_BASE_URL: http://localhost:8889
+          INSTALL_ACF_PRO: ${{ inputs.acf_pro }}
+          INSTALL_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:e2e
 

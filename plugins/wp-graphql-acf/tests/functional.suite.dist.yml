@@ -1,0 +1,20 @@
+# Codeception Test Suite Configuration
+#
+# Suite for functional tests
+# Emulate web requests and make WordPress process them
+
+actor: FunctionalTester
+modules:
+  enabled:
+    - Asserts
+    - REST
+    - lucatume\WPBrowser\Module\WPBrowser
+    - lucatume\WPBrowser\Module\WPDb
+    - lucatume\WPBrowser\Module\WPLoader
+    - Helper\Utils
+  config:
+    lucatume\WPBrowser\Module\WPDb:
+      cleanup: false
+    lucatume\WPBrowser\Module\WPLoader:
+      loadOnly: true
+bootstrap: bootstrap.php

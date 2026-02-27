@@ -12,7 +12,7 @@
  *
  * Options:
  *   --version     Version number to set (required)
- *   --component   Component name (required): wp-graphql, wp-graphql-smart-cache, wp-graphql-ide
+ *   --component   Component name (required): wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf
  *   --plugin-dir  Path to the plugin directory (required, relative to repo root)
  */
 

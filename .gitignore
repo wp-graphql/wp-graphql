@@ -27,6 +27,7 @@ vendor
 
 # Test suite config files. Used to overried the *.suite.dist.yml configs
 /tests/*.suite.yml
+**/tests/*.suite.yml
 
 # PHPCS cached files.
 /tests/_output/*.json

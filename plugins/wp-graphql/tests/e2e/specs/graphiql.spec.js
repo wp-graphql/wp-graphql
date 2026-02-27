@@ -1,14 +1,4 @@
-import {
-	loginToWordPressAdmin,
-	openDrawer,
-	pasteVariables,
-	typeQuery,
-	typeVariables,
-	visitAdminFacingPage,
-	visitPublicFacingPage,
-	wpAdminUrl,
-	loadGraphiQL,
-} from '../utils.js';
+import { loginToWordPressAdmin, typeQuery, loadGraphiQL } from '../utils.js';
 import { test, expect } from '@playwright/test';
 
 const selectors = {
@@ -110,7 +100,6 @@ test.describe('GraphiQL', () => {
 	}) => {
 		await loadGraphiQL(page);
 		const openButton = page.locator('button.docExplorerShow');
-		const docExplorerWrap = await page.locator('.docExplorerWrap');
 
 		// Check if the wrapper is hidden by its parent's styles
 		const isInitiallyHidden = await page.evaluate(() => {
@@ -204,7 +193,9 @@ test.describe('GraphiQL', () => {
 		// Verify the history panel is now visible
 		const isHistoryVisible = await page.evaluate(() => {
 			const wrapper = document.querySelector('.historyPaneWrap');
-			if (!wrapper) return false;
+			if (!wrapper) {
+				return false;
+			}
 			const style = window.getComputedStyle(wrapper);
 			return style.display !== 'none' && style.visibility !== 'hidden';
 		});
@@ -221,7 +212,9 @@ test.describe('GraphiQL', () => {
 		// Verify the history panel is hidden again
 		const isHistoryHiddenAgain = await page.evaluate(() => {
 			const wrapper = document.querySelector('.historyPaneWrap');
-			if (!wrapper) return true; // If not found, consider it hidden
+			if (!wrapper) {
+				return true;
+			} // If not found, consider it hidden
 			const style = window.getComputedStyle(wrapper);
 			return (
 				style.display === 'none' ||

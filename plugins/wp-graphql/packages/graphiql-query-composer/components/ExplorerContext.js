@@ -8,7 +8,7 @@ export const ExplorerContext = createContext();
 
 /**
  * Export the useExplorer hook to access the Explorer context
- * @returns {*}
+ * @return {*}
  */
 export const useExplorer = () => {
 	return useContext(ExplorerContext);
@@ -17,9 +17,10 @@ export const useExplorer = () => {
 /**
  * Export the ExplorerProvider, allowing children of the provider access to the Explorer context.
  *
- * @param children
- * @returns {JSX.Element}
- * @constructor
+ * @param  children.children
+ * @param  children
+ * @return {JSX.Element}
+ * @class
  */
 export const ExplorerProvider = ({ children }) => {
 	// Access the query params from AppContext

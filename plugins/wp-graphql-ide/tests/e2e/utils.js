@@ -27,28 +27,30 @@ const selectors = {
 	submitButton: '#wp-submit',
 };
 
-export const wpHomeUrl = 'http://localhost:8888';
-export const wpAdminUrl = 'http://localhost:8888/wp-admin';
+export const wpHomeUrl = 'http://localhost:8889';
+export const wpAdminUrl = 'http://localhost:8889/wp-admin';
 
 /**
  * Log in to the WordPress admin dashboard.
+ * Uses domcontentloaded (not networkidle) so CI doesn't hang; waits for login form before filling.
  * @param {import('@playwright/test').Page} page The Playwright page object.
  */
 export async function loginToWordPressAdmin(page) {
-	const isLoggedIn = await page.$('#wpadminbar');
+	await page.goto(wpAdminUrl, { waitUntil: 'domcontentloaded' });
 
-	// If already logged in, return early
+	const isLoggedIn = await page.$('#wpadminbar');
 	if (isLoggedIn) {
 		return;
 	}
 
-	await page.goto('http://localhost:8888/wp-admin', {
-		waitUntil: 'networkidle',
+	await page.waitForSelector(selectors.loginUsername, {
+		state: 'visible',
+		timeout: 15000,
 	});
 	await page.fill(selectors.loginUsername, 'admin');
 	await page.fill(selectors.loginPassword, 'password');
 	await page.click(selectors.submitButton);
-	await page.waitForSelector('#wpadminbar'); // Confirm login by waiting for the admin bar
+	await page.waitForSelector('#wpadminbar', { state: 'visible' });
 }
 
 /**
@@ -114,7 +116,11 @@ export async function typeVariables(page, variables) {
  * @param {string}                          variables The GraphQL variables to type (as a string).
  */
 export async function pasteVariables(page, variables) {
-	const trimmedVariableString = variablesString.substring(0, -1);
+	const variablesString =
+		typeof variables === 'string'
+			? variables
+			: JSON.stringify(variables, null, 2);
+	const trimmedVariableString = variablesString.slice(0, -1);
 
 	// open the variable editor
 	await page.click('[data-name="variables"]');
@@ -158,9 +164,12 @@ export async function visitPluginsPage(page) {
 export async function openDrawer(page) {
 	// Wait for the IDE scripts to load and the IDE to be ready
 	// The WPGraphQLIDEReady event is dispatched after the IDE is rendered
-	await page.waitForFunction(() => {
-		return window.WPGraphQLIDE !== undefined;
-	}, { timeout: 10000 });
+	await page.waitForFunction(
+		() => {
+			return window.WPGraphQLIDE !== undefined;
+		},
+		{ timeout: 10000 }
+	);
 
 	// Wait for the drawer button to be available
 	await page.waitForSelector('.AppDrawerButton', {
@@ -215,7 +224,7 @@ export async function executeQuery(page) {
 	await page.click('.graphiql-execute-button');
 }
 
-async function selectAndClearTextUsingKeyboard(page, selector) {
+async function _selectAndClearTextUsingKeyboard(page, selector) {
 	await page.click(selector); // Focus the element
 
 	// Determine the operating system to use the correct "Select All" shortcut

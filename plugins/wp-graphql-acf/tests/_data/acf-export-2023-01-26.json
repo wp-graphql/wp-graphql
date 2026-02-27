@@ -1,0 +1,52 @@
+[
+    {
+        "key": "group_63d2bb751c4f6",
+        "title": "Foo Name",
+        "fields": [
+            {
+                "key": "field_63d2bb765f5af",
+                "label": "Foo Label",
+                "name": "foo_label",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "show_in_graphql": 1,
+                "graphql_field_name": "",
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "foo graphql",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]
