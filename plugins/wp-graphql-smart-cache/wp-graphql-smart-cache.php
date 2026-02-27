@@ -13,7 +13,7 @@
  * WPGraphQL Tested Up To: 2.0.0
  * Text Domain: wp-graphql-smart-cache
  * Domain Path: /languages
- * Version: 2.0.1
+ * Version: 2.1.0
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -48,7 +48,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_VERSION' ) ) {
-	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.0.1' );
+	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.1.0' );
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
