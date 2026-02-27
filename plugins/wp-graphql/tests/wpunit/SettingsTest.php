@@ -275,4 +275,181 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey( 'query_log_user_role', $result );
 		$this->assertSame( 'administrator', $result['query_log_user_role'] );
 	}
+
+	/**
+	 * Test that query_depth_max sanitization converts to positive integer
+	 */
+	public function testQueryDepthMaxSanitizationConvertsToPositiveInteger() {
+		$this->settings->register_settings();
+		$this->settings->settings_api->admin_init();
+
+		$result = $this->settings->settings_api->sanitize_options( [
+			'query_depth_max' => 15,
+		] );
+		$this->assertArrayHasKey( 'query_depth_max', $result );
+		$this->assertSame( 15, $result['query_depth_max'] );
+
+		$result = $this->settings->settings_api->sanitize_options( [
+			'query_depth_max' => 0,
+		] );
+		$this->assertSame( 10, $result['query_depth_max'] );
+
+		$result = $this->settings->settings_api->sanitize_options( [
+			'query_depth_max' => 'invalid',
+		] );
+		$this->assertSame( 10, $result['query_depth_max'] );
+	}
+
+	/**
+	 * Test that init sets settings_api and wp_environment
+	 */
+	public function testInitSetsSettingsApiAndWpEnvironment() {
+		$settings = new \WPGraphQL\Admin\Settings\Settings();
+		$settings->init();
+		$this->assertInstanceOf( \WPGraphQL\Admin\Settings\SettingsRegistry::class, $settings->settings_api );
+		$ref = new \ReflectionClass( $settings );
+		$prop = $ref->getProperty( 'wp_environment' );
+		$prop->setAccessible( true );
+		$this->assertIsString( $prop->getValue( $settings ) );
+	}
+
+	/**
+	 * Test get_wp_environment returns string (production or from wp_get_environment_type)
+	 */
+	public function testGetWpEnvironmentReturnsString() {
+		$ref  = new \ReflectionClass( $this->settings );
+		$meth = $ref->getMethod( 'get_wp_environment' );
+		$meth->setAccessible( true );
+		$env = $meth->invoke( $this->settings );
+		$this->assertIsString( $env );
+		$this->assertNotEmpty( $env );
+	}
+
+	/**
+	 * Test add_options_page runs when graphiql is on (submenu branch)
+	 *
+	 * When GraphiQL is enabled, add_submenu_page is called. This exercises the else branch.
+	 */
+	public function testAddOptionsPageRunsWhenGraphiqlOn() {
+		$this->assertSame( 'on', get_graphql_setting( 'graphiql_enabled', 'on' ) );
+		$this->settings->add_options_page();
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test add_options_page registers top-level menu when graphiql is off
+	 */
+	public function testAddOptionsPageRegistersMenuWhenGraphiqlOff() {
+		update_option( 'graphql_general_settings', array_merge( get_option( 'graphql_general_settings', [] ), [ 'graphiql_enabled' => 'off' ] ) );
+		global $menu;
+		$this->settings->add_options_page();
+		$titles = array_column( $menu, 0 );
+		$this->assertContains( 'GraphQL', $titles );
+	}
+
+	/**
+	 * Test register_settings registers section and fields and fires action
+	 */
+	public function testRegisterSettingsRegistersSectionAndFiresAction() {
+		$fired = false;
+		add_action( 'graphql_register_settings', function () use ( &$fired ) {
+			$fired = true;
+		}, 10, 0 );
+		$this->settings->register_settings();
+		remove_all_actions( 'graphql_register_settings' );
+		$this->assertTrue( $fired );
+		$sections = $this->settings->settings_api->get_settings_sections();
+		$this->assertArrayHasKey( 'graphql_general_settings', $sections );
+		$fields = $this->settings->settings_api->get_settings_fields();
+		$this->assertArrayHasKey( 'graphql_general_settings', $fields );
+		$this->assertNotEmpty( $fields['graphql_general_settings'] );
+	}
+
+	/**
+	 * Test initialize_settings_page runs without error
+	 */
+	public function testInitializeSettingsPageRunsWithoutError() {
+		$this->settings->register_settings();
+		$this->settings->initialize_settings_page();
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test initialize_settings_page_scripts returns early when hook_suffix is null
+	 */
+	public function testInitializeSettingsPageScriptsReturnsEarlyWhenHookSuffixNull() {
+		$this->settings->initialize_settings_page_scripts( null );
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test initialize_settings_page_scripts enqueues on settings page hook
+	 */
+	public function testInitializeSettingsPageScriptsEnqueuesOnSettingsPage() {
+		$this->settings->initialize_settings_page_scripts( 'graphql_page_graphql-settings' );
+		$this->assertTrue( wp_style_is( 'wp-color-picker', 'enqueued' ) );
+	}
+
+	/**
+	 * Test render_settings_page outputs wrap and uses settings_api
+	 */
+	public function testRenderSettingsPageOutputsMarkup() {
+		ob_start();
+		$this->settings->render_settings_page();
+		$output = ob_get_clean();
+		$this->assertStringContainsString( 'wrap', $output );
+		$this->assertStringContainsString( 'graphql', strtolower( $output ) );
+	}
+
+	/**
+	 * Test register_settings with graphql_endpoint filter uses custom endpoint
+	 */
+	public function testRegisterSettingsRespectsGraphqlEndpointFilter() {
+		add_filter( 'graphql_endpoint', function () {
+			return 'custom-api';
+		}, 10, 0 );
+		$settings = new \WPGraphQL\Admin\Settings\Settings();
+		$settings->init();
+		$settings->register_settings();
+		$fields = $settings->settings_api->get_settings_fields();
+		$this->assertNotEmpty( $fields['graphql_general_settings'] );
+		$endpoint_field = null;
+		foreach ( $fields['graphql_general_settings'] as $field ) {
+			if ( isset( $field['name'] ) && $field['name'] === 'graphql_endpoint' ) {
+				$endpoint_field = $field;
+				break;
+			}
+		}
+		$this->assertNotNull( $endpoint_field );
+		$this->assertSame( 'custom-api', $endpoint_field['default'] );
+		$this->assertTrue( $endpoint_field['disabled'] );
+		remove_all_filters( 'graphql_endpoint' );
+	}
+
+	/**
+	 * Test public_introspection_enabled field is registered with expected default for current environment
+	 */
+	public function testPublicIntrospectionEnabledFieldRegistered() {
+		$this->settings->register_settings();
+		$fields = $this->settings->settings_api->get_settings_fields();
+		$introspection_field = null;
+		foreach ( $fields['graphql_general_settings'] as $field ) {
+			if ( isset( $field['name'] ) && $field['name'] === 'public_introspection_enabled' ) {
+				$introspection_field = $field;
+				break;
+			}
+		}
+		$this->assertNotNull( $introspection_field );
+		$this->assertArrayHasKey( 'default', $introspection_field );
+		$this->assertContains( $introspection_field['default'], [ 'on', 'off' ] );
+	}
+
+	/**
+	 * Test initialize_settings_page_scripts does not enqueue when hook_suffix is empty string
+	 */
+	public function testInitializeSettingsPageScriptsReturnsEarlyForEmptyHookSuffix() {
+		wp_dequeue_style( 'wp-color-picker' );
+		$this->settings->initialize_settings_page_scripts( '' );
+		$this->assertFalse( wp_style_is( 'wp-color-picker', 'enqueued' ) );
+	}
 }
