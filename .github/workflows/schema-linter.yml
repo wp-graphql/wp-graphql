@@ -107,7 +107,7 @@ jobs:
   # 4. Add change detection output in detect-changes job above
   # 5. Add the job to the status-check job's needs array
   #
-  # Example for wpgraphql-acf (when added to monorepo):
+  # Example for wp-graphql-acf (in monorepo; uncomment to enable schema linting):
   # wp-graphql-acf:
   #   name: Lint wp-graphql-acf Schema
   #   needs: detect-changes

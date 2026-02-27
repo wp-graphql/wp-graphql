@@ -36,12 +36,10 @@ The WordPress site will be available at:
 ```
 wp-graphql/
 ├── plugins/
-│   └── wp-graphql/           # WPGraphQL core plugin
-│       ├── src/              # PHP source code
-│       ├── tests/            # Test suites
-│       ├── packages/         # JavaScript packages (GraphiQL)
-│       ├── docs/             # User documentation (→ wpgraphql.com)
-│       └── package.json      # Plugin-specific npm config
+│   ├── wp-graphql/           # WPGraphQL core plugin
+│   ├── wp-graphql-ide/       # IDE extension plugin
+│   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
+│   └── wp-graphql-acf/       # ACF extension plugin
 ├── bin/
 │   └── setup-wp-env.sh       # Shared environment setup script
 ├── docs/                     # Contributor documentation (this folder)
