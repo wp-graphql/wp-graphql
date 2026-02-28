@@ -423,9 +423,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Filter the input fields
+		 * Filter the input fields.
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
-		 * from a GraphQL Query to the WP_Query
+		 * from a GraphQL Query to the WP_Query.
 		 *
 		 * @param array<string,mixed>                  $query_args The mapped query arguments
 		 * @param array<string,mixed>                  $args       Query "where" args
@@ -437,7 +437,17 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
+		if ( has_filter( 'graphql_map_input_fields_to_wp_query' ) ) {
+			$query_args = apply_filters_deprecated(
+				'graphql_map_input_fields_to_wp_query',
+				[ $where_args, $query_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type ],
+				'2.7.0',
+				'graphql_map_input_fields_to_wp_query_args',
+				__( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' )
+			);
+		}
+
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query_args', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
 
 		/**
 		 * Return the Query Args

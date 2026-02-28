@@ -137,7 +137,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function assertQueryInCursor( $meta_fields, $posts_per_page = 5 ) {
 
 		add_filter(
-			'graphql_map_input_fields_to_wp_query',
+			'graphql_map_input_fields_to_wp_query_args',
 			static function ( $query_args ) use ( $meta_fields ) {
 				return array_merge( $query_args, $meta_fields );
 			},
@@ -146,7 +146,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Must use dummy where args here to force
-		// graphql_map_input_fields_to_wp_query to be executes
+		// graphql_map_input_fields_to_wp_query_args to be executed
 		$query = "
 		query getPosts(\$cursor: String) {
 			posts(after: \$cursor, first: $posts_per_page, where: {author: {$this->admin}}) {
