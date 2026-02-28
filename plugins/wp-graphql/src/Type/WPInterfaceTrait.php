@@ -234,7 +234,30 @@ trait WPInterfaceTrait {
 			}
 
 			foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
-				$interface_fields[ $interface_field_name ] = $interface_field->config;
+				// If this field already exists from another interface, merge the arguments
+				// instead of overwriting. This allows arguments from parent interfaces
+				// to be merged with child interfaces.
+				if ( isset( $interface_fields[ $interface_field_name ] ) ) {
+					$existing_field = $interface_fields[ $interface_field_name ];
+					$new_field      = $interface_field->config;
+
+					// Merge arguments from both interfaces
+					// We want to combine all unique args from both fields
+					if ( ! empty( $existing_field['args'] ) || ! empty( $new_field['args'] ) ) {
+						$existing_args = $existing_field['args'] ?? [];
+						$new_args      = $new_field['args'] ?? [];
+						// Use merge_field_args which handles type compatibility checking
+						// Pass new_args as field args and existing_args as interface args
+						// This will merge new args into existing, keeping all unique args
+						// @phpstan-ignore-next-line - Args are already in correct format from interface field configs
+						$new_field['args'] = $this->merge_field_args( $interface_field_name, $new_args, $existing_args );
+					}
+
+					// Merge other config properties, with new field taking precedence
+					$interface_fields[ $interface_field_name ] = array_merge( $existing_field, $new_field );
+				} else {
+					$interface_fields[ $interface_field_name ] = $interface_field->config;
+				}
 			}
 		}
 
@@ -278,6 +301,7 @@ trait WPInterfaceTrait {
 
 			// If the args on both the field and the interface are set, we need to merge them.
 			if ( 'args' === $key ) {
+				// @phpstan-ignore-next-line - Args are already in correct format from field and interface configs
 				$field[ $key ] = $this->merge_field_args( $field_name, $field[ $key ], $interface_field[ $key ] );
 			}
 		}

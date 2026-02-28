@@ -24,8 +24,22 @@ class Settings {
 	public static function register_type( TypeRegistry $type_registry ) {
 		$fields = self::get_fields( $type_registry );
 
+		// Always register the Settings type, even if there are no fields
+		// This is required because the allSettings field on RootQuery always references it
+		// If there are no fields, add a placeholder field to satisfy GraphQL schema requirements
+		// (GraphQL object types must have at least one field)
+		// @todo Remove this placeholder field when options are refactored to use Models/Nodes pattern
+		// See: https://github.com/wp-graphql/wp-graphql/issues/2459
 		if ( empty( $fields ) ) {
-			return;
+			$fields = [
+				'_empty' => [
+					'type'        => 'String',
+					'description' => __( 'Placeholder field when no settings are registered', 'wp-graphql' ),
+					'resolve'     => static function () {
+						return null;
+					},
+				],
+			];
 		}
 
 		register_graphql_object_type(
