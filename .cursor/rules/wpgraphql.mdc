@@ -58,7 +58,9 @@ PR titles must follow conventional commits format:
 
 ## File Paths
 
-All file paths in this monorepo are relative to the repository root:
+For **test and lint commands** (e.g. PHPCS, PHPStan, WPUnit), paths are relative to the **plugin directory** (e.g. `plugins/wp-graphql/`), not the repo root — use `src/Data/NodeResolver.php` not `plugins/wp-graphql/src/Data/NodeResolver.php`. See [AGENTS.md](AGENTS.md) for details.
+
+For other references, paths are typically relative to the repository root:
 - Core plugin: `plugins/wp-graphql/src/**/*.php`
 - Smart Cache: `plugins/wp-graphql-smart-cache/src/**/*.php`
 - IDE: `plugins/wp-graphql-ide/src/**/*.php`

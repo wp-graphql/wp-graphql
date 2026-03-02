@@ -1,3 +1,8 @@
+---
+name: wpgraphql-php
+description: PHP coding standards and conventions for the WPGraphQL monorepo. Use when writing or editing PHP, running PHPCS or PHPStan, or adding deprecations and PHPDoc (@since next-version).
+---
+
 # wpgraphql-php
 
 PHP coding standards and conventions for the WPGraphQL monorepo. Use when writing or editing PHP (core plugin or extensions).
@@ -21,8 +26,11 @@ PHP coding standards and conventions for the WPGraphQL monorepo. Use when writin
 - Use **`@since next-version`** in PHPDoc and in deprecation calls (e.g. `_deprecated_argument( __METHOD__, '@since next-version', 'Message.' );`). Do not use a literal version number for unreleased changes.
 - Deprecation functions: `_deprecated_argument`, `_deprecated_function`, `_deprecated_file`, `_deprecated_hook`, `_deprecated_class`, `_deprecated_constructor`, `_doing_it_wrong`.
 
-## Lint commands (paths relative to plugins/wp-graphql/)
+## Lint commands (use the workspace for the plugin you changed)
 
+Use `-w @wpgraphql/wp-graphql` for core, `-w @wpgraphql/wp-graphql-acf` for ACF, etc. File paths are relative to that plugin’s directory (e.g. `plugins/wp-graphql/` or `plugins/wp-graphql-acf/`). Do not use repo-root paths. wp-env must be running.
+
+**Core plugin (wp-graphql):**
 ```bash
 # Check style
 npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run check-cs -- src/Data/NodeResolver.php
@@ -34,7 +42,7 @@ npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run fix-cs -- src/Data/N
 npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run phpstan -- --memory-limit=2G
 ```
 
-Do not use repo-root paths (e.g. not `plugins/wp-graphql/src/Data/NodeResolver.php` in these commands). wp-env must be running.
+**Other plugins:** Same pattern with that plugin’s workspace. Example for ACF: `npm run -w @wpgraphql/wp-graphql-acf wp-env:cli -- composer run check-cs -- src/Plugin.php`. See wpgraphql-dev-cycle for the full workspace list.
 
 ## Common patterns
 

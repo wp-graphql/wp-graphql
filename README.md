@@ -49,7 +49,7 @@ npm run wp-env start  # Start WordPress environment with all plugins
 
 📚 See the [Development Guide](./docs/DEVELOPMENT.md) for detailed setup instructions.
 
-**AI agents**: See [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) for agent-specific instructions, conventions, and verification.
+**AI agents**: See [AGENTS.md](AGENTS.md) for agent-specific instructions, conventions, and verification.
 
 ---
 

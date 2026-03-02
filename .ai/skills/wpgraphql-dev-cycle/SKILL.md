@@ -1,3 +1,8 @@
+---
+name: wpgraphql-dev-cycle
+description: When to run tests, lint, and smoke tests in the WPGraphQL monorepo; exact commands; wp-env must be running. Use before committing, opening a PR, or when unsure whether to run WPUnit, acceptance, or E2E.
+---
+
 # wpgraphql-dev-cycle
 
 When to run tests, lint, and smoke tests in the WPGraphQL monorepo, and exact commands.
@@ -12,6 +17,21 @@ When to run tests, lint, and smoke tests in the WPGraphQL monorepo, and exact co
 
 **CRITICAL**: wp-env MUST be running. Start it with `npm run wp-env start` from the repo root. Tests and lint commands run inside the wp-env Docker environment.
 
+## Workspaces: which plugin you're changing
+
+This monorepo uses npm workspaces. Use the `-w` (workspace) flag to run tests and lint **for the plugin you changed**:
+
+- **Core plugin** (`plugins/wp-graphql/`): `-w @wpgraphql/wp-graphql`
+- **ACF plugin** (`plugins/wp-graphql-acf/`): `-w @wpgraphql/wp-graphql-acf`
+- **IDE** (`plugins/wp-graphql-ide/`): `-w @wpgraphql/wp-graphql-ide`
+- **Smart Cache** (`plugins/wp-graphql-smart-cache/`): `-w @wpgraphql/wp-graphql-smart-cache`
+
+Examples: run PHPCS for core vs ACF:
+- `npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run check-cs -- src/Data/NodeResolver.php`
+- `npm run -w @wpgraphql/wp-graphql-acf wp-env:cli -- composer run check-cs -- src/Plugin.php`
+
+File paths in those commands are relative to that plugin’s directory (e.g. `plugins/wp-graphql/` or `plugins/wp-graphql-acf/`).
+
 ## Test types and when to use them
 
 - **WPUnit** (preferred for most code changes): Integration-style tests in WordPress. We have code coverage for WPUnit. Use for resolver changes, schema changes, model logic, PHP behavior.
@@ -23,22 +43,29 @@ When to run tests, lint, and smoke tests in the WPGraphQL monorepo, and exact co
 - **E2E (Playwright)**: Use when testing UI or browser/JavaScript behavior (e.g. GraphiQL IDE, admin screens).
   - `npm run -w @wpgraphql/wp-graphql test:e2e`
   - For wp-graphql-acf E2E: `npm run -w @wpgraphql/wp-graphql-acf test:e2e` (see wpgraphql-acf-e2e skill for setup). Full local run: `./bin/run-acf-e2e-local.sh`
+  - **UI mode** (for humans debugging or stepping through tests): same workspace with `test:e2e:ui` — e.g. `npm run -w @wpgraphql/wp-graphql test:e2e:ui` or `npm run -w @wpgraphql/wp-graphql-acf test:e2e:ui`. Suggest this when the user is debugging a failing or flaky E2E test.
 
 All test file paths are relative to `plugins/wp-graphql/` (or the relevant plugin directory).
 
 ## Lint (PHP and JS)
 
-Run from repo root. File paths in commands are relative to `plugins/wp-graphql/` (e.g. `src/Data/NodeResolver.php`).
+Run from repo root. Use the workspace (`-w`) for the plugin you changed. File paths are relative to that plugin’s directory.
 
+**Core plugin (wp-graphql):**
 - **PHPCS (check):** `npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run check-cs -- src/Data/NodeResolver.php`
 - **PHPCS (fix):** `npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run fix-cs -- src/Data/NodeResolver.php`
 - **PHPStan:** `npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run phpstan -- --memory-limit=2G` (memory limit is required)
 - **JS:** `npm run -w @wpgraphql/wp-graphql lint:js`
-- **Format (Prettier):** `npm run format`
 
-## Smoke test (user-facing verification)
+**Other plugins (same pattern, different workspace):** e.g. for ACF: `npm run -w @wpgraphql/wp-graphql-acf wp-env:cli -- composer run check-cs -- src/Plugin.php` and `npm run -w @wpgraphql/wp-graphql-acf lint:js` if applicable.
 
-After code changes, verify the GraphQL endpoint works from a user perspective:
+- **Format (Prettier):** `npm run format` (root; formats all workspaces)
+
+## Smoke test (quick sanity check)
+
+The smoke test checks that the plugin has no glaring fatal errors: the GraphQL endpoint responds, introspection works, and basic queries succeed. It does **not** load a browser. For verification that involves loading a browser and stepping through with Playwright (e.g. GraphiQL IDE, admin UI), use **acceptance tests** or **E2E (Playwright)** instead (see "Test types" above).
+
+After code changes:
 
 ```bash
 ./bin/smoke-test.sh

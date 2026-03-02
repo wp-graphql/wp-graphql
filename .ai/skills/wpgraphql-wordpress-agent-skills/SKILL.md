@@ -1,3 +1,8 @@
+---
+name: wpgraphql-wordpress-agent-skills
+description: Install and use WordPress/agent-skills for general WordPress patterns (plugin dev, PHPStan, WP-CLI, blocks). Use when the task needs WordPress expertise beyond this repo's skills.
+---
+
 # wpgraphql-wordpress-agent-skills (meta-skill)
 
 Install and use the [WordPress/agent-skills](https://github.com/WordPress/agent-skills) repository so the agent (and developer) can use expert-level WordPress skills (plugin development, PHPStan, WP-CLI, blocks, etc.) alongside this repo’s project-specific skills.

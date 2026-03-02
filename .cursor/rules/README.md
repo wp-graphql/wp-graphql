@@ -34,6 +34,10 @@ If you're contributing to any plugin in the WPGraphQL monorepo and using Cursor,
 
 The rules apply to all plugins in the monorepo, providing consistent guidance whether you're working on the core WPGraphQL plugin, WPGraphQL Smart Cache, or any future plugins.
 
+## Project skills
+
+Project-specific procedures (e.g. dev cycle, PHP standards, worktree setup, ACF E2E) live in [.ai/skills/](../../.ai/skills/) and are exposed via `.cursor/skills` and `.claude/skills` so Cursor and Claude Code can auto-discover them. For the full list and when to use each skill, see [AGENTS.md](../../AGENTS.md) → "Available skills". You can verify skills in Cursor via Settings → Rules or by typing `/` in Agent chat.
+
 ## Updating Rules
 
 If you need to update these rules, please modify the appropriate JSON file in this directory. Make sure to follow the existing structure and format. Remember that file patterns should be relative to the repository root (e.g., `plugins/wp-graphql/src/**/*.php`).

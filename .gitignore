@@ -12,12 +12,24 @@
 # Ignore all files under the .cursor directory as users will use this directory for personal IDE configuration
 .cursor/*
 
+# Do not ignore the skills directory as it contains project-specific skills that should be shared with all contributors
+!.cursor/skills/**
+!.cursor/skills
+
 # Do not ignore the prd.md file as this helps cursor understand the project and requirements and the community can help maintain it
 !.cursor/prd.md
 
 # Do not ignore the cursor/rules directory as it contains project-specific rules that should be shared with all contributors
 !.cursor/rules
 !.cursor/rules/**
+
+
+# Claude files for users using the Claude IDE
+.claude/*
+
+# Do not ignore the claude/skills directory as it contains project-specific skills that should be shared with all contributors
+!.claude/skills/**
+!.claude/skills
 
 # Composer dependencies. These should be installed on the users machine
 vendor

@@ -1,3 +1,8 @@
+---
+name: wpgraphql-acf-e2e
+description: Run E2E tests for the wp-graphql-acf plugin. Use when changing ACF-related code or running full local E2E (e.g. ./bin/run-acf-e2e-local.sh). Requires wp-env and ACF installed.
+---
+
 # wpgraphql-acf-e2e
 
 Running E2E tests for the wp-graphql-acf plugin. Use when changing ACF-related GraphQL behavior or the ACF plugin’s E2E specs.
@@ -19,6 +24,10 @@ Running E2E tests for the wp-graphql-acf plugin. Use when changing ACF-related G
 ```bash
 npm run -w @wpgraphql/wp-graphql-acf test:e2e
 ```
+
+**UI mode** (step through and watch tests in the browser): `npm run -w @wpgraphql/wp-graphql-acf test:e2e:ui`. Use when debugging a failing or flaky E2E test; suggest this to the user when they ask how to debug E2E.
+
+For ACF, all test and lint commands use the **`@wpgraphql/wp-graphql-acf`** workspace (WPUnit, PHPCS, PHPStan, E2E). See **wpgraphql-dev-cycle** for the full list of workspace-based commands.
 
 ## Full local CI-like run (build, wp-env, install ACF, E2E, stop)
 

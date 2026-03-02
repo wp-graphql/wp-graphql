@@ -1,3 +1,8 @@
+---
+name: wpgraphql-worktree
+description: Run multiple wp-env instances on different ports for git worktrees or parallel agents. Use when setting up a worktree or when another wp-env is already on 8888/8889.
+---
+
 # wpgraphql-worktree
 
 Running multiple wp-env instances (e.g. for different git worktrees or agents) by using different ports.
