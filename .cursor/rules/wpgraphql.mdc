@@ -5,6 +5,8 @@ globs: ["**/*"]
 
 # WPGraphQL Monorepo Quick Reference
 
+For agent-specific instructions, verification steps, and conventions, see [AGENTS.md](AGENTS.md) at the repo root.
+
 ## Repository Structure
 
 This is a monorepo containing multiple WordPress plugins:

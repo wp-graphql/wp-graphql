@@ -150,6 +150,15 @@ Create a `.wp-env.override.json` file in the root to customize the environment:
 
 See the [@wordpress/env documentation](https://www.npmjs.com/package/@wordpress/env) for all options.
 
+### Git worktrees / multiple wp-env instances
+
+To run multiple wp-env instances (e.g. different git worktrees or agents), use different ports per worktree:
+
+- **Option A (env vars):** `WP_ENV_PORT=8890 WP_ENV_TESTS_PORT=8891 npm run wp-env start` (e.g. worktree 2 → 8890/8891, worktree 3 → 8892/8893).
+- **Option B (override file):** In that worktree, create `.wp-env.override.json` with `{"port": 8890, "testsPort": 8891}` (already gitignored).
+
+When using a custom dev port, run the smoke test with that endpoint: `./bin/smoke-test.sh --endpoint http://localhost:8890/graphql`. You can also set `WP_ENV_PORT=8890` and run `./bin/smoke-test.sh`; the script uses `WP_ENV_PORT` for the default endpoint when set.
+
 ## XDebug Setup
 
 XDebug is available in the wp-env environment. To enable:
