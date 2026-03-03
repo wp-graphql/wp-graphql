@@ -175,7 +175,7 @@ class WPGraphQLAcf {
 		}
 
 		// When meta_key is null or empty (e.g. get_post_meta( $id ) with one argument), passthrough.
-		if ( $meta_key === null || $meta_key === '' ) {
+		if ( null === $meta_key || '' === $meta_key ) {
 			return (bool) $should;
 		}
 
