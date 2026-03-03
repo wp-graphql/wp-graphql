@@ -44,16 +44,15 @@ class Utils {
 				$id = absint( $node->databaseId );
 				break;
 			case $node instanceof MenuItem:
-				$id = absint( $node->menuItemId );
+				$id = absint( $node->databaseId );
 				break;
 			case $node instanceof Menu:
-				$id = 'term_' . $node->menuId;
+				$id = 'term_' . $node->databaseId;
 				break;
 			case $node instanceof User:
-				$id = 'user_' . absint( $node->userId );
+				$id = 'user_' . absint( $node->databaseId );
 				break;
 			case $node instanceof Comment:
-				// @phpstan-ignore-next-line
 				$id = 'comment_' . absint( $node->databaseId );
 				break;
 			case $node instanceof AcfOptionsPage:
