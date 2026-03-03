@@ -1,0 +1,3 @@
+# Project skills are symlinks to .ai/skills/ so Cursor can auto-discover them.
+# Canonical source: .ai/skills/ (see AGENTS.md). If symlinks don't work on your system,
+# create them from repo root: for d in wpgraphql-dev-cycle wpgraphql-php wpgraphql-worktree wpgraphql-acf-e2e wpgraphql-wordpress-agent-skills; do ln -sf "../../.ai/skills/$d" ".cursor/skills/$d"; done
