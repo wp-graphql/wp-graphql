@@ -5,6 +5,7 @@ namespace WPGraphQL\Acf\ThirdParty\AcfExtended\FieldType;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\Loader\UserRoleLoader;
 
 class AcfeUserRoles {
 
@@ -26,12 +27,17 @@ class AcfeUserRoles {
 						$value = [ $value ];
 					}
 
+					$loader = $context->get_loader( 'user_role' );
+					if ( ! $loader instanceof UserRoleLoader ) {
+						return [];
+					}
+
 					return new Deferred(
-						static function () use ( $value, $context ) {
+						static function () use ( $value, $loader ) {
 							return array_filter(
 								array_map(
-									static function ( $user_role ) use ( $context ) {
-										return $context->get_loader( 'user_role' )->load( $user_role );
+									static function ( $user_role ) use ( $loader ) {
+										return $loader->load( $user_role );
 									},
 									$value
 								)
