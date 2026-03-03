@@ -432,7 +432,7 @@ class Registry {
 									return 'null';
 								}
 
-								return $context->get_loader( 'acf_options_page' )->load_deferred( $graphql_options_page['menu_slug'] );
+								return $loader->load_deferred( $graphql_options_page['menu_slug'] );
 							},
 						],
 					],

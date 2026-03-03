@@ -16,6 +16,8 @@ use WPGraphQL\Model\Model;
  * @property string $acfId
  *
  * @package WPGraphQL\ACF
+ *
+ * @extends \WPGraphQL\Model\Model<array<mixed>>
  */
 class AcfOptionsPage extends Model {
 
