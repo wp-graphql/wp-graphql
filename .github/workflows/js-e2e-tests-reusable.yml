@@ -223,7 +223,7 @@ jobs:
 
       - name: Upload test failure artifacts
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.plugin_name }}-e2e-test-failures
           path: |
@@ -233,7 +233,7 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.plugin_name }}-e2e-playwright-report
           path: |

@@ -583,7 +583,7 @@ jobs:
           zip -r "$MATRIX_COMPONENT.zip" "$MATRIX_COMPONENT"
 
       - name: Upload artifact to workflow
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.component }}
           path: plugin-build/${{ matrix.component }}.zip
