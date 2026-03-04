@@ -420,9 +420,9 @@ jobs:
           # The 10up action reads version from wp-graphql.php and may overwrite Stable tag if versions don't match
           echo "🔄 Updating version numbers in build directory to ${VERSION}..."
 
-          # Update Stable tag in readme.txt
+          # Update Stable tag in readme.txt (match "Stable tag:" or "Stable Tag:" per plugin convention)
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            sed -i.bak "s/^Stable tag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
+            sed -i.bak "s/^Stable [Tt]ag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
             rm -f "${BUILD_DIR}/readme.txt.bak"
             echo "✅ Updated Stable tag in readme.txt"
           fi
@@ -445,11 +445,11 @@ jobs:
           # Verify all updates
           echo "🔍 Verifying version updates:"
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            if grep -q "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
+            if grep -qi "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
               echo "  ✅ readme.txt Stable tag: ${VERSION}"
             else
               echo "  ❌ readme.txt Stable tag incorrect"
-              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "    (not found)"
+              grep -i "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "    (not found)"
             fi
           fi
 
@@ -487,7 +487,7 @@ jobs:
           echo "🔍 Final verification of readme.txt before deployment:"
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
             echo "Stable tag in build directory:"
-            grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
+            grep -i "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
             echo ""
             echo "First 10 lines of readme.txt:"
             head -10 "${BUILD_DIR}/readme.txt"
@@ -550,9 +550,9 @@ jobs:
 
           echo "🔍 Checking if we need to manually update SVN trunk readme.txt..."
 
-          # Check if readme.txt in BUILD_DIR has the correct Stable tag
+          # Check if readme.txt in BUILD_DIR has the correct Stable tag (match "Stable tag:" or "Stable Tag:")
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            BUILD_STABLE_TAG=$(grep "^Stable tag:" "${BUILD_DIR}/readme.txt" | sed 's/^Stable tag: *//' || echo "")
+            BUILD_STABLE_TAG=$(grep -i "^Stable tag:" "${BUILD_DIR}/readme.txt" | sed 's/^Stable [Tt]ag: *//' | tr -d '\r' || echo "")
             echo "Stable tag in BUILD_DIR: ${BUILD_STABLE_TAG}"
             
             if [[ "${BUILD_STABLE_TAG}" != "${VERSION}" ]]; then
