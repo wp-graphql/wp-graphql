@@ -281,6 +281,8 @@ Add a new entry in the `packages` object:
 - `package.json` (if it has a version field)
 - Any PHP constants files with version constants
 
+**WordPress.org slug (when it differs from the component name):** If the plugin's slug on WordPress.org is different from the repo folder name (e.g. directory `wp-graphql-acf` but WordPress.org slug `wpgraphql-acf`), add `"wp_org_slug": "wpgraphql-your-plugin"` to the plugin's entry in `release-please-config.json`. The release workflow uses this for SVN checkout and deployment; omit it when the .org slug matches the component name (e.g. core `wp-graphql`).
+
 **Add to `.release-please-manifest.json`:**
 
 After adding the plugin to `release-please-config.json`, you **must** also add it to `.release-please-manifest.json` with the current version number:

@@ -86,6 +86,7 @@
 			"release-type": "simple",
 			"component": "wp-graphql-smart-cache",
 			"package-name": "wp-graphql-smart-cache",
+			"wp_org_slug": "wpgraphql-smart-cache",
 			"constantMap": {
 				"constantName": "WPGRAPHQL_SMART_CACHE_VERSION",
 				"fileName": "wp-graphql-smart-cache.php",
@@ -152,6 +153,7 @@
 			"release-type": "simple",
 			"component": "wp-graphql-ide",
 			"package-name": "wp-graphql-ide",
+			"wp_org_slug": "wpgraphql-ide",
 			"constantMap": {
 				"constantName": "WPGRAPHQL_IDE_VERSION",
 				"fileName": "wpgraphql-ide.php",
@@ -213,6 +215,7 @@
 			"release-type": "simple",
 			"component": "wp-graphql-acf",
 			"package-name": "wp-graphql-acf",
+			"wp_org_slug": "wpgraphql-acf",
 			"constantMap": {
 				"constantName": "WPGRAPHQL_FOR_ACF_VERSION",
 				"fileName": "wpgraphql-acf.php",

@@ -240,7 +240,7 @@ When adding a new plugin:
    - Set `requires_wp_graphql: true` if plugin depends on wp-graphql
    - Set `needs_build: true` if plugin requires JS asset building
    - Add WP/PHP version matrix entries
-5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
+5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins)). If the WordPress.org directory slug differs from the repo folder name (e.g. `wp-graphql-acf` → `wpgraphql-acf`), add `"wp_org_slug": "wpgraphql-your-plugin"` to that plugin's config so the release workflow deploys to the correct SVN URL.
 6. **Add plugin to `.release-please-manifest.json`** with the current version number:
    ```json
    {
@@ -280,4 +280,4 @@ When adding plugins to the monorepo, be aware of the difference between director
 - The `plugin_slug` in `smoke-test.yml` must match the directory name inside the zip file
 - WordPress uses the directory name inside the zip as the plugin identifier when checking if it's active
 
-The release workflow automatically maps component names to WordPress.org slugs when deploying. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.
+The release workflow reads the WordPress.org slug from `release-please-config.json`: if a plugin entry includes `"wp_org_slug": "wpgraphql-*"`, that value is used for SVN and deployment; otherwise the component name is used. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.
