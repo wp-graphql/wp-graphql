@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.4.1...wp-graphql-acf/v2.5.0) (2026-03-04)
+
+
+### New Features
+
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581)) ([40967cb](https://github.com/wp-graphql/wp-graphql/commit/40967cb5e68a3e6964828d054a4323b2327b271d))
+
+
+### Bug Fixes
+
+* allow null/empty meta_key in preview_support() for get_post_meta filter ([#3599](https://github.com/wp-graphql/wp-graphql/issues/3599)) ([4c65325](https://github.com/wp-graphql/wp-graphql/commit/4c65325a1764d22935ef4ead25ea6558562c6f17))
+
 ## 2.4.1
 
 ### Chores / Bugfixes
