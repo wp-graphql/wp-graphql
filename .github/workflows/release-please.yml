@@ -18,6 +18,8 @@
 # WORDPRESS.ORG SLUG:
 # When the plugin directory slug on WordPress.org differs from the repo folder name,
 # add "wp_org_slug": "wpgraphql-*" to that plugin in release-please-config.json.
+# The slug is resolved from release-please-config.json on main (fetched in plugin_info step)
+# so re-deploys that checkout a release tag still get the correct .org slug.
 #
 # VERSION DETERMINATION:
 # - feat: commits trigger a MINOR version bump
@@ -262,6 +264,11 @@ jobs:
           
           PACKAGE_PATH="plugins/${COMPONENT}"
 
+          # Resolve WordPress.org slug from config on main (so re-deploys that checkout a tag still get current mapping)
+          CONFIG_JSON=$(curl -sL "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/release-please-config.json")
+          WP_ORG_SLUG=$(echo "$CONFIG_JSON" | jq -r --arg c "$COMPONENT" '.packages["plugins/\($c)"].wp_org_slug // $c')
+          echo "wp_org_slug=${WP_ORG_SLUG}" >> $GITHUB_OUTPUT
+
           echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
 
           if [[ "$REDEPLOY_TAG" != "" ]]; then
@@ -313,16 +320,6 @@ jobs:
         with:
           ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || 'main' }}
           fetch-depth: 0
-
-      - name: Resolve WordPress.org slug
-        id: wp_org_slug
-        env:
-          MATRIX_COMPONENT: ${{ matrix.component }}
-        run: |
-          # Read wp_org_slug from release-please-config.json; omit key if .org slug matches component name.
-          WP_ORG_SLUG=$(jq -r --arg c "$MATRIX_COMPONENT" '.packages["plugins/\($c)"].wp_org_slug // $c' release-please-config.json)
-          echo "slug=${WP_ORG_SLUG}" >> $GITHUB_OUTPUT
-          echo "WordPress.org slug: ${WP_ORG_SLUG}"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -501,7 +498,7 @@ jobs:
       - name: Delete existing SVN tag if re-deploying
         if: steps.plugin_info.outputs.is_redeploy == 'true'
         env:
-          WP_ORG_SLUG: ${{ steps.wp_org_slug.outputs.slug }}
+          WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
@@ -532,7 +529,7 @@ jobs:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           # Use WordPress.org slug (not GitHub component name) for deployment
           # wp-graphql-smart-cache (component) -> wpgraphql-smart-cache (WordPress.org slug)
-          SLUG: ${{ steps.wp_org_slug.outputs.slug }}
+          SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           BUILD_DIR: plugin-build/${{ matrix.component }}
           VERSION: ${{ steps.plugin_info.outputs.version }}
           # Note: The 10up action should sync BUILD_DIR to SVN trunk
@@ -542,7 +539,7 @@ jobs:
       - name: Verify and fix SVN trunk readme.txt if needed
         # The 10up action may not update readme.txt correctly, so we manually verify and fix it
         env:
-          WP_ORG_SLUG: ${{ steps.wp_org_slug.outputs.slug }}
+          WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           MATRIX_COMPONENT: ${{ matrix.component }}
           PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
         run: |
