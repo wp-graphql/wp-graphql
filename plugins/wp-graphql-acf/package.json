@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql-acf",
-	"version": "2.4.1",
+	"version": "2.5.0",
 	"private": true,
 	"description": "WPGraphQL for ACF seamlessly integrates Advanced Custom Fields with WPGraphQL",
 	"repository": {
