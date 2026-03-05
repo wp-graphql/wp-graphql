@@ -10,7 +10,7 @@
 	},
 	"license": "GPL-3.0-or-later",
 	"devDependencies": {
-		"eslint": "^8.57.0"
+		"eslint": "^9.39.2"
 	},
 	"scripts": {
 		"lint": "npm run lint:js && npm run lint:php",
