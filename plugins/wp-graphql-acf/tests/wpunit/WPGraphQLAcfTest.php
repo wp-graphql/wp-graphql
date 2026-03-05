@@ -35,6 +35,89 @@ class WPGraphQLAcfTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase 
 		$this->assertArrayHasKey( 'graphql', $tabs );
 	}
 
+	/**
+	 * Regression test for wp-graphql/wpgraphql-acf#267 and wp-graphql/wp-graphql#3606: ACF post types,
+	 * taxonomies, and options pages must be registered with our registration_args filters before ACF
+	 * registers them (acf/init at priority 5). So acf_internal_post_type_support must run at init
+	 * priority 0. This test fails if the priority is changed back to 20 (or any value > 5).
+	 * Fixing #267 (CPT/taxonomy in schema) also fixes #3606 (options page graphql_type_name ignored).
+	 */
+	public function test_acf_internal_post_type_support_registered_at_init_priority_zero(): void {
+		$plugin_file = dirname( __DIR__, 2 ) . '/src/WPGraphQLAcf.php';
+		$this->assertFileExists( $plugin_file );
+		$content = (string) file_get_contents( $plugin_file );
+		$this->assertStringContainsString(
+			"add_action( 'init', [ \$this, 'acf_internal_post_type_support' ], 0 )",
+			$content,
+			'acf_internal_post_type_support must be registered at init priority 0 so our filters run before ACF (acf/init at 5). See wp-graphql/wpgraphql-acf#267.'
+		);
+	}
+
+	/**
+	 * When our acf/post_type/registration_args filter is applied (as it is when running at init 0),
+	 * a post type registered with the resulting args must have show_in_graphql and graphql names
+	 * on its WP_Post_Type object, so WPGraphQL will include it in the schema. With init priority 20
+	 * the filter runs after ACF, so ACF CPTs never get these args.
+	 */
+	public function test_acf_style_post_type_with_show_in_graphql_has_graphql_args_on_registered_object(): void {
+		$post_type_key = 'wpgacf_testcpt'; // Must be ≤20 chars (WordPress 4.2+).
+		$args          = [
+			'public'       => true,
+			'label'        => 'Test CPT',
+			'labels'       => [
+				'singular_name' => 'Test Item',
+				'name'          => 'Test Items',
+			],
+			'show_in_rest' => true,
+		];
+		$acf_post_type = [
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'testItem',
+			'graphql_plural_name' => 'testItems',
+		];
+		$registration_args = apply_filters( 'acf/post_type/registration_args', $args, $acf_post_type );
+		$this->assertTrue( $registration_args['show_in_graphql'], 'Filter must add show_in_graphql true' );
+		register_post_type( $post_type_key, $registration_args );
+
+		try {
+			$obj = get_post_type_object( $post_type_key );
+			$this->assertNotNull( $obj, 'Post type should be registered' );
+			$this->assertTrue( $obj->show_in_graphql, 'Post type registered with filter output must have show_in_graphql true so it appears in the GraphQL schema (init 0).' );
+			$this->assertSame( 'testItem', $obj->graphql_single_name );
+			$this->assertSame( 'testItems', $obj->graphql_plural_name );
+		} finally {
+			unregister_post_type( $post_type_key );
+		}
+	}
+
+	/**
+	 * Regression test for wp-graphql/wp-graphql#3606: When an ACF Options Page has a custom
+	 * "GraphQL Type Name" set, that name must be used in the schema (not page_title). Our
+	 * acf/ui_options_page/registration_args filter (run at init 0) adds graphql_type_name to the
+	 * options page args; get_field_group_name() then uses it. This test asserts the contract:
+	 * options page with graphql_type_name yields that name, not page_title.
+	 * Options pages are an ACF Pro feature; skip when ACF Free is active.
+	 */
+	public function test_options_page_custom_graphql_type_name_used_for_schema_name(): void {
+		if ( ! $this->is_acf_pro ) {
+			$this->markTestSkipped( 'ACF Pro is not active. Options pages are an ACF Pro feature.' );
+		}
+		$args = [
+			'page_title' => 'General Settings',
+		];
+		$post = [
+			'show_in_graphql'   => true,
+			'graphql_type_name' => 'MyCustomSettings',
+		];
+		$registration_args = apply_filters( 'acf/ui_options_page/registration_args', $args, $post );
+		$this->assertSame( 'MyCustomSettings', $registration_args['graphql_type_name'], 'Filter must pass through custom graphql_type_name (wp-graphql/wp-graphql#3606).' );
+
+		// Simulate the options page array as stored by ACF after registration (with our filter at init 0).
+		$options_page = array_merge( $args, $post, $registration_args );
+		$schema_name  = \WPGraphQL\Acf\Utils::get_field_group_name( $options_page );
+		$this->assertSame( 'myCustomSettings', $schema_name, 'get_field_group_name() must use graphql_type_name for options pages, not page_title (wp-graphql/wp-graphql#3606).' );
+	}
+
 	public function test_init_admin_settings_registers_settings_filters(): void {
 		$plugin = new \WPGraphQLAcf();
 		$plugin->init_admin_settings();
