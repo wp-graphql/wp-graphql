@@ -40,8 +40,10 @@ class WPGraphQLAcf {
 
 		add_action( 'wpgraphql/acf/init', [ $this, 'init_third_party_support' ] );
 		add_action( 'admin_init', [ $this, 'init_admin_settings' ] );
-		// Run on init (not after_setup_theme) so translations load at init or later (WordPress 6.7+).
-		add_action( 'init', [ $this, 'acf_internal_post_type_support' ], 20 );
+		// Run at init priority 0 so our acf/post_type/registration_args and acf/taxonomy/registration_args
+		// filters are in place before ACF registers its UI-defined post types and taxonomies (acf/init at priority 5).
+		// Using init (not after_setup_theme) so translations load at init or later (WordPress 6.7+).
+		add_action( 'init', [ $this, 'acf_internal_post_type_support' ], 0 );
 		add_action( 'graphql_register_types', [ $this, 'init_registry' ] );
 
 		add_filter( 'graphql_resolve_revision_meta_from_parent', [ $this, 'preview_support' ], 10, 4 );
