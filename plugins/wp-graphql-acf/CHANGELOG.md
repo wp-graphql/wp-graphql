@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.0...wp-graphql-acf/v2.5.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* **wp-graphql-acf:** ACF-registered post types/taxonomies not in GraphQL schema (init priority) ([#3609](https://github.com/wp-graphql/wp-graphql/issues/3609)) ([5dad796](https://github.com/wp-graphql/wp-graphql/commit/5dad796bcd6814edc231e0111b9e5d2b5a544e59))
+
 ## [2.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.4.1...wp-graphql-acf/v2.5.0) (2026-03-04)
 
 
