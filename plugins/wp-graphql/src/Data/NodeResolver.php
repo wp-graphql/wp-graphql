@@ -63,7 +63,7 @@ class NodeResolver {
 
 		// if the uri doesn't have the post's urlencoded name or ID in it, we must've found something we didn't expect
 		// so we will return null.
-		$uri        = $this->wp->query_vars['uri'];
+		$uri         = $this->wp->query_vars['uri'];
 		$name_in_uri = strpos( $uri, (string) $post->ID ) !== false
 			|| strpos( $uri, urldecode( sanitize_title( $post->post_name ) ) ) !== false
 			|| strpos( $uri, urldecode( $post->post_name ) ) !== false;
