@@ -496,10 +496,11 @@ class Request {
 		 * Add the debug log to the request
 		 */
 		if ( ! empty( $response ) ) {
+			$logs = $this->debug_log->get_logs();
 			if ( is_array( $response ) ) {
-				$response['extensions']['debug'] = $this->debug_log->get_logs();
+				$response['extensions']['debug'] = $logs;
 			} else {
-				$response->extensions['debug'] = $this->debug_log->get_logs();
+				$response->extensions['debug'] = $logs;
 			}
 		}
 
