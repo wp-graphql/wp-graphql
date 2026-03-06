@@ -2549,4 +2549,138 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		wp_delete_post( $post->ID, true );
 		wp_delete_user( $subscriber );
 	}
+
+	/**
+	 * When WordPress stores post_name in percent-encoded form (non-ASCII slugs), slug and URI
+	 * lookups must still resolve. See https://github.com/wp-graphql/wp-graphql/issues/3582
+	 */
+	public function testQueryPostBySlugWhenPostNameIsPercentEncoded() {
+		$raw_title  = '베트남 편의점';
+		$decoded_slug = urldecode( sanitize_title( $raw_title ) );
+		$encoded_slug = rawurlencode( $decoded_slug );
+
+		$post = $this->factory()->post->create_and_get(
+			[
+				'post_title'  => $raw_title,
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
+
+		// Force post_name to be stored as percent-encoded (as in issue #3582).
+		global $wpdb;
+		$wpdb->update(
+			$wpdb->posts,
+			[ 'post_name' => $encoded_slug ],
+			[ 'ID' => $post->ID ],
+			[ '%s' ],
+			[ '%d' ]
+		);
+		clean_post_cache( $post->ID );
+		$post = get_post( $post->ID );
+
+		$query = '
+		query getPostBySlug( $id: ID! ) {
+			post( id: $id idType: SLUG ) {
+				__typename
+				title
+				slug
+				databaseId
+			}
+		}
+		';
+
+		// Query by decoded slug (client sends human-readable slug) – requires retry with rawurlencode.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $decoded_slug ],
+			]
+		);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.__typename', 'Post' ),
+				$this->expectedField( 'post.databaseId', $post->ID ),
+				$this->expectedField( 'post.slug', $decoded_slug ),
+			]
+		);
+
+		// Query by percent-encoded slug – requires preserving name from extra_query_vars.
+		$actual_encoded = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $encoded_slug ],
+			]
+		);
+		self::assertQuerySuccessful(
+			$actual_encoded,
+			[
+				$this->expectedField( 'post.__typename', 'Post' ),
+				$this->expectedField( 'post.databaseId', $post->ID ),
+				$this->expectedField( 'post.slug', $decoded_slug ),
+			]
+		);
+	}
+
+	/**
+	 * nodeByUri must resolve when the post's post_name is stored percent-encoded.
+	 * See https://github.com/wp-graphql/wp-graphql/issues/3582
+	 */
+	public function testNodeByUriWhenPostNameIsPercentEncoded() {
+		$raw_title    = '다낭 나트랑';
+		$decoded_slug = urldecode( sanitize_title( $raw_title ) );
+		$encoded_slug = rawurlencode( $decoded_slug );
+
+		$post = $this->factory()->post->create_and_get(
+			[
+				'post_title'  => $raw_title,
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
+
+		global $wpdb;
+		$wpdb->update(
+			$wpdb->posts,
+			[ 'post_name' => $encoded_slug ],
+			[ 'ID' => $post->ID ],
+			[ '%s' ],
+			[ '%d' ]
+		);
+		clean_post_cache( $post->ID );
+		$post = get_post( $post->ID );
+
+		// Build URI with decoded slug (as a client would send when post_name is stored encoded).
+		$path = wp_parse_url( get_permalink( $post->ID ), PHP_URL_PATH );
+		$path = $path !== null ? str_replace( $encoded_slug, $decoded_slug, $path ) : '/' . $decoded_slug . '/';
+		$uri_decoded = trailingslashit( $path );
+
+		$query = '
+		query getNodeByUri( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				... on Post {
+					databaseId
+					slug
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'uri' => $uri_decoded ],
+			]
+		);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'nodeByUri.__typename', 'Post' ),
+				$this->expectedField( 'nodeByUri.databaseId', $post->ID ),
+				$this->expectedField( 'nodeByUri.slug', $decoded_slug ),
+			]
+		);
+	}
 }
