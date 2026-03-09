@@ -1,7 +1,6 @@
 parameters:
     level: 7
     inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: false
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.stub
@@ -28,3 +27,5 @@ parameters:
         - */node_modules/*
         - */vendor/*
     ignoreErrors:
+        # Replaces deprecated checkMissingIterableValueType: false
+        - identifier: missingType.iterableValue

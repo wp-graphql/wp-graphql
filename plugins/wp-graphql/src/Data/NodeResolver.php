@@ -205,8 +205,8 @@ class NodeResolver {
 			$retry_query_vars         = $query_vars;
 			$retry_query_vars['name'] = $retry_name;
 			/** @var \WP_Query $retry_query */
-			$retry_query              = new $query_class( $retry_query_vars );
-			$retry_queried_object     = null;
+			$retry_query          = new $query_class( $retry_query_vars );
+			$retry_queried_object = null;
 			if ( isset( $retry_query->posts[0] ) && $retry_query->posts[0] instanceof WP_Post && ! $retry_query->is_archive() ) {
 				$retry_queried_object = $retry_query->posts[0];
 			} else {
