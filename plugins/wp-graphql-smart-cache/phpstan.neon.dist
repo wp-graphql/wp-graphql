@@ -10,8 +10,8 @@ parameters:
         - phpstan/appsero.stub
     bootstrapFiles:
         - phpstan/constants.php
-        # Core plugin (monorepo path); lint workflow installs plugins/wp-graphql deps for dependent plugins.
-        - ../wp-graphql/wp-graphql.php
+        # Load core plugin autoloader (path via __DIR__ so it works in CI regardless of CWD).
+        - phpstan/load-wp-graphql-autoload.php
         - wp-graphql-smart-cache.php
         # - access-functions.php
         # - activation.php
