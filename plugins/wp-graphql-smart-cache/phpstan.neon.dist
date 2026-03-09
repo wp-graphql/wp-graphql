@@ -10,8 +10,6 @@ parameters:
         - phpstan/appsero.stub
     bootstrapFiles:
         - phpstan/constants.php
-        # Load core plugin autoloader (path via __DIR__ so it works in CI regardless of CWD).
-        - phpstan/load-wp-graphql-autoload.php
         - wp-graphql-smart-cache.php
         # - access-functions.php
         # - activation.php
@@ -22,6 +20,8 @@ parameters:
         # - activation.php
         # - deactivation.php
         - src/
+    scanFiles:
+        - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
     excludePaths:
       analyseAndScan:
         - */node_modules/*
@@ -29,3 +29,6 @@ parameters:
     ignoreErrors:
         # Replaces deprecated checkMissingIterableValueType: false
         - identifier: missingType.iterableValue
+        # Document::class exists at analysis time; runtime check for when WPGraphQL not loaded
+        - identifier: deadCode.unreachable
+          path: wp-graphql-smart-cache.php

@@ -110,7 +110,7 @@ jobs:
         with:
           php-version: '8.3'
           coverage: none
-          tools: cs2pr, composer:v2
+          tools: cs2pr
 
       # This date is used to ensure that the PHPStan result cache is cleared at least once every week.
       # http://man7.org/linux/man-pages/man1/date.1.html
@@ -130,11 +130,6 @@ jobs:
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
-
-      - name: Install WPGraphQL core Composer dependencies
-        if: inputs.plugin_name == 'wp-graphql-smart-cache' || inputs.plugin_name == 'wp-graphql-ide'
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
-        working-directory: ${{ github.workspace }}/plugins/wp-graphql
 
       - name: Create tests output directory
         run: mkdir -p tests/_output
