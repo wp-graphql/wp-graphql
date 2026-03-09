@@ -294,6 +294,7 @@ jobs:
       multisite: ${{ matrix.multisite }}
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
+      install_wp_graphql_core_deps: true
 
   # ===========================================
   # WP GraphQL IDE
@@ -352,6 +353,7 @@ jobs:
       multisite: ${{ matrix.multisite }}
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
+      install_wp_graphql_core_deps: true
 
   # ===========================================
   # WP GraphQL for ACF
