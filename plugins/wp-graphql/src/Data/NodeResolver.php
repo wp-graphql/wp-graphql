@@ -64,7 +64,7 @@ class NodeResolver {
 		// If the uri doesn't have the post's urlencoded name or ID in it, we must've found something we didn't expect
 		// so we will return null. Check decoded form, sanitize_title form, and raw post_name so both decoded and
 		// percent-encoded client input are accepted (issue #3582).
-		$uri        = $this->wp->query_vars['uri'];
+		$uri         = $this->wp->query_vars['uri'];
 		$name_in_uri = strpos( $uri, (string) $post->ID ) !== false
 			|| strpos( $uri, urldecode( sanitize_title( $post->post_name ) ) ) !== false
 			|| strpos( $uri, urldecode( $post->post_name ) ) !== false
@@ -199,13 +199,14 @@ class NodeResolver {
 			&& isset( $query_vars['name'] )
 			&& is_string( $query_vars['name'] )
 			&& '' !== $query_vars['name'] ) {
-			$retry_name = strpos( $query_vars['name'], '%' ) !== false
+			$retry_name               = strpos( $query_vars['name'], '%' ) !== false
 				? urldecode( $query_vars['name'] )
 				: rawurlencode( $query_vars['name'] );
-			$retry_query_vars      = $query_vars;
+			$retry_query_vars         = $query_vars;
 			$retry_query_vars['name'] = $retry_name;
-			$retry_query           = new $query_class( $retry_query_vars );
-			$retry_queried_object  = null;
+			/** @var \WP_Query $retry_query */
+			$retry_query              = new $query_class( $retry_query_vars );
+			$retry_queried_object     = null;
 			if ( isset( $retry_query->posts[0] ) && $retry_query->posts[0] instanceof WP_Post && ! $retry_query->is_archive() ) {
 				$retry_queried_object = $retry_query->posts[0];
 			} else {
