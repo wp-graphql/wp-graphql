@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.1...wp-graphql/v2.10.0) (2026-03-11)
+
+
+### Bug Fixes
+
+* add capability check for comment update mutation ([#3616](https://github.com/wp-graphql/wp-graphql/issues/3616))
+
 ## [2.9.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.0...wp-graphql/v2.9.1) (2026-02-25)
 
 
