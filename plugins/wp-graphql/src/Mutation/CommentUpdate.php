@@ -78,35 +78,37 @@ class CommentUpdate {
 				throw new UserError( esc_html__( 'The Comment could not be updated', 'wp-graphql' ) );
 			}
 
-			/**
-			 * Map all of the args from GraphQL to WordPress friendly args array
-			 */
 			$user_id          = $comment_args['user_id'] ?? null;
 			$raw_comment_args = $comment_args;
-			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
-			// Prevent comment deletions by default
+			// Prevent comment updates by default.
 			$not_allowed = true;
 
-			// If the current user can moderate comments proceed
+			// If the current user can moderate comments, allow.
 			if ( current_user_can( 'moderate_comments' ) ) {
 				$not_allowed = false;
 			} else {
-				// Get the current user id
+				// If the current user is the comment author, allow (but not for status changes).
 				$current_user_id = absint( get_current_user_id() );
-				// If the current user ID is the same as the comment author's ID, then the
-				// current user is the comment author and can delete the comment
 				if ( 0 !== $current_user_id && absint( $user_id ) === $current_user_id ) {
 					$not_allowed = false;
 				}
 			}
 
-			/**
-			 * If the mutation has been prevented
-			 */
 			if ( true === $not_allowed ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
+
+			// Only users with moderate_comments may change moderation status (status/approved).
+			$attempting_status_change = isset( $input['status'] ) || array_key_exists( 'approved', $input );
+			if ( $attempting_status_change && ! current_user_can( 'moderate_comments' ) ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to change the moderation status of this comment.', 'wp-graphql' ) );
+			}
+
+			/**
+			 * Map all of the args from GraphQL to WordPress friendly args array
+			 */
+			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
 			// If there are no changes between the existing comment and the incoming comment
 			if ( $comment_args === $raw_comment_args ) {
