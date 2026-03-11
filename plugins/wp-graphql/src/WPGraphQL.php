@@ -425,7 +425,7 @@ final class WPGraphQL {
 		 */
 		add_filter(
 			'wpml_is_redirected',
-			static function ( bool $is_redirect ) {
+			static function ( $is_redirect ) {
 				if ( is_graphql_request() ) {
 					return false;
 				}
