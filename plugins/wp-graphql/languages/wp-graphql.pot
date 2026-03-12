@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.9.1\n"
+"Project-Id-Version: WPGraphQL 2.10.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-25T06:24:19+00:00\n"
+"POT-Creation-Date: 2026-03-11T22:47:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -603,16 +603,16 @@ msgid "The global ID isn't recognized ID: %s"
 msgstr ""
 
 #. translators: %s: The query class used to resolve the URI
-#: src/Data/NodeResolver.php:171
+#: src/Data/NodeResolver.php:177
 #, php-format
 msgid "The query class %s used to resolve the URI does not exist."
 msgstr ""
 
-#: src/Data/NodeResolver.php:324
+#: src/Data/NodeResolver.php:355
 msgid "Cannot parse provided URI"
 msgstr ""
 
-#: src/Data/NodeResolver.php:350
+#: src/Data/NodeResolver.php:381
 msgid "Cannot return a resource for an external URI"
 msgstr ""
 
@@ -1231,11 +1231,15 @@ msgstr ""
 msgid "The Comment could not be updated"
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:108
+#: src/Mutation/CommentUpdate.php:99
 msgid "Sorry, you are not allowed to update this comment."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:113
+#: src/Mutation/CommentUpdate.php:105
+msgid "Sorry, you are not allowed to change the moderation status of this comment."
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:115
 msgid "No changes have been provided to the comment."
 msgstr ""
 
@@ -2218,17 +2222,17 @@ msgstr ""
 msgid "Batch requests are limited to %1$d operations. This request contained %2$d"
 msgstr ""
 
-#: src/Request.php:626
-#: src/Request.php:726
+#: src/Request.php:627
+#: src/Request.php:727
 msgid "Authentication Error"
 msgstr ""
 
-#: src/Request.php:687
+#: src/Request.php:688
 msgid "The GraphQL request returned an invalid response"
 msgstr ""
 
 #. translators: %s is the content type header value that was received
-#: src/Request.php:825
+#: src/Request.php:826
 #, php-format
 msgid "HTTP POST requests must have Content-Type: application/json header. Received: %s"
 msgstr ""

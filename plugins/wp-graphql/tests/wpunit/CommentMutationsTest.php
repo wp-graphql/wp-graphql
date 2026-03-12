@@ -378,6 +378,57 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( 'TRASH', $actual['data']['updateComment']['comment']['status'] );
 	}
 
+	/**
+	 * Non-moderator comment owner must not be able to change comment status (e.g. self-approve).
+	 * Only users with moderate_comments may set status/approved on updateComment.
+	 */
+	public function testUpdateCommentStatusRequiresModerateCommentsCapability() {
+		// Create post as author, then a pending comment owned by subscriber (no moderate_comments).
+		wp_set_current_user( $this->author );
+		$post_id = $this->factory()->post->create( [
+			'post_type'       => 'post',
+			'post_status'     => 'publish',
+			'post_title'      => 'Post for status cap test',
+			'post_content'    => 'Content',
+			'comment_status'  => 'open',
+		] );
+
+		$subscriber_user = get_user_by( 'id', $this->subscriber );
+		$comment_id     = $this->factory()->comment->create( [
+			'user_id'           => $this->subscriber,
+			'comment_author'    => $subscriber_user->display_name,
+			'comment_author_url' => $subscriber_user->user_url,
+			'comment_author_email' => $subscriber_user->user_email,
+			'comment_post_ID'   => $post_id,
+			'comment_content'   => 'Pending comment',
+			'comment_approved'  => '0',
+		] );
+
+		$comment_before = get_comment( $comment_id );
+		$this->assertEquals( '0', $comment_before->comment_approved, 'Comment should start pending.' );
+
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+		mutation updateCommentStatus( $id: ID!, $status: CommentStatusEnum ) {
+			updateComment( input: { id: $id, status: $status } ) {
+				success
+				comment { databaseId status }
+			}
+		}
+		';
+		$variables = [
+			'id'     => $comment_id,
+			'status' => 'APPROVE',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual, 'Non-moderator owner must not be allowed to set comment status to APPROVE.' );
+		$comment_after = get_comment( $comment_id );
+		$this->assertNotEquals( '1', $comment_after->comment_approved, 'Comment must remain unapproved when non-moderator tries to approve.' );
+	}
+
 	public function testDeleteCommentWithPostConnection() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 		$new_post = $this->factory()->post->get_object_by_id( $post_id );

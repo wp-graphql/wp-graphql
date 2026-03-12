@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.1...wp-graphql/v2.10.0) (2026-03-11)
+
+
+### New Features
+
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581)) ([40967cb](https://github.com/wp-graphql/wp-graphql/commit/40967cb5e68a3e6964828d054a4323b2327b271d))
+
+
+### Bug Fixes
+
+* add capability check for comment update mutation ([#3616](https://github.com/wp-graphql/wp-graphql/issues/3616)) ([fa06f42](https://github.com/wp-graphql/wp-graphql/commit/fa06f4208cbb46df91a8a4fa6e4e9362173748d1))
+* incorrect wpml_is_redirected filter hook types ([#3615](https://github.com/wp-graphql/wp-graphql/issues/3615)) ([5da103f](https://github.com/wp-graphql/wp-graphql/commit/5da103f61595986bc6f14e71cbdedeb4e5a038d3))
+* resolve post by percent-encoded slug/URI when post_name is stored encoded ([#3582](https://github.com/wp-graphql/wp-graphql/issues/3582)) ([#3611](https://github.com/wp-graphql/wp-graphql/issues/3611)) ([a473d9b](https://github.com/wp-graphql/wp-graphql/commit/a473d9b9e6dc1bdf4350f6ea5f6847b769d42ea5))
+
+## [2.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.1...wp-graphql/v2.10.0) (2026-03-11)
+
+
+### Bug Fixes
+
+* add capability check for comment update mutation ([#3616](https://github.com/wp-graphql/wp-graphql/issues/3616))
+
 ## [2.9.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.0...wp-graphql/v2.9.1) (2026-02-25)
 
 
