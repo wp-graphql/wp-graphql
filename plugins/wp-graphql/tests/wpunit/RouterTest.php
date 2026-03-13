@@ -117,9 +117,15 @@ class RouterTest extends WPTestCase {
 	public function testDefaultResponseHeadersIncludeExpectedKeys() {
 		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
 		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
 		$request_prop->setValue( null, null );
 
 		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
 		$headers = $get_headers->invoke( null );
 
 		$request_prop->setValue( null, null );
@@ -147,9 +153,15 @@ class RouterTest extends WPTestCase {
 
 		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
 		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
 		$request_prop->setValue( null, null );
 
 		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
 		$headers = $get_headers->invoke( null );
 
 		$request_prop->setValue( null, null );
@@ -658,9 +670,15 @@ class RouterTest extends WPTestCase {
 
 		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
 		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
 		$request_prop->setValue( null, $request );
 
 		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
 		$headers = $get_headers->invoke( null );
 
 		$request_prop->setValue( null, null );
@@ -676,9 +694,15 @@ class RouterTest extends WPTestCase {
 	public function testNoCacheHeadersFallbackToIsUserLoggedInWhenNoRequest() {
 		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
 		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
 		$request_prop->setValue( null, null );
 
 		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
 
 		wp_set_current_user( 0 );
 		$headers_guest = $get_headers->invoke( null );
