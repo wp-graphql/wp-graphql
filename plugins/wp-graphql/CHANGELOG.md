@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.10.0...wp-graphql/v2.10.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* no-cache headers for authenticated requests ([#3340](https://github.com/wp-graphql/wp-graphql/issues/3340)) ([#3619](https://github.com/wp-graphql/wp-graphql/issues/3619)) ([57624d6](https://github.com/wp-graphql/wp-graphql/commit/57624d66a92399f12a05e3546bb06bf0f454a03a))
+
 ## [2.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.1...wp-graphql/v2.10.0) (2026-03-11)
 
 
