@@ -280,7 +280,7 @@
 		}
 	},
 	"separate-pull-requests": true,
-	"sequential-calls": false,
+	"sequential-calls": true,
 	"tag-separator": "/",
 	"include-component-in-tag": true,
 	"include-v-in-tag": true
