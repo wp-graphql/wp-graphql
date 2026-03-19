@@ -31,7 +31,7 @@ jobs:
           tools: composer:v2
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@2b6adcf6fa51986b4a64e960e812c1bf5a38f237 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
 

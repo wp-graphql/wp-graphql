@@ -61,7 +61,7 @@ jobs:
           key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@2b6adcf6fa51986b4a64e960e812c1bf5a38f237 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
 
@@ -127,7 +127,7 @@ jobs:
             phpstan-result-cache-
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@2b6adcf6fa51986b4a64e960e812c1bf5a38f237 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
 

@@ -138,13 +138,13 @@ jobs:
           extensions: json, mbstring
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: ${{ inputs.plugin_path }}
 
       - name: Install WPGraphQL core Composer dependencies
         if: inputs.install_wp_graphql_core_deps
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: plugins/wp-graphql
 
