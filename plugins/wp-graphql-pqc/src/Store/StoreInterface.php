@@ -52,4 +52,12 @@ interface StoreInterface {
 	 * @return void
 	 */
 	public function delete_by_key( string $cache_key ): void;
+
+	/**
+	 * Delete all index entries for a specific URL
+	 *
+	 * @param string $url The URL to delete all entries for.
+	 * @return void
+	 */
+	public function delete_by_url( string $url ): void;
 }

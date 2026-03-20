@@ -144,4 +144,26 @@ class DBStore implements StoreInterface {
 		// Note: Documents are not deleted here even if they become orphaned.
 		// Garbage collection can clean up orphaned documents later if needed.
 	}
+
+	/**
+	 * Delete all index entries for a specific URL
+	 *
+	 * @param string $url The URL to delete all entries for.
+	 * @return void
+	 */
+	public function delete_by_url( string $url ): void {
+		global $wpdb;
+
+		$url_keys_table = Schema::get_url_keys_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$url_keys_table,
+			[ 'url' => $url ],
+			[ '%s' ]
+		);
+
+		// Note: Documents are not deleted here even if they become orphaned.
+		// Garbage collection can clean up orphaned documents later if needed.
+	}
 }
