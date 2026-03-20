@@ -251,16 +251,22 @@ When WordPress content changes, Smart Cache fires the graphql_purge
 action with a cache key (e.g. post:123). This plugin hooks into that
 action:
 
--   Query the index table for all URLs tagged with that key.
+-   Query the index table for all URLs tagged with that cache key.
 
--   For each URL, send a purge request to the host\'s cache layer.
+-   For each URL:
+    -   Send a purge request to the host\'s cache layer (via adapter).
+    -   Delete ALL index entries for that URL (not just entries with the
+        specific cache key).
 
--   Delete the index rows for that key (the URL will be re-indexed on
-    the next request).
+This ensures complete cleanup: when any cache key for a URL is
+invalidated, the entire cached response at that URL is invalid, so all
+cache key associations for that URL are removed. The URL will be
+re-indexed with fresh cache keys on the next request.
 
 The purge mechanism is host-specific and implemented via a pluggable
 adapter interface. The plugin ships a default adapter for WordPress VIP
-and a generic PURGE request adapter for nginx/Varnish hosts.
+and a null adapter for development/testing. Additional adapters can be
+added via the `wpgraphql_pqc_purge_adapter` filter.
 
 **5.4 Hashing & Canonicalization Convention**
 

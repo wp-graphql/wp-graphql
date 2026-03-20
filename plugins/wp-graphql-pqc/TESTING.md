@@ -620,15 +620,19 @@ npm run wp-env -- run cli -- wp post delete $POST_ID --force
 If you did NOT use the filter to prevent deletion, check that entries were removed:
 
 ```bash
+# Check that ALL entries for the URL are deleted (not just the specific cache key)
 npm run wp-env -- run cli -- wp db query "
   SELECT * FROM wp_wpgraphql_pqc_url_keys 
-  WHERE cache_key LIKE '%post:%'
+  WHERE url = '/graphql/persisted/{your-query-hash}'
   LIMIT 10;
 "
 ```
 
 **Expected Result:**
-- Entries with the purged cache key should be deleted (if `wpgraphql_pqc_delete_entries_on_purge` filter returns `true`)
+- **ALL entries for the URL should be deleted** (not just entries with the purged cache key)
+- When a cache key is purged, the entire cached response at that URL is invalid
+- All cache key associations for that URL are removed to ensure complete cleanup
+- The URL will be re-indexed with fresh cache keys on the next request
 
 ### Troubleshooting
 
