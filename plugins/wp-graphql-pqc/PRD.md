@@ -659,10 +659,12 @@ collisions in SHA-256 are computationally infeasible.
 **10.4 Storage Access Control**
 
 By default (v0.1.0-beta.1+), only authenticated POST requests can
-persist queries. This means:
+persist query documents. This means:
 
--   Queries must be pre-defined via build tools using Application
+-   Query documents must be pre-defined via build tools using Application
     Passwords or similar authentication.
+-   Once a document exists, execution data (variables + cache keys) can
+    be stored for any request (public or authenticated).
 
 -   Public requests cannot automatically persist queries unless the
     admin explicitly enables this setting.
