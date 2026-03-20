@@ -305,9 +305,11 @@ curl -X GET "http://localhost:8888/graphql/persisted/000000000000000000000000000
   - `extensions.persistedQueryNonce`: Nonce token for the PQC flow
 - `Cache-Control: no-store` headers (nonces should not be cached)
 
-## Complete Test Flow Script
+## Complete Test Flow Scripts
 
-Here's a complete bash script that tests the full PQC flow:
+### Script 1: Query Without Variables
+
+Here's a complete bash script that tests the full PQC flow for a query without variables:
 
 ```bash
 #!/bin/bash
@@ -383,7 +385,99 @@ echo ""
 echo "✓ Complete PQC flow test successful!"
 ```
 
-Save this as `test-pqc-flow.sh`, make it executable (`chmod +x test-pqc-flow.sh`), and run it to test the complete flow.
+### Script 2: Query With Variables
+
+Here's a complete bash script that tests the full PQC flow for a query **with variables**:
+
+```bash
+#!/bin/bash
+
+# Complete PQC Flow Test Script (with Variables)
+
+# Step 1: Compute query and variables hashes
+echo "=== Step 1: Computing query and variables hashes ==="
+QUERY='query GetPost($id: ID!) { post(id: $id) { id title } }'
+VARIABLES='{"id":"cG9zdDox"}'
+
+QUERY_HASH=$(npm run wp-env -- run cli -- wp eval 'require_once "wp-content/plugins/wp-graphql-pqc/vendor/autoload.php"; use WPGraphQL\PQC\Utils\Hasher; echo Hasher::hash_query("query GetPost(\$id: ID!) { post(id: \$id) { id title } }");' 2>/dev/null | tail -1)
+
+VARIABLES_HASH=$(npm run wp-env -- run cli -- wp eval 'require_once "wp-content/plugins/wp-graphql-pqc/vendor/autoload.php"; use WPGraphQL\PQC\Utils\Hasher; $vars = ["id" => "cG9zdDox"]; echo Hasher::hash_variables($vars);' 2>/dev/null | tail -1)
+
+echo "Query: $QUERY"
+echo "Variables: $VARIABLES"
+echo "Query Hash: $QUERY_HASH"
+echo "Variables Hash: $VARIABLES_HASH"
+echo ""
+
+# Step 2: GET persisted URL to receive nonce
+echo "=== Step 2: GET persisted URL (receive nonce) ==="
+GET_RESPONSE=$(curl -s -X GET "http://localhost:8888/graphql/persisted/${QUERY_HASH}/variables/${VARIABLES_HASH}" \
+  -H "Accept: application/json")
+
+echo "$GET_RESPONSE" | jq '.'
+
+NONCE=$(echo "$GET_RESPONSE" | jq -r '.extensions.persistedQueryNonce // empty')
+
+if [ -z "$NONCE" ]; then
+  echo "ERROR: No nonce received"
+  exit 1
+fi
+
+echo "Nonce: $NONCE"
+echo ""
+
+# Step 3: POST with query, variables, nonce, and hashes
+echo "=== Step 3: POST query with variables, nonce, and hashes ==="
+
+# Create POST data file (easier for complex JSON)
+cat > /tmp/post_vars.json << JSON
+{
+  "query": "query GetPost(\$id: ID!) { post(id: \$id) { id title } }",
+  "variables": {"id": "cG9zdDox"},
+  "extensions": {
+    "persistedQueryNonce": "NONCE_PLACEHOLDER",
+    "persistedQueryHash": "QUERY_HASH_PLACEHOLDER",
+    "persistedVariablesHash": "VARIABLES_HASH_PLACEHOLDER"
+  }
+}
+JSON
+
+# Replace placeholders
+sed -i '' "s/NONCE_PLACEHOLDER/$NONCE/g" /tmp/post_vars.json
+sed -i '' "s/QUERY_HASH_PLACEHOLDER/$QUERY_HASH/g" /tmp/post_vars.json
+sed -i '' "s/VARIABLES_HASH_PLACEHOLDER/$VARIABLES_HASH/g" /tmp/post_vars.json
+
+POST_RESPONSE=$(curl -s -X POST "http://localhost:8888/graphql" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d @/tmp/post_vars.json)
+
+echo "$POST_RESPONSE" | jq '.extensions | {persistedQueryUrl, queryAnalyzer: .queryAnalyzer.keys}'
+
+PERSISTED_URL=$(echo "$POST_RESPONSE" | jq -r '.extensions.persistedQueryUrl // empty')
+
+if [ -z "$PERSISTED_URL" ]; then
+  echo "ERROR: Query was not persisted"
+  exit 1
+fi
+
+echo ""
+echo "✓ Query persisted successfully!"
+echo "Persisted URL: $PERSISTED_URL"
+echo ""
+
+# Step 4: Test GET to persisted URL
+echo "=== Step 4: GET persisted URL (should return cached data) ==="
+GET_CACHED=$(curl -s -X GET "http://localhost:8888${PERSISTED_URL}" \
+  -H "Accept: application/json")
+
+echo "$GET_CACHED" | jq '.data.post | {id, title}'
+
+echo ""
+echo "✓ Complete PQC flow with variables test successful!"
+```
+
+Save these scripts as `test-pqc-flow.sh` and `test-pqc-flow-variables.sh`, make them executable (`chmod +x test-pqc-flow*.sh`), and run them to test the complete flows.
 
 ## Test 3: Cache Invalidation - Purge Handler
 
