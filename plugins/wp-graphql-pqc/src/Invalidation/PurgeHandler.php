@@ -37,6 +37,12 @@ class PurgeHandler {
 	 * @return void
 	 */
 	public function handle_purge( string $key, string $event = '', string $hostname = '' ): void {
+		// Debug: Log that the handler was called (before any other logic).
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[WPGraphQL PQC] PurgeHandler::handle_purge called with key="%s" event="%s" hostname="%s"', $key, $event, $hostname ) );
+		}
+
 		$store = StoreFactory::get_store();
 
 		// Get all URLs tagged with this cache key.
