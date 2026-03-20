@@ -9,6 +9,15 @@ This guide walks you through manually testing the plugin's core functionality.
 3. **WPGraphQL Persisted Query Cache** plugin activated
 4. **Rewrite rules flushed** (if you just activated the plugin, visit Settings → Permalinks and click "Save Changes", or run `wp rewrite flush` via WP-CLI)
 
+## Important: Nonce-Based PQC Flow
+
+**Breaking Change**: As of v0.1.0-beta.1, the plugin requires a nonce-based flow for security:
+
+1. **GET** `/graphql/persisted/{hash}` → Returns 404 with nonce in extensions
+2. **POST** with query + nonce + hashes in extensions → Validates and stores
+
+This prevents random POST requests from persisting queries. GraphQL IDEs that don't support this flow (like WPGraphQL IDE) will need to be updated. For testing, use Postman, curl, or other tools that support custom request extensions.
+
 ## Database Structure
 
 The plugin uses a normalized database structure:
@@ -29,23 +38,71 @@ The plugin uses a normalized database structure:
 
 This normalization prevents duplicate storage of the same query document when it's used with different variables or cache keys.
 
-## Test 1: POST Request - Store Query in Index
+## Test 1: PQC Flow - Store Query in Index (with Nonce)
 
-### Step 1: Make a POST request to GraphQL
+The PQC flow requires a two-step process: first GET the persisted URL (which returns 404 with nonce), then POST with the nonce.
 
-Use curl, Postman, or any HTTP client to make a POST request to your GraphQL endpoint:
+### Step 1: Compute Query Hash (Client-Side)
+
+First, you need to compute the query hash. For testing, you can use the same hashing logic the server uses, or you can skip to Step 2 and let the server compute it.
+
+**Note**: In a real client implementation, you would compute the hash client-side using SHA-256 of the normalized query document.
+
+### Step 2: GET the Persisted URL (Get Nonce)
+
+Make a GET request to the persisted URL (this will 404 and return a nonce):
+
+```bash
+# First, compute the query hash (example - you'd do this client-side)
+# For this test, we'll use a placeholder hash. In practice, compute it using SHA-256
+# of the normalized query: "query GetPosts { posts { nodes { id title } } }"
+
+curl -X GET http://localhost:8888/graphql/persisted/PLACEHOLDER_HASH
+```
+
+**Expected Result:**
+- HTTP 404 response
+- JSON response with:
+  - `errors`: Array with error message
+  - `extensions.persistedQueryNonce`: A nonce token (64 character hex string)
+
+**Example Response:**
+```json
+{
+  "errors": [
+    {
+      "message": "Persisted query not found"
+    }
+  ],
+  "extensions": {
+    "persistedQueryNonce": "abc123def456..."
+  }
+}
+```
+
+### Step 3: POST with Nonce and Hashes
+
+Now make a POST request with the nonce and computed hashes in the extensions:
 
 ```bash
 curl -X POST http://localhost:8888/graphql \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "query GetPosts { posts { nodes { id title } } }"
+    "query": "query GetPosts { posts { nodes { id title } } }",
+    "extensions": {
+      "persistedQueryNonce": "abc123def456...",
+      "persistedQueryHash": "computed_query_hash_here",
+      "persistedVariablesHash": ""
+    }
   }'
 ```
 
 **Expected Result:**
 - Query executes successfully
 - Response includes `extensions.persistedQueryUrl` with a URL like `/graphql/persisted/{hash}`
+- Query is stored in the database
+
+**Note**: If you don't provide the nonce or hashes, the query will execute but **will not be stored** (nonce is required by default for security).
 
 ### Step 2: Verify Database Entry
 
@@ -76,16 +133,27 @@ SELECT * FROM wp_wpgraphql_pqc_url_keys ORDER BY created_at DESC LIMIT 1;
   - `cache_key`: A single cache key (e.g., `list:post`)
   - `created_at`: Current timestamp
 
-### Step 3: Test with Variables
+### Step 4: Test with Variables
 
-Make a POST request with variables:
+For queries with variables, follow the same flow:
 
+1. **GET the persisted URL** (with variables hash in the path):
+```bash
+curl -X GET http://localhost:8888/graphql/persisted/{queryHash}/variables/{variablesHash}
+```
+
+2. **POST with nonce, query, variables, and hashes**:
 ```bash
 curl -X POST http://localhost:8888/graphql \
   -H "Content-Type: application/json" \
   -d '{
     "query": "query GetPost($id: ID!) { post(id: $id) { id title } }",
-    "variables": { "id": "cG9zdDox" }
+    "variables": { "id": "cG9zdDox" },
+    "extensions": {
+      "persistedQueryNonce": "nonce_from_404_response",
+      "persistedQueryHash": "computed_query_hash",
+      "persistedVariablesHash": "computed_variables_hash"
+    }
   }'
 ```
 
@@ -333,6 +401,31 @@ SELECT * FROM wp_wpgraphql_pqc_documents WHERE query_hash = '...';
 ```
 
 ## Common Issues
+
+### Issue: POST requests not storing queries
+
+**Symptom**: Query executes successfully but no entry appears in database.
+
+**Possible Causes**:
+1. **Nonce not provided**: Nonce is required by default. Make sure you:
+   - First GET the persisted URL to receive a nonce
+   - Include the nonce in POST request extensions
+   - Include computed hashes in extensions
+
+2. **Nonce expired**: Nonces expire after 5 minutes. Get a fresh nonce if needed.
+
+3. **Nonce already used**: Each nonce can only be used once. If you retry the same POST, get a new nonce.
+
+4. **Hash mismatch**: Client-provided hashes must match server-computed hashes. Ensure you're using the same hashing algorithm (SHA-256, normalized query, canonicalized variables).
+
+5. **Authenticated request**: By default, authenticated requests don't persist. Use the filter to allow it:
+   ```php
+   add_filter( 'wpgraphql_pqc_allow_authenticated', '__return_true' );
+   ```
+
+**Solution**: Follow the proper PQC flow:
+1. GET `/graphql/persisted/{hash}` → Receive nonce
+2. POST with query + nonce + hashes in extensions → Query stored
 
 ### Issue: Rewrite rules not working
 
