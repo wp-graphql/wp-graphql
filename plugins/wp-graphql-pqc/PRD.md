@@ -243,9 +243,9 @@ request:
 
 **Note**: The plugin distinguishes between two types of storage:
 
-1. **Document Storage** (query text): Restricted by default
-   - Default: Only authenticated users can create/persist documents
-   - Opt-in: Public requests can also persist documents via `wpgraphql_pqc_allow_public_document_persistence` filter
+1. **Document Storage** (query text): Respects WPGraphQL Smart Cache's "Allow/Deny Mode" setting
+   - **Public mode**: Public requests can create/persist documents (default)
+   - **Allow/Deny mode**: Only authenticated users can create documents
    - Requires nonce validation (unless filtered)
 
 2. **Execution Data Storage** (variables + cache keys): Always allowed if document exists
