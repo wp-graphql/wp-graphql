@@ -272,23 +272,52 @@ SELECT * FROM wp_wpgraphql_pqc_url_keys WHERE cache_key LIKE '%post:1%';
 
 ### Test 4.1: Authenticated Requests
 
-Make a POST request while logged in:
+Authenticated requests can use persisted query URLs, but by default they cannot persist new queries (unless filtered).
+
+**To test authenticated GET requests:**
+1. First persist a query as a public user (following Test 1)
+2. Then make a GET request while logged in:
 
 ```bash
-# First, get a session cookie by logging in via browser
-# Then include the cookie in your curl request
+curl -X GET http://localhost:8888/graphql/persisted/{hash} \
+  -H "Cookie: wordpress_logged_in_xxx=..."
+```
+
+**Expected Result:**
+- Query executes as the authenticated user (they see their own data)
+- Response headers include `Cache-Control: no-store` (not cacheable)
+
+**To test authenticated POST requests (with persistence):**
+By default, authenticated POST requests will not store queries. To allow it, use the filter:
+
+```php
+add_filter( 'wpgraphql_pqc_allow_authenticated', '__return_true' );
+```
+
+Then make a POST request with nonce (same flow as Test 1):
+
+```bash
+# First GET to receive nonce
+curl -X GET http://localhost:8888/graphql/persisted/{hash}
+
+# Then POST with nonce
 curl -X POST http://localhost:8888/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: wordpress_logged_in_xxx=..." \
   -d '{
-    "query": "query GetPosts { posts { nodes { id title } } }"
+    "query": "query GetPosts { posts { nodes { id title } } }",
+    "extensions": {
+      "persistedQueryNonce": "nonce_from_get_404",
+      "persistedQueryHash": "computed_hash",
+      "persistedVariablesHash": ""
+    }
   }'
 ```
 
 **Expected Result:**
-- Query executes normally
-- **No entry stored in database** (authenticated requests are skipped)
-- **No `persistedQueryUrl` in response**
+- Query executes successfully
+- Entry is stored in database (if filter allows authenticated persistence)
+- Response includes `extensions.persistedQueryUrl`
 
 ### Test 4.2: Mutation Requests
 
