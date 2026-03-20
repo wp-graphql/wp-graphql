@@ -1,0 +1,73 @@
+{
+	"name": "wp-graphql/wp-graphql-pqc",
+	"description": "Persisted Query Cache for WPGraphQL - enables permalink-based persisted queries with URL-based cache invalidation",
+	"type": "wordpress-plugin",
+	"license": "GPL-3.0-or-later",
+	"autoload": {
+		"psr-4": {
+			"WPGraphQL\\PQC\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"files": [
+			"tests/_data/config.php"
+		],
+		"psr-4": {
+			"TestCase\\WPGraphQLPQC\\": "tests/_support/"
+		}
+	},
+	"require-dev": {
+		"behat/gherkin": "<4.9",
+		"wp-graphql/wp-graphql-testcase": "*",
+		"squizlabs/php_codesniffer": "^3.6",
+		"phpcompatibility/phpcompatibility-wp": "*",
+		"wp-coding-standards/wpcs": "^2.3",
+		"lucatume/wp-browser": "^3.7.0",
+		"codeception/module-rest": "^2.0",
+		"phpunit/php-timer": "^5.0",
+		"phpstan/phpstan": "^1.10",
+		"szepeviktor/phpstan-wordpress": "^1.3",
+		"automattic/vipwpcs": "^2.3",
+		"phpstan/extension-installer": "^1.3",
+		"axepress/wp-graphql-stubs": "^2.3",
+		"appsero/client": "^2.0"
+	},
+	"scripts": {
+		"phpcs-i": [
+			"php ./vendor/bin/phpcs -i"
+		],
+		"check-cs": [
+			"php ./vendor/bin/phpcs"
+		],
+		"fix-cs": [
+			"php ./vendor/bin/phpcbf"
+		],
+		"phpstan": [
+			"phpstan analyze --ansi --memory-limit=1G"
+		],
+		"build-plugin": [
+			"composer install --no-dev --optimize-autoloader && composer run-script zip && composer install"
+		],
+		"zip": [
+			"# Note: WordPress.org requires 'wpgraphql-pqc' (no hyphen between wp and graphql)",
+			"# We keep the directory name as 'wp-graphql-pqc' to match core 'wp-graphql' convention",
+			"# but the zip must use the WordPress.org-compliant slug for deployment",
+			"mkdir -p plugin-build/wpgraphql-pqc",
+			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wpgraphql-pqc/ --delete --delete-excluded -v",
+			"cd plugin-build ; zip -r wpgraphql-pqc.zip wpgraphql-pqc",
+			"rm -rf plugin-build/wpgraphql-pqc/"
+		]
+	},
+	"config": {
+		"platform": {
+			"php": "7.4"
+		},
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
+		}
+	},
+	"require": {
+		"appsero/client": "^2.0"
+	}
+}
