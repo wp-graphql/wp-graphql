@@ -34,6 +34,9 @@ class Logger {
 		);
 
 		// Log to error_log if WP_DEBUG is enabled.
+		// Note: We use error_log instead of graphql_debug because purge events
+		// are triggered by WordPress actions (post_updated, transition_post_status, etc.)
+		// which occur outside of GraphQL requests.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( $message );
@@ -48,20 +51,6 @@ class Logger {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( '[WPGraphQL PQC]   → No URLs found for this cache key' );
 			}
-		}
-
-		// Also use graphql_debug if available (for GraphQL debug output).
-		if ( function_exists( 'graphql_debug' ) ) {
-			graphql_debug(
-				$message,
-				[
-					'cache_key' => $cache_key,
-					'event'     => $event,
-					'hostname'  => $hostname,
-					'urls'      => $urls,
-					'urls_count' => count( $urls ),
-				]
-			);
 		}
 	}
 }
