@@ -21,6 +21,12 @@ class VIPAdapter implements AdapterInterface {
 	 * @return bool
 	 */
 	public static function is_available(): bool {
+		// Check for new non-deprecated function first.
+		if ( function_exists( 'wpvip_purge_edge_cache_for_url' ) ) {
+			return true;
+		}
+
+		// Fall back to deprecated function for backward compatibility.
 		return function_exists( 'wpcom_vip_purge_edge_cache_for_url' );
 	}
 
@@ -38,8 +44,15 @@ class VIPAdapter implements AdapterInterface {
 		// Build full URL if relative.
 		$full_url = $this->build_full_url( $url );
 
-		// Call VIP purge function.
-		wpcom_vip_purge_edge_cache_for_url( $full_url );
+		// Use new non-deprecated function if available, otherwise fall back to deprecated function.
+		if ( function_exists( 'wpvip_purge_edge_cache_for_url' ) ) {
+			wpvip_purge_edge_cache_for_url( $full_url );
+		} elseif ( function_exists( 'wpcom_vip_purge_edge_cache_for_url' ) ) {
+			// phpcs:ignore WordPressVIP.Functions.RestrictedFunctions.deprecated_wpcom_vip_purge_edge_cache_for_url
+			wpcom_vip_purge_edge_cache_for_url( $full_url );
+		} else {
+			return false;
+		}
 
 		return true;
 	}
