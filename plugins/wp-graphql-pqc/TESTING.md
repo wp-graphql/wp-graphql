@@ -481,62 +481,169 @@ Save these scripts as `test-pqc-flow.sh` and `test-pqc-flow-variables.sh`, make 
 
 ## Test 3: Cache Invalidation - Purge Handler
 
-### Step 1: Create a Query that Returns Specific Content
+This test verifies that the PQC plugin correctly identifies and logs URLs that should be purged when WPGraphQL Smart Cache emits purge events.
 
-First, create a post and persist a query for it using the PQC flow:
+### Prerequisites
+
+1. **Enable WP_DEBUG logging:**
+   Add to `wp-config.php`:
+   ```php
+   define( 'WP_DEBUG', true );
+   define( 'WP_DEBUG_LOG', true );
+   ```
+
+2. **Optional: Prevent database entry deletion during testing:**
+   Add to your theme's `functions.php` or a plugin:
+   ```php
+   // Prevent deletion of index entries for testing
+   add_filter( 'wpgraphql_pqc_delete_entries_on_purge', '__return_false' );
+   ```
+   This allows you to test the purge logic multiple times without losing database entries.
+
+### Step 1: Create a Post and Persist a Query
+
+First, create a post and persist a query that returns that post:
 
 ```bash
-# Create a post (via WP-CLI or admin)
-wp post create --post_title="Test Post" --post_status=publish
+# Create a post via WP-CLI
+POST_ID=$(npm run wp-env -- run cli -- wp post create --post_title="Test Post for Purge" --post_status=publish --porcelain)
 
-# Compute hash and persist query (follow Test 1 steps)
-# Query: query GetPost { post(id: "cG9zdDox") { id title } }
-# ... (GET nonce, POST with nonce, etc.)
+# Get the post's GraphQL ID
+POST_GRAPHQL_ID=$(npm run wp-env -- run cli -- wp eval "echo \GraphQLRelay\Relay::toGlobalId('post', $POST_ID);")
+
+echo "Post ID: $POST_ID"
+echo "Post GraphQL ID: $POST_GRAPHQL_ID"
 ```
+
+Now persist a query that returns this post (follow Test 1 steps, but use this query):
+
+```graphql
+query GetPost {
+  post(id: "cG9zdDox") {
+    id
+    title
+  }
+}
+```
+
+Replace `cG9zdDox` with the actual GraphQL ID from above (base64 encoded).
 
 Note the `persistedQueryUrl` from the POST response.
 
 ### Step 2: Verify Database Entry
 
-Check that the entries exist and have cache keys like `post:1` or similar:
+Check that the entries exist and have cache keys:
 
-```sql
--- Check url_keys entries
-SELECT url, query_hash, cache_key FROM wp_wpgraphql_pqc_url_keys WHERE url LIKE '%graphql/persisted%';
-
--- Check the corresponding document
-SELECT query_hash, LEFT(query_document, 100) as query_preview FROM wp_wpgraphql_pqc_documents;
+```bash
+# Check url_keys entries
+npm run wp-env -- run cli -- wp db query "
+  SELECT url, query_hash, cache_key 
+  FROM wp_wpgraphql_pqc_url_keys 
+  WHERE url LIKE '%graphql/persisted%'
+  LIMIT 10;
+"
 ```
+
+**Expected Result:**
+- You should see entries with cache keys like `post:1` (where `1` is the post ID) or the GraphQL global ID
+- The `url` column should contain the persisted query URL
 
 ### Step 3: Trigger a Purge Event
 
 Update the post (this will trigger Smart Cache to emit a `graphql_purge` action):
 
 ```bash
-wp post update 1 --post_title="Updated Test Post"
+# Update the post title
+npm run wp-env -- run cli -- wp post update $POST_ID --post_title="Updated Test Post"
 ```
 
-Or update it via the WordPress admin.
+Or update it via the WordPress admin at `http://localhost:8888/wp-admin`.
 
-### Step 4: Verify Purge Handler Executed
+### Step 4: Check the Logs
 
-**If using NullAdapter (default in development):**
-- Check your error log (if `WP_DEBUG` is true, you should see log entries)
-- The purge will be logged but not actually executed
+**Check error log for purge events:**
 
-**If using VIPAdapter (on WordPress VIP):**
-- The URL will be purged via `wpcom_vip_purge_edge_cache_for_url()`
+```bash
+# View the last 50 lines of the debug log
+tail -n 50 /path/to/wp-content/debug.log | grep "WPGraphQL PQC"
+```
 
-### Step 5: Verify Index Entry Deleted
+Or if using `wp-env`:
 
-Check the database:
+```bash
+# Access the container and check logs
+npm run wp-env -- run cli -- tail -n 50 /var/www/html/wp-content/debug.log | grep "WPGraphQL PQC"
+```
 
-```sql
-SELECT * FROM wp_wpgraphql_pqc_url_keys WHERE cache_key LIKE '%post:1%';
+**Expected Log Output:**
+
+```
+[WPGraphQL PQC] Purge Event: key="post:cG9zdDox" event="post_updated" hostname="localhost:8888" urls_count=1
+[WPGraphQL PQC]   → Would purge URL: /graphql/persisted/{queryHash}/variables/{variablesHash}
+[WPGraphQL PQC] NullAdapter: Would purge URL: /graphql/persisted/{queryHash}/variables/{variablesHash}
+```
+
+**What to verify:**
+- The cache key matches the post that was updated (e.g., `post:cG9zdDox`)
+- The event name is correct (e.g., `post_updated`, `transition_post_status`)
+- The URL(s) listed are the persisted query URLs that should be purged
+- The URL count matches the number of persisted queries that reference this post
+
+### Step 5: Test Different Purge Events
+
+Test various events that trigger purges:
+
+**Publish a new post (triggers `list:post` purge):**
+```bash
+npm run wp-env -- run cli -- wp post create --post_title="New Post" --post_status=publish
+```
+
+**Update post meta:**
+```bash
+npm run wp-env -- run cli -- wp post meta update $POST_ID test_meta "test value"
+```
+
+**Delete a post:**
+```bash
+npm run wp-env -- run cli -- wp post delete $POST_ID --force
+```
+
+**Expected Results:**
+- Each event should log different cache keys:
+  - Publishing: `list:post`
+  - Updating: `post:{id}` and `skipped:post`
+  - Deleting: `post:{id}` and `skipped:post`
+- The logged URLs should match persisted queries that reference the affected content
+
+### Step 6: Verify Database Entries (if deletion enabled)
+
+If you did NOT use the filter to prevent deletion, check that entries were removed:
+
+```bash
+npm run wp-env -- run cli -- wp db query "
+  SELECT * FROM wp_wpgraphql_pqc_url_keys 
+  WHERE cache_key LIKE '%post:%'
+  LIMIT 10;
+"
 ```
 
 **Expected Result:**
-- The entry should be deleted (or at least the cache_key should no longer match)
+- Entries with the purged cache key should be deleted (if `wpgraphql_pqc_delete_entries_on_purge` filter returns `true`)
+
+### Troubleshooting
+
+**No purge events logged:**
+- Ensure `WP_DEBUG` is enabled
+- Check that WPGraphQL Smart Cache is active and tracking events
+- Verify the query was actually persisted (check database)
+
+**Wrong URLs being purged:**
+- Check that cache keys in the database match what Smart Cache is emitting
+- Verify the query was executed as a public request (authenticated requests may have different cache keys)
+
+**No URLs found for cache key:**
+- This is normal if no persisted queries reference that content
+- The log will show `urls_count=0` and `No URLs found for this cache key`
 
 ## Test 4: Edge Cases
 

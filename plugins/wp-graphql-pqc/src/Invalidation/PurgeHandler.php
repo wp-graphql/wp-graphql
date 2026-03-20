@@ -10,6 +10,7 @@ namespace WPGraphQL\PQC\Invalidation;
 
 use WPGraphQL\PQC\Purge\AdapterFactory;
 use WPGraphQL\PQC\Store\StoreFactory;
+use WPGraphQL\PQC\Utils\Logger;
 
 /**
  * Class PurgeHandler
@@ -41,6 +42,9 @@ class PurgeHandler {
 		// Get all URLs tagged with this cache key.
 		$urls = $store->get_urls_for_key( $key );
 
+		// Log the purge event (even if no URLs found, for debugging).
+		Logger::log_purge_event( $key, $event, $hostname, $urls );
+
 		if ( empty( $urls ) ) {
 			return;
 		}
@@ -53,7 +57,20 @@ class PurgeHandler {
 			$adapter->purge_url( $url );
 		}
 
-		// Delete index entries for this key.
-		$store->delete_by_key( $key );
+		/**
+		 * Filter whether to delete index entries after purging.
+		 * Defaults to true in production, but can be set to false for testing/debugging.
+		 *
+		 * @param bool   $delete_entries Whether to delete index entries.
+		 * @param string $key            The cache key being purged.
+		 * @param array  $urls           The URLs that were purged.
+		 * @return bool
+		 */
+		$delete_entries = apply_filters( 'wpgraphql_pqc_delete_entries_on_purge', true, $key, $urls );
+
+		if ( $delete_entries ) {
+			// Delete index entries for this key.
+			$store->delete_by_key( $key );
+		}
 	}
 }
