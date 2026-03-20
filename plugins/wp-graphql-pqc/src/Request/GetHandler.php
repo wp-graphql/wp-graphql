@@ -32,17 +32,24 @@ class GetHandler {
 		$query_data = $store->get_query( $query_hash, $variables_hash ?: '' );
 
 		if ( ! $query_data ) {
-			// Query not found in index, return 404 with nonce in extensions.
+			// Query not found in index, return GraphQL error response with nonce in extensions.
+			// Use HTTP 200 (GraphQL convention: errors are in response, not HTTP status).
 			$nonce = Nonce::generate( $query_hash, $variables_hash );
 
-			status_header( 404 );
-			nocache_headers();
+			// Prevent WordPress from loading a template.
+			status_header( 200 );
+			
+			// Set no-cache headers for error responses (nonce should not be cached).
+			header( 'Cache-Control: no-store' );
 			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
 
 			$response = [
 				'errors' => [
 					[
 						'message' => 'Persisted query not found',
+						'extensions' => [
+							'code' => 'PERSISTED_QUERY_NOT_FOUND',
+						],
 					],
 				],
 				'extensions' => [

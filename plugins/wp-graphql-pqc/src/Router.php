@@ -89,15 +89,47 @@ class Router {
 		$variables_hash = isset( $wp->query_vars['graphql_variables_hash'] ) ? $wp->query_vars['graphql_variables_hash'] : '';
 
 		if ( ! $query_hash || ! preg_match( '/^[a-f0-9]{64}$/', $query_hash ) ) {
-			status_header( 404 );
-			nocache_headers();
+			// Invalid query hash format - return JSON error response.
+			status_header( 200 );
+			header( 'Cache-Control: no-store' );
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+
+			$response = [
+				'errors' => [
+					[
+						'message' => 'Invalid persisted query hash format',
+						'extensions' => [
+							'code' => 'INVALID_QUERY_HASH',
+						],
+					],
+				],
+			];
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_json_encode( $response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 			exit;
 		}
 
 		// If variables_hash is provided, validate it.
 		if ( ! empty( $variables_hash ) && ! preg_match( '/^[a-f0-9]{64}$/', $variables_hash ) ) {
-			status_header( 404 );
-			nocache_headers();
+			// Invalid variables hash format - return JSON error response.
+			status_header( 200 );
+			header( 'Cache-Control: no-store' );
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+
+			$response = [
+				'errors' => [
+					[
+						'message' => 'Invalid persisted query variables hash format',
+						'extensions' => [
+							'code' => 'INVALID_VARIABLES_HASH',
+						],
+					],
+				],
+			];
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_json_encode( $response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 			exit;
 		}
 
