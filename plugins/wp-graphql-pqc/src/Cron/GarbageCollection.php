@@ -34,7 +34,8 @@ class GarbageCollection {
 	public function run(): void {
 		global $wpdb;
 
-		$table_name = Schema::get_table_name();
+		$url_keys_table = Schema::get_url_keys_table_name();
+		$documents_table = Schema::get_documents_table_name();
 
 		// Get TTL in days (default: 7 days).
 		$ttl_days = apply_filters( 'wpgraphql_pqc_ttl_days', 7 );
@@ -47,13 +48,21 @@ class GarbageCollection {
 		// Calculate cutoff date.
 		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$ttl_days} days" ) );
 
-		// Delete old entries.
+		// Delete old url_keys entries.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table_name} WHERE created_at < %s",
+				"DELETE FROM {$url_keys_table} WHERE created_at < %s",
 				$cutoff_date
 			)
+		);
+
+		// Clean up orphaned documents (documents with no url_keys entries).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			"DELETE d FROM {$documents_table} d
+			LEFT JOIN {$url_keys_table} uk ON d.query_hash = uk.query_hash
+			WHERE uk.query_hash IS NULL"
 		);
 	}
 }

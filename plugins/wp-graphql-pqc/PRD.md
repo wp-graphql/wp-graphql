@@ -331,9 +331,7 @@ and cache keys. References documents table via `query_hash`:
 >
 > INDEX idx_query_lookup (query_hash, variables_hash),
 >
-> INDEX idx_url_hash (url_hash),
->
-> FOREIGN KEY (query_hash) REFERENCES {prefix}wpgraphql_pqc_documents(query_hash)
+> INDEX idx_url_hash (url_hash)
 >
 > );
 
@@ -360,8 +358,10 @@ Key design decisions:
 -   INDEX on (query_hash, variables_hash) enables fast GET cache-miss
     lookup without a full table scan.
 
--   FOREIGN KEY ensures referential integrity between documents and
-    url_keys tables.
+-   **Referential integrity**: We rely on application-level integrity
+    rather than database foreign keys, as dbDelta doesn't handle foreign
+    keys well and many WordPress setups don't support them. The store
+    ensures documents exist before inserting url_keys entries.
 
 -   created_at supports TTL-based garbage collection via WP-Cron.
 
