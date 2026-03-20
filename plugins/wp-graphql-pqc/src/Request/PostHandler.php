@@ -118,15 +118,13 @@ class PostHandler {
 			// Document doesn't exist - check permissions for creating it.
 			$is_authenticated = is_user_logged_in();
 
-			/**
-			 * Filter whether to allow public (unauthenticated) requests to persist documents.
-			 * Default is false (only authenticated users can create documents).
-			 * Set to true to allow public requests to persist documents (similar to Smart Cache's public mode).
-			 *
-			 * @param bool $allow_public_document_persistence Whether to allow public document persistence.
-			 * @return bool
-			 */
-			$allow_public_documents = apply_filters( 'wpgraphql_pqc_allow_public_document_persistence', false );
+			// Check Smart Cache's grant_mode setting to determine if public document persistence is allowed.
+			// If grant_mode is 'public', allow public requests to create documents.
+			// Otherwise, only authenticated users can create documents.
+			$grant_mode = function_exists( 'get_graphql_setting' ) 
+				? \get_graphql_setting( 'grant_mode', 'public', 'graphql_persisted_queries_section' )
+				: 'public';
+			$allow_public_documents = ( 'public' === $grant_mode );
 
 			/**
 			 * Filter whether to require nonce validation for document persistence.
@@ -139,7 +137,7 @@ class PostHandler {
 			$require_nonce = apply_filters( 'wpgraphql_pqc_require_nonce', true );
 
 			// Determine if we can store the document:
-			// - Must be authenticated OR public persistence must be enabled
+			// - Must be authenticated OR Smart Cache grant_mode is 'public'
 			// - If nonce is required, it must be provided and valid
 			$can_store_document = $is_authenticated || $allow_public_documents;
 			$nonce_check_passes = $require_nonce ? ( ! empty( $nonce ) && $nonce_valid ) : true;

@@ -83,15 +83,12 @@ add_filter( 'wpgraphql_pqc_url_base', function() {
 } );
 ```
 
-#### `wpgraphql_pqc_allow_public_document_persistence`
-Allow public (unauthenticated) requests to persist query documents (default: `false`)
+**Note**: Execution data (variables + cache keys) is always stored if a document already exists, regardless of authentication status. Document persistence respects WPGraphQL Smart Cache's "Allow/Deny Mode" setting:
 
-```php
-// Allow public requests to create/persist documents
-add_filter( 'wpgraphql_pqc_allow_public_document_persistence', '__return_true' );
-```
+- **Public mode**: Public requests can create documents (default)
+- **Allow/Deny mode**: Only authenticated users can create documents
 
-**Note**: Execution data (variables + cache keys) is always stored if a document already exists, regardless of authentication status. This filter only controls whether public requests can create new documents.
+This setting is found at **GraphQL > Settings > Saved Queries > Allow/Deny Mode**.
 
 #### `wpgraphql_pqc_cache_max_age`
 Filter the max-age for persisted query cache headers (default: `600` seconds)
