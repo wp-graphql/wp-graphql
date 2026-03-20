@@ -107,47 +107,60 @@ class PostHandler {
 			}
 		}
 
-		// Check if we should store this request.
-		// Default: only unauthenticated requests, unless filtered.
-		/**
-		 * Filter whether to allow authenticated requests to be stored.
-		 * Default is false (only unauthenticated requests are stored).
-		 *
-		 * @param bool $allow_authenticated Whether to allow authenticated requests.
-		 * @return bool
-		 */
-		$allow_authenticated = apply_filters( 'wpgraphql_pqc_allow_authenticated', false );
-		$can_store_by_auth = ! is_user_logged_in() || $allow_authenticated;
+		$store = StoreFactory::get_store();
 
-		/**
-		 * Filter whether to require nonce validation for persistence.
-		 * Default is true (nonce required for PQC flow security).
-		 * Set to false to allow storage without nonce (e.g., for build tools with Application Passwords).
-		 *
-		 * @param bool $require_nonce Whether to require nonce validation.
-		 * @return bool
-		 */
-		$require_nonce = apply_filters( 'wpgraphql_pqc_require_nonce', true );
+		// Check if document already exists.
+		$document_exists = $store->document_exists( $query_hash );
 
-		// Determine if we should store:
-		// - Must pass authentication check
-		// - If nonce is required, it must be provided and valid
-		// - If nonce is not required (filtered), allow storage without nonce
-		$nonce_check_passes = $require_nonce ? ( ! empty( $nonce ) && $nonce_valid ) : true;
-		$should_store = $can_store_by_auth && $nonce_check_passes;
+		// Determine if we should store the document (if it doesn't exist).
+		$should_store_document = false;
+		if ( ! $document_exists ) {
+			// Document doesn't exist - check permissions for creating it.
+			$is_authenticated = is_user_logged_in();
+
+			/**
+			 * Filter whether to allow public (unauthenticated) requests to persist documents.
+			 * Default is false (only authenticated users can create documents).
+			 * Set to true to allow public requests to persist documents (similar to Smart Cache's public mode).
+			 *
+			 * @param bool $allow_public_document_persistence Whether to allow public document persistence.
+			 * @return bool
+			 */
+			$allow_public_documents = apply_filters( 'wpgraphql_pqc_allow_public_document_persistence', false );
+
+			/**
+			 * Filter whether to require nonce validation for document persistence.
+			 * Default is true (nonce required for PQC flow security).
+			 * Set to false to allow storage without nonce (e.g., for build tools with Application Passwords).
+			 *
+			 * @param bool $require_nonce Whether to require nonce validation.
+			 * @return bool
+			 */
+			$require_nonce = apply_filters( 'wpgraphql_pqc_require_nonce', true );
+
+			// Determine if we can store the document:
+			// - Must be authenticated OR public persistence must be enabled
+			// - If nonce is required, it must be provided and valid
+			$can_store_document = $is_authenticated || $allow_public_documents;
+			$nonce_check_passes = $require_nonce ? ( ! empty( $nonce ) && $nonce_valid ) : true;
+			$should_store_document = $can_store_document && $nonce_check_passes;
+		}
+
+		// Determine if we should store execution data (variables + cache keys).
+		// Always allow if document exists, otherwise only if we're storing the document.
+		$should_store_execution_data = $document_exists || $should_store_document;
 
 		// Store in index if validation passes.
-		if ( $should_store ) {
-			$store = StoreFactory::get_store();
-			$store->store( $url, $query_hash, $variables_hash ?: '', $query, $variables_json, $cache_keys );
+		if ( $should_store_execution_data ) {
+			$store->store( $url, $query_hash, $variables_hash ?: '', $query, $variables_json, $cache_keys, $should_store_document );
 
 			// Mark nonce as used after successful storage.
 			if ( ! empty( $nonce ) && $nonce_valid ) {
 				Nonce::mark_used( $nonce );
 			}
 
-			// Only add canonical URL to response extensions when we actually stored it.
-			// This prevents returning a URL that will 404 for authenticated requests.
+			// Only add canonical URL to response extensions when we actually stored execution data.
+			// This prevents returning a URL that will 404.
 			$this->add_url_to_extensions( $filtered_response, $url );
 		}
 

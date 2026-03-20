@@ -24,9 +24,10 @@ interface StoreInterface {
 	 * @param string $query_doc     The full GraphQL query document.
 	 * @param string $variables     The variables JSON string.
 	 * @param array  $cache_keys    Array of cache keys from X-GraphQL-Keys header.
+	 * @param bool   $store_document Whether to store the document (if it doesn't exist). Default true.
 	 * @return void
 	 */
-	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys ): void;
+	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true ): void;
 
 	/**
 	 * Get query document and variables by query hash and variables hash
@@ -60,4 +61,12 @@ interface StoreInterface {
 	 * @return void
 	 */
 	public function delete_by_url( string $url ): void;
+
+	/**
+	 * Check if a document exists for a given query hash
+	 *
+	 * @param string $query_hash SHA-256 hash of the normalized query document.
+	 * @return bool True if document exists, false otherwise.
+	 */
+	public function document_exists( string $query_hash ): bool;
 }

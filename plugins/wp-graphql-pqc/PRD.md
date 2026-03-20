@@ -241,9 +241,17 @@ request:
 -   Server validates nonce and hashes match, then stores the index entry
     for future GET requests.
 
-**Note**: Future versions will require nonce validation and hash matching
-for security. Currently (v0.1.0-beta.1), queries are stored automatically
-for authenticated requests (with opt-in for public requests).
+**Note**: The plugin distinguishes between two types of storage:
+
+1. **Document Storage** (query text): Restricted by default
+   - Default: Only authenticated users can create/persist documents
+   - Opt-in: Public requests can also persist documents via `wpgraphql_pqc_allow_public_document_persistence` filter
+   - Requires nonce validation (unless filtered)
+
+2. **Execution Data Storage** (variables + cache keys): Always allowed if document exists
+   - If a document already exists (by query_hash), execution data is always stored
+   - This allows tracking all executions of pre-registered documents
+   - No authentication required for execution data storage when document exists
 
 **5.3 Cache Invalidation Flow**
 
@@ -611,9 +619,11 @@ layer. The plugin enforces this by:
 -   Public GET requests execute as public users and receive cacheable
     headers (respecting Smart Cache settings).
 
--   **Storage Control**: By default, only authenticated POST requests
-    can persist queries. A setting allows opt-in for public requests
-    to automatically persist.
+-   **Document Storage Control**: By default, only authenticated POST
+    requests can persist query documents. A filter allows opt-in for
+    public requests to persist documents (similar to Smart Cache's public
+    mode). Once a document exists, execution data (variables + cache keys)
+    can be stored for any request (public or authenticated).
 
 -   **Nonce Validation** (Future): POST requests must include a nonce
     from a prior GET 404 response, plus computed hashes, to prevent

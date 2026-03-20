@@ -83,12 +83,15 @@ add_filter( 'wpgraphql_pqc_url_base', function() {
 } );
 ```
 
-#### `wpgraphql_pqc_allow_authenticated`
-Allow authenticated requests to be stored (default: `false`)
+#### `wpgraphql_pqc_allow_public_document_persistence`
+Allow public (unauthenticated) requests to persist query documents (default: `false`)
 
 ```php
-add_filter( 'wpgraphql_pqc_allow_authenticated', '__return_true' );
+// Allow public requests to create/persist documents
+add_filter( 'wpgraphql_pqc_allow_public_document_persistence', '__return_true' );
 ```
+
+**Note**: Execution data (variables + cache keys) is always stored if a document already exists, regardless of authentication status. This filter only controls whether public requests can create new documents.
 
 #### `wpgraphql_pqc_cache_max_age`
 Filter the max-age for persisted query cache headers (default: `600` seconds)

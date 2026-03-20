@@ -26,26 +26,30 @@ class DBStore implements StoreInterface {
 	 * @param string $query_doc     The full GraphQL query document.
 	 * @param string $variables     The variables JSON string.
 	 * @param array  $cache_keys    Array of cache keys from X-GraphQL-Keys header.
+	 * @param bool   $store_document Whether to store the document (if it doesn't exist). Default true.
 	 * @return void
 	 */
-	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys ): void {
+	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true ): void {
 		global $wpdb;
 
 		$documents_table = Schema::get_documents_table_name();
 		$url_keys_table = Schema::get_url_keys_table_name();
 		$url_hash = hash( 'sha256', $url );
 
-		// First, ensure the document exists in the documents table (INSERT IGNORE to handle duplicates).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query(
-			$wpdb->prepare(
-				"INSERT IGNORE INTO {$documents_table} (query_hash, query_document) VALUES (%s, %s)",
-				$query_hash,
-				$query_doc
-			)
-		);
+		// Store document only if requested and it doesn't already exist.
+		if ( $store_document ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO {$documents_table} (query_hash, query_document) VALUES (%s, %s)",
+					$query_hash,
+					$query_doc
+				)
+			);
+		}
 
-		// Then, store one row per cache key in url_keys table (many-to-many relationship).
+		// Always store execution data (variables + cache keys) if document exists.
+		// This allows tracking executions of pre-registered documents.
 		foreach ( $cache_keys as $cache_key ) {
 			// Use INSERT IGNORE to handle duplicates gracefully.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -166,4 +170,25 @@ class DBStore implements StoreInterface {
 		// Note: Documents are not deleted here even if they become orphaned.
 		// Garbage collection can clean up orphaned documents later if needed.
 	}
-}
+
+	/**
+	 * Check if a document exists for a given query hash
+	 *
+	 * @param string $query_hash SHA-256 hash of the normalized query document.
+	 * @return bool True if document exists, false otherwise.
+	 */
+	public function document_exists( string $query_hash ): bool {
+		global $wpdb;
+
+		$documents_table = Schema::get_documents_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$documents_table} WHERE query_hash = %s",
+				$query_hash
+			)
+		);
+
+		return (int) $count > 0;
+	}
