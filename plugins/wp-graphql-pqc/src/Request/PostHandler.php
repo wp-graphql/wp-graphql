@@ -10,6 +10,7 @@ namespace WPGraphQL\PQC\Request;
 
 use WPGraphQL\PQC\Store\StoreFactory;
 use WPGraphQL\PQC\Utils\Hasher;
+use WPGraphQL\PQC\Utils\Nonce;
 
 /**
  * Class PostHandler
@@ -82,7 +83,32 @@ class PostHandler {
 		// Construct canonical URL.
 		$url = $this->build_url( $query_hash, $variables_hash );
 
-		// Check if we should store this request (only unauthenticated, unless filtered).
+		// Check if nonce is provided in request extensions (for PQC flow validation).
+		$request_extensions = $this->get_request_extensions( $request );
+		$nonce = $request_extensions['persistedQueryNonce'] ?? null;
+		$client_query_hash = $request_extensions['persistedQueryHash'] ?? null;
+		$client_variables_hash = $request_extensions['persistedVariablesHash'] ?? null;
+
+		// If nonce is provided, validate it and the client-provided hashes.
+		$nonce_valid = false;
+		if ( ! empty( $nonce ) ) {
+			// Validate nonce and hash matching.
+			$nonce_valid = Nonce::validate( $nonce, $query_hash, $variables_hash );
+
+			// Also validate that client-provided hashes match server-computed hashes.
+			if ( $nonce_valid && ! empty( $client_query_hash ) && $client_query_hash !== $query_hash ) {
+				$nonce_valid = false;
+			}
+			if ( $nonce_valid && ! empty( $client_variables_hash ) ) {
+				$expected_variables_hash = $variables_hash ?: '';
+				if ( $client_variables_hash !== $expected_variables_hash ) {
+					$nonce_valid = false;
+				}
+			}
+		}
+
+		// Check if we should store this request.
+		// Default: only unauthenticated requests, unless filtered.
 		/**
 		 * Filter whether to allow authenticated requests to be stored.
 		 * Default is false (only unauthenticated requests are stored).
@@ -91,16 +117,39 @@ class PostHandler {
 		 * @return bool
 		 */
 		$allow_authenticated = apply_filters( 'wpgraphql_pqc_allow_authenticated', false );
-		$should_store = ! is_user_logged_in() || $allow_authenticated;
+		$can_store_by_auth = ! is_user_logged_in() || $allow_authenticated;
 
-		// Store in index (only for unauthenticated requests, unless filtered).
+		/**
+		 * Filter whether to require nonce validation for persistence.
+		 * Default is true (nonce required for PQC flow security).
+		 * Set to false to allow storage without nonce (e.g., for build tools with Application Passwords).
+		 *
+		 * @param bool $require_nonce Whether to require nonce validation.
+		 * @return bool
+		 */
+		$require_nonce = apply_filters( 'wpgraphql_pqc_require_nonce', true );
+
+		// Determine if we should store:
+		// - Must pass authentication check
+		// - If nonce is required, it must be provided and valid
+		// - If nonce is not required (filtered), allow storage without nonce
+		$nonce_check_passes = $require_nonce ? ( ! empty( $nonce ) && $nonce_valid ) : true;
+		$should_store = $can_store_by_auth && $nonce_check_passes;
+
+		// Store in index if validation passes.
 		if ( $should_store ) {
 			$store = StoreFactory::get_store();
 			$store->store( $url, $query_hash, $variables_hash ?: '', $query, $variables_json, $cache_keys );
-		}
 
-		// Always add canonical URL to response extensions (for testing/debugging).
-		$this->add_url_to_extensions( $filtered_response, $url );
+			// Mark nonce as used after successful storage.
+			if ( ! empty( $nonce ) && $nonce_valid ) {
+				Nonce::mark_used( $nonce );
+			}
+
+			// Only add canonical URL to response extensions when we actually stored it.
+			// This prevents returning a URL that will 404 for authenticated requests.
+			$this->add_url_to_extensions( $filtered_response, $url );
+		}
 
 		// Return the modified response.
 		return $filtered_response;
@@ -160,6 +209,27 @@ class PostHandler {
 		}
 
 		return '/' . $url;
+	}
+
+	/**
+	 * Get request extensions from the GraphQL request
+	 *
+	 * @param \WPGraphQL\Request $request The request object.
+	 * @return array Extensions array from the request.
+	 */
+	private function get_request_extensions( \WPGraphQL\Request $request ): array {
+		// Try to get extensions from OperationParams.
+		$params = $request->params;
+		if ( $params instanceof \GraphQL\Server\OperationParams ) {
+			return $params->extensions ?? [];
+		}
+
+		// If batch request, get from first operation.
+		if ( is_array( $params ) && ! empty( $params[0] ) && $params[0] instanceof \GraphQL\Server\OperationParams ) {
+			return $params[0]->extensions ?? [];
+		}
+
+		return [];
 	}
 
 	/**

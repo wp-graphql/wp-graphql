@@ -45,9 +45,13 @@ The plugin returns `persistedQueryUrl` in GraphQL response extensions:
 
 ### Two-Phase Request Flow
 
-**Phase 1 (Cold Start)**: Client sends POST with full query → Server stores index entry → Returns persisted URL
+**Phase 1 (Cold Start)**: 
+1. Client sends GET to `/graphql/persisted/{queryHash}` → Server returns 404 with nonce
+2. Client sends POST with full query + nonce + hashes in extensions → Server validates → Stores index entry → Returns persisted URL
 
 **Phase 2 (Warm Path)**: Client sends GET to persisted URL → Page cache serves response (fast!) or WordPress re-executes if cache miss
+
+**Note**: The nonce requirement ensures only clients going through the proper PQC flow can persist queries. GraphQL IDEs that don't support this flow will need to be updated or you can use tools like Postman/curl for testing.
 
 ### Authentication-Aware
 
@@ -93,6 +97,14 @@ Filter the max-age for persisted query cache headers (default: `600` seconds)
 add_filter( 'wpgraphql_pqc_cache_max_age', function() {
     return 3600; // 1 hour
 } );
+```
+
+#### `wpgraphql_pqc_require_nonce`
+Filter whether to require nonce validation for persistence (default: `true`)
+
+```php
+// Allow storage without nonce (e.g., for build tools with Application Passwords)
+add_filter( 'wpgraphql_pqc_require_nonce', '__return_false' );
 ```
 
 ## Development

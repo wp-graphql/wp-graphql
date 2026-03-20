@@ -10,6 +10,7 @@ namespace WPGraphQL\PQC\Request;
 
 use WPGraphQL\PQC\Store\StoreFactory;
 use WPGraphQL\PQC\Utils\Hasher;
+use WPGraphQL\PQC\Utils\Nonce;
 
 /**
  * Class GetHandler
@@ -31,9 +32,26 @@ class GetHandler {
 		$query_data = $store->get_query( $query_hash, $variables_hash ?: '' );
 
 		if ( ! $query_data ) {
-			// Query not found in index, return 404.
+			// Query not found in index, return 404 with nonce in extensions.
+			$nonce = Nonce::generate( $query_hash, $variables_hash );
+
 			status_header( 404 );
 			nocache_headers();
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+
+			$response = [
+				'errors' => [
+					[
+						'message' => 'Persisted query not found',
+					],
+				],
+				'extensions' => [
+					'persistedQueryNonce' => $nonce,
+				],
+			];
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_json_encode( $response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 			exit;
 		}
 
