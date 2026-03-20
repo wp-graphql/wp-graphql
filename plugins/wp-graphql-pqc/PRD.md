@@ -513,7 +513,7 @@ environment detection, or can be overridden via a WordPress filter.
   ------------------ ----------------------------------------------------
   **Adapter**        **Description**
 
-  VIP                Calls wpcom_vip_purge_edge_cache_for_url().
+  VIP                Calls wpvip_purge_edge_cache_for_url() (with backward compatibility for deprecated function).
                      Auto-detected on VIP platform.
 
   PURGE Request      Sends HTTP PURGE method request to the URL.

@@ -60,9 +60,9 @@ The plugin returns `persistedQueryUrl` in GraphQL response extensions:
 
 ### Host Adapters
 
-- **WordPress VIP**: Auto-detected, uses `wpcom_vip_purge_edge_cache_for_url()`
+- **WordPress VIP**: Auto-detected, uses `wpvip_purge_edge_cache_for_url()` (with backward compatibility for deprecated function)
 - **Null Adapter**: Development/testing (logs but doesn't purge)
-- **Extensible**: Add custom adapters via filter
+- **Extensible**: Add custom adapters via `wpgraphql_pqc_purge_adapter` filter
 
 ## Configuration
 
