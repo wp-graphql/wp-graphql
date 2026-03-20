@@ -9,6 +9,26 @@ This guide walks you through manually testing the plugin's core functionality.
 3. **WPGraphQL Persisted Query Cache** plugin activated
 4. **Rewrite rules flushed** (if you just activated the plugin, visit Settings → Permalinks and click "Save Changes", or run `wp rewrite flush` via WP-CLI)
 
+## Database Structure
+
+The plugin uses a normalized database structure:
+
+- **`wp_wpgraphql_pqc_documents`**: Stores unique query documents (one row per unique `query_hash`)
+  - `query_hash` (PRIMARY KEY): SHA-256 hash of the normalized query document
+  - `query_document`: The full GraphQL query string
+  - `created_at`: Timestamp when the document was first stored
+
+- **`wp_wpgraphql_pqc_url_keys`**: Junction table mapping URLs to cache keys (one row per URL + cache key combination)
+  - `url_hash` + `cache_key` (PRIMARY KEY): Composite key
+  - `url`: The persisted query URL (e.g., `/graphql/persisted/{queryHash}/variables/{variablesHash}`)
+  - `query_hash`: References `wp_wpgraphql_pqc_documents.query_hash`
+  - `variables_hash`: SHA-256 hash of the canonicalized variables JSON
+  - `variables`: The variables JSON string
+  - `cache_key`: A single cache key (e.g., `post:123`, `list:post`)
+  - `created_at`: Timestamp when the mapping was created
+
+This normalization prevents duplicate storage of the same query document when it's used with different variables or cache keys.
+
 ## Test 1: POST Request - Store Query in Index
 
 ### Step 1: Make a POST request to GraphQL
@@ -29,21 +49,31 @@ curl -X POST http://localhost:8888/graphql \
 
 ### Step 2: Verify Database Entry
 
-Check the `wp_wpgraphql_pqc_url_keys` table in your database (using TablePlus, phpMyAdmin, etc.):
+Check the database tables in your database (using TablePlus, phpMyAdmin, etc.):
 
+**Check the documents table:**
+```sql
+SELECT * FROM wp_wpgraphql_pqc_documents ORDER BY created_at DESC LIMIT 1;
+```
+
+**Check the url_keys table:**
 ```sql
 SELECT * FROM wp_wpgraphql_pqc_url_keys ORDER BY created_at DESC LIMIT 1;
 ```
 
 **Expected Result:**
-- A new row with:
+- **In `wp_wpgraphql_pqc_documents`**: A new row with:
+  - `query_hash`: SHA-256 hash of the query (primary key)
+  - `query_document`: The original query string
+  - `created_at`: Current timestamp
+
+- **In `wp_wpgraphql_pqc_url_keys`**: One or more rows (one per cache key) with:
   - `url_hash`: SHA-256 hash of the URL
   - `url`: The persisted query URL (e.g., `/graphql/persisted/abc123...`)
-  - `query_hash`: SHA-256 hash of the query
+  - `query_hash`: SHA-256 hash of the query (references documents table)
   - `variables_hash`: Empty string (no variables)
-  - `query_document`: The original query string
   - `variables`: Empty string
-  - `cache_key`: One or more cache keys (space-separated, e.g., `list:post`)
+  - `cache_key`: A single cache key (e.g., `list:post`)
   - `created_at`: Current timestamp
 
 ### Step 3: Test with Variables
@@ -61,7 +91,9 @@ curl -X POST http://localhost:8888/graphql \
 
 **Expected Result:**
 - Response includes `extensions.persistedQueryUrl` with a URL like `/graphql/persisted/{queryHash}/variables/{variablesHash}`
-- Database entry includes both `query_hash` and `variables_hash`
+- Database entries include both `query_hash` and `variables_hash`
+- Query document is stored in `wp_wpgraphql_pqc_documents` (normalized, stored once)
+- URL-key mappings are stored in `wp_wpgraphql_pqc_url_keys` (one row per cache key)
 
 ## Test 2: GET Request - Retrieve and Execute Persisted Query
 
@@ -78,7 +110,7 @@ curl -X GET http://localhost:8888/graphql/persisted/{queryHash}
 Replace `{queryHash}` with the actual hash from the URL.
 
 **Expected Result:**
-- Query is retrieved from the database
+- Query is retrieved from the database (JOIN between documents and url_keys tables)
 - Query is re-executed
 - Same response as the original POST request
 - Response headers include `Content-Type: application/json`
@@ -128,10 +160,14 @@ Note the `persistedQueryUrl` from the response.
 
 ### Step 2: Verify Database Entry
 
-Check that the entry exists and has a cache key like `post:1` or similar:
+Check that the entries exist and have cache keys like `post:1` or similar:
 
 ```sql
-SELECT url, cache_key FROM wp_wpgraphql_pqc_url_keys WHERE url LIKE '%graphql/persisted%';
+-- Check url_keys entries
+SELECT url, query_hash, cache_key FROM wp_wpgraphql_pqc_url_keys WHERE url LIKE '%graphql/persisted%';
+
+-- Check the corresponding document
+SELECT query_hash, LEFT(query_document, 100) as query_preview FROM wp_wpgraphql_pqc_documents;
 ```
 
 ### Step 3: Trigger a Purge Event
@@ -259,16 +295,30 @@ add_action( 'graphql_return_response', function( $response, $original_response, 
 
 ### Database Queries
 
-Use these SQL queries to inspect the index:
+Use these SQL queries to inspect the normalized database structure:
 
 ```sql
--- Count total entries
+-- Count total documents (unique queries)
+SELECT COUNT(*) FROM wp_wpgraphql_pqc_documents;
+
+-- Count total URL-key mappings
 SELECT COUNT(*) FROM wp_wpgraphql_pqc_url_keys;
 
--- View all entries
+-- View all documents with preview
+SELECT query_hash, LEFT(query_document, 100) as query_preview, created_at 
+FROM wp_wpgraphql_pqc_documents 
+ORDER BY created_at DESC;
+
+-- View all URL-key mappings
 SELECT url, query_hash, variables_hash, cache_key, created_at 
 FROM wp_wpgraphql_pqc_url_keys 
 ORDER BY created_at DESC;
+
+-- Join documents and url_keys to see full query with mappings
+SELECT d.query_hash, LEFT(d.query_document, 100) as query_preview, uk.url, uk.cache_key
+FROM wp_wpgraphql_pqc_documents d
+INNER JOIN wp_wpgraphql_pqc_url_keys uk ON d.query_hash = uk.query_hash
+ORDER BY uk.created_at DESC;
 
 -- Find entries for a specific cache key
 SELECT url, cache_key 
@@ -277,6 +327,9 @@ WHERE cache_key LIKE '%list:post%';
 
 -- Find entries for a specific URL
 SELECT * FROM wp_wpgraphql_pqc_url_keys WHERE url = '/graphql/persisted/...';
+
+-- Find the document for a specific query hash
+SELECT * FROM wp_wpgraphql_pqc_documents WHERE query_hash = '...';
 ```
 
 ## Common Issues
