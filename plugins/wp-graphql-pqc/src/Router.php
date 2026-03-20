@@ -23,7 +23,8 @@ class Router {
 	public function init(): void {
 		add_action( 'init', [ $this, 'add_rewrite_rules' ], 10 );
 		add_filter( 'query_vars', [ $this, 'add_query_vars' ], 10, 1 );
-		add_action( 'parse_request', [ $this, 'handle_persisted_query_request' ], 10 );
+		// Priority 5 so we run before WPGraphQL's resolve_http_request (10) and can handle by URI if rewrite didn't match.
+		add_action( 'parse_request', [ $this, 'handle_persisted_query_request' ], 5 );
 	}
 
 	/**
@@ -33,17 +34,19 @@ class Router {
 	 */
 	public function add_rewrite_rules(): void {
 		$base_path = $this->get_base_path();
+		// WordPress matches the request path without leading slash; anchor with ^.
+		$base_path = ltrim( $base_path, '/' );
 
-		// Pattern: /graphql/persisted/{queryHash}
+		// Pattern: graphql/persisted/{queryHash}
 		add_rewrite_rule(
-			$base_path . '([a-f0-9]{64})/?$',
+			'^' . $base_path . '([a-f0-9]{64})/?$',
 			'index.php?graphql_persisted_query=1&graphql_query_hash=$matches[1]',
 			'top'
 		);
 
-		// Pattern: /graphql/persisted/{queryHash}/variables/{variablesHash}
+		// Pattern: graphql/persisted/{queryHash}/variables/{variablesHash}
 		add_rewrite_rule(
-			$base_path . '([a-f0-9]{64})/variables/([a-f0-9]{64})/?$',
+			'^' . $base_path . '([a-f0-9]{64})/variables/([a-f0-9]{64})/?$',
 			'index.php?graphql_persisted_query=1&graphql_query_hash=$matches[1]&graphql_variables_hash=$matches[2]',
 			'top'
 		);
