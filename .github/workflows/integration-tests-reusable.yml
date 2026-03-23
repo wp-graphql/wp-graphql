@@ -138,13 +138,13 @@ jobs:
           extensions: json, mbstring
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: ${{ inputs.plugin_path }}
 
       - name: Install WPGraphQL core Composer dependencies
         if: inputs.install_wp_graphql_core_deps
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: plugins/wp-graphql
 
@@ -155,7 +155,7 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -170,7 +170,7 @@ jobs:
           key: docker-${{ runner.os }}-${{ inputs.php }}-${{ inputs.wp }}
 
       - name: Start the Docker testing environment
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
