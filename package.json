@@ -31,7 +31,7 @@
 		"prepare": "husky install"
 	},
 	"devDependencies": {
-		"@wordpress/env": "^10.37.0",
+		"@wordpress/env": "^11.0.0",
 		"@wordpress/prettier-config": "^4.38.0",
 		"@wordpress/scripts": "^31.3.0",
 		"husky": "^9.1.7",
