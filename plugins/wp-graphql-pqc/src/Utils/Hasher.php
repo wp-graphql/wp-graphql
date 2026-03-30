@@ -19,6 +19,25 @@ use GraphQL\Language\Printer;
 class Hasher {
 
 	/**
+	 * Return the canonical GraphQL document string (parse + print).
+	 *
+	 * This matches what {@see self::hash_query()} hashes. Persist this in the index so warm GET
+	 * requests re-execute the exact document that the hash refers to.
+	 *
+	 * @param string $query The GraphQL query document string.
+	 * @return string|null Normalized document, or null on parse error.
+	 */
+	public static function normalize_query_document( string $query ): ?string {
+		try {
+			$ast = Parser::parse( $query );
+
+			return Printer::doPrint( $ast );
+		} catch ( \Throwable $exception ) {
+			return null;
+		}
+	}
+
+	/**
 	 * Generate hash for a GraphQL query document
 	 *
 	 * Uses the same normalization as WPGraphQL core (Printer::doPrint).
@@ -27,14 +46,9 @@ class Hasher {
 	 * @return string|null SHA-256 hash in lowercase hex, or null on error.
 	 */
 	public static function hash_query( string $query ): ?string {
-		try {
-			$ast = Parser::parse( $query );
-			$normalized = Printer::doPrint( $ast );
+		$normalized = self::normalize_query_document( $query );
 
-			return hash( 'sha256', $normalized );
-		} catch ( \Throwable $exception ) {
-			return null;
-		}
+		return $normalized ? hash( 'sha256', $normalized ) : null;
 	}
 
 	/**

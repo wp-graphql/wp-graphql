@@ -8,8 +8,8 @@
 
 namespace WPGraphQL\PQC\Request;
 
+use GraphQL\Language\Parser;
 use WPGraphQL\PQC\Store\StoreFactory;
-use WPGraphQL\PQC\Utils\Hasher;
 use WPGraphQL\PQC\Utils\Nonce;
 
 /**
@@ -27,6 +27,47 @@ class GetHandler {
 	 * @return void
 	 */
 	public function handle( string $query_hash, ?string $variables_hash ): void {
+		try {
+			$this->do_handle( $query_hash, $variables_hash );
+		} catch ( \Throwable $e ) {
+			// Avoid WordPress generic "critical error" screen; return JSON for API clients.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( '[WPGraphQL PQC] GetHandler: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
+
+			if ( ! headers_sent() ) {
+				status_header( 500 );
+				header( 'Cache-Control: no-store' );
+				$charset = get_option( 'blog_charset' );
+				header( 'Content-Type: application/json; charset=' . ( is_string( $charset ) && '' !== $charset ? $charset : 'UTF-8' ) );
+			}
+
+			$message = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? $e->getMessage() : __( 'Persisted query request failed.', 'wp-graphql-pqc' );
+
+			$response = [
+				'errors' => [
+					[
+						'message' => $message,
+						'extensions' => [
+							'code' => 'PQC_INTERNAL_ERROR',
+						],
+					],
+				],
+			];
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_json_encode( $response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+			exit;
+		}
+	}
+
+	/**
+	 * Perform persisted GET handling (wrapped by handle() for Throwable safety).
+	 *
+	 * @param string      $query_hash    The query hash.
+	 * @param string|null $variables_hash The variables hash, or empty string if none.
+	 * @return void
+	 */
+	private function do_handle( string $query_hash, ?string $variables_hash ): void {
 		// Look up query from store.
 		$store = StoreFactory::get_store();
 		$query_data = $store->get_query( $query_hash, $variables_hash ?: '' );
@@ -38,10 +79,11 @@ class GetHandler {
 
 			// Prevent WordPress from loading a template.
 			status_header( 200 );
-			
+
 			// Set no-cache headers for error responses (nonce should not be cached).
 			header( 'Cache-Control: no-store' );
-			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+			$charset = get_option( 'blog_charset' );
+			header( 'Content-Type: application/json; charset=' . ( is_string( $charset ) && '' !== $charset ? $charset : 'UTF-8' ) );
 
 			$response = [
 				'errors' => [
@@ -71,8 +113,53 @@ class GetHandler {
 			}
 		}
 
+		// Reject corrupt index rows (invalid GraphQL) with a clear response instead of a fatal.
+		$query_document = $query_data['query_document'];
+		if ( ! is_string( $query_document ) || '' === $query_document ) {
+			$this->send_document_invalid_response( __( 'Stored persisted query document is missing. Register the query again with a POST to /graphql.', 'wp-graphql-pqc' ) );
+		}
+
+		try {
+			Parser::parse( $query_document );
+		} catch ( \Throwable $e ) {
+			$detail = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? $e->getMessage() : '';
+			$message = __( 'Stored persisted query document is invalid. Register the query again with a POST to /graphql.', 'wp-graphql-pqc' );
+			if ( '' !== $detail ) {
+				$message .= ' ' . $detail;
+			}
+			$this->send_document_invalid_response( $message );
+		}
+
 		// Re-execute the query.
-		$this->execute_query( $query_data['query_document'], $variables );
+		$this->execute_query( $query_document, $variables );
+	}
+
+	/**
+	 * JSON response for invalid stored documents (HTTP 200, GraphQL-style errors).
+	 *
+	 * @param string $message User-facing message.
+	 * @return void
+	 */
+	private function send_document_invalid_response( string $message ): void {
+		status_header( 200 );
+		header( 'Cache-Control: no-store' );
+		$charset = get_option( 'blog_charset' );
+		header( 'Content-Type: application/json; charset=' . ( is_string( $charset ) && '' !== $charset ? $charset : 'UTF-8' ) );
+
+		$response = [
+			'errors' => [
+				[
+					'message'    => $message,
+					'extensions' => [
+						'code' => 'PERSISTED_QUERY_DOCUMENT_INVALID',
+					],
+				],
+			],
+		];
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_json_encode( $response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		exit;
 	}
 
 	/**
@@ -110,7 +197,8 @@ class GetHandler {
 		status_header( 200 );
 
 		// Set content type.
-		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+		$charset = get_option( 'blog_charset' );
+		header( 'Content-Type: application/json; charset=' . ( is_string( $charset ) && '' !== $charset ? $charset : 'UTF-8' ) );
 
 		// Set cache headers based on authentication status.
 		if ( $is_authenticated ) {

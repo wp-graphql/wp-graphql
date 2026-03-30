@@ -71,11 +71,13 @@ class PostHandler {
 			return $filtered_response;
 		}
 
-		// Compute hashes.
-		$query_hash = Hasher::hash_query( $query );
-		if ( ! $query_hash ) {
+		// Canonical document must match what we hash (parse + print); store that text, not raw client bytes.
+		$normalized_document = Hasher::normalize_query_document( $query );
+		if ( null === $normalized_document ) {
 			return $filtered_response;
 		}
+
+		$query_hash = hash( 'sha256', $normalized_document );
 
 		$variables_hash = Hasher::hash_variables( $variables );
 		$variables_json = ! empty( $variables ) ? wp_json_encode( $variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : '';
@@ -150,7 +152,8 @@ class PostHandler {
 
 		// Store in index if validation passes.
 		if ( $should_store_execution_data ) {
-			$store->store( $url, $query_hash, $variables_hash ?: '', $query, $variables_json, $cache_keys, $should_store_document );
+			// Store normalized text so warm GET always re-parses the same document the hash describes.
+			$store->store( $url, $query_hash, $variables_hash ?: '', $normalized_document, $variables_json, $cache_keys, $should_store_document );
 
 			// Mark nonce as used after successful storage.
 			if ( ! empty( $nonce ) && $nonce_valid ) {

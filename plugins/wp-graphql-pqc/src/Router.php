@@ -23,8 +23,9 @@ class Router {
 	public function init(): void {
 		add_action( 'init', [ $this, 'add_rewrite_rules' ], 10 );
 		add_filter( 'query_vars', [ $this, 'add_query_vars' ], 10, 1 );
-		// Priority 5 so we run before WPGraphQL's resolve_http_request (10) and can handle by URI if rewrite didn't match.
-		add_action( 'parse_request', [ $this, 'handle_persisted_query_request' ], 5 );
+		// Use template_redirect (not parse_request) so the main query and full bootstrap complete before we run
+		// graphql() on warm persisted URLs. Running graphql() during parse_request can fatally break some setups.
+		add_action( 'template_redirect', [ $this, 'handle_persisted_query_request' ], 0 );
 	}
 
 	/**
@@ -69,10 +70,15 @@ class Router {
 	/**
 	 * Handle persisted query GET requests
 	 *
-	 * @param \WP $wp The WordPress environment class.
 	 * @return void
 	 */
-	public function handle_persisted_query_request( $wp ): void {
+	public function handle_persisted_query_request(): void {
+		global $wp;
+
+		if ( ! $wp instanceof \WP ) {
+			return;
+		}
+
 		// Check if this is a persisted query request.
 		$is_persisted_query = isset( $wp->query_vars['graphql_persisted_query'] ) && $wp->query_vars['graphql_persisted_query'];
 
