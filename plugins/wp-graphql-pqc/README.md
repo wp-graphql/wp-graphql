@@ -3,109 +3,99 @@
 **Status**: Beta (v0.1.0-beta.1)  
 **Requires**: WPGraphQL 2.0.0+, WPGraphQL Smart Cache
 
-WPGraphQL Persisted Query Cache enables persisted GraphQL queries via permalink-based URLs instead of query strings, allowing surgical cache invalidation on hosts that don't support tag-based purging (WordPress VIP and similar). This plugin extends WPGraphQL Smart Cache's purge system.
+WPGraphQL Persisted Query Cache enables persisted GraphQL queries via **permalink-based URLs** instead of long query strings, allowing **surgical cache invalidation** on hosts that don’t support tag-based purging (WordPress VIP and similar). It extends WPGraphQL Smart Cache’s purge pipeline.
+
+## Documentation
+
+| Doc | Contents |
+|-----|----------|
+| **[docs/SPEC.md](./docs/SPEC.md)** | Protocol spec: URLs, hashes, cold vs warm GET, POST registration, invalidation — similar in scope to [Apollo Automatic Persisted Queries](https://www.apollographql.com/docs/apollo-server/performance/apq) |
+| **[docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)** | Custom **store** (Redis / KV), **purge adapters**, and filter reference |
+| [PRD.md](./PRD.md) | Product requirements and default MySQL schema |
+| [TESTING.md](./TESTING.md) | Manual testing notes |
 
 ## Overview
 
-WPGraphQL Smart Cache provides excellent caching for hosts that support tag-based cache invalidation. However, many hosts (including WordPress VIP) only support URL-based purging. This plugin bridges that gap by:
+WPGraphQL Smart Cache works best when the host can purge by **cache tags**. Many platforms only support **URL-based purging**. This plugin:
 
-1. **Permalink-based URLs**: Queries are accessed via clean URLs like `/graphql/persisted/{queryHash}/variables/{variablesHash}` instead of query parameters
-2. **URL→Cache Key Index**: Maintains a server-side index mapping URLs to cache keys
-3. **Surgical Purge**: When Smart Cache fires purge events, this plugin looks up affected URLs and purges them individually
+1. Exposes operations at clean paths like `/graphql/persisted/{queryHash}` (optional `/variables/{variablesHash}`).
+2. Maintains a server-side index: **persisted URL → Smart Cache keys** (from the query analyzer).
+3. Listens for `graphql_purge` and purges the resolved URLs via a **host adapter** (VIP, custom, or null for local dev).
 
-## Quick Start
+## Quick start
 
 ### Installation
 
-1. Ensure **WPGraphQL** and **WPGraphQL Smart Cache** are installed and activated
-2. Download the latest release from [GitHub Releases](https://github.com/wp-graphql/wp-graphql/releases) (look for `wp-graphql-pqc/v*` tags)
-3. Upload and activate the plugin
-4. Flush rewrite rules: Visit **Settings → Permalinks → Save Changes**
+1. Install and activate **WPGraphQL** and **WPGraphQL Smart Cache**
+2. Install and activate this plugin
+3. Flush rewrite rules: **Settings → Permalinks → Save Changes**
 
-### Basic Usage
+### What you get automatically
 
-Once activated, the plugin automatically:
+- **Cold GET** to a persisted URL before registration → JSON with `PERSISTED_QUERY_NOT_FOUND` and `extensions.persistedQueryNonce`
+- **POST** to `/graphql` with the full query + extensions → document stored; response includes `extensions.persistedQueryUrl`
+- **Warm GET** → WordPress runs `graphql()` and returns normal JSON (this is what runs on **CDN miss** when the request reaches origin)
+- On Smart Cache purge events → URLs looked up and passed to the purge adapter
 
-- **Stores queries** from POST requests (when enabled)
-- **Serves persisted queries** via GET requests to `/graphql/persisted/{hash}`
-- **Purges URLs** when Smart Cache fires invalidation events
-
-The plugin returns `persistedQueryUrl` in GraphQL response extensions:
+Example extension on successful index write:
 
 ```json
 {
-  "data": { ... },
+  "data": { },
   "extensions": {
-    "persistedQueryUrl": "/graphql/persisted/abc123.../variables/def456..."
+    "persistedQueryUrl": "/graphql/persisted/abc123…/variables/def456…"
   }
 }
 ```
 
-## Features
+## Request flow (summary)
 
-### Two-Phase Request Flow
+See **[docs/SPEC.md](./docs/SPEC.md)** for full detail.
 
-**Phase 1 (Cold Start)**: 
-1. Client sends GET to `/graphql/persisted/{queryHash}` → Server returns 404 with nonce
-2. Client sends POST with full query + nonce + hashes in extensions → Server validates → Stores index entry → Returns persisted URL
+1. **Cold:** `GET /graphql/persisted/{queryHash}` → HTTP 200, GraphQL error + nonce (document not in index yet).
+2. **Register:** `POST /graphql` with `query`, optional `variables`, and `extensions.persistedQueryNonce` / hash fields → index updated, `persistedQueryUrl` returned.
+3. **Warm:** `GET` the same persisted URL → HTTP 200, GraphQL `data` (and cache headers for anonymous users).
 
-**Phase 2 (Warm Path)**: Client sends GET to persisted URL → Page cache serves response (fast!) or WordPress re-executes if cache miss
+**Nonce:** Reduces unsolicited document registration. Build tools can disable via `wpgraphql_pqc_require_nonce` (see [INTEGRATIONS.md](./docs/INTEGRATIONS.md)).
 
-**Note**: The nonce requirement ensures only clients going through the proper PQC flow can persist queries. GraphQL IDEs that don't support this flow will need to be updated or you can use tools like Postman/curl for testing.
+**Query analyzer:** Must produce cache keys (`graphql_general_settings['query_analyzer_enabled']`); otherwise no index rows are written.
 
-### Authentication-Aware
+## Authentication and caching
 
-- **Authenticated users**: Execute as themselves, get `no-store` cache headers
-- **Public users**: Execute as public, get cacheable headers (respects Smart Cache settings)
+- **Logged-in users:** warm GET responses use `Cache-Control: no-store`.
+- **Anonymous users:** warm GET uses cacheable headers (Smart Cache global max-age when available, or filter `wpgraphql_pqc_cache_max_age`).
 
-### Host Adapters
+## Host purge adapters
 
-- **WordPress VIP**: Auto-detected, uses `wpvip_purge_edge_cache_for_url()` (with backward compatibility for deprecated function)
-- **Null Adapter**: Development/testing (logs but doesn't purge)
-- **Extensible**: Add custom adapters via `wpgraphql_pqc_purge_adapter` filter
+- **WordPress VIP:** Auto-detected when VIP purge API is available
+- **Null adapter:** Default elsewhere — logs only (see `Logger` when `WP_DEBUG` is on)
+- **Custom:** `wpgraphql_pqc_purge_adapter` filter — see [INTEGRATIONS.md](./docs/INTEGRATIONS.md)
 
-## Configuration
+## Custom storage (Redis, etc.)
 
-### Settings (Coming Soon)
+The default index is **MySQL** (`DBStore`). To reduce database load or match platform standards, provide a class implementing `StoreInterface` and register it with **`wpgraphql_pqc_store`**.
 
-- Enable/disable automatic persistence
-- Allow public requests to persist queries
-- Configure TTL for garbage collection
+Implementation notes, Redis key layout ideas, and garbage-collection caveats are in **[docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)**.
 
-### Filters
+## Configuration snippets
 
-#### `wpgraphql_pqc_url_base`
-Filter the base path for persisted query URLs (default: `graphql/persisted/`)
+### Change URL base
 
 ```php
-add_filter( 'wpgraphql_pqc_url_base', function() {
-    return 'api/persisted/';
+add_filter( 'wpgraphql_pqc_url_base', function () {
+	return 'api/persisted/';
 } );
 ```
 
-**Note**: Execution data (variables + cache keys) is always stored if a document already exists, regardless of authentication status. Document persistence respects WPGraphQL Smart Cache's "Allow/Deny Mode" setting:
+Flush permalinks after changing this.
 
-- **Public mode**: Public requests can create documents (default)
-- **Allow/Deny mode**: Only authenticated users can create documents
+### Document creation and Smart Cache
 
-This setting is found at **GraphQL > Settings > Saved Queries > Allow/Deny Mode**.
+Execution data is stored when the document already exists. **New** documents follow Smart Cache **Saved Queries → Allow/Deny Mode** (`grant_mode`): public vs authenticated-only, combined with nonce rules above.
 
-#### `wpgraphql_pqc_cache_max_age`
-Filter the max-age for persisted query cache headers (default: `600` seconds)
+### Other filters
 
-```php
-add_filter( 'wpgraphql_pqc_cache_max_age', function() {
-    return 3600; // 1 hour
-} );
-```
-
-#### `wpgraphql_pqc_require_nonce`
-Filter whether to require nonce validation for persistence (default: `true`)
-
-```php
-// Allow storage without nonce (e.g., for build tools with Application Passwords)
-add_filter( 'wpgraphql_pqc_require_nonce', '__return_false' );
-```
+`wpgraphql_pqc_cache_max_age`, `wpgraphql_pqc_require_nonce`, `wpgraphql_pqc_delete_entries_on_purge`, `wpgraphql_pqc_ttl_days` — see [INTEGRATIONS.md](./docs/INTEGRATIONS.md).
 
 ## Development
 
@@ -116,46 +106,25 @@ add_filter( 'wpgraphql_pqc_require_nonce', '__return_false' );
 - WPGraphQL 2.0.0+
 - WPGraphQL Smart Cache
 
-### Local Development
-
-The plugin is part of the WPGraphQL monorepo. See the [main Development guide](../../docs/DEVELOPMENT.md) for setup instructions.
+### Monorepo
 
 ```bash
-# Start wp-env
 npm run wp-env start
-
-# Run tests
 npm run -w @wpgraphql/wp-graphql-pqc test:codecept:wpunit
-
-# Lint
 npm run -w @wpgraphql/wp-graphql-pqc wp-env:cli -- composer run check-cs
 ```
 
-### Database Schema
-
-The plugin creates two custom tables:
-
-- `wp_wpgraphql_pqc_documents`: Stores unique query documents (normalized)
-- `wp_wpgraphql_pqc_url_keys`: Junction table mapping URLs to cache keys
-
-See [PRD.md](./PRD.md) for detailed schema documentation.
+Comprehensive local scenario script: `test-pqc-scenarios.sh` (from `plugins/wp-graphql-pqc/`; requires wp-env and `localhost:8888`).
 
 ## Status
 
-**⚠️ Beta Software**: This plugin is currently in beta. Breaking changes may occur before v1.0.0.
-
-**Current Version**: 0.1.0-beta.1
-
-## Documentation
-
-- [Product Requirements Document](./PRD.md) - Detailed specification
-- [Testing Guide](./TESTING.md) - Manual testing instructions
-- [Implementation Plan](../../.cursor/plans/wpgraphql_pqc_implementation_plan_8a9edd0f.plan.md) - Development roadmap
+**Beta:** APIs and schema may change before 1.0.0.
 
 ## Related
 
-- [WPGraphQL Smart Cache](../wp-graphql-smart-cache/) - Core caching plugin
-- [WPGraphQL Core](../wp-graphql/) - GraphQL API for WordPress
+- [WPGraphQL Smart Cache](../wp-graphql-smart-cache/)
+- [WPGraphQL Core](../wp-graphql/)
+- [Apollo APQ](https://www.apollographql.com/docs/apollo-server/performance/apq) (conceptual reference; PQC uses WordPress-specific URLs and invalidation)
 
 ## License
 

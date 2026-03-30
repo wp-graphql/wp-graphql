@@ -1,6 +1,6 @@
 # Manual Testing Guide for WPGraphQL Persisted Query Cache
 
-This guide walks you through manually testing the plugin's core functionality.
+This guide walks you through manually testing the plugin's core functionality. For the formal protocol (cold vs warm GET, hashes, POST extensions), see [docs/SPEC.md](./docs/SPEC.md).
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide walks you through manually testing the plugin's core functionality.
 
 **Breaking Change**: As of v0.1.0-beta.1, the plugin requires a nonce-based flow for security:
 
-1. **GET** `/graphql/persisted/{hash}` → Returns 404 with nonce in extensions
+1. **GET** `/graphql/persisted/{hash}` → HTTP **200** with GraphQL `errors` (`PERSISTED_QUERY_NOT_FOUND`) and `extensions.persistedQueryNonce`
 2. **POST** with query + nonce + hashes in extensions → Validates and stores
 
 This prevents random POST requests from persisting queries. GraphQL IDEs that don't support this flow (like WPGraphQL IDE) will need to be updated. For testing, use Postman, curl, or other tools that support custom request extensions.

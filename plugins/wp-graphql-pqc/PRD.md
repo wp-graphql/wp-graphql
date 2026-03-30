@@ -15,6 +15,10 @@ Product Requirements Document
                         Smart Cache
 
   **Depends**           WPGraphQL core, WPGraphQL Smart Cache
+
+  **Wire protocol**     See [docs/SPEC.md](./docs/SPEC.md) (Apollo APQ–style
+                        reference); integrations and custom stores in
+                        [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)
   --------------------- -------------------------------------------------
 
 **1. Background & Problem Statement**
