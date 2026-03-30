@@ -192,3 +192,4 @@ class DBStore implements StoreInterface {
 
 		return (int) $count > 0;
 	}
+}
