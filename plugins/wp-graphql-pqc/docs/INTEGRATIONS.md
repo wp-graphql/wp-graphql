@@ -24,8 +24,8 @@ Your class **must** implement `WPGraphQL\PQC\Store\StoreInterface`:
 | `get_query( $query_hash, $variables_hash )` | Return `['query_document' => string, 'variables' => string]` or **`null`** if this execution is unknown. Backed by a stable **execution** record independent of cache-tag rows. |
 | `touch_execution( $query_hash, $variables_hash )` | Optional freshness signal after a successful warm GET (default DB store updates `last_executed_at`). |
 | `get_urls_for_key( $cache_key )` | Distinct list of **paths** like `/graphql/persisted/…` used for purge lookups. |
-| `delete_by_key( $cache_key )` | Remove **tag** rows for that cache key (default: after edge purge). |
-| `delete_by_url( $url )` | Remove all **tag** rows for that URL (does not remove the execution record used for warm GET). |
+| `delete_by_key( $cache_key )` | Remove **tag** rows for that cache key (custom / manual invalidation). |
+| `delete_by_url( $url )` | Remove all **tag** rows for that URL (default store: used after edge purge for each purged path; does not remove the execution record used for warm GET). |
 | `document_exists( $query_hash )` | Whether the normalized document is already stored for this hash. |
 
 **Reference implementation:** `src/Store/DBStore.php` (join between documents and url_keys for `get_query`).
@@ -92,7 +92,7 @@ Filters for `HttpPurgeAdapter`:
 | `wpgraphql_pqc_url_base` | Base path segment (default `graphql/persisted/`). Must stay consistent between Router and PostHandler. |
 | `wpgraphql_pqc_cache_max_age` | Public warm GET `Cache-Control` max-age when Smart Cache does not set one (seconds). |
 | `wpgraphql_pqc_require_nonce` | Set `false` to allow document persistence without cold GET nonce (e.g. trusted build pipelines). |
-| `wpgraphql_pqc_delete_entries_on_purge` | `(bool, $key, $urls)` — Return `false` to skip `delete_by_key( $key )` after edge purge (testing). |
+| `wpgraphql_pqc_delete_entries_on_purge` | `(bool, $key, $urls)` — Return `false` to skip `delete_by_url( $url )` for each purged path after edge purge (testing). |
 | `wpgraphql_pqc_ttl_days` | Age for default MySQL GC of `url_keys` rows (days). |
 | `wpgraphql_pqc_garbage_collection` | **Action** — Daily cron; default subscriber deletes old MySQL rows. |
 | `wpgraphql_pqc_http_purge_method` | `(string, $target, $url)` — HTTP method for `HttpPurgeAdapter`. |

@@ -53,10 +53,10 @@ class PurgeHandler {
 		$adapter = AdapterFactory::get_adapter();
 
 		/**
-		 * Filter whether to delete url_keys rows for the purged cache key after edge purge.
+		 * Filter whether to delete url_keys rows after edge purge.
 		 * Defaults to true. Execution records stay so warm GET can re-resolve the document.
 		 *
-		 * @param bool   $delete_entries Whether to delete tag rows for this cache key.
+		 * @param bool   $delete_entries Whether to delete all tag rows for each purged URL path.
 		 * @param string $key            The cache key being purged.
 		 * @param array  $urls           The URLs that were purged at the edge.
 		 * @return bool
@@ -67,9 +67,12 @@ class PurgeHandler {
 			$adapter->purge_url( $url );
 		}
 
-		// Remove only tag associations for this cache key (not the whole URL, not executions).
+		// Edge purge invalidates the whole URL; drop every cache-key association for those paths
+		// so the index matches reality until store() runs again on the next origin execution.
 		if ( $delete_entries ) {
-			$store->delete_by_key( $key );
+			foreach ( $urls as $url ) {
+				$store->delete_by_url( $url );
+			}
 		}
 	}
 }

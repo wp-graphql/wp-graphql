@@ -633,18 +633,18 @@ npm run wp-env -- run cli -- wp post delete $POST_ID --force
 
 ### Step 6: Verify Database Entries (if deletion enabled)
 
-If you did NOT use the filter to prevent deletion, check tag rows for the purged key:
+If you did NOT use the filter to prevent deletion, check tag rows for the persisted URL path (between purge and the next origin MISS, all tag rows for that path should be gone):
 
 ```bash
 npm run wp-env -- run cli -- wp db query "
   SELECT * FROM wp_wpgraphql_pqc_url_keys 
-  WHERE cache_key LIKE '%post:%' AND url = '/graphql/persisted/{your-query-hash}'
+  WHERE url = '/graphql/persisted/{your-query-hash}'
   LIMIT 10;
 "
 ```
 
 **Expected Result:**
-- Rows for the **purged cache key** (e.g. `post:{globalId}`) are removed from `wp_wpgraphql_pqc_url_keys`.
+- **All** `url_keys` rows for that **URL** are removed after purge (not only the row for the key that fired), so the index stays aligned with an edge-invalidated object. The next origin execution re-adds the full key set via `store()`.
 - The **execution** row in `wp_wpgraphql_pqc_executions` for that query/variables remains so the persisted URL still resolves at origin after an edge MISS.
 - The next successful POST or warm GET can re-add tag rows with up-to-date analyzer keys.
 

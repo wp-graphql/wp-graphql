@@ -56,7 +56,9 @@ interface StoreInterface {
 	public function get_urls_for_key( string $cache_key ): array;
 
 	/**
-	 * Delete all index entries for a specific cache key
+	 * Delete all index entries for a specific cache key.
+	 *
+	 * Optional for custom invalidation; bundled PurgeHandler clears by URL after edge purge.
 	 *
 	 * @param string $cache_key The cache key to delete.
 	 * @return void

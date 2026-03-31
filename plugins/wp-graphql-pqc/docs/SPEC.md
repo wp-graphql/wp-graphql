@@ -121,7 +121,7 @@ PQC’s purge handler:
 1. Resolves **all persisted URLs** tagged with `$cache_key` via the store.
 2. Logs purge intent (when `WP_DEBUG` is on).
 3. Calls the **purge adapter** per URL (e.g. VIP edge purge).
-4. By default, **removes `url_keys` rows for the purged cache key only** (`delete_by_key`), so the edge is invalidated but the persisted **execution** row (query + variables) remains and warm GET can re-execute at origin. Filter `wpgraphql_pqc_delete_entries_on_purge` can disable tag deletion for testing.
+4. By default, **removes all `url_keys` rows for each purged URL path** (`delete_by_url` per URL), since the edge object is gone for that path; other keys that still pointed at the same URL would otherwise be stale until the next `store()`. Persisted **execution** rows stay so warm GET can re-execute at origin. Filter `wpgraphql_pqc_delete_entries_on_purge` can disable tag deletion for testing.
 
 ---
 
