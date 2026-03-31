@@ -131,7 +131,7 @@ class GetHandler {
 		}
 
 		// Re-execute the query.
-		$this->execute_query( $query_document, $variables );
+		$this->execute_query( $query_document, $variables, $query_hash, $variables_hash ?: '' );
 	}
 
 	/**
@@ -165,11 +165,13 @@ class GetHandler {
 	/**
 	 * Execute a GraphQL query
 	 *
-	 * @param string     $query     The query document.
-	 * @param array|null $variables The variables.
+	 * @param string     $query          The query document.
+	 * @param array|null $variables      The variables.
+	 * @param string     $query_hash     Persisted query hash (for touch_execution).
+	 * @param string     $variables_hash Persisted variables hash (empty if none).
 	 * @return void
 	 */
-	private function execute_query( string $query, ?array $variables ): void {
+	private function execute_query( string $query, ?array $variables, string $query_hash, string $variables_hash ): void {
 		// Check if the request is authenticated (for cache header determination).
 		$is_authenticated = is_user_logged_in();
 
@@ -192,6 +194,10 @@ class GetHandler {
 		// This will execute with the current user context (authenticated or public).
 		// Authenticated users will see their own data; public users will see public data.
 		$response = graphql( $request_data );
+
+		if ( is_array( $response ) && empty( $response['errors'] ) ) {
+			StoreFactory::get_store()->touch_execution( $query_hash, $variables_hash );
+		}
 
 		// Set appropriate headers.
 		status_header( 200 );

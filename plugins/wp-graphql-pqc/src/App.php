@@ -156,6 +156,8 @@ class App {
 	 * @return void
 	 */
 	private function init_components(): void {
+		Schema::maybe_upgrade_executions_table();
+
 		// Initialize router for rewrite rules.
 		$router = new Router();
 		$router->init();

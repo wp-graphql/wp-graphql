@@ -53,27 +53,23 @@ class PurgeHandler {
 		$adapter = AdapterFactory::get_adapter();
 
 		/**
-		 * Filter whether to delete index entries after purging.
-		 * Defaults to true in production, but can be set to false for testing/debugging.
+		 * Filter whether to delete url_keys rows for the purged cache key after edge purge.
+		 * Defaults to true. Execution records stay so warm GET can re-resolve the document.
 		 *
-		 * @param bool   $delete_entries Whether to delete index entries.
+		 * @param bool   $delete_entries Whether to delete tag rows for this cache key.
 		 * @param string $key            The cache key being purged.
-		 * @param array  $urls           The URLs that were purged.
+		 * @param array  $urls           The URLs that were purged at the edge.
 		 * @return bool
 		 */
 		$delete_entries = apply_filters( 'wpgraphql_pqc_delete_entries_on_purge', true, $key, $urls );
 
-		// For each URL, purge it and delete all its entries.
 		foreach ( $urls as $url ) {
-			// Purge the URL via the adapter (VIP, WP Engine, etc.).
 			$adapter->purge_url( $url );
+		}
 
-			// Delete ALL entries for this URL (not just the specific cache key).
-			// When a cache key is purged, the entire URL response is invalid,
-			// so we need to remove all cache key associations for that URL.
-			if ( $delete_entries ) {
-				$store->delete_by_url( $url );
-			}
+		// Remove only tag associations for this cache key (not the whole URL, not executions).
+		if ( $delete_entries ) {
+			$store->delete_by_key( $key );
 		}
 	}
 }

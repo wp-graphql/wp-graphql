@@ -39,6 +39,15 @@ interface StoreInterface {
 	public function get_query( string $query_hash, string $variables_hash ): ?array;
 
 	/**
+	 * Update last successful warm-execution time (for garbage collection).
+	 *
+	 * @param string $query_hash     Query hash.
+	 * @param string $variables_hash Variables hash (empty string if none).
+	 * @return void
+	 */
+	public function touch_execution( string $query_hash, string $variables_hash ): void;
+
+	/**
 	 * Get all URLs tagged with a specific cache key
 	 *
 	 * @param string $cache_key The cache key (e.g., 'post:123', 'list:post').
@@ -55,9 +64,11 @@ interface StoreInterface {
 	public function delete_by_key( string $cache_key ): void;
 
 	/**
-	 * Delete all index entries for a specific URL
+	 * Delete all cache-key tag rows for a specific URL (url_keys only).
 	 *
-	 * @param string $url The URL to delete all entries for.
+	 * Does not remove the execution record; warm GET continues to resolve until GC.
+	 *
+	 * @param string $url The persisted path.
 	 * @return void
 	 */
 	public function delete_by_url( string $url ): void;

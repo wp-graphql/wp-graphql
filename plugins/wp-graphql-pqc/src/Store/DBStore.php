@@ -32,21 +32,39 @@ class DBStore implements StoreInterface {
 	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true ): void {
 		global $wpdb;
 
-		$documents_table = Schema::get_documents_table_name();
-		$url_keys_table = Schema::get_url_keys_table_name();
-		$url_hash = hash( 'sha256', $url );
+		$documents_table  = Schema::get_documents_table_name();
+		$url_keys_table   = Schema::get_url_keys_table_name();
+		$executions_table = Schema::get_executions_table_name();
+		$url_hash         = hash( 'sha256', $url );
+		$variables_hash   = $variables_hash ?: '';
 
 		// Store document only if requested and it doesn't already exist.
 		if ( $store_document ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query(
 				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
 					"INSERT IGNORE INTO {$documents_table} (query_hash, query_document) VALUES (%s, %s)",
 					$query_hash,
 					$query_doc
 				)
 			);
 		}
+
+		// Stable execution row for warm GET lookup (independent of cache-key purges).
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO {$executions_table} (query_hash, variables_hash, url, variables, last_executed_at)
+				VALUES (%s, %s, %s, %s, UTC_TIMESTAMP())
+				ON DUPLICATE KEY UPDATE url = VALUES(url), variables = VALUES(variables), last_executed_at = UTC_TIMESTAMP()",
+				$query_hash,
+				$variables_hash,
+				$url,
+				$variables
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Always store execution data (variables + cache keys) if document exists.
 		// This allows tracking executions of pre-registered documents.
@@ -55,6 +73,7 @@ class DBStore implements StoreInterface {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query(
 				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
 					"INSERT IGNORE INTO {$url_keys_table} (url_hash, url, query_hash, variables_hash, variables, cache_key) VALUES (%s, %s, %s, %s, %s, %s)",
 					$url_hash,
 					$url,
@@ -77,23 +96,25 @@ class DBStore implements StoreInterface {
 	public function get_query( string $query_hash, string $variables_hash ): ?array {
 		global $wpdb;
 
-		$documents_table = Schema::get_documents_table_name();
-		$url_keys_table = Schema::get_url_keys_table_name();
+		$documents_table  = Schema::get_documents_table_name();
+		$executions_table = Schema::get_executions_table_name();
+		$variables_hash   = $variables_hash ?: '';
 
-		// JOIN documents and url_keys tables to get both query_document and variables.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// JOIN documents + executions (execution survives cache-key purges).
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT d.query_document, uk.variables 
+				"SELECT d.query_document, e.variables 
 				FROM {$documents_table} d
-				INNER JOIN {$url_keys_table} uk ON d.query_hash = uk.query_hash
-				WHERE uk.query_hash = %s AND uk.variables_hash = %s
+				INNER JOIN {$executions_table} e ON d.query_hash = e.query_hash
+				WHERE e.query_hash = %s AND e.variables_hash = %s
 				LIMIT 1",
 				$query_hash,
 				$variables_hash
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( ! $result ) {
 			return null;
@@ -103,6 +124,26 @@ class DBStore implements StoreInterface {
 			'query_document' => $result['query_document'],
 			'variables'      => $result['variables'],
 		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function touch_execution( string $query_hash, string $variables_hash ): void {
+		global $wpdb;
+
+		$executions_table = Schema::get_executions_table_name();
+		$variables_hash   = $variables_hash ?: '';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$executions_table} SET last_executed_at = UTC_TIMESTAMP() WHERE query_hash = %s AND variables_hash = %s",
+				$query_hash,
+				$variables_hash
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -119,6 +160,7 @@ class DBStore implements StoreInterface {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
 				"SELECT DISTINCT url FROM {$url_keys_table} WHERE cache_key = %s",
 				$cache_key
 			)
@@ -150,7 +192,7 @@ class DBStore implements StoreInterface {
 	}
 
 	/**
-	 * Delete all index entries for a specific URL
+	 * Delete all cache-key rows for this URL (purge-tag index only).
 	 *
 	 * @param string $url The URL to delete all entries for.
 	 * @return void
@@ -185,6 +227,7 @@ class DBStore implements StoreInterface {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
 				"SELECT COUNT(*) FROM {$documents_table} WHERE query_hash = %s",
 				$query_hash
 			)

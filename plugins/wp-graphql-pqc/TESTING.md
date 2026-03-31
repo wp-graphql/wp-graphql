@@ -27,6 +27,8 @@ The plugin uses a normalized database structure:
   - `query_document`: The full GraphQL query string
   - `created_at`: Timestamp when the document was first stored
 
+- **`wp_wpgraphql_pqc_executions`**: One row per persisted **operation** (`query_hash` + `variables_hash`) for warm GET lookup. Survives cache-key purges; `last_executed_at` updates on successful warm GET (and on register via `store()`).
+
 - **`wp_wpgraphql_pqc_url_keys`**: Junction table mapping URLs to cache keys (one row per URL + cache key combination)
   - `url_hash` + `cache_key` (PRIMARY KEY): Composite key
   - `url`: The persisted query URL (e.g., `/graphql/persisted/{queryHash}/variables/{variablesHash}`)
@@ -631,22 +633,20 @@ npm run wp-env -- run cli -- wp post delete $POST_ID --force
 
 ### Step 6: Verify Database Entries (if deletion enabled)
 
-If you did NOT use the filter to prevent deletion, check that entries were removed:
+If you did NOT use the filter to prevent deletion, check tag rows for the purged key:
 
 ```bash
-# Check that ALL entries for the URL are deleted (not just the specific cache key)
 npm run wp-env -- run cli -- wp db query "
   SELECT * FROM wp_wpgraphql_pqc_url_keys 
-  WHERE url = '/graphql/persisted/{your-query-hash}'
+  WHERE cache_key LIKE '%post:%' AND url = '/graphql/persisted/{your-query-hash}'
   LIMIT 10;
 "
 ```
 
 **Expected Result:**
-- **ALL entries for the URL should be deleted** (not just entries with the purged cache key)
-- When a cache key is purged, the entire cached response at that URL is invalid
-- All cache key associations for that URL are removed to ensure complete cleanup
-- The URL will be re-indexed with fresh cache keys on the next request
+- Rows for the **purged cache key** (e.g. `post:{globalId}`) are removed from `wp_wpgraphql_pqc_url_keys`.
+- The **execution** row in `wp_wpgraphql_pqc_executions` for that query/variables remains so the persisted URL still resolves at origin after an edge MISS.
+- The next successful POST or warm GET can re-add tag rows with up-to-date analyzer keys.
 
 ### Troubleshooting
 

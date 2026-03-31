@@ -38,6 +38,18 @@ class Schema {
 	}
 
 	/**
+	 * Executions table: stable lookup for warm GET (query_hash + variables_hash → document variables).
+	 * Purging removes rows from url_keys only; executions stay until GC.
+	 *
+	 * @return string
+	 */
+	public static function get_executions_table_name(): string {
+		global $wpdb;
+
+		return $wpdb->prefix . 'wpgraphql_pqc_executions';
+	}
+
+	/**
 	 * Get the table name with WordPress prefix (backward compatibility)
 	 *
 	 * @deprecated Use get_url_keys_table_name() instead
@@ -71,7 +83,7 @@ class Schema {
 
 		// Check if query_document column exists in url_keys table (old structure).
 		// Use DESCRIBE to check for the column.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
 		$columns = $wpdb->get_results( "DESCRIBE {$url_keys_table}" );
 
 		if ( empty( $columns ) ) {
@@ -137,6 +149,19 @@ class Schema {
 
 		dbDelta( $url_keys_sql );
 
+		$executions_table = self::get_executions_table_name();
+		$executions_sql   = "CREATE TABLE {$executions_table} (
+			query_hash varchar(64) NOT NULL,
+			variables_hash varchar(64) NOT NULL,
+			url varchar(2083) NOT NULL,
+			variables longtext NOT NULL,
+			last_executed_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (query_hash, variables_hash),
+			INDEX idx_last_executed (last_executed_at)
+		) {$charset_collate};";
+
+		dbDelta( $executions_sql );
+
 		// Check if both tables were created successfully.
 		$documents_exists = $wpdb->get_var(
 			$wpdb->prepare(
@@ -152,7 +177,16 @@ class Schema {
 			)
 		);
 
-		return ( $documents_table === $documents_exists ) && ( $url_keys_table === $url_keys_exists );
+		$executions_exists = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$executions_table
+			)
+		);
+
+		return ( $documents_table === $documents_exists )
+			&& ( $url_keys_table === $url_keys_exists )
+			&& ( $executions_table === $executions_exists );
 	}
 
 	/**
@@ -166,9 +200,14 @@ class Schema {
 		$url_keys_table = self::get_url_keys_table_name();
 		$documents_table = self::get_documents_table_name();
 
+		$executions_table = self::get_executions_table_name();
+
 		// Drop url_keys first (has foreign key to documents).
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( "DROP TABLE IF EXISTS {$url_keys_table}" );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$executions_table}" );
 
 		// Drop documents table.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -202,7 +241,75 @@ class Schema {
 			)
 		);
 
-		return ( $documents_table === $documents_exists ) && ( $url_keys_table === $url_keys_exists );
+		$executions_table  = self::get_executions_table_name();
+		$executions_exists = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$executions_table
+			)
+		);
+
+		return ( $documents_table === $documents_exists )
+			&& ( $url_keys_table === $url_keys_exists )
+			&& ( $executions_table === $executions_exists );
+	}
+
+	/**
+	 * Create the executions table and backfill from url_keys when upgrading older installs.
+	 *
+	 * @return void
+	 */
+	public static function maybe_upgrade_executions_table(): void {
+		global $wpdb;
+
+		$executions_table = self::get_executions_table_name();
+		$exists           = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$executions_table
+			)
+		);
+
+		if ( $executions_table === $exists ) {
+			return;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		$charset_collate = $wpdb->get_charset_collate();
+		$executions_sql  = "CREATE TABLE {$executions_table} (
+			query_hash varchar(64) NOT NULL,
+			variables_hash varchar(64) NOT NULL,
+			url varchar(2083) NOT NULL,
+			variables longtext NOT NULL,
+			last_executed_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (query_hash, variables_hash),
+			INDEX idx_last_executed (last_executed_at)
+		) {$charset_collate};";
+
+		dbDelta( $executions_sql );
+
+		self::backfill_executions_from_url_keys();
+	}
+
+	/**
+	 * Copy distinct executions from url_keys (upgrade path).
+	 *
+	 * @return void
+	 */
+	private static function backfill_executions_from_url_keys(): void {
+		global $wpdb;
+
+		$exec = self::get_executions_table_name();
+		$uk   = self::get_url_keys_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		$wpdb->query(
+			"INSERT IGNORE INTO {$exec} (query_hash, variables_hash, url, variables, last_executed_at)
+			SELECT query_hash, variables_hash, MIN(url), MIN(variables), MAX(created_at) FROM {$uk}
+			GROUP BY query_hash, variables_hash"
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
