@@ -25,10 +25,12 @@ docker compose up -d
 docker compose -f plugins/wp-graphql-pqc/benchmark/docker-compose.yml up -d
 ```
 
-- **Public URL (through cache):** `http://localhost:8081`
-- **Origin (bypass cache):** `http://localhost:8888` (typical wp-env dev site)
+- **Edge (through cache):** `http://localhost:8081` — what browsers and k6 hit; Varnish sits here.
+- **Origin (WordPress, bypass edge):** `http://localhost:8888` — typical wp-env dev site; use this to compare “no edge” baseline.
 
-The bundled [docker-compose.yml](./docker-compose.yml) sets `extra_hosts: host.docker.internal:host-gateway` so Linux can resolve `host.docker.internal` like Docker Desktop on macOS/Windows.
+**Two “hosts” to keep straight:** Clients and k6 talk to the **edge** port. PHP inside wp-env purges the edge using **`WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN`** (see §2), which must point at Varnish from **inside** the WordPress container (`host.docker.internal:8081`), not at `:8888`.
+
+The bundled [docker-compose.yml](./docker-compose.yml) sets `extra_hosts: host.docker.internal:host-gateway` so **Linux** resolves `host.docker.internal` the same way **Docker Desktop** does on macOS/Windows. If your Docker setup does not support `host-gateway`, set `extra_hosts` to your machine’s LAN IP or use a compose network that includes both Varnish and WordPress.
 
 Varnish forwards to `host.docker.internal:8888` with `Host: localhost:8888`. If your WordPress uses another host/port, edit [docker/varnish/default.vcl](./docker/varnish/default.vcl).
 
@@ -36,7 +38,7 @@ Stop with `docker compose down` (from the same directory you used for `up`, or p
 
 ## 2. Set `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN` (WordPress → edge)
 
-PHP runs **inside** the wp-env container. Purges must hit the **Varnish** listener on the host (`:8081`), not `:8888`. Use a base URL that resolves from **inside** that container:
+PHP runs **inside** the wp-env container. Purges must reach the **Varnish** process (host port **8081** in this stack), not the WordPress port (**8888**). From inside the PHP container, `localhost:8081` is usually wrong (that loops back to the container itself). Use a hostname that reaches the host machine:
 
 `http://host.docker.internal:8081`
 
@@ -128,18 +130,62 @@ curl -sI "http://localhost:8081${PERSISTED_PATH}" | grep -i x-cache
 
 Expect first **MISS**, second **HIT**.
 
-## 5. k6 load test
+## 5. Bulk registration (many `variablesHash` URLs)
 
-1. Build a URL list (one persisted path per line) in `urls.txt`.
-2. Run:
+Use **`wp graphql-pqc bulk-register`** to register the same document with many variable payloads (newspaper-style long tail). Paths are written for k6 (one per line, no host).
+
+**Inside wp-env**, use paths under `/var/www/html/wp-content/plugins/wp-graphql-pqc/benchmark/k6/` (or your mounted plugin path).
 
 ```bash
-k6 run k6/pqc-persisted-get.js -e BASE_URL=http://localhost:8081 -e URLS_FILE=urls.txt
+# Register one persisted URL per published post (default limit 100), write paths + manifest.
+npm run wp-env -- run cli -- wp graphql-pqc bulk-register \
+  /var/www/html/wp-content/plugins/wp-graphql-pqc/benchmark/k6/single-post.graphql \
+  --limit=200 \
+  --urls-out=/var/www/html/wp-content/plugins/wp-graphql-pqc/benchmark/k6/urls.txt \
+  --manifest-out=/var/www/html/wp-content/plugins/wp-graphql-pqc/benchmark/k6/run-manifest.json \
+  --manifest-template=/var/www/html/wp-content/plugins/wp-graphql-pqc/benchmark/k6/run-manifest.example.json \
+  --edge-base=http://localhost:8081
 ```
 
-See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale knobs** to record with each run.
+- **`--variables-jsonl=<file>`** — alternative to post scan: one JSON object per line (GraphQL variables). Lines starting with `#` are skipped.
+- **`--post-type`**, **`--offset`**, **`--relay-type`** (default `post`, use `page` for pages), **`--id-variable`** (default `id`).
+- **`--dry-run`** — count variable sets without calling `graphql()`.
 
-## Scale knobs
+Then run k6 from the host against `urls.txt` (§6).
+
+## 6. k6 load test
+
+1. Ensure `benchmark/k6/urls.txt` exists (from §5 or hand-built).
+2. From the directory that contains `urls.txt` (or pass an absolute path via `URLS_FILE`):
+
+```bash
+cd plugins/wp-graphql-pqc/benchmark/k6
+k6 run pqc-persisted-get.js -e BASE_URL=http://localhost:8081 -e URLS_FILE=urls.txt
+```
+
+See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale knobs**; merge your copy into output with `--manifest-template` during bulk-register, or edit the generated `run-manifest.json` after the fact.
+
+## 7. Churn sample (purge + edge HIT/MISS)
+
+[scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh) updates a post on a timer and `curl -sI`s a persisted URL on the edge so you can watch **`X-Cache`** flip to MISS after purge and warm again.
+
+```bash
+chmod +x plugins/wp-graphql-pqc/benchmark/scripts/pqc-churn-sample.sh
+export WP_BIN='npm run wp-env -- run cli -- wp'
+./plugins/wp-graphql-pqc/benchmark/scripts/pqc-churn-sample.sh \
+  http://localhost:8081 \
+  '/graphql/persisted/YOUR_HASH/variables/VARS_HASH' \
+  10 \
+  20
+```
+
+For heavier scenarios, run k6 (§6) in one terminal and a WP-CLI loop (post updates / meta) in another; record **`churn_edits_per_min`** in the manifest.
+
+## 8. Later: Redis `StoreInterface`
+
+There is no bundled Redis store yet. See [../docs/INTEGRATIONS.md](../docs/INTEGRATIONS.md) for the contract and key layout; repeat edge + k6 scenarios after implementing a custom store.
+
+## Scale knobs (manifest)
 
 When publishing results, record at least:
 
