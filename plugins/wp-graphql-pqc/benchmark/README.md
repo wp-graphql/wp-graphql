@@ -8,32 +8,81 @@ This folder helps you reproduce **URL-keyed edge caching** (Varnish) in front of
 - Docker (for Varnish).
 - Optional: [k6](https://k6.io/) for load tests.
 
-## 1. Start Varnish
+## 1. Start Varnish (Docker Compose)
 
-From `plugins/wp-graphql-pqc/benchmark/`:
+Varnish is **separate** from wp-env: a small Compose file in this folder talks to WordPress on the host.
+
+**Option A — from this directory (simplest):**
 
 ```bash
+cd plugins/wp-graphql-pqc/benchmark
 docker compose up -d
 ```
 
-- **Public URL (through cache):** `http://localhost:8081`
-- **Origin (bypass cache):** `http://localhost:8888`
+**Option B — from the monorepo root (fixed path):**
 
-Varnish forwards to `host.docker.internal:8888` with `Host: localhost:8888`. If your WordPress listens on another host/port, edit [docker/varnish/default.vcl](./docker/varnish/default.vcl).
-
-## 2. Enable HTTP purge from WordPress
-
-When content changes, PQC must **PURGE** the edge, not only the WordPress origin. Define the edge base URL (reachable **from the PHP process**):
-
-```php
-// wp-config.php or a small must-use plugin.
-define( 'WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN', 'http://host.docker.internal:8081' );
+```bash
+docker compose -f plugins/wp-graphql-pqc/benchmark/docker-compose.yml up -d
 ```
 
-- On **macOS/Windows** Docker Desktop, `host.docker.internal` from inside the **wp-env** PHP container reaches services published on the host (e.g. Varnish `:8081`).
-- If PURGE fails, check `debug.log` for `[WPGraphQL PQC] HttpPurgeAdapter:` lines (with `WP_DEBUG`).
+- **Public URL (through cache):** `http://localhost:8081`
+- **Origin (bypass cache):** `http://localhost:8888` (typical wp-env dev site)
 
-You can override request options with the filter `wpgraphql_pqc_http_purge_request_args` (for example `sslverify` or headers).
+The bundled [docker-compose.yml](./docker-compose.yml) sets `extra_hosts: host.docker.internal:host-gateway` so Linux can resolve `host.docker.internal` like Docker Desktop on macOS/Windows.
+
+Varnish forwards to `host.docker.internal:8888` with `Host: localhost:8888`. If your WordPress uses another host/port, edit [docker/varnish/default.vcl](./docker/varnish/default.vcl).
+
+Stop with `docker compose down` (from the same directory you used for `up`, or pass the same `-f` path).
+
+## 2. Set `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN` (WordPress → edge)
+
+PHP runs **inside** the wp-env container. Purges must hit the **Varnish** listener on the host (`:8081`), not `:8888`. Use a base URL that resolves from **inside** that container:
+
+`http://host.docker.internal:8081`
+
+Pick **one** of the following (best first for this monorepo).
+
+### Recommended: `.wp-env.override.json` (gitignored)
+
+At the **repository root** (same level as `.wp-env.json`), create `.wp-env.override.json` (see [Custom Environment Configuration](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/DEVELOPMENT.md#custom-environment-configuration)):
+
+```json
+{
+  "env": {
+    "development": {
+      "config": {
+        "WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN": "http://host.docker.internal:8081"
+      }
+    }
+  }
+}
+```
+
+wp-env merges this file and, when the merged config changes, re-runs WordPress setup steps that apply `config` entries via `wp config set`. After adding or editing the override, run:
+
+```bash
+npm run wp-env start
+```
+
+If the constant still does not appear, run `npm run wp-env clean development` once (resets the dev DB) or use the WP-CLI one-liner below.
+
+### Quick one-off: WP-CLI
+
+No new files; writes straight into `wp-config.php` inside the container:
+
+```bash
+npm run wp-env run cli -- wp config set WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN http://host.docker.internal:8081 --type=constant
+```
+
+Use this for a fast smoke test. The line survives until the environment is recreated (`wp-env destroy` / clean).
+
+### Alternative: must-use plugin
+
+If you prefer not to touch wp-env config, add a tiny MU-plugin under `wp-content/mu-plugins/` that `define()`s the same constant (only on local). Good when WordPress is **not** wp-env.
+
+### Verify
+
+With `WP_DEBUG` enabled, failed purges log `[WPGraphQL PQC] HttpPurgeAdapter:` in `debug.log`. You can override `wp_remote_request` with the filter `wpgraphql_pqc_http_purge_request_args` (for example `sslverify` or headers).
 
 ## 3. Smart Cache TTL
 
