@@ -9,7 +9,7 @@
  */
 
 import http from "k6/http";
-import { check, trend } from "k6/metrics";
+import { check, Trend } from "k6/metrics";
 import { SharedArray } from "k6/data";
 
 const baseUrl = __ENV.BASE_URL || "http://localhost:8081";
@@ -18,7 +18,7 @@ const urlsFile = __ENV.URLS_FILE || "urls.txt";
 const duration = __ENV.DURATION || "2m";
 const vus = Number(__ENV.VUS || 10);
 
-const responseTime = new trend("pqc_get_duration", true);
+const responseTime = new Trend("pqc_get_duration", true);
 
 const paths = new SharedArray("urls", function () {
 	// k6 open() is relative to the current working directory when you run k6.
