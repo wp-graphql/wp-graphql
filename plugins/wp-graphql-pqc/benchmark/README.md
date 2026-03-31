@@ -160,16 +160,16 @@ Then run k6 from the host against `urls.txt` (§6).
 1. Ensure `benchmark/k6/urls.txt` exists (from §5 or hand-built).
 2. From the directory that contains `urls.txt` (or pass an absolute path via `URLS_FILE`).
 
-### Scenario wrappers (from any directory)
+### Scenario wrappers (k6 cwd handled inside script)
 
-These scripts `cd` into `benchmark/k6` automatically (no fragile `cd` from repo root):
+These scripts **`cd` into `benchmark/k6` themselves**, so k6 always finds `urls.txt` and `pqc-persisted-get.js`. You still must invoke the **`.sh` path** from your shell’s current directory (or use an absolute path).
 
 | Script | Default `BASE_URL` | Use |
 |--------|--------------------|-----|
 | [scripts/run-k6-edge.sh](./scripts/run-k6-edge.sh) | `http://localhost:8081` | Edge + high TTL / hit-rate scenarios |
 | [scripts/run-k6-origin.sh](./scripts/run-k6-origin.sh) | `http://localhost:8888` | Baseline A (origin only) |
 
-Override with env vars, for example:
+From **monorepo root**:
 
 ```bash
 chmod +x plugins/wp-graphql-pqc/benchmark/scripts/run-k6-edge.sh
@@ -179,6 +179,13 @@ DURATION=30s VUS=5 ./plugins/wp-graphql-pqc/benchmark/scripts/run-k6-edge.sh
 DURATION=30s VUS=5 REQUIRE_X_CACHE=1 ./plugins/wp-graphql-pqc/benchmark/scripts/run-k6-edge.sh
 
 DURATION=30s VUS=5 ./plugins/wp-graphql-pqc/benchmark/scripts/run-k6-origin.sh
+```
+
+From **`plugins/wp-graphql-pqc/benchmark/k6`** (e.g. after `cd` there for raw `k6 run`):
+
+```bash
+DURATION=30s VUS=5 ../scripts/run-k6-edge.sh
+DURATION=30s VUS=5 ../scripts/run-k6-origin.sh
 ```
 
 **Working directory:** If you prefer raw `k6 run`, the `cd plugins/wp-graphql-pqc/benchmark/k6` line below assumes the **monorepo root**. If you are **already** in `benchmark/k6`, run `k6 run pqc-persisted-get.js ...` only.
@@ -238,11 +245,20 @@ See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale k
 
 Prerequisites: persisted URLs in `urls.txt` must **tag the churned post** (e.g. bulk-register a `post(id: …)` query for that ID). `POST_ID` must match.
 
+From **monorepo root**:
+
 ```bash
 chmod +x plugins/wp-graphql-pqc/benchmark/scripts/k6-with-churn.sh
 export WP_BIN='npm run wp-env -- run cli -- wp'
 POST_ID=10 CHURN_INTERVAL=25 DURATION=2m VUS=10 \
   ./plugins/wp-graphql-pqc/benchmark/scripts/k6-with-churn.sh
+```
+
+From **`plugins/wp-graphql-pqc/benchmark/k6`**:
+
+```bash
+export WP_BIN='npm run wp-env -- run cli -- wp'
+POST_ID=10 CHURN_INTERVAL=25 DURATION=90s VUS=5 ../scripts/k6-with-churn.sh
 ```
 
 Tune **`churn_edits_per_min`** in your run-manifest as `60 / CHURN_INTERVAL` when interval is fixed.

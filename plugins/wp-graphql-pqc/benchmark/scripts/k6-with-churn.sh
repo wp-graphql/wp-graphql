@@ -10,9 +10,9 @@
 #   CHURN_INTERVAL    seconds between updates (default 30)
 #   BASE_URL, URLS_FILE, DURATION, VUS — same as run-k6-edge.sh (edge defaults)
 #
-# Example:
-#   export WP_BIN='npm run wp-env -- run cli -- wp'
-#   POST_ID=10 CHURN_INTERVAL=20 DURATION=2m ./plugins/wp-graphql-pqc/benchmark/scripts/k6-with-churn.sh
+# Examples (script path is relative to your shell cwd):
+#   ./plugins/wp-graphql-pqc/benchmark/scripts/k6-with-churn.sh   # from monorepo root
+#   ../scripts/k6-with-churn.sh                                   # from benchmark/k6
 #
 # Ctrl+C stops k6 and exits.
 
