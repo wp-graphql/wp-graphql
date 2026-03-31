@@ -160,7 +160,28 @@ Then run k6 from the host against `urls.txt` (§6).
 1. Ensure `benchmark/k6/urls.txt` exists (from §5 or hand-built).
 2. From the directory that contains `urls.txt` (or pass an absolute path via `URLS_FILE`).
 
-**Working directory:** The `cd plugins/wp-graphql-pqc/benchmark/k6` line below assumes the **monorepo root**. If you are **already** in `benchmark/k6`, run `k6 run pqc-persisted-get.js ...` only—otherwise `cd plugins/...` fails with “no such file or directory.”
+### Scenario wrappers (from any directory)
+
+These scripts `cd` into `benchmark/k6` automatically (no fragile `cd` from repo root):
+
+| Script | Default `BASE_URL` | Use |
+|--------|--------------------|-----|
+| [scripts/run-k6-edge.sh](./scripts/run-k6-edge.sh) | `http://localhost:8081` | Edge + high TTL / hit-rate scenarios |
+| [scripts/run-k6-origin.sh](./scripts/run-k6-origin.sh) | `http://localhost:8888` | Baseline A (origin only) |
+
+Override with env vars, for example:
+
+```bash
+chmod +x plugins/wp-graphql-pqc/benchmark/scripts/run-k6-edge.sh
+chmod +x plugins/wp-graphql-pqc/benchmark/scripts/run-k6-origin.sh
+
+DURATION=30s VUS=5 ./plugins/wp-graphql-pqc/benchmark/scripts/run-k6-edge.sh
+DURATION=30s VUS=5 REQUIRE_X_CACHE=1 ./plugins/wp-graphql-pqc/benchmark/scripts/run-k6-edge.sh
+
+DURATION=30s VUS=5 ./plugins/wp-graphql-pqc/benchmark/scripts/run-k6-origin.sh
+```
+
+**Working directory:** If you prefer raw `k6 run`, the `cd plugins/wp-graphql-pqc/benchmark/k6` line below assumes the **monorepo root**. If you are **already** in `benchmark/k6`, run `k6 run pqc-persisted-get.js ...` only.
 
 **Local k6** (after `brew install k6` or another [install](https://grafana.com/docs/k6/latest/set-up/install-k6/)):
 
@@ -209,9 +230,26 @@ docker run --rm -i \
 
 See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale knobs**; merge your copy into output with `--manifest-template` during bulk-register, or edit the generated `run-manifest.json` after the fact.
 
-## 7. Churn sample (purge + edge HIT/MISS)
+## 7. Churn + edge (purge + HIT/MISS)
 
-[scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh) updates a post on a timer and `curl -sI`s a persisted URL on the edge so you can watch **`X-Cache`** flip to MISS after purge and warm again.
+### k6 + WP-CLI (one process)
+
+[scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh) runs **`k6` against the edge** in the background and **updates a post** on an interval so Smart Cache emits **`graphql_purge`** and PQC purges Varnish. You should see **`pqc_x_cache_misses`** increase around churn ticks (then hits recover as the edge refills).
+
+Prerequisites: persisted URLs in `urls.txt` must **tag the churned post** (e.g. bulk-register a `post(id: …)` query for that ID). `POST_ID` must match.
+
+```bash
+chmod +x plugins/wp-graphql-pqc/benchmark/scripts/k6-with-churn.sh
+export WP_BIN='npm run wp-env -- run cli -- wp'
+POST_ID=10 CHURN_INTERVAL=25 DURATION=2m VUS=10 \
+  ./plugins/wp-graphql-pqc/benchmark/scripts/k6-with-churn.sh
+```
+
+Tune **`churn_edits_per_min`** in your run-manifest as `60 / CHURN_INTERVAL` when interval is fixed.
+
+### curl-only churn (single URL)
+
+[scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh) updates a post on a timer and `curl -sI`s **one** persisted URL so you can watch **`X-Cache`** in the shell (no k6).
 
 ```bash
 chmod +x plugins/wp-graphql-pqc/benchmark/scripts/pqc-churn-sample.sh
@@ -223,7 +261,9 @@ export WP_BIN='npm run wp-env -- run cli -- wp'
   20
 ```
 
-For heavier scenarios, run k6 (§6) in one terminal and a WP-CLI loop (post updates / meta) in another; record **`churn_edits_per_min`** in the manifest.
+### Two terminals (manual)
+
+Terminal A: `run-k6-edge.sh` (or raw `k6 run …`). Terminal B: loop `wp post update …` on a timer. Record **`churn_edits_per_min`** in the manifest.
 
 ## 8. Later: Redis `StoreInterface`
 

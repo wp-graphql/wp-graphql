@@ -9,11 +9,12 @@ The living Cursor plan may live under `.cursor/plans/pqc_edge-cache_benchmarking
 - Varnish stack + README (`:8081` edge, `:8888` origin, `host.docker.internal` for purges from PHP).
 - `HttpPurgeAdapter` + `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN`; purge clears all `url_keys` for purged paths; executions keep warm GET working.
 - `wp graphql-pqc register` + **`wp graphql-pqc bulk-register`** → `urls.txt` + optional `run-manifest.json` (see [README.md](./README.md)).
-- k6 [k6/pqc-persisted-get.js](./k6/pqc-persisted-get.js): `pqc_x_cache_hits` / `misses` / `unknown`, `pqc_x_cache_hit_rate`, optional `REQUIRE_X_CACHE` + `MIN_HIT_RATE`; [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).
+- k6 [k6/pqc-persisted-get.js](./k6/pqc-persisted-get.js): `pqc_x_cache_hits` / `misses` / `unknown`, `pqc_x_cache_hit_rate`, optional `REQUIRE_X_CACHE` + `MIN_HIT_RATE`.
+- Wrappers: [scripts/run-k6-edge.sh](./scripts/run-k6-edge.sh), [scripts/run-k6-origin.sh](./scripts/run-k6-origin.sh); churn + load: [scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh); curl sample: [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).
 
 ## Next (measurement phase)
 
-1. **Run scenarios** (3–5+ min after warm-up); record knobs in `run-manifest` / [run-manifest.example.json](./k6/run-manifest.example.json); compare **edge** vs **origin** using the table below.
+1. **Run scenarios** using wrappers (3–5+ min after warm-up); record knobs in `run-manifest` / [run-manifest.example.json](./k6/run-manifest.example.json); compare **edge** vs **origin** using the table below. Use **k6-with-churn** for edge + purge dynamics.
 
 | Scenario | k6 `BASE_URL` | Purpose |
 |----------|---------------|---------|

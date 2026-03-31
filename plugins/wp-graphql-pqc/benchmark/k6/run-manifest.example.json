@@ -10,6 +10,8 @@
   "traffic_weights": "70% single-entity URLs, 30% shared templates",
   "s_maxage_s": 3600,
   "churn_edits_per_min": 0,
+  "churn_interval_sec": null,
+  "churn_post_id": null,
   "churn_target": "random posts",
   "pqc_store": "DBStore",
   "wp_object_cache": "default transients",
