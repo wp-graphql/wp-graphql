@@ -88,9 +88,36 @@ With `WP_DEBUG` enabled, failed purges log `[WPGraphQL PQC] HttpPurgeAdapter:` i
 
 Set a **high** global max-age in WPGraphQL Smart Cache so the edge keeps responses until a purge (see [network cache](https://github.com/wp-graphql/wp-graphql/blob/develop/plugins/wp-graphql-smart-cache/docs/network-cache.md) docs in the monorepo).
 
-## 4. Smoke test (curl)
+## 4. Register a persisted query, then smoke-test the edge
 
-After registering a persisted query (see [../TESTING.md](../TESTING.md)):
+### Register (WP-CLI)
+
+Avoid manual cold-GET + POST: use **`wp graphql-pqc register`** (ships with this plugin). From the monorepo root with wp-env running:
+
+```bash
+npm run wp-env -- run cli -- wp graphql-pqc register \
+  --query='query { posts(first: 3) { nodes { id title } } }' \
+  --edge-base=http://localhost:8081
+```
+
+Or pass a file:
+
+```bash
+npm run wp-env -- run cli -- wp graphql-pqc register path/to/query.graphql --variables-file=vars.json
+```
+
+On success you get the **`persistedQueryUrl`** path and a suggested `curl` against `:8081`. With variables:
+
+```bash
+npm run wp-env -- run cli -- wp graphql-pqc register \
+  --query='query GetPost($id: ID!) { post(id: $id) { id title } }' \
+  --variables='{"id":"cG9zdDox"}' \
+  --edge-base=http://localhost:8081
+```
+
+See `wp graphql-pqc register --help` for options (`--user`, STDIN `-`, etc.). Manual flow remains in [../TESTING.md](../TESTING.md).
+
+### Smoke test (curl)
 
 ```bash
 PERSISTED_PATH="/graphql/persisted/YOUR_QUERY_HASH"

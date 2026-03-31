@@ -37,6 +37,7 @@ WPGraphQL Smart Cache works best when the host can purge by **cache tags**. Many
 - **POST** to `/graphql` with the full query + extensions → document stored; response includes `extensions.persistedQueryUrl`
 - **Warm GET** → WordPress runs `graphql()` and returns normal JSON (this is what runs on **CDN miss** when the request reaches origin)
 - On Smart Cache purge events → URLs looked up and passed to the purge adapter
+- **WP-CLI:** `wp graphql-pqc register` — persist a query without manual nonce/POST (see [TESTING.md](./TESTING.md))
 
 Example extension on successful index write:
 

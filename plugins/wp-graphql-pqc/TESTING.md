@@ -38,6 +38,20 @@ The plugin uses a normalized database structure:
 
 This normalization prevents duplicate storage of the same query document when it's used with different variables or cache keys.
 
+## WP-CLI: register without curl (recommended for local / CI)
+
+The plugin registers a **`wp graphql-pqc register`** command that performs the same steps as the cold GET + POST handshake: it generates a one-time nonce, runs your query through `graphql()` with PQC extensions, and persists the document / execution when analyzer keys exist.
+
+```bash
+npm run wp-env -- run cli -- wp graphql-pqc register --query='query { posts { nodes { id } } }'
+npm run wp-env -- run cli -- wp graphql-pqc register path/to/query.graphql --variables='{"id":"cG9zdDox"}'
+npm run wp-env -- run cli -- wp graphql-pqc register --help
+```
+
+Use **`--edge-base=http://localhost:8081`** to print a full URL for Varnish smoke tests (see [benchmark/README.md](./benchmark/README.md)).
+
+---
+
 ## Test 1: Complete PQC Flow - Store Query in Index (with Nonce)
 
 This test demonstrates the complete PQC flow from start to finish. The flow requires:

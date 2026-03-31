@@ -60,6 +60,31 @@ function wpgraphql_pqc_init() {
 
 wpgraphql_pqc_init();
 
+/**
+ * WP-CLI commands
+ *
+ * @return void
+ */
+function wpgraphql_pqc_register_cli_commands(): void {
+	if ( ! defined( 'WP_CLI' ) || ! WP_CLI || ! class_exists( 'WP_CLI' ) ) {
+		return;
+	}
+
+	if ( ! class_exists( \WPGraphQL\PQC\CLI\RegisterCommand::class ) ) {
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- constant plugin path.
+		$cli_file = WPGRAPHQL_PQC_PLUGIN_DIR . 'src/CLI/RegisterCommand.php';
+		if ( file_exists( $cli_file ) ) {
+			require_once $cli_file;
+		}
+	}
+
+	if ( class_exists( \WPGraphQL\PQC\CLI\RegisterCommand::class ) ) {
+		\WP_CLI::add_command( 'graphql-pqc', \WPGraphQL\PQC\CLI\RegisterCommand::class );
+	}
+}
+
+add_action( 'cli_init', 'wpgraphql_pqc_register_cli_commands' );
+
 // Register activation/deactivation hooks unconditionally (must be registered when plugin file loads).
 register_activation_hook( WPGRAPHQL_PQC_PLUGIN_FILE, [ \WPGraphQL\PQC\App::instance(), 'activate' ] );
 register_deactivation_hook( WPGRAPHQL_PQC_PLUGIN_FILE, [ \WPGraphQL\PQC\App::instance(), 'deactivate' ] );

@@ -108,6 +108,7 @@ WordPress core / Smart Cache:
 - **Rewrite rules** — After changing `wpgraphql_pqc_url_base`, flush permalinks (or call `flush_rewrite_rules()` on deploy).
 - **Query Analyzer** — Must be on for cache keys; without keys, PQC will not index operations.
 - **Logging** — `WPGraphQL\PQC\Utils\Logger` writes purge lines to `error_log` when `WP_DEBUG` is true; PHP may log to `wp-content/debug.log` or the container’s PHP log depending on `WP_DEBUG_LOG` and hosting.
+- **WP-CLI** — `wp graphql-pqc register` runs the same persistence path as an HTTP POST with a valid nonce (generates a nonce, calls `graphql()` with extensions, defines `WPGRAPHQL_PQC_INTERNAL_CALL`). See [TESTING.md](../TESTING.md).
 
 ---
 
