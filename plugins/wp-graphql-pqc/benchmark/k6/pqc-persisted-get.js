@@ -9,7 +9,8 @@
  */
 
 import http from "k6/http";
-import { check, Trend } from "k6/metrics";
+import { check } from "k6";
+import { Trend } from "k6/metrics";
 import { SharedArray } from "k6/data";
 
 const baseUrl = __ENV.BASE_URL || "http://localhost:8081";
@@ -48,9 +49,12 @@ export default function () {
 		headers: { Accept: "application/json" },
 	});
 
-	responseTime.add(res.timings.duration);
+	if (res.timings) {
+		responseTime.add(res.timings.duration);
+	}
 
-	const xc = res.headers["X-Cache"] || res.headers["x-cache"] || "";
+	const headers = res.headers || {};
+	const xc = headers["X-Cache"] || headers["x-cache"] || "";
 	check(res, {
 		"status 200": (r) => r.status === 200,
 		"x-cache present": () => xc.length > 0,
