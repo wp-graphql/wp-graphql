@@ -160,6 +160,8 @@ Then run k6 from the host against `urls.txt` (§6).
 1. Ensure `benchmark/k6/urls.txt` exists (from §5 or hand-built).
 2. From the directory that contains `urls.txt` (or pass an absolute path via `URLS_FILE`).
 
+**Working directory:** The `cd plugins/wp-graphql-pqc/benchmark/k6` line below assumes the **monorepo root**. If you are **already** in `benchmark/k6`, run `k6 run pqc-persisted-get.js ...` only—otherwise `cd plugins/...` fails with “no such file or directory.”
+
 **Local k6** (after `brew install k6` or another [install](https://grafana.com/docs/k6/latest/set-up/install-k6/)):
 
 ```bash
@@ -183,6 +185,14 @@ k6 run pqc-persisted-get.js -e BASE_URL=http://localhost:8081 -e URLS_FILE=urls.
 | `pqc_get_duration` | Client-side request duration (trend). |
 
 **Manual sanity check:** one `curl -sI http://localhost:8081/your-path \| grep -i x-cache` should show `HIT:` or `MISS` before you trust hit-rate numbers.
+
+**What you should see (smoke tests):**
+
+| `BASE_URL` | Throughput | `pqc_x_cache_*` | Checks |
+|------------|------------|-----------------|--------|
+| `:8081` (warm edge) | Very high iteration/s | `hit_rate` → ~100%, `hits` ≫ `misses` | ✓ status 200 |
+| `:8081` + `REQUIRE_X_CACHE=1` | Same | Same | ✓ status 200, ✓ x-cache present |
+| `:8888` (origin) | Far fewer iters/s (PHP + GraphQL each request) | `unknown` = all iters, `hit_rate` 0% | ✓ status 200 only |
 
 **Docker** (no k6 binary on the host): mount this folder and reach Varnish on the host. On macOS/Windows Docker Desktop, `host.docker.internal` resolves to the host; on Linux you may need `--add-host=host.docker.internal:host-gateway` (Docker 20.10+).
 
