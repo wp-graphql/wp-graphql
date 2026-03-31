@@ -245,7 +245,7 @@ See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale k
 
 Prerequisites: persisted URLs in `urls.txt` must **tag the churned post** (e.g. bulk-register a `post(id: …)` query for that ID). `POST_ID` must match.
 
-**`WP_WORKDIR`:** If you use `WP_BIN='npm run wp-env -- run cli -- wp'`, the script auto-finds the monorepo root (walks upward for `package.json` containing `wp-env`). Override if needed: `WP_WORKDIR=/path/to/wp-graphql`.
+**`WP_WORKDIR`:** If you use `WP_BIN='npm run wp-env -- run cli -- wp'`, the script walks upward for a `package.json` that defines the **`wp-env` npm script** (`"wp-env": "wp-env"`), i.e. the monorepo root—not a workspace package that only references wp-env inside other scripts. Override if needed: `WP_WORKDIR=/path/to/wp-graphql`.
 
 From **monorepo root**:
 

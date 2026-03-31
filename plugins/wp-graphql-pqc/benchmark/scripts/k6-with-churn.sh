@@ -22,12 +22,20 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 K6_DIR="$(cd "$SCRIPT_DIR/../k6" && pwd)" || exit 1
 
-# npm run wp-env must run from the monorepo root (package.json). k6 runs from K6_DIR, so churn uses WP_WORKDIR.
+# npm run wp-env must run from the monorepo root (package.json with a wp-env npm script). k6 uses K6_DIR; churn uses WP_WORKDIR.
+# Do not match workspace packages that only mention wp-env inside other script strings (e.g. plugins/wp-graphql-pqc).
+has_wp_env_npm_script() {
+	local f="$1/package.json"
+	[[ -f "$f" ]] || return 1
+	# Root-style: "wp-env": "wp-env" (see monorepo package.json).
+	grep -qE '"wp-env"[[:space:]]*:[[:space:]]*"wp-env"' "$f" 2>/dev/null
+}
+
 detect_wp_workdir() {
 	local d="$SCRIPT_DIR"
 	local i
-	for i in 1 2 3 4 5 6 7 8 9 10; do
-		if [[ -f "$d/package.json" ]] && grep -q 'wp-env' "$d/package.json" 2>/dev/null; then
+	for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+		if has_wp_env_npm_script "$d"; then
 			echo "$d"
 			return 0
 		fi
