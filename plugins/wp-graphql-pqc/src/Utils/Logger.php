@@ -53,4 +53,24 @@ class Logger {
 			}
 		}
 	}
+
+	/**
+	 * Log a failed HTTP edge purge (HttpPurgeAdapter).
+	 *
+	 * @param string $target  Full URL that was requested.
+	 * @param string $reason  Error message or status summary.
+	 * @return void
+	 */
+	public static function log_http_purge_failure( string $target, string $reason ): void {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				sprintf(
+					'[WPGraphQL PQC] HttpPurgeAdapter: failed purge target=%s reason=%s',
+					$target,
+					$reason
+				)
+			);
+		}
+	}
 }

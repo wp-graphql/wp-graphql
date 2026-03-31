@@ -38,6 +38,10 @@ class AdapterFactory {
 			return new VIPAdapter();
 		}
 
+		if ( HttpPurgeAdapter::is_available() ) {
+			return new HttpPurgeAdapter();
+		}
+
 		// Default to null adapter (no-op).
 		return new NullAdapter();
 	}

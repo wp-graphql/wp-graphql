@@ -70,7 +70,15 @@ Implement `WPGraphQL\PQC\Purge\AdapterInterface`:
 Built-ins:
 
 - **`VIPAdapter`** — When `wpvip_purge_edge_cache_for_url` (or legacy alias) exists.
-- **`NullAdapter`** — Logs only; useful locally.
+- **`HttpPurgeAdapter`** — When `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN` is defined (non-empty string). Sends `PURGE` to `{origin}{path}` for each indexed URL (Varnish-style URL ban). Use for **local benchmarks** or any edge that accepts HTTP `PURGE`. See [benchmark/README.md](../benchmark/README.md).
+- **`NullAdapter`** — No edge call; logs intent when `WP_DEBUG` is on.
+
+Filters for `HttpPurgeAdapter`:
+
+| Filter | Purpose |
+|--------|---------|
+| `wpgraphql_pqc_http_purge_method` | `( $method, $target, $url )` — default `PURGE`. |
+| `wpgraphql_pqc_http_purge_request_args` | `( $args, $target, $url )` — passed to `wp_remote_request` (timeout, `sslverify`, headers, etc.). |
 
 ---
 
@@ -86,6 +94,8 @@ Built-ins:
 | `wpgraphql_pqc_delete_entries_on_purge` | `(bool, $key, $urls)` — Return `false` to keep index rows after purge (testing). |
 | `wpgraphql_pqc_ttl_days` | Age for default MySQL GC of `url_keys` rows (days). |
 | `wpgraphql_pqc_garbage_collection` | **Action** — Daily cron; default subscriber deletes old MySQL rows. |
+| `wpgraphql_pqc_http_purge_method` | `(string, $target, $url)` — HTTP method for `HttpPurgeAdapter`. |
+| `wpgraphql_pqc_http_purge_request_args` | `(array, $target, $url)` — `wp_remote_request` args for `HttpPurgeAdapter`. |
 
 WordPress core / Smart Cache:
 
