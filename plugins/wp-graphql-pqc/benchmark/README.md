@@ -2,6 +2,8 @@
 
 This folder helps you reproduce **URL-keyed edge caching** (Varnish) in front of WordPress, plus **HTTP PURGE** invalidation for persisted query paths—matching how PQC is meant to run on hosts that cache GETs by URL.
 
+For **what is implemented vs next measurement steps** (scenario matrix, HIT/MISS work), see [BENCHMARK-PLAN.md](./BENCHMARK-PLAN.md) (git-tracked). A fuller working copy may also exist under `.cursor/plans/` for Cursor.
+
 ## Prerequisites
 
 - [wp-env](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/) (or any WordPress at `http://localhost:8888`) with **WPGraphQL**, **WPGraphQL Smart Cache**, and **wp-graphql-pqc** active.
