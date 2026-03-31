@@ -1,0 +1,2 @@
+# One persisted path per line (no host). Replace with output from your registration script.
+# /graphql/persisted/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

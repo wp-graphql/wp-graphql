@@ -1,0 +1,17 @@
+# Local edge cache in front of wp-env (WordPress on host :8888).
+#
+# Usage (from this directory):
+#   docker compose up -d
+# Then hit http://localhost:8081/graphql/persisted/... (not :8888).
+#
+# Linux: extra_hosts routes host.docker.internal to the host gateway.
+
+services:
+  varnish:
+    image: varnish:7.3
+    ports:
+      - "8081:80"
+    volumes:
+      - ./docker/varnish/default.vcl:/etc/varnish/default.vcl:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

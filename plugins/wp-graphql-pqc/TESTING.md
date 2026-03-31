@@ -871,4 +871,4 @@ Once manual testing is complete, consider:
 1. Writing automated tests (WPUnit, Acceptance, Functional)
 2. Testing on WordPress VIP environment
 3. Testing with Redis store adapter (when implemented)
-4. Performance testing with many persisted queries
+4. Performance testing with many persisted queries — see **[benchmark/README.md](./benchmark/README.md)** for Varnish in front of wp-env, `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN` + `HttpPurgeAdapter`, and optional k6 runs
