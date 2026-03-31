@@ -281,7 +281,8 @@ When publishing results, record at least:
 | `s_maxage_s` | Smart Cache global max-age |
 | `steady_vus` / `duration_s` | k6 settings |
 | `k6_base_url` / `k6_require_x_cache` / `k6_min_hit_rate` | Edge vs origin URL; optional k6 env mirrors (see §6) |
-| `churn_edits_per_min` | Content change rate (if any) |
+| `churn_edits_per_min` | Content change rate (if any); with fixed interval, `60 / churn_interval_sec` |
+| `churn_post_id` / `churn_interval_sec` | For `k6-with-churn.sh`: `POST_ID` / `CHURN_INTERVAL` |
 
 ---
 
