@@ -6,7 +6,7 @@ This folder helps you reproduce **URL-keyed edge caching** (Varnish) in front of
 
 - [wp-env](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/) (or any WordPress at `http://localhost:8888`) with **WPGraphQL**, **WPGraphQL Smart Cache**, and **wp-graphql-pqc** active.
 - Docker (for Varnish).
-- Optional: [k6](https://k6.io/) for load tests.
+- **k6** for §6 load tests — install the binary ([installation](https://grafana.com/docs/k6/latest/set-up/install-k6/)), e.g. macOS: `brew install k6`. If you prefer not to install k6, run the same script via Docker (see §6).
 
 ## 1. Start Varnish (Docker Compose)
 
@@ -132,7 +132,7 @@ Expect first **MISS**, second **HIT**.
 
 ## 5. Bulk registration (many `variablesHash` URLs)
 
-Use **`wp graphql-pqc bulk-register`** to register the same document with many variable payloads (newspaper-style long tail). Paths are written for k6 (one per line, no host).
+Use **`wp graphql-pqc bulk-register`** (hyphen; **`bulk_register`** with an underscore is an alias) to register the same document with many variable payloads (newspaper-style long tail). Paths are written for k6 (one per line, no host). **`--limit=200` only creates as many URLs as you have matching posts** (e.g. three posts → three paths).
 
 **Inside wp-env**, use paths under `/var/www/html/wp-content/plugins/wp-graphql-pqc/benchmark/k6/` (or your mounted plugin path).
 
@@ -156,11 +156,26 @@ Then run k6 from the host against `urls.txt` (§6).
 ## 6. k6 load test
 
 1. Ensure `benchmark/k6/urls.txt` exists (from §5 or hand-built).
-2. From the directory that contains `urls.txt` (or pass an absolute path via `URLS_FILE`):
+2. From the directory that contains `urls.txt` (or pass an absolute path via `URLS_FILE`).
+
+**Local k6** (after `brew install k6` or another [install](https://grafana.com/docs/k6/latest/set-up/install-k6/)):
 
 ```bash
 cd plugins/wp-graphql-pqc/benchmark/k6
 k6 run pqc-persisted-get.js -e BASE_URL=http://localhost:8081 -e URLS_FILE=urls.txt
+```
+
+**Docker** (no k6 binary on the host): mount this folder and reach Varnish on the host. On macOS/Windows Docker Desktop, `host.docker.internal` resolves to the host; on Linux you may need `--add-host=host.docker.internal:host-gateway` (Docker 20.10+).
+
+```bash
+cd plugins/wp-graphql-pqc/benchmark/k6
+docker run --rm -i \
+  --add-host=host.docker.internal:host-gateway \
+  -v "$PWD:/scripts" -w /scripts \
+  grafana/k6 run \
+  -e BASE_URL=http://host.docker.internal:8081 \
+  -e URLS_FILE=urls.txt \
+  pqc-persisted-get.js
 ```
 
 See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale knobs**; merge your copy into output with `--manifest-template` during bulk-register, or edit the generated `run-manifest.json` after the fact.

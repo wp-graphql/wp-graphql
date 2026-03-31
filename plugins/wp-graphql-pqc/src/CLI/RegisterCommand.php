@@ -156,6 +156,9 @@ class RegisterCommand extends \WP_CLI_Command {
 	 *     wp graphql-pqc bulk-register benchmark/k6/single-post.graphql --limit=200 --urls-out=/tmp/urls.txt --manifest-out=/tmp/manifest.json
 	 *     wp graphql-pqc bulk-register q.graphql --variables-jsonl=vars.jsonl --urls-out=urls.txt
 	 *
+	 * @subcommand bulk-register
+	 * @alias bulk_register
+	 *
 	 * @param array<int, string>   $args       Positional arguments.
 	 * @param array<string, mixed> $assoc_args Associative arguments.
 	 * @return void
