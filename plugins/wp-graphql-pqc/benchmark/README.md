@@ -167,6 +167,23 @@ cd plugins/wp-graphql-pqc/benchmark/k6
 k6 run pqc-persisted-get.js -e BASE_URL=http://localhost:8081 -e URLS_FILE=urls.txt
 ```
 
+**Edge-only checks:** to fail the run if `X-Cache` is missing (Varnish not in path), add `-e REQUIRE_X_CACHE=1`.
+
+**Minimum hit rate** (after warm-up, edge only): `-e MIN_HIT_RATE=0.85` adds a threshold on `pqc_x_cache_hit_rate` (0–1). Omit on cold cache or origin runs.
+
+**Origin baseline (no edge):** same script, `BASE_URL=http://localhost:8888`. Expect **`pqc_x_cache_unknown`** to dominate (no `X-Cache` from WordPress). Do **not** set `REQUIRE_X_CACHE` or `MIN_HIT_RATE`.
+
+### Reading k6 output (custom metrics)
+
+| Metric | Meaning |
+|--------|---------|
+| `pqc_x_cache_hits` / `pqc_x_cache_misses` | Count of responses whose `X-Cache` starts with `HIT` / `MISS` (bundled VCL: `HIT: N` or `MISS`). |
+| `pqc_x_cache_unknown` | No header or unrecognized value (typical on **origin-only** runs). |
+| `pqc_x_cache_hit_rate` | `Rate`: fraction of iterations classified as HIT; summary shows `rate=…` (use with `MIN_HIT_RATE`). |
+| `pqc_get_duration` | Client-side request duration (trend). |
+
+**Manual sanity check:** one `curl -sI http://localhost:8081/your-path \| grep -i x-cache` should show `HIT:` or `MISS` before you trust hit-rate numbers.
+
 **Docker** (no k6 binary on the host): mount this folder and reach Varnish on the host. On macOS/Windows Docker Desktop, `host.docker.internal` resolves to the host; on Linux you may need `--add-host=host.docker.internal:host-gateway` (Docker 20.10+).
 
 ```bash
@@ -213,6 +230,7 @@ When publishing results, record at least:
 | `N_posts` / `N_pages` | Seeded content |
 | `s_maxage_s` | Smart Cache global max-age |
 | `steady_vus` / `duration_s` | k6 settings |
+| `k6_base_url` / `k6_require_x_cache` / `k6_min_hit_rate` | Edge vs origin URL; optional k6 env mirrors (see §6) |
 | `churn_edits_per_min` | Content change rate (if any) |
 
 ---

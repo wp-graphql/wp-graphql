@@ -16,5 +16,8 @@
   "purge_adapter": "HttpPurgeAdapter",
   "WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN": "http://host.docker.internal:8081",
   "edge": "varnish:8081 → host:8888",
+  "k6_base_url": "http://localhost:8081",
+  "k6_require_x_cache": false,
+  "k6_min_hit_rate": null,
   "git_commit": "optional short sha"
 }

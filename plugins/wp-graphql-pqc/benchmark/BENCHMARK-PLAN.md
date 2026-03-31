@@ -9,12 +9,11 @@ The living Cursor plan may live under `.cursor/plans/pqc_edge-cache_benchmarking
 - Varnish stack + README (`:8081` edge, `:8888` origin, `host.docker.internal` for purges from PHP).
 - `HttpPurgeAdapter` + `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN`; purge clears all `url_keys` for purged paths; executions keep warm GET working.
 - `wp graphql-pqc register` + **`wp graphql-pqc bulk-register`** → `urls.txt` + optional `run-manifest.json` (see [README.md](./README.md)).
-- k6 [k6/pqc-persisted-get.js](./k6/pqc-persisted-get.js) (status 200 + `X-Cache` present); [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).
+- k6 [k6/pqc-persisted-get.js](./k6/pqc-persisted-get.js): `pqc_x_cache_hits` / `misses` / `unknown`, `pqc_x_cache_hit_rate`, optional `REQUIRE_X_CACHE` + `MIN_HIT_RATE`; [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).
 
 ## Next (measurement phase)
 
-1. **HIT/MISS in k6** — Parse Varnish `X-Cache` into metrics (hit ratio), not only “header present.”
-2. **Run scenarios** (3–5+ min after warm-up); record knobs in `run-manifest` / [run-manifest.example.json](./k6/run-manifest.example.json).
+1. **Run scenarios** (3–5+ min after warm-up); record knobs in `run-manifest` / [run-manifest.example.json](./k6/run-manifest.example.json); compare **edge** vs **origin** using the table below.
 
 | Scenario | k6 `BASE_URL` | Purpose |
 |----------|---------------|---------|
@@ -23,8 +22,8 @@ The living Cursor plan may live under `.cursor/plans/pqc_edge-cache_benchmarking
 | Edge + churn | `:8081` + WP-CLI / churn script | Purge adapter on; MISS spike then HIT recovery. |
 | Edge + churn, no purge (optional) | `:8081` + NullAdapter / no HTTP purge | Stale edge (narrative only). |
 
-3. **Scale** — Seed many posts (`wp post generate`, etc.) + bulk-register for a large `urls.txt`.
-4. **Optional** — DB row counts / slow log during churn; later **Redis `StoreInterface`** and repeat (see [../docs/INTEGRATIONS.md](../docs/INTEGRATIONS.md)).
+2. **Scale** — Seed many posts (`wp post generate`, etc.) + bulk-register for a large `urls.txt`.
+3. **Optional** — DB row counts / slow log during churn; later **Redis `StoreInterface`** and repeat (see [../docs/INTEGRATIONS.md](../docs/INTEGRATIONS.md)).
 
 ## Operational docs
 
