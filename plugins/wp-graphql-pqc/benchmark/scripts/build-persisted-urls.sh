@@ -123,7 +123,7 @@ if ! [[ -s "$OUT_LIST" ]]; then
 fi
 
 TMP_SORT="$(mktemp)"
-shuf "$OUT_LIST" >"$TMP_SORT" && mv "$TMP_SORT" "$OUT_LIST"
+sort -R "$OUT_LIST" >"$TMP_SORT" && mv "$TMP_SORT" "$OUT_LIST"
 LINE_COUNT="$(grep -cve '^[[:space:]]*$' "$OUT_LIST" || true)"
 
 MANIFEST="$GEN_HOST/build-manifest.json"

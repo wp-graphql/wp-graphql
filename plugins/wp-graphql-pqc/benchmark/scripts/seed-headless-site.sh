@@ -90,7 +90,8 @@ menu_primary_nav_exists() {
 }
 
 assigned_flag() {
-	run_wp option get benchmark_headless_assigned 2>/dev/null || true
+	# wp option get prints a trailing newline; strip so [[ "$(assigned_flag)" == "1" ]] works.
+	run_wp option get benchmark_headless_assigned 2>/dev/null | tr -d '\r\n[:space:]' || true
 }
 
 echo "Using WP_WORKDIR=$WP_WORKDIR WP_ENV=$WP_ENV"

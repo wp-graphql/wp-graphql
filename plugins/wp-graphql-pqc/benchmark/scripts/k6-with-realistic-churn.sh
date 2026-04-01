@@ -60,15 +60,15 @@ export DURATION="${DURATION:-2m}"
 export VUS="${VUS:-10}"
 
 random_post_id() {
-	wp_churn post list --post_type=post --post_status=publish --format=ids --posts_per_page=500 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9]+$' | shuf | head -1
+	wp_churn post list --post_type=post --post_status=publish --format=ids --posts_per_page=500 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9]+$' | sort -R | head -1
 }
 
 random_category_id() {
-	wp_churn term list category --format=ids --number=200 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9]+$' | shuf | head -1
+	wp_churn term list category --format=ids --number=200 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9]+$' | sort -R | head -1
 }
 
 random_tag_id() {
-	wp_churn term list post_tag --format=ids --number=200 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9]+$' | shuf | head -1
+	wp_churn term list post_tag --format=ids --number=200 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9]+$' | sort -R | head -1
 }
 
 cleanup() {

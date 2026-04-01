@@ -179,7 +179,7 @@ For a **less trivial** hit rate, use many posts, categories, tags, authors, a **
    ./plugins/wp-graphql-pqc/benchmark/scripts/build-persisted-urls.sh
    ```
 
-   Optional: `EDGE_BASE=http://localhost:8081` for a sample edge URL line from each `bulk-register`.
+   Optional: `EDGE_BASE=http://localhost:8081` for a sample edge URL line from each `bulk-register`. Merging uses **`sort -R`** (BSD/macOS-friendly; no GNU **`shuf`** required).
 
 3. **k6** with `URLS_FILE=urls-headless-day.txt` (wrappers export `URLS_FILE` if you export it before calling them, or `cd benchmark/k6` and set `-e URLS_FILE=urls-headless-day.txt`).
 
