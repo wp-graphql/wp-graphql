@@ -54,10 +54,12 @@ run_wp() {
 emit() {
 	local env_emit="$1"
 	local outfile="$2"
+	local raw n
+	raw="$(mktemp)"
 	(
 		cd "$WP_WORKDIR"
-		# wp-env/docker does not inherit host env; export inside the container shell.
-		npm run wp-env -- run "$WP_ENV" -- bash -lc '
+		# npm prints "> wp-env" lines to stdout; only JSON lines belong in variables-jsonl.
+		NPM_CONFIG_LOGLEVEL=silent npm run wp-env -- run "$WP_ENV" -- bash -lc '
 			export BENCH_EMIT="'"$env_emit"'"
 			export BENCH_POSTS_FIRST="'"${BENCH_POSTS_FIRST:-100}"'"
 			export BENCH_CAT_LIMIT="'"${BENCH_CAT_LIMIT:-50}"'"
@@ -66,8 +68,15 @@ emit() {
 			export BENCH_URI_LIMIT="'"${BENCH_URI_LIMIT:-500}"'"
 			wp eval-file "'"$CONTAINER_BENCH"'/scripts/php/emit-headless-variables.php"
 		'
-	) > "$GEN_HOST/$outfile"
-	echo "Wrote $GEN_HOST/$outfile"
+	) >"$raw"
+	grep -E '^[[:space:]]*[\{\[]' "$raw" >"$GEN_HOST/$outfile" || true
+	rm -f "$raw"
+	n="$(wc -l < "$GEN_HOST/$outfile" | tr -d "[:space:]")"
+	if [[ "${n:-0}" -eq 0 ]]; then
+		echo "error: emit ${env_emit} produced no JSON lines in ${GEN_HOST}/${outfile} (empty taxonomy? wp-env failed?)." >&2
+		exit 1
+	fi
+	echo "Wrote $GEN_HOST/$outfile ($n JSON line(s))"
 }
 
 emit front front.jsonl
