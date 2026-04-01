@@ -1,0 +1,23 @@
+# Faust-shaped bench query (wpgraphql.com front-page + NavMenu). Menu name must exist (see seed script).
+query BenchFrontPageNav {
+  ...NavMenu
+}
+
+fragment NavMenu on RootQuery {
+  menu(id: "Primary Nav", idType: NAME) {
+    id
+    name
+    menuItems(first: 100) {
+      nodes {
+        id
+        label
+        description
+        url
+        target
+        path
+        parentId
+        cssClasses
+      }
+    }
+  }
+}

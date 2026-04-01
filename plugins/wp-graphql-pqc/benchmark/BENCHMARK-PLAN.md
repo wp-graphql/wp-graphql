@@ -28,7 +28,8 @@ The denormalized `wpgraphql_pqc_url_keys` table is **replaced** by a normalized 
 - `HttpPurgeAdapter` + `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN`.
 - `wp graphql-pqc register` + **`wp graphql-pqc bulk-register`** → `urls.txt` + optional `run-manifest.json` (see [README.md](./README.md)).
 - k6 [k6/pqc-persisted-get.js](./k6/pqc-persisted-get.js): HIT/MISS metrics, optional `REQUIRE_X_CACHE` / `MIN_HIT_RATE`.
-- Wrappers: [scripts/run-k6-edge.sh](./scripts/run-k6-edge.sh), [scripts/run-k6-origin.sh](./scripts/run-k6-origin.sh); churn + load: [scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh); curl sample: [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).
+- Wrappers: [scripts/run-k6-edge.sh](./scripts/run-k6-edge.sh), [scripts/run-k6-origin.sh](./scripts/run-k6-origin.sh); churn + load: [scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh), [scripts/k6-with-realistic-churn.sh](./scripts/k6-with-realistic-churn.sh); curl sample: [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).
+- **Realistic headless-day path:** [REALISTIC-BENCH-PLAN.md](./REALISTIC-BENCH-PLAN.md) + [scripts/seed-headless-site.sh](./scripts/seed-headless-site.sh) + [scripts/build-persisted-urls.sh](./scripts/build-persisted-urls.sh) + `k6/urls-headless-day.txt` (gitignored output).
 
 **Empirical checks so far:** warm edge → very high `pqc_x_cache_hit_rate`; churn + purge → small `pqc_x_cache_misses` aligned with edit count; origin baseline → mostly `pqc_x_cache_unknown`, far lower iteration/s.
 
@@ -47,11 +48,13 @@ The denormalized `wpgraphql_pqc_url_keys` table is **replaced** by a normalized 
 | Baseline A | `http://localhost:8888` | Origin only — latency / sustained iteration rate floor. |
 | Edge + high TTL | `http://localhost:8081` | Hit ratio, edge latency. |
 | Edge + churn | `:8081` + `k6-with-churn.sh` | MISS blips vs purge events, recovery. |
+| Edge + realistic churn | `:8081` + `k6-with-realistic-churn.sh` + `urls-headless-day.txt` | Shared lists/archives/menu see MISS/HIT; lower steady hit rate than tiny `urls.txt`. |
 | Edge + churn, no purge (optional) | `:8081` + NullAdapter | Stale edge (motivation only). |
 
 ## Operational docs
 
 - [README.md](./README.md) — stack, k6, churn.
+- [REALISTIC-BENCH-PLAN.md](./REALISTIC-BENCH-PLAN.md) — large seed + multi-template persisted URLs + realistic churn.
 - [RESULTS.template.md](./RESULTS.template.md) — paste k6 summaries per run.
 - [../docs/INTEGRATIONS.md](../docs/INTEGRATIONS.md) — store, filters, GC, Redis notes.
 - [../docs/SPEC.md](../docs/SPEC.md) — cold/warm GET, invalidation flow.

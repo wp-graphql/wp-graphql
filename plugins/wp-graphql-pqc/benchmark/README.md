@@ -159,6 +159,40 @@ npm run wp-env -- run cli -- wp graphql-pqc bulk-register \
 
 Then run k6 from the host against `urls.txt` (§6).
 
+## 5b. Realistic headless-day workload (seed + many templates)
+
+For a **less trivial** hit rate, use many posts, categories, tags, authors, a **Primary Nav** menu, Faust-shaped GraphQL documents (see [graphql/](./graphql/)), merged persisted paths, and **multi-action churn**. Full rationale: [REALISTIC-BENCH-PLAN.md](./REALISTIC-BENCH-PLAN.md).
+
+**Order:**
+
+1. **Seed** (wp-env dev site, ~1000 posts by default — takes several minutes):
+
+   ```bash
+   ./plugins/wp-graphql-pqc/benchmark/scripts/seed-headless-site.sh
+   ```
+
+   Re-run is skipped when option `benchmark_headless_seed_done=1`; use `--force` to run generation again (does not wipe the DB). Tune counts with `BENCH_POST_COUNT`, `BENCH_CAT_COUNT`, `BENCH_TAG_COUNT`, `BENCH_AUTHOR_COUNT`.
+
+2. **Build persisted URLs** (emits JSONL under `k6/generated/`, runs `bulk-register` per template, writes shuffled `k6/urls-headless-day.txt`):
+
+   ```bash
+   ./plugins/wp-graphql-pqc/benchmark/scripts/build-persisted-urls.sh
+   ```
+
+   Optional: `EDGE_BASE=http://localhost:8081` for a sample edge URL line from each `bulk-register`.
+
+3. **k6** with `URLS_FILE=urls-headless-day.txt` (wrappers export `URLS_FILE` if you export it before calling them, or `cd benchmark/k6` and set `-e URLS_FILE=urls-headless-day.txt`).
+
+4. **Churn** — [scripts/k6-with-realistic-churn.sh](./scripts/k6-with-realistic-churn.sh) rotates new posts, random title updates, category/tag `post term set`, and **Primary Nav** menu items (no post deletes, so singular URLs in the list keep returning 200).
+
+   ```bash
+   URLS_FILE=urls-headless-day.txt ./plugins/wp-graphql-pqc/benchmark/scripts/k6-with-realistic-churn.sh
+   ```
+
+**Gitignored artifacts:** `k6/generated/*.jsonl`, `urls-step-*.txt`, `urls-headless-day.txt`, and `build-manifest.json` (see `k6/generated/.gitignore`).
+
+**Variables JSONL** are produced by `wp eval-file` on [scripts/php/emit-headless-variables.php](./scripts/php/emit-headless-variables.php) (`BENCH_EMIT=category|tag|user|uri|…` — see source). Global term IDs use Relay type **`term`**; users use **`user`** (matches WPGraphQL).
+
 ## 6. k6 load test
 
 1. Ensure `benchmark/k6/urls.txt` exists (from §5 or hand-built).
@@ -245,7 +279,7 @@ See [k6/run-manifest.example.json](./k6/run-manifest.example.json) for **scale k
 
 ### k6 + WP-CLI (one process)
 
-[scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh) runs **`k6` against the edge** in the background and **updates a post** on an interval so Smart Cache emits **`graphql_purge`** and PQC purges Varnish. You should see **`pqc_x_cache_misses`** increase around churn ticks (then hits recover as the edge refills).
+[scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh) runs **`k6` against the edge** in the background and **updates a post** on an interval so Smart Cache emits **`graphql_purge`** and PQC purges Varnish. You should see **`pqc_x_cache_misses`** increase around churn ticks (then hits recover as the edge refills). For **list + archive + menu** invalidation, use [scripts/k6-with-realistic-churn.sh](./scripts/k6-with-realistic-churn.sh) with `urls-headless-day.txt` (see §5b).
 
 Prerequisites: persisted URLs in `urls.txt` must **tag the churned post** (e.g. bulk-register a `post(id: …)` query for that ID). `POST_ID` must match.
 

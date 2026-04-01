@@ -1,0 +1,49 @@
+# Same shape as category.js; WPGraphQL root field `tag` for post_tag terms.
+query BenchGetTag($id: ID!) {
+  tag(id: $id) {
+    name
+    description
+    posts {
+      nodes {
+        ...PostPreview
+      }
+    }
+  }
+  ...NavMenu
+}
+
+fragment PostPreview on Post {
+  id
+  title
+  uri
+  date
+  author {
+    node {
+      id
+      name
+      uri
+      avatar {
+        url
+      }
+    }
+  }
+}
+
+fragment NavMenu on RootQuery {
+  menu(id: "Primary Nav", idType: NAME) {
+    id
+    name
+    menuItems(first: 100) {
+      nodes {
+        id
+        label
+        description
+        url
+        target
+        path
+        parentId
+        cssClasses
+      }
+    }
+  }
+}

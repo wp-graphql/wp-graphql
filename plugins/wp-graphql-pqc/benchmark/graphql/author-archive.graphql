@@ -1,0 +1,53 @@
+# Faust-shaped: author.js
+query BenchGetAuthor($id: ID!) {
+  user(id: $id) {
+    id
+    name
+    description
+    avatar {
+      url
+    }
+    posts {
+      nodes {
+        ...PostPreview
+      }
+    }
+  }
+  ...NavMenu
+}
+
+fragment PostPreview on Post {
+  id
+  title
+  uri
+  date
+  author {
+    node {
+      id
+      name
+      uri
+      avatar {
+        url
+      }
+    }
+  }
+}
+
+fragment NavMenu on RootQuery {
+  menu(id: "Primary Nav", idType: NAME) {
+    id
+    name
+    menuItems(first: 100) {
+      nodes {
+        id
+        label
+        description
+        url
+        target
+        path
+        parentId
+        cssClasses
+      }
+    }
+  }
+}

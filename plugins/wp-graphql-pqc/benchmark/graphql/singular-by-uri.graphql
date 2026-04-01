@@ -1,0 +1,46 @@
+# Faust-shaped: singular.js (post by URI)
+query BenchGetSingularNode($uri: ID!) {
+  post(id: $uri, idType: URI) {
+    id
+    title
+    uri
+    date
+    content
+    author {
+      node {
+        name
+        uri
+        avatar {
+          url
+        }
+      }
+    }
+    categories {
+      nodes {
+        id
+        name
+        uri
+      }
+    }
+  }
+  ...NavMenu
+}
+
+fragment NavMenu on RootQuery {
+  menu(id: "Primary Nav", idType: NAME) {
+    id
+    name
+    menuItems(first: 100) {
+      nodes {
+        id
+        label
+        description
+        url
+        target
+        path
+        parentId
+        cssClasses
+      }
+    }
+  }
+}
