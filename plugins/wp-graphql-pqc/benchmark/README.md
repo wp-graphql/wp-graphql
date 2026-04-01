@@ -171,7 +171,7 @@ For a **less trivial** hit rate, use many posts, categories, tags, authors, a **
    ./plugins/wp-graphql-pqc/benchmark/scripts/seed-headless-site.sh
    ```
 
-   Re-run is skipped when option `benchmark_headless_seed_done=1`; use `--force` to run generation again (does not wipe the DB). Tune counts with `BENCH_POST_COUNT`, `BENCH_CAT_COUNT`, `BENCH_TAG_COUNT`, `BENCH_AUTHOR_COUNT`.
+   **Idempotent:** the script reads current counts (`wp post list --format=count`, `wp term list`, `wp user list --role=author`) and only runs `wp * generate` for the **shortfall** vs `BENCH_*` targets. It exits early when counts, **Primary Nav**, and `benchmark_headless_assigned=1` are already satisfied. **`--force`** bypasses that fast exit (still fills gaps only, does not wipe the DB). **`--assign`** (or `BENCH_FORCE_ASSIGN=1`) re-runs taxonomy/author assignment without requiring new generation. Tune targets with `BENCH_POST_COUNT`, `BENCH_CAT_COUNT`, `BENCH_TAG_COUNT`, `BENCH_AUTHOR_COUNT`.
 
 2. **Build persisted URLs** (emits JSONL under `k6/generated/`, runs `bulk-register` per template, writes shuffled `k6/urls-headless-day.txt`):
 

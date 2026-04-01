@@ -22,7 +22,7 @@ Custom CPT **archive.js** on wpgraphql.com is out of scope for this generic blog
 
 ## Operator flow
 
-1. **[scripts/seed-headless-site.sh](scripts/seed-headless-site.sh)** — posts, categories, tags, authors, assignments, **Primary Nav** menu.
+1. **[scripts/seed-headless-site.sh](scripts/seed-headless-site.sh)** — posts, categories, tags, authors, assignments, **Primary Nav** menu. **Idempotent:** compares WP-CLI counts to `BENCH_*` targets and generates only the difference; fast exit when counts + menu + option `benchmark_headless_assigned=1` are OK. Options: `--force`, `--assign` / `BENCH_FORCE_ASSIGN=1`.
 2. **Emit variables JSONL** — `wp eval-file` [scripts/php/emit-headless-variables.php](scripts/php/emit-headless-variables.php) → `k6/generated/*.jsonl`.
 3. **[scripts/build-persisted-urls.sh](scripts/build-persisted-urls.sh)** — `wp graphql-pqc bulk-register` per `graphql/*.graphql`, merge/shuffle → `k6/urls-headless-day.txt`.
 4. **Load + churn** — `run-k6-edge.sh` with `URLS_FILE=urls-headless-day.txt` + [scripts/k6-with-realistic-churn.sh](scripts/k6-with-realistic-churn.sh).
