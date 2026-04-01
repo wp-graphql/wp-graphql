@@ -4,7 +4,7 @@ This folder helps you reproduce **URL-keyed edge caching** (Varnish) in front of
 
 For **what is implemented vs next measurement steps** (scenario matrix, HIT/MISS work), see [BENCHMARK-PLAN.md](./BENCHMARK-PLAN.md) (git-tracked). A fuller working copy may also exist under `.cursor/plans/` for Cursor.
 
-**Recording hypothesis runs:** copy [RESULTS.template.md](./RESULTS.template.md) per scenario and paste k6 output + manifest knobs.
+**Recording hypothesis runs:** copy [RESULTS.template.md](./RESULTS.template.md) per scenario and paste k6 output + manifest knobs. Example paired origin vs edge (Baseline A): [results/paired-baseline-A-2026-03-31.md](./results/paired-baseline-A-2026-03-31.md).
 
 **PQC MySQL index (for DB checks during benches):** documents + executions for warm GET; **normalized key map** = `wpgraphql_pqc_urls`, `wpgraphql_pqc_cache_keys`, `wpgraphql_pqc_key_urls` (replaces legacy `wpgraphql_pqc_url_keys`). Details in [../docs/INTEGRATIONS.md](../docs/INTEGRATIONS.md).
 

@@ -1,0 +1,2 @@
+# Full k6 stdout (progress spam); keep committed summaries + JSON manifests only.
+*.log
