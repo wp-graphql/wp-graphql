@@ -6,7 +6,7 @@ This guide is for **hosts**, **platform teams**, and **plugin authors** who need
 
 ## Pluggable index store (`StoreInterface`)
 
-The default implementation is `WPGraphQL\PQC\Store\DBStore`: two MySQL tables for **documents** (`query_hash` → normalized `query_document`) and **URL ↔ cache key** mappings.
+The default implementation is `WPGraphQL\PQC\Store\DBStore`: MySQL tables for **documents** (`query_hash` → normalized `query_document`), **executions** (warm GET), and a normalized **key map** — `wpgraphql_pqc_urls` (one row per persisted URL, `last_seen_at` for GC), `wpgraphql_pqc_cache_keys` (deduplicated key strings), and `wpgraphql_pqc_key_urls` (junction).
 
 You can replace it entirely by returning your own instance from the filter:
 
@@ -20,15 +20,16 @@ Your class **must** implement `WPGraphQL\PQC\Store\StoreInterface`:
 
 | Method | Contract |
 |--------|----------|
-| `store( … )` | Upsert document (if `$store_document` and not already present) and **for each** string in `$cache_keys`, record that the canonical `$url` is associated with that cache key. Same URL may appear with many keys. |
-| `get_query( $query_hash, $variables_hash )` | Return `['query_document' => string, 'variables' => string]` or **`null`** if this execution is unknown. Backed by a stable **execution** record independent of cache-tag rows. |
+| `store( …, $store_document = true, $record_cache_tags = true )` | Upsert document (if `$store_document` and not already present), upsert **execution** for warm GET, and when `$record_cache_tags` is true, associate the canonical `$url` with each cache key in `$cache_keys`. |
+| `get_query( $query_hash, $variables_hash )` | Return `['query_document' => string, 'variables' => string]` or **`null`** if this execution is unknown. Backed by **executions**, independent of the key map. |
 | `touch_execution( $query_hash, $variables_hash )` | Optional freshness signal after a successful warm GET (default DB store updates `last_executed_at`). |
 | `get_urls_for_key( $cache_key )` | Distinct list of **paths** like `/graphql/persisted/…` used for purge lookups. |
-| `delete_by_key( $cache_key )` | Remove **tag** rows for that cache key (custom / manual invalidation). |
-| `delete_by_url( $url )` | Remove all **tag** rows for that URL (default store: used after edge purge for each purged path; does not remove the execution record used for warm GET). |
+| `get_urls_for_query_hash( $query_hash )` | Distinct persisted URLs for every variable permutation tagged for that query hash (prefix/wildcard purge helpers). |
+| `delete_by_key( $cache_key )` | Remove key-map associations for that cache key (custom / manual invalidation). |
+| `delete_by_url( $url )` | Remove all key-map rows for that URL (default store: after edge purge; does not remove the execution row). |
 | `document_exists( $query_hash )` | Whether the normalized document is already stored for this hash. |
 
-**Reference implementation:** `src/Store/DBStore.php` (join between documents and url_keys for `get_query`).
+**Reference implementation:** `src/Store/DBStore.php` (documents + executions join for `get_query`; key map tables for purge index).
 
 ### Redis (or KV) design notes
 
@@ -43,7 +44,7 @@ Use **transactions** (`MULTI`/`EXEC`) or Lua where you need atomic updates acros
 
 ### Garbage collection caveat
 
-The bundled cron (`wpgraphql_pqc_garbage_collection`) runs **SQL deletes** against the default MySQL table names in `GarbageCollection::run()`. It does **not** go through `StoreInterface`.
+The bundled cron (`wpgraphql_pqc_garbage_collection`) runs **SQL deletes** against `wpgraphql_pqc_key_urls`, `wpgraphql_pqc_urls`, `wpgraphql_pqc_cache_keys`, and orphaned **documents** in `GarbageCollection::run()`. It does **not** go through `StoreInterface`.
 
 If you use a custom store only:
 
@@ -92,8 +93,9 @@ Filters for `HttpPurgeAdapter`:
 | `wpgraphql_pqc_url_base` | Base path segment (default `graphql/persisted/`). Must stay consistent between Router and PostHandler. |
 | `wpgraphql_pqc_cache_max_age` | Public warm GET `Cache-Control` max-age when Smart Cache does not set one (seconds). |
 | `wpgraphql_pqc_require_nonce` | Set `false` to allow document persistence without cold GET nonce (e.g. trusted build pipelines). |
+| `wpgraphql_pqc_should_record` | `(bool $default, string $url, array $cache_keys, \WPGraphQL\Request $request)` — Return whether to write **key map** rows. Default is `! is_user_logged_in()` (map matches publicly cacheable URLs); documents/executions still follow existing rules. |
 | `wpgraphql_pqc_delete_entries_on_purge` | `(bool, $key, $urls)` — Return `false` to skip `delete_by_url( $url )` for each purged path after edge purge (testing). |
-| `wpgraphql_pqc_ttl_days` | Age for default MySQL GC of `url_keys` rows (days). |
+| `wpgraphql_pqc_ttl_days` | Age for default MySQL GC of **key map** URL rows (`wpgraphql_pqc_urls.last_seen_at`, days). |
 | `wpgraphql_pqc_garbage_collection` | **Action** — Daily cron; default subscriber deletes old MySQL rows. |
 | `wpgraphql_pqc_http_purge_method` | `(string, $target, $url)` — HTTP method for `HttpPurgeAdapter`. |
 | `wpgraphql_pqc_http_purge_request_args` | `(array, $target, $url)` — `wp_remote_request` args for `HttpPurgeAdapter`. |

@@ -44,7 +44,7 @@ class PostHandler {
 	 */
 	public function handle_post_response( $filtered_response, $schema, $operation, $query, $variables, $request, $query_id ) {
 		// Only handle POST requests or internal graphql() calls from GET handler.
-		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '';
+		$request_method   = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '';
 		$is_internal_call = defined( 'WPGRAPHQL_PQC_INTERNAL_CALL' ) && WPGRAPHQL_PQC_INTERNAL_CALL;
 
 		if ( 'POST' !== $request_method && ! $is_internal_call ) {
@@ -65,7 +65,7 @@ class PostHandler {
 
 		// Get cache keys from query analyzer.
 		$graphql_keys = $query_analyzer->get_graphql_keys();
-		$cache_keys = $this->extract_cache_keys( $graphql_keys );
+		$cache_keys   = $this->extract_cache_keys( $graphql_keys );
 
 		if ( empty( $cache_keys ) ) {
 			return $filtered_response;
@@ -86,9 +86,9 @@ class PostHandler {
 		$url = $this->build_url( $query_hash, $variables_hash );
 
 		// Check if nonce is provided in request extensions (for PQC flow validation).
-		$request_extensions = $this->get_request_extensions( $request );
-		$nonce = $request_extensions['persistedQueryNonce'] ?? null;
-		$client_query_hash = $request_extensions['persistedQueryHash'] ?? null;
+		$request_extensions    = $this->get_request_extensions( $request );
+		$nonce                 = $request_extensions['persistedQueryNonce'] ?? null;
+		$client_query_hash     = $request_extensions['persistedQueryHash'] ?? null;
 		$client_variables_hash = $request_extensions['persistedVariablesHash'] ?? null;
 
 		// If nonce is provided, validate it and the client-provided hashes.
@@ -123,7 +123,7 @@ class PostHandler {
 			// Check Smart Cache's grant_mode setting to determine if public document persistence is allowed.
 			// If grant_mode is 'public', allow public requests to create documents.
 			// Otherwise, only authenticated users can create documents.
-			$grant_mode = function_exists( 'get_graphql_setting' ) 
+			$grant_mode             = function_exists( 'get_graphql_setting' )
 				? \get_graphql_setting( 'grant_mode', 'public', 'graphql_persisted_queries_section' )
 				: 'public';
 			$allow_public_documents = ( 'public' === $grant_mode );
@@ -141,8 +141,8 @@ class PostHandler {
 			// Determine if we can store the document:
 			// - Must be authenticated OR Smart Cache grant_mode is 'public'
 			// - If nonce is required, it must be provided and valid
-			$can_store_document = $is_authenticated || $allow_public_documents;
-			$nonce_check_passes = $require_nonce ? ( ! empty( $nonce ) && $nonce_valid ) : true;
+			$can_store_document    = $is_authenticated || $allow_public_documents;
+			$nonce_check_passes    = $require_nonce ? ( ! empty( $nonce ) && $nonce_valid ) : true;
 			$should_store_document = $can_store_document && $nonce_check_passes;
 		}
 
@@ -152,8 +152,21 @@ class PostHandler {
 
 		// Store in index if validation passes.
 		if ( $should_store_execution_data ) {
+			/**
+			 * Whether to persist URL ↔ Smart Cache key associations (edge purge index).
+			 * Default: only when the request is not logged in, so the map matches publicly cacheable URLs.
+			 * Authenticated executions still update documents + executions when applicable.
+			 *
+			 * @param bool               $should_record Default ! is_user_logged_in().
+			 * @param string             $url           Canonical persisted URL path.
+			 * @param array              $cache_keys    Keys from the query analyzer.
+			 * @param \WPGraphQL\Request $request       Current request.
+			 * @return bool
+			 */
+			$record_cache_tags = (bool) apply_filters( 'wpgraphql_pqc_should_record', ! is_user_logged_in(), $url, $cache_keys, $request );
+
 			// Store normalized text so warm GET always re-parses the same document the hash describes.
-			$store->store( $url, $query_hash, $variables_hash ?: '', $normalized_document, $variables_json, $cache_keys, $should_store_document );
+			$store->store( $url, $query_hash, $variables_hash ?: '', $normalized_document, $variables_json, $cache_keys, $should_store_document, $record_cache_tags );
 
 			// Mark nonce as used after successful storage.
 			if ( ! empty( $nonce ) && $nonce_valid ) {

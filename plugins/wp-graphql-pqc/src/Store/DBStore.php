@@ -20,21 +20,24 @@ class DBStore implements StoreInterface {
 	/**
 	 * Store a URL and its associated query, variables, and cache keys
 	 *
-	 * @param string $url           The full URL (e.g., /graphql/persisted/{queryHash}/variables/{variablesHash}).
-	 * @param string $query_hash    SHA-256 hash of the normalized query document.
+	 * @param string $url            The full URL (e.g., /graphql/persisted/{queryHash}/variables/{variablesHash}).
+	 * @param string $query_hash     SHA-256 hash of the normalized query document.
 	 * @param string $variables_hash SHA-256 hash of the canonicalized variables JSON.
-	 * @param string $query_doc     The full GraphQL query document.
-	 * @param string $variables     The variables JSON string.
-	 * @param array  $cache_keys    Array of cache keys from X-GraphQL-Keys header.
+	 * @param string $query_doc      The full GraphQL query document.
+	 * @param string $variables      The variables JSON string.
+	 * @param array  $cache_keys     Array of cache keys from X-GraphQL-Keys header.
 	 * @param bool   $store_document Whether to store the document (if it doesn't exist). Default true.
+	 * @param bool   $record_cache_tags Whether to write URL ↔ cache key associations (edge purge index).
 	 * @return void
 	 */
-	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true ): void {
+	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true, bool $record_cache_tags = true ): void {
 		global $wpdb;
 
 		$documents_table  = Schema::get_documents_table_name();
-		$url_keys_table   = Schema::get_url_keys_table_name();
 		$executions_table = Schema::get_executions_table_name();
+		$urls_table       = Schema::get_urls_table_name();
+		$keys_table       = Schema::get_cache_keys_table_name();
+		$key_urls_table   = Schema::get_key_urls_table_name();
 		$url_hash         = hash( 'sha256', $url );
 		$variables_hash   = $variables_hash ?: '';
 
@@ -66,30 +69,86 @@ class DBStore implements StoreInterface {
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// Always store execution data (variables + cache keys) if document exists.
-		// This allows tracking executions of pre-registered documents.
-		foreach ( $cache_keys as $cache_key ) {
-			// Use INSERT IGNORE to handle duplicates gracefully.
+		if ( ! $record_cache_tags || empty( $cache_keys ) ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO {$urls_table} (url, url_hash, query_hash, variables_hash, last_seen_at)
+				VALUES (%s, %s, %s, %s, UTC_TIMESTAMP())
+				ON DUPLICATE KEY UPDATE
+					last_seen_at = UTC_TIMESTAMP(),
+					url = VALUES(url),
+					query_hash = VALUES(query_hash),
+					variables_hash = VALUES(variables_hash)",
+				$url,
+				$url_hash,
+				$query_hash,
+				$variables_hash
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		$url_id = (int) $wpdb->insert_id;
+		if ( $url_id <= 0 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->query(
+			$url_id = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
-					"INSERT IGNORE INTO {$url_keys_table} (url_hash, url, query_hash, variables_hash, variables, cache_key) VALUES (%s, %s, %s, %s, %s, %s)",
-					$url_hash,
-					$url,
-					$query_hash,
-					$variables_hash,
-					$variables,
+					"SELECT id FROM {$urls_table} WHERE url_hash = %s LIMIT 1",
+					$url_hash
+				)
+			);
+		}
+
+		if ( $url_id <= 0 ) {
+			return;
+		}
+
+		foreach ( $cache_keys as $cache_key ) {
+			if ( '' === $cache_key ) {
+				continue;
+			}
+
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
+			$wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO {$keys_table} (cache_key) VALUES (%s)",
 					$cache_key
 				)
 			);
+
+			$key_id = (int) $wpdb->insert_id;
+			if ( $key_id <= 0 ) {
+				$key_id = (int) $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT id FROM {$keys_table} WHERE cache_key = %s LIMIT 1",
+						$cache_key
+					)
+				);
+			}
+
+			if ( $key_id <= 0 ) {
+				continue;
+			}
+
+			$wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO {$key_urls_table} (key_id, url_id) VALUES (%d, %d)",
+					$key_id,
+					$url_id
+				)
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 	}
 
 	/**
 	 * Get query document and variables by query hash and variables hash
 	 *
-	 * @param string $query_hash    SHA-256 hash of the normalized query document.
+	 * @param string $query_hash     SHA-256 hash of the normalized query document.
 	 * @param string $variables_hash SHA-256 hash of the canonicalized variables JSON.
 	 * @return array|null Array with 'query_document' and 'variables' keys, or null if not found.
 	 */
@@ -155,14 +214,39 @@ class DBStore implements StoreInterface {
 	public function get_urls_for_key( string $cache_key ): array {
 		global $wpdb;
 
-		$url_keys_table = Schema::get_url_keys_table_name();
+		$urls_table     = Schema::get_urls_table_name();
+		$keys_table     = Schema::get_cache_keys_table_name();
+		$key_urls_table = Schema::get_key_urls_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		$results = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT u.url FROM {$key_urls_table} ku
+				INNER JOIN {$keys_table} k ON k.id = ku.key_id
+				INNER JOIN {$urls_table} u ON u.id = ku.url_id
+				WHERE k.cache_key = %s",
+				$cache_key
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return $results ?: [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function get_urls_for_query_hash( string $query_hash ): array {
+		global $wpdb;
+
+		$urls_table = Schema::get_urls_table_name();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
-				"SELECT DISTINCT url FROM {$url_keys_table} WHERE cache_key = %s",
-				$cache_key
+				"SELECT DISTINCT url FROM {$urls_table} WHERE query_hash = %s",
+				$query_hash
 			)
 		);
 
@@ -178,21 +262,26 @@ class DBStore implements StoreInterface {
 	public function delete_by_key( string $cache_key ): void {
 		global $wpdb;
 
-		$url_keys_table = Schema::get_url_keys_table_name();
+		$keys_table     = Schema::get_cache_keys_table_name();
+		$key_urls_table = Schema::get_key_urls_table_name();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$url_keys_table,
-			[ 'cache_key' => $cache_key ],
-			[ '%s' ]
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE ku FROM {$key_urls_table} ku
+				INNER JOIN {$keys_table} k ON k.id = ku.key_id
+				WHERE k.cache_key = %s",
+				$cache_key
+			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// Note: Documents are not deleted here even if they become orphaned.
-		// Garbage collection can clean up orphaned documents later if needed.
+		$this->delete_orphan_cache_keys();
+		$this->delete_orphan_urls();
 	}
 
 	/**
-	 * Delete all cache-key rows for this URL (purge-tag index only).
+	 * Delete all cache-key rows for this URL (key map only).
 	 *
 	 * @param string $url The URL to delete all entries for.
 	 * @return void
@@ -200,17 +289,79 @@ class DBStore implements StoreInterface {
 	public function delete_by_url( string $url ): void {
 		global $wpdb;
 
-		$url_keys_table = Schema::get_url_keys_table_name();
+		$urls_table     = Schema::get_urls_table_name();
+		$key_urls_table = Schema::get_key_urls_table_name();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$url_keys_table,
-			[ 'url' => $url ],
-			[ '%s' ]
+		$url_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
+				"SELECT id FROM {$urls_table} WHERE url = %s LIMIT 1",
+				$url
+			)
 		);
 
-		// Note: Documents are not deleted here even if they become orphaned.
-		// Garbage collection can clean up orphaned documents later if needed.
+		if ( $url_id <= 0 ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$key_urls_table} WHERE url_id = %d",
+				$url_id
+			)
+		);
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$urls_table} WHERE id = %d",
+				$url_id
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		$this->delete_orphan_cache_keys();
+	}
+
+	/**
+	 * Remove cache_keys rows that no longer appear in key_urls.
+	 *
+	 * @return void
+	 */
+	private function delete_orphan_cache_keys(): void {
+		global $wpdb;
+
+		$keys_table     = Schema::get_cache_keys_table_name();
+		$key_urls_table = Schema::get_key_urls_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		$wpdb->query(
+			"DELETE k FROM {$keys_table} k
+			LEFT JOIN {$key_urls_table} ku ON ku.key_id = k.id
+			WHERE ku.key_id IS NULL"
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Remove urls rows that have no key_urls (defensive; normal deletes already remove the url row).
+	 *
+	 * @return void
+	 */
+	private function delete_orphan_urls(): void {
+		global $wpdb;
+
+		$urls_table     = Schema::get_urls_table_name();
+		$key_urls_table = Schema::get_key_urls_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		$wpdb->query(
+			"DELETE u FROM {$urls_table} u
+			LEFT JOIN {$key_urls_table} ku ON ku.url_id = u.id
+			WHERE ku.url_id IS NULL"
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**

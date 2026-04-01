@@ -7,7 +7,7 @@ The living Cursor plan may live under `.cursor/plans/pqc_edge-cache_benchmarking
 ## Done (implementation)
 
 - Varnish stack + README (`:8081` edge, `:8888` origin, `host.docker.internal` for purges from PHP).
-- `HttpPurgeAdapter` + `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN`; purge clears all `url_keys` for purged paths; executions keep warm GET working.
+- `HttpPurgeAdapter` + `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN`; purge clears key-map rows for purged paths; executions keep warm GET working.
 - `wp graphql-pqc register` + **`wp graphql-pqc bulk-register`** → `urls.txt` + optional `run-manifest.json` (see [README.md](./README.md)).
 - k6 [k6/pqc-persisted-get.js](./k6/pqc-persisted-get.js): `pqc_x_cache_hits` / `misses` / `unknown`, `pqc_x_cache_hit_rate`, optional `REQUIRE_X_CACHE` + `MIN_HIT_RATE`.
 - Wrappers: [scripts/run-k6-edge.sh](./scripts/run-k6-edge.sh), [scripts/run-k6-origin.sh](./scripts/run-k6-origin.sh); churn + load: [scripts/k6-with-churn.sh](./scripts/k6-with-churn.sh); curl sample: [scripts/pqc-churn-sample.sh](./scripts/pqc-churn-sample.sh).

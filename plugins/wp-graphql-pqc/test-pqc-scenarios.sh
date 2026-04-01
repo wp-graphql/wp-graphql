@@ -407,8 +407,11 @@ echo "Clearing PQC index tables so GET /graphql/persisted/{hash} returns a nonce
 echo "If documents already exist, GET executes the query (warm) and has no persistedQueryNonce."
 npm run wp-env -- run cli -- wp eval '
 global $wpdb;
-$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}wpgraphql_pqc_url_keys" );
-$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}wpgraphql_pqc_documents" );
+$p = $wpdb->prefix;
+$wpdb->query( "TRUNCATE TABLE {$p}wpgraphql_pqc_key_urls" );
+$wpdb->query( "TRUNCATE TABLE {$p}wpgraphql_pqc_urls" );
+$wpdb->query( "TRUNCATE TABLE {$p}wpgraphql_pqc_cache_keys" );
+$wpdb->query( "TRUNCATE TABLE {$p}wpgraphql_pqc_documents" );
 echo "pqc_index_truncated\n";
 ' 2>/dev/null | grep -E 'pqc_index_truncated' || echo "WARNING: Could not truncate PQC tables (check wp-env)."
 echo ""
@@ -484,56 +487,53 @@ ORDER BY created_at DESC;
 "
 
 echo ""
-echo "--- URL Keys Table (URL to cache key mappings) ---"
+echo "--- Key map (urls + cache_keys + key_urls) ---"
 npm run wp-env -- run cli -- wp db query "
-SELECT 
-    url, 
-    cache_key, 
-    created_at 
-FROM wp_wpgraphql_pqc_url_keys 
-ORDER BY created_at DESC;
+SELECT u.url, k.cache_key, u.last_seen_at
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+ORDER BY u.last_seen_at DESC;
 "
 
 echo ""
 echo "--- Cache Keys Summary ---"
 npm run wp-env -- run cli -- wp db query "
-SELECT 
-    cache_key, 
-    COUNT(*) as url_count,
-    GROUP_CONCAT(DISTINCT url SEPARATOR ' | ') as urls
-FROM wp_wpgraphql_pqc_url_keys 
-GROUP BY cache_key
-ORDER BY cache_key;
+SELECT k.cache_key,
+    COUNT(DISTINCT ku.url_id) AS url_count,
+    GROUP_CONCAT(DISTINCT u.url SEPARATOR ' | ') AS urls
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+GROUP BY k.cache_key
+ORDER BY k.cache_key;
 "
 
 echo ""
-echo "--- Detailed URL Keys for Post 9 (should see entries here) ---"
+echo "--- Key map rows for Post 9 / list:post (should see entries here) ---"
 npm run wp-env -- run cli -- wp db query "
-SELECT 
-    url, 
-    cache_key,
-    query_hash,
-    created_at
-FROM wp_wpgraphql_pqc_url_keys 
-WHERE cache_key = '$POST_GRAPHQL_ID'
-   OR cache_key LIKE '%post:$POST_ID%'
-   OR cache_key LIKE '%post:$POST_GRAPHQL_ID%'
-   OR cache_key = 'list:post'
-ORDER BY created_at DESC;
+SELECT u.url, k.cache_key, u.query_hash, u.last_seen_at
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+WHERE k.cache_key = '$POST_GRAPHQL_ID'
+   OR k.cache_key LIKE '%post:$POST_ID%'
+   OR k.cache_key LIKE '%post:$POST_GRAPHQL_ID%'
+   OR k.cache_key = 'list:post'
+ORDER BY u.last_seen_at DESC;
 "
 
 echo ""
-echo "--- URL Keys for Unrelated Queries (tags, categories, users) ---"
+echo "--- Key map for unrelated queries (tags, categories, users) ---"
 npm run wp-env -- run cli -- wp db query "
-SELECT 
-    url, 
-    cache_key,
-    created_at
-FROM wp_wpgraphql_pqc_url_keys 
-WHERE cache_key LIKE '%tag%'
-   OR cache_key LIKE '%category%'
-   OR cache_key LIKE '%user%'
-ORDER BY created_at DESC;
+SELECT u.url, k.cache_key, u.last_seen_at
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+WHERE k.cache_key LIKE '%tag%'
+   OR k.cache_key LIKE '%category%'
+   OR k.cache_key LIKE '%user%'
+ORDER BY u.last_seen_at DESC;
 "
 
 echo ""
@@ -546,7 +546,7 @@ echo "✓ Database entries should be visible above"
 echo ""
 echo "WHAT TO VERIFY:"
 echo "  1. Documents table should have unique query documents"
-echo "  2. URL Keys table should have entries mapping URLs to cache keys"
+echo "  2. Key map tables should have entries mapping URLs to cache keys"
 echo "  3. You should see entries for:"
 echo "     - Relay global id for the post (e.g. $POST_GRAPHQL_ID), plus list:post for list queries"
 echo "     - list:post"
@@ -566,15 +566,15 @@ echo ""
 echo "Recording counts before updating post 9:"
 
 # Query Analyzer uses the Relay global id (e.g. cG9zdDo5) as the post cache key, not "post:9".
-INITIAL_POST_9_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; \$gid = '$POST_GRAPHQL_ID'; echo (int) \$wpdb->get_var( \$wpdb->prepare( 'SELECT COUNT(*) FROM ' . \$t . ' WHERE cache_key = %s', \$gid ) );")
+INITIAL_POST_9_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; \$gid = '$POST_GRAPHQL_ID'; echo (int) \$wpdb->get_var( \$wpdb->prepare( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key = %s\", \$gid ) );")
 
-INITIAL_LIST_POST_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key = 'list:post'\" );")
+INITIAL_LIST_POST_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key = 'list:post'\" );")
 
-INITIAL_TAGS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key LIKE '%tag%'\" );")
+INITIAL_TAGS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key LIKE '%tag%'\" );")
 
-INITIAL_CATEGORIES_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key LIKE '%category%'\" );")
+INITIAL_CATEGORIES_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key LIKE '%category%'\" );")
 
-INITIAL_USERS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key LIKE '%user%'\" );")
+INITIAL_USERS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key LIKE '%user%'\" );")
 
 echo "Initial counts:"
 echo "  - post node ($POST_GRAPHQL_ID) url_key rows: $INITIAL_POST_9_COUNT"
@@ -673,15 +673,15 @@ echo "Now let's verify what was purged and what remains:"
 echo ""
 
 # Check counts after purge
-AFTER_POST_9_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; \$gid = '$POST_GRAPHQL_ID'; echo (int) \$wpdb->get_var( \$wpdb->prepare( 'SELECT COUNT(*) FROM ' . \$t . ' WHERE cache_key = %s', \$gid ) );")
+AFTER_POST_9_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; \$gid = '$POST_GRAPHQL_ID'; echo (int) \$wpdb->get_var( \$wpdb->prepare( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key = %s\", \$gid ) );")
 
-AFTER_LIST_POST_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key = 'list:post'\" );")
+AFTER_LIST_POST_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key = 'list:post'\" );")
 
-AFTER_TAGS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key LIKE '%tag%'\" );")
+AFTER_TAGS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key LIKE '%tag%'\" );")
 
-AFTER_CATEGORIES_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key LIKE '%category%'\" );")
+AFTER_CATEGORIES_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key LIKE '%category%'\" );")
 
-AFTER_USERS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$t = \$wpdb->prefix . 'wpgraphql_pqc_url_keys'; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$t} WHERE cache_key LIKE '%user%'\" );")
+AFTER_USERS_COUNT=$(pqc_wp_eval_int "global \$wpdb; \$p = \$wpdb->prefix; echo (int) \$wpdb->get_var( \"SELECT COUNT(*) FROM {\$p}wpgraphql_pqc_key_urls ku INNER JOIN {\$p}wpgraphql_pqc_cache_keys k ON k.id = ku.key_id WHERE k.cache_key LIKE '%user%'\" );")
 
 echo "After purge counts:"
 echo "  - post node ($POST_GRAPHQL_ID) url_key rows: $AFTER_POST_9_COUNT (was $INITIAL_POST_9_COUNT) - should be 0"
@@ -691,14 +691,13 @@ echo "  - category entries: $AFTER_CATEGORIES_COUNT (was $INITIAL_CATEGORIES_COU
 echo "  - user entries: $AFTER_USERS_COUNT (was $INITIAL_USERS_COUNT) - should remain > 0"
 echo ""
 
-echo "--- All Remaining URL Keys (should NOT include $POST_GRAPHQL_ID or list:post) ---"
+echo "--- All remaining key-map rows (should NOT include $POST_GRAPHQL_ID or list:post) ---"
 npm run wp-env -- run cli -- wp db query "
-SELECT 
-    url, 
-    cache_key,
-    created_at
-FROM wp_wpgraphql_pqc_url_keys 
-ORDER BY created_at DESC;
+SELECT u.url, k.cache_key, u.last_seen_at
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+ORDER BY u.last_seen_at DESC;
 "
 
 echo ""
@@ -745,7 +744,7 @@ echo "STEP 1 RESULTS:"
 echo "  ✓ Queries persisted with shared cache keys (post:$POST_ID, list:post)"
 echo "  ✓ Queries persisted with different cache keys (tags, categories, users)"
 echo "  ✓ Database entries created in wp_wpgraphql_pqc_documents"
-echo "  ✓ Database entries created in wp_wpgraphql_pqc_url_keys"
+echo "  ✓ Database entries created in wp_wpgraphql_pqc_urls / wp_wpgraphql_pqc_cache_keys / wp_wpgraphql_pqc_key_urls"
 echo ""
 echo "STEP 2 RESULTS:"
 echo "  ✓ Post $POST_ID updated via CLI"

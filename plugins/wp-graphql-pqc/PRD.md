@@ -322,36 +322,28 @@ Stores unique query documents (one row per unique query hash):
 >
 > );
 
-**Table 2: `wp_wpgraphql_pqc_url_keys`**
+**Table 2: `wp_wpgraphql_pqc_executions`**
 
-Junction table representing the many-to-many relationship between URLs
-and cache keys. References documents table via `query_hash`:
+One row per persisted operation (`query_hash` + `variables_hash`) for warm
+GET resolution. Survives key-map purges; holds canonical `url` and
+`variables` JSON.
 
-> CREATE TABLE {prefix}wpgraphql_pqc_url_keys (
->
-> url_hash varchar(64) NOT NULL,
->
-> url varchar(2083) NOT NULL,
->
-> query_hash varchar(64) NOT NULL,
->
-> variables_hash varchar(64) NOT NULL,
->
-> variables longtext NOT NULL,
->
-> cache_key varchar(255) NOT NULL,
->
-> created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
->
-> PRIMARY KEY (url_hash, cache_key),
->
-> INDEX idx_cache_key (cache_key),
->
-> INDEX idx_query_lookup (query_hash, variables_hash),
->
-> INDEX idx_url_hash (url_hash)
->
-> );
+**Tables 3–5: key map (URLs ↔ Smart Cache keys)**
+
+The edge-purge index is a normalized many-to-many graph (similar in
+spirit to Varnish xkey): one row per distinct persisted URL path, one row
+per distinct cache key string, and a junction table. `last_seen_at` on
+the URL row advances on each tagged execution so TTL GC reflects **last
+use**, not first insert.
+
+-   `{prefix}wpgraphql_pqc_urls` — `id`, `url`, `url_hash` (unique),
+    `query_hash`, `variables_hash`, `last_seen_at`
+-   `{prefix}wpgraphql_pqc_cache_keys` — `id`, `cache_key` (unique)
+-   `{prefix}wpgraphql_pqc_key_urls` — `key_id`, `url_id` (composite
+    primary key)
+
+Legacy `{prefix}wpgraphql_pqc_url_keys` (denormalized) is migrated away
+on upgrade and dropped.
 
 Key design decisions:
 
@@ -359,29 +351,23 @@ Key design decisions:
     `query_hash` in the documents table, avoiding duplication when the
     same query is used with different variables or cache keys.
 
--   **Variables per URL**: Variables are stored per URL (not normalized)
-    because the same query with different variables produces different
-    URLs and different cache key sets.
+-   **Executions vs. key map**: Variables and warm-GET state live on
+    `executions`; the key map stores only what is needed to resolve
+    purges (`post:123` → URL paths) and optional query-hash-wide URL
+    enumeration.
 
--   Each row in `url_keys` represents one URL + one cache key. A URL
-    tagged with five keys produces five rows. This is the correct
-    relational model for a many-to-many relationship.
+-   **Many-to-many**: A URL tagged with five keys yields one `urls` row,
+    up to five `key_urls` rows, and up to five `cache_keys` rows (with
+    deduplication across the site).
 
--   PRIMARY KEY (url_hash, cache_key) prevents duplicate rows if the
-    same URL executes twice before a purge.
+-   Junction + `cache_keys` table keeps purge lookups indexed by key
+    string without repeating long `cache_key` values on every link.
 
--   INDEX on cache_key enables fast purge lookups: \"give me all URLs
-    tagged with post:123\" without a full table scan.
+-   **Referential integrity**: Application-level only (dbDelta / MyISAM
+    constraints).
 
--   INDEX on (query_hash, variables_hash) enables fast GET cache-miss
-    lookup without a full table scan.
-
--   **Referential integrity**: We rely on application-level integrity
-    rather than database foreign keys, as dbDelta doesn't handle foreign
-    keys well and many WordPress setups don't support them. The store
-    ensures documents exist before inserting url_keys entries.
-
--   created_at supports TTL-based garbage collection via WP-Cron.
+-   `last_seen_at` supports TTL-based garbage collection of the key map
+    via WP-Cron.
 
 **6.2 Store Abstraction**
 
@@ -394,13 +380,17 @@ alternative backends:
 >
 > string \$variables_hash, string \$query_doc,
 >
-> string \$variables, array \$cache_keys ): void;
+> string \$variables, array \$cache_keys, bool \$store_document = true,
+>
+> bool \$record_cache_tags = true ): void;
 >
 > public function get_query( string \$query_hash,
 >
 > string \$variables_hash ): ?array;
 >
 > public function get_urls_for_key( string \$cache_key ): array;
+>
+> public function get_urls_for_query_hash( string \$query_hash ): array;
 >
 > public function delete_by_key( string \$cache_key ): void;
 >
@@ -748,7 +738,8 @@ Cache itself.
 -   ✅ WordPress rewrite rules for /graphql/persisted/{queryHash} and
     /graphql/persisted/{queryHash}/variables/{variablesHash}.
 
--   ✅ Custom database tables (normalized: documents + url_keys) and DB
+-   ✅ Custom database tables (documents, executions, normalized key map)
+    and DB
     store implementation.
 
 -   ✅ POST request hook: compute hashes, store index entries after

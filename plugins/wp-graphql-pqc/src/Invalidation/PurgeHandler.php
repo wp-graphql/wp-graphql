@@ -39,8 +39,9 @@ class PurgeHandler {
 	public function handle_purge( string $key, string $event = '', string $hostname = '' ): void {
 		$store = StoreFactory::get_store();
 
-		// Get all URLs tagged with this cache key.
+		// Get all URLs tagged with this cache key (dedupe: same path can appear from multiple code paths).
 		$urls = $store->get_urls_for_key( $key );
+		$urls = array_values( array_unique( $urls ) );
 
 		// Log the purge event (even if no URLs found, for debugging).
 		Logger::log_purge_event( $key, $event, $hostname, $urls );
@@ -53,7 +54,7 @@ class PurgeHandler {
 		$adapter = AdapterFactory::get_adapter();
 
 		/**
-		 * Filter whether to delete url_keys rows after edge purge.
+		 * Filter whether to delete key-map rows after edge purge.
 		 * Defaults to true. Execution records stay so warm GET can re-resolve the document.
 		 *
 		 * @param bool   $delete_entries Whether to delete all tag rows for each purged URL path.

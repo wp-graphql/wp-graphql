@@ -29,7 +29,9 @@ The plugin uses a normalized database structure:
 
 - **`wp_wpgraphql_pqc_executions`**: One row per persisted **operation** (`query_hash` + `variables_hash`) for warm GET lookup. Survives cache-key purges; `last_executed_at` updates on successful warm GET (and on register via `store()`).
 
-- **`wp_wpgraphql_pqc_url_keys`**: Junction table mapping URLs to cache keys (one row per URL + cache key combination)
+- **`wp_wpgraphql_pqc_urls`**: One row per persisted URL path (`last_seen_at` for GC)
+- **`wp_wpgraphql_pqc_cache_keys`**: Deduplicated Smart Cache key strings
+- **`wp_wpgraphql_pqc_key_urls`**: Junction mapping cache key ids to URL ids
   - `url_hash` + `cache_key` (PRIMARY KEY): Composite key
   - `url`: The persisted query URL (e.g., `/graphql/persisted/{queryHash}/variables/{variablesHash}`)
   - `query_hash`: References `wp_wpgraphql_pqc_documents.query_hash`
@@ -182,9 +184,13 @@ Check the database tables in your database (using TablePlus, phpMyAdmin, etc.):
 SELECT * FROM wp_wpgraphql_pqc_documents ORDER BY created_at DESC LIMIT 1;
 ```
 
-**Check the url_keys table:**
+**Check the key map (join `urls` + `cache_keys` + `key_urls`):**
 ```sql
-SELECT * FROM wp_wpgraphql_pqc_url_keys ORDER BY created_at DESC LIMIT 1;
+SELECT u.url, u.query_hash, k.cache_key, u.last_seen_at
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+ORDER BY u.last_seen_at DESC LIMIT 10;
 ```
 
 **Expected Result:**
@@ -193,14 +199,7 @@ SELECT * FROM wp_wpgraphql_pqc_url_keys ORDER BY created_at DESC LIMIT 1;
   - `query_document`: The original query string
   - `created_at`: Current timestamp
 
-- **In `wp_wpgraphql_pqc_url_keys`**: One or more rows (one per cache key) with:
-  - `url_hash`: SHA-256 hash of the URL
-  - `url`: The persisted query URL (e.g., `/graphql/persisted/a924d644...`)
-  - `query_hash`: SHA-256 hash of the query (references documents table)
-  - `variables_hash`: Empty string (no variables)
-  - `variables`: Empty string
-  - `cache_key`: A single cache key (e.g., `list:post`)
-  - `created_at`: Current timestamp
+- **Key map** (only when the POST is **not** logged in, unless you override `wpgraphql_pqc_should_record`): one row in `wp_wpgraphql_pqc_urls` for the path, one row per distinct `cache_key` in `wp_wpgraphql_pqc_cache_keys`, and matching rows in `wp_wpgraphql_pqc_key_urls`.
 
 ### Step 5: Test GET to Persisted URL
 
@@ -246,7 +245,7 @@ curl -X POST http://localhost:8888/graphql \
 - Response includes `extensions.persistedQueryUrl` with a URL like `/graphql/persisted/{queryHash}/variables/{variablesHash}`
 - Database entries include both `query_hash` and `variables_hash`
 - Query document is stored in `wp_wpgraphql_pqc_documents` (normalized, stored once)
-- URL-key mappings are stored in `wp_wpgraphql_pqc_url_keys` (one row per cache key)
+- URL ↔ cache key associations live in `wp_wpgraphql_pqc_urls` + `wp_wpgraphql_pqc_cache_keys` + `wp_wpgraphql_pqc_key_urls` (see join query above)
 
 ## Test 2: GET Request - Retrieve and Execute Persisted Query
 
@@ -267,7 +266,7 @@ curl -X GET "http://localhost:8888${PERSISTED_URL}" \
 
 **Expected Result:**
 - HTTP 200 status
-- Query is retrieved from the database (JOIN between documents and url_keys tables)
+- Query is retrieved from the database (JOIN between `documents` and `executions`)
 - Query is re-executed
 - Same data as the original POST request
 - Response headers include `Content-Type: application/json`
@@ -551,11 +550,13 @@ Note the `persistedQueryUrl` from the POST response.
 Check that the entries exist and have cache keys:
 
 ```bash
-# Check url_keys entries
+# Check key map entries
 npm run wp-env -- run cli -- wp db query "
-  SELECT url, query_hash, cache_key 
-  FROM wp_wpgraphql_pqc_url_keys 
-  WHERE url LIKE '%graphql/persisted%'
+  SELECT u.url, u.query_hash, k.cache_key
+  FROM wp_wpgraphql_pqc_key_urls ku
+  INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+  INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+  WHERE u.url LIKE '%graphql/persisted%'
   LIMIT 10;
 "
 ```
@@ -637,14 +638,15 @@ If you did NOT use the filter to prevent deletion, check tag rows for the persis
 
 ```bash
 npm run wp-env -- run cli -- wp db query "
-  SELECT * FROM wp_wpgraphql_pqc_url_keys 
-  WHERE url = '/graphql/persisted/{your-query-hash}'
+  SELECT u.*
+  FROM wp_wpgraphql_pqc_urls u
+  WHERE u.url = '/graphql/persisted/{your-query-hash}'
   LIMIT 10;
 "
 ```
 
 **Expected Result:**
-- **All** `url_keys` rows for that **URL** are removed after purge (not only the row for the key that fired), so the index stays aligned with an edge-invalidated object. The next origin execution re-adds the full key set via `store()`.
+- **All** key-map rows for that **URL** are removed after purge (the `urls` row and its `key_urls` links), not only the association for the key that fired, so the index stays aligned with an edge-invalidated object. The next origin execution re-adds the full key set via `store()`.
 - The **execution** row in `wp_wpgraphql_pqc_executions` for that query/variables remains so the persisted URL still resolves at origin after an edge MISS.
 - The next successful POST or warm GET can re-add tag rows with up-to-date analyzer keys.
 
@@ -793,32 +795,36 @@ Use these SQL queries to inspect the normalized database structure:
 -- Count total documents (unique queries)
 SELECT COUNT(*) FROM wp_wpgraphql_pqc_documents;
 
--- Count total URL-key mappings
-SELECT COUNT(*) FROM wp_wpgraphql_pqc_url_keys;
+-- Count junction rows (URL ↔ key associations)
+SELECT COUNT(*) FROM wp_wpgraphql_pqc_key_urls;
 
 -- View all documents with preview
 SELECT query_hash, LEFT(query_document, 100) as query_preview, created_at 
 FROM wp_wpgraphql_pqc_documents 
 ORDER BY created_at DESC;
 
--- View all URL-key mappings
-SELECT url, query_hash, variables_hash, cache_key, created_at 
-FROM wp_wpgraphql_pqc_url_keys 
-ORDER BY created_at DESC;
+-- View URL rows with last activity
+SELECT url, query_hash, variables_hash, last_seen_at
+FROM wp_wpgraphql_pqc_urls
+ORDER BY last_seen_at DESC;
 
--- Join documents and url_keys to see full query with mappings
-SELECT d.query_hash, LEFT(d.query_document, 100) as query_preview, uk.url, uk.cache_key
+-- Join documents and key map to see full query with mappings
+SELECT d.query_hash, LEFT(d.query_document, 100) as query_preview, u.url, k.cache_key
 FROM wp_wpgraphql_pqc_documents d
-INNER JOIN wp_wpgraphql_pqc_url_keys uk ON d.query_hash = uk.query_hash
-ORDER BY uk.created_at DESC;
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.query_hash = d.query_hash
+INNER JOIN wp_wpgraphql_pqc_key_urls ku ON ku.url_id = u.id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+ORDER BY u.last_seen_at DESC;
 
 -- Find entries for a specific cache key
-SELECT url, cache_key 
-FROM wp_wpgraphql_pqc_url_keys 
-WHERE cache_key LIKE '%list:post%';
+SELECT u.url, k.cache_key
+FROM wp_wpgraphql_pqc_key_urls ku
+INNER JOIN wp_wpgraphql_pqc_urls u ON u.id = ku.url_id
+INNER JOIN wp_wpgraphql_pqc_cache_keys k ON k.id = ku.key_id
+WHERE k.cache_key LIKE '%list:post%';
 
--- Find entries for a specific URL
-SELECT * FROM wp_wpgraphql_pqc_url_keys WHERE url = '/graphql/persisted/...';
+-- Find key-map rows for a specific URL
+SELECT u.* FROM wp_wpgraphql_pqc_urls u WHERE u.url = '/graphql/persisted/...';
 
 -- Find the document for a specific query hash
 SELECT * FROM wp_wpgraphql_pqc_documents WHERE query_hash = '...';

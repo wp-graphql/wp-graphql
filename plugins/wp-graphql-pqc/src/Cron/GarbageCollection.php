@@ -34,9 +34,15 @@ class GarbageCollection {
 	public function run(): void {
 		global $wpdb;
 
-		$url_keys_table   = Schema::get_url_keys_table_name();
+		$urls_table       = Schema::get_urls_table_name();
+		$key_urls_table   = Schema::get_key_urls_table_name();
+		$cache_keys_table = Schema::get_cache_keys_table_name();
 		$documents_table  = Schema::get_documents_table_name();
 		$executions_table = Schema::get_executions_table_name();
+
+		if ( ! Schema::keymap_tables_exist() ) {
+			return;
+		}
 
 		// Get TTL in days (default: 7 days).
 		$ttl_days = apply_filters( 'wpgraphql_pqc_ttl_days', 7 );
@@ -49,15 +55,30 @@ class GarbageCollection {
 		// Calculate cutoff date.
 		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$ttl_days} days" ) );
 
-		// Delete old url_keys rows (Smart Cache tag index). Warm GET still resolves via executions.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// Drop junction rows for stale URLs, then URL rows (last_seen_at = last tag write). Warm GET still resolves via executions.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
 		$wpdb->query(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Schema.
-				"DELETE FROM {$url_keys_table} WHERE created_at < %s",
+				"DELETE ku FROM {$key_urls_table} ku
+				INNER JOIN {$urls_table} u ON u.id = ku.url_id
+				WHERE u.last_seen_at < %s",
 				$cutoff_date
 			)
 		);
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$urls_table} WHERE last_seen_at < %s",
+				$cutoff_date
+			)
+		);
+
+		$wpdb->query(
+			"DELETE k FROM {$cache_keys_table} k
+			LEFT JOIN {$key_urls_table} ku ON ku.key_id = k.id
+			WHERE ku.key_id IS NULL"
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Clean up orphaned documents (no execution row). Executions are not time-purged here so
 		// long edge TTLs without origin traffic do not drop the persisted operation.
