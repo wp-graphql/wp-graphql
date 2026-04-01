@@ -85,10 +85,11 @@ bulk() {
 	if [[ -n "${EDGE_BASE:-}" ]]; then
 		extra=( --edge-base="$EDGE_BASE" )
 	fi
+	# With set -u, "${extra[@]}" is unbound when extra is empty; use ${arr[@]+...} guard.
 	run_wp graphql-pqc bulk-register "$CONTAINER_BENCH/graphql/$gql_file" \
 		--variables-jsonl="$CONTAINER_BENCH/$GEN_REL/$jsonl" \
 		--urls-out="$CONTAINER_BENCH/$GEN_REL/$urls_out" \
-		"${extra[@]}"
+		${extra[@]+"${extra[@]}"}
 }
 
 bulk front-page-nav.graphql front.jsonl urls-step-front.txt
