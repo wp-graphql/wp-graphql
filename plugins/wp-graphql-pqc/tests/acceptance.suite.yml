@@ -18,4 +18,5 @@ modules:
       cleanup: false
     lucatume\WPBrowser\Module\WPLoader:
       loadOnly: true
-bootstrap: acceptance/bootstrap.php
+# Resolved relative to tests/acceptance/.
+bootstrap: bootstrap.php

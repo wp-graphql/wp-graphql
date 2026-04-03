@@ -17,4 +17,5 @@ modules:
     lucatume\WPBrowser\Module\WPLoader:
       loadOnly: true
       wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
-bootstrap: functional/bootstrap.php
+# Resolved relative to tests/functional/ (suite directory), not tests/.
+bootstrap: bootstrap.php
