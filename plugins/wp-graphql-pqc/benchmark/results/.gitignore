@@ -1,2 +1,7 @@
-# Full k6 stdout (progress spam); keep committed summaries + JSON manifests only.
+# Full k6 stdout (progress spam).
 *.log
+
+# Run outputs: keep only RESULTS.template.md in git; archive manifests locally.
+*.json
+*.md
+!RESULTS.template.md
