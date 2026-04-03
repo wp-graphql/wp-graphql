@@ -35,7 +35,7 @@ The denormalized `wpgraphql_pqc_url_keys` table is **replaced** by a normalized 
 
 ## Next (prove the hypothesis on paper)
 
-1. **Paired runs (same knobs)** — Run **`run-k6-origin.sh`** and **`run-k6-edge.sh`** with identical `DURATION`, `VUS`, and `urls.txt`. Capture outputs using [RESULTS.template.md](./RESULTS.template.md) + [k6/run-manifest.example.json](./k6/run-manifest.example.json). **Sample:** [results/paired-baseline-A-2026-03-31.md](./results/paired-baseline-A-2026-03-31.md) (`DURATION=2m`, `VUS=10`, 3 URLs).
+1. **Paired runs (same knobs)** — Run **`run-k6-origin.sh`** and **`run-k6-edge.sh`** with identical `DURATION`, `VUS`, and `urls.txt`. Capture outputs using [RESULTS.template.md](./RESULTS.template.md) + [k6/run-manifest.example.json](./k6/run-manifest.example.json). Archive completed result files locally (gitignored under `results/`).
 2. **Archive** — One folder or doc per scenario (gitignored local JSON ok); include git SHA and Smart Cache TTL.
 3. **Scale (optional)** — Many posts + bulk-register → large `urls.txt`; re-run edge + short churn; optional row counts on **`wpgraphql_pqc_*`** tables during/after.
 4. **Control (optional)** — Edge + churn with HTTP purge / adapter off → stale edge narrative.
