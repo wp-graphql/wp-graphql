@@ -18,11 +18,10 @@ class Logger {
 	/**
 	 * Trace hook for purge resolution (not written to PHP error_log; use the action for custom logging).
 	 *
-	 * @param string $cache_key The cache key that triggered the purge.
-	 * @param string $event     The event that triggered the purge.
-	 * @param string $hostname  The hostname/endpoint.
-	 * @param array  $urls      URLs PQC resolved for this key (may be empty).
-	 * @return void
+	 * @param string   $cache_key The cache key that triggered the purge.
+	 * @param string   $event     The event that triggered the purge.
+	 * @param string   $hostname  The hostname/endpoint.
+	 * @param string[] $urls      URLs PQC resolved for this key (may be empty).
 	 */
 	public static function log_purge_event( string $cache_key, string $event, string $hostname, array $urls ): void {
 		/**
@@ -41,7 +40,6 @@ class Logger {
 	 *
 	 * @param string $target  Full URL that was requested.
 	 * @param string $reason  Error message or status summary.
-	 * @return void
 	 */
 	public static function log_http_purge_failure( string $target, string $reason ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

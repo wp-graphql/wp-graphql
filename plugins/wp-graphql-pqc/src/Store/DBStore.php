@@ -20,15 +20,14 @@ class DBStore implements StoreInterface {
 	/**
 	 * Store a URL and its associated query, variables, and cache keys
 	 *
-	 * @param string $url            The full URL (e.g., /graphql/persisted/{queryHash}/variables/{variablesHash}).
-	 * @param string $query_hash     SHA-256 hash of the normalized query document.
-	 * @param string $variables_hash SHA-256 hash of the canonicalized variables JSON.
-	 * @param string $query_doc      The full GraphQL query document.
-	 * @param string $variables      The variables JSON string.
-	 * @param array  $cache_keys     Array of cache keys from X-GraphQL-Keys header.
-	 * @param bool   $store_document Whether to store the document (if it doesn't exist). Default true.
-	 * @param bool   $record_cache_tags Whether to write URL ↔ cache key associations (edge purge index).
-	 * @return void
+	 * @param string   $url            The full URL (e.g., /graphql/persisted/{queryHash}/variables/{variablesHash}).
+	 * @param string   $query_hash     SHA-256 hash of the normalized query document.
+	 * @param string   $variables_hash SHA-256 hash of the canonicalized variables JSON.
+	 * @param string   $query_doc      The full GraphQL query document.
+	 * @param string   $variables      The variables JSON string.
+	 * @param string[] $cache_keys     Cache keys from X-GraphQL-Keys header.
+	 * @param bool     $store_document Whether to store the document (if it doesn't exist). Default true.
+	 * @param bool     $record_cache_tags Whether to write URL ↔ cache key associations (edge purge index).
 	 */
 	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true, bool $record_cache_tags = true ): void {
 		global $wpdb;
@@ -150,7 +149,7 @@ class DBStore implements StoreInterface {
 	 *
 	 * @param string $query_hash     SHA-256 hash of the normalized query document.
 	 * @param string $variables_hash SHA-256 hash of the canonicalized variables JSON.
-	 * @return array|null Array with 'query_document' and 'variables' keys, or null if not found.
+	 * @return array{query_document: string, variables: string}|null
 	 */
 	public function get_query( string $query_hash, string $variables_hash ): ?array {
 		global $wpdb;
@@ -186,7 +185,8 @@ class DBStore implements StoreInterface {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @param string $query_hash     Query hash.
+	 * @param string $variables_hash Variables hash (empty string if none).
 	 */
 	public function touch_execution( string $query_hash, string $variables_hash ): void {
 		global $wpdb;
@@ -209,7 +209,7 @@ class DBStore implements StoreInterface {
 	 * Get all URLs tagged with a specific cache key
 	 *
 	 * @param string $cache_key The cache key (e.g., 'post:123', 'list:post').
-	 * @return array Array of URLs.
+	 * @return string[]
 	 */
 	public function get_urls_for_key( string $cache_key ): array {
 		global $wpdb;
@@ -234,7 +234,8 @@ class DBStore implements StoreInterface {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @param string $query_hash SHA-256 hash of the normalized query document.
+	 * @return string[]
 	 */
 	public function get_urls_for_query_hash( string $query_hash ): array {
 		global $wpdb;
@@ -257,7 +258,6 @@ class DBStore implements StoreInterface {
 	 * Delete all index entries for a specific cache key
 	 *
 	 * @param string $cache_key The cache key to delete.
-	 * @return void
 	 */
 	public function delete_by_key( string $cache_key ): void {
 		global $wpdb;
@@ -284,7 +284,6 @@ class DBStore implements StoreInterface {
 	 * Delete all cache-key rows for this URL (key map only).
 	 *
 	 * @param string $url The URL to delete all entries for.
-	 * @return void
 	 */
 	public function delete_by_url( string $url ): void {
 		global $wpdb;
@@ -326,8 +325,6 @@ class DBStore implements StoreInterface {
 
 	/**
 	 * Remove cache_keys rows that no longer appear in key_urls.
-	 *
-	 * @return void
 	 */
 	private function delete_orphan_cache_keys(): void {
 		global $wpdb;
@@ -346,8 +343,6 @@ class DBStore implements StoreInterface {
 
 	/**
 	 * Remove urls rows that have no key_urls (defensive; normal deletes already remove the url row).
-	 *
-	 * @return void
 	 */
 	private function delete_orphan_urls(): void {
 		global $wpdb;

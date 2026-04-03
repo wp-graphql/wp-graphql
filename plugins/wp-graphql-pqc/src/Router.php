@@ -17,8 +17,6 @@ class Router {
 
 	/**
 	 * Initialize the router
-	 *
-	 * @return void
 	 */
 	public function init(): void {
 		add_action( 'init', [ $this, 'add_rewrite_rules' ], 10 );
@@ -30,8 +28,6 @@ class Router {
 
 	/**
 	 * Add rewrite rules for persisted query URLs
-	 *
-	 * @return void
 	 */
 	public function add_rewrite_rules(): void {
 		$base_path = $this->get_base_path();
@@ -56,8 +52,8 @@ class Router {
 	/**
 	 * Add custom query vars
 	 *
-	 * @param array $vars Existing query vars.
-	 * @return array
+	 * @param array<int, string> $vars Existing query vars.
+	 * @return array<int, string>
 	 */
 	public function add_query_vars( array $vars ): array {
 		$vars[] = 'graphql_persisted_query';
@@ -69,8 +65,6 @@ class Router {
 
 	/**
 	 * Handle persisted query GET requests
-	 *
-	 * @return void
 	 */
 	public function handle_persisted_query_request(): void {
 		global $wp;
@@ -87,14 +81,15 @@ class Router {
 		}
 
 		// Only handle GET requests.
-		if ( 'GET' !== $_SERVER['REQUEST_METHOD'] ) {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'GET' !== $method ) {
 			return;
 		}
 
 		// Persisted query URLs should always return JSON, not a PHP template.
 		// We'll handle authentication context in the GET handler to ensure public data only.
 
-		$query_hash = isset( $wp->query_vars['graphql_query_hash'] ) ? $wp->query_vars['graphql_query_hash'] : '';
+		$query_hash     = isset( $wp->query_vars['graphql_query_hash'] ) ? $wp->query_vars['graphql_query_hash'] : '';
 		$variables_hash = isset( $wp->query_vars['graphql_variables_hash'] ) ? $wp->query_vars['graphql_variables_hash'] : '';
 
 		if ( ! $query_hash || ! preg_match( '/^[a-f0-9]{64}$/', $query_hash ) ) {
@@ -106,7 +101,7 @@ class Router {
 			$response = [
 				'errors' => [
 					[
-						'message' => 'Invalid persisted query hash format',
+						'message'    => 'Invalid persisted query hash format',
 						'extensions' => [
 							'code' => 'INVALID_QUERY_HASH',
 						],
@@ -129,7 +124,7 @@ class Router {
 			$response = [
 				'errors' => [
 					[
-						'message' => 'Invalid persisted query variables hash format',
+						'message'    => 'Invalid persisted query variables hash format',
 						'extensions' => [
 							'code' => 'INVALID_VARIABLES_HASH',
 						],
@@ -152,8 +147,6 @@ class Router {
 
 	/**
 	 * Get the base path for persisted query URLs
-	 *
-	 * @return string
 	 */
 	private function get_base_path(): string {
 		/**

@@ -17,17 +17,13 @@ class Nonce {
 
 	/**
 	 * Nonce expiration time in seconds (default: 5 minutes)
-	 *
-	 * @var int
 	 */
-	const NONCE_EXPIRATION = 300;
+	private const NONCE_EXPIRATION = 300;
 
 	/**
 	 * Transient prefix for storing nonces
-	 *
-	 * @var string
 	 */
-	const TRANSIENT_PREFIX = 'wpgraphql_pqc_nonce_';
+	private const TRANSIENT_PREFIX = 'wpgraphql_pqc_nonce_';
 
 	/**
 	 * Generate a nonce for a query hash and variables hash combination
@@ -41,12 +37,12 @@ class Nonce {
 		$token = bin2hex( random_bytes( 32 ) ); // 64 character hex string.
 
 		// Store nonce data in transient (expires in NONCE_EXPIRATION seconds).
-		$nonce_key = self::TRANSIENT_PREFIX . $token;
+		$nonce_key  = self::TRANSIENT_PREFIX . $token;
 		$nonce_data = [
-			'query_hash'    => $query_hash,
+			'query_hash'     => $query_hash,
 			'variables_hash' => $variables_hash ?: '',
-			'created_at'    => time(),
-			'used'          => false,
+			'created_at'     => time(),
+			'used'           => false,
 		];
 
 		set_transient( $nonce_key, $nonce_data, self::NONCE_EXPIRATION );
@@ -67,7 +63,7 @@ class Nonce {
 			return false;
 		}
 
-		$nonce_key = self::TRANSIENT_PREFIX . $nonce;
+		$nonce_key  = self::TRANSIENT_PREFIX . $nonce;
 		$nonce_data = get_transient( $nonce_key );
 
 		// Nonce doesn't exist or expired.
@@ -105,7 +101,7 @@ class Nonce {
 			return false;
 		}
 
-		$nonce_key = self::TRANSIENT_PREFIX . $nonce;
+		$nonce_key  = self::TRANSIENT_PREFIX . $nonce;
 		$nonce_data = get_transient( $nonce_key );
 
 		if ( false === $nonce_data ) {
@@ -123,14 +119,14 @@ class Nonce {
 	 * Get nonce data without validating (for debugging/inspection)
 	 *
 	 * @param string $nonce The nonce token.
-	 * @return array|null Nonce data or null if not found.
+	 * @return array<string, mixed>|null Nonce data or null if not found.
 	 */
 	public static function get_data( string $nonce ): ?array {
 		if ( empty( $nonce ) ) {
 			return null;
 		}
 
-		$nonce_key = self::TRANSIENT_PREFIX . $nonce;
+		$nonce_key  = self::TRANSIENT_PREFIX . $nonce;
 		$nonce_data = get_transient( $nonce_key );
 
 		return false !== $nonce_data ? $nonce_data : null;

@@ -45,6 +45,7 @@ if ( ! defined( 'WPGRAPHQL_PQC_PLUGIN_FILE' ) ) {
 // Autoload required classes.
 $autoload = WPGRAPHQL_PQC_PLUGIN_DIR . 'vendor/autoload.php';
 if ( file_exists( $autoload ) ) {
+	// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Composer autoload path from plugin constant.
 	require_once $autoload;
 }
 
@@ -62,8 +63,6 @@ wpgraphql_pqc_init();
 
 /**
  * WP-CLI commands
- *
- * @return void
  */
 function wpgraphql_pqc_register_cli_commands(): void {
 	if ( ! defined( 'WP_CLI' ) || ! WP_CLI || ! class_exists( 'WP_CLI' ) ) {
@@ -71,9 +70,9 @@ function wpgraphql_pqc_register_cli_commands(): void {
 	}
 
 	if ( ! class_exists( \WPGraphQL\PQC\CLI\RegisterCommand::class ) ) {
-		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- constant plugin path.
 		$cli_file = WPGRAPHQL_PQC_PLUGIN_DIR . 'src/CLI/RegisterCommand.php';
 		if ( file_exists( $cli_file ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- CLI bootstrap; path from plugin constant.
 			require_once $cli_file;
 		}
 	}

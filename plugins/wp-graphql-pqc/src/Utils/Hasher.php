@@ -57,7 +57,7 @@ class Hasher {
 	 * Variables are sorted recursively before hashing to ensure consistent hashes
 	 * regardless of key order in the input.
 	 *
-	 * @param array|null $variables The variables array, or null/empty for no variables.
+	 * @param array<string, mixed>|null $variables The variables array, or null/empty for no variables.
 	 * @return string|null SHA-256 hash in lowercase hex, or null if variables are empty/null.
 	 */
 	public static function hash_variables( ?array $variables ): ?string {
@@ -81,19 +81,19 @@ class Hasher {
 	/**
 	 * Recursively sort array keys
 	 *
-	 * @param array $array The array to sort.
-	 * @return array The sorted array.
+	 * @param array<string, mixed> $data The array to sort.
+	 * @return array<string, mixed> The sorted array.
 	 */
-	private static function recursive_ksort( array $array ): array {
-		ksort( $array );
+	private static function recursive_ksort( array $data ): array {
+		ksort( $data );
 
-		foreach ( $array as $key => $value ) {
+		foreach ( $data as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$array[ $key ] = self::recursive_ksort( $value );
+				$data[ $key ] = self::recursive_ksort( $value );
 			}
 		}
 
-		return $array;
+		return $data;
 	}
 
 	/**

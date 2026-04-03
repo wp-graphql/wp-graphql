@@ -17,8 +17,6 @@ class VIPAdapter implements AdapterInterface {
 
 	/**
 	 * Check if VIP functions are available
-	 *
-	 * @return bool
 	 */
 	public static function is_available(): bool {
 		// Check for new non-deprecated function first.
@@ -86,7 +84,7 @@ class VIPAdapter implements AdapterInterface {
 
 		// Build full URL from site URL.
 		$site_url = site_url();
-		$url = ltrim( $url, '/' );
+		$url      = ltrim( $url, '/' );
 
 		return $site_url . '/' . $url;
 	}

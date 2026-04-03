@@ -17,15 +17,13 @@ class StoreFactory {
 
 	/**
 	 * Get the store instance
-	 *
-	 * @return StoreInterface
 	 */
 	public static function get_store(): StoreInterface {
 		/**
 		 * Filter the store implementation
 		 *
-		 * @param StoreInterface|null $store The store instance, or null to use default.
-		 * @return StoreInterface
+		 * @param \WPGraphQL\PQC\Store\StoreInterface|null $store The store instance, or null to use default.
+		 * @return \WPGraphQL\PQC\Store\StoreInterface
 		 */
 		$store = apply_filters( 'wpgraphql_pqc_store', null );
 

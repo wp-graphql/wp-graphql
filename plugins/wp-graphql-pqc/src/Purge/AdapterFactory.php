@@ -17,15 +17,13 @@ class AdapterFactory {
 
 	/**
 	 * Get the appropriate purge adapter
-	 *
-	 * @return AdapterInterface
 	 */
 	public static function get_adapter(): AdapterInterface {
 		/**
 		 * Filter the purge adapter
 		 *
-		 * @param AdapterInterface|null $adapter The adapter instance, or null to use auto-detection.
-		 * @return AdapterInterface|null
+		 * @param \WPGraphQL\PQC\Purge\AdapterInterface|null $adapter The adapter instance, or null to use auto-detection.
+		 * @return \WPGraphQL\PQC\Purge\AdapterInterface|null
 		 */
 		$adapter = apply_filters( 'wpgraphql_pqc_purge_adapter', null );
 

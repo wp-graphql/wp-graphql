@@ -21,8 +21,6 @@ class PurgeHandler {
 
 	/**
 	 * Initialize the purge handler
-	 *
-	 * @return void
 	 */
 	public function init(): void {
 		add_action( 'graphql_purge', [ $this, 'handle_purge' ], 10, 3 );
@@ -34,7 +32,6 @@ class PurgeHandler {
 	 * @param string $key      The cache key to purge (e.g., 'post:123', 'list:post').
 	 * @param string $event    The event that triggered the purge.
 	 * @param string $hostname The hostname/endpoint.
-	 * @return void
 	 */
 	public function handle_purge( string $key, string $event = '', string $hostname = '' ): void {
 		$store = StoreFactory::get_store();

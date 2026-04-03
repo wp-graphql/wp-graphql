@@ -24,7 +24,6 @@ class GetHandler {
 	 *
 	 * @param string      $query_hash    The query hash.
 	 * @param string|null $variables_hash The variables hash, or empty string if no variables.
-	 * @return void
 	 */
 	public function handle( string $query_hash, ?string $variables_hash ): void {
 		try {
@@ -46,7 +45,7 @@ class GetHandler {
 			$response = [
 				'errors' => [
 					[
-						'message' => $message,
+						'message'    => $message,
 						'extensions' => [
 							'code' => 'PQC_INTERNAL_ERROR',
 						],
@@ -65,11 +64,10 @@ class GetHandler {
 	 *
 	 * @param string      $query_hash    The query hash.
 	 * @param string|null $variables_hash The variables hash, or empty string if none.
-	 * @return void
 	 */
 	private function do_handle( string $query_hash, ?string $variables_hash ): void {
 		// Look up query from store.
-		$store = StoreFactory::get_store();
+		$store      = StoreFactory::get_store();
 		$query_data = $store->get_query( $query_hash, $variables_hash ?: '' );
 
 		if ( ! $query_data ) {
@@ -86,9 +84,9 @@ class GetHandler {
 			header( 'Content-Type: application/json; charset=' . ( is_string( $charset ) && '' !== $charset ? $charset : 'UTF-8' ) );
 
 			$response = [
-				'errors' => [
+				'errors'     => [
 					[
-						'message' => 'Persisted query not found',
+						'message'    => 'Persisted query not found',
 						'extensions' => [
 							'code' => 'PERSISTED_QUERY_NOT_FOUND',
 						],
@@ -122,7 +120,7 @@ class GetHandler {
 		try {
 			Parser::parse( $query_document );
 		} catch ( \Throwable $e ) {
-			$detail = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? $e->getMessage() : '';
+			$detail  = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? $e->getMessage() : '';
 			$message = __( 'Stored persisted query document is invalid. Register the query again with a POST to /graphql.', 'wp-graphql-pqc' );
 			if ( '' !== $detail ) {
 				$message .= ' ' . $detail;
@@ -138,7 +136,6 @@ class GetHandler {
 	 * JSON response for invalid stored documents (HTTP 200, GraphQL-style errors).
 	 *
 	 * @param string $message User-facing message.
-	 * @return void
 	 */
 	private function send_document_invalid_response( string $message ): void {
 		status_header( 200 );
@@ -165,11 +162,10 @@ class GetHandler {
 	/**
 	 * Execute a GraphQL query
 	 *
-	 * @param string     $query          The query document.
-	 * @param array|null $variables      The variables.
-	 * @param string     $query_hash     Persisted query hash (for touch_execution).
-	 * @param string     $variables_hash Persisted variables hash (empty if none).
-	 * @return void
+	 * @param string                    $query          The query document.
+	 * @param array<string, mixed>|null $variables      The variables.
+	 * @param string                    $query_hash     Persisted query hash (for touch_execution).
+	 * @param string                    $variables_hash Persisted variables hash (empty if none).
 	 */
 	private function execute_query( string $query, ?array $variables, string $query_hash, string $variables_hash ): void {
 		// Check if the request is authenticated (for cache header determination).
@@ -227,8 +223,6 @@ class GetHandler {
 	 *
 	 * Persisted queries always return public data, so they should be cacheable.
 	 * We respect WPGraphQL Smart Cache's max-age settings if available.
-	 *
-	 * @return void
 	 */
 	private function set_cache_headers(): void {
 		$max_age = null;

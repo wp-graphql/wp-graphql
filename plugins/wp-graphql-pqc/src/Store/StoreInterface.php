@@ -18,15 +18,14 @@ interface StoreInterface {
 	/**
 	 * Store a URL and its associated query, variables, and cache keys
 	 *
-	 * @param string $url              The full URL (e.g., /graphql/persisted/{queryHash}/variables/{variablesHash}).
-	 * @param string $query_hash       SHA-256 hash of the normalized query document.
-	 * @param string $variables_hash   SHA-256 hash of the canonicalized variables JSON.
-	 * @param string $query_doc        The full GraphQL query document.
-	 * @param string $variables        The variables JSON string.
-	 * @param array  $cache_keys       Array of cache keys from X-GraphQL-Keys header.
-	 * @param bool   $store_document    Whether to store the document (if it doesn't exist). Default true.
-	 * @param bool   $record_cache_tags Whether to persist URL ↔ cache key associations for edge purge. Default true.
-	 * @return void
+	 * @param string   $url              The full URL (e.g., /graphql/persisted/{queryHash}/variables/{variablesHash}).
+	 * @param string   $query_hash       SHA-256 hash of the normalized query document.
+	 * @param string   $variables_hash   SHA-256 hash of the canonicalized variables JSON.
+	 * @param string   $query_doc        The full GraphQL query document.
+	 * @param string   $variables        The variables JSON string.
+	 * @param string[] $cache_keys       Cache keys from X-GraphQL-Keys header.
+	 * @param bool     $store_document    Whether to store the document (if it doesn't exist). Default true.
+	 * @param bool     $record_cache_tags Whether to persist URL ↔ cache key associations for edge purge. Default true.
 	 * @since next-version The `$record_cache_tags` parameter was added.
 	 */
 	public function store( string $url, string $query_hash, string $variables_hash, string $query_doc, string $variables, array $cache_keys, bool $store_document = true, bool $record_cache_tags = true ): void;
@@ -36,7 +35,7 @@ interface StoreInterface {
 	 *
 	 * @param string $query_hash       SHA-256 hash of the normalized query document.
 	 * @param string $variables_hash   SHA-256 hash of the canonicalized variables JSON.
-	 * @return array|null Array with 'query_document' and 'variables' keys, or null if not found.
+	 * @return array{query_document: string, variables: string}|null
 	 */
 	public function get_query( string $query_hash, string $variables_hash ): ?array;
 
@@ -45,7 +44,6 @@ interface StoreInterface {
 	 *
 	 * @param string $query_hash       Query hash.
 	 * @param string $variables_hash   Variables hash (empty string if none).
-	 * @return void
 	 */
 	public function touch_execution( string $query_hash, string $variables_hash ): void;
 
@@ -53,7 +51,7 @@ interface StoreInterface {
 	 * Get all URLs tagged with a specific cache key
 	 *
 	 * @param string $cache_key The cache key (e.g., 'post:123', 'list:post').
-	 * @return array Array of URLs.
+	 * @return string[]
 	 */
 	public function get_urls_for_key( string $cache_key ): array;
 
@@ -72,7 +70,6 @@ interface StoreInterface {
 	 * Optional for custom invalidation; bundled PurgeHandler clears by URL after edge purge.
 	 *
 	 * @param string $cache_key The cache key to delete.
-	 * @return void
 	 */
 	public function delete_by_key( string $cache_key ): void;
 
@@ -82,7 +79,6 @@ interface StoreInterface {
 	 * Does not remove the execution record; warm GET continues to resolve until GC.
 	 *
 	 * @param string $url The persisted path.
-	 * @return void
 	 */
 	public function delete_by_url( string $url ): void;
 

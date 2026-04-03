@@ -22,8 +22,6 @@ class Schema {
 
 	/**
 	 * Get the documents table name with WordPress prefix
-	 *
-	 * @return string
 	 */
 	public static function get_documents_table_name(): string {
 		global $wpdb;
@@ -33,8 +31,6 @@ class Schema {
 
 	/**
 	 * Persisted URL rows (one per url_hash) for the key map and GC by last_seen_at.
-	 *
-	 * @return string
 	 */
 	public static function get_urls_table_name(): string {
 		global $wpdb;
@@ -44,8 +40,6 @@ class Schema {
 
 	/**
 	 * Deduplicated Smart Cache key strings.
-	 *
-	 * @return string
 	 */
 	public static function get_cache_keys_table_name(): string {
 		global $wpdb;
@@ -55,8 +49,6 @@ class Schema {
 
 	/**
 	 * Junction: cache key id ↔ url id (many-to-many).
-	 *
-	 * @return string
 	 */
 	public static function get_key_urls_table_name(): string {
 		global $wpdb;
@@ -67,8 +59,6 @@ class Schema {
 	/**
 	 * Executions table: stable lookup for warm GET (query_hash + variables_hash → document variables).
 	 * Purging removes key map rows only; executions stay until GC.
-	 *
-	 * @return string
 	 */
 	public static function get_executions_table_name(): string {
 		global $wpdb;
@@ -78,8 +68,6 @@ class Schema {
 
 	/**
 	 * Legacy table name (uninstall only).
-	 *
-	 * @return string
 	 */
 	private static function get_legacy_url_keys_table_name(): string {
 		global $wpdb;
@@ -91,8 +79,6 @@ class Schema {
 	 * Create or upgrade all PQC tables via dbDelta.
 	 *
 	 * Safe to call on every request; idempotent.
-	 *
-	 * @return void
 	 */
 	public static function ensure_schema(): void {
 		global $wpdb;
@@ -129,8 +115,6 @@ class Schema {
 
 	/**
 	 * Create normalized key map tables (urls, cache_keys, key_urls).
-	 *
-	 * @return void
 	 */
 	private static function create_keymap_tables(): void {
 		global $wpdb;
@@ -189,13 +173,12 @@ class Schema {
 
 	/**
 	 * Whether urls, cache_keys, and key_urls exist.
-	 *
-	 * @return bool
 	 */
 	public static function keymap_tables_exist(): bool {
 		global $wpdb;
 
 		foreach ( [ self::get_urls_table_name(), self::get_cache_keys_table_name(), self::get_key_urls_table_name() ] as $table ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- schema introspection; table name from prepare().
 			if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
 				return false;
 			}
@@ -219,28 +202,27 @@ class Schema {
 		$executions_table = self::get_executions_table_name();
 		$documents_table  = self::get_documents_table_name();
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- plugin uninstall; table names from Schema.
 		$wpdb->query( "DROP TABLE IF EXISTS {$key_urls}" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$legacy_url_keys}" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$urls}" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$cache_keys}" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$executions_table}" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$documents_table}" );
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return true;
 	}
 
 	/**
 	 * Check if the tables exist
-	 *
-	 * @return bool
 	 */
 	public static function table_exists(): bool {
 		global $wpdb;
 
 		$documents_table = self::get_documents_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- schema introspection; table name from prepare().
 		$documents_exists = $documents_table === $wpdb->get_var(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',
@@ -248,7 +230,8 @@ class Schema {
 			)
 		);
 
-		$executions_table  = self::get_executions_table_name();
+		$executions_table = self::get_executions_table_name();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- schema introspection; table name from prepare().
 		$executions_exists = $executions_table === $wpdb->get_var(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',
@@ -261,8 +244,6 @@ class Schema {
 
 	/**
 	 * Get the current database version
-	 *
-	 * @return string
 	 */
 	public static function get_db_version(): string {
 		return get_option( 'wpgraphql_pqc_db_version', '0' );
@@ -272,7 +253,6 @@ class Schema {
 	 * Update the database version
 	 *
 	 * @param string $version Version number.
-	 * @return void
 	 */
 	public static function update_db_version( string $version ): void {
 		update_option( 'wpgraphql_pqc_db_version', $version );
