@@ -1,6 +1,9 @@
 # WPGraphQL Persisted Query Cache
 
-**Status**: Beta (v0.1.0-beta.1)  
+## Experimental / beta
+
+This plugin is **early and experimental** (v0.1.0-beta.1). Do not rely on it for production sites yet. Breaking changes to URLs, database tables, filters, and client flows are likely before 1.0.0.
+
 **Requires**: WPGraphQL 2.0.0+, WPGraphQL Smart Cache
 
 WPGraphQL Persisted Query Cache enables persisted GraphQL queries via **permalink-based URLs** instead of long query strings, allowing **surgical cache invalidation** on hosts that don’t support tag-based purging (WordPress VIP and similar). It extends WPGraphQL Smart Cache’s purge pipeline.
@@ -9,6 +12,7 @@ WPGraphQL Persisted Query Cache enables persisted GraphQL queries via **permalin
 
 | Doc | Contents |
 |-----|----------|
+| **[docs/STATUS.md](./docs/STATUS.md)** | Experimental scope: what exists, what is untested, limitations |
 | **[docs/SPEC.md](./docs/SPEC.md)** | Protocol spec: URLs, hashes, cold vs warm GET, POST registration, invalidation — similar in scope to [Apollo Automatic Persisted Queries](https://www.apollographql.com/docs/apollo-server/performance/apq) |
 | **[docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)** | Custom **store** (Redis / KV), **purge adapters**, and filter reference |
 | [PRD.md](./PRD.md) | Product requirements and default MySQL schema |
@@ -120,7 +124,7 @@ Comprehensive local scenario script: `test-pqc-scenarios.sh` (from `plugins/wp-g
 
 ## Status
 
-**Beta:** APIs and schema may change before 1.0.0.
+Beta / experimental. Database schema is managed with `dbDelta` on load (`Schema::ensure_schema()`); there is no migration from older internal `url_keys` tables (see [PRD.md](./PRD.md)). For tested vs untested areas, see [docs/STATUS.md](./docs/STATUS.md).
 
 ## Related
 

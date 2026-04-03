@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPGraphQL Persisted Queries Cache
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
- * Description: WPGraphQL Persisted Queries Cache enables persisted GraphQL queries via permalink-based URLs instead of query strings, allowing surgical cache invalidation on hosts that don't support tag-based purging (WordPress VIP and similar). This plugin extends WPGraphQL Smart Cache's purge system.
+ * Description: Experimental beta — not for production. Persisted GraphQL queries via permalink URLs (not query strings) for URL-based cache purge on hosts without tag invalidation; extends WPGraphQL Smart Cache. APIs may change.
  * Author: WPGraphQL
  * Author URI: https://www.wpgraphql.com
  * Version: 0.1.0-beta.1
