@@ -51,9 +51,10 @@ modules:
       adminPassword: '%TEST_ADMIN_PASSWORD%'
       adminPath: '%TEST_ADMIN_PATH%'
       headers:
-        X_WPBROWSER_REQUEST: 1
-        X_TEST_REQUEST: 1
-        X_APM_REQUEST: 1
+        # Hyphenated names: Apache often drops custom headers containing underscores before they reach PHP.
+        X-WPBROWSER-REQUEST: 1
+        X-TEST-REQUEST: 1
+        X-APM-REQUEST: 1
       connect_timeout: 3
       cookies: false
     lucatume\WPBrowser\Module\WPFilesystem:

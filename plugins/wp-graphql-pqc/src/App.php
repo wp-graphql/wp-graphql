@@ -43,6 +43,13 @@ class App {
 	 * @return void
 	 */
 	public function init(): void {
+		// Codeception WPBrowser uses TEST_WP_URL (e.g. http://tests-wordpress) while wp-env test wp-config pins
+		// WP_HOME/WP_SITEURL to http://localhost:8889, so redirect_canonical can 301 to an unreachable :8889 URL and
+		// break functional HTTP tests. Those requests identify themselves with these headers.
+		if ( ! empty( $_SERVER['HTTP_X_WPBROWSER_REQUEST'] ) || ! empty( $_SERVER['HTTP_X_TEST_REQUEST'] ) ) {
+			add_filter( 'redirect_canonical', '__return_false', 9999 );
+		}
+
 		// Check if plugin can load (dependencies available).
 		if ( ! $this->can_load_plugin() ) {
 			add_action( 'admin_init', [ $this, 'show_admin_notice' ] );
