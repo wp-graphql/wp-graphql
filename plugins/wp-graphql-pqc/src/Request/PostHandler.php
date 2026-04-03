@@ -21,8 +21,6 @@ class PostHandler {
 
 	/**
 	 * Initialize the POST handler
-	 *
-	 * @return void
 	 */
 	public function init(): void {
 		// Use filter to modify response, and action to store data.
@@ -33,18 +31,18 @@ class PostHandler {
 	/**
 	 * Handle POST response to store index entries and add URL to extensions
 	 *
-	 * @param mixed                $filtered_response The filtered response.
-	 * @param \WPGraphQL\WPSchema  $schema           The schema.
-	 * @param string|null          $operation        The operation name.
-	 * @param string|null          $query            The query document.
-	 * @param array|null           $variables        The variables.
-	 * @param \WPGraphQL\Request   $request          The request instance.
-	 * @param string|null          $query_id         The query ID.
+	 * @param mixed                     $filtered_response The filtered response.
+	 * @param \WPGraphQL\WPSchema       $schema           The schema.
+	 * @param string|null               $operation        The operation name.
+	 * @param string|null               $query            The query document.
+	 * @param array<string, mixed>|null $variables        The variables.
+	 * @param \WPGraphQL\Request        $request          The request instance.
+	 * @param string|null               $query_id         The query ID.
 	 * @return mixed The modified response.
 	 */
 	public function handle_post_response( $filtered_response, $schema, $operation, $query, $variables, $request, $query_id ) {
 		// Only handle POST requests or internal graphql() calls from GET handler.
-		$request_method   = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '';
+		$request_method   = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
 		$is_internal_call = defined( 'WPGRAPHQL_PQC_INTERNAL_CALL' ) && WPGRAPHQL_PQC_INTERNAL_CALL;
 
 		if ( 'POST' !== $request_method && ! $is_internal_call ) {
@@ -80,7 +78,11 @@ class PostHandler {
 		$query_hash = hash( 'sha256', $normalized_document );
 
 		$variables_hash = Hasher::hash_variables( $variables );
-		$variables_json = ! empty( $variables ) ? wp_json_encode( $variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : '';
+		$variables_json = '';
+		if ( ! empty( $variables ) ) {
+			$encoded        = wp_json_encode( $variables, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+			$variables_json = false !== $encoded ? $encoded : '';
+		}
 
 		// Construct canonical URL.
 		$url = $this->build_url( $query_hash, $variables_hash );
@@ -185,8 +187,8 @@ class PostHandler {
 	/**
 	 * Extract cache keys from GraphQL keys array
 	 *
-	 * @param array $graphql_keys The analyzed keys array.
-	 * @return array Array of cache key strings.
+	 * @param array<string, mixed> $graphql_keys The analyzed keys array.
+	 * @return string[]
 	 */
 	private function extract_cache_keys( array $graphql_keys ): array {
 		if ( empty( $graphql_keys ) ) {
@@ -242,7 +244,7 @@ class PostHandler {
 	 * Get request extensions from the GraphQL request
 	 *
 	 * @param \WPGraphQL\Request $request The request object.
-	 * @return array Extensions array from the request.
+	 * @return array<string, mixed> Extensions array from the request.
 	 */
 	private function get_request_extensions( \WPGraphQL\Request $request ): array {
 		// Try to get extensions from OperationParams.
@@ -262,9 +264,8 @@ class PostHandler {
 	/**
 	 * Add canonical URL to response extensions
 	 *
-	 * @param mixed $response The response array or object (passed by reference).
+	 * @param mixed  $response The response array or object (passed by reference).
 	 * @param string $url The canonical URL.
-	 * @return void
 	 */
 	private function add_url_to_extensions( &$response, string $url ): void {
 		if ( ! empty( $response ) ) {
@@ -273,13 +274,12 @@ class PostHandler {
 					$response['extensions'] = [];
 				}
 				$response['extensions']['persistedQueryUrl'] = $url;
-			} elseif ( is_object( $response ) ) {
-				if ( ! property_exists( $response, 'extensions' ) || ! is_array( $response->extensions ) ) {
-					// @phpstan-ignore-next-line
-					$response->extensions = [];
-				}
-				// @phpstan-ignore-next-line
-				$response->extensions['persistedQueryUrl'] = $url;
+			} elseif ( $response instanceof \stdClass ) {
+				$extensions                      = isset( $response->extensions ) && is_array( $response->extensions )
+					? $response->extensions
+					: [];
+				$extensions['persistedQueryUrl'] = $url;
+				$response->extensions            = $extensions;
 			}
 		}
 	}

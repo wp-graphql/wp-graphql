@@ -19,8 +19,6 @@ class GarbageCollection {
 
 	/**
 	 * Initialize garbage collection
-	 *
-	 * @return void
 	 */
 	public function init(): void {
 		add_action( 'wpgraphql_pqc_garbage_collection', [ $this, 'run' ] );
@@ -28,8 +26,6 @@ class GarbageCollection {
 
 	/**
 	 * Run garbage collection
-	 *
-	 * @return void
 	 */
 	public function run(): void {
 		global $wpdb;
@@ -53,7 +49,9 @@ class GarbageCollection {
 		}
 
 		// Calculate cutoff date.
-		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$ttl_days} days" ) );
+		$cutoff_ts   = strtotime( "-{$ttl_days} days" );
+		$cutoff_ts   = false !== $cutoff_ts ? $cutoff_ts : time();
+		$cutoff_date = gmdate( 'Y-m-d H:i:s', $cutoff_ts );
 
 		// Drop junction rows for stale URLs, then URL rows (last_seen_at = last tag write). Warm GET still resolves via executions.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from Schema.

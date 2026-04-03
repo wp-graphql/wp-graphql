@@ -23,13 +23,15 @@ class HttpPurgeAdapter implements AdapterInterface {
 
 	/**
 	 * Whether this adapter is enabled (constant defined and non-empty).
-	 *
-	 * @return bool
 	 */
 	public static function is_available(): bool {
-		return defined( 'WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN' )
-			&& is_string( WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN )
-			&& '' !== WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN;
+		if ( ! defined( 'WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN' ) ) {
+			return false;
+		}
+
+		$origin = constant( 'WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN' );
+
+		return is_string( $origin ) && '' !== $origin;
 	}
 
 	/**
@@ -98,8 +100,6 @@ class HttpPurgeAdapter implements AdapterInterface {
 
 	/**
 	 * Purge all cached URLs (not supported for generic HTTP PURGE).
-	 *
-	 * @return bool
 	 */
 	public function purge_all(): bool {
 		return false;
@@ -109,10 +109,18 @@ class HttpPurgeAdapter implements AdapterInterface {
 	 * Build full edge URL from PQC path or absolute site URL.
 	 *
 	 * @param string $url Relative path or absolute URL.
-	 * @return string
 	 */
 	private function build_edge_url( string $url ): string {
-		$origin = rtrim( (string) WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN, '/' );
+		if ( ! defined( 'WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN' ) ) {
+			return '';
+		}
+
+		$origin_raw = constant( 'WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN' );
+		if ( ! is_string( $origin_raw ) || '' === $origin_raw ) {
+			return '';
+		}
+
+		$origin = rtrim( $origin_raw, '/' );
 
 		if ( 0 === strpos( $url, 'http://' ) || 0 === strpos( $url, 'https://' ) ) {
 			$parts = wp_parse_url( $url );

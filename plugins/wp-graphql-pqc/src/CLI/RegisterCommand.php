@@ -59,7 +59,6 @@ class RegisterCommand extends \WP_CLI_Command {
 	 *
 	 * @param array<int, string>   $args       Positional arguments.
 	 * @param array<string, mixed> $assoc_args Associative arguments.
-	 * @return void
 	 */
 	public function register( array $args, array $assoc_args ): void {
 		$app = App::instance();
@@ -161,7 +160,6 @@ class RegisterCommand extends \WP_CLI_Command {
 	 *
 	 * @param array<int, string>   $args       Positional arguments.
 	 * @param array<string, mixed> $assoc_args Associative arguments.
-	 * @return void
 	 */
 	public function bulk_register( array $args, array $assoc_args ): void {
 		$app = App::instance();
@@ -182,7 +180,7 @@ class RegisterCommand extends \WP_CLI_Command {
 			\WP_CLI::error( 'Provide a readable query file as the first argument.' );
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- CLI local path.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- CLI local path only.
 		$query = file_get_contents( $query_path );
 		if ( false === $query || '' === trim( (string) $query ) ) {
 			\WP_CLI::error( 'Query file is empty or unreadable.' );
@@ -253,7 +251,7 @@ class RegisterCommand extends \WP_CLI_Command {
 			}
 
 			if ( '' !== $urls_out && ! empty( $paths ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- CLI output path.
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents,WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- CLI output path.
 				if ( false === file_put_contents( $urls_out, implode( "\n", $paths ) . "\n" ) ) {
 					\WP_CLI::error( sprintf( 'Could not write urls-out: %s', $urls_out ) );
 				}
@@ -272,14 +270,14 @@ class RegisterCommand extends \WP_CLI_Command {
 					'urls_out_absolute'    => '' !== $urls_out ? $urls_out : null,
 				];
 				if ( '' !== $manifest_tpl && is_readable( $manifest_tpl ) ) {
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- CLI local path.
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- CLI local path only.
 					$tpl_json = file_get_contents( $manifest_tpl );
 					$tpl      = is_string( $tpl_json ) ? json_decode( $tpl_json, true ) : null;
 					if ( is_array( $tpl ) ) {
 						$manifest = array_merge( $tpl, $manifest );
 					}
 				}
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- CLI output path.
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents,WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- CLI output path.
 				if ( false === file_put_contents( $manifest_out, wp_json_encode( $manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . "\n" ) ) {
 					\WP_CLI::error( sprintf( 'Could not write manifest-out: %s', $manifest_out ) );
 				}
@@ -312,7 +310,7 @@ class RegisterCommand extends \WP_CLI_Command {
 				\WP_CLI::error( sprintf( 'Cannot read variables-jsonl: %s', $path ) );
 			}
 
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- CLI local path.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- CLI local path only.
 			$raw  = file_get_contents( $path );
 			$sets = [];
 			if ( false === $raw ) {
@@ -364,8 +362,15 @@ class RegisterCommand extends \WP_CLI_Command {
 		);
 
 		$sets = [];
-		foreach ( $posts_query->posts as $post_id ) {
-			$post_id = (int) $post_id;
+		foreach ( (array) $posts_query->posts as $post_id_raw ) {
+			if ( $post_id_raw instanceof \WP_Post ) {
+				$post_id = (int) $post_id_raw->ID;
+			} elseif ( is_numeric( $post_id_raw ) ) {
+				$post_id = (int) $post_id_raw;
+			} else {
+				continue;
+			}
+
 			if ( $post_id < 1 ) {
 				continue;
 			}
@@ -421,9 +426,11 @@ class RegisterCommand extends \WP_CLI_Command {
 		}
 
 		if ( ! empty( $response['errors'] ) ) {
+			$encoded = wp_json_encode( $response['errors'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
 			return [
 				'path'    => null,
-				'message' => wp_json_encode( $response['errors'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				'message' => false !== $encoded ? $encoded : 'GraphQL errors could not be encoded.',
 			];
 		}
 
@@ -448,7 +455,6 @@ class RegisterCommand extends \WP_CLI_Command {
 	/**
 	 * @param array<int, string>   $args       Positional args.
 	 * @param array<string, mixed> $assoc_args Associative args.
-	 * @return string|null
 	 */
 	private function resolve_query_string( array $args, array $assoc_args ): ?string {
 		if ( isset( $assoc_args['query'] ) && is_string( $assoc_args['query'] ) && '' !== $assoc_args['query'] ) {
@@ -461,7 +467,7 @@ class RegisterCommand extends \WP_CLI_Command {
 		}
 
 		if ( '-' === $path ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- STDIN is intentional.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile -- STDIN.
 			$stdin = file_get_contents( 'php://stdin' );
 
 			return false !== $stdin ? $stdin : null;
@@ -471,7 +477,7 @@ class RegisterCommand extends \WP_CLI_Command {
 			\WP_CLI::error( sprintf( 'Cannot read query file: %s', $path ) );
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local CLI file path.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- local CLI file path only.
 		$contents = file_get_contents( $path );
 
 		return false !== $contents ? $contents : null;
@@ -487,7 +493,7 @@ class RegisterCommand extends \WP_CLI_Command {
 			if ( ! is_readable( $path ) ) {
 				\WP_CLI::error( sprintf( 'Cannot read variables file: %s', $path ) );
 			}
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local CLI file path.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- local CLI file path only.
 			$json = file_get_contents( $path );
 			if ( false === $json ) {
 				\WP_CLI::error( 'Failed to read variables file.' );
@@ -516,7 +522,6 @@ class RegisterCommand extends \WP_CLI_Command {
 	 * @param string               $query      GraphQL document.
 	 * @param array<string, mixed> $variables  Variables.
 	 * @param array<string, mixed> $assoc_args Associative args.
-	 * @return void
 	 */
 	private function run_registration( string $query, array $variables, array $assoc_args ): void {
 		$normalized = Hasher::normalize_query_document( $query );
