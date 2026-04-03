@@ -38,7 +38,7 @@ jobs:
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
       wp-graphql-acf: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}
-      wp-graphql-pqc: ${{ steps.filter.outputs.wp-graphql-pqc_any_changed }}
+      wp-graphql-pqu: ${{ steps.filter.outputs.wp-graphql-pqu_any_changed }}
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
       is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}
     steps:
@@ -141,16 +141,16 @@ jobs:
               - package-lock.json
               - .wp-env.json
               - bin/**
-            wp-graphql-pqc:
+            wp-graphql-pqu:
               - .github/workflows/integration-tests-reusable.yml
               - .github/workflows/integration-tests.yml
-              - plugins/wp-graphql-pqc/**/*.php
-              - plugins/wp-graphql-pqc/composer.json
-              - plugins/wp-graphql-pqc/composer.lock
-              - plugins/wp-graphql-pqc/package.json
-              - plugins/wp-graphql-pqc/package-lock.json
-              - plugins/wp-graphql-pqc/tests/**
-              - plugins/wp-graphql-pqc/codeception.dist.yml
+              - plugins/wp-graphql-pqu/**/*.php
+              - plugins/wp-graphql-pqu/composer.json
+              - plugins/wp-graphql-pqu/composer.lock
+              - plugins/wp-graphql-pqu/package.json
+              - plugins/wp-graphql-pqu/package-lock.json
+              - plugins/wp-graphql-pqu/tests/**
+              - plugins/wp-graphql-pqu/codeception.dist.yml
               - plugins/wp-graphql/**/*.php
               - plugins/wp-graphql-smart-cache/**/*.php
               - .release-please-manifest.json
@@ -165,7 +165,7 @@ jobs:
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
           echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
           echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
-          echo "wp-graphql-pqc changed: ${{ steps.filter.outputs.wp-graphql-pqc_any_changed }}"
+          echo "wp-graphql-pqu changed: ${{ steps.filter.outputs.wp-graphql-pqu_any_changed }}"
           echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
           echo "is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}"
 
@@ -476,19 +476,19 @@ jobs:
       install_wp_graphql_core_deps: true
 
   # ===========================================
-  # WP GraphQL Persisted Query Cache
+  # WPGraphQL Persisted Query URLs (wp-graphql-pqu)
   # ===========================================
-  # Tests the WP GraphQL Persisted Query Cache plugin.
-  # PQC depends on WPGraphQL and Smart Cache, so changes to either trigger these tests.
+  # Tests the WPGraphQL Persisted Query URLs plugin.
+  # Persisted Query URLs (wp-graphql-pqu) depends on WPGraphQL and Smart Cache, so changes to either trigger these tests.
   # Uses a smaller matrix since coverage is collected from the core plugin.
   # ===========================================
 
-  wp-graphql-pqc:
+  wp-graphql-pqu:
     name: 'Integration: ${{ matrix.name }}'
     needs: detect-changes
     # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
     if: |
-      (needs.detect-changes.outputs.wp-graphql-pqc == 'true' || 
+      (needs.detect-changes.outputs.wp-graphql-pqu == 'true' || 
        needs.detect-changes.outputs.is-release-pr == 'true' || 
        github.event_name == 'workflow_dispatch')
     strategy:
@@ -496,28 +496,28 @@ jobs:
       matrix:
         include:
           # Coverage job: Latest WP/PHP
-          - name: 'wp-graphql-pqc / WP 6.9 / PHP 8.4'
+          - name: 'wp-graphql-pqu / WP 6.9 / PHP 8.4'
             php: '8.4'
             wp: '6.9'
             theme: twentytwentyfive
             multisite: false
             coverage: true
           # Boundary: Current stable
-          - name: 'wp-graphql-pqc / WP 6.8 / PHP 8.3'
+          - name: 'wp-graphql-pqu / WP 6.8 / PHP 8.3'
             php: '8.3'
             wp: '6.8'
             theme: twentytwentyfive
             multisite: false
             coverage: false
           # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement)
-          - name: 'wp-graphql-pqc / WP 6.1 / PHP 7.4'
+          - name: 'wp-graphql-pqu / WP 6.1 / PHP 7.4'
             php: '7.4'
             wp: '6.1'
             theme: twentytwentyone
             multisite: false
             coverage: false
           # Experimental: WordPress trunk (allowed to fail)
-          - name: 'wp-graphql-pqc / WP trunk / PHP 8.4'
+          - name: 'wp-graphql-pqu / WP trunk / PHP 8.4'
             php: '8.4'
             wp: trunk
             theme: twentytwentyfive
@@ -528,8 +528,8 @@ jobs:
     secrets: inherit
     with:
       name: ${{ matrix.name }}
-      plugin_path: plugins/wp-graphql-pqc
-      plugin_name: wp-graphql-pqc
+      plugin_path: plugins/wp-graphql-pqu
+      plugin_name: wp-graphql-pqu
       wp: ${{ matrix.wp }}
       php: ${{ matrix.php }}
       theme: ${{ matrix.theme }}
@@ -549,7 +549,7 @@ jobs:
   status-check:
     name: 'Integration Tests'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf, wp-graphql-pqc]
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf, wp-graphql-pqu]
     if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check integration test results
@@ -584,11 +584,11 @@ jobs:
           if [ "${{ needs.wp-graphql-acf.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-acf tests skipped (no changes detected)"
           fi
-          if [ "${{ needs.wp-graphql-pqc.result }}" == "failure" ]; then
-            echo "❌ wp-graphql-pqc integration tests failed"
+          if [ "${{ needs.wp-graphql-pqu.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-pqu integration tests failed"
             exit 1
           fi
-          if [ "${{ needs.wp-graphql-pqc.result }}" == "skipped" ]; then
-            echo "ℹ️ wp-graphql-pqc tests skipped (no changes detected)"
+          if [ "${{ needs.wp-graphql-pqu.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-pqu tests skipped (no changes detected)"
           fi
           echo "✅ All required integration tests passed"

@@ -1,0 +1,42 @@
+parameters:
+    # Allow dynamic properties on stdClass (matches WPGraphQL response handling patterns).
+    universalObjectCratesClasses:
+        - stdClass
+
+    # Rules (aligned with plugins/wp-graphql/phpstan.neon.dist)
+    treatPhpDocTypesAsCertain: false
+    inferPrivatePropertyTypeFromConstructor: true
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: true
+    checkInternalClassCaseSensitivity: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    polluteScopeWithAlwaysIterableForeach: false
+    polluteScopeWithLoopInitialAssignments: false
+    reportAlwaysTrueInLastCondition: true
+    reportStaticMethodSignatures: true
+    reportWrongPhpDocTypeInVarTag: true
+
+    level: 8
+    phpVersion:
+        min: 70400
+        max: 80300
+
+    tmpDir: tests/_output/phpstan
+
+    bootstrapFiles:
+        - phpstan/constants.php
+        - wp-graphql-pqu.php
+    paths:
+        - wp-graphql-pqu.php
+        - src/
+    scanFiles:
+        - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
+        - vendor/wp-cli/wp-cli/php/class-wp-cli-command.php
+        - phpstan/wp-cli-utils-stub.php
+    excludePaths:
+        analyse:
+            - tests/
+            - vendor/
+        analyseAndScan:
+            - */node_modules/*
+            - */vendor/*

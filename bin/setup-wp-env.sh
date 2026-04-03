@@ -33,7 +33,7 @@ setup_wp() {
 	# it uses the 'cli' container, not 'tests-cli'
 	if [ "$ENV_NAME" = "tests-cli" ]; then
 		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-smart-cache 2>/dev/null || true
-		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-pqc 2>/dev/null || true
+		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-pqu 2>/dev/null || true
 	fi
 
 	# Flush permalinks (must be done after plugins are activated so GraphQL endpoint is registered)

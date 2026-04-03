@@ -278,14 +278,14 @@
 				}
 			]
 		},
-		"plugins/wp-graphql-pqc": {
+		"plugins/wp-graphql-pqu": {
 			"release-type": "simple",
-			"component": "wp-graphql-pqc",
-			"package-name": "wp-graphql-pqc",
+			"component": "wp-graphql-pqu",
+			"package-name": "wp-graphql-pqu",
 			"constantMap": {
-				"constantName": "WPGRAPHQL_PQC_VERSION",
-				"fileName": "wp-graphql-pqc.php",
-				"mainPluginFile": "wp-graphql-pqc.php"
+				"constantName": "WPGRAPHQL_PQU_VERSION",
+				"fileName": "wp-graphql-pqu.php",
+				"mainPluginFile": "wp-graphql-pqu.php"
 			},
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
@@ -324,7 +324,7 @@
 			"extra-files": [
 				{
 					"type": "generic",
-					"path": "wp-graphql-pqc.php",
+					"path": "wp-graphql-pqu.php",
 					"glob": false
 				},
 				{

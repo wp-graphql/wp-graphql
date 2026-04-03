@@ -36,7 +36,7 @@ jobs:
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
       wp-graphql-acf: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}
-      wp-graphql-pqc: ${{ steps.filter.outputs.wp-graphql-pqc_any_changed }}
+      wp-graphql-pqu: ${{ steps.filter.outputs.wp-graphql-pqu_any_changed }}
       test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
@@ -112,14 +112,14 @@ jobs:
               - plugins/wp-graphql-acf/composer.lock
               - plugins/wp-graphql-acf/phpcs.xml.dist
               - plugins/wp-graphql-acf/phpstan.neon.dist
-            wp-graphql-pqc:
+            wp-graphql-pqu:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
-              - plugins/wp-graphql-pqc/**/*.php
-              - plugins/wp-graphql-pqc/composer.json
-              - plugins/wp-graphql-pqc/composer.lock
-              - plugins/wp-graphql-pqc/phpcs.xml.dist
-              - plugins/wp-graphql-pqc/phpstan.neon.dist
+              - plugins/wp-graphql-pqu/**/*.php
+              - plugins/wp-graphql-pqu/composer.json
+              - plugins/wp-graphql-pqu/composer.lock
+              - plugins/wp-graphql-pqu/phpcs.xml.dist
+              - plugins/wp-graphql-pqu/phpstan.neon.dist
 
       - name: Log detected changes
         run: |
@@ -127,7 +127,7 @@ jobs:
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
           echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
           echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
-          echo "wp-graphql-pqc changed: ${{ steps.filter.outputs.wp-graphql-pqc_any_changed }}"
+          echo "wp-graphql-pqu changed: ${{ steps.filter.outputs.wp-graphql-pqu_any_changed }}"
 
   # ===========================================
   # LINT JOBS
@@ -176,15 +176,15 @@ jobs:
       plugin_path: plugins/wp-graphql-acf
       plugin_name: wp-graphql-acf
 
-  wp-graphql-pqc:
-    name: Lint wp-graphql-pqc
+  wp-graphql-pqu:
+    name: Lint wp-graphql-pqu
     needs: detect-changes
-    if: needs.detect-changes.outputs.wp-graphql-pqc == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    if: needs.detect-changes.outputs.wp-graphql-pqu == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
     secrets: inherit
     with:
-      plugin_path: plugins/wp-graphql-pqc
-      plugin_name: wp-graphql-pqc
+      plugin_path: plugins/wp-graphql-pqu
+      plugin_name: wp-graphql-pqu
 
   # ===========================================
   # FINAL STATUS CHECK
@@ -197,7 +197,7 @@ jobs:
   status-check:
     name: 'Lint'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf, wp-graphql-pqc]
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf, wp-graphql-pqu]
     if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check lint results
@@ -232,11 +232,11 @@ jobs:
           if [ "${{ needs.wp-graphql-acf.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-acf linting skipped (no changes detected)"
           fi
-          if [ "${{ needs.wp-graphql-pqc.result }}" == "failure" ]; then
-            echo "❌ wp-graphql-pqc linting failed"
+          if [ "${{ needs.wp-graphql-pqu.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-pqu linting failed"
             exit 1
           fi
-          if [ "${{ needs.wp-graphql-pqc.result }}" == "skipped" ]; then
-            echo "ℹ️ wp-graphql-pqc linting skipped (no changes detected)"
+          if [ "${{ needs.wp-graphql-pqu.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-pqu linting skipped (no changes detected)"
           fi
           echo "✅ All required linting passed"

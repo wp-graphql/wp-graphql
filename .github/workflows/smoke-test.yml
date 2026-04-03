@@ -59,7 +59,7 @@ jobs:
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
       wp-graphql-acf: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}
-      wp-graphql-pqc: ${{ steps.filter.outputs.wp-graphql-pqc_any_changed }}
+      wp-graphql-pqu: ${{ steps.filter.outputs.wp-graphql-pqu_any_changed }}
       test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
@@ -138,17 +138,17 @@ jobs:
               - bin/smoke-test.sh
               # ACF plugin depends on wp-graphql, so wp-graphql changes trigger ACF smoke tests
               - plugins/wp-graphql/**/*.php
-            wp-graphql-pqc:
+            wp-graphql-pqu:
               - .github/workflows/smoke-test.yml
-              - plugins/wp-graphql-pqc/**/*.php
-              - plugins/wp-graphql-pqc/composer.json
-              - plugins/wp-graphql-pqc/.distignore
-              - plugins/wp-graphql-pqc/package.json
+              - plugins/wp-graphql-pqu/**/*.php
+              - plugins/wp-graphql-pqu/composer.json
+              - plugins/wp-graphql-pqu/.distignore
+              - plugins/wp-graphql-pqu/package.json
               - .release-please-manifest.json
               - package.json
               - .wp-env.json
               - bin/smoke-test.sh
-              # PQC plugin depends on wp-graphql and wp-graphql-smart-cache, so changes to either trigger PQC smoke tests
+              # wp-graphql-pqu depends on wp-graphql and wp-graphql-smart-cache, so changes to either trigger its smoke tests
               - plugins/wp-graphql/**/*.php
               - plugins/wp-graphql-smart-cache/**/*.php
 
@@ -158,7 +158,7 @@ jobs:
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
           echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
           echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
-          echo "wp-graphql-pqc changed: ${{ steps.filter.outputs.wp-graphql-pqc_any_changed }}"
+          echo "wp-graphql-pqu changed: ${{ steps.filter.outputs.wp-graphql-pqu_any_changed }}"
 
   # ===========================================
   # SMOKE TEST JOBS
@@ -294,33 +294,33 @@ jobs:
       wp: ${{ matrix.wp }}
       php: ${{ matrix.php }}
 
-  wp-graphql-pqc:
+  wp-graphql-pqu:
     name: 'Smoke Test: ${{ matrix.name }}'
     needs: detect-changes
-    if: needs.detect-changes.outputs.wp-graphql-pqc == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    if: needs.detect-changes.outputs.wp-graphql-pqu == 'true' || needs.detect-changes.outputs.test_all == 'true'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: 'wp-graphql-pqc / WP 6.8 / PHP 8.3'
+          - name: 'wp-graphql-pqu / WP 6.8 / PHP 8.3'
             wp: '6.8'
             php: '8.3'
-          - name: 'wp-graphql-pqc / WP 6.1 / PHP 7.4'
+          - name: 'wp-graphql-pqu / WP 6.1 / PHP 7.4'
             wp: '6.1'
             php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
     secrets: inherit
     with:
       name: ${{ matrix.name }}
-      plugin_path: plugins/wp-graphql-pqc
-      plugin_name: wp-graphql-pqc
-      composer_working_dir: plugins/wp-graphql-pqc
-      zip_name: wpgraphql-pqc.zip
-      # Note: WordPress.org slug is wpgraphql-pqc (no hyphen between wp and graphql)
+      plugin_path: plugins/wp-graphql-pqu
+      plugin_name: wp-graphql-pqu
+      composer_working_dir: plugins/wp-graphql-pqu
+      zip_name: wpgraphql-pqu.zip
+      # Note: WordPress.org slug is wpgraphql-pqu (no hyphen between wp and graphql)
       # This is because WordPress.org doesn't allow "wp-" prefix for new plugins.
-      # The directory name (wp-graphql-pqc) and GitHub component name can differ.
-      # The zip contains a directory named wpgraphql-pqc, so that's the plugin slug.
-      plugin_slug: wpgraphql-pqc
+      # The directory name (wp-graphql-pqu) and GitHub component name can differ.
+      # The zip contains a directory named wpgraphql-pqu, so that's the plugin slug.
+      plugin_slug: wpgraphql-pqu
       requires_wp_graphql: true
       smoke_test_script: bin/smoke-test.sh
       needs_build: false
@@ -339,7 +339,7 @@ jobs:
   status-check:
     name: 'Smoke Test'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf, wp-graphql-pqc]
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf, wp-graphql-pqu]
     if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check smoke test results
@@ -375,11 +375,11 @@ jobs:
           if [ "${{ needs.wp-graphql-acf.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-acf smoke tests skipped (no changes detected)"
           fi
-          if [ "${{ needs.wp-graphql-pqc.result }}" == "failure" ]; then
-            echo "❌ wp-graphql-pqc smoke tests failed"
+          if [ "${{ needs.wp-graphql-pqu.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-pqu smoke tests failed"
             exit 1
           fi
-          if [ "${{ needs.wp-graphql-pqc.result }}" == "skipped" ]; then
-            echo "ℹ️ wp-graphql-pqc smoke tests skipped (no changes detected)"
+          if [ "${{ needs.wp-graphql-pqu.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-pqu smoke tests skipped (no changes detected)"
           fi
           echo "✅ All required smoke tests passed"

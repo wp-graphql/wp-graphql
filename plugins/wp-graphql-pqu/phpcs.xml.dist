@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL-PQU" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+	<description>Coding standards for the WPGraphQL Persisted Query URLs plugin (aligned with plugins/wp-graphql/phpcs.xml.dist)</description>
+
+	<file>./wp-graphql-pqu.php</file>
+	<file>./src</file>
+	<exclude-pattern>./phpstan/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<!--
+		p flag: Show progress of the run.
+		s flag: Show sniff codes in all reports.
+	-->
+	<arg value="sp"/>
+	<arg name="basepath" value="./"/>
+	<arg name="colors" />
+	<arg name="extensions" value="php" />
+	<arg name="cache" value="tests/_output/cache.json" />
+	<arg name="parallel" value="20" />
+	<arg name="severity" value="1" />
+
+	<config name="testVersion" value="7.4-"/>
+	<config name="minimum_wp_version" value="6.0"/>
+
+	<rule ref="PHPCompatibilityWP" />
+
+	<rule ref="WordPress-VIP-Go">
+		<exclude name="WordPressVIPMinimum.JS" />
+		<exclude name="WordPressVIPMinimum.Classes.RestrictedExtendClasses.wp_cli" />
+	</rule>
+
+	<rule ref="WordPress">
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.Files.FileName"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="WordPress.WP.Capabilities.Undetermined" />
+		<exclude name="Generic.Functions.CallTimePassByReference" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint" />
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
+	</rule>
+
+	<rule ref="WordPress-Docs">
+		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
+		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+		<exclude name="Squiz.Commenting.VariableComment.MissingVar" />
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<exclude name="Squiz.Commenting.ClassComment.Missing" />
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
+		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+	</rule>
+
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+		<severity>5</severity>
+	</rule>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+		<severity>5</severity>
+	</rule>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
+		<severity>5</severity>
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Arrays">
+		<exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace"/>
+		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Classes.ModernClassNameReference">
+		<properties>
+			<property name="enableOnObjects" value="false"/>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Classes.RequireSelfReference" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowConstructorPropertyPromotion" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowMultiConstantDefinition" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowMultiPropertyDefinition" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowStringExpressionPropertyFetch" />
+	<rule ref="SlevomatCodingStandard.Classes.ClassConstantVisibility" />
+	<rule ref="SlevomatCodingStandard.Classes.UselessLateStaticBinding" />
+
+	<rule ref="SlevomatCodingStandard.ControlStructures.UselessTernaryOperator" />
+
+	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly" />
+
+	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue" />
+
+	<rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses">
+		<properties>
+			<property name="caseSensitive" value="true"/>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation">
+		<properties>
+			<property name="ignoredAnnotationNames" type="array">
+				<element value="@phpstan-var" />
+				<element value="@phpstan-param" />
+				<element value="@phpstan-return" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
+	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+
+	<rule ref="SlevomatCodingStandard.PHP.OptimizedFunctionsWithoutUnpacking" />
+	<rule ref="SlevomatCodingStandard.PHP.TypeCast" />
+
+	<rule ref="SlevomatCodingStandard.TypeHints">
+		<exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax" />
+		<exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat" />
+		<exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation" />
+		<exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable" />
+	<rule ref="SlevomatCodingStandard.Variables.UnusedVariable" >
+		<properties>
+			<property name="ignoreUnusedValuesWhenOnlyKeysAreUsedInForeach" value="true" />
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Variables.UselessVariable" />
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-graphql-pqu" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
+		<properties>
+			<property name="blank_line_check" value="true"/>
+		</properties>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<properties>
+			<property name="skipIfInheritdoc" value="true" />
+		</properties>
+	</rule>
+</ruleset>

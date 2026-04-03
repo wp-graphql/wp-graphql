@@ -13,6 +13,7 @@ WPGraphQL is a monorepo containing the WPGraphQL ecosystem of WordPress plugins.
 - **plugins/wp-graphql-smart-cache/** — Caching and cache invalidation
 - **plugins/wp-graphql-acf/** — ACF field groups and fields in GraphQL
 - **plugins/wp-graphql-schema-monitor/** — Schema change monitoring (experimental)
+- **plugins/wp-graphql-pqu/** — Persisted Query URLs (permalink GET + URL↔cache-key index; experimental beta; requires Smart Cache)
 
 ## Development Environment
 
