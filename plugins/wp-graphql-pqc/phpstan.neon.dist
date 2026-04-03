@@ -1,5 +1,9 @@
 parameters:
-    # Rules
+    # Allow dynamic properties on stdClass (matches WPGraphQL response handling patterns).
+    universalObjectCratesClasses:
+        - stdClass
+
+    # Rules (aligned with plugins/wp-graphql/phpstan.neon.dist)
     treatPhpDocTypesAsCertain: false
     inferPrivatePropertyTypeFromConstructor: true
     checkExplicitMixedMissingReturn: true
@@ -12,18 +16,13 @@ parameters:
     reportStaticMethodSignatures: true
     reportWrongPhpDocTypeInVarTag: true
 
-    # Configuration
     level: 8
     phpVersion:
-      min: 70400
-      max: 80300
-    stubFiles:
-        # Simulate added properties
-        - phpstan/class-wp-post-type.stub
-        - phpstan/class-wp-taxonomy.stub
-        - phpstan/class-wp-dependency.stub
-        - phpstan/class-wp-error.stub
-        - phpstan/appsero.stub
+        min: 70400
+        max: 80300
+
+    tmpDir: tests/_output/phpstan
+
     bootstrapFiles:
         - phpstan/constants.php
         - wp-graphql-pqc.php
@@ -32,16 +31,12 @@ parameters:
         - src/
     scanFiles:
         - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
+        - vendor/wp-cli/wp-cli/php/class-wp-cli-command.php
+        - phpstan/wp-cli-utils-stub.php
     excludePaths:
-      analyse:
-        - tests/
-        - vendor/
-      analyseAndScan:
-        - */node_modules/*
-        - */vendor/*
-    ignoreErrors:
-        # Replaces deprecated checkMissingIterableValueType: false
-        - identifier: missingType.iterableValue
-        # Plugin class exists at analysis time; runtime check for when WPGraphQL not loaded
-        - identifier: deadCode.unreachable
-          path: wp-graphql-pqc.php
+        analyse:
+            - tests/
+            - vendor/
+        analyseAndScan:
+            - */node_modules/*
+            - */vendor/*
