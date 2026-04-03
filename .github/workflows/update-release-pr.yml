@@ -71,14 +71,17 @@ jobs:
             COMPONENT=$(echo "$BRANCH_NAME" | sed 's/.*--components--//' || echo "wp-graphql")
           fi
 
-          # Try to get version from PR title first
-          VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          # Try to get version from PR title first (supports semver prerelease, e.g. 0.1.0-beta.2)
+          VERSION=""
+          if [[ "$PR_TITLE" =~ release[[:space:]]+[a-z0-9-]+[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9][a-zA-Z0-9.-]*)?) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          fi
 
           if [ -z "$VERSION" ]; then
-            # Fallback: extract from CHANGELOG.md (first version header)
+            # Fallback: extract from CHANGELOG.md (first release-please-style version header)
             PLUGIN_DIR="plugins/${COMPONENT}"
             if [ -f "${PLUGIN_DIR}/CHANGELOG.md" ]; then
-              VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "${PLUGIN_DIR}/CHANGELOG.md" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+              VERSION=$(grep -m1 -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9][a-zA-Z0-9.-]*)?\]' "${PLUGIN_DIR}/CHANGELOG.md" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9][a-zA-Z0-9.-]*)?' || true)
             fi
           fi
 
@@ -104,8 +107,8 @@ jobs:
           if [[ -f "readme.txt" ]]; then
             # First try to replace placeholder
             sed -i.bak "s/Stable tag: x-release-please-version/Stable tag: ${VERSION}/" readme.txt
-            # Also replace any existing version number (for updates to existing Release PRs)
-            sed -i.bak "s/^Stable tag: [0-9]\+\.[0-9]\+\.[0-9]\+/Stable tag: ${VERSION}/" readme.txt
+            # Also replace any existing Stable tag (including semver prerelease)
+            sed -i.bak "s/^Stable tag: .*/Stable tag: ${VERSION}/" readme.txt
             rm -f readme.txt.bak
             
             # Verify the update

@@ -21,6 +21,10 @@
 # The slug is resolved from release-please-config.json on main (fetched in plugin_info step)
 # so re-deploys that checkout a release tag still get the correct .org slug.
 #
+# WORDPRESS.ORG DEPLOY (optional):
+# Set "wordpress_org_deploy": false on a package to skip SVN deploy while still building
+# the zip and attaching it to the GitHub release. Omit the key or use true for normal .org deploys.
+#
 # VERSION DETERMINATION:
 # - feat: commits trigger a MINOR version bump
 # - fix: commits trigger a PATCH version bump
@@ -269,6 +273,14 @@ jobs:
           WP_ORG_SLUG=$(echo "$CONFIG_JSON" | jq -r --arg c "$COMPONENT" '.packages["plugins/\($c)"].wp_org_slug // $c')
           echo "wp_org_slug=${WP_ORG_SLUG}" >> $GITHUB_OUTPUT
 
+          WP_ORG_DEPLOY_FLAG=$(echo "$CONFIG_JSON" | jq -r --arg c "$COMPONENT" '.packages["plugins/\($c)"].wordpress_org_deploy')
+          if [[ "$WP_ORG_DEPLOY_FLAG" == "false" ]]; then
+            echo "wordpress_org_deploy=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  wordpress_org_deploy=false — skipping WordPress.org SVN (GitHub release zip only)"
+          else
+            echo "wordpress_org_deploy=true" >> $GITHUB_OUTPUT
+          fi
+
           echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
 
           if [[ "$REDEPLOY_TAG" != "" ]]; then
@@ -335,6 +347,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Subversion
+        if: steps.plugin_info.outputs.wordpress_org_deploy == 'true'
         run: sudo apt-get update && sudo apt-get install -y subversion
 
       - name: Install PHP dependencies
@@ -442,6 +455,14 @@ jobs:
             echo "✅ Updated WPGRAPHQL_VERSION in constants.php"
           fi
 
+          # WPGraphQL Persisted Query URLs (single-file bootstrap: header + constant)
+          if [[ -f "${BUILD_DIR}/wp-graphql-pqu.php" ]]; then
+            sed -i.bak "s/^ \* Version: .*/ * Version: ${VERSION}/" "${BUILD_DIR}/wp-graphql-pqu.php"
+            sed -i.bak "s/define( 'WPGRAPHQL_PQU_VERSION', '[^']*' );/define( 'WPGRAPHQL_PQU_VERSION', '${VERSION}' );/" "${BUILD_DIR}/wp-graphql-pqu.php"
+            rm -f "${BUILD_DIR}/wp-graphql-pqu.php.bak"
+            echo "✅ Updated Version and WPGRAPHQL_PQU_VERSION in wp-graphql-pqu.php"
+          fi
+
           # Verify all updates
           echo "🔍 Verifying version updates:"
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
@@ -496,7 +517,7 @@ jobs:
           fi
 
       - name: Delete existing SVN tag if re-deploying
-        if: steps.plugin_info.outputs.is_redeploy == 'true'
+        if: steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.wordpress_org_deploy == 'true'
         env:
           WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
@@ -522,6 +543,7 @@ jobs:
           echo "✅ SVN tag ${VERSION} deleted (or didn't exist)"
 
       - name: WordPress Plugin Deploy
+        if: steps.plugin_info.outputs.wordpress_org_deploy == 'true'
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -537,6 +559,7 @@ jobs:
           # We've updated BUILD_DIR/readme.txt, so it should sync correctly
 
       - name: Verify and fix SVN trunk readme.txt if needed
+        if: steps.plugin_info.outputs.wordpress_org_deploy == 'true'
         # The 10up action may not update readme.txt correctly, so we manually verify and fix it
         env:
           WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
@@ -599,11 +622,16 @@ jobs:
           PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
           PLUGIN_TAG_NAME: ${{ steps.plugin_info.outputs.tag_name }}
           IS_REDEPLOY: ${{ steps.plugin_info.outputs.is_redeploy }}
+          WORDPRESS_ORG_DEPLOY: ${{ steps.plugin_info.outputs.wordpress_org_deploy }}
         run: |
           echo "=== RELEASE SUMMARY ==="
           echo "Component: $MATRIX_COMPONENT"
           echo "Version: $PLUGIN_VERSION"
           echo "Tag: $PLUGIN_TAG_NAME"
           echo "Is Re-deploy: $IS_REDEPLOY"
-          echo "Deployed to WordPress.org: ✅"
+          if [[ "$WORDPRESS_ORG_DEPLOY" == "true" ]]; then
+            echo "Deployed to WordPress.org: yes"
+          else
+            echo "Deployed to WordPress.org: skipped (wordpress_org_deploy=false; GitHub release zip only)"
+          fi
           echo "======================="

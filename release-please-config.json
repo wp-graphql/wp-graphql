@@ -282,6 +282,8 @@
 			"release-type": "simple",
 			"component": "wp-graphql-pqu",
 			"package-name": "wp-graphql-pqu",
+			"wp_org_slug": "wpgraphql-pqu",
+			"wordpress_org_deploy": false,
 			"constantMap": {
 				"constantName": "WPGRAPHQL_PQU_VERSION",
 				"fileName": "wp-graphql-pqu.php",
