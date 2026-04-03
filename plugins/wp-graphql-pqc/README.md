@@ -27,6 +27,7 @@ WPGraphQL Persisted Query Cache enables persisted GraphQL queries via **permalin
 | [PRD.md](./PRD.md) | Product requirements and default MySQL schema |
 | [TESTING.md](./TESTING.md) | Manual testing notes |
 | [benchmark/README.md](./benchmark/README.md) | **Edge cache + load testing** (Varnish, `HttpPurgeAdapter`, k6) |
+| [docs/planning/](./docs/planning/README.md) | Contributor planning notes (bench hypotheses, data plans) |
 
 ## Overview
 
