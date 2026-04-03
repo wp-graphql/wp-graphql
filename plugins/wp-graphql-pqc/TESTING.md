@@ -575,35 +575,35 @@ npm run wp-env -- run cli -- wp post update $POST_ID --post_title="Updated Test 
 
 Or update it via the WordPress admin at `http://localhost:8888/wp-admin`.
 
-### Step 4: Check the Logs
+### Step 4: Observe purge resolution (optional)
 
-**Check error log for purge events:**
+PQC does **not** write routine purge traces to `error_log`. To log them locally, temporarily add:
 
-```bash
-# View the last 50 lines of the debug log
-tail -n 50 /path/to/wp-content/debug.log | grep "WPGraphQL PQC"
-```
-
-Or if using `wp-env`:
-
-```bash
-# Access the container and check logs
-npm run wp-env -- run cli -- tail -n 50 /var/www/html/wp-content/debug.log | grep "WPGraphQL PQC"
-```
-
-**Expected Log Output:**
-
-```
-[WPGraphQL PQC] Purge Event: key="post:cG9zdDox" event="post_updated" hostname="localhost:8888" urls_count=1
-[WPGraphQL PQC]   → Would purge URL: /graphql/persisted/{queryHash}/variables/{variablesHash}
-[WPGraphQL PQC] NullAdapter: Would purge URL: /graphql/persisted/{queryHash}/variables/{variablesHash}
+```php
+add_action(
+	'wpgraphql_pqc_purge_resolved',
+	static function ( $cache_key, $event, $hostname, $urls ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional local debugging
+		error_log(
+			sprintf(
+				'[PQC purge] key=%s event=%s host=%s urls=%s',
+				$cache_key,
+				$event,
+				$hostname,
+				wp_json_encode( $urls )
+			)
+		);
+	},
+	10,
+	4
+);
 ```
 
 **What to verify:**
 - The cache key matches the post that was updated (e.g., `post:cG9zdDox`)
 - The event name is correct (e.g., `post_updated`, `transition_post_status`)
-- The URL(s) listed are the persisted query URLs that should be purged
-- The URL count matches the number of persisted queries that reference this post
+- The URL(s) in `$urls` are the persisted query paths that should be purged at the edge
+- The count matches the number of indexed URLs for that key (may be `[]` if nothing was tagged)
 
 ### Step 5: Test Different Purge Events
 
@@ -625,11 +625,11 @@ npm run wp-env -- run cli -- wp post delete $POST_ID --force
 ```
 
 **Expected Results:**
-- Each event should log different cache keys:
+- Each event should fire `graphql_purge` with different cache keys (observe via `wpgraphql_pqc_purge_resolved` or Smart Cache’s own purge logging if enabled):
   - Publishing: `list:post`
   - Updating: `post:{id}` and `skipped:post`
   - Deleting: `post:{id}` and `skipped:post`
-- The logged URLs should match persisted queries that reference the affected content
+- Resolved URLs should match persisted queries that reference the affected content
 
 ### Step 6: Verify Database Entries (if deletion enabled)
 
@@ -770,7 +770,7 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 ```
 
-Check `wp-content/debug.log` for purge events (if using NullAdapter).
+Hook `wpgraphql_pqc_purge_resolved` if you need purge traces in logs; `NullAdapter` does not log by itself.
 
 ### Check Query Analyzer Output
 

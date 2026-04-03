@@ -84,7 +84,7 @@ See **[docs/SPEC.md](./docs/SPEC.md)** for full detail.
 ## Host purge adapters
 
 - **WordPress VIP:** Auto-detected when VIP purge API is available
-- **Null adapter:** Default elsewhere — logs only (see `Logger` when `WP_DEBUG` is on)
+- **Null adapter:** Default elsewhere — no-op (no edge call)
 - **Custom:** `wpgraphql_pqc_purge_adapter` filter — see [INTEGRATIONS.md](./docs/INTEGRATIONS.md)
 
 ## Custom storage (Redis, etc.)

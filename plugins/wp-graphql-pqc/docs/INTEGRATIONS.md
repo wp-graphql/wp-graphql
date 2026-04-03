@@ -75,7 +75,7 @@ Built-ins:
 
 - **`VIPAdapter`** — When `wpvip_purge_edge_cache_for_url` (or legacy alias) exists.
 - **`HttpPurgeAdapter`** — When `WPGRAPHQL_PQC_HTTP_PURGE_ORIGIN` is defined (non-empty string). Sends `PURGE` to `{origin}{path}` for each indexed URL (Varnish-style URL ban). Use for **local benchmarks** or any edge that accepts HTTP `PURGE`. See [benchmark/README.md](../benchmark/README.md).
-- **`NullAdapter`** — No edge call; logs intent when `WP_DEBUG` is on.
+- **`NullAdapter`** — No edge call; silent no-op (default when no VIP/HTTP purge env is detected).
 
 Filters for `HttpPurgeAdapter`:
 
@@ -99,6 +99,7 @@ Filters for `HttpPurgeAdapter`:
 | `wpgraphql_pqc_delete_entries_on_purge` | `(bool, $key, $urls)` — Return `false` to skip `delete_by_url( $url )` for each purged path after edge purge (testing). |
 | `wpgraphql_pqc_ttl_days` | Age for default MySQL GC of **key map** URL rows (`wpgraphql_pqc_urls.last_seen_at`, days). |
 | `wpgraphql_pqc_garbage_collection` | **Action** — Daily cron; default subscriber deletes old MySQL rows. |
+| `wpgraphql_pqc_purge_resolved` | **Action** — `( $cache_key, $event, $hostname, $urls )` after PQC resolves URLs for a `graphql_purge` event; use for custom metrics/logging (not written to `error_log` by default). |
 | `wpgraphql_pqc_http_purge_method` | `(string, $target, $url)` — HTTP method for `HttpPurgeAdapter`. |
 | `wpgraphql_pqc_http_purge_request_args` | `(array, $target, $url)` — `wp_remote_request` args for `HttpPurgeAdapter`. |
 
@@ -112,7 +113,7 @@ WordPress core / Smart Cache:
 
 - **Rewrite rules** — After changing `wpgraphql_pqc_url_base`, flush permalinks (or call `flush_rewrite_rules()` on deploy).
 - **Query Analyzer** — Must be on for cache keys; without keys, PQC will not index operations.
-- **Logging** — `WPGraphQL\PQC\Utils\Logger` writes purge lines to `error_log` when `WP_DEBUG` is true; PHP may log to `wp-content/debug.log` or the container’s PHP log depending on `WP_DEBUG_LOG` and hosting.
+- **Logging** — Routine purge resolution is not sent to PHP `error_log`. Hook `wpgraphql_pqc_purge_resolved` for tracing. `Logger::log_http_purge_failure()` still logs HTTP edge purge failures to `error_log` when `WP_DEBUG` is true.
 - **WP-CLI** — `wp graphql-pqc register` runs the same persistence path as an HTTP POST with a valid nonce (generates a nonce, calls `graphql()` with extensions, defines `WPGRAPHQL_PQC_INTERNAL_CALL`). See [TESTING.md](../TESTING.md).
 
 ---

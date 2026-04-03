@@ -22,12 +22,6 @@ class NullAdapter implements AdapterInterface {
 	 * @return bool Always returns true (no-op).
 	 */
 	public function purge_url( string $url ): bool {
-		// Log the purge event for debugging.
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( sprintf( '[WPGraphQL PQC] NullAdapter: Would purge URL: %s', $url ) );
-		}
-
 		return true;
 	}
 
@@ -37,12 +31,6 @@ class NullAdapter implements AdapterInterface {
 	 * @return bool Always returns true (no-op).
 	 */
 	public function purge_all(): bool {
-		// Log the purge event for debugging.
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( '[WPGraphQL PQC] NullAdapter: Would purge all URLs' );
-		}
-
 		return true;
 	}
 }
