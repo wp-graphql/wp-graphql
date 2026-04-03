@@ -41,6 +41,16 @@ class HasherTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Locks the hash used by functional warm-GET fixtures (parse+print normalization may vary by graphql-php version).
+	 */
+	public function test_hash_query_root_typename_fixture(): void {
+		$this->assertSame(
+			'8d8f7365e9e86fa8e3313fcaf2131b801eafe9549de22373089cf27511858b39',
+			Hasher::hash_query( 'query { __typename }' )
+		);
+	}
+
+	/**
 	 * SPEC: empty / null variables do not produce a variables hash.
 	 */
 	public function test_hash_variables_null_and_empty_array(): void {
