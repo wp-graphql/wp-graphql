@@ -8,6 +8,15 @@ This plugin is **early and experimental** (v0.1.0-beta.1). Do not rely on it for
 
 WPGraphQL Persisted Query Cache enables persisted GraphQL queries via **permalink-based URLs** instead of long query strings, allowing **surgical cache invalidation** on hosts that don’t support tag-based purging (WordPress VIP and similar). It extends WPGraphQL Smart Cache’s purge pipeline.
 
+**Why it exists**
+
+- Smart Cache’s ideal path is tag-based edge purge; many hosts only purge by URL path.
+- Long `GET /graphql?query=…` URLs are often hard to purge independently; PQC uses **one path per operation (+ variables)**.
+- Server-side index maps **Smart Cache analyzer keys** → persisted paths so `graphql_purge` can call URL purge adapters.
+- **Not** a drop-in for Apollo APQ; clients need a PQC-aware flow (see [docs/SPEC.md](./docs/SPEC.md)).
+
+**Working in code today:** cold/warm GET, POST registration + nonce, `DBStore`, purge adapters, WP-CLI register. **Still thin:** production VIP validation, alternative stores, automated test coverage (growing).
+
 ## Documentation
 
 | Doc | Contents |

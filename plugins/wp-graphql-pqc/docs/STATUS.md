@@ -24,3 +24,4 @@ Early beta. Suitable for local experiments and review, not production.
 - Persisted traffic is **GET**-oriented; mutations belong on POST `/graphql`.
 - Smart Cache **query analyzer** must emit keys or the index is not written.
 - Nonce registration flow is incompatible with clients that cannot send custom `extensions` (unless nonce is disabled via filter).
+- **Apollo APQ** client links are not drop-in compatible; see [SPEC.md](./SPEC.md) (“How clients differ from typical Apollo APQ”).

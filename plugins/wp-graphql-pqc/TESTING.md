@@ -2,6 +2,10 @@
 
 This guide walks you through manually testing the plugin's core functionality. For the formal protocol (cold vs warm GET, hashes, POST extensions), see [docs/SPEC.md](./docs/SPEC.md).
 
+**Automated tests:** from the monorepo, with wp-env running:
+
+`npm run -w @wpgraphql/wp-graphql-pqc test:codecept:wpunit` (and `test:codecept:functional` when present).
+
 ## Prerequisites
 
 1. **WordPress environment running** (via `wp-env` or similar)
@@ -29,16 +33,11 @@ The plugin uses a normalized database structure:
 
 - **`wp_wpgraphql_pqc_executions`**: One row per persisted **operation** (`query_hash` + `variables_hash`) for warm GET lookup. Survives cache-key purges; `last_executed_at` updates on successful warm GET (and on register via `store()`).
 
-- **`wp_wpgraphql_pqc_urls`**: One row per persisted URL path (`last_seen_at` for GC)
-- **`wp_wpgraphql_pqc_cache_keys`**: Deduplicated Smart Cache key strings
-- **`wp_wpgraphql_pqc_key_urls`**: Junction mapping cache key ids to URL ids
-  - `url_hash` + `cache_key` (PRIMARY KEY): Composite key
-  - `url`: The persisted query URL (e.g., `/graphql/persisted/{queryHash}/variables/{variablesHash}`)
-  - `query_hash`: References `wp_wpgraphql_pqc_documents.query_hash`
-  - `variables_hash`: SHA-256 hash of the canonicalized variables JSON
-  - `variables`: The variables JSON string
-  - `cache_key`: A single cache key (e.g., `post:123`, `list:post`)
-  - `created_at`: Timestamp when the mapping was created
+- **`wp_wpgraphql_pqc_urls`**: One row per persisted URL path (`url`, `url_hash`, `query_hash`, `variables_hash`, `last_seen_at` for GC)
+- **`wp_wpgraphql_pqc_cache_keys`**: Deduplicated Smart Cache key strings (`id`, `cache_key` unique)
+- **`wp_wpgraphql_pqc_key_urls`**: Junction `(key_id, url_id)` composite PRIMARY KEY linking `cache_keys.id` to `urls.id`
+
+Variable payloads and canonical URLs for warm GET live on **`executions`** and **`urls`**, not on the junction table.
 
 This normalization prevents duplicate storage of the same query document when it's used with different variables or cache keys.
 

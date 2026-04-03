@@ -1,5 +1,7 @@
 # Persisted Query Cache (PQC) protocol
 
+**Status:** Experimental beta; wire format may change. See [STATUS.md](./STATUS.md).
+
 This document describes the **wire protocol and server behavior** implemented by **WPGraphQL Persisted Queries Cache** (`wp-graphql-pqc`). It is written in the same spirit as [Automatic Persisted Queries (APQ) in Apollo Server](https://www.apollographql.com/docs/apollo-server/performance/apq): clients and proxies can rely on stable URLs, deterministic hashes, and predictable HTTP semantics.
 
 PQC is **not** byte-for-byte identical to Apollo APQ. It is tailored to **WordPress + WPGraphQL + WPGraphQL Smart Cache**: permalink-style URLs, Smart Cache **query analyzer** keys for invalidation, and an optional **nonce** gate for first-time document registration.
@@ -146,6 +148,20 @@ PQC’s purge handler:
 | Document identity | SHA-256 of query string | SHA-256 of **normalized** printed document |
 
 For Apollo’s full client/server flow, see their [Automatic Persisted Queries](https://www.apollographql.com/docs/apollo-server/performance/apq) documentation.
+
+### How clients differ from typical Apollo APQ
+
+Apollo Client’s built-in persisted-queries link usually assumes an **APQ-shaped** server: hash in `extensions.persistedQuery`, often the same `/graphql` path, and registration without a WordPress-specific nonce.
+
+PQC expects:
+
+1. **Cold path:** `GET` the **permalink** built from your hashes (see [URL shape](#url-shape)), not a generic GET with `query=` on `/graphql` for the hash-only request.
+2. **Registration:** `POST` to the normal WPGraphQL endpoint with the **full document** in `query` and PQC fields in top-level **`extensions`**: `persistedQueryNonce`, `persistedQueryHash`, `persistedVariablesHash` (see [Registration](#registration-post-with-full-query--extensions)).
+3. **Warm path:** After registration, use **`extensions.persistedQueryUrl`** from the POST response (or reconstruct the path with the same hashing rules as the server) as the cacheable GET URL.
+
+**Drop-in replacement:** You cannot point an unmodified Apollo APQ link at PQC and expect it to work. You need either a **custom Apollo Link** (or fetch wrapper) that performs the cold GET → POST register → warm GET sequence with PQC’s URLs and extension keys, or a small SDK that mirrors [TESTING.md](../TESTING.md) / WP-CLI flows.
+
+**Alongside APQ:** If your app already uses APQ against another backend, treat PQC as a **separate** persisted layer for WordPress only: branch on endpoint or use a dedicated link chain for the WPGraphQL origin.
 
 ---
 

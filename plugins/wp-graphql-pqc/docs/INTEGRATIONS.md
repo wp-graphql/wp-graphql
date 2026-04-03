@@ -1,5 +1,7 @@
 # Integrations: custom storage, purging, and filters
 
+**Status:** Experimental beta; filter names and behavior may change. See [STATUS.md](./STATUS.md).
+
 This guide is for **hosts**, **platform teams**, and **plugin authors** who need to replace default behavior: swap MySQL for **Redis** (or another KV store), plug in a **purge** integration, or tune URLs and security.
 
 ---
