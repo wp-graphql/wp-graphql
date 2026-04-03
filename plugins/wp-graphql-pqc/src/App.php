@@ -156,8 +156,7 @@ class App {
 	 * @return void
 	 */
 	private function init_components(): void {
-		Schema::maybe_upgrade_executions_table();
-		Schema::maybe_migrate_url_keys_to_keymap();
+		Schema::ensure_schema();
 
 		// Initialize router for rewrite rules.
 		$router = new Router();

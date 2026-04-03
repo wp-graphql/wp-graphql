@@ -342,8 +342,14 @@ use**, not first insert.
 -   `{prefix}wpgraphql_pqc_key_urls` — `key_id`, `url_id` (composite
     primary key)
 
-Legacy `{prefix}wpgraphql_pqc_url_keys` (denormalized) is migrated away
-on upgrade and dropped.
+Early internal builds used a denormalized `{prefix}wpgraphql_pqc_url_keys`
+table. That table is **not** migrated by current releases: greenfield
+installs use only the normalized tables above. If `url_keys` still
+exists on a dev database, plugin **uninstall** / `Schema::drop_table()`
+drops it along with the current tables.
+
+Schema changes are applied with `dbDelta` on each load via
+`Schema::ensure_schema()` (idempotent).
 
 Key design decisions:
 
@@ -760,16 +766,15 @@ Cache itself.
 
 -   ✅ Authentication-aware execution and cache headers.
 
-**Phase 1.5 --- Database Normalization** 🔄 (In Progress)
+**Phase 1.5 --- Database Normalization** ✅ (Shipped for beta)
 
--   Normalize database structure to separate documents from URL-key
-    mappings.
+-   Normalized structure: documents, executions, `urls` + `cache_keys` +
+    `key_urls`.
 
--   Create `wp_wpgraphql_pqc_documents` table for unique query documents.
+-   No automatic migration from legacy `url_keys`; dev databases may
+    drop old tables manually or via uninstall.
 
--   Migrate existing data to normalized structure.
-
--   Update store implementation to use JOINs.
+-   `DBStore` uses the normalized tables.
 
 **Phase 1.6 --- PQC Flow with Nonce** 📋 (Planned)
 
