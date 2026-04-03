@@ -5,27 +5,19 @@
  * @package WPGraphQL\PQC\Tests\Functional
  */
 
+use TestCase\WPGraphQLPQC\PqcFunctionalHttpFixture;
+
 /**
  * Cold GET to an unknown persisted hash should return JSON error + nonce (SPEC).
  */
 class PersistedQueryColdGetCest {
 
 	/**
-	 * Functional HTTP tests hit the real web container; Codeception WPLoader activation does not update `active_plugins`
-	 * in the database. Ensure GraphQL + Smart Cache + PQC are active so Router and query vars register.
-	 *
 	 * @param FunctionalTester $I Actor.
 	 * @return void
 	 */
 	public function _before( FunctionalTester $I ): void {
-		$I->haveOptionInDatabase(
-			'active_plugins',
-			[
-				'wp-graphql/wp-graphql.php',
-				'wp-graphql-smart-cache/wp-graphql-smart-cache.php',
-				'wp-graphql-pqc/wp-graphql-pqc.php',
-			]
-		);
+		PqcFunctionalHttpFixture::ensure_plugins_activated( $I );
 	}
 
 	/**
