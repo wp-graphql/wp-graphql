@@ -35,7 +35,11 @@ updates:
       prefix-development: 'fix'
       include: 'scope'
     groups:
-      wp-graphql-npm-minor-patch:
+      wp-graphql-npm-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      wp-graphql-npm-prod-minor-patch:
+        dependency-type: 'production'
         update-types: [minor, patch]
 
   # wp-graphql-acf plugin.
@@ -72,7 +76,11 @@ updates:
       prefix-development: 'fix'
       include: 'scope'
     groups:
-      wp-graphql-acf-npm-minor-patch:
+      wp-graphql-acf-npm-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      wp-graphql-acf-npm-prod-minor-patch:
+        dependency-type: 'production'
         update-types: [minor, patch]
 
   # wp-graphql-ide plugin.
@@ -109,7 +117,11 @@ updates:
       prefix-development: 'fix'
       include: 'scope'
     groups:
-      wp-graphql-ide-npm-minor-patch:
+      wp-graphql-ide-npm-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      wp-graphql-ide-npm-prod-minor-patch:
+        dependency-type: 'production'
         update-types: [minor, patch]
 
   # wp-graphql-smart-cache plugin.
@@ -146,7 +158,11 @@ updates:
       prefix-development: 'fix'
       include: 'scope'
     groups:
-      wp-graphql-smart-cache-npm-minor-patch:
+      wp-graphql-smart-cache-npm-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      wp-graphql-smart-cache-npm-prod-minor-patch:
+        dependency-type: 'production'
         update-types: [minor, patch]
 
   # WPGraphQL.com NPM dependencies. No release triggered (chore).
@@ -163,7 +179,11 @@ updates:
       prefix-development: 'chore'
       include: 'scope'
     groups:
-      wpgraphql-com-npm-minor-patch:
+      wp-graphql-com-npm-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      wp-graphql-com-npm-prod-minor-patch:
+        dependency-type: 'production'
         update-types: [minor, patch]
 
   # Root NPM dependencies. No release triggered (chore).
@@ -180,7 +200,11 @@ updates:
       prefix-development: 'chore'
       include: 'scope'
     groups:
-      npm-root-minor-patch:
+      npm-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      npm-prod-minor-patch:
+        dependency-type: 'production'
         update-types: [minor, patch]
 
   # GitHub Actions: 1x weekly. No release triggered (chore).
