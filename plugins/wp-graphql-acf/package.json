@@ -9,8 +9,12 @@
 		"directory": "plugins/wp-graphql-acf"
 	},
 	"license": "GPL-3.0-or-later",
+	"engines": {
+		"node": ">=22",
+		"npm": ">=10"
+	},
 	"devDependencies": {
-		"eslint": "^8.57.0"
+		"eslint": "^8.57.1"
 	},
 	"scripts": {
 		"lint": "npm run lint:js && npm run lint:php",
