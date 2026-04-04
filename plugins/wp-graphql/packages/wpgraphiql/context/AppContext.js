@@ -6,7 +6,7 @@ export const useAppContext = () => useContext(AppContext);
 
 /**
  * Get the endpoint from the localized settings provided by WordPress when it enqueues the app
- * @returns
+ * @return
  */
 export const getEndpoint = () => {
 	return window?.wpGraphiQLSettings?.graphqlEndpoint ?? null;
@@ -15,7 +15,7 @@ export const getEndpoint = () => {
 /**
  * Get the nonce from the localized settings provided by WordPress when it enqueues the app
  *
- * @returns
+ * @return
  */
 export const getNonce = () => {
 	return window?.wpGraphiQLSettings?.nonce ?? null;
@@ -27,7 +27,7 @@ export const getNonce = () => {
  * This provider maintains context useful for the entire application.
  *
  * @param {*} param0
- * @returns
+ * @return
  */
 /**
  * Detects if there's a URL mismatch between the current page and the GraphQL endpoint.
@@ -36,10 +36,12 @@ export const getNonce = () => {
  * from a custom domain but the user accesses it via localhost with a port.
  *
  * @param {string} endpoint The GraphQL endpoint URL
- * @returns {object|null} Object with mismatch details, or null if no mismatch
+ * @return {object|null} Object with mismatch details, or null if no mismatch
  */
 const detectUrlMismatch = (endpoint) => {
-	if (!endpoint) return null;
+	if (!endpoint) {
+		return null;
+	}
 
 	try {
 		const endpointUrl = new URL(endpoint);
@@ -68,10 +70,12 @@ const detectUrlMismatch = (endpoint) => {
  * By using the current origin, cookies and nonces will work correctly.
  *
  * @param {string} endpoint The original GraphQL endpoint URL
- * @returns {string} The adjusted endpoint URL using the current origin
+ * @return {string} The adjusted endpoint URL using the current origin
  */
 const getAdjustedEndpoint = (endpoint) => {
-	if (!endpoint) return endpoint;
+	if (!endpoint) {
+		return endpoint;
+	}
 
 	try {
 		const endpointUrl = new URL(endpoint);
@@ -120,7 +124,7 @@ export const AppContextProvider = ({
 		setQueryParams(newQueryParams);
 	};
 
-	let appContextValue = {
+	const appContextValue = {
 		endpoint,
 		setEndpoint,
 		nonce,
@@ -136,7 +140,7 @@ export const AppContextProvider = ({
 		setQueryParams: updateQueryParams,
 	};
 
-	let filteredAppContextValue = hooks.applyFilters(
+	const filteredAppContextValue = hooks.applyFilters(
 		'graphiql_app_context',
 		appContextValue
 	);

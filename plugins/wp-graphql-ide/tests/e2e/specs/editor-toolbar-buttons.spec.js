@@ -1,4 +1,4 @@
-import { describe, test, beforeEach } from '@playwright/test';
+import { describe, test, beforeEach, expect } from '@playwright/test';
 import {
 	getCodeMirrorValue,
 	loginToWordPressAdmin,
@@ -6,7 +6,6 @@ import {
 	setQueryInLocalStorage,
 	typeQuery,
 } from '../utils';
-import { expect } from '@playwright/test';
 
 export const selectors = {
 	graphiqlContainer: '.graphiql-container',

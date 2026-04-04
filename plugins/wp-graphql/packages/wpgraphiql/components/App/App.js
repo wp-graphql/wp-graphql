@@ -40,7 +40,7 @@ const queryParamHistory = {
 /**
  * Return the app
  *
- * @returns
+ * @return
  */
 export const AppWithContext = () => {
 	const filteredQueryParamsConfig = hooks.applyFilters(
@@ -62,7 +62,7 @@ export const AppWithContext = () => {
 			hooks.doAction('graphiql_rendered');
 			setRender(true);
 		}
-	}, []);
+	}, [render]);
 
 	return render ? (
 		<QueryParamProvider history={queryParamHistory}>

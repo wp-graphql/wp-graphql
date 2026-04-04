@@ -155,28 +155,30 @@ test('executes query on public facing page', async ({ page }) => {
 });
 
 test.skip('expect error if invalid json is submitted for variables', async ({
-	page,
+	page: _page,
 }) => {});
 
-test.skip('expect error if invalid query is submitted', async ({ page }) => {});
+test.skip('expect error if invalid query is submitted', async ({
+	page: _page,
+}) => {});
 
 test.describe('query params', () => {
 	test.skip('loads with fetcher in authenticated state if query param ?wpgql_is_authenticated=true', async ({
-		page,
+		page: _page,
 	}) => {});
 
 	test.skip('loads with history pane open if ?wpgql_active_plugin=history', async ({
-		page,
+		page: _page,
 	}) => {});
 	test.skip('loads with docs explorer pane open if ?wpgql_active_plugin=docs', async ({
-		page,
+		page: _page,
 	}) => {});
 	test.skip('loads with no visible plugin pane open if ?wpgql_active_plugin is not set or does not have a valid plugin name set', async ({
-		page,
+		page: _page,
 	}) => {});
 
 	test.skip('loads with variables pane populated if ?wpgql_variables is not set or does not have a valid plugin name set', async ({
-		page,
+		page: _page,
 	}) => {});
 
 	test('loads with drawer open if ?wpgraphql_ide exists as a query param', async ({
@@ -210,17 +212,17 @@ test.describe('query params', () => {
 	});
 
 	test.skip('loads with drawer open if ?wpgraphql_ide_hash exists as a query param', async ({
-		page,
+		page: _page,
 	}) => {});
 	test.skip('query editor is populated with the (unhashed) query passed in from the ?wpgraphql_ide_hash query param', async ({
-		page,
+		page: _page,
 	}) => {});
 
 	// This tests that the wpgraphql-ide query parameter will load graphiql in an opened state
 	// It also tests that the query parameter will populate the query input
 	// test.skip( 'graphiql loads with ?wpgraphql_ide populated from query parameter', async ({ page }) => {
 	// 	const query = 'query TestQuery{posts{nodes{databaseId}}}';
-	// 	const url = `http://localhost:8888/wp-admin?wpgraphql-ide=open&query=${query}`;
+	// 	const url = `http://localhost:8889/wp-admin?wpgraphql-ide=open&query=${query}`;
 	// 	await page.goto(url, { waitUntil: 'networkidle' });
 	// 	await expect(page.locator(selectors.graphiqlContainer)).toBeVisible();
 	// 	await page.waitForSelector(selectors.queryInput);

@@ -6,6 +6,7 @@ on:
       - main
       - release/*
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
       - release/*
@@ -36,9 +37,9 @@ jobs:
       wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
-      # Add outputs for additional plugins here:
-      # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
+      wp-graphql-acf: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
+      is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -51,6 +52,23 @@ jobs:
             echo "🔔 Detected Release PR - will run integration tests for all plugins"
           else
             echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if PR is from a fork
+        id: check-fork-pr
+        run: |
+          # Fork PRs cannot receive secrets (e.g. ACF_LICENSE_KEY). Skip wp-graphql-acf job to avoid failure.
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
+            BASE_REPO="${{ github.repository }}"
+            if [[ -z "$HEAD_REPO" ]] || [[ "$HEAD_REPO" != "$BASE_REPO" ]]; then
+              echo "is-fork-pr=true" >> $GITHUB_OUTPUT
+              echo "🔔 PR from fork - wp-graphql-acf job will be skipped (secrets not available)"
+            else
+              echo "is-fork-pr=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "is-fork-pr=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Detect changed files
@@ -106,18 +124,31 @@ jobs:
               - package-lock.json
               - .wp-env.json
               - bin/**
-            # Add additional plugins here:
-            # wpgraphql-acf:
-            #   - .github/workflows/integration-tests-reusable.yml
-            #   - .github/workflows/integration-tests.yml
-            #   - plugins/wpgraphql-acf/**
+            wp-graphql-acf:
+              - .github/workflows/integration-tests-reusable.yml
+              - .github/workflows/integration-tests.yml
+              - plugins/wp-graphql-acf/**/*.php
+              - plugins/wp-graphql-acf/composer.json
+              - plugins/wp-graphql-acf/composer.lock
+              - plugins/wp-graphql-acf/package.json
+              - plugins/wp-graphql-acf/package-lock.json
+              - plugins/wp-graphql-acf/tests/**
+              - plugins/wp-graphql-acf/codeception.dist.yml
+              - plugins/wp-graphql/**/*.php
+              - .release-please-manifest.json
+              - package.json
+              - package-lock.json
+              - .wp-env.json
+              - bin/**
 
       - name: Log detected changes
         run: |
           echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
           echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
+          echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
           echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
+          echo "is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}"
 
   # ===========================================
   # TEST MATRIX
@@ -282,6 +313,7 @@ jobs:
       multisite: ${{ matrix.multisite }}
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
+      install_wp_graphql_core_deps: true
 
   # ===========================================
   # WP GraphQL IDE
@@ -340,6 +372,89 @@ jobs:
       multisite: ${{ matrix.multisite }}
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
+      install_wp_graphql_core_deps: true
+
+  # ===========================================
+  # WP GraphQL for ACF – matrix (full vs Free-only for fork PRs)
+  # ===========================================
+  # For PRs from forks, secrets (ACF_LICENSE_KEY, ACF_EXTENDED_LICENSE_KEY) are not
+  # available. We output only ACF Free / ACF Extended Free rows so fork PRs still run
+  # integration tests without needing Pro licenses.
+  # ===========================================
+
+  acf-matrix:
+    name: ACF matrix
+    runs-on: ubuntu-24.04
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.wp-graphql-acf == 'true' ||
+      needs.detect-changes.outputs.is-release-pr == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set ACF test matrix
+        id: set-matrix
+        run: |
+          FULL_MATRIX='{"include":[
+            {"name":"wp-graphql-acf / WP 6.9 / PHP 8.4 / ACF Pro + ACF Extended Pro","php":"8.4","wp":"6.9","theme":"twentytwentyfive","multisite":false,"coverage":true,"acf_pro":true,"acf_extended":true,"acf_extended_pro":true,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Pro","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free + ACF Extended Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":true,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.2 / PHP 7.4 / ACF Free","php":"7.4","wp":"6.2","theme":"twentytwentyone","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP trunk / PHP 8.4 / ACF Pro","php":"8.4","wp":"trunk","theme":"twentytwentyfive","multisite":false,"coverage":false,"experimental":true,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false}
+          ]}'
+          FREE_ONLY_MATRIX='{"include":[
+            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free + ACF Extended Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":true,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.2 / PHP 7.4 / ACF Free","php":"7.4","wp":"6.2","theme":"twentytwentyone","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false}
+          ]}'
+          if [[ "${{ needs.detect-changes.outputs.is-fork-pr }}" == "true" ]]; then
+            echo "matrix<<EOF" >> $GITHUB_OUTPUT
+            echo "$FREE_ONLY_MATRIX" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "🔔 Fork PR: running ACF Free / ACF Extended Free matrix only (no Pro; secrets not available)"
+          else
+            echo "matrix<<EOF" >> $GITHUB_OUTPUT
+            echo "$FULL_MATRIX" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+  # ===========================================
+  # WP GraphQL for ACF
+  # ===========================================
+  # Tests the WP GraphQL for ACF plugin.
+  # ACF plugin depends on WPGraphQL, so wp-graphql changes trigger these tests.
+  # Tests against multiple ACF configurations: Free, Pro, and ACF Extended variations.
+  # For fork PRs, only ACF Free / ACF Extended Free rows run (see acf-matrix job).
+  # ===========================================
+
+  wp-graphql-acf:
+    name: 'Integration: ${{ matrix.name }}'
+    needs: [detect-changes, acf-matrix]
+    if: |
+      needs.detect-changes.outputs.wp-graphql-acf == 'true' ||
+      needs.detect-changes.outputs.is-release-pr == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.acf-matrix.outputs.matrix) }}
+    uses: ./.github/workflows/integration-tests-reusable.yml
+    secrets: inherit
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql-acf
+      plugin_name: wp-graphql-acf
+      wp: ${{ matrix.wp }}
+      php: ${{ matrix.php }}
+      theme: ${{ matrix.theme }}
+      multisite: ${{ matrix.multisite }}
+      coverage: ${{ matrix.coverage }}
+      experimental: ${{ matrix.experimental || false }}
+      acf_pro: ${{ matrix.acf_pro && 'true' || 'false' }}
+      acf_extended: ${{ matrix.acf_extended && 'true' || 'false' }}
+      acf_extended_pro: ${{ matrix.acf_extended_pro && 'true' || 'false' }}
+      install_wp_graphql_core_deps: true
 
   # ===========================================
   # FINAL STATUS CHECK
@@ -352,7 +467,7 @@ jobs:
   status-check:
     name: 'Integration Tests'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide]
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf]
     if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check integration test results
@@ -379,5 +494,12 @@ jobs:
           fi
           if [ "${{ needs.wp-graphql-ide.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-ide tests skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-acf.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-acf integration tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-acf.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-acf tests skipped (no changes detected)"
           fi
           echo "✅ All required integration tests passed"

@@ -7,6 +7,13 @@
 # branch from "master" to "main" on their backend.
 #
 # Reference: https://github.com/codecov/codecov-action/issues/242
+#
+# PATCH COVERAGE BASELINE: Patch coverage (coverage of changed lines) requires the
+# base commit to have at least one successful coverage upload. If the base branch
+# (e.g. main) has never had coverage uploaded, or this PR adds a large amount of
+# new code with no prior baseline, Codecov may show "no uploads" for patch. Fix:
+# ensure the default branch has a passing CI run that uploads coverage, then
+# re-run this PR's checks or rebase onto that commit.
 
 codecov:
   notify:

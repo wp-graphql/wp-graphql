@@ -1,0 +1,9 @@
+# Generated / output dirs
+tests/_output/
+build/
+coverage/
+plugins/*/build/
+
+# Dependencies
+node_modules/
+vendor/

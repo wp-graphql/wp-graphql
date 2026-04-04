@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql-ide",
-	"version": "4.0.24",
+	"version": "4.1.0",
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -25,9 +25,10 @@
 		"check-engines": "wp-scripts check-engines",
 		"clean": "rimraf node_modules plugins/*/node_modules plugins/*/build build",
 		"format": "wp-scripts format",
+		"install-test-deps": "true",
 		"lint": "npm run lint:js",
-		"lint:js": "wp-scripts lint-js ./src",
-		"lint:js:fix": "wp-scripts lint-js --fix ./src",
+		"lint:js": "wp-scripts lint-js ./src bin plugins/help-panel/src plugins/query-composer-panel/src tests-examples tests/e2e tests/unit webpack.config.js",
+		"lint:js:fix": "wp-scripts lint-js --fix ./src bin plugins/help-panel/src plugins/query-composer-panel/src tests-examples tests/e2e tests/unit webpack.config.js",
 		"prepare": "husky install",
 		"start": "concurrently --kill-others-on-fail -n 'Main,Plugins' -c 'blue,green' \"wp-scripts start\" \"node bin/start-plugins.js\"",
 		"pretest:codecept": "npm run build:main || echo '⚠️  Build failed, tests may fail if build assets are missing'",
@@ -44,6 +45,15 @@
 	"lint-staged": {
 		"package.json": "sort-package-json",
 		"src/**/*.{js,jsx,ts,tsx}": "wp-scripts lint-js"
+	},
+	"overrides": {
+		"@babel/runtime": "^7.27.6",
+		"@graphiql/react": "^0.22.2",
+		"fast-xml-parser": ">5.3.0",
+		"graphiql": "^3.9.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"webpack-dev-server": ">=5.2.1"
 	},
 	"dependencies": {
 		"@graphiql/react": "^0.22.4",
@@ -64,25 +74,32 @@
 		"vaul": "^0.9.0"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.23.9",
-		"@babel/preset-react": "^7.23.3",
-		"@playwright/test": "^1.58.0",
-		"@testing-library/jest-dom": "^6.4.2",
-		"@testing-library/react": "^14.2.1",
-		"@types/node": "^22.19.3",
-		"@wordpress/e2e-test-utils-playwright": "^0.19.0",
-		"@wordpress/env": "^10.37.0",
-		"@wordpress/prettier-config": "^4.38.0",
+		"@babel/preset-env": "^7.29.2",
+		"@babel/preset-react": "^7.28.5",
+		"@playwright/test": "^1.59.1",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^15.0.7",
+		"@types/node": "^22.19.17",
+		"@typescript-eslint/eslint-plugin": "^6.21.0",
+		"@typescript-eslint/parser": "^6.21.0",
+		"@wordpress/e2e-test-utils-playwright": "^0.19.3",
+		"@wordpress/env": "^10.39.0",
+		"@wordpress/prettier-config": "^4.43.0",
 		"@wordpress/scripts": "^27.9.0",
-		"babel-jest": "^29.7.0",
-		"chalk": "^5.3.0",
-		"clsx": "^2.0.0",
+		"babel-jest": "^30.3.0",
+		"chalk": "^5.6.2",
+		"clsx": "^2.1.1",
 		"concurrently": "^8.2.2",
-		"docker-compose": "^0.24.6",
-		"dotenv": "^16.4.4",
-		"husky": "^9.0.11",
-		"lint-staged": "^16.2.7",
-		"rimraf": "^5.0.0",
-		"sort-package-json": "^2.7.0"
+		"docker-compose": "^0.24.8",
+		"dotenv": "^16.6.1",
+		"eslint-plugin-jest": "^27.9.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
+		"rimraf": "^6.1.3",
+		"sort-package-json": "^3.6.1"
+	},
+	"engines": {
+		"node": ">=22",
+		"npm": ">=10"
 	}
 }

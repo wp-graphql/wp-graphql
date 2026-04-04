@@ -186,7 +186,7 @@ export function defaultInputObjectFields(
 		) {
 			const fieldType = unwrapInputType(field.type);
 			if (isInputObjectType(fieldType)) {
-				const fields = fieldType.getFields();
+				const fieldMap = fieldType.getFields();
 				nodes.push({
 					kind: 'ObjectField',
 					name: { kind: 'Name', value: field.name },
@@ -196,7 +196,7 @@ export function defaultInputObjectFields(
 							getDefaultScalarArgValue,
 							makeDefaultArg,
 							parentField,
-							Object.keys(fields).map((k) => fields[k])
+							Object.keys(fieldMap).map((k) => fieldMap[k])
 						),
 					},
 				});
@@ -225,7 +225,7 @@ export function defaultArgs(getDefaultScalarArgValue, makeDefaultArg, field) {
 		) {
 			const argType = unwrapInputType(arg.type);
 			if (isInputObjectType(argType)) {
-				const fields = argType.getFields();
+				const argFields = argType.getFields();
 				args.push({
 					kind: 'Argument',
 					name: { kind: 'Name', value: arg.name },
@@ -235,7 +235,7 @@ export function defaultArgs(getDefaultScalarArgValue, makeDefaultArg, field) {
 							getDefaultScalarArgValue,
 							makeDefaultArg,
 							field,
-							Object.keys(fields).map((k) => fields[k])
+							Object.keys(argFields).map((k) => argFields[k])
 						),
 					},
 				});

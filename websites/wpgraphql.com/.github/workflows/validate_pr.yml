@@ -1,0 +1,75 @@
+name: Run Checks on PRs
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  setup:
+    name: Setup Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: ./.github/actions/cache-restore
+        id: cache-node-modules
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --immutable
+  check_format:
+    name: Validate formating with Prettier
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: ./.github/actions/cache-restore
+
+      - name: Format source code
+        run: yarn test:format
+
+  check_lint:
+    name: Validate linting with ESLint
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: ./.github/actions/cache-restore
+
+      - name: Format source code
+        run: yarn test:lint
+  # test:
+  #   name: Run package tests (Node.js v${{ matrix.node }})
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node: ["14", "16"]
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Node.js v${{ matrix.node }}
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: ${{ matrix.node }}
+  #         cache: "yarn"
+
+  #     - name: Install dependencies
+  #       run: yarn install --immutable
+
+  #     - name: Build packages
+  #       run: yarn build
+
+  #     - name: Execute tests
+  #       run: yarn test
+  #       env:
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         AWS_REGION: ${{ secrets.AWS_REGION }}

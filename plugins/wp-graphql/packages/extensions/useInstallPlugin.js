@@ -26,10 +26,10 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
 
 	const activatePlugin = async (path = pluginPath) => {
 		setActivating(true);
-		updateStatus(__('Activating...', 'wp-graphql'));
+		updateStatus(__('Activating…', 'wp-graphql'));
 
 		if (!path) {
-			let slug = new URL(pluginUrl).pathname
+			const slug = new URL(pluginUrl).pathname
 				.split('/')
 				.filter(Boolean)
 				.pop();
@@ -73,16 +73,19 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
 
 	const installPlugin = async () => {
 		setInstalling(true);
-		updateStatus(__('Installing...', 'wp-graphql'));
+		updateStatus(__('Installing…', 'wp-graphql'));
 
-		let slug = new URL(pluginUrl).pathname.split('/').filter(Boolean).pop();
+		const slug = new URL(pluginUrl).pathname
+			.split('/')
+			.filter(Boolean)
+			.pop();
 
 		try {
 			const installResult = await apiFetch({
 				path: '/wp/v2/plugins',
 				method: 'POST',
 				data: {
-					slug: slug,
+					slug,
 					status: 'inactive',
 				},
 				headers: {

@@ -1,0 +1,35 @@
+# The following files should be ignored:
+# - unencrypted sensitive data
+# - files that are not checked into the code repository
+# - files that are not relevant to the Docker build
+
+.git
+.idea
+bin
+docker-output
+docs
+img
+
+tests/_output
+!tests/_output/.gitignore
+tests/_support/_generated
+!tests/_support/_generated/.gitignore
+
+vendor
+!vendor/autoload.php
+!vendor/ivome/graphql-relay-php/src
+!vendor/webonyx/graphql-php/src
+!vendor/composer
+
+.dockerignore
+.gitignore
+.travis.yml
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dockerfile*
+ISSUE_TEMPLATE.md
+LICENSE
+PULL_REQUEST_TEMPLATE.md
+README.md
+readme.txt
+run-docker*.sh

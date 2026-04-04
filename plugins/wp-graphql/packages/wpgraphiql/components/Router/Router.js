@@ -34,7 +34,7 @@ const StyledRouter = styled.div`
 /**
  * Get the screens that should be displayed in the router.
  *
- * @returns
+ * @return
  */
 const getScreens = () => {
 	const screens = [
@@ -77,6 +77,7 @@ const RouterSider = (props) => {
 	 * Update the current screen, setting the state and the queryParam
 	 *
 	 * @param string screenId
+	 * @param screen
 	 */
 	const updateCurrentScreen = (screen) => {
 		setCurrentScreen(screen);
@@ -84,7 +85,7 @@ const RouterSider = (props) => {
 	};
 
 	const getMenuItems = () => {
-		let menuItems = [];
+		const menuItems = [];
 
 		screens &&
 			screens.map((screen) => {
@@ -224,7 +225,14 @@ const Router = (props) => {
 				`,
 			})
 			.then(querySuccess, queryFailure);
-	}, [endpoint]);
+	}, [
+		endpoint,
+		schema,
+		setSchema,
+		setSchemaError,
+		setSchemaLoading,
+		urlMismatch,
+	]);
 
 	const getActiveScreenName = () => {
 		// find the matching screen

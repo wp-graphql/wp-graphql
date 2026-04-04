@@ -66,7 +66,7 @@ jobs:
           extensions: json, mbstring
 
       - name: Install Composer dependencies (production)
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: ${{ inputs.composer_working_dir }}
           # Use --no-dev to match the production release build
@@ -81,11 +81,15 @@ jobs:
 
       - name: Install NPM dependencies
         if: inputs.needs_build == true
-        run: npm ci
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
 
       - name: Build JavaScript assets
         if: inputs.needs_build == true
-        run: npm run build
+        run: npm run build -- --filter='./plugins/*'
 
       - name: Build wp-graphql zip (if required as dependency)
         if: inputs.requires_wp_graphql == true
@@ -98,7 +102,7 @@ jobs:
             # Build JS assets if needed
             if [ -f "plugins/wp-graphql/package.json" ]; then
               npm ci
-              npm run build
+              npm run build -- --filter='./plugins/*'
             fi
             # Build production zip
             cd plugins/wp-graphql
@@ -230,7 +234,7 @@ jobs:
 
       - name: Upload tested zip artifact
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.plugin_name }}-smoke-tested-${{ inputs.wp }}-${{ inputs.php }}
           path: |
@@ -239,4 +243,4 @@ jobs:
 
       - name: Stop WordPress environment
         if: always()
-        run: npm run wp-env stop
+        run: npm run wp-env stop || echo "wp-env not running or already stopped"

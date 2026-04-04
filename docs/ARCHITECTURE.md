@@ -9,7 +9,10 @@ wp-graphql/
 ├── plugins/                    # WordPress plugins
 │   ├── wp-graphql/            # WPGraphQL core plugin
 │   ├── wp-graphql-smart-cache/ # Smart Cache extension plugin
-│   └── wp-graphql-ide/        # IDE extension plugin
+│   ├── wp-graphql-ide/        # IDE extension plugin
+│   └── wp-graphql-acf/        # ACF extension plugin
+├── websites/                  # Next.js websites
+│   └── wpgraphql.com/         # WPGraphQL.com website
 ├── docs/                      # Contributor documentation
 ├── bin/                       # Shared scripts
 ├── .github/                   # GitHub workflows and templates
@@ -42,7 +45,7 @@ The root `package.json` defines workspaces:
 
 ```json
 {
-  "workspaces": ["plugins/*"]
+  "workspaces": ["plugins/*", "websites/*"]
 }
 ```
 
@@ -278,6 +281,8 @@ Add a new entry in the `packages` object:
 - `package.json` (if it has a version field)
 - Any PHP constants files with version constants
 
+**WordPress.org slug (when it differs from the component name):** If the plugin's slug on WordPress.org is different from the repo folder name (e.g. directory `wp-graphql-acf` but WordPress.org slug `wpgraphql-acf`), add `"wp_org_slug": "wpgraphql-your-plugin"` to the plugin's entry in `release-please-config.json`. The release workflow uses this for SVN checkout and deployment; omit it when the .org slug matches the component name (e.g. core `wp-graphql`).
+
 **Add to `.release-please-manifest.json`:**
 
 After adding the plugin to `release-please-config.json`, you **must** also add it to `.release-please-manifest.json` with the current version number:
@@ -292,14 +297,30 @@ After adding the plugin to `release-please-config.json`, you **must** also add i
 
 > **⚠️ Critical:** The manifest file tells release-please what the current version is. If you forget this step, release-please will default to `1.0.0` for the first release, even if your plugin is already at a higher version (e.g., `4.0.24`). Always check the plugin's main PHP file for the current version number and add it to the manifest.
 
-### 4. Version Constants Script
+### 4. Version Constants Configuration
 
-**Update `scripts/update-version-constants.js`:**
+**Add `constantMap` to `release-please-config.json`:**
 
-If your plugin defines a version constant (e.g., `define( 'YOUR_PLUGIN_VERSION', '1.0.0' );`), add a mapping in the `getConstantMapping()` function:
+If your plugin defines a version constant (e.g., `define( 'YOUR_PLUGIN_VERSION', '1.0.0' );`), add a `constantMap` entry to your plugin's configuration in `release-please-config.json`:
 
-```javascript
-function getConstantMapping(component) {
+```json
+"plugins/your-plugin-name": {
+  "component": "your-plugin-name",
+  "constantMap": {
+    "constantName": "YOUR_PLUGIN_VERSION",
+    "fileName": "your-plugin-name.php",
+    "mainPluginFile": "your-plugin-name.php"
+  },
+  // ... rest of config
+}
+```
+
+**Configuration fields:**
+- `constantName`: The PHP constant name (e.g., `YOUR_PLUGIN_VERSION`)
+- `fileName`: The file containing the constant definition (can be the same as `mainPluginFile` if constant is in the main file)
+- `mainPluginFile`: The main plugin file that contains the `Version:` header
+
+**Note:** The `update-version-constants.js` script automatically reads from `release-please-config.json`, so no code changes are needed when adding new plugins.
 	const mappings = {
 		'wp-graphql': {
 			constantName: 'WPGRAPHQL_VERSION',

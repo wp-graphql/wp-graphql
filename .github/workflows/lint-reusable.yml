@@ -54,16 +54,19 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHPCS scan cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         with:
           path: ./tests/_output/phpcs-cache.json
           # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
           key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
+
+      - name: Create tests output directory
+        run: mkdir -p tests/_output
 
       - name: Run PHPCS
         id: phpcs
@@ -116,7 +119,7 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHP Static Analysis scan cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         with:
           path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
           key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
@@ -124,19 +127,22 @@ jobs:
             phpstan-result-cache-
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
+
+      - name: Create tests output directory
+        run: mkdir -p tests/_output
 
       - name: Make Composer packages available globally
         run: echo "${PWD}/vendor/bin" >> "$GITHUB_PATH"
 
       - name: Run PHP static analysis tests
         id: phpstan
-        run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
+        run: phpstan analyse -vvv --memory-limit=2G --error-format=checkstyle | cs2pr
 
       - name: Save result cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         if: ${{ !cancelled() }}
         with:
           path: ${{ inputs.plugin_path }}/tests/_output
@@ -172,7 +178,11 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
 
       - name: Check if lint:js script exists
         id: check-script

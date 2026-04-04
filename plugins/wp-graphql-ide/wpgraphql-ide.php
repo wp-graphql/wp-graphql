@@ -8,7 +8,7 @@
  * License:           GPL-3
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       wpgraphql-ide
- * Version:           4.0.24
+ * Version:           4.1.0
  * Requires PHP:      7.4
  * Tested up to:      6.8
  * Requires Plugins:  wp-graphql
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPGRAPHQL_IDE_VERSION', '4.0.24' );
+define( 'WPGRAPHQL_IDE_VERSION', '4.1.0' );
 define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

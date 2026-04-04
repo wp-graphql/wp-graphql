@@ -102,6 +102,7 @@ add_action(
 	'graphql_server_config',
 	function ( \GraphQL\Server\ServerConfig $config ) {
 		$config->setPersistedQueryLoader(
+			/** @phpstan-ignore-next-line argument.type (Stub: GraphQL\Server\DocumentNode; runtime: GraphQL\Language\AST\DocumentNode) */
 			function ( string $queryId, \GraphQL\Server\OperationParams $params ) {
 				return Loader::by_query_id( $queryId, (array) $params );
 			}

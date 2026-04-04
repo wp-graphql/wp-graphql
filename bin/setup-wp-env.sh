@@ -139,6 +139,10 @@ configure_apache() {
 	docker compose exec -T $ENV_NAME grep -E "(ServerName|HTTP_AUTHORIZATION)" /etc/apache2/apache2.conf || echo "WARNING: Config issue!"
 }
 
+# Disable debug display in tests environment so PHP notices/warnings don't appear in HTML
+# and break functional tests. Only patch the tests-cli container's wp-config.
+npm run wp-env run tests-cli -- bash -c 'if [ -f /var/www/html/wp-config.php ]; then sed -i "/WP_DEBUG_DISPLAY/s/true/false/" /var/www/html/wp-config.php; fi' 2>/dev/null || true
+
 # Fix internal Docker URL resolution for acceptance/functional tests
 # wp-env sets WP_SITEURL to localhost:8889, but that port doesn't work inside
 # the container (only port 80 works internally). This mu-plugin rewrites URLs

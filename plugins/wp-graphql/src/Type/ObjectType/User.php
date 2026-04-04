@@ -81,12 +81,12 @@ class User {
 				],
 				'fields'      => static function () {
 					return [
-						'id'                     => [
+						'id'                           => [
 							'description' => static function () {
 								return __( 'The globally unique identifier for the user object.', 'wp-graphql' );
 							},
 						],
-						'capabilities'           => [
+						'capabilities'                 => [
 							'type'        => [
 								'list_of' => 'String',
 							],
@@ -94,13 +94,13 @@ class User {
 								return __( 'A list of capabilities (permissions) granted to the user', 'wp-graphql' );
 							},
 						],
-						'capKey'                 => [
+						'capKey'                       => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'User metadata option name. Usually it will be "wp_capabilities".', 'wp-graphql' );
 							},
 						],
-						'databaseId'             => [
+						'databaseId'                   => [
 							'type'        => [ 'non_null' => 'Int' ],
 							'description' => static function () {
 								return __( 'Identifies the primary key from the database.', 'wp-graphql' );
@@ -109,19 +109,19 @@ class User {
 								return (int) $user->databaseId;
 							},
 						],
-						'description'            => [
+						'description'                  => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Description of the user.', 'wp-graphql' );
 							},
 						],
-						'email'                  => [
+						'email'                        => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Email address of the user. This is equivalent to the WP_User->user_email property.', 'wp-graphql' );
 							},
 						],
-						'extraCapabilities'      => [
+						'extraCapabilities'            => [
 							'type'        => [
 								'list_of' => 'String',
 							],
@@ -129,68 +129,68 @@ class User {
 								return __( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' );
 							},
 						],
-						'firstName'              => [
+						'firstName'                    => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'First name of the user. This is equivalent to the WP_User->user_first_name property.', 'wp-graphql' );
 							},
 						],
-						'lastName'               => [
+						'lastName'                     => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' );
 							},
 						],
 
-						'username'               => [
+						'username'                     => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Username for the user. This field is equivalent to WP_User->user_login.', 'wp-graphql' );
 							},
 						],
-						'name'                   => [
+						'name'                         => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Display name of the user. This is equivalent to the WP_User->display_name property.', 'wp-graphql' );
 							},
 						],
-						'registeredDate'         => [
+						'registeredDate'               => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'The date the user registered or was created. The field follows a full ISO8601 date string format.', 'wp-graphql' );
 							},
 						],
-						'nickname'               => [
+						'nickname'                     => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Nickname of the user.', 'wp-graphql' );
 							},
 						],
-						'url'                    => [
+						'url'                          => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'A website url that is associated with the user.', 'wp-graphql' );
 							},
 						],
-						'slug'                   => [
+						'slug'                         => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'The slug for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' );
 							},
 						],
-						'nicename'               => [
+						'nicename'                     => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'The nicename for the user. This field is equivalent to WP_User->user_nicename', 'wp-graphql' );
 							},
 						],
-						'locale'                 => [
+						'locale'                       => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'The preferred language locale set for the user. Value derived from get_user_locale().', 'wp-graphql' );
 							},
 						],
-						'userId'                 => [
+						'userId'                       => [
 							'type'              => 'Int',
 							'description'       => static function () {
 								return __( 'The Id of the user. Equivalent to WP_User->ID', 'wp-graphql' );
@@ -199,19 +199,43 @@ class User {
 								return __( 'Deprecated in favor of the databaseId field', 'wp-graphql' );
 							},
 						],
-						'isRestricted'           => [
+						'isRestricted'                 => [
 							'type'        => 'Boolean',
 							'description' => static function () {
 								return __( 'Whether the object is restricted from the current viewer', 'wp-graphql' );
 							},
 						],
-						'shouldShowAdminToolbar' => [
+						'shouldShowAdminToolbar'       => [
 							'type'        => 'Boolean',
 							'description' => static function () {
 								return __( 'Whether the Toolbar should be displayed when the user is viewing the site.', 'wp-graphql' );
 							},
 						],
-						'avatar'                 => [
+						'adminColor'                   => [
+							'type'        => 'String',
+							'description' => static function () {
+								return __( 'The admin color scheme preference for the user. Possible values include "fresh", "light", "blue", "coffee", "ectoplasm", "midnight", "ocean", "sunrise". Default is "fresh".', 'wp-graphql' );
+							},
+						],
+						'hasRichEditingEnabled'        => [
+							'type'        => 'Boolean',
+							'description' => static function () {
+								return __( 'Whether the user has enabled the visual editor. When enabled, the WYSIWYG editor is used for content editing. Defaults to true.', 'wp-graphql' );
+							},
+						],
+						'hasSyntaxHighlightingEnabled' => [
+							'type'        => 'Boolean',
+							'description' => static function () {
+								return __( 'Whether the user has enabled syntax highlighting when editing code within the post editor. Defaults to true.', 'wp-graphql' );
+							},
+						],
+						'hasCommentShortcutsEnabled'   => [
+							'type'        => 'Boolean',
+							'description' => static function () {
+								return __( 'Whether the user has enabled keyboard shortcuts for comment moderation. Defaults to false.', 'wp-graphql' );
+							},
+						],
+						'avatar'                       => [
 							'args'    => [
 								'size'         => [
 									'type'         => 'Int',

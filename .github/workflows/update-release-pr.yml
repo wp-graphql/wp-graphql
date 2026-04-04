@@ -55,13 +55,13 @@ jobs:
 
       - name: Extract version and component from PR
         id: version_info
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BRANCH_NAME: ${{ github.head_ref }}
         run: |
           # Extract version and component from the PR title or branch name
           # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
           # Branch names are like "release-please--branches--main--components--wp-graphql"
-
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          BRANCH_NAME="${{ github.head_ref }}"
 
           # Extract component from PR title (e.g., "wp-graphql" from "release wp-graphql 2.7.0")
           COMPONENT=$(echo "$PR_TITLE" | grep -oE 'release\s+([a-z0-9-]+)' | awk '{print $2}' || echo "")
@@ -90,8 +90,9 @@ jobs:
       - name: Replace x-release-please-version placeholders
         if: steps.version_info.outputs.version != ''
         working-directory: ${{ steps.version_info.outputs.plugin_dir }}
+        env:
+          VERSION: ${{ steps.version_info.outputs.version }}
         run: |
-          VERSION="${{ steps.version_info.outputs.version }}"
           echo "🔄 Replacing x-release-please-version placeholders with ${VERSION}..."
 
           # Replace in all PHP files
@@ -130,23 +131,31 @@ jobs:
 
       - name: Update version constants
         if: steps.version_info.outputs.version != ''
+        env:
+          VERSION: ${{ steps.version_info.outputs.version }}
+          COMPONENT: ${{ steps.version_info.outputs.component }}
+          PLUGIN_DIR: ${{ steps.version_info.outputs.plugin_dir }}
         run: |
           node scripts/update-version-constants.js \
-            --version=${{ steps.version_info.outputs.version }} \
-            --component=${{ steps.version_info.outputs.component }} \
-            --plugin-dir=${{ steps.version_info.outputs.plugin_dir }}
+            --version="$VERSION" \
+            --component="$COMPONENT" \
+            --plugin-dir="$PLUGIN_DIR"
 
       - name: Update Upgrade Notice
         if: steps.version_info.outputs.version != ''
+        env:
+          VERSION: ${{ steps.version_info.outputs.version }}
+          PLUGIN_DIR: ${{ steps.version_info.outputs.plugin_dir }}
         run: |
           node scripts/update-upgrade-notice.js \
-            --version=${{ steps.version_info.outputs.version }} \
-            --plugin-dir=${{ steps.version_info.outputs.plugin_dir }}
+            --version="$VERSION" \
+            --plugin-dir="$PLUGIN_DIR"
 
       - name: Check for languages directory
         id: i18n
+        env:
+          PLUGIN_DIR: ${{ steps.version_info.outputs.plugin_dir }}
         run: |
-          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
           if [ -d "${PLUGIN_DIR}/languages" ]; then
             echo "enabled=true" >> $GITHUB_OUTPUT
             echo "Languages directory found - will regenerate POT file"
@@ -158,8 +167,9 @@ jobs:
       - name: Regenerate POT file
         if: steps.i18n.outputs.enabled == 'true' && steps.version_info.outputs.version != ''
         working-directory: ${{ steps.version_info.outputs.plugin_dir }}
+        env:
+          COMPONENT: ${{ steps.version_info.outputs.component }}
         run: |
-          COMPONENT="${{ steps.version_info.outputs.component }}"
           wp i18n make-pot . languages/${COMPONENT}.pot \
             --slug=${COMPONENT} \
             --domain=${COMPONENT} \
@@ -169,8 +179,9 @@ jobs:
 
       - name: Check for changes
         id: changes
+        env:
+          PLUGIN_DIR: ${{ steps.version_info.outputs.plugin_dir }}
         run: |
-          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
           CHANGED_FILES=""
 
           # Check if any files changed
@@ -189,10 +200,10 @@ jobs:
 
       - name: Commit and push changes
         if: steps.changes.outputs.changed == 'true'
+        env:
+          PLUGIN_DIR: ${{ steps.version_info.outputs.plugin_dir }}
+          COMPONENT: ${{ steps.version_info.outputs.component }}
         run: |
-          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
-          COMPONENT="${{ steps.version_info.outputs.component }}"
-
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add "$PLUGIN_DIR"

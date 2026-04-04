@@ -1021,4 +1021,199 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['user'] );
 	}
+
+	/**
+	 * Test querying user admin preferences fields
+	 *
+	 * Tests the new core user meta fields:
+	 * - adminColor
+	 * - hasRichEditingEnabled
+	 * - hasSyntaxHighlightingEnabled
+	 * - hasCommentShortcutsEnabled
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/479
+	 */
+	public function testUserAdminPreferencesFields() {
+		// Create a user
+		$user_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		// Set user option values (using update_user_option for consistency with get_user_option)
+		update_user_option( $user_id, 'admin_color', 'midnight' );
+		update_user_option( $user_id, 'rich_editing', 'true' );
+		update_user_option( $user_id, 'syntax_highlighting', 'false' );
+		update_user_option( $user_id, 'comment_shortcuts', 'true' );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$query = "
+		query {
+			user(id: \"{$global_id}\") {
+				adminColor
+				hasRichEditingEnabled
+				hasSyntaxHighlightingEnabled
+				hasCommentShortcutsEnabled
+			}
+		}";
+
+		// Authenticate as admin to see these fields
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'midnight', $actual['data']['user']['adminColor'] );
+		$this->assertTrue( $actual['data']['user']['hasRichEditingEnabled'] );
+		$this->assertFalse( $actual['data']['user']['hasSyntaxHighlightingEnabled'] );
+		$this->assertTrue( $actual['data']['user']['hasCommentShortcutsEnabled'] );
+	}
+
+	/**
+	 * Test user admin preferences fields with default values
+	 *
+	 * Tests that default values are returned when user meta is not set.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/479
+	 */
+	public function testUserAdminPreferencesDefaultValues() {
+		// Create a user without setting any meta
+		$user_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$query = "
+		query {
+			user(id: \"{$global_id}\") {
+				adminColor
+				hasRichEditingEnabled
+				hasSyntaxHighlightingEnabled
+				hasCommentShortcutsEnabled
+			}
+		}";
+
+		// Authenticate as admin to see these fields
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// Default admin color in WordPress is 'fresh'
+		$this->assertEquals( 'fresh', $actual['data']['user']['adminColor'] );
+		// Rich editing defaults to enabled
+		$this->assertTrue( $actual['data']['user']['hasRichEditingEnabled'] );
+		// Syntax highlighting defaults to enabled
+		$this->assertTrue( $actual['data']['user']['hasSyntaxHighlightingEnabled'] );
+		// Comment shortcuts default to disabled
+		$this->assertFalse( $actual['data']['user']['hasCommentShortcutsEnabled'] );
+	}
+
+	/**
+	 * Test user admin preferences fields with explicit 'false' string values
+	 *
+	 * Tests that explicit 'false' string values are handled correctly.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/479
+	 */
+	public function testUserAdminPreferencesExplicitFalseValues() {
+		// Create a user
+		$user_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		// Set user meta values to explicit 'false' strings
+		update_user_option( $user_id, 'rich_editing', 'false' );
+		update_user_option( $user_id, 'syntax_highlighting', 'false' );
+		update_user_option( $user_id, 'comment_shortcuts', 'false' );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$query = "
+		query {
+			user(id: \"{$global_id}\") {
+				hasRichEditingEnabled
+				hasSyntaxHighlightingEnabled
+				hasCommentShortcutsEnabled
+			}
+		}";
+
+		// Authenticate as admin to see these fields
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// When explicitly set to 'false', should return false
+		$this->assertFalse( $actual['data']['user']['hasRichEditingEnabled'] );
+		$this->assertFalse( $actual['data']['user']['hasSyntaxHighlightingEnabled'] );
+		$this->assertFalse( $actual['data']['user']['hasCommentShortcutsEnabled'] );
+	}
+
+	/**
+	 * Test user admin preferences fields visibility for different user roles
+	 *
+	 * Tests that admin preference fields respect the User model's visibility rules.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/479
+	 */
+	public function testUserAdminPreferencesFieldVisibility() {
+		// Create two users: one admin, one subscriber
+		$admin_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		$subscriber_id = $this->createUserObject(
+			[
+				'role' => 'subscriber',
+			]
+		);
+
+		// Set admin preferences for the admin user
+		update_user_option( $admin_id, 'admin_color', 'midnight' );
+		update_user_option( $admin_id, 'rich_editing', 'true' );
+
+		$admin_global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $admin_id );
+
+		$query = "
+		query {
+			user(id: \"{$admin_global_id}\") {
+				adminColor
+				hasRichEditingEnabled
+				hasSyntaxHighlightingEnabled
+				hasCommentShortcutsEnabled
+			}
+		}";
+
+		// Test 1: Admin querying their own preferences - should work
+		wp_set_current_user( $admin_id );
+		$actual = $this->graphql( compact( 'query' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'midnight', $actual['data']['user']['adminColor'] );
+		$this->assertTrue( $actual['data']['user']['hasRichEditingEnabled'] );
+
+		// Test 2: Subscriber querying admin's preferences - should respect User model visibility
+		wp_set_current_user( $subscriber_id );
+		$actual = $this->graphql( compact( 'query' ) );
+		// The User model's is_private() method should handle visibility
+		// If the user is restricted, fields may be null or the user may be null
+		// This depends on the User model's restricted_cap and allowed_restricted_fields
+		// We just verify no errors are thrown and the query executes
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Test 3: Public user (not logged in) querying admin's preferences
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( compact( 'query' ) );
+		// Public users should not see admin preferences, but the User model handles this
+		$this->assertArrayNotHasKey( 'errors', $actual );
+	}
 }

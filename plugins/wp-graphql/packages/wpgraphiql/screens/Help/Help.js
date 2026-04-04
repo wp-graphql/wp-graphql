@@ -44,6 +44,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/docs/introduction/"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">
 									Get Started with WPGraphQL
@@ -66,6 +67,7 @@ const Help = () => {
 							<a
 								target="_blank"
 								href="https://www.wpgraphql.com/docs/intro-to-graphql/"
+								rel="noreferrer"
 							>
 								<Button type="primary">Beginner Guides</Button>
 							</a>,
@@ -86,6 +88,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/docs/posts-and-pages/"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">Using WPGraphQL</Button>
 							</a>,
@@ -106,6 +109,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/docs/wpgraphql-concepts/"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">
 									Advanced Concepts
@@ -137,6 +141,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/recipes"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">Recipes</Button>
 							</a>,
@@ -157,6 +162,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/actions"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">Actions</Button>
 							</a>,
@@ -177,6 +183,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/filters"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">Filters</Button>
 							</a>,
@@ -197,6 +204,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/functions"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">Functions</Button>
 							</a>,
@@ -222,6 +230,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/Blog"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">Read the Blog</Button>
 							</a>,
@@ -241,6 +250,7 @@ const Help = () => {
 							<a
 								href="https://www.wpgraphql.com/Extensions"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">View Extensions</Button>
 							</a>,
@@ -261,6 +271,7 @@ const Help = () => {
 							<a
 								href="https://discord.gg/AGVBqqyaUY"
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Button type="primary">
 									Join us in Discord

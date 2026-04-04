@@ -104,63 +104,72 @@ class RouterTest extends WPTestCase {
 	}
 
 	/**
-	 * Test the "send_header" method in the Router class
+	 * Previously testSendHeader (xdebug_get_headers + @runInSeparateProcess) and testAddRewriteRule
+	 * lived here; they were retired as fragile or redundant. Rewrite rules are covered by testGraphQLRewriteRule.
+	 * Header content is tested below via get_response_headers() instead of sent headers.
+	 */
+
+	/**
+	 * Default response headers include expected CORS, content-type, and security keys.
 	 *
-	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720
-	 * @runInSeparateProcess
+	 * Replaces the former testSetHeadersNoCache which relied on xdebug_get_headers() and @runInSeparateProcess.
 	 */
-	// public function testSendHeader() {
-	// $router = new \WPGraphQL\Router();
-	// $router::send_header( 'some_key', 'some_value' );
-	// if ( function_exists( 'xdebug_get_headers' ) ) {
-	// $this->assertContains( 'some_key: some_value', xdebug_get_headers() );
-	// }
-	// }
-	//
-	// public function testAddRewriteRule() {
-	//
-	// global $wp_rewrite;
-	// \WPGraphQL\Router::add_rewrite_rule();
-	// flush_rewrite_rules();
-	//
-	// $this->assertContains( 'index.php?' . \WPGraphQL\Router::$route . '=true', $wp_rewrite->extra_rules_top );
-	//
-	// }
+	public function testDefaultResponseHeadersIncludeExpectedKeys() {
+		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
+		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
+		$request_prop->setValue( null, null );
+
+		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
+		$headers = $get_headers->invoke( null );
+
+		$request_prop->setValue( null, null );
+
+		$this->assertArrayHasKey( 'Access-Control-Allow-Origin', $headers );
+		$this->assertSame( '*', $headers['Access-Control-Allow-Origin'] );
+		$this->assertArrayHasKey( 'Content-Type', $headers );
+		$this->assertStringContainsString( 'application/json', $headers['Content-Type'] );
+		$this->assertArrayHasKey( 'X-Robots-Tag', $headers );
+		$this->assertSame( 'noindex', $headers['X-Robots-Tag'] );
+		$this->assertArrayHasKey( 'X-Content-Type-Options', $headers );
+		$this->assertSame( 'nosniff', $headers['X-Content-Type-Options'] );
+		$this->assertArrayHasKey( 'Access-Control-Allow-Headers', $headers );
+		$this->assertStringContainsString( 'Authorization', $headers['Access-Control-Allow-Headers'] );
+		$this->assertArrayHasKey( 'X-GraphQL-URL', $headers );
+	}
 
 	/**
-	 * @runInSeparateProcess
+	 * When graphql_send_nocache_headers filter returns true, response headers include Cache-Control no-cache.
+	 *
+	 * Replaces the former testSetHeadersWithCache which relied on xdebug_get_headers() and @runInSeparateProcess.
 	 */
-	// public function testSetHeadersNoCache() {
-	//
-	// $router = new \WPGraphQL\Router();
-	// $router::set_headers( '200' );
-	//
-	// $headers = xdebug_get_headers();
-	//
-	// $this->assertContains( 'Access-Control-Allow-Origin: *', $headers );
-	// $this->assertContains( 'Content-Type: application/json ; charset=' . get_option( 'blog_charset' ), $headers );
-	// $this->assertContains( 'X-Robots-Tag: noindex', $headers );
-	// $this->assertContains( 'X-Content-Type-Options: nosniff', $headers );
-	// $this->assertContains( 'Access-Control-Allow-Headers: Authorization, Content-Type', $headers );
-	// $this->assertContains( 'X-hacker: If you\'re reading this, you should visit github.com/wp-graphql and contribute!', $headers );
-	//
-	// }
+	public function testFilterGraphqlSendNocacheHeadersForcesNoCacheHeaders() {
+		add_filter( 'graphql_send_nocache_headers', '__return_true' );
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	// public function testSetHeadersWithCache() {
-	//
-	// add_filter( 'graphql_send_nocache_headers', function() {
-	// return true;
-	// } );
-	//
-	// $router = new \WPGraphQL\Router();
-	// $router::set_headers( '200' );
-	// $headers = xdebug_get_headers();
-	// $this->assertContains( 'Cache-Control: no-cache, must-revalidate, max-age=0', $headers );
-	//
-	// }
+		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
+		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
+		$request_prop->setValue( null, null );
+
+		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
+		$headers = $get_headers->invoke( null );
+
+		$request_prop->setValue( null, null );
+		remove_filter( 'graphql_send_nocache_headers', '__return_true' );
+
+		$this->assertArrayHasKey( 'Cache-Control', $headers );
+		$this->assertStringContainsString( 'no-cache', $headers['Cache-Control'] );
+	}
 
 	/**
 	 * Test that content rendering still works correctly with Router-level output buffering
@@ -642,6 +651,72 @@ class RouterTest extends WPTestCase {
 
 		// Cleanup
 		remove_all_actions( 'graphql_response_set_headers' );
+	}
+
+	/**
+	 * No-cache headers should be sent for authenticated requests.
+	 *
+	 * When the Router has a Request with an authenticated viewer, get_response_headers()
+	 * should include no-cache headers so authenticated responses are not cached.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3340
+	 */
+	public function testNoCacheHeadersSentWhenRequestHasAuthenticatedViewer() {
+		$user_id = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$request = new \WPGraphQL\Request( [ 'query' => '{ __typename }' ] );
+		$request->app_context->viewer = wp_get_current_user();
+
+		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
+		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
+		$request_prop->setValue( null, $request );
+
+		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
+		$headers = $get_headers->invoke( null );
+
+		$request_prop->setValue( null, null );
+		wp_set_current_user( 0 );
+
+		$this->assertArrayHasKey( 'Cache-Control', $headers );
+		$this->assertStringContainsString( 'no-cache', $headers['Cache-Control'] );
+	}
+
+	/**
+	 * When no Request exists, no-cache headers fall back to is_user_logged_in().
+	 */
+	public function testNoCacheHeadersFallbackToIsUserLoggedInWhenNoRequest() {
+		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
+		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
+		$request_prop->setValue( null, null );
+
+		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
+
+		wp_set_current_user( 0 );
+		$headers_guest = $get_headers->invoke( null );
+		$this->assertArrayNotHasKey( 'Cache-Control', $headers_guest );
+
+		$user_id = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		$headers_auth = $get_headers->invoke( null );
+		wp_set_current_user( 0 );
+
+		$this->assertArrayHasKey( 'Cache-Control', $headers_auth );
+		$this->assertStringContainsString( 'no-cache', $headers_auth['Cache-Control'] );
+
+		$request_prop->setValue( null, null );
 	}
 
 	/**
