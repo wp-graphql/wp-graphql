@@ -25,7 +25,7 @@
 		"php": "^7.4 || ^8.0",
 		"webonyx/graphql-php": "15.30.2",
 		"ivome/graphql-relay-php": "0.7.0",
-		"appsero/client": "2.0.5"
+		"appsero/client": "2.0.6"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
