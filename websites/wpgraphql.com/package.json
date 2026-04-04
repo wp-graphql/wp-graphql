@@ -61,7 +61,7 @@
     "rehype-stringify": "^9.0.3",
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
-    "remark-parse": "^10.0.1",
+    "remark-parse": "^11.0.0",
     "remark-rehype": "^10.1.0",
     "remark-smartypants": "^2.0.0",
     "slugger": "^1.0.1",
