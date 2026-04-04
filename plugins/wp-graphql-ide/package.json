@@ -47,8 +47,8 @@
 		"src/**/*.{js,jsx,ts,tsx}": "wp-scripts lint-js"
 	},
 	"dependencies": {
-		"@graphiql/react": "^0.22.4",
-		"@graphiql/toolkit": "^0.9.1",
+		"@graphiql/react": "^0.37.3",
+		"@graphiql/toolkit": "^0.11.3",
 		"@wordpress/components": "^27.0.0",
 		"@wordpress/data": "^9.22.0",
 		"@wordpress/element": "^5.23.0",
@@ -58,17 +58,17 @@
 		"@wpgraphql-ide/query-composer-panel": "file:plugins/query-composer-panel",
 		"copy-to-clipboard": "^3.3.3",
 		"graphiql": "^3.0.10",
-		"graphql": "^16.8.1",
+		"graphql": "^16.13.2",
 		"graphql-ws": "^5.14.2",
 		"lz-string": "^1.5.0",
 		"react": "^18.2.0",
 		"vaul": "^0.9.0"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.23.9",
-		"@babel/preset-react": "^7.23.3",
+		"@babel/preset-env": "^7.29.2",
+		"@babel/preset-react": "^7.28.5",
 		"@playwright/test": "^1.58.0",
-		"@testing-library/jest-dom": "^6.4.2",
+		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^14.2.1",
 		"@types/node": "^22.19.3",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
@@ -84,7 +84,7 @@
 		"docker-compose": "^0.24.6",
 		"dotenv": "^16.4.4",
 		"eslint-plugin-jest": "^28.0.0",
-		"husky": "^9.0.11",
+		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
 		"rimraf": "^5.0.0",
 		"sort-package-json": "^2.7.0"
