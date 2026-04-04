@@ -91,7 +91,7 @@
 		"clsx": "^2.1.1",
 		"concurrently": "^8.2.2",
 		"docker-compose": "^0.24.8",
-		"dotenv": "^16.6.1",
+		"dotenv": "^17.4.0",
 		"eslint-plugin-jest": "^27.9.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
