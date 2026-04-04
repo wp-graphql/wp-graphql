@@ -66,7 +66,7 @@ jobs:
           extensions: json, mbstring, intl
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: ${{ inputs.plugin_path }}
           composer-options: '--no-progress'
@@ -76,13 +76,13 @@ jobs:
       # (wp-env maps plugin dirs as volumes, so host vendor dirs are available in containers)
       - name: Install wp-graphql dependencies (if needed)
         if: inputs.plugin_name != 'wp-graphql'
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: plugins/wp-graphql
           composer-options: '--no-progress'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -145,7 +145,7 @@ jobs:
           key: docker-${{ runner.os }}-e2e
 
       - name: Start the Docker testing environment
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
