@@ -49,7 +49,7 @@
 	},
 	"dependencies": {
 		"@ant-design/icons": "6.1.0",
-		"@apollo/client": "3.14.0",
+		"@apollo/client": "4.1.6",
 		"@wordpress/api-fetch": "^7.37.0",
 		"@wordpress/components": "^30.9.0",
 		"@wordpress/compose": "^7.37.0",
