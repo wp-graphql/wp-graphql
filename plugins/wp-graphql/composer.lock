@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0abc4410b78531a50076455a91c46c8f",
+    "content-hash": "abdad5ade0cae9fc1ad613615110ef69",
     "packages": [
         {
             "name": "appsero/client",
-            "version": "v2.0.5",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Appsero/client.git",
-                "reference": "b7766ee150cc8e28125a818a11e770feb9899a71"
+                "reference": "2e553be6a47b387a7b05496f6a6e8d8595dd0d08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Appsero/client/zipball/b7766ee150cc8e28125a818a11e770feb9899a71",
-                "reference": "b7766ee150cc8e28125a818a11e770feb9899a71",
+                "url": "https://api.github.com/repos/Appsero/client/zipball/2e553be6a47b387a7b05496f6a6e8d8595dd0d08",
+                "reference": "2e553be6a47b387a7b05496f6a6e8d8595dd0d08",
                 "shasum": ""
             },
             "require": {
@@ -56,9 +56,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Appsero/client/issues",
-                "source": "https://github.com/Appsero/client/tree/v2.0.5"
+                "source": "https://github.com/Appsero/client/tree/v2.0.6"
             },
-            "time": "2025-11-24T10:14:59+00:00"
+            "time": "2026-02-24T04:46:05+00:00"
         },
         {
             "name": "ivome/graphql-relay-php",
@@ -10037,5 +10037,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
