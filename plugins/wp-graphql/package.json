@@ -73,7 +73,7 @@
 		"@playwright/test": "^1.58.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^15.0.7",
-		"@types/node": "^22.19.3",
+		"@types/node": "^25.3.3",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
 		"@wordpress/babel-preset-default": "^7.42.0",
