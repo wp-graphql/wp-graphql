@@ -71,7 +71,7 @@
 		"graphql-ws": "^5.14.2",
 		"lz-string": "^1.5.0",
 		"react": "^18.2.0",
-		"vaul": "^0.9.0"
+		"vaul": "^1.1.2"
 	},
 	"devDependencies": {
 		"@babel/preset-env": "^7.29.2",
