@@ -1,7 +1,7 @@
 version: 2
 
 updates:
-  # wp-graphql plugin.
+  # Composer: wp-graphql plugin.
   - package-ecosystem: 'composer'
     directory: '/plugins/wp-graphql'
     schedule:
@@ -22,27 +22,8 @@ updates:
       wp-graphql-composer-patch:
         dependency-type: 'production'
         update-types: [patch]
-  - package-ecosystem: 'npm'
-    directory: '/plugins/wp-graphql'
-    schedule:
-      interval: 'weekly'
-    cooldown:
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 7
-    commit-message:
-      prefix: 'feat'
-      prefix-development: 'fix'
-      include: 'scope'
-    groups:
-      wp-graphql-npm-dev-minor-patch:
-        dependency-type: 'development'
-        update-types: [minor, patch]
-      wp-graphql-npm-prod-minor-patch:
-        dependency-type: 'production'
-        update-types: [minor, patch]
 
-  # wp-graphql-acf plugin.
+  #  Composer: wp-graphql-acf plugin.
   - package-ecosystem: 'composer'
     directory: '/plugins/wp-graphql-acf'
     schedule:
@@ -63,27 +44,8 @@ updates:
       wp-graphql-acf-composer-patch:
         dependency-type: 'production'
         update-types: [patch]
-  - package-ecosystem: 'npm'
-    directory: '/plugins/wp-graphql-acf'
-    schedule:
-      interval: 'weekly'
-    cooldown:
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 7
-    commit-message:
-      prefix: 'feat'
-      prefix-development: 'fix'
-      include: 'scope'
-    groups:
-      wp-graphql-acf-npm-dev-minor-patch:
-        dependency-type: 'development'
-        update-types: [minor, patch]
-      wp-graphql-acf-npm-prod-minor-patch:
-        dependency-type: 'production'
-        update-types: [minor, patch]
 
-  # wp-graphql-ide plugin.
+  #  Composer: wp-graphql-ide plugin.
   - package-ecosystem: 'composer'
     directory: '/plugins/wp-graphql-ide'
     schedule:
@@ -104,27 +66,8 @@ updates:
       wp-graphql-ide-composer-patch:
         dependency-type: 'production'
         update-types: [patch]
-  - package-ecosystem: 'npm'
-    directory: '/plugins/wp-graphql-ide'
-    schedule:
-      interval: 'weekly'
-    cooldown:
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 7
-    commit-message:
-      prefix: 'feat'
-      prefix-development: 'fix'
-      include: 'scope'
-    groups:
-      wp-graphql-ide-npm-dev-minor-patch:
-        dependency-type: 'development'
-        update-types: [minor, patch]
-      wp-graphql-ide-npm-prod-minor-patch:
-        dependency-type: 'production'
-        update-types: [minor, patch]
 
-  # wp-graphql-smart-cache plugin.
+  # Composer: wp-graphql-smart-cache plugin.
   - package-ecosystem: 'composer'
     directory: '/plugins/wp-graphql-smart-cache'
     schedule:
@@ -145,48 +88,8 @@ updates:
       wp-graphql-smart-cache-composer-patch:
         dependency-type: 'production'
         update-types: [patch]
-  - package-ecosystem: 'npm'
-    directory: '/plugins/wp-graphql-smart-cache'
-    schedule:
-      interval: 'weekly'
-    cooldown:
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 7
-    commit-message:
-      prefix: 'feat'
-      prefix-development: 'fix'
-      include: 'scope'
-    groups:
-      wp-graphql-smart-cache-npm-dev-minor-patch:
-        dependency-type: 'development'
-        update-types: [minor, patch]
-      wp-graphql-smart-cache-npm-prod-minor-patch:
-        dependency-type: 'production'
-        update-types: [minor, patch]
 
-  # WPGraphQL.com NPM dependencies. No release triggered (chore).
-  - package-ecosystem: 'npm'
-    directory: '/websites/wpgraphql.com'
-    schedule:
-      interval: 'weekly'
-    cooldown:
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 7
-    commit-message:
-      prefix: 'chore'
-      prefix-development: 'chore'
-      include: 'scope'
-    groups:
-      wp-graphql-com-npm-dev-minor-patch:
-        dependency-type: 'development'
-        update-types: [minor, patch]
-      wp-graphql-com-npm-prod-minor-patch:
-        dependency-type: 'production'
-        update-types: [minor, patch]
-
-  # Root NPM dependencies. No release triggered (chore).
+  # NPM Dependencies.
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
@@ -195,9 +98,10 @@ updates:
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 7
+    versioning-strategy: 'increase'
     commit-message:
-      prefix: 'chore'
-      prefix-development: 'chore'
+      prefix: 'feat'
+      prefix-development: 'fix'
       include: 'scope'
     groups:
       npm-dev-minor-patch:
