@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c20d110ae7d3b3d3bca7c3ca61097c1b",
+    "content-hash": "b7d9f3a2dd11e30df5164b5905098324",
     "packages": [
         {
             "name": "appsero/client",
@@ -107,16 +107,16 @@
         },
         {
             "name": "webonyx/graphql-php",
-            "version": "v15.31.2",
+            "version": "v15.31.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webonyx/graphql-php.git",
-                "reference": "b2c3b02f9151afeba7ab79580e89992ac0ad4fec"
+                "reference": "c20acbef1cb4af427ef6797512bfb2e651a85db9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/b2c3b02f9151afeba7ab79580e89992ac0ad4fec",
-                "reference": "b2c3b02f9151afeba7ab79580e89992ac0ad4fec",
+                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/c20acbef1cb4af427ef6797512bfb2e651a85db9",
+                "reference": "c20acbef1cb4af427ef6797512bfb2e651a85db9",
                 "shasum": ""
             },
             "require": {
@@ -134,7 +134,7 @@
                 "nyholm/psr7": "^1.5",
                 "phpbench/phpbench": "^1.2",
                 "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan": "2.1.42",
+                "phpstan/phpstan": "2.1.43",
                 "phpstan/phpstan-phpunit": "2.0.16",
                 "phpstan/phpstan-strict-rules": "2.0.10",
                 "phpunit/phpunit": "^9.5 || ^10.5.21 || ^11",
@@ -170,7 +170,7 @@
             ],
             "support": {
                 "issues": "https://github.com/webonyx/graphql-php/issues",
-                "source": "https://github.com/webonyx/graphql-php/tree/v15.31.2"
+                "source": "https://github.com/webonyx/graphql-php/tree/v15.31.3"
             },
             "funding": [
                 {
@@ -182,7 +182,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2026-03-23T07:32:52+00:00"
+            "time": "2026-03-29T18:22:41+00:00"
         }
     ],
     "packages-dev": [
