@@ -67,7 +67,7 @@
 		"@wpgraphql-ide/query-composer-panel": "file:plugins/query-composer-panel",
 		"copy-to-clipboard": "^3.3.3",
 		"graphiql": "^3.0.10",
-		"graphql": "^16.8.1",
+		"graphql": "^16.13.2",
 		"graphql-ws": "^5.14.2",
 		"lz-string": "^1.5.0",
 		"react": "^18.2.0",
