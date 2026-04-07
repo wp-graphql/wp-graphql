@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.11.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.10.1...wp-graphql/v2.11.0) (2026-04-07)
+
+
+### New Features
+
+* **deps:** bump basic-ftp from 5.1.0 to 5.2.0 in /plugins/wp-graphql ([#3676](https://github.com/wp-graphql/wp-graphql/issues/3676)) ([7eb7781](https://github.com/wp-graphql/wp-graphql/commit/7eb7781e9cf143c6b7b0428e93fa95a6aa59e135))
+* **deps:** bump flatted from 3.3.3 to 3.4.2 in /plugins/wp-graphql ([#3679](https://github.com/wp-graphql/wp-graphql/issues/3679)) ([21f6ea4](https://github.com/wp-graphql/wp-graphql/commit/21f6ea4f442e9d783adc4c562fa7ebeb27bcbce4))
+* **deps:** bump immutable from 5.1.4 to 5.1.5 in /plugins/wp-graphql ([#3685](https://github.com/wp-graphql/wp-graphql/issues/3685)) ([be5c099](https://github.com/wp-graphql/wp-graphql/commit/be5c09948270019b581846017f7f76356b64e6c9))
+* **deps:** bump lodash from 4.17.21 to 4.18.1 in /plugins/wp-graphql ([#3673](https://github.com/wp-graphql/wp-graphql/issues/3673)) ([49391ec](https://github.com/wp-graphql/wp-graphql/commit/49391ec492c6a955194c492554a9e1faadc61eed))
+* **deps:** bump node-forge from 1.3.3 to 1.4.0 in /plugins/wp-graphql ([#3681](https://github.com/wp-graphql/wp-graphql/issues/3681)) ([65b53ed](https://github.com/wp-graphql/wp-graphql/commit/65b53ed2b4a7fda27a0100ea982383989ded71cc))
+* **deps:** bump picomatch in /plugins/wp-graphql ([#3682](https://github.com/wp-graphql/wp-graphql/issues/3682)) ([0b90954](https://github.com/wp-graphql/wp-graphql/commit/0b90954102d55b6de54b9cefb71b98c435841e65))
+* **deps:** bump qs from 6.14.1 to 6.14.2 in /plugins/wp-graphql ([#3670](https://github.com/wp-graphql/wp-graphql/issues/3670)) ([64d50b0](https://github.com/wp-graphql/wp-graphql/commit/64d50b07a6673d4aab79ccab56d018810b9010dc))
+* **deps:** bump simple-git from 3.30.0 to 3.33.0 in /plugins/wp-graphql ([#3680](https://github.com/wp-graphql/wp-graphql/issues/3680)) ([562eba7](https://github.com/wp-graphql/wp-graphql/commit/562eba733964e1190ec7975dc8322e34dcce2fa2))
+* **deps:** bump svgo from 3.3.2 to 3.3.3 in /plugins/wp-graphql ([#3674](https://github.com/wp-graphql/wp-graphql/issues/3674)) ([23875a3](https://github.com/wp-graphql/wp-graphql/commit/23875a39c0d835b1dd249726f6bbfaf0a628465b))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3739](https://github.com/wp-graphql/wp-graphql/issues/3739)) ([6f51727](https://github.com/wp-graphql/wp-graphql/commit/6f5172707a60e2697f4acb6c392eecdca7dddded))
+* **deps:** bump yaml in /plugins/wp-graphql ([#3671](https://github.com/wp-graphql/wp-graphql/issues/3671)) ([fbde422](https://github.com/wp-graphql/wp-graphql/commit/fbde42280827e2d519bc518af558d78f18115591))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.40 to 2.1.44 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3642](https://github.com/wp-graphql/wp-graphql/issues/3642)) ([7d1c3f4](https://github.com/wp-graphql/wp-graphql/commit/7d1c3f43f3ad7b6772b3fb7bfcf4e3452facde30))
+* **deps:** bump appsero/client from 2.0.5 to 2.0.6 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3644](https://github.com/wp-graphql/wp-graphql/issues/3644)) ([a3fe06a](https://github.com/wp-graphql/wp-graphql/commit/a3fe06ae8fc9b97ee59bac077ac290ebca2f3aaf))
+* **deps:** bump webonyx/graphql-php from 15.30.2 to 15.31.2 in /plugins/wp-graphql ([#3646](https://github.com/wp-graphql/wp-graphql/issues/3646)) ([f98b41f](https://github.com/wp-graphql/wp-graphql/commit/f98b41f5dc0a95d04892159b7902c09a677fa4c1))
+* **deps:** bump webonyx/graphql-php from 15.31.2 to 15.31.3 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3729](https://github.com/wp-graphql/wp-graphql/issues/3729)) ([781e3dc](https://github.com/wp-graphql/wp-graphql/commit/781e3dc0f72145e9a31fa2d3fe5d3f44d8809290))
+
 ## [2.10.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.10.0...wp-graphql/v2.10.1) (2026-03-13)
 
 
