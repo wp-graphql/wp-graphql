@@ -1,5 +1,35 @@
 # Changelog
 
+## [4.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.1.0...wp-graphql-ide/v4.2.0) (2026-04-07)
+
+
+### New Features
+
+* **deps:** bump @babel/runtime from 7.24.1 to 7.29.2 in /plugins/wp-graphql-ide ([#3700](https://github.com/wp-graphql/wp-graphql/issues/3700)) ([ec1faff](https://github.com/wp-graphql/wp-graphql/commit/ec1faff41a13b97036117e7409e1fd3c342ec6b3))
+* **deps:** bump axios from 1.7.6 to 1.14.0 in /plugins/wp-graphql-ide ([#3706](https://github.com/wp-graphql/wp-graphql/issues/3706)) ([5212b6d](https://github.com/wp-graphql/wp-graphql/commit/5212b6d8528eca6e025592abecf5b072ba44468e))
+* **deps:** bump basic-ftp from 5.0.5 to 5.2.0 in /plugins/wp-graphql-ide ([#3684](https://github.com/wp-graphql/wp-graphql/issues/3684)) ([b4a80d4](https://github.com/wp-graphql/wp-graphql/commit/b4a80d4e2a5ef10c93e81df0eb7624064371a804))
+* **deps:** bump flatted from 3.3.1 to 3.4.2 in /plugins/wp-graphql-ide ([#3689](https://github.com/wp-graphql/wp-graphql/issues/3689)) ([04d19ab](https://github.com/wp-graphql/wp-graphql/commit/04d19ab0c08c08878d0a451f56f0cb2f9e73164d))
+* **deps:** bump form-data from 4.0.0 to 4.0.5 in /plugins/wp-graphql-ide ([#3693](https://github.com/wp-graphql/wp-graphql/issues/3693)) ([f539ac9](https://github.com/wp-graphql/wp-graphql/commit/f539ac9275af221c5fe419c04280dd31c5d82379))
+* **deps:** bump http-proxy-middleware from 2.0.6 to 2.0.9 in /plugins/wp-graphql-ide ([#3702](https://github.com/wp-graphql/wp-graphql/issues/3702)) ([36444aa](https://github.com/wp-graphql/wp-graphql/commit/36444aa6be4daeb71c3a4a45e5a5fcf7e073cec7))
+* **deps:** bump immutable from 4.3.5 to 4.3.8 in /plugins/wp-graphql-ide ([#3687](https://github.com/wp-graphql/wp-graphql/issues/3687)) ([f2cae8f](https://github.com/wp-graphql/wp-graphql/commit/f2cae8fa9ccd5ef2bc43a48708770113096d5270))
+* **deps:** bump lodash from 4.17.21 to 4.18.1 in /plugins/wp-graphql-ide ([#3691](https://github.com/wp-graphql/wp-graphql/issues/3691)) ([df30963](https://github.com/wp-graphql/wp-graphql/commit/df3096332be87c13940f7db1e719cf355bf6dc28))
+* **deps:** bump node-forge from 1.3.1 to 1.4.0 in /plugins/wp-graphql-ide ([#3686](https://github.com/wp-graphql/wp-graphql/issues/3686)) ([5a86628](https://github.com/wp-graphql/wp-graphql/commit/5a86628c62e03ccbfa2ba64cd646493771a2fefe))
+* **deps:** bump on-headers and compression in /plugins/wp-graphql-ide ([#3678](https://github.com/wp-graphql/wp-graphql/issues/3678)) ([b823e13](https://github.com/wp-graphql/wp-graphql/commit/b823e1383725c7ac497325d7bd560d875a18e442))
+* **deps:** bump picomatch from 2.3.1 to 2.3.2 in /plugins/wp-graphql-ide ([#3688](https://github.com/wp-graphql/wp-graphql/issues/3688)) ([61da252](https://github.com/wp-graphql/wp-graphql/commit/61da2522950748cf0c4a12a4c965e2bbee6b7727))
+* **deps:** bump qs and body-parser in /plugins/wp-graphql-ide ([#3696](https://github.com/wp-graphql/wp-graphql/issues/3696)) ([7d6b4be](https://github.com/wp-graphql/wp-graphql/commit/7d6b4be973af4104fd4dbf6792b26982bc337712))
+* **deps:** bump simple-git from 3.23.0 to 3.33.0 in /plugins/wp-graphql-ide ([#3675](https://github.com/wp-graphql/wp-graphql/issues/3675)) ([d25bdec](https://github.com/wp-graphql/wp-graphql/commit/d25bdecc1a3f335f314cec9eb5cf62eb350f1b4c))
+* **deps:** bump svgo from 3.2.0 to 3.3.3 in /plugins/wp-graphql-ide ([#3690](https://github.com/wp-graphql/wp-graphql/issues/3690)) ([b8a4a77](https://github.com/wp-graphql/wp-graphql/commit/b8a4a77a4afb58387e48c1713f1886f677cae76d))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3739](https://github.com/wp-graphql/wp-graphql/issues/3739)) ([6f51727](https://github.com/wp-graphql/wp-graphql/commit/6f5172707a60e2697f4acb6c392eecdca7dddded))
+* **deps:** bump webpack from 5.94.0 to 5.105.4 in /plugins/wp-graphql-ide ([#3677](https://github.com/wp-graphql/wp-graphql/issues/3677)) ([ecd97ad](https://github.com/wp-graphql/wp-graphql/commit/ecd97ad4ebea5f38624de8512aee4d3d8a9385a3))
+* **deps:** bump yaml from 1.10.2 to 1.10.3 in /plugins/wp-graphql-ide ([#3698](https://github.com/wp-graphql/wp-graphql/issues/3698)) ([3664cea](https://github.com/wp-graphql/wp-graphql/commit/3664cea1a11da2b3211301a7704c7e8d1defdb3e))
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581)) ([40967cb](https://github.com/wp-graphql/wp-graphql/commit/40967cb5e68a3e6964828d054a4323b2327b271d))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump rimraf from 5.0.10 to 6.1.3 ([#3666](https://github.com/wp-graphql/wp-graphql/issues/3666)) ([efcbbc1](https://github.com/wp-graphql/wp-graphql/commit/efcbbc15f772aaa6914f538de6941f61a039113a))
+* resolve post by percent-encoded slug/URI when post_name is stored encoded ([#3582](https://github.com/wp-graphql/wp-graphql/issues/3582)) ([#3611](https://github.com/wp-graphql/wp-graphql/issues/3611)) ([a473d9b](https://github.com/wp-graphql/wp-graphql/commit/a473d9b9e6dc1bdf4350f6ea5f6847b769d42ea5))
+
 ## [4.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.0.24...wp-graphql-ide/v4.1.0) (2026-02-06)
 
 
