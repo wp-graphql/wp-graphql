@@ -1,3 +1,5 @@
+import { expect } from '@playwright/test';
+
 /**
  * Utility functions for Playwright tests in WordPress Admin and GraphiQL IDE.
  *
@@ -60,13 +62,16 @@ export async function loginToWordPressAdmin(page) {
  * @param {string}                          query The GraphQL query to type.
  */
 export async function typeQuery(page, query = '') {
-	const selector = '.query-editor .cm-s-graphiql';
+	const selector = 'section[aria-label="Query Editor"] .cm-s-graphiql';
 
 	// Set the value
 	await page.evaluate(
 		async ({ query: q, selector: sel }) => {
-			const editor = document.querySelector(sel).CodeMirror;
-			await editor.setValue(q);
+			const el = document.querySelector(sel);
+			if (!el || !el.CodeMirror) {
+				throw new Error(`Query editor not found or not CodeMirror: ${sel}`);
+			}
+			await el.CodeMirror.setValue(q);
 		},
 		{ query, selector }
 	);
@@ -144,14 +149,14 @@ export async function visitPluginsPage(page) {
 
 export async function openDrawer(page) {
 	const isDrawerVisible = await page
-		.locator('.graphiql-container')
+		.locator('[data-testid="wp-graphiql-wrapper"]')
 		.isVisible();
 	if (!isDrawerVisible) {
 		await page.waitForSelector('.EditorDrawerButton', {
 			state: 'visible',
 		});
 		await clickDrawerButton(page);
-		await page.waitForSelector('.graphiql-container', {
+		await page.waitForSelector('[data-testid="wp-graphiql-wrapper"]', {
 			state: 'visible',
 		});
 	}
@@ -159,7 +164,7 @@ export async function openDrawer(page) {
 
 export async function closeDrawer(page) {
 	const isDrawerVisible = await page
-		.locator('.graphiql-container')
+		.locator('[data-testid="wp-graphiql-wrapper"]')
 		.isVisible();
 
 	if (isDrawerVisible) {
@@ -167,12 +172,14 @@ export async function closeDrawer(page) {
 		if (overlay) {
 			await overlay.click();
 		}
-		await expect(page.locator('.graphiql-container')).toBeHidden();
+		await expect(
+			page.locator('[data-testid="wp-graphiql-wrapper"]')
+		).toBeHidden();
 		await page.waitForSelector('.EditorDrawerButton', {
 			state: 'visible',
 		});
 		await clickDrawerCloseButton(page);
-		await page.waitForSelector('.graphiql-container', {
+		await page.waitForSelector('[data-testid="wp-graphiql-wrapper"]', {
 			state: 'hidden',
 		});
 	}
@@ -187,7 +194,7 @@ export async function clickDrawerCloseButton(page) {
 }
 
 export async function executeQuery(page) {
-	await page.click('.graphiql-execute-button');
+	await page.click('.execute-button');
 }
 
 export async function loadGraphiQL(
@@ -208,12 +215,14 @@ export async function loadGraphiQL(
 
 	_queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? 'true' : 'false'}`;
 
-	await visitAdminFacingPage(
-		page,
-		wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`
-	);
-	await page.waitForSelector('.graphiql-container', {
+	// Use `load` (not `networkidle`): WP admin often keeps requests open, which can stall
+	// `networkidle` on CI. The IDE is ready when our app shell mounts (schema loaded).
+	await page.goto(wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`, {
+		waitUntil: 'load',
+	});
+	await page.waitForSelector('[data-testid="wp-graphiql-wrapper"]', {
 		state: 'visible',
+		timeout: 60_000,
 	});
 }
 
