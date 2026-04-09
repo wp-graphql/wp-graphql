@@ -136,9 +136,9 @@ test('documentation explorer can be toggled open and closed', async ({
 	await expect(page.locator('.graphiql-container')).toBeHidden();
 	await openDrawer(page);
 	await expect(page.locator('.graphiql-container')).toBeVisible();
-	await page.click('[aria-label="Open Documentation Explorer"]');
+	await page.click('[aria-label="Show Documentation Explorer"]');
 	await expect(page.locator('.graphiql-doc-explorer')).toBeVisible();
-	await page.click('[aria-label="Close Documentation Explorer"]');
+	await page.click('[aria-label="Hide Documentation Explorer"]');
 	await expect(page.locator('.graphiql-doc-explorer')).toBeHidden();
 });
 
