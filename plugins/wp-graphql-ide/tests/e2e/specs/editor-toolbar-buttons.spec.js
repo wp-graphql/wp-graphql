@@ -211,33 +211,20 @@ describe('Toolbar Buttons', () => {
 
 			const queryEditorLocator = page.locator(selectors.queryInput);
 
-			// wait for the merge to complete
-			await page.waitForTimeout(1000);
+			// Merge + prettify output varies by GraphiQL / graphql version (e.g. plain
+			// `viewer` selection vs `... on RootQuery { viewer }`, spacing). Assert the
+			// behavioral contract: fragment definition and spread are gone; field content remains.
+			await expect
+				.poll(async () => getCodeMirrorValue(queryEditorLocator), {
+					timeout: 10_000,
+				})
+				.not.toContain('fragment TestFragment');
 
-			// Get the value from the CodeMirror instance
-			const codeMirrorValue =
-				await getCodeMirrorValue(queryEditorLocator);
+			const codeMirrorValue = await getCodeMirrorValue(queryEditorLocator);
 
-			// Verify that the query is now merged properly and formatted
-			const expectedMergedQueryOnGithub = `{
-  viewer {
-    name
-  }
-}`;
-
-			const expectedMergedQueryForLocalhostTestsButWeDontFullyUnderstandWhyItsDifferentThanGithub = `{
-  ... on RootQuery {
-    viewer {
-      name
-    }
-  }
-}`;
-
-			expect(
-				codeMirrorValue === expectedMergedQueryOnGithub ||
-					codeMirrorValue ===
-						expectedMergedQueryForLocalhostTestsButWeDontFullyUnderstandWhyItsDifferentThanGithub
-			).toBeTruthy();
+			expect(codeMirrorValue).not.toMatch(/\.\.\.\s*TestFragment\b/);
+			expect(codeMirrorValue).toContain('viewer');
+			expect(codeMirrorValue).toContain('name');
 		});
 	});
 
