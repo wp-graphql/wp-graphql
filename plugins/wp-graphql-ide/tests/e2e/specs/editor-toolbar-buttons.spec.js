@@ -3,7 +3,7 @@ import {
 	getCodeMirrorValue,
 	loginToWordPressAdmin,
 	openDrawer,
-	setQueryInLocalStorage,
+	setCodeMirrorValue,
 	typeQuery,
 } from '../utils';
 
@@ -194,50 +194,45 @@ describe('Toolbar Buttons', () => {
 		}`;
 
 		beforeEach(async ({ page }) => {
-			await setQueryInLocalStorage(page, queryWithFragment); // query with fragment
-			await page.reload({ waitUntil: 'networkidle' }); // reload page to initialize with localStorage
+			await page.reload({ waitUntil: 'networkidle' });
 			await openDrawer(page);
+			const editor = page.locator(selectors.queryInput);
+			// GraphiQL 3 + WP IDE use controlled query state; `graphiql:query` in localStorage
+			// is not reliably applied on CI. Seed the editor directly.
+			await setCodeMirrorValue(editor, queryWithFragment);
+			await expect
+				.poll(async () => getCodeMirrorValue(editor), {
+					timeout: 15_000,
+				})
+				.toContain('TestFragment');
 		});
 
 		test('Clicking the merge fragments button merges the fragment into the query', async ({
 			page,
 		}) => {
-			// Make sure the prettify button is visible and interactable
+			const queryEditorLocator = page.locator(selectors.queryInput);
 			const mergeButton = page.locator(selectors.mergeButton);
 			await expect(mergeButton).toBeVisible();
 			await expect(mergeButton).toBeEnabled();
 
 			await mergeButton.click();
 
-			const queryEditorLocator = page.locator(selectors.queryInput);
-
-			// wait for the merge to complete
-			await page.waitForTimeout(1000);
-
-			// Get the value from the CodeMirror instance
-			const codeMirrorValue =
-				await getCodeMirrorValue(queryEditorLocator);
-
-			// Verify that the query is now merged properly and formatted
-			const expectedMergedQueryOnGithub = `{
-  viewer {
-    name
-  }
-}`;
-
-			const expectedMergedQueryForLocalhostTestsButWeDontFullyUnderstandWhyItsDifferentThanGithub = `{
-  ... on RootQuery {
-    viewer {
-      name
-    }
-  }
-}`;
-
-			expect(
-				codeMirrorValue === expectedMergedQueryOnGithub ||
-					codeMirrorValue ===
-						expectedMergedQueryForLocalhostTestsButWeDontFullyUnderstandWhyItsDifferentThanGithub
-			).toBeTruthy();
+			// Do not poll only on `not.toContain('fragment TestFragment')` — the default
+			// GraphiQL welcome comment satisfies that and caused false passes on CI.
+			await expect
+				.poll(
+					async () => {
+						const v = await getCodeMirrorValue(queryEditorLocator);
+						return (
+							v.includes('viewer') &&
+							v.includes('name') &&
+							!v.includes('fragment TestFragment') &&
+							!/\.\.\.\s*TestFragment\b/.test(v)
+						);
+					},
+					{ timeout: 10_000 }
+				)
+				.toBe(true);
 		});
 	});
 
