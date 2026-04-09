@@ -3,7 +3,7 @@ import {
 	getCodeMirrorValue,
 	loginToWordPressAdmin,
 	openDrawer,
-	setQueryInLocalStorage,
+	setCodeMirrorValue,
 	typeQuery,
 } from '../utils';
 
@@ -194,37 +194,40 @@ describe('Toolbar Buttons', () => {
 		}`;
 
 		beforeEach(async ({ page }) => {
-			await setQueryInLocalStorage(page, queryWithFragment); // query with fragment
-			await page.reload({ waitUntil: 'networkidle' }); // reload page to initialize with localStorage
+			await page.reload({ waitUntil: 'networkidle' });
 			await openDrawer(page);
+			const editor = page.locator(selectors.queryInput);
+			// GraphiQL 3 + WP IDE use controlled query state; `graphiql:query` in localStorage
+			// is not reliably applied on CI. Seed the editor directly.
+			await setCodeMirrorValue(editor, queryWithFragment);
+			await expect
+				.poll(async () => getCodeMirrorValue(editor), { timeout: 15_000 })
+				.toContain('TestFragment');
 		});
 
 		test('Clicking the merge fragments button merges the fragment into the query', async ({
 			page,
 		}) => {
-			// Make sure the prettify button is visible and interactable
+			const queryEditorLocator = page.locator(selectors.queryInput);
 			const mergeButton = page.locator(selectors.mergeButton);
 			await expect(mergeButton).toBeVisible();
 			await expect(mergeButton).toBeEnabled();
 
 			await mergeButton.click();
 
-			const queryEditorLocator = page.locator(selectors.queryInput);
-
-			// Merge + prettify output varies by GraphiQL / graphql version (e.g. plain
-			// `viewer` selection vs `... on RootQuery { viewer }`, spacing). Assert the
-			// behavioral contract: fragment definition and spread are gone; field content remains.
+			// Do not poll only on `not.toContain('fragment TestFragment')` — the default
+			// GraphiQL welcome comment satisfies that and caused false passes on CI.
 			await expect
-				.poll(async () => getCodeMirrorValue(queryEditorLocator), {
-					timeout: 10_000,
-				})
-				.not.toContain('fragment TestFragment');
-
-			const codeMirrorValue = await getCodeMirrorValue(queryEditorLocator);
-
-			expect(codeMirrorValue).not.toMatch(/\.\.\.\s*TestFragment\b/);
-			expect(codeMirrorValue).toContain('viewer');
-			expect(codeMirrorValue).toContain('name');
+				.poll(async () => {
+					const v = await getCodeMirrorValue(queryEditorLocator);
+					return (
+						v.includes('viewer') &&
+						v.includes('name') &&
+						!v.includes('fragment TestFragment') &&
+						!/\.\.\.\s*TestFragment\b/.test(v)
+					);
+				}, { timeout: 10_000 })
+				.toBe(true);
 		});
 	});
 
