@@ -4,7 +4,7 @@
  * Description: WPGraphQL for ACF seamlessly integrates Advanced Custom Fields with WPGraphQL.
  * Author: WPGraphQL
  * Author URI: https://www.wpgraphql.com
- * Version: 2.5.1
+ * Version: 2.5.2
  * Text Domain: wpgraphql-acf
  * Requires PHP: 7.3
  * Requires at least: 5.9
@@ -34,7 +34,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_FOR_ACF_VERSION' ) ) {
-	define( 'WPGRAPHQL_FOR_ACF_VERSION', '2.5.1' );
+	define( 'WPGRAPHQL_FOR_ACF_VERSION', '2.5.2' );
 }
 
 if ( ! defined( 'WPGRAPHQL_FOR_ACF_VERSION_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
