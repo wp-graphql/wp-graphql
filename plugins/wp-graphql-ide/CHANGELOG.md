@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.1.0...wp-graphql-ide/v4.2.0) (2026-04-09)
+## [4.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.1.0...wp-graphql-ide/v4.2.0) (2026-04-07)
 
 
 ### New Features
