@@ -201,7 +201,9 @@ describe('Toolbar Buttons', () => {
 			// is not reliably applied on CI. Seed the editor directly.
 			await setCodeMirrorValue(editor, queryWithFragment);
 			await expect
-				.poll(async () => getCodeMirrorValue(editor), { timeout: 15_000 })
+				.poll(async () => getCodeMirrorValue(editor), {
+					timeout: 15_000,
+				})
 				.toContain('TestFragment');
 		});
 
@@ -218,15 +220,18 @@ describe('Toolbar Buttons', () => {
 			// Do not poll only on `not.toContain('fragment TestFragment')` — the default
 			// GraphiQL welcome comment satisfies that and caused false passes on CI.
 			await expect
-				.poll(async () => {
-					const v = await getCodeMirrorValue(queryEditorLocator);
-					return (
-						v.includes('viewer') &&
-						v.includes('name') &&
-						!v.includes('fragment TestFragment') &&
-						!/\.\.\.\s*TestFragment\b/.test(v)
-					);
-				}, { timeout: 10_000 })
+				.poll(
+					async () => {
+						const v = await getCodeMirrorValue(queryEditorLocator);
+						return (
+							v.includes('viewer') &&
+							v.includes('name') &&
+							!v.includes('fragment TestFragment') &&
+							!/\.\.\.\s*TestFragment\b/.test(v)
+						);
+					},
+					{ timeout: 10_000 }
+				)
 				.toBe(true);
 		});
 	});
