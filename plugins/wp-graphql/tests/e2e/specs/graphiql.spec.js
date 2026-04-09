@@ -2,12 +2,15 @@ import { loginToWordPressAdmin, typeQuery, loadGraphiQL } from '../utils.js';
 import { test, expect } from '@playwright/test';
 
 const selectors = {
-	graphiqlContainer: '.graphiql-container',
+	graphiqlContainer: '[data-testid="wp-graphiql-wrapper"]',
+	// Result JSON lives under .resultWrap (graphiql@1.x); inner section is .result-window.
 	graphiqlResponse: '.resultWrap',
 	executeQueryButton: '.execute-button',
-	queryInput: '[aria-label="Query Editor"] .CodeMirror',
+	queryInput: 'section[aria-label="Query Editor"] .CodeMirror',
 	variablesInput: '[aria-label="Variables"] .CodeMirror',
 };
+
+const responseTimeout = 30_000;
 
 // Login to WordPress before each test
 test.beforeEach(async ({ page }) => {
@@ -20,19 +23,17 @@ test.describe('GraphiQL', () => {
 		await loadGraphiQL(page);
 		await typeQuery(page, `{posts{nodes{id}}}`);
 		await page.click(selectors.executeQueryButton);
-		await page.waitForLoadState('networkidle');
-		const response = await page.locator(selectors.graphiqlResponse);
+		const response = page.locator(selectors.graphiqlResponse);
+		await expect(response).toContainText('posts', { timeout: responseTimeout });
 		await expect(response).not.toContainText('errors');
-		await expect(response).toContainText('posts');
 	});
 
 	test('it renders errors when errors are expected', async ({ page }) => {
 		await loadGraphiQL(page);
 		await typeQuery(page, `{nonExistentFieldThatShouldError}`);
 		await page.click(selectors.executeQueryButton);
-		await page.waitForLoadState('networkidle');
-		const response = await page.locator(selectors.graphiqlResponse);
-		await expect(response).toContainText('errors');
+		const response = page.locator(selectors.graphiqlResponse);
+		await expect(response).toContainText('errors', { timeout: responseTimeout });
 	});
 
 	test('it loads with custom query from url query params', async ({
@@ -46,8 +47,7 @@ test.describe('GraphiQL', () => {
 		await loadGraphiQL(page, {
 			query: `query TestFromUri { posts { nodes { id ${alias}:title } } }`,
 		});
-		await page.waitForLoadState('networkidle');
-		const editor = await page.locator(selectors.graphiqlContainer);
+		const editor = page.locator(selectors.graphiqlContainer);
 		await expect(editor).toContainText('TestFromUri');
 		await expect(editor).toContainText('posts');
 		await expect(editor).toContainText('nodes');
@@ -99,44 +99,22 @@ test.describe('GraphiQL', () => {
 		page,
 	}) => {
 		await loadGraphiQL(page);
-		const openButton = page.locator('button.docExplorerShow');
-
-		// Check if the wrapper is hidden by its parent's styles
-		const isInitiallyHidden = await page.evaluate(() => {
-			const wrapper =
-				document.querySelector('.docExplorerWrap')?.parentElement;
-			return wrapper
-				? window.getComputedStyle(wrapper).opacity === '0'
-				: true;
+		// The explorer <section> stays in the DOM when the pane is collapsed; visibility
+		// is driven by the layout, not display:none. Assert via the toolbar controls instead.
+		const openDocs = page.getByRole('button', {
+			name: 'Open Documentation Explorer',
 		});
-		expect(isInitiallyHidden).toBeTruthy();
-
-		// clicking the openButton should open it
-		await openButton.click();
-		await page.waitForTimeout(1000);
-
-		const isVisible = await page.evaluate(() => {
-			const wrapper =
-				document.querySelector('.docExplorerWrap')?.parentElement;
-			return wrapper
-				? window.getComputedStyle(wrapper).opacity === '1'
-				: false;
+		const closeDocs = page.getByRole('button', {
+			name: 'Close Documentation Explorer',
 		});
-		expect(isVisible).toBeTruthy();
 
-		// clicking the close button should close it
-		const closeButton = page.locator('button.docExplorerHide');
-		await closeButton.click();
-		await page.waitForTimeout(1000);
+		await expect(openDocs).toBeVisible();
 
-		const isHiddenAgain = await page.evaluate(() => {
-			const wrapper =
-				document.querySelector('.docExplorerWrap')?.parentElement;
-			return wrapper
-				? window.getComputedStyle(wrapper).opacity === '0'
-				: true;
-		});
-		expect(isHiddenAgain).toBeTruthy();
+		await openDocs.click();
+		await expect(closeDocs).toBeVisible({ timeout: 10_000 });
+
+		await closeDocs.click();
+		await expect(openDocs).toBeVisible({ timeout: 10_000 });
 	});
 
 	test('prettify button formats the query', async ({ page }) => {
@@ -155,10 +133,13 @@ test.describe('GraphiQL', () => {
 
 		// Get the query after prettifying
 		const queryAfter = await page.evaluate(() => {
-			const editor = document.querySelector(
-				'.query-editor .cm-s-graphiql'
-			).CodeMirror;
-			return editor.getValue();
+			const el = document.querySelector(
+				'section[aria-label="Query Editor"] .cm-s-graphiql'
+			);
+			if (!el || !el.CodeMirror) {
+				throw new Error('Query editor CodeMirror instance not found');
+			}
+			return el.CodeMirror.getValue();
 		});
 
 		// The prettified query should have newlines (be multi-line)
@@ -181,47 +162,23 @@ test.describe('GraphiQL', () => {
 		// First, execute a query so there's something in history
 		await typeQuery(page, `{posts{nodes{id}}}`);
 		await page.click(selectors.executeQueryButton);
-		await page.waitForLoadState('networkidle');
+		await expect(page.locator(selectors.graphiqlResponse)).toContainText(
+			'posts',
+			{ timeout: responseTimeout }
+		);
 
 		// Click the History button
 		const historyButton = page.locator(
 			"xpath=//button[contains(text(), 'History')]"
 		);
+		const historySection = page.locator('section[aria-label="History"]');
+
 		await historyButton.click();
-		await page.waitForTimeout(500);
-
-		// Verify the history panel is now visible
-		const isHistoryVisible = await page.evaluate(() => {
-			const wrapper = document.querySelector('.historyPaneWrap');
-			if (!wrapper) {
-				return false;
-			}
-			const style = window.getComputedStyle(wrapper);
-			return style.display !== 'none' && style.visibility !== 'hidden';
-		});
-		expect(isHistoryVisible).toBeTruthy();
-
-		// The history panel should contain history-related elements
-		const historyTitle = page.locator('.history-title');
-		await expect(historyTitle).toBeVisible();
+		await expect(historySection).toBeVisible({ timeout: 10_000 });
+		await expect(historySection.locator('.history-title')).toBeVisible();
 
 		// Click History again to toggle it closed
 		await historyButton.click();
-		await page.waitForTimeout(500);
-
-		// Verify the history panel is hidden again
-		const isHistoryHiddenAgain = await page.evaluate(() => {
-			const wrapper = document.querySelector('.historyPaneWrap');
-			if (!wrapper) {
-				return true;
-			} // If not found, consider it hidden
-			const style = window.getComputedStyle(wrapper);
-			return (
-				style.display === 'none' ||
-				style.visibility === 'hidden' ||
-				style.width === '0px'
-			);
-		});
-		expect(isHistoryHiddenAgain).toBeTruthy();
+		await expect(historySection).not.toBeVisible({ timeout: 10_000 });
 	});
 });
