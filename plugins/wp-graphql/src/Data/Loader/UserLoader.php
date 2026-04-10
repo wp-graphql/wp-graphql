@@ -27,6 +27,33 @@ class UserLoader extends AbstractDataLoader {
 	}
 
 	/**
+	 * Normalize a loader key to a WordPress user database ID.
+	 *
+	 * Only non-empty digit-only strings and positive integers are accepted so values
+	 * such as "0) OR …" cannot pass `absint`-based checks elsewhere and reach SQL.
+	 *
+	 * @param mixed $key Loader key (typically an integer or numeric string).
+	 *
+	 * @return int|null Positive user ID, or null if the key is not a valid ID.
+	 */
+	private function parse_user_database_id( $key ): ?int {
+		if ( is_int( $key ) ) {
+			return $key > 0 ? $key : null;
+		}
+
+		if ( is_string( $key ) ) {
+			if ( '' === $key || ! ctype_digit( $key ) ) {
+				return null;
+			}
+			$id = absint( $key );
+
+			return $id > 0 ? $id : null;
+		}
+
+		return null;
+	}
+
+	/**
 	 * The data loader always returns a user object if it exists, but we need to
 	 * separately determine whether the user should be considered private. The
 	 * WordPress frontend does not expose authors without published posts, so our
@@ -46,6 +73,20 @@ class UserLoader extends AbstractDataLoader {
 	 * @return array<int,bool> Associative array of author IDs (int) to boolean.
 	 */
 	public function get_public_users( array $keys ) {
+		$sanitized_keys = [];
+		foreach ( $keys as $key ) {
+			$id = $this->parse_user_database_id( $key );
+			if ( null !== $id ) {
+				$sanitized_keys[] = $id;
+			}
+		}
+		$sanitized_keys = array_values( array_unique( $sanitized_keys ) );
+
+		if ( empty( $sanitized_keys ) ) {
+			return [];
+		}
+
+		$keys = $sanitized_keys;
 
 		// Get public post types that are set to show in GraphQL
 		// as public users are determined by whether they've published
@@ -116,6 +157,26 @@ class UserLoader extends AbstractDataLoader {
 			return $keys;
 		}
 
+		$key_to_id = [];
+		foreach ( $keys as $key ) {
+			$key_to_id[ $key ] = $this->parse_user_database_id( $key );
+		}
+
+		$valid_ids = array_values(
+			array_unique(
+				array_filter(
+					array_values( $key_to_id ),
+					static function ( $id ) {
+						return null !== $id;
+					}
+				)
+			)
+		);
+
+		if ( empty( $valid_ids ) ) {
+			return array_fill_keys( $keys, null );
+		}
+
 		/**
 		 * Prepare the args for the query. We're provided a specific
 		 * set of IDs, so we want to query as efficiently as possible with
@@ -125,8 +186,8 @@ class UserLoader extends AbstractDataLoader {
 		 * will reorder them ourselves to match the order of the provided keys.
 		 */
 		$args = [
-			'include'     => $keys,
-			'number'      => count( $keys ),
+			'include'     => $valid_ids,
+			'number'      => count( $valid_ids ),
 			'count_total' => false,
 			'fields'      => 'all_with_meta',
 		];
@@ -140,7 +201,7 @@ class UserLoader extends AbstractDataLoader {
 		/**
 		 * Determine which of the users are public (have published posts).
 		 */
-		$public_users = $this->get_public_users( $keys );
+		$public_users = $this->get_public_users( $valid_ids );
 
 		/**
 		 * Loop over the keys and reduce to an associative array, providing the
@@ -149,15 +210,22 @@ class UserLoader extends AbstractDataLoader {
 		 */
 		return array_reduce(
 			$keys,
-			static function ( $carry, $key ) use ( $public_users ) {
-				$user = get_user_by( 'id', $key ); // Cached via previous WP_User_Query.
+			static function ( $carry, $key ) use ( $public_users, $key_to_id ) {
+				$user_id = $key_to_id[ $key ] ?? null;
+
+				if ( null === $user_id ) {
+					$carry[ $key ] = null;
+					return $carry;
+				}
+
+				$user = get_user_by( 'id', $user_id ); // Cached via previous WP_User_Query.
 
 				if ( $user instanceof \WP_User ) {
 					/**
 					 * Set a property on the user that can be accessed by the User model.
 					 */
 					// @phpstan-ignore-next-line
-					$user->is_private = ! isset( $public_users[ $key ] );
+					$user->is_private = ! isset( $public_users[ $user_id ] );
 
 					$carry[ $key ] = $user;
 				} else {

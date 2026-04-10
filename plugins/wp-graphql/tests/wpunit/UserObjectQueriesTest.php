@@ -1216,4 +1216,31 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Public users should not see admin preferences, but the User model handles this
 		$this->assertArrayNotHasKey( 'errors', $actual );
 	}
+
+	/**
+	 * Regression: malformed user global IDs must not reach UserLoader SQL using unquoted placeholders.
+	 */
+	public function testNodeQueryWithMalformedUserGlobalIdDoesNotTriggerSqlInjection() {
+		wp_set_current_user( 0 );
+
+		$malicious_local_id = '0) OR (SELECT 1 FROM (SELECT SLEEP(5))X)--';
+		$malicious_id       = base64_encode( 'user:' . $malicious_local_id );
+
+		$query = sprintf(
+			'{ node(id: "%s") { ... on User { databaseId } } }',
+			$malicious_id
+		);
+
+		$start   = microtime( true );
+		$actual  = $this->graphql( compact( 'query' ) );
+		$elapsed = microtime( true ) - $start;
+
+		$this->assertLessThan(
+			2,
+			$elapsed,
+			'Malformed user node ID must not execute attacker-controlled SQL (e.g. SLEEP).'
+		);
+		$this->assertArrayNotHasKey( 'errors', $actual, wp_json_encode( $actual ) );
+		$this->assertNull( $actual['data']['node'] );
+	}
 }
