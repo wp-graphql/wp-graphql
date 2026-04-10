@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.2.0...wp-graphql-ide/v4.2.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
 ## [4.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.1.0...wp-graphql-ide/v4.2.0) (2026-04-07)
 
 
