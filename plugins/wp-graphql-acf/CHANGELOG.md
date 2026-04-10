@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.2...wp-graphql-acf/v2.5.3) (2026-04-10)
+
+
+### Bug Fixes
+
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
 ## [2.5.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.1...wp-graphql-acf/v2.5.2) (2026-04-09)
 
 
