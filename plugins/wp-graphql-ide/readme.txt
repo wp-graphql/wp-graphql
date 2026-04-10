@@ -43,6 +43,204 @@ WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in 
 
 == Changelog ==
 
-WPGraphQL IDE publishes [release notes on GitHub](https://github.com/wp-graphql/wp-graphql/releases). Look for releases tagged with `wp-graphql-ide/v*`.
+= 4.2.0 =
 
-[View the full changelog](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-ide/CHANGELOG.md)
+**New Features**
+
+* **deps:** bump @babel/runtime from 7.24.1 to 7.29.2 in /plugins/wp-graphql-ide ([#3700](https://github.com/wp-graphql/wp-graphql/issues/3700))
+* **deps:** bump axios from 1.7.6 to 1.14.0 in /plugins/wp-graphql-ide ([#3706](https://github.com/wp-graphql/wp-graphql/issues/3706))
+* **deps:** bump basic-ftp from 5.0.5 to 5.2.0 in /plugins/wp-graphql-ide ([#3684](https://github.com/wp-graphql/wp-graphql/issues/3684))
+* **deps:** bump flatted from 3.3.1 to 3.4.2 in /plugins/wp-graphql-ide ([#3689](https://github.com/wp-graphql/wp-graphql/issues/3689))
+* **deps:** bump form-data from 4.0.0 to 4.0.5 in /plugins/wp-graphql-ide ([#3693](https://github.com/wp-graphql/wp-graphql/issues/3693))
+* **deps:** bump http-proxy-middleware from 2.0.6 to 2.0.9 in /plugins/wp-graphql-ide ([#3702](https://github.com/wp-graphql/wp-graphql/issues/3702))
+* **deps:** bump immutable from 4.3.5 to 4.3.8 in /plugins/wp-graphql-ide ([#3687](https://github.com/wp-graphql/wp-graphql/issues/3687))
+* **deps:** bump lodash from 4.17.21 to 4.18.1 in /plugins/wp-graphql-ide ([#3691](https://github.com/wp-graphql/wp-graphql/issues/3691))
+* **deps:** bump node-forge from 1.3.1 to 1.4.0 in /plugins/wp-graphql-ide ([#3686](https://github.com/wp-graphql/wp-graphql/issues/3686))
+* **deps:** bump on-headers and compression in /plugins/wp-graphql-ide ([#3678](https://github.com/wp-graphql/wp-graphql/issues/3678))
+* **deps:** bump picomatch from 2.3.1 to 2.3.2 in /plugins/wp-graphql-ide ([#3688](https://github.com/wp-graphql/wp-graphql/issues/3688))
+* **deps:** bump qs and body-parser in /plugins/wp-graphql-ide ([#3696](https://github.com/wp-graphql/wp-graphql/issues/3696))
+* **deps:** bump simple-git from 3.23.0 to 3.33.0 in /plugins/wp-graphql-ide ([#3675](https://github.com/wp-graphql/wp-graphql/issues/3675))
+* **deps:** bump svgo from 3.2.0 to 3.3.3 in /plugins/wp-graphql-ide ([#3690](https://github.com/wp-graphql/wp-graphql/issues/3690))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3739](https://github.com/wp-graphql/wp-graphql/issues/3739))
+* **deps:** bump webpack from 5.94.0 to 5.105.4 in /plugins/wp-graphql-ide ([#3677](https://github.com/wp-graphql/wp-graphql/issues/3677))
+* **deps:** bump yaml from 1.10.2 to 1.10.3 in /plugins/wp-graphql-ide ([#3698](https://github.com/wp-graphql/wp-graphql/issues/3698))
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581))
+
+**Bug Fixes**
+
+* **deps-dev:** bump rimraf from 5.0.10 to 6.1.3 ([#3666](https://github.com/wp-graphql/wp-graphql/issues/3666))
+* resolve post by percent-encoded slug/URI when post_name is stored encoded ([#3582](https://github.com/wp-graphql/wp-graphql/issues/3582)) ([#3611](https://github.com/wp-graphql/wp-graphql/issues/3611))
+
+= 4.1.0 =
+
+**New Features**
+
+* import WPGraphQL IDE into monorepo ([#3542](https://github.com/wp-graphql/wp-graphql/issues/3542))
+
+**Bug Fixes**
+
+* resolve all JavaScript linting errors in wp-graphql-ide ([#3548](https://github.com/wp-graphql/wp-graphql/issues/3548))
+
+= 4.0.24 =
+
+**Patch Changes**
+
+* fde59ee: test13
+
+= 4.0.23 =
+
+**Patch Changes**
+
+* dc527b3: test12
+
+= 4.0.22 =
+
+**Patch Changes**
+
+* 3af6609: test11
+
+= 4.0.21 =
+
+**Patch Changes**
+
+* 4bebba0: test10
+
+= 4.0.20 =
+
+**Patch Changes**
+
+* f0194e1: test9
+
+= 4.0.19 =
+
+**Patch Changes**
+
+* 002a858: test8
+
+= 4.0.18 =
+
+**Patch Changes**
+
+* 4c4fd15: test7
+
+= 4.0.17 =
+
+**Patch Changes**
+
+* fbd12e3: test6
+
+= 4.0.16 =
+
+**Patch Changes**
+
+* 55d17f2: test5
+
+= 4.0.15 =
+
+**Patch Changes**
+
+* 7fd23b6: test4
+
+= 4.0.14 =
+
+**Patch Changes**
+
+* 47bac26: test3
+
+= 4.0.13 =
+
+**Patch Changes**
+
+* 81c75a8: test2
+
+= 4.0.12 =
+
+**Patch Changes**
+
+* 5f99ebc: test
+
+= 4.0.11 =
+
+**Patch Changes**
+
+* 7a53dbc: chore: trigger release
+
+= 4.0.10 =
+
+**Patch Changes**
+
+* 74c832c: chore: add period to description in readme.txt
+
+= 4.0.9 =
+
+**Patch Changes**
+
+* 2eab1a7: chore: update license format in readme.txt to GPL-3.0
+
+= 4.0.8 =
+
+**Patch Changes**
+
+* f610132: fix: remove duplicate git tag creation in release workflow
+
+= 4.0.7 =
+
+**Patch Changes**
+
+* bf627cc: Fixed an issue with plugin updates not appearing on WordPress.org
+* b47b46d: ci: attempt to fix GitHub actions auto deploy to wp.org.
+
+= 4.0.6 =
+
+**Patch Changes**
+
+* d1df1d4: chore: update tested WordPress version to 6.8
+
+= 4.0.5 =
+
+**Patch Changes**
+
+* c6cfbc1: fix: linting tooltips are now visible when using the IDE in the drawer
+* 6500ef3: fix: broken query composer by adding missing import statements for AbstractArgView and FieldView components. Props to @hacknug for the fix!
+
+= 4.0.4 =
+
+**Patch Changes**
+
+* b4d7302: Test
+
+= 4.0.3 =
+
+**Patch Changes**
+
+* fd9d099: chore: set workflow environment
+
+= 4.0.2 =
+
+**Patch Changes**
+
+* a2b5fbd: - chore: Bump supported WordPress version
+
+= 4.0.1 =
+
+**Patch Changes**
+
+* 477a555: ### Added
+
+* Introduced `wp_localize_escaped_data()` function for recursively escaping data before localizing it in WordPress. This ensures safe output of strings, URLs, integers, and nested arrays when passing data to JavaScript, using native WordPress functions like `wp_kses_post()` and `esc_url()`.
+
+**Improved**
+
+* Enhanced security by ensuring all localized data is properly sanitized before being passed to `wp_localize_script()`, preventing potential XSS vulnerabilities and ensuring safe use of dynamic data in JavaScript.
+
+* 4da3973: - chore: Bump the npm_and_yarn group across 1 directory with 7 updates
+
+= 4.0.0 =
+
+**Major Changes**
+
+* eda911d: Updated the plugin's custom filter and action names to be consistent across the plugin
+
+**Patch Changes**
+
+* eda911d: Fixed bug where credentials were being sent in the headers unnecessarily under certain conditions

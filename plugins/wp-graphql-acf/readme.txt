@@ -120,6 +120,29 @@ This release is a complete re-architecture of WPGraphQL for ACF, introducing bre
 
 == Changelog ==
 
+= 2.5.2 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.8.0 to 2.9.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3643](https://github.com/wp-graphql/wp-graphql/issues/3643))
+* **deps:** bump appsero/client from 1.2.1 to 1.4.0 in /plugins/wp-graphql-acf ([#3726](https://github.com/wp-graphql/wp-graphql/issues/3726))
+
+= 2.5.1 =
+
+**Bug Fixes**
+
+* **wp-graphql-acf:** ACF-registered post types/taxonomies not in GraphQL schema (init priority) ([#3609](https://github.com/wp-graphql/wp-graphql/issues/3609))
+
+= 2.5.0 =
+
+**New Features**
+
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581))
+
+**Bug Fixes**
+
+* allow null/empty meta_key in preview_support() for get_post_meta filter ([#3599](https://github.com/wp-graphql/wp-graphql/issues/3599))
+
 = 2.4.1 =
 
 **Chores / Bugfixes**
