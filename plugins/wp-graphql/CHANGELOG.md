@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.0...wp-graphql/v2.11.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* reject non-numeric user loader keys to prevent SQL injection ([21acb66](https://github.com/wp-graphql/wp-graphql/commit/21acb66fc37a40df57bc57972a2ef88d453b0ced))
+
 ## [2.11.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.10.1...wp-graphql/v2.11.0) (2026-04-07)
 
 
