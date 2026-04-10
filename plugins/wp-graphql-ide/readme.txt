@@ -81,89 +81,11 @@ WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in 
 
 * resolve all JavaScript linting errors in wp-graphql-ide ([#3548](https://github.com/wp-graphql/wp-graphql/issues/3548))
 
-= 4.0.24 =
+= 4.0.11 - 4.0.24 =
 
 **Patch Changes**
 
-* fde59ee: test13
-
-= 4.0.23 =
-
-**Patch Changes**
-
-* dc527b3: test12
-
-= 4.0.22 =
-
-**Patch Changes**
-
-* 3af6609: test11
-
-= 4.0.21 =
-
-**Patch Changes**
-
-* 4bebba0: test10
-
-= 4.0.20 =
-
-**Patch Changes**
-
-* f0194e1: test9
-
-= 4.0.19 =
-
-**Patch Changes**
-
-* 002a858: test8
-
-= 4.0.18 =
-
-**Patch Changes**
-
-* 4c4fd15: test7
-
-= 4.0.17 =
-
-**Patch Changes**
-
-* fbd12e3: test6
-
-= 4.0.16 =
-
-**Patch Changes**
-
-* 55d17f2: test5
-
-= 4.0.15 =
-
-**Patch Changes**
-
-* 7fd23b6: test4
-
-= 4.0.14 =
-
-**Patch Changes**
-
-* 47bac26: test3
-
-= 4.0.13 =
-
-**Patch Changes**
-
-* 81c75a8: test2
-
-= 4.0.12 =
-
-**Patch Changes**
-
-* 5f99ebc: test
-
-= 4.0.11 =
-
-**Patch Changes**
-
-* 7a53dbc: chore: trigger release
+* debugging release scripts
 
 = 4.0.10 =
 
