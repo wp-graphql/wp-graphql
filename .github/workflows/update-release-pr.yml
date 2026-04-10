@@ -151,6 +151,16 @@ jobs:
             --version="$VERSION" \
             --plugin-dir="$PLUGIN_DIR"
 
+      - name: Update readme changelog
+        if: steps.version_info.outputs.version != ''
+        env:
+          VERSION: ${{ steps.version_info.outputs.version }}
+          PLUGIN_DIR: ${{ steps.version_info.outputs.plugin_dir }}
+        run: |
+          node scripts/update-readme-changelog.js \
+            --version="$VERSION" \
+            --plugin-dir="$PLUGIN_DIR"
+
       - name: Check for languages directory
         id: i18n
         env:
