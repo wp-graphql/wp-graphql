@@ -28,9 +28,10 @@
 		"lucatume/wp-browser": "^3.7.0",
 		"codeception/module-rest": "^2.0",
 		"phpunit/php-timer": "^5.0",
-		"phpstan/phpstan": "^1.10",
-		"phpstan/extension-installer": "^1.3",
-		"szepeviktor/phpstan-wordpress": "^1.3",
+		"phpstan/phpstan": "~2.1.2",
+		"phpstan/phpstan-deprecation-rules": "^2.0.1",
+		"phpstan/extension-installer": "^1.1",
+		"szepeviktor/phpstan-wordpress": "^2.0.1",
 		"axepress/wp-graphql-stubs": "^2.3",
 		"automattic/vipwpcs": "^2.3",
 		"slevomat/coding-standard": "^8.9"
