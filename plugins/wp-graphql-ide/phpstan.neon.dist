@@ -18,6 +18,7 @@ parameters:
     reportStaticMethodSignatures: true
     reportWrongPhpDocTypeInVarTag: true
     bootstrapFiles:
+        - phpstan/constants.php
         - wpgraphql-ide.php
     paths:
         - wpgraphql-ide.php
