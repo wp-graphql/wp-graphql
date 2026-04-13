@@ -11,7 +11,8 @@
 		}
 	],
 	"require": {
-		"php": "^7.4 || ^8.0"
+		"php": "^7.4 || ^8.0",
+		"appsero/client": "2.0.6"
 	},
 	"autoload-dev": {
 		"files": [

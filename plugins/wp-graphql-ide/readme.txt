@@ -35,6 +35,17 @@ The WPGraphQL IDE plugin includes several important dependencies. You can learn 
 - **GraphiQL**: [https://github.com/graphql/graphiql](https://github.com/graphql/graphiql)
 - **Vaul**: [https://github.com/emilkowalski/vaul](https://github.com/emilkowalski/vaul)
 
+= How does WPGraphQL IDE handle privacy and telemetry? =
+WPGraphQL IDE uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy.
+
+== Privacy Policy ==
+
+WPGraphQL IDE uses [Appsero](https://appsero.com) SDK to collect some telemetry data upon user's confirmation. This helps us to troubleshoot problems faster and make product improvements.
+
+Appsero SDK **does not gather any data by default.** The SDK only starts gathering basic telemetry data **when a user allows it via the admin notice**.
+
+Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
+
 == Screenshots ==
 
 == Upgrade Notice ==
