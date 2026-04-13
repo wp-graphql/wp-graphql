@@ -873,8 +873,6 @@ function graphql_logo_svg(): string {
 
 /**
  * Initialize the plugin tracker.
- *
- * @return void
  */
 function init_appsero_telemetry(): void {
 	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
@@ -884,11 +882,6 @@ function init_appsero_telemetry(): void {
 	try {
 		$client = new \Appsero\Client( 'e90103d6-2c09-4152-96e0-eb7d0d3b5c74', 'WPGraphQL IDE', __FILE__ );
 
-		/**
-		 * @var \Appsero\Insights $insights
-		 *
-		 * @phpstan-ignore varTag.type (The doctype for Appsero\Client::insights() is wrong.)
-		 */
 		$insights = $client->insights();
 
 		if ( method_exists( $insights, 'add_plugin_data' ) ) {
