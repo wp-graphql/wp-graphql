@@ -585,7 +585,7 @@ jobs:
       - name: Upload artifact to release
         # Upload for both new releases and re-deployments
         # For re-deployments, this updates the existing release asset with the corrected version
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.plugin_info.outputs.tag_name }}
           files: plugin-build/${{ matrix.component }}.zip

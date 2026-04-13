@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.11.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.1...wp-graphql/v2.11.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.44 to 2.1.46 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3749](https://github.com/wp-graphql/wp-graphql/issues/3749)) ([54bf70b](https://github.com/wp-graphql/wp-graphql/commit/54bf70b90405966a46b182f472847a70a6bbc4db))
+* **deps:** bump webonyx/graphql-php from 15.31.3 to 15.31.4 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3750](https://github.com/wp-graphql/wp-graphql/issues/3750)) ([f31da88](https://github.com/wp-graphql/wp-graphql/commit/f31da88006b5a3de5bf264ace7801ca978ca7764))
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
 ## [2.11.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.0...wp-graphql/v2.11.1) (2026-04-10)
 
 
