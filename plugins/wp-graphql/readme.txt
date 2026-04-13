@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.11.1
+Stable tag: 2.11.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -301,6 +301,14 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 2.11.2 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.44 to 2.1.46 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3749](https://github.com/wp-graphql/wp-graphql/issues/3749))
+* **deps:** bump webonyx/graphql-php from 15.31.3 to 15.31.4 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3750](https://github.com/wp-graphql/wp-graphql/issues/3750))
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744))
+
 = 2.11.1 =
 
 **Bug Fixes**
@@ -381,7 +389,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.7.0
+* replace x-release-please-version placeholders with 2.11.2
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =
