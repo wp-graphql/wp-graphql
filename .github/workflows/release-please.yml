@@ -15,6 +15,12 @@
 # 7. Version numbers are synchronized in build directory before deployment
 # 8. SVN tags are deleted before re-deployment to ensure clean deployments
 #
+# WORDPRESS.ORG SLUG:
+# When the plugin directory slug on WordPress.org differs from the repo folder name,
+# add "wp_org_slug": "wpgraphql-*" to that plugin in release-please-config.json.
+# The slug is resolved from release-please-config.json on main (fetched in plugin_info step)
+# so re-deploys that checkout a release tag still get the correct .org slug.
+#
 # VERSION DETERMINATION:
 # - feat: commits trigger a MINOR version bump
 # - fix: commits trigger a PATCH version bump
@@ -49,10 +55,10 @@ on:
         type: boolean
         default: false
       redeploy_tag:
-        description: "Re-deploy an existing release using full tag format (e.g., wp-graphql/v2.7.0). Leave empty to run normal release-please workflow."
+        description: 'Re-deploy an existing release using full tag format (e.g., wp-graphql/v2.7.0). Leave empty to run normal release-please workflow.'
         required: false
         type: string
-        default: ""
+        default: ''
 
 permissions:
   contents: write
@@ -80,17 +86,19 @@ jobs:
 
       - name: Detect components with releases
         id: components
+        env:
+          RELEASE_OUTPUTS: ${{ toJSON(steps.release.outputs) }}
         run: |
           echo "=== DETECTING COMPONENTS WITH RELEASES ==="
           COMPONENTS=""
-          
+
           # Parse release-please outputs to find components with releases_created == 'true'
           # Output format: plugins/{package}--release_created
-          for key in $(echo '${{ toJSON(steps.release.outputs) }}' | jq -r 'keys[]'); do
+          for key in $(echo "$RELEASE_OUTPUTS" | jq -r 'keys[]'); do
             if [[ "$key" == *"--release_created" ]]; then
               # Extract package path (e.g., plugins/wp-graphql)
               PACKAGE_PATH=$(echo "$key" | sed 's/--release_created$//')
-              RELEASE_CREATED=$(echo '${{ toJSON(steps.release.outputs) }}' | jq -r ".[\"$key\"]")
+              RELEASE_CREATED=$(echo "$RELEASE_OUTPUTS" | jq -r ".[\"$key\"]")
               
               if [[ "$RELEASE_CREATED" == "true" ]]; then
                 # Extract component name from package path (e.g., wp-graphql from plugins/wp-graphql)
@@ -104,25 +112,35 @@ jobs:
               fi
             fi
           done
-          
+
           if [[ -z "$COMPONENTS" ]]; then
             echo "No components with releases found"
-            echo "components=" >> $GITHUB_OUTPUT
+            echo "components=[]" >> $GITHUB_OUTPUT
           else
             echo "Components to deploy: $COMPONENTS"
-            # Convert to JSON array for matrix
-            COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s .)
+            # Convert to JSON array for matrix (compact format, no whitespace)
+            # Split space-separated list, quote each component, and create JSON array
+            COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
             echo "components=$COMPONENTS_JSON" >> $GITHUB_OUTPUT
             echo "components_list=$COMPONENTS" >> $GITHUB_OUTPUT
+            echo "Debug: Components JSON = $COMPONENTS_JSON"
           fi
           echo "=============================="
 
       - name: Debug release-please outputs
         if: ${{ inputs.debug || github.event_name == 'workflow_dispatch' }}
+        env:
+          RELEASE_OUTPUTS: ${{ toJSON(steps.release.outputs) }}
+          RELEASES_CREATED: ${{ steps.release.outputs.releases_created }}
+          COMPONENTS_LIST: ${{ steps.components.outputs.components_list }}
+          COMPONENTS_JSON: ${{ steps.components.outputs.components }}
         run: |
           echo "=== RELEASE PLEASE OUTPUTS ==="
-          echo "releases_created: ${{ steps.release.outputs.releases_created }}"
-          echo "Components with releases: ${{ steps.components.outputs.components_list }}"
+          echo "releases_created: $RELEASES_CREATED"
+          echo "Components with releases: $COMPONENTS_LIST"
+          echo "Components JSON: $COMPONENTS_JSON"
+          echo "All release outputs:"
+          echo "$RELEASE_OUTPUTS" | jq .
           echo "=============================="
 
   detect-deploy-components:
@@ -135,10 +153,15 @@ jobs:
     steps:
       - name: Detect components for deployment
         id: detect
+        env:
+          REDEPLOY_TAG: ${{ github.event.inputs.redeploy_tag }}
+          NEEDS_RELEASE_PLEASE_RESULT: ${{ needs.release-please.result }}
+          NEEDS_RELEASE_PLEASE_COMPONENTS: ${{ needs.release-please.outputs.components }}
         run: |
-          if [[ "${{ github.event.inputs.redeploy_tag }}" != "" ]]; then
+          echo "=== DETECTING COMPONENTS FOR DEPLOYMENT ==="
+          if [[ "$REDEPLOY_TAG" != "" ]]; then
             # Re-deploy: extract component from full tag format (e.g., wp-graphql/v2.7.0)
-            TAG="${{ github.event.inputs.redeploy_tag }}"
+            TAG="$REDEPLOY_TAG"
             
             if [[ "$TAG" != *"/"* ]]; then
               echo "::error::redeploy_tag must be in full format: component/vX.Y.Z (e.g., wp-graphql/v2.7.0)"
@@ -147,17 +170,65 @@ jobs:
             
             COMPONENT=$(echo "$TAG" | sed 's|/v.*||')
             echo "Re-deploying component: $COMPONENT (tag: $TAG)"
-            echo "components=[\"$COMPONENT\"]" >> $GITHUB_OUTPUT
+            # Output as JSON array using multiline format for consistency
+            {
+              echo "components<<EOF"
+              echo "[\"$COMPONENT\"]"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
           else
             # New release: use components detected from release-please
-            COMPONENTS="${{ needs.release-please.outputs.components }}"
-            if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "" ]]; then
-              echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
-            else
+            # Check if release-please job ran (it might be skipped for workflow_dispatch without redeploy_tag)
+            if [[ "$NEEDS_RELEASE_PLEASE_RESULT" == "skipped" ]]; then
+              echo "Release-please job was skipped (likely workflow_dispatch without redeploy_tag)"
               echo "No components to deploy"
               echo "components=[]" >> $GITHUB_OUTPUT
+            else
+              COMPONENTS="$NEEDS_RELEASE_PLEASE_COMPONENTS"
+              echo "Release-please components output: '$COMPONENTS'"
+              echo "Release-please result: $NEEDS_RELEASE_PLEASE_RESULT"
+              
+              if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "[]" && "$COMPONENTS" != "" ]]; then
+                # Validate and ensure COMPONENTS is valid JSON array
+                # The components output from release-please job should already be a JSON array string
+                if echo "$COMPONENTS" | jq -e . >/dev/null 2>&1; then
+                  # Valid JSON, ensure it's a proper array
+                  COMPONENTS_JSON=$(echo "$COMPONENTS" | jq -c '.')
+                  # Verify it's an array
+                  if echo "$COMPONENTS_JSON" | jq -e 'type == "array"' >/dev/null 2>&1; then
+                    echo "✅ Components is valid JSON array: $COMPONENTS_JSON"
+                  else
+                    # Not an array, try to wrap it or convert
+                    echo "⚠️  Components is JSON but not an array, converting"
+                    # If it's a single string value, wrap it in an array
+                    COMPONENTS_JSON=$(echo "$COMPONENTS_JSON" | jq -R . | jq -s -c '.')
+                  fi
+                else
+                  # Not valid JSON, treat as space-separated list and convert to JSON array
+                  echo "⚠️  Components output is not valid JSON, converting from space-separated list"
+                  COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s -c .)
+                fi
+                echo "Setting components for deployment: $COMPONENTS_JSON"
+                # Verify it's a valid JSON array before outputting
+                if ! echo "$COMPONENTS_JSON" | jq -e 'type == "array"' >/dev/null 2>&1; then
+                  echo "::error::Components JSON is not a valid array: $COMPONENTS_JSON"
+                  exit 1
+                fi
+                # Output as JSON array string - fromJSON() will parse this correctly in the matrix
+                # Use multiline format to ensure proper handling of JSON (same as workflow_dispatch path)
+                {
+                  echo "components<<EOF"
+                  echo "$COMPONENTS_JSON"
+                  echo "EOF"
+                } >> $GITHUB_OUTPUT
+              else
+                echo "No components to deploy (no releases were created)"
+                echo "This is expected if a release PR already exists and was just updated"
+                echo "components=[]" >> $GITHUB_OUTPUT
+              fi
             fi
           fi
+          echo "=============================="
 
   deploy-plugin:
     name: Deploy ${{ matrix.component }} to WordPress.org
@@ -175,29 +246,34 @@ jobs:
     steps:
       - name: Determine version, tag, and component info
         id: plugin_info
+        env:
+          MATRIX_COMPONENT: ${{ matrix.component }}
+          REDEPLOY_TAG: ${{ github.event.inputs.redeploy_tag }}
+          NEEDS_DETECT_COMPONENTS: ${{ needs.detect-deploy-components.outputs.components }}
+          NEEDS_RELEASE_PLEASE_OUTPUTS: ${{ needs.release-please.outputs.release_outputs }}
         run: |
-          COMPONENT="${{ matrix.component }}"
+          COMPONENT="$MATRIX_COMPONENT"
+          
+          # Debug: Check if component has brackets (indicates JSON parsing issue)
+          if [[ "$COMPONENT" =~ ^\[.*\]$ ]]; then
+            echo "::error::Component appears to be a JSON array string instead of component name: $COMPONENT"
+            echo "This indicates the matrix component parsing failed. Expected component name, got: $COMPONENT"
+            echo "Components output was: $NEEDS_DETECT_COMPONENTS"
+            exit 1
+          fi
+          
           PACKAGE_PATH="plugins/${COMPONENT}"
-          
-          # Map component name to WordPress.org slug
-          # Note: WordPress.org doesn't allow "wp-" prefix, so wp-graphql-smart-cache
-          # (GitHub component) maps to wpgraphql-smart-cache (WordPress.org slug)
-          # This only affects WordPress.org deployment; GitHub tags use the component name
-          case "$COMPONENT" in
-            wp-graphql-smart-cache)
-              WP_ORG_SLUG="wpgraphql-smart-cache"
-              ;;
-            *)
-              WP_ORG_SLUG="$COMPONENT"
-              ;;
-          esac
-          
-          echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
+
+          # Resolve WordPress.org slug from config on main (so re-deploys that checkout a tag still get current mapping)
+          CONFIG_JSON=$(curl -sL "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/release-please-config.json")
+          WP_ORG_SLUG=$(echo "$CONFIG_JSON" | jq -r --arg c "$COMPONENT" '.packages["plugins/\($c)"].wp_org_slug // $c')
           echo "wp_org_slug=${WP_ORG_SLUG}" >> $GITHUB_OUTPUT
-          
-          if [[ "${{ github.event.inputs.redeploy_tag }}" != "" ]]; then
+
+          echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
+
+          if [[ "$REDEPLOY_TAG" != "" ]]; then
             # Re-deploy: extract version from full tag format (e.g., wp-graphql/v2.7.0)
-            TAG="${{ github.event.inputs.redeploy_tag }}"
+            TAG="$REDEPLOY_TAG"
             VERSION=$(echo "$TAG" | sed 's|.*/v\?||')
             
             # Verify component matches matrix
@@ -218,7 +294,7 @@ jobs:
             TAG_KEY="${PACKAGE_KEY}--tag_name"
             
             # Parse from release-please outputs JSON
-            RELEASE_OUTPUTS='${{ needs.release-please.outputs.release_outputs }}'
+            RELEASE_OUTPUTS="$NEEDS_RELEASE_PLEASE_OUTPUTS"
             VERSION=$(echo "$RELEASE_OUTPUTS" | jq -r ".[\"$VERSION_KEY\"] // empty")
             TAG=$(echo "$RELEASE_OUTPUTS" | jq -r ".[\"$TAG_KEY\"] // empty")
             
@@ -233,11 +309,11 @@ jobs:
             echo "package_path=${PACKAGE_PATH}" >> $GITHUB_OUTPUT
             echo "Deploying new release: ${COMPONENT} v${VERSION} (tag: ${TAG})"
           fi
-          
+
           echo "Component: $COMPONENT"
           echo "Package path: $PACKAGE_PATH"
-          echo "Version: ${{ steps.plugin_info.outputs.version }}"
-          echo "Tag: ${{ steps.plugin_info.outputs.tag_name }}"
+          echo "Version: $VERSION"
+          echo "Tag: $TAG"
 
       - name: Checkout code
         uses: actions/checkout@v6
@@ -256,6 +332,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '22'
+          cache: 'npm'
 
       - name: Install Subversion
         run: sudo apt-get update && sudo apt-get install -y subversion
@@ -264,14 +341,22 @@ jobs:
         working-directory: ${{ steps.plugin_info.outputs.package_path }}
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Install NPM dependencies
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
+
       - name: Install Node dependencies and build
+        env:
+          PLUGIN_DIR: ${{ steps.plugin_info.outputs.package_path }}
+          MATRIX_COMPONENT: ${{ matrix.component }}
         run: |
-          npm ci
           # Try to build the specific component
           # First, try to detect the workspace name from the plugin's package.json
-          PLUGIN_DIR="${{ steps.plugin_info.outputs.package_path }}"
-          COMPONENT="${{ matrix.component }}"
-          
+          COMPONENT="$MATRIX_COMPONENT"
+
           if [[ -f "${PLUGIN_DIR}/package.json" ]]; then
             # Try to extract workspace name from package.json
             WORKSPACE_NAME=$(cat "${PLUGIN_DIR}/package.json" | jq -r '.name // empty' 2>/dev/null || echo "")
@@ -304,18 +389,21 @@ jobs:
 
       - name: Create clean build directory for deployment
         working-directory: ${{ steps.plugin_info.outputs.package_path }}
+        env:
+          MATRIX_COMPONENT: ${{ matrix.component }}
+          PLUGIN_DIR: ${{ steps.plugin_info.outputs.package_path }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
         run: |
-          COMPONENT="${{ matrix.component }}"
-          PLUGIN_DIR="${{ steps.plugin_info.outputs.package_path }}"
+          COMPONENT="$MATRIX_COMPONENT"
           BUILD_DIR="../../plugin-build/${COMPONENT}"
-          VERSION="${{ steps.plugin_info.outputs.version }}"
-          
+          VERSION="$PLUGIN_VERSION"
+
           echo "📦 Creating clean build directory for ${COMPONENT} using .distignore..."
           echo "This ensures only production files are included (respects .distignore)"
-          
+
           # Create the build directory
           mkdir -p "${BUILD_DIR}"
-          
+
           # Use rsync with .distignore to create a clean copy
           # This respects .distignore and excludes node_modules, packages, etc.
           if [[ -f ".distignore" ]]; then
@@ -324,21 +412,21 @@ jobs:
             echo "⚠️  Warning: .distignore not found in ${PLUGIN_DIR}, copying all files"
             rsync -rc --exclude=plugin-build . "${BUILD_DIR}/" --delete --delete-excluded -v
           fi
-          
+
           echo "✅ Clean build directory created at ${BUILD_DIR}"
-          
+
           # Update version numbers in build directory files
           # This is necessary because the tag may have old version numbers
           # The 10up action reads version from wp-graphql.php and may overwrite Stable tag if versions don't match
           echo "🔄 Updating version numbers in build directory to ${VERSION}..."
-          
-          # Update Stable tag in readme.txt
+
+          # Update Stable tag in readme.txt (match "Stable tag:" or "Stable Tag:" per plugin convention)
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            sed -i.bak "s/^Stable tag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
+            sed -i.bak "s/^Stable [Tt]ag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
             rm -f "${BUILD_DIR}/readme.txt.bak"
             echo "✅ Updated Stable tag in readme.txt"
           fi
-          
+
           # Update Version in wp-graphql.php (both header and @version docblock)
           if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
             sed -i.bak "s/^ \* Version: [0-9]\+\.[0-9]\+\.[0-9]\+/ * Version: ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
@@ -346,25 +434,25 @@ jobs:
             rm -f "${BUILD_DIR}/wp-graphql.php.bak"
             echo "✅ Updated Version in wp-graphql.php"
           fi
-          
+
           # Update WPGRAPHQL_VERSION constant in constants.php
           if [[ -f "${BUILD_DIR}/constants.php" ]]; then
             sed -i.bak "s/define( 'WPGRAPHQL_VERSION', '[^']*' );/define( 'WPGRAPHQL_VERSION', '${VERSION}' );/" "${BUILD_DIR}/constants.php"
             rm -f "${BUILD_DIR}/constants.php.bak"
             echo "✅ Updated WPGRAPHQL_VERSION in constants.php"
           fi
-          
+
           # Verify all updates
           echo "🔍 Verifying version updates:"
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            if grep -q "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
+            if grep -qi "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
               echo "  ✅ readme.txt Stable tag: ${VERSION}"
             else
               echo "  ❌ readme.txt Stable tag incorrect"
-              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "    (not found)"
+              grep -i "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "    (not found)"
             fi
           fi
-          
+
           if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
             if grep -q "Version: ${VERSION}" "${BUILD_DIR}/wp-graphql.php"; then
               echo "  ✅ wp-graphql.php Version: ${VERSION}"
@@ -373,7 +461,7 @@ jobs:
               grep "Version:" "${BUILD_DIR}/wp-graphql.php" | head -2
             fi
           fi
-          
+
           if [[ -f "${BUILD_DIR}/constants.php" ]]; then
             if grep -q "WPGRAPHQL_VERSION', '${VERSION}'" "${BUILD_DIR}/constants.php"; then
               echo "  ✅ constants.php WPGRAPHQL_VERSION: ${VERSION}"
@@ -382,7 +470,7 @@ jobs:
               grep "WPGRAPHQL_VERSION" "${BUILD_DIR}/constants.php" | head -1
             fi
           fi
-          
+
           echo "📋 Verifying no node_modules in build directory..."
           if find "${BUILD_DIR}" -type d -name "node_modules" 2>/dev/null | grep -q .; then
             echo "⚠️  Warning: node_modules found in build directory!"
@@ -391,15 +479,15 @@ jobs:
           else
             echo "✅ No node_modules found in build directory"
           fi
-          
+
           echo "📦 Files in build directory:"
           ls -la "${BUILD_DIR}" | head -20
-          
+
           # Final verification of Stable tag before deployment
           echo "🔍 Final verification of readme.txt before deployment:"
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
             echo "Stable tag in build directory:"
-            grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
+            grep -i "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
             echo ""
             echo "First 10 lines of readme.txt:"
             head -10 "${BUILD_DIR}/readme.txt"
@@ -409,24 +497,28 @@ jobs:
 
       - name: Delete existing SVN tag if re-deploying
         if: steps.plugin_info.outputs.is_redeploy == 'true'
+        env:
+          WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         run: |
           # Use WordPress.org slug (not GitHub component name) for SVN
-          WP_ORG_SLUG="${{ steps.plugin_info.outputs.wp_org_slug }}"
-          VERSION="${{ steps.plugin_info.outputs.version }}"
+          VERSION="$PLUGIN_VERSION"
           SVN_URL="https://plugins.svn.wordpress.org/${WP_ORG_SLUG}"
-          
+
           echo "🗑️  Deleting existing SVN tag ${VERSION} for re-deployment..."
           echo "This ensures a clean deployment with correct version numbers"
-          
+
           # Delete the tag from SVN
           svn delete "${SVN_URL}/tags/${VERSION}" \
             -m "Delete tag ${VERSION} for re-deployment with corrected versions" \
-            --username "${{ secrets.SVN_USERNAME }}" \
-            --password "${{ secrets.SVN_PASSWORD }}" \
+            --username "$SVN_USERNAME" \
+            --password "$SVN_PASSWORD" \
             --non-interactive || {
               echo "⚠️  Tag ${VERSION} may not exist or already deleted (this is OK)"
             }
-          
+
           echo "✅ SVN tag ${VERSION} deleted (or didn't exist)"
 
       - name: WordPress Plugin Deploy
@@ -446,18 +538,21 @@ jobs:
 
       - name: Verify and fix SVN trunk readme.txt if needed
         # The 10up action may not update readme.txt correctly, so we manually verify and fix it
+        env:
+          WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
+          MATRIX_COMPONENT: ${{ matrix.component }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
         run: |
           # Use WordPress.org slug for SVN operations
-          WP_ORG_SLUG="${{ steps.plugin_info.outputs.wp_org_slug }}"
-          COMPONENT="${{ matrix.component }}"
-          VERSION="${{ steps.plugin_info.outputs.version }}"
+          COMPONENT="$MATRIX_COMPONENT"
+          VERSION="$PLUGIN_VERSION"
           BUILD_DIR="plugin-build/${COMPONENT}"
-          
+
           echo "🔍 Checking if we need to manually update SVN trunk readme.txt..."
-          
-          # Check if readme.txt in BUILD_DIR has the correct Stable tag
+
+          # Check if readme.txt in BUILD_DIR has the correct Stable tag (match "Stable tag:" or "Stable Tag:")
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            BUILD_STABLE_TAG=$(grep "^Stable tag:" "${BUILD_DIR}/readme.txt" | sed 's/^Stable tag: *//' || echo "")
+            BUILD_STABLE_TAG=$(grep -i "^Stable tag:" "${BUILD_DIR}/readme.txt" | sed 's/^Stable [Tt]ag: *//' | tr -d '\r' || echo "")
             echo "Stable tag in BUILD_DIR: ${BUILD_STABLE_TAG}"
             
             if [[ "${BUILD_STABLE_TAG}" != "${VERSION}" ]]; then
@@ -475,12 +570,14 @@ jobs:
           fi
 
       - name: Create plugin zip artifact
+        env:
+          MATRIX_COMPONENT: ${{ matrix.component }}
         run: |
           cd plugin-build
-          zip -r ${{ matrix.component }}.zip ${{ matrix.component }}
+          zip -r "$MATRIX_COMPONENT.zip" "$MATRIX_COMPONENT"
 
       - name: Upload artifact to workflow
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.component }}
           path: plugin-build/${{ matrix.component }}.zip
@@ -488,7 +585,7 @@ jobs:
       - name: Upload artifact to release
         # Upload for both new releases and re-deployments
         # For re-deployments, this updates the existing release asset with the corrected version
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.plugin_info.outputs.tag_name }}
           files: plugin-build/${{ matrix.component }}.zip
@@ -497,11 +594,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release Summary
+        env:
+          MATRIX_COMPONENT: ${{ matrix.component }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
+          PLUGIN_TAG_NAME: ${{ steps.plugin_info.outputs.tag_name }}
+          IS_REDEPLOY: ${{ steps.plugin_info.outputs.is_redeploy }}
         run: |
           echo "=== RELEASE SUMMARY ==="
-          echo "Component: ${{ matrix.component }}"
-          echo "Version: ${{ steps.plugin_info.outputs.version }}"
-          echo "Tag: ${{ steps.plugin_info.outputs.tag_name }}"
-          echo "Is Re-deploy: ${{ steps.plugin_info.outputs.is_redeploy }}"
+          echo "Component: $MATRIX_COMPONENT"
+          echo "Version: $PLUGIN_VERSION"
+          echo "Tag: $PLUGIN_TAG_NAME"
+          echo "Is Re-deploy: $IS_REDEPLOY"
           echo "Deployed to WordPress.org: ✅"
           echo "======================="

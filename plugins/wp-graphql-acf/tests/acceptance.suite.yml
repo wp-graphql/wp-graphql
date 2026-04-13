@@ -1,0 +1,55 @@
+# Codeception Test Suite Configuration
+# Auto-generated - includes detected ACF plugins
+# Uses WPWebDriver (Chrome) so ACF admin UI and import work with JavaScript
+actor: AcceptanceTester
+modules:
+  enabled:
+    - Asserts
+    - REST
+    - lucatume\WPBrowser\Module\WPWebDriver
+    - lucatume\WPBrowser\Module\WPDb
+    - lucatume\WPBrowser\Module\WPLoader
+    - Helper\Utils
+  config:
+    lucatume\WPBrowser\Module\WPDb:
+      cleanup: false
+    lucatume\WPBrowser\Module\WPLoader:
+      loadOnly: true
+      wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
+      dbName: '%TEST_DB_NAME%'
+      dbHost: '%TEST_DB_HOST%'
+      dbUser: '%TEST_DB_USER%'
+      dbPassword: '%TEST_DB_PASSWORD%'
+      tablePrefix: '%TEST_WP_TABLE_PREFIX%'
+      domain: '%TEST_WP_DOMAIN%'
+      adminEmail: '%TEST_ADMIN_EMAIL%'
+      multisite: '%MULTISITE%'
+      title: 'Test'
+      theme: '%TEST_THEME%'
+      plugins:
+        - wp-graphql/wp-graphql.php
+        - wp-graphql-acf/wpgraphql-acf.php
+      activatePlugins:
+        - wp-graphql/wp-graphql.php
+        - wp-graphql-acf/wpgraphql-acf.php
+      configFile: 'tests/_data/config.php'
+    lucatume\WPBrowser\Module\WPWebDriver:
+      url: '%TEST_WP_URL%'
+      adminUsername: '%TEST_ADMIN_USERNAME%'
+      adminPassword: '%TEST_ADMIN_PASSWORD%'
+      adminPath: '%TEST_ADMIN_PATH%'
+      browser: chrome
+      host: localhost
+      port: 9515
+      path: /
+      window_size: 1920,1080
+      capabilities:
+        goog:chromeOptions:
+          args:
+            - "--headless=new"
+            - "--disable-gpu"
+            - "--disable-dev-shm-usage"
+            - "--no-sandbox"
+            - "--proxy-server='direct://'"
+            - "--proxy-bypass-list=*"
+bootstrap: bootstrap.php

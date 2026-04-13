@@ -36,10 +36,9 @@ const FieldView = (props) => {
 			...props.selections.filter((selection) => {
 				if (selection.kind === 'InlineFragment') {
 					return true;
-				} else {
-					// Remove the current selection set for the target field
-					return selection.name.value !== props.field.name;
 				}
+				// Remove the current selection set for the target field
+				return selection.name.value !== props.field.name;
 			}),
 			{
 				kind: 'Field',

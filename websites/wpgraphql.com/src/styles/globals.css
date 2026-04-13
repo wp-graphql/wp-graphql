@@ -1,0 +1,56 @@
+@import "docsearch.css";
+
+@tailwind base;
+
+html {
+  scroll-behavior: smooth;
+}
+
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Lora';
+  src: url('/fonts/lora/Lora-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter/InterVariable.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1, h2 {
+  font-family: 'Lora', serif;
+}
+
+
+/* Regular buttons */
+.btn-primary {
+  @apply mt-8 bg-blue text-white border border-transparent rounded-full shadow px-5 py-3 inline-flex items-center text-base font-medium hover:bg-blue-500 hover:shadow-lg transition-all duration-300;
+}
+
+.btn-secondary {
+  @apply mt-8 border-2 dark:text-white dark:border-white border-navy text-navy bg-transparent rounded-full shadow px-5 py-3 inline-flex items-center text-base font-medium hover:bg-navy hover:text-white hover:shadow-lg dark:hover:bg-white dark:hover:text-navy duration-300;
+}
+
+/* Small buttons */
+.btn-primary-sm {
+  @apply mt-8 bg-blue text-white border border-transparent rounded-full shadow px-3 py-2 inline-flex items-center text-sm font-medium hover:bg-blue-600 hover:shadow-lg transition-all duration-300;
+}
+
+.btn-secondary-sm {
+  @apply mt-8 border-2 border-navy text-navy bg-transparent rounded-full shadow px-3 py-2 inline-flex items-center text-sm font-medium hover:bg-navy hover:text-white hover:shadow-lg transition-all duration-300;
+}
+
+.subtitle {
+  @apply text-base font-semibold tracking-wider text-purple-600 dark:text-purple-400 uppercase;
+}
+
+/* Apply margin left to all adjacent "buttons", excluding the first button */
+[class*='btn-'] + [class*='btn-'] {
+  @apply ml-4;
+}

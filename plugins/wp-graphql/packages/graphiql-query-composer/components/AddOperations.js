@@ -3,9 +3,9 @@ import { Button, Form } from 'antd';
 /**
  * Add Operations (queries, mutations, subscriptions) to the Query Builder
  *
- * @param props
- * @returns {JSX.Element}
- * @constructor
+ * @param  props
+ * @return {JSX.Element}
+ * @class
  */
 const AddOperations = (props) => {
 	const { actionOptions, addOperation } = props;

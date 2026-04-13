@@ -10,9 +10,9 @@ const { useState } = wp.element;
 
 /**
  * This view is used
- * @param props
- * @returns {JSX.Element}
- * @constructor
+ * @param  props
+ * @return {JSX.Element}
+ * @class
  */
 const AbstractArgView = (props) => {
 	const [displayArgActions, setDisplayArgActions] = useState(true);
@@ -155,12 +155,12 @@ const AbstractArgView = (props) => {
 
 	const variablize = () => {
 		/**
-         1. Find current operation variables
-         2. Find current arg value
-         3. Create a new variable
-         4. Replace current arg value with variable
-         5. Add variable to operation
-         */
+		  1. Find current operation variables
+		  2. Find current arg value
+		  3. Create a new variable
+		  4. Replace current arg value with variable
+		  5. Add variable to operation
+		 */
 
 		const baseVariableName = arg.name;
 		const conflictingNameCount = (
@@ -199,13 +199,14 @@ const AbstractArgView = (props) => {
 			);
 
 		let variable;
-		let subVariableUsageCountByName = {};
+		const subVariableUsageCountByName = {};
 
 		if (typeof argValue !== 'undefined' && argValue !== null) {
-			/** In the process of devariabilizing descendent selections,
+			/**
+			 * In the process of devariabilizing descendent selections,
 			 * we may have caused their variable definitions to become unused.
 			 * Keep track and remove any variable definitions with 1 or fewer usages.
-			 * */
+			 */
 			const cleanedDefaultValue = visit(argValue, {
 				Variable(node) {
 					const varName = node.name.value;
@@ -257,9 +258,8 @@ const AbstractArgView = (props) => {
 								definition.name.value ===
 								props.definition.name.value
 							);
-						} else {
-							return false;
 						}
+						return false;
 					}
 				);
 
@@ -283,9 +283,8 @@ const AbstractArgView = (props) => {
 				const newDefinitions = existingDefs.map((existingOperation) => {
 					if (targetOperation === existingOperation) {
 						return newOperation;
-					} else {
-						return existingOperation;
 					}
+					return existingOperation;
 				});
 
 				const finalDoc = {
@@ -366,9 +365,8 @@ const AbstractArgView = (props) => {
 			const newDefinitions = existingDefs.map((existingOperation) => {
 				if (targetOperation === existingOperation) {
 					return newOperation;
-				} else {
-					return existingOperation;
 				}
+				return existingOperation;
 			});
 
 			const finalDoc = {

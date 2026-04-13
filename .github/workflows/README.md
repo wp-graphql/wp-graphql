@@ -21,6 +21,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Compares schema against previous releases to detect breaking changes
 - Each plugin's schema is compared against its own release history (e.g., `wp-graphql/v2.7.0`, `wp-graphql-smart-cache/v1.0.0`)
 - Supports plugins that extend the schema (e.g., smart-cache tests with both wp-graphql and smart-cache active)
+- wp-graphql-acf is in the monorepo; a commented example job in `schema-linter.yml` can be uncommented to enable schema linting for it
 
 ### 3. Testing Integration (`testing-integration.yml`)
 
@@ -31,11 +32,12 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ### 4. JS E2E Tests (`js-e2e-tests.yml` and `js-e2e-tests-reusable.yml`)
 
-- End-to-end testing of GraphiQL interface and admin pages using Playwright
+- End-to-end testing using Playwright for plugins with JavaScript E2E tests
 - Uses change detection to only run tests for plugins that have JavaScript changes
 - `js-e2e-tests.yml` detects changes and triggers `js-e2e-tests-reusable.yml` for each affected plugin
-- Ensures GraphiQL functionality, settings pages, and extensions pages work as expected
-- Tests user interactions and UI components
+- **wp-graphql**: GraphiQL interface, settings pages, and extensions pages
+- **wp-graphql-ide**: IDE UI and panels
+- **wp-graphql-acf**: Field types GraphQL UI, clone/schema, ACF UI registration (CPT, taxonomy, options page). Runs a matrix: ACF Free, ACF Pro + Extended Free, ACF Pro + Extended Pro (requires `ACF_LICENSE_KEY` and optionally `ACF_EXTENDED_LICENSE_KEY` secrets for Pro rows). Each run installs the matching ACF variant via `install-test-deps` then runs Playwright; Pro/Extended-only tests are skipped when not active
 - Workflow always runs on PRs to provide consistent status checks for branch protection
 
 ### 5. Smoke Test (`smoke-test.yml` and `smoke-test-reusable.yml`)
@@ -48,13 +50,30 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Handles plugin dependencies (e.g., builds wp-graphql first if required by another plugin)
 - Installs plugins in a clean WordPress environment
 - Runs smoke tests to verify core functionality
-- Currently tests: wp-graphql (WP 6.8/PHP 8.3, WP 6.1/PHP 7.4) and wp-graphql-smart-cache (same versions)
+- Currently tests: wp-graphql, wp-graphql-ide, wp-graphql-smart-cache, and wp-graphql-acf (WP 6.8/PHP 8.3, WP 6.1–6.2/PHP 7.4 boundary versions)
 
 ### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
 - Performs security analysis
 - Identifies potential vulnerabilities
 - Runs on schedule and on code changes
+
+## Website Deployment & Testing
+
+### 7. Website E2E Tests (`website-e2e-tests.yml`)
+
+- End-to-end testing of Next.js websites using Playwright
+- Uses change detection to only run tests for websites that have changed files
+- Tests website functionality after dependency updates
+- Currently tests: wpgraphql.com
+- Workflow always runs on PRs to provide consistent status checks for branch protection
+
+### 8. Vercel Deployment
+
+- Vercel is configured to monitor the repository directly
+- Deploys automatically when changes are pushed to main branch
+- Configured via Vercel dashboard with root directory set to `websites/wpgraphql.com`
+- Environment variables are managed in Vercel dashboard
 
 ## PR Validation
 
@@ -188,6 +207,26 @@ When adding or modifying workflows:
 3. Ensure proper error handling and notifications
 4. Test workflows in a feature branch first
 
+When adding a new website:
+
+1. **Add website to `websites/` directory** with proper structure
+2. **Update website `package.json`**:
+   - Set `name` to `@wpgraphql/website-name` format
+   - Add `test:e2e` script: `"test:e2e": "playwright test"`
+   - Ensure all scripts use `npm` instead of `yarn`
+3. **Add Playwright configuration** (`playwright.config.js`) in website root
+4. **Create e2e tests** in `tests/e2e/` directory
+5. **Add change detection** in `website-e2e-tests.yml`:
+   - Add website output in `detect-changes` job
+   - Add file patterns in `files_yaml` section
+   - Add website job following the wpgraphql-com pattern
+6. **Add website to status-check job** in `website-e2e-tests.yml`
+7. **Configure Vercel project** (if deploying to Vercel):
+   - Set root directory to `websites/website-name`
+   - Configure build command: `npm run build -w @wpgraphql/website-name`
+   - Set install command: `npm ci` (from monorepo root)
+   - Add required environment variables
+
 When adding a new plugin:
 
 1. **Add change detection patterns** in `integration-tests.yml`, `lint.yml`, `js-e2e-tests.yml`, and `smoke-test.yml`:
@@ -201,8 +240,16 @@ When adding a new plugin:
    - Set `requires_wp_graphql: true` if plugin depends on wp-graphql
    - Set `needs_build: true` if plugin requires JS asset building
    - Add WP/PHP version matrix entries
-5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
-6. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
+5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins)). If the WordPress.org directory slug differs from the repo folder name (e.g. `wp-graphql-acf` → `wpgraphql-acf`), add `"wp_org_slug": "wpgraphql-your-plugin"` to that plugin's config so the release workflow deploys to the correct SVN URL.
+6. **Add plugin to `.release-please-manifest.json`** with the current version number:
+   ```json
+   {
+     "plugins/your-plugin-name": "1.0.0"
+   }
+   ```
+   > **⚠️ Important:** If you forget this step, release-please will default to version `1.0.0` for the first release, even if your plugin is already at a higher version. Always check the plugin's main PHP file for the current version and add it to the manifest.
+7. **Add version constant mapping** in `scripts/update-version-constants.js` if your plugin defines a version constant (see [Architecture Docs](../docs/ARCHITECTURE.md#4-version-constants-script))
+8. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
    - Set `component` to match release tag prefix
    - Configure `active_plugins` for schema generation
 
@@ -225,5 +272,12 @@ When adding plugins to the monorepo, be aware of the difference between director
 - GitHub release tag: `wp-graphql-smart-cache/v2.0.1`
 - WordPress.org slug: `wpgraphql-smart-cache` (WordPress.org policy requirement)
 - Zip file: `wpgraphql-smart-cache.zip` (created by build script with WordPress.org-compliant name)
+- Zip directory: `wpgraphql-smart-cache/` (directory inside the zip, matches WordPress.org slug)
+- Plugin slug: `wpgraphql-smart-cache` (used in smoke tests, must match zip directory name)
 
-The release workflow automatically maps component names to WordPress.org slugs when deploying. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.
+**Important for smoke tests:**
+- The `composer.json` zip script must create a directory with the WordPress.org slug name (e.g., `wpgraphql-smart-cache`, not `wp-graphql-smart-cache`)
+- The `plugin_slug` in `smoke-test.yml` must match the directory name inside the zip file
+- WordPress uses the directory name inside the zip as the plugin identifier when checking if it's active
+
+The release workflow reads the WordPress.org slug from `release-please-config.json`: if a plugin entry includes `"wp_org_slug": "wpgraphql-*"`, that value is used for SVN and deployment; otherwise the component name is used. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.

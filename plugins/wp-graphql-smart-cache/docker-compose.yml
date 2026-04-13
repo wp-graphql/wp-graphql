@@ -5,11 +5,11 @@ services:
     image: varnish:7.3
     container_name: varnish
     volumes:
-      - "./docker/varnish/default.vcl:/etc/varnish/default.vcl"
+      - './docker/varnish/default.vcl:/etc/varnish/default.vcl'
     ports:
-      - "8081:80"
+      - '8081:80'
     depends_on:
-      - "app"
+      - 'app'
 
   app:
     depends_on:

@@ -51,7 +51,7 @@ export const GraphiQLContextProvider = ({ children }) => {
 
 	const getDefaultQuery = () => {
 		let defaultQuery = '';
-		let queryUrlParam = queryParams.query ?? null;
+		const queryUrlParam = queryParams.query ?? null;
 
 		if (queryUrlParam) {
 			defaultQuery =

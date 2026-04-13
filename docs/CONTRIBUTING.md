@@ -111,7 +111,7 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
    - Auto-generated changelog from commit messages
 3. **Release PR Merged**: When the Release PR is merged:
    - GitHub Release is created
-   - Plugin is deployed to WordPress.org
+   - Plugin is deployed to WordPress.org (the workflow uses `wp_org_slug` from `release-please-config.json` when the .org slug differs from the repo folder name)
    - Artifacts are attached to the release
 
 ### Version Management
@@ -122,6 +122,8 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
 
 > **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
+
+When adding a new plugin that is deployed to WordPress.org, ensure its entry in `release-please-config.json` includes `"wp_org_slug": "wpgraphql-*"` if the WordPress.org directory slug differs from the repo folder name (e.g. `wp-graphql-acf` → `wpgraphql-acf`). See [Architecture: Future Plugins](./ARCHITECTURE.md#future-plugins) and [Workflows README](../.github/workflows/README.md#when-adding-a-new-plugin).
 
 ## Working with the Monorepo
 

@@ -1,0 +1,12 @@
+{
+  "extends": "next/core-web-vitals",
+  "plugins": ["unused-imports"],
+  "rules": {
+    "unused-imports/no-unused-imports": "error",
+    "import/prefer-default-export": "warn",
+    "react/function-component-definition": [
+      2,
+      { "namedComponents": "function-declaration" }
+    ]
+  }
+}

@@ -6,6 +6,7 @@ on:
       - main
       - release/*
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
       - release/*
@@ -33,8 +34,8 @@ jobs:
     outputs:
       wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
-      # Add outputs for additional plugins here:
-      # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
+      wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
+      wp-graphql-acf: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}
       test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
@@ -47,7 +48,7 @@ jobs:
           # Check if Release PR
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BRANCH_NAME="${{ github.head_ref }}"
-            if [[ "$BRANCH_NAME" == release-please--* ]]; then
+            if [[ "$BRANCH_NAME" =~ ^release-please-- ]]; then
               TEST_ALL=true
               echo "🔔 Detected Release PR - will lint all plugins"
             fi
@@ -67,10 +68,17 @@ jobs:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
               - plugins/wp-graphql/**/*.php
+              - plugins/wp-graphql/**/*.js
+              - plugins/wp-graphql/**/*.jsx
+              - plugins/wp-graphql/**/*.ts
+              - plugins/wp-graphql/**/*.tsx
+              - plugins/wp-graphql/package.json
+              - plugins/wp-graphql/package-lock.json
               - plugins/wp-graphql/composer.json
               - plugins/wp-graphql/composer.lock
               - plugins/wp-graphql/phpcs.xml.dist
               - plugins/wp-graphql/phpstan.neon.dist
+              - .release-please-manifest.json
             wp-graphql-smart-cache:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
@@ -79,22 +87,37 @@ jobs:
               - plugins/wp-graphql-smart-cache/composer.lock
               - plugins/wp-graphql-smart-cache/phpcs.xml.dist
               - plugins/wp-graphql-smart-cache/phpstan.neon.dist
-              # Smart cache depends on wp-graphql, so wp-graphql changes trigger smart-cache linting
-              - plugins/wp-graphql/**/*.php
-            # Add additional plugins here:
-            # wpgraphql-acf:
-            #   - .github/workflows/lint-reusable.yml
-            #   - .github/workflows/lint.yml
-            #   - plugins/wpgraphql-acf/**/*.php
-            #   - plugins/wpgraphql-acf/composer.json
-            #   - plugins/wpgraphql-acf/composer.lock
-            #   - plugins/wpgraphql-acf/phpcs.xml.dist
-            #   - plugins/wpgraphql-acf/phpstan.neon.dist
+            wp-graphql-ide:
+              - .github/workflows/lint-reusable.yml
+              - .github/workflows/lint.yml
+              - plugins/wp-graphql-ide/**/*.php
+              - plugins/wp-graphql-ide/**/*.js
+              - plugins/wp-graphql-ide/**/*.jsx
+              - plugins/wp-graphql-ide/**/*.ts
+              - plugins/wp-graphql-ide/**/*.tsx
+              - plugins/wp-graphql-ide/package.json
+              - plugins/wp-graphql-ide/package-lock.json
+              - plugins/wp-graphql-ide/composer.json
+              - plugins/wp-graphql-ide/composer.lock
+              - plugins/wp-graphql-ide/phpcs.xml.dist
+              - plugins/wp-graphql-ide/phpstan.neon.dist
+              - plugins/wp-graphql-ide/codeception.dist.yml
+              - .release-please-manifest.json
+            wp-graphql-acf:
+              - .github/workflows/lint-reusable.yml
+              - .github/workflows/lint.yml
+              - plugins/wp-graphql-acf/**/*.php
+              - plugins/wp-graphql-acf/composer.json
+              - plugins/wp-graphql-acf/composer.lock
+              - plugins/wp-graphql-acf/phpcs.xml.dist
+              - plugins/wp-graphql-acf/phpstan.neon.dist
 
       - name: Log detected changes
         run: |
           echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
+          echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
+          echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
 
   # ===========================================
   # LINT JOBS
@@ -108,6 +131,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
     with:
       plugin_path: plugins/wp-graphql
       plugin_name: wp-graphql
@@ -117,9 +141,30 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || needs.detect-changes.outputs.test_all == 'true'
     uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
     with:
       plugin_path: plugins/wp-graphql-smart-cache
       plugin_name: wp-graphql-smart-cache
+
+  wp-graphql-ide:
+    name: Lint wp-graphql-ide
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql-ide == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
+    with:
+      plugin_path: plugins/wp-graphql-ide
+      plugin_name: wp-graphql-ide
+
+  wp-graphql-acf:
+    name: Lint wp-graphql-acf
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql-acf == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    uses: ./.github/workflows/lint-reusable.yml
+    secrets: inherit
+    with:
+      plugin_path: plugins/wp-graphql-acf
+      plugin_name: wp-graphql-acf
 
   # ===========================================
   # FINAL STATUS CHECK
@@ -130,10 +175,10 @@ jobs:
   # ===========================================
 
   status-check:
-    name: "Lint"
+    name: 'Lint'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache]
-    if: always()  # Run even if previous jobs were skipped
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf]
+    if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check lint results
         run: |
@@ -152,5 +197,19 @@ jobs:
           fi
           if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-smart-cache linting skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-ide.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-ide linting failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-ide.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-ide linting skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-acf.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-acf linting failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-acf.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-acf linting skipped (no changes detected)"
           fi
           echo "✅ All required linting passed"

@@ -1,0 +1,166 @@
+/**
+ * Styles for the vaul package.
+ *
+ * Based on https://raw.githubusercontent.com/emilkowalski/vaul/main/src/style.css
+ */
+
+
+.graphql_page_graphql-ide #wpbody-content > *:not(#wpgraphql-ide-root):not(.wpgraphql-admin-notice) {
+	display: none;
+}
+
+[data-vaul-drawer] {
+  touch-action: none !important;
+  /* Let Vaul handle transform and transition for animation */
+
+  background-color: rgb(244 244 245/1) !important;
+  position: fixed !important;
+  backface-visibility: hidden !important;
+  bottom: 0 !important;
+  z-index: 999999 !important; /* High z-index to appear above WordPress admin panels */
+  width: 100vw !important;
+  height: 90vh !important;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.vaul-dragging .vaul-scrollable {
+  overflow-y: hidden !important;
+}
+
+/* Don't override transform - let Vaul handle the animation */
+[data-vaul-drawer][data-state='open'] {
+  /* Vaul handles the transform animation, we just ensure position/fixed */
+}
+
+[data-vaul-overlay] {
+  opacity: 0 !important;
+  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1) !important;
+
+  background-color: rgba(0,0,0,0.4) !important;
+  inset: 0 !important;
+  position: fixed !important;
+  z-index: 999998 !important; /* Just below drawer, above WordPress admin panels */
+}
+
+[data-vaul-overlay][data-state='open'] {
+  opacity: 1 !important;
+}
+
+[data-vaul-drawer]::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  background: inherit;
+  background-color: inherit;
+  left: 0;
+  right: 0;
+  height: 200%;
+}
+
+[data-vaul-overlay][data-vaul-snap-points='true']:not([data-vaul-snap-points-overlay='true']):not([data-state='closed']) {
+  opacity: 0;
+}
+
+[data-vaul-overlay][data-vaul-snap-points-overlay='true']:not([data-state='closed']) {
+  opacity: 1;
+}
+
+/* This will allow us to not animate via animation, but still benefit from delaying unmount via Radix. */
+@keyframes fake-animation {
+  from {
+  }
+  to {
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-vaul-drawer] {
+    user-select: auto !important; /* !important is needed for text selection within drawer */
+  }
+}
+
+/* Custom */
+
+#wpgraphql-ide-root .AppDrawerRoot {
+  display: block;
+}
+
+#wpgraphql-ide-root .AppDrawerButton {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Fix layout shift from drawer opening everywhere except the dedicated IDE page */
+/* Removed - was causing jump when drawer opens. Vaul handles body scroll locking. */
+
+.graphiql-dialog,
+.graphiql-dialog-overlay {
+  z-index: 1000000; /* Above drawer */
+}
+
+/* Fix popover visibility within drawer */
+[data-radix-popper-content-wrapper] {
+  z-index: 1000000 !important; /* Above drawer */
+}
+
+/* Fix GraphiQL tooltips and hover popovers within drawer */
+.CodeMirror-lint-tooltip{
+  z-index: 1000000 !important; /* Above drawer */
+}
+
+.graphiql-dialog-title,
+.graphiql-history-header {
+  color: hsla(var(--color-neutral),1);
+}
+
+/* Align WPGraphQL logo with existing buttons */
+.wpgraphql-logo-link {
+  display: flex;
+}
+
+/* Dedicated IDE page for new editor */
+
+/* Ful-width editor on dedicated page */
+body.graphql_page_graphql-ide #wpcontent {
+  padding-left: 0;
+}
+
+/* Ful-height editor on dedicated page */
+body.graphql_page_graphql-ide #wpgraphql-ide-root {
+  height: calc(100vh - var(--wp-admin--admin-bar--height));
+}
+
+/* Cancel content padding on dedicated IDE page */
+body.graphql_page_graphql-ide #wpbody-content {
+  padding: 0;
+}
+
+/* Remove admin footer on dedicated IDE page */
+body.graphql_page_graphql-ide #wpfooter {
+  display: none
+}
+
+/* Ful-height AppRoot on dedicated IDE page */
+body.graphql_page_graphql-ide .AppRoot {
+  height: 100%;
+}
+
+
+
+.graphiql-container .graphiql-editor-tools>button.active {
+	background-color: hsla(var(--color-neutral), var(--alpha-background-medium));
+}
+
+/** Fix for the CodeMirror info tooltip */
+.CodeMirror-info { z-index: 999999; }

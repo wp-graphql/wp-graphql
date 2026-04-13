@@ -1,5 +1,115 @@
 # Changelog
 
+## [2.11.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.1...wp-graphql/v2.11.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.44 to 2.1.46 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3749](https://github.com/wp-graphql/wp-graphql/issues/3749)) ([54bf70b](https://github.com/wp-graphql/wp-graphql/commit/54bf70b90405966a46b182f472847a70a6bbc4db))
+* **deps:** bump webonyx/graphql-php from 15.31.3 to 15.31.4 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3750](https://github.com/wp-graphql/wp-graphql/issues/3750)) ([f31da88](https://github.com/wp-graphql/wp-graphql/commit/f31da88006b5a3de5bf264ace7801ca978ca7764))
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
+## [2.11.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.0...wp-graphql/v2.11.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* reject non-numeric user loader keys to prevent SQL injection ([21acb66](https://github.com/wp-graphql/wp-graphql/commit/21acb66fc37a40df57bc57972a2ef88d453b0ced))
+
+## [2.11.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.10.1...wp-graphql/v2.11.0) (2026-04-07)
+
+
+### New Features
+
+* **deps:** bump basic-ftp from 5.1.0 to 5.2.0 in /plugins/wp-graphql ([#3676](https://github.com/wp-graphql/wp-graphql/issues/3676)) ([7eb7781](https://github.com/wp-graphql/wp-graphql/commit/7eb7781e9cf143c6b7b0428e93fa95a6aa59e135))
+* **deps:** bump flatted from 3.3.3 to 3.4.2 in /plugins/wp-graphql ([#3679](https://github.com/wp-graphql/wp-graphql/issues/3679)) ([21f6ea4](https://github.com/wp-graphql/wp-graphql/commit/21f6ea4f442e9d783adc4c562fa7ebeb27bcbce4))
+* **deps:** bump immutable from 5.1.4 to 5.1.5 in /plugins/wp-graphql ([#3685](https://github.com/wp-graphql/wp-graphql/issues/3685)) ([be5c099](https://github.com/wp-graphql/wp-graphql/commit/be5c09948270019b581846017f7f76356b64e6c9))
+* **deps:** bump lodash from 4.17.21 to 4.18.1 in /plugins/wp-graphql ([#3673](https://github.com/wp-graphql/wp-graphql/issues/3673)) ([49391ec](https://github.com/wp-graphql/wp-graphql/commit/49391ec492c6a955194c492554a9e1faadc61eed))
+* **deps:** bump node-forge from 1.3.3 to 1.4.0 in /plugins/wp-graphql ([#3681](https://github.com/wp-graphql/wp-graphql/issues/3681)) ([65b53ed](https://github.com/wp-graphql/wp-graphql/commit/65b53ed2b4a7fda27a0100ea982383989ded71cc))
+* **deps:** bump picomatch in /plugins/wp-graphql ([#3682](https://github.com/wp-graphql/wp-graphql/issues/3682)) ([0b90954](https://github.com/wp-graphql/wp-graphql/commit/0b90954102d55b6de54b9cefb71b98c435841e65))
+* **deps:** bump qs from 6.14.1 to 6.14.2 in /plugins/wp-graphql ([#3670](https://github.com/wp-graphql/wp-graphql/issues/3670)) ([64d50b0](https://github.com/wp-graphql/wp-graphql/commit/64d50b07a6673d4aab79ccab56d018810b9010dc))
+* **deps:** bump simple-git from 3.30.0 to 3.33.0 in /plugins/wp-graphql ([#3680](https://github.com/wp-graphql/wp-graphql/issues/3680)) ([562eba7](https://github.com/wp-graphql/wp-graphql/commit/562eba733964e1190ec7975dc8322e34dcce2fa2))
+* **deps:** bump svgo from 3.3.2 to 3.3.3 in /plugins/wp-graphql ([#3674](https://github.com/wp-graphql/wp-graphql/issues/3674)) ([23875a3](https://github.com/wp-graphql/wp-graphql/commit/23875a39c0d835b1dd249726f6bbfaf0a628465b))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3739](https://github.com/wp-graphql/wp-graphql/issues/3739)) ([6f51727](https://github.com/wp-graphql/wp-graphql/commit/6f5172707a60e2697f4acb6c392eecdca7dddded))
+* **deps:** bump yaml in /plugins/wp-graphql ([#3671](https://github.com/wp-graphql/wp-graphql/issues/3671)) ([fbde422](https://github.com/wp-graphql/wp-graphql/commit/fbde42280827e2d519bc518af558d78f18115591))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.40 to 2.1.44 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3642](https://github.com/wp-graphql/wp-graphql/issues/3642)) ([7d1c3f4](https://github.com/wp-graphql/wp-graphql/commit/7d1c3f43f3ad7b6772b3fb7bfcf4e3452facde30))
+* **deps:** bump appsero/client from 2.0.5 to 2.0.6 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3644](https://github.com/wp-graphql/wp-graphql/issues/3644)) ([a3fe06a](https://github.com/wp-graphql/wp-graphql/commit/a3fe06ae8fc9b97ee59bac077ac290ebca2f3aaf))
+* **deps:** bump webonyx/graphql-php from 15.30.2 to 15.31.2 in /plugins/wp-graphql ([#3646](https://github.com/wp-graphql/wp-graphql/issues/3646)) ([f98b41f](https://github.com/wp-graphql/wp-graphql/commit/f98b41f5dc0a95d04892159b7902c09a677fa4c1))
+* **deps:** bump webonyx/graphql-php from 15.31.2 to 15.31.3 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#3729](https://github.com/wp-graphql/wp-graphql/issues/3729)) ([781e3dc](https://github.com/wp-graphql/wp-graphql/commit/781e3dc0f72145e9a31fa2d3fe5d3f44d8809290))
+
+## [2.10.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.10.0...wp-graphql/v2.10.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* no-cache headers for authenticated requests ([#3340](https://github.com/wp-graphql/wp-graphql/issues/3340)) ([#3619](https://github.com/wp-graphql/wp-graphql/issues/3619)) ([57624d6](https://github.com/wp-graphql/wp-graphql/commit/57624d66a92399f12a05e3546bb06bf0f454a03a))
+
+## [2.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.1...wp-graphql/v2.10.0) (2026-03-11)
+
+
+### New Features
+
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581)) ([40967cb](https://github.com/wp-graphql/wp-graphql/commit/40967cb5e68a3e6964828d054a4323b2327b271d))
+
+
+### Bug Fixes
+
+* add capability check for comment update mutation ([#3616](https://github.com/wp-graphql/wp-graphql/issues/3616)) ([fa06f42](https://github.com/wp-graphql/wp-graphql/commit/fa06f4208cbb46df91a8a4fa6e4e9362173748d1))
+* incorrect wpml_is_redirected filter hook types ([#3615](https://github.com/wp-graphql/wp-graphql/issues/3615)) ([5da103f](https://github.com/wp-graphql/wp-graphql/commit/5da103f61595986bc6f14e71cbdedeb4e5a038d3))
+* resolve post by percent-encoded slug/URI when post_name is stored encoded ([#3582](https://github.com/wp-graphql/wp-graphql/issues/3582)) ([#3611](https://github.com/wp-graphql/wp-graphql/issues/3611)) ([a473d9b](https://github.com/wp-graphql/wp-graphql/commit/a473d9b9e6dc1bdf4350f6ea5f6847b769d42ea5))
+
+## [2.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.1...wp-graphql/v2.10.0) (2026-03-11)
+
+
+### Bug Fixes
+
+* add capability check for comment update mutation ([#3616](https://github.com/wp-graphql/wp-graphql/issues/3616))
+
+## [2.9.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.9.0...wp-graphql/v2.9.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* Add class_exists check to is_graphql_http_request() to prevent fatal errors ([#3580](https://github.com/wp-graphql/wp-graphql/issues/3580)) ([51143f4](https://github.com/wp-graphql/wp-graphql/commit/51143f4295a7d3a1b0d961537557d802e8946971))
+* **deps:** bump webonyx/graphql-php from 15.30.0 to 15.30.1 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3564](https://github.com/wp-graphql/wp-graphql/issues/3564)) ([6f72a6f](https://github.com/wp-graphql/wp-graphql/commit/6f72a6f48727d689418b8eca312ba28656613b2e))
+* **deps:** bump webonyx/graphql-php from 15.30.1 to 15.30.2 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3584](https://github.com/wp-graphql/wp-graphql/issues/3584)) ([083d93a](https://github.com/wp-graphql/wp-graphql/commit/083d93a5bde9bc36af533b55aa8441018ae315c6))
+
+## [2.9.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.8.0...wp-graphql/v2.9.0) (2026-02-11)
+
+
+### New Features
+
+* add core user admin preferences fields to User type ([#3571](https://github.com/wp-graphql/wp-graphql/issues/3571)) ([2ee4e9b](https://github.com/wp-graphql/wp-graphql/commit/2ee4e9b774e33e6f6a47f8ed0f16300a0009c284))
+* import WPGraphQL IDE into monorepo ([#3542](https://github.com/wp-graphql/wp-graphql/issues/3542)) ([e7c1e33](https://github.com/wp-graphql/wp-graphql/commit/e7c1e336ee82e8fe020ca5d6052fa9d330185387))
+
+
+### Bug Fixes
+
+* correct version numbers in plugin files and improve version update script ([#3574](https://github.com/wp-graphql/wp-graphql/issues/3574)) ([caa1249](https://github.com/wp-graphql/wp-graphql/commit/caa1249a76ac39216367cd7f62df7b6358f81ffd))
+* resolve all JavaScript linting errors in wp-graphql-ide ([#3548](https://github.com/wp-graphql/wp-graphql/issues/3548)) ([52c39e2](https://github.com/wp-graphql/wp-graphql/commit/52c39e24483344874ab742e9698da4ea5fabe9b6))
+
+## [2.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.7.0...wp-graphql/v2.8.0) (2026-02-04)
+
+
+### New Features
+
+* Add internationalization (i18n) support for translations ([#3501](https://github.com/wp-graphql/wp-graphql/issues/3501)) ([9218222](https://github.com/wp-graphql/wp-graphql/commit/92182220fff63fb9beec1e5ae3599fa5c466eb06))
+* import wp-graphql-smart-cache into monorepo ([#3504](https://github.com/wp-graphql/wp-graphql/issues/3504)) ([c496bd6](https://github.com/wp-graphql/wp-graphql/commit/c496bd633c127fbe58047d94fc5898d2b52375fa))
+
+
+### Bug Fixes
+
+* add step to replace x-release-please-version placeholders during deployment ([727a9ea](https://github.com/wp-graphql/wp-graphql/commit/727a9ea814eee8c99535d78c7becaad8cf5fbd6f))
+* **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521)) ([77d5e92](https://github.com/wp-graphql/wp-graphql/commit/77d5e9277597db77dd128400d4534e48734e5ada))
+* nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530)) ([1790771](https://github.com/wp-graphql/wp-graphql/commit/17907714ef845190b27507f25701d051dbd7d71b))
+* Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532)) ([7c0ea91](https://github.com/wp-graphql/wp-graphql/commit/7c0ea911a43f467be19752b017fb00b04a48ba3a))
+* replace x-release-please-version placeholders with 2.7.0 ([143f407](https://github.com/wp-graphql/wp-graphql/commit/143f407b6fb5ff9fb698ee6f253fbe7bd7d960fb))
+* use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502)) ([55298a4](https://github.com/wp-graphql/wp-graphql/commit/55298a4157060b2d032e8a2ccb9e6c17e58dd260))
+
 ## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.6.0...wp-graphql/v2.7.0) (2026-01-22)
 
 

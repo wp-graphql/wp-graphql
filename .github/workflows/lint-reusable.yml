@@ -4,11 +4,11 @@ on:
   workflow_call:
     inputs:
       plugin_path:
-        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        description: 'Path to the plugin directory (e.g., plugins/wp-graphql)'
         required: true
         type: string
       plugin_name:
-        description: "Name of the plugin (e.g., wp-graphql)"
+        description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
 jobs:
@@ -43,7 +43,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
         with:
-          php-version: "8.3"
+          php-version: '8.3'
           coverage: none
           tools: cs2pr
 
@@ -54,16 +54,19 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHPCS scan cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         with:
           path: ./tests/_output/phpcs-cache.json
           # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
           key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
+
+      - name: Create tests output directory
+        run: mkdir -p tests/_output
 
       - name: Run PHPCS
         id: phpcs
@@ -105,7 +108,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
         with:
-          php-version: "8.3"
+          php-version: '8.3'
           coverage: none
           tools: cs2pr
 
@@ -116,28 +119,82 @@ jobs:
         run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
       - name: Cache PHP Static Analysis scan cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         with:
           path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
-          key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"
+          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
           restore-keys: |
             phpstan-result-cache-
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
         with:
           working-directory: ${{ inputs.plugin_path }}
+
+      - name: Create tests output directory
+        run: mkdir -p tests/_output
 
       - name: Make Composer packages available globally
         run: echo "${PWD}/vendor/bin" >> "$GITHUB_PATH"
 
       - name: Run PHP static analysis tests
         id: phpstan
-        run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
+        run: phpstan analyse -vvv --memory-limit=2G --error-format=checkstyle | cs2pr
 
       - name: Save result cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@b7e8d49f17405cc70c1c120101943203c98d3a4b # v5.0.3
         if: ${{ !cancelled() }}
         with:
           path: ${{ inputs.plugin_path }}/tests/_output
-          key: "phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}"
+          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+
+  # Runs JavaScript linting checks.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up Node.js.
+  # - Installs NPM dependencies.
+  # - Runs ESLint on JavaScript files.
+  # - Only runs if the plugin has JavaScript source files.
+  lintjs:
+    name: JavaScript Lint (${{ inputs.plugin_name }})
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install NPM dependencies
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
+
+      - name: Check if lint:js script exists
+        id: check-script
+        working-directory: ${{ inputs.plugin_path }}
+        run: |
+          if grep -q '"lint:js"' package.json; then
+            echo "has_js_lint=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_js_lint=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run JavaScript linting
+        if: steps.check-script.outputs.has_js_lint == 'true'
+        working-directory: ${{ inputs.plugin_path }}
+        run: npm run lint:js

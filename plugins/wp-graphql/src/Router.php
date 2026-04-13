@@ -336,11 +336,25 @@ class Router {
 		/**
 		 * Send nocache headers on authenticated requests.
 		 *
+		 * Prefer the current request's viewer when available (after execution) so we
+		 * send no-cache for the request that was actually authenticated, regardless
+		 * of global user timing. Fall back to is_user_logged_in() for paths that
+		 * run before the Request exists (e.g. 403 auth error, OPTIONS).
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/3340
+		 *
 		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
 		 *
 		 * @since 0.0.5
 		 */
-		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', is_user_logged_in() );
+		$request          = self::get_request();
+		$is_authenticated = $request instanceof Request
+			&& $request->app_context->viewer instanceof WP_User
+			&& $request->app_context->viewer->exists();
+		if ( ! $is_authenticated ) {
+			$is_authenticated = is_user_logged_in();
+		}
+		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', $is_authenticated );
 		if ( $send_no_cache_headers ) {
 			foreach ( wp_get_nocache_headers() as $no_cache_header_key => $no_cache_header_value ) {
 				$headers[ $no_cache_header_key ] = $no_cache_header_value;

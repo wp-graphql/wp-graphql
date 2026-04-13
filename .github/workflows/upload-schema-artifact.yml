@@ -31,7 +31,7 @@ jobs:
           tools: composer:v2
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
 
@@ -42,7 +42,11 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        run: npm ci
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
 
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0
@@ -65,7 +69,7 @@ jobs:
           echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Upload schema as release artifact
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ inputs.tag || github.event.release.tag_name }}
           files: /tmp/schema.graphql

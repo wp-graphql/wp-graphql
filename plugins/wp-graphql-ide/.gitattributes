@@ -1,0 +1,9 @@
+# WordPress.org deployment exclusions are handled by .distignore
+# This file is kept minimal for GitHub-specific settings
+
+# Treat .php files as PHP for language statistics
+*.php linguist-language=PHP
+
+# Mark generated/vendor code
+/build/* linguist-generated=true
+/vendor/* linguist-vendored=true
