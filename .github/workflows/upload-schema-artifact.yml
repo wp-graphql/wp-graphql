@@ -69,7 +69,7 @@ jobs:
           echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Upload schema as release artifact
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ inputs.tag || github.event.release.tag_name }}
           files: /tmp/schema.graphql
