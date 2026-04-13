@@ -26,9 +26,12 @@
 		"clean": "rimraf node_modules plugins/*/node_modules plugins/*/build build",
 		"format": "wp-scripts format",
 		"install-test-deps": "true",
-		"lint": "npm run lint:js",
+		"lint": "npm run lint:js && npm run lint:php",
 		"lint:js": "wp-scripts lint-js ./src bin plugins/help-panel/src plugins/query-composer-panel/src tests-examples tests/e2e tests/unit webpack.config.js",
 		"lint:js:fix": "wp-scripts lint-js --fix ./src bin plugins/help-panel/src plugins/query-composer-panel/src tests-examples tests/e2e tests/unit webpack.config.js",
+		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
+		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
+		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
 		"prepare": "husky install",
 		"start": "concurrently --kill-others-on-fail -n 'Main,Plugins' -c 'blue,green' \"wp-scripts start\" \"node bin/start-plugins.js\"",
 		"pretest:codecept": "npm run build:main || echo '⚠️  Build failed, tests may fail if build assets are missing'",
@@ -40,7 +43,8 @@
 		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
 		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
 		"test:unit": "jest --config tests/unit/jest.config.js",
-		"wp-env": "wp-env"
+		"wp-env": "wp-env",
+		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql-ide/ --"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json",
