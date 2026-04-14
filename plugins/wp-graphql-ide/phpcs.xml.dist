@@ -178,4 +178,5 @@
 		</properties>
 	</rule>
 	<rule ref="SlevomatCodingStandard.Variables.UselessVariable" />
+	<rule ref="../../phpcs/WPGraphQL/PHPCS/ruleset.xml"/>
 </ruleset>

@@ -97,10 +97,5 @@
 		"post-update-cmd": [
 			"@php -r \"if (is_dir('packages') && !is_dir('build') && !getenv('CI')) { echo '\\n⚠️  Note: JavaScript assets not found. For GraphiQL IDE, run: npm ci && npm run build\\n\\n'; }\""
 		]
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"WPGraphQL\\PHPCS\\": "phpcs/WPGraphQL/PHPCS/"
-		}
 	}
 }
