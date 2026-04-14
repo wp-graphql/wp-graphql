@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL PHPCS" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+	<description>Shared WPGraphQL custom sniffs for monorepo plugins</description>
+
+	<rule ref="./Sniffs/Functions/VersionParameterSniff.php"/>
+	<rule ref="./Sniffs/Commenting/ValidSinceTagSniff.php"/>
+</ruleset>

@@ -119,4 +119,5 @@
 	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
 		<severity>5</severity>
 	</rule>
+	<rule ref="../../phpcs/WPGraphQL/PHPCS/ruleset.xml"/>
 </ruleset>
