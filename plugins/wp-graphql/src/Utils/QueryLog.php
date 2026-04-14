@@ -140,16 +140,11 @@ class QueryLog {
 		$trace = [ $default_message ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
-			$queries = array_map(
-				static function ( $query ) {
-					return [
-						'sql'   => $query[0],
-						'time'  => $query[1],
-						'stack' => $query[2],
-					];
-				},
-				$wpdb->queries
-			);
+			$queries = [];
+
+			foreach ( $wpdb->queries as $index => $query ) {
+				$queries[] = $this->normalize_query_log_entry( $query, (int) $index );
+			}
 
 			$times      = wp_list_pluck( $queries, 'time' );
 			$total_time = array_sum( $times );
@@ -167,5 +162,53 @@ class QueryLog {
 		 * @param \WPGraphQL\Utils\QueryLog $instance  The QueryLog class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
+	}
+
+	/**
+	 * Normalize one row from `$wpdb->queries` into the query log shape.
+	 *
+	 * WordPress core stores `[ sql, time, stack ]` (numeric keys). Database layers such as
+	 * HyperDB may use associative keys (e.g. `query`, `elapsed`, `debug`). Defaults cover both;
+	 * use the `graphql_query_log_entry` filter for other shapes.
+	 *
+	 * @since next-version
+	 *
+	 * @param mixed $query Raw row from `$wpdb->queries`.
+	 * @param int   $index Zero-based position in the saved query list.
+	 *
+	 * @return array{sql: string, time: float, stack: string}
+	 */
+	protected function normalize_query_log_entry( $query, $index ) {
+		$defaults = [
+			'sql'   => '',
+			'time'  => 0.0,
+			'stack' => '',
+		];
+
+		if ( is_array( $query ) ) {
+			$defaults['sql']   = $query[0] ?? $query['query'] ?? '';
+			$defaults['time']  = (float) ( $query[1] ?? $query['elapsed'] ?? 0 );
+			$defaults['stack'] = $query[2] ?? $query['debug'] ?? '';
+		}
+
+		/**
+		 * Filter a single saved query row after default normalization.
+		 *
+		 * @param array{sql: string, time: float, stack: string}  $parts     Normalized SQL, elapsed time, and stack/debug string.
+		 * @param mixed                                           $query     Raw row from `$wpdb->queries`.
+		 * @param int                                             $index     Index of this query in the log.
+		 * @param \WPGraphQL\Utils\QueryLog                       $query_log The QueryLog instance.
+		 */
+		$filtered = apply_filters( 'graphql_query_log_entry', $defaults, $query, $index, $this );
+
+		if ( ! is_array( $filtered ) ) {
+			$filtered = $defaults;
+		}
+
+		return [
+			'sql'   => (string) ( $filtered['sql'] ?? '' ),
+			'time'  => (float) ( $filtered['time'] ?? 0 ),
+			'stack' => (string) ( $filtered['stack'] ?? '' ),
+		];
 	}
 }
