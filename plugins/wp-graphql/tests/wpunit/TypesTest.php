@@ -2176,6 +2176,256 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test loaded-interface resolution path for string existing field types.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithStringExistingFieldTypeWhenInterfaceIsLoaded() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'LoadedStringInterface',
+					[
+						'fields' => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_object_type(
+					'LoadedStringType',
+					[
+						'interfaces' => [ 'LoadedStringInterface' ],
+						'fields'     => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				// Preload the interface so resolution uses the loaded-types branch.
+				\WPGraphQL::get_type_registry()->get_type( 'LoadedStringInterface' );
+			}
+		);
+
+		add_filter(
+			'graphql_rootquery_fields',
+			static function ( array $fields ) {
+				$fields['loadedStringField'] = [
+					'type'        => 'LoadedStringInterface',
+					'description' => 'String existing field type referencing loaded interface',
+					'resolve'     => static function () {
+						return [ 'id' => 'loaded' ];
+					},
+				];
+
+				return $fields;
+			},
+			5
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'loadedStringField',
+			[
+				'type'    => 'LoadedStringType',
+				'resolve' => static function () {
+					return [ 'id' => 'loaded' ];
+				},
+			]
+		);
+
+		$query    = 'query { loadedStringField { id } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should allow override when existing field type resolves from loaded interface' );
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed for loaded-interface string type resolution' );
+	}
+
+	/**
+	 * Test loader-based interface resolution path for string existing field types.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithStringExistingFieldTypeWhenInterfaceUsesLoader() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'LoaderStringInterface',
+					[
+						'fields' => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_object_type(
+					'LoaderStringType',
+					[
+						'interfaces' => [ 'LoaderStringInterface' ],
+						'fields'     => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+			}
+		);
+
+		add_filter(
+			'graphql_rootquery_fields',
+			static function ( array $fields ) {
+				$fields['loaderStringField'] = [
+					'type'        => 'LoaderStringInterface',
+					'description' => 'String existing field type referencing loader-backed interface',
+					'resolve'     => static function () {
+						return [ 'id' => 'loader' ];
+					},
+				];
+
+				return $fields;
+			},
+			5
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'loaderStringField',
+			[
+				'type'    => 'LoaderStringType',
+				'resolve' => static function () {
+					return [ 'id' => 'loader' ];
+				},
+			]
+		);
+
+		$query    = 'query { loaderStringField { id } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should allow override when existing field type resolves from interface loader' );
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed for loader-backed interface string type resolution' );
+	}
+
+	/**
+	 * Test string existing type that resolves to a non-interface returns duplicate.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithStringExistingFieldTypeThatResolvesToObject() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_object_type(
+					'StringExistingObjectType',
+					[
+						'fields' => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_object_type(
+					'StringExistingOverrideObjectType',
+					[
+						'fields' => [
+							'id' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+			}
+		);
+
+		add_filter(
+			'graphql_rootquery_fields',
+			static function ( array $fields ) {
+				$fields['stringExistingObjectField'] = [
+					'type'        => 'StringExistingObjectType',
+					'description' => 'String existing field type referencing object type',
+					'resolve'     => static function () {
+						return [ 'id' => 'object' ];
+					},
+				];
+
+				return $fields;
+			},
+			5
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'stringExistingObjectField',
+			[
+				'type'    => 'StringExistingOverrideObjectType',
+				'resolve' => static function () {
+					return [ 'id' => 'override' ];
+				},
+			]
+		);
+
+		$query    = 'query { stringExistingObjectField { id } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not treat non-interface string existing type as interface override' );
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed when existing string type resolves to non-interface object' );
+	}
+
+	/**
+	 * Test empty array existing type path returns duplicate field.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithEmptyArrayExistingFieldType() {
+		add_filter(
+			'graphql_rootquery_fields',
+			static function ( array $fields ) {
+				$fields['emptyArrayTypeField'] = [
+					'type'        => [],
+					'description' => 'Invalid empty array existing type',
+					'resolve'     => static function () {
+						return null;
+					},
+				];
+
+				return $fields;
+			},
+			5
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'emptyArrayTypeField',
+			[
+				'type'    => 'String',
+				'resolve' => static function () {
+					return 'value';
+				},
+			]
+		);
+
+		$query    = 'query { emptyArrayTypeField }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not treat empty array existing type as compatible interface override' );
+		$this->assertArrayNotHasKey( 'errors', $response, 'Query should succeed when existing field type array resolves to empty type name' );
+	}
+
+	/**
 	 * Test interface field override with different type when type IS loaded.
 	 *
 	 * This tests the scenario where we override an interface field on one type
