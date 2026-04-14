@@ -171,7 +171,7 @@ class QueryLog {
 	 * HyperDB may use associative keys (e.g. `query`, `elapsed`, `debug`). Defaults cover both;
 	 * use the `graphql_query_log_entry` filter for other shapes.
 	 *
-	 * @since next-version
+	 * @since x-release-please-version
 	 *
 	 * @param mixed $query Raw row from `$wpdb->queries`.
 	 * @param int   $index Zero-based position in the saved query list.
