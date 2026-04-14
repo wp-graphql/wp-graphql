@@ -12,7 +12,7 @@ npm install
 npm run wp-env start
 
 # Development (from plugin directory or monorepo root)
-npm start -w @wpgraphql/wp-graphql-ide
+npm start -w @wpgraphql/ide
 
 # Access
 # http://localhost:8888/wp-admin (admin/password)
