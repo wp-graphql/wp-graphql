@@ -75,7 +75,7 @@ class ValidSinceTagSniff implements Sniff
 		// Validate semver.
 		if ( ! $this->isValidSemver( $version ) ) {
 			$fix = $phpcsFile->addFixableError(
-				'Version for @since tag must be a valid semver version or "x-release-please-version" but got "%s"',
+				'Version for @since tag must be a valid semver version (optionally prefixed with "v") or "x-release-please-version" but got "%s"',
 				$versionPtr,
 				'InvalidVersion',
 				[ $version ]
@@ -121,9 +121,11 @@ class ValidSinceTagSniff implements Sniff
 	 */
 	private function isValidSemver( $version )
 	{
+		$normalizedVersion = ltrim( $version, 'vV' );
+
 		return 1 === preg_match(
 			'/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/',
-			$version
+			$normalizedVersion
 		);
 	}
 }
