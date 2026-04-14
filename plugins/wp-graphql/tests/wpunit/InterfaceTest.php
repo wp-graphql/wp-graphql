@@ -1330,9 +1330,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testInterfaceFieldInheritanceAndMerging() {
-		// TODO: determine if this test is valid.
-		// SEE: https://github.com/wp-graphql/wp-graphql/pull/3383#issuecomment-2977950698
-		// Unskipping to test if interface field argument merging works across inheritance chains
 		// This test verifies that arguments from parent interfaces are merged with child interfaces
 		// and then with object types that implement those interfaces.
 
@@ -1443,10 +1440,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( [ 'query' => $query ] );
 
-		// Debug the response
-		codecept_debug( 'Type query response:' );
-		codecept_debug( $actual );
-
 		$this->assertQuerySuccessful( $actual, [], 'The type query should be successful' );
 
 		// Find the inheritedField in the response
@@ -1460,10 +1453,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertNotNull( $inheritedField, 'The inheritedField should exist on the type' );
 
-		// Debug the field we found
-		codecept_debug( 'Found inheritedField:' );
-		codecept_debug( $inheritedField );
-
 		// Before this PR, this might not have all arguments
 		// After this PR, it should have all arguments from the inheritance chain
 		$argNames = array_map(
@@ -1472,57 +1461,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			},
 			$inheritedField['args']
 		);
-
-		codecept_debug( 'Found argument names:' );
-		codecept_debug( $argNames );
-
-		// Debug the interfaces
-		$query = 'query {
-			__type(name: "TestObject") {
-				interfaces {
-					name
-				}
-			}
-		}';
-
-		$actual = $this->graphql( [ 'query' => $query ] );
-		codecept_debug( 'Interfaces query response:' );
-		codecept_debug( $actual );
-
-		// Debug the ChildInterface
-		$query = 'query {
-			__type(name: "ChildInterface") {
-				interfaces {
-					name
-				}
-				fields {
-					name
-					args {
-						name
-					}
-				}
-			}
-		}';
-
-		$actual = $this->graphql( [ 'query' => $query ] );
-		codecept_debug( 'ChildInterface query response:' );
-		codecept_debug( $actual );
-
-		// Debug the ParentInterface
-		$query = 'query {
-			__type(name: "ParentInterface") {
-				fields {
-					name
-					args {
-						name
-					}
-				}
-			}
-		}';
-
-		$actual = $this->graphql( [ 'query' => $query ] );
-		codecept_debug( 'ParentInterface query response:' );
-		codecept_debug( $actual );
 
 		$this->assertContains( 'parentArg', $argNames, 'The field should have the parent interface argument' );
 		$this->assertContains( 'childArg', $argNames, 'The field should have the child interface argument' );
@@ -1540,10 +1478,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-
-		// Debug the response
-		codecept_debug( 'Field query response:' );
-		codecept_debug( $actual );
 
 		// Before this fix, this might fail if arguments aren't properly merged
 		// After this fix, it should succeed

@@ -590,7 +590,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'fields' => [
 							'childFieldOverloaded' => [
 								'type'        => 'ContentNode',
-								'description' => __( 'This will be narrowed with graphql_register_field()', 'wp-graphql' ),
+								'description' => __( 'This will be narrowed with register_graphql_field()', 'wp-graphql' ),
 								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
 								'resolve'     => static fn ( $source ) => $source,
 							],
@@ -674,6 +674,340 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Verify no DUPLICATE_FIELD errors
 		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
 		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding with same type' );
+	}
+
+	/**
+	 * Test that interface field override works with wrapped list/non-null interface types.
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleInterfaceFieldOverrideWithWrappedListInterfaceType() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestChoiceInterface',
+					[
+						'fields' => [
+							'text' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_object_type(
+					'TestRadioChoice',
+					[
+						'interfaces' => [ 'TestChoiceInterface' ],
+						'fields'     => [
+							'value' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_interface_type(
+					'TestNodeWithChoices',
+					[
+						'interfaces' => [ 'Node' ],
+						'fields'     => [
+							'choices' => [
+								'type'        => [
+									'list_of' => [
+										'non_null' => 'TestChoiceInterface',
+									],
+								],
+								'description' => '[Interface] Choices from the interface',
+								'resolve'     => static function () {
+									return [
+										[
+											'text'  => 'Interface choice',
+											'value' => 'interface-choice',
+										],
+									];
+								},
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestNodeWithChoices', [ 'ContentNode' ] );
+
+				register_graphql_field(
+					'Post',
+					'choices',
+					[
+						'type'        => [
+							'list_of' => [
+								'non_null' => 'TestRadioChoice',
+							],
+						],
+						'description' => '[Override] Post choices narrowed to TestRadioChoice',
+						'resolve'     => static function () {
+							return [
+								[
+									'text'  => 'Override choice',
+									'value' => 'override-choice',
+								],
+							];
+						},
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						choices {
+							__typename
+							... on TestRadioChoice {
+								text
+								value
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response, 'Should not have errors when overriding wrapped list/non-null interface field with implementing object type' );
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error for wrapped list/non-null compatible override' );
+		$this->assertEquals( 'TestRadioChoice', $response['data']['posts']['nodes'][0]['choices'][0]['__typename'] );
+		$this->assertEquals( 'Override choice', $response['data']['posts']['nodes'][0]['choices'][0]['text'] );
+		$this->assertEquals( 'override-choice', $response['data']['posts']['nodes'][0]['choices'][0]['value'] );
+
+		$query = '
+			query {
+				__type(name: "Post") {
+					fields(includeDeprecated:false) {
+						name
+						description
+						type {
+							kind
+							name
+							ofType {
+								kind
+								name
+								ofType {
+									kind
+									name
+								}
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response      = $this->graphql( compact( 'query' ) );
+		$choices_field = null;
+
+		foreach ( $response['data']['__type']['fields'] as $field ) {
+			if ( 'choices' === $field['name'] ) {
+				$choices_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $choices_field, 'Post.choices field should exist' );
+		$this->assertEquals( 'LIST', $choices_field['type']['kind'] );
+		$this->assertEquals( 'NON_NULL', $choices_field['type']['ofType']['kind'] );
+		$this->assertEquals( 'OBJECT', $choices_field['type']['ofType']['ofType']['kind'] );
+		$this->assertEquals( 'TestRadioChoice', $choices_field['type']['ofType']['ofType']['name'] );
+		$this->assertStringContainsString( '[Override]', $choices_field['description'] );
+	}
+
+	/**
+	 * Test that interface field override works with list_of type modifiers.
+	 *
+	 * This mirrors a real downstream plugin use case where the interface field is a list
+	 * and a concrete object type narrows the field while preserving interface compatibility.
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleInterfaceFieldOverrideWithListOfInterface() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				// Register a base interface for choices with a resolver that returns a default value.
+				register_graphql_interface_type(
+					'ChoiceWithText',
+					[
+						'fields' => [
+							'text' => [
+								'type'        => 'String',
+								'description' => '[Interface] The display text for this choice',
+								'resolve'     => static fn ( $source ) => $source['text'] ?? '[Interface Default] No text provided',
+							],
+						],
+					]
+				);
+
+				// Register a secondary interface with its own field and resolver.
+				register_graphql_interface_type(
+					'ChoiceWithValue',
+					[
+						'fields' => [
+							'value' => [
+								'type'        => 'String',
+								'description' => '[Interface] The value for this choice',
+								'resolve'     => static fn () => '[Interface Default]',
+							],
+						],
+					]
+				);
+
+				// Register a concrete type that implements both interfaces.
+				register_graphql_object_type(
+					'TestRadioChoice',
+					[
+						'interfaces' => [ 'ChoiceWithText', 'ChoiceWithValue' ],
+						'fields'     => [
+							'value' => [
+								'description' => '[Override] Override value field from ChoiceWithValue interface',
+								'resolve'     => static fn ( $source ) => '[Override Resolver] Value for ' . ( $source['text'] ?? 'unknown choice' ),
+							],
+						],
+					]
+				);
+
+				// Create an interface that defines a choices field with a default resolver.
+				register_graphql_interface_type(
+					'TestNodeWithChoices',
+					[
+						'interfaces' => [ 'Node' ],
+						'fields'     => [
+							'choices' => [
+								'type'        => [ 'list_of' => 'ChoiceWithText' ],
+								'description' => '[Interface] Default choices from TestNodeWithChoices interface',
+								'resolve'     => static fn () => [
+									[ 'text' => '[Interface Resolver] Default from TestNodeWithChoices' ],
+								],
+							],
+						],
+					]
+				);
+
+				// Make the interface available on ContentNode.
+				register_graphql_interfaces_to_types( 'TestNodeWithChoices', [ 'ContentNode' ] );
+
+				// Override Post.choices with narrowed type and new description/resolver.
+				register_graphql_field(
+					'Post',
+					'choices',
+					[
+						'type'        => [ 'list_of' => 'TestRadioChoice' ],
+						'description' => '[Override] Post-specific radio choices with narrowed type [TestRadioChoice]',
+						'resolve'     => static function () {
+							return [
+								[
+									'text'  => '[Override Resolver] Choice #1 from Post.choices',
+									'value' => 'choice1',
+								],
+								[
+									'text' => '[Override Resolver] Choice #2 from Post.choices',
+								],
+							];
+						},
+					]
+				);
+			}
+		);
+
+		// Create a post to query.
+		$this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						choices {
+							__typename
+							text
+							value
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		// Should not have errors when overriding list_of interface with list_of implementing type.
+		$this->assertArrayNotHasKey( 'errors', $response, 'Should not have errors when overriding list_of interface with list_of implementing type' );
+
+		// Should not have DUPLICATE_FIELD debug message.
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Should not have DUPLICATE_FIELD error when overriding list_of interface with compatible type' );
+
+		// Verify the override resolver is used (not the interface resolver).
+		$this->assertNotEmpty( $response['data']['posts']['nodes'] );
+		$choices = $response['data']['posts']['nodes'][0]['choices'];
+		$this->assertCount( 2, $choices );
+		$this->assertEquals( 'TestRadioChoice', $choices[0]['__typename'], 'Field type should be narrowed to TestRadioChoice' );
+		$this->assertEquals( '[Override Resolver] Choice #1 from Post.choices', $choices[0]['text'], 'Should use override resolver for text field' );
+		$this->assertEquals( '[Override Resolver] Value for [Override Resolver] Choice #1 from Post.choices', $choices[0]['value'], 'Should use override resolver for value field (using text as source)' );
+		$this->assertEquals( 'TestRadioChoice', $choices[1]['__typename'], 'Field type should be narrowed to TestRadioChoice' );
+		$this->assertEquals( '[Override Resolver] Choice #2 from Post.choices', $choices[1]['text'], 'Should use override resolver for text field' );
+		$this->assertEquals( '[Override Resolver] Value for [Override Resolver] Choice #2 from Post.choices', $choices[1]['value'], 'Should use override resolver for value field (using text as source)' );
+
+		// Introspection query to verify field type and description.
+		$query = '
+			query {
+				__type(name: "Post") {
+					fields(includeDeprecated:false) {
+						name
+						description
+						type {
+							kind
+							name
+							ofType {
+								kind
+								name
+								ofType {
+									kind
+									name
+								}
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response      = $this->graphql( compact( 'query' ) );
+		$fields        = $response['data']['__type']['fields'];
+		$choices_field = null;
+		foreach ( $fields as $field ) {
+			if ( 'choices' === $field['name'] ) {
+				$choices_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $choices_field, 'Post.choices field should exist' );
+		$this->assertEquals( 'LIST', $choices_field['type']['kind'], 'Field type should be a List' );
+		$this->assertEquals( 'TestRadioChoice', $choices_field['type']['ofType']['name'], 'List item type should be TestRadioChoice (narrowed from ChoiceWithText)' );
+		$this->assertEquals( 'OBJECT', $choices_field['type']['ofType']['kind'], 'List item should be an OBJECT type (not INTERFACE)' );
+		$this->assertStringContainsString( '[Override]', $choices_field['description'], 'Description should be from override, not interface' );
+		$this->assertStringContainsString( 'TestRadioChoice', $choices_field['description'], 'Description should mention the narrowed type TestRadioChoice' );
 	}
 
 	/**
@@ -1951,30 +2285,14 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Test error handling during interface field override compatibility check.
+	 * Test incompatible interface field override still reports duplicate field.
 	 *
-	 * This tests that errors during type resolution are caught and handled gracefully.
-	 * The try/catch block ensures that if type resolution throws an error, the override
-	 * is not allowed and a DUPLICATE_FIELD error is shown instead.
-	 *
-	 * Note: It may be difficult to reliably trigger an error during type resolution in a test environment.
-	 * The error handling is defensive code to prevent schema build failures.
+	 * This validates the incompatible override path. It does not attempt to force
+	 * internal type resolution exceptions.
 	 *
 	 * @throws \Exception
 	 */
 	public function testInterfaceFieldOverrideErrorHandling() {
-		// This test verifies that the error handling code path exists and works.
-		// In practice, errors during type resolution are rare, but the code handles them gracefully.
-		// The try/catch/finally block ensures:
-		// 1. Errors are caught
-		// 2. $is_compatible_override remains false
-		// 3. $checking_compatibility is reset in finally block
-		
-		// For this test, we'll verify that the error handling path exists by ensuring
-		// the schema builds successfully even when there are edge cases.
-		// The actual error path would be triggered by internal type resolution errors,
-		// which are difficult to simulate in a test environment.
-		
 		add_action(
 			'graphql_register_types',
 			static function () {
@@ -2008,9 +2326,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					]
 				);
 
-				// Try to override the field with incompatible type
-				// This should trigger the compatibility check, and if any errors occur
-				// during type resolution, they should be caught
+				// Try to override the field with incompatible type.
 				register_graphql_field(
 					'Post',
 					'errorField',
@@ -2028,9 +2344,9 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		// Schema should build successfully (error handling ensures no fatal errors)
+		// Schema should still build successfully and report debug output.
 		$schema = \WPGraphQL::get_schema();
-		$this->assertNotNull( $schema, 'Schema should build successfully with error handling in place' );
+		$this->assertNotNull( $schema, 'Schema should build successfully for incompatible override test' );
 
 		$query = '
 			query {
@@ -2044,12 +2360,8 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$response = $this->graphql( compact( 'query' ) );
 
-		// Should have DUPLICATE_FIELD error since the override is incompatible
-		// (not because of an error, but because TestErrorType doesn't implement the interface)
+		// Should have DUPLICATE_FIELD error since the override is incompatible.
 		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
 		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD error when override is incompatible' );
-		
-		// The error handling code path (try/catch/finally) ensures that even if errors occur
-		// during type resolution, the schema still builds and appropriate errors are shown
 	}
 }

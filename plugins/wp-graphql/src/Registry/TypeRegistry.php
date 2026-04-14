@@ -1291,120 +1291,8 @@ class TypeRegistry {
 						return $fields;
 					}
 
-					// Check if this is an interface field override scenario and if the new type is compatible
-					$is_compatible_override = false;
-					// Support both callable (prepared fields) and string (unprepared fields) existing field types
-					if ( ( is_callable( $existing_field_type ) || is_string( $existing_field_type ) ) && ( is_string( $new_field_type ) || ( is_array( $new_field_type ) && ! empty( $new_field_type ) ) ) ) {
-						// Get the new type name (unmodified) first, before any type resolution
-						$unmodified_new_type_name = is_string( $new_field_type ) ? $new_field_type : $this->get_unmodified_type_name( $new_field_type );
-						$type_key                 = $this->format_key( ! empty( $unmodified_new_type_name ) ? $unmodified_new_type_name : '' );
-						$current_type_key         = $this->format_key( $type_name );
-
-						// Only check compatibility if:
-						// 1. We're not already checking compatibility (prevents nested checks)
-						// 2. The type is already loaded (not currently being loaded, which would cause recursion)
-						// 3. We're not checking compatibility for the same type we're currently processing (prevents recursion)
-						// If the type is in type_loaders but not in types, it's currently being loaded
-						$type_is_loaded         = isset( $this->types[ $type_key ] );
-						$type_is_loading        = isset( $this->type_loaders[ $type_key ] ) && ! $type_is_loaded;
-						$is_same_type           = $type_key === $current_type_key;
-						$current_type_is_loaded = isset( $this->types[ $current_type_key ] );
-
-						// Check if new type is registered (in loaders or types)
-						$new_type_is_registered = isset( $this->type_loaders[ $type_key ] ) || $type_is_loaded;
-
-						// Track if we found an interface but couldn't verify compatibility
-						$found_interface_but_couldnt_verify = false;
-						$interface_name                     = null;
-
-						// Check compatibility when:
-						// 1. Not already checking compatibility (prevents nested checks)
-						// 2. Type is not currently loading (prevents recursion)
-						// 3. For same type: current type must be loaded
-						// 4. For different type: new type must be registered (loaded or in loaders)
-						$can_check = ! $this->checking_compatibility && ! $type_is_loading;
-						if ( $can_check && ( ( $is_same_type && $current_type_is_loaded ) || ( ! $is_same_type && $new_type_is_registered && ! empty( $unmodified_new_type_name ) ) ) ) {
-							$this->checking_compatibility = true;
-
-							try {
-								// Resolve the existing field type (should be an interface)
-								$resolved_existing_type = is_callable( $existing_field_type ) ? $existing_field_type() : null;
-
-								// If existing field type is a callable, resolve it
-								if ( $resolved_existing_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
-									$interface_name = $resolved_existing_type->name;
-								} elseif ( is_string( $existing_field_type ) ) {
-									// If existing field type is a string, check if it's an interface
-									// This can happen when a field is added directly in a filter with a string type
-									// (e.g., via add_filter('graphql_{$type_name}_fields')) before prepare_fields
-									// converts string types to callables. The duplicate check happens inside the
-									// filter callback, before type_registry->prepare_fields() is called.
-									$existing_type_key = $this->format_key( $existing_field_type );
-									if ( isset( $this->types[ $existing_type_key ] ) ) {
-										$existing_type_obj = $this->types[ $existing_type_key ];
-										if ( $existing_type_obj instanceof \GraphQL\Type\Definition\InterfaceType ) {
-											$interface_name = $existing_type_obj->name;
-										}
-									}
-								}
-
-								// If we found an interface name, check if the new type implements it
-								if ( ! empty( $interface_name ) ) {
-									// For same type scenario, check if current type implements the interface
-									if ( $is_same_type ) {
-										$current_type_obj = $this->types[ $current_type_key ];
-										if ( $current_type_obj instanceof \GraphQL\Type\Definition\ObjectType ) {
-											$current_type_interfaces = $current_type_obj->getInterfaces();
-											foreach ( $current_type_interfaces as $iface ) {
-												if ( $iface->name === $interface_name ) {
-													$is_compatible_override = true;
-													break;
-												}
-											}
-										}
-									} elseif ( $type_is_loaded ) {
-										// For different type scenario, check if new type implements the interface
-										// If type is loaded, check directly
-										$new_type_obj = $this->types[ $type_key ];
-										if ( $new_type_obj instanceof \GraphQL\Type\Definition\ObjectType ) {
-											$new_type_interfaces = $new_type_obj->getInterfaces();
-											foreach ( $new_type_interfaces as $iface ) {
-												if ( $iface->name === $interface_name ) {
-													$is_compatible_override = true;
-													break;
-												}
-											}
-										}
-									} elseif ( $new_type_is_registered ) {
-										// Type is registered but not loaded yet - can't verify, but mark that we found an interface
-										$found_interface_but_couldnt_verify = true;
-									}
-								}
-							} catch ( \Throwable $e ) {
-								// If resolution fails, fall back to error (don't allow override)
-								// Silently catch to prevent errors during type resolution
-								// The $is_compatible_override flag remains false, so the duplicate field error will be thrown
-								unset( $e );
-							} finally {
-								$this->checking_compatibility = false;
-							}
-						}
-
-						// Fallback: If we found an interface but couldn't verify compatibility (because new type wasn't loaded),
-						// and the new type is registered, allow the override. GraphQL's type system will validate compatibility.
-						if ( ! $is_compatible_override && $found_interface_but_couldnt_verify && $new_type_is_registered ) {
-							$is_compatible_override = true;
-						}
-
-						// If we're checking compatibility for the same type we're processing and it's not loaded yet,
-						// allow the override to avoid recursion. This assumes compatibility since the type is implementing
-						// the interface that defines the field (otherwise the field wouldn't be inherited in the first place).
-						if ( $is_same_type && ! $current_type_is_loaded && ! $is_compatible_override ) {
-							$is_compatible_override = true;
-						}
-						// If type is currently loading or not loaded yet (and not same type),
-						// skip compatibility check to avoid recursion. The duplicate field error will be logged, but schema will still build
-					}
+					// Check if this is an interface field override scenario and if the new type is compatible.
+					$is_compatible_override = $this->is_compatible_interface_field_override( $existing_field_type, $new_field_type, $type_name );
 
 					// If the override is compatible, allow it by returning early
 					if ( $is_compatible_override ) {
@@ -1448,6 +1336,147 @@ class TypeRegistry {
 			10,
 			1
 		);
+	}
+
+	/**
+	 * Determines if a duplicate field is a compatible interface-field override.
+	 *
+	 * @param mixed  $existing_field_type Existing field type definition.
+	 * @param mixed  $new_field_type      New field type definition.
+	 * @param string $type_name           Name of the type the field belongs to.
+	 */
+	private function is_compatible_interface_field_override( $existing_field_type, $new_field_type, string $type_name ): bool {
+		if ( ! ( is_callable( $existing_field_type ) || is_string( $existing_field_type ) || is_array( $existing_field_type ) ) ) {
+			return false;
+		}
+
+		if ( ! ( is_string( $new_field_type ) || ( is_array( $new_field_type ) && ! empty( $new_field_type ) ) ) ) {
+			return false;
+		}
+
+		$unmodified_new_type_name = is_string( $new_field_type ) ? $new_field_type : $this->get_unmodified_type_name( $new_field_type );
+		if ( empty( $unmodified_new_type_name ) || $this->checking_compatibility ) {
+			return false;
+		}
+
+		$current_type_key       = $this->format_key( $type_name );
+		$new_type_key           = $this->format_key( $unmodified_new_type_name );
+		$is_same_type           = $new_type_key === $current_type_key;
+		$current_type_is_loaded = isset( $this->types[ $current_type_key ] );
+		$new_type_is_loaded     = isset( $this->types[ $new_type_key ] );
+		$new_type_is_registered = $new_type_is_loaded || isset( $this->type_loaders[ $new_type_key ] );
+
+		// For a different type we need a resolvable type.
+		if ( ! $is_same_type && ! $new_type_is_registered ) {
+			return false;
+		}
+
+		$this->checking_compatibility = true;
+
+		try {
+			$interface_name = $this->resolve_interface_name_from_existing_field_type( $existing_field_type, $current_type_key );
+			if ( empty( $interface_name ) ) {
+				return false;
+			}
+
+			// Same-type overrides can happen while the object is still being constructed.
+			// If we positively identified an interface source, allow to avoid recursive loads.
+			if ( $is_same_type && ! $current_type_is_loaded ) {
+				return true;
+			}
+
+			return $this->type_implements_interface( $unmodified_new_type_name, $interface_name );
+		} catch ( \Throwable $e ) {
+			unset( $e );
+			return false;
+		} finally {
+			$this->checking_compatibility = false;
+		}
+	}
+
+	/**
+	 * Resolve the interface name from an existing field type definition.
+	 *
+	 * @param mixed  $existing_field_type Existing field type definition.
+	 * @param string $current_type_key    Type key currently being resolved.
+	 */
+	private function resolve_interface_name_from_existing_field_type( $existing_field_type, string $current_type_key ): ?string {
+		if ( is_callable( $existing_field_type ) ) {
+			$resolved_existing_type = $existing_field_type();
+
+			while ( $resolved_existing_type instanceof \GraphQL\Type\Definition\WrappingType ) {
+				$resolved_existing_type = $resolved_existing_type->getWrappedType();
+			}
+
+			if ( $resolved_existing_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+				return $resolved_existing_type->name;
+			}
+		}
+
+		if ( is_string( $existing_field_type ) || is_array( $existing_field_type ) ) {
+			$existing_type_name = $this->get_unmodified_type_name( $existing_field_type );
+			return $this->resolve_interface_name_from_type_name( $existing_type_name, $current_type_key );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Resolves a type name to an interface name when possible.
+	 *
+	 * @param string $type_name        Type name to resolve.
+	 * @param string $current_type_key Type key currently being resolved.
+	 */
+	private function resolve_interface_name_from_type_name( string $type_name, string $current_type_key ): ?string {
+		if ( empty( $type_name ) ) {
+			return null;
+		}
+
+		$type_key = $this->format_key( $type_name );
+
+		if ( isset( $this->types[ $type_key ] ) ) {
+			$loaded_type = $this->types[ $type_key ];
+			if ( $loaded_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+				return $loaded_type->name;
+			}
+
+			return null;
+		}
+
+		// Avoid recursively resolving the type currently being constructed.
+		if ( $type_key === $current_type_key || ! isset( $this->type_loaders[ $type_key ] ) ) {
+			return null;
+		}
+
+		$maybe_interface = $this->get_type( $type_name );
+		if ( $maybe_interface instanceof \GraphQL\Type\Definition\InterfaceType ) {
+			return $maybe_interface->name;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Determines if a type implements a given interface.
+	 *
+	 * @param string $type_name      Type name to inspect.
+	 * @param string $interface_name Interface name to verify.
+	 */
+	private function type_implements_interface( string $type_name, string $interface_name ): bool {
+		$type_key = $this->format_key( $type_name );
+		$type     = $this->types[ $type_key ] ?? $this->get_type( $type_name );
+
+		if ( ! $type instanceof \GraphQL\Type\Definition\ObjectType ) {
+			return false;
+		}
+
+		foreach ( $type->getInterfaces() as $interface ) {
+			if ( $interface->name === $interface_name ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
