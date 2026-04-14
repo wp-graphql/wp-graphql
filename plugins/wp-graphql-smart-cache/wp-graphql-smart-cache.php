@@ -64,7 +64,7 @@ if ( ! defined( 'WPGRAPHQL_SMART_CACHE_PLUGIN_DIR' ) ) {
  * and whether the autoloader is working as expected
  *
  * @return bool
- * @since 0.3
+ * @since 0.3.0
  */
 function can_load_plugin() {
 
