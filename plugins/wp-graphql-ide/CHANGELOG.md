@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.2.0...wp-graphql-ide/v4.3.0) (2026-04-13)
+
+
+### New Features
+
+* add Appsero telemetry tracking to WPGraphQL IDE ([#3765](https://github.com/wp-graphql/wp-graphql/issues/3765)) ([f82c939](https://github.com/wp-graphql/wp-graphql/commit/f82c939b88de8b08bdd5aff3baa1da4d055dafdd))
+
+
+### Bug Fixes
+
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
 ## [4.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.1.0...wp-graphql-ide/v4.2.0) (2026-04-07)
 
 

@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 5.7
 Tested up to: 6.8
-Stable tag: 4.2.0
+Stable tag: 4.3.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -35,6 +35,17 @@ The WPGraphQL IDE plugin includes several important dependencies. You can learn 
 - **GraphiQL**: [https://github.com/graphql/graphiql](https://github.com/graphql/graphiql)
 - **Vaul**: [https://github.com/emilkowalski/vaul](https://github.com/emilkowalski/vaul)
 
+= How does WPGraphQL IDE handle privacy and telemetry? =
+WPGraphQL IDE uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy.
+
+== Privacy Policy ==
+
+WPGraphQL IDE uses [Appsero](https://appsero.com) SDK to collect some telemetry data upon user's confirmation. This helps us to troubleshoot problems faster and make product improvements.
+
+Appsero SDK **does not gather any data by default.** The SDK only starts gathering basic telemetry data **when a user allows it via the admin notice**.
+
+Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
+
 == Screenshots ==
 
 == Upgrade Notice ==
@@ -42,6 +53,16 @@ The WPGraphQL IDE plugin includes several important dependencies. You can learn 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 4.3.0 =
+
+**New Features**
+
+* add Appsero telemetry tracking to WPGraphQL IDE ([#3765](https://github.com/wp-graphql/wp-graphql/issues/3765))
+
+**Bug Fixes**
+
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744))
 
 = 4.2.0 =
 

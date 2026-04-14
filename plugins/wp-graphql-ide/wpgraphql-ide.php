@@ -8,7 +8,7 @@
  * License:           GPL-3
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       wpgraphql-ide
- * Version:           4.2.0
+ * Version:           4.3.0
  * Requires PHP:      7.4
  * Tested up to:      6.8
  * Requires Plugins:  wp-graphql
@@ -22,7 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPGRAPHQL_IDE_VERSION', '4.2.0' );
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
+
+define( 'WPGRAPHQL_IDE_VERSION', '4.3.0' );
 define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -866,3 +870,39 @@ function graphql_logo_svg(): string {
 
 	return $svg;
 }
+
+/**
+ * Initialize the plugin tracker.
+ */
+function graphql_ide_init_appsero_telemetry(): void {
+	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
+		return;
+	}
+
+	try {
+		$client = new \Appsero\Client( 'e90103d6-2c09-4152-96e0-eb7d0d3b5c74', 'WPGraphQL IDE', __FILE__ );
+
+		/**
+		 * @var \Appsero\Insights $insights
+		 *
+		 * @phpstan-ignore varTag.type (The doctype for Appsero\Client::insights() is wrong.)
+		 */
+		$insights = $client->insights();
+
+		if ( method_exists( $insights, 'add_plugin_data' ) ) {
+			$insights->add_plugin_data();
+		}
+
+		$insights->init();
+	} catch ( \Throwable $e ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
+			sprintf(
+				// translators: %s is the error message
+				__( 'Error initializing Appsero: %s', 'wpgraphql-ide' ),
+				$e->getMessage()
+			)
+		);
+	}
+}
+
+graphql_ide_init_appsero_telemetry();
