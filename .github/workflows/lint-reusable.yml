@@ -58,7 +58,7 @@ jobs:
         with:
           path: ./tests/_output/phpcs-cache.json
           # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
-          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
+          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path), 'phpcs/WPGraphQL/PHPCS/**') }}
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1

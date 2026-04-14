@@ -67,6 +67,7 @@ jobs:
             wp-graphql:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
+              - phpcs/WPGraphQL/PHPCS/**
               - plugins/wp-graphql/**/*.php
               - plugins/wp-graphql/**/*.js
               - plugins/wp-graphql/**/*.jsx
@@ -82,6 +83,7 @@ jobs:
             wp-graphql-smart-cache:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
+              - phpcs/WPGraphQL/PHPCS/**
               - plugins/wp-graphql-smart-cache/**/*.php
               - plugins/wp-graphql-smart-cache/composer.json
               - plugins/wp-graphql-smart-cache/composer.lock
@@ -90,6 +92,7 @@ jobs:
             wp-graphql-ide:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
+              - phpcs/WPGraphQL/PHPCS/**
               - plugins/wp-graphql-ide/**/*.php
               - plugins/wp-graphql-ide/**/*.js
               - plugins/wp-graphql-ide/**/*.jsx
@@ -106,6 +109,7 @@ jobs:
             wp-graphql-acf:
               - .github/workflows/lint-reusable.yml
               - .github/workflows/lint.yml
+              - phpcs/WPGraphQL/PHPCS/**
               - plugins/wp-graphql-acf/**/*.php
               - plugins/wp-graphql-acf/composer.json
               - plugins/wp-graphql-acf/composer.lock

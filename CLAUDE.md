@@ -118,8 +118,8 @@ add_action( 'graphql_register_types', function( $type_registry ) {
 
 - **PHP**: WordPress Coding Standards (PHPCS), PHPStan level 8. Minimum PHP 7.4.
 - **JavaScript**: `@wordpress/scripts` with ESLint and Prettier.
-- **Version placeholders**: Use `@since next-version` in PHPDoc `@since` tags and deprecation functions.
-- **Deprecation**: `_deprecated_argument( __METHOD__, '@since next-version', 'Message.' );`
+- **Version placeholders**: Use `@since x-release-please-version` in PHPDoc `@since` tags.
+- **Deprecation**: `_deprecated_argument( __METHOD__, 'x-release-please-version', 'Message.' );`
 - **Autoloading**: `WPGRAPHQL_AUTOLOAD` constant can disable vendor autoload for environments with a global autoloader.
 
 ## Development Workflow
