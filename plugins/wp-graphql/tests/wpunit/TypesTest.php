@@ -2285,6 +2285,113 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that overriding an interface field with an unregistered type still errors.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithUnregisteredNewType() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestUnregisteredTypeInterface',
+					[
+						'fields' => [
+							'unregisteredTypeField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestUnregisteredTypeInterface', [ 'ContentNode' ] );
+
+				register_graphql_field(
+					'Post',
+					'unregisteredTypeField',
+					[
+						'type' => 'DefinitelyMissingType',
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		$query    = 'query { posts { nodes { id } } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD when override type is not registered' );
+	}
+
+	/**
+	 * Test that overriding an interface field with a non-object registered type errors.
+	 *
+	 * @throws \Exception
+	 */
+	public function testInterfaceFieldOverrideWithRegisteredNonObjectType() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestNonObjectOverrideInterface',
+					[
+						'fields' => [
+							'nonObjectOverrideField' => [
+								'type'        => 'ContentNode',
+								'description' => 'Field from interface',
+								'resolveType' => static fn ( $source ) => isset( $source->post_type ) ? graphql_format_type_name( $source->post_type ) : null,
+								'resolve'     => static fn ( $source ) => $source,
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestNonObjectOverrideInterface', [ 'ContentNode' ] );
+
+				register_graphql_enum_type(
+					'TestNonObjectOverrideEnum',
+					[
+						'values' => [
+							'ONE' => [
+								'value' => 'one',
+							],
+						],
+					]
+				);
+
+				register_graphql_field(
+					'Post',
+					'nonObjectOverrideField',
+					[
+						'type' => 'TestNonObjectOverrideEnum',
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create(
+			[
+				'post_title' => 'Test Post',
+			]
+		);
+
+		$query    = 'query { posts { nodes { id } } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD when override type is registered but not an object type' );
+	}
+
+	/**
 	 * Test incompatible interface field override still reports duplicate field.
 	 *
 	 * This validates the incompatible override path. It does not attempt to force
