@@ -34,6 +34,7 @@ function runScript(extraArgs = '') {
 		`--plugin=${TEST_PLUGIN_SLUG}`,
 		`--config=.test-hook-docs/scripts/hooks/plugin-config.json`,
 		`--groups=.test-hook-docs/scripts/hooks/groups.json`,
+		`--legacy-hooks=.test-hook-docs/scripts/hooks/legacy-hooks.json`,
 		extraArgs,
 	]
 		.filter(Boolean)
@@ -82,6 +83,13 @@ apply_filters( 'graphql_docs_payload', [ 'ok' => true ] );
  */
 do_action( 'wpgraphql_old_event', [] );
 
+do_action_deprecated(
+\t'graphql_docs_legacy_event',
+\t[ [ 'ok' => true ] ],
+\t'1.1.0',
+\t'graphql_docs_generated'
+);
+
 /**
  * Core hook passthrough.
  *
@@ -126,6 +134,20 @@ add_filter( 'graphql_docs_payload', function( $payload ) {
 			match: [],
 		},
 	];
+	const legacyHooks = {
+		[TEST_PLUGIN_SLUG]: [
+			{
+				name: 'graphql_docs_removed_event',
+				kind: 'filter',
+				status: 'removed',
+				deprecatedIn: '1.2.0',
+				removedIn: '2.0.0',
+				replacement: 'graphql_docs_payload',
+				group: 'request-lifecycle',
+				description: 'Removed legacy docs event for persistence testing.',
+			},
+		],
+	};
 
 	fs.writeFileSync(
 		path.join(TEST_ROOT, 'plugins/test-plugin/src/Hooks.php'),
@@ -145,6 +167,11 @@ add_filter( 'graphql_docs_payload', function( $payload ) {
 	fs.writeFileSync(
 		path.join(TEST_ROOT, 'scripts/hooks/groups.json'),
 		JSON.stringify(groups, null, 2),
+		'utf8'
+	);
+	fs.writeFileSync(
+		path.join(TEST_ROOT, 'scripts/hooks/legacy-hooks.json'),
+		JSON.stringify(legacyHooks, null, 2),
 		'utf8'
 	);
 }
@@ -187,14 +214,29 @@ const tests = [
 				TEST_ROOT,
 				'plugins/test-plugin/docs/generated/hooks-naming-audit.json'
 			);
+			const deprecatedPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/generated/hooks-deprecated.json'
+			);
+			const deprecatedActionDocPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/actions/graphql_docs_legacy_event.md'
+			);
+			const removedFilterDocPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/filters/graphql_docs_removed_event.md'
+			);
 
 			assert(fs.existsSync(indexPath), 'hooks-index.json should be generated');
 			assert(fs.existsSync(actionDocPath), 'action doc should be generated');
 			assert(fs.existsSync(filterDocPath), 'filter doc should be generated');
 			assert(fs.existsSync(namingAuditPath), 'naming audit json should be generated');
+			assert(fs.existsSync(deprecatedPath), 'deprecated hooks json should be generated');
+			assert(fs.existsSync(deprecatedActionDocPath), 'deprecated action doc should be generated');
+			assert(fs.existsSync(removedFilterDocPath), 'removed filter doc should persist');
 
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-			assert.strictEqual(index.stats.totalHooks, 4, 'expected four hooks');
+			assert.strictEqual(index.stats.totalHooks, 6, 'expected six hooks');
 
 			const payloadHook = index.hooks.find((hook) => hook.name === 'graphql_docs_payload');
 			assert(payloadHook, 'filter hook should exist');
@@ -209,6 +251,22 @@ const tests = [
 			assert(
 				!namingAudit.audit.flaggedHooks.some((item) => item.hook === 'query_vars'),
 				'query_vars should be excluded from naming audit as core hook'
+			);
+
+			const deprecatedHooks = JSON.parse(fs.readFileSync(deprecatedPath, 'utf8'));
+			assert.strictEqual(deprecatedHooks.count, 2, 'expected two deprecated/removed hooks');
+			assert(
+				deprecatedHooks.hooks.some((item) => item.name === 'graphql_docs_legacy_event'),
+				'deprecated hook from deprecated call should be captured'
+			);
+			assert(
+				deprecatedHooks.hooks.some(
+					(item) =>
+						item.name === 'graphql_docs_removed_event' &&
+						item.lifecycle &&
+						item.lifecycle.status === 'removed'
+				),
+				'removed hook from legacy registry should be captured'
 			);
 		}),
 	() =>

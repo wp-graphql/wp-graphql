@@ -1,0 +1,94 @@
+{
+  "wp-graphql": [
+    {
+      "name": "init_graphql_request",
+      "kind": "action",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_init_request",
+      "group": "request-lifecycle",
+      "description": "Legacy request initialization hook retained for backward compatibility."
+    },
+    {
+      "name": "init_graphql_type_registry",
+      "kind": "action",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_init_type_registry",
+      "group": "schema-registration",
+      "description": "Legacy type registry initialization hook retained for backward compatibility."
+    },
+    {
+      "name": "do_graphql_request",
+      "kind": "action",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_do_request",
+      "group": "request-lifecycle",
+      "description": "Legacy GraphQL request lifecycle action retained for backward compatibility."
+    },
+    {
+      "name": "enqueue_graphiql_extension",
+      "kind": "action",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_enqueue_graphiql_extension",
+      "group": "settings",
+      "description": "Legacy GraphiQL extension enqueue action retained for backward compatibility."
+    },
+    {
+      "name": "wpgraphql_enable_major_autoupdates",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_enable_major_autoupdates",
+      "group": "updates",
+      "description": "Legacy autoupdate filter retained for backward compatibility."
+    },
+    {
+      "name": "wpgraphql_enable_untested_autoupdates",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_enable_untested_autoupdates",
+      "group": "updates",
+      "description": "Legacy untested autoupdate filter retained for backward compatibility."
+    },
+    {
+      "name": "wpgraphql_untested_release_type",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_untested_release_type",
+      "group": "updates",
+      "description": "Legacy release channel filter retained for backward compatibility."
+    },
+    {
+      "name": "wpgraphql_experimental_features_enabled",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_experimental_features_enabled",
+      "group": "settings",
+      "description": "Legacy experimental features toggle filter retained for backward compatibility."
+    },
+    {
+      "name": "wp_graphql_experiment_enabled",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_experiment_enabled",
+      "group": "settings",
+      "description": "Legacy experiment enabled filter retained for backward compatibility."
+    },
+    {
+      "name": "wp_graphql_experiment_config",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_experiment_config",
+      "group": "settings",
+      "description": "Legacy experiment config filter retained for backward compatibility."
+    }
+  ]
+}

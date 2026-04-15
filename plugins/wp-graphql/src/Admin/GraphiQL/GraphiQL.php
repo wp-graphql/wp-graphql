@@ -63,7 +63,7 @@ class GraphiQL {
 	 * Extension assets that enhance GraphiQL with additional features.
 	 *
 	 * Unlike core assets, these are optional - GraphiQL will still function
-	 * if these assets are missing. They're loaded via the 'enqueue_graphiql_extension'
+	 * if these assets are missing. They're loaded via the 'graphql_enqueue_graphiql_extension'
 	 * action to demonstrate how third-party extensions can hook into GraphiQL.
 	 *
 	 * Built-in extensions include:
@@ -122,7 +122,7 @@ class GraphiQL {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_graphiql' ] );
 
 		// Enqueue built-in extensions via the extension action
-		add_action( 'enqueue_graphiql_extension', [ $this, 'enqueue_builtin_extensions' ] );
+		add_action( 'graphql_enqueue_graphiql_extension', [ $this, 'enqueue_builtin_extensions' ] );
 	}
 
 	/**
@@ -276,7 +276,7 @@ class GraphiQL {
 	 * - wp-graphiql: The base library exposing GraphQL utilities and hooks
 	 * - wp-graphiql-app: The React application that renders the IDE
 	 *
-	 * After core assets are loaded, we fire 'enqueue_graphiql_extension' to allow
+	 * After core assets are loaded, we fire 'graphql_enqueue_graphiql_extension' to allow
 	 * built-in and third-party extensions to add their functionality.
 	 *
 	 * @return void
@@ -304,15 +304,27 @@ class GraphiQL {
 		);
 
 		// Extensions looking to extend GraphiQL can hook in here,
-		// after the window object is established, but before the App renders
-		do_action( 'enqueue_graphiql_extension' );
+		// after the window object is established, but before the App renders.
+		/**
+		 * Fires before GraphiQL extensions are enqueued.
+		 *
+		 * @hookGroup settings
+		 * @since x-release-please-version
+		 */
+		do_action( 'graphql_enqueue_graphiql_extension' );
+		do_action_deprecated(
+			'enqueue_graphiql_extension',
+			[],
+			'x-release-please-version',
+			'graphql_enqueue_graphiql_extension'
+		);
 	}
 
 	/**
 	 * Enqueue the built-in GraphiQL extensions.
 	 *
 	 * These extensions ship with WPGraphQL but are loaded through the same
-	 * 'enqueue_graphiql_extension' hook that third-party extensions use. This
+	 * 'graphql_enqueue_graphiql_extension' hook that third-party extensions use. This
 	 * demonstrates the extension API and ensures our built-in features don't
 	 * have any special privileges over community extensions.
 	 *

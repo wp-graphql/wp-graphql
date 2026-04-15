@@ -23,6 +23,10 @@ function getDefaultNamingRules() {
 	};
 }
 
+function getDefaultLegacyHooks() {
+	return {};
+}
+
 function parseArgs() {
 	const args = {};
 
@@ -41,6 +45,82 @@ function readJson(filePath) {
 	}
 
 	return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function normalizeLifecycleStatus(status) {
+	if (status === 'deprecated' || status === 'removed' || status === 'active') {
+		return status;
+	}
+	return null;
+}
+
+function normalizeLegacyEntry(entry, pluginSlug) {
+	if (!entry || typeof entry !== 'object') {
+		return null;
+	}
+
+	const kind = entry.kind === 'action' || entry.kind === 'filter' ? entry.kind : null;
+	const name = typeof entry.name === 'string' && entry.name.trim() ? entry.name.trim() : null;
+	if (!kind || !name) {
+		return null;
+	}
+
+	const deprecatedIn =
+		typeof entry.deprecatedIn === 'string' && entry.deprecatedIn.trim()
+			? entry.deprecatedIn.trim()
+			: null;
+	const removedIn =
+		typeof entry.removedIn === 'string' && entry.removedIn.trim() ? entry.removedIn.trim() : null;
+
+	let status = normalizeLifecycleStatus(entry.status);
+	if (!status) {
+		status = removedIn ? 'removed' : deprecatedIn ? 'deprecated' : 'active';
+	}
+
+	const replacement =
+		typeof entry.replacement === 'string' && entry.replacement.trim()
+			? entry.replacement.trim()
+			: null;
+	const message =
+		typeof entry.message === 'string' && entry.message.trim() ? entry.message.trim() : null;
+
+	return {
+		pluginSlug,
+		name,
+		kind,
+		description:
+			typeof entry.description === 'string' && entry.description.trim()
+				? entry.description.trim()
+				: '',
+		group:
+			typeof entry.group === 'string' && entry.group.trim() ? entry.group.trim() : 'uncategorized',
+		since: typeof entry.since === 'string' && entry.since.trim() ? entry.since.trim() : null,
+		file:
+			typeof entry.file === 'string' && entry.file.trim() ? entry.file.trim() : '__legacy_registry__',
+		line: Number.isInteger(entry.line) ? entry.line : null,
+		lifecycle: {
+			status,
+			deprecatedIn,
+			removedIn,
+			replacement,
+			message,
+			source: 'legacy_registry',
+		},
+	};
+}
+
+function loadLegacyHooks(legacyHooksPath, pluginSlug) {
+	if (!legacyHooksPath || !fs.existsSync(legacyHooksPath)) {
+		return [];
+	}
+
+	const payload = readJson(legacyHooksPath);
+	const byPlugin = payload && typeof payload === 'object' ? payload[pluginSlug] : null;
+	const rawEntries = Array.isArray(byPlugin) ? byPlugin : [];
+
+	return rawEntries
+		.map((entry) => normalizeLegacyEntry(entry, pluginSlug))
+		.filter(Boolean);
 }
 
 function ensureDir(dirPath) {
@@ -331,6 +411,39 @@ function parseHookNameExpression(firstArg) {
 	};
 }
 
+function extractLiteralString(value) {
+	if (typeof value !== 'string') {
+		return null;
+	}
+
+	const singleQuoted = value.match(/^'([^']+)'$/);
+	if (singleQuoted) {
+		return singleQuoted[1];
+	}
+
+	const doubleQuoted = value.match(/^"([^"]+)"$/);
+	if (doubleQuoted) {
+		return doubleQuoted[1];
+	}
+
+	return null;
+}
+
+function normalizeDeprecatedCallMetadata(args = []) {
+	const deprecatedIn = extractLiteralString(args[2] || '');
+	const replacement = extractLiteralString(args[3] || '');
+	const message = extractLiteralString(args[4] || '');
+
+	return {
+		status: 'deprecated',
+		deprecatedIn,
+		removedIn: null,
+		replacement,
+		message,
+		source: 'deprecated_call',
+	};
+}
+
 function getNearestDocblock(content, functionIndex) {
 	let searchFrom = functionIndex;
 
@@ -514,6 +627,7 @@ function buildHookRecord({
 		groupLabel: groupAssignment.group.label,
 		groupSource: groupAssignment.source,
 		sourceType,
+		emitter: hook.emitter,
 		file: relativeFilePath,
 		line: hook.line,
 		description: hook.docblock.description,
@@ -523,6 +637,16 @@ function buildHookRecord({
 		isDynamic: hook.isDynamic,
 		rawExpression: hook.rawExpression,
 		relatedSnippets,
+		lifecycle:
+			hook.lifecycle ||
+			({
+				status: 'active',
+				deprecatedIn: null,
+				removedIn: null,
+				replacement: null,
+				message: null,
+				source: null,
+			}),
 	};
 }
 
@@ -564,6 +688,8 @@ function renderHookDoc(hook) {
 	const params = hook.params || [];
 	const snippets = hook.relatedSnippets || [];
 	const description = hook.description || 'No description available.';
+	const lifecycle = hook.lifecycle || { status: 'active' };
+	const statusLabel = lifecycle.status || 'active';
 
 	const lines = [];
 	lines.push(GENERATED_NOTICE.trimEnd());
@@ -583,6 +709,22 @@ function renderHookDoc(hook) {
 	lines.push(`- **Since:** ${hook.since || 'Unknown'}`);
 	lines.push(`- **Source:** \`${hook.file}\``);
 	lines.push('');
+
+	if (statusLabel === 'deprecated' || statusLabel === 'removed') {
+		lines.push('## Lifecycle');
+		lines.push('');
+		lines.push(`- **Deprecated in:** ${lifecycle.deprecatedIn || 'Unknown'}`);
+		if (statusLabel === 'removed') {
+			lines.push(`- **Removed in:** ${lifecycle.removedIn || 'Unknown'}`);
+		}
+		if (lifecycle.replacement) {
+			lines.push(`- **Replacement:** \`${lifecycle.replacement}\``);
+		}
+		if (lifecycle.message) {
+			lines.push(`- **Notes:** ${lifecycle.message}`);
+		}
+		lines.push('');
+	}
 
 	if (params.length > 0) {
 		lines.push('## Parameters');
@@ -644,7 +786,10 @@ function renderIndexPage({ title, kind, hooks }) {
 			.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
 			.forEach((hook) => {
 				const slug = slugFromHookName(hook.name);
-				lines.push(`- [\`${hook.name}\`](/docs/${kind}/${slug})`);
+				const status = hook.lifecycle?.status;
+				const statusSuffix =
+					status === 'deprecated' ? ' _(deprecated)_' : status === 'removed' ? ' _(removed)_' : '';
+				lines.push(`- [\`${hook.name}\`](/docs/${kind}/${slug})${statusSuffix}`);
 			});
 		lines.push('');
 	});
@@ -662,10 +807,17 @@ function analyzeHookNaming(hooks, namingRules) {
 	const flaggedHooks = [];
 
 	const wpgraphqlHooks = hooks.filter((hook) => hook.sourceType === 'wpgraphql');
+	const activeHooks = wpgraphqlHooks.filter((hook) => {
+		const status = hook.lifecycle?.status;
+		return status !== 'deprecated' && status !== 'removed';
+	});
 	const staticHooks = wpgraphqlHooks.filter(
-		(hook) => !hook.isDynamic && typeof hook.name === 'string'
+		(hook) =>
+			!hook.isDynamic &&
+			typeof hook.name === 'string' &&
+			activeHooks.includes(hook)
 	);
-	const dynamicHooks = wpgraphqlHooks.filter((hook) => hook.isDynamic);
+	const dynamicHooks = wpgraphqlHooks.filter((hook) => hook.isDynamic && activeHooks.includes(hook));
 
 	function hasAllowedPrefix(name) {
 		return namingRules.allowedPrefixes.some((prefix) => name.startsWith(prefix));
@@ -799,6 +951,7 @@ function analyzeHookNaming(hooks, namingRules) {
 		summary: {
 			totalHooks: hooks.length,
 			wpgraphqlHooks: wpgraphqlHooks.length,
+			activeWpgraphqlHooks: activeHooks.length,
 			coreHooks: hooks.filter((hook) => hook.sourceType === 'core').length,
 			staticHooks: staticHooks.length,
 			dynamicHooks: dynamicHooks.length,
@@ -861,12 +1014,117 @@ function renderNamingAuditMarkdown({ pluginSlug, audit }) {
 	return lines.join('\n');
 }
 
+function renderDeprecatedHooksMarkdown({ pluginSlug, hooks }) {
+	const lines = [];
+	lines.push(GENERATED_NOTICE.trimEnd());
+	lines.push(`# Deprecated and Removed Hooks: ${pluginSlug}`);
+	lines.push('');
+
+	if (!hooks.length) {
+		lines.push('No deprecated or removed hooks found.');
+		lines.push('');
+		return lines.join('\n');
+	}
+
+	lines.push('## Hooks');
+	lines.push('');
+	hooks.forEach((hook) => {
+		const lifecycle = hook.lifecycle || {};
+		lines.push(`### \`${hook.name}\``);
+		lines.push('');
+		lines.push(`- Type: ${hook.kind}`);
+		lines.push(`- Status: ${lifecycle.status || 'deprecated'}`);
+		lines.push(`- Deprecated in: ${lifecycle.deprecatedIn || 'Unknown'}`);
+		if (lifecycle.removedIn) {
+			lines.push(`- Removed in: ${lifecycle.removedIn}`);
+		}
+		if (lifecycle.replacement) {
+			lines.push(`- Replacement: \`${lifecycle.replacement}\``);
+		}
+		lines.push(`- Source: \`${hook.file}\``);
+		if (hook.occurrences && hook.occurrences > 1) {
+			lines.push(`- Occurrences: ${hook.occurrences}`);
+		}
+		lines.push('');
+	});
+
+	return lines.join('\n');
+}
+
+function mergeLegacyHooks({ hooks, legacyEntries, groups, snippetMap, pluginSlug }) {
+	if (!legacyEntries.length) {
+		return hooks;
+	}
+
+	const groupById = new Map(groups.map((group) => [group.id, group]));
+	const mergedHooks = [...hooks];
+	const hooksByKey = mergedHooks.reduce((acc, hook) => {
+		const key = `${hook.kind}:${hook.name}`;
+		if (!acc.has(key)) {
+			acc.set(key, []);
+		}
+		acc.get(key).push(hook);
+		return acc;
+	}, new Map());
+
+	legacyEntries.forEach((entry) => {
+		const key = `${entry.kind}:${entry.name}`;
+		const existingHooks = hooksByKey.get(key) || [];
+		const group = groupById.get(entry.group) || getDefaultGroup(groups);
+
+		if (existingHooks.length > 0) {
+			existingHooks.forEach((existing) => {
+				const lifecycle = existing.lifecycle || {};
+				existing.lifecycle = {
+					status: entry.lifecycle.status || lifecycle.status || 'active',
+					deprecatedIn:
+						entry.lifecycle.deprecatedIn || lifecycle.deprecatedIn || existing.since || null,
+					removedIn: entry.lifecycle.removedIn || lifecycle.removedIn || null,
+					replacement: entry.lifecycle.replacement || lifecycle.replacement || null,
+					message: entry.lifecycle.message || lifecycle.message || null,
+					source: lifecycle.source || entry.lifecycle.source || null,
+				};
+				if (!existing.description && entry.description) {
+					existing.description = entry.description;
+				}
+			});
+			return;
+		}
+
+		mergedHooks.push({
+			pluginSlug,
+			name: entry.name,
+			kind: entry.kind,
+			group: group.id,
+			groupLabel: group.label,
+			groupSource: 'legacy',
+			sourceType: 'wpgraphql',
+			emitter: 'legacy_registry',
+			file: entry.file || '__legacy_registry__',
+			line: entry.line || null,
+			description:
+				entry.description ||
+				'This hook has been deprecated and is retained for documentation history.',
+			params: [],
+			since: entry.since,
+			hookGroup: group.id,
+			isDynamic: false,
+			rawExpression: `'${entry.name}'`,
+			relatedSnippets: snippetMap[entry.name] || [],
+			lifecycle: entry.lifecycle,
+		});
+	});
+
+	return mergedHooks;
+}
+
 function writeGeneratedOutputs({
 	docsDir,
 	actions,
 	filters,
 	indexPayload,
 	namingAuditPayload,
+	deprecatedHooksPayload,
 	validateOnly,
 }) {
 	const generatedDir = path.join(docsDir, 'generated');
@@ -891,6 +1149,17 @@ function writeGeneratedOutputs({
 		content: `${renderNamingAuditMarkdown({
 			pluginSlug: indexPayload.plugin,
 			audit: namingAuditPayload.audit,
+		})}\n`,
+	});
+	filesToWrite.push({
+		path: path.join(generatedDir, 'hooks-deprecated.json'),
+		content: `${JSON.stringify(deprecatedHooksPayload, null, 2)}\n`,
+	});
+	filesToWrite.push({
+		path: path.join(generatedDir, 'hooks-deprecated.md'),
+		content: `${renderDeprecatedHooksMarkdown({
+			pluginSlug: indexPayload.plugin,
+			hooks: deprecatedHooksPayload.hooks,
 		})}\n`,
 	});
 	filesToWrite.push({
@@ -988,23 +1257,34 @@ function writeGeneratedOutputs({
 function extractHooksFromFile(filePath, repoRoot) {
 	const content = fs.readFileSync(filePath, 'utf8');
 	const hooks = [];
+	const callSpecs = [
+		{ functionName: 'do_action_deprecated', kind: 'action', emitter: 'do_action_deprecated' },
+		{
+			functionName: 'apply_filters_deprecated',
+			kind: 'filter',
+			emitter: 'apply_filters_deprecated',
+		},
+		{ functionName: 'do_action', kind: 'action', emitter: 'do_action' },
+		{ functionName: 'apply_filters', kind: 'filter', emitter: 'apply_filters' },
+	];
 
 	let cursor = 0;
 	while (cursor < content.length) {
-		const doActionIndex = content.indexOf('do_action', cursor);
-		const applyFiltersIndex = content.indexOf('apply_filters', cursor);
-
-		const candidates = [doActionIndex, applyFiltersIndex].filter((index) => index >= 0);
+		const candidates = callSpecs
+			.map((spec) => ({
+				spec,
+				index: content.indexOf(spec.functionName, cursor),
+			}))
+			.filter((item) => item.index >= 0);
 		if (candidates.length === 0) {
 			break;
 		}
 
-		const nextIndex = Math.min(...candidates);
-		const fnName = nextIndex === doActionIndex ? 'do_action' : 'apply_filters';
-		const extracted = extractCallAt(content, fnName, nextIndex);
+		const next = candidates.sort((a, b) => a.index - b.index)[0];
+		const extracted = extractCallAt(content, next.spec.functionName, next.index);
 
 		if (!extracted) {
-			cursor = nextIndex + fnName.length;
+			cursor = next.index + next.spec.functionName.length;
 			continue;
 		}
 
@@ -1017,10 +1297,16 @@ function extractHooksFromFile(filePath, repoRoot) {
 			name: parsedName.name,
 			rawExpression: parsedName.rawExpression,
 			isDynamic: parsedName.isDynamic,
-			kind: fnName === 'do_action' ? 'action' : 'filter',
+			kind: next.spec.kind,
 			file: path.relative(repoRoot, filePath),
 			line: extracted.line,
 			docblock,
+			emitter: next.spec.emitter,
+			lifecycle:
+				next.spec.emitter === 'do_action_deprecated' ||
+				next.spec.emitter === 'apply_filters_deprecated'
+					? normalizeDeprecatedCallMetadata(args)
+					: null,
 		});
 
 		cursor = extracted.endIndex + 1;
@@ -1049,12 +1335,18 @@ function main() {
 	const namingRulesPath = args['naming-rules']
 		? path.resolve(repoRoot, args['naming-rules'])
 		: path.resolve(repoRoot, 'scripts/hooks/naming-rules.json');
+	const legacyHooksPath = args['legacy-hooks']
+		? path.resolve(repoRoot, args['legacy-hooks'])
+		: path.resolve(repoRoot, 'scripts/hooks/legacy-hooks.json');
 
 	const pluginConfigMap = readJson(configPath);
 	const groups = readJson(groupsPath);
 	const namingRules = fs.existsSync(namingRulesPath)
 		? readJson(namingRulesPath)
 		: getDefaultNamingRules();
+	const legacyHooks = fs.existsSync(legacyHooksPath)
+		? loadLegacyHooks(legacyHooksPath, pluginSlug)
+		: getDefaultLegacyHooks()[pluginSlug] || [];
 	const pluginConfig = pluginConfigMap[pluginSlug];
 	const validateOnly = args['validate-only'] === 'true' || args['validate-only'] === true;
 	const requireExplicitGroup =
@@ -1077,7 +1369,7 @@ function main() {
 	});
 
 	const snippets = loadSnippets(snippetsDir);
-	const hookRecords = [];
+	let hookRecords = [];
 	const lint = {
 		errors: [],
 		warnings: [],
@@ -1097,7 +1389,11 @@ function main() {
 				snippetMap: snippets.byHookName,
 			});
 
+			const shouldLintHookGroup =
+				hook.emitter === 'do_action' || hook.emitter === 'apply_filters';
+
 			if (
+				shouldLintHookGroup &&
 				sourceType === 'wpgraphql' &&
 				hook.docblock.hookGroup &&
 				groupAssignment.source === 'invalid'
@@ -1111,7 +1407,7 @@ function main() {
 				});
 			}
 
-			if (sourceType === 'wpgraphql' && !hook.docblock.hookGroup) {
+			if (shouldLintHookGroup && sourceType === 'wpgraphql' && !hook.docblock.hookGroup) {
 				const warning = {
 					type: 'missing_hook_group',
 					hook: hook.name,
@@ -1130,8 +1426,48 @@ function main() {
 		});
 	});
 
+	hookRecords = mergeLegacyHooks({
+		hooks: hookRecords,
+		legacyEntries: legacyHooks,
+		groups,
+		snippetMap: snippets.byHookName,
+		pluginSlug,
+	});
+
 	const actions = hookRecords.filter((hook) => hook.kind === 'action');
 	const filters = hookRecords.filter((hook) => hook.kind === 'filter');
+	const deprecatedHooksByKey = new Map();
+	hookRecords
+		.filter((hook) => {
+			const status = hook.lifecycle?.status;
+			return (status === 'deprecated' || status === 'removed') && !hook.isDynamic && !!hook.name;
+		})
+		.forEach((hook) => {
+			const key = `${hook.kind}:${hook.name}`;
+			const existing = deprecatedHooksByKey.get(key);
+			if (!existing) {
+				deprecatedHooksByKey.set(key, {
+					...hook,
+					sourceLocations: [{ file: hook.file, line: hook.line }],
+					occurrences: 1,
+				});
+				return;
+			}
+
+			existing.occurrences += 1;
+			existing.sourceLocations.push({ file: hook.file, line: hook.line });
+			if (
+				existing.lifecycle &&
+				!existing.lifecycle.deprecatedIn &&
+				hook.lifecycle &&
+				hook.lifecycle.deprecatedIn
+			) {
+				existing.lifecycle.deprecatedIn = hook.lifecycle.deprecatedIn;
+			}
+		});
+	const deprecatedHooks = Array.from(deprecatedHooksByKey.values()).sort((a, b) =>
+		(a.name || '').localeCompare(b.name || '')
+	);
 	const namingAudit = analyzeHookNaming(hookRecords, namingRules);
 
 	const payload = {
@@ -1166,6 +1502,12 @@ function main() {
 		generatedAt: payload.generatedAt,
 		audit: namingAudit,
 	};
+	const deprecatedHooksPayload = {
+		plugin: pluginSlug,
+		generatedAt: payload.generatedAt,
+		count: deprecatedHooks.length,
+		hooks: deprecatedHooks,
+	};
 
 	namingAudit.flaggedHooks.forEach((flag) => {
 		lint.warnings.push({
@@ -1183,6 +1525,7 @@ function main() {
 		filters,
 		indexPayload: payload,
 		namingAuditPayload,
+		deprecatedHooksPayload,
 		validateOnly,
 	});
 

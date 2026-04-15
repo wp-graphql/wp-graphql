@@ -24,16 +24,23 @@ node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
 | `--config` | No | Override plugin config file path |
 | `--groups` | No | Override hook groups config file path |
 | `--naming-rules` | No | Override hook naming rules file path |
+| `--legacy-hooks` | No | Override legacy/deprecated hooks registry path |
 
 **Generated output** (per plugin docs directory):
 - `docs/generated/hooks-index.json`
 - `docs/generated/hooks-lint.json`
 - `docs/generated/hooks-naming-audit.json`
 - `docs/generated/hooks-naming-audit.md`
+- `docs/generated/hooks-deprecated.json`
+- `docs/generated/hooks-deprecated.md`
 - `docs/actions/index.md`
 - `docs/actions/<hook>.md`
 - `docs/filters/index.md`
 - `docs/filters/<hook>.md`
+
+**Deprecated/removed hook persistence**:
+- The generator reads `scripts/hooks/legacy-hooks.json` to preserve documentation for deprecated hooks even after they are removed from source.
+- Hook pages include lifecycle metadata (`status`, `deprecatedIn`, optional `removedIn`, `replacement`) when available.
 
 **Naming audit behavior**:
 - Naming audit focuses on WPGraphQL-specific hooks and excludes core hooks from naming violations.

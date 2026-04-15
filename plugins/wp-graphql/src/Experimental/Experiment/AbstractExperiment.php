@@ -88,8 +88,17 @@ abstract class AbstractExperiment {
 		 * Fires after the experiment is loaded.
 		 *
 		 * @param \WPGraphQL\Experimental\Experiment\AbstractExperiment $instance The experiment instance.
+		 * @hookGroup settings
+		 * @since x-release-please-version
 		 */
-		do_action( 'wp_graphql_experiment_' . $this->get_slug() . '_loaded', $this );
+		$loaded_hook = 'graphql_experiment_' . $this->get_slug() . '_loaded';
+		do_action( $loaded_hook, $this );
+		do_action_deprecated(
+			'wp_graphql_experiment_' . $this->get_slug() . '_loaded',
+			[ $this ],
+			'x-release-please-version',
+			$loaded_hook
+		);
 	}
 
 	/**
