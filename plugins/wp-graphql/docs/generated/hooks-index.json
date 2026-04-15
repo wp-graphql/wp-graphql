@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-15T17:14:59.387Z",
+  "generatedAt": "2026-04-15T17:24:13.967Z",
   "stats": {
     "totalHooks": 268,
     "actions": 62,
@@ -213,37 +213,37 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "wpgraphql_enable_major_autoupdates",
+        "hook": "graphql_enable_major_autoupdates",
         "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 315,
+        "line": 317,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
-        "hook": "wpgraphql_enable_untested_autoupdates",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 337,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "wpgraphql_untested_release_type",
+        "hook": "graphql_enable_untested_autoupdates",
         "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
         "line": 352,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
+        "hook": "graphql_untested_release_type",
+        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+        "line": 380,
+        "message": "Missing @hookGroup tag"
+      },
+      {
+        "type": "missing_hook_group",
         "hook": "graphql_get_dependents",
         "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 388,
+        "line": 425,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "graphql_get_possible_dependents",
         "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 428,
+        "line": 465,
         "message": "Missing @hookGroup tag"
       },
       {
@@ -724,30 +724,16 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "wp_graphql_experiment_enabled",
+        "hook": "graphql_experiment_enabled",
         "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 313,
+        "line": 316,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
-        "hook": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
+        "hook": "graphql_experiment_config",
         "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 314,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "wp_graphql_experiment_config",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 355,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "'wp_graphql_experiment_' . $slug . '_config'",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 356,
+        "line": 381,
         "message": "Missing @hookGroup tag"
       },
       {
@@ -780,9 +766,9 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "wpgraphql_experimental_features_enabled",
+        "hook": "graphql_experimental_features_enabled",
         "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-        "line": 62,
+        "line": 68,
         "message": "Missing @hookGroup tag"
       },
       {
@@ -1067,58 +1053,51 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "do_graphql_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 584,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "pre_graphql_execute_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 658,
+        "line": 667,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "graphql_execute_query_params",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 672,
+        "line": 681,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "pre_graphql_execute_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 755,
+        "line": 764,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "graphql_is_valid_http_content_type",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 791,
+        "line": 800,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "graphql_invalid_content_type_status_code",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 823,
+        "line": 832,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "graphql_is_batch_queries_enabled",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 887,
+        "line": 896,
         "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
         "hook": "graphql_server_config",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 922,
+        "line": 931,
         "message": "Missing @hookGroup tag"
       },
       {
@@ -1851,94 +1830,10 @@
       },
       {
         "type": "naming_convention",
-        "hook": "wpgraphql_enable_major_autoupdates",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 315,
-        "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_enable_major_autoupdates",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 315,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_enable_untested_autoupdates",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 337,
-        "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_enable_untested_autoupdates",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 337,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_untested_release_type",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 352,
-        "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_untested_release_type",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 352,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-      },
-      {
-        "type": "naming_convention",
         "hook": "graphql_connection",
         "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
         "line": 1039,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wp_graphql_experiment_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 313,
-        "message": "deprecated_prefix: Hook name uses deprecated prefix \"wp_graphql_\"."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wp_graphql_experiment_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 313,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wp_graphql_experiment_config",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 355,
-        "message": "deprecated_prefix: Hook name uses deprecated prefix \"wp_graphql_\"."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wp_graphql_experiment_config",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 355,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_experimental_features_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-        "line": 62,
-        "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "wpgraphql_experimental_features_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-        "line": 62,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
@@ -1953,13 +1848,6 @@
         "file": "plugins/wp-graphql/src/Request.php",
         "line": 505,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "do_graphql_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 584,
-        "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
@@ -1988,29 +1876,15 @@
         "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
         "line": 92,
         "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 314,
-        "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
-      },
-      {
-        "type": "naming_convention",
-        "hook": "'wp_graphql_experiment_' . $slug . '_config'",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 356,
-        "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
       }
     ]
   },
   "namingAudit": {
-    "flaggedHooks": 24,
-    "warnings": 24,
+    "flaggedHooks": 9,
+    "warnings": 9,
     "errors": 0,
-    "wpgraphqlHooks": 250,
-    "coreHooks": 18
+    "wpgraphqlHooks": 248,
+    "coreHooks": 20
   },
   "hooks": [
     {
@@ -2051,24 +1925,6 @@
     },
     {
       "pluginSlug": "wp-graphql",
-      "name": "'wp_graphql_experiment_' . $slug . '_config'",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 356,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": true,
-      "rawExpression": "'wp_graphql_experiment_' . $slug . '_config'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
       "name": "'wp_graphql_experiment_' . $this->get_slug() . '_loaded'",
       "kind": "action",
       "group": "uncategorized",
@@ -2093,20 +1949,38 @@
     },
     {
       "pluginSlug": "wp-graphql",
-      "name": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
+      "name": "$config_hook",
       "kind": "filter",
       "group": "uncategorized",
       "groupLabel": "Uncategorized",
       "groupSource": "fallback",
-      "sourceType": "wpgraphql",
+      "sourceType": "core",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 314,
+      "line": 393,
       "description": "",
       "params": [],
       "since": null,
       "hookGroup": null,
       "isDynamic": true,
-      "rawExpression": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
+      "rawExpression": "$config_hook",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "$enabled_hook",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "core",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 328,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": true,
+      "rawExpression": "$enabled_hook",
       "relatedSnippets": []
     },
     {
@@ -2161,45 +2035,6 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'all_plugins'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "do_graphql_request",
-      "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 584,
-      "description": "Run an action for each request.",
-      "params": [
-        {
-          "type": "?string",
-          "name": "$query",
-          "description": "The GraphQL query"
-        },
-        {
-          "type": "?string",
-          "name": "$operation",
-          "description": "The name of the operation"
-        },
-        {
-          "type": "?array<string,mixed>",
-          "name": "$variables",
-          "description": "Variables to be passed to your GraphQL request"
-        },
-        {
-          "type": "\\GraphQL\\Server\\OperationParams",
-          "name": "$params",
-          "description": "The Operation Params. This includes any extra params,"
-        }
-      ],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'do_graphql_request'",
       "relatedSnippets": []
     },
     {
@@ -3516,6 +3351,45 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_do_request",
+      "kind": "action",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 586,
+      "description": "Run an action for each request.",
+      "params": [
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The GraphQL query"
+        },
+        {
+          "type": "?string",
+          "name": "$operation",
+          "description": "The name of the operation"
+        },
+        {
+          "type": "?array<string,mixed>",
+          "name": "$variables",
+          "description": "Variables to be passed to your GraphQL request"
+        },
+        {
+          "type": "\\GraphQL\\Server\\OperationParams",
+          "name": "$params",
+          "description": "The Operation Params. This includes any extra params,"
+        }
+      ],
+      "since": "x-release-please-version",
+      "hookGroup": "request-lifecycle",
+      "isDynamic": false,
+      "rawExpression": "'graphql_do_request'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_do_update_routine",
       "kind": "action",
       "group": "uncategorized",
@@ -3559,6 +3433,42 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_enable_graphiql'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_enable_major_autoupdates",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 317,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_enable_major_autoupdates'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_enable_untested_autoupdates",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 352,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_enable_untested_autoupdates'",
       "relatedSnippets": []
     },
     {
@@ -3751,13 +3661,49 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 672,
+      "line": 681,
       "description": "",
       "params": [],
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_execute_query_params'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_experiment_config",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 381,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_experiment_config'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_experiment_enabled",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 316,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_experiment_enabled'",
       "relatedSnippets": []
     },
     {
@@ -3776,6 +3722,24 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_experimental_features_cap'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_experimental_features_enabled",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
+      "line": 68,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_experimental_features_enabled'",
       "relatedSnippets": []
     },
     {
@@ -3936,7 +3900,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 388,
+      "line": 425,
       "description": "",
       "params": [],
       "since": null,
@@ -3972,7 +3936,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 428,
+      "line": 465,
       "description": "",
       "params": [],
       "since": null,
@@ -4456,7 +4420,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 823,
+      "line": 832,
       "description": "",
       "params": [],
       "since": null,
@@ -4474,7 +4438,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 887,
+      "line": 896,
       "description": "",
       "params": [],
       "since": null,
@@ -4510,7 +4474,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 791,
+      "line": 800,
       "description": "",
       "params": [],
       "since": null,
@@ -6206,7 +6170,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 922,
+      "line": 931,
       "description": "Run an action when the server config is created. The config can be acted upon directly to override default values or implement new features, e.g., $config->setValidationRules().",
       "params": [
         {
@@ -6696,6 +6660,24 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_untested_release_type",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 380,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_untested_release_type'",
+      "relatedSnippets": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_update_{$taxonomy->name}",
       "kind": "action",
       "group": "uncategorized",
@@ -7143,7 +7125,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 658,
+      "line": 667,
       "description": "",
       "params": [],
       "since": null,
@@ -7161,7 +7143,7 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 755,
+      "line": 764,
       "description": "",
       "params": [],
       "since": null,
@@ -7456,114 +7438,6 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wp_enqueue_scripts'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "wp_graphql_experiment_config",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 355,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'wp_graphql_experiment_config'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "wp_graphql_experiment_enabled",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 313,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'wp_graphql_experiment_enabled'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "wpgraphql_enable_major_autoupdates",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 315,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'wpgraphql_enable_major_autoupdates'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "wpgraphql_enable_untested_autoupdates",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 337,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'wpgraphql_enable_untested_autoupdates'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "wpgraphql_experimental_features_enabled",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 62,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'wpgraphql_experimental_features_enabled'",
-      "relatedSnippets": []
-    },
-    {
-      "pluginSlug": "wp-graphql",
-      "name": "wpgraphql_untested_release_type",
-      "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
-      "sourceType": "wpgraphql",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "description": "",
-      "params": [],
-      "since": null,
-      "hookGroup": null,
-      "isDynamic": false,
-      "rawExpression": "'wpgraphql_untested_release_type'",
       "relatedSnippets": []
     }
   ]

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-15T17:14:59.387Z",
+  "generatedAt": "2026-04-15T17:24:13.967Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -32,26 +32,18 @@
     },
     "summary": {
       "totalHooks": 268,
-      "wpgraphqlHooks": 250,
-      "coreHooks": 18,
+      "wpgraphqlHooks": 248,
+      "coreHooks": 20,
       "staticHooks": 235,
-      "dynamicHooks": 15,
-      "flaggedHooks": 24,
-      "warnings": 24,
+      "dynamicHooks": 13,
+      "flaggedHooks": 9,
+      "warnings": 9,
       "errors": 0
     },
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 223
-      },
-      {
-        "prefix": "wpgraphql_",
-        "count": 4
-      },
-      {
-        "prefix": "wp_",
-        "count": 2
+        "count": 230
       },
       {
         "prefix": "pre_",
@@ -63,10 +55,6 @@
       },
       {
         "prefix": "enqueue_",
-        "count": 1
-      },
-      {
-        "prefix": "do_",
         "count": 1
       }
     ],
@@ -92,66 +80,6 @@
         "suggestion": "Use names that include both domain and event segments."
       },
       {
-        "hook": "wpgraphql_enable_major_autoupdates",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 315,
-        "code": "deprecated_prefix",
-        "severity": "warning",
-        "message": "Hook name uses deprecated prefix \"wpgraphql_\".",
-        "suggestion": "Consider migrating to \"graphql_enable_major_autoupdates\"."
-      },
-      {
-        "hook": "wpgraphql_enable_major_autoupdates",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 315,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Consider migrating to \"graphql_enable_major_autoupdates\"."
-      },
-      {
-        "hook": "wpgraphql_enable_untested_autoupdates",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 337,
-        "code": "deprecated_prefix",
-        "severity": "warning",
-        "message": "Hook name uses deprecated prefix \"wpgraphql_\".",
-        "suggestion": "Consider migrating to \"graphql_enable_untested_autoupdates\"."
-      },
-      {
-        "hook": "wpgraphql_enable_untested_autoupdates",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 337,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Consider migrating to \"graphql_enable_untested_autoupdates\"."
-      },
-      {
-        "hook": "wpgraphql_untested_release_type",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 352,
-        "code": "deprecated_prefix",
-        "severity": "warning",
-        "message": "Hook name uses deprecated prefix \"wpgraphql_\".",
-        "suggestion": "Consider migrating to \"graphql_untested_release_type\"."
-      },
-      {
-        "hook": "wpgraphql_untested_release_type",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 352,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Consider migrating to \"graphql_untested_release_type\"."
-      },
-      {
         "hook": "graphql_connection",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -160,66 +88,6 @@
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
         "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "wp_graphql_experiment_enabled",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 313,
-        "code": "deprecated_prefix",
-        "severity": "warning",
-        "message": "Hook name uses deprecated prefix \"wp_graphql_\".",
-        "suggestion": "Consider migrating to \"graphql_experiment_enabled\"."
-      },
-      {
-        "hook": "wp_graphql_experiment_enabled",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 313,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Consider migrating to \"graphql_experiment_enabled\"."
-      },
-      {
-        "hook": "wp_graphql_experiment_config",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 355,
-        "code": "deprecated_prefix",
-        "severity": "warning",
-        "message": "Hook name uses deprecated prefix \"wp_graphql_\".",
-        "suggestion": "Consider migrating to \"graphql_experiment_config\"."
-      },
-      {
-        "hook": "wp_graphql_experiment_config",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 355,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Consider migrating to \"graphql_experiment_config\"."
-      },
-      {
-        "hook": "wpgraphql_experimental_features_enabled",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-        "line": 62,
-        "code": "deprecated_prefix",
-        "severity": "warning",
-        "message": "Hook name uses deprecated prefix \"wpgraphql_\".",
-        "suggestion": "Consider migrating to \"graphql_experimental_features_enabled\"."
-      },
-      {
-        "hook": "wpgraphql_experimental_features_enabled",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-        "line": 62,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Consider migrating to \"graphql_experimental_features_enabled\"."
       },
       {
         "hook": "graphql_schema",
@@ -240,16 +108,6 @@
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
         "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "do_graphql_request",
-        "kind": "action",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 584,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Prefer the graphql_ prefix for new hooks."
       },
       {
         "hook": "graphql_init",
@@ -286,26 +144,6 @@
         "kind": "action",
         "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
         "line": 92,
-        "code": "dynamic_nonstandard_prefix",
-        "severity": "warning",
-        "message": "Dynamic hook expression does not clearly map to an expected namespace prefix.",
-        "suggestion": "Prefer dynamic hooks that still resolve to graphql_* or wpgraphql_* patterns."
-      },
-      {
-        "hook": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 314,
-        "code": "dynamic_nonstandard_prefix",
-        "severity": "warning",
-        "message": "Dynamic hook expression does not clearly map to an expected namespace prefix.",
-        "suggestion": "Prefer dynamic hooks that still resolve to graphql_* or wpgraphql_* patterns."
-      },
-      {
-        "hook": "'wp_graphql_experiment_' . $slug . '_config'",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 356,
         "code": "dynamic_nonstandard_prefix",
         "severity": "warning",
         "message": "Dynamic hook expression does not clearly map to an expected namespace prefix.",

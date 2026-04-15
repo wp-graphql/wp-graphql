@@ -14,6 +14,7 @@ title: Actions
 
 ## Request Lifecycle
 
+- [`graphql_do_request`](/docs/actions/graphql_do_request)
 - [`graphql_execute`](/docs/actions/graphql_execute)
 - [`graphql_init_request`](/docs/actions/graphql_init_request)
 - [`graphql_init_request`](/docs/actions/graphql_init_request)
@@ -34,7 +35,6 @@ title: Actions
 
 ## Uncategorized
 
-- [`do_graphql_request`](/docs/actions/do_graphql_request)
 - [`enqueue_graphiql_extension`](/docs/actions/enqueue_graphiql_extension)
 - [`graphql_after_execute`](/docs/actions/graphql_after_execute)
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)

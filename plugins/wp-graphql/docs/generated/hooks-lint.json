@@ -129,37 +129,37 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "wpgraphql_enable_major_autoupdates",
+      "hook": "graphql_enable_major_autoupdates",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 315,
+      "line": 317,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
-      "hook": "wpgraphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 337,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "wpgraphql_untested_release_type",
+      "hook": "graphql_enable_untested_autoupdates",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 352,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
+      "hook": "graphql_untested_release_type",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 380,
+      "message": "Missing @hookGroup tag"
+    },
+    {
+      "type": "missing_hook_group",
       "hook": "graphql_get_dependents",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 388,
+      "line": 425,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_get_possible_dependents",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 428,
+      "line": 465,
       "message": "Missing @hookGroup tag"
     },
     {
@@ -640,30 +640,16 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "wp_graphql_experiment_enabled",
+      "hook": "graphql_experiment_enabled",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 313,
+      "line": 316,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
-      "hook": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
+      "hook": "graphql_experiment_config",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 314,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "wp_graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 355,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "'wp_graphql_experiment_' . $slug . '_config'",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 356,
+      "line": 381,
       "message": "Missing @hookGroup tag"
     },
     {
@@ -696,9 +682,9 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "wpgraphql_experimental_features_enabled",
+      "hook": "graphql_experimental_features_enabled",
       "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 62,
+      "line": 68,
       "message": "Missing @hookGroup tag"
     },
     {
@@ -983,58 +969,51 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "do_graphql_request",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 584,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "pre_graphql_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 658,
+      "line": 667,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_execute_query_params",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 672,
+      "line": 681,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "pre_graphql_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 755,
+      "line": 764,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_is_valid_http_content_type",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 791,
+      "line": 800,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_invalid_content_type_status_code",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 823,
+      "line": 832,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_is_batch_queries_enabled",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 887,
+      "line": 896,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_server_config",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 922,
+      "line": 931,
       "message": "Missing @hookGroup tag"
     },
     {
@@ -1767,94 +1746,10 @@
     },
     {
       "type": "naming_convention",
-      "hook": "wpgraphql_enable_major_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 315,
-      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_enable_major_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 315,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 337,
-      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 337,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_untested_release_type",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_untested_release_type",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-    },
-    {
-      "type": "naming_convention",
       "hook": "graphql_connection",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 1039,
       "message": "low_specificity: Hook name has too few semantic segments after prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wp_graphql_experiment_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 313,
-      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wp_graphql_\"."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wp_graphql_experiment_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 313,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wp_graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 355,
-      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wp_graphql_\"."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wp_graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 355,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_experimental_features_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 62,
-      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "wpgraphql_experimental_features_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 62,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
     },
     {
       "type": "naming_convention",
@@ -1869,13 +1764,6 @@
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 505,
       "message": "low_specificity: Hook name has too few semantic segments after prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "do_graphql_request",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 584,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
     },
     {
       "type": "naming_convention",
@@ -1903,20 +1791,6 @@
       "hook": "'wp_graphql_experiment_' . $this->get_slug() . '_loaded'",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
       "line": 92,
-      "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "'wp_graphql_experiment_' . static::get_slug() . '_enabled'",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 314,
-      "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "'wp_graphql_experiment_' . $slug . '_config'",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 356,
       "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
     }
   ]
