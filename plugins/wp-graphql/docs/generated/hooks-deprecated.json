@@ -1,0 +1,487 @@
+{
+  "plugin": "wp-graphql",
+  "generatedAt": "2026-04-15T17:45:29.836Z",
+  "count": 14,
+  "hooks": [
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "do_graphql_request",
+      "kind": "action",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "do_action_deprecated",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 588,
+      "description": "Legacy GraphQL request lifecycle action retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'do_graphql_request'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_do_request",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 588
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "enqueue_graphiql_extension",
+      "kind": "action",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "do_action_deprecated",
+      "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
+      "line": 315,
+      "description": "Legacy GraphiQL extension enqueue action retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'enqueue_graphiql_extension'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_enqueue_graphiql_extension",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
+          "line": 315
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_data_loaders",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/AppContext.php",
+      "line": 219,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_data_loaders'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "2.3.2",
+        "removedIn": null,
+        "replacement": "graphql_data_loader_classes",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/AppContext.php",
+          "line": 219
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_object_type_interfaces",
+      "kind": "filter",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Deprecated.php",
+      "line": 63,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_object_type_interfaces'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "1.4.1",
+        "removedIn": null,
+        "replacement": "graphql_type_interfaces",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Deprecated.php",
+          "line": 63
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_resolve_menu_item",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Deprecated.php",
+      "line": 165,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_resolve_menu_item'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "1.22.0",
+        "removedIn": null,
+        "replacement": "graphql_pre_resolve_menu_item_connected_node",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Deprecated.php",
+          "line": 165
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_return_modeled_data",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Deprecated.php",
+      "line": 91,
+      "description": "",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_return_modeled_data'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "1.7.0",
+        "removedIn": null,
+        "replacement": "graphql_model_prepare_fields",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Deprecated.php",
+          "line": 91
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "init_graphql_request",
+      "kind": "action",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "do_action_deprecated",
+      "file": "plugins/wp-graphql/src/CLI/Commands.php",
+      "line": 72,
+      "description": "Legacy request initialization hook retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'init_graphql_request'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_init_request",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/CLI/Commands.php",
+          "line": 72
+        },
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 162
+        }
+      ],
+      "occurrences": 2
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "init_graphql_type_registry",
+      "kind": "action",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "do_action_deprecated",
+      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
+      "line": 283,
+      "description": "Legacy type registry initialization hook retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'init_graphql_type_registry'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_init_type_registry",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
+          "line": 283
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "wp_graphql_experiment_config",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 393,
+      "description": "Legacy experiment config filter retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'wp_graphql_experiment_config'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_experiment_config",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+          "line": 393
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "wp_graphql_experiment_enabled",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 328,
+      "description": "Legacy experiment enabled filter retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'wp_graphql_experiment_enabled'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_experiment_enabled",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+          "line": 328
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "wpgraphql_enable_major_autoupdates",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 320,
+      "description": "Legacy autoupdate filter retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'wpgraphql_enable_major_autoupdates'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_enable_major_autoupdates",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+          "line": 320
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "wpgraphql_enable_untested_autoupdates",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 355,
+      "description": "Legacy untested autoupdate filter retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'wpgraphql_enable_untested_autoupdates'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_enable_untested_autoupdates",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+          "line": 355
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "wpgraphql_experimental_features_enabled",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
+      "line": 71,
+      "description": "Legacy experimental features toggle filter retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'wpgraphql_experimental_features_enabled'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_experimental_features_enabled",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
+          "line": 71
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "wpgraphql_untested_release_type",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 383,
+      "description": "Legacy release channel filter retained for backward compatibility.",
+      "params": [],
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'wpgraphql_untested_release_type'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_untested_release_type",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+          "line": 383
+        }
+      ],
+      "occurrences": 1
+    }
+  ]
+}

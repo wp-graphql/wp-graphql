@@ -66,13 +66,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "enqueue_graphiql_extension",
-      "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 308,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_endpoint",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
       "line": 94,
@@ -626,30 +619,23 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "'wp_graphql_experiment_' . $this->get_slug() . '_loaded'",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 92,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_experimental_features_override",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 281,
+      "line": 290,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_experiment_enabled",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 316,
+      "line": 325,
       "message": "Missing @hookGroup tag"
     },
     {
       "type": "missing_hook_group",
       "hook": "graphql_experiment_config",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 381,
+      "line": 390,
       "message": "Missing @hookGroup tag"
     },
     {
@@ -1732,13 +1718,6 @@
     },
     {
       "type": "naming_convention",
-      "hook": "enqueue_graphiql_extension",
-      "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 308,
-      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
-    },
-    {
-      "type": "naming_convention",
       "hook": "graphql_endpoint",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
       "line": 94,
@@ -1785,13 +1764,6 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 898,
       "message": "low_specificity: Hook name has too few semantic segments after prefix."
-    },
-    {
-      "type": "naming_convention",
-      "hook": "'wp_graphql_experiment_' . $this->get_slug() . '_loaded'",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 92,
-      "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
     }
   ]
 }

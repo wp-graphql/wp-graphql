@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-15T17:24:13.967Z",
+  "generatedAt": "2026-04-15T17:45:29.836Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,19 +31,20 @@
       ]
     },
     "summary": {
-      "totalHooks": 268,
-      "wpgraphqlHooks": 248,
-      "coreHooks": 20,
+      "totalHooks": 286,
+      "wpgraphqlHooks": 263,
+      "activeWpgraphqlHooks": 247,
+      "coreHooks": 23,
       "staticHooks": 235,
-      "dynamicHooks": 13,
-      "flaggedHooks": 9,
-      "warnings": 9,
+      "dynamicHooks": 12,
+      "flaggedHooks": 7,
+      "warnings": 7,
       "errors": 0
     },
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 230
+        "count": 231
       },
       {
         "prefix": "pre_",
@@ -52,23 +53,9 @@
       {
         "prefix": "register_",
         "count": 2
-      },
-      {
-        "prefix": "enqueue_",
-        "count": 1
       }
     ],
     "flaggedHooks": [
-      {
-        "hook": "enqueue_graphiql_extension",
-        "kind": "action",
-        "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 308,
-        "code": "nonstandard_prefix",
-        "severity": "warning",
-        "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
-        "suggestion": "Prefer the graphql_ prefix for new hooks."
-      },
       {
         "hook": "graphql_endpoint",
         "kind": "filter",
@@ -138,16 +125,6 @@
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
         "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "'wp_graphql_experiment_' . $this->get_slug() . '_loaded'",
-        "kind": "action",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 92,
-        "code": "dynamic_nonstandard_prefix",
-        "severity": "warning",
-        "message": "Dynamic hook expression does not clearly map to an expected namespace prefix.",
-        "suggestion": "Prefer dynamic hooks that still resolve to graphql_* or wpgraphql_* patterns."
       }
     ]
   }

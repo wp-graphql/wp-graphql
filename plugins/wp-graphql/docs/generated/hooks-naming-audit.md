@@ -6,31 +6,22 @@ Do not edit manually.
 
 ## Summary
 
-- Total hooks: 268
-- WPGraphQL hooks audited: 248
-- Core hooks excluded from audit: 20
+- Total hooks: 286
+- WPGraphQL hooks audited: 263
+- Core hooks excluded from audit: 23
 - Static hooks: 235
-- Dynamic hooks: 13
-- Flagged hooks: 9
-- Warnings: 9
+- Dynamic hooks: 12
+- Flagged hooks: 7
+- Warnings: 7
 - Errors: 0
 
 ## Top Prefixes
 
-- `graphql_`: 230
+- `graphql_`: 231
 - `pre_`: 2
 - `register_`: 2
-- `enqueue_`: 1
 
 ## Flagged Hooks
-
-### `enqueue_graphiql_extension`
-
-- Severity: warning
-- Code: nonstandard_prefix
-- Message: Hook name does not use the expected WPGraphQL namespace prefix.
-- Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
-- Suggestion: Prefer the graphql_ prefix for new hooks.
 
 ### `graphql_endpoint`
 
@@ -87,12 +78,4 @@ Do not edit manually.
 - Message: Hook name has too few semantic segments after prefix.
 - Source: `plugins/wp-graphql/access-functions.php`
 - Suggestion: Use names that include both domain and event segments.
-
-### `'wp_graphql_experiment_' . $this->get_slug() . '_loaded'`
-
-- Severity: warning
-- Code: dynamic_nonstandard_prefix
-- Message: Dynamic hook expression does not clearly map to an expected namespace prefix.
-- Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
-- Suggestion: Prefer dynamic hooks that still resolve to graphql_* or wpgraphql_* patterns.
 

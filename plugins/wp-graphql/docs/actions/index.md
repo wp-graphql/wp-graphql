@@ -31,11 +31,13 @@ title: Actions
 - [`graphql_admin_notices_init`](/docs/actions/graphql_admin_notices_init)
 - [`graphql_admin_notices_render_notice`](/docs/actions/graphql_admin_notices_render_notice)
 - [`graphql_admin_notices_render_notices`](/docs/actions/graphql_admin_notices_render_notices)
+- [`graphql_enqueue_graphiql_extension`](/docs/actions/graphql_enqueue_graphiql_extension)
 - [`graphql_init_settings`](/docs/actions/graphql_init_settings)
 
 ## Uncategorized
 
-- [`enqueue_graphiql_extension`](/docs/actions/enqueue_graphiql_extension)
+- [`do_graphql_request`](/docs/actions/do_graphql_request) _(deprecated)_
+- [`enqueue_graphiql_extension`](/docs/actions/enqueue_graphiql_extension) _(deprecated)_
 - [`graphql_after_execute`](/docs/actions/graphql_after_execute)
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
 - [`graphql_after_return_field_from_model`](/docs/actions/graphql_after_return_field_from_model)
@@ -71,6 +73,9 @@ title: Actions
 - [`graphql_wp_mutation_type`](/docs/actions/graphql_wp_mutation_type)
 - [`graphql_wp_object_type`](/docs/actions/graphql_wp_object_type)
 - [`graphql_wp_union_type`](/docs/actions/graphql_wp_union_type)
+- [`init_graphql_request`](/docs/actions/init_graphql_request) _(deprecated)_
+- [`init_graphql_request`](/docs/actions/init_graphql_request) _(deprecated)_
+- [`init_graphql_type_registry`](/docs/actions/init_graphql_type_registry) _(deprecated)_
 - [`wp_enqueue_scripts`](/docs/actions/wp_enqueue_scripts)
 - [`wp_enqueue_scripts`](/docs/actions/wp_enqueue_scripts)
 - [`wp_enqueue_scripts`](/docs/actions/wp_enqueue_scripts)
