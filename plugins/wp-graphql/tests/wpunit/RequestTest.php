@@ -55,7 +55,7 @@ class RequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 		$this->factory->post->create();
 		$request = $this->create_example_request();
 
-		$this->assertEquals( 0, did_action( 'do_graphql_request' ) );
+		$this->assertEquals( 0, did_action( 'graphql_do_request' ) );
 		$this->assertEquals( 0, did_action( 'graphql_execute' ) );
 		$this->assertEquals( 0, did_action( 'graphql_return_response' ) );
 
@@ -65,7 +65,7 @@ class RequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertEquals( 1, count( $results['data']['posts']['nodes'] ) );
 
-		$this->assertEquals( 1, did_action( 'do_graphql_request' ) );
+		$this->assertEquals( 1, did_action( 'graphql_do_request' ) );
 		$this->assertEquals( 1, did_action( 'graphql_execute' ) );
 		$this->assertEquals( 1, did_action( 'graphql_return_response' ) );
 	}

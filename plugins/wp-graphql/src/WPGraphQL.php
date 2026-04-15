@@ -237,8 +237,8 @@ final class WPGraphQL {
 		add_action( 'graphql_init_request', 'register_initial_settings', 10 );
 
 		// Throw an exception
-		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
-		add_action( 'do_graphql_request', [ $this, 'introspection_check' ], 10, 4 );
+		add_action( 'graphql_do_request', [ $this, 'min_php_version_check' ] );
+		add_action( 'graphql_do_request', [ $this, 'introspection_check' ], 10, 4 );
 
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );

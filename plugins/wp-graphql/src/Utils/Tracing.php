@@ -125,7 +125,7 @@ class Tracing {
 			return;
 		}
 
-		add_action( 'do_graphql_request', [ $this, 'init_trace' ] );
+		add_action( 'graphql_do_request', [ $this, 'init_trace' ] );
 		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 0 );
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
 		add_filter(

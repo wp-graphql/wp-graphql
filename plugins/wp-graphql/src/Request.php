@@ -580,8 +580,17 @@ class Request {
 		 * @param ?array<string,mixed>            $variables Variables to be passed to your GraphQL request
 		 * @param \GraphQL\Server\OperationParams $params    The Operation Params. This includes any extra params,
 		 *                                                   such as extensions or any other modifications to the request body
+		 * @hookGroup request-lifecycle
+		 * @since x-release-please-version
 		 */
-		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
+		do_action( 'graphql_do_request', $params->query, $params->operation, $params->variables, $params );
+
+		do_action_deprecated(
+			'do_graphql_request',
+			[ $params->query, $params->operation, $params->variables, $params ],
+			'x-release-please-version',
+			'graphql_do_request'
+		);
 	}
 
 	/**

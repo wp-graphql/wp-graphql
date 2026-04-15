@@ -58,8 +58,23 @@ final class Experimental {
 				// Constant is defined, use its value (final say)
 				$this->is_enabled = (bool) GRAPHQL_EXPERIMENTAL_FEATURES;
 			} else {
-				// Constant not defined, apply filter with default value
-				$this->is_enabled = apply_filters( 'wpgraphql_experimental_features_enabled', true );
+				/**
+				 * Filter whether WPGraphQL experimental features should be enabled.
+				 *
+				 * @param bool $is_enabled Whether experimental features should be enabled.
+				 * @hookGroup settings
+				 * @since x-release-please-version
+				 */
+				$this->is_enabled = (bool) apply_filters( 'graphql_experimental_features_enabled', true );
+
+				if ( has_filter( 'wpgraphql_experimental_features_enabled' ) ) {
+					$this->is_enabled = (bool) apply_filters_deprecated(
+						'wpgraphql_experimental_features_enabled',
+						[ $this->is_enabled ],
+						'x-release-please-version',
+						'graphql_experimental_features_enabled'
+					);
+				}
 			}
 		}
 

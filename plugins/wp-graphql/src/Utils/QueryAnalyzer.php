@@ -241,7 +241,7 @@ class QueryAnalyzer {
 		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 4000 );
 
 		// track keys related to the query
-		add_action( 'do_graphql_request', [ $this, 'determine_graphql_keys' ], 10, 4 );
+		add_action( 'graphql_do_request', [ $this, 'determine_graphql_keys' ], 10, 4 );
 
 		// Track models loaded during execution
 		add_filter( 'graphql_dataloader_get_model', [ $this, 'track_nodes' ], 10, 1 );

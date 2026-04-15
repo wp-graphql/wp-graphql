@@ -309,9 +309,33 @@ abstract class AbstractExperiment {
 			 *
 			 * @param bool   $is_active Whether the experiment is active.
 			 * @param string $slug      The experiment's slug.
+			 * @hookGroup settings
+			 * @since x-release-please-version
 			 */
-			$is_active = apply_filters( 'wp_graphql_experiment_enabled', $is_active, static::get_slug() );
-			$is_active = apply_filters( 'wp_graphql_experiment_' . static::get_slug() . '_enabled', $is_active );
+			$slug      = static::get_slug();
+			$is_active = apply_filters( 'graphql_experiment_enabled', $is_active, $slug );
+
+			if ( has_filter( 'wp_graphql_experiment_enabled' ) ) {
+				$is_active = apply_filters_deprecated(
+					'wp_graphql_experiment_enabled',
+					[ $is_active, $slug ],
+					'x-release-please-version',
+					'graphql_experiment_enabled'
+				);
+			}
+
+			$enabled_hook = 'graphql_experiment_' . $slug . '_enabled';
+			$is_active    = apply_filters( $enabled_hook, $is_active );
+
+			$legacy_enabled_hook = 'wp_graphql_experiment_' . $slug . '_enabled';
+			if ( has_filter( $legacy_enabled_hook ) ) {
+				$is_active = apply_filters_deprecated(
+					$legacy_enabled_hook,
+					[ $is_active ],
+					'x-release-please-version',
+					$enabled_hook
+				);
+			}
 		}
 
 		$this->is_active = $is_active;
@@ -350,10 +374,33 @@ abstract class AbstractExperiment {
 		 * Filters the experiment configuration.
 		 *
 		 * @param array{title:string,description:string} $config The experiment configuration.
-		 * @param string              $slug   The experiment's slug.
+		 * @param string                               $slug   The experiment's slug.
+		 * @hookGroup settings
+		 * @since x-release-please-version
 		 */
-		$config = apply_filters( 'wp_graphql_experiment_config', $config, $slug );
-		$config = apply_filters( 'wp_graphql_experiment_' . $slug . '_config', $config );
+		$config = apply_filters( 'graphql_experiment_config', $config, $slug );
+
+		if ( has_filter( 'wp_graphql_experiment_config' ) ) {
+			$config = apply_filters_deprecated(
+				'wp_graphql_experiment_config',
+				[ $config, $slug ],
+				'x-release-please-version',
+				'graphql_experiment_config'
+			);
+		}
+
+		$config_hook = 'graphql_experiment_' . $slug . '_config';
+		$config      = apply_filters( $config_hook, $config );
+
+		$legacy_config_hook = 'wp_graphql_experiment_' . $slug . '_config';
+		if ( has_filter( $legacy_config_hook ) ) {
+			$config = apply_filters_deprecated(
+				$legacy_config_hook,
+				[ $config ],
+				'x-release-please-version',
+				$config_hook
+			);
+		}
 
 		// Validate the config.
 		$this->validate_config( $config );

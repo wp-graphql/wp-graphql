@@ -301,7 +301,7 @@ class UpdateChecker {
 	 *
 	 * Defaults to false.
 	 *
-	 * @uses 'wpgraphql_enable_major_autoupdates' filter.
+	 * @uses 'graphql_enable_major_autoupdates' filter.
 	 */
 	protected function should_allow_major_autoupdates(): bool {
 		/**
@@ -311,16 +311,29 @@ class UpdateChecker {
 		 * @param string $new_version     The new WPGraphQL version number.
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
+		 * @hookGroup updates
+		 * @since x-release-please-version
 		 */
-		return apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
+		$should_allow = apply_filters( 'graphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
+
+		if ( has_filter( 'wpgraphql_enable_major_autoupdates' ) ) {
+			return (bool) apply_filters_deprecated(
+				'wpgraphql_enable_major_autoupdates',
+				[ $should_allow, $this->new_version, $this->current_version, $this->plugin_data ],
+				'x-release-please-version',
+				'graphql_enable_major_autoupdates'
+			);
+		}
+
+		return (bool) $should_allow;
 	}
 
 	/**
 	 * Returns whether to allow plugin autoupdates when plugin dependencies are untested and might be incompatible.
 	 *
-	 * @uses `wpgraphql_untested_release_type` filter to determine the release type to use when checking for untested plugins.
+	 * @uses `graphql_untested_release_type` filter to determine the release type to use when checking for untested plugins.
 	 *
-	 * @uses 'wpgraphql_enable_untested_autoupdates' filter.
+	 * @uses 'graphql_enable_untested_autoupdates' filter.
 	 */
 	protected function should_allow_untested_autoupdates(): bool {
 		$should_allow = $this->get_untested_release_type() !== $this->release_type;
@@ -333,8 +346,21 @@ class UpdateChecker {
 		 * @param string $new_version     The new WPGraphQL version number.
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
+		 * @hookGroup updates
+		 * @since x-release-please-version
 		 */
-		return apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
+		$should_allow = apply_filters( 'graphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
+
+		if ( has_filter( 'wpgraphql_enable_untested_autoupdates' ) ) {
+			return (bool) apply_filters_deprecated(
+				'wpgraphql_enable_untested_autoupdates',
+				[ $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data ],
+				'x-release-please-version',
+				'graphql_enable_untested_autoupdates'
+			);
+		}
+
+		return (bool) $should_allow;
 	}
 
 	/**
@@ -348,8 +374,19 @@ class UpdateChecker {
 		 * This is used to prevent autoupdates when a plugin is untested with the specified channel. I.e. major > minor > patch > prerelease.
 		 *
 		 * @param 'major'|'minor'|'patch'|'prerelease' $release_type The release type to use when checking for untested plugins. Defaults to 'major'.
+		 * @hookGroup updates
+		 * @since x-release-please-version
 		 */
-		$release_type = (string) apply_filters( 'wpgraphql_untested_release_type', 'major' );
+		$release_type = (string) apply_filters( 'graphql_untested_release_type', 'major' );
+
+		if ( has_filter( 'wpgraphql_untested_release_type' ) ) {
+			$release_type = (string) apply_filters_deprecated(
+				'wpgraphql_untested_release_type',
+				[ $release_type ],
+				'x-release-please-version',
+				'graphql_untested_release_type'
+			);
+		}
 
 		if ( ! in_array( $release_type, [ 'major', 'minor', 'patch', 'prerelease' ], true ) ) {
 			$release_type = 'major';
