@@ -39,11 +39,13 @@ class RequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function testConstructor() {
 		$this->assertEquals( 0, did_action( 'init_graphql_request' ) );
+		$this->assertEquals( 0, did_action( 'graphql_init_request' ) );
 
 		$this->create_example_request();
 
 		$this->assertEquals( true, GRAPHQL_REQUEST );
-		$this->assertEquals( 1, did_action( 'init_graphql_request' ) );
+		$this->assertEquals( 0, did_action( 'init_graphql_request' ) );
+		$this->assertEquals( 1, did_action( 'graphql_init_request' ) );
 	}
 
 	/**

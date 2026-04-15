@@ -23,14 +23,24 @@ node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
 | `--require-explicit-group` | No | If `true`, missing `@hookGroup` tags are errors |
 | `--config` | No | Override plugin config file path |
 | `--groups` | No | Override hook groups config file path |
+| `--naming-rules` | No | Override hook naming rules file path |
 
 **Generated output** (per plugin docs directory):
 - `docs/generated/hooks-index.json`
 - `docs/generated/hooks-lint.json`
+- `docs/generated/hooks-naming-audit.json`
+- `docs/generated/hooks-naming-audit.md`
 - `docs/actions/index.md`
 - `docs/actions/<hook>.md`
 - `docs/filters/index.md`
 - `docs/filters/<hook>.md`
+
+**Naming audit behavior**:
+- Naming audit focuses on WPGraphQL-specific hooks and excludes core hooks from naming violations.
+- You can explicitly mark hook source in a hook docblock:
+  - `@hookSource wpgraphql`
+  - `@hookSource core`
+- Prefix deprecation and migration guidance is driven by `scripts/hooks/naming-rules.json`.
 
 ### `update-upgrade-notice.js`
 

@@ -25,6 +25,13 @@ class RouterTest extends WPTestCase {
 		parent::tearDown();
 	}
 
+	/**
+	 * Expect deprecation notice for the legacy init_graphql_request hook.
+	 */
+	private function expectLegacyInitGraphqlRequestDeprecation(): void {
+		$this->setExpectedDeprecated( 'init_graphql_request' );
+	}
+
 	public function testRouteEndpoint() {
 		/**
 		 * Test that the default route is set to "graphql"
@@ -455,6 +462,7 @@ class RouterTest extends WPTestCase {
 	 * Test plugins outputting HTML during init_graphql_request action
 	 */
 	public function testInitGraphqlRequestOutputDoesNotBreakResponse() {
+		$this->expectLegacyInitGraphqlRequestDeprecation();
 		add_action( 'init_graphql_request', function() {
 			echo '<div class="graphql-debug">Initializing GraphQL request</div>';
 			wp_print_inline_script_tag( 'window.graphqlRequestInit = true;' );
@@ -807,6 +815,7 @@ class RouterTest extends WPTestCase {
 	 * This simulates real-world scenarios where multiple plugins might be outputting
 	 */
 	public function testComplexNestedWPGraphQLHooksOutputDoesNotBreakResponse() {
+		$this->expectLegacyInitGraphqlRequestDeprecation();
 		// Create some test posts to ensure we have data to query
 		$this->factory()->post->create_many( 3, [
 			'post_status' => 'publish'

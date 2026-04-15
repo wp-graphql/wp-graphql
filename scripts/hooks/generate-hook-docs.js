@@ -11,6 +11,18 @@ const GENERATED_NOTICE = [
 	'',
 ].join('\n');
 
+function getDefaultNamingRules() {
+	return {
+		allowedPrefixes: ['graphql_'],
+		allowedHookNamePattern: '^[a-z0-9_]+$',
+		minSegmentsAfterPrefix: 2,
+		dynamicNamePattern: '^["\']?graphql_',
+		legacyAllowedPrefixes: ['pre_graphql_', 'register_graphql_'],
+		deprecatedPrefixes: ['wpgraphql_', 'wp_graphql_', 'init_graphql_'],
+		coreHookAllowlist: [],
+	};
+}
+
 function parseArgs() {
 	const args = {};
 
@@ -35,6 +47,17 @@ function ensureDir(dirPath) {
 	if (!fs.existsSync(dirPath)) {
 		fs.mkdirSync(dirPath, { recursive: true });
 	}
+}
+
+function listMarkdownFiles(dirPath) {
+	if (!fs.existsSync(dirPath)) {
+		return [];
+	}
+
+	return fs
+		.readdirSync(dirPath)
+		.filter((name) => name.endsWith('.md'))
+		.map((name) => path.join(dirPath, name));
 }
 
 function walkPhpFiles(entryPath, acc = []) {
@@ -64,6 +87,7 @@ function parseDocblock(rawDocblock) {
 			description: '',
 			since: null,
 			hookGroup: null,
+			hookSource: null,
 			params: [],
 		};
 	}
@@ -78,6 +102,7 @@ function parseDocblock(rawDocblock) {
 	const params = [];
 	let since = null;
 	let hookGroup = null;
+	let hookSource = null;
 	let inTags = false;
 
 	lines.forEach((line) => {
@@ -108,12 +133,18 @@ function parseDocblock(rawDocblock) {
 		if (hookGroupMatch) {
 			hookGroup = hookGroupMatch[1].toLowerCase();
 		}
+
+		const hookSourceMatch = trimmed.match(/^@hookSource\s+(core|wpgraphql)$/i);
+		if (hookSourceMatch) {
+			hookSource = hookSourceMatch[1].toLowerCase();
+		}
 	});
 
 	return {
 		description: descriptionLines.join(' ').trim(),
 		since,
 		hookGroup,
+		hookSource,
 		params,
 	};
 }
@@ -469,6 +500,7 @@ function buildHookRecord({
 	pluginSlug,
 	hook,
 	groupAssignment,
+	sourceType,
 	relativeFilePath,
 	snippetMap,
 }) {
@@ -481,6 +513,7 @@ function buildHookRecord({
 		group: groupAssignment.group.id,
 		groupLabel: groupAssignment.group.label,
 		groupSource: groupAssignment.source,
+		sourceType,
 		file: relativeFilePath,
 		line: hook.line,
 		description: hook.docblock.description,
@@ -491,6 +524,35 @@ function buildHookRecord({
 		rawExpression: hook.rawExpression,
 		relatedSnippets,
 	};
+}
+
+function inferHookSourceType(hook, namingRules) {
+	if (hook.docblock.hookSource === 'core' || hook.docblock.hookSource === 'wpgraphql') {
+		return hook.docblock.hookSource;
+	}
+
+	const hookName = typeof hook.name === 'string' ? hook.name : '';
+	const raw = hook.rawExpression || '';
+	const coreAllowlist = Array.isArray(namingRules.coreHookAllowlist)
+		? namingRules.coreHookAllowlist
+		: [];
+
+	if (hookName && coreAllowlist.includes(hookName)) {
+		return 'core';
+	}
+
+	if (hook.isDynamic) {
+		if (/graphql_|graphiql_/i.test(raw)) {
+			return 'wpgraphql';
+		}
+		return 'core';
+	}
+
+	if (/graphql|graphiql/i.test(hookName)) {
+		return 'wpgraphql';
+	}
+
+	return 'core';
 }
 
 function slugFromHookName(hookName) {
@@ -590,11 +652,221 @@ function renderIndexPage({ title, kind, hooks }) {
 	return lines.join('\n');
 }
 
+function analyzeHookNaming(hooks, namingRules) {
+	const compiled = {
+		namePattern: new RegExp(namingRules.allowedHookNamePattern),
+		dynamicPattern: new RegExp(namingRules.dynamicNamePattern),
+	};
+
+	const prefixBuckets = {};
+	const flaggedHooks = [];
+
+	const wpgraphqlHooks = hooks.filter((hook) => hook.sourceType === 'wpgraphql');
+	const staticHooks = wpgraphqlHooks.filter(
+		(hook) => !hook.isDynamic && typeof hook.name === 'string'
+	);
+	const dynamicHooks = wpgraphqlHooks.filter((hook) => hook.isDynamic);
+
+	function hasAllowedPrefix(name) {
+		return namingRules.allowedPrefixes.some((prefix) => name.startsWith(prefix));
+	}
+
+	function hasLegacyAllowedPrefix(name) {
+		return (namingRules.legacyAllowedPrefixes || []).some((prefix) =>
+			name.startsWith(prefix)
+		);
+	}
+
+	function getDeprecatedPrefix(name) {
+		return (namingRules.deprecatedPrefixes || []).find((prefix) =>
+			name.startsWith(prefix)
+		);
+	}
+
+	function getMigrationSuggestion(name) {
+		if (name.startsWith('init_graphql_')) {
+			return `graphql_init_${name.replace(/^init_graphql_/, '')}`;
+		}
+		if (name.startsWith('wpgraphql_')) {
+			return `graphql_${name.replace(/^wpgraphql_/, '')}`;
+		}
+		if (name.startsWith('wp_graphql_')) {
+			return `graphql_${name.replace(/^wp_graphql_/, '')}`;
+		}
+		return null;
+	}
+
+	function recordFlag(hook, code, severity, message, suggestion = null) {
+		flaggedHooks.push({
+			hook: hook.name,
+			kind: hook.kind,
+			file: hook.file,
+			line: hook.line,
+			code,
+			severity,
+			message,
+			suggestion,
+		});
+	}
+
+	staticHooks.forEach((hook) => {
+		const name = hook.name;
+		const topPrefix = name.includes('_') ? `${name.split('_')[0]}_` : name;
+		prefixBuckets[topPrefix] = (prefixBuckets[topPrefix] || 0) + 1;
+
+		const deprecatedPrefix = getDeprecatedPrefix(name);
+		if (deprecatedPrefix) {
+			recordFlag(
+				hook,
+				'deprecated_prefix',
+				'warning',
+				`Hook name uses deprecated prefix "${deprecatedPrefix}".`,
+				getMigrationSuggestion(name)
+					? `Consider migrating to "${getMigrationSuggestion(name)}".`
+					: 'Prefer graphql_ prefix for new hook names.'
+			);
+		}
+
+		if (!compiled.namePattern.test(name)) {
+			recordFlag(
+				hook,
+				'invalid_characters',
+				'warning',
+				'Hook name contains characters outside the naming convention pattern.',
+				'Use lowercase letters, numbers, and underscores only.'
+			);
+		}
+
+		const allowed = hasAllowedPrefix(name) || hasLegacyAllowedPrefix(name);
+		if (!allowed) {
+			recordFlag(
+				hook,
+				'nonstandard_prefix',
+				'warning',
+				'Hook name does not use the expected WPGraphQL namespace prefix.',
+				getMigrationSuggestion(name)
+					? `Consider migrating to "${getMigrationSuggestion(name)}".`
+					: 'Prefer the graphql_ prefix for new hooks.'
+			);
+		}
+
+		const matchingPrefix =
+			namingRules.allowedPrefixes.find((prefix) => name.startsWith(prefix)) ||
+			namingRules.legacyAllowedPrefixes.find((prefix) => name.startsWith(prefix));
+
+		if (matchingPrefix) {
+			const remainder = name.slice(matchingPrefix.length);
+			const segmentCount = remainder.split('_').filter(Boolean).length;
+			if (segmentCount < namingRules.minSegmentsAfterPrefix) {
+				recordFlag(
+					hook,
+					'low_specificity',
+					'warning',
+					'Hook name has too few semantic segments after prefix.',
+					'Use names that include both domain and event segments.'
+				);
+			}
+		}
+	});
+
+	dynamicHooks.forEach((hook) => {
+		if (!compiled.dynamicPattern.test(hook.rawExpression || '')) {
+			recordFlag(
+				hook,
+				'dynamic_nonstandard_prefix',
+				'warning',
+				'Dynamic hook expression does not clearly map to an expected namespace prefix.',
+				'Prefer dynamic hooks that still resolve to graphql_* or wpgraphql_* patterns.'
+			);
+		}
+	});
+
+	const topPrefixes = Object.entries(prefixBuckets)
+		.sort((a, b) => b[1] - a[1])
+		.slice(0, 10)
+		.map(([prefix, count]) => ({ prefix, count }));
+
+	const severityCounts = flaggedHooks.reduce(
+		(acc, item) => {
+			acc[item.severity] = (acc[item.severity] || 0) + 1;
+			return acc;
+		},
+		{ warning: 0, error: 0 }
+	);
+
+	return {
+		rules: namingRules,
+		summary: {
+			totalHooks: hooks.length,
+			wpgraphqlHooks: wpgraphqlHooks.length,
+			coreHooks: hooks.filter((hook) => hook.sourceType === 'core').length,
+			staticHooks: staticHooks.length,
+			dynamicHooks: dynamicHooks.length,
+			flaggedHooks: flaggedHooks.length,
+			warnings: severityCounts.warning || 0,
+			errors: severityCounts.error || 0,
+		},
+		topPrefixes,
+		flaggedHooks,
+	};
+}
+
+function renderNamingAuditMarkdown({ pluginSlug, audit }) {
+	const lines = [];
+	lines.push(GENERATED_NOTICE.trimEnd());
+	lines.push(`# Hook Naming Audit: ${pluginSlug}`);
+	lines.push('');
+	lines.push('## Summary');
+	lines.push('');
+	lines.push(`- Total hooks: ${audit.summary.totalHooks}`);
+	lines.push(`- WPGraphQL hooks audited: ${audit.summary.wpgraphqlHooks}`);
+	lines.push(`- Core hooks excluded from audit: ${audit.summary.coreHooks}`);
+	lines.push(`- Static hooks: ${audit.summary.staticHooks}`);
+	lines.push(`- Dynamic hooks: ${audit.summary.dynamicHooks}`);
+	lines.push(`- Flagged hooks: ${audit.summary.flaggedHooks}`);
+	lines.push(`- Warnings: ${audit.summary.warnings}`);
+	lines.push(`- Errors: ${audit.summary.errors}`);
+	lines.push('');
+	lines.push('## Top Prefixes');
+	lines.push('');
+	if (audit.topPrefixes.length === 0) {
+		lines.push('- No static hooks found.');
+	} else {
+		audit.topPrefixes.forEach((item) => {
+			lines.push(`- \`${item.prefix}\`: ${item.count}`);
+		});
+	}
+	lines.push('');
+	lines.push('## Flagged Hooks');
+	lines.push('');
+	if (audit.flaggedHooks.length === 0) {
+		lines.push('No naming convention flags detected.');
+		lines.push('');
+		return lines.join('\n');
+	}
+
+	audit.flaggedHooks.forEach((flag) => {
+		lines.push(`### \`${flag.hook}\``);
+		lines.push('');
+		lines.push(`- Severity: ${flag.severity}`);
+		lines.push(`- Code: ${flag.code}`);
+		lines.push(`- Message: ${flag.message}`);
+		lines.push(`- Source: \`${flag.file}\``);
+		if (flag.suggestion) {
+			lines.push(`- Suggestion: ${flag.suggestion}`);
+		}
+		lines.push('');
+	});
+
+	return lines.join('\n');
+}
+
 function writeGeneratedOutputs({
 	docsDir,
 	actions,
 	filters,
 	indexPayload,
+	namingAuditPayload,
 	validateOnly,
 }) {
 	const generatedDir = path.join(docsDir, 'generated');
@@ -609,6 +881,17 @@ function writeGeneratedOutputs({
 	filesToWrite.push({
 		path: path.join(generatedDir, 'hooks-lint.json'),
 		content: `${JSON.stringify(indexPayload.lint, null, 2)}\n`,
+	});
+	filesToWrite.push({
+		path: path.join(generatedDir, 'hooks-naming-audit.json'),
+		content: `${JSON.stringify(namingAuditPayload, null, 2)}\n`,
+	});
+	filesToWrite.push({
+		path: path.join(generatedDir, 'hooks-naming-audit.md'),
+		content: `${renderNamingAuditMarkdown({
+			pluginSlug: indexPayload.plugin,
+			audit: namingAuditPayload.audit,
+		})}\n`,
 	});
 	filesToWrite.push({
 		path: path.join(actionsDir, 'index.md'),
@@ -645,17 +928,41 @@ function writeGeneratedOutputs({
 			});
 		});
 
+	const expectedActionsFiles = new Set(
+		filesToWrite
+			.filter((file) => file.path.startsWith(actionsDir))
+			.map((file) => path.basename(file.path))
+	);
+	const expectedFilterFiles = new Set(
+		filesToWrite
+			.filter((file) => file.path.startsWith(filtersDir))
+			.map((file) => path.basename(file.path))
+	);
+
 	if (validateOnly) {
 		const changedFiles = filesToWrite
 			.filter((file) => fs.existsSync(file.path))
 			.filter((file) => fs.readFileSync(file.path, 'utf8') !== file.content)
 			.map((file) => path.relative(process.cwd(), file.path));
 
-		if (changedFiles.length > 0) {
+		const staleFiles = [
+			...listMarkdownFiles(actionsDir)
+				.filter((filePath) => !expectedActionsFiles.has(path.basename(filePath)))
+				.map((filePath) => path.relative(process.cwd(), filePath)),
+			...listMarkdownFiles(filtersDir)
+				.filter((filePath) => !expectedFilterFiles.has(path.basename(filePath)))
+				.map((filePath) => path.relative(process.cwd(), filePath)),
+		];
+
+		if (changedFiles.length > 0 || staleFiles.length > 0) {
+			const staleSection =
+				staleFiles.length > 0
+					? `\nStale files:\n${staleFiles.map((item) => `- ${item}`).join('\n')}`
+					: '';
 			throw new Error(
 				`Generated files are stale. Re-run hooks generator. Changed files:\n${changedFiles
 					.map((item) => `- ${item}`)
-					.join('\n')}`
+					.join('\n')}${staleSection}`
 			);
 		}
 
@@ -665,6 +972,13 @@ function writeGeneratedOutputs({
 	ensureDir(generatedDir);
 	ensureDir(actionsDir);
 	ensureDir(filtersDir);
+
+	listMarkdownFiles(actionsDir)
+		.filter((filePath) => !expectedActionsFiles.has(path.basename(filePath)))
+		.forEach((filePath) => fs.unlinkSync(filePath));
+	listMarkdownFiles(filtersDir)
+		.filter((filePath) => !expectedFilterFiles.has(path.basename(filePath)))
+		.forEach((filePath) => fs.unlinkSync(filePath));
 
 	filesToWrite.forEach((file) => {
 		fs.writeFileSync(file.path, file.content, 'utf8');
@@ -732,9 +1046,15 @@ function main() {
 	const groupsPath = args.groups
 		? path.resolve(repoRoot, args.groups)
 		: path.resolve(repoRoot, 'scripts/hooks/groups.json');
+	const namingRulesPath = args['naming-rules']
+		? path.resolve(repoRoot, args['naming-rules'])
+		: path.resolve(repoRoot, 'scripts/hooks/naming-rules.json');
 
 	const pluginConfigMap = readJson(configPath);
 	const groups = readJson(groupsPath);
+	const namingRules = fs.existsSync(namingRulesPath)
+		? readJson(namingRulesPath)
+		: getDefaultNamingRules();
 	const pluginConfig = pluginConfigMap[pluginSlug];
 	const validateOnly = args['validate-only'] === 'true' || args['validate-only'] === true;
 	const requireExplicitGroup =
@@ -767,15 +1087,21 @@ function main() {
 		const extractedHooks = extractHooksFromFile(phpFile, repoRoot);
 		extractedHooks.forEach((hook) => {
 			const groupAssignment = assignGroup(hook, groups);
+			const sourceType = inferHookSourceType(hook, namingRules);
 			const record = buildHookRecord({
 				pluginSlug,
 				hook,
 				groupAssignment,
+				sourceType,
 				relativeFilePath: hook.file,
 				snippetMap: snippets.byHookName,
 			});
 
-			if (hook.docblock.hookGroup && groupAssignment.source === 'invalid') {
+			if (
+				sourceType === 'wpgraphql' &&
+				hook.docblock.hookGroup &&
+				groupAssignment.source === 'invalid'
+			) {
 				lint.errors.push({
 					type: 'invalid_hook_group',
 					hook: hook.name,
@@ -785,7 +1111,7 @@ function main() {
 				});
 			}
 
-			if (!hook.docblock.hookGroup) {
+			if (sourceType === 'wpgraphql' && !hook.docblock.hookGroup) {
 				const warning = {
 					type: 'missing_hook_group',
 					hook: hook.name,
@@ -806,6 +1132,7 @@ function main() {
 
 	const actions = hookRecords.filter((hook) => hook.kind === 'action');
 	const filters = hookRecords.filter((hook) => hook.kind === 'filter');
+	const namingAudit = analyzeHookNaming(hookRecords, namingRules);
 
 	const payload = {
 		plugin: pluginSlug,
@@ -819,6 +1146,13 @@ function main() {
 		},
 		groups,
 		lint,
+		namingAudit: {
+			flaggedHooks: namingAudit.summary.flaggedHooks,
+			warnings: namingAudit.summary.warnings,
+			errors: namingAudit.summary.errors,
+			wpgraphqlHooks: namingAudit.summary.wpgraphqlHooks,
+			coreHooks: namingAudit.summary.coreHooks,
+		},
 		hooks: hookRecords.sort((a, b) => {
 			const nameCompare = (a.name || '').localeCompare(b.name || '');
 			if (nameCompare !== 0) {
@@ -827,12 +1161,28 @@ function main() {
 			return a.file.localeCompare(b.file);
 		}),
 	};
+	const namingAuditPayload = {
+		plugin: pluginSlug,
+		generatedAt: payload.generatedAt,
+		audit: namingAudit,
+	};
+
+	namingAudit.flaggedHooks.forEach((flag) => {
+		lint.warnings.push({
+			type: 'naming_convention',
+			hook: flag.hook,
+			file: flag.file,
+			line: flag.line,
+			message: `${flag.code}: ${flag.message}`,
+		});
+	});
 
 	writeGeneratedOutputs({
 		docsDir,
 		actions,
 		filters,
 		indexPayload: payload,
+		namingAuditPayload,
 		validateOnly,
 	});
 
@@ -855,10 +1205,14 @@ if (require.main === module) {
 }
 
 module.exports = {
+	analyzeHookNaming,
 	assignGroup,
 	extractHooksFromFile,
+	getDefaultNamingRules,
+	inferHookSourceType,
 	parseDocblock,
 	parseFrontmatter,
 	parseHookNameExpression,
+	renderNamingAuditMarkdown,
 	splitTopLevelArgs,
 };

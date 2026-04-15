@@ -15,8 +15,8 @@ title: Actions
 ## Request Lifecycle
 
 - [`graphql_execute`](/docs/actions/graphql_execute)
-- [`init_graphql_request`](/docs/actions/init_graphql_request)
-- [`init_graphql_request`](/docs/actions/init_graphql_request)
+- [`graphql_init_request`](/docs/actions/graphql_init_request)
+- [`graphql_init_request`](/docs/actions/graphql_init_request)
 
 ## Schema Registration
 
@@ -51,6 +51,7 @@ title: Actions
 - [`graphql_get_schema`](/docs/actions/graphql_get_schema)
 - [`graphql_get_type_registry`](/docs/actions/graphql_get_type_registry)
 - [`graphql_init`](/docs/actions/graphql_init)
+- [`graphql_init_type_registry`](/docs/actions/graphql_init_type_registry)
 - [`graphql_insert_post_object`](/docs/actions/graphql_insert_post_object)
 - [`graphql_insert_term`](/docs/actions/graphql_insert_term)
 - [`graphql_media_item_mutation_update_additional_data`](/docs/actions/graphql_media_item_mutation_update_additional_data)
@@ -70,7 +71,6 @@ title: Actions
 - [`graphql_wp_mutation_type`](/docs/actions/graphql_wp_mutation_type)
 - [`graphql_wp_object_type`](/docs/actions/graphql_wp_object_type)
 - [`graphql_wp_union_type`](/docs/actions/graphql_wp_union_type)
-- [`init_graphql_type_registry`](/docs/actions/init_graphql_type_registry)
 - [`wp_enqueue_scripts`](/docs/actions/wp_enqueue_scripts)
 - [`wp_enqueue_scripts`](/docs/actions/wp_enqueue_scripts)
 - [`wp_enqueue_scripts`](/docs/actions/wp_enqueue_scripts)

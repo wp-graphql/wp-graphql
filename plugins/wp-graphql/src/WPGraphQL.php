@@ -234,7 +234,7 @@ final class WPGraphQL {
 		);
 
 		// Determine what to show in graphql
-		add_action( 'init_graphql_request', 'register_initial_settings', 10 );
+		add_action( 'graphql_init_request', 'register_initial_settings', 10 );
 
 		// Throw an exception
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
@@ -245,7 +245,7 @@ final class WPGraphQL {
 		add_action( 'after_setup_theme', [ $this, 'setup_experiments' ] );
 
 		add_action(
-			'init_graphql_request',
+			'graphql_init_request',
 			static function () {
 				$tracing = new \WPGraphQL\Utils\Tracing();
 				$tracing->init();

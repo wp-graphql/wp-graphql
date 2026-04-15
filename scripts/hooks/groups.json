@@ -14,7 +14,7 @@
 		"kind": "both",
 		"match": [
 			"^graphql_request_",
-			"^init_graphql_request$",
+			"^graphql_init_request$",
 			"^graphql_execute$",
 			"^graphql_validation_"
 		]

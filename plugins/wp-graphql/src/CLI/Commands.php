@@ -62,7 +62,19 @@ class Commands extends \WP_CLI_Command {
 			define( 'GRAPHQL_REQUEST', true );
 		}
 
-		do_action( 'init_graphql_request' );
+		/**
+		 * Fires when initializing a GraphQL request from WP-CLI.
+		 *
+		 * @since x-release-please-version
+		 */
+		do_action( 'graphql_init_request' );
+
+		do_action_deprecated(
+			'init_graphql_request',
+			[],
+			'x-release-please-version',
+			'graphql_init_request'
+		);
 
 		/**
 		 * Generate the Schema

@@ -73,6 +73,21 @@ do_action( 'graphql_docs_generated', [ 'ok' => true ] );
  * @since 1.0.0
  */
 apply_filters( 'graphql_docs_payload', [ 'ok' => true ] );
+
+/**
+ * Legacy prefixed event.
+ *
+ * @since 1.0.0
+ * @hookGroup request-lifecycle
+ */
+do_action( 'wpgraphql_old_event', [] );
+
+/**
+ * Core hook passthrough.
+ *
+ * @since 1.0.0
+ */
+apply_filters( 'query_vars', [] );
 `;
 
 	const snippet = `---
@@ -168,18 +183,33 @@ const tests = [
 				TEST_ROOT,
 				'plugins/test-plugin/docs/filters/graphql_docs_payload.md'
 			);
+			const namingAuditPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/generated/hooks-naming-audit.json'
+			);
 
 			assert(fs.existsSync(indexPath), 'hooks-index.json should be generated');
 			assert(fs.existsSync(actionDocPath), 'action doc should be generated');
 			assert(fs.existsSync(filterDocPath), 'filter doc should be generated');
+			assert(fs.existsSync(namingAuditPath), 'naming audit json should be generated');
 
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-			assert.strictEqual(index.stats.totalHooks, 2, 'expected two hooks');
+			assert.strictEqual(index.stats.totalHooks, 4, 'expected four hooks');
 
 			const payloadHook = index.hooks.find((hook) => hook.name === 'graphql_docs_payload');
 			assert(payloadHook, 'filter hook should exist');
 			assert.strictEqual(payloadHook.group, 'request-lifecycle');
 			assert.strictEqual(payloadHook.relatedSnippets.length, 1);
+
+			const namingAudit = JSON.parse(fs.readFileSync(namingAuditPath, 'utf8'));
+			assert(
+				namingAudit.audit.flaggedHooks.some((item) => item.hook === 'wpgraphql_old_event'),
+				'wpgraphql_old_event should be flagged by naming audit'
+			);
+			assert(
+				!namingAudit.audit.flaggedHooks.some((item) => item.hook === 'query_vars'),
+				'query_vars should be excluded from naming audit as core hook'
+			);
 		}),
 	() =>
 		test('fails on missing @hookGroup when strict mode is enabled', () => {
