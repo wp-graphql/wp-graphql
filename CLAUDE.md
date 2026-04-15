@@ -122,6 +122,19 @@ add_action( 'graphql_register_types', function( $type_registry ) {
 - **Deprecation**: `_deprecated_argument( __METHOD__, 'x-release-please-version', 'Message.' );`
 - **Autoloading**: `WPGRAPHQL_AUTOLOAD` constant can disable vendor autoload for environments with a global autoloader.
 
+### Hook conventions
+
+- Prefer canonical `graphql_*` hook names for new actions/filters.
+- Do not introduce new hooks with `wpgraphql_*` or `wp_graphql_*` prefixes.
+- For `do_action()` / `apply_filters()` call sites, include docblocks with:
+  - `@since x-release-please-version`
+  - `@hookGroup <group>` using `scripts/hooks/groups.json`
+- For hook migrations, keep backward compatibility with:
+  - `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+- If deprecated hooks are intentionally fired in tests, assert expected deprecations instead of treating them as failures.
+- After hook changes, run `npm run hooks:generate -- --plugin=wp-graphql` to refresh generated hook docs/audits.
+
 ## Development Workflow
 
 - **TDD preferred**: For bug fixes, write failing tests first, confirm they fail, implement the fix, confirm they pass.

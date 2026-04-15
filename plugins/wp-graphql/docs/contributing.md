@@ -194,7 +194,25 @@ WPGraphQL uses [release-please](https://github.com/googleapis/release-please) fo
 
    - These placeholders are automatically replaced with the actual version by release-please during the release process.
 
-5. **Release Process**:
+5. Follow hook naming and deprecation conventions:
+
+   - New hooks should use the canonical `graphql_*` prefix.
+   - Do not introduce new `wpgraphql_*` or `wp_graphql_*` hooks.
+   - `do_action()` / `apply_filters()` call sites should include:
+     - `@since x-release-please-version`
+     - `@hookGroup <group>` (using a valid group from `scripts/hooks/groups.json`)
+   - When deprecating/renaming hooks, preserve backward compatibility with:
+     - `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' );`
+     - `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' );`
+   - Update tests to explicitly expect deprecation notices where deprecated hooks are intentionally fired.
+
+6. Regenerate hook docs/audits when hooks change:
+
+   ```shell
+   npm run hooks:generate -- --plugin=wp-graphql
+   ```
+
+7. **Release Process**:
    - PRs are merged to `main` via squash merge (PR title becomes commit message)
    - release-please analyzes commits and creates/updates a Release PR
    - The Release PR accumulates changes and shows the upcoming version bump

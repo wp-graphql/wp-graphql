@@ -85,7 +85,34 @@ When creating a PR, select the appropriate template:
 
 These placeholders are automatically replaced with the actual version by release-please during the release PR.
 
-### 5. Testing
+### 5. Hook Naming and Deprecation Conventions
+
+When introducing or changing actions/filters in `plugins/wp-graphql/`, follow these conventions:
+
+- **Use the canonical prefix**: new hooks should use the `graphql_` prefix.
+- **Do not introduce new legacy prefixes**: avoid adding new `wpgraphql_*` or `wp_graphql_*` hooks.
+- **Document hook call sites**: `do_action()` and `apply_filters()` call sites should include docblocks with:
+  - `@since x-release-please-version`
+  - `@hookGroup <group>` (using a valid group from `scripts/hooks/groups.json`)
+- **Deprecate old hooks safely**:
+  - For actions, use `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - For filters, use `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - Keep behavior backward compatible while steering users to the canonical hook.
+- **Update tests for deprecations**: when a deprecated hook is intentionally fired, tests should explicitly expect the deprecation notice.
+
+### 6. Hook Docs + Audit Generation
+
+Hook references and naming audits are generated artifacts and should be refreshed when hooks change:
+
+```bash
+npm run hooks:generate -- --plugin=wp-graphql
+```
+
+This updates:
+- Hook reference docs in `plugins/wp-graphql/docs/actions/` and `plugins/wp-graphql/docs/filters/`
+- Generated inventories/audits in `plugins/wp-graphql/docs/generated/`
+
+### 7. Testing
 
 **All changes should include tests:**
 

@@ -52,7 +52,20 @@ PR titles must follow conventional commits format:
 - `feat:` - New feature (minor version)
 - `fix:` - Bug fix (patch version)
 - `feat!:` - Breaking change (major version)
-- See `@.cursor/rules/wpgraphql.json` for full list
+- See `@docs/CONTRIBUTING.md` for full list and release behavior
+
+## Hook Naming and Deprecation
+
+- Use canonical `graphql_*` names for new actions/filters.
+- Do not introduce new `wpgraphql_*` or `wp_graphql_*` hooks.
+- `do_action()` / `apply_filters()` call sites should include docblocks with:
+  - `@since x-release-please-version`
+  - `@hookGroup <group>` using values from `scripts/hooks/groups.json`
+- When renaming hooks, preserve backward compatibility:
+  - `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+- Tests should expect deprecation notices when deprecated hooks are intentionally fired.
+- After changing hooks, regenerate docs/audit with `npm run hooks:generate -- --plugin=wp-graphql`.
 
 ## File Paths
 
