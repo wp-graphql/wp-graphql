@@ -4,6 +4,34 @@ This directory contains scripts that support the release process for the WPGraph
 
 ## Scripts
 
+### `hooks/generate-hook-docs.js`
+
+Generates hook reference documentation for a plugin by scanning `do_action` and `apply_filters` callsites.
+
+**Purpose**: Automates `actions` and `filters` docs pages, hook metadata index output, and `@hookGroup` linting.
+
+**Usage**:
+```bash
+node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--plugin` | Yes | Plugin slug defined in `scripts/hooks/plugin-config.json` |
+| `--validate-only` | No | If `true`, fails when generated output is stale |
+| `--require-explicit-group` | No | If `true`, missing `@hookGroup` tags are errors |
+| `--config` | No | Override plugin config file path |
+| `--groups` | No | Override hook groups config file path |
+
+**Generated output** (per plugin docs directory):
+- `docs/generated/hooks-index.json`
+- `docs/generated/hooks-lint.json`
+- `docs/actions/index.md`
+- `docs/actions/<hook>.md`
+- `docs/filters/index.md`
+- `docs/filters/<hook>.md`
+
 ### `update-upgrade-notice.js`
 
 Updates the Upgrade Notice section in `readme.txt` when there are breaking changes in a release.
@@ -94,6 +122,9 @@ Version constant mappings are configured in `release-please-config.json` under e
 ```bash
 # Run from repo root
 npm run test:scripts
+
+# Run hook docs tests only
+node scripts/hooks/generate-hook-docs.test.js
 ```
 
 ### Test File

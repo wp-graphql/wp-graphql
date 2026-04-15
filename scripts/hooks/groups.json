@@ -1,0 +1,74 @@
+[
+	{
+		"id": "schema-registration",
+		"label": "Schema Registration",
+		"kind": "both",
+		"match": [
+			"^graphql_register_",
+			"^graphql_type_"
+		]
+	},
+	{
+		"id": "request-lifecycle",
+		"label": "Request Lifecycle",
+		"kind": "both",
+		"match": [
+			"^graphql_request_",
+			"^init_graphql_request$",
+			"^graphql_execute$",
+			"^graphql_validation_"
+		]
+	},
+	{
+		"id": "connections",
+		"label": "Connections",
+		"kind": "both",
+		"match": [
+			"^graphql_connection_",
+			"^graphql_wp_connection_"
+		]
+	},
+	{
+		"id": "models",
+		"label": "Model Layer",
+		"kind": "both",
+		"match": [
+			"^graphql_model_",
+			"^graphql_object_"
+		]
+	},
+	{
+		"id": "debugging",
+		"label": "Debugging and Instrumentation",
+		"kind": "both",
+		"match": [
+			"^graphql_debug",
+			"^graphql_tracing_",
+			"^graphql_pre_resolve_",
+			"^graphql_post_resolve_"
+		]
+	},
+	{
+		"id": "settings",
+		"label": "Settings and Admin",
+		"kind": "both",
+		"match": [
+			"^graphql_(get_setting|endpoint|init_settings|admin_)"
+		]
+	},
+	{
+		"id": "authentication",
+		"label": "Authentication and Authorization",
+		"kind": "both",
+		"match": [
+			"^graphql_auth_",
+			"^graphql_allowed_"
+		]
+	},
+	{
+		"id": "uncategorized",
+		"label": "Uncategorized",
+		"kind": "both",
+		"match": []
+	}
+]
