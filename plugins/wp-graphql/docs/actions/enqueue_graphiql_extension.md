@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `enqueue_graphiql_extension`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_enqueue_graphiql_extension` instead.
+
 Legacy GraphiQL extension enqueue action retained for backward compatibility.
 
 - **Type:** action

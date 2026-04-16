@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `pre_graphql_execute_request`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_pre_execute_request` instead.
+
 Legacy pre-execute request filter retained for backward compatibility.
 
 - **Type:** filter

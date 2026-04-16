@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `wp_graphql_experiment_config`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_experiment_config` instead.
+
 Legacy experiment config filter retained for backward compatibility.
 
 - **Type:** filter

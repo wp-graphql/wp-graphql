@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `wpgraphql_enable_untested_autoupdates`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_enable_untested_autoupdates` instead.
+
 Legacy untested autoupdate filter retained for backward compatibility.
 
 - **Type:** filter

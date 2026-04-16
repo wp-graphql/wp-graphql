@@ -11,11 +11,15 @@ plugin: wp-graphql
 
 # `graphql_execute`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_request_execute` instead.
+
 Legacy GraphQL request execution action retained for backward compatibility.
 
 - **Type:** action
 - **Group:** Request Lifecycle
-- **Since:** Unknown
+- **Since:** 0.0.4
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Lifecycle

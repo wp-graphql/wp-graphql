@@ -52,7 +52,6 @@ title: Filters
 - [`graphql_model_field_capability`](/docs/filters/graphql_model_field_capability)
 - [`graphql_model_prepare_fields`](/docs/filters/graphql_model_prepare_fields)
 - [`graphql_object_fields`](/docs/filters/graphql_object_fields)
-- [`graphql_object_type_interfaces`](/docs/filters/graphql_object_type_interfaces) _(deprecated)_
 - [`graphql_object_visibility`](/docs/filters/graphql_object_visibility)
 
 ## Request Lifecycle
@@ -78,8 +77,6 @@ title: Filters
 ## Settings and Admin
 
 - [`graphql_admin_notices_is_allowed_admin_page`](/docs/filters/graphql_admin_notices_is_allowed_admin_page)
-- [`graphql_endpoint`](/docs/filters/graphql_endpoint) _(deprecated)_
-- [`graphql_endpoint`](/docs/filters/graphql_endpoint) _(deprecated)_
 - [`graphql_endpoint_path`](/docs/filters/graphql_endpoint_path)
 - [`graphql_endpoint_path`](/docs/filters/graphql_endpoint_path)
 - [`graphql_get_setting_section_field_value`](/docs/filters/graphql_get_setting_section_field_value)
@@ -87,9 +84,6 @@ title: Filters
 
 ## Uncategorized
 
-- [`all_plugins`](/docs/filters/all_plugins)
-- [`all_plugins`](/docs/filters/all_plugins)
-- [`get_the_excerpt`](/docs/filters/get_the_excerpt)
 - [`graphql_access_control_allow_headers`](/docs/filters/graphql_access_control_allow_headers)
 - [`graphql_add_admin_notice`](/docs/filters/graphql_add_admin_notice)
 - [`graphql_app_context_config`](/docs/filters/graphql_app_context_config)
@@ -102,13 +96,11 @@ title: Filters
 - [`graphql_comment_connection_args`](/docs/filters/graphql_comment_connection_args)
 - [`graphql_comment_connection_query_args`](/docs/filters/graphql_comment_connection_query_args)
 - [`graphql_comment_insert_post_args`](/docs/filters/graphql_comment_insert_post_args)
-- [`graphql_connection`](/docs/filters/graphql_connection) _(deprecated)_
 - [`graphql_cookie_auth_require_nonce`](/docs/filters/graphql_cookie_auth_require_nonce)
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
 - [`graphql_custom_scalar_config`](/docs/filters/graphql_custom_scalar_config)
 - [`graphql_data_is_private`](/docs/filters/graphql_data_is_private)
 - [`graphql_data_loader_classes`](/docs/filters/graphql_data_loader_classes)
-- [`graphql_data_loaders`](/docs/filters/graphql_data_loaders) _(deprecated)_
 - [`graphql_dataloader_get_cached`](/docs/filters/graphql_dataloader_get_cached)
 - [`graphql_dataloader_get_model`](/docs/filters/graphql_dataloader_get_model)
 - [`graphql_dataloader_pre_get_model`](/docs/filters/graphql_dataloader_pre_get_model)
@@ -190,7 +182,6 @@ title: Filters
 - [`graphql_render_admin_page`](/docs/filters/graphql_render_admin_page)
 - [`graphql_require_authentication_allowed_fields`](/docs/filters/graphql_require_authentication_allowed_fields)
 - [`graphql_resolve_field`](/docs/filters/graphql_resolve_field)
-- [`graphql_resolve_menu_item`](/docs/filters/graphql_resolve_menu_item) _(deprecated)_
 - [`graphql_resolve_node_type`](/docs/filters/graphql_resolve_node_type)
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_resolve_uri`](/docs/filters/graphql_resolve_uri)
@@ -199,10 +190,7 @@ title: Filters
 - [`graphql_response_status_code`](/docs/filters/graphql_response_status_code)
 - [`graphql_restricted_data_cap`](/docs/filters/graphql_restricted_data_cap)
 - [`graphql_return_field_from_model`](/docs/filters/graphql_return_field_from_model)
-- [`graphql_return_modeled_data`](/docs/filters/graphql_return_modeled_data) _(deprecated)_
 - [`graphql_root_value`](/docs/filters/graphql_root_value)
-- [`graphql_schema`](/docs/filters/graphql_schema) _(deprecated)_
-- [`graphql_schema`](/docs/filters/graphql_schema) _(deprecated)_
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
 - [`graphql_schema_instance`](/docs/filters/graphql_schema_instance)
 - [`graphql_schema_instance`](/docs/filters/graphql_schema_instance)
@@ -229,19 +217,3 @@ title: Filters
 - [`graphql_wp_mutation_type_config`](/docs/filters/graphql_wp_mutation_type_config)
 - [`graphql_wp_object_type_config`](/docs/filters/graphql_wp_object_type_config)
 - [`graphql_wp_union_type_config`](/docs/filters/graphql_wp_union_type_config)
-- [`pre_graphql_execute_request`](/docs/filters/pre_graphql_execute_request) _(deprecated)_
-- [`pre_graphql_execute_request`](/docs/filters/pre_graphql_execute_request) _(deprecated)_
-- [`query_vars`](/docs/filters/query_vars)
-- [`register_graphql_post_type_args`](/docs/filters/register_graphql_post_type_args) _(deprecated)_
-- [`register_graphql_taxonomy_args`](/docs/filters/register_graphql_taxonomy_args) _(deprecated)_
-- [`request`](/docs/filters/request)
-- [`retrieve_password_message`](/docs/filters/retrieve_password_message)
-- [`retrieve_password_title`](/docs/filters/retrieve_password_title)
-- [`show_network_active_plugins`](/docs/filters/show_network_active_plugins)
-- [`the_excerpt`](/docs/filters/the_excerpt)
-- [`wp_graphql_experiment_config`](/docs/filters/wp_graphql_experiment_config) _(deprecated)_
-- [`wp_graphql_experiment_enabled`](/docs/filters/wp_graphql_experiment_enabled) _(deprecated)_
-- [`wpgraphql_enable_major_autoupdates`](/docs/filters/wpgraphql_enable_major_autoupdates) _(deprecated)_
-- [`wpgraphql_enable_untested_autoupdates`](/docs/filters/wpgraphql_enable_untested_autoupdates) _(deprecated)_
-- [`wpgraphql_experimental_features_enabled`](/docs/filters/wpgraphql_experimental_features_enabled) _(deprecated)_
-- [`wpgraphql_untested_release_type`](/docs/filters/wpgraphql_untested_release_type) _(deprecated)_

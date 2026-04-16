@@ -11,11 +11,15 @@ plugin: wp-graphql
 
 # `graphql_endpoint`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_endpoint_path` instead.
+
 Legacy endpoint path filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 1.12.0
 - **Source:** `plugins/wp-graphql/access-functions.php`
 
 ## Lifecycle

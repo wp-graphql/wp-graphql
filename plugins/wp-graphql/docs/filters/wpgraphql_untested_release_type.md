@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `wpgraphql_untested_release_type`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_untested_release_type` instead.
+
 Legacy release channel filter retained for backward compatibility.
 
 - **Type:** filter

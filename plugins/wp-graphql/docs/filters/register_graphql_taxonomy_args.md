@@ -11,11 +11,15 @@ plugin: wp-graphql
 
 # `register_graphql_taxonomy_args`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_register_taxonomy_args` instead.
+
 Legacy taxonomy registration filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 1.12.0
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Lifecycle

@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `graphql_return_modeled_data`
 
+> [!WARNING]
+> This hook has been deprecated since v1.7.0 and should not be used for new integrations.
+> Use `graphql_model_prepare_fields` instead.
+
 No description available.
 
 - **Type:** filter

@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `graphql_data_loaders`
 
+> [!WARNING]
+> This hook has been deprecated since v2.3.2 and should not be used for new integrations.
+> Use `graphql_data_loader_classes` instead.
+
 No description available.
 
 - **Type:** filter

@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `graphql_resolve_menu_item`
 
+> [!WARNING]
+> This hook has been deprecated since v1.22.0 and should not be used for new integrations.
+> Use `graphql_pre_resolve_menu_item_connected_node` instead.
+
 No description available.
 
 - **Type:** filter

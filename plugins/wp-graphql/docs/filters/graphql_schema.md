@@ -11,11 +11,15 @@ plugin: wp-graphql
 
 # `graphql_schema`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_schema_instance` instead.
+
 Legacy schema filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Lifecycle

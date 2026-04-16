@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `graphql_connection`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_connection_resolved` instead.
+
 Legacy connection result filter retained for backward compatibility.
 
 - **Type:** filter

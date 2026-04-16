@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `wpgraphql_enable_major_autoupdates`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_enable_major_autoupdates` instead.
+
 Legacy autoupdate filter retained for backward compatibility.
 
 - **Type:** filter

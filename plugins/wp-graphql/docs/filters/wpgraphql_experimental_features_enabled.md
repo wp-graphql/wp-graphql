@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `wpgraphql_experimental_features_enabled`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_experimental_features_enabled` instead.
+
 Legacy experimental features toggle filter retained for backward compatibility.
 
 - **Type:** filter

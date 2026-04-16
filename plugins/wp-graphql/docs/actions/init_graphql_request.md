@@ -11,11 +11,15 @@ plugin: wp-graphql
 
 # `init_graphql_request`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_init_request` instead.
+
 Legacy request initialization hook retained for backward compatibility.
 
 - **Type:** action
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Lifecycle

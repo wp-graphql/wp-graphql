@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `graphql_object_type_interfaces`
 
+> [!WARNING]
+> This hook has been deprecated since v1.4.1 and should not be used for new integrations.
+> Use `graphql_type_interfaces` instead.
+
 No description available.
 
 - **Type:** filter

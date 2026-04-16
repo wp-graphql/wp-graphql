@@ -11,6 +11,10 @@ plugin: wp-graphql
 
 # `init_graphql_type_registry`
 
+> [!WARNING]
+> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
+> Use `graphql_init_type_registry` instead.
+
 Legacy type registry initialization hook retained for backward compatibility.
 
 - **Type:** action
