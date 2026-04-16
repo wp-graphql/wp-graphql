@@ -500,9 +500,18 @@ class Request {
 		 * @param ?array<string,mixed>             $variables Variables to passed to your GraphQL query
 		 * @param \WPGraphQL\Request               $request   Instance of the Request
 		 *
-		 * @since 0.0.4
+		 * @hookGroup request-lifecycle
+		 * @since x-release-please-version
 		 */
-		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
+		do_action( 'graphql_request_execute', $response, $this->schema, $operation, $query, $variables, $this );
+		if ( has_action( 'graphql_execute' ) ) {
+			do_action_deprecated(
+				'graphql_execute',
+				[ $response, $this->schema, $operation, $query, $variables, $this ],
+				'x-release-please-version',
+				'graphql_request_execute'
+			);
+		}
 
 		/**
 		 * Add the debug log to the request
@@ -633,7 +642,7 @@ class Request {
 		 * If there was an authentication error, return it as a GraphQL error response
 		 * instead of executing the query.
 		 *
-		 * IMPORTANT: This intentionally happens BEFORE the `pre_graphql_execute_request` filter.
+		 * IMPORTANT: This intentionally happens BEFORE the `graphql_pre_execute_request` filter.
 		 * Authentication failures should fail fast for security reasons:
 		 * - Don't give plugins a chance to interfere with or "undo" auth failures
 		 * - Avoid unnecessary filter processing for failed requests
@@ -663,8 +672,18 @@ class Request {
 		 *
 		 * @param ?SerializableResult $response
 		 * @param self               $request
+		 * @hookGroup request-lifecycle
+		 * @since x-release-please-version
 		 */
-		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+		$response = apply_filters( 'graphql_pre_execute_request', null, $this );
+		if ( has_filter( 'pre_graphql_execute_request' ) ) {
+			$response = apply_filters_deprecated(
+				'pre_graphql_execute_request',
+				[ $response, $this ],
+				'x-release-please-version',
+				'graphql_pre_execute_request'
+			);
+		}
 
 		if ( null === $response ) {
 			/**
@@ -761,7 +780,15 @@ class Request {
 		/**
 		 * Get the response.
 		 */
-		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+		$response = apply_filters( 'graphql_pre_execute_request', null, $this );
+		if ( has_filter( 'pre_graphql_execute_request' ) ) {
+			$response = apply_filters_deprecated(
+				'pre_graphql_execute_request',
+				[ $response, $this ],
+				'x-release-please-version',
+				'graphql_pre_execute_request'
+			);
+		}
 
 		/**
 		 * If no cached response, execute the query

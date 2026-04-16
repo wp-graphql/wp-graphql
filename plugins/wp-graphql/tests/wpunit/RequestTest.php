@@ -56,7 +56,7 @@ class RequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 		$request = $this->create_example_request();
 
 		$this->assertEquals( 0, did_action( 'graphql_do_request' ) );
-		$this->assertEquals( 0, did_action( 'graphql_execute' ) );
+		$this->assertEquals( 0, did_action( 'graphql_request_execute' ) );
 		$this->assertEquals( 0, did_action( 'graphql_return_response' ) );
 
 		$results = $request->execute();
@@ -66,7 +66,7 @@ class RequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 		$this->assertEquals( 1, count( $results['data']['posts']['nodes'] ) );
 
 		$this->assertEquals( 1, did_action( 'graphql_do_request' ) );
-		$this->assertEquals( 1, did_action( 'graphql_execute' ) );
+		$this->assertEquals( 1, did_action( 'graphql_request_execute' ) );
 		$this->assertEquals( 1, did_action( 'graphql_return_response' ) );
 	}
 
