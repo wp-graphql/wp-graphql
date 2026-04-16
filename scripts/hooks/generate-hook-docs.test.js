@@ -91,6 +91,21 @@ do_action_deprecated(
 );
 
 /**
+ * @since 1.0.0
+ * @hookGroup request-lifecycle
+ */
+do_action( 'graphql_docs_no_description', [ 'ok' => true ] );
+
+/**
+ * Filter with intentionally incomplete @param docs.
+ *
+ * @param array<string,mixed> $payload Payload.
+ * @since 1.0.0
+ * @hookGroup request-lifecycle
+ */
+apply_filters( 'graphql_docs_param_mismatch', [ 'ok' => true ], 'extra' );
+
+/**
  * Core hook passthrough.
  *
  * @since 1.0.0
@@ -214,6 +229,10 @@ const tests = [
 				TEST_ROOT,
 				'plugins/test-plugin/docs/generated/hooks-naming-audit.json'
 			);
+			const lintMarkdownPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/generated/hooks-lint.md'
+			);
 			const deprecatedPath = path.join(
 				TEST_ROOT,
 				'plugins/test-plugin/docs/generated/hooks-deprecated.json'
@@ -231,12 +250,13 @@ const tests = [
 			assert(fs.existsSync(actionDocPath), 'action doc should be generated');
 			assert(fs.existsSync(filterDocPath), 'filter doc should be generated');
 			assert(fs.existsSync(namingAuditPath), 'naming audit json should be generated');
+			assert(fs.existsSync(lintMarkdownPath), 'lint markdown should be generated');
 			assert(fs.existsSync(deprecatedPath), 'deprecated hooks json should be generated');
 			assert(fs.existsSync(deprecatedActionDocPath), 'deprecated action doc should be generated');
 			assert(fs.existsSync(removedFilterDocPath), 'removed filter doc should persist');
 
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-			assert.strictEqual(index.stats.totalHooks, 6, 'expected six hooks');
+			assert.strictEqual(index.stats.totalHooks, 8, 'expected eight hooks');
 
 			const payloadHook = index.hooks.find((hook) => hook.name === 'graphql_docs_payload');
 			assert(payloadHook, 'filter hook should exist');
@@ -251,6 +271,21 @@ const tests = [
 			assert(
 				!namingAudit.audit.flaggedHooks.some((item) => item.hook === 'query_vars'),
 				'query_vars should be excluded from naming audit as core hook'
+			);
+
+			const lint = JSON.parse(
+				fs.readFileSync(
+					path.join(TEST_ROOT, 'plugins/test-plugin/docs/generated/hooks-lint.json'),
+					'utf8'
+				)
+			);
+			assert(
+				lint.warnings.some((item) => item.type === 'missing_hook_description'),
+				'missing hook descriptions should be linted'
+			);
+			assert(
+				lint.warnings.some((item) => item.type === 'hook_param_count_mismatch'),
+				'param count mismatches should be linted'
 			);
 
 			const deprecatedHooks = JSON.parse(fs.readFileSync(deprecatedPath, 'utf8'));

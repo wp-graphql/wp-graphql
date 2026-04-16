@@ -16,6 +16,7 @@ function getDefaultNamingRules() {
 		allowedPrefixes: ['graphql_'],
 		allowedHookNamePattern: '^[a-z0-9_]+$',
 		minSegmentsAfterPrefix: 2,
+		lowSpecificityAllowlist: [],
 		dynamicNamePattern: '^["\']?graphql_',
 		legacyAllowedPrefixes: ['pre_graphql_', 'register_graphql_'],
 		deprecatedPrefixes: ['wpgraphql_', 'wp_graphql_', 'init_graphql_'],
@@ -632,6 +633,8 @@ function buildHookRecord({
 		line: hook.line,
 		description: hook.docblock.description,
 		params: hook.docblock.params,
+		argumentCount: hook.argumentCount || 0,
+		docblockParamCount: hook.docblock.params.length,
 		since: hook.docblock.since,
 		hookGroup: hook.docblock.hookGroup,
 		isDynamic: hook.isDynamic,
@@ -829,6 +832,10 @@ function analyzeHookNaming(hooks, namingRules) {
 		);
 	}
 
+	function isLowSpecificityAllowed(name) {
+		return (namingRules.lowSpecificityAllowlist || []).includes(name);
+	}
+
 	function getDeprecatedPrefix(name) {
 		return (namingRules.deprecatedPrefixes || []).find((prefix) =>
 			name.startsWith(prefix)
@@ -909,7 +916,7 @@ function analyzeHookNaming(hooks, namingRules) {
 		if (matchingPrefix) {
 			const remainder = name.slice(matchingPrefix.length);
 			const segmentCount = remainder.split('_').filter(Boolean).length;
-			if (segmentCount < namingRules.minSegmentsAfterPrefix) {
+			if (segmentCount < namingRules.minSegmentsAfterPrefix && !isLowSpecificityAllowed(name)) {
 				recordFlag(
 					hook,
 					'low_specificity',
@@ -1010,6 +1017,68 @@ function renderNamingAuditMarkdown({ pluginSlug, audit }) {
 		}
 		lines.push('');
 	});
+
+	return lines.join('\n');
+}
+
+function renderLintMarkdown({ pluginSlug, lint }) {
+	const lines = [];
+	const warnings = Array.isArray(lint.warnings) ? lint.warnings : [];
+	const errors = Array.isArray(lint.errors) ? lint.errors : [];
+	const allItems = [...errors, ...warnings];
+
+	const grouped = allItems.reduce((acc, item) => {
+		const type = item.type || 'unknown';
+		if (!acc[type]) {
+			acc[type] = [];
+		}
+		acc[type].push(item);
+		return acc;
+	}, {});
+
+	lines.push(GENERATED_NOTICE.trimEnd());
+	lines.push(`# Hook Lint Report: ${pluginSlug}`);
+	lines.push('');
+	lines.push('## Summary');
+	lines.push('');
+	lines.push(`- Errors: ${errors.length}`);
+	lines.push(`- Warnings: ${warnings.length}`);
+	lines.push(`- Total findings: ${allItems.length}`);
+	lines.push('');
+
+	if (allItems.length === 0) {
+		lines.push('No lint findings detected.');
+		lines.push('');
+		return lines.join('\n');
+	}
+
+	lines.push('## Findings by Type');
+	lines.push('');
+	Object.keys(grouped)
+		.sort((a, b) => a.localeCompare(b))
+		.forEach((type) => {
+			lines.push(`- \`${type}\`: ${grouped[type].length}`);
+		});
+	lines.push('');
+
+	lines.push('## Findings');
+	lines.push('');
+	Object.keys(grouped)
+		.sort((a, b) => a.localeCompare(b))
+		.forEach((type) => {
+			lines.push(`### \`${type}\``);
+			lines.push('');
+			grouped[type].forEach((item) => {
+				const hook = item.hook || '(unknown hook)';
+				lines.push(`- **Hook:** \`${hook}\``);
+				lines.push(`  - Severity: ${errors.includes(item) ? 'error' : 'warning'}`);
+				lines.push(`  - Message: ${item.message || 'No message provided.'}`);
+				if (item.file) {
+					lines.push(`  - Source: \`${item.file}\`${item.line ? ` (line ${item.line})` : ''}`);
+				}
+			});
+			lines.push('');
+		});
 
 	return lines.join('\n');
 }
@@ -1139,6 +1208,13 @@ function writeGeneratedOutputs({
 	filesToWrite.push({
 		path: path.join(generatedDir, 'hooks-lint.json'),
 		content: `${JSON.stringify(indexPayload.lint, null, 2)}\n`,
+	});
+	filesToWrite.push({
+		path: path.join(generatedDir, 'hooks-lint.md'),
+		content: `${renderLintMarkdown({
+			pluginSlug: indexPayload.plugin,
+			lint: indexPayload.lint,
+		})}\n`,
 	});
 	filesToWrite.push({
 		path: path.join(generatedDir, 'hooks-naming-audit.json'),
@@ -1298,6 +1374,7 @@ function extractHooksFromFile(filePath, repoRoot) {
 			rawExpression: parsedName.rawExpression,
 			isDynamic: parsedName.isDynamic,
 			kind: next.spec.kind,
+			argumentCount: Math.max(args.length - 1, 0),
 			file: path.relative(repoRoot, filePath),
 			line: extracted.line,
 			docblock,
@@ -1420,6 +1497,54 @@ function main() {
 				} else {
 					lint.warnings.push(warning);
 				}
+			}
+
+			if (shouldLintHookGroup && sourceType === 'wpgraphql') {
+				if (!hook.docblock.description || !hook.docblock.description.trim()) {
+					lint.warnings.push({
+						type: 'missing_hook_description',
+						hook: hook.name,
+						file: hook.file,
+						line: hook.line,
+						message: 'Missing hook description in nearest docblock',
+					});
+				}
+
+				const argumentCount = hook.argumentCount || 0;
+				const paramCount = hook.docblock.params.length;
+
+				if (argumentCount > 0 && paramCount === 0) {
+					lint.warnings.push({
+						type: 'missing_hook_params',
+						hook: hook.name,
+						file: hook.file,
+						line: hook.line,
+						message:
+							'Hook receives arguments but docblock is missing @param entries',
+					});
+				}
+
+				if (argumentCount > 0 && paramCount > 0 && paramCount < argumentCount) {
+					lint.warnings.push({
+						type: 'hook_param_count_mismatch',
+						hook: hook.name,
+						file: hook.file,
+						line: hook.line,
+						message: `Hook has ${argumentCount} argument(s) but only ${paramCount} @param tag(s)`,
+					});
+				}
+
+				hook.docblock.params.forEach((param, index) => {
+					if (!param.description || !param.description.trim()) {
+						lint.warnings.push({
+							type: 'missing_hook_param_description',
+							hook: hook.name,
+							file: hook.file,
+							line: hook.line,
+							message: `@param entry ${index + 1} (${param.name}) is missing a description`,
+						});
+					}
+				});
 			}
 
 			hookRecords.push(record);

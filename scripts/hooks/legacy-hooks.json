@@ -89,6 +89,69 @@
       "replacement": "graphql_experiment_config",
       "group": "settings",
       "description": "Legacy experiment config filter retained for backward compatibility."
+    },
+    {
+      "name": "graphql_execute",
+      "kind": "action",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_request_execute",
+      "group": "request-lifecycle",
+      "description": "Legacy GraphQL request execution action retained for backward compatibility."
+    },
+    {
+      "name": "graphql_schema",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_schema_instance",
+      "group": "schema-registration",
+      "description": "Legacy schema filter retained for backward compatibility."
+    },
+    {
+      "name": "graphql_connection",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_connection_resolved",
+      "group": "connections",
+      "description": "Legacy connection result filter retained for backward compatibility."
+    },
+    {
+      "name": "graphql_endpoint",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_endpoint_path",
+      "group": "settings",
+      "description": "Legacy endpoint path filter retained for backward compatibility."
+    },
+    {
+      "name": "pre_graphql_execute_request",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_pre_execute_request",
+      "group": "request-lifecycle",
+      "description": "Legacy pre-execute request filter retained for backward compatibility."
+    },
+    {
+      "name": "register_graphql_post_type_args",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_register_post_type_args",
+      "group": "schema-registration",
+      "description": "Legacy post type registration filter retained for backward compatibility."
+    },
+    {
+      "name": "register_graphql_taxonomy_args",
+      "kind": "filter",
+      "status": "deprecated",
+      "deprecatedIn": "x-release-please-version",
+      "replacement": "graphql_register_taxonomy_args",
+      "group": "schema-registration",
+      "description": "Legacy taxonomy registration filter retained for backward compatibility."
     }
   ]
 }

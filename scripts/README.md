@@ -10,6 +10,12 @@ Generates hook reference documentation for a plugin by scanning `do_action` and 
 
 **Purpose**: Automates `actions` and `filters` docs pages, hook metadata index output, and `@hookGroup` linting.
 
+**Hook lint checks** include:
+- Missing/invalid `@hookGroup` tags (for `do_action` / `apply_filters` callsites)
+- Missing hook descriptions in nearest docblock
+- Missing/incomplete `@param` documentation relative to passed hook arguments
+- Missing per-`@param` descriptions
+
 **Usage**:
 ```bash
 node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
@@ -29,6 +35,7 @@ node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
 **Generated output** (per plugin docs directory):
 - `docs/generated/hooks-index.json`
 - `docs/generated/hooks-lint.json`
+- `docs/generated/hooks-lint.md`
 - `docs/generated/hooks-naming-audit.json`
 - `docs/generated/hooks-naming-audit.md`
 - `docs/generated/hooks-deprecated.json`
