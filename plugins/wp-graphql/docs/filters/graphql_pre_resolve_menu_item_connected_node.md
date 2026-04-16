@@ -11,9 +11,19 @@ plugin: wp-graphql
 
 # `graphql_pre_resolve_menu_item_connected_node`
 
-No description available.
+When this filter returns anything other than null it will be used as the resolved connection for the menu item's connected node, short-circuiting the default resolution. This is useful since we often add taxonomy terms to menus but would prefer to represent the menu item in other ways. E.g., a linked post object (or vice-versa).
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/ObjectType/MenuItem.php`
+
+## Parameters
+
+- `$deferred_connection` (`?\GraphQL\Deferred`): The AbstractConnectionResolver's connection, or null to continue with the default resolution.
+- `$menu_item` (`\WPGraphQL\Model\MenuItem`): The MenuItem model.
+- `$args` (`array<string,mixed>`): The GraphQL args for the connection.
+- `$context` (`\WPGraphQL\AppContext`): The AppContext object.
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object.
+- `$object_id` (`int`): The ID of the connected object.
+- `$object_type` (`string`): The type of the connected object.

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_register_post_type_args`
 
-No description available.
+Filters the graphql args set on a post type
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$args` (`array<string,mixed>`): The graphql specific args for the post type
+- `$post_type_name` (`string`): The name of the post type being registered

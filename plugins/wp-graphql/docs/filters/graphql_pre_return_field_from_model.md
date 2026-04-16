@@ -11,9 +11,19 @@ plugin: wp-graphql
 
 # `graphql_pre_return_field_from_model`
 
-No description available.
+Filter to short circuit the callback for any field on a type. Returning anything other than null will stop the callback for the field from executing, and will return your data or execute your callback instead.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
+
+## Parameters
+
+- `$result` (`mixed`): The data returned from the callback. Null by default.
+- `$key` (`string`): The name of the field on the type
+- `$model_name` (`string`): Name of the model the filter is currently being executed in
+- `$data` (`TData`): The un-modeled incoming data
+- `$visibility` (`string`): The visibility setting for this piece of data
+- `$owner` (`int|null`): The user ID for the owner of this piece of data
+- `$current_user` (`\WP_User`): The current user for the session

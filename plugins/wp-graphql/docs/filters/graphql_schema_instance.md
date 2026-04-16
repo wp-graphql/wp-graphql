@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_schema_instance
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # `graphql_schema_instance`
 
-No description available.
+Generate & Filter the schema.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$schema` (`\WPGraphQL\WPSchema`): The executable Schema that GraphQL executes against
+- `$app_context` (`\WPGraphQL\AppContext`): Object The AppContext object containing all of the

@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_resolve_uri_query_class`
 
-No description available.
+Filter the query class used to resolve the URI. By default this is WP_Query. This can be used by Extensions which use a different query class to resolve data.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
+
+## Parameters
+
+- `$query_class` (`class-string`): The query class used to resolve the URI. Defaults to WP_Query.
+- `$uri` (`?string`): The uri being searched.
+- `$content` (`\WPGraphQL\AppContext`): The app context.
+- `$wp` (`\WP`): WP object.
+- `$extra_query_vars` (`array<string,mixed>|string`): Any extra query vars to consider.

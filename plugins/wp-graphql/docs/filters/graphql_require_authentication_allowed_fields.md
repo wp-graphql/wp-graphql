@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_require_authentication_allowed_fields`
 
-No description available.
+Filters the allowed root fields
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
+
+## Parameters
+
+- `$allowed_root_fields` (`string[]`): The Root fields allowed to be requested without authentication
+- `$context` (`\GraphQL\Validator\QueryValidationContext`): The Validation context of the field being executed.

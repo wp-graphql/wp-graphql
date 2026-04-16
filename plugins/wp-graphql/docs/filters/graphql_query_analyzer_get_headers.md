@@ -17,3 +17,8 @@ No description available.
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$headers` (`array<string,string>`): The array of headers being returned
+- `$query_analyzer` (`\WPGraphQL\Utils\QueryAnalyzer`): The instance of the query analyzer

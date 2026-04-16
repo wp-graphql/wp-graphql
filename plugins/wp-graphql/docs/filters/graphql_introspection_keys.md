@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_introspection_keys`
 
-No description available.
+Filter the keys that are prepared for introspection.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+
+## Parameters
+
+- `$introspection_keys` (`array<string>`): The keys to prepare for introspection.

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_data_loader_classes`
 
-No description available.
+Filter to change the data loader classes. This allows for additional loaders to be added to the AppContext or replaced as needed.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/AppContext.php`
+
+## Parameters
+
+- `$loader_classes` (`array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>>`): The loader classes accessible in the AppContext
+- `$context` (`\WPGraphQL\AppContext`): The AppContext

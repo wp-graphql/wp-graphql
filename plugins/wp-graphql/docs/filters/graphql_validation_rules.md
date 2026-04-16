@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_validation_rules`
 
-No description available.
+Return the validation rules to use in the request
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$validation_rules` (`array<string,\GraphQL\Validator\Rules\ValidationRule>`): The validation rules to use in the request
+- `$request` (`\WPGraphQL\Request`): The Request instance

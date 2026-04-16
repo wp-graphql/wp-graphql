@@ -17,3 +17,12 @@ No description available.
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$should` (`bool`): Whether the query analyzer output should be displayed in the Extensions output. Defaults to true if the query analyzer is enabled for the request and WPGraphQL Debugging is enabled.
+- `$response` (`mixed|array<string,mixed>|object`): The response of the WPGraphQL Request being executed
+- `$schema` (`\WPGraphQL\WPSchema`): The WPGraphQL Schema
+- `$operation_name` (`string|null`): The operation name being executed
+- `$request` (`string|null`): The GraphQL Request being made
+- `$variables` (`array<string,mixed>|null`): The variables sent with the request

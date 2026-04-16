@@ -11,9 +11,19 @@ plugin: wp-graphql
 
 # `graphql_post_resolve_uri`
 
-No description available.
+This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri. This can be used by Extensions to resolve edge cases that are not handled by the core NodeResolver.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
+
+## Parameters
+
+- `$node` (`mixed|null`): The node, defaults to nothing.
+- `$uri` (`?string`): The uri being searched.
+- `$queried_object` (`\WP_Term|\WP_Post_Type|\WP_Post|\WP_User|null`): The queried object, if WP_Query returns one.
+- `$query` (`\WP_Query`): The query object.
+- `$content` (`\WPGraphQL\AppContext`): The app context.
+- `$wp` (`\WP`): WP object.
+- `$extra_query_vars` (`array<string,mixed>|string`): Any extra query vars to consider.

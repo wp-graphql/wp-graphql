@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_query`
 
-No description available.
+Set the query for the resolver, for use as reference in filters, etc Filter the query. For core data, the query is typically an instance of: WP_Query WP_Comment_Query WP_User_Query WP_Term_Query ... But in some cases, the actual mechanism for querying data should be overridden. For example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload the query to that instead of a native WP_Query class. You could override this with a query to that datasource instead.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$query` (`mixed`): Instance of the Query for the resolver
+- `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the Connection Resolver

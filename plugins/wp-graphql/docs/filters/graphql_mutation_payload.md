@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_mutation_payload`
 
-No description available.
+Filters the payload returned from the default mutateAndGetPayload callback.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
+
+## Parameters
+
+- `$payload` (`array<string,mixed>`): The payload returned from the callback.
+- `$mutation_name` (`string`): The name of the mutation field.
+- `$input` (`array<string,mixed>`): The mutation input args.
+- `$context` (`\WPGraphQL\AppContext`): The AppContext object.
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object.

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_tracing_response`
 
-No description available.
+Filter the trace
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/Tracing.php`
+
+## Parameters
+
+- `$trace` (`Trace`): The trace to return
+- `$instance` (`\WPGraphQL\Utils\Tracing`): The Tracing class instance

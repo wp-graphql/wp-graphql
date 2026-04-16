@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_get_type`
 
-No description available.
+Filter the type before it is loaded into the registry.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+
+## Parameters
+
+- `$type` (`?TypeDef`): The type to load.
+- `$type_name` (`string`): The name of the type.

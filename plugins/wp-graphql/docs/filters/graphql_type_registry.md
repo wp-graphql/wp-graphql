@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_type_registry`
 
-No description available.
+Generate & Filter the schema.
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The TypeRegistry for the API
+- `$app_context` (`\WPGraphQL\AppContext`): Object The AppContext object containing all of the

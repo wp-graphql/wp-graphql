@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_experiment_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_experiment_config`
 
-No description available.
+Filters the experiment configuration.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+
+## Parameters
+
+- `$config` (`array{title:string,description:string}`): The experiment configuration.
+- `$slug` (`string`): The experiment's slug.

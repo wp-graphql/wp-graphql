@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_user_insert_post_args`
 
-No description available.
+Filters the mappings for input to arguments
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
+
+## Parameters
+
+- `$insert_user_args` (`array<string,mixed>`): The arguments to ultimately be passed to the WordPress function
+- `$input` (`array<string,mixed>`): Input data from the GraphQL mutation
+- `$mutation_name` (`string`): What user mutation is being performed for context

@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_pre_format_name`
 
-No description available.
+Filter to manually format a GraphQL name according to custom rules. If anything other than null is returned, the result will be used for the name instead of the standard regex. Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/Utils.php`
+
+## Parameters
+
+- `$formatted_name` (`string|null`): The name to format. If not null, the result will be returned as the formatted name.
+- `$original_name` (`string`): The name to format.
+- `$replacement` (`string`): The replacement character for invalid characters. Defaults to '_'.
+- `$regex` (`string`): The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.

@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_experimental_features_cap`
 
-No description available.
+Filters the capability required to turn experimental features on and off.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
+
+## Parameters
+
+- `$capability` (`string`): The capability required to turn experimental features on and off. Defaults to `manage_options`.

@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_excluded_connections`
 
-No description available.
+Filter the list of GraphQL connections to excluded from the registry.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 1.14.0
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+
+## Parameters
+
+- `$excluded_connections` (`string[]`): The names of the GraphQL connections to exclude.

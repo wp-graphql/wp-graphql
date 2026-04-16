@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_post_object_insert_post_args`
 
-No description available.
+Filter the $insert_post_args
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
+
+## Parameters
+
+- `$insert_post_args` (`array<string,mixed>`): The array of $input_post_args that will be passed to wp_insert_post
+- `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
+- `$post_type_object` (`\WP_Post_Type`): The post_type_object that the mutation is affecting
+- `$mutation_type` (`string`): The type of mutation being performed (create, edit, etc)

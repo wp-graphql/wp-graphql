@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_post_object_create_default_post_status`
 
-No description available.
+Filter the default post status to use when the post is initially created. Pass through a filter to allow other plugins to override the default (for example, Edit Flow, which provides control over customizing stati or various E-commerce plugins that make heavy use of custom stati)
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
+
+## Parameters
+
+- `$default_status` (`string`): The default status to be used when the post is initially inserted
+- `$post_type_object` (`\WP_Post_Type`): The Post Type that is being inserted
+- `$mutation_name` (`string`): The name of the mutation currently in progress

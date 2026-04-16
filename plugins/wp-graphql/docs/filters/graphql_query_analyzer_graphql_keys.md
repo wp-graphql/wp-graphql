@@ -17,3 +17,11 @@ No description available.
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$graphql_keys` (`AnalyzedGraphQLKeys`): Information about the keys and skipped keys returned by the Query Analyzer
+- `$return_keys` (`string`): The keys returned to the X-GraphQL-Keys header
+- `$skipped_keys` (`string`): The Keys that were skipped (truncated due to size limit) from the X-GraphQL-Keys header
+- `$return_keys_array` (`string[]`): The keys returned to the X-GraphQL-Keys header, in array instead of string
+- `$skipped_keys_array` (`string[]`): The keys skipped, in array instead of string

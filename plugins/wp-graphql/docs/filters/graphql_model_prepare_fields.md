@@ -11,9 +11,18 @@ plugin: wp-graphql
 
 # `graphql_model_prepare_fields`
 
-No description available.
+Filter the array of fields for the Model before the object is hydrated with it
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
+
+## Parameters
+
+- `$fields` (`array<string,mixed>`): The array of fields for the model
+- `$model_name` (`string`): Name of the model the filter is currently being executed in
+- `$data` (`TData`): The un-modeled incoming data
+- `$visibility` (`string`): The visibility setting for this piece of data
+- `$owner` (`?int`): The user ID for the owner of this piece of data
+- `$current_user` (`\WP_User`): The current user for the session

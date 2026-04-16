@@ -26,3 +26,11 @@ No description available.
 
 - **Deprecated in:** 1.7.0
 - **Replacement:** `graphql_model_prepare_fields`
+
+## Parameters
+
+- `$fields` (`array<string,mixed>`): The array of fields for the model
+- `$model_name` (`string`): Name of the model the filter is currently being executed in
+- `$visibility` (`string`): The visibility setting for this piece of data
+- `$owner` (`?int`): The user ID for the owner of this piece of data
+- `$current_user` (`\WP_User`): The current user for the session

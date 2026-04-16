@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_excluded_types`
 
-No description available.
+Filter the list of GraphQL types to exclude from the schema. Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type. To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 1.13.0
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+
+## Parameters
+
+- `$excluded_types` (`string[]`): The names of the GraphQL Types to exclude.

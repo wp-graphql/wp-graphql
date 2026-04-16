@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_settings_sections`
 
-No description available.
+Filter the settings sections
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+
+## Parameters
+
+- `$setting_sections` (`array<string,array<string,mixed>>`): The registered settings sections

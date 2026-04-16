@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_execute_query_params`
 
-No description available.
+Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$query` (`string`): No description.
+- `$params` (`\GraphQL\Server\OperationParams`): No description.

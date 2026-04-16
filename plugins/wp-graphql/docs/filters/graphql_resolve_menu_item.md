@@ -19,10 +19,19 @@ No description available.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.30
 - **Source:** `plugins/wp-graphql/src/Deprecated.php`
 
 ## Lifecycle
 
 - **Deprecated in:** 1.22.0
 - **Replacement:** `graphql_pre_resolve_menu_item_connected_node`
+
+## Parameters
+
+- `$resolved_object` (`\WP_Post|\WP_Term`): Post or term connected to MenuItem
+- `$args` (`array<string,mixed>`): Array of arguments input in the field as part of the GraphQL query
+- `$context` (`\WPGraphQL\AppContext`): Object containing app context that gets passed down the resolve tree
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): Info about fields passed down the resolve tree
+- `$object_id` (`int`): Post or term ID of connected object
+- `$object_type` (`string`): Type of connected object ("post_type" or "taxonomy")

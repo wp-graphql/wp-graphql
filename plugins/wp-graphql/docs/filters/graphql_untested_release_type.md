@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_untested_release_type
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_untested_release_type`
 
-No description available.
+Filter the release type to use when checking for untested plugins. This is used to prevent autoupdates when a plugin is untested with the specified channel. I.e. major > minor > patch > prerelease.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+
+## Parameters
+
+- `$release_type` (`'major'|'minor'|'patch'|'prerelease'`): The release type to use when checking for untested plugins. Defaults to 'major'.

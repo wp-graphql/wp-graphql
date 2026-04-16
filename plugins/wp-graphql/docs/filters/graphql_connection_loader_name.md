@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_loader_name`
 
-No description available.
+Filters the loader name. This is the name of the registered DataLoader that will be used to load the data for the connection.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$loader_name` (`string`): The name of the loader.
+- `$resolver` (`self`): The AbstractConnectionResolver instance.

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_root_value`
 
-No description available.
+Return the filtered root value
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$root_value` (`mixed|RootValueResolver`): The root value the Schema should use to resolve with. Default null.
+- `$request` (`\WPGraphQL\Request`): The Request instance

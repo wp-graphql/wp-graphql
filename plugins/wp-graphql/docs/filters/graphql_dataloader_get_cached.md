@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_dataloader_get_cached`
 
-No description available.
+Use this filter to retrieving cached data objects from third-party caching system.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
+
+## Parameters
+
+- `$value` (`mixed`): Value to be cached.
+- `$key` (`int|string`): Key identifying object.
+- `$loader_class` (`string`): Loader class name.
+- `$loader` (`mixed`): Loader instance.

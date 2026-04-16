@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_pre_is_graphql_http_request`
 
-No description available.
+Filter whether the request is a GraphQL HTTP Request. Default is null, as the majority of WordPress requests are NOT GraphQL requests (at least today that's true 😆). If this filter returns anything other than null, the function will return now and skip the default checks.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$is_graphql_http_request` (`?bool`): Whether the request is a GraphQL HTTP Request. Default false.

@@ -11,9 +11,18 @@ plugin: wp-graphql
 
 # `graphql_should_show_experiments_in_extensions`
 
-No description available.
+Filter whether experiments should be shown in GraphQL response extensions.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Experimental/Extensions.php`
+
+## Parameters
+
+- `$should` (`bool`): Whether experiments should be displayed in the Extensions output. Defaults to true if GraphQL debugging is enabled.
+- `$response` (`mixed|array<string,mixed>|object`): The response of the WPGraphQL Request being executed
+- `$schema` (`\WPGraphQL\WPSchema`): The WPGraphQL Schema
+- `$operation_name` (`string|null`): The operation name being executed
+- `$request` (`string|null`): The GraphQL Request being made
+- `$variables` (`array<string,mixed>|null`): The variables sent with the request

@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_term_object_connection_args`
 
-No description available.
+Filters the GraphQL args before they are used in get_query_args().
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
+
+## Parameters
+
+- `$args` (`array<string,mixed>`): The GraphQL args passed to the resolver.
+- `$resolver` (`self`): Instance of the ConnectionResolver.
+- `$unfiltered_args` (`array<string,mixed>`): Array of arguments input in the field as part of the GraphQL query.

@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_cursor_ordering_field`
 
-No description available.
+Filters the field used for ordering when cursors are used for pagination
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php`
+
+## Parameters
+
+- `$field` (`array<string,mixed>`): The field key, value, type and order
+- `$cursor_builder` (`\WPGraphQL\Data\Cursor\CursorBuilder`): The CursorBuilder class
+- `$object_cursor` (`?object`): The Cursor class

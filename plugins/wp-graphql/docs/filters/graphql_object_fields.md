@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_object_fields`
 
-No description available.
+Filter all object fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
+
+## Parameters
+
+- `$fields` (`array<string,mixed>`): The array of fields for the object config
+- `$type_name` (`string`): The name of the object type
+- `$wp_object_type` (`\WPGraphQL\Type\WPObjectType`): The WPObjectType Class
+- `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The Type Registry

@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_pre_restrict_endpoint`
 
-No description available.
+Allows overriding the default graphql_restrict_endpoint behavior. Returning anything other than null will skip the default restrict checks.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
+
+## Parameters
+
+- `$restrict_endpoint` (`bool|null`): Whether to restrict the endpoint. Defaults to null

@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_experiments_registered_classes`
 
-No description available.
+Filters the list of registered experiment classes. Use this filter to register custom experiments: ```php add_filter( 'graphql_experiments_registered_classes', function( $registry ) { $registry['my-experiment'] = MyExperiment::class; return $registry; } ); ```
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
+
+## Parameters
+
+- `$registry` (`array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>`): The list of registered experiment classes, keyed by experiment slug.

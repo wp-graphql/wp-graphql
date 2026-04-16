@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_user_can_see_query_logs`
 
-No description available.
+Filter whether the logs can be seen in the request results or not
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/QueryLog.php`
+
+## Parameters
+
+- `$can_see` (`bool`): Whether the requester can see the logs or not

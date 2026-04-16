@@ -11,9 +11,19 @@ plugin: wp-graphql
 
 # `graphql_return_field_from_model`
 
-No description available.
+Filter the data returned by the default callback for the field
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
+
+## Parameters
+
+- `$field` (`mixed`): The data returned from the callback
+- `$field_name` (`string`): The name of the field on the type
+- `$model_name` (`string`): Name of the model the filter is currently being executed in
+- `$data` (`TData`): The un-modeled incoming data
+- `$visibility` (`string`): The visibility setting for this piece of data
+- `$owner` (`int|null`): The user ID for the owner of this piece of data
+- `$current_user` (`\WP_User`): The current user for the session

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:15:46.083Z",
+  "generatedAt": "2026-04-16T20:23:48.080Z",
   "count": 21,
   "hooks": [
     {
@@ -123,9 +123,20 @@
       "file": "plugins/wp-graphql/src/AppContext.php",
       "line": 219,
       "description": "",
-      "params": [],
+      "params": [
+        {
+          "type": "array<string,\\WPGraphQL\\Data\\Loader\\AbstractDataLoader>",
+          "name": "$loaders",
+          "description": "The loaders accessible in the AppContext"
+        },
+        {
+          "type": "\\WPGraphQL\\AppContext",
+          "name": "$context",
+          "description": "The AppContext"
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
+      "docblockParamCount": 2,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -235,9 +246,25 @@
       "file": "plugins/wp-graphql/src/Deprecated.php",
       "line": 63,
       "description": "",
-      "params": [],
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$interfaces",
+          "description": "List of interfaces applied to the Object Type"
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$config",
+          "description": "The config for the Object Type"
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPInterfaceType|\\WPGraphQL\\Type\\WPObjectType",
+          "name": "$type",
+          "description": "The Type instance"
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
+      "docblockParamCount": 3,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -271,10 +298,41 @@
       "file": "plugins/wp-graphql/src/Deprecated.php",
       "line": 165,
       "description": "",
-      "params": [],
+      "params": [
+        {
+          "type": "\\WP_Post|\\WP_Term",
+          "name": "$resolved_object",
+          "description": "Post or term connected to MenuItem"
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$args",
+          "description": "Array of arguments input in the field as part of the GraphQL query"
+        },
+        {
+          "type": "\\WPGraphQL\\AppContext",
+          "name": "$context",
+          "description": "Object containing app context that gets passed down the resolve tree"
+        },
+        {
+          "type": "\\GraphQL\\Type\\Definition\\ResolveInfo",
+          "name": "$info",
+          "description": "Info about fields passed down the resolve tree"
+        },
+        {
+          "type": "int",
+          "name": "$object_id",
+          "description": "Post or term ID of connected object"
+        },
+        {
+          "type": "string",
+          "name": "$object_type",
+          "description": "Type of connected object (\"post_type\" or \"taxonomy\")"
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
-      "since": null,
+      "docblockParamCount": 6,
+      "since": "0.0.30",
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_menu_item'",
@@ -307,9 +365,35 @@
       "file": "plugins/wp-graphql/src/Deprecated.php",
       "line": 91,
       "description": "",
-      "params": [],
+      "params": [
+        {
+          "type": "array<string,mixed>",
+          "name": "$fields",
+          "description": "The array of fields for the model"
+        },
+        {
+          "type": "string",
+          "name": "$model_name",
+          "description": "Name of the model the filter is currently being executed in"
+        },
+        {
+          "type": "string",
+          "name": "$visibility",
+          "description": "The visibility setting for this piece of data"
+        },
+        {
+          "type": "?int",
+          "name": "$owner",
+          "description": "The user ID for the owner of this piece of data"
+        },
+        {
+          "type": "\\WP_User",
+          "name": "$current_user",
+          "description": "The current user for the session"
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
+      "docblockParamCount": 5,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,

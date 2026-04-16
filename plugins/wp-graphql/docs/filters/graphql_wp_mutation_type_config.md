@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_wp_mutation_type_config`
 
-No description available.
+Filter the config of WPMutationType
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 1.13.0
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
+
+## Parameters
+
+- `$config` (`array<string,mixed>`): Array of configuration options passed to the WPMutationType when instantiating a new type
+- `$wp_mutation_type` (`\WPGraphQL\Type\WPMutationType`): The instance of the WPMutationType class

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_debug_log_entry`
 
-No description available.
+Filter the log entry for the debug log
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
+
+## Parameters
+
+- `$log` (`array<string,mixed>`): The log entry
+- `$config` (`array<string,mixed>`): The config passed in with the log entry

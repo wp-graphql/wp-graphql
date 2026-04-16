@@ -11,9 +11,18 @@ plugin: wp-graphql
 
 # `graphql_pre_mutate_and_get_payload`
 
-No description available.
+Filter to short circuit the mutateAndGetPayload callback. Returning anything other than null will stop the callback for the mutation from executing, and will return your data or execute your callback instead.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
+
+## Parameters
+
+- `$payload.` (`array<string,mixed>|callable|null`): The payload returned from the callback. Null by default.
+- `$mutation_name` (`string`): The name of the mutation field.
+- `$mutateAndGetPayload` (`callable|\Closure`): The callback for the mutation.
+- `$input` (`array<string,mixed>`): The mutation input args.
+- `$context` (`\WPGraphQL\AppContext`): The AppContext object.
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object.

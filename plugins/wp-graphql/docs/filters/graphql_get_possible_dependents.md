@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_get_possible_dependents`
 
-No description available.
+Filters the list of plugins that use WPGraphQL as a dependency. Can be used to hide false positives or to add additional plugins that may use WPGraphQL as a dependency.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+
+## Parameters
+
+- `$plugins` (`array<string,array<string,mixed>>`): The array of plugins that maybe use WPGraphQL as a dependency.
+- `$all_plugins` (`array<string,array<string,mixed>>`): The array of all plugins.

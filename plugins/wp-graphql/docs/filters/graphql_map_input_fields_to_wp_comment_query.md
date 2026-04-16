@@ -11,9 +11,9 @@ plugin: wp-graphql
 
 # `graphql_map_input_fields_to_wp_comment_query`
 
-No description available.
+Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the get_terms query
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`

@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_admin_notices_init`
 
-No description available.
+Fires when admin notices are initialized.
 
 - **Type:** action
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** v1.21.0
 - **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+
+## Parameters
+
+- `$admin_notices` (`self`): The admin notices manager instance.

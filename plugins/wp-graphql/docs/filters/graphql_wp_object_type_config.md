@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_wp_object_type_config`
 
-No description available.
+Filter the config of WPObjectType
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
+
+## Parameters
+
+- `$config` (`ObjectConfig`): Array of configuration options passed to the WPObjectType when instantiating a new type
+- `$wp_object_type` (`\WPGraphQL\Type\WPObjectType`): The instance of the WPObjectType class

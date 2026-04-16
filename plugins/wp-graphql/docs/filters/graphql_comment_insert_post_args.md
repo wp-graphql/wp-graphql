@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_comment_insert_post_args`
 
-No description available.
+Filter the $insert_post_args
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/CommentMutation.php`
+
+## Parameters
+
+- `$output_args` (`array<string,mixed>`): The array of $input_post_args that will be passed to wp_new_comment
+- `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
+- `$mutation_type` (`string`): The type of mutation being performed ( create, edit, etc )

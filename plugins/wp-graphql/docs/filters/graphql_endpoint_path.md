@@ -15,5 +15,9 @@ No description available.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/access-functions.php`
+
+## Parameters
+
+- `$endpoint_path` (`string`): The relative endpoint path that GraphQL can be accessed at.

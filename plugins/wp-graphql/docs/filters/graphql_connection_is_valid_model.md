@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_connection_is_valid_model`
 
-No description available.
+Filters whether or not the model is valid. This is useful when the dataloader is overridden and uses a different model than expected by default.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$is_valid` (`bool`): Whether or not the model is valid.
+- `$model` (`mixed`): The model being validated
+- `$resolver` (`self`): The connection resolver instance

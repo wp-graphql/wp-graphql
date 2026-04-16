@@ -59,104 +59,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_admin_notices_init",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 99,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_admin_notices_init",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 99,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_admin_notices_init",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 99,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_admin_notices_init",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 99,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_add_admin_notice",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 161,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_add_admin_notice",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 161,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_add_admin_notice",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 161,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_add_admin_notice",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 161,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_admin_notices_render_notices",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 309,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_admin_notices_render_notice",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 348,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_admin_notices_is_allowed_admin_page",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 387,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_admin_notices_is_allowed_admin_page",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 387,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_admin_notices_is_allowed_admin_page",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 387,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_admin_notices_is_allowed_admin_page",
-      "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 387,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_get_extensions",
       "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
       "line": 402,
@@ -168,20 +70,6 @@
       "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
       "line": 402,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_get_extensions",
-      "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
-      "line": 402,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_get_extensions",
-      "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
-      "line": 402,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -209,34 +97,6 @@
       "hook": "graphql_render_admin_page",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
       "line": 266,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 101,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 101,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 101,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 101,
       "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
@@ -303,20 +163,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_setting_field_config",
-      "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 137,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_setting_field_config",
-      "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 137,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_init_settings",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
@@ -357,20 +203,6 @@
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
       "line": 167,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_settings_sections",
-      "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 167,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_settings_sections",
-      "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 167,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -430,90 +262,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_enable_major_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 317,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_enable_major_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 317,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_enable_major_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 317,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_enable_major_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 317,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_enable_untested_autoupdates",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 352,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_untested_release_type",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 380,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_untested_release_type",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 380,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_untested_release_type",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 380,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_untested_release_type",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 380,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_get_dependents",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 425,
@@ -525,20 +273,6 @@
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 425,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_get_dependents",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 425,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_get_dependents",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 425,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -555,20 +289,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_get_possible_dependents",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 465,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_get_possible_dependents",
-      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 465,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_app_context_config",
       "file": "plugins/wp-graphql/src/AppContext.php",
@@ -583,20 +303,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_app_context_config",
-      "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 176,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_app_context_config",
-      "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 176,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_data_loader_classes",
       "file": "plugins/wp-graphql/src/AppContext.php",
@@ -609,20 +315,6 @@
       "file": "plugins/wp-graphql/src/AppContext.php",
       "line": 197,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_data_loader_classes",
-      "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 197,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_data_loader_classes",
-      "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 197,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -646,20 +338,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_comment_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-      "line": 110,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_comment_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-      "line": 110,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_comment_object_mutation_update_additional_data",
       "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
@@ -702,20 +380,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_wp_query_cursor_pagination_stability",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 184,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_wp_query_cursor_pagination_stability",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 184,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_wp_query_cursor_pagination_support",
       "file": "plugins/wp-graphql/src/Data/Config.php",
@@ -728,20 +392,6 @@
       "file": "plugins/wp-graphql/src/Data/Config.php",
       "line": 235,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_wp_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 235,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_wp_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 235,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -758,20 +408,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_wp_user_query_cursor_pagination_stability",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 287,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_wp_user_query_cursor_pagination_stability",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 287,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_wp_user_query_cursor_pagination_support",
       "file": "plugins/wp-graphql/src/Data/Config.php",
@@ -784,20 +420,6 @@
       "file": "plugins/wp-graphql/src/Data/Config.php",
       "line": 338,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_wp_user_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 338,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_wp_user_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 338,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -814,20 +436,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_wp_term_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 390,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_wp_term_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 390,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_wp_comments_query_cursor_pagination_support",
       "file": "plugins/wp-graphql/src/Data/Config.php",
@@ -842,46 +450,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_wp_comments_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 465,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_wp_comments_query_cursor_pagination_support",
-      "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 465,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_args",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 225,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 225,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 225,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 225,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -898,20 +471,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 239,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 239,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_loader_name",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -926,46 +485,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_loader_name",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 559,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_loader_name",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 559,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_max_query_amount",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 618,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_connection_max_query_amount",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 618,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_max_query_amount",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 618,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_max_query_amount",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 618,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -982,20 +506,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_query_class",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 683,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_query_class",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 683,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_pre_get_query",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -1008,20 +518,6 @@
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 716,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_pre_get_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 716,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_pre_get_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 716,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1036,13 +532,6 @@
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 812,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_page_info",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 812,
-      "message": "Missing hook description in nearest docblock"
     },
     {
       "type": "missing_hook_params",
@@ -1066,20 +555,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_pre_should_execute",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 887,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_pre_should_execute",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 887,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_default_query_amount",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -1092,20 +567,6 @@
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 922,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_default_query_amount",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 922,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_default_query_amount",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 922,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1122,20 +583,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_nodes",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1004,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_nodes",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1004,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_edges",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -1148,48 +595,6 @@
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 1014,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_edges",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1014,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_edges",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1014,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_connection_resolved",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1041,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_connection_resolved",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1041,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_resolved",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1041,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_resolved",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1041,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1206,20 +611,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_should_execute",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1076,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_should_execute",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1076,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_query",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -1232,20 +623,6 @@
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 1103,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1103,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1103,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1262,20 +639,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_ids",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1113,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_ids",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1113,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_connection_is_valid_model",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -1288,20 +651,6 @@
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 1345,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_is_valid_model",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1345,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_is_valid_model",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1345,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1318,46 +667,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_connection_edge",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1374,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_connection_edge",
-      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1374,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_comment_connection_query_args",
       "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
       "line": 135,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_comment_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 135,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_comment_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 135,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_comment_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 135,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1367,46 +681,11 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_comment_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 238,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_comment_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 238,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_comment_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 238,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_map_input_fields_to_wp_comment_query",
       "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
       "line": 294,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_map_input_fields_to_wp_comment_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 294,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_map_input_fields_to_wp_comment_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 294,
-      "message": "Missing hook description in nearest docblock"
     },
     {
       "type": "missing_hook_params",
@@ -1423,27 +702,6 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_menu_item_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
-      "line": 107,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_menu_item_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
-      "line": 107,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_menu_item_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
-      "line": 107,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_post_object_connection_query_args",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
@@ -1458,46 +716,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 369,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 369,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_map_input_fields_to_wp_query",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
       "line": 440,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_map_input_fields_to_wp_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 440,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_map_input_fields_to_wp_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 440,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_map_input_fields_to_wp_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 440,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1507,53 +730,11 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 588,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 588,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 588,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_term_object_connection_query_args",
       "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
       "line": 140,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_term_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 140,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_term_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 140,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_term_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 140,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1563,27 +744,6 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_map_input_fields_to_get_terms",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 234,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_map_input_fields_to_get_terms",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 234,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_map_input_fields_to_get_terms",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 234,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_term_object_connection_args",
       "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
@@ -1591,53 +751,11 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_term_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 282,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_term_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 282,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_term_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
-      "line": 282,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_map_input_fields_to_wp_user_query",
       "file": "plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php",
       "line": 260,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_map_input_fields_to_wp_user_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php",
-      "line": 260,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_map_input_fields_to_wp_user_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php",
-      "line": 260,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_map_input_fields_to_wp_user_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php",
-      "line": 260,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1654,20 +772,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_comment_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/CommentObjectCursor.php",
-      "line": 64,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_comment_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/CommentObjectCursor.php",
-      "line": 64,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_cursor_ordering_field",
       "file": "plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php",
@@ -1680,20 +784,6 @@
       "file": "plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php",
       "line": 58,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_cursor_ordering_field",
-      "file": "plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php",
-      "line": 58,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_cursor_ordering_field",
-      "file": "plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php",
-      "line": 58,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1710,20 +800,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_post_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 66,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_post_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 66,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_post_object_cursor_meta_key",
       "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
@@ -1736,20 +812,6 @@
       "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
       "line": 250,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_cursor_meta_key",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 250,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_cursor_meta_key",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 250,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1766,20 +828,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_term_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php",
-      "line": 48,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_term_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php",
-      "line": 48,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_user_cursor_node",
       "file": "plugins/wp-graphql/src/Data/Cursor/UserCursor.php",
@@ -1794,39 +842,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_user_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/UserCursor.php",
-      "line": 83,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_user_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/UserCursor.php",
-      "line": 83,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_allowed_settings_by_group",
       "file": "plugins/wp-graphql/src/Data/DataSource.php",
       "line": 388,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_allowed_settings_by_group",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 388,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_allowed_settings_by_group",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 388,
-      "message": "Missing hook description in nearest docblock"
     },
     {
       "type": "missing_hook_params",
@@ -1843,20 +863,6 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_allowed_setting_groups",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 444,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_allowed_setting_groups",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 444,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
       "type": "missing_hook_params",
       "hook": "graphql_allowed_setting_groups",
       "file": "plugins/wp-graphql/src/Data/DataSource.php",
@@ -1869,27 +875,6 @@
       "file": "plugins/wp-graphql/src/Data/DataSource.php",
       "line": 552,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_resolve_node_type",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 552,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_resolve_node_type",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 552,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_resolve_node_type",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 552,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1934,20 +919,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_dataloader_get_model",
-      "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 377,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_dataloader_get_model",
-      "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 377,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_dataloader_get_cached",
       "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
@@ -1960,20 +931,6 @@
       "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
       "line": 401,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_dataloader_get_cached",
-      "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 401,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_dataloader_get_cached",
-      "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 401,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -1990,20 +947,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_dataloader_set_cached",
-      "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 433,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_dataloader_set_cached",
-      "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 433,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_media_item_insert_post_args",
       "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
@@ -2016,20 +959,6 @@
       "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
       "line": 103,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_media_item_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 103,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_media_item_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 103,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2060,20 +989,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 123,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 123,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_resolve_uri_query_class",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
@@ -2086,20 +1001,6 @@
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
       "line": 170,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_resolve_uri_query_class",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 170,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_resolve_uri_query_class",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 170,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2116,20 +1017,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 238,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 238,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_post_resolve_uri",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
@@ -2144,20 +1031,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 336,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 336,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_post_object_insert_post_args",
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
@@ -2170,20 +1043,6 @@
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
       "line": 112,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 112,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 112,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2228,20 +1087,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_mutations_allow_term_creation",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 282,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_mutations_allow_term_creation",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 282,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_term_object_insert_term_args",
       "file": "plugins/wp-graphql/src/Data/TermObjectMutation.php",
@@ -2254,20 +1099,6 @@
       "file": "plugins/wp-graphql/src/Data/TermObjectMutation.php",
       "line": 108,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_term_object_insert_term_args",
-      "file": "plugins/wp-graphql/src/Data/TermObjectMutation.php",
-      "line": 108,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_term_object_insert_term_args",
-      "file": "plugins/wp-graphql/src/Data/TermObjectMutation.php",
-      "line": 108,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2284,18 +1115,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
+      "type": "missing_hook_param_description",
       "hook": "graphql_user_mutation_input_fields",
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
       "line": 134,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_user_mutation_input_fields",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 134,
-      "message": "Hook receives arguments but docblock is missing @param entries"
+      "message": "@param entry 1 ($input_fields) is missing a description"
     },
     {
       "type": "missing_hook_group",
@@ -2310,20 +1134,6 @@
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
       "line": 233,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_user_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 233,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_user_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 233,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2397,34 +1207,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 390,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 390,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 390,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_experiment_config",
-      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 390,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_experimental_features_cap",
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
       "line": 112,
@@ -2436,20 +1218,6 @@
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
       "line": 112,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_experimental_features_cap",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 112,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_experimental_features_cap",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 112,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2464,20 +1232,6 @@
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
       "line": 291,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_experiments_registered_classes",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 291,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_experiments_registered_classes",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 291,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2509,34 +1263,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_experimental_features_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 68,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_experimental_features_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 68,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_experimental_features_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 68,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_experimental_features_enabled",
-      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 68,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_should_show_experiments_in_extensions",
       "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
       "line": 57,
@@ -2548,20 +1274,6 @@
       "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
       "line": 57,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_should_show_experiments_in_extensions",
-      "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
-      "line": 57,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_should_show_experiments_in_extensions",
-      "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
-      "line": 57,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2578,20 +1290,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_restricted_data_cap",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 215,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_restricted_data_cap",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 215,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_model_data_is_private",
       "file": "plugins/wp-graphql/src/Model/Model.php",
@@ -2604,20 +1302,6 @@
       "file": "plugins/wp-graphql/src/Model/Model.php",
       "line": 230,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_model_data_is_private",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 230,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_model_data_is_private",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 230,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2634,20 +1318,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_data_is_private",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 252,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_data_is_private",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 252,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_object_visibility",
       "file": "plugins/wp-graphql/src/Model/Model.php",
@@ -2662,20 +1332,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_object_visibility",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 276,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_object_visibility",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 276,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_return_field_from_model",
       "file": "plugins/wp-graphql/src/Model/Model.php",
@@ -2688,20 +1344,6 @@
       "file": "plugins/wp-graphql/src/Model/Model.php",
       "line": 353,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_return_field_from_model",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 353,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_return_field_from_model",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 353,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2732,20 +1374,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_return_field_from_model",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 420,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_return_field_from_model",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 420,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_model_field_capability",
       "file": "plugins/wp-graphql/src/Model/Model.php",
@@ -2758,20 +1386,6 @@
       "file": "plugins/wp-graphql/src/Model/Model.php",
       "line": 450,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_model_field_capability",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 450,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_model_field_capability",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 450,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2788,20 +1402,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_model_prepare_fields",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 499,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_model_prepare_fields",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 499,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_html_entity_decoding_enabled",
       "file": "plugins/wp-graphql/src/Model/Model.php",
@@ -2814,20 +1414,6 @@
       "file": "plugins/wp-graphql/src/Model/Model.php",
       "line": 524,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_html_entity_decoding_enabled",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 524,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_html_entity_decoding_enabled",
-      "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 524,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2844,20 +1430,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_media_item_create_allowed_protocols",
-      "file": "plugins/wp-graphql/src/Mutation/MediaItemCreate.php",
-      "line": 210,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_media_item_create_allowed_protocols",
-      "file": "plugins/wp-graphql/src/Mutation/MediaItemCreate.php",
-      "line": 210,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_post_object_create_default_post_status",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
@@ -2872,20 +1444,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_create_default_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 289,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_create_default_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 289,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_post_object_create_should_set_intended_post_status",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
@@ -2898,20 +1456,6 @@
       "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
       "line": 370,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_object_create_should_set_intended_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 370,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_object_create_should_set_intended_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 370,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -2996,34 +1540,6 @@
       "file": "plugins/wp-graphql/src/Mutation/TermObjectUpdate.php",
       "line": 176,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
-      "line": 82,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
-      "line": 82,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
-      "line": 82,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
-      "line": 82,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3089,20 +1605,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_introspection_keys",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 918,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_introspection_keys",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 918,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_get_type",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
@@ -3117,46 +1619,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_get_type",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1028,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_get_type",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1028,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_excluded_types",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
       "line": 1492,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_excluded_types",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1492,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_excluded_types",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1492,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_excluded_types",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1492,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3166,53 +1633,11 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_excluded_connections",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1519,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_excluded_connections",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1519,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_excluded_connections",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1519,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_excluded_mutations",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
       "line": 1545,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_excluded_mutations",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1545,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_excluded_mutations",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1545,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_excluded_mutations",
-      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1545,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3236,20 +1661,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_validation_rules",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 226,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_validation_rules",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 226,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_root_value",
       "file": "plugins/wp-graphql/src/Request.php",
@@ -3262,20 +1673,6 @@
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 246,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_root_value",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 246,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_root_value",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 246,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3320,20 +1717,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_authentication_errors",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 391,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_authentication_errors",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 391,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_after_execute",
       "file": "plugins/wp-graphql/src/Request.php",
@@ -3355,27 +1738,6 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_request_results",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 552,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_request_results",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 552,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_request_results",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 552,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_return_response",
       "file": "plugins/wp-graphql/src/Request.php",
@@ -3390,32 +1752,18 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_group",
+      "type": "missing_hook_param_description",
       "hook": "graphql_pre_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 678,
-      "message": "Missing @hookGroup tag"
+      "message": "@param entry 1 ($response) is missing a description"
     },
     {
-      "type": "missing_hook_since",
+      "type": "missing_hook_param_description",
       "hook": "graphql_pre_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 678,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_execute_request",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 678,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_execute_request",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 678,
-      "message": "Hook receives arguments but docblock is missing @param entries"
+      "message": "@param entry 2 ($request) is missing a description"
     },
     {
       "type": "missing_hook_group",
@@ -3432,18 +1780,18 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
+      "type": "missing_hook_param_description",
       "hook": "graphql_execute_query_params",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 700,
-      "message": "Missing hook description in nearest docblock"
+      "message": "@param entry 1 ($query) is missing a description"
     },
     {
-      "type": "missing_hook_params",
+      "type": "missing_hook_param_description",
       "hook": "graphql_execute_query_params",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 700,
-      "message": "Hook receives arguments but docblock is missing @param entries"
+      "message": "@param entry 2 ($params) is missing a description"
     },
     {
       "type": "missing_hook_group",
@@ -3460,13 +1808,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_execute_request",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 783,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
       "type": "missing_hook_params",
       "hook": "graphql_pre_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
@@ -3481,27 +1822,6 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_is_valid_http_content_type",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 827,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_is_valid_http_content_type",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 827,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_is_valid_http_content_type",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 827,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_invalid_content_type_status_code",
       "file": "plugins/wp-graphql/src/Request.php",
@@ -3516,20 +1836,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_invalid_content_type_status_code",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 859,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_invalid_content_type_status_code",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 859,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_is_batch_queries_enabled",
       "file": "plugins/wp-graphql/src/Request.php",
@@ -3542,20 +1848,6 @@
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 923,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_is_batch_queries_enabled",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 923,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_is_batch_queries_enabled",
-      "file": "plugins/wp-graphql/src/Request.php",
-      "line": 923,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3579,20 +1871,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_is_graphql_http_request",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 155,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_is_graphql_http_request",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 155,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_is_graphql_http_request",
       "file": "plugins/wp-graphql/src/Router.php",
@@ -3607,20 +1885,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_is_graphql_http_request",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 205,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_is_graphql_http_request",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 205,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_access_control_allow_headers",
       "file": "plugins/wp-graphql/src/Router.php",
@@ -3633,20 +1897,6 @@
       "file": "plugins/wp-graphql/src/Router.php",
       "line": 304,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_access_control_allow_headers",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 304,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_access_control_allow_headers",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 304,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3689,20 +1939,6 @@
       "file": "plugins/wp-graphql/src/Router.php",
       "line": 369,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_response_headers_to_send",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 369,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_response_headers_to_send",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 369,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3724,27 +1960,6 @@
       "file": "plugins/wp-graphql/src/Router.php",
       "line": 481,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_authentication_error_status_code",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 481,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_authentication_error_status_code",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 481,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_authentication_error_status_code",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 481,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3768,20 +1983,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_http_request_response_errors",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 560,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_http_request_response_errors",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 560,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_process_http_request_response",
       "file": "plugins/wp-graphql/src/Router.php",
@@ -3803,46 +2004,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_response_status_code",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 622,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_response_status_code",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 622,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_cookie_auth_require_nonce",
       "file": "plugins/wp-graphql/src/Router.php",
       "line": 721,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_cookie_auth_require_nonce",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 721,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_cookie_auth_require_nonce",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 721,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_cookie_auth_require_nonce",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 721,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3859,20 +2025,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_authentication_errors",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 740,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_authentication_errors",
-      "file": "plugins/wp-graphql/src/Router.php",
-      "line": 740,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_restrict_endpoint",
       "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
@@ -3887,20 +2039,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_restrict_endpoint",
-      "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
-      "line": 31,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_restrict_endpoint",
-      "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
-      "line": 31,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_require_authentication_allowed_fields",
       "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
@@ -3913,20 +2051,6 @@
       "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
       "line": 71,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_require_authentication_allowed_fields",
-      "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
-      "line": 71,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_require_authentication_allowed_fields",
-      "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
-      "line": 71,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -3999,20 +2123,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_resolve_menu_item_connected_node",
-      "file": "plugins/wp-graphql/src/Type/ObjectType/MenuItem.php",
-      "line": 57,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_resolve_menu_item_connected_node",
-      "file": "plugins/wp-graphql/src/Type/ObjectType/MenuItem.php",
-      "line": 57,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_wp_connection_type_config",
       "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
@@ -4027,20 +2137,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_wp_connection_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 148,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_wp_connection_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 148,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
       "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
@@ -4053,20 +2149,6 @@
       "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
       "line": 163,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 163,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 163,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4118,18 +2200,18 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
+      "type": "missing_hook_param_description",
       "hook": "graphql_enum_values",
       "file": "plugins/wp-graphql/src/Type/WPEnumType.php",
       "line": 106,
-      "message": "Missing hook description in nearest docblock"
+      "message": "@param entry 1 ($values) is missing a description"
     },
     {
-      "type": "missing_hook_params",
+      "type": "missing_hook_param_description",
       "hook": "graphql_enum_values",
       "file": "plugins/wp-graphql/src/Type/WPEnumType.php",
       "line": 106,
-      "message": "Hook receives arguments but docblock is missing @param entries"
+      "message": "@param entry 2 ($type_name) is missing a description"
     },
     {
       "type": "missing_hook_group",
@@ -4139,25 +2221,18 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
+      "type": "missing_hook_param_description",
       "hook": "'graphql_' . lcfirst( $type_name ) . '_values'",
       "file": "plugins/wp-graphql/src/Type/WPEnumType.php",
       "line": 121,
-      "message": "Missing @since tag in nearest docblock"
+      "message": "@param entry 1 ($values) is missing a description"
     },
     {
-      "type": "missing_hook_description",
+      "type": "missing_hook_param_description",
       "hook": "'graphql_' . lcfirst( $type_name ) . '_values'",
       "file": "plugins/wp-graphql/src/Type/WPEnumType.php",
       "line": 121,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "'graphql_' . lcfirst( $type_name ) . '_values'",
-      "file": "plugins/wp-graphql/src/Type/WPEnumType.php",
-      "line": 121,
-      "message": "Hook receives arguments but docblock is missing @param entries"
+      "message": "@param entry 2 ($type_name) is missing a description"
     },
     {
       "type": "missing_hook_group",
@@ -4230,20 +2305,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_input_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
-      "line": 101,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_input_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
-      "line": 101,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_{$lc_type_name}_fields",
       "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
@@ -4256,20 +2317,6 @@
       "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
       "line": 118,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_{$lc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
-      "line": 118,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_{$lc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
-      "line": 118,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4286,20 +2333,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_{$uc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
-      "line": 129,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_{$uc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInputObjectType.php",
-      "line": 129,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_type_interfaces",
       "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
@@ -4312,20 +2345,6 @@
       "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
       "line": 37,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_type_interfaces",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
-      "line": 37,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_type_interfaces",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
-      "line": 37,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4370,20 +2389,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_interface_resolve_type",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 69,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_interface_resolve_type",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 69,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_wp_interface_type_config",
       "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
@@ -4396,20 +2401,6 @@
       "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
       "line": 78,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_wp_interface_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 78,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_wp_interface_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 78,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4426,20 +2417,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_interface_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 117,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_interface_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 117,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_{$lc_type_name}_fields",
       "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
@@ -4452,20 +2429,6 @@
       "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
       "line": 133,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_{$lc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 133,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_{$lc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 133,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4482,46 +2445,11 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_{$uc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 143,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_{$uc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPInterfaceType.php",
-      "line": 143,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_wp_mutation_type_config",
       "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
       "line": 88,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_wp_mutation_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 88,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_wp_mutation_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 88,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_wp_mutation_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 88,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4545,20 +2473,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_mutation_input",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 216,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_mutation_input",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 216,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_mutate_and_get_payload",
       "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
@@ -4573,20 +2487,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_mutate_and_get_payload",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 230,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_mutate_and_get_payload",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 230,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_mutation_payload",
       "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
@@ -4599,20 +2499,6 @@
       "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
       "line": 246,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_mutation_payload",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 246,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_mutation_payload",
-      "file": "plugins/wp-graphql/src/Type/WPMutationType.php",
-      "line": 246,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4641,20 +2527,6 @@
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
       "line": 77,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_wp_object_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 77,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_wp_object_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 77,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4713,20 +2585,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_object_fields",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 167,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_object_fields",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 167,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_{$lc_type_name}_fields",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
@@ -4741,20 +2599,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_{$lc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 185,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_{$lc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 185,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_{$uc_type_name}_fields",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
@@ -4767,20 +2611,6 @@
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
       "line": 197,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_{$uc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 197,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_{$uc_type_name}_fields",
-      "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 197,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -4937,20 +2767,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_wp_union_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 77,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_wp_union_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 77,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_wp_union_type",
       "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
@@ -4993,20 +2809,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_debug_logs_enabled",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 42,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_debug_logs_enabled",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 42,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_debug_log_entry",
       "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
@@ -5019,20 +2821,6 @@
       "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
       "line": 101,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_debug_log_entry",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 101,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_debug_log_entry",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 101,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5063,20 +2851,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_debug_log",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 137,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_debug_log",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 137,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_field_definition",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
@@ -5089,20 +2863,6 @@
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
       "line": 69,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_field_definition",
-      "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 69,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_field_definition",
-      "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 69,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5133,20 +2893,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_resolve_field",
-      "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 139,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_resolve_field",
-      "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 139,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_resolve_field",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
@@ -5159,20 +2905,6 @@
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
       "line": 169,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_resolve_field",
-      "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 169,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_resolve_field",
-      "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 169,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5231,20 +2963,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_resolve_revision_meta_from_parent",
-      "file": "plugins/wp-graphql/src/Utils/Preview.php",
-      "line": 37,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_resolve_revision_meta_from_parent",
-      "file": "plugins/wp-graphql/src/Utils/Preview.php",
-      "line": 37,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_should_analyze_queries",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
@@ -5257,20 +2975,6 @@
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
       "line": 161,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_should_analyze_queries",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 161,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_should_analyze_queries",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 161,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5287,20 +2991,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_should_analyze_query",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 200,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_should_analyze_query",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 200,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_query_analyzer_header_length_limit",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
@@ -5313,20 +3003,6 @@
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
       "line": 241,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_query_analyzer_header_length_limit",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 241,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_query_analyzer_header_length_limit",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 241,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5371,13 +3047,6 @@
       "message": "Missing hook description in nearest docblock"
     },
     {
-      "type": "missing_hook_params",
-      "hook": "graphql_query_analyzer_get_runtime_nodes",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 329,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_pre_query_analyzer_get_list_types",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
@@ -5560,20 +3229,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_query_analyzer_runtime_node",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 723,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_query_analyzer_runtime_node",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 723,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_query_analyzer_graphql_keys",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
@@ -5593,13 +3248,6 @@
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
       "line": 823,
       "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_query_analyzer_graphql_keys",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 823,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5623,13 +3271,6 @@
       "message": "Missing hook description in nearest docblock"
     },
     {
-      "type": "missing_hook_params",
-      "hook": "graphql_query_analyzer_get_headers",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 862,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_should_show_query_analyzer_in_extensions",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
@@ -5651,13 +3292,6 @@
       "message": "Missing hook description in nearest docblock"
     },
     {
-      "type": "missing_hook_params",
-      "hook": "graphql_should_show_query_analyzer_in_extensions",
-      "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 887,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_user_can_see_query_logs",
       "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
@@ -5670,20 +3304,6 @@
       "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
       "line": 90,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_user_can_see_query_logs",
-      "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-      "line": 90,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_user_can_see_query_logs",
-      "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-      "line": 90,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5700,20 +3320,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_tracing_response",
-      "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-      "line": 169,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_tracing_response",
-      "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-      "line": 169,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_user_can_see_trace_data",
       "file": "plugins/wp-graphql/src/Utils/Tracing.php",
@@ -5728,20 +3334,6 @@
       "message": "Missing @since tag in nearest docblock"
     },
     {
-      "type": "missing_hook_description",
-      "hook": "graphql_user_can_see_trace_data",
-      "file": "plugins/wp-graphql/src/Utils/Tracing.php",
-      "line": 357,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_user_can_see_trace_data",
-      "file": "plugins/wp-graphql/src/Utils/Tracing.php",
-      "line": 357,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_tracing_response",
       "file": "plugins/wp-graphql/src/Utils/Tracing.php",
@@ -5754,20 +3346,6 @@
       "file": "plugins/wp-graphql/src/Utils/Tracing.php",
       "line": 384,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_tracing_response",
-      "file": "plugins/wp-graphql/src/Utils/Tracing.php",
-      "line": 384,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_tracing_response",
-      "file": "plugins/wp-graphql/src/Utils/Tracing.php",
-      "line": 384,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5782,13 +3360,6 @@
       "file": "plugins/wp-graphql/src/Utils/Utils.php",
       "line": 23,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_query_id_hash_algorithm",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 23,
-      "message": "Missing hook description in nearest docblock"
     },
     {
       "type": "missing_hook_params",
@@ -5810,20 +3381,6 @@
       "file": "plugins/wp-graphql/src/Utils/Utils.php",
       "line": 137,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_pre_format_name",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 137,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_pre_format_name",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 137,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5855,87 +3412,10 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_register_post_type_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 624,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_register_post_type_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 624,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_register_post_type_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 624,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_register_post_type_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 624,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_register_taxonomy_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 663,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_register_taxonomy_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 663,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_register_taxonomy_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 663,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_register_taxonomy_args",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 663,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_post_entities_allowed_post_types",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
       "line": 760,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_entities_allowed_post_types",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 760,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_post_entities_allowed_post_types",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 760,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_post_entities_allowed_post_types",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 760,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -5943,55 +3423,6 @@
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
       "line": 845,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_term_entities_allowed_taxonomies",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 845,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_term_entities_allowed_taxonomies",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 845,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_term_entities_allowed_taxonomies",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 845,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 924,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 924,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 924,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_schema_instance",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 924,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -6036,39 +3467,11 @@
       "message": "Missing hook description in nearest docblock"
     },
     {
-      "type": "missing_hook_params",
-      "hook": "graphql_debug_enabled",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 960,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_type_registry",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
       "line": 983,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_type_registry",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 983,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_type_registry",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 983,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_type_registry",
-      "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 983,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -6099,27 +3502,6 @@
       "message": "Missing @hookGroup tag"
     },
     {
-      "type": "missing_hook_since",
-      "hook": "graphql_schema_config",
-      "file": "plugins/wp-graphql/src/WPSchema.php",
-      "line": 52,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_schema_config",
-      "file": "plugins/wp-graphql/src/WPSchema.php",
-      "line": 52,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_schema_config",
-      "file": "plugins/wp-graphql/src/WPSchema.php",
-      "line": 52,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
       "type": "missing_hook_group",
       "hook": "graphql_get_setting_section_fields",
       "file": "plugins/wp-graphql/access-functions.php",
@@ -6132,20 +3514,6 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 863,
       "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_get_setting_section_fields",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 863,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_get_setting_section_fields",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 863,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     },
     {
       "type": "missing_hook_group",
@@ -6163,45 +3531,10 @@
     },
     {
       "type": "missing_hook_description",
-      "hook": "graphql_get_setting_section_field_value",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 882,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_get_setting_section_field_value",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 882,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 900,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 900,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
       "hook": "graphql_endpoint_path",
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 900,
       "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 900,
-      "message": "Hook receives arguments but docblock is missing @param entries"
     }
   ]
 }

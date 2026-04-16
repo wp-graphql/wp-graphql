@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_register_taxonomy_args`
 
-No description available.
+Filters the graphql args set on a taxonomy
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$args` (`array<string,mixed>`): The graphql specific args for the taxonomy
+- `$taxonomy_name` (`string`): The name of the taxonomy being registered

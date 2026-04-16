@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_is_batch_queries_enabled`
 
-No description available.
+Filter whether batch queries are supported or not
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$batch_queries_enabled` (`bool`): Whether Batch Queries should be enabled
+- `$params` (`\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]`): Request operation params

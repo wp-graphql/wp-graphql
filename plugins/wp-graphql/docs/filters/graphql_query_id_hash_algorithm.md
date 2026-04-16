@@ -11,7 +11,7 @@ plugin: wp-graphql
 
 # `graphql_query_id_hash_algorithm`
 
-No description available.
+Filter the hash algorithm to allow different algorithms.
 
 - **Type:** filter
 - **Group:** Uncategorized

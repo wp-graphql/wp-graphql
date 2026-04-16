@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_ids`
 
-No description available.
+Filter the connection IDs
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$ids` (`int[]|string[]`): Array of IDs this connection will be resolving
+- `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the Connection Resolver

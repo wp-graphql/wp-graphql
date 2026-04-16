@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_comment_connection_query_args`
 
-No description available.
+Filters the query args used by the connection.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
+
+## Parameters
+
+- `$query_args` (`array<string,mixed>`): array of query_args being passed to the
+- `$source` (`mixed`): source passed down from the resolve tree
+- `$args` (`array<string,mixed>`): array of arguments input in the field as part of the GraphQL query
+- `$context` (`\WPGraphQL\AppContext`): object passed down the resolve tree
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): info about fields passed down the resolve tree

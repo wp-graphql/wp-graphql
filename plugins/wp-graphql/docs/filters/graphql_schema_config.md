@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_schema_config`
 
-No description available.
+Set the $filterable_config as the $config that was passed to the WPSchema when instantiated
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.9
 - **Source:** `plugins/wp-graphql/src/WPSchema.php`
+
+## Parameters
+
+- `$config` (`\GraphQL\Type\SchemaConfig`): The config for the Schema.
+- `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The WPGraphQL type registry.

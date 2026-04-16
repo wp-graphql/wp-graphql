@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_wp_union_type_config`
 
-No description available.
+Filter the config of WPUnionType
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+
+## Parameters
+
+- `$config` (`UnionConfig`): Array of configuration options passed to the WPUnionType when instantiating a new type
+- `$instance` (`\WPGraphQL\Type\WPUnionType`): The instance of the WPUnionType class

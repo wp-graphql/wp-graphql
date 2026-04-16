@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_term_entities_allowed_taxonomies`
 
-No description available.
+Pass through a filter to allow the taxonomies to be modified. For example if a certain taxonomy should not be exposed to the GraphQL API.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.2
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$tax_names` (`string[]`): Array of taxonomy names
+- `$tax_objects` (`\WP_Taxonomy[]`): Array of taxonomy objects.

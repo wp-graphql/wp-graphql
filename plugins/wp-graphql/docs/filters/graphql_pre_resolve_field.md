@@ -11,9 +11,21 @@ plugin: wp-graphql
 
 # `graphql_pre_resolve_field`
 
-No description available.
+When this filter return anything other than the $nil it will be used as the resolved value and the execution of the actual resolved is skipped. This filter can be used to implement field level caches or for efficiently hiding data by returning null.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+
+## Parameters
+
+- `$nil` (`mixed`): Unique nil value
+- `$source` (`mixed`): The source passed down the Resolve Tree
+- `$args` (`array<string,mixed>`): The args for the field
+- `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the ResolveTree
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the ResolveTree
+- `$type_name` (`string`): The name of the type the fields belong to
+- `$field_key` (`string`): The name of the field
+- `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The Field Definition for the resolving field
+- `$field_resolver` (`?callable`): The default field resolver

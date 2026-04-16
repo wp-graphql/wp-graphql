@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_post_entities_allowed_post_types`
 
-No description available.
+Pass through a filter to allow the post_types to be modified. For example if a certain post_type should not be exposed to the GraphQL API.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.2
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$post_type_names` (`string[]`): Array of post type names.
+- `$post_type_objects` (`\WP_Post_Type[]`): Array of post type objects.

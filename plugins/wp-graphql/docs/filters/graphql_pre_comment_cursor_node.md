@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_pre_comment_cursor_node`
 
-No description available.
+If pre-hooked, return filtered node.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/CommentObjectCursor.php`
+
+## Parameters
+
+- `$pre_comment` (`\WP_Comment|null`): The pre-filtered comment node.
+- `$offset` (`int`): The cursor offset.
+- `$node` (`\WPGraphQL\Data\Cursor\CommentObjectCursor`): The cursor instance.

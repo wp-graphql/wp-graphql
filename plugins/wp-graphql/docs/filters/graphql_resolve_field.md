@@ -11,9 +11,21 @@ plugin: wp-graphql
 
 # `graphql_resolve_field`
 
-No description available.
+Fire an action before the field resolves
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+
+## Parameters
+
+- `$result` (`mixed`): The result of the field resolution
+- `$source` (`mixed`): The source passed down the Resolve Tree
+- `$args` (`array<string,mixed>`): The args for the field
+- `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the ResolveTree
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the ResolveTree
+- `$type_name` (`string`): The name of the type the fields belong to
+- `$field_key` (`string`): The name of the field
+- `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The Field Definition for the resolving field
+- `$field_resolver` (`?callable`): The default field resolver

@@ -5,15 +5,22 @@ Do not edit manually.
 ---
 title: graphql_enable_major_autoupdates
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_enable_major_autoupdates`
 
-No description available.
+Filter whether to allow major autoupdates.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+
+## Parameters
+
+- `$should_allow` (`bool`): Whether to allow major autoupdates. Defaults to false.
+- `$new_version` (`string`): The new WPGraphQL version number.
+- `$current_version` (`string`): The current WPGraphQL version number.
+- `$plugin_data` (`object`): The plugin data object.

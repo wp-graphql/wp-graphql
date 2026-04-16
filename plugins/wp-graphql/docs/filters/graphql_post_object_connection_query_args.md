@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_post_object_connection_query_args`
 
-No description available.
+Filter the $query args to allow folks to customize queries programmatically
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php`
+
+## Parameters
+
+- `$query_args` (`array<string,mixed>`): The args that will be passed to the WP_Query
+- `$source` (`mixed`): The source that's passed down the GraphQL queries
+- `$args` (`array<string,mixed>`): The inputArgs on the field
+- `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the GraphQL tree
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the GraphQL tree

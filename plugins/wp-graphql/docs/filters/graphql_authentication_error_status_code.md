@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_authentication_error_status_code`
 
-No description available.
+Filter the HTTP status code returned for authentication errors. By default, invalid nonce errors return 403 Forbidden. Some clients may expect 200 with a GraphQL error response instead.
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 2.6.0
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$status_code` (`int`): The HTTP status code. Default 403.
+- `$auth_error` (`\WP_Error`): The authentication error.

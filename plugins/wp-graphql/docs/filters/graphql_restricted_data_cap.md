@@ -11,9 +11,18 @@ plugin: wp-graphql
 
 # `graphql_restricted_data_cap`
 
-No description available.
+Filter for the capability to check against for restricted data
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
+
+## Parameters
+
+- `$restricted_cap` (`string`): The capability to check against
+- `$model_name` (`string`): Name of the model the filter is currently being executed in
+- `$data` (`TData`): The un-modeled incoming data
+- `$visibility` (`string|null`): The visibility that has currently been set for the data at this point
+- `$owner` (`int|null`): The user ID for the owner of this piece of data
+- `$current_user` (`\WP_User`): The current user for the session

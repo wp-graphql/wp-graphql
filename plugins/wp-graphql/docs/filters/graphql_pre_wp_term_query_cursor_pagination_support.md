@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_pre_wp_term_query_cursor_pagination_support`
 
-No description available.
+If pre-filter hooked, return $pre_pieces.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Config.php`
+
+## Parameters
+
+- `$pre_pieces` (`?array<string,mixed>`): The pre-filtered term query SQL clauses.
+- `$pieces` (`array<string,mixed>`): Terms query SQL clauses.
+- `$taxonomies` (`string[]`): An array of taxonomies.
+- `$args` (`array<string,mixed>`): An array of terms query arguments.

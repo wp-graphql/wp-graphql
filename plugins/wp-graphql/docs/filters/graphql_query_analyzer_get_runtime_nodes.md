@@ -17,3 +17,7 @@ No description available.
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$runtime_nodes` (`string[]|int[]`): Nodes that were resolved during execution

@@ -26,3 +26,9 @@ No description available.
 
 - **Deprecated in:** 1.4.1
 - **Replacement:** `graphql_type_interfaces`
+
+## Parameters
+
+- `$interfaces` (`string[]`): List of interfaces applied to the Object Type
+- `$config` (`array<string,mixed>`): The config for the Object Type
+- `$type` (`\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType`): The Type instance

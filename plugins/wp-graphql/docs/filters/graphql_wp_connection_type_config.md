@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_wp_connection_type_config`
 
-No description available.
+Filter the config of WPConnectionType
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPConnectionType.php`
+
+## Parameters
+
+- `$config` (`array<string,mixed>`): Array of configuration options passed to the WPConnectionType when instantiating a new type
+- `$wp_connection_type` (`\WPGraphQL\Type\WPConnectionType`): The instance of the WPConnectionType class

@@ -11,7 +11,7 @@ plugin: wp-graphql
 
 # `graphql_pre_execute_request`
 
-No description available.
+Get the response.
 
 - **Type:** filter
 - **Group:** Uncategorized

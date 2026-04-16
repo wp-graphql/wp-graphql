@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_default_query_amount`
 
-No description available.
+Filters the default query amount for a connection, if no `first` or `last` GraphQL argument is supplied.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$amount_requested` (`int`): The default query amount for a connection.
+- `$resolver` (`self`): Instance of the Connection Resolver.

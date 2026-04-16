@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_dataloader_set_cached`
 
-No description available.
+Use this filter to store entry in a third-party caching system.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
+
+## Parameters
+
+- `$value` (`mixed`): Value to be cached.
+- `$key` (`mixed`): Key identifying object.
+- `$loader_class` (`string`): Loader class name.
+- `$loader` (`mixed`): Loader instance.

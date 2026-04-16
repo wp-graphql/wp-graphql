@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_enum_values`
 
-No description available.
+Filter all object fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPEnumType.php`
+
+## Parameters
+
+- `$values` (`EnumValues`): No description.
+- `$type_name` (`string`): No description.

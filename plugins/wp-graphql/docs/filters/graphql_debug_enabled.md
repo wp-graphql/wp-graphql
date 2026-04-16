@@ -17,3 +17,7 @@ No description available.
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$enabled` (`bool`): Whether GraphQL Debug is enabled or not

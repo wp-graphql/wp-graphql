@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_debug_log`
 
-No description available.
+Return the filtered debug log
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
+
+## Parameters
+
+- `$logs` (`array<string,mixed>[]`): The logs to be output with the request
+- `$instance` (`\WPGraphQL\Utils\DebugLog`): The Debug Log class

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_resolve_node_type`
 
-No description available.
+Add a filter to allow externally registered node types to return the proper type based on the node_object that's returned
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/DataSource.php`
+
+## Parameters
+
+- `$type` (`mixed|object|array`): The type definition the node should resolve to.
+- `$node` (`mixed|object|array`): The $node that is being resolved

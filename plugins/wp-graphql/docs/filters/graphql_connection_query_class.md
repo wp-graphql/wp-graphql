@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_query_class`
 
-No description available.
+Filters the `$query_class` that will be used to execute the query. This is useful for replacing the default query (e.g `WP_Query` ) with a custom one (E.g. `WP_Term_Query` or WooCommerce's `WC_Query`).
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$query_class` (`?class-string<TQueryClass>`): The query class to be used with the executable query to get data. `null` if the AbstractConnectionResolver does not use a query class.
+- `$resolver` (`self`): Instance of the AbstractConnectionResolver

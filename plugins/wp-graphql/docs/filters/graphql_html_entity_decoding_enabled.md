@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_html_entity_decoding_enabled`
 
-No description available.
+Determine whether html_entity_decode should be applied to the string
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
+
+## Parameters
+
+- `$enabled` (`bool`): Whether decoding is enabled by default for the string passed in
+- `$str` (`string`): The string to decode
+- `$field_name` (`string`): The name of the field being encoded
+- `$model` (`\WPGraphQL\Model\Model`): The Model the field is being decoded on

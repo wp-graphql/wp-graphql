@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_media_item_create_allowed_protocols`
 
-No description available.
+Filter the allowed protocols for the mutation
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Mutation/MediaItemCreate.php`
+
+## Parameters
+
+- `$allowed_protocols` (`string[]`): The allowed protocols for filePaths to be submitted
+- `$protocol` (`mixed`): The current protocol of the filePath
+- `$input` (`array<string,mixed>`): The input of the current mutation
+- `$context` (`\WPGraphQL\AppContext`): The context of the current request
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo of the current field

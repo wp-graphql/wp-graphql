@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_should_execute`
 
-No description available.
+Check if the connection should execute. If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed. Filter whether the connection should execute.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$should_execute` (`bool`): Whether the connection should execute
+- `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the Connection Resolver

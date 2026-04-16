@@ -11,9 +11,9 @@ plugin: wp-graphql
 
 # `graphql_allowed_settings_by_group`
 
-No description available.
+Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
-- **Since:** Unknown
+- **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Data/DataSource.php`

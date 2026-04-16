@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_invalid_content_type_status_code`
 
-No description available.
+Filter the status code to return when the content type is invalid
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$status_code` (`int`): The status code to return. Default 415.
+- `$content_type` (`string`): The content type header value that was received.

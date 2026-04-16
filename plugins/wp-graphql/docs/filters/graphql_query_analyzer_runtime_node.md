@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_query_analyzer_runtime_node`
 
-No description available.
+Filter the node ID before returning to the list of resolved nodes
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$model_id` (`int`): The ID of the model (node) being returned
+- `$model` (`object`): The Model object being returned
+- `$runtime_nodes` (`string[]|int[]`): The runtimes nodes already collected

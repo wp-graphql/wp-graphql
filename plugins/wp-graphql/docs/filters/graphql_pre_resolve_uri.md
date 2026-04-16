@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_pre_resolve_uri`
 
-No description available.
+When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped. This is to be used in extensions to resolve their own nodes which might not use WordPress permalink structure.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
+
+## Parameters
+
+- `$node` (`mixed|null`): The node, defaults to nothing.
+- `$uri` (`string`): The uri being searched.
+- `$content` (`\WPGraphQL\AppContext`): The app context.
+- `$wp` (`\WP`): WP object.
+- `$extra_query_vars` (`array<string,mixed>|string`): Any extra query vars to consider.

@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_resolve_revision_meta_from_parent`
 
-No description available.
+Filters whether to resolve revision metadata from the parent node by default.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/Preview.php`
+
+## Parameters
+
+- `$should` (`bool`): Whether to resolve using the parent object. Default true.
+- `$object_id` (`int`): The ID of the object to resolve meta for
+- `$meta_key` (`?string`): The key for the meta to resolve
+- `$single` (`?bool`): Whether a single value should be returned

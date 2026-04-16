@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_response_headers_to_send`
 
-No description available.
+Filter the $headers to send
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$headers` (`array<string,string>`): The headers to send

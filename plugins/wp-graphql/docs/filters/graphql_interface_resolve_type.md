@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_interface_resolve_type`
 
-No description available.
+Filter the resolve type method for all interfaces
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
+
+## Parameters
+
+- `$type` (`mixed`): The Type to resolve to, based on the object being resolved.
+- `$obj` (`mixed`): The Object being resolved.
+- `$wp_interface_type` (`\WPGraphQL\Type\WPInterfaceType`): The WPInterfaceType instance.

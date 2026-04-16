@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_access_control_allow_headers`
 
-No description available.
+Filtered list of access control headers.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$access_control_headers` (`string[]`): Array of headers to allow.

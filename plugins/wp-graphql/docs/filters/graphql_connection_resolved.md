@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_resolved`
 
-No description available.
+Filter the connection. In some cases, connections will want to provide additional information other than edges, nodes, and pageInfo This filter allows additional fields to be returned to the connection resolver
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$connection` (`?array<string,mixed>`): The connection data being returned. A single edge or null if the connection is one-to-one.
+- `$resolver` (`self`): The instance of the connection resolver

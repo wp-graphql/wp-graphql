@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_connection_pre_should_execute`
 
-No description available.
+Filters whether or not the query should execute, BEFORE any data is fetched or altered. This is evaluated based solely on the values passed to the constructor, before any data is fetched or altered, and is useful for short-circuiting the Connection Resolver before any heavy logic is executed. For more in-depth checks, use the `graphql_connection_should_execute` filter instead.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$should_execute` (`bool`): Whether or not the query should execute.
+- `$source` (`mixed`): The source that's passed down the GraphQL queries.
+- `$args` (`array<string,mixed>`): The inputArgs on the field.
+- `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the GraphQL tree.
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the GraphQL tree.

@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_admin_notices_is_allowed_admin_page`
 
-No description available.
+Filter to determine if the current admin page is within the scope of the plugin's own pages. This filter can be used to add additional pages to the list of allowed pages. The filter receives the following arguments:
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** v1.21.0
 - **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+
+## Parameters
+
+- `$is_plugin_scoped_page` (`bool`): True if the current page is within scope of the plugin's pages.
+- `$current_page_id` (`string`): The ID of the current admin page.
+- `$allowed_pages` (`array<string>`): The list of allowed pages.

@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_pre_wp_comments_query_cursor_pagination_support`
 
-No description available.
+If pre-filter hooked, return $pre_pieces.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Config.php`
+
+## Parameters
+
+- `$pre_pieces` (`?array<string,mixed>`): The pre-filtered comment query clauses.
+- `$pieces` (`array<string,mixed>`): A compacted array of comment query clauses.
+- `$query` (`\WP_Comment_Query`): Current instance of WP_Comment_Query, passed by reference.

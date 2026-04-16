@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_add_admin_notice
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_add_admin_notice`
 
-No description available.
+Pass the notice through a filter before registering it
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** v1.21.0
 - **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+
+## Parameters
+
+- `$config` (`AdminNoticeConfig`): The config of the admin notice
+- `$slug` (`string`): The slug identifying the admin notice

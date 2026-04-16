@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_get_extensions`
 
-No description available.
+Filter the list of extensions, allowing other plugins to add or remove extensions.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Admin/Extensions/Extensions.php`
+
+## Parameters
+
+- `$extensions` (`array<string,Extension>`): The list of extensions.

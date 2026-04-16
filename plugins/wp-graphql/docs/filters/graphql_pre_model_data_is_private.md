@@ -11,9 +11,18 @@ plugin: wp-graphql
 
 # `graphql_pre_model_data_is_private`
 
-No description available.
+Filter to short circuit default is_private check for the model. This is expensive in some cases so this filter lets you prevent this from running by returning a true or false value.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
+
+## Parameters
+
+- `$is_private` (`?bool`): Whether the model data is private. Defaults to null.
+- `$model_name` (`string`): Name of the model the filter is currently being executed in
+- `$data` (`TData`): The un-modeled incoming data
+- `$visibility` (`string|null`): The visibility that has currently been set for the data at this point
+- `$owner` (`int|null`): The user ID for the owner of this piece of data
+- `$current_user` (`\WP_User`): The current user for the session

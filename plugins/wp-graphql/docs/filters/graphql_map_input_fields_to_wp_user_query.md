@@ -11,9 +11,18 @@ plugin: wp-graphql
 
 # `graphql_map_input_fields_to_wp_user_query`
 
-No description available.
+Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the WP_User_Query
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php`
+
+## Parameters
+
+- `$query_args` (`array<string,mixed>`): The mapped query args
+- `$args` (`array<string,mixed>`): The query "where" args
+- `$source` (`mixed`): The query results of the query calling this relation
+- `$all_args` (`array<string,mixed>`): Array of all the query args (not just the "where" args)
+- `$context` (`\WPGraphQL\AppContext`): The AppContext object
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object

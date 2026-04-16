@@ -11,9 +11,17 @@ plugin: wp-graphql
 
 # `graphql_post_object_cursor_meta_key`
 
-No description available.
+Allow filtering the meta key used for cursor based pagination
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php`
+
+## Parameters
+
+- `$key` (`string`): The meta key to use for cursor based pagination
+- `$meta_key` (`string`): The original meta key
+- `$meta_type` (`string`): The meta type
+- `$order` (`string`): The order direction
+- `$cursor` (`object`): The PostObjectCursor instance

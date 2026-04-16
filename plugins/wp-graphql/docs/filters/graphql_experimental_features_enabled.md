@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_experimental_features_enabled
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_experimental_features_enabled`
 
-No description available.
+Filter whether WPGraphQL experimental features should be enabled.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Experimental/Experimental.php`
+
+## Parameters
+
+- `$is_enabled` (`bool`): Whether experimental features should be enabled.

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_authentication_errors`
 
-No description available.
+Allow plugins to prevent the downgrade via the graphql_authentication_errors filter.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$authentication_errors` (`bool|null`): Null to allow default behavior, false to preserve auth.
+- `$request` (`\WPGraphQL\Request|null`): The Request instance (null in Router context).

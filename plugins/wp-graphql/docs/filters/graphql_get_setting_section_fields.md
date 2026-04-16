@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_get_setting_section_fields`
 
-No description available.
+Filter the section fields
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/access-functions.php`
+
+## Parameters
+
+- `$section_fields` (`array<string,mixed>`): The values of the fields stored for the section
+- `$section_name` (`string`): The name of the section
+- `$default_value` (`mixed`): The default value for the option being retrieved

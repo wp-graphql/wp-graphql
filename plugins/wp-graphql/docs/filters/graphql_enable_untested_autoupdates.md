@@ -5,15 +5,23 @@ Do not edit manually.
 ---
 title: graphql_enable_untested_autoupdates
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_enable_untested_autoupdates`
 
-No description available.
+Filter whether to allow autoupdates with untested plugins.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+
+## Parameters
+
+- `$should_allow` (`bool`): Whether to allow autoupdates with untested plugins.
+- `$release_type` (`string`): The release type of the current version of WPGraphQL. Either 'major', 'minor', 'patch', or 'prerelease'.
+- `$new_version` (`string`): The new WPGraphQL version number.
+- `$current_version` (`string`): The current WPGraphQL version number.
+- `$plugin_data` (`object`): The plugin data object.

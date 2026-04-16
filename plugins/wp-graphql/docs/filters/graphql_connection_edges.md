@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_edges`
 
-No description available.
+Filters the edges in the connection.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$edges` (`array<string,mixed>`): The edges in the connection
+- `$resolver` (`self`): Instance of the Connection Resolver

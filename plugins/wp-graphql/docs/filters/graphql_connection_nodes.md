@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection_nodes`
 
-No description available.
+Set the items. These are the "nodes" that make up the connection. Filters the nodes in the connection
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$nodes` (`\WPGraphQL\Model\Model[]|mixed[]|null`): The nodes in the connection
+- `$resolver` (`self`): Instance of the Connection Resolver

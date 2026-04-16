@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_pre_wp_user_query_cursor_pagination_stability`
 
-No description available.
+If pre-filter hooked, return $pre_orderby.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Config.php`
+
+## Parameters
+
+- `$pre_orderby` (`string|null`): The pre-filtered ORDER BY clause of the query.
+- `$orderby` (`string`): The ORDER BY clause of the query.
+- `$query` (`\WP_User_Query`): The WP_User_Query instance (passed by reference).

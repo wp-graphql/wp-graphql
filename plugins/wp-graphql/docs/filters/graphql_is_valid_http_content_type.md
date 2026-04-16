@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_is_valid_http_content_type`
 
-No description available.
+Allow graphql to validate custom content types for HTTP POST requests
 
 - **Type:** filter
 - **Group:** Uncategorized
-- **Since:** Unknown
+- **Since:** 2.1.0
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$is_valid` (`bool`): Whether the content type is valid
+- `$content_type` (`string`): The content type header value that was received

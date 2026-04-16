@@ -11,9 +11,16 @@ plugin: wp-graphql
 
 # `graphql_term_object_insert_term_args`
 
-No description available.
+Filter the $insert_args
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/TermObjectMutation.php`
+
+## Parameters
+
+- `$insert_args` (`array<string,mixed>`): The array of input args that will be passed to the functions that insert terms
+- `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
+- `$taxonomy` (`\WP_Taxonomy`): The taxonomy object of the term being mutated
+- `$mutation_name` (`string`): The name of the mutation being performed (create, edit, etc)

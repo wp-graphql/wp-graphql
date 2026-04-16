@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_connection_query_args`
 
-No description available.
+Filters the query args before they are used in the query.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$query_args` (`array<string,mixed>`): The query args to be used with the executable query to get data.
+- `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the ConnectionResolver
+- `$unfiltered_args` (`array<string,mixed>`): Array of arguments input in the field as part of the GraphQL query.

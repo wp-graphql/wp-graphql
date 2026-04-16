@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_setting_field_config`
 
-No description available.
+Filter the setting field config
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+
+## Parameters
+
+- `$field_config` (`array<string,mixed>`): The field config for the setting
+- `$field_name` (`string`): The name of the field (unfilterable in the config)
+- `$section` (`string`): The slug of the section the field is registered to

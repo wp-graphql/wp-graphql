@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_pre_wp_query_cursor_pagination_support`
 
-No description available.
+If pre-filter hooked, return $pre_where.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Config.php`
+
+## Parameters
+
+- `$pre_where` (`string|null`): The pre-filtered WHERE clause of the query.
+- `$where` (`string`): The WHERE clause of the query.
+- `$query` (`\WP_Query`): The WP_Query instance (passed by reference).

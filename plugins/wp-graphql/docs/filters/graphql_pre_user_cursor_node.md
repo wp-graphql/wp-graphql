@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_pre_user_cursor_node`
 
-No description available.
+If pre-hooked, return filtered node.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/UserCursor.php`
+
+## Parameters
+
+- `$pre_user` (`\WP_User|null`): The pre-filtered user node.
+- `$offset` (`int`): The cursor offset.
+- `$node` (`\WPGraphQL\Data\Cursor\UserCursor`): The cursor instance.

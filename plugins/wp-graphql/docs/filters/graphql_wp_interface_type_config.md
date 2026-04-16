@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_wp_interface_type_config`
 
-No description available.
+Filter the config of WPInterfaceType
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
+
+## Parameters
+
+- `$config` (`InterfaceConfig`): Array of configuration options passed to the WPInterfaceType when instantiating a new type
+- `$wp_interface_type` (`\WPGraphQL\Type\WPInterfaceType`): The instance of the WPInterfaceType class

@@ -26,3 +26,8 @@ No description available.
 
 - **Deprecated in:** 2.3.2
 - **Replacement:** `graphql_data_loader_classes`
+
+## Parameters
+
+- `$loaders` (`array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>`): The loaders accessible in the AppContext
+- `$context` (`\WPGraphQL\AppContext`): The AppContext

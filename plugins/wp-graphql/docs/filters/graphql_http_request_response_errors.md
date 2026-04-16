@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_http_request_response_errors`
 
-No description available.
+Filter thrown GraphQL errors
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$errors` (`SerializableError[]`): The errors array to be sent in the response.
+- `$error` (`\Throwable`): Thrown error object.
+- `$request` (`\WPGraphQL\Request`): WPGraphQL Request object.

@@ -11,9 +11,19 @@ plugin: wp-graphql
 
 # `graphql_response_status_code`
 
-No description available.
+Filter the $status_code before setting the headers
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$status_code` (`int`): The status code to apply to the headers
+- `$response` (`mixed[]|\GraphQL\Executor\ExecutionResult`): The response of the GraphQL Request
+- `$_deprecated` (`mixed[]|\GraphQL\Executor\ExecutionResult`): Use $response instead.
+- `$query` (`string`): The GraphQL query
+- `$operation_name` (`string`): The operation name of the GraphQL Request
+- `$variables` (`?array<string,mixed>`): The variables applied to the GraphQL Request
+- `$user` (`?\WP_User`): The current user object

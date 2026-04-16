@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_pre_term_cursor_node`
 
-No description available.
+If pre-hooked, return filtered node.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php`
+
+## Parameters
+
+- `$pre_term` (`\WP_Term|null`): The pre-filtered term node.
+- `$offset` (`int`): The cursor offset.
+- `$node` (`\WPGraphQL\Data\Cursor\TermObjectCursor`): The cursor instance.

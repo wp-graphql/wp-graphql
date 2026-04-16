@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_user_mutation_input_fields`
 
-No description available.
+Filters all of the fields available for input
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
+
+## Parameters
+
+- `$input_fields` (`array<string,array<string,mixed>>`): No description.

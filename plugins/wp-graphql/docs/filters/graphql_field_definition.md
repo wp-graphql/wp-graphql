@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_field_definition`
 
-No description available.
+Filter the field definition
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+
+## Parameters
+
+- `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The field definition
+- `$type_name` (`string`): The name of the Type the field belongs to
