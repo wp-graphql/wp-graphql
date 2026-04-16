@@ -37,11 +37,20 @@ class WPEnumType extends EnumType {
 	/**
 	 * WPEnumType constructor.
 	 *
-	 * @param array<string,mixed> $config
+	 * @param array<string,mixed> $config The enum type configuration.
 	 * @phpstan-param WPEnumTypeConfig $config
 	 */
 	public function __construct( $config ) {
 		$name             = ucfirst( $config['name'] );
+		/**
+		 * Filters the GraphQL type name used during enum type construction.
+		 *
+		 * @param string                      $name   The type name.
+		 * @param array<string,mixed>         $config The enum type configuration.
+		 * @param \WPGraphQL\Type\WPEnumType  $type   The enum type instance.
+		 * @hookGroup schema-registration
+		 * @since 1.3.4
+		 */
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['values'] = self::prepare_values( $config['values'], $config['name'] );
 		parent::__construct( $config );
@@ -100,8 +109,10 @@ class WPEnumType extends EnumType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param EnumValues $values
-		 * @param string     $type_name
+		 * @param EnumValues $values    The enum values.
+		 * @param string     $type_name The enum type name.
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$values = apply_filters( 'graphql_enum_values', $values, $type_name );
 
@@ -113,12 +124,21 @@ class WPEnumType extends EnumType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param EnumValues $values
-		 * @param string     $type_name
+		 * @param EnumValues $values    The enum values.
+		 * @param string     $type_name The enum type name.
 		 *
+		 * @hookGroup schema-registration
 		 * @since 0.0.5
 		 */
 		$values = apply_filters( 'graphql_' . lcfirst( $type_name ) . '_values', $values, $type_name );
+		/**
+		 * Filters enum values for a specific type using the canonical type name.
+		 *
+		 * @param EnumValues $values    The enum values.
+		 * @param string     $type_name The enum type name.
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
+		 */
 		$values = apply_filters( 'graphql_' . $type_name . '_values', $values, $type_name );
 
 		// map over the values and if the description is a callable, call it

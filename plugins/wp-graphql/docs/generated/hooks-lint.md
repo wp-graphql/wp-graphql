@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 287
-- Total findings: 287
+- Warnings: 272
+- Total findings: 272
 
 ## Findings by Type
 
-- `missing_hook_description`: 16
-- `missing_hook_group`: 135
-- `missing_hook_param_description`: 5
-- `missing_hook_params`: 19
-- `missing_hook_since`: 112
+- `missing_hook_description`: 14
+- `missing_hook_group`: 131
+- `missing_hook_param_description`: 1
+- `missing_hook_params`: 17
+- `missing_hook_since`: 109
 
 ## Findings
 
@@ -50,14 +50,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 45)
-- **Hook:** `'graphql_' . $type_name . '_values'`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 122)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -436,22 +428,6 @@ Do not edit manually.
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 45)
-- **Hook:** `graphql_enum_values`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 106)
-- **Hook:** `'graphql_' . lcfirst( $type_name ) . '_values'`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 121)
-- **Hook:** `'graphql_' . $type_name . '_values'`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 122)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 35)
 - **Hook:** `graphql_input_fields`
   - Severity: warning
@@ -636,22 +612,6 @@ Do not edit manually.
   - Severity: warning
   - Message: @param entry 1 ($input_fields) is missing a description
   - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 134)
-- **Hook:** `graphql_enum_values`
-  - Severity: warning
-  - Message: @param entry 1 ($values) is missing a description
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 106)
-- **Hook:** `graphql_enum_values`
-  - Severity: warning
-  - Message: @param entry 2 ($type_name) is missing a description
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 106)
-- **Hook:** `'graphql_' . lcfirst( $type_name ) . '_values'`
-  - Severity: warning
-  - Message: @param entry 1 ($values) is missing a description
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 121)
-- **Hook:** `'graphql_' . lcfirst( $type_name ) . '_values'`
-  - Severity: warning
-  - Message: @param entry 2 ($type_name) is missing a description
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 121)
 
 ### `missing_hook_params`
 
@@ -695,14 +655,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 45)
-- **Hook:** `'graphql_' . $type_name . '_values'`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 122)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -1002,18 +954,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 163)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 45)
-- **Hook:** `graphql_enum_values`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 106)
-- **Hook:** `'graphql_' . $type_name . '_values'`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPEnumType.php` (line 122)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

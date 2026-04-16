@@ -101,6 +101,7 @@ title: Filters
 
 ## Schema Registration
 
+- [`graphql_enum_values`](/docs/filters/graphql_enum_values)
 - [`graphql_post_entities_allowed_post_types`](/docs/filters/graphql_post_entities_allowed_post_types)
 - [`graphql_register_post_type_args`](/docs/filters/graphql_register_post_type_args)
 - [`graphql_register_taxonomy_args`](/docs/filters/graphql_register_taxonomy_args)
@@ -150,7 +151,6 @@ title: Filters
 - [`graphql_dataloader_get_model`](/docs/filters/graphql_dataloader_get_model)
 - [`graphql_dataloader_pre_get_model`](/docs/filters/graphql_dataloader_pre_get_model)
 - [`graphql_dataloader_set_cached`](/docs/filters/graphql_dataloader_set_cached)
-- [`graphql_enum_values`](/docs/filters/graphql_enum_values)
 - [`graphql_excluded_connections`](/docs/filters/graphql_excluded_connections)
 - [`graphql_excluded_mutations`](/docs/filters/graphql_excluded_mutations)
 - [`graphql_excluded_types`](/docs/filters/graphql_excluded_types)
