@@ -19,6 +19,9 @@ Generates hook reference documentation for a plugin by scanning `do_action` and 
 **Usage**:
 ```bash
 node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
+
+# npm shortcut
+npm run hooks:generate -- --plugin=wp-graphql
 ```
 
 **Arguments**:
@@ -49,6 +52,15 @@ node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
 - The generator reads `scripts/hooks/legacy-hooks.json` to preserve documentation for deprecated hooks even after they are removed from source.
 - Hook pages include lifecycle metadata (`status`, `deprecatedIn`, optional `removedIn`, `replacement`) when available.
 
+**CI + release workflow integration**:
+- **Release PR updates** (`.github/workflows/update-release-pr.yml`):
+  - Replaces `x-release-please-version` in plugin PHP/readme files.
+  - Regenerates hook docs for the releasing component by running `generate-hook-docs.js`.
+  - Commits refreshed hook docs/index/lint artifacts back to the release PR branch.
+- **Lint workflow** (`.github/workflows/lint.yml`):
+  - Runs for plugin changes and release PRs.
+  - Includes hook legacy coverage enforcement via `check-legacy-coverage.js`.
+
 ### `hooks/check-legacy-coverage.js`
 
 Ensures hooks removed from the codebase are preserved in `scripts/hooks/legacy-hooks.json`.
@@ -58,6 +70,9 @@ Ensures hooks removed from the codebase are preserved in `scripts/hooks/legacy-h
 **Usage**:
 ```bash
 node scripts/hooks/check-legacy-coverage.js --plugin=wp-graphql --base-ref=origin/main
+
+# npm shortcut
+npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
 ```
 
 **Arguments**:
@@ -71,6 +86,11 @@ node scripts/hooks/check-legacy-coverage.js --plugin=wp-graphql --base-ref=origi
 2. Reads baseline `hooks-index.json` from `--base-ref`
 3. Detects WPGraphQL hooks that were removed from source callsites
 4. Fails if removed hooks are missing or incomplete in `scripts/hooks/legacy-hooks.json`
+
+**Important**:
+- This check enforces that removed hooks remain documented historically.
+- `legacy-hooks.json` entries should include lifecycle metadata (`status`, `deprecatedIn`, optional `removedIn`, `replacement`) and should also include `since` when known.
+- `update-release-pr.yml` currently replaces placeholders inside the releasing plugin directory; if `legacy-hooks.json` still contains `x-release-please-version` for history-only hooks, update those values manually as part of the release PR.
 
 **Naming audit behavior**:
 - Naming audit focuses on WPGraphQL-specific hooks and excludes core hooks from naming violations.
@@ -176,7 +196,12 @@ node scripts/hooks/generate-hook-docs.test.js
 
 ### Test File
 
-Tests are located in `update-upgrade-notice.test.js` and cover:
+Script tests include:
+- `scripts/update-upgrade-notice.test.js`
+- `scripts/update-version-constants.test.js`
+- `scripts/hooks/generate-hook-docs.test.js`
+
+`update-upgrade-notice.test.js` covers:
 
 | Test Case | Description |
 |-----------|-------------|
@@ -213,8 +238,15 @@ These scripts are called by GitHub Actions workflows during the release process:
            │
            ▼
 ┌─────────────────────┐
-│ update-release-pr   │◄── Runs update-upgrade-notice.js
-│    workflow         │    if breaking changes detected
+│ update-release-pr   │◄── Replaces placeholders in plugin files
+│    workflow         │    Runs update-upgrade-notice.js
+│                     │    Runs hooks/generate-hook-docs.js
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ lint.yml            │◄── Runs hooks/check-legacy-coverage.js
+│ (PR + main)         │    for wp-graphql changes/release PRs
 └──────────┬──────────┘
            │
            ▼

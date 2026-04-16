@@ -112,6 +112,14 @@ This updates:
 - Hook reference docs in `plugins/wp-graphql/docs/actions/` and `plugins/wp-graphql/docs/filters/`
 - Generated inventories/audits in `plugins/wp-graphql/docs/generated/`
 
+For hook removals/deprecations, also run the legacy coverage check:
+
+```bash
+npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
+```
+
+This verifies removed callsites are still represented in `scripts/hooks/legacy-hooks.json` so deprecated/removed hook docs remain available.
+
 ### 7. Testing
 
 **All changes should include tests:**
@@ -147,6 +155,10 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - `@since x-release-please-version` placeholders are replaced with the actual version during the release PR
 - Changelogs are generated from PR titles (via squash merge commits)
 - **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
+- Hook docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
+- Hook legacy coverage is enforced in CI (`lint.yml` → `wp-graphql-hook-legacy-coverage`)
+
+Note: release PR placeholder replacement currently operates on files inside the releasing plugin directory. If `scripts/hooks/legacy-hooks.json` contains `x-release-please-version` entries for history-only hooks, update those values during the release PR.
 
 > **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
 

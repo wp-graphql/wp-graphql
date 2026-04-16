@@ -13,6 +13,7 @@ npm run test:scripts
 # Or run individual tests
 node scripts/update-version-constants.test.js
 node scripts/update-upgrade-notice.test.js
+node scripts/hooks/generate-hook-docs.test.js
 ```
 
 The `update-version-constants.test.js` test suite includes:
@@ -33,6 +34,34 @@ The `update-version-constants.test.js` test suite includes:
 This means **you don't need to manually add tests** when adding a new plugin - just ensure it's in the manifest and has the proper constant mapping in the script!
 
 ## Manual Testing with Git (Safest Method)
+
+### Testing Hook Docs + Hook Lint Scripts
+
+Use this when changing hook callsites, hook docblocks, or hook tooling.
+
+1. **Generate hook docs and lint artifacts**:
+   ```bash
+   npm run hooks:generate -- --plugin=wp-graphql
+   ```
+
+2. **Review generated outputs**:
+   ```bash
+   git diff plugins/wp-graphql/docs/actions
+   git diff plugins/wp-graphql/docs/filters
+   git diff plugins/wp-graphql/docs/generated
+   ```
+
+3. **Run generator tests**:
+   ```bash
+   node scripts/hooks/generate-hook-docs.test.js
+   ```
+
+4. **Run legacy coverage check (optional locally, required in CI)**:
+   ```bash
+   npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
+   ```
+
+This mirrors the hook documentation + enforcement path used in CI and release PR updates.
 
 The safest way to test the scripts is to use git to create a temporary branch and test on real files, then discard the changes.
 
@@ -226,6 +255,26 @@ To test the full workflow as it would run in CI:
    # Verify results
    git diff
    ```
+
+### Simulating release PR hook docs refresh
+
+`update-release-pr.yml` runs hook docs generation for the releasing component after replacing `x-release-please-version` placeholders in plugin files. You can simulate that sequence locally:
+
+```bash
+# 1) replace placeholders in plugin files
+node scripts/update-version-constants.js \
+  --version=2.8.0 \
+  --component=wp-graphql \
+  --plugin-dir=plugins/wp-graphql
+
+# 2) regenerate hook docs/lint artifacts
+npm run hooks:generate -- --plugin=wp-graphql
+
+# 3) inspect what the release PR automation would commit
+git diff plugins/wp-graphql
+```
+
+Note: placeholders in `scripts/hooks/legacy-hooks.json` are not currently auto-replaced by `update-release-pr.yml` because that workflow only updates files inside the releasing plugin directory.
 
 ## Troubleshooting
 
