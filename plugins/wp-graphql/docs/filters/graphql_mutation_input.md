@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_mutation_input
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filters the mutation input before it's passed to the `mutateAndGetPayload` callback.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 
 ## Parameters

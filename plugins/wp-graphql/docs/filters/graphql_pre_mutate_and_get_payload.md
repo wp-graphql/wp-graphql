@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_mutate_and_get_payload
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter to short circuit the mutateAndGetPayload callback. Returning anything other than null will stop the callback for the mutation from executing, and will return your data or execute your callback instead.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 
 ## Parameters

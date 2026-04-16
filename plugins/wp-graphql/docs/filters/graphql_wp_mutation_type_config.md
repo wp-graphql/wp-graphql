@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_wp_mutation_type_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Filter the config of WPMutationType
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Schema Registration
 - **Since:** 1.13.0
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 

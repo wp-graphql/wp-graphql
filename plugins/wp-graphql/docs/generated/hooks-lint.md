@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 184
-- Total findings: 184
+- Warnings: 174
+- Total findings: 174
 
 ## Findings by Type
 
 - `missing_hook_description`: 9
-- `missing_hook_group`: 90
+- `missing_hook_group`: 84
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 12
-- `missing_hook_since`: 72
+- `missing_hook_since`: 68
 
 ## Findings
 
@@ -333,30 +333,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/WPInterfaceTrait.php` (line 37)
-- **Hook:** `graphql_wp_mutation_type_config`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 88)
-- **Hook:** `graphql_wp_mutation_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 117)
-- **Hook:** `graphql_mutation_input`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 216)
-- **Hook:** `graphql_pre_mutate_and_get_payload`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 230)
-- **Hook:** `graphql_mutation_payload`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 246)
-- **Hook:** `graphql_mutation_response`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 259)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -694,22 +670,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPInterfaceTrait.php` (line 37)
-- **Hook:** `graphql_mutation_input`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 216)
-- **Hook:** `graphql_pre_mutate_and_get_payload`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 230)
-- **Hook:** `graphql_mutation_payload`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 246)
-- **Hook:** `graphql_mutation_response`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPMutationType.php` (line 259)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

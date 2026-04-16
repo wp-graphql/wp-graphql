@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_mutation_response
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fires after the mutation payload has been returned from the `mutateAndGetPayload` callback.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 
 ## Parameters
