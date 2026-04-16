@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_get_type_registry
 hookType: action
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,6 +14,10 @@ plugin: wp-graphql
 Fire an action when the Type Registry is returned
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 1.1.5
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Parameters
+
+- `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The GraphQL type registry.

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:47:36.558Z",
+  "generatedAt": "2026-04-16T20:48:55.394Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -2051,118 +2051,6 @@
         "file": "plugins/wp-graphql/src/Utils/Utils.php",
         "line": 137,
         "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_init",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 204,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_init",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 204,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_do_update_routine",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 498,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_do_update_routine",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 498,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_entities_allowed_post_types",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 760,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_term_entities_allowed_taxonomies",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 845,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_schema",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 938,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_schema",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 938,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_get_schema",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 938,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_debug_enabled",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 960,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_debug_enabled",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 960,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_debug_enabled",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 960,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_type_registry",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 983,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_type_registry",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 989,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_type_registry",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 989,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_get_type_registry",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 989,
-        "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
         "type": "missing_hook_group",
@@ -5123,12 +5011,12 @@
       "kind": "filter",
       "group": "debugging",
       "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 960,
-      "description": "",
+      "line": 974,
+      "description": "Filters whether GraphQL debug mode is enabled.",
       "params": [
         {
           "type": "bool",
@@ -5138,8 +5026,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.1.5",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_debug_enabled'",
       "relatedSnippets": [],
@@ -5366,13 +5254,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_do_update_routine",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 498,
+      "line": 502,
       "description": "Fires the update routine.",
       "params": [
         {
@@ -5388,8 +5276,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.2.3",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_do_update_routine'",
       "relatedSnippets": [],
@@ -6449,19 +6337,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_get_schema",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 938,
+      "line": 948,
       "description": "Fire an action when the Schema is returned",
-      "params": [],
+      "params": [
+        {
+          "type": "\\WPGraphQL\\WPSchema",
+          "name": "$schema",
+          "description": "The executable schema."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "1.1.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_get_schema'",
       "relatedSnippets": [],
@@ -6618,19 +6512,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_get_type_registry",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 989,
+      "line": 1008,
       "description": "Fire an action when the Type Registry is returned",
-      "params": [],
+      "params": [
+        {
+          "type": "\\WPGraphQL\\Registry\\TypeRegistry",
+          "name": "$type_registry",
+          "description": "The GraphQL type registry."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "1.1.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_get_type_registry'",
       "relatedSnippets": [],
@@ -6742,13 +6642,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_init",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 204,
+      "line": 206,
       "description": "Fire off init action",
       "params": [
         {
@@ -6759,8 +6659,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.1.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_init'",
       "relatedSnippets": [],
@@ -8304,13 +8204,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_entities_allowed_post_types",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 760,
+      "line": 765,
       "description": "Pass through a filter to allow the post_types to be modified. For example if a certain post_type should not be exposed to the GraphQL API.",
       "params": [
         {
@@ -8327,7 +8227,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "0.0.2",
-      "hookGroup": null,
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_post_entities_allowed_post_types'",
       "relatedSnippets": [],
@@ -10423,7 +10323,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 624,
+      "line": 628,
       "description": "Filters the graphql args set on a post type",
       "params": [
         {
@@ -10498,7 +10398,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 663,
+      "line": 667,
       "description": "Filters the graphql args set on a taxonomy",
       "params": [
         {
@@ -11659,7 +11559,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 926,
+      "line": 932,
       "description": "Legacy schema filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -11768,7 +11668,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 924,
+      "line": 930,
       "description": "Generate & Filter the schema.",
       "params": [
         {
@@ -12286,13 +12186,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_term_entities_allowed_taxonomies",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 845,
+      "line": 851,
       "description": "Pass through a filter to allow the taxonomies to be modified. For example if a certain taxonomy should not be exposed to the GraphQL API.",
       "params": [
         {
@@ -12309,7 +12209,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "0.0.2",
-      "hookGroup": null,
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_term_entities_allowed_taxonomies'",
       "relatedSnippets": [],
@@ -12793,11 +12693,11 @@
       "kind": "filter",
       "group": "schema-registration",
       "groupLabel": "Schema Registration",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 983,
+      "line": 998,
       "description": "Generate & Filter the schema.",
       "params": [
         {
@@ -12814,7 +12714,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "0.0.5",
-      "hookGroup": null,
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_type_registry'",
       "relatedSnippets": [],
@@ -13897,7 +13797,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 626,
+      "line": 630,
       "description": "Legacy post type registration filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -13926,7 +13826,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 665,
+      "line": 669,
       "description": "Legacy taxonomy registration filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,

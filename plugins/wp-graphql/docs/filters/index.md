@@ -101,10 +101,12 @@ title: Filters
 
 ## Schema Registration
 
+- [`graphql_post_entities_allowed_post_types`](/docs/filters/graphql_post_entities_allowed_post_types)
 - [`graphql_register_post_type_args`](/docs/filters/graphql_register_post_type_args)
 - [`graphql_register_taxonomy_args`](/docs/filters/graphql_register_taxonomy_args)
 - [`graphql_schema_instance`](/docs/filters/graphql_schema_instance)
 - [`graphql_schema_instance`](/docs/filters/graphql_schema_instance)
+- [`graphql_term_entities_allowed_taxonomies`](/docs/filters/graphql_term_entities_allowed_taxonomies)
 - [`graphql_type_interfaces`](/docs/filters/graphql_type_interfaces)
 - [`graphql_type_name`](/docs/filters/graphql_type_name)
 - [`graphql_type_name`](/docs/filters/graphql_type_name)
@@ -175,7 +177,6 @@ title: Filters
 - [`graphql_menu_item_connection_args`](/docs/filters/graphql_menu_item_connection_args)
 - [`graphql_mutation_input`](/docs/filters/graphql_mutation_input)
 - [`graphql_mutation_payload`](/docs/filters/graphql_mutation_payload)
-- [`graphql_post_entities_allowed_post_types`](/docs/filters/graphql_post_entities_allowed_post_types)
 - [`graphql_post_object_connection_args`](/docs/filters/graphql_post_object_connection_args)
 - [`graphql_post_object_connection_query_args`](/docs/filters/graphql_post_object_connection_query_args)
 - [`graphql_post_object_create_default_post_status`](/docs/filters/graphql_post_object_create_default_post_status)
@@ -206,7 +207,6 @@ title: Filters
 - [`graphql_resolve_uri_query_class`](/docs/filters/graphql_resolve_uri_query_class)
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
 - [`graphql_should_show_experiments_in_extensions`](/docs/filters/graphql_should_show_experiments_in_extensions)
-- [`graphql_term_entities_allowed_taxonomies`](/docs/filters/graphql_term_entities_allowed_taxonomies)
 - [`graphql_term_object_connection_args`](/docs/filters/graphql_term_object_connection_args)
 - [`graphql_term_object_connection_query_args`](/docs/filters/graphql_term_object_connection_query_args)
 - [`graphql_term_object_insert_term_args`](/docs/filters/graphql_term_object_insert_term_args)

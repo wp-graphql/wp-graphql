@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_term_entities_allowed_taxonomies
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Pass through a filter to allow the taxonomies to be modified. For example if a certain taxonomy should not be exposed to the GraphQL API.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Schema Registration
 - **Since:** 0.0.2
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
 

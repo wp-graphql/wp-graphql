@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 303
-- Total findings: 303
+- Warnings: 287
+- Total findings: 287
 
 ## Findings by Type
 
-- `missing_hook_description`: 17
-- `missing_hook_group`: 143
+- `missing_hook_description`: 16
+- `missing_hook_group`: 135
 - `missing_hook_param_description`: 5
-- `missing_hook_params`: 21
-- `missing_hook_since`: 117
+- `missing_hook_params`: 19
+- `missing_hook_since`: 112
 
 ## Findings
 
@@ -82,10 +82,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 223)
-- **Hook:** `graphql_debug_enabled`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 960)
 - **Hook:** `graphql_endpoint_path`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -621,38 +617,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 137)
-- **Hook:** `graphql_init`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 204)
-- **Hook:** `graphql_do_update_routine`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 498)
-- **Hook:** `graphql_post_entities_allowed_post_types`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 760)
-- **Hook:** `graphql_term_entities_allowed_taxonomies`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 845)
-- **Hook:** `graphql_get_schema`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 938)
-- **Hook:** `graphql_debug_enabled`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 960)
-- **Hook:** `graphql_type_registry`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 983)
-- **Hook:** `graphql_get_type_registry`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 989)
 - **Hook:** `graphql_schema_config`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -767,14 +731,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 23)
-- **Hook:** `graphql_get_schema`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 938)
-- **Hook:** `graphql_get_type_registry`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 989)
 
 ### `missing_hook_since`
 
@@ -1218,26 +1174,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 137)
-- **Hook:** `graphql_init`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 204)
-- **Hook:** `graphql_do_update_routine`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 498)
-- **Hook:** `graphql_get_schema`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 938)
-- **Hook:** `graphql_debug_enabled`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 960)
-- **Hook:** `graphql_get_type_registry`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 989)
 - **Hook:** `graphql_get_setting_section_fields`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

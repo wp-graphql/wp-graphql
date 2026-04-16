@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_do_update_routine
 hookType: action
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fires the update routine.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 1.2.3
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters

@@ -26,6 +26,7 @@ title: Actions
 - [`graphql_before_execute`](/docs/actions/graphql_before_execute)
 - [`graphql_do_request`](/docs/actions/graphql_do_request)
 - [`graphql_execute_batch_queries`](/docs/actions/graphql_execute_batch_queries)
+- [`graphql_init`](/docs/actions/graphql_init)
 - [`graphql_init_request`](/docs/actions/graphql_init_request)
 - [`graphql_init_request`](/docs/actions/graphql_init_request)
 - [`graphql_process_http_request`](/docs/actions/graphql_process_http_request)
@@ -37,6 +38,8 @@ title: Actions
 
 ## Schema Registration
 
+- [`graphql_get_schema`](/docs/actions/graphql_get_schema)
+- [`graphql_get_type_registry`](/docs/actions/graphql_get_type_registry)
 - [`graphql_register_initial_types`](/docs/actions/graphql_register_initial_types)
 - [`graphql_register_types`](/docs/actions/graphql_register_types)
 - [`graphql_register_types_late`](/docs/actions/graphql_register_types_late)
@@ -47,6 +50,7 @@ title: Actions
 - [`graphql_admin_notices_init`](/docs/actions/graphql_admin_notices_init)
 - [`graphql_admin_notices_render_notice`](/docs/actions/graphql_admin_notices_render_notice)
 - [`graphql_admin_notices_render_notices`](/docs/actions/graphql_admin_notices_render_notices)
+- [`graphql_do_update_routine`](/docs/actions/graphql_do_update_routine)
 - [`graphql_enqueue_graphiql_extension`](/docs/actions/graphql_enqueue_graphiql_extension)
 - [`graphql_init_settings`](/docs/actions/graphql_init_settings)
 - [`graphql_register_settings`](/docs/actions/graphql_register_settings)
@@ -59,13 +63,9 @@ title: Actions
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
 - [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_comment_object_mutation_update_additional_data`](/docs/actions/graphql_comment_object_mutation_update_additional_data)
-- [`graphql_do_update_routine`](/docs/actions/graphql_do_update_routine)
 - [`graphql_experiments_loaded`](/docs/actions/graphql_experiments_loaded)
 - [`graphql_experiments_registered`](/docs/actions/graphql_experiments_registered)
 - [`graphql_get_debug_log`](/docs/actions/graphql_get_debug_log)
-- [`graphql_get_schema`](/docs/actions/graphql_get_schema)
-- [`graphql_get_type_registry`](/docs/actions/graphql_get_type_registry)
-- [`graphql_init`](/docs/actions/graphql_init)
 - [`graphql_init_type_registry`](/docs/actions/graphql_init_type_registry)
 - [`graphql_insert_post_object`](/docs/actions/graphql_insert_post_object)
 - [`graphql_insert_term`](/docs/actions/graphql_insert_term)

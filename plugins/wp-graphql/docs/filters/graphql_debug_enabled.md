@@ -11,11 +11,11 @@ plugin: wp-graphql
 
 # `graphql_debug_enabled`
 
-No description available.
+Filters whether GraphQL debug mode is enabled.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Since:** 1.1.5
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters

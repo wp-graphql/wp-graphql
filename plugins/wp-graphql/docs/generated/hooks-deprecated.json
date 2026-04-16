@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:47:36.558Z",
+  "generatedAt": "2026-04-16T20:48:55.394Z",
   "count": 21,
   "hooks": [
     {
@@ -450,7 +450,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 926
+          "line": 932
         }
       ],
       "occurrences": 2
@@ -581,7 +581,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 626,
+      "line": 630,
       "description": "Legacy post type registration filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -602,7 +602,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 626
+          "line": 630
         }
       ],
       "occurrences": 1
@@ -617,7 +617,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 665,
+      "line": 669,
       "description": "Legacy taxonomy registration filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -638,7 +638,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 665
+          "line": 669
         }
       ],
       "occurrences": 1

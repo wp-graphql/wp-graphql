@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_entities_allowed_post_types
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Pass through a filter to allow the post_types to be modified. For example if a certain post_type should not be exposed to the GraphQL API.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Schema Registration
 - **Since:** 0.0.2
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
 
