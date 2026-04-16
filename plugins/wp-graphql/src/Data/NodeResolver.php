@@ -362,21 +362,11 @@ class NodeResolver {
 
 		// Bail if external URI.
 		if ( isset( $parsed_url['host'] ) ) {
-			$site_url = wp_parse_url( site_url() );
-			$home_url = wp_parse_url( home_url() );
+			$site_url      = wp_parse_url( site_url() );
+			$home_url      = wp_parse_url( home_url() );
+			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', [ $site_url['host'], $home_url['host'] ] );
 
-			/**
-			 * @var array<string,mixed> $home_url
-			 * @var array<string,mixed> $site_url
-			 */
-			if ( ! in_array(
-				$parsed_url['host'],
-				[
-					$site_url['host'],
-					$home_url['host'],
-				],
-				true
-			) ) {
+			if ( ! in_array( $parsed_url['host'], $allowed_hosts, true ) ) {
 				graphql_debug(
 					__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
 					[
