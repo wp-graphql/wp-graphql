@@ -5,17 +5,17 @@ Do not edit manually.
 ---
 title: graphql_determine_graphql_keys
 hookType: action
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
 # `graphql_determine_graphql_keys`
 
-No description available.
+Fires after QueryAnalyzer has calculated list/query/model keys for a request.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters

@@ -5,17 +5,17 @@ Do not edit manually.
 ---
 title: graphql_query_analyzer_get_runtime_nodes
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
 # `graphql_query_analyzer_get_runtime_nodes`
 
-No description available.
+Filters runtime node identifiers captured while resolving a GraphQL request.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters

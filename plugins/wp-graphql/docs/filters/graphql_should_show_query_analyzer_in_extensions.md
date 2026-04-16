@@ -5,17 +5,17 @@ Do not edit manually.
 ---
 title: graphql_should_show_query_analyzer_in_extensions
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
 # `graphql_should_show_query_analyzer_in_extensions`
 
-No description available.
+Filters whether query analyzer details should be included in response extensions.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters

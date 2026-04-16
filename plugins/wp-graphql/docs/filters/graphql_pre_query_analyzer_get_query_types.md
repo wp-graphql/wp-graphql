@@ -5,15 +5,21 @@ Do not edit manually.
 ---
 title: graphql_pre_query_analyzer_get_query_types
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
 # `graphql_pre_query_analyzer_get_query_types`
 
-No description available.
+Filters query types before QueryAnalyzer derives them from the AST.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$null` (`string[]|null`): Default value for the filter.
+- `$schema` (`?\GraphQL\Type\Schema`): The WPGraphQL Schema for the current request.
+- `$query` (`?string`): The query string being requested.

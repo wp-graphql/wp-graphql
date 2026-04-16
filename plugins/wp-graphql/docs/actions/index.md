@@ -12,6 +12,10 @@ title: Actions
 
 - [`graphql_wp_connection_type`](/docs/actions/graphql_wp_connection_type)
 
+## Debugging and Instrumentation
+
+- [`graphql_determine_graphql_keys`](/docs/actions/graphql_determine_graphql_keys)
+
 ## Request Lifecycle
 
 - [`graphql_after_execute`](/docs/actions/graphql_after_execute)
@@ -48,7 +52,6 @@ title: Actions
 - [`graphql_after_return_field_from_model`](/docs/actions/graphql_after_return_field_from_model)
 - [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_comment_object_mutation_update_additional_data`](/docs/actions/graphql_comment_object_mutation_update_additional_data)
-- [`graphql_determine_graphql_keys`](/docs/actions/graphql_determine_graphql_keys)
 - [`graphql_do_update_routine`](/docs/actions/graphql_do_update_routine)
 - [`graphql_experiments_loaded`](/docs/actions/graphql_experiments_loaded)
 - [`graphql_experiments_registered`](/docs/actions/graphql_experiments_registered)

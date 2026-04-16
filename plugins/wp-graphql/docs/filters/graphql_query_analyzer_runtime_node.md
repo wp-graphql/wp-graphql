@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_query_analyzer_runtime_node
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the node ID before returning to the list of resolved nodes
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters

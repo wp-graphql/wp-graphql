@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:31:53.028Z",
+  "generatedAt": "2026-04-16T20:35:29.386Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -2614,335 +2614,6 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_should_analyze_queries",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 161,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_should_analyze_queries",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 161,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_should_analyze_query",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 200,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_should_analyze_query",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 200,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_query_analyzer_header_length_limit",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 241,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_query_analyzer_header_length_limit",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 241,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_determine_graphql_keys",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 298,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_determine_graphql_keys",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 298,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_determine_graphql_keys",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 298,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_query_analyzer_get_runtime_nodes",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 329,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_query_analyzer_get_runtime_nodes",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 329,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_query_analyzer_get_runtime_nodes",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 329,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_query_analyzer_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 444,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_query_analyzer_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 444,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_pre_query_analyzer_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 444,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_pre_query_analyzer_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 444,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_cache_collection_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 527,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_cache_collection_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 527,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_cache_collection_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 527,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_cache_collection_get_list_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 527,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_query_analyzer_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 548,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_query_analyzer_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 548,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_pre_query_analyzer_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 548,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_pre_query_analyzer_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 548,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_cache_collection_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 610,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_cache_collection_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 610,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_cache_collection_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 610,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_cache_collection_get_query_types",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 610,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_query_analyzer_get_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 631,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_query_analyzer_get_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 631,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_pre_query_analyzer_get_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 631,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_pre_query_analyzer_get_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 631,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_cache_collection_get_query_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 698,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_cache_collection_get_query_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 698,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_cache_collection_get_query_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 698,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_cache_collection_get_query_models",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 698,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_query_analyzer_runtime_node",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 723,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_query_analyzer_runtime_node",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 723,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_query_analyzer_graphql_keys",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 823,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_query_analyzer_graphql_keys",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 823,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_query_analyzer_graphql_keys",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 823,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_query_analyzer_get_headers",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 862,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_query_analyzer_get_headers",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 862,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_query_analyzer_get_headers",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 862,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_should_show_query_analyzer_in_extensions",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 887,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_should_show_query_analyzer_in_extensions",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 887,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_should_show_query_analyzer_in_extensions",
-        "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-        "line": 887,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_user_can_see_query_logs",
         "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
         "line": 90,
@@ -4595,19 +4266,40 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_cache_collection_get_list_types",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 527,
-      "description": "",
-      "params": [],
+      "line": 555,
+      "description": "Filters list type cache keys derived by QueryAnalyzer.",
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$map",
+          "description": "List-type cache keys."
+        },
+        {
+          "type": "?\\GraphQL\\Type\\Schema",
+          "name": "$schema",
+          "description": "The WPGraphQL Schema for the current request."
+        },
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The query string being requested."
+        },
+        {
+          "type": "\\GraphQL\\Utils\\TypeInfo",
+          "name": "$type_info",
+          "description": "Type metadata gathered while traversing the AST."
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 4,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_cache_collection_get_list_types'",
       "relatedSnippets": [],
@@ -4624,19 +4316,40 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_cache_collection_get_query_models",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 698,
-      "description": "",
-      "params": [],
+      "line": 754,
+      "description": "Filters query model cache keys derived by QueryAnalyzer.",
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$map",
+          "description": "Query model cache keys."
+        },
+        {
+          "type": "?\\GraphQL\\Type\\Schema",
+          "name": "$schema",
+          "description": "The WPGraphQL Schema for the current request."
+        },
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The query string being requested."
+        },
+        {
+          "type": "\\GraphQL\\Utils\\TypeInfo",
+          "name": "$type_info",
+          "description": "Type metadata gathered while traversing the AST."
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 4,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_cache_collection_get_query_models'",
       "relatedSnippets": [],
@@ -4653,19 +4366,40 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_cache_collection_get_query_types",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 610,
-      "description": "",
-      "params": [],
+      "line": 652,
+      "description": "Filters query type cache keys derived by QueryAnalyzer.",
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$map",
+          "description": "Query-type cache keys."
+        },
+        {
+          "type": "?\\GraphQL\\Type\\Schema",
+          "name": "$schema",
+          "description": "The WPGraphQL Schema for the current request."
+        },
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The query string being requested."
+        },
+        {
+          "type": "\\GraphQL\\Utils\\TypeInfo",
+          "name": "$type_info",
+          "description": "Type metadata gathered while traversing the AST."
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 4,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_cache_collection_get_query_types'",
       "relatedSnippets": [],
@@ -6182,14 +5916,14 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_determine_graphql_keys",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 298,
-      "description": "",
+      "line": 308,
+      "description": "Fires after QueryAnalyzer has calculated list/query/model keys for a request.",
       "params": [
         {
           "type": "\\WPGraphQL\\Utils\\QueryAnalyzer",
@@ -6204,8 +5938,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_determine_graphql_keys'",
       "relatedSnippets": [],
@@ -10165,19 +9899,35 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_query_analyzer_get_list_types",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 444,
-      "description": "",
-      "params": [],
+      "line": 462,
+      "description": "Filters list types before QueryAnalyzer derives them from the AST.",
+      "params": [
+        {
+          "type": "string[]|null",
+          "name": "$null",
+          "description": "Default value for the filter."
+        },
+        {
+          "type": "?\\GraphQL\\Type\\Schema",
+          "name": "$schema",
+          "description": "The WPGraphQL Schema for the current request."
+        },
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The query string being requested."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_query_analyzer_get_list_types'",
       "relatedSnippets": [],
@@ -10194,19 +9944,35 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_query_analyzer_get_models",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 631,
-      "description": "",
-      "params": [],
+      "line": 677,
+      "description": "Filters model identifiers before QueryAnalyzer derives them from the AST.",
+      "params": [
+        {
+          "type": "string[]|null",
+          "name": "$null",
+          "description": "Default value for the filter."
+        },
+        {
+          "type": "?\\GraphQL\\Type\\Schema",
+          "name": "$schema",
+          "description": "The WPGraphQL Schema for the current request."
+        },
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The query string being requested."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_query_analyzer_get_models'",
       "relatedSnippets": [],
@@ -10223,19 +9989,35 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_query_analyzer_get_query_types",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 548,
-      "description": "",
-      "params": [],
+      "line": 580,
+      "description": "Filters query types before QueryAnalyzer derives them from the AST.",
+      "params": [
+        {
+          "type": "string[]|null",
+          "name": "$null",
+          "description": "Default value for the filter."
+        },
+        {
+          "type": "?\\GraphQL\\Type\\Schema",
+          "name": "$schema",
+          "description": "The WPGraphQL Schema for the current request."
+        },
+        {
+          "type": "?string",
+          "name": "$query",
+          "description": "The query string being requested."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_query_analyzer_get_query_types'",
       "relatedSnippets": [],
@@ -11001,14 +10783,14 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_query_analyzer_get_headers",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 862,
-      "description": "",
+      "line": 928,
+      "description": "Filters GraphQL response headers after query analyzer headers are appended.",
       "params": [
         {
           "type": "array<string,string>",
@@ -11023,8 +10805,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_query_analyzer_get_headers'",
       "relatedSnippets": [],
@@ -11041,14 +10823,14 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_query_analyzer_get_runtime_nodes",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 329,
-      "description": "",
+      "line": 343,
+      "description": "Filters runtime node identifiers captured while resolving a GraphQL request.",
       "params": [
         {
           "type": "string[]|int[]",
@@ -11058,8 +10840,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_query_analyzer_get_runtime_nodes'",
       "relatedSnippets": [],
@@ -11076,14 +10858,14 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_query_analyzer_graphql_keys",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 823,
-      "description": "",
+      "line": 885,
+      "description": "Filters the assembled query analyzer keys before they are returned.",
       "params": [
         {
           "type": "AnalyzedGraphQLKeys",
@@ -11113,8 +10895,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_query_analyzer_graphql_keys'",
       "relatedSnippets": [],
@@ -11131,13 +10913,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_query_analyzer_header_length_limit",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 241,
+      "line": 247,
       "description": "Many clients have an 8k (8192 characters) header length cap. This is the total for ALL headers, not just individual headers. SEE: https://nodejs.org/en/blog/vulnerability/november-2018-security-releases/#denial-of-service-with-large-http-headers-cve-2018-12121 In order to respect this, we have a default limit of 4000 characters for the X-GraphQL-Keys header to allow for other headers to total up to 8k. This value can be filtered to be increased or decreased. If you see \"Parse Error: Header overflow\" errors in your client, you might want to decrease this value. On the other hand, if you've increased your allowed header length in your client (i.e. https://github.com/wp-graphql/wp-graphql/issues/2535#issuecomment-1262499064) then you might want to increase this so that keys are not truncated.",
       "params": [
         {
@@ -11148,8 +10930,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_query_analyzer_header_length_limit'",
       "relatedSnippets": [],
@@ -11166,13 +10948,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_query_analyzer_runtime_node",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 723,
+      "line": 781,
       "description": "Filter the node ID before returning to the list of resolved nodes",
       "params": [
         {
@@ -11193,8 +10975,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_query_analyzer_runtime_node'",
       "relatedSnippets": [],
@@ -12908,13 +12690,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_should_analyze_queries",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 161,
+      "line": 163,
       "description": "Filters whether to analyze queries for all GraphQL requests.",
       "params": [
         {
@@ -12925,8 +12707,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_should_analyze_queries'",
       "relatedSnippets": [],
@@ -12943,13 +12725,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_should_analyze_query",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 200,
+      "line": 204,
       "description": "Filters whether to analyze queries or for a specific GraphQL request.",
       "params": [
         {
@@ -12960,13 +12742,13 @@
         {
           "type": "\\WPGraphQL\\Request",
           "name": "$request",
-          "description": "The GraphQL request being executed"
+          "description": "The GraphQL request being executed."
         }
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_should_analyze_query'",
       "relatedSnippets": [],
@@ -13043,14 +12825,14 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_should_show_query_analyzer_in_extensions",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 887,
-      "description": "",
+      "line": 957,
+      "description": "Filters whether query analyzer details should be included in response extensions.",
       "params": [
         {
           "type": "bool",
@@ -13085,8 +12867,8 @@
       ],
       "argumentCount": 6,
       "docblockParamCount": 6,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.11.0",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_should_show_query_analyzer_in_extensions'",
       "relatedSnippets": [],

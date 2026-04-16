@@ -5,17 +5,17 @@ Do not edit manually.
 ---
 title: graphql_query_analyzer_graphql_keys
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
 # `graphql_query_analyzer_graphql_keys`
 
-No description available.
+Filters the assembled query analyzer keys before they are returned.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters

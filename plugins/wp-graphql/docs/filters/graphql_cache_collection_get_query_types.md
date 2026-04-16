@@ -5,15 +5,22 @@ Do not edit manually.
 ---
 title: graphql_cache_collection_get_query_types
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
 # `graphql_cache_collection_get_query_types`
 
-No description available.
+Filters query type cache keys derived by QueryAnalyzer.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+
+## Parameters
+
+- `$map` (`string[]`): Query-type cache keys.
+- `$schema` (`?\GraphQL\Type\Schema`): The WPGraphQL Schema for the current request.
+- `$query` (`?string`): The query string being requested.
+- `$type_info` (`\GraphQL\Utils\TypeInfo`): Type metadata gathered while traversing the AST.

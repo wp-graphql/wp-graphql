@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_should_analyze_query
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,11 +14,11 @@ plugin: wp-graphql
 Filters whether to analyze queries or for a specific GraphQL request.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
 - `$should_analyze_queries` (`bool`): Whether to analyze queries for the current request. Defaults to the value of `graphql_query_analyzer_enabled` filter.
-- `$request` (`\WPGraphQL\Request`): The GraphQL request being executed
+- `$request` (`\WPGraphQL\Request`): The GraphQL request being executed.
