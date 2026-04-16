@@ -22,6 +22,14 @@ Do not edit manually.
 - Replacement: `graphql_enqueue_graphiql_extension`
 - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
 
+### `graphql_connection`
+
+- Type: filter
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_connection_resolved`
+- Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
 ### `graphql_data_loaders`
 
 - Type: filter
@@ -29,6 +37,23 @@ Do not edit manually.
 - Deprecated in: 2.3.2
 - Replacement: `graphql_data_loader_classes`
 - Source: `plugins/wp-graphql/src/AppContext.php`
+
+### `graphql_endpoint`
+
+- Type: filter
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_endpoint_path`
+- Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php`
+- Occurrences: 2
+
+### `graphql_execute`
+
+- Type: action
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_request_execute`
+- Source: `plugins/wp-graphql/src/Request.php`
 
 ### `graphql_object_type_interfaces`
 
@@ -54,6 +79,15 @@ Do not edit manually.
 - Replacement: `graphql_model_prepare_fields`
 - Source: `plugins/wp-graphql/src/Deprecated.php`
 
+### `graphql_schema`
+
+- Type: filter
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_schema_instance`
+- Source: `plugins/wp-graphql/src/Registry/SchemaRegistry.php`
+- Occurrences: 2
+
 ### `init_graphql_request`
 
 - Type: action
@@ -70,6 +104,31 @@ Do not edit manually.
 - Deprecated in: x-release-please-version
 - Replacement: `graphql_init_type_registry`
 - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+
+### `pre_graphql_execute_request`
+
+- Type: filter
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_pre_execute_request`
+- Source: `plugins/wp-graphql/src/Request.php`
+- Occurrences: 2
+
+### `register_graphql_post_type_args`
+
+- Type: filter
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_register_post_type_args`
+- Source: `plugins/wp-graphql/src/WPGraphQL.php`
+
+### `register_graphql_taxonomy_args`
+
+- Type: filter
+- Status: deprecated
+- Deprecated in: x-release-please-version
+- Replacement: `graphql_register_taxonomy_args`
+- Source: `plugins/wp-graphql/src/WPGraphQL.php`
 
 ### `wp_graphql_experiment_config`
 

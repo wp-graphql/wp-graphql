@@ -6,76 +6,20 @@ Do not edit manually.
 
 ## Summary
 
-- Total hooks: 286
-- WPGraphQL hooks audited: 263
+- Total hooks: 296
+- WPGraphQL hooks audited: 273
 - Core hooks excluded from audit: 23
 - Static hooks: 235
 - Dynamic hooks: 12
-- Flagged hooks: 7
-- Warnings: 7
+- Flagged hooks: 0
+- Warnings: 0
 - Errors: 0
 
 ## Top Prefixes
 
-- `graphql_`: 231
-- `pre_`: 2
-- `register_`: 2
+- `graphql_`: 235
 
 ## Flagged Hooks
 
-### `graphql_endpoint`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php`
-- Suggestion: Use names that include both domain and event segments.
-
-### `graphql_connection`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
-- Suggestion: Use names that include both domain and event segments.
-
-### `graphql_schema`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/src/Registry/SchemaRegistry.php`
-- Suggestion: Use names that include both domain and event segments.
-
-### `graphql_execute`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/src/Request.php`
-- Suggestion: Use names that include both domain and event segments.
-
-### `graphql_init`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/src/WPGraphQL.php`
-- Suggestion: Use names that include both domain and event segments.
-
-### `graphql_schema`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/src/WPGraphQL.php`
-- Suggestion: Use names that include both domain and event segments.
-
-### `graphql_endpoint`
-
-- Severity: warning
-- Code: low_specificity
-- Message: Hook name has too few semantic segments after prefix.
-- Source: `plugins/wp-graphql/access-functions.php`
-- Suggestion: Use names that include both domain and event segments.
+No naming convention flags detected.
 

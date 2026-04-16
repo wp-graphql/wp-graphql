@@ -11,18 +11,14 @@ plugin: wp-graphql
 
 # `graphql_execute`
 
-Run an action. This is a good place for debug tools to hook in to log things, etc.
+Legacy GraphQL request execution action retained for backward compatibility.
 
 - **Type:** action
 - **Group:** Request Lifecycle
-- **Since:** 0.0.4
+- **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
-## Parameters
+## Lifecycle
 
-- `$response` (`mixed|array<string,mixed>|object`): The response your GraphQL request
-- `$schema` (`\WPGraphQL\WPSchema`): The schema object for the root request
-- `$operation` (`?string`): The name of the operation
-- `$query` (`?string`): The query that GraphQL executed
-- `$variables` (`?array<string,mixed>`): Variables to passed to your GraphQL query
-- `$request` (`\WPGraphQL\Request`): Instance of the Request
+- **Deprecated in:** x-release-please-version
+- **Replacement:** `graphql_request_execute`

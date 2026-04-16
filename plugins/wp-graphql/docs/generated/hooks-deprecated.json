@@ -1,7 +1,7 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-15T17:45:29.836Z",
-  "count": 14,
+  "generatedAt": "2026-04-15T22:18:21.254Z",
+  "count": 21,
   "hooks": [
     {
       "pluginSlug": "wp-graphql",
@@ -13,9 +13,11 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 588,
+      "line": 597,
       "description": "Legacy GraphQL request lifecycle action retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -32,7 +34,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 588
+          "line": 597
         }
       ],
       "occurrences": 1
@@ -50,6 +52,8 @@
       "line": 315,
       "description": "Legacy GraphiQL extension enqueue action retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -73,6 +77,42 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_connection",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
+      "line": 1043,
+      "description": "Legacy connection result filter retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_connection'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_connection_resolved",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
+          "line": 1043
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_data_loaders",
       "kind": "filter",
       "group": "uncategorized",
@@ -84,6 +124,8 @@
       "line": 219,
       "description": "",
       "params": [],
+      "argumentCount": 4,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -107,6 +149,82 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_endpoint",
+      "kind": "filter",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
+      "line": 103,
+      "description": "Legacy endpoint path filter retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_endpoint'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_endpoint_path",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
+          "line": 103
+        },
+        {
+          "file": "plugins/wp-graphql/access-functions.php",
+          "line": 902
+        }
+      ],
+      "occurrences": 2
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_execute",
+      "kind": "action",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "do_action_deprecated",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 508,
+      "description": "Legacy GraphQL request execution action retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_execute'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_request_execute",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 508
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_object_type_interfaces",
       "kind": "filter",
       "group": "models",
@@ -118,6 +236,8 @@
       "line": 63,
       "description": "",
       "params": [],
+      "argumentCount": 4,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -152,6 +272,8 @@
       "line": 165,
       "description": "",
       "params": [],
+      "argumentCount": 4,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -186,6 +308,8 @@
       "line": 91,
       "description": "",
       "params": [],
+      "argumentCount": 4,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -209,6 +333,46 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_schema",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
+      "line": 84,
+      "description": "Legacy schema filter retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'graphql_schema'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_schema_instance",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
+          "line": 84
+        },
+        {
+          "file": "plugins/wp-graphql/src/WPGraphQL.php",
+          "line": 926
+        }
+      ],
+      "occurrences": 2
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "init_graphql_request",
       "kind": "action",
       "group": "uncategorized",
@@ -220,6 +384,8 @@
       "line": 72,
       "description": "Legacy request initialization hook retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -258,6 +424,8 @@
       "line": 283,
       "description": "Legacy type registry initialization hook retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -281,6 +449,118 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "pre_graphql_execute_request",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 680,
+      "description": "Legacy pre-execute request filter retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'pre_graphql_execute_request'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_pre_execute_request",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 680
+        },
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 785
+        }
+      ],
+      "occurrences": 2
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "register_graphql_post_type_args",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/WPGraphQL.php",
+      "line": 626,
+      "description": "Legacy post type registration filter retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'register_graphql_post_type_args'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_register_post_type_args",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/WPGraphQL.php",
+          "line": 626
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "register_graphql_taxonomy_args",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters_deprecated",
+      "file": "plugins/wp-graphql/src/WPGraphQL.php",
+      "line": 665,
+      "description": "Legacy taxonomy registration filter retained for backward compatibility.",
+      "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'register_graphql_taxonomy_args'",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "deprecated",
+        "deprecatedIn": "x-release-please-version",
+        "removedIn": null,
+        "replacement": "graphql_register_taxonomy_args",
+        "message": null,
+        "source": "deprecated_call"
+      },
+      "sourceLocations": [
+        {
+          "file": "plugins/wp-graphql/src/WPGraphQL.php",
+          "line": 665
+        }
+      ],
+      "occurrences": 1
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "wp_graphql_experiment_config",
       "kind": "filter",
       "group": "uncategorized",
@@ -292,6 +572,8 @@
       "line": 393,
       "description": "Legacy experiment config filter retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -326,6 +608,8 @@
       "line": 328,
       "description": "Legacy experiment enabled filter retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -360,6 +644,8 @@
       "line": 320,
       "description": "Legacy autoupdate filter retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -394,6 +680,8 @@
       "line": 355,
       "description": "Legacy untested autoupdate filter retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -428,6 +716,8 @@
       "line": 71,
       "description": "Legacy experimental features toggle filter retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,
@@ -462,6 +752,8 @@
       "line": 383,
       "description": "Legacy release channel filter retained for backward compatibility.",
       "params": [],
+      "argumentCount": 3,
+      "docblockParamCount": 0,
       "since": null,
       "hookGroup": null,
       "isDynamic": false,

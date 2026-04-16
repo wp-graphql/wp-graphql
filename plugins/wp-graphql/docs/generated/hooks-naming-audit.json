@@ -1,15 +1,12 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-15T17:45:29.836Z",
+  "generatedAt": "2026-04-15T22:18:21.254Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
         "graphql_"
       ],
-      "legacyAllowedPrefixes": [
-        "pre_graphql_",
-        "register_graphql_"
-      ],
+      "legacyAllowedPrefixes": [],
       "deprecatedPrefixes": [
         "wpgraphql_",
         "wp_graphql_",
@@ -17,6 +14,9 @@
       ],
       "allowedHookNamePattern": "^[a-z0-9_]+$",
       "minSegmentsAfterPrefix": 2,
+      "lowSpecificityAllowlist": [
+        "graphql_init"
+      ],
       "dynamicNamePattern": "^[\"']?graphql_",
       "coreHookAllowlist": [
         "query_vars",
@@ -31,101 +31,22 @@
       ]
     },
     "summary": {
-      "totalHooks": 286,
-      "wpgraphqlHooks": 263,
+      "totalHooks": 296,
+      "wpgraphqlHooks": 273,
       "activeWpgraphqlHooks": 247,
       "coreHooks": 23,
       "staticHooks": 235,
       "dynamicHooks": 12,
-      "flaggedHooks": 7,
-      "warnings": 7,
+      "flaggedHooks": 0,
+      "warnings": 0,
       "errors": 0
     },
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 231
-      },
-      {
-        "prefix": "pre_",
-        "count": 2
-      },
-      {
-        "prefix": "register_",
-        "count": 2
+        "count": 235
       }
     ],
-    "flaggedHooks": [
-      {
-        "hook": "graphql_endpoint",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-        "line": 94,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "graphql_connection",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-        "line": 1039,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "graphql_schema",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
-        "line": 80,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "graphql_execute",
-        "kind": "action",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 505,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "graphql_init",
-        "kind": "action",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 204,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "graphql_schema",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 903,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      },
-      {
-        "hook": "graphql_endpoint",
-        "kind": "filter",
-        "file": "plugins/wp-graphql/access-functions.php",
-        "line": 898,
-        "code": "low_specificity",
-        "severity": "warning",
-        "message": "Hook name has too few semantic segments after prefix.",
-        "suggestion": "Use names that include both domain and event segments."
-      }
-    ]
+    "flaggedHooks": []
   }
 }

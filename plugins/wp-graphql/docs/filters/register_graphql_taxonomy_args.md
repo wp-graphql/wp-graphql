@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `register_graphql_taxonomy_args`
 
-No description available.
+Legacy taxonomy registration filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+
+## Lifecycle
+
+- **Deprecated in:** x-release-please-version
+- **Replacement:** `graphql_register_taxonomy_args`

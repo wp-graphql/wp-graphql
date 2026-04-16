@@ -516,12 +516,12 @@ For examples of implementing these patterns with custom data sources, see:
    add_filter( 'graphql_debug_enabled', '__return_true' );
 
    // Track query execution time
-   add_action( 'graphql_execute', function( $response, $query ) {
+   add_action( 'graphql_request_execute', function( $response, $schema, $operation, $query ) {
      graphql_debug([
        'query' => $query,
        'execution_time' => timer_stop()
      ]);
-   }, 10, 2 );
+   }, 10, 4 );
    ```
 
 2. **Use Query Tracing**

@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_connection`
 
-No description available.
+Legacy connection result filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Lifecycle
+
+- **Deprecated in:** x-release-please-version
+- **Replacement:** `graphql_connection_resolved`
