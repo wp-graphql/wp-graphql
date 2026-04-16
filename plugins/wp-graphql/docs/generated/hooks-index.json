@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T21:02:44.803Z",
+  "generatedAt": "2026-04-16T21:04:17.386Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -441,76 +441,6 @@
         "file": "plugins/wp-graphql/src/Data/DataSource.php",
         "line": 552,
         "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_dataloader_pre_get_model",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 354,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_dataloader_pre_get_model",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 354,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_dataloader_pre_get_model",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 354,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_dataloader_pre_get_model",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 354,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_dataloader_get_model",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 377,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_dataloader_get_model",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 377,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_dataloader_get_cached",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 401,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_dataloader_get_cached",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 401,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_dataloader_set_cached",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 433,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_dataloader_set_cached",
-        "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-        "line": 433,
-        "message": "Missing @since tag in nearest docblock"
       },
       {
         "type": "missing_hook_group",
@@ -4260,13 +4190,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_dataloader_get_cached",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 401,
+      "line": 410,
       "description": "Use this filter to retrieving cached data objects from third-party caching system.",
       "params": [
         {
@@ -4292,8 +4222,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_dataloader_get_cached'",
       "relatedSnippets": [],
@@ -4310,13 +4240,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_dataloader_get_model",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 377,
+      "line": 383,
       "description": "Filter the model before returning.",
       "params": [
         {
@@ -4342,8 +4272,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_dataloader_get_model'",
       "relatedSnippets": [],
@@ -4360,19 +4290,40 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_dataloader_pre_get_model",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 354,
-      "description": "",
-      "params": [],
+      "line": 357,
+      "description": "This filter allows the model generated by the DataLoader to be filtered. Returning anything other than null here will bypass the default model generation for an object. One example would be WooCommerce Products returning a custom Model for posts of post_type \"product\".",
+      "params": [
+        {
+          "type": "null",
+          "name": "$model",
+          "description": "The filtered model to return. Default null"
+        },
+        {
+          "type": "mixed",
+          "name": "$entry",
+          "description": "The entry loaded from the dataloader to be used to generate a Model"
+        },
+        {
+          "type": "mixed",
+          "name": "$key",
+          "description": "The Key used to identify the loaded entry"
+        },
+        {
+          "type": "\\WPGraphQL\\Data\\Loader\\AbstractDataLoader",
+          "name": "$abstract_data_loader",
+          "description": "The AbstractDataLoader instance"
+        }
+      ],
       "argumentCount": 4,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 4,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_dataloader_pre_get_model'",
       "relatedSnippets": [],
@@ -4389,13 +4340,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_dataloader_set_cached",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php",
-      "line": 433,
+      "line": 445,
       "description": "Use this filter to store entry in a third-party caching system.",
       "params": [
         {
@@ -4421,8 +4372,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_dataloader_set_cached'",
       "relatedSnippets": [],

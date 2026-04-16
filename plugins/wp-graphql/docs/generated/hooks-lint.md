@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 204
-- Total findings: 204
+- Warnings: 194
+- Total findings: 194
 
 ## Findings by Type
 
-- `missing_hook_description`: 11
-- `missing_hook_group`: 98
+- `missing_hook_description`: 10
+- `missing_hook_group`: 94
 - `missing_hook_param_description`: 1
-- `missing_hook_params`: 14
-- `missing_hook_since`: 80
+- `missing_hook_params`: 13
+- `missing_hook_since`: 76
 
 ## Findings
 
@@ -30,10 +30,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_dataloader_pre_get_model`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 354)
 - **Hook:** `graphql_experimental_features_override`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -185,22 +181,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 552)
-- **Hook:** `graphql_dataloader_pre_get_model`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 354)
-- **Hook:** `graphql_dataloader_get_model`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 377)
-- **Hook:** `graphql_dataloader_get_cached`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 401)
-- **Hook:** `graphql_dataloader_set_cached`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 433)
 - **Hook:** `graphql_media_item_insert_post_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -491,10 +471,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 444)
-- **Hook:** `graphql_dataloader_pre_get_model`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 354)
 - **Hook:** `graphql_experimental_features_override`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -590,22 +566,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/Cursor/UserCursor.php` (line 83)
-- **Hook:** `graphql_dataloader_pre_get_model`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 354)
-- **Hook:** `graphql_dataloader_get_model`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 377)
-- **Hook:** `graphql_dataloader_get_cached`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 401)
-- **Hook:** `graphql_dataloader_set_cached`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php` (line 433)
 - **Hook:** `graphql_media_item_insert_post_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

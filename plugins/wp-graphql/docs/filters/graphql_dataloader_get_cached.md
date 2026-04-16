@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_dataloader_get_cached
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Use this filter to retrieving cached data objects from third-party caching system.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
 
 ## Parameters

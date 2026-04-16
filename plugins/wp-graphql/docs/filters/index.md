@@ -77,6 +77,10 @@ title: Filters
 ## Model Layer
 
 - [`graphql_data_is_private`](/docs/filters/graphql_data_is_private)
+- [`graphql_dataloader_get_cached`](/docs/filters/graphql_dataloader_get_cached)
+- [`graphql_dataloader_get_model`](/docs/filters/graphql_dataloader_get_model)
+- [`graphql_dataloader_pre_get_model`](/docs/filters/graphql_dataloader_pre_get_model)
+- [`graphql_dataloader_set_cached`](/docs/filters/graphql_dataloader_set_cached)
 - [`graphql_html_entity_decoding_enabled`](/docs/filters/graphql_html_entity_decoding_enabled)
 - [`graphql_model_field_capability`](/docs/filters/graphql_model_field_capability)
 - [`graphql_model_prepare_fields`](/docs/filters/graphql_model_prepare_fields)
@@ -165,10 +169,6 @@ title: Filters
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
 - [`graphql_custom_scalar_config`](/docs/filters/graphql_custom_scalar_config)
 - [`graphql_data_loader_classes`](/docs/filters/graphql_data_loader_classes)
-- [`graphql_dataloader_get_cached`](/docs/filters/graphql_dataloader_get_cached)
-- [`graphql_dataloader_get_model`](/docs/filters/graphql_dataloader_get_model)
-- [`graphql_dataloader_pre_get_model`](/docs/filters/graphql_dataloader_pre_get_model)
-- [`graphql_dataloader_set_cached`](/docs/filters/graphql_dataloader_set_cached)
 - [`graphql_experiment_enabled`](/docs/filters/graphql_experiment_enabled)
 - [`graphql_experimental_features_cap`](/docs/filters/graphql_experimental_features_cap)
 - [`graphql_experimental_features_override`](/docs/filters/graphql_experimental_features_override)
