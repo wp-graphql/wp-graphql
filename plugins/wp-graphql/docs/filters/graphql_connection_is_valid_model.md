@@ -15,7 +15,7 @@ Filters whether or not the model is valid. This is useful when the dataloader is
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters

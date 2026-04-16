@@ -15,7 +15,7 @@ Filters the default query amount for a connection, if no `first` or `last` Graph
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters

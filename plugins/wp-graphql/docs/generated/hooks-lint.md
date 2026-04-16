@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 396
-- Total findings: 396
+- Warnings: 365
+- Total findings: 365
 
 ## Findings by Type
 
 - `missing_hook_description`: 22
-- `missing_hook_group`: 187
+- `missing_hook_group`: 171
 - `missing_hook_param_description`: 5
-- `missing_hook_params`: 27
-- `missing_hook_since`: 155
+- `missing_hook_params`: 26
+- `missing_hook_since`: 141
 
 ## Findings
 
@@ -173,70 +173,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/Config.php` (line 465)
-- **Hook:** `graphql_connection_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 225)
-- **Hook:** `graphql_connection_query_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 239)
-- **Hook:** `graphql_connection_loader_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 559)
-- **Hook:** `graphql_connection_max_query_amount`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 618)
-- **Hook:** `graphql_connection_query_class`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 683)
-- **Hook:** `graphql_connection_pre_get_query`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 716)
-- **Hook:** `graphql_connection_page_info`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 812)
-- **Hook:** `graphql_connection_pre_should_execute`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 887)
-- **Hook:** `graphql_connection_default_query_amount`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 922)
-- **Hook:** `graphql_connection_nodes`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1004)
-- **Hook:** `graphql_connection_edges`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1014)
-- **Hook:** `graphql_connection_should_execute`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1076)
-- **Hook:** `graphql_connection_query`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1103)
-- **Hook:** `graphql_connection_ids`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1113)
-- **Hook:** `graphql_connection_is_valid_model`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1345)
-- **Hook:** `graphql_connection_edge`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1374)
 - **Hook:** `graphql_comment_connection_query_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -895,10 +831,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_connection_page_info`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 812)
 - **Hook:** `graphql_map_input_fields_to_wp_comment_query`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -1054,62 +986,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/Config.php` (line 465)
-- **Hook:** `graphql_connection_query_args`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 239)
-- **Hook:** `graphql_connection_loader_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 559)
-- **Hook:** `graphql_connection_query_class`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 683)
-- **Hook:** `graphql_connection_pre_get_query`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 716)
-- **Hook:** `graphql_connection_page_info`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 812)
-- **Hook:** `graphql_connection_pre_should_execute`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 887)
-- **Hook:** `graphql_connection_default_query_amount`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 922)
-- **Hook:** `graphql_connection_nodes`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1004)
-- **Hook:** `graphql_connection_edges`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1014)
-- **Hook:** `graphql_connection_should_execute`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1076)
-- **Hook:** `graphql_connection_query`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1103)
-- **Hook:** `graphql_connection_ids`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1113)
-- **Hook:** `graphql_connection_is_valid_model`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1345)
-- **Hook:** `graphql_connection_edge`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1374)
 - **Hook:** `graphql_post_object_connection_query_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

@@ -15,7 +15,7 @@ Set the query for the resolver, for use as reference in filters, etc Filter the 
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters

@@ -15,5 +15,10 @@ Filter the pageInfo that is returned to the connection. This filter allows for a
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+
+## Parameters
+
+- `$page_info` (`array<string,mixed>`): The pageInfo payload for the connection.
+- `$resolver` (`self`): Instance of the connection resolver.

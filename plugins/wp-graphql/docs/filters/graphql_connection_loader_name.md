@@ -15,7 +15,7 @@ Filters the loader name. This is the name of the registered DataLoader that will
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters

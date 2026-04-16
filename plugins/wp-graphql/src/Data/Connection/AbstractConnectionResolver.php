@@ -220,6 +220,7 @@ abstract class AbstractConnectionResolver {
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
 		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
+		 * @hookGroup connections
 		 * @since 1.11.0
 		 */
 		$this->args = apply_filters( 'graphql_connection_args', $this->args, $this, $this->get_unfiltered_args() );
@@ -235,6 +236,8 @@ abstract class AbstractConnectionResolver {
 		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->get_unfiltered_args() );
 
@@ -555,6 +558,8 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * @param string $loader_name The name of the loader.
 			 * @param self   $resolver    The AbstractConnectionResolver instance.
+		 * @hookGroup connections
+		 * @since 0.0.6
 			 */
 			$name = apply_filters( 'graphql_connection_loader_name', $name, $this );
 
@@ -613,6 +618,7 @@ abstract class AbstractConnectionResolver {
 			 * @param \WPGraphQL\AppContext                $context    Object containing app context that gets passed down the resolve tree
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info       Info about fields passed down the resolve tree
 			 *
+			 * @hookGroup connections
 			 * @since 0.0.6
 			 */
 			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
@@ -679,6 +685,8 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * @param ?class-string<TQueryClass> $query_class The query class to be used with the executable query to get data. `null` if the AbstractConnectionResolver does not use a query class.
 			 * @param self        $resolver    Instance of the AbstractConnectionResolver
+			 * @hookGroup connections
+			 * @since 0.0.6
 			 */
 			$this->query_class = apply_filters( 'graphql_connection_query_class', $query_class, $this );
 		}
@@ -712,6 +720,8 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * @param null $query               The query to return. Return null to use the default query execution.
 			 * @param self $resolver The connection resolver instance.
+			 * @hookGroup connections
+			 * @since 0.0.6
 			 */
 			$query = apply_filters( 'graphql_connection_pre_get_query', null, $this );
 
@@ -808,6 +818,11 @@ abstract class AbstractConnectionResolver {
 			 *   return $page_info;
 			 *
 			 * });
+			 *
+			 * @param array<string,mixed> $page_info The pageInfo payload for the connection.
+			 * @param self                $resolver  Instance of the connection resolver.
+			 * @hookGroup connections
+			 * @since 0.0.6
 			 */
 			$this->page_info = apply_filters( 'graphql_connection_page_info', $page_info, $this );
 		}
@@ -883,6 +898,8 @@ abstract class AbstractConnectionResolver {
 		 * @param array<string,mixed>                  $args           The inputArgs on the field.
 		 * @param \WPGraphQL\AppContext                $context        The AppContext passed down the GraphQL tree.
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info           The ResolveInfo passed down the GraphQL tree.
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		return apply_filters( 'graphql_connection_pre_should_execute', $should_execute, $source, $args, $context, $info );
 	}
@@ -918,6 +935,8 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @param int  $amount_requested The default query amount for a connection.
 		 * @param self $resolver         Instance of the Connection Resolver.
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		$amount_requested = apply_filters( 'graphql_connection_default_query_amount', 10, $this );
 
@@ -1000,6 +1019,8 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
 				 * @param self                                 $resolver Instance of the Connection Resolver
+				 * @hookGroup connections
+				 * @since 0.0.6
 				 */
 				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
 
@@ -1010,6 +1031,8 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * @param array<string,mixed> $edges    The edges in the connection
 				 * @param self                $resolver Instance of the Connection Resolver
+				 * @hookGroup connections
+				 * @since 0.0.6
 				 */
 				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
@@ -1072,6 +1095,8 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @param bool                       $should_execute      Whether the connection should execute
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
 
@@ -1099,6 +1124,8 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @param mixed                      $query               Instance of the Query for the resolver
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
 
@@ -1109,6 +1136,8 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @param int[]|string[]                                        $ids                 Array of IDs this connection will be resolving
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		$this->ids = apply_filters( 'graphql_connection_ids', $this->get_ids(), $this );
 
@@ -1341,6 +1370,8 @@ abstract class AbstractConnectionResolver {
 		 * @param bool  $is_valid Whether or not the model is valid.
 		 * @param mixed $model    The model being validated
 		 * @param self  $resolver The connection resolver instance
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		return apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
 	}
@@ -1370,6 +1401,8 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * @param array<string,mixed> $edge     The edge within the connection
 			 * @param self                $resolver Instance of the connection resolver class
+		 * @hookGroup connections
+		 * @since 0.0.6
 			 */
 			$edge = apply_filters( 'graphql_connection_edge', $edge, $this );
 

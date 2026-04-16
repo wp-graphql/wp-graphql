@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:35:29.386Z",
+  "generatedAt": "2026-04-16T20:39:12.537Z",
   "count": 21,
   "hooks": [
     {
@@ -85,7 +85,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1043,
+      "line": 1066,
       "description": "Legacy connection result filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -106,7 +106,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1043
+          "line": 1066
         }
       ],
       "occurrences": 1

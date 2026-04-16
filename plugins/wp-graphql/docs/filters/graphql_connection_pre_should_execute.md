@@ -15,7 +15,7 @@ Filters whether or not the query should execute, BEFORE any data is fetched or a
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
