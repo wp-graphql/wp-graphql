@@ -47,6 +47,16 @@ class WPInterfaceType extends InterfaceType {
 		$this->config = $config;
 
 		$name                 = ! empty( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		/**
+		 * Filters the GraphQL type name before the interface type is registered.
+		 *
+		 * @param string                              $type_name         The GraphQL type name.
+		 * @param InterfaceConfig                     $config            The interface type configuration.
+		 * @param \WPGraphQL\Type\WPInterfaceType     $wp_interface_type The interface type instance.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
+		 */
 		$config['name']       = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields']     = function () use ( $config ) {
 			return ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
@@ -63,8 +73,11 @@ class WPInterfaceType extends InterfaceType {
 			 * Filter the resolve type method for all interfaces
 			 *
 			 * @param mixed $type The Type to resolve to, based on the object being resolved.
-			 * @param mixed $obj  The Object being resolved.
+		 * @param mixed $obj  The object being resolved.
 			 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The WPInterfaceType instance.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 			 */
 			return apply_filters( 'graphql_interface_resolve_type', $type, $obj, $this );
 		};
@@ -74,6 +87,9 @@ class WPInterfaceType extends InterfaceType {
 		 *
 		 * @param InterfaceConfig                 $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The instance of the WPInterfaceType class
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
 
@@ -112,7 +128,10 @@ class WPInterfaceType extends InterfaceType {
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
 		 * @param array<string,array<string,mixed>> $fields    The array of fields for the object config
-		 * @param string                            $type_name The name of the object type
+		 * @param string                            $type_name The name of the object type.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( 'graphql_interface_fields', $fields, $type_name );
 
@@ -128,7 +147,10 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
+		 * @param array<string,array<string,mixed>> $fields The array of fields for the object config.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields );
 
@@ -138,7 +160,10 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
+		 * @param array<string,array<string,mixed>> $fields The array of fields for the object config.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
 

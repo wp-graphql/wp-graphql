@@ -106,6 +106,8 @@ title: Filters
 - [`graphql_excluded_mutations`](/docs/filters/graphql_excluded_mutations)
 - [`graphql_excluded_types`](/docs/filters/graphql_excluded_types)
 - [`graphql_get_type`](/docs/filters/graphql_get_type)
+- [`graphql_interface_fields`](/docs/filters/graphql_interface_fields)
+- [`graphql_interface_resolve_type`](/docs/filters/graphql_interface_resolve_type)
 - [`graphql_introspection_keys`](/docs/filters/graphql_introspection_keys)
 - [`graphql_post_entities_allowed_post_types`](/docs/filters/graphql_post_entities_allowed_post_types)
 - [`graphql_register_post_type_args`](/docs/filters/graphql_register_post_type_args)
@@ -123,6 +125,7 @@ title: Filters
 - [`graphql_type_registry`](/docs/filters/graphql_type_registry)
 - [`graphql_union_possible_types`](/docs/filters/graphql_union_possible_types)
 - [`graphql_union_resolve_type`](/docs/filters/graphql_union_resolve_type)
+- [`graphql_wp_interface_type_config`](/docs/filters/graphql_wp_interface_type_config)
 - [`graphql_wp_union_type_config`](/docs/filters/graphql_wp_union_type_config)
 
 ## Settings and Admin
@@ -166,8 +169,6 @@ title: Filters
 - [`graphql_get_extensions`](/docs/filters/graphql_get_extensions)
 - [`graphql_get_possible_dependents`](/docs/filters/graphql_get_possible_dependents)
 - [`graphql_input_fields`](/docs/filters/graphql_input_fields)
-- [`graphql_interface_fields`](/docs/filters/graphql_interface_fields)
-- [`graphql_interface_resolve_type`](/docs/filters/graphql_interface_resolve_type)
 - [`graphql_map_input_fields_to_get_terms`](/docs/filters/graphql_map_input_fields_to_get_terms)
 - [`graphql_map_input_fields_to_wp_comment_query`](/docs/filters/graphql_map_input_fields_to_wp_comment_query)
 - [`graphql_map_input_fields_to_wp_query`](/docs/filters/graphql_map_input_fields_to_wp_query)
@@ -214,6 +215,5 @@ title: Filters
 - [`graphql_user_can_see_trace_data`](/docs/filters/graphql_user_can_see_trace_data)
 - [`graphql_user_insert_post_args`](/docs/filters/graphql_user_insert_post_args)
 - [`graphql_user_mutation_input_fields`](/docs/filters/graphql_user_mutation_input_fields)
-- [`graphql_wp_interface_type_config`](/docs/filters/graphql_wp_interface_type_config)
 - [`graphql_wp_mutation_type_config`](/docs/filters/graphql_wp_mutation_type_config)
 - [`graphql_wp_object_type_config`](/docs/filters/graphql_wp_object_type_config)

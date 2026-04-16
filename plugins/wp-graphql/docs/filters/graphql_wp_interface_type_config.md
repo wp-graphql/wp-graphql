@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_wp_interface_type_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the config of WPInterfaceType
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
 
 ## Parameters

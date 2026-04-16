@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_interface_resolve_type
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,12 +14,12 @@ plugin: wp-graphql
 Filter the resolve type method for all interfaces
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
 
 ## Parameters
 
 - `$type` (`mixed`): The Type to resolve to, based on the object being resolved.
-- `$obj` (`mixed`): The Object being resolved.
+- `$obj` (`mixed`): The object being resolved.
 - `$wp_interface_type` (`\WPGraphQL\Type\WPInterfaceType`): The WPInterfaceType instance.
