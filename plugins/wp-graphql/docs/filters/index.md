@@ -12,7 +12,10 @@ title: Filters
 
 - [`graphql_allowed_setting_groups`](/docs/filters/graphql_allowed_setting_groups)
 - [`graphql_allowed_settings_by_group`](/docs/filters/graphql_allowed_settings_by_group)
+- [`graphql_authentication_error_status_code`](/docs/filters/graphql_authentication_error_status_code)
 - [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
+- [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
+- [`graphql_cookie_auth_require_nonce`](/docs/filters/graphql_cookie_auth_require_nonce)
 
 ## Connections
 
@@ -71,16 +74,23 @@ title: Filters
 
 ## Request Lifecycle
 
+- [`graphql_access_control_allow_headers`](/docs/filters/graphql_access_control_allow_headers)
 - [`graphql_execute_query_params`](/docs/filters/graphql_execute_query_params)
+- [`graphql_http_request_response_errors`](/docs/filters/graphql_http_request_response_errors)
 - [`graphql_invalid_content_type_status_code`](/docs/filters/graphql_invalid_content_type_status_code)
 - [`graphql_is_batch_queries_enabled`](/docs/filters/graphql_is_batch_queries_enabled)
+- [`graphql_is_graphql_http_request`](/docs/filters/graphql_is_graphql_http_request)
 - [`graphql_is_valid_http_content_type`](/docs/filters/graphql_is_valid_http_content_type)
 - [`graphql_pre_execute_request`](/docs/filters/graphql_pre_execute_request)
 - [`graphql_pre_execute_request`](/docs/filters/graphql_pre_execute_request)
+- [`graphql_pre_is_graphql_http_request`](/docs/filters/graphql_pre_is_graphql_http_request)
 - [`graphql_request_data`](/docs/filters/graphql_request_data)
 - [`graphql_request_data`](/docs/filters/graphql_request_data)
 - [`graphql_request_results`](/docs/filters/graphql_request_results)
+- [`graphql_response_headers_to_send`](/docs/filters/graphql_response_headers_to_send)
+- [`graphql_response_status_code`](/docs/filters/graphql_response_status_code)
 - [`graphql_root_value`](/docs/filters/graphql_root_value)
+- [`graphql_send_nocache_headers`](/docs/filters/graphql_send_nocache_headers)
 - [`graphql_validation_rules`](/docs/filters/graphql_validation_rules)
 
 ## Schema Registration
@@ -118,14 +128,10 @@ title: Filters
 
 ## Uncategorized
 
-- [`graphql_access_control_allow_headers`](/docs/filters/graphql_access_control_allow_headers)
 - [`graphql_app_context_config`](/docs/filters/graphql_app_context_config)
-- [`graphql_authentication_error_status_code`](/docs/filters/graphql_authentication_error_status_code)
-- [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
 - [`graphql_comment_connection_args`](/docs/filters/graphql_comment_connection_args)
 - [`graphql_comment_connection_query_args`](/docs/filters/graphql_comment_connection_query_args)
 - [`graphql_comment_insert_post_args`](/docs/filters/graphql_comment_insert_post_args)
-- [`graphql_cookie_auth_require_nonce`](/docs/filters/graphql_cookie_auth_require_nonce)
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
 - [`graphql_custom_scalar_config`](/docs/filters/graphql_custom_scalar_config)
 - [`graphql_data_is_private`](/docs/filters/graphql_data_is_private)
@@ -149,12 +155,10 @@ title: Filters
 - [`graphql_get_possible_dependents`](/docs/filters/graphql_get_possible_dependents)
 - [`graphql_get_type`](/docs/filters/graphql_get_type)
 - [`graphql_html_entity_decoding_enabled`](/docs/filters/graphql_html_entity_decoding_enabled)
-- [`graphql_http_request_response_errors`](/docs/filters/graphql_http_request_response_errors)
 - [`graphql_input_fields`](/docs/filters/graphql_input_fields)
 - [`graphql_interface_fields`](/docs/filters/graphql_interface_fields)
 - [`graphql_interface_resolve_type`](/docs/filters/graphql_interface_resolve_type)
 - [`graphql_introspection_keys`](/docs/filters/graphql_introspection_keys)
-- [`graphql_is_graphql_http_request`](/docs/filters/graphql_is_graphql_http_request)
 - [`graphql_map_input_fields_to_get_terms`](/docs/filters/graphql_map_input_fields_to_get_terms)
 - [`graphql_map_input_fields_to_wp_comment_query`](/docs/filters/graphql_map_input_fields_to_wp_comment_query)
 - [`graphql_map_input_fields_to_wp_query`](/docs/filters/graphql_map_input_fields_to_wp_query)
@@ -174,7 +178,6 @@ title: Filters
 - [`graphql_post_object_mutations_allow_term_creation`](/docs/filters/graphql_post_object_mutations_allow_term_creation)
 - [`graphql_pre_comment_cursor_node`](/docs/filters/graphql_pre_comment_cursor_node)
 - [`graphql_pre_format_name`](/docs/filters/graphql_pre_format_name)
-- [`graphql_pre_is_graphql_http_request`](/docs/filters/graphql_pre_is_graphql_http_request)
 - [`graphql_pre_model_data_is_private`](/docs/filters/graphql_pre_model_data_is_private)
 - [`graphql_pre_mutate_and_get_payload`](/docs/filters/graphql_pre_mutate_and_get_payload)
 - [`graphql_pre_post_cursor_node`](/docs/filters/graphql_pre_post_cursor_node)
@@ -196,12 +199,9 @@ title: Filters
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_resolve_uri`](/docs/filters/graphql_resolve_uri)
 - [`graphql_resolve_uri_query_class`](/docs/filters/graphql_resolve_uri_query_class)
-- [`graphql_response_headers_to_send`](/docs/filters/graphql_response_headers_to_send)
-- [`graphql_response_status_code`](/docs/filters/graphql_response_status_code)
 - [`graphql_restricted_data_cap`](/docs/filters/graphql_restricted_data_cap)
 - [`graphql_return_field_from_model`](/docs/filters/graphql_return_field_from_model)
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
-- [`graphql_send_nocache_headers`](/docs/filters/graphql_send_nocache_headers)
 - [`graphql_should_show_experiments_in_extensions`](/docs/filters/graphql_should_show_experiments_in_extensions)
 - [`graphql_term_entities_allowed_taxonomies`](/docs/filters/graphql_term_entities_allowed_taxonomies)
 - [`graphql_term_object_connection_args`](/docs/filters/graphql_term_object_connection_args)

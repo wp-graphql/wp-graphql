@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_process_http_request
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,6 +14,6 @@ plugin: wp-graphql
 This action can be hooked to to enable various debug tools, such as enableValidation from the GraphQL Config.
 
 - **Type:** action
-- **Group:** Uncategorized
+- **Group:** Request Lifecycle
 - **Since:** 0.0.4
 - **Source:** `plugins/wp-graphql/src/Router.php`

@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_http_request_response_errors
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter thrown GraphQL errors
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.4
 - **Source:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters

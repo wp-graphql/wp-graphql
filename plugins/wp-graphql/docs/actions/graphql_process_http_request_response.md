@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_process_http_request_response
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools to hook in to track metrics, such as how long the process took from `graphql_process_http_request` to here, etc.
 
 - **Type:** action
-- **Group:** Uncategorized
+- **Group:** Request Lifecycle
 - **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Router.php`
 

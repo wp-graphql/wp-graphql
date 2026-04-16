@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_is_graphql_http_request
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter whether the request is a GraphQL HTTP Request. Default is null, as the majority of WordPress requests are NOT GraphQL requests (at least today that's true 😆). If this filter returns anything other than null, the function will return now and skip the default checks.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters

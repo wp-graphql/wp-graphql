@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_send_nocache_headers
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
 # `graphql_send_nocache_headers`
 
-No description available.
+Filters whether no-cache headers should be sent on the GraphQL HTTP response. Prefer the current request's viewer when available (after execution) so we send no-cache for the request that was actually authenticated, regardless of global user timing. Fall back to is_user_logged_in() for paths that run before the Request exists (e.g. 403 auth error, OPTIONS).
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Router.php`
+
+## Parameters
+
+- `$send_no_cache_headers` (`bool`): Whether to send no-cache headers.

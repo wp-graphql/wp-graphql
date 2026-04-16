@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_response_set_headers
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fire an action when the headers are set
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters

@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_response_status_code
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the $status_code before setting the headers
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters

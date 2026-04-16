@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_authentication_errors
 hookType: filter
-hookGroup: uncategorized
+hookGroup: authentication
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Allow plugins to prevent the downgrade via the graphql_authentication_errors filter.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Authentication and Authorization
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters

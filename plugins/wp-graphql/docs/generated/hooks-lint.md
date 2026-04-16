@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 365
-- Total findings: 365
+- Warnings: 341
+- Total findings: 341
 
 ## Findings by Type
 
-- `missing_hook_description`: 22
-- `missing_hook_group`: 171
+- `missing_hook_description`: 21
+- `missing_hook_group`: 158
 - `missing_hook_param_description`: 5
-- `missing_hook_params`: 26
-- `missing_hook_since`: 141
+- `missing_hook_params`: 25
+- `missing_hook_since`: 132
 
 ## Findings
 
@@ -42,10 +42,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
-- **Hook:** `graphql_send_nocache_headers`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 357)
 - **Hook:** `graphql_request_data`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -465,58 +461,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1545)
-- **Hook:** `graphql_pre_is_graphql_http_request`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 155)
-- **Hook:** `graphql_is_graphql_http_request`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 205)
-- **Hook:** `graphql_access_control_allow_headers`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 304)
-- **Hook:** `graphql_send_nocache_headers`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 357)
-- **Hook:** `graphql_response_headers_to_send`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 369)
-- **Hook:** `graphql_response_set_headers`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 407)
-- **Hook:** `graphql_authentication_error_status_code`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 481)
-- **Hook:** `graphql_process_http_request`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 500)
-- **Hook:** `graphql_http_request_response_errors`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 560)
-- **Hook:** `graphql_process_http_request_response`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 589)
-- **Hook:** `graphql_response_status_code`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 622)
-- **Hook:** `graphql_cookie_auth_require_nonce`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 721)
-- **Hook:** `graphql_authentication_errors`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Router.php` (line 740)
 - **Hook:** `graphql_pre_restrict_endpoint`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -855,10 +799,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
-- **Hook:** `graphql_send_nocache_headers`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Router.php` (line 357)
 - **Hook:** `graphql_request_data`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -1210,42 +1150,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1028)
-- **Hook:** `graphql_pre_is_graphql_http_request`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 155)
-- **Hook:** `graphql_is_graphql_http_request`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 205)
-- **Hook:** `graphql_access_control_allow_headers`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 304)
-- **Hook:** `graphql_send_nocache_headers`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 357)
-- **Hook:** `graphql_response_headers_to_send`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 369)
-- **Hook:** `graphql_response_set_headers`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 407)
-- **Hook:** `graphql_http_request_response_errors`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 560)
-- **Hook:** `graphql_response_status_code`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 622)
-- **Hook:** `graphql_authentication_errors`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Router.php` (line 740)
 - **Hook:** `graphql_pre_restrict_endpoint`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
