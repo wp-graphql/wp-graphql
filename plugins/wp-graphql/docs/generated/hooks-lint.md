@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 341
-- Total findings: 341
+- Warnings: 321
+- Total findings: 321
 
 ## Findings by Type
 
 - `missing_hook_description`: 21
-- `missing_hook_group`: 158
+- `missing_hook_group`: 148
 - `missing_hook_param_description`: 5
 - `missing_hook_params`: 25
-- `missing_hook_since`: 132
+- `missing_hook_since`: 122
 
 ## Findings
 
@@ -349,46 +349,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Experimental/Extensions.php` (line 57)
-- **Hook:** `graphql_restricted_data_cap`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 215)
-- **Hook:** `graphql_pre_model_data_is_private`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 230)
-- **Hook:** `graphql_data_is_private`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 252)
-- **Hook:** `graphql_object_visibility`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 276)
-- **Hook:** `graphql_pre_return_field_from_model`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 353)
-- **Hook:** `graphql_after_return_field_from_model`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 373)
-- **Hook:** `graphql_return_field_from_model`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 420)
-- **Hook:** `graphql_model_field_capability`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 450)
-- **Hook:** `graphql_model_prepare_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 499)
-- **Hook:** `graphql_html_entity_decoding_enabled`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 524)
 - **Hook:** `graphql_media_item_create_allowed_protocols`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -1054,46 +1014,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Experimental/Extensions.php` (line 57)
-- **Hook:** `graphql_restricted_data_cap`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 215)
-- **Hook:** `graphql_pre_model_data_is_private`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 230)
-- **Hook:** `graphql_data_is_private`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 252)
-- **Hook:** `graphql_object_visibility`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 276)
-- **Hook:** `graphql_pre_return_field_from_model`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 353)
-- **Hook:** `graphql_after_return_field_from_model`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 373)
-- **Hook:** `graphql_return_field_from_model`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 420)
-- **Hook:** `graphql_model_field_capability`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 450)
-- **Hook:** `graphql_model_prepare_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 499)
-- **Hook:** `graphql_html_entity_decoding_enabled`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Model/Model.php` (line 524)
 - **Hook:** `graphql_media_item_create_allowed_protocols`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

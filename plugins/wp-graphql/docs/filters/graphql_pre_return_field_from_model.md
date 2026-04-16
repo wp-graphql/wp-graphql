@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_return_field_from_model
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter to short circuit the callback for any field on a type. Returning anything other than null will stop the callback for the field from executing, and will return your data or execute your callback instead.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.3.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

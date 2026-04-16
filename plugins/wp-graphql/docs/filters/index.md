@@ -67,10 +67,16 @@ title: Filters
 
 ## Model Layer
 
+- [`graphql_data_is_private`](/docs/filters/graphql_data_is_private)
+- [`graphql_html_entity_decoding_enabled`](/docs/filters/graphql_html_entity_decoding_enabled)
 - [`graphql_model_field_capability`](/docs/filters/graphql_model_field_capability)
 - [`graphql_model_prepare_fields`](/docs/filters/graphql_model_prepare_fields)
 - [`graphql_object_fields`](/docs/filters/graphql_object_fields)
 - [`graphql_object_visibility`](/docs/filters/graphql_object_visibility)
+- [`graphql_pre_model_data_is_private`](/docs/filters/graphql_pre_model_data_is_private)
+- [`graphql_pre_return_field_from_model`](/docs/filters/graphql_pre_return_field_from_model)
+- [`graphql_restricted_data_cap`](/docs/filters/graphql_restricted_data_cap)
+- [`graphql_return_field_from_model`](/docs/filters/graphql_return_field_from_model)
 
 ## Request Lifecycle
 
@@ -134,7 +140,6 @@ title: Filters
 - [`graphql_comment_insert_post_args`](/docs/filters/graphql_comment_insert_post_args)
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
 - [`graphql_custom_scalar_config`](/docs/filters/graphql_custom_scalar_config)
-- [`graphql_data_is_private`](/docs/filters/graphql_data_is_private)
 - [`graphql_data_loader_classes`](/docs/filters/graphql_data_loader_classes)
 - [`graphql_dataloader_get_cached`](/docs/filters/graphql_dataloader_get_cached)
 - [`graphql_dataloader_get_model`](/docs/filters/graphql_dataloader_get_model)
@@ -154,7 +159,6 @@ title: Filters
 - [`graphql_get_extensions`](/docs/filters/graphql_get_extensions)
 - [`graphql_get_possible_dependents`](/docs/filters/graphql_get_possible_dependents)
 - [`graphql_get_type`](/docs/filters/graphql_get_type)
-- [`graphql_html_entity_decoding_enabled`](/docs/filters/graphql_html_entity_decoding_enabled)
 - [`graphql_input_fields`](/docs/filters/graphql_input_fields)
 - [`graphql_interface_fields`](/docs/filters/graphql_interface_fields)
 - [`graphql_interface_resolve_type`](/docs/filters/graphql_interface_resolve_type)
@@ -178,11 +182,9 @@ title: Filters
 - [`graphql_post_object_mutations_allow_term_creation`](/docs/filters/graphql_post_object_mutations_allow_term_creation)
 - [`graphql_pre_comment_cursor_node`](/docs/filters/graphql_pre_comment_cursor_node)
 - [`graphql_pre_format_name`](/docs/filters/graphql_pre_format_name)
-- [`graphql_pre_model_data_is_private`](/docs/filters/graphql_pre_model_data_is_private)
 - [`graphql_pre_mutate_and_get_payload`](/docs/filters/graphql_pre_mutate_and_get_payload)
 - [`graphql_pre_post_cursor_node`](/docs/filters/graphql_pre_post_cursor_node)
 - [`graphql_pre_restrict_endpoint`](/docs/filters/graphql_pre_restrict_endpoint)
-- [`graphql_pre_return_field_from_model`](/docs/filters/graphql_pre_return_field_from_model)
 - [`graphql_pre_term_cursor_node`](/docs/filters/graphql_pre_term_cursor_node)
 - [`graphql_pre_user_cursor_node`](/docs/filters/graphql_pre_user_cursor_node)
 - [`graphql_pre_wp_comments_query_cursor_pagination_support`](/docs/filters/graphql_pre_wp_comments_query_cursor_pagination_support)
@@ -199,8 +201,6 @@ title: Filters
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_resolve_uri`](/docs/filters/graphql_resolve_uri)
 - [`graphql_resolve_uri_query_class`](/docs/filters/graphql_resolve_uri_query_class)
-- [`graphql_restricted_data_cap`](/docs/filters/graphql_restricted_data_cap)
-- [`graphql_return_field_from_model`](/docs/filters/graphql_return_field_from_model)
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
 - [`graphql_should_show_experiments_in_extensions`](/docs/filters/graphql_should_show_experiments_in_extensions)
 - [`graphql_term_entities_allowed_taxonomies`](/docs/filters/graphql_term_entities_allowed_taxonomies)

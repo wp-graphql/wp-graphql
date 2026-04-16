@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_after_return_field_from_model
 hookType: action
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Hook that fires after the data is returned for the field
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.3.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

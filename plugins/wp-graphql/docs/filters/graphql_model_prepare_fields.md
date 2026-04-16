@@ -15,7 +15,7 @@ Filter the array of fields for the Model before the object is hydrated with it
 
 - **Type:** filter
 - **Group:** Model Layer
-- **Since:** Unknown
+- **Since:** 1.7.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

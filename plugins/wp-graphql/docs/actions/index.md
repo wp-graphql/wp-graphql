@@ -16,6 +16,10 @@ title: Actions
 
 - [`graphql_determine_graphql_keys`](/docs/actions/graphql_determine_graphql_keys)
 
+## Model Layer
+
+- [`graphql_after_return_field_from_model`](/docs/actions/graphql_after_return_field_from_model)
+
 ## Request Lifecycle
 
 - [`graphql_after_execute`](/docs/actions/graphql_after_execute)
@@ -52,7 +56,6 @@ title: Actions
 ## Uncategorized
 
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
-- [`graphql_after_return_field_from_model`](/docs/actions/graphql_after_return_field_from_model)
 - [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_comment_object_mutation_update_additional_data`](/docs/actions/graphql_comment_object_mutation_update_additional_data)
 - [`graphql_do_update_routine`](/docs/actions/graphql_do_update_routine)

@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_data_is_private
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter to determine if the data should be considered private or not
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.3.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

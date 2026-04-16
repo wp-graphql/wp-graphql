@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_model_data_is_private
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter to short circuit default is_private check for the model. This is expensive in some cases so this filter lets you prevent this from running by returning a true or false value.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 1.1.3
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

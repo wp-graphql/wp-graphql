@@ -15,7 +15,7 @@ Filter the visibility name to be returned
 
 - **Type:** filter
 - **Group:** Model Layer
-- **Since:** Unknown
+- **Since:** 0.3.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

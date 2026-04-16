@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:40:56.038Z",
+  "generatedAt": "2026-04-16T20:45:20.897Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -923,146 +923,6 @@
         "hook": "graphql_should_show_experiments_in_extensions",
         "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
         "line": 57,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_restricted_data_cap",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 215,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_restricted_data_cap",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 215,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_model_data_is_private",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 230,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_model_data_is_private",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 230,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_data_is_private",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 252,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_data_is_private",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 252,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_object_visibility",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 276,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_object_visibility",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 276,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_return_field_from_model",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 353,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_return_field_from_model",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 353,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_after_return_field_from_model",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 373,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_after_return_field_from_model",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 373,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_return_field_from_model",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 420,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_return_field_from_model",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 420,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_model_field_capability",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 450,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_model_field_capability",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 450,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_model_prepare_fields",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 499,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_model_prepare_fields",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 499,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_html_entity_decoding_enabled",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 524,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_html_entity_decoding_enabled",
-        "file": "plugins/wp-graphql/src/Model/Model.php",
-        "line": 524,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -3498,13 +3358,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_after_return_field_from_model",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 373,
+      "line": 385,
       "description": "Hook that fires after the data is returned for the field",
       "params": [
         {
@@ -3545,8 +3405,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_after_return_field_from_model'",
       "relatedSnippets": [],
@@ -5068,13 +4928,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_data_is_private",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 252,
+      "line": 258,
       "description": "Filter to determine if the data should be considered private or not",
       "params": [
         {
@@ -5110,8 +4970,8 @@
       ],
       "argumentCount": 6,
       "docblockParamCount": 6,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_data_is_private'",
       "relatedSnippets": [],
@@ -6913,13 +6773,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_html_entity_decoding_enabled",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 524,
+      "line": 544,
       "description": "Determine whether html_entity_decode should be applied to the string",
       "params": [
         {
@@ -6945,8 +6805,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.15.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_html_entity_decoding_enabled'",
       "relatedSnippets": [],
@@ -8132,11 +7992,11 @@
       "kind": "filter",
       "group": "models",
       "groupLabel": "Model Layer",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 450,
+      "line": 466,
       "description": "Capability to check required for the field",
       "params": [
         {
@@ -8177,8 +8037,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_model_field_capability'",
       "relatedSnippets": [],
@@ -8197,11 +8057,11 @@
       "kind": "filter",
       "group": "models",
       "groupLabel": "Model Layer",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 499,
+      "line": 517,
       "description": "Filter the array of fields for the Model before the object is hydrated with it",
       "params": [
         {
@@ -8237,8 +8097,8 @@
       ],
       "argumentCount": 6,
       "docblockParamCount": 6,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.7.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_model_prepare_fields'",
       "relatedSnippets": [],
@@ -8517,11 +8377,11 @@
       "kind": "filter",
       "group": "models",
       "groupLabel": "Model Layer",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 276,
+      "line": 284,
       "description": "Filter the visibility name to be returned",
       "params": [
         {
@@ -8552,8 +8412,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_object_visibility'",
       "relatedSnippets": [],
@@ -9360,13 +9220,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_model_data_is_private",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 230,
+      "line": 234,
       "description": "Filter to short circuit default is_private check for the model. This is expensive in some cases so this filter lets you prevent this from running by returning a true or false value.",
       "params": [
         {
@@ -9402,8 +9262,8 @@
       ],
       "argumentCount": 6,
       "docblockParamCount": 6,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.1.3",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_model_data_is_private'",
       "relatedSnippets": [],
@@ -9890,13 +9750,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_return_field_from_model",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 353,
+      "line": 363,
       "description": "Filter to short circuit the callback for any field on a type. Returning anything other than null will stop the callback for the field from executing, and will return your data or execute your callback instead.",
       "params": [
         {
@@ -9937,8 +9797,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_return_field_from_model'",
       "relatedSnippets": [],
@@ -11600,13 +11460,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_restricted_data_cap",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 215,
+      "line": 217,
       "description": "Filter for the capability to check against for restricted data",
       "params": [
         {
@@ -11642,8 +11502,8 @@
       ],
       "argumentCount": 6,
       "docblockParamCount": 6,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_restricted_data_cap'",
       "relatedSnippets": [],
@@ -11660,13 +11520,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_return_field_from_model",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 420,
+      "line": 434,
       "description": "Filter the data returned by the default callback for the field",
       "params": [
         {
@@ -11707,8 +11567,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.3.0",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_return_field_from_model'",
       "relatedSnippets": [],

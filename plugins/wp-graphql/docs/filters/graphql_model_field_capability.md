@@ -15,7 +15,7 @@ Capability to check required for the field
 
 - **Type:** filter
 - **Group:** Model Layer
-- **Since:** Unknown
+- **Since:** 0.3.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters

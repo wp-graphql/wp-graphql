@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_html_entity_decoding_enabled
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Determine whether html_entity_decode should be applied to the string
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.15.0
 - **Source:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
