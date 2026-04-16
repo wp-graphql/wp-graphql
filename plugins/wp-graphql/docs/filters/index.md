@@ -71,7 +71,6 @@ title: Filters
 - [`graphql_html_entity_decoding_enabled`](/docs/filters/graphql_html_entity_decoding_enabled)
 - [`graphql_model_field_capability`](/docs/filters/graphql_model_field_capability)
 - [`graphql_model_prepare_fields`](/docs/filters/graphql_model_prepare_fields)
-- [`graphql_object_fields`](/docs/filters/graphql_object_fields)
 - [`graphql_object_visibility`](/docs/filters/graphql_object_visibility)
 - [`graphql_pre_model_data_is_private`](/docs/filters/graphql_pre_model_data_is_private)
 - [`graphql_pre_return_field_from_model`](/docs/filters/graphql_pre_return_field_from_model)
@@ -109,6 +108,7 @@ title: Filters
 - [`graphql_interface_fields`](/docs/filters/graphql_interface_fields)
 - [`graphql_interface_resolve_type`](/docs/filters/graphql_interface_resolve_type)
 - [`graphql_introspection_keys`](/docs/filters/graphql_introspection_keys)
+- [`graphql_object_fields`](/docs/filters/graphql_object_fields)
 - [`graphql_post_entities_allowed_post_types`](/docs/filters/graphql_post_entities_allowed_post_types)
 - [`graphql_register_post_type_args`](/docs/filters/graphql_register_post_type_args)
 - [`graphql_register_taxonomy_args`](/docs/filters/graphql_register_taxonomy_args)
@@ -126,6 +126,7 @@ title: Filters
 - [`graphql_union_possible_types`](/docs/filters/graphql_union_possible_types)
 - [`graphql_union_resolve_type`](/docs/filters/graphql_union_resolve_type)
 - [`graphql_wp_interface_type_config`](/docs/filters/graphql_wp_interface_type_config)
+- [`graphql_wp_object_type_config`](/docs/filters/graphql_wp_object_type_config)
 - [`graphql_wp_union_type_config`](/docs/filters/graphql_wp_union_type_config)
 
 ## Settings and Admin
@@ -216,4 +217,3 @@ title: Filters
 - [`graphql_user_insert_post_args`](/docs/filters/graphql_user_insert_post_args)
 - [`graphql_user_mutation_input_fields`](/docs/filters/graphql_user_mutation_input_fields)
 - [`graphql_wp_mutation_type_config`](/docs/filters/graphql_wp_mutation_type_config)
-- [`graphql_wp_object_type_config`](/docs/filters/graphql_wp_object_type_config)

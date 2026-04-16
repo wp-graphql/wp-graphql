@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_wp_object_type_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,11 +14,11 @@ plugin: wp-graphql
 Filter the config of WPObjectType
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
 
 ## Parameters
 
-- `$config` (`ObjectConfig`): Array of configuration options passed to the WPObjectType when instantiating a new type
+- `$config` (`ObjectConfig`): Array of configuration options passed to the WPObjectType when instantiating a new type.
 - `$wp_object_type` (`\WPGraphQL\Type\WPObjectType`): The instance of the WPObjectType class

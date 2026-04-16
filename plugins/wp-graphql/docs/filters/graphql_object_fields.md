@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_object_fields
 hookType: filter
-hookGroup: models
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter all object fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 
 - **Type:** filter
-- **Group:** Model Layer
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
 
 ## Parameters

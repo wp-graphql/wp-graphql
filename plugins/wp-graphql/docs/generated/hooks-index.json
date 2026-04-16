@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:56:44.446Z",
+  "generatedAt": "2026-04-16T20:58:17.895Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -1340,104 +1340,6 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_wp_object_type_config",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 77,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_wp_object_type_config",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 77,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 85,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 85,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 85,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 85,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_wp_object_type",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 107,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_wp_object_type",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 107,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_object_fields",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 167,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_object_fields",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 167,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_{$lc_type_name}_fields",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 185,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_{$lc_type_name}_fields",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 185,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_{$uc_type_name}_fields",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 197,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_{$uc_type_name}_fields",
-        "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-        "line": 197,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_type_name",
         "file": "plugins/wp-graphql/src/Type/WPScalar.php",
         "line": 50,
@@ -2310,13 +2212,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_{$lc_type_name}_fields",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 185,
+      "line": 204,
       "description": "Filter the fields with the typename explicitly in the filter name This is useful for more targeted filtering, and is applied after the general filter, to allow for more specific overrides",
       "params": [
         {
@@ -2337,8 +2239,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": true,
       "rawExpression": "\"graphql_{$lc_type_name}_fields\"",
       "relatedSnippets": [],
@@ -2430,13 +2332,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_{$uc_type_name}_fields",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 197,
+      "line": 219,
       "description": "Filter the fields with the typename explicitly in the filter name This is useful for more targeted filtering, and is applied after the general filter, to allow for more specific overrides",
       "params": [
         {
@@ -2457,8 +2359,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": true,
       "rawExpression": "\"graphql_{$uc_type_name}_fields\"",
       "relatedSnippets": [],
@@ -7764,13 +7666,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_object_fields",
       "kind": "filter",
-      "group": "models",
-      "groupLabel": "Model Layer",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 167,
+      "line": 183,
       "description": "Filter all object fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune",
       "params": [
         {
@@ -7796,8 +7698,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_object_fields'",
       "relatedSnippets": [],
@@ -12332,17 +12234,33 @@
       "kind": "filter",
       "group": "schema-registration",
       "groupLabel": "Schema Registration",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 85,
-      "description": "",
-      "params": [],
+      "line": 95,
+      "description": "Filters the GraphQL type name before the object type is registered.",
+      "params": [
+        {
+          "type": "string",
+          "name": "$type_name",
+          "description": "The GraphQL type name."
+        },
+        {
+          "type": "ObjectConfig",
+          "name": "$config",
+          "description": "The object type configuration."
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPObjectType",
+          "name": "$wp_object_type",
+          "description": "The object type instance."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_type_name'",
       "relatedSnippets": [],
@@ -13193,13 +13111,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_object_type",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 107,
+      "line": 120,
       "description": "Run an action when the WPObjectType is instantiating",
       "params": [
         {
@@ -13215,8 +13133,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_wp_object_type'",
       "relatedSnippets": [],
@@ -13233,19 +13151,19 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_object_type_config",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPObjectType.php",
-      "line": 77,
+      "line": 80,
       "description": "Filter the config of WPObjectType",
       "params": [
         {
           "type": "ObjectConfig",
           "name": "$config",
-          "description": "Array of configuration options passed to the WPObjectType when instantiating a new type"
+          "description": "Array of configuration options passed to the WPObjectType when instantiating a new type."
         },
         {
           "type": "\\WPGraphQL\\Type\\WPObjectType",
@@ -13255,8 +13173,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_wp_object_type_config'",
       "relatedSnippets": [],

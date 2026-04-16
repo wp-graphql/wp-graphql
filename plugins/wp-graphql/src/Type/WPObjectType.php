@@ -71,17 +71,27 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Filter the config of WPObjectType
 		 *
-		 * @param ObjectConfig          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param ObjectConfig                      $config         Array of configuration options passed to the WPObjectType when instantiating a new type.
 		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
 		$this->config = $config;
 
-		/**
-		 * Set the Types to start with capitals
-		 */
 		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		/**
+		 * Filters the GraphQL type name before the object type is registered.
+		 *
+		 * @param string                       $type_name      The GraphQL type name.
+		 * @param ObjectConfig                 $config         The object type configuration.
+		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The object type instance.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
+		 */
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		/**
@@ -103,6 +113,9 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @param array<string,mixed>          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
 
@@ -163,6 +176,9 @@ class WPObjectType extends ObjectType {
 		 * @param string                           $type_name      The name of the object type
 		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
 		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_registry );
 
@@ -181,6 +197,9 @@ class WPObjectType extends ObjectType {
 		 * @param array<string,mixed>              $fields         The array of fields for the object config
 		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
 		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $this, $this->type_registry );
 
@@ -193,6 +212,9 @@ class WPObjectType extends ObjectType {
 		 * @param array<string,mixed>              $fields         The array of fields for the object config
 		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
 		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $this, $this->type_registry );
 

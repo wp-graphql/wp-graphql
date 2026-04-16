@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_wp_object_type
 hookType: action
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Run an action when the WPObjectType is instantiating
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
 
 ## Parameters
