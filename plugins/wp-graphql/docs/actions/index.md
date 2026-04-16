@@ -14,6 +14,8 @@ title: Actions
 
 ## Debugging and Instrumentation
 
+- [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
+- [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_determine_graphql_keys`](/docs/actions/graphql_determine_graphql_keys)
 
 ## Model Layer
@@ -62,8 +64,6 @@ title: Actions
 
 ## Uncategorized
 
-- [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
-- [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_comment_object_mutation_update_additional_data`](/docs/actions/graphql_comment_object_mutation_update_additional_data)
 - [`graphql_experiments_loaded`](/docs/actions/graphql_experiments_loaded)
 - [`graphql_experiments_registered`](/docs/actions/graphql_experiments_registered)

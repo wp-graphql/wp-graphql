@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_field_definition
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,11 +14,11 @@ plugin: wp-graphql
 Filter the field definition
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
 
 - `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The field definition
-- `$type_name` (`string`): The name of the Type the field belongs to
+- `$type_name` (`string`): The name of the type the field belongs to.

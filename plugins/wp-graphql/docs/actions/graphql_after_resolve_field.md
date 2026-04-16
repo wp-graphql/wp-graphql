@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_after_resolve_field
 hookType: action
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fire an action AFTER the field resolves
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters

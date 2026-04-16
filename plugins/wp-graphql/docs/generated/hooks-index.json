@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:58:17.895Z",
+  "generatedAt": "2026-04-16T21:00:05.898Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -1452,104 +1452,6 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_field_definition",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 69,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_field_definition",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 69,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_before_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 115,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_before_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 115,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 139,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 139,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 169,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 169,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_after_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 184,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_after_resolve_field",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 184,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_field_resolver_auth_error_message",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 223,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_field_resolver_auth_error_message",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 223,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_field_resolver_auth_error_message",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 223,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_field_resolver_auth_error_message",
-        "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-        "line": 223,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_resolve_revision_meta_from_parent",
         "file": "plugins/wp-graphql/src/Utils/Preview.php",
         "line": 37,
@@ -2657,13 +2559,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_after_resolve_field",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 184,
+      "line": 199,
       "description": "Fire an action AFTER the field resolves",
       "params": [
         {
@@ -2714,8 +2616,8 @@
       ],
       "argumentCount": 9,
       "docblockParamCount": 9,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.1",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_after_resolve_field'",
       "relatedSnippets": [],
@@ -3045,13 +2947,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_before_resolve_field",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 115,
+      "line": 121,
       "description": "Fire an action BEFORE the field resolves",
       "params": [
         {
@@ -3097,8 +2999,8 @@
       ],
       "argumentCount": 8,
       "docblockParamCount": 8,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.1",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_before_resolve_field'",
       "relatedSnippets": [],
@@ -5730,13 +5632,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_field_definition",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 69,
+      "line": 72,
       "description": "Filter the field definition",
       "params": [
         {
@@ -5747,13 +5649,13 @@
         {
           "type": "string",
           "name": "$type_name",
-          "description": "The name of the Type the field belongs to"
+          "description": "The name of the type the field belongs to."
         }
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.1",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_field_definition'",
       "relatedSnippets": [],
@@ -5770,19 +5672,30 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_field_resolver_auth_error_message",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "authentication",
+      "groupLabel": "Authentication and Authorization",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 223,
-      "description": "",
-      "params": [],
+      "line": 244,
+      "description": "Filters the default authorization error message for field resolvers.",
+      "params": [
+        {
+          "type": "string",
+          "name": "$default_auth_error_message",
+          "description": "The default authorization error message."
+        },
+        {
+          "type": "\\GraphQL\\Type\\Definition\\FieldDefinition",
+          "name": "$field",
+          "description": "The field definition being resolved."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "0.0.1",
+      "hookGroup": "authentication",
       "isDynamic": false,
       "rawExpression": "'graphql_field_resolver_auth_error_message'",
       "relatedSnippets": [],
@@ -8908,11 +8821,11 @@
       "kind": "filter",
       "group": "debugging",
       "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 139,
+      "line": 148,
       "description": "When this filter return anything other than the $nil it will be used as the resolved value and the execution of the actual resolved is skipped. This filter can be used to implement field level caches or for efficiently hiding data by returning null.",
       "params": [
         {
@@ -8963,8 +8876,8 @@
       ],
       "argumentCount": 9,
       "docblockParamCount": 9,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.1",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_resolve_field'",
       "relatedSnippets": [],
@@ -10366,13 +10279,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_resolve_field",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 169,
+      "line": 181,
       "description": "Fire an action before the field resolves",
       "params": [
         {
@@ -10423,8 +10336,8 @@
       ],
       "argumentCount": 9,
       "docblockParamCount": 9,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.1",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_field'",
       "relatedSnippets": [],

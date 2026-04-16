@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_field_resolver_auth_error_message
 hookType: filter
-hookGroup: uncategorized
+hookGroup: authentication
 plugin: wp-graphql
 ---
 
 # `graphql_field_resolver_auth_error_message`
 
-No description available.
+Filters the default authorization error message for field resolvers.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Authentication and Authorization
+- **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+
+## Parameters
+
+- `$default_auth_error_message` (`string`): The default authorization error message.
+- `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The field definition being resolved.

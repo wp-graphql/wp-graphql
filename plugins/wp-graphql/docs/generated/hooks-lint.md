@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 230
-- Total findings: 230
+- Warnings: 216
+- Total findings: 216
 
 ## Findings by Type
 
-- `missing_hook_description`: 12
-- `missing_hook_group`: 110
+- `missing_hook_description`: 11
+- `missing_hook_group`: 104
 - `missing_hook_param_description`: 1
-- `missing_hook_params`: 15
-- `missing_hook_since`: 92
+- `missing_hook_params`: 14
+- `missing_hook_since`: 86
 
 ## Findings
 
@@ -62,10 +62,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
-- **Hook:** `graphql_field_resolver_auth_error_message`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 223)
 - **Hook:** `graphql_endpoint_path`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -449,30 +445,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 137)
-- **Hook:** `graphql_field_definition`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 69)
-- **Hook:** `graphql_before_resolve_field`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 115)
-- **Hook:** `graphql_pre_resolve_field`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 139)
-- **Hook:** `graphql_resolve_field`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 169)
-- **Hook:** `graphql_after_resolve_field`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 184)
-- **Hook:** `graphql_field_resolver_auth_error_message`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 223)
 - **Hook:** `graphql_resolve_revision_meta_from_parent`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -575,10 +547,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
-- **Hook:** `graphql_field_resolver_auth_error_message`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 223)
 - **Hook:** `graphql_query_id_hash_algorithm`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -894,30 +862,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 137)
-- **Hook:** `graphql_field_definition`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 69)
-- **Hook:** `graphql_before_resolve_field`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 115)
-- **Hook:** `graphql_pre_resolve_field`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 139)
-- **Hook:** `graphql_resolve_field`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 169)
-- **Hook:** `graphql_after_resolve_field`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 184)
-- **Hook:** `graphql_field_resolver_auth_error_message`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/InstrumentSchema.php` (line 223)
 - **Hook:** `graphql_resolve_revision_meta_from_parent`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

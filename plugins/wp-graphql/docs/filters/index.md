@@ -16,6 +16,7 @@ title: Filters
 - [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
 - [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
 - [`graphql_cookie_auth_require_nonce`](/docs/filters/graphql_cookie_auth_require_nonce)
+- [`graphql_field_resolver_auth_error_message`](/docs/filters/graphql_field_resolver_auth_error_message)
 
 ## Connections
 
@@ -47,6 +48,7 @@ title: Filters
 - [`graphql_debug_log`](/docs/filters/graphql_debug_log)
 - [`graphql_debug_log_entry`](/docs/filters/graphql_debug_log_entry)
 - [`graphql_debug_logs_enabled`](/docs/filters/graphql_debug_logs_enabled)
+- [`graphql_field_definition`](/docs/filters/graphql_field_definition)
 - [`graphql_post_resolve_uri`](/docs/filters/graphql_post_resolve_uri)
 - [`graphql_pre_query_analyzer_get_list_types`](/docs/filters/graphql_pre_query_analyzer_get_list_types)
 - [`graphql_pre_query_analyzer_get_models`](/docs/filters/graphql_pre_query_analyzer_get_models)
@@ -59,6 +61,7 @@ title: Filters
 - [`graphql_query_analyzer_graphql_keys`](/docs/filters/graphql_query_analyzer_graphql_keys)
 - [`graphql_query_analyzer_header_length_limit`](/docs/filters/graphql_query_analyzer_header_length_limit)
 - [`graphql_query_analyzer_runtime_node`](/docs/filters/graphql_query_analyzer_runtime_node)
+- [`graphql_resolve_field`](/docs/filters/graphql_resolve_field)
 - [`graphql_should_analyze_queries`](/docs/filters/graphql_should_analyze_queries)
 - [`graphql_should_analyze_query`](/docs/filters/graphql_should_analyze_query)
 - [`graphql_should_show_query_analyzer_in_extensions`](/docs/filters/graphql_should_show_query_analyzer_in_extensions)
@@ -164,8 +167,6 @@ title: Filters
 - [`graphql_experimental_features_cap`](/docs/filters/graphql_experimental_features_cap)
 - [`graphql_experimental_features_override`](/docs/filters/graphql_experimental_features_override)
 - [`graphql_experiments_registered_classes`](/docs/filters/graphql_experiments_registered_classes)
-- [`graphql_field_definition`](/docs/filters/graphql_field_definition)
-- [`graphql_field_resolver_auth_error_message`](/docs/filters/graphql_field_resolver_auth_error_message)
 - [`graphql_get_dependents`](/docs/filters/graphql_get_dependents)
 - [`graphql_get_extensions`](/docs/filters/graphql_get_extensions)
 - [`graphql_get_possible_dependents`](/docs/filters/graphql_get_possible_dependents)
@@ -202,7 +203,6 @@ title: Filters
 - [`graphql_query_id_hash_algorithm`](/docs/filters/graphql_query_id_hash_algorithm)
 - [`graphql_render_admin_page`](/docs/filters/graphql_render_admin_page)
 - [`graphql_require_authentication_allowed_fields`](/docs/filters/graphql_require_authentication_allowed_fields)
-- [`graphql_resolve_field`](/docs/filters/graphql_resolve_field)
 - [`graphql_resolve_node_type`](/docs/filters/graphql_resolve_node_type)
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_resolve_uri`](/docs/filters/graphql_resolve_uri)

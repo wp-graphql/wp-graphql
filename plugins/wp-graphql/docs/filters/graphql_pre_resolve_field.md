@@ -15,7 +15,7 @@ When this filter return anything other than the $nil it will be used as the reso
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters

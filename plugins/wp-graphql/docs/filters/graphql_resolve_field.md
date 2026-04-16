@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_resolve_field
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fire an action before the field resolves
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
