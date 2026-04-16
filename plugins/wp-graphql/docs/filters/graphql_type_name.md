@@ -11,9 +11,15 @@ plugin: wp-graphql
 
 # `graphql_type_name`
 
-No description available.
+Filters the GraphQL type name used during type construction.
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 1.3.4
 - **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+
+## Parameters
+
+- `$name` (`string`): The type name.
+- `$config` (`array<string,mixed>`): The type config.
+- `$type` (`\WPGraphQL\Type\WPUnionType`): The union type instance.

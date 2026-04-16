@@ -40,6 +40,7 @@ title: Actions
 - [`graphql_register_initial_types`](/docs/actions/graphql_register_initial_types)
 - [`graphql_register_types`](/docs/actions/graphql_register_types)
 - [`graphql_register_types_late`](/docs/actions/graphql_register_types_late)
+- [`graphql_wp_union_type`](/docs/actions/graphql_wp_union_type)
 
 ## Settings and Admin
 
@@ -76,4 +77,3 @@ title: Actions
 - [`graphql_user_object_mutation_update_additional_data`](/docs/actions/graphql_user_object_mutation_update_additional_data)
 - [`graphql_wp_mutation_type`](/docs/actions/graphql_wp_mutation_type)
 - [`graphql_wp_object_type`](/docs/actions/graphql_wp_object_type)
-- [`graphql_wp_union_type`](/docs/actions/graphql_wp_union_type)

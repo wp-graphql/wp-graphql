@@ -113,6 +113,9 @@ title: Filters
 - [`graphql_type_name`](/docs/filters/graphql_type_name)
 - [`graphql_type_name`](/docs/filters/graphql_type_name)
 - [`graphql_type_registry`](/docs/filters/graphql_type_registry)
+- [`graphql_union_possible_types`](/docs/filters/graphql_union_possible_types)
+- [`graphql_union_resolve_type`](/docs/filters/graphql_union_resolve_type)
+- [`graphql_wp_union_type_config`](/docs/filters/graphql_wp_union_type_config)
 
 ## Settings and Admin
 
@@ -207,8 +210,6 @@ title: Filters
 - [`graphql_term_object_connection_args`](/docs/filters/graphql_term_object_connection_args)
 - [`graphql_term_object_connection_query_args`](/docs/filters/graphql_term_object_connection_query_args)
 - [`graphql_term_object_insert_term_args`](/docs/filters/graphql_term_object_insert_term_args)
-- [`graphql_union_possible_types`](/docs/filters/graphql_union_possible_types)
-- [`graphql_union_resolve_type`](/docs/filters/graphql_union_resolve_type)
 - [`graphql_user_can_see_query_logs`](/docs/filters/graphql_user_can_see_query_logs)
 - [`graphql_user_can_see_trace_data`](/docs/filters/graphql_user_can_see_trace_data)
 - [`graphql_user_insert_post_args`](/docs/filters/graphql_user_insert_post_args)
@@ -216,4 +217,3 @@ title: Filters
 - [`graphql_wp_interface_type_config`](/docs/filters/graphql_wp_interface_type_config)
 - [`graphql_wp_mutation_type_config`](/docs/filters/graphql_wp_mutation_type_config)
 - [`graphql_wp_object_type_config`](/docs/filters/graphql_wp_object_type_config)
-- [`graphql_wp_union_type_config`](/docs/filters/graphql_wp_union_type_config)

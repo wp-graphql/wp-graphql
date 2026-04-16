@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_wp_union_type
 hookType: action
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # `graphql_wp_union_type`
 
-No description available.
+Fires after a WPUnionType has been configured and before registration.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.30
 - **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+
+## Parameters
+
+- `$config` (`UnionConfig`): The union type configuration.
+- `$instance` (`\WPGraphQL\Type\WPUnionType`): The WPUnionType instance.

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:45:20.897Z",
+  "generatedAt": "2026-04-16T20:47:36.558Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -1791,132 +1791,6 @@
         "hook": "graphql_custom_scalar_config",
         "file": "plugins/wp-graphql/src/Type/WPScalar.php",
         "line": 51,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 41,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 41,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 41,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 41,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_union_resolve_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 65,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_union_resolve_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 65,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_union_resolve_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 65,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_union_resolve_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 65,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_union_possible_types",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 68,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_union_possible_types",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 68,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_union_possible_types",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 68,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_union_possible_types",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 68,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_wp_union_type_config",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 77,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_wp_union_type_config",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 77,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_wp_union_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 79,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_wp_union_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 79,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_wp_union_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 79,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_wp_union_type",
-        "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-        "line": 79,
         "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
@@ -12874,17 +12748,33 @@
       "kind": "filter",
       "group": "schema-registration",
       "groupLabel": "Schema Registration",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 41,
-      "description": "",
-      "params": [],
+      "line": 50,
+      "description": "Filters the GraphQL type name used during type construction.",
+      "params": [
+        {
+          "type": "string",
+          "name": "$name",
+          "description": "The type name."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$config",
+          "description": "The type config."
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPUnionType",
+          "name": "$type",
+          "description": "The union type instance."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "1.3.4",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_type_name'",
       "relatedSnippets": [],
@@ -12941,19 +12831,35 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_union_possible_types",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 68,
-      "description": "",
-      "params": [],
+      "line": 95,
+      "description": "Filters the possible GraphQL object types for the union.",
+      "params": [
+        {
+          "type": "callable|array<string,mixed>",
+          "name": "$types",
+          "description": "The union type candidates."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$config",
+          "description": "The type config."
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPUnionType",
+          "name": "$type",
+          "description": "The union type instance."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "0.15.0",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_union_possible_types'",
       "relatedSnippets": [],
@@ -12970,19 +12876,35 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_union_resolve_type",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 65,
-      "description": "",
-      "params": [],
+      "line": 83,
+      "description": "Filters the resolved GraphQL object type for a union value.",
+      "params": [
+        {
+          "type": "mixed",
+          "name": "$type",
+          "description": "The resolved GraphQL type."
+        },
+        {
+          "type": "mixed",
+          "name": "$obj",
+          "description": "The object being resolved."
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPUnionType",
+          "name": "$type_instance",
+          "description": "The union type instance."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "0.4.0",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_union_resolve_type'",
       "relatedSnippets": [],
@@ -13709,19 +13631,30 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_union_type",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 79,
-      "description": "",
-      "params": [],
+      "line": 116,
+      "description": "Fires after a WPUnionType has been configured and before registration.",
+      "params": [
+        {
+          "type": "UnionConfig",
+          "name": "$config",
+          "description": "The union type configuration."
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPUnionType",
+          "name": "$instance",
+          "description": "The WPUnionType instance."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "0.0.30",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_wp_union_type'",
       "relatedSnippets": [],
@@ -13738,13 +13671,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_union_type_config",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPUnionType.php",
-      "line": 77,
+      "line": 106,
       "description": "Filter the config of WPUnionType",
       "params": [
         {
@@ -13760,8 +13693,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.30",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_wp_union_type_config'",
       "relatedSnippets": [],

@@ -38,6 +38,15 @@ class WPUnionType extends UnionType {
 		$this->type_registry = $type_registry;
 
 		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		/**
+		 * Filters the GraphQL type name used during type construction.
+		 *
+		 * @param string                        $name   The type name.
+		 * @param array<string,mixed>           $config The type config.
+		 * @param \WPGraphQL\Type\WPUnionType   $type   The union type instance.
+		 * @hookGroup schema-registration
+		 * @since 1.3.4
+		 */
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		$config['types'] = function () use ( $config ): array {
@@ -62,9 +71,27 @@ class WPUnionType extends UnionType {
 				$type = call_user_func( $config['resolveType'], $obj, $context, $info );
 			}
 
+			/**
+			 * Filters the resolved GraphQL object type for a union value.
+			 *
+			 * @param mixed                      $type  The resolved GraphQL type.
+			 * @param mixed                      $obj   The object being resolved.
+			 * @param \WPGraphQL\Type\WPUnionType $type_instance The union type instance.
+			 * @hookGroup schema-registration
+			 * @since 0.4.0
+			 */
 			return apply_filters( 'graphql_union_resolve_type', $type, $obj, $this );
 		};
 
+		/**
+		 * Filters the possible GraphQL object types for the union.
+		 *
+		 * @param callable|array<string,mixed> $types  The union type candidates.
+		 * @param array<string,mixed>           $config The type config.
+		 * @param \WPGraphQL\Type\WPUnionType   $type   The union type instance.
+		 * @hookGroup schema-registration
+		 * @since 0.15.0
+		 */
 		$types           = apply_filters( 'graphql_union_possible_types', $config['types'], $config, $this );
 		$config['types'] = $types;
 
@@ -73,9 +100,19 @@ class WPUnionType extends UnionType {
 		 *
 		 * @param UnionConfig                 $config Array of configuration options passed to the WPUnionType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPUnionType $instance The instance of the WPUnionType class
+		 * @hookGroup schema-registration
+		 * @since 0.0.30
 		 */
 		$config = apply_filters( 'graphql_wp_union_type_config', $config, $this );
 
+		/**
+		 * Fires after a WPUnionType has been configured and before registration.
+		 *
+		 * @param UnionConfig                 $config   The union type configuration.
+		 * @param \WPGraphQL\Type\WPUnionType $instance The WPUnionType instance.
+		 * @hookGroup schema-registration
+		 * @since 0.0.30
+		 */
 		do_action( 'graphql_wp_union_type', $config, $this );
 
 		parent::__construct( $config );

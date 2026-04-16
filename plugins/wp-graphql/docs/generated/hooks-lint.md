@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 321
-- Total findings: 321
+- Warnings: 303
+- Total findings: 303
 
 ## Findings by Type
 
-- `missing_hook_description`: 21
-- `missing_hook_group`: 148
+- `missing_hook_description`: 17
+- `missing_hook_group`: 143
 - `missing_hook_param_description`: 5
-- `missing_hook_params`: 25
-- `missing_hook_since`: 122
+- `missing_hook_params`: 21
+- `missing_hook_since`: 117
 
 ## Findings
 
@@ -78,22 +78,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 41)
-- **Hook:** `graphql_union_resolve_type`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 65)
-- **Hook:** `graphql_union_possible_types`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 68)
-- **Hook:** `graphql_wp_union_type`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 79)
 - **Hook:** `graphql_field_resolver_auth_error_message`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -569,26 +553,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 41)
-- **Hook:** `graphql_union_resolve_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 65)
-- **Hook:** `graphql_union_possible_types`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 68)
-- **Hook:** `graphql_wp_union_type_config`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 77)
-- **Hook:** `graphql_wp_union_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 79)
 - **Hook:** `graphql_debug_logs_enabled`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -795,22 +759,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 41)
-- **Hook:** `graphql_union_resolve_type`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 65)
-- **Hook:** `graphql_union_possible_types`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 68)
-- **Hook:** `graphql_wp_union_type`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 79)
 - **Hook:** `graphql_field_resolver_auth_error_message`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -1202,26 +1150,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 41)
-- **Hook:** `graphql_union_resolve_type`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 65)
-- **Hook:** `graphql_union_possible_types`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 68)
-- **Hook:** `graphql_wp_union_type_config`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 77)
-- **Hook:** `graphql_wp_union_type`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPUnionType.php` (line 79)
 - **Hook:** `graphql_debug_logs_enabled`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

@@ -5,15 +5,21 @@ Do not edit manually.
 ---
 title: graphql_union_possible_types
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # `graphql_union_possible_types`
 
-No description available.
+Filters the possible GraphQL object types for the union.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.15.0
 - **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+
+## Parameters
+
+- `$types` (`callable|array<string,mixed>`): The union type candidates.
+- `$config` (`array<string,mixed>`): The type config.
+- `$type` (`\WPGraphQL\Type\WPUnionType`): The union type instance.

@@ -5,15 +5,21 @@ Do not edit manually.
 ---
 title: graphql_union_resolve_type
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # `graphql_union_resolve_type`
 
-No description available.
+Filters the resolved GraphQL object type for a union value.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.4.0
 - **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+
+## Parameters
+
+- `$type` (`mixed`): The resolved GraphQL type.
+- `$obj` (`mixed`): The object being resolved.
+- `$type_instance` (`\WPGraphQL\Type\WPUnionType`): The union type instance.
