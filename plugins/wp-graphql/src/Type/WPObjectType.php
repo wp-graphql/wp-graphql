@@ -81,7 +81,7 @@ class WPObjectType extends ObjectType {
 
 		$this->config = $config;
 
-		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		$name = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 		/**
 		 * Filters the GraphQL type name before the object type is registered.
 		 *

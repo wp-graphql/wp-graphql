@@ -46,7 +46,7 @@ class WPInterfaceType extends InterfaceType {
 
 		$this->config = $config;
 
-		$name                 = ! empty( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		$name = ! empty( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 		/**
 		 * Filters the GraphQL type name before the interface type is registered.
 		 *

@@ -41,7 +41,7 @@ class WPEnumType extends EnumType {
 	 * @phpstan-param WPEnumTypeConfig $config
 	 */
 	public function __construct( $config ) {
-		$name             = ucfirst( $config['name'] );
+		$name = ucfirst( $config['name'] );
 		/**
 		 * Filters the GraphQL type name used during enum type construction.
 		 *
@@ -140,6 +140,10 @@ class WPEnumType extends EnumType {
 		 * @since 0.0.5
 		 */
 		$values = apply_filters( 'graphql_' . $type_name . '_values', $values, $type_name );
+
+		if ( ! is_array( $values ) ) {
+			$values = iterator_to_array( $values );
+		}
 
 		// map over the values and if the description is a callable, call it
 		$values = array_map(

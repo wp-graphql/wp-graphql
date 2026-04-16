@@ -23,7 +23,7 @@ class Admin {
 	/**
 	 * Whether GraphiQL is enabled or not
 	 *
-	 * @var bool
+	 * @var bool|string
 	 */
 	protected $graphiql_enabled;
 
@@ -53,7 +53,7 @@ class Admin {
 		 * @hookGroup settings
 		 * @since 0.13.0
 		 */
-		$this->admin_enabled    = apply_filters( 'graphql_show_admin', true );
+		$this->admin_enabled = apply_filters( 'graphql_show_admin', true );
 		/**
 		 * Filters whether the embedded GraphiQL IDE should be enabled.
 		 *

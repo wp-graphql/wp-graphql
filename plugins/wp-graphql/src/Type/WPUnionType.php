@@ -37,7 +37,7 @@ class WPUnionType extends UnionType {
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 		$this->type_registry = $type_registry;
 
-		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		$name = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 		/**
 		 * Filters the GraphQL type name used during type construction.
 		 *

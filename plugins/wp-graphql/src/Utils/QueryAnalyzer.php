@@ -449,7 +449,7 @@ class QueryAnalyzer {
 	 */
 	public function set_list_types( ?Schema $schema, ?string $query ): array {
 
-		$null               = null;
+		$null = null;
 		/**
 		 * Filters list types before QueryAnalyzer derives them from the AST.
 		 *
@@ -567,7 +567,7 @@ class QueryAnalyzer {
 	 */
 	public function set_query_types( ?Schema $schema, ?string $query ): array {
 
-		$null                = null;
+		$null = null;
 		/**
 		 * Filters query types before QueryAnalyzer derives them from the AST.
 		 *
@@ -664,7 +664,7 @@ class QueryAnalyzer {
 	 */
 	public function set_query_models( ?Schema $schema, ?string $query ): array {
 
-		$null           = null;
+		$null = null;
 		/**
 		 * Filters model identifiers before QueryAnalyzer derives them from the AST.
 		 *
