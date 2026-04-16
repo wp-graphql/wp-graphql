@@ -155,6 +155,7 @@ class Request {
 		/**
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since x-release-please-version
 		 */
 		do_action( 'graphql_init_request' );
@@ -222,6 +223,8 @@ class Request {
 		 *
 		 * @param array<string,\GraphQL\Validator\Rules\ValidationRule> $validation_rules The validation rules to use in the request
 		 * @param \WPGraphQL\Request                                        $request          The Request instance
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
 	}
@@ -242,6 +245,8 @@ class Request {
 		 *
 		 * @param mixed|RootValueResolver $root_value The root value the Schema should use to resolve with. Default null.
 		 * @param \WPGraphQL\Request      $request    The Request instance
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}
@@ -329,6 +334,8 @@ class Request {
 			 * Execute batch queries
 			 *
 			 * @param \GraphQL\Server\OperationParams[] $params The operation params of the batch request
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 			 */
 			do_action( 'graphql_execute_batch_queries', $this->params );
 
@@ -345,6 +352,8 @@ class Request {
 		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
 		 *
 		 * @param \WPGraphQL\Request $request The instance of the Request being executed
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_before_execute', $this );
 	}
@@ -387,6 +396,8 @@ class Request {
 		 *
 		 * @param bool $authentication_errors Whether there are authentication errors with the request
 		 * @param \WPGraphQL\Request $request Instance of the Request
+		 * @hookGroup authentication
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
 	}
@@ -451,6 +462,8 @@ class Request {
 		 *
 		 * @param mixed[]            $filtered_response The response of the entire operation. Could be a single operation or a batch operation
 		 * @param \WPGraphQL\Request $request           Instance of the Request being executed
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_after_execute', $filtered_response, $this );
 
@@ -547,6 +560,7 @@ class Request {
 		 * @param \WPGraphQL\Request               $request   Instance of the Request
 		 * @param ?string                          $query_id  The query id that GraphQL executed
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 0.0.5
 		 */
 		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this, $query_id );
@@ -563,6 +577,8 @@ class Request {
 		 * @param ?array<string,mixed>             $variables         Variables to passed to your GraphQL query
 		 * @param \WPGraphQL\Request               $request           Instance of the Request
 		 * @param ?string                          $query_id          The query id that GraphQL executed
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this, $query_id );
 
@@ -670,8 +686,8 @@ class Request {
 		/**
 		 * Filter this to be anything other than null to short-circuit the request.
 		 *
-		 * @param ?SerializableResult $response
-		 * @param self               $request
+		 * @param ?SerializableResult $response The response to return early. Null continues execution.
+		 * @param self               $request  The request instance being executed.
 		 * @hookGroup request-lifecycle
 		 * @since x-release-please-version
 		 */
@@ -694,8 +710,10 @@ class Request {
 			/**
 			 * Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
 			 *
-			 * @param string                          $query
-			 * @param \GraphQL\Server\OperationParams $params
+			 * @param string                          $query  The query string to execute.
+			 * @param \GraphQL\Server\OperationParams $params Operation params for the request.
+			 * @hookGroup request-lifecycle
+			 * @since 0.0.5
 			 */
 			$query = apply_filters(
 				'graphql_execute_query_params',
@@ -780,6 +798,14 @@ class Request {
 		/**
 		 * Get the response.
 		 */
+		/**
+		 * Filter this to be anything other than null to short-circuit HTTP execution.
+		 *
+		 * @param mixed|null $response The response to return early. Null continues execution.
+		 * @param self       $request  The request instance being executed.
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
+		 */
 		$response = apply_filters( 'graphql_pre_execute_request', null, $this );
 		if ( has_filter( 'pre_graphql_execute_request' ) ) {
 			$response = apply_filters_deprecated(
@@ -822,6 +848,7 @@ class Request {
 		 * @param bool $is_valid Whether the content type is valid
 		 * @param string $content_type The content type header value that was received
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 2.1.0
 		 */
 		return (bool) apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
@@ -855,6 +882,8 @@ class Request {
 		 *
 		 * @param int    $status_code The status code to return. Default 415.
 		 * @param string $content_type The content type header value that was received.
+		 * @hookGroup request-lifecycle
+		 * @since 2.1.0
 		 */
 		$filtered_status_code = apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
 
@@ -919,6 +948,8 @@ class Request {
 		 *
 		 * @param bool                                                              $batch_queries_enabled Whether Batch Queries should be enabled
 		 * @param \GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[] $params Request operation params
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		return (bool) apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
 	}
@@ -953,6 +984,7 @@ class Request {
 		 * @param \GraphQL\Server\ServerConfig                                      $config Server config
 		 * @param \GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[] $params Request operation params
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 0.2.0
 		 */
 		do_action( 'graphql_server_config', $config, $this->params );

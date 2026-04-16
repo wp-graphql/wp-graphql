@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:23:48.080Z",
+  "generatedAt": "2026-04-16T20:31:53.028Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -87,62 +87,6 @@
     "warnings": [
       {
         "type": "missing_hook_group",
-        "hook": "graphql_show_admin",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 49,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_show_admin",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 49,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_show_admin",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 49,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_show_admin",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 49,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_enable_graphiql",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 50,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_enable_graphiql",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 50,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_enable_graphiql",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 50,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_enable_graphiql",
-        "file": "plugins/wp-graphql/src/Admin/Admin.php",
-        "line": 50,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_get_extensions",
         "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
         "line": 402,
@@ -181,167 +125,6 @@
         "hook": "graphql_render_admin_page",
         "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
         "line": 266,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_register_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-        "line": 313,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_register_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-        "line": 313,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_register_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-        "line": 313,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_register_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-        "line": 313,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_settings_enqueue_scripts",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 72,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_settings_enqueue_scripts",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 72,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_settings_enqueue_scripts",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 72,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_setting_field_config",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 137,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_setting_field_config",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 137,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_init_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 160,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_init_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 160,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_init_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 160,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_init_settings",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 160,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_settings_sections",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 167,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_settings_sections",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 167,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_settings_form_top",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 666,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_settings_form_top",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 666,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_settings_form_top",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 666,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_settings_form_top",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 666,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_settings_form_bottom",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 669,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_settings_form_bottom",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 669,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_settings_form_bottom",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 669,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_settings_form_bottom",
-        "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-        "line": 669,
         "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
@@ -1721,223 +1504,6 @@
         "hook": "graphql_excluded_mutations",
         "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
         "line": 1545,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_init_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 160,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_validation_rules",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 226,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_validation_rules",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 226,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_root_value",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 246,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_root_value",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 246,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_execute_batch_queries",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 333,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_execute_batch_queries",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 333,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_before_execute",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 349,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_before_execute",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 349,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_authentication_errors",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 391,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_authentication_errors",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 391,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_after_execute",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 455,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_after_execute",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 455,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_request_results",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 552,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_return_response",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 567,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_return_response",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 567,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_param_description",
-        "hook": "graphql_pre_execute_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 678,
-        "message": "@param entry 1 ($response) is missing a description"
-      },
-      {
-        "type": "missing_hook_param_description",
-        "hook": "graphql_pre_execute_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 678,
-        "message": "@param entry 2 ($request) is missing a description"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_execute_query_params",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 700,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_execute_query_params",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 700,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_param_description",
-        "hook": "graphql_execute_query_params",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 700,
-        "message": "@param entry 1 ($query) is missing a description"
-      },
-      {
-        "type": "missing_hook_param_description",
-        "hook": "graphql_execute_query_params",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 700,
-        "message": "@param entry 2 ($params) is missing a description"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_execute_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 783,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_execute_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 783,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_pre_execute_request",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 783,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_is_valid_http_content_type",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 827,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_invalid_content_type_status_code",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 859,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_invalid_content_type_status_code",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 859,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_is_batch_queries_enabled",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 923,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_is_batch_queries_enabled",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 923,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_server_config",
-        "file": "plugins/wp-graphql/src/Request.php",
-        "line": 958,
         "message": "Missing @hookGroup tag"
       },
       {
@@ -3883,7 +3449,7 @@
       "sourceType": "core",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 338,
+      "line": 345,
       "description": "",
       "params": [],
       "argumentCount": 0,
@@ -3970,7 +3536,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 597,
+      "line": 613,
       "description": "Legacy GraphQL request lifecycle action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -4531,13 +4097,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_after_execute",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 455,
+      "line": 468,
       "description": "Run an action after GraphQL Execution",
       "params": [
         {
@@ -4553,8 +4119,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_after_execute'",
       "relatedSnippets": [],
@@ -4844,13 +4410,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_authentication_errors",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "authentication",
+      "groupLabel": "Authentication and Authorization",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 391,
+      "line": 402,
       "description": "If false, there are no authentication errors. If true, execution of the GraphQL request will be prevented and an error will be thrown.",
       "params": [
         {
@@ -4866,8 +4432,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "authentication",
       "isDynamic": false,
       "rawExpression": "'graphql_authentication_errors'",
       "relatedSnippets": [],
@@ -4924,13 +4490,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_before_execute",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 349,
+      "line": 358,
       "description": "This action runs before execution of a GraphQL request (regardless if it's a single or batch request)",
       "params": [
         {
@@ -4941,8 +4507,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_before_execute'",
       "relatedSnippets": [],
@@ -6662,7 +6228,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 595,
+      "line": 611,
       "description": "Run an action for each request.",
       "params": [
         {
@@ -6746,19 +6312,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_enable_graphiql",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/Admin.php",
-      "line": 50,
-      "description": "",
-      "params": [],
+      "line": 64,
+      "description": "Filters whether the embedded GraphiQL IDE should be enabled.",
+      "params": [
+        {
+          "type": "bool|string",
+          "name": "$graphiql_enabled",
+          "description": "Whether GraphiQL should be enabled."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_enable_graphiql'",
       "relatedSnippets": [],
@@ -7188,7 +6760,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 508,
+      "line": 521,
       "description": "Legacy GraphQL request execution action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -7211,13 +6783,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_execute_batch_queries",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 333,
+      "line": 340,
       "description": "Execute batch queries",
       "params": [
         {
@@ -7228,8 +6800,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_execute_batch_queries'",
       "relatedSnippets": [],
@@ -7246,30 +6818,30 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_execute_query_params",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 700,
+      "line": 718,
       "description": "Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.",
       "params": [
         {
           "type": "string",
           "name": "$query",
-          "description": ""
+          "description": "The query string to execute."
         },
         {
           "type": "\\GraphQL\\Server\\OperationParams",
           "name": "$params",
-          "description": ""
+          "description": "Operation params for the request."
         }
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_execute_query_params'",
       "relatedSnippets": [],
@@ -8142,17 +7714,17 @@
       "kind": "action",
       "group": "request-lifecycle",
       "groupLabel": "Request Lifecycle",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 160,
+      "line": 161,
       "description": "Action – intentionally with no context – to indicate a GraphQL Request has started.",
       "params": [],
       "argumentCount": 0,
       "docblockParamCount": 0,
       "since": "x-release-please-version",
-      "hookGroup": null,
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_init_request'",
       "relatedSnippets": [],
@@ -8171,17 +7743,23 @@
       "kind": "action",
       "group": "settings",
       "groupLabel": "Settings and Admin",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 160,
-      "description": "",
-      "params": [],
+      "line": 173,
+      "description": "Fires before WPGraphQL settings sections and fields are registered.",
+      "params": [
+        {
+          "type": "self",
+          "name": "$settings_registry",
+          "description": "Settings registry instance."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_init_settings'",
       "relatedSnippets": [],
@@ -8613,13 +8191,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_invalid_content_type_status_code",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 859,
+      "line": 888,
       "description": "Filter the status code to return when the content type is invalid",
       "params": [
         {
@@ -8635,8 +8213,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "2.1.0",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_invalid_content_type_status_code'",
       "relatedSnippets": [],
@@ -8653,13 +8231,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_is_batch_queries_enabled",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 923,
+      "line": 954,
       "description": "Filter whether batch queries are supported or not",
       "params": [
         {
@@ -8675,8 +8253,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_is_batch_queries_enabled'",
       "relatedSnippets": [],
@@ -8728,13 +8306,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_is_valid_http_content_type",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 827,
+      "line": 854,
       "description": "Allow graphql to validate custom content types for HTTP POST requests",
       "params": [
         {
@@ -8751,7 +8329,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "2.1.0",
-      "hookGroup": null,
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_is_valid_http_content_type'",
       "relatedSnippets": [],
@@ -10263,18 +9841,18 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 678,
+      "line": 694,
       "description": "Filter this to be anything other than null to short-circuit the request.",
       "params": [
         {
           "type": "?SerializableResult",
           "name": "$response",
-          "description": ""
+          "description": "The response to return early. Null continues execution."
         },
         {
           "type": "self",
           "name": "$request",
-          "description": ""
+          "description": "The request instance being executed."
         }
       ],
       "argumentCount": 2,
@@ -10297,19 +9875,30 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_execute_request",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 783,
-      "description": "Get the response.",
-      "params": [],
+      "line": 809,
+      "description": "Filter this to be anything other than null to short-circuit HTTP execution.",
+      "params": [
+        {
+          "type": "mixed|null",
+          "name": "$response",
+          "description": "The response to return early. Null continues execution."
+        },
+        {
+          "type": "self",
+          "name": "$request",
+          "description": "The request instance being executed."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_execute_request'",
       "relatedSnippets": [],
@@ -11726,19 +11315,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_register_settings",
       "kind": "action",
-      "group": "schema-registration",
-      "groupLabel": "Schema Registration",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 313,
-      "description": "",
-      "params": [],
+      "line": 319,
+      "description": "Fires after core WPGraphQL settings have been registered.",
+      "params": [
+        {
+          "type": "self",
+          "name": "$settings",
+          "description": "Settings manager instance."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_register_settings'",
       "relatedSnippets": [],
@@ -11958,7 +11553,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 506,
+      "line": 519,
       "description": "Run an action. This is a good place for debug tools to hook in to log things, etc.",
       "params": [
         {
@@ -12014,11 +11609,11 @@
       "kind": "filter",
       "group": "request-lifecycle",
       "groupLabel": "Request Lifecycle",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 552,
+      "line": 566,
       "description": "Filter the $response of the GraphQL execution. This allows for the response to be filtered before it's returned, allowing granular control over the response at the latest point. POSSIBLE USAGE EXAMPLES: This could be used to ensure that certain fields never make it to the response if they match certain criteria, etc. For example, this filter could be used to check if a current user is allowed to see certain things, and if they are not, the $response could be filtered to remove the data they should not be allowed to see. Or, perhaps some systems want the response to always include some additional piece of data in every response, regardless of the request that was sent to it, this could allow for that to be hooked in and included in the $response.",
       "params": [
         {
@@ -12060,7 +11655,7 @@
       "argumentCount": 7,
       "docblockParamCount": 7,
       "since": "0.0.5",
-      "hookGroup": null,
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_request_results'",
       "relatedSnippets": [],
@@ -12777,13 +12372,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_return_response",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 567,
+      "line": 583,
       "description": "Run an action after the response has been filtered, as the response is being returned. This is a good place for debug tools to hook in to log things, etc.",
       "params": [
         {
@@ -12829,8 +12424,8 @@
       ],
       "argumentCount": 8,
       "docblockParamCount": 8,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_return_response'",
       "relatedSnippets": [],
@@ -12847,13 +12442,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_root_value",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 246,
+      "line": 251,
       "description": "Return the filtered root value",
       "params": [
         {
@@ -12869,8 +12464,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_root_value'",
       "relatedSnippets": [],
@@ -13094,13 +12689,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_server_config",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 958,
+      "line": 990,
       "description": "Run an action when the server config is created. The config can be acted upon directly to override default values or implement new features, e.g., $config->setValidationRules().",
       "params": [
         {
@@ -13117,7 +12712,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "0.2.0",
-      "hookGroup": null,
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_server_config'",
       "relatedSnippets": [],
@@ -13134,13 +12729,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_setting_field_config",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 137,
+      "line": 144,
       "description": "Filter the setting field config",
       "params": [
         {
@@ -13161,8 +12756,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_setting_field_config'",
       "relatedSnippets": [],
@@ -13179,19 +12774,19 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_settings_enqueue_scripts",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 72,
-      "description": "",
+      "line": 77,
+      "description": "Fires when WPGraphQL settings assets should be enqueued.",
       "params": [],
       "argumentCount": 0,
       "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_settings_enqueue_scripts'",
       "relatedSnippets": [],
@@ -13208,19 +12803,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_settings_form_bottom",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 669,
-      "description": "",
-      "params": [],
+      "line": 698,
+      "description": "Fires after rendering a WPGraphQL settings form section.",
+      "params": [
+        {
+          "type": "array<string,mixed>",
+          "name": "$form",
+          "description": "Settings form section configuration."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_settings_form_bottom'",
       "relatedSnippets": [],
@@ -13237,19 +12838,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_settings_form_top",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 666,
-      "description": "",
-      "params": [],
+      "line": 688,
+      "description": "Fires before rendering a WPGraphQL settings form section.",
+      "params": [
+        {
+          "type": "array<string,mixed>",
+          "name": "$form",
+          "description": "Settings form section configuration."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_settings_form_top'",
       "relatedSnippets": [],
@@ -13266,14 +12873,14 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_settings_sections",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 167,
-      "description": "Filter the settings sections",
+      "line": 182,
+      "description": "Filters the WPGraphQL settings sections.",
       "params": [
         {
           "type": "array<string,array<string,mixed>>",
@@ -13283,8 +12890,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_settings_sections'",
       "relatedSnippets": [],
@@ -13496,19 +13103,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_show_admin",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/Admin.php",
-      "line": 49,
-      "description": "",
-      "params": [],
+      "line": 56,
+      "description": "Filters whether WPGraphQL admin pages should be visible.",
+      "params": [
+        {
+          "type": "bool",
+          "name": "$show_admin",
+          "description": "Whether WPGraphQL admin pages should be visible."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_show_admin'",
       "relatedSnippets": [],
@@ -14469,11 +14082,11 @@
       "kind": "filter",
       "group": "request-lifecycle",
       "groupLabel": "Request Lifecycle",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 226,
+      "line": 229,
       "description": "Return the validation rules to use in the request",
       "params": [
         {
@@ -14489,8 +14102,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_validation_rules'",
       "relatedSnippets": [],
@@ -14926,7 +14539,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 162,
+      "line": 163,
       "description": "Legacy request initialization hook retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -14984,7 +14597,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 680,
+      "line": 696,
       "description": "Legacy pre-execute request filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -15013,7 +14626,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 785,
+      "line": 811,
       "description": "Legacy pre-execute request filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,

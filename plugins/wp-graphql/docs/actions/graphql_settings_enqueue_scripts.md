@@ -5,15 +5,15 @@ Do not edit manually.
 ---
 title: graphql_settings_enqueue_scripts
 hookType: action
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_settings_enqueue_scripts`
 
-No description available.
+Fires when WPGraphQL settings assets should be enqueued.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`

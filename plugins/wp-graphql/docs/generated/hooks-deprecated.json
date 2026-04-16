@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:23:48.080Z",
+  "generatedAt": "2026-04-16T20:31:53.028Z",
   "count": 21,
   "hooks": [
     {
@@ -13,7 +13,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 597,
+      "line": 613,
       "description": "Legacy GraphQL request lifecycle action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -34,7 +34,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 597
+          "line": 613
         }
       ],
       "occurrences": 1
@@ -208,7 +208,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 508,
+      "line": 521,
       "description": "Legacy GraphQL request execution action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -229,7 +229,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 508
+          "line": 521
         }
       ],
       "occurrences": 1
@@ -490,7 +490,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 162
+          "line": 163
         }
       ],
       "occurrences": 2
@@ -541,7 +541,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 680,
+      "line": 696,
       "description": "Legacy pre-execute request filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -562,11 +562,11 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 680
+          "line": 696
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 785
+          "line": 811
         }
       ],
       "occurrences": 2

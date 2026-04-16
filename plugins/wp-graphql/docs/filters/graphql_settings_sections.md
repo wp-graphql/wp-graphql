@@ -5,17 +5,17 @@ Do not edit manually.
 ---
 title: graphql_settings_sections
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_settings_sections`
 
-Filter the settings sections
+Filters the WPGraphQL settings sections.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
 
 ## Parameters

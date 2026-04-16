@@ -46,7 +46,21 @@ class Admin {
 
 		// Determine whether the admin pages should show or not.
 		// Default is enabled.
+		/**
+		 * Filters whether WPGraphQL admin pages should be visible.
+		 *
+		 * @param bool $show_admin Whether WPGraphQL admin pages should be visible.
+		 * @hookGroup settings
+		 * @since 0.13.0
+		 */
 		$this->admin_enabled    = apply_filters( 'graphql_show_admin', true );
+		/**
+		 * Filters whether the embedded GraphiQL IDE should be enabled.
+		 *
+		 * @param bool|string $graphiql_enabled Whether GraphiQL should be enabled.
+		 * @hookGroup settings
+		 * @since 0.13.0
+		 */
 		$this->graphiql_enabled = apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled', true ) );
 
 		AdminNotices::get_instance();

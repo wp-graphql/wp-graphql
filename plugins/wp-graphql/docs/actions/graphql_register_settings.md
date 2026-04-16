@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_register_settings
 hookType: action
-hookGroup: schema-registration
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_register_settings`
 
-No description available.
+Fires after core WPGraphQL settings have been registered.
 
 - **Type:** action
-- **Group:** Schema Registration
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/Settings.php`
+
+## Parameters
+
+- `$settings` (`self`): Settings manager instance.

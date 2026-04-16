@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_return_response
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Run an action after the response has been filtered, as the response is being returned. This is a good place for debug tools to hook in to log things, etc.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters

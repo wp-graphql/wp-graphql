@@ -14,15 +14,19 @@ title: Actions
 
 ## Request Lifecycle
 
+- [`graphql_after_execute`](/docs/actions/graphql_after_execute)
+- [`graphql_before_execute`](/docs/actions/graphql_before_execute)
 - [`graphql_do_request`](/docs/actions/graphql_do_request)
+- [`graphql_execute_batch_queries`](/docs/actions/graphql_execute_batch_queries)
 - [`graphql_init_request`](/docs/actions/graphql_init_request)
 - [`graphql_init_request`](/docs/actions/graphql_init_request)
 - [`graphql_request_execute`](/docs/actions/graphql_request_execute)
+- [`graphql_return_response`](/docs/actions/graphql_return_response)
+- [`graphql_server_config`](/docs/actions/graphql_server_config)
 
 ## Schema Registration
 
 - [`graphql_register_initial_types`](/docs/actions/graphql_register_initial_types)
-- [`graphql_register_settings`](/docs/actions/graphql_register_settings)
 - [`graphql_register_types`](/docs/actions/graphql_register_types)
 - [`graphql_register_types_late`](/docs/actions/graphql_register_types_late)
 
@@ -33,18 +37,19 @@ title: Actions
 - [`graphql_admin_notices_render_notices`](/docs/actions/graphql_admin_notices_render_notices)
 - [`graphql_enqueue_graphiql_extension`](/docs/actions/graphql_enqueue_graphiql_extension)
 - [`graphql_init_settings`](/docs/actions/graphql_init_settings)
+- [`graphql_register_settings`](/docs/actions/graphql_register_settings)
+- [`graphql_settings_enqueue_scripts`](/docs/actions/graphql_settings_enqueue_scripts)
+- [`graphql_settings_form_bottom`](/docs/actions/graphql_settings_form_bottom)
+- [`graphql_settings_form_top`](/docs/actions/graphql_settings_form_top)
 
 ## Uncategorized
 
-- [`graphql_after_execute`](/docs/actions/graphql_after_execute)
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
 - [`graphql_after_return_field_from_model`](/docs/actions/graphql_after_return_field_from_model)
-- [`graphql_before_execute`](/docs/actions/graphql_before_execute)
 - [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_comment_object_mutation_update_additional_data`](/docs/actions/graphql_comment_object_mutation_update_additional_data)
 - [`graphql_determine_graphql_keys`](/docs/actions/graphql_determine_graphql_keys)
 - [`graphql_do_update_routine`](/docs/actions/graphql_do_update_routine)
-- [`graphql_execute_batch_queries`](/docs/actions/graphql_execute_batch_queries)
 - [`graphql_experiments_loaded`](/docs/actions/graphql_experiments_loaded)
 - [`graphql_experiments_registered`](/docs/actions/graphql_experiments_registered)
 - [`graphql_get_debug_log`](/docs/actions/graphql_get_debug_log)
@@ -61,11 +66,6 @@ title: Actions
 - [`graphql_process_http_request`](/docs/actions/graphql_process_http_request)
 - [`graphql_process_http_request_response`](/docs/actions/graphql_process_http_request_response)
 - [`graphql_response_set_headers`](/docs/actions/graphql_response_set_headers)
-- [`graphql_return_response`](/docs/actions/graphql_return_response)
-- [`graphql_server_config`](/docs/actions/graphql_server_config)
-- [`graphql_settings_enqueue_scripts`](/docs/actions/graphql_settings_enqueue_scripts)
-- [`graphql_settings_form_bottom`](/docs/actions/graphql_settings_form_bottom)
-- [`graphql_settings_form_top`](/docs/actions/graphql_settings_form_top)
 - [`graphql_update_term`](/docs/actions/graphql_update_term)
 - [`graphql_user_object_mutation_update_additional_data`](/docs/actions/graphql_user_object_mutation_update_additional_data)
 - [`graphql_wp_mutation_type`](/docs/actions/graphql_wp_mutation_type)

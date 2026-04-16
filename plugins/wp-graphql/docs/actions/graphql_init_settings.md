@@ -11,9 +11,13 @@ plugin: wp-graphql
 
 # `graphql_init_settings`
 
-No description available.
+Fires before WPGraphQL settings sections and fields are registered.
 
 - **Type:** action
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+
+## Parameters
+
+- `$settings_registry` (`self`): Settings registry instance.

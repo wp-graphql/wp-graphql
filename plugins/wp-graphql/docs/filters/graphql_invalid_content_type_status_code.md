@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_invalid_content_type_status_code
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the status code to return when the content type is invalid
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 2.1.0
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters

@@ -68,7 +68,12 @@ class SettingsRegistry {
 		wp_enqueue_script( 'wp-color-picker' );
 		wp_enqueue_script( 'jquery' );
 
-		// Action to enqueue scripts on the WPGraphQL Settings page.
+		/**
+		 * Fires when WPGraphQL settings assets should be enqueued.
+		 *
+		 * @hookGroup settings
+		 * @since 0.13.0
+		 */
 		do_action( 'graphql_settings_enqueue_scripts' );
 	}
 
@@ -133,6 +138,8 @@ class SettingsRegistry {
 		 * @param array<string,mixed>  $field_config The field config for the setting
 		 * @param string               $field_name   The name of the field (unfilterable in the config)
 		 * @param string               $section      The slug of the section the field is registered to
+		 * @hookGroup settings
+		 * @since 0.13.0
 		 */
 		$field = apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $section );
 
@@ -156,13 +163,21 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function admin_init() {
-		// Action that fires when settings are being initialized
+		/**
+		 * Fires before WPGraphQL settings sections and fields are registered.
+		 *
+		 * @param self $settings_registry Settings registry instance.
+		 * @hookGroup settings
+		 * @since 0.13.0
+		 */
 		do_action( 'graphql_init_settings', $this );
 
 		/**
-		 * Filter the settings sections
+		 * Filters the WPGraphQL settings sections.
 		 *
 		 * @param array<string,array<string,mixed>> $setting_sections The registered settings sections
+		 * @hookGroup settings
+		 * @since 0.13.0
 		 */
 		$setting_sections = apply_filters( 'graphql_settings_sections', $this->settings_sections );
 
@@ -663,9 +678,23 @@ class SettingsRegistry {
 				<div id="<?php echo esc_attr( $id ); ?>" class="group" style="display: none;">
 					<form method="post" action="options.php">
 						<?php
+						/**
+						 * Fires before rendering a WPGraphQL settings form section.
+						 *
+						 * @param array<string,mixed> $form Settings form section configuration.
+						 * @hookGroup settings
+						 * @since 0.13.0
+						 */
 						do_action( 'graphql_settings_form_top', $form );
 						settings_fields( $id );
 						do_settings_sections( $id );
+						/**
+						 * Fires after rendering a WPGraphQL settings form section.
+						 *
+						 * @param array<string,mixed> $form Settings form section configuration.
+						 * @hookGroup settings
+						 * @since 0.13.0
+						 */
 						do_action( 'graphql_settings_form_bottom', $form );
 						if ( isset( $this->settings_fields[ $id ] ) ) :
 							?>

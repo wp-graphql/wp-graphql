@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_execute_query_params
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,11 +14,11 @@ plugin: wp-graphql
 Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
-- `$query` (`string`): No description.
-- `$params` (`\GraphQL\Server\OperationParams`): No description.
+- `$query` (`string`): The query string to execute.
+- `$params` (`\GraphQL\Server\OperationParams`): Operation params for the request.

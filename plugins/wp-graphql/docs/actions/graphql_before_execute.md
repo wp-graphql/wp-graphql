@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_before_execute
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters

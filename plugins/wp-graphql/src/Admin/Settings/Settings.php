@@ -309,7 +309,13 @@ class Settings {
 			]
 		);
 
-		// Action to hook into to register settings
+		/**
+		 * Fires after core WPGraphQL settings have been registered.
+		 *
+		 * @param self $settings Settings manager instance.
+		 * @hookGroup settings
+		 * @since 0.13.0
+		 */
 		do_action( 'graphql_register_settings', $this );
 	}
 

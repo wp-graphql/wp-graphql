@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_is_valid_http_content_type
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Allow graphql to validate custom content types for HTTP POST requests
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Request Lifecycle
 - **Since:** 2.1.0
 - **Source:** `plugins/wp-graphql/src/Request.php`
 

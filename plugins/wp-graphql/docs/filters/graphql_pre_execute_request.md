@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_pre_execute_request
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
 # `graphql_pre_execute_request`
 
-Get the response.
+Filter this to be anything other than null to short-circuit HTTP execution.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Request.php`
+
+## Parameters
+
+- `$response` (`mixed|null`): The response to return early. Null continues execution.
+- `$request` (`self`): The request instance being executed.

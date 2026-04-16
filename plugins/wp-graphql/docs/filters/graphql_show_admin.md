@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_show_admin
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_show_admin`
 
-No description available.
+Filters whether WPGraphQL admin pages should be visible.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Admin.php`
+
+## Parameters
+
+- `$show_admin` (`bool`): Whether WPGraphQL admin pages should be visible.

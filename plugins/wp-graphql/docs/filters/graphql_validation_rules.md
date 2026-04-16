@@ -15,7 +15,7 @@ Return the validation rules to use in the request
 
 - **Type:** filter
 - **Group:** Request Lifecycle
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters

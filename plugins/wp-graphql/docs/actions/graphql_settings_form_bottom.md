@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_settings_form_bottom
 hookType: action
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_settings_form_bottom`
 
-No description available.
+Fires after rendering a WPGraphQL settings form section.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+
+## Parameters
+
+- `$form` (`array<string,mixed>`): Settings form section configuration.

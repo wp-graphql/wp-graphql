@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_server_config
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Run an action when the server config is created. The config can be acted upon directly to override default values or implement new features, e.g., $config->setValidationRules().
 
 - **Type:** action
-- **Group:** Uncategorized
+- **Group:** Request Lifecycle
 - **Since:** 0.2.0
 - **Source:** `plugins/wp-graphql/src/Request.php`
 

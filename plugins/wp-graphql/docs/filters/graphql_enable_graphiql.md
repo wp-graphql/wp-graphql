@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_enable_graphiql
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_enable_graphiql`
 
-No description available.
+Filters whether the embedded GraphiQL IDE should be enabled.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/src/Admin/Admin.php`
+
+## Parameters
+
+- `$graphiql_enabled` (`bool|string`): Whether GraphiQL should be enabled.

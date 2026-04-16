@@ -7,53 +7,25 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 505
-- Total findings: 505
+- Warnings: 443
+- Total findings: 443
 
 ## Findings by Type
 
-- `missing_hook_description`: 40
-- `missing_hook_group`: 226
-- `missing_hook_param_description`: 9
-- `missing_hook_params`: 40
-- `missing_hook_since`: 190
+- `missing_hook_description`: 33
+- `missing_hook_group`: 202
+- `missing_hook_param_description`: 5
+- `missing_hook_params`: 33
+- `missing_hook_since`: 170
 
 ## Findings
 
 ### `missing_hook_description`
 
-- **Hook:** `graphql_show_admin`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 49)
-- **Hook:** `graphql_enable_graphiql`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 50)
 - **Hook:** `graphql_render_admin_page`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_register_settings`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php` (line 313)
-- **Hook:** `graphql_settings_enqueue_scripts`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 72)
-- **Hook:** `graphql_init_settings`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 160)
-- **Hook:** `graphql_settings_form_top`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 666)
-- **Hook:** `graphql_settings_form_bottom`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 669)
 - **Hook:** `graphql_comment_object_mutation_update_additional_data`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -185,14 +157,6 @@ Do not edit manually.
 
 ### `missing_hook_group`
 
-- **Hook:** `graphql_show_admin`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 49)
-- **Hook:** `graphql_enable_graphiql`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 50)
 - **Hook:** `graphql_get_extensions`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -201,34 +165,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_register_settings`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php` (line 313)
-- **Hook:** `graphql_settings_enqueue_scripts`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 72)
-- **Hook:** `graphql_setting_field_config`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 137)
-- **Hook:** `graphql_init_settings`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 160)
-- **Hook:** `graphql_settings_sections`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 167)
-- **Hook:** `graphql_settings_form_top`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 666)
-- **Hook:** `graphql_settings_form_bottom`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 669)
 - **Hook:** `graphql_get_dependents`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -637,66 +573,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1545)
-- **Hook:** `graphql_init_request`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 160)
-- **Hook:** `graphql_validation_rules`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 226)
-- **Hook:** `graphql_root_value`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 246)
-- **Hook:** `graphql_execute_batch_queries`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 333)
-- **Hook:** `graphql_before_execute`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 349)
-- **Hook:** `graphql_authentication_errors`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 391)
-- **Hook:** `graphql_after_execute`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 455)
-- **Hook:** `graphql_request_results`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 552)
-- **Hook:** `graphql_return_response`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 567)
-- **Hook:** `graphql_execute_query_params`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 700)
-- **Hook:** `graphql_pre_execute_request`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 783)
-- **Hook:** `graphql_is_valid_http_content_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 827)
-- **Hook:** `graphql_invalid_content_type_status_code`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 859)
-- **Hook:** `graphql_is_batch_queries_enabled`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 923)
-- **Hook:** `graphql_server_config`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Request.php` (line 958)
 - **Hook:** `graphql_pre_is_graphql_http_request`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -1096,22 +972,6 @@ Do not edit manually.
   - Severity: warning
   - Message: @param entry 1 ($input_fields) is missing a description
   - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 134)
-- **Hook:** `graphql_pre_execute_request`
-  - Severity: warning
-  - Message: @param entry 1 ($response) is missing a description
-  - Source: `plugins/wp-graphql/src/Request.php` (line 678)
-- **Hook:** `graphql_pre_execute_request`
-  - Severity: warning
-  - Message: @param entry 2 ($request) is missing a description
-  - Source: `plugins/wp-graphql/src/Request.php` (line 678)
-- **Hook:** `graphql_execute_query_params`
-  - Severity: warning
-  - Message: @param entry 1 ($query) is missing a description
-  - Source: `plugins/wp-graphql/src/Request.php` (line 700)
-- **Hook:** `graphql_execute_query_params`
-  - Severity: warning
-  - Message: @param entry 2 ($params) is missing a description
-  - Source: `plugins/wp-graphql/src/Request.php` (line 700)
 - **Hook:** `graphql_enum_values`
   - Severity: warning
   - Message: @param entry 1 ($values) is missing a description
@@ -1131,34 +991,10 @@ Do not edit manually.
 
 ### `missing_hook_params`
 
-- **Hook:** `graphql_show_admin`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 49)
-- **Hook:** `graphql_enable_graphiql`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 50)
 - **Hook:** `graphql_render_admin_page`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_register_settings`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php` (line 313)
-- **Hook:** `graphql_init_settings`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 160)
-- **Hook:** `graphql_settings_form_top`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 666)
-- **Hook:** `graphql_settings_form_bottom`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 669)
 - **Hook:** `graphql_comment_object_mutation_update_additional_data`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -1191,10 +1027,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
-- **Hook:** `graphql_pre_execute_request`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Request.php` (line 783)
 - **Hook:** `graphql_send_nocache_headers`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -1294,14 +1126,6 @@ Do not edit manually.
 
 ### `missing_hook_since`
 
-- **Hook:** `graphql_show_admin`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 49)
-- **Hook:** `graphql_enable_graphiql`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Admin.php` (line 50)
 - **Hook:** `graphql_get_extensions`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -1310,34 +1134,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_register_settings`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php` (line 313)
-- **Hook:** `graphql_settings_enqueue_scripts`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 72)
-- **Hook:** `graphql_setting_field_config`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 137)
-- **Hook:** `graphql_init_settings`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 160)
-- **Hook:** `graphql_settings_sections`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 167)
-- **Hook:** `graphql_settings_form_top`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 666)
-- **Hook:** `graphql_settings_form_bottom`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php` (line 669)
 - **Hook:** `graphql_get_dependents`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -1666,50 +1462,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1028)
-- **Hook:** `graphql_validation_rules`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 226)
-- **Hook:** `graphql_root_value`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 246)
-- **Hook:** `graphql_execute_batch_queries`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 333)
-- **Hook:** `graphql_before_execute`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 349)
-- **Hook:** `graphql_authentication_errors`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 391)
-- **Hook:** `graphql_after_execute`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 455)
-- **Hook:** `graphql_return_response`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 567)
-- **Hook:** `graphql_execute_query_params`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 700)
-- **Hook:** `graphql_pre_execute_request`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 783)
-- **Hook:** `graphql_invalid_content_type_status_code`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 859)
-- **Hook:** `graphql_is_batch_queries_enabled`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Request.php` (line 923)
 - **Hook:** `graphql_pre_is_graphql_http_request`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
