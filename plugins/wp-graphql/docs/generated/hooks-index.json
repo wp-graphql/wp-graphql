@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T21:00:05.898Z",
+  "generatedAt": "2026-04-16T21:02:44.803Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -231,90 +231,6 @@
         "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
         "line": 134,
         "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_wp_query_cursor_pagination_stability",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 184,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_wp_query_cursor_pagination_stability",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 184,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_wp_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 235,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_wp_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 235,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_wp_user_query_cursor_pagination_stability",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 287,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_wp_user_query_cursor_pagination_stability",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 287,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_wp_user_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 338,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_wp_user_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 338,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_wp_term_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 390,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_wp_term_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 390,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_wp_comments_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 465,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_wp_comments_query_cursor_pagination_support",
-        "file": "plugins/wp-graphql/src/Data/Config.php",
-        "line": 465,
-        "message": "Missing @since tag in nearest docblock"
       },
       {
         "type": "missing_hook_group",
@@ -9204,13 +9120,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_wp_comments_query_cursor_pagination_support",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 465,
+      "line": 479,
       "description": "If pre-filter hooked, return $pre_pieces.",
       "params": [
         {
@@ -9231,8 +9147,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_wp_comments_query_cursor_pagination_support'",
       "relatedSnippets": [],
@@ -9249,13 +9165,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_wp_query_cursor_pagination_stability",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 184,
+      "line": 186,
       "description": "If pre-filter hooked, return $pre_orderby.",
       "params": [
         {
@@ -9276,8 +9192,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_wp_query_cursor_pagination_stability'",
       "relatedSnippets": [],
@@ -9294,13 +9210,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_wp_query_cursor_pagination_support",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 235,
+      "line": 239,
       "description": "If pre-filter hooked, return $pre_where.",
       "params": [
         {
@@ -9321,8 +9237,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_wp_query_cursor_pagination_support'",
       "relatedSnippets": [],
@@ -9339,13 +9255,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_wp_term_query_cursor_pagination_support",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 390,
+      "line": 401,
       "description": "If pre-filter hooked, return $pre_pieces.",
       "params": [
         {
@@ -9371,8 +9287,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_wp_term_query_cursor_pagination_support'",
       "relatedSnippets": [],
@@ -9389,13 +9305,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_wp_user_query_cursor_pagination_stability",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 287,
+      "line": 293,
       "description": "If pre-filter hooked, return $pre_orderby.",
       "params": [
         {
@@ -9416,8 +9332,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_wp_user_query_cursor_pagination_stability'",
       "relatedSnippets": [],
@@ -9434,13 +9350,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_wp_user_query_cursor_pagination_support",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 338,
+      "line": 346,
       "description": "If pre-filter hooked, return $pre_where.",
       "params": [
         {
@@ -9461,8 +9377,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_wp_user_query_cursor_pagination_support'",
       "relatedSnippets": [],

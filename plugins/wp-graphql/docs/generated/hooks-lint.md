@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 216
-- Total findings: 216
+- Warnings: 204
+- Total findings: 204
 
 ## Findings by Type
 
 - `missing_hook_description`: 11
-- `missing_hook_group`: 104
+- `missing_hook_group`: 98
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 14
-- `missing_hook_since`: 86
+- `missing_hook_since`: 80
 
 ## Findings
 
@@ -105,30 +105,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_pre_wp_query_cursor_pagination_stability`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 184)
-- **Hook:** `graphql_pre_wp_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 235)
-- **Hook:** `graphql_pre_wp_user_query_cursor_pagination_stability`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 287)
-- **Hook:** `graphql_pre_wp_user_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 338)
-- **Hook:** `graphql_pre_wp_term_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 390)
-- **Hook:** `graphql_pre_wp_comments_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 465)
 - **Hook:** `graphql_comment_connection_query_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -586,30 +562,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_pre_wp_query_cursor_pagination_stability`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 184)
-- **Hook:** `graphql_pre_wp_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 235)
-- **Hook:** `graphql_pre_wp_user_query_cursor_pagination_stability`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 287)
-- **Hook:** `graphql_pre_wp_user_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 338)
-- **Hook:** `graphql_pre_wp_term_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 390)
-- **Hook:** `graphql_pre_wp_comments_query_cursor_pagination_support`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Config.php` (line 465)
 - **Hook:** `graphql_post_object_connection_query_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

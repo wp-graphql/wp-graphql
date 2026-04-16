@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_wp_query_cursor_pagination_stability
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 If pre-filter hooked, return $pre_orderby.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Connections
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Config.php`
 
 ## Parameters

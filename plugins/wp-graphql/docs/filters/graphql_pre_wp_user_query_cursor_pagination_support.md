@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_wp_user_query_cursor_pagination_support
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 If pre-filter hooked, return $pre_where.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Connections
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Config.php`
 
 ## Parameters
