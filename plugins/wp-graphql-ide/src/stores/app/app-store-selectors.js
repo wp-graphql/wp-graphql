@@ -33,6 +33,18 @@ const selectors = {
 	isAuthenticated: (state) => {
 		return state.isAuthenticated;
 	},
+	getVariables: (state) => {
+		return state.variables;
+	},
+	getHeaders: (state) => {
+		return state.headers;
+	},
+	getResponse: (state) => {
+		return state.response;
+	},
+	isFetching: (state) => {
+		return state.isFetching;
+	},
 };
 
 export default selectors;

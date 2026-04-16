@@ -71,6 +71,30 @@ const actions = {
 			type: 'TOGGLE_AUTHENTICATION',
 		};
 	},
+	setVariables: (variables) => {
+		return {
+			type: 'SET_VARIABLES',
+			variables,
+		};
+	},
+	setHeaders: (headers) => {
+		return {
+			type: 'SET_HEADERS',
+			headers,
+		};
+	},
+	setResponse: (response) => {
+		return {
+			type: 'SET_RESPONSE',
+			response,
+		};
+	},
+	setIsFetching: (isFetching) => {
+		return {
+			type: 'SET_IS_FETCHING',
+			isFetching,
+		};
+	},
 };
 
 export default actions;

@@ -12,6 +12,10 @@ const initialState = {
 	query: null,
 	schema: undefined, // undefined is necessary to trigger the initial fetch
 	isAuthenticated: true,
+	variables: '',
+	headers: '',
+	response: '',
+	isFetching: false,
 };
 
 /**
@@ -88,6 +92,26 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				isAuthenticated: !state.isAuthenticated,
+			};
+		case 'SET_VARIABLES':
+			return {
+				...state,
+				variables: action.variables,
+			};
+		case 'SET_HEADERS':
+			return {
+				...state,
+				headers: action.headers,
+			};
+		case 'SET_RESPONSE':
+			return {
+				...state,
+				response: action.response,
+			};
+		case 'SET_IS_FETCHING':
+			return {
+				...state,
+				isFetching: action.isFetching,
 			};
 	}
 	return state;
