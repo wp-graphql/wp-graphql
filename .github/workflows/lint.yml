@@ -140,6 +140,43 @@ jobs:
       plugin_path: plugins/wp-graphql
       plugin_name: wp-graphql
 
+  wp-graphql-hook-legacy-coverage:
+    name: Check hook legacy coverage
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Determine baseline ref
+        id: base-ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" && -n "$BASE_REF" ]]; then
+            echo "value=origin/$BASE_REF" >> $GITHUB_OUTPUT
+          elif [[ "$EVENT_NAME" == "push" && -n "$BEFORE_SHA" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
+            echo "value=$BEFORE_SHA" >> $GITHUB_OUTPUT
+          else
+            echo "value=origin/main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify removed hooks are preserved in legacy registry
+        run: |
+          node scripts/hooks/check-legacy-coverage.js \
+            --plugin=wp-graphql \
+            --base-ref="${{ steps.base-ref.outputs.value }}"
+
   wp-graphql-smart-cache:
     name: Lint wp-graphql-smart-cache
     needs: detect-changes
@@ -181,7 +218,15 @@ jobs:
   status-check:
     name: 'Lint'
     runs-on: ubuntu-latest
-    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache, wp-graphql-ide, wp-graphql-acf]
+    needs:
+      [
+        detect-changes,
+        wp-graphql,
+        wp-graphql-hook-legacy-coverage,
+        wp-graphql-smart-cache,
+        wp-graphql-ide,
+        wp-graphql-acf,
+      ]
     if: always() # Run even if previous jobs were skipped
     steps:
       - name: Check lint results
@@ -191,6 +236,10 @@ jobs:
             echo "❌ wp-graphql linting failed"
             exit 1
           fi
+          if [ "${{ needs.wp-graphql-hook-legacy-coverage.result }}" == "failure" ]; then
+            echo "❌ wp-graphql hook legacy coverage check failed"
+            exit 1
+          fi
           if [ "${{ needs.wp-graphql-smart-cache.result }}" == "failure" ]; then
             echo "❌ wp-graphql-smart-cache linting failed"
             exit 1
@@ -198,6 +247,9 @@ jobs:
           # Allow skipped jobs (expected when files don't change)
           if [ "${{ needs.wp-graphql.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql linting skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-hook-legacy-coverage.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql hook legacy coverage skipped (no changes detected)"
           fi
           if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
             echo "ℹ️ wp-graphql-smart-cache linting skipped (no changes detected)"

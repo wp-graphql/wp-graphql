@@ -3,6 +3,7 @@
     {
       "name": "init_graphql_request",
       "kind": "action",
+      "since": "0.0.5",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_init_request",
@@ -21,6 +22,7 @@
     {
       "name": "do_graphql_request",
       "kind": "action",
+      "since": "0.0.5",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_do_request",
@@ -93,6 +95,7 @@
     {
       "name": "graphql_execute",
       "kind": "action",
+      "since": "0.0.4",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_request_execute",
@@ -102,6 +105,7 @@
     {
       "name": "graphql_schema",
       "kind": "filter",
+      "since": "0.0.5",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_schema_instance",
@@ -120,6 +124,7 @@
     {
       "name": "graphql_endpoint",
       "kind": "filter",
+      "since": "1.12.0",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_endpoint_path",
@@ -138,6 +143,7 @@
     {
       "name": "register_graphql_post_type_args",
       "kind": "filter",
+      "since": "1.12.0",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_register_post_type_args",
@@ -147,6 +153,7 @@
     {
       "name": "register_graphql_taxonomy_args",
       "kind": "filter",
+      "since": "1.12.0",
       "status": "deprecated",
       "deprecatedIn": "x-release-please-version",
       "replacement": "graphql_register_taxonomy_args",

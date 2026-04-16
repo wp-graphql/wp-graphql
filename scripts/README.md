@@ -49,6 +49,29 @@ node scripts/hooks/generate-hook-docs.js --plugin=wp-graphql
 - The generator reads `scripts/hooks/legacy-hooks.json` to preserve documentation for deprecated hooks even after they are removed from source.
 - Hook pages include lifecycle metadata (`status`, `deprecatedIn`, optional `removedIn`, `replacement`) when available.
 
+### `hooks/check-legacy-coverage.js`
+
+Ensures hooks removed from the codebase are preserved in `scripts/hooks/legacy-hooks.json`.
+
+**Purpose**: Prevent accidental loss of historical deprecated/removed hook documentation when callsites are deleted.
+
+**Usage**:
+```bash
+node scripts/hooks/check-legacy-coverage.js --plugin=wp-graphql --base-ref=origin/main
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--plugin` | No | Plugin slug (default: `wp-graphql`) |
+| `--base-ref` | No | Git ref to compare against (default: auto-detected from CI context, then `origin/main`) |
+
+**How it works**:
+1. Reads current `plugins/<plugin>/docs/generated/hooks-index.json`
+2. Reads baseline `hooks-index.json` from `--base-ref`
+3. Detects WPGraphQL hooks that were removed from source callsites
+4. Fails if removed hooks are missing or incomplete in `scripts/hooks/legacy-hooks.json`
+
 **Naming audit behavior**:
 - Naming audit focuses on WPGraphQL-specific hooks and excludes core hooks from naming violations.
 - You can explicitly mark hook source in a hook docblock:

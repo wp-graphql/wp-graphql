@@ -97,6 +97,14 @@ do_action_deprecated(
 do_action( 'graphql_docs_no_description', [ 'ok' => true ] );
 
 /**
+ * Hook with no @since tag.
+ *
+ * @param array<string,mixed> $payload Payload.
+ * @hookGroup request-lifecycle
+ */
+do_action( 'graphql_docs_missing_since', [ 'ok' => true ] );
+
+/**
  * Filter with intentionally incomplete @param docs.
  *
  * @param array<string,mixed> $payload Payload.
@@ -245,6 +253,18 @@ const tests = [
 				TEST_ROOT,
 				'plugins/test-plugin/docs/filters/graphql_docs_removed_event.md'
 			);
+			const coreFilterDocPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/filters/query_vars.md'
+			);
+			const actionIndexPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/actions/index.md'
+			);
+			const filterIndexPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/filters/index.md'
+			);
 
 			assert(fs.existsSync(indexPath), 'hooks-index.json should be generated');
 			assert(fs.existsSync(actionDocPath), 'action doc should be generated');
@@ -254,9 +274,15 @@ const tests = [
 			assert(fs.existsSync(deprecatedPath), 'deprecated hooks json should be generated');
 			assert(fs.existsSync(deprecatedActionDocPath), 'deprecated action doc should be generated');
 			assert(fs.existsSync(removedFilterDocPath), 'removed filter doc should persist');
+			assert(!fs.existsSync(coreFilterDocPath), 'core hook docs should not be generated');
+			const deprecatedActionDoc = fs.readFileSync(deprecatedActionDocPath, 'utf8');
+			assert(
+				deprecatedActionDoc.includes('> [!WARNING]'),
+				'deprecated hook docs should include a warning callout'
+			);
 
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-			assert.strictEqual(index.stats.totalHooks, 8, 'expected eight hooks');
+			assert.strictEqual(index.stats.totalHooks, 9, 'expected nine hooks');
 
 			const payloadHook = index.hooks.find((hook) => hook.name === 'graphql_docs_payload');
 			assert(payloadHook, 'filter hook should exist');
@@ -287,6 +313,10 @@ const tests = [
 				lint.warnings.some((item) => item.type === 'hook_param_count_mismatch'),
 				'param count mismatches should be linted'
 			);
+			assert(
+				lint.warnings.some((item) => item.type === 'missing_hook_since'),
+				'missing @since tags should be linted'
+			);
 
 			const deprecatedHooks = JSON.parse(fs.readFileSync(deprecatedPath, 'utf8'));
 			assert.strictEqual(deprecatedHooks.count, 2, 'expected two deprecated/removed hooks');
@@ -302,6 +332,17 @@ const tests = [
 						item.lifecycle.status === 'removed'
 				),
 				'removed hook from legacy registry should be captured'
+			);
+
+			const actionIndex = fs.readFileSync(actionIndexPath, 'utf8');
+			const filterIndex = fs.readFileSync(filterIndexPath, 'utf8');
+			assert(
+				!actionIndex.includes('graphql_docs_legacy_event'),
+				'deprecated hooks should not appear in main action index'
+			);
+			assert(
+				!filterIndex.includes('graphql_docs_removed_event'),
+				'removed hooks should not appear in main filter index'
 			);
 		}),
 	() =>

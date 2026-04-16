@@ -705,6 +705,22 @@ function renderHookDoc(hook) {
 	lines.push('');
 	lines.push(`# \`${title}\``);
 	lines.push('');
+	if (statusLabel === 'deprecated' || statusLabel === 'removed') {
+		const lifecycleVerb = statusLabel === 'removed' ? 'removed' : 'deprecated';
+		const deprecatedVersion = lifecycle.deprecatedIn || 'Unknown';
+		const deprecatedVersionLabel =
+			deprecatedVersion !== 'Unknown' && /^\d/.test(deprecatedVersion)
+				? `v${deprecatedVersion}`
+				: deprecatedVersion;
+		lines.push('> [!WARNING]');
+		lines.push(
+			`> This hook has been ${lifecycleVerb} since ${deprecatedVersionLabel} and should not be used for new integrations.`
+		);
+		if (lifecycle.replacement) {
+			lines.push(`> Use \`${lifecycle.replacement}\` instead.`);
+		}
+		lines.push('');
+	}
 	lines.push(description);
 	lines.push('');
 	lines.push(`- **Type:** ${hook.kind}`);
@@ -1156,6 +1172,9 @@ function mergeLegacyHooks({ hooks, legacyEntries, groups, snippetMap, pluginSlug
 				if (!existing.description && entry.description) {
 					existing.description = entry.description;
 				}
+				if (!existing.since && entry.since) {
+					existing.since = entry.since;
+				}
 			});
 			return;
 		}
@@ -1199,6 +1218,12 @@ function writeGeneratedOutputs({
 	const generatedDir = path.join(docsDir, 'generated');
 	const actionsDir = path.join(docsDir, 'actions');
 	const filtersDir = path.join(docsDir, 'filters');
+	const shouldPublishHookDoc = (hook) =>
+		!hook.isDynamic && !!hook.name && hook.sourceType === 'wpgraphql';
+	const shouldListInMainIndex = (hook) =>
+		shouldPublishHookDoc(hook) &&
+		hook.lifecycle?.status !== 'deprecated' &&
+		hook.lifecycle?.status !== 'removed';
 
 	const filesToWrite = [];
 	filesToWrite.push({
@@ -1243,7 +1268,7 @@ function writeGeneratedOutputs({
 		content: renderIndexPage({
 			title: 'Actions',
 			kind: 'actions',
-			hooks: actions.filter((hook) => !hook.isDynamic && hook.name),
+			hooks: actions.filter(shouldListInMainIndex),
 		}),
 	});
 	filesToWrite.push({
@@ -1251,12 +1276,12 @@ function writeGeneratedOutputs({
 		content: renderIndexPage({
 			title: 'Filters',
 			kind: 'filters',
-			hooks: filters.filter((hook) => !hook.isDynamic && hook.name),
+			hooks: filters.filter(shouldListInMainIndex),
 		}),
 	});
 
 	actions
-		.filter((hook) => !hook.isDynamic && hook.name)
+		.filter(shouldPublishHookDoc)
 		.forEach((hook) => {
 			filesToWrite.push({
 				path: path.join(actionsDir, `${slugFromHookName(hook.name)}.md`),
@@ -1265,7 +1290,7 @@ function writeGeneratedOutputs({
 		});
 
 	filters
-		.filter((hook) => !hook.isDynamic && hook.name)
+		.filter(shouldPublishHookDoc)
 		.forEach((hook) => {
 			filesToWrite.push({
 				path: path.join(filtersDir, `${slugFromHookName(hook.name)}.md`),
@@ -1500,6 +1525,16 @@ function main() {
 			}
 
 			if (shouldLintHookGroup && sourceType === 'wpgraphql') {
+				if (!hook.docblock.since || !hook.docblock.since.trim()) {
+					lint.warnings.push({
+						type: 'missing_hook_since',
+						hook: hook.name,
+						file: hook.file,
+						line: hook.line,
+						message: 'Missing @since tag in nearest docblock',
+					});
+				}
+
 				if (!hook.docblock.description || !hook.docblock.description.trim()) {
 					lint.warnings.push({
 						type: 'missing_hook_description',
