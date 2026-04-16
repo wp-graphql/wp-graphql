@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 272
-- Total findings: 272
+- Warnings: 258
+- Total findings: 258
 
 ## Findings by Type
 
 - `missing_hook_description`: 14
-- `missing_hook_group`: 131
+- `missing_hook_group`: 122
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 17
-- `missing_hook_since`: 109
+- `missing_hook_since`: 104
 
 ## Findings
 
@@ -357,42 +357,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php` (line 176)
-- **Hook:** `graphql_init_type_registry`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 281)
-- **Hook:** `graphql_register_initial_types`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 307)
-- **Hook:** `graphql_register_types`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 707)
-- **Hook:** `graphql_register_types_late`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 715)
-- **Hook:** `graphql_introspection_keys`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 918)
-- **Hook:** `graphql_get_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1028)
-- **Hook:** `graphql_excluded_types`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1492)
-- **Hook:** `graphql_excluded_connections`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1519)
-- **Hook:** `graphql_excluded_mutations`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1545)
 - **Hook:** `graphql_pre_restrict_endpoint`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -906,26 +870,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php` (line 176)
-- **Hook:** `graphql_register_initial_types`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 307)
-- **Hook:** `graphql_register_types`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 707)
-- **Hook:** `graphql_register_types_late`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 715)
-- **Hook:** `graphql_introspection_keys`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 918)
-- **Hook:** `graphql_get_type`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 1028)
 - **Hook:** `graphql_pre_restrict_endpoint`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

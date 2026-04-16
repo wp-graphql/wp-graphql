@@ -15,7 +15,7 @@ Fire an action as the type registry is initialized. This executes during the `gr
 
 - **Type:** action
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 0.4.3
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters

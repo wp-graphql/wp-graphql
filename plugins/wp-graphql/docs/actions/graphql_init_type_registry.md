@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_init_type_registry
 hookType: action
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Fire an action as the Type registry is being initiated.
 
 - **Type:** action
-- **Group:** Uncategorized
+- **Group:** Schema Registration
 - **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 

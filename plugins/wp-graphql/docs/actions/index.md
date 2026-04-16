@@ -40,6 +40,7 @@ title: Actions
 
 - [`graphql_get_schema`](/docs/actions/graphql_get_schema)
 - [`graphql_get_type_registry`](/docs/actions/graphql_get_type_registry)
+- [`graphql_init_type_registry`](/docs/actions/graphql_init_type_registry)
 - [`graphql_register_initial_types`](/docs/actions/graphql_register_initial_types)
 - [`graphql_register_types`](/docs/actions/graphql_register_types)
 - [`graphql_register_types_late`](/docs/actions/graphql_register_types_late)
@@ -66,7 +67,6 @@ title: Actions
 - [`graphql_experiments_loaded`](/docs/actions/graphql_experiments_loaded)
 - [`graphql_experiments_registered`](/docs/actions/graphql_experiments_registered)
 - [`graphql_get_debug_log`](/docs/actions/graphql_get_debug_log)
-- [`graphql_init_type_registry`](/docs/actions/graphql_init_type_registry)
 - [`graphql_insert_post_object`](/docs/actions/graphql_insert_post_object)
 - [`graphql_insert_term`](/docs/actions/graphql_insert_term)
 - [`graphql_media_item_mutation_update_additional_data`](/docs/actions/graphql_media_item_mutation_update_additional_data)

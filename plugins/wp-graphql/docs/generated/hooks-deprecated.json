@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T20:51:01.872Z",
+  "generatedAt": "2026-04-16T20:55:32.197Z",
   "count": 21,
   "hooks": [
     {
@@ -505,7 +505,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 283,
+      "line": 284,
       "description": "Legacy type registry initialization hook retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -526,7 +526,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 283
+          "line": 284
         }
       ],
       "occurrences": 1

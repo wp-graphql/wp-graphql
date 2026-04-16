@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_introspection_keys
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the keys that are prepared for introspection.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 2.3.0
 - **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
