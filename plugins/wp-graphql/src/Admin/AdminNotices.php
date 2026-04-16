@@ -95,7 +95,13 @@ class AdminNotices {
 			]
 		);
 
-		// Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
+		/**
+		 * Fires when admin notices are initialized.
+		 *
+		 * @param self $admin_notices The admin notices manager instance.
+		 * @hookGroup settings
+		 * @since v1.21.0
+		 */
 		do_action( 'graphql_admin_notices_init', $this );
 
 		$current_user_id         = get_current_user_id();
@@ -157,6 +163,8 @@ class AdminNotices {
 		 *
 		 * @param AdminNoticeConfig $config The config of the admin notice
 		 * @param string            $slug   The slug identifying the admin notice
+		 * @hookGroup settings
+		 * @since v1.21.0
 		 */
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
@@ -304,6 +312,7 @@ class AdminNotices {
 		 *
 		 * @param array<string,AdminNoticeConfig> $notices The notices to be rendered
 		 *
+		 * @hookGroup settings
 		 * @since v1.23.0
 		 */
 		do_action( 'graphql_admin_notices_render_notices', $notices );
@@ -343,6 +352,7 @@ class AdminNotices {
 			 * @param bool $is_dismissable Whether the notice is dismissable or not
 			 * @param int $count The count of the notice
 			 *
+			 * @hookGroup settings
 			 * @since v1.23.0
 			 */
 			do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dismissable, $count );
@@ -383,6 +393,8 @@ class AdminNotices {
 		 * @param bool $is_plugin_scoped_page True if the current page is within scope of the plugin's pages.
 		 * @param string $current_page_id The ID of the current admin page.
 		 * @param array<string> $allowed_pages The list of allowed pages.
+		 * @hookGroup settings
+		 * @since v1.21.0
 		 */
 		return apply_filters( 'graphql_admin_notices_is_allowed_admin_page', $is_allowed_admin_page, $current_page_id, $allowed_pages );
 	}

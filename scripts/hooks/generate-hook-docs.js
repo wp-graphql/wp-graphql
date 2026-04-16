@@ -446,7 +446,16 @@ function normalizeDeprecatedCallMetadata(args = []) {
 }
 
 function getNearestDocblock(content, functionIndex) {
+	function stripIgnorableInterveningText(value) {
+		return value
+			.replace(/\/\*[\s\S]*?\*\//g, '')
+			.replace(/^\s*\/\/.*$/gm, '')
+			.replace(/^\s*#.*$/gm, '')
+			.trim();
+	}
+
 	let searchFrom = functionIndex;
+	const lineStart = content.lastIndexOf('\n', functionIndex - 1) + 1;
 
 	while (searchFrom > 0) {
 		const docblockStart = content.lastIndexOf('/**', searchFrom);
@@ -460,8 +469,8 @@ function getNearestDocblock(content, functionIndex) {
 			continue;
 		}
 
-		const between = content.slice(docblockEnd + 2, functionIndex);
-		if (!/^\s*$/.test(between)) {
+		const between = content.slice(docblockEnd + 2, lineStart);
+		if (stripIgnorableInterveningText(between) !== '') {
 			return null;
 		}
 

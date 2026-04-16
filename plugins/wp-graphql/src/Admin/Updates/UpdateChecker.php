@@ -311,7 +311,7 @@ class UpdateChecker {
 		 * @param string $new_version     The new WPGraphQL version number.
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
-		 * @hookGroup updates
+		 * @hookGroup settings
 		 * @since x-release-please-version
 		 */
 		$should_allow = apply_filters( 'graphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
@@ -346,7 +346,7 @@ class UpdateChecker {
 		 * @param string $new_version     The new WPGraphQL version number.
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
-		 * @hookGroup updates
+		 * @hookGroup settings
 		 * @since x-release-please-version
 		 */
 		$should_allow = apply_filters( 'graphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
@@ -374,7 +374,7 @@ class UpdateChecker {
 		 * This is used to prevent autoupdates when a plugin is untested with the specified channel. I.e. major > minor > patch > prerelease.
 		 *
 		 * @param 'major'|'minor'|'patch'|'prerelease' $release_type The release type to use when checking for untested plugins. Defaults to 'major'.
-		 * @hookGroup updates
+		 * @hookGroup settings
 		 * @since x-release-please-version
 		 */
 		$release_type = (string) apply_filters( 'graphql_untested_release_type', 'major' );
