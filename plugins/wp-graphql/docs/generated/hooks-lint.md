@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 194
-- Total findings: 194
+- Warnings: 184
+- Total findings: 184
 
 ## Findings by Type
 
-- `missing_hook_description`: 10
-- `missing_hook_group`: 94
+- `missing_hook_description`: 9
+- `missing_hook_group`: 90
 - `missing_hook_param_description`: 1
-- `missing_hook_params`: 13
-- `missing_hook_since`: 76
+- `missing_hook_params`: 12
+- `missing_hook_since`: 72
 
 ## Findings
 
@@ -46,10 +46,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 35)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -333,22 +329,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 196)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 35)
-- **Hook:** `graphql_input_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 101)
-- **Hook:** `graphql_{$lc_type_name}_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 118)
-- **Hook:** `graphql_{$uc_type_name}_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 129)
 - **Hook:** `graphql_type_interfaces`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -487,10 +467,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 35)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -714,22 +690,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 163)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 35)
-- **Hook:** `graphql_input_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 101)
-- **Hook:** `graphql_{$lc_type_name}_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 118)
-- **Hook:** `graphql_{$uc_type_name}_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPInputObjectType.php` (line 129)
 - **Hook:** `graphql_type_interfaces`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
