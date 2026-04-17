@@ -193,6 +193,9 @@ class TermObjectCreate {
 			 * @param string                               $mutation_name The name of the mutation being performed
 			 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			do_action( 'graphql_insert_term', $term['term_id'], $taxonomy, $args, $mutation_name, $context, $info );
 
@@ -206,6 +209,9 @@ class TermObjectCreate {
 			 * @param string                               $mutation_name The name of the mutation being performed
 			 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			do_action( "graphql_insert_{$taxonomy->name}", $term['term_id'], $args, $mutation_name, $context, $info );
 

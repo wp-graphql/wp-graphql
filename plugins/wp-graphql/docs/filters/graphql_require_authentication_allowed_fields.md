@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_require_authentication_allowed_fields
 hookType: filter
-hookGroup: uncategorized
+hookGroup: authentication
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filters the allowed root fields
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Authentication and Authorization
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
 
 ## Parameters

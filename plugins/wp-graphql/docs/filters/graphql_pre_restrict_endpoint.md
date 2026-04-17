@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_restrict_endpoint
 hookType: filter
-hookGroup: uncategorized
+hookGroup: authentication
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Allows overriding the default graphql_restrict_endpoint behavior. Returning anything other than null will skip the default restrict checks.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Authentication and Authorization
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
 
 ## Parameters

@@ -7,13 +7,13 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 53
-- Total findings: 53
+- Warnings: 37
+- Total findings: 37
 
 ## Findings by Type
 
-- `missing_hook_group`: 30
-- `missing_hook_since`: 23
+- `missing_hook_group`: 22
+- `missing_hook_since`: 15
 
 ## Findings
 
@@ -75,38 +75,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Mutation/MediaItemCreate.php` (line 210)
-- **Hook:** `graphql_insert_post_object`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php` (line 197)
-- **Hook:** `graphql_insert_{$post_type_object->name}`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php` (line 208)
-- **Hook:** `graphql_insert_term`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectCreate.php` (line 197)
-- **Hook:** `graphql_insert_{$taxonomy->name}`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectCreate.php` (line 210)
-- **Hook:** `graphql_update_term`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php` (line 165)
-- **Hook:** `graphql_update_{$taxonomy->name}`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php` (line 176)
-- **Hook:** `graphql_pre_restrict_endpoint`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php` (line 31)
-- **Hook:** `graphql_require_authentication_allowed_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php` (line 71)
 - **Hook:** `graphql_pre_resolve_menu_item_connected_node`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -174,38 +142,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Mutation/MediaItemCreate.php` (line 210)
-- **Hook:** `graphql_insert_post_object`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php` (line 197)
-- **Hook:** `graphql_insert_{$post_type_object->name}`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php` (line 208)
-- **Hook:** `graphql_insert_term`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectCreate.php` (line 197)
-- **Hook:** `graphql_insert_{$taxonomy->name}`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectCreate.php` (line 210)
-- **Hook:** `graphql_update_term`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php` (line 165)
-- **Hook:** `graphql_update_{$taxonomy->name}`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php` (line 176)
-- **Hook:** `graphql_pre_restrict_endpoint`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php` (line 31)
-- **Hook:** `graphql_require_authentication_allowed_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php` (line 71)
 - **Hook:** `graphql_pre_resolve_menu_item_connected_node`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

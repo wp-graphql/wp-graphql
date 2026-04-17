@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_insert_term
 hookType: action
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fires after a single term is created or updated via a GraphQL mutation
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Mutation/TermObjectCreate.php`
 
 ## Parameters

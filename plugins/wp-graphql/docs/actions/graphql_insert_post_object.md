@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_insert_post_object
 hookType: action
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fires after a single term is created or updated via a GraphQL mutation The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php`
 
 ## Parameters

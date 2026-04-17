@@ -15,6 +15,8 @@ title: Filters
 - [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
 - [`graphql_cookie_auth_require_nonce`](/docs/filters/graphql_cookie_auth_require_nonce)
 - [`graphql_field_resolver_auth_error_message`](/docs/filters/graphql_field_resolver_auth_error_message)
+- [`graphql_pre_restrict_endpoint`](/docs/filters/graphql_pre_restrict_endpoint)
+- [`graphql_require_authentication_allowed_fields`](/docs/filters/graphql_require_authentication_allowed_fields)
 
 ## Connections
 
@@ -205,10 +207,8 @@ title: Filters
 - [`graphql_media_item_create_allowed_protocols`](/docs/filters/graphql_media_item_create_allowed_protocols)
 - [`graphql_menu_item_connection_args`](/docs/filters/graphql_menu_item_connection_args)
 - [`graphql_pre_comment_cursor_node`](/docs/filters/graphql_pre_comment_cursor_node)
-- [`graphql_pre_restrict_endpoint`](/docs/filters/graphql_pre_restrict_endpoint)
 - [`graphql_pre_term_cursor_node`](/docs/filters/graphql_pre_term_cursor_node)
 - [`graphql_pre_user_cursor_node`](/docs/filters/graphql_pre_user_cursor_node)
-- [`graphql_require_authentication_allowed_fields`](/docs/filters/graphql_require_authentication_allowed_fields)
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
 - [`graphql_should_show_experiments_in_extensions`](/docs/filters/graphql_should_show_experiments_in_extensions)
