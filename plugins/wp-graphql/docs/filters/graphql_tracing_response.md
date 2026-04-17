@@ -15,7 +15,7 @@ Filter the trace
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Since:** 0.2.0
 - **Source:** `plugins/wp-graphql/src/Utils/Tracing.php`
 
 ## Parameters

@@ -7,13 +7,13 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 37
-- Total findings: 37
+- Warnings: 26
+- Total findings: 26
 
 ## Findings by Type
 
-- `missing_hook_group`: 22
-- `missing_hook_since`: 15
+- `missing_hook_group`: 15
+- `missing_hook_since`: 11
 
 ## Findings
 
@@ -31,18 +31,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php` (line 107)
-- **Hook:** `graphql_term_object_connection_query_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php` (line 140)
-- **Hook:** `graphql_map_input_fields_to_get_terms`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php` (line 234)
-- **Hook:** `graphql_term_object_connection_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php` (line 282)
 - **Hook:** `graphql_map_input_fields_to_wp_user_query`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -87,22 +75,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Utils/Preview.php` (line 37)
-- **Hook:** `graphql_user_can_see_query_logs`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/QueryLog.php` (line 90)
-- **Hook:** `graphql_tracing_response`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/QueryLog.php` (line 169)
-- **Hook:** `graphql_user_can_see_trace_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/Tracing.php` (line 357)
-- **Hook:** `graphql_tracing_response`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/Tracing.php` (line 384)
 - **Hook:** `graphql_schema_config`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -154,20 +126,4 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Utils/Preview.php` (line 37)
-- **Hook:** `graphql_user_can_see_query_logs`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/QueryLog.php` (line 90)
-- **Hook:** `graphql_tracing_response`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/QueryLog.php` (line 169)
-- **Hook:** `graphql_user_can_see_trace_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/Tracing.php` (line 357)
-- **Hook:** `graphql_tracing_response`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/Tracing.php` (line 384)
 

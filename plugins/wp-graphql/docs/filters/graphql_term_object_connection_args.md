@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_term_object_connection_args
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Filters the GraphQL args before they are used in get_query_args().
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Connections
 - **Since:** 1.11.0
 - **Source:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
 

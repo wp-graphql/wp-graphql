@@ -86,6 +86,9 @@ class QueryLog {
 		 * Filter whether the logs can be seen in the request results or not
 		 *
 		 * @param bool $can_see Whether the requester can see the logs or not
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_user_can_see_query_logs', $can_see );
 	}
@@ -165,6 +168,9 @@ class QueryLog {
 		 *
 		 * @param mixed[]                   $trace     The trace to return
 		 * @param \WPGraphQL\Utils\QueryLog $instance  The QueryLog class instance
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}

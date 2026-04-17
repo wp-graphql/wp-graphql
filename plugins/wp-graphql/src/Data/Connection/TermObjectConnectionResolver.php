@@ -135,6 +135,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param \WPGraphQL\AppContext                $context    object passed down the resolve tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info       info about fields passed down the resolve tree
 		 *
+		 * @hookGroup connections
 		 * @since 0.0.6
 		 */
 		$query_args = apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
@@ -229,6 +230,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param \WPGraphQL\AppContext                $context   The AppContext object
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info      The ResolveInfo object
 		 *
+		 * @hookGroup connections
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $args, $this->context, $this->info );
@@ -277,6 +279,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param self                $resolver        Instance of the ConnectionResolver.
 		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 *
+		 * @hookGroup connections
 		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_term_object_connection_args', $args, $this, $this->get_unfiltered_args() );

@@ -39,6 +39,7 @@ title: Filters
 - [`graphql_connection_query_class`](/docs/filters/graphql_connection_query_class)
 - [`graphql_connection_resolved`](/docs/filters/graphql_connection_resolved)
 - [`graphql_connection_should_execute`](/docs/filters/graphql_connection_should_execute)
+- [`graphql_map_input_fields_to_get_terms`](/docs/filters/graphql_map_input_fields_to_get_terms)
 - [`graphql_map_input_fields_to_wp_comment_query`](/docs/filters/graphql_map_input_fields_to_wp_comment_query)
 - [`graphql_map_input_fields_to_wp_query`](/docs/filters/graphql_map_input_fields_to_wp_query)
 - [`graphql_post_object_connection_args`](/docs/filters/graphql_post_object_connection_args)
@@ -51,6 +52,8 @@ title: Filters
 - [`graphql_pre_wp_term_query_cursor_pagination_support`](/docs/filters/graphql_pre_wp_term_query_cursor_pagination_support)
 - [`graphql_pre_wp_user_query_cursor_pagination_stability`](/docs/filters/graphql_pre_wp_user_query_cursor_pagination_stability)
 - [`graphql_pre_wp_user_query_cursor_pagination_support`](/docs/filters/graphql_pre_wp_user_query_cursor_pagination_support)
+- [`graphql_term_object_connection_args`](/docs/filters/graphql_term_object_connection_args)
+- [`graphql_term_object_connection_query_args`](/docs/filters/graphql_term_object_connection_query_args)
 
 ## Debugging and Instrumentation
 
@@ -78,6 +81,8 @@ title: Filters
 - [`graphql_should_show_query_analyzer_in_extensions`](/docs/filters/graphql_should_show_query_analyzer_in_extensions)
 - [`graphql_tracing_response`](/docs/filters/graphql_tracing_response)
 - [`graphql_tracing_response`](/docs/filters/graphql_tracing_response)
+- [`graphql_user_can_see_query_logs`](/docs/filters/graphql_user_can_see_query_logs)
+- [`graphql_user_can_see_trace_data`](/docs/filters/graphql_user_can_see_trace_data)
 
 ## Model Layer
 
@@ -202,7 +207,6 @@ title: Filters
 
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
 - [`graphql_get_extensions`](/docs/filters/graphql_get_extensions)
-- [`graphql_map_input_fields_to_get_terms`](/docs/filters/graphql_map_input_fields_to_get_terms)
 - [`graphql_map_input_fields_to_wp_user_query`](/docs/filters/graphql_map_input_fields_to_wp_user_query)
 - [`graphql_media_item_create_allowed_protocols`](/docs/filters/graphql_media_item_create_allowed_protocols)
 - [`graphql_menu_item_connection_args`](/docs/filters/graphql_menu_item_connection_args)
@@ -212,8 +216,4 @@ title: Filters
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
 - [`graphql_should_show_experiments_in_extensions`](/docs/filters/graphql_should_show_experiments_in_extensions)
-- [`graphql_term_object_connection_args`](/docs/filters/graphql_term_object_connection_args)
-- [`graphql_term_object_connection_query_args`](/docs/filters/graphql_term_object_connection_query_args)
 - [`graphql_term_object_insert_term_args`](/docs/filters/graphql_term_object_insert_term_args)
-- [`graphql_user_can_see_query_logs`](/docs/filters/graphql_user_can_see_query_logs)
-- [`graphql_user_can_see_trace_data`](/docs/filters/graphql_user_can_see_trace_data)

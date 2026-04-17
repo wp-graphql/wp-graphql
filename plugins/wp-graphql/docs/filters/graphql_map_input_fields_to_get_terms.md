@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_map_input_fields_to_get_terms
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the get_terms query
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Connections
 - **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
 

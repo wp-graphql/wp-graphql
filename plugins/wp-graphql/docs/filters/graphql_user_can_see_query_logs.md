@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_user_can_see_query_logs
 hookType: filter
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter whether the logs can be seen in the request results or not
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 0.2.0
 - **Source:** `plugins/wp-graphql/src/Utils/QueryLog.php`
 
 ## Parameters
