@@ -364,14 +364,16 @@ class DataSource {
 				continue;
 			}
 
+			$setting_key = (string) $key;
+
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                              = $key;
-					$allowed_settings_by_group[ $group ][ $key ] = $setting;
+					$setting['key']                                      = $setting_key;
+					$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                              = $key;
-				$allowed_settings_by_group[ $group ][ $key ] = $setting;
+				$setting['key']                                      = $setting_key;
+				$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
 			}
 		}
 
@@ -417,18 +419,20 @@ class DataSource {
 			 * add it to the $allowed_settings array
 			 */
 			foreach ( $registered_settings as $key => $setting ) {
+				$setting_key = (string) $key;
+
 				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
 					continue;
 				}
 
 				if ( ! isset( $setting['show_in_graphql'] ) ) {
 					if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-						$setting['key']           = $key;
-						$allowed_settings[ $key ] = $setting;
+						$setting['key']                   = $setting_key;
+						$allowed_settings[ $setting_key ] = $setting;
 					}
 				} elseif ( true === $setting['show_in_graphql'] ) {
-					$setting['key']           = $key;
-					$allowed_settings[ $key ] = $setting;
+					$setting['key']                   = $setting_key;
+					$allowed_settings[ $setting_key ] = $setting;
 				}
 			}
 		}

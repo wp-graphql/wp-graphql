@@ -42,10 +42,15 @@ class WPScalar extends CustomScalarType {
 	 *
 	 * @param array<string,mixed>              $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @throws \InvalidArgumentException When scalar config is empty before or after filters.
 	 *
 	 * @phpstan-param WPScalarConfig $config
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
+		if ( empty( $config ) ) {
+			throw new \InvalidArgumentException( 'WPScalar config cannot be empty.' );
+		}
+
 		$name = $config['name'];
 		/**
 		 * Filters the GraphQL type name used during scalar type construction.
@@ -69,6 +74,11 @@ class WPScalar extends CustomScalarType {
 		 */
 		$config = apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
 
+		if ( empty( $config ) ) {
+			throw new \InvalidArgumentException( 'Filtered WPScalar config cannot be empty.' );
+		}
+
+		/** @var non-empty-array<string,mixed> $config */
 		parent::__construct( $config );
 	}
 }
