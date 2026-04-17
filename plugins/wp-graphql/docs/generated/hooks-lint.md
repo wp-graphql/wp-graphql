@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 142
-- Total findings: 142
+- Warnings: 134
+- Total findings: 134
 
 ## Findings by Type
 
-- `missing_hook_description`: 7
-- `missing_hook_group`: 70
+- `missing_hook_description`: 5
+- `missing_hook_group`: 68
 - `missing_hook_param_description`: 1
-- `missing_hook_params`: 10
-- `missing_hook_since`: 54
+- `missing_hook_params`: 8
+- `missing_hook_since`: 52
 
 ## Findings
 
@@ -30,14 +30,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 57)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -241,14 +233,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php` (line 71)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 57)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
 - **Hook:** `graphql_pre_resolve_menu_item_connected_node`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -363,14 +347,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 444)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 57)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
 - **Hook:** `graphql_type_name`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -518,14 +494,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php` (line 71)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 57)
-- **Hook:** `graphql_request_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Server/WPHelper.php` (line 65)
 - **Hook:** `graphql_pre_resolve_menu_item_connected_node`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

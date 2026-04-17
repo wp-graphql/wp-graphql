@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:06:54.104Z",
+  "generatedAt": "2026-04-17T14:09:03.479Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -700,62 +700,6 @@
         "file": "plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php",
         "line": 71,
         "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 57,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 57,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 57,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 57,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 65,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 65,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 65,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_request_data",
-        "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-        "line": 65,
-        "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
         "type": "missing_hook_group",
@@ -9578,17 +9522,28 @@
       "kind": "filter",
       "group": "request-lifecycle",
       "groupLabel": "Request Lifecycle",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 57,
-      "description": "",
-      "params": [],
+      "line": 52,
+      "description": "Filters normalized GraphQL request data before GET requests are parsed. This hook can be used for persisted-query workflows and other request preprocessing.",
+      "params": [
+        {
+          "type": "mixed[]",
+          "name": "$data",
+          "description": "The normalized GraphQL request data."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$request_context",
+          "description": "The request context containing request method and parsed params."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "0.2.0",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_request_data'",
       "relatedSnippets": [],
@@ -9607,17 +9562,28 @@
       "kind": "filter",
       "group": "request-lifecycle",
       "groupLabel": "Request Lifecycle",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 65,
-      "description": "",
-      "params": [],
+      "line": 71,
+      "description": "Filters normalized GraphQL request data before POST requests are parsed. This hook can be used for persisted-query workflows and other request preprocessing.",
+      "params": [
+        {
+          "type": "mixed[]",
+          "name": "$data",
+          "description": "The normalized GraphQL request data."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$request_context",
+          "description": "The request context containing request method and parsed params."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "0.2.0",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_request_data'",
       "relatedSnippets": [],

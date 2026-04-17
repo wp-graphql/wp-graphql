@@ -11,9 +11,14 @@ plugin: wp-graphql
 
 # `graphql_request_data`
 
-No description available.
+Filters normalized GraphQL request data before POST requests are parsed. This hook can be used for persisted-query workflows and other request preprocessing.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
-- **Since:** Unknown
+- **Since:** 0.2.0
 - **Source:** `plugins/wp-graphql/src/Server/WPHelper.php`
+
+## Parameters
+
+- `$data` (`mixed[]`): The normalized GraphQL request data.
+- `$request_context` (`array<string,mixed>`): The request context containing request method and parsed params.

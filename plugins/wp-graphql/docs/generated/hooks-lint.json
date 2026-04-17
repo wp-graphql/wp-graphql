@@ -619,62 +619,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 57,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 57,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 57,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 57,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 65,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 65,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 65,
-      "message": "Missing hook description in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_request_data",
-      "file": "plugins/wp-graphql/src/Server/WPHelper.php",
-      "line": 65,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_pre_resolve_menu_item_connected_node",
       "file": "plugins/wp-graphql/src/Type/ObjectType/MenuItem.php",
       "line": 57,
