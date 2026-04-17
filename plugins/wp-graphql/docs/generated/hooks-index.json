@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:03:46.080Z",
+  "generatedAt": "2026-04-17T14:06:54.104Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -531,62 +531,6 @@
         "hook": "graphql_user_object_mutation_update_additional_data",
         "file": "plugins/wp-graphql/src/Data/UserMutation.php",
         "line": 266,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_experimental_features_cap",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 112,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_experimental_features_cap",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 112,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_experiments_registered_classes",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 291,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_experiments_registered_classes",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 291,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_experiments_registered",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 298,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_experiments_registered",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 298,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_experiments_loaded",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 326,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_experiments_loaded",
-        "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-        "line": 326,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -4993,13 +4937,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_experimental_features_cap",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 112,
+      "line": 115,
       "description": "Filters the capability required to turn experimental features on and off.",
       "params": [
         {
@@ -5010,8 +4954,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "2.3.8",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_experimental_features_cap'",
       "relatedSnippets": [],
@@ -5098,13 +5042,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_experiments_loaded",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 326,
+      "line": 338,
       "description": "Fires after all the experiments have been loaded.",
       "params": [
         {
@@ -5120,8 +5064,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "2.3.8",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_experiments_loaded'",
       "relatedSnippets": [],
@@ -5138,13 +5082,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_experiments_registered",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 298,
+      "line": 307,
       "description": "Fires after the experiment classes have been registered.",
       "params": [
         {
@@ -5155,8 +5099,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "2.3.8",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_experiments_registered'",
       "relatedSnippets": [],
@@ -5173,13 +5117,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_experiments_registered_classes",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 291,
+      "line": 297,
       "description": "Filters the list of registered experiment classes. Use this filter to register custom experiments: ```php add_filter( 'graphql_experiments_registered_classes', function( $registry ) { $registry['my-experiment'] = MyExperiment::class; return $registry; } ); ```",
       "params": [
         {
@@ -5190,8 +5134,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "2.3.8",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_experiments_registered_classes'",
       "relatedSnippets": [],

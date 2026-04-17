@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_experimental_features_cap
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filters the capability required to turn experimental features on and off.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 2.3.8
 - **Source:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
 
 ## Parameters

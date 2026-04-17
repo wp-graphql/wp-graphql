@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 150
-- Total findings: 150
+- Warnings: 142
+- Total findings: 142
 
 ## Findings by Type
 
 - `missing_hook_description`: 7
-- `missing_hook_group`: 74
+- `missing_hook_group`: 70
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 10
-- `missing_hook_since`: 58
+- `missing_hook_since`: 54
 
 ## Findings
 
@@ -193,22 +193,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 266)
-- **Hook:** `graphql_experimental_features_cap`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 112)
-- **Hook:** `graphql_experiments_registered_classes`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 291)
-- **Hook:** `graphql_experiments_registered`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 298)
-- **Hook:** `graphql_experiments_loaded`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 326)
 - **Hook:** `graphql_should_show_experiments_in_extensions`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -486,22 +470,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 266)
-- **Hook:** `graphql_experimental_features_cap`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 112)
-- **Hook:** `graphql_experiments_registered_classes`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 291)
-- **Hook:** `graphql_experiments_registered`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 298)
-- **Hook:** `graphql_experiments_loaded`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php` (line 326)
 - **Hook:** `graphql_should_show_experiments_in_extensions`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

@@ -451,62 +451,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_experimental_features_cap",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 112,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_experimental_features_cap",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 112,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_experiments_registered_classes",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 291,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_experiments_registered_classes",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 291,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_experiments_registered",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 298,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_experiments_registered",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 298,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_experiments_loaded",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 326,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_experiments_loaded",
-      "file": "plugins/wp-graphql/src/Experimental/ExperimentRegistry.php",
-      "line": 326,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_should_show_experiments_in_extensions",
       "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
       "line": 57,

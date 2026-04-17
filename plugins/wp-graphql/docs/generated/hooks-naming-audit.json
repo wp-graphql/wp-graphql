@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:03:46.080Z",
+  "generatedAt": "2026-04-17T14:06:54.104Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
