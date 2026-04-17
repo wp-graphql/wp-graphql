@@ -388,62 +388,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_post_object_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 112,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 112,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_mutation_update_additional_data",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 193,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_mutation_update_additional_data",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 193,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_mutation_set_object_terms",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 241,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_mutation_set_object_terms",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 241,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_mutations_allow_term_creation",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 282,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_mutations_allow_term_creation",
-      "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 282,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_term_object_insert_term_args",
       "file": "plugins/wp-graphql/src/Data/TermObjectMutation.php",
       "line": 108,

@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 166
-- Total findings: 166
+- Warnings: 158
+- Total findings: 158
 
 ## Findings by Type
 
 - `missing_hook_description`: 9
-- `missing_hook_group`: 80
+- `missing_hook_group`: 76
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 12
-- `missing_hook_since`: 64
+- `missing_hook_since`: 60
 
 ## Findings
 
@@ -185,22 +185,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 141)
-- **Hook:** `graphql_post_object_insert_post_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 112)
-- **Hook:** `graphql_post_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 193)
-- **Hook:** `graphql_post_object_mutation_set_object_terms`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 241)
-- **Hook:** `graphql_post_object_mutations_allow_term_creation`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 282)
 - **Hook:** `graphql_term_object_insert_term_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -510,22 +494,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 141)
-- **Hook:** `graphql_post_object_insert_post_args`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 112)
-- **Hook:** `graphql_post_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 193)
-- **Hook:** `graphql_post_object_mutation_set_object_terms`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 241)
-- **Hook:** `graphql_post_object_mutations_allow_term_creation`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/PostObjectMutation.php` (line 282)
 - **Hook:** `graphql_term_object_insert_term_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

@@ -108,6 +108,9 @@ class PostObjectMutation {
 		 * @param array<string,mixed> $input            The data that was entered as input for the mutation
 		 * @param \WP_Post_Type       $post_type_object The post_type_object that the mutation is affecting
 		 * @param string              $mutation_type    The type of mutation being performed (create, edit, etc)
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		$insert_post_args = apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
 
@@ -189,6 +192,9 @@ class PostObjectMutation {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info                 The ResolveInfo passed down to all resolvers
 		 * @param ?string                              $intended_post_status The intended post_status the post should have according to the mutation input
 		 * @param ?string                              $default_post_status  The default status posts should use if an intended status wasn't set
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
@@ -237,6 +243,9 @@ class PostObjectMutation {
 		 * @param array<string,mixed> $input            The input for the mutation
 		 * @param \WP_Post_Type       $post_type_object The Post Type Object for the type of post being mutated
 		 * @param string              $mutation_name    The name of the mutation (ex: create, update, delete)
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $post_type_object, $mutation_name );
 
@@ -278,6 +287,9 @@ class PostObjectMutation {
 					 *
 					 * @param bool         $allow_term_creation Whether new terms should be created during the post object mutation
 					 * @param \WP_Taxonomy $tax_object          The Taxonomy object for the term being added to the Post Object
+					 *
+					 * @hookGroup models
+					 * @since 0.0.5
 					 */
 					$allow_term_creation = apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
 

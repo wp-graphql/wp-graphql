@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_object_mutation_update_additional_data
 hookType: action
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to postObjects, such as setting relationships, updating additional postmeta, or sending emails to Kevin. . .whatever you need to do with the postObject.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
 
 ## Parameters

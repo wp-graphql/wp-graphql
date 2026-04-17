@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_object_mutation_set_object_terms
 hookType: action
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Fire an action before setting object terms during a GraphQL Post Object Mutation. One example use for this hook would be to create terms from the input that may not exist yet, so that they can be set as a relation below.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
 
 ## Parameters

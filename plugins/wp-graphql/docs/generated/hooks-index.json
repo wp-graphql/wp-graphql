@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T13:48:53.600Z",
+  "generatedAt": "2026-04-17T13:59:14.279Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -468,62 +468,6 @@
         "hook": "graphql_media_item_mutation_update_additional_data",
         "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
         "line": 141,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 112,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 112,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 193,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 193,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_mutation_set_object_terms",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 241,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_mutation_set_object_terms",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 241,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_mutations_allow_term_creation",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 282,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_mutations_allow_term_creation",
-        "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-        "line": 282,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -7705,13 +7649,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_insert_post_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 112,
+      "line": 115,
       "description": "Filter the $insert_post_args",
       "params": [
         {
@@ -7737,8 +7681,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_insert_post_args'",
       "relatedSnippets": [],
@@ -7755,13 +7699,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_mutation_set_object_terms",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 241,
+      "line": 250,
       "description": "Fire an action before setting object terms during a GraphQL Post Object Mutation. One example use for this hook would be to create terms from the input that may not exist yet, so that they can be set as a relation below.",
       "params": [
         {
@@ -7787,8 +7731,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_mutation_set_object_terms'",
       "relatedSnippets": [],
@@ -7805,13 +7749,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_mutation_update_additional_data",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 193,
+      "line": 199,
       "description": "Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to postObjects, such as setting relationships, updating additional postmeta, or sending emails to Kevin. . .whatever you need to do with the postObject.",
       "params": [
         {
@@ -7857,8 +7801,8 @@
       ],
       "argumentCount": 8,
       "docblockParamCount": 8,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_mutation_update_additional_data'",
       "relatedSnippets": [],
@@ -7875,13 +7819,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_mutations_allow_term_creation",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
-      "line": 282,
+      "line": 294,
       "description": "Filter whether to allow terms to be created during a post mutation. If a post mutation includes term input for a term that does not already exist, this will allow terms to be created in order to connect the term to the post object, but if filtered to false, this will prevent the term that doesn't already exist from being created during the mutation of the post.",
       "params": [
         {
@@ -7897,8 +7841,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_mutations_allow_term_creation'",
       "relatedSnippets": [],
