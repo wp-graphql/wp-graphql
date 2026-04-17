@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 126
-- Total findings: 126
+- Warnings: 118
+- Total findings: 118
 
 ## Findings by Type
 
 - `missing_hook_description`: 3
-- `missing_hook_group`: 66
+- `missing_hook_group`: 62
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 6
-- `missing_hook_since`: 50
+- `missing_hook_since`: 46
 
 ## Findings
 
@@ -245,22 +245,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/WPInterfaceTrait.php` (line 37)
-- **Hook:** `graphql_debug_logs_enabled`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 42)
-- **Hook:** `graphql_debug_log_entry`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 101)
-- **Hook:** `graphql_get_debug_log`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 119)
-- **Hook:** `graphql_debug_log`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 137)
 - **Hook:** `graphql_resolve_revision_meta_from_parent`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -486,22 +470,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPInterfaceTrait.php` (line 37)
-- **Hook:** `graphql_debug_logs_enabled`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 42)
-- **Hook:** `graphql_debug_log_entry`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 101)
-- **Hook:** `graphql_get_debug_log`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 119)
-- **Hook:** `graphql_debug_log`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/DebugLog.php` (line 137)
 - **Hook:** `graphql_resolve_revision_meta_from_parent`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

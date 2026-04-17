@@ -15,7 +15,7 @@ Filters whether GraphQL Debug is enabled enabled. Serves as the default state fo
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
 
 ## Parameters

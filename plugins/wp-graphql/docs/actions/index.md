@@ -17,6 +17,7 @@ title: Actions
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
 - [`graphql_before_resolve_field`](/docs/actions/graphql_before_resolve_field)
 - [`graphql_determine_graphql_keys`](/docs/actions/graphql_determine_graphql_keys)
+- [`graphql_get_debug_log`](/docs/actions/graphql_get_debug_log)
 
 ## Model Layer
 
@@ -71,7 +72,6 @@ title: Actions
 ## Uncategorized
 
 - [`graphql_comment_object_mutation_update_additional_data`](/docs/actions/graphql_comment_object_mutation_update_additional_data)
-- [`graphql_get_debug_log`](/docs/actions/graphql_get_debug_log)
 - [`graphql_insert_post_object`](/docs/actions/graphql_insert_post_object)
 - [`graphql_insert_term`](/docs/actions/graphql_insert_term)
 - [`graphql_media_item_mutation_update_additional_data`](/docs/actions/graphql_media_item_mutation_update_additional_data)

@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_get_debug_log
 hookType: action
-hookGroup: uncategorized
+hookGroup: debugging
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Init the debug logger
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Debugging and Instrumentation
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
 
 ## Parameters

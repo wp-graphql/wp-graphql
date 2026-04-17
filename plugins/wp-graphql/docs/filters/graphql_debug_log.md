@@ -15,7 +15,7 @@ Return the filtered debug log
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
 
 ## Parameters

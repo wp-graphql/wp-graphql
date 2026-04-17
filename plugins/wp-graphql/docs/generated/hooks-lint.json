@@ -682,62 +682,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_debug_logs_enabled",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 42,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_debug_logs_enabled",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 42,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_debug_log_entry",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 101,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_debug_log_entry",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 101,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_get_debug_log",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 119,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_get_debug_log",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 119,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_debug_log",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 137,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_debug_log",
-      "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 137,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_resolve_revision_meta_from_parent",
       "file": "plugins/wp-graphql/src/Utils/Preview.php",
       "line": 37,

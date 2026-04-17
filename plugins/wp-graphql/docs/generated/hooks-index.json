@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:10:09.527Z",
+  "generatedAt": "2026-04-17T14:11:58.993Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -762,62 +762,6 @@
         "hook": "graphql_type_interfaces",
         "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
         "line": 37,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_debug_logs_enabled",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 42,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_debug_logs_enabled",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 42,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_debug_log_entry",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 101,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_debug_log_entry",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 101,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_debug_log",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 119,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_debug_log",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 119,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_debug_log",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 137,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_debug_log",
-        "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-        "line": 137,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -3962,11 +3906,11 @@
       "kind": "filter",
       "group": "debugging",
       "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 137,
+      "line": 149,
       "description": "Return the filtered debug log",
       "params": [
         {
@@ -3982,8 +3926,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_debug_log'",
       "relatedSnippets": [],
@@ -4002,11 +3946,11 @@
       "kind": "filter",
       "group": "debugging",
       "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 101,
+      "line": 107,
       "description": "Filter the log entry for the debug log",
       "params": [
         {
@@ -4022,8 +3966,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_debug_log_entry'",
       "relatedSnippets": [],
@@ -4042,11 +3986,11 @@
       "kind": "filter",
       "group": "debugging",
       "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 42,
+      "line": 45,
       "description": "Filters whether GraphQL Debug is enabled enabled. Serves as the default state for enabling debug logs.",
       "params": [
         {
@@ -4062,8 +4006,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_debug_logs_enabled'",
       "relatedSnippets": [],
@@ -5131,13 +5075,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_get_debug_log",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Utils/DebugLog.php",
-      "line": 119,
+      "line": 128,
       "description": "Init the debug logger",
       "params": [
         {
@@ -5148,8 +5092,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "debugging",
       "isDynamic": false,
       "rawExpression": "'graphql_get_debug_log'",
       "relatedSnippets": [],
