@@ -47,7 +47,26 @@ class WPScalar extends CustomScalarType {
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 		$name           = $config['name'];
+		/**
+		 * Filters the GraphQL type name used during scalar type construction.
+		 *
+		 * @param string                      $type_name The scalar type name.
+		 * @param array<string,mixed>         $config    The scalar type configuration.
+		 * @param \WPGraphQL\Type\WPScalar    $wp_scalar The scalar type instance.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
+		 */
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
+		/**
+		 * Filters scalar type configuration before the scalar is registered.
+		 *
+		 * @param array<string,mixed>              $config        The scalar type configuration.
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The type registry instance.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
+		 */
 		$config         = apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
 
 		parent::__construct( $config );

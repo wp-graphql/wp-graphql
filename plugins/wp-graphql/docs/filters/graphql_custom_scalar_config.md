@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_custom_scalar_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # `graphql_custom_scalar_config`
 
-No description available.
+Filters scalar type configuration before the scalar is registered.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPScalar.php`
+
+## Parameters
+
+- `$config` (`array<string,mixed>`): The scalar type configuration.
+- `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The type registry instance.

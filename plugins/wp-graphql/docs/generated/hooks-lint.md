@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 134
-- Total findings: 134
+- Warnings: 126
+- Total findings: 126
 
 ## Findings by Type
 
-- `missing_hook_description`: 5
-- `missing_hook_group`: 68
+- `missing_hook_description`: 3
+- `missing_hook_group`: 66
 - `missing_hook_param_description`: 1
-- `missing_hook_params`: 8
-- `missing_hook_since`: 52
+- `missing_hook_params`: 6
+- `missing_hook_since`: 50
 
 ## Findings
 
@@ -30,14 +30,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 50)
-- **Hook:** `graphql_custom_scalar_config`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
 - **Hook:** `graphql_endpoint_path`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -253,14 +245,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/WPInterfaceTrait.php` (line 37)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 50)
-- **Hook:** `graphql_custom_scalar_config`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
 - **Hook:** `graphql_debug_logs_enabled`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -347,14 +331,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 444)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 50)
-- **Hook:** `graphql_custom_scalar_config`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
 - **Hook:** `graphql_query_id_hash_algorithm`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -510,14 +486,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/WPInterfaceTrait.php` (line 37)
-- **Hook:** `graphql_type_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 50)
-- **Hook:** `graphql_custom_scalar_config`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPScalar.php` (line 51)
 - **Hook:** `graphql_debug_logs_enabled`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

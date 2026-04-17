@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:09:03.479Z",
+  "generatedAt": "2026-04-17T14:10:09.527Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -763,62 +763,6 @@
         "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
         "line": 37,
         "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 50,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 50,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 50,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_type_name",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 50,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_custom_scalar_config",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 51,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_custom_scalar_config",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 51,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_custom_scalar_config",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 51,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_custom_scalar_config",
-        "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-        "line": 51,
-        "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
         "type": "missing_hook_group",
@@ -3601,19 +3545,30 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_custom_scalar_config",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-      "line": 51,
-      "description": "",
-      "params": [],
+      "line": 70,
+      "description": "Filters scalar type configuration before the scalar is registered.",
+      "params": [
+        {
+          "type": "array<string,mixed>",
+          "name": "$config",
+          "description": "The scalar type configuration."
+        },
+        {
+          "type": "\\WPGraphQL\\Registry\\TypeRegistry",
+          "name": "$type_registry",
+          "description": "The type registry instance."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_custom_scalar_config'",
       "relatedSnippets": [],
@@ -11694,17 +11649,33 @@
       "kind": "filter",
       "group": "schema-registration",
       "groupLabel": "Schema Registration",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPScalar.php",
-      "line": 50,
-      "description": "",
-      "params": [],
+      "line": 60,
+      "description": "Filters the GraphQL type name used during scalar type construction.",
+      "params": [
+        {
+          "type": "string",
+          "name": "$type_name",
+          "description": "The scalar type name."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$config",
+          "description": "The scalar type configuration."
+        },
+        {
+          "type": "\\WPGraphQL\\Type\\WPScalar",
+          "name": "$wp_scalar",
+          "description": "The scalar type instance."
+        }
+      ],
       "argumentCount": 3,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 3,
+      "since": "0.0.5",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_type_name'",
       "relatedSnippets": [],

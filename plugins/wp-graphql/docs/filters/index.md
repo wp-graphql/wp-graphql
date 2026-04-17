@@ -120,6 +120,7 @@ title: Filters
 
 ## Schema Registration
 
+- [`graphql_custom_scalar_config`](/docs/filters/graphql_custom_scalar_config)
 - [`graphql_enum_values`](/docs/filters/graphql_enum_values)
 - [`graphql_excluded_connections`](/docs/filters/graphql_excluded_connections)
 - [`graphql_excluded_mutations`](/docs/filters/graphql_excluded_mutations)
@@ -180,7 +181,6 @@ title: Filters
 - [`graphql_comment_connection_query_args`](/docs/filters/graphql_comment_connection_query_args)
 - [`graphql_comment_insert_post_args`](/docs/filters/graphql_comment_insert_post_args)
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
-- [`graphql_custom_scalar_config`](/docs/filters/graphql_custom_scalar_config)
 - [`graphql_data_loader_classes`](/docs/filters/graphql_data_loader_classes)
 - [`graphql_get_dependents`](/docs/filters/graphql_get_dependents)
 - [`graphql_get_extensions`](/docs/filters/graphql_get_extensions)
