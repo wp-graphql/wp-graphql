@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_user_insert_post_args
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filters the mappings for input to arguments
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
 
 ## Parameters

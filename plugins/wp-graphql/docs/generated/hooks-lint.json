@@ -402,55 +402,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_user_mutation_input_fields",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 134,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_user_mutation_input_fields",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 134,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_param_description",
-      "hook": "graphql_user_mutation_input_fields",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 134,
-      "message": "@param entry 1 ($input_fields) is missing a description"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_user_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 233,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_user_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 233,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_user_object_mutation_update_additional_data",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 266,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_user_object_mutation_update_additional_data",
-      "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 266,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_should_show_experiments_in_extensions",
       "file": "plugins/wp-graphql/src/Experimental/Extensions.php",
       "line": 57,

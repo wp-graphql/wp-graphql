@@ -24,6 +24,7 @@ title: Actions
 - [`graphql_after_return_field_from_model`](/docs/actions/graphql_after_return_field_from_model)
 - [`graphql_post_object_mutation_set_object_terms`](/docs/actions/graphql_post_object_mutation_set_object_terms)
 - [`graphql_post_object_mutation_update_additional_data`](/docs/actions/graphql_post_object_mutation_update_additional_data)
+- [`graphql_user_object_mutation_update_additional_data`](/docs/actions/graphql_user_object_mutation_update_additional_data)
 
 ## Request Lifecycle
 
@@ -76,4 +77,3 @@ title: Actions
 - [`graphql_insert_term`](/docs/actions/graphql_insert_term)
 - [`graphql_media_item_mutation_update_additional_data`](/docs/actions/graphql_media_item_mutation_update_additional_data)
 - [`graphql_update_term`](/docs/actions/graphql_update_term)
-- [`graphql_user_object_mutation_update_additional_data`](/docs/actions/graphql_user_object_mutation_update_additional_data)

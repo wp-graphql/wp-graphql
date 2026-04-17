@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_user_mutation_input_fields
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,10 +14,10 @@ plugin: wp-graphql
 Filters all of the fields available for input
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
 
 ## Parameters
 
-- `$input_fields` (`array<string,array<string,mixed>>`): No description.
+- `$input_fields` (`array<string,array<string,mixed>>`): The fields available as user mutation input.

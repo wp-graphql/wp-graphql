@@ -7,16 +7,15 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 118
-- Total findings: 118
+- Warnings: 111
+- Total findings: 111
 
 ## Findings by Type
 
 - `missing_hook_description`: 3
-- `missing_hook_group`: 62
-- `missing_hook_param_description`: 1
+- `missing_hook_group`: 59
 - `missing_hook_params`: 6
-- `missing_hook_since`: 46
+- `missing_hook_since`: 43
 
 ## Findings
 
@@ -165,18 +164,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/TermObjectMutation.php` (line 108)
-- **Hook:** `graphql_user_mutation_input_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 134)
-- **Hook:** `graphql_user_insert_post_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 233)
-- **Hook:** `graphql_user_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 266)
 - **Hook:** `graphql_should_show_experiments_in_extensions`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -286,13 +273,6 @@ Do not edit manually.
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/access-functions.php` (line 882)
 
-### `missing_hook_param_description`
-
-- **Hook:** `graphql_user_mutation_input_fields`
-  - Severity: warning
-  - Message: @param entry 1 ($input_fields) is missing a description
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 134)
-
 ### `missing_hook_params`
 
 - **Hook:** `graphql_render_admin_page`
@@ -394,18 +374,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/TermObjectMutation.php` (line 108)
-- **Hook:** `graphql_user_mutation_input_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 134)
-- **Hook:** `graphql_user_insert_post_args`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 233)
-- **Hook:** `graphql_user_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 266)
 - **Hook:** `graphql_should_show_experiments_in_extensions`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

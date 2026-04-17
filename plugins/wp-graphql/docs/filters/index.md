@@ -89,6 +89,8 @@ title: Filters
 - [`graphql_pre_return_field_from_model`](/docs/filters/graphql_pre_return_field_from_model)
 - [`graphql_restricted_data_cap`](/docs/filters/graphql_restricted_data_cap)
 - [`graphql_return_field_from_model`](/docs/filters/graphql_return_field_from_model)
+- [`graphql_user_insert_post_args`](/docs/filters/graphql_user_insert_post_args)
+- [`graphql_user_mutation_input_fields`](/docs/filters/graphql_user_mutation_input_fields)
 
 ## Request Lifecycle
 
@@ -215,5 +217,3 @@ title: Filters
 - [`graphql_term_object_insert_term_args`](/docs/filters/graphql_term_object_insert_term_args)
 - [`graphql_user_can_see_query_logs`](/docs/filters/graphql_user_can_see_query_logs)
 - [`graphql_user_can_see_trace_data`](/docs/filters/graphql_user_can_see_trace_data)
-- [`graphql_user_insert_post_args`](/docs/filters/graphql_user_insert_post_args)
-- [`graphql_user_mutation_input_fields`](/docs/filters/graphql_user_mutation_input_fields)

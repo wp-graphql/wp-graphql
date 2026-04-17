@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:11:58.993Z",
+  "generatedAt": "2026-04-17T14:13:10.811Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -482,55 +482,6 @@
         "hook": "graphql_term_object_insert_term_args",
         "file": "plugins/wp-graphql/src/Data/TermObjectMutation.php",
         "line": 108,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_user_mutation_input_fields",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 134,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_user_mutation_input_fields",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 134,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_param_description",
-        "hook": "graphql_user_mutation_input_fields",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 134,
-        "message": "@param entry 1 ($input_fields) is missing a description"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_user_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 233,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_user_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 233,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_user_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 266,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_user_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-        "line": 266,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -12031,13 +11982,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_user_insert_post_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 233,
+      "line": 239,
       "description": "Filters the mappings for input to arguments",
       "params": [
         {
@@ -12058,8 +12009,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_user_insert_post_args'",
       "relatedSnippets": [],
@@ -12076,25 +12027,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_user_mutation_input_fields",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 134,
+      "line": 137,
       "description": "Filters all of the fields available for input",
       "params": [
         {
           "type": "array<string,array<string,mixed>>",
           "name": "$input_fields",
-          "description": ""
+          "description": "The fields available as user mutation input."
         }
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_user_mutation_input_fields'",
       "relatedSnippets": [],
@@ -12111,13 +12062,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_user_object_mutation_update_additional_data",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 266,
+      "line": 275,
       "description": "Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to users, such as setting relationships, updating additional usermeta, or sending emails to Kevin... whatever you need to do with the userObject.",
       "params": [
         {
@@ -12148,8 +12099,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_user_object_mutation_update_additional_data'",
       "relatedSnippets": [],
