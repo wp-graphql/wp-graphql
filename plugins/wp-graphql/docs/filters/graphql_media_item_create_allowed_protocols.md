@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_media_item_create_allowed_protocols
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the allowed protocols for the mutation
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Mutation/MediaItemCreate.php`
 
 ## Parameters

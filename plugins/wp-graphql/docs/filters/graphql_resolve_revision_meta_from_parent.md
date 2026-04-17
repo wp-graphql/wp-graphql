@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_resolve_revision_meta_from_parent
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filters whether to resolve revision metadata from the parent node by default.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Utils/Preview.php`
 
 ## Parameters

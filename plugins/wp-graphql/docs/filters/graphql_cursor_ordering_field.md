@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_cursor_ordering_field
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filters the field used for ordering when cursors are used for pagination
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Connections
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php`
 
 ## Parameters

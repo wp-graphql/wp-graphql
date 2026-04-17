@@ -102,6 +102,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 * @param array<string,mixed> $args            The GraphQL args passed to the resolver.
 		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 *
+		 * @hookGroup connections
 		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_menu_item_connection_args', $args, $this->get_unfiltered_args() );

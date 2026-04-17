@@ -53,6 +53,9 @@ class MenuItem {
 							 * @param \GraphQL\Type\Definition\ResolveInfo $info                The ResolveInfo object.
 							 * @param int                                  $object_id           The ID of the connected object.
 							 * @param string                               $object_type         The type of the connected object.
+							 *
+							 * @hookGroup connections
+							 * @since 0.0.5
 							 */
 							$deferred_connection = apply_filters( 'graphql_pre_resolve_menu_item_connected_node', null, $menu_item, $args, $context, $info, $object_id, $object_type );
 

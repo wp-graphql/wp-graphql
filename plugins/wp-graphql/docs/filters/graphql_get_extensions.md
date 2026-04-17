@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_get_extensions
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the list of extensions, allowing other plugins to add or remove extensions.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Admin/Extensions/Extensions.php`
 
 ## Parameters

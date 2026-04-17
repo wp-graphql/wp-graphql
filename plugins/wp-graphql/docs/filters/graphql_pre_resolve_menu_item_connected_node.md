@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_resolve_menu_item_connected_node
 hookType: filter
-hookGroup: debugging
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 When this filter returns anything other than null it will be used as the resolved connection for the menu item's connected node, short-circuiting the default resolution. This is useful since we often add taxonomy terms to menus but would prefer to represent the menu item in other ways. E.g., a linked post object (or vice-versa).
 
 - **Type:** filter
-- **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Group:** Connections
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/ObjectType/MenuItem.php`
 
 ## Parameters

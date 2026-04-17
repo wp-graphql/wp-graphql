@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_should_show_experiments_in_extensions
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter whether experiments should be shown in GraphQL response extensions.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 2.3.8
 - **Source:** `plugins/wp-graphql/src/Experimental/Extensions.php`
 
 ## Parameters

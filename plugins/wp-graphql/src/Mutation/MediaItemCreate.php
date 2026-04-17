@@ -206,6 +206,9 @@ class MediaItemCreate {
 			 * @param array<string,mixed>                  $input             The input of the current mutation
 			 * @param \WPGraphQL\AppContext                $context           The context of the current request
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info              The ResolveInfo of the current field
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			$allowed_protocols = apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
 

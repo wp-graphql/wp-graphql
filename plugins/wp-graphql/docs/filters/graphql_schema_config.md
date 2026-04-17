@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_schema_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Set the $filterable_config as the $config that was passed to the WPSchema when instantiated
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Schema Registration
 - **Since:** 0.0.9
 - **Source:** `plugins/wp-graphql/src/WPSchema.php`
 

@@ -33,6 +33,9 @@ class Preview {
 		 * @param int     $object_id The ID of the object to resolve meta for
 		 * @param ?string $meta_key  The key for the meta to resolve
 		 * @param ?bool   $single    Whether a single value should be returned
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
 

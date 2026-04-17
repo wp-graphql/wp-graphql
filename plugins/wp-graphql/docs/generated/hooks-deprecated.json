@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:24:54.251Z",
+  "generatedAt": "2026-04-17T14:28:09.144Z",
   "count": 21,
   "hooks": [
     {
@@ -465,7 +465,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/CLI/Commands.php",
-      "line": 72,
+      "line": 73,
       "description": "Legacy request initialization hook retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -486,7 +486,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/CLI/Commands.php",
-          "line": 72
+          "line": 73
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",

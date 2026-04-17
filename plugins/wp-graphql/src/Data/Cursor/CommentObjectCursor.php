@@ -59,6 +59,9 @@ class CommentObjectCursor extends AbstractCursor {
 		 * @param int                                        $offset      The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\CommentObjectCursor $node        The cursor instance.
 		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
+		 *
 		 * @return \WP_Comment|null
 		 */
 		$pre_comment = apply_filters( 'graphql_pre_comment_cursor_node', null, $this->cursor_offset, $this );

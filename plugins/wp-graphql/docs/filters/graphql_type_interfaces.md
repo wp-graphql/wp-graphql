@@ -15,7 +15,7 @@ Filters the interfaces applied to an object type
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Type/WPInterfaceTrait.php`
 
 ## Parameters

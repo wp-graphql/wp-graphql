@@ -104,6 +104,9 @@ class TermObjectMutation {
 		 * @param array<string,mixed> $input         The data that was entered as input for the mutation
 		 * @param \WP_Taxonomy        $taxonomy      The taxonomy object of the term being mutated
 		 * @param string              $mutation_name The name of the mutation being performed (create, edit, etc)
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
 	}

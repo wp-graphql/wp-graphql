@@ -43,6 +43,9 @@ class TermObjectCursor extends AbstractCursor {
 		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\TermObjectCursor $node     The cursor instance.
 		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
+		 *
 		 * @return \WP_Term|null
 		 */
 		$pre_term = apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );

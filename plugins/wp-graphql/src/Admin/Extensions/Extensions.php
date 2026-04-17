@@ -398,6 +398,9 @@ final class Extensions {
 			 * @see Admin\Extensions\Registry::get_extensions() for the correct format of the extensions.
 			 *
 			 * @param array<string,Extension> $extensions The list of extensions.
+			 *
+			 * @hookGroup settings
+			 * @since x-release-please-version
 			 */
 			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
 
