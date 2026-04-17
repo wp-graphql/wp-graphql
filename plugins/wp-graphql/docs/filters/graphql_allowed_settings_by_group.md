@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_allowed_settings_by_group
 hookType: filter
-hookGroup: authentication
+hookGroup: settings
 plugin: wp-graphql
 ---
 
@@ -14,6 +14,10 @@ plugin: wp-graphql
 Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 
 - **Type:** filter
-- **Group:** Authentication and Authorization
+- **Group:** Settings and Admin
 - **Since:** 0.0.1
 - **Source:** `plugins/wp-graphql/src/Data/DataSource.php`
+
+## Parameters
+
+- `$allowed_settings_by_group` (`array<string,array<string,mixed>>`): The settings grouped by normalized setting group key.

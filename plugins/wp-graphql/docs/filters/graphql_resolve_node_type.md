@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_resolve_node_type
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Add a filter to allow externally registered node types to return the proper type based on the node_object that's returned
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Request Lifecycle
 - **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/DataSource.php`
 

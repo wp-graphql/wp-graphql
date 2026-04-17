@@ -7,14 +7,14 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 105
-- Total findings: 105
+- Warnings: 100
+- Total findings: 100
 
 ## Findings by Type
 
 - `missing_hook_description`: 2
-- `missing_hook_group`: 57
-- `missing_hook_params`: 5
+- `missing_hook_group`: 54
+- `missing_hook_params`: 3
 - `missing_hook_since`: 41
 
 ## Findings
@@ -128,18 +128,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/Cursor/UserCursor.php` (line 83)
-- **Hook:** `graphql_allowed_settings_by_group`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 388)
-- **Hook:** `graphql_allowed_setting_groups`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 444)
-- **Hook:** `graphql_resolve_node_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 552)
 - **Hook:** `graphql_media_item_insert_post_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -271,14 +259,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php` (line 294)
-- **Hook:** `graphql_allowed_settings_by_group`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 388)
-- **Hook:** `graphql_allowed_setting_groups`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 444)
 - **Hook:** `graphql_query_id_hash_algorithm`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries

@@ -283,41 +283,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_allowed_settings_by_group",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 388,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_allowed_settings_by_group",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 388,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_allowed_setting_groups",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 444,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_allowed_setting_groups",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 444,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_resolve_node_type",
-      "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 552,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_media_item_insert_post_args",
       "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
       "line": 103,

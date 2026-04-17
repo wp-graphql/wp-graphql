@@ -383,6 +383,9 @@ class DataSource {
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 		 *
+		 * @param array<string,array<string,mixed>> $allowed_settings_by_group The settings grouped by normalized setting group key.
+		 *
+		 * @hookGroup settings
 		 * @since 0.0.1
 		 */
 		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
@@ -439,6 +442,9 @@ class DataSource {
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
 		 * the GraphQL Schema.
 		 *
+		 * @param array<string,array<string,mixed>> $allowed_settings The settings that can be exposed in the GraphQL schema.
+		 *
+		 * @hookGroup settings
 		 * @since 0.0.1
 		 */
 		return apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
@@ -547,6 +553,7 @@ class DataSource {
 		 * @param mixed|object|array $type The type definition the node should resolve to.
 		 * @param mixed|object|array $node The $node that is being resolved
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 0.0.6
 		 */
 		$type = apply_filters( 'graphql_resolve_node_type', $type, $node );

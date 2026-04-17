@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:14:21.971Z",
+  "generatedAt": "2026-04-17T14:15:37.956Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -364,41 +364,6 @@
         "file": "plugins/wp-graphql/src/Data/Cursor/UserCursor.php",
         "line": 83,
         "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_allowed_settings_by_group",
-        "file": "plugins/wp-graphql/src/Data/DataSource.php",
-        "line": 388,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_allowed_settings_by_group",
-        "file": "plugins/wp-graphql/src/Data/DataSource.php",
-        "line": 388,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_allowed_setting_groups",
-        "file": "plugins/wp-graphql/src/Data/DataSource.php",
-        "line": 444,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_allowed_setting_groups",
-        "file": "plugins/wp-graphql/src/Data/DataSource.php",
-        "line": 444,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_resolve_node_type",
-        "file": "plugins/wp-graphql/src/Data/DataSource.php",
-        "line": 552,
-        "message": "Missing @hookGroup tag"
       },
       {
         "type": "missing_hook_group",
@@ -1922,19 +1887,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_allowed_setting_groups",
       "kind": "filter",
-      "group": "authentication",
-      "groupLabel": "Authentication and Authorization",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 444,
+      "line": 450,
       "description": "Filter the $allowed_settings to allow some to be enabled or disabled from showing in the GraphQL Schema.",
-      "params": [],
+      "params": [
+        {
+          "type": "array<string,array<string,mixed>>",
+          "name": "$allowed_settings",
+          "description": "The settings that can be exposed in the GraphQL schema."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
+      "docblockParamCount": 1,
       "since": "0.0.1",
-      "hookGroup": null,
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_allowed_setting_groups'",
       "relatedSnippets": [],
@@ -1951,19 +1922,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_allowed_settings_by_group",
       "kind": "filter",
-      "group": "authentication",
-      "groupLabel": "Authentication and Authorization",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 388,
+      "line": 391,
       "description": "Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.",
-      "params": [],
+      "params": [
+        {
+          "type": "array<string,array<string,mixed>>",
+          "name": "$allowed_settings_by_group",
+          "description": "The settings grouped by normalized setting group key."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
+      "docblockParamCount": 1,
       "since": "0.0.1",
-      "hookGroup": null,
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_allowed_settings_by_group'",
       "relatedSnippets": [],
@@ -9744,13 +9721,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_resolve_node_type",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/DataSource.php",
-      "line": 552,
+      "line": 559,
       "description": "Add a filter to allow externally registered node types to return the proper type based on the node_object that's returned",
       "params": [
         {
@@ -9767,7 +9744,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "0.0.6",
-      "hookGroup": null,
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_node_type'",
       "relatedSnippets": [],

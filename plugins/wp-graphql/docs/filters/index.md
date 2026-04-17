@@ -10,8 +10,6 @@ title: Filters
 
 ## Authentication and Authorization
 
-- [`graphql_allowed_setting_groups`](/docs/filters/graphql_allowed_setting_groups)
-- [`graphql_allowed_settings_by_group`](/docs/filters/graphql_allowed_settings_by_group)
 - [`graphql_authentication_error_status_code`](/docs/filters/graphql_authentication_error_status_code)
 - [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
 - [`graphql_authentication_errors`](/docs/filters/graphql_authentication_errors)
@@ -113,6 +111,7 @@ title: Filters
 - [`graphql_request_data`](/docs/filters/graphql_request_data)
 - [`graphql_request_data`](/docs/filters/graphql_request_data)
 - [`graphql_request_results`](/docs/filters/graphql_request_results)
+- [`graphql_resolve_node_type`](/docs/filters/graphql_resolve_node_type)
 - [`graphql_resolve_uri`](/docs/filters/graphql_resolve_uri)
 - [`graphql_resolve_uri_query_class`](/docs/filters/graphql_resolve_uri_query_class)
 - [`graphql_response_headers_to_send`](/docs/filters/graphql_response_headers_to_send)
@@ -159,6 +158,8 @@ title: Filters
 
 - [`graphql_add_admin_notice`](/docs/filters/graphql_add_admin_notice)
 - [`graphql_admin_notices_is_allowed_admin_page`](/docs/filters/graphql_admin_notices_is_allowed_admin_page)
+- [`graphql_allowed_setting_groups`](/docs/filters/graphql_allowed_setting_groups)
+- [`graphql_allowed_settings_by_group`](/docs/filters/graphql_allowed_settings_by_group)
 - [`graphql_enable_graphiql`](/docs/filters/graphql_enable_graphiql)
 - [`graphql_enable_major_autoupdates`](/docs/filters/graphql_enable_major_autoupdates)
 - [`graphql_enable_untested_autoupdates`](/docs/filters/graphql_enable_untested_autoupdates)
@@ -208,7 +209,6 @@ title: Filters
 - [`graphql_query_id_hash_algorithm`](/docs/filters/graphql_query_id_hash_algorithm)
 - [`graphql_render_admin_page`](/docs/filters/graphql_render_admin_page)
 - [`graphql_require_authentication_allowed_fields`](/docs/filters/graphql_require_authentication_allowed_fields)
-- [`graphql_resolve_node_type`](/docs/filters/graphql_resolve_node_type)
 - [`graphql_resolve_revision_meta_from_parent`](/docs/filters/graphql_resolve_revision_meta_from_parent)
 - [`graphql_schema_config`](/docs/filters/graphql_schema_config)
 - [`graphql_should_show_experiments_in_extensions`](/docs/filters/graphql_should_show_experiments_in_extensions)
