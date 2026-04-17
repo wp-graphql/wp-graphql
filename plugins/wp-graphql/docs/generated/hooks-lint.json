@@ -388,62 +388,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_pre_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 123,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_pre_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 123,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_resolve_uri_query_class",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 170,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_resolve_uri_query_class",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 170,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 238,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 238,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 336,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_resolve_uri",
-      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 336,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_post_object_insert_post_args",
       "file": "plugins/wp-graphql/src/Data/PostObjectMutation.php",
       "line": 112,

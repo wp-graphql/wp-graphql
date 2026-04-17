@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_resolve_uri
 hookType: filter
-hookGroup: debugging
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri. This can be used by Extensions to resolve edge cases that are not handled by the core NodeResolver.
 
 - **Type:** filter
-- **Group:** Debugging and Instrumentation
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
 
 ## Parameters

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-16T21:09:18.107Z",
+  "generatedAt": "2026-04-17T13:48:53.600Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -468,62 +468,6 @@
         "hook": "graphql_media_item_mutation_update_additional_data",
         "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
         "line": 141,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_resolve_uri",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 123,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_resolve_uri",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 123,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_resolve_uri_query_class",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 170,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_resolve_uri_query_class",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 170,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_resolve_uri",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 238,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_resolve_uri",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 238,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_resolve_uri",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 336,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_resolve_uri",
-        "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-        "line": 336,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -7971,13 +7915,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_resolve_uri",
       "kind": "filter",
-      "group": "debugging",
-      "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 336,
+      "line": 348,
       "description": "This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri. This can be used by Extensions to resolve edge cases that are not handled by the core NodeResolver.",
       "params": [
         {
@@ -8018,8 +7962,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_post_resolve_uri'",
       "relatedSnippets": [],
@@ -8686,13 +8630,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_resolve_uri",
       "kind": "filter",
-      "group": "debugging",
-      "groupLabel": "Debugging and Instrumentation",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 123,
+      "line": 126,
       "description": "When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped. This is to be used in extensions to resolve their own nodes which might not use WordPress permalink structure.",
       "params": [
         {
@@ -8723,8 +8667,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_resolve_uri'",
       "relatedSnippets": [],
@@ -10231,13 +10175,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_resolve_uri",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 238,
+      "line": 247,
       "description": "When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped. This is to be used in extensions to resolve their own nodes which might not use WordPress permalink structure. It differs from 'graphql_pre_resolve_uri' in that it has been called after the query has been run using the query vars.",
       "params": [
         {
@@ -10278,8 +10222,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_uri'",
       "relatedSnippets": [],
@@ -10296,13 +10240,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_resolve_uri_query_class",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 170,
+      "line": 176,
       "description": "Filter the query class used to resolve the URI. By default this is WP_Query. This can be used by Extensions which use a different query class to resolve data.",
       "params": [
         {
@@ -10333,8 +10277,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_uri_query_class'",
       "relatedSnippets": [],
@@ -13078,7 +13022,7 @@
       "sourceType": "core",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 550,
+      "line": 562,
       "description": "Filters the query variables allowed before processing. Allows (publicly allowed) query vars to be added, removed, or changed prior to executing the query. Needed to allow custom rewrite rules using your own arguments to work, or any other custom query variables you want to be publicly available.",
       "params": [
         {
@@ -13171,7 +13115,7 @@
       "sourceType": "core",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 643,
+      "line": 655,
       "description": "Filters the array of parsed query variables.",
       "params": [
         {

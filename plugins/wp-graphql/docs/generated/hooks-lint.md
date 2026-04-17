@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 174
-- Total findings: 174
+- Warnings: 166
+- Total findings: 166
 
 ## Findings by Type
 
 - `missing_hook_description`: 9
-- `missing_hook_group`: 84
+- `missing_hook_group`: 80
 - `missing_hook_param_description`: 1
 - `missing_hook_params`: 12
-- `missing_hook_since`: 68
+- `missing_hook_since`: 64
 
 ## Findings
 
@@ -185,22 +185,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 141)
-- **Hook:** `graphql_pre_resolve_uri`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 123)
-- **Hook:** `graphql_resolve_uri_query_class`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 170)
-- **Hook:** `graphql_resolve_uri`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 238)
-- **Hook:** `graphql_post_resolve_uri`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 336)
 - **Hook:** `graphql_post_object_insert_post_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -526,22 +510,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 141)
-- **Hook:** `graphql_pre_resolve_uri`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 123)
-- **Hook:** `graphql_resolve_uri_query_class`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 170)
-- **Hook:** `graphql_resolve_uri`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 238)
-- **Hook:** `graphql_post_resolve_uri`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/NodeResolver.php` (line 336)
 - **Hook:** `graphql_post_object_insert_post_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

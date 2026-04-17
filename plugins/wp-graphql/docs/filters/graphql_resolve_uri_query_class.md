@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_resolve_uri_query_class
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the query class used to resolve the URI. By default this is WP_Query. This can be used by Extensions which use a different query class to resolve data.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
 
 ## Parameters
