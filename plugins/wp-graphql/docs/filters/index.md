@@ -74,6 +74,7 @@ title: Filters
 
 ## Model Layer
 
+- [`graphql_comment_insert_post_args`](/docs/filters/graphql_comment_insert_post_args)
 - [`graphql_data_is_private`](/docs/filters/graphql_data_is_private)
 - [`graphql_dataloader_get_cached`](/docs/filters/graphql_dataloader_get_cached)
 - [`graphql_dataloader_get_model`](/docs/filters/graphql_dataloader_get_model)
@@ -181,7 +182,6 @@ title: Filters
 - [`graphql_app_context_config`](/docs/filters/graphql_app_context_config)
 - [`graphql_comment_connection_args`](/docs/filters/graphql_comment_connection_args)
 - [`graphql_comment_connection_query_args`](/docs/filters/graphql_comment_connection_query_args)
-- [`graphql_comment_insert_post_args`](/docs/filters/graphql_comment_insert_post_args)
 - [`graphql_cursor_ordering_field`](/docs/filters/graphql_cursor_ordering_field)
 - [`graphql_data_loader_classes`](/docs/filters/graphql_data_loader_classes)
 - [`graphql_get_dependents`](/docs/filters/graphql_get_dependents)

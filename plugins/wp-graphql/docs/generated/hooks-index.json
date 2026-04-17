@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:13:10.811Z",
+  "generatedAt": "2026-04-17T14:14:21.971Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -189,48 +189,6 @@
         "file": "plugins/wp-graphql/src/CLI/Commands.php",
         "line": 70,
         "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_comment_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-        "line": 110,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_comment_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-        "line": 110,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_comment_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-        "line": 134,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_comment_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-        "line": 134,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_comment_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-        "line": 134,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_comment_object_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-        "line": 134,
-        "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
         "type": "missing_hook_group",
@@ -2527,13 +2485,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_comment_insert_post_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-      "line": 110,
+      "line": 113,
       "description": "Filter the $insert_post_args",
       "params": [
         {
@@ -2548,14 +2506,14 @@
         },
         {
           "type": "string",
-          "name": "$mutation_type",
+          "name": "$mutation_name",
           "description": "The type of mutation being performed ( create, edit, etc )"
         }
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_comment_insert_post_args'",
       "relatedSnippets": [],
@@ -2572,19 +2530,55 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_comment_object_mutation_update_additional_data",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-      "line": 134,
-      "description": "",
-      "params": [],
+      "line": 151,
+      "description": "Fires after additional comment mutation data has been updated.",
+      "params": [
+        {
+          "type": "int",
+          "name": "$comment_id",
+          "description": "The ID of the comment being mutated."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$input",
+          "description": "The input for the mutation."
+        },
+        {
+          "type": "string",
+          "name": "$mutation_name",
+          "description": "The name of the mutation (for example: create, update, delete)."
+        },
+        {
+          "type": "\\WPGraphQL\\AppContext",
+          "name": "$context",
+          "description": "The AppContext passed down to all resolvers."
+        },
+        {
+          "type": "\\GraphQL\\Type\\Definition\\ResolveInfo",
+          "name": "$info",
+          "description": "The ResolveInfo passed down to all resolvers."
+        },
+        {
+          "type": "int",
+          "name": "$intended_comment_status",
+          "description": "The status requested by mutation input."
+        },
+        {
+          "type": "int",
+          "name": "$default_comment_status",
+          "description": "The fallback status when no explicit status is provided."
+        }
+      ],
       "argumentCount": 7,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 7,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_comment_object_mutation_update_additional_data'",
       "relatedSnippets": [],

@@ -7,15 +7,15 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 111
-- Total findings: 111
+- Warnings: 105
+- Total findings: 105
 
 ## Findings by Type
 
-- `missing_hook_description`: 3
-- `missing_hook_group`: 59
-- `missing_hook_params`: 6
-- `missing_hook_since`: 43
+- `missing_hook_description`: 2
+- `missing_hook_group`: 57
+- `missing_hook_params`: 5
+- `missing_hook_since`: 41
 
 ## Findings
 
@@ -25,10 +25,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_comment_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
 - **Hook:** `graphql_endpoint_path`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -64,14 +60,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/CLI/Commands.php` (line 70)
-- **Hook:** `graphql_comment_insert_post_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 110)
-- **Hook:** `graphql_comment_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
 - **Hook:** `graphql_comment_connection_query_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -279,10 +267,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_comment_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
 - **Hook:** `graphql_map_input_fields_to_wp_comment_query`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -326,14 +310,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/AppContext.php` (line 197)
-- **Hook:** `graphql_comment_insert_post_args`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 110)
-- **Hook:** `graphql_comment_object_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
 - **Hook:** `graphql_post_object_connection_query_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

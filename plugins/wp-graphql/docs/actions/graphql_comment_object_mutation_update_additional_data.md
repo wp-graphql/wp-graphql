@@ -5,15 +5,25 @@ Do not edit manually.
 ---
 title: graphql_comment_object_mutation_update_additional_data
 hookType: action
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
 # `graphql_comment_object_mutation_update_additional_data`
 
-No description available.
+Fires after additional comment mutation data has been updated.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/CommentMutation.php`
+
+## Parameters
+
+- `$comment_id` (`int`): The ID of the comment being mutated.
+- `$input` (`array<string,mixed>`): The input for the mutation.
+- `$mutation_name` (`string`): The name of the mutation (for example: create, update, delete).
+- `$context` (`\WPGraphQL\AppContext`): The AppContext passed down to all resolvers.
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down to all resolvers.
+- `$intended_comment_status` (`int`): The status requested by mutation input.
+- `$default_comment_status` (`int`): The fallback status when no explicit status is provided.

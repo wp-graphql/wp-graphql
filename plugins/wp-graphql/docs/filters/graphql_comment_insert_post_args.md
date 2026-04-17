@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_comment_insert_post_args
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,12 +14,12 @@ plugin: wp-graphql
 Filter the $insert_post_args
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/CommentMutation.php`
 
 ## Parameters
 
 - `$output_args` (`array<string,mixed>`): The array of $input_post_args that will be passed to wp_new_comment
 - `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
-- `$mutation_type` (`string`): The type of mutation being performed ( create, edit, etc )
+- `$mutation_name` (`string`): The type of mutation being performed ( create, edit, etc )
