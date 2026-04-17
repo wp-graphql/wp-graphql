@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_map_input_fields_to_wp_comment_query
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,6 +14,15 @@ plugin: wp-graphql
 Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the get_terms query
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Connections
 - **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
+
+## Parameters
+
+- `$query_args` (`array<string,mixed>`): The mapped query args to send to WP_Comment_Query.
+- `$args` (`array<string,mixed>`): The incoming GraphQL where args before mapping.
+- `$source` (`mixed`): The source node passed down the resolve tree.
+- `$all_args` (`array<string,mixed>`): All GraphQL args provided to the connection field.
+- `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the resolve tree.
+- `$info` (`\GraphQL\Type\Definition\ResolveInfo`): ResolveInfo for the current field.

@@ -263,6 +263,14 @@ class GraphiQL {
 
 			$rendered = '<div class="wrap"><div class="notice notice-warning inline"><p>' . $message . '</p></div></div>';
 		} else {
+			/**
+			 * Filters the rendered GraphiQL admin page markup.
+			 *
+			 * @param string $rendered The rendered HTML markup for the GraphiQL admin page.
+			 *
+			 * @hookGroup settings
+			 * @since x-release-please-version
+			 */
 			$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap" dir="ltr"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
 		}
 

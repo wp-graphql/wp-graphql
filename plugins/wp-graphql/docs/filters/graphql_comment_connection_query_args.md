@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_comment_connection_query_args
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Filters the query args used by the connection.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Connections
 - **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
 

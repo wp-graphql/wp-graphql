@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_app_context_config
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 This filters the config for the AppContext. This can be used to store additional context config, which is available to resolvers throughout the resolution of a GraphQL request.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/AppContext.php`
 
 ## Parameters

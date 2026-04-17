@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_data_loader_classes
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter to change the data loader classes. This allows for additional loaders to be added to the AppContext or replaced as needed.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/AppContext.php`
 
 ## Parameters

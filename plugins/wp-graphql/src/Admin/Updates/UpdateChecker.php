@@ -421,6 +421,9 @@ class UpdateChecker {
 		 *
 		 * @param array<string,array<string,mixed>> $plugins The array of plugins that use WPGraphQL as a dependency.
 		 * @param array<string,array<string,mixed>> $all_plugins The array of all plugins.
+		 *
+		 * @hookGroup settings
+		 * @since x-release-please-version
 		 */
 		$this->dependents = apply_filters( 'graphql_get_dependents', $plugins, $all_plugins );
 
@@ -461,6 +464,9 @@ class UpdateChecker {
 		 *
 		 * @param array<string,array<string,mixed>> $plugins The array of plugins that maybe use WPGraphQL as a dependency.
 		 * @param array<string,array<string,mixed>> $all_plugins The array of all plugins.
+		 *
+		 * @hookGroup settings
+		 * @since x-release-please-version
 		 */
 		$this->possible_dependents = apply_filters( 'graphql_get_possible_dependents', $plugins, $all_plugins );
 

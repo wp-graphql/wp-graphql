@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:17:26.231Z",
+  "generatedAt": "2026-04-17T14:19:48.203Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -101,122 +101,10 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_render_admin_page",
-        "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 266,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_render_admin_page",
-        "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 266,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_render_admin_page",
-        "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 266,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_render_admin_page",
-        "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 266,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_dependents",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 425,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_dependents",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 425,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_possible_dependents",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 465,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_possible_dependents",
-        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-        "line": 465,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_app_context_config",
-        "file": "plugins/wp-graphql/src/AppContext.php",
-        "line": 176,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_app_context_config",
-        "file": "plugins/wp-graphql/src/AppContext.php",
-        "line": 176,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_data_loader_classes",
-        "file": "plugins/wp-graphql/src/AppContext.php",
-        "line": 197,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_data_loader_classes",
-        "file": "plugins/wp-graphql/src/AppContext.php",
-        "line": 197,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_init_request",
         "file": "plugins/wp-graphql/src/CLI/Commands.php",
         "line": 70,
         "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_comment_connection_query_args",
-        "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-        "line": 135,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_comment_connection_args",
-        "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-        "line": 238,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_map_input_fields_to_wp_comment_query",
-        "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-        "line": 294,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_map_input_fields_to_wp_comment_query",
-        "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-        "line": 294,
-        "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
         "type": "missing_hook_group",
@@ -1070,7 +958,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 315,
+      "line": 323,
       "description": "Legacy GraphiQL extension enqueue action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -1852,13 +1740,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_app_context_config",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 176,
+      "line": 179,
       "description": "This filters the config for the AppContext. This can be used to store additional context config, which is available to resolvers throughout the resolution of a GraphQL request.",
       "params": [
         {
@@ -1869,8 +1757,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_app_context_config'",
       "relatedSnippets": [],
@@ -2262,13 +2150,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_comment_connection_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 238,
+      "line": 240,
       "description": "Filters the GraphQL args before they are used in get_query_args().",
       "params": [
         {
@@ -2285,7 +2173,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "1.11.0",
-      "hookGroup": null,
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_comment_connection_args'",
       "relatedSnippets": [],
@@ -2302,13 +2190,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_comment_connection_query_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 135,
+      "line": 136,
       "description": "Filters the query args used by the connection.",
       "params": [
         {
@@ -2340,7 +2228,7 @@
       "argumentCount": 5,
       "docblockParamCount": 5,
       "since": "0.0.6",
-      "hookGroup": null,
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_comment_connection_query_args'",
       "relatedSnippets": [],
@@ -3406,13 +3294,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_data_loader_classes",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 197,
+      "line": 203,
       "description": "Filter to change the data loader classes. This allows for additional loaders to be added to the AppContext or replaced as needed.",
       "params": [
         {
@@ -3428,8 +3316,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_data_loader_classes'",
       "relatedSnippets": [],
@@ -3452,7 +3340,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 219,
+      "line": 225,
       "description": "",
       "params": [
         {
@@ -4245,7 +4133,7 @@
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 314,
+      "line": 322,
       "description": "Fires before GraphiQL extensions are enqueued.",
       "params": [],
       "argumentCount": 0,
@@ -4927,13 +4815,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_get_dependents",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 425,
+      "line": 428,
       "description": "Filters the list of plugins that use WPGraphQL as a dependency.",
       "params": [
         {
@@ -4949,8 +4837,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "x-release-please-version",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_dependents'",
       "relatedSnippets": [],
@@ -5002,13 +4890,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_get_possible_dependents",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 465,
+      "line": 471,
       "description": "Filters the list of plugins that use WPGraphQL as a dependency. Can be used to hide false positives or to add additional plugins that may use WPGraphQL as a dependency.",
       "params": [
         {
@@ -5024,8 +4912,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "x-release-please-version",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_possible_dependents'",
       "relatedSnippets": [],
@@ -6110,19 +5998,50 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_map_input_fields_to_wp_comment_query",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php",
-      "line": 294,
+      "line": 304,
       "description": "Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the get_terms query",
-      "params": [],
+      "params": [
+        {
+          "type": "array<string,mixed>",
+          "name": "$query_args",
+          "description": "The mapped query args to send to WP_Comment_Query."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$args",
+          "description": "The incoming GraphQL where args before mapping."
+        },
+        {
+          "type": "mixed",
+          "name": "$source",
+          "description": "The source node passed down the resolve tree."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$all_args",
+          "description": "All GraphQL args provided to the connection field."
+        },
+        {
+          "type": "\\WPGraphQL\\AppContext",
+          "name": "$context",
+          "description": "The AppContext passed down the resolve tree."
+        },
+        {
+          "type": "\\GraphQL\\Type\\Definition\\ResolveInfo",
+          "name": "$info",
+          "description": "ResolveInfo for the current field."
+        }
+      ],
       "argumentCount": 6,
-      "docblockParamCount": 0,
+      "docblockParamCount": 6,
       "since": "0.0.5",
-      "hookGroup": null,
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_map_input_fields_to_wp_comment_query'",
       "relatedSnippets": [],
@@ -9213,19 +9132,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_render_admin_page",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 266,
-      "description": "",
-      "params": [],
+      "line": 274,
+      "description": "Filters the rendered GraphiQL admin page markup.",
+      "params": [
+        {
+          "type": "string",
+          "name": "$rendered",
+          "description": "The rendered HTML markup for the GraphiQL admin page."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "x-release-please-version",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_render_admin_page'",
       "relatedSnippets": [],

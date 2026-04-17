@@ -5,15 +5,19 @@ Do not edit manually.
 ---
 title: graphql_render_admin_page
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_render_admin_page`
 
-No description available.
+Filters the rendered GraphiQL admin page markup.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** x-release-please-version
 - **Source:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
+
+## Parameters
+
+- `$rendered` (`string`): The rendered HTML markup for the GraphiQL admin page.
