@@ -324,7 +324,7 @@ abstract class AbstractExperiment {
 			$setting_value = get_graphql_setting( $setting_key, 'off', Admin::$option_group );
 			$is_active     = 'on' === $setting_value;
 
-			$slug      = static::get_slug();
+			$slug = static::get_slug();
 			/**
 			 * Filters whether the experiment is active.
 			 *
