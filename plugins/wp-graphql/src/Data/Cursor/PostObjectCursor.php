@@ -61,6 +61,9 @@ class PostObjectCursor extends AbstractCursor {
 		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\PostObjectCursor $node     The cursor instance.
 		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
+		 *
 		 * @return \WP_Post|null
 		 */
 		$pre_post = apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
@@ -246,6 +249,9 @@ class PostObjectCursor extends AbstractCursor {
 		 * @param string $meta_type The meta type
 		 * @param string $order     The order direction
 		 * @param object $cursor    The PostObjectCursor instance
+		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$key = apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_type, $order, $this );
 

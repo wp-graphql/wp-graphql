@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:19:48.203Z",
+  "generatedAt": "2026-04-17T14:21:43.726Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -115,34 +115,6 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_post_object_connection_query_args",
-        "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-        "line": 369,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_connection_query_args",
-        "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-        "line": 369,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_map_input_fields_to_wp_query",
-        "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-        "line": 440,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_connection_args",
-        "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-        "line": 588,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_term_object_connection_query_args",
         "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
         "line": 140,
@@ -199,34 +171,6 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_pre_post_cursor_node",
-        "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-        "line": 66,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_post_cursor_node",
-        "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-        "line": 66,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_cursor_meta_key",
-        "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-        "line": 250,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_cursor_meta_key",
-        "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-        "line": 250,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_pre_term_cursor_node",
         "file": "plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php",
         "line": 48,
@@ -251,34 +195,6 @@
         "hook": "graphql_pre_user_cursor_node",
         "file": "plugins/wp-graphql/src/Data/Cursor/UserCursor.php",
         "line": 83,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_media_item_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-        "line": 103,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_media_item_insert_post_args",
-        "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-        "line": 103,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_media_item_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-        "line": 141,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_media_item_mutation_update_additional_data",
-        "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-        "line": 141,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -321,34 +237,6 @@
         "hook": "graphql_media_item_create_allowed_protocols",
         "file": "plugins/wp-graphql/src/Mutation/MediaItemCreate.php",
         "line": 210,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_create_default_post_status",
-        "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-        "line": 289,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_create_default_post_status",
-        "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-        "line": 289,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_post_object_create_should_set_intended_post_status",
-        "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-        "line": 370,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_post_object_create_should_set_intended_post_status",
-        "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-        "line": 370,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -6058,13 +5946,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_map_input_fields_to_wp_query",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 440,
+      "line": 444,
       "description": "Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the WP_Query",
       "params": [
         {
@@ -6106,7 +5994,7 @@
       "argumentCount": 7,
       "docblockParamCount": 7,
       "since": "0.0.5",
-      "hookGroup": null,
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_map_input_fields_to_wp_query'",
       "relatedSnippets": [],
@@ -6238,13 +6126,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_media_item_insert_post_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 103,
+      "line": 106,
       "description": "Filter the $insert_post_args",
       "params": [
         {
@@ -6270,8 +6158,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_media_item_insert_post_args'",
       "relatedSnippets": [],
@@ -6288,13 +6176,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_media_item_mutation_update_additional_data",
       "kind": "action",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 141,
+      "line": 147,
       "description": "Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to mediaItems, such as updating additional postmeta, or sending emails to Kevin. . .whatever you need to do with the mediaItem.",
       "params": [
         {
@@ -6330,8 +6218,8 @@
       ],
       "argumentCount": 6,
       "docblockParamCount": 6,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_media_item_mutation_update_additional_data'",
       "relatedSnippets": [],
@@ -6868,13 +6756,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_connection_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 588,
+      "line": 593,
       "description": "Filters the GraphQL args before they are used in get_query_args().",
       "params": [
         {
@@ -6896,7 +6784,7 @@
       "argumentCount": 3,
       "docblockParamCount": 3,
       "since": "1.11.0",
-      "hookGroup": null,
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_connection_args'",
       "relatedSnippets": [],
@@ -6913,13 +6801,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_connection_query_args",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 369,
+      "line": 372,
       "description": "Filter the $query args to allow folks to customize queries programmatically",
       "params": [
         {
@@ -6950,8 +6838,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.6",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_connection_query_args'",
       "relatedSnippets": [],
@@ -6968,13 +6856,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_create_default_post_status",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 289,
+      "line": 292,
       "description": "Filter the default post status to use when the post is initially created. Pass through a filter to allow other plugins to override the default (for example, Edit Flow, which provides control over customizing stati or various E-commerce plugins that make heavy use of custom stati)",
       "params": [
         {
@@ -6995,8 +6883,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_create_default_post_status'",
       "relatedSnippets": [],
@@ -7013,13 +6901,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_create_should_set_intended_post_status",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 370,
+      "line": 376,
       "description": "Determine whether the intended status should be set or not. By filtering to false, the $intended_post_status will not be set at the completion of the mutation. This allows for side-effect actions to set the status later. For example, if a post was being created via a GraphQL Mutation, the post had additional required assets, such as images that needed to be sideloaded or some other semi-time-consuming side effect, those actions could be deferred (cron or whatever), and when those actions complete they could come back and set the $intended_status.",
       "params": [
         {
@@ -7060,8 +6948,8 @@
       ],
       "argumentCount": 7,
       "docblockParamCount": 7,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_create_should_set_intended_post_status'",
       "relatedSnippets": [],
@@ -7078,13 +6966,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_post_object_cursor_meta_key",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 250,
+      "line": 256,
       "description": "Allow filtering the meta key used for cursor based pagination",
       "params": [
         {
@@ -7115,8 +7003,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_post_object_cursor_meta_key'",
       "relatedSnippets": [],
@@ -7738,13 +7626,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_post_cursor_node",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 66,
+      "line": 69,
       "description": "If pre-hooked, return filtered node.",
       "params": [
         {
@@ -7765,8 +7653,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.0.5",
+      "hookGroup": "connections",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_post_cursor_node'",
       "relatedSnippets": [],

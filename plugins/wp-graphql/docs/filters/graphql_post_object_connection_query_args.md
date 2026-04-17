@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_object_connection_query_args
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the $query args to allow folks to customize queries programmatically
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Connections
+- **Since:** 0.0.6
 - **Source:** `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php`
 
 ## Parameters

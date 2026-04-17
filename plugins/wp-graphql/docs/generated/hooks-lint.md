@@ -7,13 +7,13 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 69
-- Total findings: 69
+- Warnings: 53
+- Total findings: 53
 
 ## Findings by Type
 
-- `missing_hook_group`: 39
-- `missing_hook_since`: 30
+- `missing_hook_group`: 30
+- `missing_hook_since`: 23
 
 ## Findings
 
@@ -31,18 +31,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php` (line 107)
-- **Hook:** `graphql_post_object_connection_query_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php` (line 369)
-- **Hook:** `graphql_map_input_fields_to_wp_query`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php` (line 440)
-- **Hook:** `graphql_post_object_connection_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php` (line 588)
 - **Hook:** `graphql_term_object_connection_query_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -67,14 +55,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php` (line 58)
-- **Hook:** `graphql_pre_post_cursor_node`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php` (line 66)
-- **Hook:** `graphql_post_object_cursor_meta_key`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php` (line 250)
 - **Hook:** `graphql_pre_term_cursor_node`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -83,14 +63,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/Cursor/UserCursor.php` (line 83)
-- **Hook:** `graphql_media_item_insert_post_args`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 103)
-- **Hook:** `graphql_media_item_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 141)
 - **Hook:** `graphql_term_object_insert_term_args`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -103,14 +75,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Mutation/MediaItemCreate.php` (line 210)
-- **Hook:** `graphql_post_object_create_default_post_status`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectCreate.php` (line 289)
-- **Hook:** `graphql_post_object_create_should_set_intended_post_status`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectCreate.php` (line 370)
 - **Hook:** `graphql_insert_post_object`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -182,10 +146,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Admin/Extensions/Extensions.php` (line 402)
-- **Hook:** `graphql_post_object_connection_query_args`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php` (line 369)
 - **Hook:** `graphql_pre_comment_cursor_node`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -194,14 +154,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php` (line 58)
-- **Hook:** `graphql_pre_post_cursor_node`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php` (line 66)
-- **Hook:** `graphql_post_object_cursor_meta_key`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php` (line 250)
 - **Hook:** `graphql_pre_term_cursor_node`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -210,14 +162,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/Cursor/UserCursor.php` (line 83)
-- **Hook:** `graphql_media_item_insert_post_args`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 103)
-- **Hook:** `graphql_media_item_mutation_update_additional_data`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Data/MediaItemMutation.php` (line 141)
 - **Hook:** `graphql_term_object_insert_term_args`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -230,14 +174,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Mutation/MediaItemCreate.php` (line 210)
-- **Hook:** `graphql_post_object_create_default_post_status`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectCreate.php` (line 289)
-- **Hook:** `graphql_post_object_create_should_set_intended_post_status`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Mutation/PostObjectCreate.php` (line 370)
 - **Hook:** `graphql_insert_post_object`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

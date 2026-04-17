@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_object_cursor_meta_key
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Allow filtering the meta key used for cursor based pagination
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Connections
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php`
 
 ## Parameters

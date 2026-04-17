@@ -31,34 +31,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_post_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 369,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_connection_query_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 369,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_map_input_fields_to_wp_query",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 440,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_connection_args",
-      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 588,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_term_object_connection_query_args",
       "file": "plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php",
       "line": 140,
@@ -115,34 +87,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_pre_post_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 66,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_pre_post_cursor_node",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 66,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_cursor_meta_key",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 250,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_cursor_meta_key",
-      "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 250,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_pre_term_cursor_node",
       "file": "plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php",
       "line": 48,
@@ -167,34 +111,6 @@
       "hook": "graphql_pre_user_cursor_node",
       "file": "plugins/wp-graphql/src/Data/Cursor/UserCursor.php",
       "line": 83,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_media_item_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 103,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_media_item_insert_post_args",
-      "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 103,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_media_item_mutation_update_additional_data",
-      "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 141,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_media_item_mutation_update_additional_data",
-      "file": "plugins/wp-graphql/src/Data/MediaItemMutation.php",
-      "line": 141,
       "message": "Missing @since tag in nearest docblock"
     },
     {
@@ -237,34 +153,6 @@
       "hook": "graphql_media_item_create_allowed_protocols",
       "file": "plugins/wp-graphql/src/Mutation/MediaItemCreate.php",
       "line": 210,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_create_default_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 289,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_create_default_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 289,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_post_object_create_should_set_intended_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 370,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_post_object_create_should_set_intended_post_status",
-      "file": "plugins/wp-graphql/src/Mutation/PostObjectCreate.php",
-      "line": 370,
       "message": "Missing @since tag in nearest docblock"
     },
     {

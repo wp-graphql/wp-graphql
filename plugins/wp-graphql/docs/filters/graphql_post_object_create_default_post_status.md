@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_object_create_default_post_status
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the default post status to use when the post is initially created. Pass through a filter to allow other plugins to override the default (for example, Edit Flow, which provides control over customizing stati or various E-commerce plugins that make heavy use of custom stati)
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
 
 ## Parameters

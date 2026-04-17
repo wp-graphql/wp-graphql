@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_post_object_create_should_set_intended_post_status
 hookType: filter
-hookGroup: uncategorized
+hookGroup: models
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Determine whether the intended status should be set or not. By filtering to false, the $intended_post_status will not be set at the completion of the mutation. This allows for side-effect actions to set the status later. For example, if a post was being created via a GraphQL Mutation, the post had additional required assets, such as images that needed to be sideloaded or some other semi-time-consuming side effect, those actions could be deferred (cron or whatever), and when those actions complete they could come back and set the $intended_status.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Model Layer
+- **Since:** 0.0.5
 - **Source:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
 
 ## Parameters
