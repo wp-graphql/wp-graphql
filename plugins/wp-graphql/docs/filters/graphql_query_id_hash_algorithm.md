@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_query_id_hash_algorithm
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
@@ -14,6 +14,10 @@ plugin: wp-graphql
 Filter the hash algorithm to allow different algorithms.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.2
 - **Source:** `plugins/wp-graphql/src/Utils/Utils.php`
+
+## Parameters
+
+- `$algorithm` (`string`): Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php

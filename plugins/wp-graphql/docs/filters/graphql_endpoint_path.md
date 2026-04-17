@@ -11,7 +11,7 @@ plugin: wp-graphql
 
 # `graphql_endpoint_path`
 
-No description available.
+Filter the relative endpoint path where GraphQL can be accessed.
 
 - **Type:** filter
 - **Group:** Settings and Admin

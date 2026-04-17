@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:15:37.956Z",
+  "generatedAt": "2026-04-17T14:17:26.231Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -591,41 +591,6 @@
       },
       {
         "type": "missing_hook_group",
-        "hook": "graphql_wp_connection_type_config",
-        "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-        "line": 148,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_wp_connection_type_config",
-        "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-        "line": 148,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
-        "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-        "line": 163,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
-        "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-        "line": 163,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_wp_connection_type",
-        "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-        "line": 196,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
         "hook": "graphql_type_interfaces",
         "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
         "line": 37,
@@ -706,41 +671,6 @@
         "hook": "graphql_tracing_response",
         "file": "plugins/wp-graphql/src/Utils/Tracing.php",
         "line": 384,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_query_id_hash_algorithm",
-        "file": "plugins/wp-graphql/src/Utils/Utils.php",
-        "line": 23,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_query_id_hash_algorithm",
-        "file": "plugins/wp-graphql/src/Utils/Utils.php",
-        "line": 23,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_query_id_hash_algorithm",
-        "file": "plugins/wp-graphql/src/Utils/Utils.php",
-        "line": 23,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_pre_format_name",
-        "file": "plugins/wp-graphql/src/Utils/Utils.php",
-        "line": 137,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_pre_format_name",
-        "file": "plugins/wp-graphql/src/Utils/Utils.php",
-        "line": 137,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -749,41 +679,6 @@
         "file": "plugins/wp-graphql/src/WPSchema.php",
         "line": 52,
         "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_setting_section_fields",
-        "file": "plugins/wp-graphql/access-functions.php",
-        "line": 863,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_setting_section_fields",
-        "file": "plugins/wp-graphql/access-functions.php",
-        "line": 863,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_get_setting_section_field_value",
-        "file": "plugins/wp-graphql/access-functions.php",
-        "line": 882,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_get_setting_section_field_value",
-        "file": "plugins/wp-graphql/access-functions.php",
-        "line": 882,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_endpoint_path",
-        "file": "plugins/wp-graphql/access-functions.php",
-        "line": 900,
-        "message": "Missing hook description in nearest docblock"
       }
     ]
   },
@@ -4222,7 +4117,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 902,
+      "line": 910,
       "description": "Legacy endpoint path filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -4280,8 +4175,8 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 900,
-      "description": "",
+      "line": 908,
+      "description": "Filter the relative endpoint path where GraphQL can be accessed.",
       "params": [
         {
           "type": "string",
@@ -5184,11 +5079,11 @@
       "kind": "filter",
       "group": "settings",
       "groupLabel": "Settings and Admin",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 882,
+      "line": 888,
       "description": "Filter the value before returning it",
       "params": [
         {
@@ -5219,8 +5114,8 @@
       ],
       "argumentCount": 5,
       "docblockParamCount": 5,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_setting_section_field_value'",
       "relatedSnippets": [],
@@ -5239,11 +5134,11 @@
       "kind": "filter",
       "group": "settings",
       "groupLabel": "Settings and Admin",
-      "groupSource": "fallback",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 863,
+      "line": 866,
       "description": "Filter the section fields",
       "params": [
         {
@@ -5264,8 +5159,8 @@
       ],
       "argumentCount": 3,
       "docblockParamCount": 3,
-      "since": null,
-      "hookGroup": null,
+      "since": "0.13.0",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_setting_section_fields'",
       "relatedSnippets": [],
@@ -7719,13 +7614,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_pre_format_name",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 137,
+      "line": 143,
       "description": "Filter to manually format a GraphQL name according to custom rules. If anything other than null is returned, the result will be used for the name instead of the standard regex. Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.",
       "params": [
         {
@@ -7751,8 +7646,8 @@
       ],
       "argumentCount": 4,
       "docblockParamCount": 4,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.17.0",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_pre_format_name'",
       "relatedSnippets": [],
@@ -9063,19 +8958,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_query_id_hash_algorithm",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 23,
+      "line": 26,
       "description": "Filter the hash algorithm to allow different algorithms.",
-      "params": [],
+      "params": [
+        {
+          "type": "string",
+          "name": "$algorithm",
+          "description": "Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php"
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "0.0.2",
+      "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_query_id_hash_algorithm'",
       "relatedSnippets": [],
@@ -12128,13 +12029,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_connection_{$this->from_type}_from_field_name",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 163,
+      "line": 169,
       "description": "Filter the connection field name.",
       "params": [
         {
@@ -12145,8 +12046,8 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.13.0",
+      "hookGroup": "schema-registration",
       "isDynamic": true,
       "rawExpression": "\"graphql_wp_connection_{$this->from_type}_from_field_name\"",
       "relatedSnippets": [],
@@ -12163,13 +12064,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_connection_type",
       "kind": "action",
-      "group": "connections",
-      "groupLabel": "Connections",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
       "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 196,
+      "line": 203,
       "description": "Run an action when the WPConnectionType is instantiating.",
       "params": [
         {
@@ -12186,7 +12087,7 @@
       "argumentCount": 2,
       "docblockParamCount": 2,
       "since": "1.13.0",
-      "hookGroup": null,
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_wp_connection_type'",
       "relatedSnippets": [],
@@ -12203,13 +12104,13 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_wp_connection_type_config",
       "kind": "filter",
-      "group": "connections",
-      "groupLabel": "Connections",
-      "groupSource": "fallback",
+      "group": "schema-registration",
+      "groupLabel": "Schema Registration",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 148,
+      "line": 151,
       "description": "Filter the config of WPConnectionType",
       "params": [
         {
@@ -12225,8 +12126,8 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": null,
-      "hookGroup": null,
+      "since": "1.13.0",
+      "hookGroup": "schema-registration",
       "isDynamic": false,
       "rawExpression": "'graphql_wp_connection_type_config'",
       "relatedSnippets": [],

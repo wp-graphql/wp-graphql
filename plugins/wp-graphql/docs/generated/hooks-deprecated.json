@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:15:37.956Z",
+  "generatedAt": "2026-04-17T14:17:26.231Z",
   "count": 21,
   "hooks": [
     {
@@ -193,7 +193,7 @@
         },
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 902
+          "line": 910
         }
       ],
       "occurrences": 2

@@ -15,7 +15,7 @@ Filter the value before returning it
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 0.13.0
 - **Source:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters

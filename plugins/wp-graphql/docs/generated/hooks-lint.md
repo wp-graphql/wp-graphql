@@ -7,15 +7,15 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 100
-- Total findings: 100
+- Warnings: 85
+- Total findings: 85
 
 ## Findings by Type
 
-- `missing_hook_description`: 2
-- `missing_hook_group`: 54
-- `missing_hook_params`: 3
-- `missing_hook_since`: 41
+- `missing_hook_description`: 1
+- `missing_hook_group`: 47
+- `missing_hook_params`: 2
+- `missing_hook_since`: 35
 
 ## Findings
 
@@ -25,10 +25,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 266)
-- **Hook:** `graphql_endpoint_path`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/access-functions.php` (line 900)
 
 ### `missing_hook_group`
 
@@ -192,18 +188,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Type/ObjectType/MenuItem.php` (line 57)
-- **Hook:** `graphql_wp_connection_type_config`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 148)
-- **Hook:** `graphql_wp_connection_{$this->from_type}_from_field_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 163)
-- **Hook:** `graphql_wp_connection_type`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 196)
 - **Hook:** `graphql_type_interfaces`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -228,26 +212,10 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Utils/Tracing.php` (line 384)
-- **Hook:** `graphql_query_id_hash_algorithm`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 23)
-- **Hook:** `graphql_pre_format_name`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 137)
 - **Hook:** `graphql_schema_config`
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/WPSchema.php` (line 52)
-- **Hook:** `graphql_get_setting_section_fields`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/access-functions.php` (line 863)
-- **Hook:** `graphql_get_setting_section_field_value`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/access-functions.php` (line 882)
 
 ### `missing_hook_params`
 
@@ -259,10 +227,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php` (line 294)
-- **Hook:** `graphql_query_id_hash_algorithm`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 23)
 
 ### `missing_hook_since`
 
@@ -382,14 +346,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Type/ObjectType/MenuItem.php` (line 57)
-- **Hook:** `graphql_wp_connection_type_config`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 148)
-- **Hook:** `graphql_wp_connection_{$this->from_type}_from_field_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Type/WPConnectionType.php` (line 163)
 - **Hook:** `graphql_type_interfaces`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -414,20 +370,4 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Utils/Tracing.php` (line 384)
-- **Hook:** `graphql_query_id_hash_algorithm`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 23)
-- **Hook:** `graphql_pre_format_name`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Utils/Utils.php` (line 137)
-- **Hook:** `graphql_get_setting_section_fields`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/access-functions.php` (line 863)
-- **Hook:** `graphql_get_setting_section_field_value`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/access-functions.php` (line 882)
 

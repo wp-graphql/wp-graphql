@@ -8,10 +8,6 @@ title: Actions
 
 # Actions
 
-## Connections
-
-- [`graphql_wp_connection_type`](/docs/actions/graphql_wp_connection_type)
-
 ## Debugging and Instrumentation
 
 - [`graphql_after_resolve_field`](/docs/actions/graphql_after_resolve_field)
@@ -52,6 +48,7 @@ title: Actions
 - [`graphql_register_initial_types`](/docs/actions/graphql_register_initial_types)
 - [`graphql_register_types`](/docs/actions/graphql_register_types)
 - [`graphql_register_types_late`](/docs/actions/graphql_register_types_late)
+- [`graphql_wp_connection_type`](/docs/actions/graphql_wp_connection_type)
 - [`graphql_wp_mutation_type`](/docs/actions/graphql_wp_mutation_type)
 - [`graphql_wp_object_type`](/docs/actions/graphql_wp_object_type)
 - [`graphql_wp_union_type`](/docs/actions/graphql_wp_union_type)

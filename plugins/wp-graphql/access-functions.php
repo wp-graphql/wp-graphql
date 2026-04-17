@@ -859,6 +859,9 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 	 * @param array<string,mixed> $section_fields The values of the fields stored for the section
 	 * @param string              $section_name   The name of the section
 	 * @param mixed               $default_value  The default value for the option being retrieved
+	 *
+	 * @hookGroup settings
+	 * @since 0.13.0
 	 */
 	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
@@ -878,6 +881,9 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 	 * @param string              $option_name    The name of the option
 	 * @param array<string,mixed> $section_fields The setting values within the section
 	 * @param string              $section_name   The name of the section the setting belongs to
+	 *
+	 * @hookGroup settings
+	 * @since 0.13.0
 	 */
 	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
 }
@@ -893,6 +899,8 @@ function graphql_get_endpoint(): string {
 	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
 
 	/**
+	 * Filter the relative endpoint path where GraphQL can be accessed.
+	 *
 	 * @param string $endpoint_path The relative endpoint path that GraphQL can be accessed at.
 	 * @hookGroup settings
 	 * @since x-release-please-version

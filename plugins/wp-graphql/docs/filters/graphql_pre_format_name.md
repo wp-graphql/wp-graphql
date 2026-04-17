@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_pre_format_name
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter to manually format a GraphQL name according to custom rules. If anything other than null is returned, the result will be used for the name instead of the standard regex. Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 1.17.0
 - **Source:** `plugins/wp-graphql/src/Utils/Utils.php`
 
 ## Parameters

@@ -18,7 +18,10 @@ class Utils {
 		/**
 		 * Filter the hash algorithm to allow different algorithms.
 		 *
-		 * @string $algorithm Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php
+		 * @param string $algorithm Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.2
 		 */
 		$hash_algorithm = apply_filters( 'graphql_query_id_hash_algorithm', 'sha256' );
 
@@ -131,6 +134,9 @@ class Utils {
 		 * @param string $original_name       The name to format.
 		 * @param string $replacement         The replacement character for invalid characters. Defaults to '_'.
 		 * @param string $regex               The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 1.17.0
 		 *
 		 * @return string|null
 		 */

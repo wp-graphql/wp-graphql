@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_wp_connection_type
 hookType: action
-hookGroup: connections
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,7 +14,7 @@ plugin: wp-graphql
 Run an action when the WPConnectionType is instantiating.
 
 - **Type:** action
-- **Group:** Connections
+- **Group:** Schema Registration
 - **Since:** 1.13.0
 - **Source:** `plugins/wp-graphql/src/Type/WPConnectionType.php`
 

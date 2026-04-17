@@ -507,41 +507,6 @@
     },
     {
       "type": "missing_hook_group",
-      "hook": "graphql_wp_connection_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 148,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_wp_connection_type_config",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 148,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 163,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_wp_connection_{$this->from_type}_from_field_name",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 163,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_wp_connection_type",
-      "file": "plugins/wp-graphql/src/Type/WPConnectionType.php",
-      "line": 196,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
       "hook": "graphql_type_interfaces",
       "file": "plugins/wp-graphql/src/Type/WPInterfaceTrait.php",
       "line": 37,
@@ -622,41 +587,6 @@
       "hook": "graphql_tracing_response",
       "file": "plugins/wp-graphql/src/Utils/Tracing.php",
       "line": 384,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_query_id_hash_algorithm",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 23,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_query_id_hash_algorithm",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 23,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_params",
-      "hook": "graphql_query_id_hash_algorithm",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 23,
-      "message": "Hook receives arguments but docblock is missing @param entries"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_pre_format_name",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 137,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_pre_format_name",
-      "file": "plugins/wp-graphql/src/Utils/Utils.php",
-      "line": 137,
       "message": "Missing @since tag in nearest docblock"
     },
     {
@@ -665,41 +595,6 @@
       "file": "plugins/wp-graphql/src/WPSchema.php",
       "line": 52,
       "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_get_setting_section_fields",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 863,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_get_setting_section_fields",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 863,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_group",
-      "hook": "graphql_get_setting_section_field_value",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 882,
-      "message": "Missing @hookGroup tag"
-    },
-    {
-      "type": "missing_hook_since",
-      "hook": "graphql_get_setting_section_field_value",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 882,
-      "message": "Missing @since tag in nearest docblock"
-    },
-    {
-      "type": "missing_hook_description",
-      "hook": "graphql_endpoint_path",
-      "file": "plugins/wp-graphql/access-functions.php",
-      "line": 900,
-      "message": "Missing hook description in nearest docblock"
     }
   ]
 }

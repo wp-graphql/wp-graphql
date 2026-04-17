@@ -5,7 +5,7 @@ Do not edit manually.
 ---
 title: graphql_wp_connection_type_config
 hookType: filter
-hookGroup: connections
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
@@ -14,8 +14,8 @@ plugin: wp-graphql
 Filter the config of WPConnectionType
 
 - **Type:** filter
-- **Group:** Connections
-- **Since:** Unknown
+- **Group:** Schema Registration
+- **Since:** 1.13.0
 - **Source:** `plugins/wp-graphql/src/Type/WPConnectionType.php`
 
 ## Parameters
