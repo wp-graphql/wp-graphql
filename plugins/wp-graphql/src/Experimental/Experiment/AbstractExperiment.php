@@ -287,6 +287,17 @@ abstract class AbstractExperiment {
 			}
 		} else {
 			// Constant not defined, apply filter to allow programmatic control
+			/**
+			 * Filters global experimental feature overrides.
+			 *
+			 * Return `false` to disable all experiments, or return an associative array keyed by
+			 * experiment slug to selectively enable/disable experiments.
+			 *
+			 * @param array<string,bool>|false|null $experimental_features The experimental feature override map, false, or null.
+			 *
+			 * @hookGroup settings
+			 * @since 2.3.8
+			 */
 			$experimental_features = apply_filters( 'graphql_experimental_features_override', null );
 
 			if ( null !== $experimental_features ) {
@@ -313,15 +324,16 @@ abstract class AbstractExperiment {
 			$setting_value = get_graphql_setting( $setting_key, 'off', Admin::$option_group );
 			$is_active     = 'on' === $setting_value;
 
+			$slug      = static::get_slug();
 			/**
 			 * Filters whether the experiment is active.
 			 *
 			 * @param bool   $is_active Whether the experiment is active.
 			 * @param string $slug      The experiment's slug.
+			 *
 			 * @hookGroup settings
-			 * @since x-release-please-version
+			 * @since 2.3.8
 			 */
-			$slug      = static::get_slug();
 			$is_active = apply_filters( 'graphql_experiment_enabled', $is_active, $slug );
 
 			if ( has_filter( 'wp_graphql_experiment_enabled' ) ) {

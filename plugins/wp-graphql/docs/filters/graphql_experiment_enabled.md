@@ -5,15 +5,20 @@ Do not edit manually.
 ---
 title: graphql_experiment_enabled
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # `graphql_experiment_enabled`
 
-No description available.
+Filters whether the experiment is active.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Settings and Admin
+- **Since:** 2.3.8
 - **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+
+## Parameters
+
+- `$is_active` (`bool`): Whether the experiment is active.
+- `$slug` (`string`): The experiment's slug.

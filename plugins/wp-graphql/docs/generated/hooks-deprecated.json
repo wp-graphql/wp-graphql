@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T13:59:14.279Z",
+  "generatedAt": "2026-04-17T14:03:46.080Z",
   "count": 21,
   "hooks": [
     {
@@ -653,7 +653,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 393,
+      "line": 405,
       "description": "Legacy experiment config filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -674,7 +674,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-          "line": 393
+          "line": 405
         }
       ],
       "occurrences": 1
@@ -689,7 +689,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 328,
+      "line": 340,
       "description": "Legacy experiment enabled filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -710,7 +710,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-          "line": 328
+          "line": 340
         }
       ],
       "occurrences": 1

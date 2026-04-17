@@ -7,16 +7,16 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 158
-- Total findings: 158
+- Warnings: 150
+- Total findings: 150
 
 ## Findings by Type
 
-- `missing_hook_description`: 9
-- `missing_hook_group`: 76
+- `missing_hook_description`: 7
+- `missing_hook_group`: 74
 - `missing_hook_param_description`: 1
-- `missing_hook_params`: 12
-- `missing_hook_since`: 60
+- `missing_hook_params`: 10
+- `missing_hook_since`: 58
 
 ## Findings
 
@@ -30,14 +30,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing hook description in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/CommentMutation.php` (line 134)
-- **Hook:** `graphql_experimental_features_override`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 290)
-- **Hook:** `graphql_experiment_enabled`
-  - Severity: warning
-  - Message: Missing hook description in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
 - **Hook:** `graphql_request_data`
   - Severity: warning
   - Message: Missing hook description in nearest docblock
@@ -201,14 +193,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @hookGroup tag
   - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 266)
-- **Hook:** `graphql_experimental_features_override`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 290)
-- **Hook:** `graphql_experiment_enabled`
-  - Severity: warning
-  - Message: Missing @hookGroup tag
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
 - **Hook:** `graphql_experimental_features_cap`
   - Severity: warning
   - Message: Missing @hookGroup tag
@@ -395,14 +379,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
   - Source: `plugins/wp-graphql/src/Data/DataSource.php` (line 444)
-- **Hook:** `graphql_experimental_features_override`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 290)
-- **Hook:** `graphql_experiment_enabled`
-  - Severity: warning
-  - Message: Hook receives arguments but docblock is missing @param entries
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
 - **Hook:** `graphql_request_data`
   - Severity: warning
   - Message: Hook receives arguments but docblock is missing @param entries
@@ -510,14 +486,6 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Data/UserMutation.php` (line 266)
-- **Hook:** `graphql_experimental_features_override`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 290)
-- **Hook:** `graphql_experiment_enabled`
-  - Severity: warning
-  - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 325)
 - **Hook:** `graphql_experimental_features_cap`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock

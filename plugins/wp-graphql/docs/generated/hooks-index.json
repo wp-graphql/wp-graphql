@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T13:59:14.279Z",
+  "generatedAt": "2026-04-17T14:03:46.080Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -532,62 +532,6 @@
         "file": "plugins/wp-graphql/src/Data/UserMutation.php",
         "line": 266,
         "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_experimental_features_override",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 290,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_experimental_features_override",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 290,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_experimental_features_override",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 290,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_experimental_features_override",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 290,
-        "message": "Hook receives arguments but docblock is missing @param entries"
-      },
-      {
-        "type": "missing_hook_group",
-        "hook": "graphql_experiment_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 325,
-        "message": "Missing @hookGroup tag"
-      },
-      {
-        "type": "missing_hook_since",
-        "hook": "graphql_experiment_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 325,
-        "message": "Missing @since tag in nearest docblock"
-      },
-      {
-        "type": "missing_hook_description",
-        "hook": "graphql_experiment_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 325,
-        "message": "Missing hook description in nearest docblock"
-      },
-      {
-        "type": "missing_hook_params",
-        "hook": "graphql_experiment_enabled",
-        "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-        "line": 325,
-        "message": "Hook receives arguments but docblock is missing @param entries"
       },
       {
         "type": "missing_hook_group",
@@ -1320,7 +1264,7 @@
       "sourceType": "core",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 402,
+      "line": 414,
       "description": "",
       "params": [],
       "argumentCount": 1,
@@ -1349,7 +1293,7 @@
       "sourceType": "core",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 337,
+      "line": 349,
       "description": "",
       "params": [],
       "argumentCount": 1,
@@ -1378,7 +1322,7 @@
       "sourceType": "core",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 406,
+      "line": 418,
       "description": "",
       "params": [],
       "argumentCount": 3,
@@ -1407,7 +1351,7 @@
       "sourceType": "core",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 341,
+      "line": 353,
       "description": "",
       "params": [],
       "argumentCount": 3,
@@ -4975,7 +4919,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 390,
+      "line": 402,
       "description": "Filters the experiment configuration.",
       "params": [
         {
@@ -5009,19 +4953,30 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_experiment_enabled",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 325,
-      "description": "",
-      "params": [],
+      "line": 337,
+      "description": "Filters whether the experiment is active.",
+      "params": [
+        {
+          "type": "bool",
+          "name": "$is_active",
+          "description": "Whether the experiment is active."
+        },
+        {
+          "type": "string",
+          "name": "$slug",
+          "description": "The experiment's slug."
+        }
+      ],
       "argumentCount": 2,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 2,
+      "since": "2.3.8",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_experiment_enabled'",
       "relatedSnippets": [],
@@ -5108,19 +5063,25 @@
       "pluginSlug": "wp-graphql",
       "name": "graphql_experimental_features_override",
       "kind": "filter",
-      "group": "uncategorized",
-      "groupLabel": "Uncategorized",
-      "groupSource": "fallback",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 290,
-      "description": "",
-      "params": [],
+      "line": 301,
+      "description": "Filters global experimental feature overrides. Return `false` to disable all experiments, or return an associative array keyed by experiment slug to selectively enable/disable experiments.",
+      "params": [
+        {
+          "type": "array<string,bool>|false|null",
+          "name": "$experimental_features",
+          "description": "The experimental feature override map, false, or null."
+        }
+      ],
       "argumentCount": 1,
-      "docblockParamCount": 0,
-      "since": null,
-      "hookGroup": null,
+      "docblockParamCount": 1,
+      "since": "2.3.8",
+      "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_experimental_features_override'",
       "relatedSnippets": [],
@@ -13479,7 +13440,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 393,
+      "line": 405,
       "description": "Legacy experiment config filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -13508,7 +13469,7 @@
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
-      "line": 328,
+      "line": 340,
       "description": "Legacy experiment enabled filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
