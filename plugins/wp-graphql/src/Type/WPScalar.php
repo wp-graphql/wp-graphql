@@ -46,7 +46,7 @@ class WPScalar extends CustomScalarType {
 	 * @phpstan-param WPScalarConfig $config
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
-		$name           = $config['name'];
+		$name = $config['name'];
 		/**
 		 * Filters the GraphQL type name used during scalar type construction.
 		 *
@@ -67,7 +67,7 @@ class WPScalar extends CustomScalarType {
 		 * @hookGroup schema-registration
 		 * @since 0.0.5
 		 */
-		$config         = apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
+		$config = apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
 
 		parent::__construct( $config );
 	}
