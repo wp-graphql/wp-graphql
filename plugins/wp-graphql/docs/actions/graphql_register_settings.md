@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_register_settings`
+# graphql_register_settings
+
+```php
+do_action( 'graphql_register_settings', $this );
+```
 
 Fires after core WPGraphQL settings have been registered.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Settings/Settings.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Settings/Settings.php`
 
 ## Parameters
 
 - `$settings` (`self`): Settings manager instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Settings/Settings.php:319`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L319)
+
+```php
+do_action( 'graphql_register_settings', $this );
+```
+
+## Related
+
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:319`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L319)

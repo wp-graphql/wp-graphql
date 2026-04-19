@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_register_taxonomy_args`
+# graphql_register_taxonomy_args
+
+```php
+apply_filters( 'graphql_register_taxonomy_args', $graphql_args, $taxonomy_name );
+```
 
 Filters the graphql args set on a taxonomy
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$args` (`array<string,mixed>`): The graphql specific args for the taxonomy
 - `$taxonomy_name` (`string`): The name of the taxonomy being registered
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:667`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L667)
+
+```php
+apply_filters( 'graphql_register_taxonomy_args', $graphql_args, $taxonomy_name );
+```
+
+## Related
+
+- `WPGraphQL::register_graphql_taxonomy_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:667`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L667)

@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_map_input_fields_to_get_terms`
+# graphql_map_input_fields_to_get_terms
+
+```php
+apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $args, $this->context, $this->info );
+```
 
 Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the get_terms query
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 - `$all_args` (`array<string,mixed>`): All of the query arguments (not just the "where" args)
 - `$context` (`\WPGraphQL\AppContext`): The AppContext object
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php:236`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php#L236)
+
+```php
+apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $args, $this->context, $this->info );
+```
+
+## Related
+
+- `TermObjectConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php:236`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php#L236)

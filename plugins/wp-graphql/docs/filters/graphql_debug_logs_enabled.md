@@ -9,16 +9,32 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_debug_logs_enabled`
+# graphql_debug_logs_enabled
+
+```php
+apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
+```
 
 Filters whether GraphQL Debug is enabled enabled. Serves as the default state for enabling debug logs.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/DebugLog.php`
 
 ## Parameters
 
 - `$enabled` (`bool`): Whether logs are enabled or not
 - `$debug_log` (`\WPGraphQL\Utils\DebugLog`): The DebugLog class instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/DebugLog.php:45`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/DebugLog.php#L45)
+
+```php
+apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
+```
+
+## Related
+
+- `DebugLog::__construct()` in [`plugins/wp-graphql/src/Utils/DebugLog.php:45`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/DebugLog.php#L45)

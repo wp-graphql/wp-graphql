@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_term_object_connection_query_args`
+# graphql_term_object_connection_query_args
+
+```php
+apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
+```
 
 Filters the query args used by the connection.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filters the query args used by the connection.
 - `$args` (`array<string,mixed>`): array of arguments input in the field as part of the GraphQL query
 - `$context` (`\WPGraphQL\AppContext`): object passed down the resolve tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): info about fields passed down the resolve tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php:141`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php#L141)
+
+```php
+apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
+```
+
+## Related
+
+- `TermObjectConnectionResolver::prepare_query_args()` in [`plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php:141`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php#L141)

@@ -9,17 +9,33 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_comment_insert_post_args`
+# graphql_comment_insert_post_args
+
+```php
+apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutation_name );
+```
 
 Filter the $insert_post_args
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/CommentMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/CommentMutation.php`
 
 ## Parameters
 
 - `$output_args` (`array<string,mixed>`): The array of $input_post_args that will be passed to wp_new_comment
 - `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
 - `$mutation_name` (`string`): The type of mutation being performed ( create, edit, etc )
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/CommentMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L113)
+
+```php
+apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutation_name );
+```
+
+## Related
+
+- `CommentMutation::prepare_comment_object()` in [`plugins/wp-graphql/src/Data/CommentMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L113)

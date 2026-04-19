@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_pre_model_data_is_private`
+# graphql_pre_model_data_is_private
+
+```php
+apply_filters( 'graphql_pre_model_data_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
 
 Filter to short circuit default is_private check for the model. This is expensive in some cases so this filter lets you prevent this from running by returning a true or false value.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 1.1.3
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filter to short circuit default is_private check for the model. This is expensiv
 - `$visibility` (`string|null`): The visibility that has currently been set for the data at this point
 - `$owner` (`int|null`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:234`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L234)
+
+```php
+apply_filters( 'graphql_pre_model_data_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:234`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L234)

@@ -9,15 +9,31 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_get_schema`
+# graphql_get_schema
+
+```php
+do_action( 'graphql_get_schema', self::$schema );
+```
 
 Fire an action when the Schema is returned
 
 - **Type:** action
 - **Group:** Schema Registration
 - **Since:** 1.1.5
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$schema` (`\WPGraphQL\WPSchema`): The executable schema.
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:948`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L948)
+
+```php
+do_action( 'graphql_get_schema', self::$schema );
+```
+
+## Related
+
+- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:948`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L948)

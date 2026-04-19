@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_resolved`
+# graphql_connection_resolved
+
+```php
+apply_filters( 'graphql_connection_resolved', $connection, $this );
+```
 
 Filter the connection. In some cases, connections will want to provide additional information other than edges, nodes, and pageInfo This filter allows additional fields to be returned to the connection resolver
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$connection` (`?array<string,mixed>`): The connection data being returned. A single edge or null if the connection is one-to-one.
 - `$resolver` (`self`): The instance of the connection resolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1064`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1064)
+
+```php
+apply_filters( 'graphql_connection_resolved', $connection, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1064`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1064)

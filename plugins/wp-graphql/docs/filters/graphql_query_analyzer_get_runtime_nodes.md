@@ -9,15 +9,31 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_query_analyzer_get_runtime_nodes`
+# graphql_query_analyzer_get_runtime_nodes
+
+```php
+apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
+```
 
 Filters runtime node identifiers captured while resolving a GraphQL request.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
 - `$runtime_nodes` (`string[]|int[]`): Nodes that were resolved during execution
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:343`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L343)
+
+```php
+apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
+```
+
+## Related
+
+- `QueryAnalyzer::get_runtime_nodes()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:343`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L343)

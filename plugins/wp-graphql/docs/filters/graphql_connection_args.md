@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_args`
+# graphql_connection_args
+
+```php
+apply_filters( 'graphql_connection_args', $this->args, $this, $this->get_unfiltered_args() );
+```
 
 Filters the GraphQL args before they are used in get_query_args().
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$args` (`array<string,mixed>`): The GraphQL args passed to the resolver.
 - `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the ConnectionResolver.
 - `$unfiltered_args` (`array<string,mixed>`): Array of arguments input in the field as part of the GraphQL query.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:226`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L226)
+
+```php
+apply_filters( 'graphql_connection_args', $this->args, $this, $this->get_unfiltered_args() );
+```
+
+## Related
+
+- `AbstractConnectionResolver::__construct()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:226`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L226)

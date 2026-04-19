@@ -9,16 +9,32 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_field_definition`
+# graphql_field_definition
+
+```php
+apply_filters( 'graphql_field_definition', $field, $type_name );
+```
 
 Filter the field definition
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.1
-- **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
 
 - `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The field definition
 - `$type_name` (`string`): The name of the type the field belongs to.
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:72`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L72)
+
+```php
+apply_filters( 'graphql_field_definition', $field, $type_name );
+```
+
+## Related
+
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:72`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L72)

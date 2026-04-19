@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_pre_user_cursor_node`
+# graphql_pre_user_cursor_node
+
+```php
+apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );
+```
 
 If pre-hooked, return filtered node.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Cursor/UserCursor.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Cursor/UserCursor.php`
 
 ## Parameters
 
 - `$pre_user` (`\WP_User|null`): The pre-filtered user node.
 - `$offset` (`int`): The cursor offset.
 - `$node` (`\WPGraphQL\Data\Cursor\UserCursor`): The cursor instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Cursor/UserCursor.php:86`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/UserCursor.php#L86)
+
+```php
+apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );
+```
+
+## Related
+
+- `UserCursor::get_cursor_node()` in [`plugins/wp-graphql/src/Data/Cursor/UserCursor.php:86`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/UserCursor.php#L86)

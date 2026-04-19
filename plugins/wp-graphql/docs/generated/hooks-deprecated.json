@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-17T14:28:09.144Z",
+  "generatedAt": "2026-04-19T02:50:29.986Z",
   "count": 21,
   "hooks": [
     {
@@ -12,8 +12,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
+      "enclosingSymbol": "Request::do_action()",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 613,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy GraphQL request lifecycle action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -22,6 +25,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'do_graphql_request'",
+      "sourceCall": "do_action_deprecated(\n\t\t\t'do_graphql_request',\n\t\t\t[ $params->query, $params->operation, $params->variables, $params ],\n\t\t\t'x-release-please-version',\n\t\t\t'graphql_do_request'\n\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -31,6 +35,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 613,
+          "symbol": "Request::do_action()",
+          "emitter": "do_action_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
@@ -48,8 +60,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
+      "enclosingSymbol": "GraphiQL::enqueue_graphiql()",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
       "line": 323,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy GraphiQL extension enqueue action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -58,6 +73,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'enqueue_graphiql_extension'",
+      "sourceCall": "do_action_deprecated(\n\t\t\t'enqueue_graphiql_extension',\n\t\t\t[],\n\t\t\t'x-release-please-version',\n\t\t\t'graphql_enqueue_graphiql_extension'\n\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -67,6 +83,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
+          "line": 323,
+          "symbol": "GraphiQL::enqueue_graphiql()",
+          "emitter": "do_action_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
@@ -84,8 +108,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "AbstractConnectionResolver::get_connection()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
       "line": 1066,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy connection result filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -94,6 +121,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_connection'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t\t\t'graphql_connection',\n\t\t\t\t\t\t[ $connection, $this ],\n\t\t\t\t\t\t'x-release-please-version',\n\t\t\t\t\t\t'graphql_connection_resolved'\n\t\t\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -103,6 +131,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
+          "line": 1066,
+          "symbol": "AbstractConnectionResolver::get_connection()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
@@ -120,8 +156,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "AppContext::prepare_data_loaders()",
       "file": "plugins/wp-graphql/src/AppContext.php",
       "line": 225,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "",
       "params": [
         {
@@ -141,6 +180,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_data_loaders'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'graphql_data_loaders',\n\t\t\t\t[ $loaders, $this ],\n\t\t\t\t'2.3.2',\n\t\t\t\t'graphql_data_loader_classes',\n\t\t\t\tesc_html__( 'The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated.', 'wp-graphql' ),\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -150,6 +190,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/AppContext.php",
+          "line": 225,
+          "symbol": "AppContext::prepare_data_loaders()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/AppContext.php",
@@ -167,8 +215,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "Settings::register_settings()",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
       "line": 103,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy endpoint path filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -177,6 +228,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_endpoint'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'graphql_endpoint',\n\t\t\t\t[ $custom_endpoint ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_endpoint_path'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -186,6 +238,20 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/access-functions.php",
+          "line": 910,
+          "symbol": "graphql_get_endpoint()",
+          "emitter": "apply_filters_deprecated"
+        },
+        {
+          "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
+          "line": 103,
+          "symbol": "Settings::register_settings()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
@@ -207,8 +273,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
+      "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 521,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy GraphQL request execution action retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -217,6 +286,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_execute'",
+      "sourceCall": "do_action_deprecated(\n\t\t\t\t'graphql_execute',\n\t\t\t\t[ $response, $this->schema, $operation, $query, $variables, $this ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_request_execute'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -226,6 +296,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 521,
+          "symbol": "Request::after_execute_actions()",
+          "emitter": "do_action_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
@@ -243,8 +321,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "Deprecated::filters()",
       "file": "plugins/wp-graphql/src/Deprecated.php",
       "line": 63,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "",
       "params": [
         {
@@ -269,6 +350,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_object_type_interfaces'",
+      "sourceCall": "apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces', __( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' ) );",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -278,6 +360,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Deprecated.php",
+          "line": 63,
+          "symbol": "Deprecated::filters()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Deprecated.php",
@@ -295,8 +385,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "Deprecated::menu_item_connected_object()",
       "file": "plugins/wp-graphql/src/Deprecated.php",
       "line": 165,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "",
       "params": [
         {
@@ -336,6 +429,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_menu_item'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t\t\t'graphql_resolve_menu_item',\n\t\t\t\t\t\t[\n\t\t\t\t\t\t\t$resolved_object,\n\t\t\t\t\t\t\t$args,\n\t\t\t\t\t\t\t$context,\n\t\t\t\t\t\t\t$info,\n\t\t\t\t\t\t\t$object_id,\n\t\t\t\t\t\t\t$object_type,\n\t\t\t\t\t\t],\n\t\t\t\t\t\t'1.22.0',\n\t\t\t\t\t\t'graphql_pre_resolve_menu_item_connected_node',\n\t\t\t\t\t\t__( 'This will be removed in the next version of WPGraphQL. Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead.', 'wp-graphql' )\n\t\t\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -345,6 +439,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Deprecated.php",
+          "line": 165,
+          "symbol": "Deprecated::menu_item_connected_object()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Deprecated.php",
@@ -362,8 +464,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "Deprecated::filters()",
       "file": "plugins/wp-graphql/src/Deprecated.php",
       "line": 91,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "",
       "params": [
         {
@@ -398,6 +503,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_return_modeled_data'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t\t'graphql_return_modeled_data',\n\t\t\t\t\t[ $fields, $model_name, $visibility, $owner, $current_user ],\n\t\t\t\t\t'1.7.0',\n\t\t\t\t\t'graphql_model_prepare_fields',\n\t\t\t\t\t__( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' )\n\t\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -407,6 +513,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Deprecated.php",
+          "line": 91,
+          "symbol": "Deprecated::filters()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Deprecated.php",
@@ -424,8 +538,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "SchemaRegistry::get_schema()",
       "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
       "line": 84,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy schema filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -434,6 +551,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'graphql_schema'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'graphql_schema',\n\t\t\t\t[ $schema, $this ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_schema_instance'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -443,6 +561,20 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
+          "line": 84,
+          "symbol": "SchemaRegistry::get_schema()",
+          "emitter": "apply_filters_deprecated"
+        },
+        {
+          "file": "plugins/wp-graphql/src/WPGraphQL.php",
+          "line": 932,
+          "symbol": "WPGraphQL::get_schema()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
@@ -464,8 +596,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
+      "enclosingSymbol": "Commands::generate_static_schema()",
       "file": "plugins/wp-graphql/src/CLI/Commands.php",
       "line": 73,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy request initialization hook retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -474,6 +609,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'init_graphql_request'",
+      "sourceCall": "do_action_deprecated(\n\t\t\t'init_graphql_request',\n\t\t\t[],\n\t\t\t'x-release-please-version',\n\t\t\t'graphql_init_request'\n\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -483,6 +619,20 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/CLI/Commands.php",
+          "line": 73,
+          "symbol": "Commands::generate_static_schema()",
+          "emitter": "do_action_deprecated"
+        },
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 163,
+          "symbol": "Request::__construct()",
+          "emitter": "do_action_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/CLI/Commands.php",
@@ -504,8 +654,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "do_action_deprecated",
+      "enclosingSymbol": "TypeRegistry::init()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
       "line": 284,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy type registry initialization hook retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -514,6 +667,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'init_graphql_type_registry'",
+      "sourceCall": "do_action_deprecated(\n\t\t\t'init_graphql_type_registry',\n\t\t\t[ $this ],\n\t\t\t'x-release-please-version',\n\t\t\t'graphql_init_type_registry'\n\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -523,6 +677,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
+          "line": 284,
+          "symbol": "TypeRegistry::init()",
+          "emitter": "do_action_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
@@ -540,8 +702,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "Request::execute()",
       "file": "plugins/wp-graphql/src/Request.php",
       "line": 696,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy pre-execute request filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -550,6 +715,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'pre_graphql_execute_request'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'pre_graphql_execute_request',\n\t\t\t\t[ $response, $this ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_pre_execute_request'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -559,6 +725,20 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 696,
+          "symbol": "Request::execute()",
+          "emitter": "apply_filters_deprecated"
+        },
+        {
+          "file": "plugins/wp-graphql/src/Request.php",
+          "line": 811,
+          "symbol": "Request::execute_http()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
@@ -580,8 +760,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "WPGraphQL::register_graphql_post_type_args()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
       "line": 630,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy post type registration filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -590,6 +773,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'register_graphql_post_type_args'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'register_graphql_post_type_args',\n\t\t\t\t[ $graphql_args, $post_type_name ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_register_post_type_args'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -599,6 +783,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/WPGraphQL.php",
+          "line": 630,
+          "symbol": "WPGraphQL::register_graphql_post_type_args()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
@@ -616,8 +808,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "WPGraphQL::register_graphql_taxonomy_args()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
       "line": 669,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy taxonomy registration filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -626,6 +821,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'register_graphql_taxonomy_args'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'register_graphql_taxonomy_args',\n\t\t\t\t[ $graphql_args, $taxonomy_name ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_register_taxonomy_args'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -635,6 +831,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/WPGraphQL.php",
+          "line": 669,
+          "symbol": "WPGraphQL::register_graphql_taxonomy_args()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
@@ -652,8 +856,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "AbstractExperiment::prepare_config()",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
       "line": 405,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy experiment config filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -662,6 +869,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wp_graphql_experiment_config'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'wp_graphql_experiment_config',\n\t\t\t\t[ $config, $slug ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_experiment_config'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -671,6 +879,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+          "line": 405,
+          "symbol": "AbstractExperiment::prepare_config()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
@@ -688,8 +904,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "AbstractExperiment::is_active()",
       "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
       "line": 340,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy experiment enabled filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -698,6 +917,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wp_graphql_experiment_enabled'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t\t'wp_graphql_experiment_enabled',\n\t\t\t\t\t[ $is_active, $slug ],\n\t\t\t\t\t'x-release-please-version',\n\t\t\t\t\t'graphql_experiment_enabled'\n\t\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -707,6 +927,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+          "line": 340,
+          "symbol": "AbstractExperiment::is_active()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
@@ -724,8 +952,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "UpdateChecker::should_allow_major_autoupdates()",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 320,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy autoupdate filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -734,6 +965,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wpgraphql_enable_major_autoupdates'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'wpgraphql_enable_major_autoupdates',\n\t\t\t\t[ $should_allow, $this->new_version, $this->current_version, $this->plugin_data ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_enable_major_autoupdates'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -743,6 +975,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+          "line": 320,
+          "symbol": "UpdateChecker::should_allow_major_autoupdates()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
@@ -760,8 +1000,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "UpdateChecker::should_allow_untested_autoupdates()",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 355,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy untested autoupdate filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -770,6 +1013,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wpgraphql_enable_untested_autoupdates'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'wpgraphql_enable_untested_autoupdates',\n\t\t\t\t[ $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_enable_untested_autoupdates'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -779,6 +1023,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+          "line": 355,
+          "symbol": "UpdateChecker::should_allow_untested_autoupdates()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
@@ -796,8 +1048,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "Experimental::is_enabled()",
       "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
       "line": 71,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy experimental features toggle filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -806,6 +1061,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wpgraphql_experimental_features_enabled'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t\t\t'wpgraphql_experimental_features_enabled',\n\t\t\t\t\t\t[ $this->is_enabled ],\n\t\t\t\t\t\t'x-release-please-version',\n\t\t\t\t\t\t'graphql_experimental_features_enabled'\n\t\t\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -815,6 +1071,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
+          "line": 71,
+          "symbol": "Experimental::is_enabled()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
@@ -832,8 +1096,11 @@
       "groupSource": "fallback",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters_deprecated",
+      "enclosingSymbol": "UpdateChecker::get_untested_release_type()",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 383,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
       "description": "Legacy release channel filter retained for backward compatibility.",
       "params": [],
       "argumentCount": 3,
@@ -842,6 +1109,7 @@
       "hookGroup": null,
       "isDynamic": false,
       "rawExpression": "'wpgraphql_untested_release_type'",
+      "sourceCall": "apply_filters_deprecated(\n\t\t\t\t'wpgraphql_untested_release_type',\n\t\t\t\t[ $release_type ],\n\t\t\t\t'x-release-please-version',\n\t\t\t\t'graphql_untested_release_type'\n\t\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "deprecated",
@@ -851,6 +1119,14 @@
         "message": null,
         "source": "deprecated_call"
       },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+          "line": 383,
+          "symbol": "UpdateChecker::get_untested_release_type()",
+          "emitter": "apply_filters_deprecated"
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",

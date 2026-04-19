@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_enable_graphiql`
+# graphql_enable_graphiql
+
+```php
+apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled', true ) );
+```
 
 Filters whether the embedded GraphiQL IDE should be enabled.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Admin.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Admin.php`
 
 ## Parameters
 
 - `$graphiql_enabled` (`bool|string`): Whether GraphiQL should be enabled.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Admin.php:64`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L64)
+
+```php
+apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled', true ) );
+```
+
+## Related
+
+- `Admin::init()` in [`plugins/wp-graphql/src/Admin/Admin.php:64`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L64)

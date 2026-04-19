@@ -9,18 +9,22 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `graphql_data_loaders`
+# graphql_data_loaders
 
 > [!WARNING]
 > This hook has been deprecated since v2.3.2 and should not be used for new integrations.
 > Use `graphql_data_loader_classes` instead.
+
+```php
+apply_filters_deprecated( 'graphql_data_loaders', [ $loaders, $this ], '2.3.2', 'graphql_data_loader_classes', esc_html__( 'The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated.', 'wp-graphql' ), );
+```
 
 No description available.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/AppContext.php`
+- **Source File:** `plugins/wp-graphql/src/AppContext.php`
 
 ## Lifecycle
 
@@ -31,3 +35,21 @@ No description available.
 
 - `$loaders` (`array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>`): The loaders accessible in the AppContext
 - `$context` (`\WPGraphQL\AppContext`): The AppContext
+
+## Source
+
+- [`plugins/wp-graphql/src/AppContext.php:225`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L225)
+
+```php
+apply_filters_deprecated(
+				'graphql_data_loaders',
+				[ $loaders, $this ],
+				'2.3.2',
+				'graphql_data_loader_classes',
+				esc_html__( 'The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated.', 'wp-graphql' ),
+			);
+```
+
+## Related
+
+- `AppContext::prepare_data_loaders()` in [`plugins/wp-graphql/src/AppContext.php:225`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L225)

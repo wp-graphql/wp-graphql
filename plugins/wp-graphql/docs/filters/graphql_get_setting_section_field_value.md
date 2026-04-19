@@ -9,14 +9,18 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_get_setting_section_field_value`
+# graphql_get_setting_section_field_value
+
+```php
+apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
+```
 
 Filter the value before returning it
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/access-functions.php`
+- **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter the value before returning it
 - `$option_name` (`string`): The name of the option
 - `$section_fields` (`array<string,mixed>`): The setting values within the section
 - `$section_name` (`string`): The name of the section the setting belongs to
+
+## Source
+
+- [`plugins/wp-graphql/access-functions.php:888`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L888)
+
+```php
+apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
+```
+
+## Related
+
+- `get_graphql_setting()` in [`plugins/wp-graphql/access-functions.php:888`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L888)

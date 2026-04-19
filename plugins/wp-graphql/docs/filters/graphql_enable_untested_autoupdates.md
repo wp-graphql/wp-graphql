@@ -9,14 +9,18 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_enable_untested_autoupdates`
+# graphql_enable_untested_autoupdates
+
+```php
+apply_filters( 'graphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
+```
 
 Filter whether to allow autoupdates with untested plugins.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter whether to allow autoupdates with untested plugins.
 - `$new_version` (`string`): The new WPGraphQL version number.
 - `$current_version` (`string`): The current WPGraphQL version number.
 - `$plugin_data` (`object`): The plugin data object.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:352`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L352)
+
+```php
+apply_filters( 'graphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
+```
+
+## Related
+
+- `UpdateChecker::should_allow_untested_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:352`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L352)

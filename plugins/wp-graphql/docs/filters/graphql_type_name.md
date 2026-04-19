@@ -9,17 +9,38 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_type_name`
+# graphql_type_name
+
+```php
+apply_filters( 'graphql_type_name', $name, $config, $this );
+```
 
 Filters the GraphQL type name used during type construction.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.3.4
-- **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPUnionType.php`
 
 ## Parameters
 
 - `$name` (`string`): The type name.
 - `$config` (`array<string,mixed>`): The type config.
 - `$type` (`\WPGraphQL\Type\WPUnionType`): The union type instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPUnionType.php:50`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L50)
+
+```php
+apply_filters( 'graphql_type_name', $name, $config, $this );
+```
+
+## Related
+
+- `WPEnumType::__construct()` in [`plugins/wp-graphql/src/Type/WPEnumType.php:54`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L54)
+- `WPInputObjectType::__construct()` in [`plugins/wp-graphql/src/Type/WPInputObjectType.php:45`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInputObjectType.php#L45)
+- `WPInterfaceType::__construct()` in [`plugins/wp-graphql/src/Type/WPInterfaceType.php:60`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L60)
+- `WPObjectType::__construct()` in [`plugins/wp-graphql/src/Type/WPObjectType.php:95`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L95)
+- `WPScalar::__construct()` in [`plugins/wp-graphql/src/Type/WPScalar.php:65`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPScalar.php#L65)
+- `WPUnionType::__construct()` in [`plugins/wp-graphql/src/Type/WPUnionType.php:50`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L50)

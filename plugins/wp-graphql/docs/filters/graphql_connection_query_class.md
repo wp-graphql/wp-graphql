@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_query_class`
+# graphql_connection_query_class
+
+```php
+apply_filters( 'graphql_connection_query_class', $query_class, $this );
+```
 
 Filters the `$query_class` that will be used to execute the query. This is useful for replacing the default query (e.g `WP_Query` ) with a custom one (E.g. `WP_Term_Query` or WooCommerce's `WC_Query`).
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$query_class` (`?class-string<TQueryClass>`): The query class to be used with the executable query to get data. `null` if the AbstractConnectionResolver does not use a query class.
 - `$resolver` (`self`): Instance of the AbstractConnectionResolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:691`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L691)
+
+```php
+apply_filters( 'graphql_connection_query_class', $query_class, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_query_class()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:691`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L691)

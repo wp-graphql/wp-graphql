@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_is_valid_http_content_type`
+# graphql_is_valid_http_content_type
+
+```php
+apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
+```
 
 Allow graphql to validate custom content types for HTTP POST requests
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 2.1.0
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$is_valid` (`bool`): Whether the content type is valid
 - `$content_type` (`string`): The content type header value that was received
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:854`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L854)
+
+```php
+apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
+```
+
+## Related
+
+- `Request::is_valid_http_content_type()` in [`plugins/wp-graphql/src/Request.php:854`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L854)

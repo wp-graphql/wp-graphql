@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `wpgraphql_experimental_features_enabled`
+# wpgraphql_experimental_features_enabled
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_experimental_features_enabled` instead.
+
+```php
+apply_filters_deprecated( 'wpgraphql_experimental_features_enabled', [ $this->is_enabled ], 'x-release-please-version', 'graphql_experimental_features_enabled' );
+```
 
 Legacy experimental features toggle filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Experimental/Experimental.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Experimental.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_experimental_features_enabled`
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Experimental.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L71)
+
+```php
+apply_filters_deprecated(
+						'wpgraphql_experimental_features_enabled',
+						[ $this->is_enabled ],
+						'x-release-please-version',
+						'graphql_experimental_features_enabled'
+					);
+```
+
+## Related
+
+- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L71)

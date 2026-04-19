@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_object_visibility`
+# graphql_object_visibility
+
+```php
+apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
+```
 
 Filter the visibility name to be returned
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.3.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter the visibility name to be returned
 - `$data` (`TData`): The un-modeled incoming data
 - `$owner` (`int|null`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L284)
+
+```php
+apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L284)

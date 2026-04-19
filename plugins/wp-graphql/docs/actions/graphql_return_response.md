@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_return_response`
+# graphql_return_response
+
+```php
+do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this, $query_id );
+```
 
 Run an action after the response has been filtered, as the response is being returned. This is a good place for debug tools to hook in to log things, etc.
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
@@ -28,3 +32,15 @@ Run an action after the response has been filtered, as the response is being ret
 - `$variables` (`?array<string,mixed>`): Variables to passed to your GraphQL query
 - `$request` (`\WPGraphQL\Request`): Instance of the Request
 - `$query_id` (`?string`): The query id that GraphQL executed
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:583`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L583)
+
+```php
+do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this, $query_id );
+```
+
+## Related
+
+- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:583`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L583)

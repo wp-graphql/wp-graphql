@@ -276,9 +276,29 @@ const tests = [
 			assert(fs.existsSync(removedFilterDocPath), 'removed filter doc should persist');
 			assert(!fs.existsSync(coreFilterDocPath), 'core hook docs should not be generated');
 			const deprecatedActionDoc = fs.readFileSync(deprecatedActionDocPath, 'utf8');
+			const actionDoc = fs.readFileSync(actionDocPath, 'utf8');
+			const filterDoc = fs.readFileSync(filterDocPath, 'utf8');
 			assert(
 				deprecatedActionDoc.includes('> [!WARNING]'),
 				'deprecated hook docs should include a warning callout'
+			);
+			assert(actionDoc.includes('## Source'), 'hook docs should include a Source section');
+			assert(
+				actionDoc.includes('```php'),
+				'Source section should include a PHP snippet block'
+			);
+			assert(
+				actionDoc.includes("do_action( 'graphql_docs_generated', [ 'ok' => true ] );"),
+				'Source snippet should include the hook call'
+			);
+			assert(filterDoc.includes('## Related'), 'hook docs should include a Related section');
+			assert(
+				filterDoc.includes('top-level code in '),
+				'Related section should include calling code context'
+			);
+			assert(
+				filterDoc.includes('Hooks.php:'),
+				'Related section should include source references'
 			);
 
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
@@ -288,6 +308,7 @@ const tests = [
 			assert(payloadHook, 'filter hook should exist');
 			assert.strictEqual(payloadHook.group, 'request-lifecycle');
 			assert.strictEqual(payloadHook.relatedSnippets.length, 1);
+			assert.strictEqual(payloadHook.relatedReferences.length, 1);
 
 			const namingAudit = JSON.parse(fs.readFileSync(namingAuditPath, 'utf8'));
 			assert(

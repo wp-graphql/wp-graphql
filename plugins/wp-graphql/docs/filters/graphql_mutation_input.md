@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_mutation_input`
+# graphql_mutation_input
+
+```php
+apply_filters( 'graphql_mutation_input', $unfiltered_input, $context, $info, $this->mutation_name );
+```
 
 Filters the mutation input before it's passed to the `mutateAndGetPayload` callback.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filters the mutation input before it's passed to the `mutateAndGetPayload` callb
 - `$context` (`\WPGraphQL\AppContext`): The AppContext object.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object.
 - `$mutation_name` (`string`): The name of the mutation field.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPMutationType.php:221`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPMutationType.php#L221)
+
+```php
+apply_filters( 'graphql_mutation_input', $unfiltered_input, $context, $info, $this->mutation_name );
+```
+
+## Related
+
+- `WPMutationType::get_resolver()` in [`plugins/wp-graphql/src/Type/WPMutationType.php:221`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPMutationType.php#L221)

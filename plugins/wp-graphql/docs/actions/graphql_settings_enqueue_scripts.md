@@ -9,11 +9,27 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_settings_enqueue_scripts`
+# graphql_settings_enqueue_scripts
+
+```php
+do_action( 'graphql_settings_enqueue_scripts' );
+```
 
 Fires when WPGraphQL settings assets should be enqueued.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:77`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L77)
+
+```php
+do_action( 'graphql_settings_enqueue_scripts' );
+```
+
+## Related
+
+- `SettingsRegistry::admin_enqueue_scripts()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:77`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L77)

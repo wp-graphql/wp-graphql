@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_default_query_amount`
+# graphql_connection_default_query_amount
+
+```php
+apply_filters( 'graphql_connection_default_query_amount', 10, $this );
+```
 
 Filters the default query amount for a connection, if no `first` or `last` GraphQL argument is supplied.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$amount_requested` (`int`): The default query amount for a connection.
 - `$resolver` (`self`): Instance of the Connection Resolver.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:941`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L941)
+
+```php
+apply_filters( 'graphql_connection_default_query_amount', 10, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_amount_requested()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:941`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L941)

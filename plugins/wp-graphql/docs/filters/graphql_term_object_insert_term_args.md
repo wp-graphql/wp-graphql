@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_term_object_insert_term_args`
+# graphql_term_object_insert_term_args
+
+```php
+apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
+```
 
 Filter the $insert_args
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/TermObjectMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/TermObjectMutation.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filter the $insert_args
 - `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
 - `$taxonomy` (`\WP_Taxonomy`): The taxonomy object of the term being mutated
 - `$mutation_name` (`string`): The name of the mutation being performed (create, edit, etc)
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/TermObjectMutation.php:111`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L111)
+
+```php
+apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
+```
+
+## Related
+
+- `TermObjectMutation::prepare_object()` in [`plugins/wp-graphql/src/Data/TermObjectMutation.php:111`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L111)

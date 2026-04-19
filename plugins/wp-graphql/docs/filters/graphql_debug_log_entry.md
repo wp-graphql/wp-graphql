@@ -9,16 +9,32 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_debug_log_entry`
+# graphql_debug_log_entry
+
+```php
+apply_filters( 'graphql_debug_log_entry', $log_entry, $config );
+```
 
 Filter the log entry for the debug log
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/DebugLog.php`
 
 ## Parameters
 
 - `$log` (`array<string,mixed>`): The log entry
 - `$config` (`array<string,mixed>`): The config passed in with the log entry
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/DebugLog.php:107`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/DebugLog.php#L107)
+
+```php
+apply_filters( 'graphql_debug_log_entry', $log_entry, $config );
+```
+
+## Related
+
+- `DebugLog::add_log_entry()` in [`plugins/wp-graphql/src/Utils/DebugLog.php:107`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/DebugLog.php#L107)

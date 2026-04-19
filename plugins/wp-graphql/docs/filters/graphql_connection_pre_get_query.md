@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_pre_get_query`
+# graphql_connection_pre_get_query
+
+```php
+apply_filters( 'graphql_connection_pre_get_query', null, $this );
+```
 
 When this filter returns anything but null, it will be used as the resolved query, and the default query execution will be skipped.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$query` (`null`): The query to return. Return null to use the default query execution.
 - `$resolver` (`self`): The connection resolver instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:726`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L726)
+
+```php
+apply_filters( 'graphql_connection_pre_get_query', null, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_query()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:726`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L726)

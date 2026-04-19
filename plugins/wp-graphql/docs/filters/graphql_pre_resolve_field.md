@@ -9,14 +9,18 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_pre_resolve_field`
+# graphql_pre_resolve_field
+
+```php
+apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
+```
 
 When this filter return anything other than the $nil it will be used as the resolved value and the execution of the actual resolved is skipped. This filter can be used to implement field level caches or for efficiently hiding data by returning null.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.1
-- **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
 
@@ -29,3 +33,15 @@ When this filter return anything other than the $nil it will be used as the reso
 - `$field_key` (`string`): The name of the field
 - `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The Field Definition for the resolving field
 - `$field_resolver` (`?callable`): The default field resolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:148`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L148)
+
+```php
+apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
+```
+
+## Related
+
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:148`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L148)

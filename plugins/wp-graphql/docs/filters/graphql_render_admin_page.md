@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_render_admin_page`
+# graphql_render_admin_page
+
+```php
+apply_filters( 'graphql_render_admin_page', '<div class="wrap" dir="ltr"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
+```
 
 Filters the rendered GraphiQL admin page markup.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
 
 ## Parameters
 
 - `$rendered` (`string`): The rendered HTML markup for the GraphiQL admin page.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:274`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L274)
+
+```php
+apply_filters( 'graphql_render_admin_page', '<div class="wrap" dir="ltr"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
+```
+
+## Related
+
+- `GraphiQL::render_graphiql_admin_page()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:274`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L274)

@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_connection_query_args`
+# graphql_post_object_connection_query_args
+
+```php
+apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
+```
 
 Filter the $query args to allow folks to customize queries programmatically
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter the $query args to allow folks to customize queries programmatically
 - `$args` (`array<string,mixed>`): The inputArgs on the field
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the GraphQL tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the GraphQL tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L372)
+
+```php
+apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
+```
+
+## Related
+
+- `PostObjectConnectionResolver::prepare_query_args()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L372)

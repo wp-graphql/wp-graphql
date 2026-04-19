@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_user_object_mutation_update_additional_data`
+# graphql_user_object_mutation_update_additional_data
+
+```php
+do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
+```
 
 Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to users, such as setting relationships, updating additional usermeta, or sending emails to Kevin... whatever you need to do with the userObject.
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/UserMutation.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Run an action after the additional data has been updated. This is a great spot t
 - `$mutation_name` (`string`): The name of the mutation (ex: create, update, delete)
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the resolve tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the Resolve Tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/UserMutation.php:275`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L275)
+
+```php
+do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
+```
+
+## Related
+
+- `UserMutation::update_additional_user_object_data()` in [`plugins/wp-graphql/src/Data/UserMutation.php:275`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L275)

@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `wpgraphql_untested_release_type`
+# wpgraphql_untested_release_type
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_untested_release_type` instead.
+
+```php
+apply_filters_deprecated( 'wpgraphql_untested_release_type', [ $release_type ], 'x-release-please-version', 'graphql_untested_release_type' );
+```
 
 Legacy release channel filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_untested_release_type`
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:383`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L383)
+
+```php
+apply_filters_deprecated(
+				'wpgraphql_untested_release_type',
+				[ $release_type ],
+				'x-release-please-version',
+				'graphql_untested_release_type'
+			);
+```
+
+## Related
+
+- `UpdateChecker::get_untested_release_type()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:383`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L383)

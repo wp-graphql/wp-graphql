@@ -9,16 +9,32 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_determine_graphql_keys`
+# graphql_determine_graphql_keys
+
+```php
+do_action( 'graphql_determine_graphql_keys', $this, $query );
+```
 
 Fires after QueryAnalyzer has calculated list/query/model keys for a request.
 
 - **Type:** action
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
 - `$query_analyzer` (`\WPGraphQL\Utils\QueryAnalyzer`): The instance of the query analyzer
 - `$query` (`string`): The query string being executed
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:308`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L308)
+
+```php
+do_action( 'graphql_determine_graphql_keys', $this, $query );
+```
+
+## Related
+
+- `QueryAnalyzer::determine_graphql_keys()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:308`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L308)

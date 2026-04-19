@@ -9,16 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_experiment_enabled`
+# graphql_experiment_enabled
+
+```php
+apply_filters( 'graphql_experiment_enabled', $is_active, $slug );
+```
 
 Filters whether the experiment is active.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 2.3.8
-- **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
 
 ## Parameters
 
 - `$is_active` (`bool`): Whether the experiment is active.
 - `$slug` (`string`): The experiment's slug.
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:337`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L337)
+
+```php
+apply_filters( 'graphql_experiment_enabled', $is_active, $slug );
+```
+
+## Related
+
+- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:337`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L337)

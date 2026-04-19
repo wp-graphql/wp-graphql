@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_request_results`
+# graphql_request_results
+
+```php
+apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this, $query_id );
+```
 
 Filter the $response of the GraphQL execution. This allows for the response to be filtered before it's returned, allowing granular control over the response at the latest point. POSSIBLE USAGE EXAMPLES: This could be used to ensure that certain fields never make it to the response if they match certain criteria, etc. For example, this filter could be used to check if a current user is allowed to see certain things, and if they are not, the $response could be filtered to remove the data they should not be allowed to see. Or, perhaps some systems want the response to always include some additional piece of data in every response, regardless of the request that was sent to it, this could allow for that to be hooked in and included in the $response.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Filter the $response of the GraphQL execution. This allows for the response to b
 - `$variables` (`?array<string,mixed>`): Variables to passed to your GraphQL query
 - `$request` (`\WPGraphQL\Request`): Instance of the Request
 - `$query_id` (`?string`): The query id that GraphQL executed
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:566`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L566)
+
+```php
+apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this, $query_id );
+```
+
+## Related
+
+- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:566`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L566)

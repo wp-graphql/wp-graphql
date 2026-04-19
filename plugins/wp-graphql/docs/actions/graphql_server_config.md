@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_server_config`
+# graphql_server_config
+
+```php
+do_action( 'graphql_server_config', $config, $this->params );
+```
 
 Run an action when the server config is created. The config can be acted upon directly to override default values or implement new features, e.g., $config->setValidationRules().
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.2.0
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$config` (`\GraphQL\Server\ServerConfig`): Server config
 - `$params` (`\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]`): Request operation params
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:990`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L990)
+
+```php
+do_action( 'graphql_server_config', $config, $this->params );
+```
+
+## Related
+
+- `Request::get_server()` in [`plugins/wp-graphql/src/Request.php:990`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L990)

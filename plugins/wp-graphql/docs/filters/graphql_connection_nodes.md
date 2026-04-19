@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_nodes`
+# graphql_connection_nodes
+
+```php
+apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+```
 
 Set the items. These are the "nodes" that make up the connection. Filters the nodes in the connection
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$nodes` (`\WPGraphQL\Model\Model[]|mixed[]|null`): The nodes in the connection
 - `$resolver` (`self`): Instance of the Connection Resolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1025`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1025)
+
+```php
+apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1025`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1025)

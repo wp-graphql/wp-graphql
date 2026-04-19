@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_media_item_mutation_update_additional_data`
+# graphql_media_item_mutation_update_additional_data
+
+```php
+do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
+```
 
 Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to mediaItems, such as updating additional postmeta, or sending emails to Kevin. . .whatever you need to do with the mediaItem.
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/MediaItemMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/MediaItemMutation.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Run an action after the additional data has been updated. This is a great spot t
 - `$mutation_name` (`string`): The name of the mutation (ex: create, update, delete)
 - `$context` (`\WPGraphQL\AppContext`): The AppContext that is passed down the resolve tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo that is passed down the resolve tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/MediaItemMutation.php:147`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L147)
+
+```php
+do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
+```
+
+## Related
+
+- `MediaItemMutation::update_additional_media_item_data()` in [`plugins/wp-graphql/src/Data/MediaItemMutation.php:147`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L147)

@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_map_input_fields_to_wp_query`
+# graphql_map_input_fields_to_wp_query
+
+```php
+apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
+```
 
 Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the WP_Query
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 - `$context` (`\WPGraphQL\AppContext`): The AppContext object
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object
 - `$post_type` (`mixed|string|string[]`): The post type for the query
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:444`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L444)
+
+```php
+apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
+```
+
+## Related
+
+- `PostObjectConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:444`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L444)

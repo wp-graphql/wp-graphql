@@ -9,14 +9,18 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_admin_notices_render_notice`
+# graphql_admin_notices_render_notice
+
+```php
+do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dismissable, $count );
+```
 
 Fires for each admin notice that is rendered.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** v1.23.0
-- **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Fires for each admin notice that is rendered.
 - `$notice` (`AdminNoticeConfig`): The notice to be rendered
 - `$is_dismissable` (`bool`): Whether the notice is dismissable or not
 - `$count` (`int`): The count of the notice
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:358`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L358)
+
+```php
+do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dismissable, $count );
+```
+
+## Related
+
+- `AdminNotices::render_notices()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:358`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L358)

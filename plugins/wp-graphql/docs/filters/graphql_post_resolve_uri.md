@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_post_resolve_uri`
+# graphql_post_resolve_uri
+
+```php
+apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
+```
 
 This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri. This can be used by Extensions to resolve edge cases that are not handled by the core NodeResolver.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/NodeResolver.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ This filter provides a fallback for resolving nodes that were unable to be resol
 - `$content` (`\WPGraphQL\AppContext`): The app context.
 - `$wp` (`\WP`): WP object.
 - `$extra_query_vars` (`array<string,mixed>|string`): Any extra query vars to consider.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/NodeResolver.php:348`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L348)
+
+```php
+apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
+```
+
+## Related
+
+- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:348`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L348)

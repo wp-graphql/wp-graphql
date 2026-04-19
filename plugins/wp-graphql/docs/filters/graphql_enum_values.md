@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_enum_values`
+# graphql_enum_values
+
+```php
+apply_filters( 'graphql_enum_values', $values, $type_name );
+```
 
 Filter all object fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPEnumType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPEnumType.php`
 
 ## Parameters
 
 - `$values` (`EnumValues`): The enum values.
 - `$type_name` (`string`): The enum type name.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPEnumType.php:117`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L117)
+
+```php
+apply_filters( 'graphql_enum_values', $values, $type_name );
+```
+
+## Related
+
+- `WPEnumType::prepare_values()` in [`plugins/wp-graphql/src/Type/WPEnumType.php:117`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L117)

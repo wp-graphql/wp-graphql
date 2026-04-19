@@ -9,15 +9,31 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_user_can_see_query_logs`
+# graphql_user_can_see_query_logs
+
+```php
+apply_filters( 'graphql_user_can_see_query_logs', $can_see );
+```
 
 Filter whether the logs can be seen in the request results or not
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.2.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryLog.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryLog.php`
 
 ## Parameters
 
 - `$can_see` (`bool`): Whether the requester can see the logs or not
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryLog.php:93`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryLog.php#L93)
+
+```php
+apply_filters( 'graphql_user_can_see_query_logs', $can_see );
+```
+
+## Related
+
+- `QueryLog::user_can_see_logs()` in [`plugins/wp-graphql/src/Utils/QueryLog.php:93`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryLog.php#L93)

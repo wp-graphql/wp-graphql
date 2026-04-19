@@ -9,20 +9,42 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `pre_graphql_execute_request`
+# pre_graphql_execute_request
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_pre_execute_request` instead.
+
+```php
+apply_filters_deprecated( 'pre_graphql_execute_request', [ $response, $this ], 'x-release-please-version', 'graphql_pre_execute_request' );
+```
 
 Legacy pre-execute request filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_pre_execute_request`
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:811`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L811)
+
+```php
+apply_filters_deprecated(
+				'pre_graphql_execute_request',
+				[ $response, $this ],
+				'x-release-please-version',
+				'graphql_pre_execute_request'
+			);
+```
+
+## Related
+
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:696`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L696)
+- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:811`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L811)

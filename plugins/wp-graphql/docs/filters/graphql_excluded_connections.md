@@ -9,15 +9,31 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_excluded_connections`
+# graphql_excluded_connections
+
+```php
+apply_filters( 'graphql_excluded_connections', [] );
+```
 
 Filter the list of GraphQL connections to excluded from the registry.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.14.0
-- **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
 
 - `$excluded_connections` (`string[]`): The names of the GraphQL connections to exclude.
+
+## Source
+
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1532`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1532)
+
+```php
+apply_filters( 'graphql_excluded_connections', [] );
+```
+
+## Related
+
+- `TypeRegistry::get_excluded_connections()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1532`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1532)

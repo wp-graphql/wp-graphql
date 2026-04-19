@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_term_entities_allowed_taxonomies`
+# graphql_term_entities_allowed_taxonomies
+
+```php
+apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
+```
 
 Pass through a filter to allow the taxonomies to be modified. For example if a certain taxonomy should not be exposed to the GraphQL API.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.2
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$tax_names` (`string[]`): Array of taxonomy names
 - `$tax_objects` (`\WP_Taxonomy[]`): Array of taxonomy objects.
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:851`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L851)
+
+```php
+apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
+```
+
+## Related
+
+- `WPGraphQL::get_allowed_taxonomies()` in [`plugins/wp-graphql/src/WPGraphQL.php:851`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L851)

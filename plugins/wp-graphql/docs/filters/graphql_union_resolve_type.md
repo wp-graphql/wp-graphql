@@ -9,17 +9,33 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_union_resolve_type`
+# graphql_union_resolve_type
+
+```php
+apply_filters( 'graphql_union_resolve_type', $type, $obj, $this );
+```
 
 Filters the resolved GraphQL object type for a union value.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.4.0
-- **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPUnionType.php`
 
 ## Parameters
 
 - `$type` (`mixed`): The resolved GraphQL type.
 - `$obj` (`mixed`): The object being resolved.
 - `$type_instance` (`\WPGraphQL\Type\WPUnionType`): The union type instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPUnionType.php:83`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L83)
+
+```php
+apply_filters( 'graphql_union_resolve_type', $type, $obj, $this );
+```
+
+## Related
+
+- `WPUnionType::__construct()` in [`plugins/wp-graphql/src/Type/WPUnionType.php:83`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L83)

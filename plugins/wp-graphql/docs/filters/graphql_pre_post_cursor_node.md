@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_pre_post_cursor_node`
+# graphql_pre_post_cursor_node
+
+```php
+apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
+```
 
 If pre-hooked, return filtered node.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php`
 
 ## Parameters
 
 - `$pre_post` (`\WP_Post|null`): The pre-filtered post node.
 - `$offset` (`int`): The cursor offset.
 - `$node` (`\WPGraphQL\Data\Cursor\PostObjectCursor`): The cursor instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:69`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L69)
+
+```php
+apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
+```
+
+## Related
+
+- `PostObjectCursor::get_cursor_node()` in [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:69`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L69)

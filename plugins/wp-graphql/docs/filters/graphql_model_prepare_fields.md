@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_model_prepare_fields`
+# graphql_model_prepare_fields
+
+```php
+apply_filters( 'graphql_model_prepare_fields', $this->fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
 
 Filter the array of fields for the Model before the object is hydrated with it
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 1.7.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filter the array of fields for the Model before the object is hydrated with it
 - `$visibility` (`string`): The visibility setting for this piece of data
 - `$owner` (`?int`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:517`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L517)
+
+```php
+apply_filters( 'graphql_model_prepare_fields', $this->fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::prepare_fields()` in [`plugins/wp-graphql/src/Model/Model.php:517`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L517)

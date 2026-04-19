@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `register_graphql_post_type_args`
+# register_graphql_post_type_args
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_register_post_type_args` instead.
+
+```php
+apply_filters_deprecated( 'register_graphql_post_type_args', [ $graphql_args, $post_type_name ], 'x-release-please-version', 'graphql_register_post_type_args' );
+```
 
 Legacy post type registration filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** 1.12.0
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_register_post_type_args`
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:630`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L630)
+
+```php
+apply_filters_deprecated(
+				'register_graphql_post_type_args',
+				[ $graphql_args, $post_type_name ],
+				'x-release-please-version',
+				'graphql_register_post_type_args'
+			);
+```
+
+## Related
+
+- `WPGraphQL::register_graphql_post_type_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:630`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L630)

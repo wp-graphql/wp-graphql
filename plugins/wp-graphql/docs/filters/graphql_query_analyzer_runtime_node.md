@@ -9,17 +9,33 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_query_analyzer_runtime_node`
+# graphql_query_analyzer_runtime_node
+
+```php
+apply_filters( 'graphql_query_analyzer_runtime_node', $model->id, $model, $this->runtime_nodes );
+```
 
 Filter the node ID before returning to the list of resolved nodes
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
 - `$model_id` (`int`): The ID of the model (node) being returned
 - `$model` (`object`): The Model object being returned
 - `$runtime_nodes` (`string[]|int[]`): The runtimes nodes already collected
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:781`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L781)
+
+```php
+apply_filters( 'graphql_query_analyzer_runtime_node', $model->id, $model, $this->runtime_nodes );
+```
+
+## Related
+
+- `QueryAnalyzer::track_nodes()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:781`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L781)

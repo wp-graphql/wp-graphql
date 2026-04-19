@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_data_loader_classes`
+# graphql_data_loader_classes
+
+```php
+apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
+```
 
 Filter to change the data loader classes. This allows for additional loaders to be added to the AppContext or replaced as needed.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/AppContext.php`
+- **Source File:** `plugins/wp-graphql/src/AppContext.php`
 
 ## Parameters
 
 - `$loader_classes` (`array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>>`): The loader classes accessible in the AppContext
 - `$context` (`\WPGraphQL\AppContext`): The AppContext
+
+## Source
+
+- [`plugins/wp-graphql/src/AppContext.php:203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L203)
+
+```php
+apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
+```
+
+## Related
+
+- `AppContext::prepare_data_loaders()` in [`plugins/wp-graphql/src/AppContext.php:203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L203)

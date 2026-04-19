@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_loader_name`
+# graphql_connection_loader_name
+
+```php
+apply_filters( 'graphql_connection_loader_name', $name, $this );
+```
 
 Filters the loader name. This is the name of the registered DataLoader that will be used to load the data for the connection.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$loader_name` (`string`): The name of the loader.
 - `$resolver` (`self`): The AbstractConnectionResolver instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:564`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L564)
+
+```php
+apply_filters( 'graphql_connection_loader_name', $name, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_loader_name()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:564`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L564)

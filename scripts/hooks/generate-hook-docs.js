@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const GENERATED_NOTICE = [
 	'<!--',
@@ -46,6 +47,90 @@ function readJson(filePath) {
 	}
 
 	return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function normalizeRepoUrl(repoUrl) {
+	if (!repoUrl || typeof repoUrl !== 'string') {
+		return null;
+	}
+
+	const trimmed = repoUrl.trim();
+	if (!trimmed) {
+		return null;
+	}
+
+	if (trimmed.startsWith('git@github.com:')) {
+		return trimmed
+			.replace(/^git@github\.com:/, 'https://github.com/')
+			.replace(/\.git$/, '');
+	}
+
+	if (trimmed.startsWith('https://github.com/')) {
+		return trimmed.replace(/\.git$/, '');
+	}
+
+	return trimmed.replace(/\.git$/, '');
+}
+
+function resolveRepositoryUrl({ args, pluginConfig, repoRoot }) {
+	const fromArgs = normalizeRepoUrl(args['repo-url']);
+	if (fromArgs) {
+		return fromArgs;
+	}
+
+	const fromConfig = normalizeRepoUrl(pluginConfig.repositoryUrl);
+	if (fromConfig) {
+		return fromConfig;
+	}
+
+	try {
+		const remoteUrl = execSync('git remote get-url origin', {
+			cwd: repoRoot,
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore'],
+		}).trim();
+		return normalizeRepoUrl(remoteUrl);
+	} catch (_error) {
+		return null;
+	}
+}
+
+function resolveRepositoryRef({ args, pluginConfig, repoRoot }) {
+	const fromArgs = typeof args['repo-ref'] === 'string' ? args['repo-ref'].trim() : '';
+	if (fromArgs) {
+		return fromArgs;
+	}
+
+	const fromConfig =
+		typeof pluginConfig.repositoryRef === 'string' ? pluginConfig.repositoryRef.trim() : '';
+	if (fromConfig) {
+		return fromConfig;
+	}
+
+	try {
+		const originHead = execSync('git symbolic-ref refs/remotes/origin/HEAD', {
+			cwd: repoRoot,
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore'],
+		}).trim();
+		const branch = originHead.split('/').pop();
+		return branch || 'main';
+	} catch (_error) {
+		return 'main';
+	}
+}
+
+function buildRepositoryFileUrl({ repositoryUrl, repositoryRef, filePath, line }) {
+	if (!repositoryUrl || !repositoryRef || !filePath) {
+		return null;
+	}
+
+	const encodedSegments = filePath
+		.split('/')
+		.map((segment) => encodeURIComponent(segment))
+		.join('/');
+	const lineAnchor = line ? `#L${line}` : '';
+	return `${repositoryUrl}/blob/${encodeURIComponent(repositoryRef)}/${encodedSegments}${lineAnchor}`;
 }
 
 function normalizeLifecycleStatus(status) {
@@ -234,6 +319,34 @@ function getLineNumber(content, index) {
 	return content.slice(0, index).split('\n').length;
 }
 
+function getEnclosingSymbol(content, index) {
+	const before = content.slice(0, index);
+	const classRegex =
+		/(^|\n)\s*(?:abstract\s+|final\s+)?(?:class|trait|interface)\s+([A-Za-z_][A-Za-z0-9_]*)\b/g;
+	const functionRegex =
+		/(^|\n)\s*(?:(?:public|protected|private)\s+)?(?:(?:static|final|abstract)\s+)*function\s+&?\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
+
+	let className = null;
+	let classMatch = classRegex.exec(before);
+	while (classMatch) {
+		className = classMatch[2];
+		classMatch = classRegex.exec(before);
+	}
+
+	let functionName = null;
+	let functionMatch = functionRegex.exec(before);
+	while (functionMatch) {
+		functionName = functionMatch[2];
+		functionMatch = functionRegex.exec(before);
+	}
+
+	if (functionName) {
+		return className ? `${className}::${functionName}()` : `${functionName}()`;
+	}
+
+	return null;
+}
+
 function extractCallAt(content, functionName, startIndex) {
 	const functionIndex = content.indexOf(functionName, startIndex);
 	if (functionIndex === -1) {
@@ -291,6 +404,7 @@ function extractCallAt(content, functionName, startIndex) {
 					functionName,
 					functionIndex,
 					argsSource,
+					callSource: content.slice(functionIndex, semicolonIndex + 1).trim(),
 					endIndex: semicolonIndex,
 					line: getLineNumber(content, functionIndex),
 				};
@@ -626,6 +740,8 @@ function buildHookRecord({
 	sourceType,
 	relativeFilePath,
 	snippetMap,
+	repositoryUrl,
+	repositoryRef,
 }) {
 	const relatedSnippets = snippetMap[hook.name] || [];
 
@@ -638,8 +754,11 @@ function buildHookRecord({
 		groupSource: groupAssignment.source,
 		sourceType,
 		emitter: hook.emitter,
+		enclosingSymbol: hook.enclosingSymbol || null,
 		file: relativeFilePath,
 		line: hook.line,
+		repositoryUrl,
+		repositoryRef,
 		description: hook.docblock.description,
 		params: hook.docblock.params,
 		argumentCount: hook.argumentCount || 0,
@@ -648,6 +767,7 @@ function buildHookRecord({
 		hookGroup: hook.docblock.hookGroup,
 		isDynamic: hook.isDynamic,
 		rawExpression: hook.rawExpression,
+		sourceCall: hook.sourceCall || null,
 		relatedSnippets,
 		lifecycle:
 			hook.lifecycle ||
@@ -695,10 +815,81 @@ function slugFromHookName(hookName) {
 	return hookName.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
 }
 
+function collectHookReferences(hooks) {
+	const referencesByKey = new Map();
+
+	hooks.forEach((hook) => {
+		if (hook.isDynamic || !hook.name || !hook.kind) {
+			return;
+		}
+
+		const key = `${hook.kind}:${hook.name}`;
+		const existing = referencesByKey.get(key) || [];
+		const reference = {
+			file: hook.file,
+			line: hook.line || null,
+			symbol: hook.enclosingSymbol || null,
+			emitter: hook.emitter || null,
+		};
+
+		if (
+			reference.file === '__legacy_registry__' ||
+			existing.some(
+				(item) =>
+					item.file === reference.file &&
+					item.line === reference.line &&
+					item.symbol === reference.symbol &&
+					item.emitter === reference.emitter
+			)
+		) {
+			return;
+		}
+
+		existing.push(reference);
+		referencesByKey.set(key, existing);
+	});
+
+	referencesByKey.forEach((references, key) => {
+		referencesByKey.set(
+			key,
+			references.sort((a, b) => {
+				const fileCompare = a.file.localeCompare(b.file);
+				if (fileCompare !== 0) {
+					return fileCompare;
+				}
+				return (a.line || 0) - (b.line || 0);
+			})
+		);
+	});
+
+	return referencesByKey;
+}
+
+function attachRelatedReferences(hooks) {
+	const referencesByKey = collectHookReferences(hooks);
+
+	return hooks.map((hook) => {
+		if (hook.isDynamic || !hook.name || !hook.kind) {
+			return {
+				...hook,
+				relatedReferences: [],
+			};
+		}
+
+		const key = `${hook.kind}:${hook.name}`;
+		return {
+			...hook,
+			relatedReferences: referencesByKey.get(key) || [],
+		};
+	});
+}
+
 function renderHookDoc(hook) {
 	const title = hook.name || hook.rawExpression || 'unknown_hook';
 	const params = hook.params || [];
 	const snippets = hook.relatedSnippets || [];
+	const references = hook.relatedReferences || [];
+	const signature = hook.sourceCall ? hook.sourceCall.replace(/\s+/g, ' ').trim() : null;
 	const description = hook.description || 'No description available.';
 	const lifecycle = hook.lifecycle || { status: 'active' };
 	const statusLabel = lifecycle.status || 'active';
@@ -712,7 +903,7 @@ function renderHookDoc(hook) {
 	lines.push(`plugin: ${hook.pluginSlug}`);
 	lines.push('---');
 	lines.push('');
-	lines.push(`# \`${title}\``);
+	lines.push(`# ${title}`);
 	lines.push('');
 	if (statusLabel === 'deprecated' || statusLabel === 'removed') {
 		const lifecycleVerb = statusLabel === 'removed' ? 'removed' : 'deprecated';
@@ -730,12 +921,20 @@ function renderHookDoc(hook) {
 		}
 		lines.push('');
 	}
+
+	if (signature) {
+		lines.push('```php');
+		lines.push(signature);
+		lines.push('```');
+		lines.push('');
+	}
+
 	lines.push(description);
 	lines.push('');
 	lines.push(`- **Type:** ${hook.kind}`);
 	lines.push(`- **Group:** ${hook.groupLabel}`);
 	lines.push(`- **Since:** ${hook.since || 'Unknown'}`);
-	lines.push(`- **Source:** \`${hook.file}\``);
+	lines.push(`- **Source File:** \`${hook.file}\``);
 	lines.push('');
 
 	if (statusLabel === 'deprecated' || statusLabel === 'removed') {
@@ -759,6 +958,46 @@ function renderHookDoc(hook) {
 		lines.push('');
 		params.forEach((param) => {
 			lines.push(`- \`${param.name}\` (\`${param.type}\`): ${param.description || 'No description.'}`);
+		});
+		lines.push('');
+	}
+
+	const sourceUrl = buildRepositoryFileUrl({
+		repositoryUrl: hook.repositoryUrl,
+		repositoryRef: hook.repositoryRef,
+		filePath: hook.file,
+		line: hook.line,
+	});
+	if (sourceUrl || hook.sourceCall) {
+		lines.push('## Source');
+		lines.push('');
+		if (sourceUrl) {
+			const location = hook.line ? `${hook.file}:${hook.line}` : hook.file;
+			lines.push(`- [\`${location}\`](${sourceUrl})`);
+			lines.push('');
+		}
+		if (hook.sourceCall) {
+			lines.push('```php');
+			lines.push(hook.sourceCall);
+			lines.push('```');
+			lines.push('');
+		}
+	}
+
+	if (references.length > 0) {
+		lines.push('## Related');
+		lines.push('');
+		references.forEach((reference) => {
+			const symbolLabel = reference.symbol ? `\`${reference.symbol}\`` : 'top-level code';
+			const location = reference.line ? `${reference.file}:${reference.line}` : reference.file;
+			const referenceUrl = buildRepositoryFileUrl({
+				repositoryUrl: hook.repositoryUrl,
+				repositoryRef: hook.repositoryRef,
+				filePath: reference.file,
+				line: reference.line,
+			});
+			const locationLabel = referenceUrl ? `[\`${location}\`](${referenceUrl})` : `\`${location}\``;
+			lines.push(`- ${symbolLabel} in ${locationLabel}`);
 		});
 		lines.push('');
 	}
@@ -1411,6 +1650,8 @@ function extractHooksFromFile(filePath, repoRoot) {
 			argumentCount: Math.max(args.length - 1, 0),
 			file: path.relative(repoRoot, filePath),
 			line: extracted.line,
+			sourceCall: extracted.callSource,
+			enclosingSymbol: getEnclosingSymbol(content, extracted.functionIndex),
 			docblock,
 			emitter: next.spec.emitter,
 			lifecycle:
@@ -1471,6 +1712,8 @@ function main() {
 	const pluginDir = path.resolve(repoRoot, pluginConfig.pluginDir);
 	const docsDir = path.resolve(repoRoot, pluginConfig.docsDir);
 	const snippetsDir = path.resolve(repoRoot, pluginConfig.snippetsDir || '');
+	const repositoryUrl = resolveRepositoryUrl({ args, pluginConfig, repoRoot });
+	const repositoryRef = resolveRepositoryRef({ args, pluginConfig, repoRoot });
 
 	const sourcePaths = Array.isArray(pluginConfig.sourcePaths) ? pluginConfig.sourcePaths : ['src'];
 	const phpFiles = [];
@@ -1498,6 +1741,8 @@ function main() {
 				sourceType,
 				relativeFilePath: hook.file,
 				snippetMap: snippets.byHookName,
+				repositoryUrl,
+				repositoryRef,
 			});
 
 			const shouldLintHookGroup =
@@ -1602,6 +1847,7 @@ function main() {
 		snippetMap: snippets.byHookName,
 		pluginSlug,
 	});
+	hookRecords = attachRelatedReferences(hookRecords);
 
 	const actions = hookRecords.filter((hook) => hook.kind === 'action');
 	const filters = hookRecords.filter((hook) => hook.kind === 'filter');

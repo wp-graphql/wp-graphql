@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_pre_resolve_menu_item_connected_node`
+# graphql_pre_resolve_menu_item_connected_node
+
+```php
+apply_filters( 'graphql_pre_resolve_menu_item_connected_node', null, $menu_item, $args, $context, $info, $object_id, $object_type );
+```
 
 When this filter returns anything other than null it will be used as the resolved connection for the menu item's connected node, short-circuiting the default resolution. This is useful since we often add taxonomy terms to menus but would prefer to represent the menu item in other ways. E.g., a linked post object (or vice-versa).
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/ObjectType/MenuItem.php`
+- **Source File:** `plugins/wp-graphql/src/Type/ObjectType/MenuItem.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ When this filter returns anything other than null it will be used as the resolve
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object.
 - `$object_id` (`int`): The ID of the connected object.
 - `$object_type` (`string`): The type of the connected object.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/ObjectType/MenuItem.php:60`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/ObjectType/MenuItem.php#L60)
+
+```php
+apply_filters( 'graphql_pre_resolve_menu_item_connected_node', null, $menu_item, $args, $context, $info, $object_id, $object_type );
+```
+
+## Related
+
+- `MenuItem::register_type()` in [`plugins/wp-graphql/src/Type/ObjectType/MenuItem.php:60`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/ObjectType/MenuItem.php#L60)

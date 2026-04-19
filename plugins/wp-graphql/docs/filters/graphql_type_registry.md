@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_type_registry`
+# graphql_type_registry
+
+```php
+apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
+```
 
 Generate & Filter the schema.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The TypeRegistry for the API
 - `$app_context` (`\WPGraphQL\AppContext`): Object The AppContext object containing all of the
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:998`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L998)
+
+```php
+apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
+```
+
+## Related
+
+- `WPGraphQL::get_type_registry()` in [`plugins/wp-graphql/src/WPGraphQL.php:998`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L998)

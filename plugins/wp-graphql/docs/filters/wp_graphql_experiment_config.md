@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `wp_graphql_experiment_config`
+# wp_graphql_experiment_config
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_experiment_config` instead.
+
+```php
+apply_filters_deprecated( 'wp_graphql_experiment_config', [ $config, $slug ], 'x-release-please-version', 'graphql_experiment_config' );
+```
 
 Legacy experiment config filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_experiment_config`
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:405`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L405)
+
+```php
+apply_filters_deprecated(
+				'wp_graphql_experiment_config',
+				[ $config, $slug ],
+				'x-release-please-version',
+				'graphql_experiment_config'
+			);
+```
+
+## Related
+
+- `AbstractExperiment::prepare_config()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:405`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L405)

@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_settings_form_top`
+# graphql_settings_form_top
+
+```php
+do_action( 'graphql_settings_form_top', $form );
+```
 
 Fires before rendering a WPGraphQL settings form section.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
 
 ## Parameters
 
 - `$form` (`array<string,mixed>`): Settings form section configuration.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:688`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L688)
+
+```php
+do_action( 'graphql_settings_form_top', $form );
+```
+
+## Related
+
+- `SettingsRegistry::show_forms()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:688`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L688)

@@ -9,14 +9,18 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_cache_collection_get_query_types`
+# graphql_cache_collection_get_query_types
+
+```php
+apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
+```
 
 Filters query type cache keys derived by QueryAnalyzer.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filters query type cache keys derived by QueryAnalyzer.
 - `$schema` (`?\GraphQL\Type\Schema`): The WPGraphQL Schema for the current request.
 - `$query` (`?string`): The query string being requested.
 - `$type_info` (`\GraphQL\Utils\TypeInfo`): Type metadata gathered while traversing the AST.
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:652`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L652)
+
+```php
+apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
+```
+
+## Related
+
+- `QueryAnalyzer::set_query_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:652`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L652)

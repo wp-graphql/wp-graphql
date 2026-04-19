@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_post_entities_allowed_post_types`
+# graphql_post_entities_allowed_post_types
+
+```php
+apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
+```
 
 Pass through a filter to allow the post_types to be modified. For example if a certain post_type should not be exposed to the GraphQL API.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.2
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$post_type_names` (`string[]`): Array of post type names.
 - `$post_type_objects` (`\WP_Post_Type[]`): Array of post type objects.
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:765`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L765)
+
+```php
+apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
+```
+
+## Related
+
+- `WPGraphQL::get_allowed_post_types()` in [`plugins/wp-graphql/src/WPGraphQL.php:765`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L765)

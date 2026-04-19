@@ -9,20 +9,42 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_endpoint`
+# graphql_endpoint
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_endpoint_path` instead.
+
+```php
+apply_filters_deprecated( 'graphql_endpoint', [ $filtered_endpoint ], 'x-release-please-version', 'graphql_endpoint_path' );
+```
 
 Legacy endpoint path filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 1.12.0
-- **Source:** `plugins/wp-graphql/access-functions.php`
+- **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_endpoint_path`
+
+## Source
+
+- [`plugins/wp-graphql/access-functions.php:910`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L910)
+
+```php
+apply_filters_deprecated(
+			'graphql_endpoint',
+			[ $filtered_endpoint ],
+			'x-release-please-version',
+			'graphql_endpoint_path'
+		);
+```
+
+## Related
+
+- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:910`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L910)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:103`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L103)

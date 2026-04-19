@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_query_id_hash_algorithm`
+# graphql_query_id_hash_algorithm
+
+```php
+apply_filters( 'graphql_query_id_hash_algorithm', 'sha256' );
+```
 
 Filter the hash algorithm to allow different algorithms.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.2
-- **Source:** `plugins/wp-graphql/src/Utils/Utils.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/Utils.php`
 
 ## Parameters
 
 - `$algorithm` (`string`): Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/Utils.php:26`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Utils.php#L26)
+
+```php
+apply_filters( 'graphql_query_id_hash_algorithm', 'sha256' );
+```
+
+## Related
+
+- `Utils::get_query_id()` in [`plugins/wp-graphql/src/Utils/Utils.php:26`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Utils.php#L26)

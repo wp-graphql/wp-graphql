@@ -9,15 +9,37 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_access_control_allow_headers`
+# graphql_access_control_allow_headers
+
+```php
+apply_filters( 'graphql_access_control_allow_headers', [ 'Authorization', 'Content-Type', ] );
+```
 
 Filtered list of access control headers.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
 - `$access_control_headers` (`string[]`): Array of headers to allow.
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:310`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L310)
+
+```php
+apply_filters(
+			'graphql_access_control_allow_headers',
+			[
+				'Authorization',
+				'Content-Type',
+			]
+		);
+```
+
+## Related
+
+- `Router::get_response_headers()` in [`plugins/wp-graphql/src/Router.php:310`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L310)

@@ -9,16 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_get_possible_dependents`
+# graphql_get_possible_dependents
+
+```php
+apply_filters( 'graphql_get_possible_dependents', $plugins, $all_plugins );
+```
 
 Filters the list of plugins that use WPGraphQL as a dependency. Can be used to hide false positives or to add additional plugins that may use WPGraphQL as a dependency.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
 ## Parameters
 
 - `$plugins` (`array<string,array<string,mixed>>`): The array of plugins that maybe use WPGraphQL as a dependency.
 - `$all_plugins` (`array<string,array<string,mixed>>`): The array of all plugins.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:471`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L471)
+
+```php
+apply_filters( 'graphql_get_possible_dependents', $plugins, $all_plugins );
+```
+
+## Related
+
+- `UpdateChecker::get_possible_dependents()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:471`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L471)

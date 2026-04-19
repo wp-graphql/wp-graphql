@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_return_field_from_model`
+# graphql_return_field_from_model
+
+```php
+apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
 
 Filter the data returned by the default callback for the field
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.3.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Filter the data returned by the default callback for the field
 - `$visibility` (`string`): The visibility setting for this piece of data
 - `$owner` (`int|null`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:434`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L434)
+
+```php
+apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::prepare_field()` in [`plugins/wp-graphql/src/Model/Model.php:434`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L434)

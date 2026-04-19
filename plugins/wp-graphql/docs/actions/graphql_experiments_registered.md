@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_experiments_registered`
+# graphql_experiments_registered
+
+```php
+do_action( 'graphql_experiments_registered', $this->registry );
+```
 
 Fires after the experiment classes have been registered.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** 2.3.8
-- **Source:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
 
 ## Parameters
 
 - `$registry` (`array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>`): The list of registered experiment classes, keyed by experiment slug.
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/ExperimentRegistry.php:307`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/ExperimentRegistry.php#L307)
+
+```php
+do_action( 'graphql_experiments_registered', $this->registry );
+```
+
+## Related
+
+- `ExperimentRegistry::register_experiments()` in [`plugins/wp-graphql/src/Experimental/ExperimentRegistry.php:307`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/ExperimentRegistry.php#L307)

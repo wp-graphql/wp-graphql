@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_experimental_features_override`
+# graphql_experimental_features_override
+
+```php
+apply_filters( 'graphql_experimental_features_override', null );
+```
 
 Filters global experimental feature overrides. Return `false` to disable all experiments, or return an associative array keyed by experiment slug to selectively enable/disable experiments.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 2.3.8
-- **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
 
 ## Parameters
 
 - `$experimental_features` (`array<string,bool>|false|null`): The experimental feature override map, false, or null.
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:301`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L301)
+
+```php
+apply_filters( 'graphql_experimental_features_override', null );
+```
+
+## Related
+
+- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:301`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L301)

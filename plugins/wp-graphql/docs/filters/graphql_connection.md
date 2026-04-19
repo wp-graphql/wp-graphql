@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `graphql_connection`
+# graphql_connection
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_connection_resolved` instead.
+
+```php
+apply_filters_deprecated( 'graphql_connection', [ $connection, $this ], 'x-release-please-version', 'graphql_connection_resolved' );
+```
 
 Legacy connection result filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_connection_resolved`
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1066`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1066)
+
+```php
+apply_filters_deprecated(
+						'graphql_connection',
+						[ $connection, $this ],
+						'x-release-please-version',
+						'graphql_connection_resolved'
+					);
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1066`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1066)

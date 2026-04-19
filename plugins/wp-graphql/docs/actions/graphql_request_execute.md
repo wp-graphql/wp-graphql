@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_request_execute`
+# graphql_request_execute
+
+```php
+do_action( 'graphql_request_execute', $response, $this->schema, $operation, $query, $variables, $this );
+```
 
 Run an action. This is a good place for debug tools to hook in to log things, etc.
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Run an action. This is a good place for debug tools to hook in to log things, et
 - `$query` (`?string`): The query that GraphQL executed
 - `$variables` (`?array<string,mixed>`): Variables to passed to your GraphQL query
 - `$request` (`\WPGraphQL\Request`): Instance of the Request
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:519`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L519)
+
+```php
+do_action( 'graphql_request_execute', $response, $this->schema, $operation, $query, $variables, $this );
+```
+
+## Related
+
+- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:519`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L519)

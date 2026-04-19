@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_edge`
+# graphql_connection_edge
+
+```php
+apply_filters( 'graphql_connection_edge', $edge, $this );
+```
 
 Filter the edge within the connection.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$edge` (`array<string,mixed>`): The edge within the connection
 - `$resolver` (`self`): Instance of the connection resolver class
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1407`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1407)
+
+```php
+apply_filters( 'graphql_connection_edge', $edge, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::prepare_edges()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1407`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1407)

@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_should_execute`
+# graphql_connection_should_execute
+
+```php
+apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
+```
 
 Check if the connection should execute. If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed. Filter whether the connection should execute.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$should_execute` (`bool`): Whether the connection should execute
 - `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the Connection Resolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1101`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1101)
+
+```php
+apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::execute_and_get_ids()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1101`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1101)

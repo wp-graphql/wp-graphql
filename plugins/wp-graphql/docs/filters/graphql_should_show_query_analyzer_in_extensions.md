@@ -9,14 +9,18 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_should_show_query_analyzer_in_extensions`
+# graphql_should_show_query_analyzer_in_extensions
+
+```php
+apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
+```
 
 Filters whether query analyzer details should be included in response extensions.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filters whether query analyzer details should be included in response extensions
 - `$operation_name` (`string|null`): The operation name being executed
 - `$request` (`string|null`): The GraphQL Request being made
 - `$variables` (`array<string,mixed>|null`): The variables sent with the request
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:957`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L957)
+
+```php
+apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
+```
+
+## Related
+
+- `QueryAnalyzer::show_query_analyzer_in_extensions()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:957`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L957)

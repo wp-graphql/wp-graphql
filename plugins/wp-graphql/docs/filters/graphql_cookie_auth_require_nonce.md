@@ -9,16 +9,32 @@ hookGroup: authentication
 plugin: wp-graphql
 ---
 
-# `graphql_cookie_auth_require_nonce`
+# graphql_cookie_auth_require_nonce
+
+```php
+apply_filters( 'graphql_cookie_auth_require_nonce', true, null );
+```
 
 Filter whether to require a nonce for cookie-based authentication. By default, WPGraphQL requires a nonce (X-WP-Nonce header or _wpnonce parameter) for cookie-authenticated requests to prevent CSRF attacks.
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
 - **Since:** 2.5.4
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
 - `$require_nonce` (`bool`): Whether to require a nonce for cookie auth. Default true.
 - `$request` (`null`): The Request instance (null in Router context).
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:739`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L739)
+
+```php
+apply_filters( 'graphql_cookie_auth_require_nonce', true, null );
+```
+
+## Related
+
+- `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:739`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L739)

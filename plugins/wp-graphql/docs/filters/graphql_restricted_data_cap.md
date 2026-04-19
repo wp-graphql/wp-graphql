@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_restricted_data_cap`
+# graphql_restricted_data_cap
+
+```php
+apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
 
 Filter for the capability to check against for restricted data
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.3.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filter for the capability to check against for restricted data
 - `$visibility` (`string|null`): The visibility that has currently been set for the data at this point
 - `$owner` (`int|null`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:217`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L217)
+
+```php
+apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:217`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L217)

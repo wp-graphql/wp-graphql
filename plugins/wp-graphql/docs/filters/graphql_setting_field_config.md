@@ -9,17 +9,33 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_setting_field_config`
+# graphql_setting_field_config
+
+```php
+apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $section );
+```
 
 Filter the setting field config
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
 
 ## Parameters
 
 - `$field_config` (`array<string,mixed>`): The field config for the setting
 - `$field_name` (`string`): The name of the field (unfilterable in the config)
 - `$section` (`string`): The slug of the section the field is registered to
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:144`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L144)
+
+```php
+apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $section );
+```
+
+## Related
+
+- `SettingsRegistry::register_field()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:144`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L144)

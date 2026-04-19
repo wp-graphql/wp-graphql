@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_dataloader_set_cached`
+# graphql_dataloader_set_cached
+
+```php
+apply_filters( 'graphql_dataloader_set_cached', $value, $key, static::class, $this );
+```
 
 Use this filter to store entry in a third-party caching system.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
 
 ## Parameters
 
@@ -24,3 +28,21 @@ Use this filter to store entry in a third-party caching system.
 - `$key` (`mixed`): Key identifying object.
 - `$loader_class` (`string`): Loader class name.
 - `$loader` (`mixed`): Loader instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php:445`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php#L445)
+
+```php
+apply_filters(
+			'graphql_dataloader_set_cached',
+			$value,
+			$key,
+			static::class,
+			$this
+		);
+```
+
+## Related
+
+- `AbstractDataLoader::set_cached()` in [`plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php:445`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php#L445)

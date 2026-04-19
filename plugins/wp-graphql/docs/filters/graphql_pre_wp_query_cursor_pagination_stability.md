@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_pre_wp_query_cursor_pagination_stability`
+# graphql_pre_wp_query_cursor_pagination_stability
+
+```php
+apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
+```
 
 If pre-filter hooked, return $pre_orderby.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Config.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Config.php`
 
 ## Parameters
 
 - `$pre_orderby` (`string|null`): The pre-filtered ORDER BY clause of the query.
 - `$orderby` (`string`): The ORDER BY clause of the query.
 - `$query` (`\WP_Query`): The WP_Query instance (passed by reference).
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Config.php:186`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L186)
+
+```php
+apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
+```
+
+## Related
+
+- `Config::graphql_wp_query_cursor_pagination_stability()` in [`plugins/wp-graphql/src/Data/Config.php:186`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L186)

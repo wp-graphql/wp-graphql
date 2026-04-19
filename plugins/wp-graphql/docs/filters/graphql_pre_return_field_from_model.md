@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_pre_return_field_from_model`
+# graphql_pre_return_field_from_model
+
+```php
+apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
 
 Filter to short circuit the callback for any field on a type. Returning anything other than null will stop the callback for the field from executing, and will return your data or execute your callback instead.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.3.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Filter to short circuit the callback for any field on a type. Returning anything
 - `$visibility` (`string`): The visibility setting for this piece of data
 - `$owner` (`int|null`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:363`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L363)
+
+```php
+apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::wrap_fields()` in [`plugins/wp-graphql/src/Model/Model.php:363`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L363)

@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_comment_object_mutation_update_additional_data`
+# graphql_comment_object_mutation_update_additional_data
+
+```php
+do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
+```
 
 Fires after additional comment mutation data has been updated.
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/CommentMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/CommentMutation.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Fires after additional comment mutation data has been updated.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down to all resolvers.
 - `$intended_comment_status` (`int`): The status requested by mutation input.
 - `$default_comment_status` (`int`): The fallback status when no explicit status is provided.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/CommentMutation.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L151)
+
+```php
+do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
+```
+
+## Related
+
+- `CommentMutation::update_additional_comment_data()` in [`plugins/wp-graphql/src/Data/CommentMutation.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L151)

@@ -9,15 +9,31 @@ hookGroup: authentication
 plugin: wp-graphql
 ---
 
-# `graphql_pre_restrict_endpoint`
+# graphql_pre_restrict_endpoint
+
+```php
+apply_filters( 'graphql_pre_restrict_endpoint', $restrict_endpoint );
+```
 
 Allows overriding the default graphql_restrict_endpoint behavior. Returning anything other than null will skip the default restrict checks.
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
+- **Source File:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
 
 ## Parameters
 
 - `$restrict_endpoint` (`bool|null`): Whether to restrict the endpoint. Defaults to null
+
+## Source
+
+- [`plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php:34`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php#L34)
+
+```php
+apply_filters( 'graphql_pre_restrict_endpoint', $restrict_endpoint );
+```
+
+## Related
+
+- `RequireAuthentication::isEnabled()` in [`plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php:34`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php#L34)

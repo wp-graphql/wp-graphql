@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_model_field_capability`
+# graphql_model_field_capability
+
+```php
+apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
 
 Capability to check required for the field
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.3.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Capability to check required for the field
 - `$visibility` (`string`): The visibility setting for this piece of data
 - `$owner` (`int|null`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:466`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L466)
+
+```php
+apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+```
+
+## Related
+
+- `Model::current_user_can_access_field()` in [`plugins/wp-graphql/src/Model/Model.php:466`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L466)

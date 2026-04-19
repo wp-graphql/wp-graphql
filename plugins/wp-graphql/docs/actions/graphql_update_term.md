@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_update_term`
+# graphql_update_term
+
+```php
+do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
+```
 
 Fires an action when a term is updated via a GraphQL Mutation
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php`
+- **Source File:** `plugins/wp-graphql/src/Mutation/TermObjectUpdate.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Fires an action when a term is updated via a GraphQL Mutation
 - `$mutation_name` (`string`): The name of the mutation being performed (create, update, delete, etc)
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the resolve tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the resolve tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Mutation/TermObjectUpdate.php:168`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectUpdate.php#L168)
+
+```php
+do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
+```
+
+## Related
+
+- `TermObjectUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/TermObjectUpdate.php:168`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectUpdate.php#L168)

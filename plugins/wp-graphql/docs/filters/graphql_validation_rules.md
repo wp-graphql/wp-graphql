@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_validation_rules`
+# graphql_validation_rules
+
+```php
+apply_filters( 'graphql_validation_rules', $validation_rules, $this );
+```
 
 Return the validation rules to use in the request
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$validation_rules` (`array<string,\GraphQL\Validator\Rules\ValidationRule>`): The validation rules to use in the request
 - `$request` (`\WPGraphQL\Request`): The Request instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:229`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L229)
+
+```php
+apply_filters( 'graphql_validation_rules', $validation_rules, $this );
+```
+
+## Related
+
+- `Request::get_validation_rules()` in [`plugins/wp-graphql/src/Request.php:229`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L229)

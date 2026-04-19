@@ -9,16 +9,36 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_execute_query_params`
+# graphql_execute_query_params
+
+```php
+apply_filters( 'graphql_execute_query_params', $params->query ?? '', $params );
+```
 
 Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$query` (`string`): The query string to execute.
 - `$params` (`\GraphQL\Server\OperationParams`): Operation params for the request.
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:718`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L718)
+
+```php
+apply_filters(
+				'graphql_execute_query_params',
+				$params->query ?? '',
+				$params
+			);
+```
+
+## Related
+
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:718`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L718)

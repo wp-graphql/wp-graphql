@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_after_execute`
+# graphql_after_execute
+
+```php
+do_action( 'graphql_after_execute', $filtered_response, $this );
+```
 
 Run an action after GraphQL Execution
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$filtered_response` (`mixed[]`): The response of the entire operation. Could be a single operation or a batch operation
 - `$request` (`\WPGraphQL\Request`): Instance of the Request being executed
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:468`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L468)
+
+```php
+do_action( 'graphql_after_execute', $filtered_response, $this );
+```
+
+## Related
+
+- `Request::after_execute()` in [`plugins/wp-graphql/src/Request.php:468`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L468)

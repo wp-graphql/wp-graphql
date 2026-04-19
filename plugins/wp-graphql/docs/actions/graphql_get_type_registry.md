@@ -9,15 +9,31 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_get_type_registry`
+# graphql_get_type_registry
+
+```php
+do_action( 'graphql_get_type_registry', self::$type_registry );
+```
 
 Fire an action when the Type Registry is returned
 
 - **Type:** action
 - **Group:** Schema Registration
 - **Since:** 1.1.5
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The GraphQL type registry.
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:1008`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L1008)
+
+```php
+do_action( 'graphql_get_type_registry', self::$type_registry );
+```
+
+## Related
+
+- `WPGraphQL::get_type_registry()` in [`plugins/wp-graphql/src/WPGraphQL.php:1008`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L1008)

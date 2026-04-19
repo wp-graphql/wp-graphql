@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_experimental_features_cap`
+# graphql_experimental_features_cap
+
+```php
+apply_filters( 'graphql_experimental_features_cap', 'manage_options' );
+```
 
 Filters the capability required to turn experimental features on and off.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 2.3.8
-- **Source:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
 
 ## Parameters
 
 - `$capability` (`string`): The capability required to turn experimental features on and off. Defaults to `manage_options`.
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/ExperimentRegistry.php:115`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/ExperimentRegistry.php#L115)
+
+```php
+apply_filters( 'graphql_experimental_features_cap', 'manage_options' );
+```
+
+## Related
+
+- `ExperimentRegistry::capability()` in [`plugins/wp-graphql/src/Experimental/ExperimentRegistry.php:115`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/ExperimentRegistry.php#L115)

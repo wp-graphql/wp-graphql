@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_response_status_code`
+# graphql_response_status_code
+
+```php
+apply_filters( 'graphql_response_status_code', self::$http_status_code, $_deprecated, $response, $query, $operation_name, $variables, $user );
+```
 
 Filter the $status_code before setting the headers
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Filter the $status_code before setting the headers
 - `$operation_name` (`string`): The operation name of the GraphQL Request
 - `$variables` (`?array<string,mixed>`): The variables applied to the GraphQL Request
 - `$user` (`?\WP_User`): The current user object
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:639`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L639)
+
+```php
+apply_filters( 'graphql_response_status_code', self::$http_status_code, $_deprecated, $response, $query, $operation_name, $variables, $user );
+```
+
+## Related
+
+- `Router::prepare_headers()` in [`plugins/wp-graphql/src/Router.php:639`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L639)

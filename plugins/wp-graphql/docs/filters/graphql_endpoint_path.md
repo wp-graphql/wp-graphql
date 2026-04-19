@@ -9,15 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_endpoint_path`
+# graphql_endpoint_path
+
+```php
+apply_filters( 'graphql_endpoint_path', $endpoint );
+```
 
 Filter the relative endpoint path where GraphQL can be accessed.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/access-functions.php`
+- **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
 
 - `$endpoint_path` (`string`): The relative endpoint path that GraphQL can be accessed at.
+
+## Source
+
+- [`plugins/wp-graphql/access-functions.php:908`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L908)
+
+```php
+apply_filters( 'graphql_endpoint_path', $endpoint );
+```
+
+## Related
+
+- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:908`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L908)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:101`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L101)

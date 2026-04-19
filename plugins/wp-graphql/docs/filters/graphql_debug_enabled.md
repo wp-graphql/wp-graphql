@@ -9,15 +9,31 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_debug_enabled`
+# graphql_debug_enabled
+
+```php
+apply_filters( 'graphql_debug_enabled', $enabled );
+```
 
 Filters whether GraphQL debug mode is enabled.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.1.5
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$enabled` (`bool`): Whether GraphQL Debug is enabled or not
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:974`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L974)
+
+```php
+apply_filters( 'graphql_debug_enabled', $enabled );
+```
+
+## Related
+
+- `WPGraphQL::debug()` in [`plugins/wp-graphql/src/WPGraphQL.php:974`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L974)

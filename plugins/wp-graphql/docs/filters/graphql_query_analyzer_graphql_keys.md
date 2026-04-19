@@ -9,14 +9,18 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_query_analyzer_graphql_keys`
+# graphql_query_analyzer_graphql_keys
+
+```php
+apply_filters( 'graphql_query_analyzer_graphql_keys', [ 'keys' => $return_keys, 'keysLength' => strlen( $return_keys ), 'keysCount' => ! empty( $return_keys_array ) ? count( $return_keys_array ) : 0, 'skippedKeys' => $this->skipped_keys, 'skippedKeysSize' => strlen( $this->skipped_keys ), 'skippedKeysCount' => ! empty( $skipped_keys_array ) ? count( $skipped_keys_array ) : 0, 'skippedTypes' => $skipped_types, ], $return_keys, $this->skipped_keys, $return_keys_array, $skipped_keys_array );
+```
 
 Filters the assembled query analyzer keys before they are returned.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
@@ -25,3 +29,30 @@ Filters the assembled query analyzer keys before they are returned.
 - `$skipped_keys` (`string`): The Keys that were skipped (truncated due to size limit) from the X-GraphQL-Keys header
 - `$return_keys_array` (`string[]`): The keys returned to the X-GraphQL-Keys header, in array instead of string
 - `$skipped_keys_array` (`string[]`): The keys skipped, in array instead of string
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:885`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L885)
+
+```php
+apply_filters(
+			'graphql_query_analyzer_graphql_keys',
+			[
+				'keys'             => $return_keys,
+				'keysLength'       => strlen( $return_keys ),
+				'keysCount'        => ! empty( $return_keys_array ) ? count( $return_keys_array ) : 0,
+				'skippedKeys'      => $this->skipped_keys,
+				'skippedKeysSize'  => strlen( $this->skipped_keys ),
+				'skippedKeysCount' => ! empty( $skipped_keys_array ) ? count( $skipped_keys_array ) : 0,
+				'skippedTypes'     => $skipped_types,
+			],
+			$return_keys,
+			$this->skipped_keys,
+			$return_keys_array,
+			$skipped_keys_array
+		);
+```
+
+## Related
+
+- `QueryAnalyzer::get_graphql_keys()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:885`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L885)

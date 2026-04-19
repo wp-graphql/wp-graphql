@@ -9,16 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_do_update_routine`
+# graphql_do_update_routine
+
+```php
+do_action( 'graphql_do_update_routine', $stored_version, WPGRAPHQL_VERSION );
+```
 
 Fires the update routine.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** 1.2.3
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$stored_version` (`string`): The version number currently stored in the database.
 - `$new_version` (`string`): The version number of the current plugin.
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:502`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L502)
+
+```php
+do_action( 'graphql_do_update_routine', $stored_version, WPGRAPHQL_VERSION );
+```
+
+## Related
+
+- `WPGraphQL::run_update_routines()` in [`plugins/wp-graphql/src/WPGraphQL.php:502`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L502)

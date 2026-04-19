@@ -9,14 +9,18 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_input_fields`
+# graphql_input_fields
+
+```php
+apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );
+```
 
 Filter all object fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPInputObjectType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPInputObjectType.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filter all object fields, passing the $typename as a param This is useful when s
 - `$type_name` (`string`): The name of the object type
 - `$config` (`array<string,mixed>`): The type config
 - `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The TypeRegistry instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPInputObjectType.php:114`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInputObjectType.php#L114)
+
+```php
+apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );
+```
+
+## Related
+
+- `WPInputObjectType::prepare_fields()` in [`plugins/wp-graphql/src/Type/WPInputObjectType.php:114`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInputObjectType.php#L114)

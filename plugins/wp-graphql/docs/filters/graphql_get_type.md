@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_get_type`
+# graphql_get_type
+
+```php
+apply_filters( 'graphql_get_type', $type, $type_name );
+```
 
 Filter the type before it is loaded into the registry.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.6.0
-- **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
 
 - `$type` (`?TypeDef`): The type to load.
 - `$type_name` (`string`): The name of the type.
+
+## Source
+
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1039`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1039)
+
+```php
+apply_filters( 'graphql_get_type', $type, $type_name );
+```
+
+## Related
+
+- `TypeRegistry::get_type()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1039`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1039)

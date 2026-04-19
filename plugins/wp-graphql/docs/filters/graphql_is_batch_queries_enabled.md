@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_is_batch_queries_enabled`
+# graphql_is_batch_queries_enabled
+
+```php
+apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
+```
 
 Filter whether batch queries are supported or not
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$batch_queries_enabled` (`bool`): Whether Batch Queries should be enabled
 - `$params` (`\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]`): Request operation params
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:954`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L954)
+
+```php
+apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
+```
+
+## Related
+
+- `Request::is_batch_queries_enabled()` in [`plugins/wp-graphql/src/Request.php:954`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L954)

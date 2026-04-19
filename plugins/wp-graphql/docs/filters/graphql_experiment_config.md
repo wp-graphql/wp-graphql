@@ -9,16 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_experiment_config`
+# graphql_experiment_config
+
+```php
+apply_filters( 'graphql_experiment_config', $config, $slug );
+```
 
 Filters the experiment configuration.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
 
 ## Parameters
 
 - `$config` (`array{title:string,description:string}`): The experiment configuration.
 - `$slug` (`string`): The experiment's slug.
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:402`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L402)
+
+```php
+apply_filters( 'graphql_experiment_config', $config, $slug );
+```
+
+## Related
+
+- `AbstractExperiment::prepare_config()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:402`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L402)

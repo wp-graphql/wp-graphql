@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_response_headers_to_send`
+# graphql_response_headers_to_send
+
+```php
+apply_filters( 'graphql_response_headers_to_send', $headers );
+```
 
 Filter the $headers to send
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
 - `$headers` (`array<string,string>`): The headers to send
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:377`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L377)
+
+```php
+apply_filters( 'graphql_response_headers_to_send', $headers );
+```
+
+## Related
+
+- `Router::get_response_headers()` in [`plugins/wp-graphql/src/Router.php:377`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L377)

@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_cursor_meta_key`
+# graphql_post_object_cursor_meta_key
+
+```php
+apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_type, $order, $this );
+```
 
 Allow filtering the meta key used for cursor based pagination
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Allow filtering the meta key used for cursor based pagination
 - `$meta_type` (`string`): The meta type
 - `$order` (`string`): The order direction
 - `$cursor` (`object`): The PostObjectCursor instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:256`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L256)
+
+```php
+apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_type, $order, $this );
+```
+
+## Related
+
+- `PostObjectCursor::compare_with_meta_field()` in [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:256`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L256)

@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_media_item_create_allowed_protocols`
+# graphql_media_item_create_allowed_protocols
+
+```php
+apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
+```
 
 Filter the allowed protocols for the mutation
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Mutation/MediaItemCreate.php`
+- **Source File:** `plugins/wp-graphql/src/Mutation/MediaItemCreate.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter the allowed protocols for the mutation
 - `$input` (`array<string,mixed>`): The input of the current mutation
 - `$context` (`\WPGraphQL\AppContext`): The context of the current request
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo of the current field
+
+## Source
+
+- [`plugins/wp-graphql/src/Mutation/MediaItemCreate.php:213`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/MediaItemCreate.php#L213)
+
+```php
+apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
+```
+
+## Related
+
+- `MediaItemCreate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/MediaItemCreate.php:213`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/MediaItemCreate.php#L213)

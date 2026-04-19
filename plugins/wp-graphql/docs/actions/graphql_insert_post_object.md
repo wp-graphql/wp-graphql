@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_insert_post_object`
+# graphql_insert_post_object
+
+```php
+do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, $post_args, $mutation_name );
+```
 
 Fires after a single term is created or updated via a GraphQL mutation The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php`
+- **Source File:** `plugins/wp-graphql/src/Mutation/PostObjectUpdate.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Fires after a single term is created or updated via a GraphQL mutation The dynam
 - `$post_type_object` (`\WP_Post_Type`): The Post Type object for the post being mutated
 - `$args` (`array<string,mixed>`): The args used to insert the term
 - `$mutation_name` (`string`): The name of the mutation being performed
+
+## Source
+
+- [`plugins/wp-graphql/src/Mutation/PostObjectUpdate.php:200`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectUpdate.php#L200)
+
+```php
+do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, $post_args, $mutation_name );
+```
+
+## Related
+
+- `PostObjectUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/PostObjectUpdate.php:200`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectUpdate.php#L200)

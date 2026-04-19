@@ -9,15 +9,31 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_user_can_see_trace_data`
+# graphql_user_can_see_trace_data
+
+```php
+apply_filters( 'graphql_user_can_see_trace_data', $can_see );
+```
 
 Filter whether the logs can be seen in the request results or not
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.2.0
-- **Source:** `plugins/wp-graphql/src/Utils/Tracing.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/Tracing.php`
 
 ## Parameters
 
 - `$can_see` (`bool`): Whether the requester can see the logs or not
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/Tracing.php:360`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Tracing.php#L360)
+
+```php
+apply_filters( 'graphql_user_can_see_trace_data', $can_see );
+```
+
+## Related
+
+- `Tracing::user_can_see_trace_data()` in [`plugins/wp-graphql/src/Utils/Tracing.php:360`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Tracing.php#L360)

@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_do_request`
+# graphql_do_request
+
+```php
+do_action( 'graphql_do_request', $params->query, $params->operation, $params->variables, $params );
+```
 
 Run an action for each request.
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Run an action for each request.
 - `$operation` (`?string`): The name of the operation
 - `$variables` (`?array<string,mixed>`): Variables to be passed to your GraphQL request
 - `$params` (`\GraphQL\Server\OperationParams`): The Operation Params. This includes any extra params,
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:611`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L611)
+
+```php
+do_action( 'graphql_do_request', $params->query, $params->operation, $params->variables, $params );
+```
+
+## Related
+
+- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:611`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L611)

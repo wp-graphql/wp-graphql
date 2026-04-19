@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_admin_notices_init`
+# graphql_admin_notices_init
+
+```php
+do_action( 'graphql_admin_notices_init', $this );
+```
 
 Fires when admin notices are initialized.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** v1.21.0
-- **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
 
 ## Parameters
 
 - `$admin_notices` (`self`): The admin notices manager instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:105`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L105)
+
+```php
+do_action( 'graphql_admin_notices_init', $this );
+```
+
+## Related
+
+- `AdminNotices::init()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:105`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L105)

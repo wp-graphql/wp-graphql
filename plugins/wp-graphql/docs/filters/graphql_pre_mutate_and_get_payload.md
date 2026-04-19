@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_pre_mutate_and_get_payload`
+# graphql_pre_mutate_and_get_payload
+
+```php
+apply_filters( 'graphql_pre_mutate_and_get_payload', null, $this->mutation_name, $this->config['mutateAndGetPayload'], $input, $context, $info );
+```
 
 Filter to short circuit the mutateAndGetPayload callback. Returning anything other than null will stop the callback for the mutation from executing, and will return your data or execute your callback instead.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filter to short circuit the mutateAndGetPayload callback. Returning anything oth
 - `$input` (`array<string,mixed>`): The mutation input args.
 - `$context` (`\WPGraphQL\AppContext`): The AppContext object.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPMutationType.php:238`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPMutationType.php#L238)
+
+```php
+apply_filters( 'graphql_pre_mutate_and_get_payload', null, $this->mutation_name, $this->config['mutateAndGetPayload'], $input, $context, $info );
+```
+
+## Related
+
+- `WPMutationType::get_resolver()` in [`plugins/wp-graphql/src/Type/WPMutationType.php:238`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPMutationType.php#L238)

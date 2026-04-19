@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_register_post_type_args`
+# graphql_register_post_type_args
+
+```php
+apply_filters( 'graphql_register_post_type_args', $graphql_args, $post_type_name );
+```
 
 Filters the graphql args set on a post type
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$args` (`array<string,mixed>`): The graphql specific args for the post type
 - `$post_type_name` (`string`): The name of the post type being registered
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:628`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L628)
+
+```php
+apply_filters( 'graphql_register_post_type_args', $graphql_args, $post_type_name );
+```
+
+## Related
+
+- `WPGraphQL::register_graphql_post_type_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:628`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L628)

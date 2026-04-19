@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_schema_config`
+# graphql_schema_config
+
+```php
+apply_filters( 'graphql_schema_config', $config, $type_registry );
+```
 
 Set the $filterable_config as the $config that was passed to the WPSchema when instantiated
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.9
-- **Source:** `plugins/wp-graphql/src/WPSchema.php`
+- **Source File:** `plugins/wp-graphql/src/WPSchema.php`
 
 ## Parameters
 
 - `$config` (`\GraphQL\Type\SchemaConfig`): The config for the Schema.
 - `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The WPGraphQL type registry.
+
+## Source
+
+- [`plugins/wp-graphql/src/WPSchema.php:53`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPSchema.php#L53)
+
+```php
+apply_filters( 'graphql_schema_config', $config, $type_registry );
+```
+
+## Related
+
+- `WPSchema::__construct()` in [`plugins/wp-graphql/src/WPSchema.php:53`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPSchema.php#L53)

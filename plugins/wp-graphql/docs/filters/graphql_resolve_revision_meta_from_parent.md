@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_resolve_revision_meta_from_parent`
+# graphql_resolve_revision_meta_from_parent
+
+```php
+apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
+```
 
 Filters whether to resolve revision metadata from the parent node by default.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Utils/Preview.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/Preview.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filters whether to resolve revision metadata from the parent node by default.
 - `$object_id` (`int`): The ID of the object to resolve meta for
 - `$meta_key` (`?string`): The key for the meta to resolve
 - `$single` (`?bool`): Whether a single value should be returned
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/Preview.php:40`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Preview.php#L40)
+
+```php
+apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
+```
+
+## Related
+
+- `Preview::filter_post_meta_for_previews()` in [`plugins/wp-graphql/src/Utils/Preview.php:40`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Preview.php#L40)

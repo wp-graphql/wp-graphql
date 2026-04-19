@@ -9,11 +9,27 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_enqueue_graphiql_extension`
+# graphql_enqueue_graphiql_extension
+
+```php
+do_action( 'graphql_enqueue_graphiql_extension' );
+```
 
 Fires before GraphiQL extensions are enqueued.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:322`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L322)
+
+```php
+do_action( 'graphql_enqueue_graphiql_extension' );
+```
+
+## Related
+
+- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:322`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L322)

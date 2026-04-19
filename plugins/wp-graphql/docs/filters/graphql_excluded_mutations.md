@@ -9,15 +9,31 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_excluded_mutations`
+# graphql_excluded_mutations
+
+```php
+apply_filters( 'graphql_excluded_mutations', [] );
+```
 
 Filter the list of GraphQL mutations to excluded from the registry.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.14.0
-- **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
 
 - `$excluded_mutations` (`string[]`): The names of the GraphQL mutations to exclude.
+
+## Source
+
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1559`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1559)
+
+```php
+apply_filters( 'graphql_excluded_mutations', [] );
+```
+
+## Related
+
+- `TypeRegistry::get_excluded_mutations()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1559`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1559)

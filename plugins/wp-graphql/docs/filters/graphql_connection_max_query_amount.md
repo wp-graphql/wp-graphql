@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_max_query_amount`
+# graphql_connection_max_query_amount
+
+```php
+apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
+```
 
 Filter the maximum number of posts per page that should be queried. This prevents queries from being exceedingly resource intensive. The default is 100 - unless overloaded by ::max_query_amount() in the child class.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter the maximum number of posts per page that should be queried. This prevent
 - `$args` (`array<string,mixed>`): array of arguments input in the field as part of the GraphQL query
 - `$context` (`\WPGraphQL\AppContext`): Object containing app context that gets passed down the resolve tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): Info about fields passed down the resolve tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:624`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L624)
+
+```php
+apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_query_amount()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:624`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L624)

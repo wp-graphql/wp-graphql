@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_init`
+# graphql_init
+
+```php
+do_action( 'graphql_init', $instance );
+```
 
 Fire off init action
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 1.1.5
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$instance` (`\WPGraphQL`): The instance of the WPGraphQL class
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:206`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L206)
+
+```php
+do_action( 'graphql_init', $instance );
+```
+
+## Related
+
+- `WPGraphQL::actions()` in [`plugins/wp-graphql/src/WPGraphQL.php:206`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L206)

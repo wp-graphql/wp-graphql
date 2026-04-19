@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_response_set_headers`
+# graphql_response_set_headers
+
+```php
+do_action( 'graphql_response_set_headers', $headers );
+```
 
 Fire an action when the headers are set
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
 - `$headers` (`array<string,string>`): The headers sent in the response
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:417`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L417)
+
+```php
+do_action( 'graphql_response_set_headers', $headers );
+```
+
+## Related
+
+- `Router::set_headers()` in [`plugins/wp-graphql/src/Router.php:417`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L417)

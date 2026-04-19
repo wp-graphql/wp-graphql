@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_root_value`
+# graphql_root_value
+
+```php
+apply_filters( 'graphql_root_value', $root_value, $this );
+```
 
 Return the filtered root value
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$root_value` (`mixed|RootValueResolver`): The root value the Schema should use to resolve with. Default null.
 - `$request` (`\WPGraphQL\Request`): The Request instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:251`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L251)
+
+```php
+apply_filters( 'graphql_root_value', $root_value, $this );
+```
+
+## Related
+
+- `Request::get_root_value()` in [`plugins/wp-graphql/src/Request.php:251`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L251)

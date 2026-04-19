@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_allowed_setting_groups`
+# graphql_allowed_setting_groups
+
+```php
+apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
+```
 
 Filter the $allowed_settings to allow some to be enabled or disabled from showing in the GraphQL Schema.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 0.0.1
-- **Source:** `plugins/wp-graphql/src/Data/DataSource.php`
+- **Source File:** `plugins/wp-graphql/src/Data/DataSource.php`
 
 ## Parameters
 
 - `$allowed_settings` (`array<string,array<string,mixed>>`): The settings that can be exposed in the GraphQL schema.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/DataSource.php:454`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L454)
+
+```php
+apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
+```
+
+## Related
+
+- `DataSource::get_allowed_settings()` in [`plugins/wp-graphql/src/Data/DataSource.php:454`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L454)

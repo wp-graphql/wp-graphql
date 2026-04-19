@@ -9,16 +9,33 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_schema_instance`
+# graphql_schema_instance
+
+```php
+apply_filters( 'graphql_schema_instance', $schema, self::get_app_context() );
+```
 
 Generate & Filter the schema.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/WPGraphQL.php`
+- **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
 
 - `$schema` (`\WPGraphQL\WPSchema`): The executable Schema that GraphQL executes against
 - `$app_context` (`\WPGraphQL\AppContext`): Object The AppContext object containing all of the
+
+## Source
+
+- [`plugins/wp-graphql/src/WPGraphQL.php:930`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L930)
+
+```php
+apply_filters( 'graphql_schema_instance', $schema, self::get_app_context() );
+```
+
+## Related
+
+- `SchemaRegistry::get_schema()` in [`plugins/wp-graphql/src/Registry/SchemaRegistry.php:82`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/SchemaRegistry.php#L82)
+- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:930`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L930)

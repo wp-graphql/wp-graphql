@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_custom_scalar_config`
+# graphql_custom_scalar_config
+
+```php
+apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
+```
 
 Filters scalar type configuration before the scalar is registered.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPScalar.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPScalar.php`
 
 ## Parameters
 
 - `$config` (`array<string,mixed>`): The scalar type configuration.
 - `$type_registry` (`\WPGraphQL\Registry\TypeRegistry`): The type registry instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPScalar.php:75`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPScalar.php#L75)
+
+```php
+apply_filters( 'graphql_custom_scalar_config', $config, $type_registry );
+```
+
+## Related
+
+- `WPScalar::__construct()` in [`plugins/wp-graphql/src/Type/WPScalar.php:75`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPScalar.php#L75)

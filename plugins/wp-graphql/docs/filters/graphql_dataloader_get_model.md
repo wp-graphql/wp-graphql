@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_dataloader_get_model`
+# graphql_dataloader_get_model
+
+```php
+apply_filters( 'graphql_dataloader_get_model', $model, $entry, $key, $this );
+```
 
 Filter the model before returning.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filter the model before returning.
 - `$entry` (`mixed`): The entry loaded by dataloader that was used to create the Model
 - `$key` (`mixed`): The Key that was used to load the entry
 - `$loader` (`\WPGraphQL\Data\Loader\AbstractDataLoader`): The AbstractDataLoader Instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php:383`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php#L383)
+
+```php
+apply_filters( 'graphql_dataloader_get_model', $model, $entry, $key, $this );
+```
+
+## Related
+
+- `AbstractDataLoader::normalize_entry()` in [`plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php:383`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Loader/AbstractDataLoader.php#L383)

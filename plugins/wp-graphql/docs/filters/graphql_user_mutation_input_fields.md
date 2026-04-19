@@ -9,15 +9,31 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_user_mutation_input_fields`
+# graphql_user_mutation_input_fields
+
+```php
+apply_filters( 'graphql_user_mutation_input_fields', $input_fields );
+```
 
 Filters all of the fields available for input
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/UserMutation.php`
 
 ## Parameters
 
 - `$input_fields` (`array<string,array<string,mixed>>`): The fields available as user mutation input.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/UserMutation.php:137`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L137)
+
+```php
+apply_filters( 'graphql_user_mutation_input_fields', $input_fields );
+```
+
+## Related
+
+- `UserMutation::input_fields()` in [`plugins/wp-graphql/src/Data/UserMutation.php:137`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L137)

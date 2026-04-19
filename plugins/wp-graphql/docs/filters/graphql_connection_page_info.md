@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_page_info`
+# graphql_connection_page_info
+
+```php
+apply_filters( 'graphql_connection_page_info', $page_info, $this );
+```
 
 Filter the pageInfo that is returned to the connection. This filter allows for additional fields to be filtered into the pageInfo of a connection, such as "totalCount", etc, because the filter has enough context of the query, args, request, etc to be able to calculate and return that information. example: You would want to register a "total" field to the PageInfo type, then filter the pageInfo to return the total for the query, something to this tune: add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) { $page_info['total'] = null; if ( $connection->query instanceof WP_Query ) { if ( isset( $connection->query->found_posts ) { $page_info['total'] = (int) $connection->query->found_posts; } } return $page_info; });
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$page_info` (`array<string,mixed>`): The pageInfo payload for the connection.
 - `$resolver` (`self`): Instance of the connection resolver.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:827`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L827)
+
+```php
+apply_filters( 'graphql_connection_page_info', $page_info, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_page_info()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:827`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L827)

@@ -9,14 +9,18 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_before_resolve_field`
+# graphql_before_resolve_field
+
+```php
+do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
+```
 
 Fire an action BEFORE the field resolves
 
 - **Type:** action
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.1
-- **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
 
@@ -28,3 +32,15 @@ Fire an action BEFORE the field resolves
 - `$type_name` (`string`): The name of the type the fields belong to
 - `$field_key` (`string`): The name of the field
 - `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The Field Definition for the resolving field
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L121)
+
+```php
+do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
+```
+
+## Related
+
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L121)

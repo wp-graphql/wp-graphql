@@ -9,15 +9,31 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_introspection_keys`
+# graphql_introspection_keys
+
+```php
+apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
+```
 
 Filter the keys that are prepared for introspection.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 2.3.0
-- **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
 
 - `$introspection_keys` (`array<string>`): The keys to prepare for introspection.
+
+## Source
+
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:927`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L927)
+
+```php
+apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
+```
+
+## Related
+
+- `TypeRegistry::get_introspection_keys()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:927`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L927)

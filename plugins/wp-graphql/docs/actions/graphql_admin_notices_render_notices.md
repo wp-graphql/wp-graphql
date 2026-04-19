@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_admin_notices_render_notices`
+# graphql_admin_notices_render_notices
+
+```php
+do_action( 'graphql_admin_notices_render_notices', $notices );
+```
 
 Fires before the admin notices are rendered.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** v1.23.0
-- **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
 
 ## Parameters
 
 - `$notices` (`array<string,AdminNoticeConfig>`): The notices to be rendered
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:318`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L318)
+
+```php
+do_action( 'graphql_admin_notices_render_notices', $notices );
+```
+
+## Related
+
+- `AdminNotices::render_notices()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:318`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L318)

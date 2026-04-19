@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_resolve_uri_query_class`
+# graphql_resolve_uri_query_class
+
+```php
+apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
+```
 
 Filter the query class used to resolve the URI. By default this is WP_Query. This can be used by Extensions which use a different query class to resolve data.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/NodeResolver.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filter the query class used to resolve the URI. By default this is WP_Query. Thi
 - `$content` (`\WPGraphQL\AppContext`): The app context.
 - `$wp` (`\WP`): WP object.
 - `$extra_query_vars` (`array<string,mixed>|string`): Any extra query vars to consider.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/NodeResolver.php:176`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L176)
+
+```php
+apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
+```
+
+## Related
+
+- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:176`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L176)

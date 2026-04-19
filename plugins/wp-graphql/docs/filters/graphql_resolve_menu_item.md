@@ -9,18 +9,22 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `graphql_resolve_menu_item`
+# graphql_resolve_menu_item
 
 > [!WARNING]
 > This hook has been deprecated since v1.22.0 and should not be used for new integrations.
 > Use `graphql_pre_resolve_menu_item_connected_node` instead.
+
+```php
+apply_filters_deprecated( 'graphql_resolve_menu_item', [ $resolved_object, $args, $context, $info, $object_id, $object_type, ], '1.22.0', 'graphql_pre_resolve_menu_item_connected_node', __( 'This will be removed in the next version of WPGraphQL. Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead.', 'wp-graphql' ) );
+```
 
 No description available.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** 0.0.30
-- **Source:** `plugins/wp-graphql/src/Deprecated.php`
+- **Source File:** `plugins/wp-graphql/src/Deprecated.php`
 
 ## Lifecycle
 
@@ -35,3 +39,28 @@ No description available.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): Info about fields passed down the resolve tree
 - `$object_id` (`int`): Post or term ID of connected object
 - `$object_type` (`string`): Type of connected object ("post_type" or "taxonomy")
+
+## Source
+
+- [`plugins/wp-graphql/src/Deprecated.php:165`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L165)
+
+```php
+apply_filters_deprecated(
+						'graphql_resolve_menu_item',
+						[
+							$resolved_object,
+							$args,
+							$context,
+							$info,
+							$object_id,
+							$object_type,
+						],
+						'1.22.0',
+						'graphql_pre_resolve_menu_item_connected_node',
+						__( 'This will be removed in the next version of WPGraphQL. Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead.', 'wp-graphql' )
+					);
+```
+
+## Related
+
+- `Deprecated::menu_item_connected_object()` in [`plugins/wp-graphql/src/Deprecated.php:165`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L165)

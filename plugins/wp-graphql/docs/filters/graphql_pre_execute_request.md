@@ -9,16 +9,33 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_pre_execute_request`
+# graphql_pre_execute_request
+
+```php
+apply_filters( 'graphql_pre_execute_request', null, $this );
+```
 
 Filter this to be anything other than null to short-circuit HTTP execution.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$response` (`mixed|null`): The response to return early. Null continues execution.
 - `$request` (`self`): The request instance being executed.
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:809`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L809)
+
+```php
+apply_filters( 'graphql_pre_execute_request', null, $this );
+```
+
+## Related
+
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:694`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L694)
+- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:809`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L809)

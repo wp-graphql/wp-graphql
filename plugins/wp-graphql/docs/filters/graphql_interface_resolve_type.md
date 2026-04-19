@@ -9,17 +9,33 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_interface_resolve_type`
+# graphql_interface_resolve_type
+
+```php
+apply_filters( 'graphql_interface_resolve_type', $type, $obj, $this );
+```
 
 Filter the resolve type method for all interfaces
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
 
 ## Parameters
 
 - `$type` (`mixed`): The Type to resolve to, based on the object being resolved.
 - `$obj` (`mixed`): The object being resolved.
 - `$wp_interface_type` (`\WPGraphQL\Type\WPInterfaceType`): The WPInterfaceType instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPInterfaceType.php:82`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L82)
+
+```php
+apply_filters( 'graphql_interface_resolve_type', $type, $obj, $this );
+```
+
+## Related
+
+- `WPInterfaceType::__construct()` in [`plugins/wp-graphql/src/Type/WPInterfaceType.php:82`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L82)

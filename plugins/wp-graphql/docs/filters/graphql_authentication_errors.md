@@ -9,16 +9,33 @@ hookGroup: authentication
 plugin: wp-graphql
 ---
 
-# `graphql_authentication_errors`
+# graphql_authentication_errors
+
+```php
+apply_filters( 'graphql_authentication_errors', null, self::get_request() );
+```
 
 Allow plugins to prevent the downgrade via the graphql_authentication_errors filter.
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
 - `$authentication_errors` (`bool|null`): Null to allow default behavior, false to preserve auth.
 - `$request` (`\WPGraphQL\Request|null`): The Request instance (null in Router context).
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:760`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L760)
+
+```php
+apply_filters( 'graphql_authentication_errors', null, self::get_request() );
+```
+
+## Related
+
+- `Request::filtered_authentication_errors()` in [`plugins/wp-graphql/src/Request.php:402`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L402)
+- `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:760`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L760)

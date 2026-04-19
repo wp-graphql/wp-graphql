@@ -9,16 +9,33 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_request_data`
+# graphql_request_data
+
+```php
+apply_filters( 'graphql_request_data', $parsed_body_params, $request_context );
+```
 
 Filters normalized GraphQL request data before POST requests are parsed. This hook can be used for persisted-query workflows and other request preprocessing.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.2.0
-- **Source:** `plugins/wp-graphql/src/Server/WPHelper.php`
+- **Source File:** `plugins/wp-graphql/src/Server/WPHelper.php`
 
 ## Parameters
 
 - `$data` (`mixed[]`): The normalized GraphQL request data.
 - `$request_context` (`array<string,mixed>`): The request context containing request method and parsed params.
+
+## Source
+
+- [`plugins/wp-graphql/src/Server/WPHelper.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/WPHelper.php#L71)
+
+```php
+apply_filters( 'graphql_request_data', $parsed_body_params, $request_context );
+```
+
+## Related
+
+- `WPHelper::parseRequestParams()` in [`plugins/wp-graphql/src/Server/WPHelper.php:52`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/WPHelper.php#L52)
+- `WPHelper::parseRequestParams()` in [`plugins/wp-graphql/src/Server/WPHelper.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/WPHelper.php#L71)

@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_interface_fields`
+# graphql_interface_fields
+
+```php
+apply_filters( 'graphql_interface_fields', $fields, $type_name );
+```
 
 Filter all interface fields, passing the $typename as a param This is useful when several different types need to be easily filtered at once. . .for example, if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
 
 ## Parameters
 
 - `$fields` (`array<string,array<string,mixed>>`): The array of fields for the object config
 - `$type_name` (`string`): The name of the object type.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPInterfaceType.php:136`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L136)
+
+```php
+apply_filters( 'graphql_interface_fields', $fields, $type_name );
+```
+
+## Related
+
+- `WPInterfaceType::prepare_fields()` in [`plugins/wp-graphql/src/Type/WPInterfaceType.php:136`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L136)

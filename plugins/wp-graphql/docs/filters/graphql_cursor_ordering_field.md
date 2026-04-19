@@ -9,17 +9,43 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_cursor_ordering_field`
+# graphql_cursor_ordering_field
+
+```php
+apply_filters( 'graphql_cursor_ordering_field', [ 'key' => esc_sql( $key ), 'value' => esc_sql( $value ), 'type' => ! empty( $type ) ? esc_sql( $type ) : '', 'order' => ! empty( $order ) ? esc_sql( $order ) : '', ], $this, $object_cursor );
+```
 
 Filters the field used for ordering when cursors are used for pagination
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php`
 
 ## Parameters
 
 - `$field` (`array<string,mixed>`): The field key, value, type and order
 - `$cursor_builder` (`\WPGraphQL\Data\Cursor\CursorBuilder`): The CursorBuilder class
 - `$object_cursor` (`?object`): The Cursor class
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php:61`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php#L61)
+
+```php
+apply_filters(
+			'graphql_cursor_ordering_field',
+			[
+				'key'   => esc_sql( $key ),
+				'value' => esc_sql( $value ),
+				'type'  => ! empty( $type ) ? esc_sql( $type ) : '',
+				'order' => ! empty( $order ) ? esc_sql( $order ) : '',
+			],
+			$this,
+			$object_cursor
+		);
+```
+
+## Related
+
+- `CursorBuilder::add_field()` in [`plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php:61`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/CursorBuilder.php#L61)

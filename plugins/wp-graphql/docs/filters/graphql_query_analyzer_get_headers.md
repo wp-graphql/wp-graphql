@@ -9,16 +9,32 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_query_analyzer_get_headers`
+# graphql_query_analyzer_get_headers
+
+```php
+apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
+```
 
 Filters GraphQL response headers after query analyzer headers are appended.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
 - `$headers` (`array<string,string>`): The array of headers being returned
 - `$query_analyzer` (`\WPGraphQL\Utils\QueryAnalyzer`): The instance of the query analyzer
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:928`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L928)
+
+```php
+apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
+```
+
+## Related
+
+- `QueryAnalyzer::get_headers()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:928`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L928)

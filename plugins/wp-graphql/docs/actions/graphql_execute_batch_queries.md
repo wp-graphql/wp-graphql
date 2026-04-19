@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_execute_batch_queries`
+# graphql_execute_batch_queries
+
+```php
+do_action( 'graphql_execute_batch_queries', $this->params );
+```
 
 Execute batch queries
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$params` (`\GraphQL\Server\OperationParams[]`): The operation params of the batch request
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:340`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L340)
+
+```php
+do_action( 'graphql_execute_batch_queries', $this->params );
+```
+
+## Related
+
+- `Request::before_execute()` in [`plugins/wp-graphql/src/Request.php:340`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L340)

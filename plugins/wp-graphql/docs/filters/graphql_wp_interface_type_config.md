@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_interface_type_config`
+# graphql_wp_interface_type_config
+
+```php
+apply_filters( 'graphql_wp_interface_type_config', $config, $this );
+```
 
 Filter the config of WPInterfaceType
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPInterfaceType.php`
 
 ## Parameters
 
 - `$config` (`InterfaceConfig`): Array of configuration options passed to the WPInterfaceType when instantiating a new type
 - `$wp_interface_type` (`\WPGraphQL\Type\WPInterfaceType`): The instance of the WPInterfaceType class
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPInterfaceType.php:94`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L94)
+
+```php
+apply_filters( 'graphql_wp_interface_type_config', $config, $this );
+```
+
+## Related
+
+- `WPInterfaceType::__construct()` in [`plugins/wp-graphql/src/Type/WPInterfaceType.php:94`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L94)

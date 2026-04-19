@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_pre_wp_comments_query_cursor_pagination_support`
+# graphql_pre_wp_comments_query_cursor_pagination_support
+
+```php
+apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
+```
 
 If pre-filter hooked, return $pre_pieces.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Config.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Config.php`
 
 ## Parameters
 
 - `$pre_pieces` (`?array<string,mixed>`): The pre-filtered comment query clauses.
 - `$pieces` (`array<string,mixed>`): A compacted array of comment query clauses.
 - `$query` (`\WP_Comment_Query`): Current instance of WP_Comment_Query, passed by reference.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Config.php:479`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L479)
+
+```php
+apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
+```
+
+## Related
+
+- `Config::graphql_wp_comments_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:479`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L479)

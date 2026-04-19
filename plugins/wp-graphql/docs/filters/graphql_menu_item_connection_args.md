@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_menu_item_connection_args`
+# graphql_menu_item_connection_args
+
+```php
+apply_filters( 'graphql_menu_item_connection_args', $args, $this->get_unfiltered_args() );
+```
 
 Filters the GraphQL args before they are used in get_query_args().
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php`
 
 ## Parameters
 
 - `$args` (`array<string,mixed>`): The GraphQL args passed to the resolver.
 - `$unfiltered_args` (`array<string,mixed>`): Array of arguments input in the field as part of the GraphQL query.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php:108`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php#L108)
+
+```php
+apply_filters( 'graphql_menu_item_connection_args', $args, $this->get_unfiltered_args() );
+```
+
+## Related
+
+- `MenuItemConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php:108`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php#L108)

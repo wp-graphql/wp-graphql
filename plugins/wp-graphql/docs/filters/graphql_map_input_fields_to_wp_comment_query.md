@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_map_input_fields_to_wp_comment_query`
+# graphql_map_input_fields_to_wp_comment_query
+
+```php
+apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
+```
 
 Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the get_terms query
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 - `$all_args` (`array<string,mixed>`): All GraphQL args provided to the connection field.
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the resolve tree.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): ResolveInfo for the current field.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:304`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L304)
+
+```php
+apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
+```
+
+## Related
+
+- `CommentConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:304`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L304)

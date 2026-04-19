@@ -9,14 +9,18 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_pre_format_name`
+# graphql_pre_format_name
+
+```php
+apply_filters( 'graphql_pre_format_name', null, $name, $replacement, $regex );
+```
 
 Filter to manually format a GraphQL name according to custom rules. If anything other than null is returned, the result will be used for the name instead of the standard regex. Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.17.0
-- **Source:** `plugins/wp-graphql/src/Utils/Utils.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/Utils.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filter to manually format a GraphQL name according to custom rules. If anything 
 - `$original_name` (`string`): The name to format.
 - `$replacement` (`string`): The replacement character for invalid characters. Defaults to '_'.
 - `$regex` (`string`): The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/Utils.php:143`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Utils.php#L143)
+
+```php
+apply_filters( 'graphql_pre_format_name', null, $name, $replacement, $regex );
+```
+
+## Related
+
+- `Utils::format_graphql_name()` in [`plugins/wp-graphql/src/Utils/Utils.php:143`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Utils.php#L143)

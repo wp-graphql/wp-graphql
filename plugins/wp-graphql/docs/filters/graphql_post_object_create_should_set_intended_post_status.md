@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_create_should_set_intended_post_status`
+# graphql_post_object_create_should_set_intended_post_status
+
+```php
+apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status );
+```
 
 Determine whether the intended status should be set or not. By filtering to false, the $intended_post_status will not be set at the completion of the mutation. This allows for side-effect actions to set the status later. For example, if a post was being created via a GraphQL Mutation, the post had additional required assets, such as images that needed to be sideloaded or some other semi-time-consuming side effect, those actions could be deferred (cron or whatever), and when those actions complete they could come back and set the $intended_status.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
+- **Source File:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ Determine whether the intended status should be set or not. By filtering to fals
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down to all resolvers
 - `$intended_post_status` (`string`): The intended post_status the post should have according to the mutation input
 - `$default_post_status` (`string`): The default status posts should use if an intended status wasn't set
+
+## Source
+
+- [`plugins/wp-graphql/src/Mutation/PostObjectCreate.php:376`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectCreate.php#L376)
+
+```php
+apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status );
+```
+
+## Related
+
+- `PostObjectCreate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/PostObjectCreate.php:376`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectCreate.php#L376)

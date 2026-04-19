@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_resolve_uri`
+# graphql_resolve_uri
+
+```php
+apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
+```
 
 When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped. This is to be used in extensions to resolve their own nodes which might not use WordPress permalink structure. It differs from 'graphql_pre_resolve_uri' in that it has been called after the query has been run using the query vars.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/NodeResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/NodeResolver.php`
 
 ## Parameters
 
@@ -27,3 +31,15 @@ When this filter return anything other than null, it will be used as a resolved 
 - `$content` (`\WPGraphQL\AppContext`): The app context.
 - `$wp` (`\WP`): WP object.
 - `$extra_query_vars` (`array<string,mixed>|string`): Any extra query vars to consider.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/NodeResolver.php:247`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L247)
+
+```php
+apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
+```
+
+## Related
+
+- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:247`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L247)

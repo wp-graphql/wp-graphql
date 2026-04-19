@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_ids`
+# graphql_connection_ids
+
+```php
+apply_filters( 'graphql_connection_ids', $this->get_ids(), $this );
+```
 
 Filter the connection IDs
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$ids` (`int[]|string[]`): Array of IDs this connection will be resolving
 - `$connection_resolver` (`\WPGraphQL\Data\Connection\AbstractConnectionResolver`): Instance of the Connection Resolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1142`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1142)
+
+```php
+apply_filters( 'graphql_connection_ids', $this->get_ids(), $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::execute_and_get_ids()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1142`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1142)

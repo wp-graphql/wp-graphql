@@ -9,14 +9,18 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_after_resolve_field`
+# graphql_after_resolve_field
+
+```php
+do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
+```
 
 Fire an action AFTER the field resolves
 
 - **Type:** action
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.1
-- **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
 
@@ -29,3 +33,15 @@ Fire an action AFTER the field resolves
 - `$field_key` (`string`): The name of the field
 - `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The Field Definition for the resolving field
 - `$result` (`mixed`): The result of the field resolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L199)
+
+```php
+do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
+```
+
+## Related
+
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L199)

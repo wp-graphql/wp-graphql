@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_map_input_fields_to_wp_user_query`
+# graphql_map_input_fields_to_wp_user_query
+
+```php
+apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
+```
 
 Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the WP_User_Query
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 - `$all_args` (`array<string,mixed>`): Array of all the query args (not just the "where" args)
 - `$context` (`\WPGraphQL\AppContext`): The AppContext object
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo object
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php:261`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php#L261)
+
+```php
+apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
+```
+
+## Related
+
+- `UserConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php:261`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php#L261)

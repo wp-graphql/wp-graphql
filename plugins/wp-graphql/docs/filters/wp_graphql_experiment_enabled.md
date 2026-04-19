@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `wp_graphql_experiment_enabled`
+# wp_graphql_experiment_enabled
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_experiment_enabled` instead.
+
+```php
+apply_filters_deprecated( 'wp_graphql_experiment_enabled', [ $is_active, $slug ], 'x-release-please-version', 'graphql_experiment_enabled' );
+```
 
 Legacy experiment enabled filter retained for backward compatibility.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_experiment_enabled`
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:340`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L340)
+
+```php
+apply_filters_deprecated(
+					'wp_graphql_experiment_enabled',
+					[ $is_active, $slug ],
+					'x-release-please-version',
+					'graphql_experiment_enabled'
+				);
+```
+
+## Related
+
+- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:340`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L340)

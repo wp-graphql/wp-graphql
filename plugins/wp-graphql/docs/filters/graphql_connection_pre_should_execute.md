@@ -9,14 +9,18 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_pre_should_execute`
+# graphql_connection_pre_should_execute
+
+```php
+apply_filters( 'graphql_connection_pre_should_execute', $should_execute, $source, $args, $context, $info );
+```
 
 Filters whether or not the query should execute, BEFORE any data is fetched or altered. This is evaluated based solely on the values passed to the constructor, before any data is fetched or altered, and is useful for short-circuiting the Connection Resolver before any heavy logic is executed. For more in-depth checks, use the `graphql_connection_should_execute` filter instead.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
@@ -25,3 +29,15 @@ Filters whether or not the query should execute, BEFORE any data is fetched or a
 - `$args` (`array<string,mixed>`): The inputArgs on the field.
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the GraphQL tree.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the GraphQL tree.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:904`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L904)
+
+```php
+apply_filters( 'graphql_connection_pre_should_execute', $should_execute, $source, $args, $context, $info );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_pre_should_execute()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:904`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L904)

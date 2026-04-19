@@ -9,11 +9,28 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_init_request`
+# graphql_init_request
+
+```php
+do_action( 'graphql_init_request' );
+```
 
 Action – intentionally with no context – to indicate a GraphQL Request has started.
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:161`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L161)
+
+```php
+do_action( 'graphql_init_request' );
+```
+
+## Related
+
+- `Commands::generate_static_schema()` in [`plugins/wp-graphql/src/CLI/Commands.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/CLI/Commands.php#L71)
+- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:161`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L161)

@@ -9,15 +9,31 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_get_debug_log`
+# graphql_get_debug_log
+
+```php
+do_action( 'graphql_get_debug_log', $this );
+```
 
 Init the debug logger
 
 - **Type:** action
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Utils/DebugLog.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/DebugLog.php`
 
 ## Parameters
 
 - `$instance` (`\WPGraphQL\Utils\DebugLog`): The DebugLog instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/DebugLog.php:128`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/DebugLog.php#L128)
+
+```php
+do_action( 'graphql_get_debug_log', $this );
+```
+
+## Related
+
+- `DebugLog::get_logs()` in [`plugins/wp-graphql/src/Utils/DebugLog.php:128`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/DebugLog.php#L128)

@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_html_entity_decoding_enabled`
+# graphql_html_entity_decoding_enabled
+
+```php
+apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $str, $field_name, $this );
+```
 
 Determine whether html_entity_decode should be applied to the string
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.15.0
-- **Source:** `plugins/wp-graphql/src/Model/Model.php`
+- **Source File:** `plugins/wp-graphql/src/Model/Model.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Determine whether html_entity_decode should be applied to the string
 - `$str` (`string`): The string to decode
 - `$field_name` (`string`): The name of the field being encoded
 - `$model` (`\WPGraphQL\Model\Model`): The Model the field is being decoded on
+
+## Source
+
+- [`plugins/wp-graphql/src/Model/Model.php:544`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L544)
+
+```php
+apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $str, $field_name, $this );
+```
+
+## Related
+
+- `Model::html_entity_decode()` in [`plugins/wp-graphql/src/Model/Model.php:544`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L544)

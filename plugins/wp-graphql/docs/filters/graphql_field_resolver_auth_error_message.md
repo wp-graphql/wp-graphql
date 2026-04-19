@@ -9,16 +9,32 @@ hookGroup: authentication
 plugin: wp-graphql
 ---
 
-# `graphql_field_resolver_auth_error_message`
+# graphql_field_resolver_auth_error_message
+
+```php
+apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
+```
 
 Filters the default authorization error message for field resolvers.
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
 - **Since:** 0.0.1
-- **Source:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/InstrumentSchema.php`
 
 ## Parameters
 
 - `$default_auth_error_message` (`string`): The default authorization error message.
 - `$field` (`\GraphQL\Type\Definition\FieldDefinition`): The field definition being resolved.
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:244`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L244)
+
+```php
+apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
+```
+
+## Related
+
+- `InstrumentSchema::check_field_permissions()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:244`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L244)

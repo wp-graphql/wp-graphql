@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_mutation_type_config`
+# graphql_wp_mutation_type_config
+
+```php
+apply_filters( 'graphql_wp_mutation_type_config', $config, $this );
+```
 
 Filter the config of WPMutationType
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.13.0
-- **Source:** `plugins/wp-graphql/src/Type/WPMutationType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPMutationType.php`
 
 ## Parameters
 
 - `$config` (`array<string,mixed>`): Array of configuration options passed to the WPMutationType when instantiating a new type
 - `$wp_mutation_type` (`\WPGraphQL\Type\WPMutationType`): The instance of the WPMutationType class
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPMutationType.php:89`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPMutationType.php#L89)
+
+```php
+apply_filters( 'graphql_wp_mutation_type_config', $config, $this );
+```
+
+## Related
+
+- `WPMutationType::__construct()` in [`plugins/wp-graphql/src/Type/WPMutationType.php:89`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPMutationType.php#L89)

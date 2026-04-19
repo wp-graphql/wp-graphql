@@ -9,17 +9,33 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_pre_query_analyzer_get_models`
+# graphql_pre_query_analyzer_get_models
+
+```php
+apply_filters( 'graphql_pre_query_analyzer_get_models', $null, $schema, $query );
+```
 
 Filters model identifiers before QueryAnalyzer derives them from the AST.
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/QueryAnalyzer.php`
 
 ## Parameters
 
 - `$null` (`string[]|null`): Default value for the filter.
 - `$schema` (`?\GraphQL\Type\Schema`): The WPGraphQL Schema for the current request.
 - `$query` (`?string`): The query string being requested.
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:677`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L677)
+
+```php
+apply_filters( 'graphql_pre_query_analyzer_get_models', $null, $schema, $query );
+```
+
+## Related
+
+- `QueryAnalyzer::set_query_models()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:677`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L677)

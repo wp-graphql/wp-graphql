@@ -9,17 +9,33 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_type_interfaces`
+# graphql_type_interfaces
+
+```php
+apply_filters( 'graphql_type_interfaces', $interfaces, $this->config, $this );
+```
 
 Filters the interfaces applied to an object type
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPInterfaceTrait.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPInterfaceTrait.php`
 
 ## Parameters
 
 - `$interfaces` (`string[]`): List of interfaces applied to the Object Type
 - `$config` (`array<string,mixed>`): The config for the Object Type
 - `$type` (`mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType`): The Type instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPInterfaceTrait.php:40`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceTrait.php#L40)
+
+```php
+apply_filters( 'graphql_type_interfaces', $interfaces, $this->config, $this );
+```
+
+## Related
+
+- `WPInterfaceTrait::get_implemented_interfaces()` in [`plugins/wp-graphql/src/Type/WPInterfaceTrait.php:40`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceTrait.php#L40)

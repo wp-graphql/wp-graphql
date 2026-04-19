@@ -9,15 +9,31 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_register_types_late`
+# graphql_register_types_late
+
+```php
+do_action( 'graphql_register_types_late', $type_registry );
+```
 
 Fire an action as the type registry is initialized. This executes during the `graphql_register_types` action to allow for earlier hooking
 
 - **Type:** action
 - **Group:** Schema Registration
 - **Since:** 0.4.3
-- **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
 
 - `$registry` (`\WPGraphQL\Registry\TypeRegistry`): Instance of the TypeRegistry
+
+## Source
+
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:722`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L722)
+
+```php
+do_action( 'graphql_register_types_late', $type_registry );
+```
+
+## Related
+
+- `TypeRegistry::init_type_registry()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:722`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L722)

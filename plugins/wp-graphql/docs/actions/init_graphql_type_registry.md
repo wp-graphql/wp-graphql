@@ -9,20 +9,41 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `init_graphql_type_registry`
+# init_graphql_type_registry
 
 > [!WARNING]
 > This hook has been deprecated since x-release-please-version and should not be used for new integrations.
 > Use `graphql_init_type_registry` instead.
+
+```php
+do_action_deprecated( 'init_graphql_type_registry', [ $this ], 'x-release-please-version', 'graphql_init_type_registry' );
+```
 
 Legacy type registry initialization hook retained for backward compatibility.
 
 - **Type:** action
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Lifecycle
 
 - **Deprecated in:** x-release-please-version
 - **Replacement:** `graphql_init_type_registry`
+
+## Source
+
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L284)
+
+```php
+do_action_deprecated(
+			'init_graphql_type_registry',
+			[ $this ],
+			'x-release-please-version',
+			'graphql_init_type_registry'
+		);
+```
+
+## Related
+
+- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L284)

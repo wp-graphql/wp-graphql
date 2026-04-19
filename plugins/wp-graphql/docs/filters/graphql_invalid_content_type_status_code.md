@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_invalid_content_type_status_code`
+# graphql_invalid_content_type_status_code
+
+```php
+apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
+```
 
 Filter the status code to return when the content type is invalid
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 2.1.0
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$status_code` (`int`): The status code to return. Default 415.
 - `$content_type` (`string`): The content type header value that was received.
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:888`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L888)
+
+```php
+apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
+```
+
+## Related
+
+- `Request::get_invalid_content_type_response()` in [`plugins/wp-graphql/src/Request.php:888`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L888)

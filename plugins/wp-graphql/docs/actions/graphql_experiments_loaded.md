@@ -9,16 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_experiments_loaded`
+# graphql_experiments_loaded
+
+```php
+do_action( 'graphql_experiments_loaded', $this->experiments, $this->get_experiment_registry() );
+```
 
 Fires after all the experiments have been loaded.
 
 - **Type:** action
 - **Group:** Settings and Admin
 - **Since:** 2.3.8
-- **Source:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/ExperimentRegistry.php`
 
 ## Parameters
 
 - `$experiments` (`array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>|null`): The list of loaded experiment classes, keyed by experiment slug.
 - `$registry` (`array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>`): The list of registered experiment classes, keyed by experiment slug.
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/ExperimentRegistry.php:338`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/ExperimentRegistry.php#L338)
+
+```php
+do_action( 'graphql_experiments_loaded', $this->experiments, $this->get_experiment_registry() );
+```
+
+## Related
+
+- `ExperimentRegistry::load_experiments()` in [`plugins/wp-graphql/src/Experimental/ExperimentRegistry.php:338`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/ExperimentRegistry.php#L338)

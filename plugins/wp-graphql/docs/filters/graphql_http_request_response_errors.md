@@ -9,17 +9,38 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_http_request_response_errors`
+# graphql_http_request_response_errors
+
+```php
+apply_filters( 'graphql_http_request_response_errors', [ FormattedError::createFromException( $error, self::$request->get_debug_flag() ) ], $error, self::$request );
+```
 
 Filter thrown GraphQL errors
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.4
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
 - `$errors` (`SerializableError[]`): The errors array to be sent in the response.
 - `$error` (`\Throwable`): Thrown error object.
 - `$request` (`\WPGraphQL\Request`): WPGraphQL Request object.
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:574`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L574)
+
+```php
+apply_filters(
+				'graphql_http_request_response_errors',
+				[ FormattedError::createFromException( $error, self::$request->get_debug_flag() ) ],
+				$error,
+				self::$request
+			);
+```
+
+## Related
+
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:574`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L574)

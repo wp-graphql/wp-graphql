@@ -9,17 +9,33 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_create_default_post_status`
+# graphql_post_object_create_default_post_status
+
+```php
+apply_filters( 'graphql_post_object_create_default_post_status', 'draft', $post_type_object, $mutation_name );
+```
 
 Filter the default post status to use when the post is initially created. Pass through a filter to allow other plugins to override the default (for example, Edit Flow, which provides control over customizing stati or various E-commerce plugins that make heavy use of custom stati)
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
+- **Source File:** `plugins/wp-graphql/src/Mutation/PostObjectCreate.php`
 
 ## Parameters
 
 - `$default_status` (`string`): The default status to be used when the post is initially inserted
 - `$post_type_object` (`\WP_Post_Type`): The Post Type that is being inserted
 - `$mutation_name` (`string`): The name of the mutation currently in progress
+
+## Source
+
+- [`plugins/wp-graphql/src/Mutation/PostObjectCreate.php:292`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectCreate.php#L292)
+
+```php
+apply_filters( 'graphql_post_object_create_default_post_status', 'draft', $post_type_object, $mutation_name );
+```
+
+## Related
+
+- `PostObjectCreate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/PostObjectCreate.php:292`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectCreate.php#L292)

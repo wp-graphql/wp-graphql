@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_object_type`
+# graphql_wp_object_type
+
+```php
+do_action( 'graphql_wp_object_type', $config, $this );
+```
 
 Run an action when the WPObjectType is instantiating
 
 - **Type:** action
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPObjectType.php`
 
 ## Parameters
 
 - `$config` (`array<string,mixed>`): Array of configuration options passed to the WPObjectType when instantiating a new type
 - `$wp_object_type` (`\WPGraphQL\Type\WPObjectType`): The instance of the WPObjectType class
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPObjectType.php:120`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L120)
+
+```php
+do_action( 'graphql_wp_object_type', $config, $this );
+```
+
+## Related
+
+- `WPObjectType::__construct()` in [`plugins/wp-graphql/src/Type/WPObjectType.php:120`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L120)

@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_get_extensions`
+# graphql_get_extensions
+
+```php
+apply_filters( 'graphql_get_extensions', $extensions );
+```
 
 Filter the list of extensions, allowing other plugins to add or remove extensions.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** x-release-please-version
-- **Source:** `plugins/wp-graphql/src/Admin/Extensions/Extensions.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Extensions/Extensions.php`
 
 ## Parameters
 
 - `$extensions` (`array<string,Extension>`): The list of extensions.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:405`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L405)
+
+```php
+apply_filters( 'graphql_get_extensions', $extensions );
+```
+
+## Related
+
+- `Extensions::get_extensions()` in [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:405`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L405)

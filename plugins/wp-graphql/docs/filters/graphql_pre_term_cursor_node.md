@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_pre_term_cursor_node`
+# graphql_pre_term_cursor_node
+
+```php
+apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
+```
 
 If pre-hooked, return filtered node.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php`
 
 ## Parameters
 
 - `$pre_term` (`\WP_Term|null`): The pre-filtered term node.
 - `$offset` (`int`): The cursor offset.
 - `$node` (`\WPGraphQL\Data\Cursor\TermObjectCursor`): The cursor instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php:51`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php#L51)
+
+```php
+apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
+```
+
+## Related
+
+- `TermObjectCursor::get_cursor_node()` in [`plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php:51`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/TermObjectCursor.php#L51)

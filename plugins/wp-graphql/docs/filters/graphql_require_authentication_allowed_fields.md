@@ -9,16 +9,32 @@ hookGroup: authentication
 plugin: wp-graphql
 ---
 
-# `graphql_require_authentication_allowed_fields`
+# graphql_require_authentication_allowed_fields
+
+```php
+apply_filters( 'graphql_require_authentication_allowed_fields', $allowed_root_fields, $context );
+```
 
 Filters the allowed root fields
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
+- **Source File:** `plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php`
 
 ## Parameters
 
 - `$allowed_root_fields` (`string[]`): The Root fields allowed to be requested without authentication
 - `$context` (`\GraphQL\Validator\QueryValidationContext`): The Validation context of the field being executed.
+
+## Source
+
+- [`plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php:77`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php#L77)
+
+```php
+apply_filters( 'graphql_require_authentication_allowed_fields', $allowed_root_fields, $context );
+```
+
+## Related
+
+- `RequireAuthentication::getVisitor()` in [`plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php:77`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php#L77)

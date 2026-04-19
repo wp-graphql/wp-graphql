@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_mutation_update_additional_data`
+# graphql_post_object_mutation_update_additional_data
+
+```php
+do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
+```
 
 Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to postObjects, such as setting relationships, updating additional postmeta, or sending emails to Kevin. . .whatever you need to do with the postObject.
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
 
 ## Parameters
 
@@ -28,3 +32,15 @@ Run an action after the additional data has been updated. This is a great spot t
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down to all resolvers
 - `$intended_post_status` (`?string`): The intended post_status the post should have according to the mutation input
 - `$default_post_status` (`?string`): The default status posts should use if an intended status wasn't set
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L199)
+
+```php
+do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
+```
+
+## Related
+
+- `PostObjectMutation::update_additional_post_object_data()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L199)

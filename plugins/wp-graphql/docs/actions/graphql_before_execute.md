@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_before_execute`
+# graphql_before_execute
+
+```php
+do_action( 'graphql_before_execute', $this );
+```
 
 This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Request.php`
+- **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
 
 - `$request` (`\WPGraphQL\Request`): The instance of the Request being executed
+
+## Source
+
+- [`plugins/wp-graphql/src/Request.php:358`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L358)
+
+```php
+do_action( 'graphql_before_execute', $this );
+```
+
+## Related
+
+- `Request::before_execute()` in [`plugins/wp-graphql/src/Request.php:358`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L358)

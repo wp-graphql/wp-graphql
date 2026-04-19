@@ -9,16 +9,32 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_resolve_node_type`
+# graphql_resolve_node_type
+
+```php
+apply_filters( 'graphql_resolve_node_type', $type, $node );
+```
 
 Add a filter to allow externally registered node types to return the proper type based on the node_object that's returned
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/DataSource.php`
+- **Source File:** `plugins/wp-graphql/src/Data/DataSource.php`
 
 ## Parameters
 
 - `$type` (`mixed|object|array`): The type definition the node should resolve to.
 - `$node` (`mixed|object|array`): The $node that is being resolved
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/DataSource.php:563`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L563)
+
+```php
+apply_filters( 'graphql_resolve_node_type', $type, $node );
+```
+
+## Related
+
+- `DataSource::resolve_node_type()` in [`plugins/wp-graphql/src/Data/DataSource.php:563`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L563)

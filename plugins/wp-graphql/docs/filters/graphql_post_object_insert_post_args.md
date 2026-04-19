@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_insert_post_args`
+# graphql_post_object_insert_post_args
+
+```php
+apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
+```
 
 Filter the $insert_post_args
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Filter the $insert_post_args
 - `$input` (`array<string,mixed>`): The data that was entered as input for the mutation
 - `$post_type_object` (`\WP_Post_Type`): The post_type_object that the mutation is affecting
 - `$mutation_type` (`string`): The type of mutation being performed (create, edit, etc)
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:115`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L115)
+
+```php
+apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
+```
+
+## Related
+
+- `PostObjectMutation::prepare_post_object()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:115`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L115)

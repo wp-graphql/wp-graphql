@@ -9,16 +9,33 @@ hookGroup: debugging
 plugin: wp-graphql
 ---
 
-# `graphql_tracing_response`
+# graphql_tracing_response
+
+```php
+apply_filters( 'graphql_tracing_response', $trace, $this );
+```
 
 Filter the trace
 
 - **Type:** filter
 - **Group:** Debugging and Instrumentation
 - **Since:** 0.2.0
-- **Source:** `plugins/wp-graphql/src/Utils/Tracing.php`
+- **Source File:** `plugins/wp-graphql/src/Utils/Tracing.php`
 
 ## Parameters
 
 - `$trace` (`Trace`): The trace to return
 - `$instance` (`\WPGraphQL\Utils\Tracing`): The Tracing class instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Utils/Tracing.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Tracing.php#L390)
+
+```php
+apply_filters( 'graphql_tracing_response', $trace, $this );
+```
+
+## Related
+
+- `QueryLog::get_query_log()` in [`plugins/wp-graphql/src/Utils/QueryLog.php:175`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryLog.php#L175)
+- `Tracing::get_trace()` in [`plugins/wp-graphql/src/Utils/Tracing.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Tracing.php#L390)

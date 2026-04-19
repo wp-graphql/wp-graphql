@@ -9,17 +9,33 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_user_insert_post_args`
+# graphql_user_insert_post_args
+
+```php
+apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
+```
 
 Filters the mappings for input to arguments
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/UserMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/UserMutation.php`
 
 ## Parameters
 
 - `$insert_user_args` (`array<string,mixed>`): The arguments to ultimately be passed to the WordPress function
 - `$input` (`array<string,mixed>`): Input data from the GraphQL mutation
 - `$mutation_name` (`string`): What user mutation is being performed for context
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/UserMutation.php:239`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L239)
+
+```php
+apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
+```
+
+## Related
+
+- `UserMutation::prepare_user_object()` in [`plugins/wp-graphql/src/Data/UserMutation.php:239`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L239)

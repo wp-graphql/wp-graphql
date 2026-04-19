@@ -9,16 +9,32 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_add_admin_notice`
+# graphql_add_admin_notice
+
+```php
+apply_filters( 'graphql_add_admin_notice', $config, $slug );
+```
 
 Pass the notice through a filter before registering it
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** v1.21.0
-- **Source:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/AdminNotices.php`
 
 ## Parameters
 
 - `$config` (`AdminNoticeConfig`): The config of the admin notice
 - `$slug` (`string`): The slug identifying the admin notice
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:169`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L169)
+
+```php
+apply_filters( 'graphql_add_admin_notice', $config, $slug );
+```
+
+## Related
+
+- `AdminNotices::add_admin_notice()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:169`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L169)

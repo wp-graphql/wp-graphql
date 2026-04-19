@@ -9,17 +9,33 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_connection_is_valid_model`
+# graphql_connection_is_valid_model
+
+```php
+apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
+```
 
 Filters whether or not the model is valid. This is useful when the dataloader is overridden and uses a different model than expected by default.
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 0.0.6
-- **Source:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
 ## Parameters
 
 - `$is_valid` (`bool`): Whether or not the model is valid.
 - `$model` (`mixed`): The model being validated
 - `$resolver` (`self`): The connection resolver instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1376`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1376)
+
+```php
+apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
+```
+
+## Related
+
+- `AbstractConnectionResolver::get_is_valid_model()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1376`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1376)

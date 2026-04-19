@@ -9,18 +9,22 @@ hookGroup: uncategorized
 plugin: wp-graphql
 ---
 
-# `graphql_return_modeled_data`
+# graphql_return_modeled_data
 
 > [!WARNING]
 > This hook has been deprecated since v1.7.0 and should not be used for new integrations.
 > Use `graphql_model_prepare_fields` instead.
+
+```php
+apply_filters_deprecated( 'graphql_return_modeled_data', [ $fields, $model_name, $visibility, $owner, $current_user ], '1.7.0', 'graphql_model_prepare_fields', __( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' ) );
+```
 
 No description available.
 
 - **Type:** filter
 - **Group:** Uncategorized
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Deprecated.php`
+- **Source File:** `plugins/wp-graphql/src/Deprecated.php`
 
 ## Lifecycle
 
@@ -34,3 +38,21 @@ No description available.
 - `$visibility` (`string`): The visibility setting for this piece of data
 - `$owner` (`?int`): The user ID for the owner of this piece of data
 - `$current_user` (`\WP_User`): The current user for the session
+
+## Source
+
+- [`plugins/wp-graphql/src/Deprecated.php:91`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L91)
+
+```php
+apply_filters_deprecated(
+					'graphql_return_modeled_data',
+					[ $fields, $model_name, $visibility, $owner, $current_user ],
+					'1.7.0',
+					'graphql_model_prepare_fields',
+					__( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' )
+				);
+```
+
+## Related
+
+- `Deprecated::filters()` in [`plugins/wp-graphql/src/Deprecated.php:91`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L91)

@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_object_type_config`
+# graphql_wp_object_type_config
+
+```php
+apply_filters( 'graphql_wp_object_type_config', $config, $this );
+```
 
 Filter the config of WPObjectType
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Type/WPObjectType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPObjectType.php`
 
 ## Parameters
 
 - `$config` (`ObjectConfig`): Array of configuration options passed to the WPObjectType when instantiating a new type.
 - `$wp_object_type` (`\WPGraphQL\Type\WPObjectType`): The instance of the WPObjectType class
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPObjectType.php:80`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L80)
+
+```php
+apply_filters( 'graphql_wp_object_type_config', $config, $this );
+```
+
+## Related
+
+- `WPObjectType::__construct()` in [`plugins/wp-graphql/src/Type/WPObjectType.php:80`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L80)

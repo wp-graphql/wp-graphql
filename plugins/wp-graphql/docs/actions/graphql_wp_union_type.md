@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_union_type`
+# graphql_wp_union_type
+
+```php
+do_action( 'graphql_wp_union_type', $config, $this );
+```
 
 Fires after a WPUnionType has been configured and before registration.
 
 - **Type:** action
 - **Group:** Schema Registration
 - **Since:** 0.0.30
-- **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPUnionType.php`
 
 ## Parameters
 
 - `$config` (`UnionConfig`): The union type configuration.
 - `$instance` (`\WPGraphQL\Type\WPUnionType`): The WPUnionType instance.
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPUnionType.php:116`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L116)
+
+```php
+do_action( 'graphql_wp_union_type', $config, $this );
+```
+
+## Related
+
+- `WPUnionType::__construct()` in [`plugins/wp-graphql/src/Type/WPUnionType.php:116`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L116)

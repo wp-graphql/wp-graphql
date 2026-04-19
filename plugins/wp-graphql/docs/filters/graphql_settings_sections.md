@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_settings_sections`
+# graphql_settings_sections
+
+```php
+apply_filters( 'graphql_settings_sections', $this->settings_sections );
+```
 
 Filters the WPGraphQL settings sections.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php`
 
 ## Parameters
 
 - `$setting_sections` (`array<string,array<string,mixed>>`): The registered settings sections
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:182`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L182)
+
+```php
+apply_filters( 'graphql_settings_sections', $this->settings_sections );
+```
+
+## Related
+
+- `SettingsRegistry::admin_init()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:182`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L182)

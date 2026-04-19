@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_insert_term`
+# graphql_insert_term
+
+```php
+do_action( 'graphql_insert_term', $term['term_id'], $taxonomy, $args, $mutation_name, $context, $info );
+```
 
 Fires after a single term is created or updated via a GraphQL mutation
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Mutation/TermObjectCreate.php`
+- **Source File:** `plugins/wp-graphql/src/Mutation/TermObjectCreate.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Fires after a single term is created or updated via a GraphQL mutation
 - `$mutation_name` (`string`): The name of the mutation being performed
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down the resolve tree
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down the resolve tree
+
+## Source
+
+- [`plugins/wp-graphql/src/Mutation/TermObjectCreate.php:200`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectCreate.php#L200)
+
+```php
+do_action( 'graphql_insert_term', $term['term_id'], $taxonomy, $args, $mutation_name, $context, $info );
+```
+
+## Related
+
+- `TermObjectCreate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/TermObjectCreate.php:200`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectCreate.php#L200)

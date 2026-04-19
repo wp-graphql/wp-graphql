@@ -9,11 +9,27 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_process_http_request`
+# graphql_process_http_request
+
+```php
+do_action( 'graphql_process_http_request' );
+```
 
 This action can be hooked to to enable various debug tools, such as enableValidation from the GraphQL Config.
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.4
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:512`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L512)
+
+```php
+do_action( 'graphql_process_http_request' );
+```
+
+## Related
+
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:512`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L512)

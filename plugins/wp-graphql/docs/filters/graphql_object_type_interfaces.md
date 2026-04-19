@@ -9,18 +9,22 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_object_type_interfaces`
+# graphql_object_type_interfaces
 
 > [!WARNING]
 > This hook has been deprecated since v1.4.1 and should not be used for new integrations.
 > Use `graphql_type_interfaces` instead.
+
+```php
+apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces', __( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' ) );
+```
 
 No description available.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** Unknown
-- **Source:** `plugins/wp-graphql/src/Deprecated.php`
+- **Source File:** `plugins/wp-graphql/src/Deprecated.php`
 
 ## Lifecycle
 
@@ -32,3 +36,15 @@ No description available.
 - `$interfaces` (`string[]`): List of interfaces applied to the Object Type
 - `$config` (`array<string,mixed>`): The config for the Object Type
 - `$type` (`\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType`): The Type instance
+
+## Source
+
+- [`plugins/wp-graphql/src/Deprecated.php:63`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L63)
+
+```php
+apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces', __( 'This will be removed in the next major release of WPGraphQL.', 'wp-graphql' ) );
+```
+
+## Related
+
+- `Deprecated::filters()` in [`plugins/wp-graphql/src/Deprecated.php:63`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L63)

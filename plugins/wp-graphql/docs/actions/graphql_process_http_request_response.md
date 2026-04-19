@@ -9,14 +9,18 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_process_http_request_response`
+# graphql_process_http_request_response
+
+```php
+do_action( 'graphql_process_http_request_response', $response, $response, $operation_name, $query, $variables, self::$http_status_code );
+```
 
 Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools to hook in to track metrics, such as how long the process took from `graphql_process_http_request` to here, etc.
 
 - **Type:** action
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Router.php`
+- **Source File:** `plugins/wp-graphql/src/Router.php`
 
 ## Parameters
 
@@ -26,3 +30,15 @@ Run an action after the HTTP Response is ready to be sent back. This might be a 
 - `$query` (`string`): The request that GraphQL executed
 - `$variables` (`?array<string,mixed>`): Variables to passed to your GraphQL query
 - `$status_code` (`int|string`): The status code for the response
+
+## Source
+
+- [`plugins/wp-graphql/src/Router.php:604`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L604)
+
+```php
+do_action( 'graphql_process_http_request_response', $response, $response, $operation_name, $query, $variables, self::$http_status_code );
+```
+
+## Related
+
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:604`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L604)

@@ -9,15 +9,31 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_show_admin`
+# graphql_show_admin
+
+```php
+apply_filters( 'graphql_show_admin', true );
+```
 
 Filters whether WPGraphQL admin pages should be visible.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 0.13.0
-- **Source:** `plugins/wp-graphql/src/Admin/Admin.php`
+- **Source File:** `plugins/wp-graphql/src/Admin/Admin.php`
 
 ## Parameters
 
 - `$show_admin` (`bool`): Whether WPGraphQL admin pages should be visible.
+
+## Source
+
+- [`plugins/wp-graphql/src/Admin/Admin.php:56`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L56)
+
+```php
+apply_filters( 'graphql_show_admin', true );
+```
+
+## Related
+
+- `Admin::init()` in [`plugins/wp-graphql/src/Admin/Admin.php:56`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L56)

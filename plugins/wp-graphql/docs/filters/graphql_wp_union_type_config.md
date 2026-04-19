@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_union_type_config`
+# graphql_wp_union_type_config
+
+```php
+apply_filters( 'graphql_wp_union_type_config', $config, $this );
+```
 
 Filter the config of WPUnionType
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 0.0.30
-- **Source:** `plugins/wp-graphql/src/Type/WPUnionType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPUnionType.php`
 
 ## Parameters
 
 - `$config` (`UnionConfig`): Array of configuration options passed to the WPUnionType when instantiating a new type
 - `$instance` (`\WPGraphQL\Type\WPUnionType`): The instance of the WPUnionType class
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPUnionType.php:106`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L106)
+
+```php
+apply_filters( 'graphql_wp_union_type_config', $config, $this );
+```
+
+## Related
+
+- `WPUnionType::__construct()` in [`plugins/wp-graphql/src/Type/WPUnionType.php:106`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPUnionType.php#L106)

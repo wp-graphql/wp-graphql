@@ -9,16 +9,32 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_mutations_allow_term_creation`
+# graphql_post_object_mutations_allow_term_creation
+
+```php
+apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
+```
 
 Filter whether to allow terms to be created during a post mutation. If a post mutation includes term input for a term that does not already exist, this will allow terms to be created in order to connect the term to the post object, but if filtered to false, this will prevent the term that doesn't already exist from being created during the mutation of the post.
 
 - **Type:** filter
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
 
 ## Parameters
 
 - `$allow_term_creation` (`bool`): Whether new terms should be created during the post object mutation
 - `$tax_object` (`\WP_Taxonomy`): The Taxonomy object for the term being added to the Post Object
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:294`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L294)
+
+```php
+apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
+```
+
+## Related
+
+- `PostObjectMutation::set_object_terms()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:294`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L294)

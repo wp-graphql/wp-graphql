@@ -9,15 +9,31 @@ hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
-# `graphql_app_context_config`
+# graphql_app_context_config
+
+```php
+apply_filters( 'graphql_app_context_config', $this->config );
+```
 
 This filters the config for the AppContext. This can be used to store additional context config, which is available to resolvers throughout the resolution of a GraphQL request.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/AppContext.php`
+- **Source File:** `plugins/wp-graphql/src/AppContext.php`
 
 ## Parameters
 
 - `$config` (`mixed[]`): The config array of the AppContext object
+
+## Source
+
+- [`plugins/wp-graphql/src/AppContext.php:179`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L179)
+
+```php
+apply_filters( 'graphql_app_context_config', $this->config );
+```
+
+## Related
+
+- `AppContext::__construct()` in [`plugins/wp-graphql/src/AppContext.php:179`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L179)

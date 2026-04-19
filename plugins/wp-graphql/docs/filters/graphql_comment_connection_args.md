@@ -9,16 +9,32 @@ hookGroup: connections
 plugin: wp-graphql
 ---
 
-# `graphql_comment_connection_args`
+# graphql_comment_connection_args
+
+```php
+apply_filters( 'graphql_comment_connection_args', $args, $this );
+```
 
 Filters the GraphQL args before they are used in get_query_args().
 
 - **Type:** filter
 - **Group:** Connections
 - **Since:** 1.11.0
-- **Source:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
+- **Source File:** `plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php`
 
 ## Parameters
 
 - `$args` (`array<string,mixed>`): The GraphQL args passed to the resolver.
 - `$resolver` (`self`): Instance of the ConnectionResolver
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:240`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L240)
+
+```php
+apply_filters( 'graphql_comment_connection_args', $args, $this );
+```
+
+## Related
+
+- `CommentConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:240`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L240)

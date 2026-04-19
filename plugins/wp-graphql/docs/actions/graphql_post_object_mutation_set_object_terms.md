@@ -9,14 +9,18 @@ hookGroup: models
 plugin: wp-graphql
 ---
 
-# `graphql_post_object_mutation_set_object_terms`
+# graphql_post_object_mutation_set_object_terms
+
+```php
+do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $post_type_object, $mutation_name );
+```
 
 Fire an action before setting object terms during a GraphQL Post Object Mutation. One example use for this hook would be to create terms from the input that may not exist yet, so that they can be set as a relation below.
 
 - **Type:** action
 - **Group:** Model Layer
 - **Since:** 0.0.5
-- **Source:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
+- **Source File:** `plugins/wp-graphql/src/Data/PostObjectMutation.php`
 
 ## Parameters
 
@@ -24,3 +28,15 @@ Fire an action before setting object terms during a GraphQL Post Object Mutation
 - `$input` (`array<string,mixed>`): The input for the mutation
 - `$post_type_object` (`\WP_Post_Type`): The Post Type Object for the type of post being mutated
 - `$mutation_name` (`string`): The name of the mutation (ex: create, update, delete)
+
+## Source
+
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:250`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L250)
+
+```php
+do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $post_type_object, $mutation_name );
+```
+
+## Related
+
+- `PostObjectMutation::set_object_terms()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:250`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L250)

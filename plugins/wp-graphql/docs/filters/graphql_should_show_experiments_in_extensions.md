@@ -9,14 +9,18 @@ hookGroup: settings
 plugin: wp-graphql
 ---
 
-# `graphql_should_show_experiments_in_extensions`
+# graphql_should_show_experiments_in_extensions
+
+```php
+apply_filters( 'graphql_should_show_experiments_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
+```
 
 Filter whether experiments should be shown in GraphQL response extensions.
 
 - **Type:** filter
 - **Group:** Settings and Admin
 - **Since:** 2.3.8
-- **Source:** `plugins/wp-graphql/src/Experimental/Extensions.php`
+- **Source File:** `plugins/wp-graphql/src/Experimental/Extensions.php`
 
 ## Parameters
 
@@ -26,3 +30,23 @@ Filter whether experiments should be shown in GraphQL response extensions.
 - `$operation_name` (`string|null`): The operation name being executed
 - `$request` (`string|null`): The GraphQL Request being made
 - `$variables` (`array<string,mixed>|null`): The variables sent with the request
+
+## Source
+
+- [`plugins/wp-graphql/src/Experimental/Extensions.php:60`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Extensions.php#L60)
+
+```php
+apply_filters(
+			'graphql_should_show_experiments_in_extensions',
+			$should,
+			$response,
+			$schema,
+			$operation_name,
+			$request,
+			$variables
+		);
+```
+
+## Related
+
+- `Extensions::add_experiments_to_response_extensions()` in [`plugins/wp-graphql/src/Experimental/Extensions.php:60`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Extensions.php#L60)

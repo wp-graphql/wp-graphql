@@ -9,16 +9,32 @@ hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
-# `graphql_wp_connection_type_config`
+# graphql_wp_connection_type_config
+
+```php
+apply_filters( 'graphql_wp_connection_type_config', $config, $this );
+```
 
 Filter the config of WPConnectionType
 
 - **Type:** filter
 - **Group:** Schema Registration
 - **Since:** 1.13.0
-- **Source:** `plugins/wp-graphql/src/Type/WPConnectionType.php`
+- **Source File:** `plugins/wp-graphql/src/Type/WPConnectionType.php`
 
 ## Parameters
 
 - `$config` (`array<string,mixed>`): Array of configuration options passed to the WPConnectionType when instantiating a new type
 - `$wp_connection_type` (`\WPGraphQL\Type\WPConnectionType`): The instance of the WPConnectionType class
+
+## Source
+
+- [`plugins/wp-graphql/src/Type/WPConnectionType.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPConnectionType.php#L151)
+
+```php
+apply_filters( 'graphql_wp_connection_type_config', $config, $this );
+```
+
+## Related
+
+- `WPConnectionType::__construct()` in [`plugins/wp-graphql/src/Type/WPConnectionType.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPConnectionType.php#L151)
