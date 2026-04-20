@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button, ResizableBox, TabPanel, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -7,6 +7,8 @@ import { ResponseViewer } from './editors/ResponseViewer';
 import { EditorToolbar } from './EditorToolbar';
 import { ActivityBar } from './ActivityBar';
 import ActivityPanel from './ActivityPanel';
+import { ShortKeysDialog } from './ShortKeysDialog';
+import { SettingsDialog } from './SettingsDialog';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
@@ -39,6 +41,12 @@ export function IDELayout({ fetcher }) {
 
 	const [queryPaneWidth, setQueryPaneWidth] = useState(null);
 	const [editorHeight, setEditorHeight] = useState(null);
+	const [showDialog, setShowDialog] = useState(null);
+
+	const handleShowDialog = useCallback((e) => {
+		setShowDialog(e.currentTarget.dataset.value);
+	}, []);
+
 	const executeQuery = () => {
 		if (isFetching) {
 			stop();
@@ -69,6 +77,7 @@ export function IDELayout({ fetcher }) {
 				<ActivityBar
 					schemaContext={{ isFetching: isSchemaLoading }}
 					handleRefetchSchema={refetch}
+					handleShowDialog={handleShowDialog}
 				/>
 				<ActivityPanel />
 				<ResizableBox
@@ -148,6 +157,14 @@ export function IDELayout({ fetcher }) {
 					<ResponseViewer value={response} />
 				</div>
 			</div>
+			<ShortKeysDialog
+				showDialog={showDialog}
+				handleOpenShortKeysDialog={() => setShowDialog(null)}
+			/>
+			<SettingsDialog
+				showDialog={showDialog}
+				handleOpenSettingsDialog={() => setShowDialog(null)}
+			/>
 		</div>
 	);
 }
