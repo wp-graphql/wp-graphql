@@ -2,6 +2,14 @@
 	display: flex;
 	flex-direction: column;
 	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+	position: relative;
+}
+
+#wpgraphql-ide-app > .AppDrawerCloseButton {
+	position: absolute;
+	top: 4px;
+	right: 8px;
+	z-index: 2;
 }
 
 .wpgraphql-ide-layout {
