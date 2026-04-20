@@ -67,8 +67,7 @@
 	border-radius: 4px;
 	color: #1e1e1e;
 	transition: background 0.1s, color 0.1s;
-	/* Reset WP Button default focus/active styles */
-	box-shadow: none !important;
+	box-shadow: none;
 	outline: none;
 }
 
@@ -78,7 +77,7 @@
 }
 
 .wpgraphql-ide-activity-bar .components-button:focus-visible {
-	box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color, #3858e9) !important;
+	box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
 }
 
 .wpgraphql-ide-activity-bar .components-button svg {
@@ -113,9 +112,9 @@
 .wpgraphql-ide-activity-panel {
 	border-right: 1px solid #ddd;
 	overflow: hidden;
-	height: 100% !important;
 	display: flex;
 	flex-direction: column;
+	box-sizing: border-box;
 }
 
 .wpgraphql-ide-plugin {
@@ -132,23 +131,70 @@
 	height: 24px;
 }
 
-/* Constrain all SVGs inside plugin panels */
+/* ---------------------------------------------------------------------------
+   Query composer and plugin panel content styling
+   --------------------------------------------------------------------------- */
+
+/* Constrain SVGs inside plugin panels (checkboxes, icons) */
 .wpgraphql-ide-plugin svg {
 	max-width: 16px;
 	max-height: 16px;
 	display: inline-block;
 	vertical-align: middle;
+	flex-shrink: 0;
 }
 
-.wpgraphql-ide-plugin .docExplorerWrap {
-	overflow: visible;
-}
-
+/* Text inputs */
 .wpgraphql-ide-plugin input[type="text"] {
 	font-size: 13px;
-	padding: 4px 8px;
+	padding: 2px 6px;
 	border: 1px solid #ddd;
 	border-radius: 3px;
+	max-width: 120px;
+	height: 24px;
+	box-sizing: border-box;
+}
+
+/* Select dropdowns */
+.wpgraphql-ide-plugin select {
+	font-size: 12px;
+	padding: 2px 4px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	max-width: 160px;
+	height: 24px;
+}
+
+/* Checkbox circles from query composer */
+.wpgraphql-ide-plugin input[type="checkbox"] {
+	width: 14px;
+	height: 14px;
+	margin: 0 4px 0 0;
+	flex-shrink: 0;
+}
+
+/* Ensure the activity panel ResizableBox handle is styled consistently */
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ccc;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color, #3858e9);
 }
 
 /* ---------------------------------------------------------------------------
@@ -330,7 +376,7 @@
 	border-right: 1px solid #ddd;
 	position: relative;
 	overflow: hidden;
-	height: 100% !important;
+	box-sizing: border-box;
 }
 
 .wpgraphql-ide-editor-resizable {
@@ -349,7 +395,8 @@
 .wpgraphql-ide-editor-tools {
 	flex: 1;
 	min-height: 0;
-	overflow: hidden;
+	overflow-y: auto;
+	overflow-x: hidden;
 	border-top: 1px solid #ddd;
 }
 
@@ -388,7 +435,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
-	z-index: 1;
+	z-index: 3;
 }
 
 /* ---------------------------------------------------------------------------

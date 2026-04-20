@@ -92,8 +92,8 @@ export function IDELayout({ fetcher }) {
 		executionOptions.current
 	);
 
-	const [queryPaneWidth, setQueryPaneWidth] = useState(null);
-	const [editorHeight, setEditorHeight] = useState(null);
+	const [queryPaneWidth, setQueryPaneWidth] = useState('50%');
+	const [editorHeight, setEditorHeight] = useState('70%');
 	const [showDialog, setShowDialog] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const saveTimerRef = useRef(null);
@@ -205,7 +205,7 @@ export function IDELayout({ fetcher }) {
 					<div className="wpgraphql-ide-editor-content">
 						<ResizableBox
 							size={{
-								width: queryPaneWidth || '50%',
+								width: queryPaneWidth,
 								height: 'auto',
 							}}
 							minWidth={200}
@@ -223,7 +223,7 @@ export function IDELayout({ fetcher }) {
 							<ResizableBox
 								size={{
 									width: '100%',
-									height: editorHeight || '70%',
+									height: editorHeight,
 								}}
 								minHeight={50}
 								enable={{
