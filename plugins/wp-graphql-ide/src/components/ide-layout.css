@@ -231,6 +231,53 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Panel navigation (left icon strip)
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-nav {
+	display: flex;
+	flex-direction: column;
+	width: 44px;
+	min-width: 44px;
+	background: #1e1e1e;
+	padding: 8px 0;
+	gap: 2px;
+	align-items: center;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-nav-item {
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: transparent;
+	color: rgba(255, 255, 255, 0.6);
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background 0.1s, color 0.1s;
+	padding: 0;
+}
+
+.wpgraphql-ide-nav-item:hover {
+	background: rgba(255, 255, 255, 0.1);
+	color: #fff;
+}
+
+.wpgraphql-ide-nav-item.is-active {
+	background: rgba(255, 255, 255, 0.15);
+	color: #fff;
+}
+
+.wpgraphql-ide-nav-item svg {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+}
+
+/* ---------------------------------------------------------------------------
    Activity panel (sidebar — query composer, help, history)
    --------------------------------------------------------------------------- */
 

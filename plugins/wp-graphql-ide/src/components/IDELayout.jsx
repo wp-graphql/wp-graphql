@@ -273,23 +273,6 @@ export function IDELayout({ fetcher }) {
 				</div>
 				<div className="wpgraphql-ide-toolbar-spacer" />
 				<div className="wpgraphql-ide-toolbar-group">
-					{panels.map((panel) => (
-						<Tooltip key={panel.name} text={panel.title}>
-							<Button
-								isPressed={visiblePanel?.name === panel.name}
-								onClick={() =>
-									toggleActivityPanelVisibility(panel.name)
-								}
-								aria-label={panel.title}
-								size="compact"
-							>
-								<Icon icon={panelIcons[panel.name] || edit} />
-							</Button>
-						</Tooltip>
-					))}
-				</div>
-				<div className="wpgraphql-ide-toolbar-separator" />
-				<div className="wpgraphql-ide-toolbar-group">
 					<Tooltip text="Re-fetch schema">
 						<Button
 							onClick={refetch}
@@ -323,6 +306,34 @@ export function IDELayout({ fetcher }) {
 				</div>
 			</div>
 			<div className="wpgraphql-ide-main">
+				<nav className="wpgraphql-ide-nav">
+					{panels.map((panel) => {
+						const isActive = visiblePanel?.name === panel.name;
+						return (
+							<Tooltip
+								key={panel.name}
+								text={panel.title}
+								placement="right"
+							>
+								<button
+									type="button"
+									className={`wpgraphql-ide-nav-item ${isActive ? 'is-active' : ''}`}
+									onClick={() =>
+										toggleActivityPanelVisibility(
+											panel.name
+										)
+									}
+									aria-label={panel.title}
+									aria-pressed={isActive}
+								>
+									<Icon
+										icon={panelIcons[panel.name] || edit}
+									/>
+								</button>
+							</Tooltip>
+						);
+					})}
+				</nav>
 				<ActivityPanel />
 				<ResizableBox
 					size={{ width: queryPaneWidth, height: 'auto' }}
