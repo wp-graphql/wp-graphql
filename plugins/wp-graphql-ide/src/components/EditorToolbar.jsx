@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useSelect } from '@wordpress/data';
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 
 export const EditorToolbar = () => {
 	const buttons = useSelect((select) =>
@@ -18,18 +18,17 @@ export const EditorToolbar = () => {
 				}
 
 				const baseClassName = `wpgraphql-ide-${buttonName}-button`;
-
-				// Merge the base className with any classNames provided in props.
 				const mergedClassName = clsx(baseClassName, props?.className);
-
-				// If a component is provided, use it, otherwise use the default Button
 				const Component = props.component || Button;
+
 				return (
-					<Component
-						{...props}
-						className={mergedClassName}
-						key={key}
-					/>
+					<Tooltip key={key} text={props.label}>
+						<Component
+							{...props}
+							className={mergedClassName}
+							aria-label={props.label}
+						/>
+					</Tooltip>
 				);
 			})}
 		</>
