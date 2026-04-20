@@ -221,6 +221,7 @@ export function IDELayout({ fetcher }) {
 
 	return (
 		<div className="wpgraphql-ide-layout">
+			<TabBar />
 			<div className="wpgraphql-ide-main">
 				<ActivityBar
 					schemaContext={{ isFetching: isSchemaLoading }}
@@ -229,7 +230,6 @@ export function IDELayout({ fetcher }) {
 				/>
 				<ActivityPanel />
 				<div className="wpgraphql-ide-editor-area">
-					<TabBar />
 					<div className="wpgraphql-ide-toolbar">
 						<Tooltip text={isFetching ? 'Stop' : 'Execute query'}>
 							<Button
