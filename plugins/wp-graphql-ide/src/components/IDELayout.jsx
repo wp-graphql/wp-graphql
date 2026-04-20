@@ -171,13 +171,41 @@ export function IDELayout({ fetcher }) {
 		setShowDialog(e.currentTarget.dataset.value);
 	}, []);
 
-	const executeQuery = () => {
+	const executeQueryRef = useRef(null);
+	executeQueryRef.current = () => {
 		if (isFetching) {
 			stop();
 		} else {
 			run();
 		}
 	};
+
+	const executeQuery = () => executeQueryRef.current();
+
+	const { prettifyQuery } = useDispatch('wpgraphql-ide/app');
+	const prettifyRef = useRef(null);
+	prettifyRef.current = () => {
+		if (query) {
+			prettifyQuery(query);
+		}
+	};
+
+	const editorKeyBindings = useRef([
+		{
+			key: 'Mod-Enter',
+			run: () => {
+				executeQueryRef.current();
+				return true;
+			},
+		},
+		{
+			key: 'Ctrl-Shift-p',
+			run: () => {
+				prettifyRef.current();
+				return true;
+			},
+		},
+	]);
 
 	const PlayIcon = () => (
 		<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
@@ -202,6 +230,24 @@ export function IDELayout({ fetcher }) {
 				<ActivityPanel />
 				<div className="wpgraphql-ide-editor-area">
 					<TabBar />
+					<div className="wpgraphql-ide-toolbar">
+						<Tooltip text={isFetching ? 'Stop' : 'Execute query'}>
+							<Button
+								variant="primary"
+								onClick={executeQuery}
+								disabled={isSchemaLoading}
+								className="wpgraphql-ide-execute-button"
+								aria-label={
+									isFetching ? 'Stop' : 'Execute query'
+								}
+								size="compact"
+							>
+								{isFetching ? <StopIcon /> : <PlayIcon />}
+							</Button>
+						</Tooltip>
+						{isSchemaLoading && <Spinner />}
+						<EditorToolbar />
+					</div>
 					<div className="wpgraphql-ide-editor-content">
 						<ResizableBox
 							size={{
@@ -247,35 +293,8 @@ export function IDELayout({ fetcher }) {
 									value={query}
 									onChange={handleQueryChange}
 									schema={schema}
+									extraKeys={editorKeyBindings.current}
 								/>
-								<div className="wpgraphql-ide-editor-actions">
-									<Tooltip
-										text={
-											isFetching
-												? 'Stop'
-												: 'Execute query'
-										}
-									>
-										<Button
-											variant="primary"
-											onClick={executeQuery}
-											disabled={isSchemaLoading}
-											className="wpgraphql-ide-execute-button"
-											aria-label={
-												isFetching
-													? 'Stop'
-													: 'Execute query'
-											}
-										>
-											{isFetching ? (
-												<StopIcon />
-											) : (
-												<PlayIcon />
-											)}
-										</Button>
-									</Tooltip>
-									<EditorToolbar />
-								</div>
 							</ResizableBox>
 							<TabPanel
 								className="wpgraphql-ide-editor-tools"

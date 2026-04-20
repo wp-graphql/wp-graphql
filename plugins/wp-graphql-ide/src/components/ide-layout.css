@@ -298,51 +298,42 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Editor actions (floating pill)
+   Editor toolbar (horizontal strip below tabs)
    --------------------------------------------------------------------------- */
 
-.wpgraphql-ide-editor-actions {
-	position: absolute;
-	right: 16px;
-	top: 50%;
-	transform: translateY(-50%);
-	z-index: 2;
+.wpgraphql-ide-toolbar {
 	display: flex;
-	flex-direction: column;
-	gap: 4px;
 	align-items: center;
-	padding: 8px 6px;
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 24px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	gap: 4px;
+	padding: 4px 8px;
+	background: #f0f0f1;
+	border-bottom: 1px solid #ddd;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-execute-button.components-button {
-	width: 36px;
-	height: 36px;
-	min-width: 36px;
-	padding: 0;
+	min-width: 28px;
+	height: 28px;
+	padding: 0 8px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 50%;
 }
 
-.wpgraphql-ide-editor-actions .components-button {
-	width: 32px;
-	height: 32px;
-	min-width: 32px;
-	padding: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 50%;
+.wpgraphql-ide-execute-button.components-button svg {
+	width: 16px;
+	height: 16px;
 }
 
-.wpgraphql-ide-editor-actions .components-button svg {
-	width: 20px;
-	height: 20px;
+.wpgraphql-ide-toolbar .components-button {
+	height: 28px;
+	min-width: 28px;
+	padding: 0 6px;
+}
+
+.wpgraphql-ide-toolbar .components-button svg {
+	width: 16px;
+	height: 16px;
 }
 
 /* ---------------------------------------------------------------------------
