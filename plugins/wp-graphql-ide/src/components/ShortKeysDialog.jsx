@@ -1,5 +1,5 @@
-import { Dialog } from '@graphiql/react';
 import React from 'react';
+import { Modal } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 const modifier =
@@ -22,10 +22,10 @@ const SHORT_KEYS = Object.entries({
 	'Re-fetch schema using introspection': ['Ctrl', 'Shift', 'R'],
 });
 
-const ShortKeys = ({ keyMap }) => {
+const ShortKeys = () => {
 	return (
 		<div>
-			<table className="graphiql-table">
+			<table className="wpgraphql-ide-shortkeys-table">
 				<thead>
 					<tr>
 						<th>Short Key</th>
@@ -38,7 +38,7 @@ const ShortKeys = ({ keyMap }) => {
 							<td>
 								{keys.map((key, index, array) => (
 									<Fragment key={key}>
-										<code className="graphiql-key">
+										<code className="wpgraphql-ide-shortkeys-key">
 											{key}
 										</code>
 										{index !== array.length - 1 && ' + '}
@@ -53,38 +53,30 @@ const ShortKeys = ({ keyMap }) => {
 			<p>
 				The editors use{' '}
 				<a
-					href="https://codemirror.net/5/doc/manual.html#keymaps"
+					href="https://codemirror.net/docs/ref/#commands.defaultKeymap"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					CodeMirror Key Maps
+					CodeMirror key bindings
 				</a>{' '}
-				that add more short keys. This instance of Graph<em>i</em>QL
-				uses <code>{keyMap}</code>.
+				that add more short keys.
 			</p>
 		</div>
 	);
 };
 
-export const ShortKeysDialog = ({
-	showDialog,
-	handleOpenShortKeysDialog,
-	keyMap,
-}) => {
+export const ShortKeysDialog = ({ showDialog, handleOpenShortKeysDialog }) => {
+	if (showDialog !== 'short-keys') {
+		return null;
+	}
+
 	return (
-		<Dialog
-			open={showDialog === 'short-keys'}
-			onOpenChange={handleOpenShortKeysDialog}
+		<Modal
+			title="Short Keys"
+			onRequestClose={() => handleOpenShortKeysDialog(false)}
+			className="wpgraphql-ide-short-keys-modal"
 		>
-			<div className="graphiql-dialog-header">
-				<Dialog.Title className="graphiql-dialog-title">
-					Short Keys
-				</Dialog.Title>
-				<Dialog.Close />
-			</div>
-			<div className="graphiql-dialog-section">
-				<ShortKeys keyMap={keyMap || 'sublime'} />
-			</div>
-		</Dialog>
+			<ShortKeys />
+		</Modal>
 	);
 };
