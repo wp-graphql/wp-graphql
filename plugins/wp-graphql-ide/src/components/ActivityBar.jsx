@@ -1,20 +1,15 @@
 import React from 'react';
-import { ActivityBarUtilities } from './ActivityBarUtilities';
 import { ActivityBarPanels } from './ActivityBarPanels';
+import { ActivityBarUtilities } from './ActivityBarUtilities';
 
 export const ActivityBar = ({
-	pluginContext,
-	handlePluginClick,
 	schemaContext,
 	handleRefetchSchema,
 	handleShowDialog,
 }) => {
 	return (
 		<div className="wpgraphql-ide-sidebar wpgraphql-ide-activity-bar">
-			<ActivityBarPanels
-				pluginContext={pluginContext}
-				handlePluginClick={handlePluginClick}
-			/>
+			<ActivityBarPanels />
 			<ActivityBarUtilities
 				handleShowDialog={handleShowDialog}
 				handleRefetchSchema={handleRefetchSchema}

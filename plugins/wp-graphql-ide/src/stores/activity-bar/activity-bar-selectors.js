@@ -19,6 +19,13 @@ const selectors = {
 		},
 		(state) => [state.activityPanels]
 	),
+	visiblePanel: (state) => {
+		if (!state.visiblePanel) {
+			return null;
+		}
+		const panel = state.activityPanels[state.visiblePanel];
+		return panel ? { name: state.visiblePanel, ...panel } : null;
+	},
 	utilities: createSelector(
 		(state) => {
 			const utilities = Object.entries(state.utilities).map(

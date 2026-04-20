@@ -1,33 +1,36 @@
 import React from 'react';
+import { ResizableBox } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 
-const ActivityPanel = ({
-	firstRef,
-	dragBarRef,
-	PluginContent,
-	pluginContext,
-}) => {
+const ActivityPanel = () => {
+	const visiblePanel = useSelect(
+		(select) => select('wpgraphql-ide/activity-bar').visiblePanel(),
+		[]
+	);
+
+	if (!visiblePanel) {
+		return null;
+	}
+
+	const PluginContent = visiblePanel.content;
+
 	return (
-		<>
-			<div
-				ref={firstRef}
-				style={{
-					// Make sure the container shrinks when containing long
-					// non-breaking texts
-					minWidth: '200px',
-				}}
-				className="wpgraphql-ide-activity-panel"
-			>
-				<div className="wpgraphql-ide-plugin">
-					{PluginContent ? <PluginContent /> : null}
-				</div>
+		<ResizableBox
+			size={{ width: 300, height: 'auto' }}
+			minWidth={200}
+			maxWidth={600}
+			enable={{
+				top: false,
+				right: true,
+				bottom: false,
+				left: false,
+			}}
+			className="wpgraphql-ide-activity-panel"
+		>
+			<div className="wpgraphql-ide-plugin">
+				{PluginContent ? <PluginContent /> : null}
 			</div>
-			{pluginContext?.visiblePlugin && (
-				<div
-					className="wpgraphql-ide-horizontal-drag-bar"
-					ref={dragBarRef}
-				/>
-			)}
-		</>
+		</ResizableBox>
 	);
 };
 
