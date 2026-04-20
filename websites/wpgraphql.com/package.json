@@ -40,7 +40,7 @@
     "@next/bundle-analyzer": "^12.3.1",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/typography": "^0.5.7",
-    "clsx": "^1.2.1",
+    "clsx": "^2.1.1",
     "cross-fetch": "^4.1.0",
     "crypto-hash": "^2.0.1",
     "feed": "^4.2.2",
