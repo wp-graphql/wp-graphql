@@ -108,14 +108,19 @@ function register_ide_post_type() {
 		]
 	);
 
+	$post_meta_auth = function () {
+		return current_user_can( 'edit_posts' );
+	};
+
 	register_post_meta(
 		'graphql_ide_query',
 		'_graphql_ide_variables',
 		[
-			'type'         => 'string',
-			'single'       => true,
-			'show_in_rest' => true,
-			'default'      => '',
+			'type'            => 'string',
+			'single'          => true,
+			'show_in_rest'    => true,
+			'default'         => '',
+			'auth_callback'   => $post_meta_auth,
 		]
 	);
 
@@ -123,10 +128,11 @@ function register_ide_post_type() {
 		'graphql_ide_query',
 		'_graphql_ide_headers',
 		[
-			'type'         => 'string',
-			'single'       => true,
-			'show_in_rest' => true,
-			'default'      => '',
+			'type'            => 'string',
+			'single'          => true,
+			'show_in_rest'    => true,
+			'default'         => '',
+			'auth_callback'   => $post_meta_auth,
 		]
 	);
 
@@ -134,9 +140,9 @@ function register_ide_post_type() {
 		'graphql_ide_query',
 		'_graphql_ide_history',
 		[
-			'type'         => 'array',
-			'single'       => true,
-			'show_in_rest' => [
+			'type'            => 'array',
+			'single'          => true,
+			'show_in_rest'    => [
 				'schema' => [
 					'type'  => 'array',
 					'items' => [
@@ -151,7 +157,8 @@ function register_ide_post_type() {
 					],
 				],
 			],
-			'default'      => [],
+			'default'         => [],
+			'auth_callback'   => $post_meta_auth,
 		]
 	);
 }
@@ -626,6 +633,7 @@ function enqueue_react_app_with_styles(): void {
 
 	$localized_data = [
 		'nonce'               => wp_create_nonce( 'wp_rest' ),
+		'restUrl'             => esc_url_raw( rest_url() ),
 		'graphqlEndpoint'     => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
 		'rootElementId'       => WPGRAPHQL_IDE_ROOT_ELEMENT_ID,
 		'context'             => $app_context,
