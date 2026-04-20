@@ -85,6 +85,14 @@
 	width: 24px;
 	height: 24px;
 	fill: currentColor;
+	color: inherit;
+}
+
+/* Force plugin-registered icons to inherit color */
+.wpgraphql-ide-activity-bar .components-button svg path,
+.wpgraphql-ide-activity-bar .components-button svg circle,
+.wpgraphql-ide-activity-bar .components-button svg rect {
+	fill: currentColor;
 }
 
 .wpgraphql-ide-activity-bar .components-button.active {
@@ -122,6 +130,14 @@
 .wpgraphql-ide-plugin .components-spinner {
 	width: 24px;
 	height: 24px;
+}
+
+/* Constrain all SVGs inside plugin panels */
+.wpgraphql-ide-plugin svg {
+	max-width: 16px;
+	max-height: 16px;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .wpgraphql-ide-plugin .docExplorerWrap {

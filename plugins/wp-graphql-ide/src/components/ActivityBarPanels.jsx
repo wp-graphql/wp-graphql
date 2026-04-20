@@ -23,7 +23,7 @@ export function ActivityBarPanels() {
 				const label = `${isVisible ? 'Hide' : 'Show'} ${panel.title}`;
 				const PanelIcon = panel.icon;
 				return (
-					<Tooltip key={panel.name} text={label}>
+					<Tooltip key={panel.name} text={label} placement="right">
 						<Button
 							variant="tertiary"
 							className={isVisible ? 'active' : ''}

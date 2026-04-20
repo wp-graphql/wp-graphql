@@ -9,7 +9,7 @@ export const ActivityBarUtilities = ({
 }) => {
 	return (
 		<div className="wpgraphql-ide-sidebar-section wpgraphql-ide-activity-bar-utilities">
-			<Tooltip text="Re-fetch GraphQL schema">
+			<Tooltip text="Re-fetch GraphQL schema" placement="right">
 				<Button
 					variant="tertiary"
 					disabled={schemaContext.isFetching}
@@ -25,7 +25,7 @@ export const ActivityBarUtilities = ({
 					/>
 				</Button>
 			</Tooltip>
-			<Tooltip text="Open short keys dialog">
+			<Tooltip text="Open short keys dialog" placement="right">
 				<Button
 					variant="tertiary"
 					data-value="short-keys"
@@ -35,7 +35,7 @@ export const ActivityBarUtilities = ({
 					<Icon icon={keyboard} aria-hidden="true" />
 				</Button>
 			</Tooltip>
-			<Tooltip text="Open settings dialog">
+			<Tooltip text="Open settings dialog" placement="right">
 				<Button
 					variant="tertiary"
 					data-value="settings"
