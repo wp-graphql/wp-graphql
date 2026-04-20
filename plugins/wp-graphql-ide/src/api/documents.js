@@ -120,5 +120,6 @@ function normalizeDocument(post) {
 			post.content?.rendered || post.content?.raw || post.content || '',
 		variables: post.meta?._graphql_ide_variables || '',
 		headers: post.meta?._graphql_ide_headers || '',
+		history: post.meta?._graphql_ide_history || [],
 	};
 }

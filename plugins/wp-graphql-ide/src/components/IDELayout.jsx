@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
 	Button,
 	ResizableBox,
@@ -13,10 +13,13 @@ import { ResponseViewer } from './editors/ResponseViewer';
 import { EditorToolbar } from './EditorToolbar';
 import { ActivityBar } from './ActivityBar';
 import ActivityPanel from './ActivityPanel';
+import { TabBar } from './TabBar';
 import { ShortKeysDialog } from './ShortKeysDialog';
 import { SettingsDialog } from './SettingsDialog';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
+
+const AUTOSAVE_DELAY = 2000;
 
 /**
  * Main IDE layout component.
@@ -39,8 +42,17 @@ export function IDELayout({ fetcher }) {
 		};
 	}, []);
 
-	const { setQuery, setVariables, setHeaders } =
+	const activeDocument = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getActiveDocument(),
+		[]
+	);
+
+	const { setQuery, setVariables, setHeaders, setResponse } =
 		useDispatch('wpgraphql-ide/app');
+
+	const { loadDocuments, saveDocument, createTab } = useDispatch(
+		'wpgraphql-ide/document-editor'
+	);
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 	const { isFetching, run, stop } = useExecution(fetcher);
@@ -48,6 +60,77 @@ export function IDELayout({ fetcher }) {
 	const [queryPaneWidth, setQueryPaneWidth] = useState(null);
 	const [editorHeight, setEditorHeight] = useState(null);
 	const [showDialog, setShowDialog] = useState(null);
+	const [isLoaded, setIsLoaded] = useState(false);
+	const saveTimerRef = useRef(null);
+
+	// Load documents on mount. Create a default tab if none exist.
+	useEffect(() => {
+		(async () => {
+			await loadDocuments();
+			setIsLoaded(true);
+		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	// When active document changes, populate editors.
+	useEffect(() => {
+		if (!activeDocument) {
+			return;
+		}
+		setQuery(activeDocument.query || '');
+		setVariables(activeDocument.variables || '');
+		setHeaders(activeDocument.headers || '');
+		setResponse('');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeDocument?.id]);
+
+	// Create a default tab if loaded but no tabs exist.
+	useEffect(() => {
+		if (isLoaded && !activeDocument) {
+			createTab('Untitled');
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isLoaded, activeDocument]);
+
+	// Debounced auto-save.
+	const scheduleAutoSave = useCallback(
+		(field, value) => {
+			if (!activeDocument) {
+				return;
+			}
+			if (saveTimerRef.current) {
+				clearTimeout(saveTimerRef.current);
+			}
+			saveTimerRef.current = setTimeout(() => {
+				saveDocument(activeDocument.id, { [field]: value });
+			}, AUTOSAVE_DELAY);
+		},
+		[activeDocument, saveDocument]
+	);
+
+	const handleQueryChange = useCallback(
+		(value) => {
+			setQuery(value);
+			scheduleAutoSave('query', value);
+		},
+		[setQuery, scheduleAutoSave]
+	);
+
+	const handleVariablesChange = useCallback(
+		(value) => {
+			setVariables(value);
+			scheduleAutoSave('variables', value);
+		},
+		[setVariables, scheduleAutoSave]
+	);
+
+	const handleHeadersChange = useCallback(
+		(value) => {
+			setHeaders(value);
+			scheduleAutoSave('headers', value);
+		},
+		[setHeaders, scheduleAutoSave]
+	);
 
 	const handleShowDialog = useCallback((e) => {
 		setShowDialog(e.currentTarget.dataset.value);
@@ -99,6 +182,7 @@ export function IDELayout({ fetcher }) {
 					}}
 					className="wpgraphql-ide-query-pane"
 				>
+					<TabBar />
 					<ResizableBox
 						size={{
 							width: '100%',
@@ -122,8 +206,9 @@ export function IDELayout({ fetcher }) {
 							</div>
 						)}
 						<GraphQLEditor
+							key={activeDocument?.id || 'empty'}
 							value={query}
-							onChange={setQuery}
+							onChange={handleQueryChange}
 							schema={schema}
 						/>
 						<div className="wpgraphql-ide-editor-actions">
@@ -158,7 +243,7 @@ export function IDELayout({ fetcher }) {
 									<JSONEditor
 										key="variables"
 										value={variables}
-										onChange={setVariables}
+										onChange={handleVariablesChange}
 										placeholder="Variables (JSON)"
 									/>
 								);
@@ -167,7 +252,7 @@ export function IDELayout({ fetcher }) {
 								<JSONEditor
 									key="headers"
 									value={headers}
-									onChange={setHeaders}
+									onChange={handleHeadersChange}
 									placeholder="Headers (JSON)"
 								/>
 							);
