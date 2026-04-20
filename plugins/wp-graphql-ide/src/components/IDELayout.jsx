@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
 	Button,
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
 	ResizableBox,
 	TabPanel,
 	Spinner,
@@ -14,7 +17,8 @@ import {
 	update,
 	keyboard,
 	cog,
-	listView,
+	chevronDown,
+	plus,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -50,16 +54,25 @@ export function IDELayout({ fetcher }) {
 		};
 	}, []);
 
-	const activeDocument = useSelect(
-		(select) => select('wpgraphql-ide/document-editor').getActiveDocument(),
-		[]
-	);
+	const { activeDocument, allDocuments, openTabs } = useSelect((select) => {
+		const editor = select('wpgraphql-ide/document-editor');
+		return {
+			activeDocument: editor.getActiveDocument(),
+			allDocuments: editor.getDocuments(),
+			openTabs: editor.getOpenTabs(),
+		};
+	}, []);
 
 	const { setQuery, setVariables, setHeaders, setResponse } =
 		useDispatch('wpgraphql-ide/app');
 
-	const { loadDocuments, saveDocument, createTab, setDocumentResponse } =
-		useDispatch('wpgraphql-ide/document-editor');
+	const {
+		loadDocuments,
+		saveDocument,
+		createTab,
+		switchTab,
+		setDocumentResponse,
+	} = useDispatch('wpgraphql-ide/document-editor');
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 
@@ -244,18 +257,20 @@ export function IDELayout({ fetcher }) {
 	);
 
 	const panelIcons = {
-		documents: listView,
 		'query-composer': edit,
 		help,
 		history: backup,
 	};
+
+	// Filter out documents panel — it's accessed via the header title dropdown.
+	const toolPanels = panels.filter((p) => p.name !== 'documents');
 
 	return (
 		<div className="wpgraphql-ide-container">
 			{/* Header bar — matches Gutenberg post editor header */}
 			<div className="wpgraphql-ide-header">
 				<div className="wpgraphql-ide-header-left">
-					{panels.map((panel) => (
+					{toolPanels.map((panel) => (
 						<Tooltip key={panel.name} text={panel.title}>
 							<Button
 								isPressed={visiblePanel?.name === panel.name}
@@ -287,9 +302,67 @@ export function IDELayout({ fetcher }) {
 					)}
 				</div>
 				<div className="wpgraphql-ide-header-center">
-					<span className="wpgraphql-ide-document-name">
-						{activeDocument?.title || 'Untitled'}
-					</span>
+					<DropdownMenu
+						icon={chevronDown}
+						label="Switch document"
+						toggleProps={{
+							children: (
+								<span className="wpgraphql-ide-document-name">
+									{activeDocument?.title || 'Untitled'}
+								</span>
+							),
+							className: 'wpgraphql-ide-document-switcher',
+							size: 'compact',
+						}}
+					>
+						{({ onClose }) => (
+							<>
+								<MenuGroup>
+									{openTabs
+										.map((tabId) =>
+											allDocuments.find(
+												(d) =>
+													String(d.id) ===
+													String(tabId)
+											)
+										)
+										.filter(Boolean)
+										.map((doc) => (
+											<MenuItem
+												key={doc.id}
+												onClick={() => {
+													switchTab(String(doc.id));
+													onClose();
+												}}
+												isSelected={
+													String(doc.id) ===
+													String(activeDocument?.id)
+												}
+												className={
+													String(doc.id) ===
+													String(activeDocument?.id)
+														? 'is-active'
+														: ''
+												}
+											>
+												{doc.title || 'Untitled'}
+											</MenuItem>
+										))}
+								</MenuGroup>
+								<MenuGroup>
+									<MenuItem
+										onClick={() => {
+											createTab();
+											onClose();
+										}}
+									>
+										<Icon icon={plus} />
+										New document
+									</MenuItem>
+								</MenuGroup>
+							</>
+						)}
+					</DropdownMenu>
 				</div>
 				<div className="wpgraphql-ide-header-right">
 					<Tooltip text="Keyboard shortcuts">

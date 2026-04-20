@@ -64,13 +64,29 @@
 	justify-content: center;
 }
 
-.wpgraphql-ide-document-name {
+.wpgraphql-ide-document-switcher.components-button {
+	gap: 4px;
 	font-size: 13px;
 	font-weight: 500;
 	color: #1e1e1e;
+	height: 32px;
+	padding: 0 8px;
+}
+
+.wpgraphql-ide-document-switcher.components-button:hover {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-document-name {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	max-width: 200px;
+}
+
+.wpgraphql-ide-document-switcher .components-dropdown-menu__toggle svg {
+	width: 16px;
+	height: 16px;
 }
 
 .wpgraphql-ide-header-right {
