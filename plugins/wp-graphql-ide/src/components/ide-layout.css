@@ -14,19 +14,9 @@
 
 .wpgraphql-ide-layout {
 	display: flex;
-	flex-direction: column;
 	flex: 1;
 	min-height: 0;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
-.wpgraphql-ide-toolbar {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 12px;
-	border-bottom: 1px solid #ddd;
-	background: #f0f0f1;
 }
 
 .wpgraphql-ide-main {
@@ -64,8 +54,16 @@
 	justify-content: center;
 }
 
+.wpgraphql-ide-activity-bar .components-button svg {
+	width: 24px;
+	height: 24px;
+}
+
+/* #2: Active panel accent border */
 .wpgraphql-ide-activity-bar .components-button.active {
-	background: #ddd;
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	border-left: 3px solid var(--wp-admin-theme-color, #3858e9);
+	border-radius: 0;
 }
 
 /* Activity panel (resizable content panel) */
@@ -80,11 +78,52 @@
 	overflow: auto;
 }
 
-.wpgraphql-ide-toolbar-separator {
-	width: 1px;
-	height: 24px;
-	background: #ddd;
-	margin: 0 4px;
+/* Editor actions (vertical pill floating at right side of editor) */
+.wpgraphql-ide-editor-actions {
+	position: absolute;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	align-items: center;
+	padding: 8px 6px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 24px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wpgraphql-ide-execute-button.components-button {
+	width: 36px;
+	height: 36px;
+	min-width: 36px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wpgraphql-ide-editor-actions .components-button {
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+}
+
+.wpgraphql-ide-execute-button.components-button {
+	border-radius: 50%;
+}
+
+.wpgraphql-ide-editor-actions .components-button svg {
+	width: 20px;
+	height: 20px;
 }
 
 .wpgraphql-ide-query-pane {
@@ -92,6 +131,7 @@
 	flex-direction: column;
 	min-width: 200px;
 	border-right: 1px solid #ddd;
+	position: relative;
 	/* Override ResizableBox inline height */
 	height: 100% !important;
 }
@@ -100,6 +140,7 @@
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	position: relative;
 }
 
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
@@ -129,6 +170,13 @@
 	overflow: auto;
 }
 
+.wpgraphql-ide-schema-spinner {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 3;
+}
+
 .wpgraphql-ide-response-spinner {
 	position: absolute;
 	top: 12px;
@@ -136,22 +184,56 @@
 	z-index: 1;
 }
 
-/* ResizableBox drag handle styling */
+/* #3: Visible resize handles */
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,
 .wpgraphql-ide-editor-resizable > .components-resizable-box__handle {
 	z-index: 1;
 }
 
 .wpgraphql-ide-query-pane > .components-resizable-box__handle-right {
-	width: 4px;
-	right: -2px;
+	width: 8px;
+	right: -4px;
 	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ccc;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color, #3858e9);
 }
 
 .wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom {
-	height: 4px;
-	bottom: -2px;
+	height: 8px;
+	bottom: -4px;
 	cursor: row-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 2px;
+	background: #ccc;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom:hover::after {
+	background: var(--wp-admin-theme-color, #3858e9);
 }
 
 /* CodeMirror editor sizing */
@@ -161,4 +243,16 @@
 
 .wpgraphql-ide-editor .cm-scroller {
 	overflow: auto;
+}
+
+/* #5: Editor gutter styling */
+.wpgraphql-ide-editor .cm-gutters {
+	background: #f9f9f9;
+	border-right: 1px solid #eee;
+}
+
+/* #6: Tab underline uses admin theme color */
+.wpgraphql-ide-editor-tools .components-tab-panel__tabs-item.is-active,
+.wpgraphql-ide-editor-tools [role="tab"][aria-selected="true"] {
+	box-shadow: inset 0 -3px 0 0 var(--wp-admin-theme-color, #3858e9);
 }

@@ -1,5 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { Button, ResizableBox, TabPanel, Spinner } from '@wordpress/components';
+import {
+	Button,
+	ResizableBox,
+	TabPanel,
+	Spinner,
+	Tooltip,
+} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
@@ -55,24 +61,20 @@ export function IDELayout({ fetcher }) {
 		}
 	};
 
+	const PlayIcon = () => (
+		<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+			<path d="M9 5v14l10-7z" fill="currentColor" />
+		</svg>
+	);
+
+	const StopIcon = () => (
+		<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+			<rect x="6" y="6" width="12" height="12" fill="currentColor" />
+		</svg>
+	);
+
 	return (
 		<div className="wpgraphql-ide-layout">
-			<div className="wpgraphql-ide-toolbar">
-				<Button
-					variant="primary"
-					onClick={executeQuery}
-					disabled={isSchemaLoading}
-				>
-					{isFetching ? 'Stop' : 'Execute'}
-				</Button>
-				<Button variant="secondary" onClick={refetch}>
-					Refresh schema
-				</Button>
-				{isSchemaLoading && <Spinner />}
-				<div className="wpgraphql-ide-toolbar-separator" />
-				<EditorToolbar />
-			</div>
-
 			<div className="wpgraphql-ide-main">
 				<ActivityBar
 					schemaContext={{ isFetching: isSchemaLoading }}
@@ -114,11 +116,34 @@ export function IDELayout({ fetcher }) {
 						}}
 						className="wpgraphql-ide-editor-resizable"
 					>
+						{isSchemaLoading && (
+							<div className="wpgraphql-ide-schema-spinner">
+								<Spinner />
+							</div>
+						)}
 						<GraphQLEditor
 							value={query}
 							onChange={setQuery}
 							schema={schema}
 						/>
+						<div className="wpgraphql-ide-editor-actions">
+							<Tooltip
+								text={isFetching ? 'Stop' : 'Execute query'}
+							>
+								<Button
+									variant="primary"
+									onClick={executeQuery}
+									disabled={isSchemaLoading}
+									className="wpgraphql-ide-execute-button"
+									aria-label={
+										isFetching ? 'Stop' : 'Execute query'
+									}
+								>
+									{isFetching ? <StopIcon /> : <PlayIcon />}
+								</Button>
+							</Tooltip>
+							<EditorToolbar />
+						</div>
 					</ResizableBox>
 					<TabPanel
 						className="wpgraphql-ide-editor-tools"
@@ -131,6 +156,7 @@ export function IDELayout({ fetcher }) {
 							if (tab.name === 'variables') {
 								return (
 									<JSONEditor
+										key="variables"
 										value={variables}
 										onChange={setVariables}
 										placeholder="Variables (JSON)"
@@ -139,6 +165,7 @@ export function IDELayout({ fetcher }) {
 							}
 							return (
 								<JSONEditor
+									key="headers"
 									value={headers}
 									onChange={setHeaders}
 									placeholder="Headers (JSON)"
