@@ -80,14 +80,14 @@ export function AppDrawer({ children, buttonLabel }) {
 				// Try to find a focusable element in the drawer content
 				const drawer = document.querySelector('[data-vaul-drawer]');
 				if (drawer) {
-					// Look for the GraphiQL query editor or any focusable element
+					// Look for the query editor or any focusable element
 					const focusableElements = drawer.querySelectorAll(
 						'textarea, input, button, [tabindex]:not([tabindex="-1"])'
 					);
 
-					// Prefer the GraphiQL query editor textarea
+					// Prefer the query editor
 					const queryEditor = drawer.querySelector(
-						'.graphiql-query-editor textarea, .CodeMirror textarea'
+						'.wpgraphql-ide-graphql-editor .cm-content, .cm-editor .cm-content'
 					);
 					if (queryEditor) {
 						queryEditor.focus();

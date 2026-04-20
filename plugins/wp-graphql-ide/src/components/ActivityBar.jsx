@@ -10,7 +10,7 @@ export const ActivityBar = ({
 	handleShowDialog,
 }) => {
 	return (
-		<div className="graphiql-sidebar graphiql-activity-bar">
+		<div className="wpgraphql-ide-sidebar wpgraphql-ide-activity-bar">
 			<ActivityBarPanels
 				pluginContext={pluginContext}
 				handlePluginClick={handlePluginClick}

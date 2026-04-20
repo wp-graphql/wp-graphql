@@ -104,24 +104,9 @@
 /* Fix layout shift from drawer opening everywhere except the dedicated IDE page */
 /* Removed - was causing jump when drawer opens. Vaul handles body scroll locking. */
 
-.graphiql-dialog,
-.graphiql-dialog-overlay {
-  z-index: 1000000; /* Above drawer */
-}
-
 /* Fix popover visibility within drawer */
 [data-radix-popper-content-wrapper] {
   z-index: 1000000 !important; /* Above drawer */
-}
-
-/* Fix GraphiQL tooltips and hover popovers within drawer */
-.CodeMirror-lint-tooltip{
-  z-index: 1000000 !important; /* Above drawer */
-}
-
-.graphiql-dialog-title,
-.graphiql-history-header {
-  color: hsla(var(--color-neutral),1);
 }
 
 /* Align WPGraphQL logo with existing buttons */
@@ -156,11 +141,3 @@ body.graphql_page_graphql-ide .AppRoot {
   height: 100%;
 }
 
-
-
-.graphiql-container .graphiql-editor-tools>button.active {
-	background-color: hsla(var(--color-neutral), var(--alpha-background-medium));
-}
-
-/** Fix for the CodeMirror info tooltip */
-.CodeMirror-info { z-index: 999999; }

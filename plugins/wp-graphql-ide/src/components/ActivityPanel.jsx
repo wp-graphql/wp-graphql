@@ -15,15 +15,15 @@ const ActivityPanel = ({
 					// non-breaking texts
 					minWidth: '200px',
 				}}
-				className="graphiql-activity-panel"
+				className="wpgraphql-ide-activity-panel"
 			>
-				<div className="graphiql-plugin">
+				<div className="wpgraphql-ide-plugin">
 					{PluginContent ? <PluginContent /> : null}
 				</div>
 			</div>
 			{pluginContext?.visiblePlugin && (
 				<div
-					className="graphiql-horizontal-drag-bar"
+					className="wpgraphql-ide-horizontal-drag-bar"
 					ref={dragBarRef}
 				/>
 			)}
