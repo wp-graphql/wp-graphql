@@ -108,14 +108,22 @@
 	height: 20px;
 }
 
-.wpgraphql-ide-auth-toggle.components-button {
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	padding: 0 10px;
-	height: 32px;
-	border-radius: 2px;
+.wpgraphql-ide-auth-avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
+	border-radius: 50%;
+	transition: opacity 0.2s;
+}
+
+.wpgraphql-ide-auth-avatar:hover {
+	opacity: 0.8;
 }
 
 .wpgraphql-ide-doc-close.components-button {

@@ -26,6 +26,7 @@ import { JSONEditor } from './editors/JSONEditor';
 import { ResponseViewer } from './editors/ResponseViewer';
 import { EditorToolbar } from './EditorToolbar';
 import ActivityPanel from './ActivityPanel';
+import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import { ShortKeysDialog } from './ShortKeysDialog';
 import { SettingsDialog } from './SettingsDialog';
 import { useSchema } from '../hooks/useSchema';
@@ -413,18 +414,29 @@ export function IDELayout({ fetcher }) {
 					<Tooltip
 						text={
 							isAuthenticated
-								? 'Authenticated (click to switch to public)'
-								: 'Public (click to switch to authenticated)'
+								? 'Executing as logged-in user (click to switch to public)'
+								: 'Executing as public (click to switch to logged-in user)'
 						}
 					>
-						<Button
+						<button
+							type="button"
 							onClick={toggleAuthentication}
-							isPressed={isAuthenticated}
-							size="compact"
-							className="wpgraphql-ide-auth-toggle"
+							className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+							aria-label={
+								isAuthenticated
+									? 'Switch to public'
+									: 'Switch to authenticated'
+							}
 						>
-							{isAuthenticated ? 'Auth' : 'Public'}
-						</Button>
+							<span
+								className={authStyles.authAvatar}
+								style={{
+									backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+								}}
+							>
+								<span className={authStyles.authBadge} />
+							</span>
+						</button>
 					</Tooltip>
 					<Tooltip
 						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
