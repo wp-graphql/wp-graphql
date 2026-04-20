@@ -1,10 +1,5 @@
-import {
-	KeyboardShortcutIcon,
-	ReloadIcon,
-	SettingsIcon,
-	Tooltip,
-	UnStyledButton,
-} from '@graphiql/react';
+import { Button, Tooltip } from '@wordpress/components';
+import { Icon, update, keyboard, cog } from '@wordpress/icons';
 import React from 'react';
 
 export const ActivityBarUtilities = ({
@@ -13,41 +8,42 @@ export const ActivityBarUtilities = ({
 	handleShowDialog,
 }) => {
 	return (
-		<div className="graphiql-sidebar-section graphiql-activity-bar-utilities">
-			<Tooltip label="Re-fetch GraphQL schema">
-				<UnStyledButton
-					type="button"
+		<div className="wpgraphql-ide-sidebar-section wpgraphql-ide-activity-bar-utilities">
+			<Tooltip text="Re-fetch GraphQL schema">
+				<Button
+					variant="tertiary"
 					disabled={schemaContext.isFetching}
 					onClick={handleRefetchSchema}
 					aria-label="Re-fetch GraphQL schema"
 				>
-					<ReloadIcon
+					<Icon
+						icon={update}
 						className={
-							schemaContext.isFetching ? 'graphiql-spin' : ''
+							schemaContext.isFetching ? 'wpgraphql-ide-spin' : ''
 						}
 						aria-hidden="true"
 					/>
-				</UnStyledButton>
+				</Button>
 			</Tooltip>
-			<Tooltip label="Open short keys dialog">
-				<UnStyledButton
-					type="button"
+			<Tooltip text="Open short keys dialog">
+				<Button
+					variant="tertiary"
 					data-value="short-keys"
 					onClick={handleShowDialog}
 					aria-label="Open short keys dialog"
 				>
-					<KeyboardShortcutIcon aria-hidden="true" />
-				</UnStyledButton>
+					<Icon icon={keyboard} aria-hidden="true" />
+				</Button>
 			</Tooltip>
-			<Tooltip label="Open settings dialog">
-				<UnStyledButton
-					type="button"
+			<Tooltip text="Open settings dialog">
+				<Button
+					variant="tertiary"
 					data-value="settings"
 					onClick={handleShowDialog}
 					aria-label="Open settings dialog"
 				>
-					<SettingsIcon aria-hidden="true" />
-				</UnStyledButton>
+					<Icon icon={cog} aria-hidden="true" />
+				</Button>
 			</Tooltip>
 		</div>
 	);

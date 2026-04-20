@@ -1,24 +1,24 @@
-import { Tooltip, UnStyledButton } from '@graphiql/react';
+import { Button, Tooltip } from '@wordpress/components';
 import React from 'react';
 
 export function ActivityBarPanels({ pluginContext, handlePluginClick }) {
 	return (
-		<div className="graphiql-sidebar-section graphiql-activity-bar-plugins">
+		<div className="wpgraphql-ide-sidebar-section wpgraphql-ide-activity-bar-plugins">
 			{pluginContext?.plugins.map((plugin, index) => {
 				const isVisible = plugin === pluginContext.visiblePlugin;
 				const label = `${isVisible ? 'Hide' : 'Show'} ${plugin.title}`;
-				const Icon = plugin.icon;
+				const PluginIcon = plugin.icon;
 				return (
-					<Tooltip key={plugin.title} label={label}>
-						<UnStyledButton
-							type="button"
+					<Tooltip key={plugin.title} text={label}>
+						<Button
+							variant="tertiary"
 							className={isVisible ? 'active' : ''}
 							onClick={handlePluginClick}
 							data-index={index}
 							aria-label={label}
 						>
-							<Icon aria-hidden="true" />
-						</UnStyledButton>
+							<PluginIcon aria-hidden="true" />
+						</Button>
 					</Tooltip>
 				);
 			})}
