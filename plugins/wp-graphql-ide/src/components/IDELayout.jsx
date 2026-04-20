@@ -14,6 +14,7 @@ import {
 	update,
 	keyboard,
 	cog,
+	listView,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -21,7 +22,6 @@ import { JSONEditor } from './editors/JSONEditor';
 import { ResponseViewer } from './editors/ResponseViewer';
 import { EditorToolbar } from './EditorToolbar';
 import ActivityPanel from './ActivityPanel';
-import { TabBar } from './TabBar';
 import { ShortKeysDialog } from './ShortKeysDialog';
 import { SettingsDialog } from './SettingsDialog';
 import { useSchema } from '../hooks/useSchema';
@@ -241,7 +241,12 @@ export function IDELayout({ fetcher }) {
 		[]
 	);
 
-	const panelIcons = { 'query-composer': edit, help, history: backup };
+	const panelIcons = {
+		documents: listView,
+		'query-composer': edit,
+		help,
+		history: backup,
+	};
 
 	return (
 		<div className="wpgraphql-ide-container">
@@ -263,17 +268,6 @@ export function IDELayout({ fetcher }) {
 						</Tooltip>
 					))}
 					<div className="wpgraphql-ide-header-separator" />
-					<EditorToolbar />
-				</div>
-				<div className="wpgraphql-ide-header-tabs">
-					<TabBar />
-				</div>
-				<div className="wpgraphql-ide-header-right">
-					{isSchemaLoading && (
-						<span className="wpgraphql-ide-loading-label">
-							<Spinner />
-						</span>
-					)}
 					<Tooltip text="Re-fetch schema">
 						<Button
 							onClick={refetch}
@@ -284,6 +278,18 @@ export function IDELayout({ fetcher }) {
 							<Icon icon={update} />
 						</Button>
 					</Tooltip>
+					{isSchemaLoading && (
+						<span className="wpgraphql-ide-loading-label">
+							<Spinner />
+						</span>
+					)}
+				</div>
+				<div className="wpgraphql-ide-header-center">
+					<span className="wpgraphql-ide-document-name">
+						{activeDocument?.title || 'Untitled'}
+					</span>
+				</div>
+				<div className="wpgraphql-ide-header-right">
 					<Tooltip text="Keyboard shortcuts">
 						<Button
 							data-value="short-keys"
@@ -304,6 +310,7 @@ export function IDELayout({ fetcher }) {
 							<Icon icon={cog} />
 						</Button>
 					</Tooltip>
+					<div className="wpgraphql-ide-header-separator" />
 					<Tooltip
 						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
 					>
@@ -332,6 +339,9 @@ export function IDELayout({ fetcher }) {
 					}
 					className="wpgraphql-ide-query-pane"
 				>
+					<div className="wpgraphql-ide-editor-toolbar">
+						<EditorToolbar />
+					</div>
 					<ResizableBox
 						size={{ width: '100%', height: editorHeight }}
 						minHeight={50}
