@@ -240,18 +240,6 @@ export function IDELayout({ fetcher }) {
 		},
 	]);
 
-	const PlayIcon = () => (
-		<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-			<path d="M9 5v14l10-7z" fill="currentColor" />
-		</svg>
-	);
-
-	const StopIcon = () => (
-		<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-			<rect x="6" y="6" width="12" height="12" fill="currentColor" />
-		</svg>
-	);
-
 	const { toggleActivityPanelVisibility } = useDispatch(
 		'wpgraphql-ide/activity-bar'
 	);
@@ -399,48 +387,45 @@ export function IDELayout({ fetcher }) {
 						</Button>
 					</Tooltip>
 					<div className="wpgraphql-ide-header-separator" />
-					<Tooltip
-						text={
-							isAuthenticated
-								? 'Executing as logged-in user (click to switch to public)'
-								: 'Executing as public (click to switch to logged-in user)'
-						}
-					>
-						<button
-							type="button"
-							onClick={toggleAuthentication}
-							className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-							aria-label={
+					<div className="wpgraphql-ide-send-group">
+						<Tooltip
+							text={
 								isAuthenticated
-									? 'Switch to public'
-									: 'Switch to authenticated'
+									? 'Sending as logged-in user (click to switch)'
+									: 'Sending as public user (click to switch)'
 							}
 						>
-							<span
-								className={authStyles.authAvatar}
-								style={{
-									backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
-								}}
+							<button
+								type="button"
+								onClick={toggleAuthentication}
+								className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+								aria-label={
+									isAuthenticated
+										? 'Switch to public'
+										: 'Switch to authenticated'
+								}
 							>
-								<span className={authStyles.authBadge} />
-							</span>
-						</button>
-					</Tooltip>
-					<span className="wpgraphql-ide-method-badge">POST</span>
-					<Tooltip
-						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
-					>
+								<span
+									className={authStyles.authAvatar}
+									style={{
+										backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+									}}
+								>
+									<span className={authStyles.authBadge} />
+								</span>
+							</button>
+						</Tooltip>
+						<span className="wpgraphql-ide-method-label">POST</span>
 						<Button
 							variant="primary"
 							onClick={executeQuery}
 							disabled={isSchemaLoading}
-							className="wpgraphql-ide-execute-button"
-							aria-label={isFetching ? 'Stop' : 'Execute query'}
+							className="wpgraphql-ide-send-button"
 							size="compact"
 						>
-							{isFetching ? <StopIcon /> : <PlayIcon />}
+							{isFetching ? 'Stop' : 'Send'}
 						</Button>
-					</Tooltip>
+					</div>
 				</div>
 			</div>
 			{/* Main content area */}

@@ -139,26 +139,30 @@
 	color: #d63638;
 }
 
-.wpgraphql-ide-method-badge {
-	font-size: 10px;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+/* Send group — avatar + method + send button */
+.wpgraphql-ide-send-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wpgraphql-ide-method-label {
+	font-size: 11px;
+	font-weight: 600;
 	color: #757575;
-	padding: 2px 6px;
+	padding: 4px 8px;
 	background: #f0f0f1;
+	border: 1px solid #e0e0e0;
 	border-radius: 2px;
 	user-select: none;
+	letter-spacing: 0.5px;
 }
 
-.wpgraphql-ide-execute-button.components-button {
-	padding: 0 12px;
-	gap: 4px;
-}
-
-.wpgraphql-ide-execute-button.components-button svg {
-	width: 16px;
-	height: 16px;
+.wpgraphql-ide-send-button.components-button {
+	padding: 0 16px;
+	height: 32px;
+	font-size: 13px;
+	font-weight: 600;
 }
 
 .wpgraphql-ide-loading-label {
@@ -397,6 +401,11 @@
 	flex-direction: column;
 	overflow: hidden;
 	position: relative;
+}
+
+/* Space between editor toolbar and CodeMirror content */
+.wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor .cm-editor {
+	padding-top: 4px;
 }
 
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {

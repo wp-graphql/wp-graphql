@@ -1,4 +1,4 @@
-import { external, Icon } from '@wordpress/icons';
+import { share, Icon } from '@wordpress/icons';
 import { select } from '@wordpress/data';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
@@ -7,14 +7,7 @@ export const shareButton = () => {
 	return {
 		label: 'Share current document',
 		// component: ShareDocumentButton
-		children: (
-			<Icon
-				icon={external}
-				style={{
-					fill: 'hsla(var(--color-neutral), var(--alpha-tertiary))',
-				}}
-			/>
-		),
+		children: <Icon icon={share} aria-hidden="true" />,
 		onClick: () => {
 			const { dedicatedIdeBaseUrl } = window.WPGRAPHQL_IDE_DATA;
 			const query = select('wpgraphql-ide/app').getQuery();
