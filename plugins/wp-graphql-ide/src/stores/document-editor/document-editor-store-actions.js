@@ -14,6 +14,12 @@ const actions = {
 		priority,
 	}),
 
+	setDocumentResponse: (id, response) => ({
+		type: 'SET_DOCUMENT_RESPONSE',
+		id,
+		response,
+	}),
+
 	/**
 	 * Load documents and preferences from the server.
 	 */

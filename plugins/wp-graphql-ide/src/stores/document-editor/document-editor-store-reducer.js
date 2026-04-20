@@ -64,6 +64,21 @@ const reducer = (state = initialState, action) => {
 			return { ...state, documents: next };
 		}
 
+		case 'SET_DOCUMENT_RESPONSE':
+			if (!state.documents[String(action.id)]) {
+				return state;
+			}
+			return {
+				...state,
+				documents: {
+					...state.documents,
+					[String(action.id)]: {
+						...state.documents[String(action.id)],
+						lastResponse: action.response,
+					},
+				},
+			};
+
 		case 'SET_OPEN_TABS':
 			return { ...state, openTabs: action.tabIds };
 

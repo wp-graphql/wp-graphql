@@ -58,9 +58,8 @@ export function IDELayout({ fetcher }) {
 	const { setQuery, setVariables, setHeaders, setResponse } =
 		useDispatch('wpgraphql-ide/app');
 
-	const { loadDocuments, saveDocument, createTab } = useDispatch(
-		'wpgraphql-ide/document-editor'
-	);
+	const { loadDocuments, saveDocument, createTab, setDocumentResponse } =
+		useDispatch('wpgraphql-ide/document-editor');
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 
@@ -88,8 +87,11 @@ export function IDELayout({ fetcher }) {
 			};
 			const updated = [...history, entry].slice(-20);
 			saveDocument(doc.id, { history: updated });
+
+			// Store response on the document for tab switching.
+			setDocumentResponse(doc.id, JSON.stringify(result, null, 2));
 		},
-		[saveDocument]
+		[saveDocument, setDocumentResponse]
 	);
 
 	const executionOptions = useRef({ onComplete: handleExecutionComplete });
@@ -115,7 +117,7 @@ export function IDELayout({ fetcher }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// When active document changes, populate editors.
+	// When active document changes, populate editors and restore response.
 	useEffect(() => {
 		if (!activeDocument) {
 			return;
@@ -123,7 +125,7 @@ export function IDELayout({ fetcher }) {
 		setQuery(activeDocument.query || '');
 		setVariables(activeDocument.variables || '');
 		setHeaders(activeDocument.headers || '');
-		setResponse('');
+		setResponse(activeDocument.lastResponse || '');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeDocument?.id]);
 
