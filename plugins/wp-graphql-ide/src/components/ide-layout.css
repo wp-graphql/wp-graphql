@@ -1,8 +1,14 @@
+/* ==========================================================================
+   WPGraphQL IDE Layout
+   All containers use flex + overflow:hidden to prevent double scrollbars.
+   Only leaf content areas (CodeMirror editors, plugin panels) scroll.
+   ========================================================================== */
+
 #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
 	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
-	position: relative;
+	overflow: hidden;
 }
 
 #wpgraphql-ide-app > .AppDrawerCloseButton {
@@ -16,16 +22,20 @@
 	display: flex;
 	flex: 1;
 	min-height: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-main {
 	display: flex;
 	flex: 1;
 	min-height: 0;
+	overflow: hidden;
 }
 
-/* Activity bar (icon strip) */
+/* ---------------------------------------------------------------------------
+   Activity bar (narrow icon strip on left)
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-activity-bar {
 	display: flex;
 	flex-direction: column;
@@ -35,6 +45,7 @@
 	background: #f0f0f1;
 	border-right: 1px solid #ddd;
 	padding: 4px 0;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-sidebar-section {
@@ -59,36 +70,40 @@
 	height: 24px;
 }
 
-/* #2: Active panel accent border */
 .wpgraphql-ide-activity-bar .components-button.active {
 	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
 	border-left: 3px solid var(--wp-admin-theme-color, #3858e9);
 	border-radius: 0;
 }
 
-/* Activity panel (resizable content panel) */
+/* ---------------------------------------------------------------------------
+   Activity panel (resizable content panel — e.g. query composer, help, history)
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-activity-panel {
 	border-right: 1px solid #ddd;
-	overflow: auto;
+	overflow: hidden;
 	height: 100% !important;
+	display: flex;
+	flex-direction: column;
 }
 
 .wpgraphql-ide-plugin {
-	height: 100%;
-	overflow: auto;
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
 	padding: 8px;
 	font-size: 13px;
 }
 
-/* Constrain spinners inside activity panel */
 .wpgraphql-ide-plugin .components-spinner {
 	width: 24px;
 	height: 24px;
 }
 
-/* Query composer panel fixes */
 .wpgraphql-ide-plugin .docExplorerWrap {
-	overflow: auto;
+	overflow: visible;
 }
 
 .wpgraphql-ide-plugin input[type="text"] {
@@ -98,13 +113,18 @@
 	border-radius: 3px;
 }
 
-/* Tab bar */
+/* ---------------------------------------------------------------------------
+   Tab bar
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-tab-bar {
 	display: flex;
 	align-items: flex-end;
-	background: #e8e8e8;
+	background: #f0f0f1;
 	min-height: 36px;
 	padding: 4px 4px 0;
+	overflow: hidden;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-tabs {
@@ -113,11 +133,6 @@
 	min-width: 0;
 	overflow: hidden;
 	align-items: flex-end;
-}
-
-/* Prevent horizontal scrollbar from tab overflow */
-.wpgraphql-ide-tab-bar {
-	overflow: hidden;
 }
 
 .wpgraphql-ide-tab {
@@ -198,7 +213,10 @@
 	flex-shrink: 0;
 }
 
-/* Editor actions (vertical pill floating at right side of editor) */
+/* ---------------------------------------------------------------------------
+   Editor actions (floating pill)
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-editor-actions {
 	position: absolute;
 	right: 16px;
@@ -224,6 +242,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	border-radius: 50%;
 }
 
 .wpgraphql-ide-editor-actions .components-button {
@@ -237,14 +256,14 @@
 	border-radius: 50%;
 }
 
-.wpgraphql-ide-execute-button.components-button {
-	border-radius: 50%;
-}
-
 .wpgraphql-ide-editor-actions .components-button svg {
 	width: 20px;
 	height: 20px;
 }
+
+/* ---------------------------------------------------------------------------
+   Query pane (tabs + editor + variables/headers)
+   --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-query-pane {
 	display: flex;
@@ -252,7 +271,7 @@
 	min-width: 200px;
 	border-right: 1px solid #ddd;
 	position: relative;
-	/* Override ResizableBox inline height */
+	overflow: hidden;
 	height: 100% !important;
 }
 
@@ -267,15 +286,19 @@
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
-	overflow: auto;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-editor-tools {
 	flex: 1;
 	min-height: 0;
-	overflow: auto;
+	overflow: hidden;
 	border-top: 1px solid #ddd;
 }
+
+/* ---------------------------------------------------------------------------
+   Response pane
+   --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-response-pane {
 	display: flex;
@@ -283,13 +306,19 @@
 	flex: 1;
 	min-width: 0;
 	position: relative;
+	background: #fff;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-response-pane > .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
-	overflow: auto;
+	overflow: hidden;
 }
+
+/* ---------------------------------------------------------------------------
+   Spinners
+   --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-schema-spinner {
 	position: absolute;
@@ -305,7 +334,10 @@
 	z-index: 1;
 }
 
-/* #3: Visible resize handles */
+/* ---------------------------------------------------------------------------
+   Resize handles
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,
 .wpgraphql-ide-editor-resizable > .components-resizable-box__handle {
 	z-index: 1;
@@ -357,7 +389,10 @@
 	background: var(--wp-admin-theme-color, #3858e9);
 }
 
-/* CodeMirror editor sizing */
+/* ---------------------------------------------------------------------------
+   CodeMirror — let CM handle its own scrolling internally
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-editor .cm-editor {
 	height: 100%;
 }
@@ -366,14 +401,89 @@
 	overflow: auto;
 }
 
-/* #5: Editor gutter styling */
 .wpgraphql-ide-editor .cm-gutters {
 	background: #f9f9f9;
 	border-right: 1px solid #eee;
 }
 
-/* #6: Tab underline uses admin theme color */
+/* ---------------------------------------------------------------------------
+   Variables/Headers tab indicator
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-editor-tools .components-tab-panel__tabs-item.is-active,
 .wpgraphql-ide-editor-tools [role="tab"][aria-selected="true"] {
 	box-shadow: inset 0 -3px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+/* ---------------------------------------------------------------------------
+   History panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-history-panel {
+	font-size: 13px;
+}
+
+.wpgraphql-ide-history-header {
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-history-empty {
+	color: #757575;
+	font-style: italic;
+}
+
+.wpgraphql-ide-history-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-history-entry {
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.wpgraphql-ide-history-entry-header {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 2px;
+}
+
+.wpgraphql-ide-history-status {
+	font-size: 11px;
+	font-weight: 600;
+	padding: 1px 6px;
+	border-radius: 3px;
+}
+
+.wpgraphql-ide-history-status--success {
+	background: #d4edda;
+	color: #155724;
+}
+
+.wpgraphql-ide-history-status--error {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.wpgraphql-ide-history-duration {
+	font-size: 11px;
+	color: #757575;
+}
+
+.wpgraphql-ide-history-entry-time {
+	font-size: 11px;
+	color: #757575;
+}
+
+.wpgraphql-ide-history-entry-preview {
+	font-size: 11px;
+	color: #999;
+	font-family: monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 4px;
 }
