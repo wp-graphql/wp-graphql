@@ -129,6 +129,31 @@ function register_ide_post_type() {
 			'default'      => '',
 		]
 	);
+
+	register_post_meta(
+		'graphql_ide_query',
+		'_graphql_ide_history',
+		[
+			'type'         => 'array',
+			'single'       => true,
+			'show_in_rest' => [
+				'schema' => [
+					'type'  => 'array',
+					'items' => [
+						'type'       => 'object',
+						'properties' => [
+							'timestamp'        => [ 'type' => 'integer' ],
+							'variables'        => [ 'type' => 'string' ],
+							'duration_ms'      => [ 'type' => 'integer' ],
+							'response_summary' => [ 'type' => 'string' ],
+							'status'           => [ 'type' => 'string' ],
+						],
+					],
+				],
+			],
+			'default'      => [],
+		]
+	);
 }
 
 /**
