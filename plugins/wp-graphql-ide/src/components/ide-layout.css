@@ -76,50 +76,80 @@
 .wpgraphql-ide-plugin {
 	height: 100%;
 	overflow: auto;
+	padding: 8px;
+	font-size: 13px;
+}
+
+/* Constrain spinners inside activity panel */
+.wpgraphql-ide-plugin .components-spinner {
+	width: 24px;
+	height: 24px;
+}
+
+/* Query composer panel fixes */
+.wpgraphql-ide-plugin .docExplorerWrap {
+	overflow: auto;
+}
+
+.wpgraphql-ide-plugin input[type="text"] {
+	font-size: 13px;
+	padding: 4px 8px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
 }
 
 /* Tab bar */
 .wpgraphql-ide-tab-bar {
 	display: flex;
-	align-items: center;
-	background: #f0f0f1;
-	border-bottom: 1px solid #ddd;
+	align-items: flex-end;
+	background: #e8e8e8;
 	min-height: 36px;
-	padding: 0 4px;
+	padding: 4px 4px 0;
 }
 
 .wpgraphql-ide-tabs {
 	display: flex;
 	flex: 1;
 	min-width: 0;
-	overflow-x: auto;
-	gap: 1px;
+	overflow: hidden;
+	align-items: flex-end;
+}
+
+/* Prevent horizontal scrollbar from tab overflow */
+.wpgraphql-ide-tab-bar {
+	overflow: hidden;
 }
 
 .wpgraphql-ide-tab {
 	display: flex;
 	align-items: center;
 	max-width: 200px;
-	min-width: 0;
-	background: transparent;
-	border: none;
-	border-bottom: 2px solid transparent;
-	transition: background 0.1s, border-color 0.1s;
+	min-width: 48px;
+	background: #e0e0e0;
+	border: 1px solid #ccc;
+	border-bottom: none;
+	border-radius: 4px 4px 0 0;
+	margin-right: -1px;
+	transition: background 0.1s;
+	position: relative;
 }
 
 .wpgraphql-ide-tab.is-active {
 	background: #fff;
-	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+	border-color: #ddd;
+	z-index: 1;
+	border-bottom: 1px solid #fff;
+	margin-bottom: -1px;
 }
 
 .wpgraphql-ide-tab:hover:not(.is-active) {
-	background: #e8e8e8;
+	background: #eaeaea;
 }
 
 .wpgraphql-ide-tab-label {
 	flex: 1;
 	min-width: 0;
-	padding: 8px 8px 8px 12px;
+	padding: 7px 6px 7px 12px;
 	border: none;
 	background: none;
 	font-size: 12px;
@@ -231,6 +261,7 @@
 	flex-direction: column;
 	overflow: hidden;
 	position: relative;
+	border-top: 1px solid #ddd;
 }
 
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {

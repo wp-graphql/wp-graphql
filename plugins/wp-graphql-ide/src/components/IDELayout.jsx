@@ -56,6 +56,9 @@ export function IDELayout({ fetcher }) {
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 
+	const activeDocRef = useRef(null);
+	activeDocRef.current = activeDocument;
+
 	const handleExecutionComplete = useCallback(
 		({
 			result,
@@ -63,10 +66,11 @@ export function IDELayout({ fetcher }) {
 			status: execStatus,
 			variables: vars,
 		}) => {
-			if (!activeDocument) {
+			const doc = activeDocRef.current;
+			if (!doc) {
 				return;
 			}
-			const history = activeDocument.history || [];
+			const history = doc.history || [];
 			const entry = {
 				timestamp: Math.floor(Date.now() / 1000),
 				variables: vars,
@@ -75,14 +79,18 @@ export function IDELayout({ fetcher }) {
 				status: execStatus,
 			};
 			const updated = [...history, entry].slice(-20);
-			saveDocument(activeDocument.id, { history: updated });
+			saveDocument(doc.id, { history: updated });
 		},
-		[activeDocument, saveDocument]
+		[saveDocument]
 	);
 
-	const { isFetching, run, stop } = useExecution(fetcher, {
-		onComplete: handleExecutionComplete,
-	});
+	const executionOptions = useRef({ onComplete: handleExecutionComplete });
+	executionOptions.current.onComplete = handleExecutionComplete;
+
+	const { isFetching, run, stop } = useExecution(
+		fetcher,
+		executionOptions.current
+	);
 
 	const [queryPaneWidth, setQueryPaneWidth] = useState(null);
 	const [editorHeight, setEditorHeight] = useState(null);
