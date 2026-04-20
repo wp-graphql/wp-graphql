@@ -25,6 +25,7 @@ export function ResponseViewer({ value = '', className = '' }) {
 			json(),
 			EditorView.editable.of(false),
 			EditorState.readOnly.of(true),
+			EditorView.lineWrapping,
 		];
 
 		const state = EditorState.create({

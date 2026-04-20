@@ -262,7 +262,27 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Query pane (tabs + editor + variables/headers)
+   Editor area (tabs spanning full width + query/response below)
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-editor-area {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-editor-content {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Query pane (editor + variables/headers)
    --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-query-pane {
@@ -280,7 +300,6 @@
 	flex-direction: column;
 	overflow: hidden;
 	position: relative;
-	border-top: 1px solid #ddd;
 }
 
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
