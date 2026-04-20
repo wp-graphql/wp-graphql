@@ -1,0 +1,79 @@
+#wpgraphql-ide-app {
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+}
+
+.wpgraphql-ide-layout {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.wpgraphql-ide-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	border-bottom: 1px solid #ddd;
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-main {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+}
+
+.wpgraphql-ide-query-pane {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	border-right: 1px solid #ddd;
+}
+
+.wpgraphql-ide-query-pane > .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+
+.wpgraphql-ide-editor-tools {
+	border-top: 1px solid #ddd;
+	max-height: 200px;
+	overflow: auto;
+}
+
+.wpgraphql-ide-response-pane {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	position: relative;
+	border-left: 1px solid #ddd;
+}
+
+.wpgraphql-ide-response-pane > .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+
+.wpgraphql-ide-response-spinner {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	z-index: 1;
+}
+
+/* CodeMirror editor sizing */
+.wpgraphql-ide-editor .cm-editor {
+	height: 100%;
+}
+
+.wpgraphql-ide-editor .cm-scroller {
+	overflow: auto;
+}

@@ -494,8 +494,7 @@ function enqueue_react_app_with_styles(): void {
 	);
 
 	wp_enqueue_style( 'wpgraphql-ide-app', plugins_url( 'build/wpgraphql-ide.css', __FILE__ ), [], $asset_file['version'] );
-	// @wordpress/scripts generates CSS files with 'style-' prefix
-	wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/style-wpgraphql-ide-render.css', __FILE__ ), [], $asset_file['version'] );
+	wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/wpgraphql-ide-render.css', __FILE__ ), [], $render_asset_file['version'] );
 
 	// Avoid running custom styles through a build process for an improved developer experience.
 	wp_enqueue_style( 'wpgraphql-ide', plugins_url( 'styles/wpgraphql-ide.css', __FILE__ ), [], $asset_file['version'] );
@@ -612,9 +611,6 @@ function graphql_admin_notices_render_notices( array $notices ): void {
             right: 0;
             z-index: 1;
             min-width: 40%;
-        }
-        body.graphql_page_graphql-ide #wpbody .graphiql-container {
-            padding-top: ' . count( $notices ) * 45 . 'px;
         }
         body.graphql_page_graphql-ide #wpgraphql-ide-root {
             height: calc(100vh - var(--wp-admin--admin-bar--height) - ' . count( $notices ) * 45 . 'px);
