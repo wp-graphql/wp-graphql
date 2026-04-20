@@ -16,7 +16,6 @@ import {
 	backup,
 	update,
 	keyboard,
-	cog,
 	chevronDown,
 	plus,
 } from '@wordpress/icons';
@@ -28,7 +27,6 @@ import { EditorToolbar } from './EditorToolbar';
 import ActivityPanel from './ActivityPanel';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import { ShortKeysDialog } from './ShortKeysDialog';
-import { SettingsDialog } from './SettingsDialog';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
@@ -400,16 +398,6 @@ export function IDELayout({ fetcher }) {
 							<Icon icon={keyboard} />
 						</Button>
 					</Tooltip>
-					<Tooltip text="Settings">
-						<Button
-							data-value="settings"
-							onClick={handleShowDialog}
-							aria-label="Settings"
-							size="compact"
-						>
-							<Icon icon={cog} />
-						</Button>
-					</Tooltip>
 					<div className="wpgraphql-ide-header-separator" />
 					<Tooltip
 						text={
@@ -438,6 +426,7 @@ export function IDELayout({ fetcher }) {
 							</span>
 						</button>
 					</Tooltip>
+					<span className="wpgraphql-ide-method-badge">POST</span>
 					<Tooltip
 						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
 					>
@@ -526,10 +515,6 @@ export function IDELayout({ fetcher }) {
 			<ShortKeysDialog
 				showDialog={showDialog}
 				handleOpenShortKeysDialog={() => setShowDialog(null)}
-			/>
-			<SettingsDialog
-				showDialog={showDialog}
-				handleOpenSettingsDialog={() => setShowDialog(null)}
 			/>
 		</div>
 	);
