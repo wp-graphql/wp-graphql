@@ -35,24 +35,84 @@
 	min-height: 0;
 }
 
+/* Activity bar (icon strip) */
+.wpgraphql-ide-activity-bar {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 40px;
+	min-width: 40px;
+	background: #f0f0f1;
+	border-right: 1px solid #ddd;
+	padding: 4px 0;
+}
+
+.wpgraphql-ide-sidebar-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+}
+
+.wpgraphql-ide-activity-bar .components-button {
+	width: 36px;
+	height: 36px;
+	min-width: 36px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wpgraphql-ide-activity-bar .components-button.active {
+	background: #ddd;
+}
+
+/* Activity panel (resizable content panel) */
+.wpgraphql-ide-activity-panel {
+	border-right: 1px solid #ddd;
+	overflow: auto;
+	height: 100% !important;
+}
+
+.wpgraphql-ide-plugin {
+	height: 100%;
+	overflow: auto;
+}
+
+.wpgraphql-ide-toolbar-separator {
+	width: 1px;
+	height: 24px;
+	background: #ddd;
+	margin: 0 4px;
+}
+
 .wpgraphql-ide-query-pane {
 	display: flex;
 	flex-direction: column;
-	flex: 1;
-	min-width: 0;
+	min-width: 200px;
 	border-right: 1px solid #ddd;
+	/* Override ResizableBox inline height */
+	height: 100% !important;
 }
 
-.wpgraphql-ide-query-pane > .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-resizable {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
 	overflow: auto;
 }
 
 .wpgraphql-ide-editor-tools {
-	border-top: 1px solid #ddd;
-	max-height: 200px;
+	flex: 1;
+	min-height: 0;
 	overflow: auto;
+	border-top: 1px solid #ddd;
 }
 
 .wpgraphql-ide-response-pane {
@@ -61,7 +121,6 @@
 	flex: 1;
 	min-width: 0;
 	position: relative;
-	border-left: 1px solid #ddd;
 }
 
 .wpgraphql-ide-response-pane > .wpgraphql-ide-editor {
@@ -75,6 +134,24 @@
 	top: 12px;
 	right: 12px;
 	z-index: 1;
+}
+
+/* ResizableBox drag handle styling */
+.wpgraphql-ide-query-pane > .components-resizable-box__handle,
+.wpgraphql-ide-editor-resizable > .components-resizable-box__handle {
+	z-index: 1;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle-right {
+	width: 4px;
+	right: -2px;
+	cursor: col-resize;
+}
+
+.wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom {
+	height: 4px;
+	bottom: -2px;
+	cursor: row-resize;
 }
 
 /* CodeMirror editor sizing */

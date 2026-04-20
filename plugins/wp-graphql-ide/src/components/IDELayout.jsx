@@ -1,9 +1,12 @@
-import React from 'react';
-import { Button, TabPanel, Spinner } from '@wordpress/components';
+import React, { useState } from 'react';
+import { Button, ResizableBox, TabPanel, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
 import { ResponseViewer } from './editors/ResponseViewer';
+import { EditorToolbar } from './EditorToolbar';
+import { ActivityBar } from './ActivityBar';
+import ActivityPanel from './ActivityPanel';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
@@ -34,6 +37,8 @@ export function IDELayout({ fetcher }) {
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 	const { isFetching, run, stop } = useExecution(fetcher);
 
+	const [queryPaneWidth, setQueryPaneWidth] = useState(null);
+	const [editorHeight, setEditorHeight] = useState(null);
 	const executeQuery = () => {
 		if (isFetching) {
 			stop();
@@ -56,15 +61,56 @@ export function IDELayout({ fetcher }) {
 					Refresh schema
 				</Button>
 				{isSchemaLoading && <Spinner />}
+				<div className="wpgraphql-ide-toolbar-separator" />
+				<EditorToolbar />
 			</div>
 
 			<div className="wpgraphql-ide-main">
-				<div className="wpgraphql-ide-query-pane">
-					<GraphQLEditor
-						value={query}
-						onChange={setQuery}
-						schema={schema}
-					/>
+				<ActivityBar
+					schemaContext={{ isFetching: isSchemaLoading }}
+					handleRefetchSchema={refetch}
+				/>
+				<ActivityPanel />
+				<ResizableBox
+					size={{
+						width: queryPaneWidth || '50%',
+						height: 'auto',
+					}}
+					minWidth={200}
+					enable={{
+						top: false,
+						right: true,
+						bottom: false,
+						left: false,
+					}}
+					onResizeStop={(event, direction, elt) => {
+						setQueryPaneWidth(elt.offsetWidth);
+					}}
+					className="wpgraphql-ide-query-pane"
+				>
+					<ResizableBox
+						size={{
+							width: '100%',
+							height: editorHeight || '70%',
+						}}
+						minHeight={50}
+						enable={{
+							top: false,
+							right: false,
+							bottom: true,
+							left: false,
+						}}
+						onResizeStop={(event, direction, elt) => {
+							setEditorHeight(elt.offsetHeight);
+						}}
+						className="wpgraphql-ide-editor-resizable"
+					>
+						<GraphQLEditor
+							value={query}
+							onChange={setQuery}
+							schema={schema}
+						/>
+					</ResizableBox>
 					<TabPanel
 						className="wpgraphql-ide-editor-tools"
 						tabs={[
@@ -91,7 +137,7 @@ export function IDELayout({ fetcher }) {
 							);
 						}}
 					</TabPanel>
-				</div>
+				</ResizableBox>
 
 				<div className="wpgraphql-ide-response-pane">
 					{isFetching && (
