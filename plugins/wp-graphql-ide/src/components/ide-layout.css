@@ -147,10 +147,12 @@
 }
 
 .wpgraphql-ide-method-label {
-	font-size: 11px;
+	font-size: 12px;
 	font-weight: 600;
-	color: #757575;
-	padding: 4px 8px;
+	color: #1e1e1e;
+	padding: 0 10px;
+	height: 32px;
+	line-height: 32px;
 	background: #f0f0f1;
 	border: 1px solid #e0e0e0;
 	border-radius: 2px;
@@ -276,14 +278,15 @@
 }
 
 .wpgraphql-ide-editor-toolbar .components-button {
-	height: 24px;
-	min-width: 24px;
+	height: 28px;
+	min-width: 28px;
 	padding: 0 6px;
+	color: #1e1e1e;
 }
 
 .wpgraphql-ide-editor-toolbar .components-button svg {
-	width: 16px;
-	height: 16px;
+	width: 20px;
+	height: 20px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -310,6 +313,27 @@
 	background: #fff;
 }
 
+.wpgraphql-ide-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	border-bottom: 1px solid #e0e0e0;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-panel-title {
+	font-size: 13px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-panel-close.components-button {
+	min-width: 24px;
+	height: 24px;
+	padding: 0;
+}
+
 .wpgraphql-ide-plugin {
 	flex: 1;
 	min-height: 0;
@@ -317,6 +341,15 @@
 	overflow-x: hidden;
 	padding: 16px;
 	font-size: 13px;
+}
+
+/* Document switch transition */
+.wpgraphql-ide-editor-resizable {
+	transition: opacity 0.15s ease;
+}
+
+.wpgraphql-ide-editor-resizable.is-switching {
+	opacity: 0.5;
 }
 
 .wpgraphql-ide-plugin .components-spinner {
@@ -423,8 +456,15 @@
 }
 
 /* Resize handles */
+/* Hide default ResizableBox handle indicators (circles that look like spinners) */
+.wpgraphql-ide-container .components-resizable-box__handle > span,
+.wpgraphql-ide-container .components-resizable-box__handle > div {
+	display: none;
+}
+
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,
-.wpgraphql-ide-editor-resizable > .components-resizable-box__handle {
+.wpgraphql-ide-editor-resizable > .components-resizable-box__handle,
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle {
 	z-index: 1;
 }
 
@@ -499,11 +539,9 @@
 }
 
 .wpgraphql-ide-response-label {
-	font-size: 11px;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #757575;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1e1e1e;
 }
 
 .wpgraphql-ide-response-header .components-spinner {
