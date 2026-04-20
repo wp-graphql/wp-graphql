@@ -63,14 +63,25 @@ export function IDELayout({ fetcher }) {
 		};
 	}, []);
 
-	const { setQuery, setVariables, setHeaders, setResponse } =
-		useDispatch('wpgraphql-ide/app');
+	const isAuthenticated = useSelect(
+		(select) => select('wpgraphql-ide/app').isAuthenticated(),
+		[]
+	);
+
+	const {
+		setQuery,
+		setVariables,
+		setHeaders,
+		setResponse,
+		toggleAuthentication,
+	} = useDispatch('wpgraphql-ide/app');
 
 	const {
 		loadDocuments,
 		saveDocument,
 		createTab,
 		switchTab,
+		closeTab,
 		setDocumentResponse,
 	} = useDispatch('wpgraphql-ide/document-editor');
 
@@ -338,11 +349,24 @@ export function IDELayout({ fetcher }) {
 													String(doc.id) ===
 													String(activeDocument?.id)
 												}
-												className={
-													String(doc.id) ===
-													String(activeDocument?.id)
-														? 'is-active'
-														: ''
+												suffix={
+													openTabs.length > 1 ? (
+														<Button
+															size="small"
+															onClick={(e) => {
+																e.stopPropagation();
+																closeTab(
+																	String(
+																		doc.id
+																	)
+																);
+															}}
+															aria-label="Close document"
+															className="wpgraphql-ide-doc-close"
+														>
+															&times;
+														</Button>
+													) : null
 												}
 											>
 												{doc.title || 'Untitled'}
@@ -386,6 +410,22 @@ export function IDELayout({ fetcher }) {
 						</Button>
 					</Tooltip>
 					<div className="wpgraphql-ide-header-separator" />
+					<Tooltip
+						text={
+							isAuthenticated
+								? 'Authenticated (click to switch to public)'
+								: 'Public (click to switch to authenticated)'
+						}
+					>
+						<Button
+							onClick={toggleAuthentication}
+							isPressed={isAuthenticated}
+							size="compact"
+							className="wpgraphql-ide-auth-toggle"
+						>
+							{isAuthenticated ? 'Auth' : 'Public'}
+						</Button>
+					</Tooltip>
 					<Tooltip
 						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
 					>
