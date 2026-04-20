@@ -55,7 +55,34 @@ export function IDELayout({ fetcher }) {
 	);
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
-	const { isFetching, run, stop } = useExecution(fetcher);
+
+	const handleExecutionComplete = useCallback(
+		({
+			result,
+			duration_ms: duration,
+			status: execStatus,
+			variables: vars,
+		}) => {
+			if (!activeDocument) {
+				return;
+			}
+			const history = activeDocument.history || [];
+			const entry = {
+				timestamp: Math.floor(Date.now() / 1000),
+				variables: vars,
+				duration_ms: duration,
+				response_summary: JSON.stringify(result).slice(0, 200),
+				status: execStatus,
+			};
+			const updated = [...history, entry].slice(-20);
+			saveDocument(activeDocument.id, { history: updated });
+		},
+		[activeDocument, saveDocument]
+	);
+
+	const { isFetching, run, stop } = useExecution(fetcher, {
+		onComplete: handleExecutionComplete,
+	});
 
 	const [queryPaneWidth, setQueryPaneWidth] = useState(null);
 	const [editorHeight, setEditorHeight] = useState(null);

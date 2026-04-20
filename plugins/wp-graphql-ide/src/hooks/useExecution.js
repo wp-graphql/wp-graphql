@@ -8,10 +8,12 @@ import { useDispatch, useSelect } from '@wordpress/data';
  * response as a formatted JSON string in the app store. Supports cancellation
  * via AbortController.
  *
- * @param {Function} fetcher - GraphQL fetcher function. Receives { query, variables, operationName }.
+ * @param {Function} fetcher              - GraphQL fetcher function. Receives { query, variables, operationName }.
+ * @param {Object}   [options]            - Optional configuration.
+ * @param {Function} [options.onComplete] - Called after execution with { result, duration_ms, status }.
  * @return {{ isFetching: boolean, run: Function, stop: Function }}
  */
-export function useExecution(fetcher) {
+export function useExecution(fetcher, options = {}) {
 	const { isFetching, query, variables, headers } = useSelect((select) => {
 		const app = select('wpgraphql-ide/app');
 		return {
@@ -76,6 +78,8 @@ export function useExecution(fetcher) {
 			}
 
 			setIsFetching(true);
+			const startTime = Date.now();
+			let status = 'success';
 			try {
 				const result = await fetcher(
 					{ query, variables: parsedVariables, operationName },
@@ -84,20 +88,38 @@ export function useExecution(fetcher) {
 						signal: controller.signal,
 					}
 				);
-				setResponse(JSON.stringify(result, null, 2));
+				const responseStr = JSON.stringify(result, null, 2);
+				setResponse(responseStr);
+
+				if (result?.errors) {
+					status = 'error';
+				}
+
+				if (options.onComplete) {
+					options.onComplete({
+						result,
+						duration_ms: Date.now() - startTime,
+						status,
+						variables: variables || '',
+					});
+				}
 			} catch (error) {
 				if (error.name === 'AbortError') {
 					return;
 				}
-				setResponse(
-					JSON.stringify(
-						{
-							errors: [{ message: error.message }],
-						},
-						null,
-						2
-					)
-				);
+				const errorResponse = {
+					errors: [{ message: error.message }],
+				};
+				setResponse(JSON.stringify(errorResponse, null, 2));
+
+				if (options.onComplete) {
+					options.onComplete({
+						result: errorResponse,
+						duration_ms: Date.now() - startTime,
+						status: 'error',
+						variables: variables || '',
+					});
+				}
 			} finally {
 				if (abortControllerRef.current === controller) {
 					abortControllerRef.current = null;
@@ -105,7 +127,15 @@ export function useExecution(fetcher) {
 				}
 			}
 		},
-		[fetcher, query, variables, headers, setResponse, setIsFetching]
+		[
+			fetcher,
+			query,
+			variables,
+			headers,
+			setResponse,
+			setIsFetching,
+			options,
+		]
 	);
 
 	const stop = useCallback(() => {
