@@ -55,6 +55,8 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\check_wpgraphql_availability' )
  * @return void
  */
 function initialize_plugin() {
+	add_action( 'init', __NAMESPACE__ . '\\register_ide_post_type' );
+	add_action( 'init', __NAMESPACE__ . '\\register_ide_user_meta' );
 	add_action( 'admin_menu', __NAMESPACE__ . '\\register_dedicated_ide_menu' );
 	add_action( 'admin_bar_menu', __NAMESPACE__ . '\\register_wpadminbar_menus', 999 );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_graphql_ide_menu_icon_css' );
@@ -73,11 +75,144 @@ function initialize_plugin() {
 	add_filter( 'graphql_get_setting_section_field_value', __NAMESPACE__ . '\\ensure_graphiql_link_is_unchecked', 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), __NAMESPACE__ . '\\add_settings_link' );
 
+	// Scope REST queries to the current user's own documents.
+	add_filter( 'rest_graphql_ide_query_query', __NAMESPACE__ . '\\scope_ide_queries_to_current_user' );
+
 	// Core plugins/modules.
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/help-panel/help-panel.php';
 }
 add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
+
+/**
+ * Register the IDE query document custom post type.
+ *
+ * Each document stores a GraphQL query, its variables, and headers.
+ * Documents are scoped to the authoring user via REST API filters.
+ *
+ * @return void
+ */
+function register_ide_post_type() {
+	register_post_type(
+		'graphql_ide_query',
+		[
+			'label'               => __( 'IDE Queries', 'wpgraphql-ide' ),
+			'description'         => __( 'Saved GraphQL IDE query documents.', 'wpgraphql-ide' ),
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_rest'        => true,
+			'rest_base'           => 'graphql-ide-queries',
+			'capability_type'     => 'post',
+			'map_meta_cap'        => true,
+			'supports'            => [ 'title', 'editor', 'author', 'custom-fields' ],
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_query',
+		'_graphql_ide_variables',
+		[
+			'type'         => 'string',
+			'single'       => true,
+			'show_in_rest' => true,
+			'default'      => '',
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_query',
+		'_graphql_ide_headers',
+		[
+			'type'         => 'string',
+			'single'       => true,
+			'show_in_rest' => true,
+			'default'      => '',
+		]
+	);
+}
+
+/**
+ * Register user meta fields for IDE preferences.
+ *
+ * These are exposed via the REST API so the IDE frontend can
+ * read and write user preferences with @wordpress/api-fetch.
+ *
+ * @return void
+ */
+function register_ide_user_meta() {
+	$auth_callback = function () {
+		return current_user_can( 'manage_graphql_ide' );
+	};
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_theme',
+		[
+			'type'            => 'string',
+			'single'          => true,
+			'show_in_rest'    => true,
+			'default'         => '',
+			'auth_callback'   => $auth_callback,
+			'sanitize_callback' => function ( $value ) {
+				return in_array( $value, [ '', 'light', 'dark' ], true ) ? $value : '';
+			},
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_persist_headers',
+		[
+			'type'            => 'boolean',
+			'single'          => true,
+			'show_in_rest'    => true,
+			'default'         => false,
+			'auth_callback'   => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_active_tab',
+		[
+			'type'            => 'string',
+			'single'          => true,
+			'show_in_rest'    => true,
+			'default'         => '',
+			'auth_callback'   => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_open_tabs',
+		[
+			'type'            => 'array',
+			'single'          => true,
+			'show_in_rest'    => [
+				'schema' => [
+					'type'  => 'array',
+					'items' => [
+						'type' => 'string',
+					],
+				],
+			],
+			'default'         => [],
+			'auth_callback'   => $auth_callback,
+		]
+	);
+}
+
+/**
+ * Scope REST API queries for IDE documents to the current user.
+ *
+ * @param array $args WP_Query arguments.
+ * @return array Modified arguments.
+ */
+function scope_ide_queries_to_current_user( $args ) {
+	$args['author'] = get_current_user_id();
+	return $args;
+}
 
 /**
  * Show admin notice if WPGraphQL is not available.
