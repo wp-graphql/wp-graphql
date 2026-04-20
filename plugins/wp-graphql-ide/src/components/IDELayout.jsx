@@ -245,34 +245,35 @@ export function IDELayout({ fetcher }) {
 
 	return (
 		<div className="wpgraphql-ide-container">
-			<TabBar />
-			<div className="wpgraphql-ide-toolbar">
-				<div className="wpgraphql-ide-toolbar-group">
-					<Tooltip
-						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
-					>
-						<Button
-							variant="primary"
-							onClick={executeQuery}
-							disabled={isSchemaLoading}
-							className="wpgraphql-ide-execute-button"
-							aria-label={isFetching ? 'Stop' : 'Execute query'}
-							size="compact"
-						>
-							{isFetching ? <StopIcon /> : <PlayIcon />}
-						</Button>
-					</Tooltip>
-					{isSchemaLoading && (
-						<span className="wpgraphql-ide-loading-label">
-							<Spinner /> Loading schema...
-						</span>
-					)}
-				</div>
-				<div className="wpgraphql-ide-toolbar-group">
+			{/* Header bar — matches Gutenberg post editor header */}
+			<div className="wpgraphql-ide-header">
+				<div className="wpgraphql-ide-header-left">
+					{panels.map((panel) => (
+						<Tooltip key={panel.name} text={panel.title}>
+							<Button
+								isPressed={visiblePanel?.name === panel.name}
+								onClick={() =>
+									toggleActivityPanelVisibility(panel.name)
+								}
+								aria-label={panel.title}
+								size="compact"
+							>
+								<Icon icon={panelIcons[panel.name] || edit} />
+							</Button>
+						</Tooltip>
+					))}
+					<div className="wpgraphql-ide-header-separator" />
 					<EditorToolbar />
 				</div>
-				<div className="wpgraphql-ide-toolbar-spacer" />
-				<div className="wpgraphql-ide-toolbar-group">
+				<div className="wpgraphql-ide-header-tabs">
+					<TabBar />
+				</div>
+				<div className="wpgraphql-ide-header-right">
+					{isSchemaLoading && (
+						<span className="wpgraphql-ide-loading-label">
+							<Spinner />
+						</span>
+					)}
 					<Tooltip text="Re-fetch schema">
 						<Button
 							onClick={refetch}
@@ -303,37 +304,24 @@ export function IDELayout({ fetcher }) {
 							<Icon icon={cog} />
 						</Button>
 					</Tooltip>
+					<Tooltip
+						text={isFetching ? 'Stop' : 'Execute query (Cmd+Enter)'}
+					>
+						<Button
+							variant="primary"
+							onClick={executeQuery}
+							disabled={isSchemaLoading}
+							className="wpgraphql-ide-execute-button"
+							aria-label={isFetching ? 'Stop' : 'Execute query'}
+							size="compact"
+						>
+							{isFetching ? <StopIcon /> : <PlayIcon />}
+						</Button>
+					</Tooltip>
 				</div>
 			</div>
+			{/* Main content area */}
 			<div className="wpgraphql-ide-main">
-				<nav className="wpgraphql-ide-nav">
-					{panels.map((panel) => {
-						const isActive = visiblePanel?.name === panel.name;
-						return (
-							<Tooltip
-								key={panel.name}
-								text={panel.title}
-								placement="right"
-							>
-								<button
-									type="button"
-									className={`wpgraphql-ide-nav-item ${isActive ? 'is-active' : ''}`}
-									onClick={() =>
-										toggleActivityPanelVisibility(
-											panel.name
-										)
-									}
-									aria-label={panel.title}
-									aria-pressed={isActive}
-								>
-									<Icon
-										icon={panelIcons[panel.name] || edit}
-									/>
-								</button>
-							</Tooltip>
-						);
-					})}
-				</nav>
 				<ActivityPanel />
 				<ResizableBox
 					size={{ width: queryPaneWidth, height: 'auto' }}
