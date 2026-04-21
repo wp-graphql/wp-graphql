@@ -20,10 +20,10 @@ export const EditorToolbar = ({ onClose }) => {
 					<MenuItem
 						key={key}
 						onClick={() => {
-							props.onClick();
 							if (onClose) {
 								onClose();
 							}
+							props.onClick();
 						}}
 						aria-label={props.label}
 					>
