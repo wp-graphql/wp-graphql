@@ -122,11 +122,10 @@ export async function deleteDocument(id, force = false) {
 function normalizeDocument(post) {
 	return {
 		id: post.id,
-		title: post.title?.raw || post.title?.rendered || post.title || '',
-		query:
-			post.content?.raw || post.content?.rendered || post.content || '',
-		variables: post.meta?._graphql_ide_variables || '',
-		headers: post.meta?._graphql_ide_headers || '',
-		history: post.meta?._graphql_ide_history || [],
+		title: post.title?.raw ?? post.title?.rendered ?? '',
+		query: post.content?.raw ?? post.content?.rendered ?? '',
+		variables: post.meta?._graphql_ide_variables ?? '',
+		headers: post.meta?._graphql_ide_headers ?? '',
+		history: post.meta?._graphql_ide_history ?? [],
 	};
 }
