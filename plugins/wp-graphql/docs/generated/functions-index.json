@@ -1,0 +1,676 @@
+{
+  "plugin": "wp-graphql",
+  "generatedAt": "2026-04-21T19:21:42.724Z",
+  "stats": {
+    "totalFunctions": 43
+  },
+  "lint": {
+    "errors": [],
+    "warnings": [
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "get_graphql_admin_notices",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 999
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "get_graphql_register_action",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 142
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "graphql_format_name",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 29
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "graphql_get_endpoint",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 896
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "graphql_get_endpoint_url",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 927
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "is_graphql_http_request",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 689
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "is_graphql_request",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 672
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "is_valid_graphql_name",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 818
+      },
+      {
+        "type": "missing_function_description",
+        "message": "Missing function description in nearest docblock",
+        "function": "register_graphql_admin_notice",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 980
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_admin_notice",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 980
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_enum_type",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 298
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_input_type",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 254
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_interface_type",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 227
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_interfaces_to_types",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 167
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_object_type",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 243
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_type",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 211
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "register_graphql_union_type",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 267
+      },
+      {
+        "type": "missing_function_description",
+        "message": "Missing function description in nearest docblock",
+        "function": "str_ends_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 954
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "str_ends_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 954
+      },
+      {
+        "type": "missing_function_param_description",
+        "message": "@param entry 1 ($haystack) is missing a description",
+        "function": "str_ends_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 954
+      },
+      {
+        "type": "missing_function_param_description",
+        "message": "@param entry 2 ($needle) is missing a description",
+        "function": "str_ends_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 954
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "str_ends_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 954
+      },
+      {
+        "type": "missing_function_description",
+        "message": "Missing function description in nearest docblock",
+        "function": "str_starts_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 940
+      },
+      {
+        "type": "missing_function_since",
+        "message": "Missing @since tag in nearest docblock",
+        "function": "str_starts_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 940
+      },
+      {
+        "type": "missing_function_param_description",
+        "message": "@param entry 1 ($haystack) is missing a description",
+        "function": "str_starts_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 940
+      },
+      {
+        "type": "missing_function_param_description",
+        "message": "@param entry 2 ($needle) is missing a description",
+        "function": "str_starts_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 940
+      },
+      {
+        "type": "missing_function_return",
+        "message": "Missing @return tag in nearest docblock",
+        "function": "str_starts_with",
+        "file": "plugins/wp-graphql/access-functions.php",
+        "line": 940
+      }
+    ]
+  },
+  "functions": [
+    {
+      "name": "deregister_graphql_connection",
+      "slug": "deregister_graphql_connection",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 634,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.14.0",
+      "signature": "deregister_graphql_connection( string $connection_name ): void;",
+      "description": "Given a Connection Name, this removes the connection from the Schema"
+    },
+    {
+      "name": "deregister_graphql_field",
+      "slug": "deregister_graphql_field",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 617,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.1.0",
+      "signature": "deregister_graphql_field( string $type_name, string $field_name ): void;",
+      "description": "Given a Type Name and Field Name, this removes the field from the TypeRegistry"
+    },
+    {
+      "name": "deregister_graphql_mutation",
+      "slug": "deregister_graphql_mutation",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 651,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.14.0",
+      "signature": "deregister_graphql_mutation( string $mutation_name ): void;",
+      "description": "Given a Mutation Name, this removes the mutation from the Schema"
+    },
+    {
+      "name": "deregister_graphql_type",
+      "slug": "deregister_graphql_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 571,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.13.0",
+      "signature": "deregister_graphql_type( string $type_name ): void;",
+      "description": "Given a Type Name, this removes the type from the entire schema"
+    },
+    {
+      "name": "do_graphql_request",
+      "slug": "do_graphql_request",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 126,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.0.2",
+      "signature": "do_graphql_request( $query, $operation_name = '', $variables = [], $return_request = false );",
+      "description": "Previous access function for running GraphQL queries directly. This function will eventually be deprecated in favor of `graphql`."
+    },
+    {
+      "name": "get_graphql_admin_notices",
+      "slug": "get_graphql_admin_notices",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 999,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "get_graphql_admin_notices(): array;",
+      "description": "Get the admin notices registered for the WPGraphQL plugin screens"
+    },
+    {
+      "name": "get_graphql_register_action",
+      "slug": "get_graphql_register_action",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 142,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "get_graphql_register_action(): string;",
+      "description": "Determine when to register types."
+    },
+    {
+      "name": "get_graphql_setting",
+      "slug": "get_graphql_setting",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 853,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.13.0",
+      "signature": "get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' );",
+      "description": "Get an option value from GraphQL settings"
+    },
+    {
+      "name": "graphql",
+      "slug": "graphql",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 98,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.2.0",
+      "signature": "graphql( array $request_data = [], bool $return_request = false );",
+      "description": "Provides a simple way to run a GraphQL query without posting a request to the endpoint."
+    },
+    {
+      "name": "graphql_debug",
+      "slug": "graphql_debug",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 776,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.14.0",
+      "signature": "graphql_debug( $message, $config = [] ): void;",
+      "description": "Given a message and an optional config array"
+    },
+    {
+      "name": "graphql_format_field_name",
+      "slug": "graphql_format_field_name",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 43,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.0.2",
+      "signature": "graphql_format_field_name( $field_name ): string;",
+      "description": "Formats the name of a field so that it plays nice with GraphiQL"
+    },
+    {
+      "name": "graphql_format_name",
+      "slug": "graphql_format_name",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 29,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "v1.17.0",
+      "signature": "graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string;",
+      "description": "Formats a string for use as a GraphQL name. Per the GraphQL spec, characters in names are limited to Latin ASCII letter, digits, or underscores."
+    },
+    {
+      "name": "graphql_format_type_name",
+      "slug": "graphql_format_type_name",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 69,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.0.2",
+      "signature": "graphql_format_type_name( $type_name ): string;",
+      "description": "Formats the name of a Type so that it plays nice with GraphiQL"
+    },
+    {
+      "name": "graphql_get_endpoint",
+      "slug": "graphql_get_endpoint",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 896,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.12.0",
+      "signature": "graphql_get_endpoint(): string;",
+      "description": "Get the endpoint route for the WPGraphQL API"
+    },
+    {
+      "name": "graphql_get_endpoint_url",
+      "slug": "graphql_get_endpoint_url",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 927,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.12.0",
+      "signature": "graphql_get_endpoint_url(): string;",
+      "description": "Return the full url for the GraphQL Endpoint."
+    },
+    {
+      "name": "graphql_get_nonce",
+      "slug": "graphql_get_nonce",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 728,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "2.6.0",
+      "signature": "graphql_get_nonce(): string;",
+      "description": "Generate a WPGraphQL nonce for cookie-based authentication. This nonce is required for authenticated GraphQL HTTP requests that use WordPress cookie authentication. It provides CSRF protection by proving the request originated from a legitimate WordPress-generated page. Example usage in JavaScript: ```javascript fetch('/graphql', { headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': wpGraphQLSettings.nonce }, body: JSON.stringify({ query: '{ viewer { name } }' }) }); ``` Example usage in PHP for localizing to JavaScript: ```php wp_localize_script( 'my-script', 'wpGraphQLSettings', [ 'nonce'    => graphql_get_nonce(), 'endpoint' => graphql_get_endpoint(), ] ); ```"
+    },
+    {
+      "name": "is_graphql_http_request",
+      "slug": "is_graphql_http_request",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 689,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.4.1",
+      "signature": "is_graphql_http_request(): bool;",
+      "description": "Whether a GraphQL HTTP request is in action or not. This is determined by checking if the request is occurring on the route defined for the GraphQL endpoint. This conditional should only be used for features that apply to HTTP requests. If you are going to apply filters to underlying WordPress core functionality that should affect _all_ GraphQL requests, you should use \"is_graphql_request\" but if you need to apply filters only if the GraphQL request is an HTTP request, use this conditional. Default false."
+    },
+    {
+      "name": "is_graphql_request",
+      "slug": "is_graphql_request",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 672,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.4.1",
+      "signature": "is_graphql_request(): bool;",
+      "description": "Whether a GraphQL request is in action or not. This is determined by the WPGraphQL Request class being initiated. True while a request is in action, false after a request completes. This should be used when a condition needs to be checked for ALL GraphQL requests, such as filtering WP_Query for GraphQL requests, for example. Default false."
+    },
+    {
+      "name": "is_valid_graphql_name",
+      "slug": "is_valid_graphql_name",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 818,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.14.0",
+      "signature": "is_valid_graphql_name( string $type_name ): bool;",
+      "description": "Check if the name is valid for use in GraphQL"
+    },
+    {
+      "name": "register_graphql_admin_notice",
+      "slug": "register_graphql_admin_notice",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 980,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_admin_notice( string $slug, array $config ): void;",
+      "description": ""
+    },
+    {
+      "name": "register_graphql_connection",
+      "slug": "register_graphql_connection",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 514,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.1.0",
+      "signature": "register_graphql_connection( array $config ): void;",
+      "description": "Given a config array for a connection, this registers a connection by creating all appropriate fields and types for the connection"
+    },
+    {
+      "name": "register_graphql_connection_where_arg",
+      "slug": "register_graphql_connection_where_arg",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 397,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.13.0",
+      "signature": "register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ): void;",
+      "description": "Adds an input field to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name."
+    },
+    {
+      "name": "register_graphql_connection_where_args",
+      "slug": "register_graphql_connection_where_args",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 418,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.13.0",
+      "signature": "register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ): void;",
+      "description": "Adds several input fields to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name."
+    },
+    {
+      "name": "register_graphql_edge_field",
+      "slug": "register_graphql_edge_field",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 354,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.13.0",
+      "signature": "register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ): void;",
+      "description": "Adds a field to the Connection Edge between the provided 'From' Type Name and 'To' Type Name."
+    },
+    {
+      "name": "register_graphql_edge_fields",
+      "slug": "register_graphql_edge_fields",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 375,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.13.0",
+      "signature": "register_graphql_edge_fields( string $from_type, string $to_type, array $fields ): void;",
+      "description": "Adds several fields to the Connection Edge between the provided 'From' Type Name and 'To' Type Name."
+    },
+    {
+      "name": "register_graphql_enum_type",
+      "slug": "register_graphql_enum_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 298,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_enum_type( string $type_name, array $config ): void;",
+      "description": "Given a Type Name and a $config array, this adds an EnumType to the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_field",
+      "slug": "register_graphql_field",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 314,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.1.0",
+      "signature": "register_graphql_field( string $type_name, string $field_name, array $config ): void;",
+      "description": "Given a Type Name, Field Name, and a $config array, this adds a Field to a registered Type in the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_fields",
+      "slug": "register_graphql_fields",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 334,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.1.0",
+      "signature": "register_graphql_fields( string $type_name, array $fields ): void;",
+      "description": "Given a Type Name and an array of field configs, this adds the fields to the registered type in the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_input_type",
+      "slug": "register_graphql_input_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 254,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_input_type( string $type_name, array $config ): void;",
+      "description": "Given a Type Name and a $config array, this adds an InputType to the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_interface_type",
+      "slug": "register_graphql_interface_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 227,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_interface_type( string $type_name, $config ): void;",
+      "description": "Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_interfaces_to_types",
+      "slug": "register_graphql_interfaces_to_types",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 167,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_interfaces_to_types( $interface_names, $type_names ): void;",
+      "description": "Given a type name and interface name, this applies the interface to the Type. Should be used at the `graphql_register_types` hook."
+    },
+    {
+      "name": "register_graphql_mutation",
+      "slug": "register_graphql_mutation",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 532,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.1.0",
+      "signature": "register_graphql_mutation( string $mutation_name, array $config ): void;",
+      "description": "Given a Mutation Name and Config array, this adds a Mutation to the Schema"
+    },
+    {
+      "name": "register_graphql_object_type",
+      "slug": "register_graphql_object_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 243,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_object_type( string $type_name, array $config ): void;",
+      "description": "Given a Type Name and a $config array, this adds an ObjectType to the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_scalar",
+      "slug": "register_graphql_scalar",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 559,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.8.4",
+      "signature": "register_graphql_scalar( string $type_name, array $config ): void;",
+      "description": "Given a config array for a custom Scalar, this registers a Scalar for use in the Schema"
+    },
+    {
+      "name": "register_graphql_settings_field",
+      "slug": "register_graphql_settings_field",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 757,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.13.0",
+      "signature": "register_graphql_settings_field( string $group, array $config ): void;",
+      "description": "Registers a GraphQL Settings Field"
+    },
+    {
+      "name": "register_graphql_settings_fields",
+      "slug": "register_graphql_settings_fields",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 834,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.13.0",
+      "signature": "register_graphql_settings_fields( string $group, array $fields ): void;",
+      "description": "Registers a series of GraphQL Settings Fields"
+    },
+    {
+      "name": "register_graphql_settings_section",
+      "slug": "register_graphql_settings_section",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 740,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "0.13.0",
+      "signature": "register_graphql_settings_section( string $slug, array $config ): void;",
+      "description": "Registers a GraphQL Settings Section"
+    },
+    {
+      "name": "register_graphql_type",
+      "slug": "register_graphql_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 211,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_type( string $type_name, array $config ): void;",
+      "description": "Given a Type Name and a $config array, this adds a Type to the TypeRegistry"
+    },
+    {
+      "name": "register_graphql_union_type",
+      "slug": "register_graphql_union_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 267,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "register_graphql_union_type( string $type_name, array $config ): void;",
+      "description": "Given a Type Name and a $config array, this adds an UnionType to the TypeRegistry"
+    },
+    {
+      "name": "rename_graphql_field",
+      "slug": "rename_graphql_field",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 439,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.3.4",
+      "signature": "rename_graphql_field( string $type_name, string $field_name, string $new_field_name ): void;",
+      "description": "Renames a GraphQL field."
+    },
+    {
+      "name": "rename_graphql_type",
+      "slug": "rename_graphql_type",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 480,
+      "group": null,
+      "relatedRecipes": [],
+      "since": "1.3.4",
+      "signature": "rename_graphql_type( string $type_name, string $new_type_name ): void;",
+      "description": "Renames a GraphQL Type in the Schema."
+    },
+    {
+      "name": "str_ends_with",
+      "slug": "str_ends_with",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 954,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "str_ends_with( string $haystack, string $needle ): bool;",
+      "description": ""
+    },
+    {
+      "name": "str_starts_with",
+      "slug": "str_starts_with",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 940,
+      "group": null,
+      "relatedRecipes": [],
+      "since": null,
+      "signature": "str_starts_with( string $haystack, string $needle ): bool;",
+      "description": ""
+    }
+  ]
+}

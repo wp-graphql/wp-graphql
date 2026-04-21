@@ -1,0 +1,146 @@
+# Function Docs Lint Report: wp-graphql
+
+## Summary
+
+- Errors: 0
+- Warnings: 27
+- Total findings: 27
+
+## Findings
+
+- **Function:** `get_graphql_admin_notices`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 999)
+- **Function:** `get_graphql_register_action`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 142)
+- **Function:** `graphql_format_name`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 29)
+- **Function:** `graphql_get_endpoint`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 896)
+- **Function:** `graphql_get_endpoint_url`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 927)
+- **Function:** `is_graphql_http_request`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 689)
+- **Function:** `is_graphql_request`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 672)
+- **Function:** `is_valid_graphql_name`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 818)
+- **Function:** `register_graphql_admin_notice`
+  - Severity: warning
+  - Type: `missing_function_description`
+  - Message: Missing function description in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 980)
+- **Function:** `register_graphql_admin_notice`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 980)
+- **Function:** `register_graphql_enum_type`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 298)
+- **Function:** `register_graphql_input_type`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 254)
+- **Function:** `register_graphql_interface_type`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 227)
+- **Function:** `register_graphql_interfaces_to_types`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 167)
+- **Function:** `register_graphql_object_type`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 243)
+- **Function:** `register_graphql_type`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 211)
+- **Function:** `register_graphql_union_type`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 267)
+- **Function:** `str_ends_with`
+  - Severity: warning
+  - Type: `missing_function_description`
+  - Message: Missing function description in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 954)
+- **Function:** `str_ends_with`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 954)
+- **Function:** `str_ends_with`
+  - Severity: warning
+  - Type: `missing_function_param_description`
+  - Message: @param entry 1 ($haystack) is missing a description
+  - Source: `plugins/wp-graphql/access-functions.php` (line 954)
+- **Function:** `str_ends_with`
+  - Severity: warning
+  - Type: `missing_function_param_description`
+  - Message: @param entry 2 ($needle) is missing a description
+  - Source: `plugins/wp-graphql/access-functions.php` (line 954)
+- **Function:** `str_ends_with`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 954)
+- **Function:** `str_starts_with`
+  - Severity: warning
+  - Type: `missing_function_description`
+  - Message: Missing function description in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 940)
+- **Function:** `str_starts_with`
+  - Severity: warning
+  - Type: `missing_function_since`
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 940)
+- **Function:** `str_starts_with`
+  - Severity: warning
+  - Type: `missing_function_param_description`
+  - Message: @param entry 1 ($haystack) is missing a description
+  - Source: `plugins/wp-graphql/access-functions.php` (line 940)
+- **Function:** `str_starts_with`
+  - Severity: warning
+  - Type: `missing_function_param_description`
+  - Message: @param entry 2 ($needle) is missing a description
+  - Source: `plugins/wp-graphql/access-functions.php` (line 940)
+- **Function:** `str_starts_with`
+  - Severity: warning
+  - Type: `missing_function_return`
+  - Message: Missing @return tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 940)
+
