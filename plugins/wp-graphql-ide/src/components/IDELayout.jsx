@@ -246,6 +246,10 @@ export function IDELayout({ fetcher, onClose }) {
 		if (isFetching) {
 			stop();
 		} else {
+			// Load schema on first execution if not loaded yet.
+			if (!schema) {
+				refetch();
+			}
 			// Capture execution context for the correct document.
 			executingDocIdRef.current = activeDocument?.id || null;
 			executingQueryRef.current = query;

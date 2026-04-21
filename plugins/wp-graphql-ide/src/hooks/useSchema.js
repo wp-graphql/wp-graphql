@@ -33,16 +33,19 @@ export function useSchema(fetcher) {
 		}
 	}, [fetcher, setSchema]);
 
-	// Run introspection when schema is undefined (initial load or after invalidation).
+	// Schema is loaded on demand — user clicks refresh or first Send.
+	// Auto-loading on mount blocks the main thread on large schemas.
 	const fetchSchemaRef = useRef(fetchSchema);
 	fetchSchemaRef.current = fetchSchema;
+	const hasRequestedSchema = useRef(false);
 	useEffect(() => {
-		if (schema === undefined) {
+		if (schema === undefined && hasRequestedSchema.current) {
 			fetchSchemaRef.current();
 		}
 	}, [schema]);
 
 	const refetch = useCallback(() => {
+		hasRequestedSchema.current = true;
 		setSchema(undefined);
 	}, [setSchema]);
 
