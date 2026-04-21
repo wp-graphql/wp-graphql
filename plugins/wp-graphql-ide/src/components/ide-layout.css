@@ -146,7 +146,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-send-group {
 	display: flex;
 	align-items: center;
-	gap: 0;
+	gap: 8px;
 }
 
 .wpgraphql-ide-method-label {
