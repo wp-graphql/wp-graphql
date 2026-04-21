@@ -129,6 +129,8 @@ export function IDELayout({ fetcher }) {
 	const [editorHeight, setEditorHeight] = useState('70%');
 	const [showDialog, setShowDialog] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false);
+	const [isEditingTitle, setIsEditingTitle] = useState(false);
+	const [editTitle, setEditTitle] = useState('');
 	const saveTimerRef = useRef(null);
 
 	// Load documents on mount. Create a default tab if none exist.
@@ -300,80 +302,122 @@ export function IDELayout({ fetcher }) {
 					)}
 				</div>
 				<div className="wpgraphql-ide-header-center">
-					<DropdownMenu
-						icon={chevronDown}
-						label="Switch document"
-						toggleProps={{
-							children: (
-								<span className="wpgraphql-ide-document-name">
-									{activeDocument?.title || 'Untitled'}
-								</span>
-							),
-							className: 'wpgraphql-ide-document-switcher',
-							size: 'compact',
-						}}
-					>
-						{({ onClose }) => (
-							<>
-								<MenuGroup>
-									{openTabs
-										.map((tabId) =>
-											allDocuments.find(
-												(d) =>
-													String(d.id) ===
-													String(tabId)
-											)
-										)
-										.filter(Boolean)
-										.map((doc) => (
-											<MenuItem
-												key={doc.id}
-												onClick={() => {
-													switchTab(String(doc.id));
-													onClose();
-												}}
-												isSelected={
-													String(doc.id) ===
-													String(activeDocument?.id)
-												}
-												suffix={
-													openTabs.length > 1 ? (
-														<Button
-															size="small"
-															onClick={(e) => {
-																e.stopPropagation();
-																closeTab(
-																	String(
-																		doc.id
-																	)
-																);
-															}}
-															aria-label="Close document"
-															className="wpgraphql-ide-doc-close"
-														>
-															&times;
-														</Button>
-													) : null
-												}
-											>
-												{doc.title || 'Untitled'}
-											</MenuItem>
-										))}
-								</MenuGroup>
-								<MenuGroup>
-									<MenuItem
-										onClick={() => {
-											createTab();
-											onClose();
+					{isEditingTitle ? (
+						<input
+							type="text"
+							className="wpgraphql-ide-title-input"
+							value={editTitle}
+							onChange={(e) => setEditTitle(e.target.value)}
+							onBlur={() => {
+								if (activeDocument && editTitle.trim()) {
+									saveDocument(activeDocument.id, {
+										title: editTitle.trim(),
+									});
+								}
+								setIsEditingTitle(false);
+							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									e.target.blur();
+								}
+								if (e.key === 'Escape') {
+									setIsEditingTitle(false);
+								}
+							}}
+							// eslint-disable-next-line jsx-a11y/no-autofocus
+							autoFocus
+						/>
+					) : (
+						<DropdownMenu
+							icon={chevronDown}
+							label="Switch document"
+							toggleProps={{
+								children: (
+									<span
+										className="wpgraphql-ide-document-name"
+										onDoubleClick={() => {
+											setEditTitle(
+												activeDocument?.title ||
+													'Untitled'
+											);
+											setIsEditingTitle(true);
 										}}
 									>
-										<Icon icon={plus} />
-										New document
-									</MenuItem>
-								</MenuGroup>
-							</>
-						)}
-					</DropdownMenu>
+										{activeDocument?.title || 'Untitled'}
+									</span>
+								),
+								className: 'wpgraphql-ide-document-switcher',
+								size: 'compact',
+							}}
+						>
+							{({ onClose }) => (
+								<>
+									<MenuGroup>
+										{openTabs
+											.map((tabId) =>
+												allDocuments.find(
+													(d) =>
+														String(d.id) ===
+														String(tabId)
+												)
+											)
+											.filter(Boolean)
+											.map((doc) => (
+												<MenuItem
+													key={doc.id}
+													onClick={() => {
+														switchTab(
+															String(doc.id)
+														);
+														onClose();
+													}}
+													isSelected={
+														String(doc.id) ===
+														String(
+															activeDocument?.id
+														)
+													}
+													suffix={
+														openTabs.length > 1 ? (
+															<Button
+																size="small"
+																onClick={(
+																	e
+																) => {
+																	e.stopPropagation();
+																	closeTab(
+																		String(
+																			doc.id
+																		)
+																	);
+																}}
+																aria-label="Close document"
+																className="wpgraphql-ide-doc-close"
+															>
+																&times;
+															</Button>
+														) : null
+													}
+												>
+													{doc.title || 'Untitled'}
+												</MenuItem>
+											))}
+									</MenuGroup>
+									<MenuGroup>
+										<MenuItem
+											onClick={() => {
+												createTab();
+												onClose();
+											}}
+										>
+											<Icon icon={plus} />
+											New document
+										</MenuItem>
+									</MenuGroup>
+								</>
+							)}
+						</DropdownMenu>
+					)}
 				</div>
 				<div className="wpgraphql-ide-header-right">
 					<Tooltip text="Keyboard shortcuts">

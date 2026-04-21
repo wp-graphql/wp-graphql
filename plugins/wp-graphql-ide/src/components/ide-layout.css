@@ -82,6 +82,20 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	max-width: 200px;
+	cursor: default;
+}
+
+.wpgraphql-ide-title-input {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1e1e1e;
+	border: 1px solid var(--wp-admin-theme-color, #3858e9);
+	border-radius: 2px;
+	padding: 4px 8px;
+	outline: none;
+	text-align: center;
+	max-width: 200px;
+	background: #fff;
 }
 
 .wpgraphql-ide-document-switcher .components-dropdown-menu__toggle svg {
@@ -279,14 +293,19 @@
 
 .wpgraphql-ide-editor-toolbar .components-button {
 	height: 28px;
-	min-width: 28px;
-	padding: 0 6px;
+	min-width: auto;
+	padding: 0 8px;
+	color: #757575;
+	font-size: 12px;
+}
+
+.wpgraphql-ide-editor-toolbar .components-button:hover {
 	color: #1e1e1e;
 }
 
 .wpgraphql-ide-editor-toolbar .components-button svg {
-	width: 20px;
-	height: 20px;
+	width: 16px;
+	height: 16px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -456,10 +475,11 @@
 }
 
 /* Resize handles */
-/* Hide default ResizableBox handle indicators (circles that look like spinners) */
-.wpgraphql-ide-container .components-resizable-box__handle > span,
-.wpgraphql-ide-container .components-resizable-box__handle > div {
-	display: none;
+/* Hide ALL default ResizableBox handle visuals (circles/spinners) */
+.wpgraphql-ide-container .components-resizable-box__handle > *,
+.wpgraphql-ide-container .components-resizable-box__side-handle::before,
+.wpgraphql-ide-container .components-resizable-box__side-handle::after {
+	display: none !important;
 }
 
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,
