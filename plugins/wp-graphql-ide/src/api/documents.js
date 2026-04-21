@@ -9,7 +9,7 @@ const ENDPOINT = '/wp/v2/graphql-ide-queries';
  */
 export async function getDocuments() {
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&_fields=id,title,content,meta`,
+		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,meta`,
 	});
 
 	return posts.map(normalizeDocument);
@@ -23,7 +23,7 @@ export async function getDocuments() {
  */
 export async function getDocument(id) {
 	const post = await apiFetch({
-		path: `${ENDPOINT}/${id}?_fields=id,title,content,meta`,
+		path: `${ENDPOINT}/${id}?context=edit&_fields=id,title,content,meta`,
 	});
 
 	return normalizeDocument(post);
@@ -122,9 +122,9 @@ export async function deleteDocument(id, force = false) {
 function normalizeDocument(post) {
 	return {
 		id: post.id,
-		title: post.title?.rendered || post.title?.raw || post.title || '',
+		title: post.title?.raw || post.title?.rendered || post.title || '',
 		query:
-			post.content?.rendered || post.content?.raw || post.content || '',
+			post.content?.raw || post.content?.rendered || post.content || '',
 		variables: post.meta?._graphql_ide_variables || '',
 		headers: post.meta?._graphql_ide_headers || '',
 		history: post.meta?._graphql_ide_history || [],
