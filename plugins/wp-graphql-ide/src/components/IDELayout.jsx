@@ -19,6 +19,7 @@ import {
 	chevronDown,
 	plus,
 	moreVertical,
+	close,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -41,9 +42,10 @@ const AUTOSAVE_DELAY = 2000;
  * `wpgraphql-ide/app` @wordpress/data store.
  *
  * @param {Object}   props
- * @param {Function} props.fetcher - GraphQL fetcher function.
+ * @param {Function} props.fetcher   - GraphQL fetcher function.
+ * @param {Function} [props.onClose] - Optional close handler for drawer mode.
  */
-export function IDELayout({ fetcher }) {
+export function IDELayout({ fetcher, onClose }) {
 	const { query, variables, headers, response } = useSelect((select) => {
 		const app = select('wpgraphql-ide/app');
 		return {
@@ -133,6 +135,20 @@ export function IDELayout({ fetcher }) {
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [editTitle, setEditTitle] = useState('');
 	const saveTimerRef = useRef(null);
+
+	// ESC key closes the drawer when in drawer mode.
+	useEffect(() => {
+		if (!onClose) {
+			return;
+		}
+		const handleKeyDown = (e) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+		document.addEventListener('keydown', handleKeyDown);
+		return () => document.removeEventListener('keydown', handleKeyDown);
+	}, [onClose]);
 
 	// Load documents on mount. Create a default tab if none exist.
 	useEffect(() => {
@@ -351,7 +367,7 @@ export function IDELayout({ fetcher }) {
 								size: 'compact',
 							}}
 						>
-							{({ onClose }) => (
+							{({ onClose: closeMenu }) => (
 								<>
 									<MenuGroup>
 										{openTabs
@@ -370,7 +386,7 @@ export function IDELayout({ fetcher }) {
 														switchTab(
 															String(doc.id)
 														);
-														onClose();
+														closeMenu();
 													}}
 													isSelected={
 														String(doc.id) ===
@@ -408,7 +424,7 @@ export function IDELayout({ fetcher }) {
 										<MenuItem
 											onClick={() => {
 												createTab();
-												onClose();
+												closeMenu();
 											}}
 										>
 											<Icon icon={plus} />
@@ -471,6 +487,20 @@ export function IDELayout({ fetcher }) {
 							{isFetching ? 'Stop' : 'Send'}
 						</Button>
 					</div>
+					{onClose && (
+						<>
+							<div className="wpgraphql-ide-header-separator" />
+							<Tooltip text="Close">
+								<Button
+									onClick={onClose}
+									aria-label="Close drawer"
+									size="compact"
+								>
+									<Icon icon={close} />
+								</Button>
+							</Tooltip>
+						</>
+					)}
 				</div>
 			</div>
 			{/* Main content area */}
@@ -494,9 +524,9 @@ export function IDELayout({ fetcher }) {
 							icon={moreVertical}
 							label="Editor actions"
 						>
-							{({ onClose }) => (
+							{({ onClose: closeMenu }) => (
 								<MenuGroup>
-									<EditorToolbar onClose={onClose} />
+									<EditorToolbar onClose={closeMenu} />
 								</MenuGroup>
 							)}
 						</DropdownMenu>

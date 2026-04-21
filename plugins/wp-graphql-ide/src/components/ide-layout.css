@@ -6,39 +6,18 @@
 #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
-	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+	height: 100%;
 	overflow: hidden;
 }
 
-/* Drawer close button — top-right of the drag handle area */
+/* On dedicated IDE page, use viewport height */
+body.graphql_page_graphql-ide #wpgraphql-ide-app {
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+}
+
+/* Legacy close button (from App.jsx) — hidden, close is now in header */
 #wpgraphql-ide-app > .AppDrawerCloseButton {
-	position: absolute;
-	top: 0;
-	right: 0;
-	z-index: 5;
-	width: 36px;
-	height: 36px;
-	padding: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 0 4px 0 0;
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	font-size: 18px;
-	line-height: 1;
-	color: #757575;
-}
-
-#wpgraphql-ide-app > .AppDrawerCloseButton:hover {
-	color: #1e1e1e;
-	background: #f0f0f1;
-}
-
-/* When close button is present (drawer mode), offset the header slightly */
-#wpgraphql-ide-app:has(> .AppDrawerCloseButton) .wpgraphql-ide-header {
-	padding-right: 44px;
+	display: none;
 }
 
 .wpgraphql-ide-container {
@@ -199,10 +178,11 @@
 }
 
 .wpgraphql-ide-send-button.components-button {
-	padding: 0 16px;
-	height: 32px;
-	font-size: 13px;
+	padding: 0 20px;
+	height: 36px;
+	font-size: 14px;
 	font-weight: 600;
+	border-radius: 4px;
 }
 
 .wpgraphql-ide-loading-label {

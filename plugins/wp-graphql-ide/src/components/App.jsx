@@ -74,15 +74,14 @@ export function App() {
 
 	return (
 		<div id="wpgraphql-ide-app">
-			{!shouldRenderStandalone && (
-				<button
-					className="button AppDrawerCloseButton"
-					onClick={() => setDrawerOpen(false)}
-				>
-					X <span className="screen-reader-text">close drawer</span>
-				</button>
-			)}
-			<IDELayout fetcher={fetcher} />
+			<IDELayout
+				fetcher={fetcher}
+				onClose={
+					!shouldRenderStandalone
+						? () => setDrawerOpen(false)
+						: undefined
+				}
+			/>
 		</div>
 	);
 }
