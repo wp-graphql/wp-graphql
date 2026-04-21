@@ -129,8 +129,12 @@ export function IDELayout({ fetcher, onClose }) {
 		executionOptions.current
 	);
 
-	const [queryPaneWidth, setQueryPaneWidth] = useState('50%');
-	const [editorHeight, setEditorHeight] = useState('70%');
+	const savedQueryWidth =
+		window.localStorage.getItem('wpgraphql_ide_query_width') || '50%';
+	const savedEditorHeight =
+		window.localStorage.getItem('wpgraphql_ide_editor_height') || '70%';
+	const [queryPaneWidth, setQueryPaneWidth] = useState(savedQueryWidth);
+	const [editorHeight, setEditorHeight] = useState(savedEditorHeight);
 	const [showDialog, setShowDialog] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -309,15 +313,15 @@ export function IDELayout({ fetcher, onClose }) {
 							disabled={isSchemaLoading}
 							aria-label="Re-fetch schema"
 							size="compact"
+							className="wpgraphql-ide-refresh-button"
 						>
-							<Icon icon={update} />
+							{isSchemaLoading ? (
+								<Spinner />
+							) : (
+								<Icon icon={update} />
+							)}
 						</Button>
 					</Tooltip>
-					{isSchemaLoading && (
-						<span className="wpgraphql-ide-loading-label">
-							<Spinner />
-						</span>
-					)}
 				</div>
 				<div className="wpgraphql-ide-header-center">
 					{isEditingTitle ? (
@@ -511,9 +515,14 @@ export function IDELayout({ fetcher, onClose }) {
 					size={{ width: queryPaneWidth, height: 'auto' }}
 					minWidth={200}
 					enable={{ right: true }}
-					onResizeStop={(e, d, elt) =>
-						setQueryPaneWidth(elt.offsetWidth)
-					}
+					onResizeStop={(e, d, elt) => {
+						const w = elt.offsetWidth;
+						setQueryPaneWidth(w);
+						window.localStorage.setItem(
+							'wpgraphql_ide_query_width',
+							String(w)
+						);
+					}}
 					className="wpgraphql-ide-query-pane"
 				>
 					<div className="wpgraphql-ide-editor-toolbar">
@@ -536,9 +545,14 @@ export function IDELayout({ fetcher, onClose }) {
 						size={{ width: '100%', height: editorHeight }}
 						minHeight={50}
 						enable={{ bottom: true }}
-						onResizeStop={(e, d, elt) =>
-							setEditorHeight(elt.offsetHeight)
-						}
+						onResizeStop={(e, d, elt) => {
+							const h = elt.offsetHeight;
+							setEditorHeight(h);
+							window.localStorage.setItem(
+								'wpgraphql_ide_editor_height',
+								String(h)
+							);
+						}}
 						className="wpgraphql-ide-editor-resizable"
 					>
 						<GraphQLEditor

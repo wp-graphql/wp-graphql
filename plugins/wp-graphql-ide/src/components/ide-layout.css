@@ -192,14 +192,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-weight: 600;
 }
 
-.wpgraphql-ide-loading-label {
-	display: flex;
-	align-items: center;
+.wpgraphql-ide-refresh-button.components-button {
+	width: 32px;
+	min-width: 32px;
 }
 
-.wpgraphql-ide-loading-label .components-spinner {
-	width: 16px;
-	height: 16px;
+.wpgraphql-ide-refresh-button .components-spinner {
+	width: 20px;
+	height: 20px;
 }
 
 /* ---------------------------------------------------------------------------
