@@ -20,9 +20,12 @@
 		"format": "wp-scripts format",
 		"start": "turbo run start",
 		"test": "turbo run test",
-		"test:scripts": "node scripts/update-upgrade-notice.test.js && node scripts/update-version-constants.test.js && node scripts/update-readme-changelog.test.js && node scripts/hooks/generate-hook-docs.test.js",
+		"test:scripts": "node scripts/update-upgrade-notice.test.js && node scripts/update-version-constants.test.js && node scripts/update-readme-changelog.test.js && node scripts/hooks/generate-hook-docs.test.js && node scripts/functions/generate-function-docs.test.js && node scripts/recipes/recipe-relations.test.js",
 		"hooks:generate": "node scripts/hooks/generate-hook-docs.js",
 		"hooks:check-legacy": "node scripts/hooks/check-legacy-coverage.js",
+		"functions:generate": "node scripts/functions/generate-function-docs.js",
+		"recipes:generate": "node scripts/recipes/generate-recipe-docs.js",
+		"recipes:migrate-wp": "node scripts/recipes/migrate-recipes-from-wp.js",
 		"lint": "turbo run lint",
 		"zip": "turbo run zip",
 		"zip:wp-graphql": "composer -d plugins/wp-graphql run-script build-plugin",
@@ -38,6 +41,7 @@
 		"@wordpress/scripts": "^27.9.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"turbo": "^2.9.4"
+		"turbo": "^2.9.4",
+		"turndown": "^7.2.4"
 	}
 }
