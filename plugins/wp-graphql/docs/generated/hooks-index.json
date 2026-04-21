@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-19T02:50:29.986Z",
+  "generatedAt": "2026-04-21T19:21:42.486Z",
   "stats": {
     "totalHooks": 296,
     "actions": 69,
@@ -137,7 +137,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -182,7 +183,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -216,7 +218,8 @@
         "message": null,
         "source": "deprecated_call"
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -250,7 +253,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -284,7 +288,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -318,7 +323,8 @@
         "message": null,
         "source": "deprecated_call"
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -352,7 +358,8 @@
         "message": null,
         "source": "deprecated_call"
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -386,7 +393,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -420,7 +428,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -467,7 +476,8 @@
           "symbol": "PluginLoader::loadKeys()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -514,7 +524,8 @@
           "symbol": "PluginLoader::loadKeys()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -555,7 +566,8 @@
           "symbol": "Request::do_action()",
           "emitter": "do_action_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -596,7 +608,8 @@
           "symbol": "GraphiQL::enqueue_graphiql()",
           "emitter": "do_action_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -637,7 +650,8 @@
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -682,7 +696,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -722,7 +737,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -772,7 +788,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -817,7 +834,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -857,7 +875,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -907,7 +926,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -954,7 +974,8 @@
           "symbol": "Router::get_response_headers()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1006,7 +1027,8 @@
           "symbol": "AdminNotices::add_admin_notice()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1053,7 +1075,8 @@
           "symbol": "AdminNotices::init()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1110,7 +1133,8 @@
           "symbol": "AdminNotices::is_plugin_scoped_page()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1172,7 +1196,8 @@
           "symbol": "AdminNotices::render_notices()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1219,7 +1244,8 @@
           "symbol": "AdminNotices::render_notices()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1271,7 +1297,8 @@
           "symbol": "Request::after_execute()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1358,7 +1385,8 @@
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1435,7 +1463,8 @@
           "symbol": "Model::wrap_fields()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1482,7 +1511,8 @@
           "symbol": "DataSource::get_allowed_settings()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1529,7 +1559,8 @@
           "symbol": "DataSource::get_allowed_settings_by_group()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1576,7 +1607,8 @@
           "symbol": "AppContext::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1628,7 +1660,8 @@
           "symbol": "Router::process_http_request()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1686,7 +1719,8 @@
           "symbol": "Router::validate_http_request_authentication()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1744,7 +1778,8 @@
           "symbol": "Router::validate_http_request_authentication()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1791,7 +1826,8 @@
           "symbol": "Request::before_execute()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1873,7 +1909,8 @@
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1935,7 +1972,8 @@
           "symbol": "QueryAnalyzer::set_list_types()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -1997,7 +2035,8 @@
           "symbol": "QueryAnalyzer::set_query_models()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2059,7 +2098,8 @@
           "symbol": "QueryAnalyzer::set_query_types()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2111,7 +2151,8 @@
           "symbol": "CommentConnectionResolver::prepare_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2178,7 +2219,8 @@
           "symbol": "CommentConnectionResolver::prepare_query_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2235,7 +2277,8 @@
           "symbol": "CommentMutation::prepare_comment_object()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2312,7 +2355,8 @@
           "symbol": "CommentMutation::update_additional_comment_data()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2353,7 +2397,8 @@
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2410,7 +2455,8 @@
           "symbol": "AbstractConnectionResolver::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2462,7 +2508,8 @@
           "symbol": "AbstractConnectionResolver::get_amount_requested()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2514,7 +2561,8 @@
           "symbol": "AbstractConnectionResolver::prepare_edges()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2566,7 +2614,8 @@
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2618,7 +2667,8 @@
           "symbol": "AbstractConnectionResolver::execute_and_get_ids()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2675,7 +2725,8 @@
           "symbol": "AbstractConnectionResolver::get_is_valid_model()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2727,7 +2778,8 @@
           "symbol": "AbstractConnectionResolver::get_loader_name()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2794,7 +2846,8 @@
           "symbol": "AbstractConnectionResolver::get_query_amount()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2846,7 +2899,8 @@
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2898,7 +2952,8 @@
           "symbol": "AbstractConnectionResolver::get_page_info()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -2950,7 +3005,8 @@
           "symbol": "AbstractConnectionResolver::get_query()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3017,7 +3073,8 @@
           "symbol": "AbstractConnectionResolver::get_pre_should_execute()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3069,7 +3126,8 @@
           "symbol": "AbstractConnectionResolver::execute_and_get_ids()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3126,7 +3184,8 @@
           "symbol": "AbstractConnectionResolver::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3178,7 +3237,8 @@
           "symbol": "AbstractConnectionResolver::get_query_class()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3230,7 +3290,8 @@
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3282,7 +3343,8 @@
           "symbol": "AbstractConnectionResolver::execute_and_get_ids()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3334,7 +3396,8 @@
           "symbol": "Router::validate_http_request_authentication()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3391,7 +3454,8 @@
           "symbol": "CursorBuilder::add_field()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3443,7 +3507,8 @@
           "symbol": "WPScalar::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3515,7 +3580,8 @@
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3567,7 +3633,8 @@
           "symbol": "AppContext::prepare_data_loaders()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3619,7 +3686,8 @@
           "symbol": "AppContext::prepare_data_loaders()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3681,7 +3749,8 @@
           "symbol": "AbstractDataLoader::get_cached()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3743,7 +3812,8 @@
           "symbol": "AbstractDataLoader::normalize_entry()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3805,7 +3875,8 @@
           "symbol": "AbstractDataLoader::normalize_entry()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3867,7 +3938,8 @@
           "symbol": "AbstractDataLoader::set_cached()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3914,7 +3986,8 @@
           "symbol": "WPGraphQL::debug()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3966,7 +4039,8 @@
           "symbol": "DebugLog::get_logs()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4018,7 +4092,8 @@
           "symbol": "DebugLog::add_log_entry()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4070,7 +4145,8 @@
           "symbol": "DebugLog::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4122,7 +4198,8 @@
           "symbol": "QueryAnalyzer::determine_graphql_keys()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4184,7 +4261,8 @@
           "symbol": "Request::do_action()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4236,7 +4314,8 @@
           "symbol": "WPGraphQL::run_update_routines()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4283,7 +4362,8 @@
           "symbol": "Admin::init()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4345,7 +4425,8 @@
           "symbol": "UpdateChecker::should_allow_major_autoupdates()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4412,7 +4493,8 @@
           "symbol": "UpdateChecker::should_allow_untested_autoupdates()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4459,7 +4541,8 @@
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4506,7 +4589,8 @@
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4559,7 +4643,8 @@
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4612,7 +4697,8 @@
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4653,7 +4739,8 @@
           "symbol": "GraphiQL::enqueue_graphiql()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4705,7 +4792,8 @@
           "symbol": "WPEnumType::prepare_values()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4752,7 +4840,8 @@
           "symbol": "TypeRegistry::get_excluded_connections()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4799,7 +4888,8 @@
           "symbol": "TypeRegistry::get_excluded_mutations()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4846,7 +4936,8 @@
           "symbol": "TypeRegistry::get_excluded_types()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4887,7 +4978,8 @@
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4934,7 +5026,8 @@
           "symbol": "Request::before_execute()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4986,7 +5079,8 @@
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5038,7 +5132,8 @@
           "symbol": "AbstractExperiment::prepare_config()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5090,7 +5185,8 @@
           "symbol": "AbstractExperiment::is_active()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5137,7 +5233,8 @@
           "symbol": "ExperimentRegistry::capability()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5184,7 +5281,8 @@
           "symbol": "Experimental::is_enabled()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5231,7 +5329,8 @@
           "symbol": "AbstractExperiment::is_active()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5283,7 +5382,8 @@
           "symbol": "ExperimentRegistry::load_experiments()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5330,7 +5430,8 @@
           "symbol": "ExperimentRegistry::register_experiments()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5377,7 +5478,8 @@
           "symbol": "ExperimentRegistry::register_experiments()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5429,7 +5531,8 @@
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5481,7 +5584,8 @@
           "symbol": "InstrumentSchema::check_field_permissions()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5528,7 +5632,8 @@
           "symbol": "DebugLog::get_logs()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5580,7 +5685,8 @@
           "symbol": "UpdateChecker::get_dependents()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5627,7 +5733,8 @@
           "symbol": "Extensions::get_extensions()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5679,7 +5786,8 @@
           "symbol": "UpdateChecker::get_possible_dependents()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5726,7 +5834,8 @@
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5793,7 +5902,8 @@
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5850,7 +5960,8 @@
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5902,7 +6013,8 @@
           "symbol": "TypeRegistry::get_type()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -5949,7 +6061,8 @@
           "symbol": "WPGraphQL::get_type_registry()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6011,7 +6124,8 @@
           "symbol": "Model::html_entity_decode()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6068,7 +6182,8 @@
           "symbol": "Router::process_http_request()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6115,7 +6230,8 @@
           "symbol": "WPGraphQL::actions()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6162,7 +6278,8 @@
           "symbol": "Request::__construct()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6209,7 +6326,8 @@
           "symbol": "Request::__construct()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6256,7 +6374,8 @@
           "symbol": "SettingsRegistry::admin_init()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6303,7 +6422,8 @@
           "symbol": "TypeRegistry::init()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6365,7 +6485,8 @@
           "symbol": "WPInputObjectType::prepare_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6415,7 +6536,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6475,7 +6597,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6537,7 +6660,8 @@
           "symbol": "PostObjectUpdate::mutate_and_get_payload()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6609,7 +6733,8 @@
           "symbol": "TermObjectCreate::mutate_and_get_payload()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6661,7 +6786,8 @@
           "symbol": "WPInterfaceType::prepare_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6718,7 +6844,8 @@
           "symbol": "WPInterfaceType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6765,7 +6892,8 @@
           "symbol": "TypeRegistry::get_introspection_keys()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6817,7 +6945,8 @@
           "symbol": "Request::get_invalid_content_type_response()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6869,7 +6998,8 @@
           "symbol": "Request::is_batch_queries_enabled()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6916,7 +7046,8 @@
           "symbol": "Router::is_graphql_http_request()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -6968,7 +7099,8 @@
           "symbol": "Request::is_valid_http_content_type()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7045,7 +7177,8 @@
           "symbol": "TermObjectConnectionResolver::sanitize_input_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7117,7 +7250,8 @@
           "symbol": "CommentConnectionResolver::sanitize_input_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7194,7 +7328,8 @@
           "symbol": "PostObjectConnectionResolver::sanitize_input_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7266,7 +7401,8 @@
           "symbol": "UserConnectionResolver::sanitize_input_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7333,7 +7469,8 @@
           "symbol": "MediaItemCreate::mutate_and_get_payload()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7395,7 +7532,8 @@
           "symbol": "MediaItemMutation::prepare_media_item()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7467,7 +7605,8 @@
           "symbol": "MediaItemMutation::update_additional_media_item_data()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7519,7 +7658,8 @@
           "symbol": "MenuItemConnectionResolver::prepare_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7596,7 +7736,8 @@
           "symbol": "Model::current_user_can_access_field()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7668,7 +7809,8 @@
           "symbol": "Model::prepare_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7730,7 +7872,8 @@
           "symbol": "WPMutationType::get_resolver()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7797,7 +7940,8 @@
           "symbol": "WPMutationType::get_resolver()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7869,7 +8013,8 @@
           "symbol": "WPMutationType::get_resolver()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7931,7 +8076,8 @@
           "symbol": "WPObjectType::prepare_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -7988,7 +8134,8 @@
           "symbol": "Deprecated::filters()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8055,7 +8202,8 @@
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8107,7 +8255,8 @@
           "symbol": "WPGraphQL::get_allowed_post_types()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8164,7 +8313,8 @@
           "symbol": "PostObjectConnectionResolver::prepare_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8231,7 +8381,8 @@
           "symbol": "PostObjectConnectionResolver::prepare_query_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8288,7 +8439,8 @@
           "symbol": "PostObjectCreate::mutate_and_get_payload()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8365,7 +8517,8 @@
           "symbol": "PostObjectCreate::mutate_and_get_payload()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8432,7 +8585,8 @@
           "symbol": "PostObjectCursor::compare_with_meta_field()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8494,7 +8648,8 @@
           "symbol": "PostObjectMutation::prepare_post_object()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8556,7 +8711,8 @@
           "symbol": "PostObjectMutation::set_object_terms()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8638,7 +8794,8 @@
           "symbol": "PostObjectMutation::update_additional_post_object_data()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8690,7 +8847,8 @@
           "symbol": "PostObjectMutation::set_object_terms()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8767,7 +8925,8 @@
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8824,7 +8983,8 @@
           "symbol": "CommentObjectCursor::get_cursor_node()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8882,7 +9042,8 @@
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8940,7 +9101,8 @@
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9002,7 +9164,8 @@
           "symbol": "Utils::format_graphql_name()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9049,7 +9212,8 @@
           "symbol": "Router::is_graphql_http_request()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9121,7 +9285,8 @@
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9193,7 +9358,8 @@
           "symbol": "WPMutationType::get_resolver()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9250,7 +9416,8 @@
           "symbol": "PostObjectCursor::get_cursor_node()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9307,7 +9474,8 @@
           "symbol": "QueryAnalyzer::set_list_types()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9364,7 +9532,8 @@
           "symbol": "QueryAnalyzer::set_query_models()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9421,7 +9590,8 @@
           "symbol": "QueryAnalyzer::set_query_types()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9508,7 +9678,8 @@
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9585,7 +9756,8 @@
           "symbol": "MenuItem::register_type()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9652,7 +9824,8 @@
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9699,7 +9872,8 @@
           "symbol": "RequireAuthentication::isEnabled()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9776,7 +9950,8 @@
           "symbol": "Model::wrap_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9833,7 +10008,8 @@
           "symbol": "TermObjectCursor::get_cursor_node()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9890,7 +10066,8 @@
           "symbol": "UserCursor::get_cursor_node()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -9947,7 +10124,8 @@
           "symbol": "Config::graphql_wp_comments_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10004,7 +10182,8 @@
           "symbol": "Config::graphql_wp_query_cursor_pagination_stability()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10061,7 +10240,8 @@
           "symbol": "Config::graphql_wp_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10123,7 +10303,8 @@
           "symbol": "Config::graphql_wp_term_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10180,7 +10361,8 @@
           "symbol": "Config::graphql_wp_user_query_cursor_pagination_stability()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10237,7 +10419,8 @@
           "symbol": "Config::graphql_wp_user_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10278,7 +10461,8 @@
           "symbol": "Router::process_http_request()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10350,7 +10534,8 @@
           "symbol": "Router::process_http_request()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10402,7 +10587,8 @@
           "symbol": "QueryAnalyzer::get_headers()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10449,7 +10635,8 @@
           "symbol": "QueryAnalyzer::get_runtime_nodes()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10516,7 +10703,8 @@
           "symbol": "QueryAnalyzer::get_graphql_keys()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10563,7 +10751,8 @@
           "symbol": "QueryAnalyzer::init()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10620,7 +10809,8 @@
           "symbol": "QueryAnalyzer::track_nodes()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10667,7 +10857,8 @@
           "symbol": "Utils::get_query_id()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10714,7 +10905,8 @@
           "symbol": "TypeRegistry::init_type_registry()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10766,7 +10958,8 @@
           "symbol": "WPGraphQL::register_graphql_post_type_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10813,7 +11006,8 @@
           "symbol": "Settings::register_settings()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10865,7 +11059,8 @@
           "symbol": "WPGraphQL::register_graphql_taxonomy_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10912,7 +11107,8 @@
           "symbol": "TypeRegistry::init_type_registry()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -10959,7 +11155,8 @@
           "symbol": "TypeRegistry::init_type_registry()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11006,7 +11203,8 @@
           "symbol": "GraphiQL::render_graphiql_admin_page()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11064,7 +11262,8 @@
           "symbol": "WPHelper::parseRequestParams()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11122,7 +11321,8 @@
           "symbol": "WPHelper::parseRequestParams()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11194,7 +11394,8 @@
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11271,7 +11472,8 @@
           "symbol": "Request::after_execute_actions()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11323,7 +11525,8 @@
           "symbol": "RequireAuthentication::getVisitor()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11410,7 +11613,8 @@
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11482,7 +11686,8 @@
           "symbol": "Deprecated::menu_item_connected_object()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11534,7 +11739,8 @@
           "symbol": "DataSource::resolve_node_type()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11596,7 +11802,8 @@
           "symbol": "Preview::filter_post_meta_for_previews()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11673,7 +11880,8 @@
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11740,7 +11948,8 @@
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11787,7 +11996,8 @@
           "symbol": "Router::get_response_headers()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11834,7 +12044,8 @@
           "symbol": "Router::set_headers()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11911,7 +12122,8 @@
           "symbol": "Router::prepare_headers()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11983,7 +12195,8 @@
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12060,7 +12273,8 @@
           "symbol": "Model::prepare_field()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12127,7 +12341,8 @@
           "symbol": "Deprecated::filters()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12209,7 +12424,8 @@
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12261,7 +12477,8 @@
           "symbol": "Request::get_root_value()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12308,7 +12525,8 @@
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12355,7 +12573,8 @@
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12407,7 +12626,8 @@
           "symbol": "WPSchema::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12465,7 +12685,8 @@
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12523,7 +12744,8 @@
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12570,7 +12792,8 @@
           "symbol": "Router::get_response_headers()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12622,7 +12845,8 @@
           "symbol": "Request::get_server()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12679,7 +12903,8 @@
           "symbol": "SettingsRegistry::register_field()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12720,7 +12945,8 @@
           "symbol": "SettingsRegistry::admin_enqueue_scripts()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12767,7 +12993,8 @@
           "symbol": "SettingsRegistry::show_forms()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12814,7 +13041,8 @@
           "symbol": "SettingsRegistry::show_forms()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12861,7 +13089,8 @@
           "symbol": "SettingsRegistry::admin_init()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12908,7 +13137,8 @@
           "symbol": "QueryAnalyzer::is_enabled()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12960,7 +13190,8 @@
           "symbol": "QueryAnalyzer::is_enabled_for_query()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13032,7 +13263,8 @@
           "symbol": "Extensions::add_experiments_to_response_extensions()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13104,7 +13336,8 @@
           "symbol": "QueryAnalyzer::show_query_analyzer_in_extensions()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13151,7 +13384,8 @@
           "symbol": "Admin::init()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13203,7 +13437,8 @@
           "symbol": "WPGraphQL::get_allowed_taxonomies()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13260,7 +13495,8 @@
           "symbol": "TermObjectConnectionResolver::prepare_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13327,7 +13563,8 @@
           "symbol": "TermObjectConnectionResolver::prepare_query_args()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13389,7 +13626,8 @@
           "symbol": "TermObjectMutation::prepare_object()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13447,7 +13685,8 @@
           "symbol": "Tracing::get_trace()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13505,7 +13744,8 @@
           "symbol": "Tracing::get_trace()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13562,7 +13802,8 @@
           "symbol": "WPInterfaceTrait::get_implemented_interfaces()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13649,7 +13890,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13736,7 +13978,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13823,7 +14066,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13910,7 +14154,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13997,7 +14242,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14084,7 +14330,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14136,7 +14383,8 @@
           "symbol": "WPGraphQL::get_type_registry()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14193,7 +14441,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14250,7 +14499,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14297,7 +14547,8 @@
           "symbol": "UpdateChecker::get_untested_release_type()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14357,7 +14608,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14429,7 +14681,8 @@
           "symbol": "TermObjectUpdate::mutate_and_get_payload()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14476,7 +14729,8 @@
           "symbol": "QueryLog::user_can_see_logs()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14523,7 +14777,8 @@
           "symbol": "Tracing::user_can_see_trace_data()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14580,7 +14835,8 @@
           "symbol": "UserMutation::prepare_user_object()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14627,7 +14883,8 @@
           "symbol": "UserMutation::input_fields()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14694,7 +14951,8 @@
           "symbol": "UserMutation::update_additional_user_object_data()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14746,7 +15004,8 @@
           "symbol": "Request::get_validation_rules()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14786,7 +15045,8 @@
         "message": null,
         "source": null
       },
-      "relatedReferences": []
+      "relatedReferences": [],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14838,7 +15098,8 @@
           "symbol": "WPConnectionType::__construct()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14890,7 +15151,8 @@
           "symbol": "WPConnectionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14942,7 +15204,8 @@
           "symbol": "WPInterfaceType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -14994,7 +15257,8 @@
           "symbol": "WPMutationType::__construct()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15046,7 +15310,8 @@
           "symbol": "WPMutationType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15098,7 +15363,8 @@
           "symbol": "WPObjectType::__construct()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15150,7 +15416,8 @@
           "symbol": "WPObjectType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15202,7 +15469,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15254,7 +15522,8 @@
           "symbol": "WPUnionType::__construct()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15301,7 +15570,8 @@
           "symbol": "Request::__construct()",
           "emitter": "do_action_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15348,7 +15618,8 @@
           "symbol": "Request::__construct()",
           "emitter": "do_action_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15389,7 +15660,8 @@
           "symbol": "TypeRegistry::init()",
           "emitter": "do_action_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15436,7 +15708,8 @@
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15483,7 +15756,8 @@
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15530,7 +15804,8 @@
           "symbol": "NodeResolver::parse_request()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15571,7 +15846,8 @@
           "symbol": "WPGraphQL::register_graphql_post_type_args()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15612,7 +15888,8 @@
           "symbol": "WPGraphQL::register_graphql_taxonomy_args()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15659,7 +15936,8 @@
           "symbol": "NodeResolver::parse_request()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15721,7 +15999,8 @@
           "symbol": "SendPasswordResetEmail::get_email_message()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15778,7 +16057,8 @@
           "symbol": "SendPasswordResetEmail::get_email_subject()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15819,7 +16099,8 @@
           "symbol": "PluginConnectionResolver::query()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15860,7 +16141,8 @@
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -15943,7 +16225,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16026,7 +16309,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16109,7 +16393,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16192,7 +16477,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16275,7 +16561,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16358,7 +16645,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16441,7 +16729,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16524,7 +16813,8 @@
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16565,7 +16855,8 @@
           "symbol": "AbstractExperiment::prepare_config()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16606,7 +16897,8 @@
           "symbol": "AbstractExperiment::is_active()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16647,7 +16939,8 @@
           "symbol": "UpdateChecker::should_allow_major_autoupdates()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16688,7 +16981,8 @@
           "symbol": "UpdateChecker::should_allow_untested_autoupdates()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16729,7 +17023,8 @@
           "symbol": "Experimental::is_enabled()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16770,7 +17065,8 @@
           "symbol": "UpdateChecker::get_untested_release_type()",
           "emitter": "apply_filters_deprecated"
         }
-      ]
+      ],
+      "relatedRecipes": []
     }
   ]
 }

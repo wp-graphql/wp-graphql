@@ -15,7 +15,7 @@ plugin: wp-graphql
 apply_filters( 'graphql_connection_page_info', $page_info, $this );
 ```
 
-Filter the pageInfo that is returned to the connection. This filter allows for additional fields to be filtered into the pageInfo of a connection, such as "totalCount", etc, because the filter has enough context of the query, args, request, etc to be able to calculate and return that information. example: You would want to register a "total" field to the PageInfo type, then filter the pageInfo to return the total for the query, something to this tune: add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) { $page_info['total'] = null; if ( $connection->query instanceof WP_Query ) { if ( isset( $connection->query->found_posts ) { $page_info['total'] = (int) $connection->query->found_posts; } } return $page_info; });
+Filter the pageInfo that is returned to the connection. This filter allows for additional fields to be filtered into the pageInfo of a connection, such as "totalCount", etc, because the filter has enough context of the query, args, request, etc to be able to calculate and return that information. example: You would want to register a "total" field to the PageInfo type, then filter the pageInfo to return the total for the query, something to this tune: add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) \{ $page_info['total'] = null; if ( $connection->query instanceof WP_Query ) \{ if ( isset( $connection->query->found_posts ) \{ $page_info['total'] = (int) $connection->query->found_posts; \} \} return $page_info; \});
 
 - **Type:** filter
 - **Group:** Connections
