@@ -1,8 +1,7 @@
-import clsx from 'clsx';
 import { useSelect } from '@wordpress/data';
-import { Button, Tooltip } from '@wordpress/components';
+import { MenuItem } from '@wordpress/components';
 
-export const EditorToolbar = () => {
+export const EditorToolbar = ({ onClose }) => {
 	const buttons = useSelect((select) =>
 		select('wpgraphql-ide/document-editor').buttons()
 	);
@@ -17,18 +16,19 @@ export const EditorToolbar = () => {
 					return null;
 				}
 
-				const baseClassName = `wpgraphql-ide-${buttonName}-button`;
-				const mergedClassName = clsx(baseClassName, props?.className);
-				const Component = props.component || Button;
-
 				return (
-					<Tooltip key={key} text={props.label}>
-						<Component
-							{...props}
-							className={mergedClassName}
-							aria-label={props.label}
-						/>
-					</Tooltip>
+					<MenuItem
+						key={key}
+						onClick={() => {
+							props.onClick();
+							if (onClose) {
+								onClose();
+							}
+						}}
+						aria-label={props.label}
+					>
+						{props.children || props.label}
+					</MenuItem>
 				);
 			})}
 		</>

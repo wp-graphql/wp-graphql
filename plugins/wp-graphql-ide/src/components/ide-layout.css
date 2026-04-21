@@ -291,12 +291,21 @@
 	background: #f9f9f9;
 }
 
+.wpgraphql-ide-editor-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #757575;
+}
+
+.wpgraphql-ide-editor-toolbar-spacer {
+	flex: 1;
+}
+
 .wpgraphql-ide-editor-toolbar .components-button {
 	height: 28px;
-	min-width: auto;
-	padding: 0 8px;
+	min-width: 28px;
+	padding: 0 6px;
 	color: #757575;
-	font-size: 12px;
 }
 
 .wpgraphql-ide-editor-toolbar .components-button:hover {
@@ -304,8 +313,8 @@
 }
 
 .wpgraphql-ide-editor-toolbar .components-button svg {
-	width: 16px;
-	height: 16px;
+	width: 20px;
+	height: 20px;
 }
 
 /* ---------------------------------------------------------------------------

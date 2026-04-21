@@ -18,6 +18,7 @@ import {
 	keyboard,
 	chevronDown,
 	plus,
+	moreVertical,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -485,7 +486,20 @@ export function IDELayout({ fetcher }) {
 					className="wpgraphql-ide-query-pane"
 				>
 					<div className="wpgraphql-ide-editor-toolbar">
-						<EditorToolbar />
+						<span className="wpgraphql-ide-editor-label">
+							Query
+						</span>
+						<div className="wpgraphql-ide-editor-toolbar-spacer" />
+						<DropdownMenu
+							icon={moreVertical}
+							label="Editor actions"
+						>
+							{({ onClose }) => (
+								<MenuGroup>
+									<EditorToolbar onClose={onClose} />
+								</MenuGroup>
+							)}
+						</DropdownMenu>
 					</div>
 					<ResizableBox
 						size={{ width: '100%', height: editorHeight }}
