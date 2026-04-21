@@ -19,6 +19,7 @@ import {
 	plus,
 	moreVertical,
 	close,
+	search,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -32,7 +33,6 @@ import { useExecution } from '../hooks/useExecution';
 
 const AUTOSAVE_DELAY = 2000;
 const MAX_HISTORY_ENTRIES = 50;
-const HISTORY_RESPONSE_MAX_LENGTH = 10000;
 
 /**
  * Main IDE layout component.
@@ -46,24 +46,35 @@ const HISTORY_RESPONSE_MAX_LENGTH = 10000;
  * @param {Function} [props.onClose] - Optional close handler for drawer mode.
  */
 export function IDELayout({ fetcher, onClose }) {
-	const { query, variables, headers, response } = useSelect((select) => {
-		const app = select('wpgraphql-ide/app');
-		return {
-			query: app.getQuery() || '',
-			variables: app.getVariables(),
-			headers: app.getHeaders(),
-			response: app.getResponse(),
-		};
-	}, []);
+	const query = useSelect(
+		(select) => select('wpgraphql-ide/app').getQuery() || '',
+		[]
+	);
+	const variables = useSelect(
+		(select) => select('wpgraphql-ide/app').getVariables(),
+		[]
+	);
+	const headers = useSelect(
+		(select) => select('wpgraphql-ide/app').getHeaders(),
+		[]
+	);
+	const response = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponse(),
+		[]
+	);
 
-	const { activeDocument, allDocuments, openTabs } = useSelect((select) => {
-		const editor = select('wpgraphql-ide/document-editor');
-		return {
-			activeDocument: editor.getActiveDocument(),
-			allDocuments: editor.getDocuments(),
-			openTabs: editor.getOpenTabs(),
-		};
-	}, []);
+	const activeDocument = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getActiveDocument(),
+		[]
+	);
+	const allDocuments = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getDocuments(),
+		[]
+	);
+	const openTabs = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getOpenTabs(),
+		[]
+	);
 
 	const isAuthenticated = useSelect(
 		(select) => select('wpgraphql-ide/app').isAuthenticated(),
@@ -111,10 +122,6 @@ export function IDELayout({ fetcher, onClose }) {
 				variables: vars || '',
 				headers: executingHeadersRef.current || '',
 				duration_ms: duration,
-				response_summary: responseStr.slice(
-					0,
-					HISTORY_RESPONSE_MAX_LENGTH
-				),
 				status: execStatus,
 			};
 
@@ -301,6 +308,7 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const panelIcons = {
 		'query-composer': edit,
+		'docs-explorer': search,
 		help,
 		history: backup,
 	};

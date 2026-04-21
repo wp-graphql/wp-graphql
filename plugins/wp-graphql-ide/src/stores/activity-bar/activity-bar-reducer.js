@@ -6,9 +6,8 @@
 let savedPanel = null;
 try {
 	const stored = window.localStorage.getItem('wpgraphql_ide_visible_panel');
-	// Only restore if the panel name isn't from a removed panel.
-	if (stored && stored !== 'docs-explorer') {
-		savedPanel = stored;
+	if (stored !== null) {
+		savedPanel = stored || null;
 	}
 } catch {
 	// localStorage unavailable
