@@ -2,9 +2,19 @@
  * The initial state of the activity bar.
  * @type {Object}
  */
+// Restore last open panel from window.localStorage.
+let savedPanel = null;
+try {
+	savedPanel =
+		window.window.localStorage.getItem('wpgraphql_ide_visible_panel') ||
+		null;
+} catch {
+	// localStorage unavailable
+}
+
 const initialState = {
 	activityPanels: {},
-	visiblePanel: null,
+	visiblePanel: savedPanel,
 	utilities: {},
 };
 
@@ -88,16 +98,28 @@ const reducer = (state = initialState, action) => {
 					[action.name]: panel,
 				},
 			};
-		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY':
-			console.log({
-				message: `Toggling panel visibility.`,
-				panel: action.panel,
-			});
+		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY': {
+			const nextPanel =
+				state.visiblePanel === action.panel ? null : action.panel;
+			try {
+				if (nextPanel) {
+					window.window.localStorage.setItem(
+						'wpgraphql_ide_visible_panel',
+						nextPanel
+					);
+				} else {
+					window.window.localStorage.removeItem(
+						'wpgraphql_ide_visible_panel'
+					);
+				}
+			} catch {
+				// localStorage unavailable
+			}
 			return {
 				...state,
-				visiblePanel:
-					state.visiblePanel === action.panel ? null : action.panel,
+				visiblePanel: nextPanel,
 			};
+		}
 		default:
 			return state;
 	}

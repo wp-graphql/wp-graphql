@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, ResizableBox } from '@wordpress/components';
 import { Icon, close } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 
+// Persist panel width across open/close cycles via window.localStorage.
+function getPersistedWidth() {
+	try {
+		const w = parseInt(
+			window.window.localStorage.getItem('wpgraphql_ide_panel_width'),
+			10
+		);
+		return w > 0 ? w : 300;
+	} catch {
+		return 300;
+	}
+}
+
 const ActivityPanel = () => {
+	const [panelWidth, setPanelWidth] = useState(getPersistedWidth);
+
 	const visiblePanel = useSelect(
 		(select) => select('wpgraphql-ide/activity-bar').visiblePanel(),
 		[]
@@ -21,7 +36,7 @@ const ActivityPanel = () => {
 
 	return (
 		<ResizableBox
-			size={{ width: 300, height: 'auto' }}
+			size={{ width: panelWidth, height: '100%' }}
 			minWidth={200}
 			maxWidth={600}
 			enable={{
@@ -29,6 +44,18 @@ const ActivityPanel = () => {
 				right: true,
 				bottom: false,
 				left: false,
+			}}
+			onResizeStop={(e, d, elt) => {
+				const w = elt.offsetWidth;
+				setPanelWidth(w);
+				try {
+					window.window.localStorage.setItem(
+						'wpgraphql_ide_panel_width',
+						String(w)
+					);
+				} catch {
+					// localStorage unavailable
+				}
 			}}
 			className="wpgraphql-ide-activity-panel"
 		>

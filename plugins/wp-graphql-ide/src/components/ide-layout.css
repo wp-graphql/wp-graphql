@@ -350,7 +350,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-direction: column;
 	box-sizing: border-box;
 	background: #fff;
-	height: 100% !important;
 }
 
 .wpgraphql-ide-panel-header {
