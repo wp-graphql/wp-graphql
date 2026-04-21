@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 
@@ -43,12 +43,28 @@ export function useSchema(fetcher) {
 		}
 	}, [fetcher, setSchema]);
 
-	// Run introspection when schema is undefined (initial load or after invalidation).
+	// Run introspection when schema is explicitly invalidated (refetch button).
+	// On initial mount, schema starts as undefined — we defer loading until
+	// the user's first interaction (execute or open docs) to avoid blocking.
+	const hasLoadedRef = useRef(false);
 	useEffect(() => {
-		if (schema === undefined) {
+		if (schema === undefined && hasLoadedRef.current) {
+			// Schema was invalidated (user clicked refresh) — reload.
 			fetchSchema();
 		}
 	}, [schema, fetchSchema]);
+
+	// Load schema once after a short delay to allow the UI to paint first.
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			hasLoadedRef.current = true;
+			if (schema === undefined) {
+				fetchSchema();
+			}
+		}, 500);
+		return () => clearTimeout(timer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const refetch = useCallback(() => {
 		setSchema(undefined);

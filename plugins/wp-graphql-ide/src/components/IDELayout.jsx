@@ -176,12 +176,9 @@ export function IDELayout({ fetcher, onClose }) {
 		return () => document.removeEventListener('keydown', handleKeyDown);
 	}, [onClose]);
 
-	// Load documents on mount. Create a default tab if none exist.
+	// Load documents after mount.
 	useEffect(() => {
-		(async () => {
-			await loadDocuments();
-			setIsLoaded(true);
-		})();
+		loadDocuments().then(() => setIsLoaded(true));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
