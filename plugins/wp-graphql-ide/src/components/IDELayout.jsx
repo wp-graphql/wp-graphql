@@ -449,6 +449,7 @@ export function IDELayout({ fetcher, onClose }) {
 					</Tooltip>
 					<div className="wpgraphql-ide-header-separator" />
 					<div className="wpgraphql-ide-send-group">
+						<span className="wpgraphql-ide-method-label">POST</span>
 						<Tooltip
 							text={
 								isAuthenticated
@@ -476,7 +477,6 @@ export function IDELayout({ fetcher, onClose }) {
 								</span>
 							</button>
 						</Tooltip>
-						<span className="wpgraphql-ide-method-label">POST</span>
 						<Button
 							variant="primary"
 							onClick={executeQuery}

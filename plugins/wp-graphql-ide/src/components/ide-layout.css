@@ -15,10 +15,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
 }
 
-/* Legacy close button (from App.jsx) — hidden, close is now in header */
-#wpgraphql-ide-app > .AppDrawerCloseButton {
-	display: none;
-}
 
 .wpgraphql-ide-container {
 	display: flex;
@@ -104,6 +100,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-document-switcher .components-dropdown-menu__toggle svg {
 	width: 16px;
 	height: 16px;
+}
+
+/* Prevent long doc names from overflowing the dropdown */
+.wpgraphql-ide-document-switcher + .components-popover .components-menu-item__item {
+	max-width: 250px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .wpgraphql-ide-header-right {
