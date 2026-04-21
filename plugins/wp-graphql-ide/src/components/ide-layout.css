@@ -10,35 +10,31 @@
 	overflow: hidden;
 }
 
-/* When the drawer close button is present, add padding so it doesn't overlap Send */
-#wpgraphql-ide-app:has(> .AppDrawerCloseButton) .wpgraphql-ide-header {
-	padding-right: 40px;
-}
-
-/* Drawer close button */
+/* Drawer close button — positioned above the IDE panel */
 #wpgraphql-ide-app > .AppDrawerCloseButton {
 	position: absolute;
-	top: 8px;
-	right: 4px;
+	top: -32px;
+	right: 8px;
 	z-index: 5;
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	padding: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 2px;
-	background: transparent;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.9);
 	border: none;
 	cursor: pointer;
-	font-size: 18px;
+	font-size: 16px;
 	line-height: 1;
-	color: #757575;
+	color: #1e1e1e;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 #wpgraphql-ide-app > .AppDrawerCloseButton:hover {
-	color: #1e1e1e;
-	background: #f0f0f1;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .wpgraphql-ide-container {
