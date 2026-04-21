@@ -133,8 +133,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 28px;
+	width: 32px;
+	height: 32px;
 	padding: 0;
 	border: none;
 	background: none;
@@ -145,8 +145,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Force avatar image to fit the button */
 .wpgraphql-ide-auth-avatar > span {
-	width: 24px !important;
-	height: 24px !important;
+	width: 28px !important;
+	height: 28px !important;
 }
 
 .wpgraphql-ide-auth-avatar:hover {
@@ -172,8 +172,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	align-items: center;
 	gap: 4px;
 	background: #f0f0f1;
-	border-radius: 4px;
-	padding: 2px;
+	border-radius: 6px;
+	padding: 3px 3px 3px 4px;
 }
 
 .wpgraphql-ide-method-label {
