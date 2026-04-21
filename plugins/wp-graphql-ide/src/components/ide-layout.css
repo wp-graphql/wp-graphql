@@ -10,11 +10,30 @@
 	overflow: hidden;
 }
 
+/* Drawer close button */
 #wpgraphql-ide-app > .AppDrawerCloseButton {
 	position: absolute;
-	top: 4px;
+	top: 8px;
 	right: 8px;
-	z-index: 10;
+	z-index: 5;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 2px;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+	color: #757575;
+}
+
+#wpgraphql-ide-app > .AppDrawerCloseButton:hover {
+	color: #1e1e1e;
+	border-color: #1e1e1e;
 }
 
 .wpgraphql-ide-container {

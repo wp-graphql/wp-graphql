@@ -116,11 +116,11 @@ function register_ide_post_type() {
 		'graphql_ide_query',
 		'_graphql_ide_variables',
 		[
-			'type'            => 'string',
-			'single'          => true,
-			'show_in_rest'    => true,
-			'default'         => '',
-			'auth_callback'   => $post_meta_auth,
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $post_meta_auth,
 		]
 	);
 
@@ -128,11 +128,11 @@ function register_ide_post_type() {
 		'graphql_ide_query',
 		'_graphql_ide_headers',
 		[
-			'type'            => 'string',
-			'single'          => true,
-			'show_in_rest'    => true,
-			'default'         => '',
-			'auth_callback'   => $post_meta_auth,
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $post_meta_auth,
 		]
 	);
 
@@ -140,9 +140,9 @@ function register_ide_post_type() {
 		'graphql_ide_query',
 		'_graphql_ide_history',
 		[
-			'type'            => 'array',
-			'single'          => true,
-			'show_in_rest'    => [
+			'type'          => 'array',
+			'single'        => true,
+			'show_in_rest'  => [
 				'schema' => [
 					'type'  => 'array',
 					'items' => [
@@ -157,8 +157,8 @@ function register_ide_post_type() {
 					],
 				],
 			],
-			'default'         => [],
-			'auth_callback'   => $post_meta_auth,
+			'default'       => [],
+			'auth_callback' => $post_meta_auth,
 		]
 	);
 }
@@ -180,11 +180,11 @@ function register_ide_user_meta() {
 		'user',
 		'wpgraphql_ide_theme',
 		[
-			'type'            => 'string',
-			'single'          => true,
-			'show_in_rest'    => true,
-			'default'         => '',
-			'auth_callback'   => $auth_callback,
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $auth_callback,
 			'sanitize_callback' => function ( $value ) {
 				return in_array( $value, [ '', 'light', 'dark' ], true ) ? $value : '';
 			},
@@ -195,11 +195,11 @@ function register_ide_user_meta() {
 		'user',
 		'wpgraphql_ide_persist_headers',
 		[
-			'type'            => 'boolean',
-			'single'          => true,
-			'show_in_rest'    => true,
-			'default'         => false,
-			'auth_callback'   => $auth_callback,
+			'type'          => 'boolean',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => false,
+			'auth_callback' => $auth_callback,
 		]
 	);
 
@@ -207,11 +207,11 @@ function register_ide_user_meta() {
 		'user',
 		'wpgraphql_ide_active_tab',
 		[
-			'type'            => 'string',
-			'single'          => true,
-			'show_in_rest'    => true,
-			'default'         => '',
-			'auth_callback'   => $auth_callback,
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $auth_callback,
 		]
 	);
 
@@ -219,9 +219,9 @@ function register_ide_user_meta() {
 		'user',
 		'wpgraphql_ide_open_tabs',
 		[
-			'type'            => 'array',
-			'single'          => true,
-			'show_in_rest'    => [
+			'type'          => 'array',
+			'single'        => true,
+			'show_in_rest'  => [
 				'schema' => [
 					'type'  => 'array',
 					'items' => [
@@ -229,8 +229,8 @@ function register_ide_user_meta() {
 					],
 				],
 			],
-			'default'         => [],
-			'auth_callback'   => $auth_callback,
+			'default'       => [],
+			'auth_callback' => $auth_callback,
 		]
 	);
 }
@@ -238,8 +238,8 @@ function register_ide_user_meta() {
 /**
  * Scope REST API queries for IDE documents to the current user.
  *
- * @param array $args WP_Query arguments.
- * @return array Modified arguments.
+ * @param array<string, mixed> $args WP_Query arguments.
+ * @return array<string, mixed> Modified arguments.
  */
 function scope_ide_queries_to_current_user( $args ) {
 	$args['author'] = get_current_user_id();

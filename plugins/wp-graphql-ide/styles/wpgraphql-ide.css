@@ -20,8 +20,8 @@
   z-index: 999999 !important; /* High z-index to appear above WordPress admin panels */
   width: 100vw !important;
   height: 90vh !important;
-  border-top-left-radius: 20px !important;
-  border-top-right-radius: 20px !important;
+  border-top-left-radius: 4px !important;
+  border-top-right-radius: 4px !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
 }
