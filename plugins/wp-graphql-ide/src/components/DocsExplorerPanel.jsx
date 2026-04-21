@@ -88,7 +88,7 @@ export function DocsExplorerPanel() {
 	const pushType = (type) => {
 		const named = getNamedType(type);
 		if (named?.name) {
-			setStack((prev) => [...prev, { kind: 'type', name: named.name }]);
+			setStack((prev) => [...prev, { name: named.name }]);
 		}
 	};
 
