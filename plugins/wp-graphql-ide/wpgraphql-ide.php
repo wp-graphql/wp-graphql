@@ -252,18 +252,6 @@ function register_ide_user_meta() {
 			'auth_callback' => $auth_callback,
 		]
 	);
-
-	register_meta(
-		'user',
-		'wpgraphql_ide_visible_panel',
-		[
-			'type'          => 'string',
-			'single'        => true,
-			'show_in_rest'  => true,
-			'default'       => '',
-			'auth_callback' => $auth_callback,
-		]
-	);
 }
 
 /**

@@ -7,7 +7,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 function getPersistedWidth() {
 	try {
 		const w = parseInt(
-			window.window.localStorage.getItem('wpgraphql_ide_panel_width'),
+			window.localStorage.getItem('wpgraphql_ide_panel_width'),
 			10
 		);
 		return w > 0 ? w : 300;
@@ -49,7 +49,7 @@ const ActivityPanel = () => {
 				const w = elt.offsetWidth;
 				setPanelWidth(w);
 				try {
-					window.window.localStorage.setItem(
+					window.localStorage.setItem(
 						'wpgraphql_ide_panel_width',
 						String(w)
 					);

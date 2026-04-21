@@ -130,12 +130,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-doc-close.components-button {
-	min-width: 20px;
-	height: 20px;
+	min-width: 24px;
+	width: 24px;
+	height: 24px;
 	padding: 0;
 	color: #757575;
 	font-size: 16px;
 	line-height: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .wpgraphql-ide-doc-close.components-button:hover {
@@ -412,19 +416,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-shrink: 0;
 }
 
-/* Hide duplicate titles rendered by plugin panel content —
-   our panel header already shows the title + close button */
-.wpgraphql-ide-plugin > div > .graphiql-explorer-title,
-.wpgraphql-ide-plugin > .graphiql-doc-explorer-title,
-.wpgraphql-ide-plugin > div:first-child > span:first-child {
-	display: none;
-}
-
-/* Query composer's internal close button (X) — hidden,
-   we have our own in the panel header */
-.wpgraphql-ide-plugin > div > .graphiql-explorer-actions > span:first-child {
-	display: none;
-}
 
 /* Query composer form controls — match WordPress admin native styles */
 .wpgraphql-ide-plugin input[type="text"],

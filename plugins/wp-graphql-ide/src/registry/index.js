@@ -27,7 +27,7 @@ export const initializeRegistry = () => {
 			icon: DocsExplorerIcon,
 			content: DocsExplorerPanel,
 		},
-		15
+		1
 	);
 
 	registerActivityBarPanel(

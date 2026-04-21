@@ -2,12 +2,13 @@
  * The initial state of the activity bar.
  * @type {Object}
  */
-// Restore last open panel from window.localStorage.
+// Restore last open panel from localStorage, defaulting to docs-explorer.
 let savedPanel = null;
 try {
-	savedPanel =
-		window.window.localStorage.getItem('wpgraphql_ide_visible_panel') ||
-		null;
+	const stored = window.localStorage.getItem('wpgraphql_ide_visible_panel');
+	if (stored !== null) {
+		savedPanel = stored || null;
+	}
 } catch {
 	// localStorage unavailable
 }
@@ -103,12 +104,12 @@ const reducer = (state = initialState, action) => {
 				state.visiblePanel === action.panel ? null : action.panel;
 			try {
 				if (nextPanel) {
-					window.window.localStorage.setItem(
+					window.localStorage.setItem(
 						'wpgraphql_ide_visible_panel',
 						nextPanel
 					);
 				} else {
-					window.window.localStorage.removeItem(
+					window.localStorage.removeItem(
 						'wpgraphql_ide_visible_panel'
 					);
 				}

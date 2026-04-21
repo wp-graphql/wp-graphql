@@ -18,17 +18,6 @@ class ExplorerWrapper extends React.PureComponent {
 					overflow: 'hidden',
 				}}
 			>
-				<div className="doc-explorer-title-bar">
-					<div className="doc-explorer-title">{this.props.title}</div>
-					<div className="doc-explorer-rhs">
-						<div
-							className="docExplorerHide"
-							onClick={this.props.onToggleExplorer}
-						>
-							{'\u2715'}
-						</div>
-					</div>
-				</div>
 				<div
 					className="doc-explorer-contents"
 					style={{
