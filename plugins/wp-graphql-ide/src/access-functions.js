@@ -63,32 +63,3 @@ export function registerActivityBarPanel(name, config, priority = 10) {
 		);
 	}
 }
-
-// export function registerActivityBarUtility(
-// 	name,
-// 	config,
-// 	priority = 10
-// ) {
-// 	try {
-// 		dispatch( 'wpgraphql-ide/activity-bar' ).registerUtilityButton(
-// 			name,
-// 			config,
-// 			priority
-// 		);
-// 		hooks.doAction(
-// 			'wpgraphql-ide.afterRegisterActivityBarUtilityButton',
-// 			name,
-// 			config,
-// 			priority
-// 		);
-// 	} catch ( error ) {
-// 		console.error( `Failed to register button: ${ name }`, error );
-// 		hooks.doAction(
-// 			'wpgraphql-ide.registerActivityBarUtilityButtonError',
-// 			name,
-// 			config,
-// 			priority,
-// 			error
-// 		);
-// 	}
-// }
