@@ -52,7 +52,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	width: 1px;
 	height: 20px;
 	background: #e0e0e0;
-	margin: 0 6px;
+	margin: 0 10px;
 }
 
 .wpgraphql-ide-header-center {
@@ -129,30 +129,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	height: 20px;
 }
 
-.wpgraphql-ide-auth-avatar {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	padding: 0;
-	border: none;
-	background: none;
-	cursor: pointer;
-	border-radius: 50%;
-	transition: opacity 0.15s;
-}
-
-/* Force avatar image to fit the button */
-.wpgraphql-ide-auth-avatar > span {
-	width: 28px !important;
-	height: 28px !important;
-}
-
-.wpgraphql-ide-auth-avatar:hover {
-	opacity: 0.75;
-}
-
 .wpgraphql-ide-doc-close.components-button {
 	min-width: 20px;
 	height: 20px;
@@ -170,29 +146,56 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-send-group {
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	background: #f0f0f1;
-	border-radius: 6px;
-	padding: 3px 3px 3px 4px;
+	gap: 0;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-method-label {
 	font-size: 11px;
 	font-weight: 600;
 	color: #757575;
-	padding: 0 8px;
-	height: 28px;
-	line-height: 28px;
+	padding: 0 10px;
+	height: 38px;
+	line-height: 38px;
 	user-select: none;
 	letter-spacing: 0.5px;
+	background: #f9f9f9;
+	border-right: 1px solid #e0e0e0;
+}
+
+.wpgraphql-ide-auth-avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	padding: 0;
+	border: none;
+	background: #f9f9f9;
+	cursor: pointer;
+	border-radius: 0;
+	border-right: 1px solid #e0e0e0;
+	transition: opacity 0.15s;
+}
+
+/* Force avatar image to fit the button */
+.wpgraphql-ide-auth-avatar > span {
+	width: 24px !important;
+	height: 24px !important;
+}
+
+.wpgraphql-ide-auth-avatar:hover {
+	opacity: 0.75;
 }
 
 .wpgraphql-ide-send-button.components-button {
-	padding: 0 16px;
-	height: 32px;
-	font-size: 13px;
+	padding: 0 24px;
+	height: 38px;
+	font-size: 14px;
 	font-weight: 600;
-	border-radius: 3px;
+	border-radius: 0 3px 3px 0;
 }
 
 .wpgraphql-ide-loading-label {
@@ -353,6 +356,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-direction: column;
 	box-sizing: border-box;
 	background: #fff;
+	height: 100% !important;
 }
 
 .wpgraphql-ide-panel-header {
@@ -460,6 +464,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-size: 16px;
 	cursor: pointer;
 	padding: 2px;
+}
+
+/* Prevent tooltips from causing layout shift in query composer */
+.wpgraphql-ide-plugin [title] {
+	position: relative;
 }
 
 .wpgraphql-ide-plugin input[type="checkbox"] {
