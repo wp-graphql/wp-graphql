@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 
@@ -34,11 +34,13 @@ export function useSchema(fetcher) {
 	}, [fetcher, setSchema]);
 
 	// Run introspection when schema is undefined (initial load or after invalidation).
+	const fetchSchemaRef = useRef(fetchSchema);
+	fetchSchemaRef.current = fetchSchema;
 	useEffect(() => {
 		if (schema === undefined) {
-			fetchSchema();
+			fetchSchemaRef.current();
 		}
-	}, [schema, fetchSchema]);
+	}, [schema]);
 
 	const refetch = useCallback(() => {
 		setSchema(undefined);
