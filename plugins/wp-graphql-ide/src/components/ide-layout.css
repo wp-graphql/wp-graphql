@@ -701,8 +701,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-history-entry {
-	padding: 10px 0;
 	border-bottom: 1px solid #f0f0f1;
+}
+
+.wpgraphql-ide-history-entry-button {
+	display: block;
+	width: 100%;
+	padding: 10px 4px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	text-align: left;
+	border-radius: 4px;
+}
+
+.wpgraphql-ide-history-entry-button:hover {
+	background: #f0f0f1;
 }
 
 .wpgraphql-ide-history-entry-header {

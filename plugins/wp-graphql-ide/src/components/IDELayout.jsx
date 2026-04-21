@@ -103,19 +103,20 @@ export function IDELayout({ fetcher, onClose }) {
 			if (!doc) {
 				return;
 			}
+			const responseStr = JSON.stringify(result, null, 2);
 			const history = doc.history || [];
 			const entry = {
 				timestamp: Math.floor(Date.now() / 1000),
 				variables: vars,
+				headers: headers || '',
 				duration_ms: duration,
-				response_summary: JSON.stringify(result).slice(0, 200),
+				response_summary: responseStr.slice(0, 500),
 				status: execStatus,
 			};
 			const updated = [...history, entry].slice(-20);
 			saveDocument(doc.id, { history: updated });
 
-			// Store response on the document for tab switching.
-			setDocumentResponse(doc.id, JSON.stringify(result, null, 2));
+			setDocumentResponse(doc.id, responseStr);
 		},
 		[saveDocument, setDocumentResponse]
 	);
@@ -227,7 +228,7 @@ export function IDELayout({ fetcher, onClose }) {
 	executeQueryRef.current = () => {
 		if (isFetching) {
 			stop();
-		} else {
+		} else if (query && query.trim()) {
 			run();
 		}
 	};

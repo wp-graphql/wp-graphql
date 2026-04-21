@@ -1,5 +1,6 @@
 import React from 'react';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { dateI18n } from '@wordpress/date';
 import { Icon, backup } from '@wordpress/icons';
 
 /**
@@ -10,8 +11,8 @@ export const HistoryIcon = () => <Icon icon={backup} />;
 /**
  * History panel content.
  *
- * Displays the execution history for the active document, showing
- * timestamp, duration, and status for each past execution.
+ * Displays the execution history for the active document. Clicking
+ * an entry restores its variables, headers, and response.
  */
 export function HistoryPanel() {
 	const activeDocument = useSelect(
@@ -19,7 +20,22 @@ export function HistoryPanel() {
 		[]
 	);
 
+	const { setVariables, setHeaders, setResponse } =
+		useDispatch('wpgraphql-ide/app');
+
 	const history = activeDocument?.history || [];
+
+	const restoreEntry = (entry) => {
+		if (entry.variables) {
+			setVariables(entry.variables);
+		}
+		if (entry.headers) {
+			setHeaders(entry.headers);
+		}
+		if (entry.response_summary) {
+			setResponse(entry.response_summary);
+		}
+	};
 
 	if (!activeDocument) {
 		return (
@@ -34,7 +50,6 @@ export function HistoryPanel() {
 	if (history.length === 0) {
 		return (
 			<div className="wpgraphql-ide-history-panel">
-				<div className="wpgraphql-ide-history-header">History</div>
 				<p className="wpgraphql-ide-history-empty">
 					No executions yet. Run a query to see history.
 				</p>
@@ -44,17 +59,16 @@ export function HistoryPanel() {
 
 	return (
 		<div className="wpgraphql-ide-history-panel">
-			<div className="wpgraphql-ide-history-header">History</div>
 			<ul className="wpgraphql-ide-history-list">
-				{[...history].reverse().map((entry, index) => {
-					const date = new Date(entry.timestamp * 1000);
-					const timeStr = date.toLocaleTimeString();
-					const dateStr = date.toLocaleDateString();
-
-					return (
-						<li
-							key={`${entry.timestamp}-${index}`}
-							className={`wpgraphql-ide-history-entry wpgraphql-ide-history-${entry.status}`}
+				{[...history].reverse().map((entry, index) => (
+					<li
+						key={`${entry.timestamp}-${index}`}
+						className="wpgraphql-ide-history-entry"
+					>
+						<button
+							type="button"
+							className="wpgraphql-ide-history-entry-button"
+							onClick={() => restoreEntry(entry)}
 						>
 							<div className="wpgraphql-ide-history-entry-header">
 								<span
@@ -65,21 +79,24 @@ export function HistoryPanel() {
 								<span className="wpgraphql-ide-history-duration">
 									{entry.duration_ms}ms
 								</span>
-							</div>
-							<div className="wpgraphql-ide-history-entry-time">
-								{dateStr} {timeStr}
+								<span className="wpgraphql-ide-history-entry-time">
+									{dateI18n(
+										'M j, g:i A',
+										entry.timestamp * 1000
+									)}
+								</span>
 							</div>
 							{entry.response_summary && (
 								<div className="wpgraphql-ide-history-entry-preview">
-									{entry.response_summary.slice(0, 100)}
-									{entry.response_summary.length > 100
+									{entry.response_summary.slice(0, 120)}
+									{entry.response_summary.length > 120
 										? '...'
 										: ''}
 								</div>
 							)}
-						</li>
-					);
-				})}
+						</button>
+					</li>
+				))}
 			</ul>
 		</div>
 	);
