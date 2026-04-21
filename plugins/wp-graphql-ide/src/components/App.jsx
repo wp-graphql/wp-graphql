@@ -5,13 +5,14 @@ import { IDELayout } from './IDELayout';
 import './ide-layout.css';
 
 export function App() {
-	const { shouldRenderStandalone, isAuthenticated } = useSelect((select) => {
-		const wpgraphqlIDEApp = select('wpgraphql-ide/app');
-		return {
-			shouldRenderStandalone: wpgraphqlIDEApp.shouldRenderStandalone(),
-			isAuthenticated: wpgraphqlIDEApp.isAuthenticated(),
-		};
-	});
+	const shouldRenderStandalone = useSelect(
+		(select) => select('wpgraphql-ide/app').shouldRenderStandalone(),
+		[]
+	);
+	const isAuthenticated = useSelect(
+		(select) => select('wpgraphql-ide/app').isAuthenticated(),
+		[]
+	);
 
 	const { setDrawerOpen } = useDispatch('wpgraphql-ide/app');
 

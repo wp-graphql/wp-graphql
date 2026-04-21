@@ -1,16 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Drawer as VaulDrawer } from 'vaul';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 export function AppDrawer({ children, buttonLabel }) {
-	const isDrawerOpen = useSelect((select) => {
-		return select('wpgraphql-ide/app').isDrawerOpen();
-	});
+	const isDrawerOpen = useSelect(
+		(select) => select('wpgraphql-ide/app').isDrawerOpen(),
+		[]
+	);
 
 	const { setDrawerOpen } = useDispatch('wpgraphql-ide/app');
 
 	// Use local state for VaulDrawer, sync with WordPress store
 	const [localOpen, setLocalOpen] = useState(false);
+	// Defer heavy child rendering until the next frame so the drawer
+	// animation isn't blocked by CodeMirror / store initialization.
+	const [childrenReady, setChildrenReady] = useState(false);
+	const rafRef = useRef(null);
+	useEffect(() => {
+		if (localOpen && !childrenReady) {
+			rafRef.current = window.requestAnimationFrame(() => {
+				setChildrenReady(true);
+			});
+		}
+		return () => {
+			if (rafRef.current) {
+				window.cancelAnimationFrame(rafRef.current);
+			}
+		};
+	}, [localOpen, childrenReady]);
 
 	// Sync local state with WordPress store
 	useEffect(() => {
@@ -151,7 +168,7 @@ export function AppDrawer({ children, buttonLabel }) {
 						<VaulDrawer.Description className="screen-reader-text">
 							Interactive GraphQL query editor for WPGraphQL
 						</VaulDrawer.Description>
-						{children}
+						{childrenReady ? children : null}
 					</VaulDrawer.Content>
 					<VaulDrawer.Overlay />
 				</VaulDrawer.Portal>

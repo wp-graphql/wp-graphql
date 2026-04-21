@@ -21,7 +21,7 @@ export function HistoryPanel() {
 		[]
 	);
 
-	const { setQuery, setVariables, setHeaders, setResponse } =
+	const { setQuery, setVariables, setHeaders } =
 		useDispatch('wpgraphql-ide/app');
 
 	const { saveDocument } = useDispatch('wpgraphql-ide/document-editor');
@@ -38,7 +38,6 @@ export function HistoryPanel() {
 		setQuery(entry.query || '');
 		setVariables(entry.variables || '');
 		setHeaders(entry.headers || '');
-		setResponse(entry.response_summary || '');
 	};
 
 	if (!activeDocument) {
@@ -100,12 +99,10 @@ export function HistoryPanel() {
 									)}
 								</span>
 							</div>
-							{entry.response_summary && (
+							{entry.query && (
 								<div className="wpgraphql-ide-history-entry-preview">
-									{entry.response_summary.slice(0, 120)}
-									{entry.response_summary.length > 120
-										? '...'
-										: ''}
+									{entry.query.slice(0, 120)}
+									{entry.query.length > 120 ? '...' : ''}
 								</div>
 							)}
 						</button>

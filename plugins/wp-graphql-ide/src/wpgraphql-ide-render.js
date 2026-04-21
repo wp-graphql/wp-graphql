@@ -51,9 +51,6 @@ window.addEventListener('WPGraphQLIDE_Window_Ready', function () {
 				},
 				false
 			);
-
-			// Remove aria-hidden from admin bar when drawer opens to fix accessibility warning
-			// We'll handle this when the drawer state changes via React
 		}
 
 		// Create root only once

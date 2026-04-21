@@ -14,15 +14,22 @@ import { useDispatch, useSelect } from '@wordpress/data';
  * @return {{ isFetching: boolean, run: Function, stop: Function }}
  */
 export function useExecution(fetcher, options = {}) {
-	const { isFetching, query, variables, headers } = useSelect((select) => {
-		const app = select('wpgraphql-ide/app');
-		return {
-			isFetching: app.isFetching(),
-			query: app.getQuery(),
-			variables: app.getVariables(),
-			headers: app.getHeaders(),
-		};
-	}, []);
+	const isFetching = useSelect(
+		(select) => select('wpgraphql-ide/app').isFetching(),
+		[]
+	);
+	const query = useSelect(
+		(select) => select('wpgraphql-ide/app').getQuery(),
+		[]
+	);
+	const variables = useSelect(
+		(select) => select('wpgraphql-ide/app').getVariables(),
+		[]
+	);
+	const headers = useSelect(
+		(select) => select('wpgraphql-ide/app').getHeaders(),
+		[]
+	);
 
 	const { setResponse, setIsFetching } = useDispatch('wpgraphql-ide/app');
 
