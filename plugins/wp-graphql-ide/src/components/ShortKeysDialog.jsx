@@ -10,16 +10,10 @@ const modifier =
 
 const SHORT_KEYS = Object.entries({
 	'Search in editor': [modifier, 'F'],
-	'Search in documentation': [modifier, 'K'],
 	'Execute query': [modifier, 'Enter'],
-	'Prettify editors': ['Ctrl', 'Shift', 'P'],
-	'Merge fragments definitions into operation definition': [
-		'Ctrl',
-		'Shift',
-		'M',
-	],
+	'Prettify query': ['Ctrl', 'Shift', 'P'],
+	'Merge fragments into query': ['Ctrl', 'Shift', 'M'],
 	'Copy query': ['Ctrl', 'Shift', 'C'],
-	'Re-fetch schema using introspection': ['Ctrl', 'Shift', 'R'],
 });
 
 const ShortKeys = () => {
@@ -72,7 +66,7 @@ export const ShortKeysDialog = ({ showDialog, handleOpenShortKeysDialog }) => {
 
 	return (
 		<Modal
-			title="Short Keys"
+			title="Keyboard Shortcuts"
 			onRequestClose={() => handleOpenShortKeysDialog(false)}
 			className="wpgraphql-ide-short-keys-modal"
 		>

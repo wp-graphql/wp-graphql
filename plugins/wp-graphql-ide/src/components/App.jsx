@@ -67,6 +67,20 @@ export function App() {
 
 			const response = await fetch(graphqlEndpoint, fetchOptions);
 
+			// Handle non-OK responses (e.g., HTTP Auth, 500 errors).
+			if (!response.ok) {
+				const contentType = response.headers.get('content-type') || '';
+				if (!contentType.includes('application/json')) {
+					return {
+						errors: [
+							{
+								message: `HTTP ${response.status}: ${response.statusText}. The server returned a non-JSON response. This may be caused by HTTP authentication or a server misconfiguration.`,
+							},
+						],
+					};
+				}
+			}
+
 			return response.json();
 		},
 		[isAuthenticated]

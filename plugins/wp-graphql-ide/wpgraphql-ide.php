@@ -567,11 +567,12 @@ function reorder_graphql_submenu_items(): void {
 		$graphql_ide_settings = get_option( 'graphql_ide_settings', [] );
 		$show_legacy_editor   = isset( $graphql_ide_settings['graphql_ide_show_legacy_editor'] ) ? $graphql_ide_settings['graphql_ide_show_legacy_editor'] : 'off';
 
-		// Extract existing submenu items.
+		// Extract known submenu items and preserve unknown 3rd-party items.
 		$graphql_ide  = null;
 		$graphiql_ide = null;
 		$extensions   = null;
 		$settings     = null;
+		$other_items  = [];
 
 		foreach ( $submenu['graphiql-ide'] as $item ) {
 			switch ( $item[0] ) {
@@ -586,6 +587,10 @@ function reorder_graphql_submenu_items(): void {
 					break;
 				case 'Settings':
 					$settings = $item;
+					break;
+				default:
+					// Preserve 3rd-party submenu items.
+					$other_items[] = $item;
 					break;
 			}
 		}
@@ -605,6 +610,11 @@ function reorder_graphql_submenu_items(): void {
 		}
 		if ( $settings ) {
 			$ordered_submenu[] = $settings;
+		}
+
+		// Append 3rd-party submenu items after our known items.
+		foreach ( $other_items as $item ) {
+			$ordered_submenu[] = $item;
 		}
 
 		// Merge the reordered submenu back into the global $submenu.
