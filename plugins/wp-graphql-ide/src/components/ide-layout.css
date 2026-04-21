@@ -400,7 +400,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-plugin svg {
-	max-width: 16px;
+	max-width: 18px;
 	max-height: 16px;
 	display: inline-block;
 	vertical-align: middle;
@@ -446,6 +446,20 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-color: var(--wp-admin-theme-color, #3858e9);
 	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
 	outline: none;
+}
+
+/* Operation name input (wider, no clipping) */
+.wpgraphql-ide-plugin > div > span > input[type="text"],
+.wpgraphql-ide-plugin .graphiql-explorer-root input[type="text"] {
+	min-width: 100px;
+}
+
+/* Action icons next to operation name (× and copy) */
+.wpgraphql-ide-plugin > div > span > span,
+.wpgraphql-ide-plugin > div > span > button {
+	font-size: 16px;
+	cursor: pointer;
+	padding: 2px;
 }
 
 .wpgraphql-ide-plugin input[type="checkbox"] {
