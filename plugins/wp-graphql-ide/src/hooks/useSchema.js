@@ -25,7 +25,17 @@ export function useSchema(fetcher) {
 				query: getIntrospectionQuery(),
 			});
 			if (result?.data) {
-				setSchema(buildClientSchema(result.data));
+				// Defer buildClientSchema to avoid blocking the main thread
+				// on large schemas. This yields to the browser between the
+				// network response and the CPU-intensive schema building.
+				setTimeout(() => {
+					try {
+						setSchema(buildClientSchema(result.data));
+					} catch (buildError) {
+						// eslint-disable-next-line no-console
+						console.error('Schema build failed:', buildError);
+					}
+				}, 0);
 			}
 		} catch (error) {
 			// eslint-disable-next-line no-console
