@@ -99,6 +99,86 @@ npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
   - `@hookSource core`
 - Prefix deprecation and migration guidance is driven by `scripts/hooks/naming-rules.json`.
 
+### `functions/generate-function-docs.js`
+
+Generates function reference documentation by scanning `plugins/<plugin>/access-functions.php`.
+
+**Purpose**: Automates markdown source docs for `/functions/*` and emits function index/lint artifacts.
+
+**Usage**:
+```bash
+node scripts/functions/generate-function-docs.js --plugin=wp-graphql
+
+# npm shortcut
+npm run functions:generate -- --plugin=wp-graphql
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--plugin` | Yes | Plugin slug defined in `scripts/hooks/plugin-config.json` |
+| `--validate-only` | No | If `true`, fails when generated output is stale |
+| `--config` | No | Override plugin config file path |
+| `--repo-url` | No | Override repository URL used for source links |
+| `--repo-ref` | No | Override repository ref used for source links |
+
+**Generated output** (per plugin docs directory):
+- `docs/functions/index.md`
+- `docs/functions/<function>.md`
+- `docs/generated/functions-index.json`
+- `docs/generated/functions-lint.json`
+- `docs/generated/functions-lint.md`
+
+### `recipes/migrate-recipes-from-wp.js`
+
+Pulls recipe posts (`CodeSnippet`) from the live WordPress GraphQL endpoint and writes markdown files under `plugins/<plugin>/docs/recipes/`.
+
+**Purpose**: Move recipe content out of the CMS into repo-backed markdown (same pipeline as actions/filters/functions). Each file includes `wordpressUri` so wpgraphql.com can still match live recipe URLs to frontmatter for “Related APIs” until routes fully switch to markdown.
+
+**Prerequisites**:
+- `WPGRAPHQL_URL` in the environment (or in `websites/wpgraphql.com/.env.local`), **or** pass `--endpoint=`.
+- Root dependency `turndown` (HTML → Markdown). Installed via the monorepo root `package.json`.
+
+**Usage**:
+```bash
+# Preview (no files written)
+npm run recipes:migrate-wp -- --plugin=wp-graphql --dry-run=true
+
+# Write files (skip existing unless --force=true)
+npm run recipes:migrate-wp -- --plugin=wp-graphql
+
+# Overwrite existing markdown
+npm run recipes:migrate-wp -- --plugin=wp-graphql --force=true
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--plugin` | Yes | Plugin slug in `scripts/hooks/plugin-config.json` |
+| `--endpoint` | No | GraphQL endpoint URL (defaults to `WPGRAPHQL_URL`) |
+| `--archive-uri` | No | `nodeByUri` path for the recipes archive (default: `/recipes`) |
+| `--page-size` | No | Page size for `contentNodes` pagination (default: `50`) |
+| `--dry-run` | No | If `true`, only logs what would be written |
+| `--force` | No | If `true`, overwrite existing markdown files |
+
+**After migrating**:
+```bash
+npm run hooks:generate -- --plugin=wp-graphql
+npm run functions:generate -- --plugin=wp-graphql
+npm run recipes:generate -- --plugin=wp-graphql
+```
+
+### `recipes/generate-recipe-docs.js`
+
+Builds `docs/recipes/index.md`, `docs/generated/recipes-index.json`, and copies the index JSON into `websites/wpgraphql.com/src/generated/` for the Next.js site.
+
+**Recipe ↔ API links**: `scripts/recipes/recipe-relations.js` scans each recipe’s markdown body for mentions of **static** hook names (`isDynamic: false` in `hooks-index.json`) and public function names from `functions-index.json`, then unions those with optional frontmatter `relatedActions` / `relatedFilters` / `relatedFunctions`. Run `hooks:generate` and `functions:generate` before `recipes:generate` so the indexes exist.
+
+**Usage**:
+```bash
+npm run recipes:generate -- --plugin=wp-graphql
+```
+
 ### `update-upgrade-notice.js`
 
 Updates the Upgrade Notice section in `readme.txt` when there are breaking changes in a release.
@@ -192,6 +272,9 @@ npm run test:scripts
 
 # Run hook docs tests only
 node scripts/hooks/generate-hook-docs.test.js
+
+# Run function docs tests only
+node scripts/functions/generate-function-docs.test.js
 ```
 
 ### Test File
@@ -200,6 +283,7 @@ Script tests include:
 - `scripts/update-upgrade-notice.test.js`
 - `scripts/update-version-constants.test.js`
 - `scripts/hooks/generate-hook-docs.test.js`
+- `scripts/functions/generate-function-docs.test.js`
 
 `update-upgrade-notice.test.js` covers:
 
@@ -241,6 +325,7 @@ These scripts are called by GitHub Actions workflows during the release process:
 │ update-release-pr   │◄── Replaces placeholders in plugin files
 │    workflow         │    Runs update-upgrade-notice.js
 │                     │    Runs hooks/generate-hook-docs.js
+│                     │    Runs functions/generate-function-docs.js
 └──────────┬──────────┘
            │
            ▼

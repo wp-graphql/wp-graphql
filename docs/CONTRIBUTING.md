@@ -100,16 +100,18 @@ When introducing or changing actions/filters in `plugins/wp-graphql/`, follow th
   - Keep behavior backward compatible while steering users to the canonical hook.
 - **Update tests for deprecations**: when a deprecated hook is intentionally fired, tests should explicitly expect the deprecation notice.
 
-### 6. Hook Docs + Audit Generation
+### 6. Hook + Function Docs Generation
 
-Hook references and naming audits are generated artifacts and should be refreshed when hooks change:
+Hook references, function docs, and naming audits are generated artifacts and should be refreshed when relevant APIs change:
 
 ```bash
 npm run hooks:generate -- --plugin=wp-graphql
+npm run functions:generate -- --plugin=wp-graphql
 ```
 
 This updates:
 - Hook reference docs in `plugins/wp-graphql/docs/actions/` and `plugins/wp-graphql/docs/filters/`
+- Function reference docs in `plugins/wp-graphql/docs/functions/`
 - Generated inventories/audits in `plugins/wp-graphql/docs/generated/`
 
 For hook removals/deprecations, also run the legacy coverage check:
@@ -156,6 +158,7 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Changelogs are generated from PR titles (via squash merge commits)
 - **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
 - Hook docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
+- Function docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
 - `x-release-please-version` placeholders in `scripts/hooks/legacy-hooks.json` are automatically replaced for the releasing component (`update-release-pr.yml`)
 - Hook legacy coverage is enforced in CI (`lint.yml` → `wp-graphql-hook-legacy-coverage`)
 

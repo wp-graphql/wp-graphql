@@ -14,6 +14,7 @@ npm run test:scripts
 node scripts/update-version-constants.test.js
 node scripts/update-upgrade-notice.test.js
 node scripts/hooks/generate-hook-docs.test.js
+node scripts/functions/generate-function-docs.test.js
 ```
 
 The `update-version-constants.test.js` test suite includes:
@@ -35,25 +36,28 @@ This means **you don't need to manually add tests** when adding a new plugin - j
 
 ## Manual Testing with Git (Safest Method)
 
-### Testing Hook Docs + Hook Lint Scripts
+### Testing Hook + Function Docs Scripts
 
-Use this when changing hook callsites, hook docblocks, or hook tooling.
+Use this when changing hook callsites, access functions, generated docs, or docs tooling.
 
-1. **Generate hook docs and lint artifacts**:
+1. **Generate hook docs, function docs, and lint artifacts**:
    ```bash
    npm run hooks:generate -- --plugin=wp-graphql
+   npm run functions:generate -- --plugin=wp-graphql
    ```
 
 2. **Review generated outputs**:
    ```bash
    git diff plugins/wp-graphql/docs/actions
    git diff plugins/wp-graphql/docs/filters
+   git diff plugins/wp-graphql/docs/functions
    git diff plugins/wp-graphql/docs/generated
    ```
 
 3. **Run generator tests**:
    ```bash
    node scripts/hooks/generate-hook-docs.test.js
+   node scripts/functions/generate-function-docs.test.js
    ```
 
 4. **Run legacy coverage check (optional locally, required in CI)**:
@@ -61,7 +65,7 @@ Use this when changing hook callsites, hook docblocks, or hook tooling.
    npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
    ```
 
-This mirrors the hook documentation + enforcement path used in CI and release PR updates.
+This mirrors the documentation + enforcement path used in CI and release PR updates.
 
 The safest way to test the scripts is to use git to create a temporary branch and test on real files, then discard the changes.
 
@@ -256,9 +260,9 @@ To test the full workflow as it would run in CI:
    git diff
    ```
 
-### Simulating release PR hook docs refresh
+### Simulating release PR docs refresh
 
-`update-release-pr.yml` runs hook docs generation for the releasing component after replacing `x-release-please-version` placeholders in plugin files. You can simulate that sequence locally:
+`update-release-pr.yml` runs hook and function docs generation for the releasing component after replacing `x-release-please-version` placeholders. You can simulate that sequence locally:
 
 ```bash
 # 1) replace placeholders in plugin files
@@ -269,12 +273,13 @@ node scripts/update-version-constants.js \
 
 # 2) regenerate hook docs/lint artifacts
 npm run hooks:generate -- --plugin=wp-graphql
+npm run functions:generate -- --plugin=wp-graphql
 
 # 3) inspect what the release PR automation would commit
-git diff plugins/wp-graphql
+git diff plugins/wp-graphql scripts/hooks/legacy-hooks.json
 ```
 
-Note: placeholders in `scripts/hooks/legacy-hooks.json` are not currently auto-replaced by `update-release-pr.yml` because that workflow only updates files inside the releasing plugin directory.
+Note: placeholders in `scripts/hooks/legacy-hooks.json` are auto-replaced by `update-release-pr.yml` for the releasing component.
 
 ## Troubleshooting
 
