@@ -33,7 +33,7 @@ import { useExecution } from '../hooks/useExecution';
 
 const AUTOSAVE_DELAY = 2000;
 const MAX_HISTORY_ENTRIES = 50;
-const HISTORY_PREVIEW_LENGTH = 500;
+const HISTORY_RESPONSE_MAX_LENGTH = 10000;
 
 /**
  * Main IDE layout component.
@@ -112,7 +112,10 @@ export function IDELayout({ fetcher, onClose }) {
 				variables: vars || '',
 				headers: executingHeadersRef.current || '',
 				duration_ms: duration,
-				response_summary: responseStr.slice(0, HISTORY_PREVIEW_LENGTH),
+				response_summary: responseStr.slice(
+					0,
+					HISTORY_RESPONSE_MAX_LENGTH
+				),
 				status: execStatus,
 			};
 
