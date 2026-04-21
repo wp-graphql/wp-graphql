@@ -27,10 +27,8 @@ export default function FunctionPreview({ node }) {
       </div>
 
       <div className="text-base font-medium leading-6">
-        <Link href={node.uri}>
-          <a className="btn-primary-sm">
-            <span className="pr-2">View Function →</span>
-          </a>
+        <Link href={node.uri} className="btn-primary-sm">
+          <span className="pr-2">View Function →</span>
         </Link>
       </div>
     </div>

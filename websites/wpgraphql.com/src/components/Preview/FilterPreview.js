@@ -27,10 +27,8 @@ export default function FilterPreview({ filter }) {
       </div>
 
       <div className="text-base font-medium leading-6">
-        <Link href={filter.uri}>
-          <a className="btn-primary-sm">
-            <span className="pr-2">View Filter →</span>
-          </a>
+        <Link href={filter.uri} className="btn-primary-sm">
+          <span className="pr-2">View Filter →</span>
         </Link>
       </div>
     </div>

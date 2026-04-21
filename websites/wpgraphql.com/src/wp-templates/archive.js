@@ -1,6 +1,10 @@
 import { gql } from "@apollo/client"
+import Link from "next/link"
 
 import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import DocsLayout from "components/Docs/DocsLayout"
+import getDeveloperReferenceNav from "lib/developer-reference-nav"
+import recipesIndex from "generated/recipes-index.json"
 
 import ExtensionPreview, {
   ExtensionFragment,
@@ -17,9 +21,144 @@ import FunctionPreview, {
 import ActionPreview, {
   ActionPreviewFragment,
 } from "components/Preview/ActionPreview"
+import decodeHtmlEntities from "../../../../scripts/lib/decode-html-entities"
+
+function toPlainText(html) {
+  return String(html ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function getExcerpt(html, maxLength = 180) {
+  const text = decodeHtmlEntities(toPlainText(html))
+  if (text.length <= maxLength) {
+    return text
+  }
+  return `${text.slice(0, maxLength).trim()}...`
+}
+
+function slugifyHeading(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/<[^>]+>/g, "")
+    .replace(/&[a-z0-9#]+;/gi, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
+
+function normalizeUri(uri) {
+  return String(uri ?? "")
+    .replace(/\/+$/, "")
+    .toLowerCase()
+}
 
 export default function Archive({ data }) {
   const { archive } = data
+  const nodes = archive?.contentNodes?.nodes ?? []
+  const isRecipeArchive =
+    archive?.uri?.startsWith("/recipes") ||
+    (archive?.__typename === "TermNode" &&
+      nodes.length > 0 &&
+      nodes.every((node) => node.__typename === "CodeSnippet"))
+
+  if (isRecipeArchive) {
+    const docsNavData = getDeveloperReferenceNav()
+    const recipes = nodes.filter((node) => node.__typename === "CodeSnippet")
+    const metadataByUri = recipesIndex?.relations?.byUri ?? {}
+
+    const groupedRecipes = recipes.reduce((acc, recipe, index) => {
+      const metadata = metadataByUri[normalizeUri(recipe.uri)] || null
+      const group = metadata?.group || "Uncategorized"
+      if (!acc[group]) {
+        acc[group] = []
+      }
+      acc[group].push({
+        ...recipe,
+        title: metadata?.title || recipe.title || `Recipe ${index + 1}`,
+        summary: metadata?.summary || "",
+      })
+      return acc
+    }, {})
+
+    const orderedGroups = Object.keys(groupedRecipes).sort((a, b) => {
+      if (a === "Uncategorized") {
+        return 1
+      }
+      if (b === "Uncategorized") {
+        return -1
+      }
+      return a.localeCompare(b)
+    })
+
+    const slugCounts = {}
+    const groupToc = orderedGroups.map((groupName) => {
+      const base = slugifyHeading(groupName) || "group"
+      const count = slugCounts[base] ?? 0
+      slugCounts[base] = count + 1
+      return {
+        id: count === 0 ? base : `${base}-${count}`,
+        title: groupName,
+        tagName: "h2",
+      }
+    })
+
+    const toc = [{ id: "recipes", title: "Recipes", tagName: "h2" }, ...groupToc]
+
+    return (
+      <DocsLayout docsNavData={docsNavData} toc={toc}>
+        <div
+          id="content-wrapper"
+          className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
+        >
+          <h1>{archive?.label ? archive.label : archive?.name ?? "Recipes"}</h1>
+          {archive?.description ? (
+            <div dangerouslySetInnerHTML={{ __html: archive.description }} />
+          ) : (
+            <p>
+              WPGraphQL recipes are practical snippets that show how to customize
+              WPGraphQL with actions, filters, and functions.
+            </p>
+          )}
+
+          <div id="recipes">
+            {orderedGroups.map((groupName, groupIndex) => {
+              const groupItems = groupedRecipes[groupName] || []
+              const groupHeading = groupToc[groupIndex]
+
+              return (
+                <section key={groupName}>
+                  <h2 id={groupHeading?.id}>{groupName}</h2>
+                  {groupItems.map((recipe) => (
+                    <div key={recipe.id || recipe.uri}>
+                      <h3>
+                        <Link href={recipe.uri}>{recipe.title}</Link>
+                      </h3>
+                      {recipe.summary ? (
+                        <p>{recipe.summary}</p>
+                      ) : recipe?.content ? (
+                        <p>{getExcerpt(recipe.content)}</p>
+                      ) : null}
+                      <p>
+                        <Link href={recipe.uri}>View recipe</Link>
+                      </p>
+                    </div>
+                  ))}
+                </section>
+              )
+            })}
+          </div>
+        </div>
+      </DocsLayout>
+    )
+  }
+
   return (
     <SiteLayout>
       <div className="overflow-hidden">

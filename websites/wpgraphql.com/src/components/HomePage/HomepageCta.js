@@ -8,10 +8,8 @@ export default function HomepageCta() {
           <span className="block">Boost your productivity</span>
           <span className="block">Start using WPGraphQL today!</span>
         </h2>
-        <Link href="/docs/introduction">
-          <a className="btn-secondary">
-            Get Started
-          </a>
+        <Link href="/docs/introduction" className="btn-secondary">
+          Get Started
         </Link>
         <a
           href="https://wordpress.org/plugins/wp-graphql"

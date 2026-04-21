@@ -27,10 +27,8 @@ export default function RecipePreview({ recipe }) {
       </div>
 
       <div className="text-base font-medium leading-6">
-        <Link href={recipe.uri}>
-          <a className="btn-primary-sm">
-            <span className="pr-2">View Recipe →</span>
-          </a>
+        <Link href={recipe.uri} className="btn-primary-sm">
+          <span className="pr-2">View Recipe →</span>
         </Link>
       </div>
     </div>

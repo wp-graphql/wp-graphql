@@ -4,7 +4,8 @@ import { MDXRemote } from "next-mdx-remote"
 import DocsLayout from "components/Docs/DocsLayout"
 import { NavMenuFragment } from "components/Site/SiteHeader"
 
-import { getParsedDoc, getDocsNav } from "lib/parse-mdx-docs"
+import { getParsedDoc } from "lib/parse-mdx-docs"
+import getDeveloperReferenceNav from "lib/developer-reference-nav"
 
 import components from "components/Docs/MdxComponents"
 
@@ -31,7 +32,7 @@ export default function ActionDoc({ source, toc, docsNavData, hasMarkdownH1 }) {
     <DocsLayout toc={toc} docsNavData={docsNavData}>
       <div
         id="content-wrapper"
-        className="relative z-20 prose mt-8 prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
+        className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
       >
         {source?.frontmatter?.title && !hasMarkdownH1 && (
           <header className="relative z-20 -mt-8">
@@ -53,7 +54,7 @@ export async function getStaticProps({ params }) {
 
   try {
     const { source, toc, hasMarkdownH1 } = await getParsedDoc(docSlug)
-    const docsNavData = await getDocsNav()
+    const docsNavData = getDeveloperReferenceNav()
     const apolloClient = getApolloClient()
 
     await apolloClient.query({

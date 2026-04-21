@@ -72,14 +72,12 @@ export default function NotFound() {
                   <div className="min-w-0 flex-1">
                     <h3 className="text-base font-medium text-gray-900">
                       <span className="rounded-sm focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                        <Link href={link.path}>
-                          <a className="focus:outline-none">
-                            <span
-                              className="absolute inset-0"
-                              aria-hidden="true"
-                            />
-                            {link.label}
-                          </a>
+                        <Link href={link.path} className="focus:outline-none">
+                          <span
+                            className="absolute inset-0"
+                            aria-hidden="true"
+                          />
+                          {link.label}
                         </Link>
                       </span>
                     </h3>
@@ -97,10 +95,11 @@ export default function NotFound() {
               ))}
             </ul>
             <div className="mt-8">
-              <Link href="/">
-                <a className="text-base font-medium text-indigo-600 hover:text-indigo-500">
-                  Or go back home<span aria-hidden="true"> &rarr;</span>
-                </a>
+              <Link
+                href="/"
+                className="text-base font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Or go back home<span aria-hidden="true"> &rarr;</span>
               </Link>
             </div>
           </div>

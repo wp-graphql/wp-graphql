@@ -1,0 +1,2219 @@
+{
+  "plugin": "wp-graphql",
+  "generatedAt": "2026-04-21T19:39:30.046Z",
+  "stats": {
+    "totalRecipes": 31
+  },
+  "recipes": [
+    {
+      "title": "ACF Nav Menu Plugin Support",
+      "slug": "acf-nav-menu-plugin-support",
+      "uri": "/recipes/acf-nav-menu-plugin-support",
+      "wordpressUri": "/recipes/acf-nav-menu-plugin-support/",
+      "uriKey": "/recipes/acf-nav-menu-plugin-support",
+      "group": "Uncategorized",
+      "summary": "This adds support (native) for the ACF Nav Menu field plugin ( https://github.com/jgraup/advanced-custom-fields-nav-menu-field ). This also requires WPGraphQL for Advanced Custom Fields . add_filter( 'wpgraphql_acf_regis…",
+      "relatedActions": [],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Add Edit Link to All Post Types",
+      "slug": "add-edit-link-to-all-post-types",
+      "uri": "/recipes/add-edit-link-to-all-post-types",
+      "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
+      "uriKey": "/recipes/add-edit-link-to-all-post-types",
+      "group": "Custom Fields",
+      "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_field"
+      ]
+    },
+    {
+      "title": "Add field for unencoded content",
+      "slug": "add-field-for-unencoded-content",
+      "uri": "/recipes/add-field-for-unencoded-content",
+      "wordpressUri": "/recipes/add-field-for-unencoded-content/",
+      "uriKey": "/recipes/add-field-for-unencoded-content",
+      "group": "Custom Fields",
+      "summary": "The following adds a field to the NodeWithContentEditor interface to get the unencoded content for a post: add_action( 'graphql_register_types', function() { register_graphql_field( 'NodeWithContentEditor', 'unencodedCon…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_field"
+      ]
+    },
+    {
+      "title": "Add field to output URLs for Sitemap",
+      "slug": "add-field-to-output-urls-for-sitemap",
+      "uri": "/recipes/add-field-to-output-urls-for-sitemap",
+      "wordpressUri": "/recipes/add-field-to-output-urls-for-sitemap/",
+      "uriKey": "/recipes/add-field-to-output-urls-for-sitemap",
+      "group": "Custom Fields",
+      "summary": "The following code is an example of how you can create a field called allUrls that will output site URLs that could be used to generate a sitemap. The resolver uses mostly hard-coded data, but shows what a potential solu…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "register_graphql_field"
+      ]
+    },
+    {
+      "title": "Add Primary Category field for The SEO Framework plugin",
+      "slug": "add-primary-category-field-for-the-seo-framework-plugin",
+      "uri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin",
+      "wordpressUri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin/",
+      "uriKey": "/recipes/add-primary-category-field-for-the-seo-framework-plugin",
+      "group": "Custom Fields",
+      "summary": "The following adds a field called primaryCat field when using The SEO Framework WordPress Plugin add_action( 'init', function() { register_graphql_connection([ 'fromType' => 'Post', 'toType' => 'Category', 'fromFieldName…",
+      "relatedActions": [],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "register_graphql_connection"
+      ]
+    },
+    {
+      "title": "Add WP Admin Color Schemes to WPGraphQL",
+      "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+      "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+      "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+      "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+      "group": "WP Admin",
+      "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_field",
+        "register_graphql_object_type"
+      ]
+    },
+    {
+      "title": "Allow login mutation to be public when the endpoint is fully restricted",
+      "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+      "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+      "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+      "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+      "group": "Authorization",
+      "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_require_authentication_allowed_fields",
+        "request"
+      ],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Changing the Server Debug Flag",
+      "slug": "change-the-debug-flag",
+      "uri": "/recipes/change-the-debug-flag",
+      "wordpressUri": "/recipes/change-the-debug-flag/",
+      "uriKey": "/recipes/change-the-debug-flag",
+      "group": "Extensions",
+      "summary": "The following snippets show how to change the Debug Flag for the GraphQL Server execution. By default, the function callstack trace is not included with errors data unless users are logged in. If you wanted to track this…",
+      "relatedActions": [
+        "graphql_server_config"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Debugging JWT Authentication",
+      "slug": "debugging-jwt-authentication",
+      "uri": "/recipes/debugging-jwt-authentication",
+      "wordpressUri": "/recipes/debugging-jwt-authentication/",
+      "uriKey": "/recipes/debugging-jwt-authentication",
+      "group": "WP Admin",
+      "summary": "This snippet outputs the $_SERVER superglobal so we can see if the Authorization token is being passed to the server or not. add_action( 'init', function() { if ( is_graphql_http_request() ) { wp_send_json( [ 'server' =>…",
+      "relatedActions": [],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "is_graphql_http_request"
+      ]
+    },
+    {
+      "title": "Deprecating a field in the Schema",
+      "slug": "deprecating-a-field-in-the-schema",
+      "uri": "/recipes/deprecating-a-field-in-the-schema",
+      "wordpressUri": "/recipes/deprecating-a-field-in-the-schema/",
+      "uriKey": "/recipes/deprecating-a-field-in-the-schema",
+      "group": "Custom Fields",
+      "summary": "Sometimes it can be helpful to deprecate a field in the Schema without removing it altogether. This snippet shows how to deprecate the `Post.excerpt` field. You can use this technique to deprecate other fields. // Filter…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_object_fields"
+      ],
+      "relatedFunctions": []
+    },
+    {
+      "title": "Filter Connection Args",
+      "slug": "filter-connection-args",
+      "uri": "/recipes/filter-connection-args",
+      "wordpressUri": "/recipes/filter-connection-args/",
+      "uriKey": "/recipes/filter-connection-args",
+      "group": "Uncategorized",
+      "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_connection_query_args"
+      ],
+      "relatedFunctions": []
+    },
+    {
+      "title": "Filter to add restricted field on Model",
+      "slug": "filter-to-add-restricted-field-on-model",
+      "uri": "/recipes/filter-to-add-restricted-field-on-model",
+      "wordpressUri": "/recipes/filter-to-add-restricted-field-on-model/",
+      "uriKey": "/recipes/filter-to-add-restricted-field-on-model",
+      "group": "Queries",
+      "summary": "Labels on Post Types are not publicly exposed by WordPress. They are attributes for use in the Admin, and are treated with respect to proper access to the admin. To see the labels, the user requesting them must be authen…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "request"
+      ],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+      "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+      "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+      "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+      "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+      "group": "Uncategorized",
+      "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_term_object_connection_query_args",
+        "request"
+      ],
+      "relatedFunctions": [
+        "graphql",
+        "is_graphql_request"
+      ]
+    },
+    {
+      "title": "Fix pagination conflict with the “Post Type Order” plugin",
+      "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+      "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+      "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+      "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+      "group": "Uncategorized",
+      "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_post_object_connection_query_args",
+        "request"
+      ],
+      "relatedFunctions": [
+        "graphql",
+        "is_graphql_request"
+      ]
+    },
+    {
+      "title": "List of Key Values",
+      "slug": "list-of-key-values",
+      "uri": "/recipes/list-of-key-values",
+      "wordpressUri": "/recipes/list-of-key-values/",
+      "uriKey": "/recipes/list-of-key-values",
+      "group": "Custom Fields",
+      "summary": "This is an example showing how to return a list of keys and values where the keys and values are both strings. add_action( 'graphql_register_types', function() { register_graphql_object_type( 'keyValue', [ 'description'…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "register_graphql_field",
+        "register_graphql_object_type"
+      ]
+    },
+    {
+      "title": "Log WPGraphQL requests to error log",
+      "slug": "log-wpgraphql-requests-to-error-log",
+      "uri": "/recipes/log-wpgraphql-requests-to-error-log",
+      "wordpressUri": "/recipes/log-wpgraphql-requests-to-error-log/",
+      "uriKey": "/recipes/log-wpgraphql-requests-to-error-log",
+      "group": "WP Admin",
+      "summary": "This snippet logs all WPGraphQL requests to the error log add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) { error_log( wp_json_encode( [ 'query' => $query, 'operation' => $operation,…",
+      "relatedActions": [
+        "do_graphql_request"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "do_graphql_request"
+      ]
+    },
+    {
+      "title": "Make all Users Public",
+      "slug": "make-all-users-public",
+      "uri": "/recipes/make-all-users-public",
+      "wordpressUri": "/recipes/make-all-users-public/",
+      "uriKey": "/recipes/make-all-users-public",
+      "group": "Authorization",
+      "summary": "The following snippets allow for Users with no published content to be shown in public (non-authenticated) WPGraphQL query results. For a more detailed write-up, read the blog post: Allowing WPGraphQL to show unpublished…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_connection_query_args",
+        "graphql_object_visibility"
+      ],
+      "relatedFunctions": []
+    },
+    {
+      "title": "Making Menus and Menu Items public",
+      "slug": "making-menus-and-menu-items-public",
+      "uri": "/recipes/making-menus-and-menu-items-public",
+      "wordpressUri": "/recipes/making-menus-and-menu-items-public/",
+      "uriKey": "/recipes/making-menus-and-menu-items-public",
+      "group": "Authorization",
+      "summary": "By default, Menus and Menu Items that are not assigned to a Menu Location are considered private, meaning they are not exposed in non-authenticated WPGraphQL Queries. If you want to expose Menus and Menu Items that are n…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_data_is_private"
+      ],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Page Siblings Connection",
+      "slug": "page-siblings-connection",
+      "uri": "/recipes/page-siblings-connection",
+      "wordpressUri": "/recipes/page-siblings-connection/",
+      "uriKey": "/recipes/page-siblings-connection",
+      "group": "Uncategorized",
+      "summary": "Below is a connection that adds the ability to query page siblings (i.e. pages that share the same parent) add_action( 'graphql_register_types', function() { register_graphql_connection( [ 'fromType' => 'Page', 'toType'…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "register_graphql_connection"
+      ]
+    },
+    {
+      "title": "Popular Posts",
+      "slug": "popular-posts",
+      "uri": "/recipes/popular-posts",
+      "wordpressUri": "/recipes/popular-posts/",
+      "uriKey": "/recipes/popular-posts",
+      "group": "Custom Post Types",
+      "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_connection",
+        "register_graphql_field"
+      ]
+    },
+    {
+      "title": "Query the Homepage",
+      "slug": "query-the-homepage",
+      "uri": "/recipes/query-the-homepage",
+      "wordpressUri": "/recipes/query-the-homepage/",
+      "uriKey": "/recipes/query-the-homepage",
+      "group": "Queries",
+      "summary": "In WordPress, the homepage can be a Page or an archive of posts of the Post post_type (which is represented by WPGraphQL as a “ContentType” node). This query allows you to query the homepage, and specify what…",
+      "relatedActions": [],
+      "relatedFilters": [],
+      "relatedFunctions": []
+    },
+    {
+      "title": "Register a basic Mutation",
+      "slug": "register-a-basic-mutation",
+      "uri": "/recipes/register-a-basic-mutation",
+      "wordpressUri": "/recipes/register-a-basic-mutation/",
+      "uriKey": "/recipes/register-a-basic-mutation",
+      "group": "Custom Fields",
+      "summary": "This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output. add_action( 'graphql_register_types', function()…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_mutation"
+      ]
+    },
+    {
+      "title": "Register Connection to Attached Media",
+      "slug": "register-connection-to-attached-media",
+      "uri": "/recipes/register-connection-to-attached-media",
+      "wordpressUri": "/recipes/register-connection-to-attached-media/",
+      "uriKey": "/recipes/register-connection-to-attached-media",
+      "group": "Custom Post Types",
+      "summary": "This code shows how to register a connection to attached media in WPGraphQL add_action( 'graphql_register_types', function() { register_graphql_connection([ 'fromType' => 'ContentNode', 'toType' => 'MediaItem', 'fromFiel…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "register_graphql_connection"
+      ]
+    },
+    {
+      "title": "Register field as a list of strings",
+      "slug": "register-field-as-a-list-of-strings",
+      "uri": "/recipes/register-field-as-a-list-of-strings",
+      "wordpressUri": "/recipes/register-field-as-a-list-of-strings/",
+      "uriKey": "/recipes/register-field-as-a-list-of-strings",
+      "group": "Custom Fields",
+      "summary": "The below code registers a field called listOfStrings that returns a list of strings as the result: add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'listOfStrings', [ 'type' => [ '…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "register_graphql_field"
+      ]
+    },
+    {
+      "title": "Register GraphQL Field with Argument",
+      "slug": "register-graphql-field-with-argument",
+      "uri": "/recipes/register-graphql-field-with-argument",
+      "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+      "uriKey": "/recipes/register-graphql-field-with-argument",
+      "group": "Custom Fields",
+      "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [
+        "request"
+      ],
+      "relatedFunctions": [
+        "register_graphql_field"
+      ]
+    },
+    {
+      "title": "Register object and field for custom list of users",
+      "slug": "register-object-and-field-for-custom-list-of-users",
+      "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+      "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+      "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+      "group": "Custom Fields",
+      "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_field",
+        "register_graphql_object_type"
+      ]
+    },
+    {
+      "title": "Remove Extensions from GraphQL Response",
+      "slug": "remove-extensions-from-graphql-response",
+      "uri": "/recipes/remove-extensions-from-graphql-response",
+      "wordpressUri": "/recipes/remove-extensions-from-graphql-response/",
+      "uriKey": "/recipes/remove-extensions-from-graphql-response",
+      "group": "Execution",
+      "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_request_results"
+      ],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Showing Post Type labels in public queries",
+      "slug": "showing-post-type-labels-in-public-queries",
+      "uri": "/recipes/showing-post-type-labels-in-public-queries",
+      "wordpressUri": "/recipes/showing-post-type-labels-in-public-queries/",
+      "uriKey": "/recipes/showing-post-type-labels-in-public-queries",
+      "group": "Authorization",
+      "summary": "WPGraphQL respects WordPress core access control rights. This means that data that is only available to authenticated users in the WordPress admin is only available to authenticated users making GraphQL requests. Sometim…",
+      "relatedActions": [],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Tag to Content Node Connection",
+      "slug": "tag-to-content-node-connection",
+      "uri": "/recipes/tag-to-content-node-connection",
+      "wordpressUri": "/recipes/tag-to-content-node-connection/",
+      "uriKey": "/recipes/tag-to-content-node-connection",
+      "group": "Custom Post Types",
+      "summary": "The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term. add_action( '…",
+      "relatedActions": [
+        "graphql_register_types"
+      ],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql",
+        "register_graphql_connection"
+      ]
+    },
+    {
+      "title": "Update WPGraphQL Endpoint URL",
+      "slug": "update-wpgraphql-endpoint-url",
+      "uri": "/recipes/update-wpgraphql-endpoint-url",
+      "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+      "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+      "group": "WP Admin",
+      "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+      "relatedActions": [],
+      "relatedFilters": [
+        "graphql_endpoint"
+      ],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    },
+    {
+      "title": "Using GraphQL Fragments in PHP",
+      "slug": "using-graphql-fragments-in-php",
+      "uri": "/recipes/using-graphql-fragments-in-php",
+      "wordpressUri": "/recipes/using-graphql-fragments-in-php/",
+      "uriKey": "/recipes/using-graphql-fragments-in-php",
+      "group": "Queries",
+      "summary": "You can execute GraphQL queries in PHP. In this case, we even show using a GraphQL Fragment. add_action( 'init', function() { $results = graphql([ 'query' => ' { posts { nodes { ...PostFields } } } fragment PostFields on…",
+      "relatedActions": [],
+      "relatedFilters": [],
+      "relatedFunctions": [
+        "graphql"
+      ]
+    }
+  ],
+  "relations": {
+    "actions": {
+      "graphql_register_types": [
+        {
+          "title": "Add Edit Link to All Post Types",
+          "slug": "add-edit-link-to-all-post-types",
+          "uri": "/recipes/add-edit-link-to-all-post-types",
+          "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
+          "uriKey": "/recipes/add-edit-link-to-all-post-types",
+          "group": "Custom Fields",
+          "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field for unencoded content",
+          "slug": "add-field-for-unencoded-content",
+          "uri": "/recipes/add-field-for-unencoded-content",
+          "wordpressUri": "/recipes/add-field-for-unencoded-content/",
+          "uriKey": "/recipes/add-field-for-unencoded-content",
+          "group": "Custom Fields",
+          "summary": "The following adds a field to the NodeWithContentEditor interface to get the unencoded content for a post: add_action( 'graphql_register_types', function() { register_graphql_field( 'NodeWithContentEditor', 'unencodedCon…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field to output URLs for Sitemap",
+          "slug": "add-field-to-output-urls-for-sitemap",
+          "uri": "/recipes/add-field-to-output-urls-for-sitemap",
+          "wordpressUri": "/recipes/add-field-to-output-urls-for-sitemap/",
+          "uriKey": "/recipes/add-field-to-output-urls-for-sitemap",
+          "group": "Custom Fields",
+          "summary": "The following code is an example of how you can create a field called allUrls that will output site URLs that could be used to generate a sitemap. The resolver uses mostly hard-coded data, but shows what a potential solu…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+          "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "group": "WP Admin",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "List of Key Values",
+          "slug": "list-of-key-values",
+          "uri": "/recipes/list-of-key-values",
+          "wordpressUri": "/recipes/list-of-key-values/",
+          "uriKey": "/recipes/list-of-key-values",
+          "group": "Custom Fields",
+          "summary": "This is an example showing how to return a list of keys and values where the keys and values are both strings. add_action( 'graphql_register_types', function() { register_graphql_object_type( 'keyValue', [ 'description'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Page Siblings Connection",
+          "slug": "page-siblings-connection",
+          "uri": "/recipes/page-siblings-connection",
+          "wordpressUri": "/recipes/page-siblings-connection/",
+          "uriKey": "/recipes/page-siblings-connection",
+          "group": "Uncategorized",
+          "summary": "Below is a connection that adds the ability to query page siblings (i.e. pages that share the same parent) add_action( 'graphql_register_types', function() { register_graphql_connection( [ 'fromType' => 'Page', 'toType'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Popular Posts",
+          "slug": "popular-posts",
+          "uri": "/recipes/popular-posts",
+          "wordpressUri": "/recipes/popular-posts/",
+          "uriKey": "/recipes/popular-posts",
+          "group": "Custom Post Types",
+          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register a basic Mutation",
+          "slug": "register-a-basic-mutation",
+          "uri": "/recipes/register-a-basic-mutation",
+          "wordpressUri": "/recipes/register-a-basic-mutation/",
+          "uriKey": "/recipes/register-a-basic-mutation",
+          "group": "Custom Fields",
+          "summary": "This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output. add_action( 'graphql_register_types', function()…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_mutation"
+          ]
+        },
+        {
+          "title": "Register Connection to Attached Media",
+          "slug": "register-connection-to-attached-media",
+          "uri": "/recipes/register-connection-to-attached-media",
+          "wordpressUri": "/recipes/register-connection-to-attached-media/",
+          "uriKey": "/recipes/register-connection-to-attached-media",
+          "group": "Custom Post Types",
+          "summary": "This code shows how to register a connection to attached media in WPGraphQL add_action( 'graphql_register_types', function() { register_graphql_connection([ 'fromType' => 'ContentNode', 'toType' => 'MediaItem', 'fromFiel…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Register field as a list of strings",
+          "slug": "register-field-as-a-list-of-strings",
+          "uri": "/recipes/register-field-as-a-list-of-strings",
+          "wordpressUri": "/recipes/register-field-as-a-list-of-strings/",
+          "uriKey": "/recipes/register-field-as-a-list-of-strings",
+          "group": "Custom Fields",
+          "summary": "The below code registers a field called listOfStrings that returns a list of strings as the result: add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'listOfStrings', [ 'type' => [ '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register GraphQL Field with Argument",
+          "slug": "register-graphql-field-with-argument",
+          "uri": "/recipes/register-graphql-field-with-argument",
+          "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+          "uriKey": "/recipes/register-graphql-field-with-argument",
+          "group": "Custom Fields",
+          "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "slug": "register-object-and-field-for-custom-list-of-users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+          "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "group": "Custom Fields",
+          "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Tag to Content Node Connection",
+          "slug": "tag-to-content-node-connection",
+          "uri": "/recipes/tag-to-content-node-connection",
+          "wordpressUri": "/recipes/tag-to-content-node-connection/",
+          "uriKey": "/recipes/tag-to-content-node-connection",
+          "group": "Custom Post Types",
+          "summary": "The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term. add_action( '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection"
+          ]
+        }
+      ],
+      "graphql_server_config": [
+        {
+          "title": "Changing the Server Debug Flag",
+          "slug": "change-the-debug-flag",
+          "uri": "/recipes/change-the-debug-flag",
+          "wordpressUri": "/recipes/change-the-debug-flag/",
+          "uriKey": "/recipes/change-the-debug-flag",
+          "group": "Extensions",
+          "summary": "The following snippets show how to change the Debug Flag for the GraphQL Server execution. By default, the function callstack trace is not included with errors data unless users are logged in. If you wanted to track this…",
+          "relatedActions": [
+            "graphql_server_config"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ],
+      "do_graphql_request": [
+        {
+          "title": "Log WPGraphQL requests to error log",
+          "slug": "log-wpgraphql-requests-to-error-log",
+          "uri": "/recipes/log-wpgraphql-requests-to-error-log",
+          "wordpressUri": "/recipes/log-wpgraphql-requests-to-error-log/",
+          "uriKey": "/recipes/log-wpgraphql-requests-to-error-log",
+          "group": "WP Admin",
+          "summary": "This snippet logs all WPGraphQL requests to the error log add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) { error_log( wp_json_encode( [ 'query' => $query, 'operation' => $operation,…",
+          "relatedActions": [
+            "do_graphql_request"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "do_graphql_request"
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "graphql_require_authentication_allowed_fields": [
+        {
+          "title": "Allow login mutation to be public when the endpoint is fully restricted",
+          "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+          "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "group": "Authorization",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_require_authentication_allowed_fields",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ],
+      "request": [
+        {
+          "title": "Allow login mutation to be public when the endpoint is fully restricted",
+          "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+          "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "group": "Authorization",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_require_authentication_allowed_fields",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Filter to add restricted field on Model",
+          "slug": "filter-to-add-restricted-field-on-model",
+          "uri": "/recipes/filter-to-add-restricted-field-on-model",
+          "wordpressUri": "/recipes/filter-to-add-restricted-field-on-model/",
+          "uriKey": "/recipes/filter-to-add-restricted-field-on-model",
+          "group": "Queries",
+          "summary": "Labels on Post Types are not publicly exposed by WordPress. They are attributes for use in the Admin, and are treated with respect to proper access to the admin. To see the labels, the user requesting them must be authen…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_term_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_post_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Register GraphQL Field with Argument",
+          "slug": "register-graphql-field-with-argument",
+          "uri": "/recipes/register-graphql-field-with-argument",
+          "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+          "uriKey": "/recipes/register-graphql-field-with-argument",
+          "group": "Custom Fields",
+          "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        }
+      ],
+      "graphql_object_fields": [
+        {
+          "title": "Deprecating a field in the Schema",
+          "slug": "deprecating-a-field-in-the-schema",
+          "uri": "/recipes/deprecating-a-field-in-the-schema",
+          "wordpressUri": "/recipes/deprecating-a-field-in-the-schema/",
+          "uriKey": "/recipes/deprecating-a-field-in-the-schema",
+          "group": "Custom Fields",
+          "summary": "Sometimes it can be helpful to deprecate a field in the Schema without removing it altogether. This snippet shows how to deprecate the `Post.excerpt` field. You can use this technique to deprecate other fields. // Filter…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_object_fields"
+          ],
+          "relatedFunctions": []
+        }
+      ],
+      "graphql_connection_query_args": [
+        {
+          "title": "Filter Connection Args",
+          "slug": "filter-connection-args",
+          "uri": "/recipes/filter-connection-args",
+          "wordpressUri": "/recipes/filter-connection-args/",
+          "uriKey": "/recipes/filter-connection-args",
+          "group": "Uncategorized",
+          "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_connection_query_args"
+          ],
+          "relatedFunctions": []
+        },
+        {
+          "title": "Make all Users Public",
+          "slug": "make-all-users-public",
+          "uri": "/recipes/make-all-users-public",
+          "wordpressUri": "/recipes/make-all-users-public/",
+          "uriKey": "/recipes/make-all-users-public",
+          "group": "Authorization",
+          "summary": "The following snippets allow for Users with no published content to be shown in public (non-authenticated) WPGraphQL query results. For a more detailed write-up, read the blog post: Allowing WPGraphQL to show unpublished…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_connection_query_args",
+            "graphql_object_visibility"
+          ],
+          "relatedFunctions": []
+        }
+      ],
+      "graphql_term_object_connection_query_args": [
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_term_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        }
+      ],
+      "graphql_post_object_connection_query_args": [
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_post_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        }
+      ],
+      "graphql_object_visibility": [
+        {
+          "title": "Make all Users Public",
+          "slug": "make-all-users-public",
+          "uri": "/recipes/make-all-users-public",
+          "wordpressUri": "/recipes/make-all-users-public/",
+          "uriKey": "/recipes/make-all-users-public",
+          "group": "Authorization",
+          "summary": "The following snippets allow for Users with no published content to be shown in public (non-authenticated) WPGraphQL query results. For a more detailed write-up, read the blog post: Allowing WPGraphQL to show unpublished…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_connection_query_args",
+            "graphql_object_visibility"
+          ],
+          "relatedFunctions": []
+        }
+      ],
+      "graphql_data_is_private": [
+        {
+          "title": "Making Menus and Menu Items public",
+          "slug": "making-menus-and-menu-items-public",
+          "uri": "/recipes/making-menus-and-menu-items-public",
+          "wordpressUri": "/recipes/making-menus-and-menu-items-public/",
+          "uriKey": "/recipes/making-menus-and-menu-items-public",
+          "group": "Authorization",
+          "summary": "By default, Menus and Menu Items that are not assigned to a Menu Location are considered private, meaning they are not exposed in non-authenticated WPGraphQL Queries. If you want to expose Menus and Menu Items that are n…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_data_is_private"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ],
+      "graphql_request_results": [
+        {
+          "title": "Remove Extensions from GraphQL Response",
+          "slug": "remove-extensions-from-graphql-response",
+          "uri": "/recipes/remove-extensions-from-graphql-response",
+          "wordpressUri": "/recipes/remove-extensions-from-graphql-response/",
+          "uriKey": "/recipes/remove-extensions-from-graphql-response",
+          "group": "Execution",
+          "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_request_results"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ],
+      "graphql_endpoint": [
+        {
+          "title": "Update WPGraphQL Endpoint URL",
+          "slug": "update-wpgraphql-endpoint-url",
+          "uri": "/recipes/update-wpgraphql-endpoint-url",
+          "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+          "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+          "group": "WP Admin",
+          "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_endpoint"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
+    },
+    "functions": {
+      "graphql": [
+        {
+          "title": "ACF Nav Menu Plugin Support",
+          "slug": "acf-nav-menu-plugin-support",
+          "uri": "/recipes/acf-nav-menu-plugin-support",
+          "wordpressUri": "/recipes/acf-nav-menu-plugin-support/",
+          "uriKey": "/recipes/acf-nav-menu-plugin-support",
+          "group": "Uncategorized",
+          "summary": "This adds support (native) for the ACF Nav Menu field plugin ( https://github.com/jgraup/advanced-custom-fields-nav-menu-field ). This also requires WPGraphQL for Advanced Custom Fields . add_filter( 'wpgraphql_acf_regis…",
+          "relatedActions": [],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Add Edit Link to All Post Types",
+          "slug": "add-edit-link-to-all-post-types",
+          "uri": "/recipes/add-edit-link-to-all-post-types",
+          "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
+          "uriKey": "/recipes/add-edit-link-to-all-post-types",
+          "group": "Custom Fields",
+          "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field for unencoded content",
+          "slug": "add-field-for-unencoded-content",
+          "uri": "/recipes/add-field-for-unencoded-content",
+          "wordpressUri": "/recipes/add-field-for-unencoded-content/",
+          "uriKey": "/recipes/add-field-for-unencoded-content",
+          "group": "Custom Fields",
+          "summary": "The following adds a field to the NodeWithContentEditor interface to get the unencoded content for a post: add_action( 'graphql_register_types', function() { register_graphql_field( 'NodeWithContentEditor', 'unencodedCon…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+          "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "group": "WP Admin",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Allow login mutation to be public when the endpoint is fully restricted",
+          "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+          "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "group": "Authorization",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_require_authentication_allowed_fields",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Changing the Server Debug Flag",
+          "slug": "change-the-debug-flag",
+          "uri": "/recipes/change-the-debug-flag",
+          "wordpressUri": "/recipes/change-the-debug-flag/",
+          "uriKey": "/recipes/change-the-debug-flag",
+          "group": "Extensions",
+          "summary": "The following snippets show how to change the Debug Flag for the GraphQL Server execution. By default, the function callstack trace is not included with errors data unless users are logged in. If you wanted to track this…",
+          "relatedActions": [
+            "graphql_server_config"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Filter to add restricted field on Model",
+          "slug": "filter-to-add-restricted-field-on-model",
+          "uri": "/recipes/filter-to-add-restricted-field-on-model",
+          "wordpressUri": "/recipes/filter-to-add-restricted-field-on-model/",
+          "uriKey": "/recipes/filter-to-add-restricted-field-on-model",
+          "group": "Queries",
+          "summary": "Labels on Post Types are not publicly exposed by WordPress. They are attributes for use in the Admin, and are treated with respect to proper access to the admin. To see the labels, the user requesting them must be authen…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_term_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_post_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Making Menus and Menu Items public",
+          "slug": "making-menus-and-menu-items-public",
+          "uri": "/recipes/making-menus-and-menu-items-public",
+          "wordpressUri": "/recipes/making-menus-and-menu-items-public/",
+          "uriKey": "/recipes/making-menus-and-menu-items-public",
+          "group": "Authorization",
+          "summary": "By default, Menus and Menu Items that are not assigned to a Menu Location are considered private, meaning they are not exposed in non-authenticated WPGraphQL Queries. If you want to expose Menus and Menu Items that are n…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_data_is_private"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Popular Posts",
+          "slug": "popular-posts",
+          "uri": "/recipes/popular-posts",
+          "wordpressUri": "/recipes/popular-posts/",
+          "uriKey": "/recipes/popular-posts",
+          "group": "Custom Post Types",
+          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register a basic Mutation",
+          "slug": "register-a-basic-mutation",
+          "uri": "/recipes/register-a-basic-mutation",
+          "wordpressUri": "/recipes/register-a-basic-mutation/",
+          "uriKey": "/recipes/register-a-basic-mutation",
+          "group": "Custom Fields",
+          "summary": "This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output. add_action( 'graphql_register_types', function()…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_mutation"
+          ]
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "slug": "register-object-and-field-for-custom-list-of-users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+          "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "group": "Custom Fields",
+          "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Remove Extensions from GraphQL Response",
+          "slug": "remove-extensions-from-graphql-response",
+          "uri": "/recipes/remove-extensions-from-graphql-response",
+          "wordpressUri": "/recipes/remove-extensions-from-graphql-response/",
+          "uriKey": "/recipes/remove-extensions-from-graphql-response",
+          "group": "Execution",
+          "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_request_results"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Showing Post Type labels in public queries",
+          "slug": "showing-post-type-labels-in-public-queries",
+          "uri": "/recipes/showing-post-type-labels-in-public-queries",
+          "wordpressUri": "/recipes/showing-post-type-labels-in-public-queries/",
+          "uriKey": "/recipes/showing-post-type-labels-in-public-queries",
+          "group": "Authorization",
+          "summary": "WPGraphQL respects WordPress core access control rights. This means that data that is only available to authenticated users in the WordPress admin is only available to authenticated users making GraphQL requests. Sometim…",
+          "relatedActions": [],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Tag to Content Node Connection",
+          "slug": "tag-to-content-node-connection",
+          "uri": "/recipes/tag-to-content-node-connection",
+          "wordpressUri": "/recipes/tag-to-content-node-connection/",
+          "uriKey": "/recipes/tag-to-content-node-connection",
+          "group": "Custom Post Types",
+          "summary": "The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term. add_action( '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Update WPGraphQL Endpoint URL",
+          "slug": "update-wpgraphql-endpoint-url",
+          "uri": "/recipes/update-wpgraphql-endpoint-url",
+          "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+          "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+          "group": "WP Admin",
+          "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_endpoint"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Using GraphQL Fragments in PHP",
+          "slug": "using-graphql-fragments-in-php",
+          "uri": "/recipes/using-graphql-fragments-in-php",
+          "wordpressUri": "/recipes/using-graphql-fragments-in-php/",
+          "uriKey": "/recipes/using-graphql-fragments-in-php",
+          "group": "Queries",
+          "summary": "You can execute GraphQL queries in PHP. In this case, we even show using a GraphQL Fragment. add_action( 'init', function() { $results = graphql([ 'query' => ' { posts { nodes { ...PostFields } } } fragment PostFields on…",
+          "relatedActions": [],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ],
+      "register_graphql_field": [
+        {
+          "title": "Add Edit Link to All Post Types",
+          "slug": "add-edit-link-to-all-post-types",
+          "uri": "/recipes/add-edit-link-to-all-post-types",
+          "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
+          "uriKey": "/recipes/add-edit-link-to-all-post-types",
+          "group": "Custom Fields",
+          "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field for unencoded content",
+          "slug": "add-field-for-unencoded-content",
+          "uri": "/recipes/add-field-for-unencoded-content",
+          "wordpressUri": "/recipes/add-field-for-unencoded-content/",
+          "uriKey": "/recipes/add-field-for-unencoded-content",
+          "group": "Custom Fields",
+          "summary": "The following adds a field to the NodeWithContentEditor interface to get the unencoded content for a post: add_action( 'graphql_register_types', function() { register_graphql_field( 'NodeWithContentEditor', 'unencodedCon…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field to output URLs for Sitemap",
+          "slug": "add-field-to-output-urls-for-sitemap",
+          "uri": "/recipes/add-field-to-output-urls-for-sitemap",
+          "wordpressUri": "/recipes/add-field-to-output-urls-for-sitemap/",
+          "uriKey": "/recipes/add-field-to-output-urls-for-sitemap",
+          "group": "Custom Fields",
+          "summary": "The following code is an example of how you can create a field called allUrls that will output site URLs that could be used to generate a sitemap. The resolver uses mostly hard-coded data, but shows what a potential solu…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+          "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "group": "WP Admin",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "List of Key Values",
+          "slug": "list-of-key-values",
+          "uri": "/recipes/list-of-key-values",
+          "wordpressUri": "/recipes/list-of-key-values/",
+          "uriKey": "/recipes/list-of-key-values",
+          "group": "Custom Fields",
+          "summary": "This is an example showing how to return a list of keys and values where the keys and values are both strings. add_action( 'graphql_register_types', function() { register_graphql_object_type( 'keyValue', [ 'description'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Popular Posts",
+          "slug": "popular-posts",
+          "uri": "/recipes/popular-posts",
+          "wordpressUri": "/recipes/popular-posts/",
+          "uriKey": "/recipes/popular-posts",
+          "group": "Custom Post Types",
+          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register field as a list of strings",
+          "slug": "register-field-as-a-list-of-strings",
+          "uri": "/recipes/register-field-as-a-list-of-strings",
+          "wordpressUri": "/recipes/register-field-as-a-list-of-strings/",
+          "uriKey": "/recipes/register-field-as-a-list-of-strings",
+          "group": "Custom Fields",
+          "summary": "The below code registers a field called listOfStrings that returns a list of strings as the result: add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'listOfStrings', [ 'type' => [ '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register GraphQL Field with Argument",
+          "slug": "register-graphql-field-with-argument",
+          "uri": "/recipes/register-graphql-field-with-argument",
+          "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+          "uriKey": "/recipes/register-graphql-field-with-argument",
+          "group": "Custom Fields",
+          "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "slug": "register-object-and-field-for-custom-list-of-users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+          "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "group": "Custom Fields",
+          "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        }
+      ],
+      "register_graphql_connection": [
+        {
+          "title": "Add Primary Category field for The SEO Framework plugin",
+          "slug": "add-primary-category-field-for-the-seo-framework-plugin",
+          "uri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin",
+          "wordpressUri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin/",
+          "uriKey": "/recipes/add-primary-category-field-for-the-seo-framework-plugin",
+          "group": "Custom Fields",
+          "summary": "The following adds a field called primaryCat field when using The SEO Framework WordPress Plugin add_action( 'init', function() { register_graphql_connection([ 'fromType' => 'Post', 'toType' => 'Category', 'fromFieldName…",
+          "relatedActions": [],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Page Siblings Connection",
+          "slug": "page-siblings-connection",
+          "uri": "/recipes/page-siblings-connection",
+          "wordpressUri": "/recipes/page-siblings-connection/",
+          "uriKey": "/recipes/page-siblings-connection",
+          "group": "Uncategorized",
+          "summary": "Below is a connection that adds the ability to query page siblings (i.e. pages that share the same parent) add_action( 'graphql_register_types', function() { register_graphql_connection( [ 'fromType' => 'Page', 'toType'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Popular Posts",
+          "slug": "popular-posts",
+          "uri": "/recipes/popular-posts",
+          "wordpressUri": "/recipes/popular-posts/",
+          "uriKey": "/recipes/popular-posts",
+          "group": "Custom Post Types",
+          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register Connection to Attached Media",
+          "slug": "register-connection-to-attached-media",
+          "uri": "/recipes/register-connection-to-attached-media",
+          "wordpressUri": "/recipes/register-connection-to-attached-media/",
+          "uriKey": "/recipes/register-connection-to-attached-media",
+          "group": "Custom Post Types",
+          "summary": "This code shows how to register a connection to attached media in WPGraphQL add_action( 'graphql_register_types', function() { register_graphql_connection([ 'fromType' => 'ContentNode', 'toType' => 'MediaItem', 'fromFiel…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Tag to Content Node Connection",
+          "slug": "tag-to-content-node-connection",
+          "uri": "/recipes/tag-to-content-node-connection",
+          "wordpressUri": "/recipes/tag-to-content-node-connection/",
+          "uriKey": "/recipes/tag-to-content-node-connection",
+          "group": "Custom Post Types",
+          "summary": "The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term. add_action( '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection"
+          ]
+        }
+      ],
+      "register_graphql_object_type": [
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+          "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "group": "WP Admin",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "List of Key Values",
+          "slug": "list-of-key-values",
+          "uri": "/recipes/list-of-key-values",
+          "wordpressUri": "/recipes/list-of-key-values/",
+          "uriKey": "/recipes/list-of-key-values",
+          "group": "Custom Fields",
+          "summary": "This is an example showing how to return a list of keys and values where the keys and values are both strings. add_action( 'graphql_register_types', function() { register_graphql_object_type( 'keyValue', [ 'description'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "slug": "register-object-and-field-for-custom-list-of-users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+          "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "group": "Custom Fields",
+          "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        }
+      ],
+      "is_graphql_http_request": [
+        {
+          "title": "Debugging JWT Authentication",
+          "slug": "debugging-jwt-authentication",
+          "uri": "/recipes/debugging-jwt-authentication",
+          "wordpressUri": "/recipes/debugging-jwt-authentication/",
+          "uriKey": "/recipes/debugging-jwt-authentication",
+          "group": "WP Admin",
+          "summary": "This snippet outputs the $_SERVER superglobal so we can see if the Authorization token is being passed to the server or not. add_action( 'init', function() { if ( is_graphql_http_request() ) { wp_send_json( [ 'server' =>…",
+          "relatedActions": [],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "is_graphql_http_request"
+          ]
+        }
+      ],
+      "is_graphql_request": [
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_term_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_post_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        }
+      ],
+      "do_graphql_request": [
+        {
+          "title": "Log WPGraphQL requests to error log",
+          "slug": "log-wpgraphql-requests-to-error-log",
+          "uri": "/recipes/log-wpgraphql-requests-to-error-log",
+          "wordpressUri": "/recipes/log-wpgraphql-requests-to-error-log/",
+          "uriKey": "/recipes/log-wpgraphql-requests-to-error-log",
+          "group": "WP Admin",
+          "summary": "This snippet logs all WPGraphQL requests to the error log add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) { error_log( wp_json_encode( [ 'query' => $query, 'operation' => $operation,…",
+          "relatedActions": [
+            "do_graphql_request"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "do_graphql_request"
+          ]
+        }
+      ],
+      "register_graphql_mutation": [
+        {
+          "title": "Register a basic Mutation",
+          "slug": "register-a-basic-mutation",
+          "uri": "/recipes/register-a-basic-mutation",
+          "wordpressUri": "/recipes/register-a-basic-mutation/",
+          "uriKey": "/recipes/register-a-basic-mutation",
+          "group": "Custom Fields",
+          "summary": "This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output. add_action( 'graphql_register_types', function()…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_mutation"
+          ]
+        }
+      ]
+    },
+    "byUri": {
+      "/recipes/acf-nav-menu-plugin-support": {
+        "title": "ACF Nav Menu Plugin Support",
+        "slug": "acf-nav-menu-plugin-support",
+        "uri": "/recipes/acf-nav-menu-plugin-support",
+        "wordpressUri": "/recipes/acf-nav-menu-plugin-support/",
+        "uriKey": "/recipes/acf-nav-menu-plugin-support",
+        "group": "Uncategorized",
+        "summary": "This adds support (native) for the ACF Nav Menu field plugin ( https://github.com/jgraup/advanced-custom-fields-nav-menu-field ). This also requires WPGraphQL for Advanced Custom Fields . add_filter( 'wpgraphql_acf_regis…",
+        "relatedActions": [],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/add-edit-link-to-all-post-types": {
+        "title": "Add Edit Link to All Post Types",
+        "slug": "add-edit-link-to-all-post-types",
+        "uri": "/recipes/add-edit-link-to-all-post-types",
+        "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
+        "uriKey": "/recipes/add-edit-link-to-all-post-types",
+        "group": "Custom Fields",
+        "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_field"
+        ]
+      },
+      "/recipes/add-field-for-unencoded-content": {
+        "title": "Add field for unencoded content",
+        "slug": "add-field-for-unencoded-content",
+        "uri": "/recipes/add-field-for-unencoded-content",
+        "wordpressUri": "/recipes/add-field-for-unencoded-content/",
+        "uriKey": "/recipes/add-field-for-unencoded-content",
+        "group": "Custom Fields",
+        "summary": "The following adds a field to the NodeWithContentEditor interface to get the unencoded content for a post: add_action( 'graphql_register_types', function() { register_graphql_field( 'NodeWithContentEditor', 'unencodedCon…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_field"
+        ]
+      },
+      "/recipes/add-field-to-output-urls-for-sitemap": {
+        "title": "Add field to output URLs for Sitemap",
+        "slug": "add-field-to-output-urls-for-sitemap",
+        "uri": "/recipes/add-field-to-output-urls-for-sitemap",
+        "wordpressUri": "/recipes/add-field-to-output-urls-for-sitemap/",
+        "uriKey": "/recipes/add-field-to-output-urls-for-sitemap",
+        "group": "Custom Fields",
+        "summary": "The following code is an example of how you can create a field called allUrls that will output site URLs that could be used to generate a sitemap. The resolver uses mostly hard-coded data, but shows what a potential solu…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "register_graphql_field"
+        ]
+      },
+      "/recipes/add-primary-category-field-for-the-seo-framework-plugin": {
+        "title": "Add Primary Category field for The SEO Framework plugin",
+        "slug": "add-primary-category-field-for-the-seo-framework-plugin",
+        "uri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin",
+        "wordpressUri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin/",
+        "uriKey": "/recipes/add-primary-category-field-for-the-seo-framework-plugin",
+        "group": "Custom Fields",
+        "summary": "The following adds a field called primaryCat field when using The SEO Framework WordPress Plugin add_action( 'init', function() { register_graphql_connection([ 'fromType' => 'Post', 'toType' => 'Category', 'fromFieldName…",
+        "relatedActions": [],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "register_graphql_connection"
+        ]
+      },
+      "/recipes/add-wp-admin-color-schemes-to-wpgraphql": {
+        "title": "Add WP Admin Color Schemes to WPGraphQL",
+        "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+        "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+        "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+        "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+        "group": "WP Admin",
+        "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_field",
+          "register_graphql_object_type"
+        ]
+      },
+      "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted": {
+        "title": "Allow login mutation to be public when the endpoint is fully restricted",
+        "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+        "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+        "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+        "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+        "group": "Authorization",
+        "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_require_authentication_allowed_fields",
+          "request"
+        ],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/change-the-debug-flag": {
+        "title": "Changing the Server Debug Flag",
+        "slug": "change-the-debug-flag",
+        "uri": "/recipes/change-the-debug-flag",
+        "wordpressUri": "/recipes/change-the-debug-flag/",
+        "uriKey": "/recipes/change-the-debug-flag",
+        "group": "Extensions",
+        "summary": "The following snippets show how to change the Debug Flag for the GraphQL Server execution. By default, the function callstack trace is not included with errors data unless users are logged in. If you wanted to track this…",
+        "relatedActions": [
+          "graphql_server_config"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/debugging-jwt-authentication": {
+        "title": "Debugging JWT Authentication",
+        "slug": "debugging-jwt-authentication",
+        "uri": "/recipes/debugging-jwt-authentication",
+        "wordpressUri": "/recipes/debugging-jwt-authentication/",
+        "uriKey": "/recipes/debugging-jwt-authentication",
+        "group": "WP Admin",
+        "summary": "This snippet outputs the $_SERVER superglobal so we can see if the Authorization token is being passed to the server or not. add_action( 'init', function() { if ( is_graphql_http_request() ) { wp_send_json( [ 'server' =>…",
+        "relatedActions": [],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "is_graphql_http_request"
+        ]
+      },
+      "/recipes/deprecating-a-field-in-the-schema": {
+        "title": "Deprecating a field in the Schema",
+        "slug": "deprecating-a-field-in-the-schema",
+        "uri": "/recipes/deprecating-a-field-in-the-schema",
+        "wordpressUri": "/recipes/deprecating-a-field-in-the-schema/",
+        "uriKey": "/recipes/deprecating-a-field-in-the-schema",
+        "group": "Custom Fields",
+        "summary": "Sometimes it can be helpful to deprecate a field in the Schema without removing it altogether. This snippet shows how to deprecate the `Post.excerpt` field. You can use this technique to deprecate other fields. // Filter…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_object_fields"
+        ],
+        "relatedFunctions": []
+      },
+      "/recipes/filter-connection-args": {
+        "title": "Filter Connection Args",
+        "slug": "filter-connection-args",
+        "uri": "/recipes/filter-connection-args",
+        "wordpressUri": "/recipes/filter-connection-args/",
+        "uriKey": "/recipes/filter-connection-args",
+        "group": "Uncategorized",
+        "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_connection_query_args"
+        ],
+        "relatedFunctions": []
+      },
+      "/recipes/filter-to-add-restricted-field-on-model": {
+        "title": "Filter to add restricted field on Model",
+        "slug": "filter-to-add-restricted-field-on-model",
+        "uri": "/recipes/filter-to-add-restricted-field-on-model",
+        "wordpressUri": "/recipes/filter-to-add-restricted-field-on-model/",
+        "uriKey": "/recipes/filter-to-add-restricted-field-on-model",
+        "group": "Queries",
+        "summary": "Labels on Post Types are not publicly exposed by WordPress. They are attributes for use in the Admin, and are treated with respect to proper access to the admin. To see the labels, the user requesting them must be authen…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "request"
+        ],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin": {
+        "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+        "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+        "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+        "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+        "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+        "group": "Uncategorized",
+        "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_term_object_connection_query_args",
+          "request"
+        ],
+        "relatedFunctions": [
+          "graphql",
+          "is_graphql_request"
+        ]
+      },
+      "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin": {
+        "title": "Fix pagination conflict with the “Post Type Order” plugin",
+        "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+        "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+        "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+        "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+        "group": "Uncategorized",
+        "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_post_object_connection_query_args",
+          "request"
+        ],
+        "relatedFunctions": [
+          "graphql",
+          "is_graphql_request"
+        ]
+      },
+      "/recipes/list-of-key-values": {
+        "title": "List of Key Values",
+        "slug": "list-of-key-values",
+        "uri": "/recipes/list-of-key-values",
+        "wordpressUri": "/recipes/list-of-key-values/",
+        "uriKey": "/recipes/list-of-key-values",
+        "group": "Custom Fields",
+        "summary": "This is an example showing how to return a list of keys and values where the keys and values are both strings. add_action( 'graphql_register_types', function() { register_graphql_object_type( 'keyValue', [ 'description'…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "register_graphql_field",
+          "register_graphql_object_type"
+        ]
+      },
+      "/recipes/log-wpgraphql-requests-to-error-log": {
+        "title": "Log WPGraphQL requests to error log",
+        "slug": "log-wpgraphql-requests-to-error-log",
+        "uri": "/recipes/log-wpgraphql-requests-to-error-log",
+        "wordpressUri": "/recipes/log-wpgraphql-requests-to-error-log/",
+        "uriKey": "/recipes/log-wpgraphql-requests-to-error-log",
+        "group": "WP Admin",
+        "summary": "This snippet logs all WPGraphQL requests to the error log add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) { error_log( wp_json_encode( [ 'query' => $query, 'operation' => $operation,…",
+        "relatedActions": [
+          "do_graphql_request"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "do_graphql_request"
+        ]
+      },
+      "/recipes/make-all-users-public": {
+        "title": "Make all Users Public",
+        "slug": "make-all-users-public",
+        "uri": "/recipes/make-all-users-public",
+        "wordpressUri": "/recipes/make-all-users-public/",
+        "uriKey": "/recipes/make-all-users-public",
+        "group": "Authorization",
+        "summary": "The following snippets allow for Users with no published content to be shown in public (non-authenticated) WPGraphQL query results. For a more detailed write-up, read the blog post: Allowing WPGraphQL to show unpublished…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_connection_query_args",
+          "graphql_object_visibility"
+        ],
+        "relatedFunctions": []
+      },
+      "/recipes/making-menus-and-menu-items-public": {
+        "title": "Making Menus and Menu Items public",
+        "slug": "making-menus-and-menu-items-public",
+        "uri": "/recipes/making-menus-and-menu-items-public",
+        "wordpressUri": "/recipes/making-menus-and-menu-items-public/",
+        "uriKey": "/recipes/making-menus-and-menu-items-public",
+        "group": "Authorization",
+        "summary": "By default, Menus and Menu Items that are not assigned to a Menu Location are considered private, meaning they are not exposed in non-authenticated WPGraphQL Queries. If you want to expose Menus and Menu Items that are n…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_data_is_private"
+        ],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/page-siblings-connection": {
+        "title": "Page Siblings Connection",
+        "slug": "page-siblings-connection",
+        "uri": "/recipes/page-siblings-connection",
+        "wordpressUri": "/recipes/page-siblings-connection/",
+        "uriKey": "/recipes/page-siblings-connection",
+        "group": "Uncategorized",
+        "summary": "Below is a connection that adds the ability to query page siblings (i.e. pages that share the same parent) add_action( 'graphql_register_types', function() { register_graphql_connection( [ 'fromType' => 'Page', 'toType'…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "register_graphql_connection"
+        ]
+      },
+      "/recipes/popular-posts": {
+        "title": "Popular Posts",
+        "slug": "popular-posts",
+        "uri": "/recipes/popular-posts",
+        "wordpressUri": "/recipes/popular-posts/",
+        "uriKey": "/recipes/popular-posts",
+        "group": "Custom Post Types",
+        "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_connection",
+          "register_graphql_field"
+        ]
+      },
+      "/recipes/query-the-homepage": {
+        "title": "Query the Homepage",
+        "slug": "query-the-homepage",
+        "uri": "/recipes/query-the-homepage",
+        "wordpressUri": "/recipes/query-the-homepage/",
+        "uriKey": "/recipes/query-the-homepage",
+        "group": "Queries",
+        "summary": "In WordPress, the homepage can be a Page or an archive of posts of the Post post_type (which is represented by WPGraphQL as a “ContentType” node). This query allows you to query the homepage, and specify what…",
+        "relatedActions": [],
+        "relatedFilters": [],
+        "relatedFunctions": []
+      },
+      "/recipes/register-a-basic-mutation": {
+        "title": "Register a basic Mutation",
+        "slug": "register-a-basic-mutation",
+        "uri": "/recipes/register-a-basic-mutation",
+        "wordpressUri": "/recipes/register-a-basic-mutation/",
+        "uriKey": "/recipes/register-a-basic-mutation",
+        "group": "Custom Fields",
+        "summary": "This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output. add_action( 'graphql_register_types', function()…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_mutation"
+        ]
+      },
+      "/recipes/register-connection-to-attached-media": {
+        "title": "Register Connection to Attached Media",
+        "slug": "register-connection-to-attached-media",
+        "uri": "/recipes/register-connection-to-attached-media",
+        "wordpressUri": "/recipes/register-connection-to-attached-media/",
+        "uriKey": "/recipes/register-connection-to-attached-media",
+        "group": "Custom Post Types",
+        "summary": "This code shows how to register a connection to attached media in WPGraphQL add_action( 'graphql_register_types', function() { register_graphql_connection([ 'fromType' => 'ContentNode', 'toType' => 'MediaItem', 'fromFiel…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "register_graphql_connection"
+        ]
+      },
+      "/recipes/register-field-as-a-list-of-strings": {
+        "title": "Register field as a list of strings",
+        "slug": "register-field-as-a-list-of-strings",
+        "uri": "/recipes/register-field-as-a-list-of-strings",
+        "wordpressUri": "/recipes/register-field-as-a-list-of-strings/",
+        "uriKey": "/recipes/register-field-as-a-list-of-strings",
+        "group": "Custom Fields",
+        "summary": "The below code registers a field called listOfStrings that returns a list of strings as the result: add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'listOfStrings', [ 'type' => [ '…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "register_graphql_field"
+        ]
+      },
+      "/recipes/register-graphql-field-with-argument": {
+        "title": "Register GraphQL Field with Argument",
+        "slug": "register-graphql-field-with-argument",
+        "uri": "/recipes/register-graphql-field-with-argument",
+        "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+        "uriKey": "/recipes/register-graphql-field-with-argument",
+        "group": "Custom Fields",
+        "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [
+          "request"
+        ],
+        "relatedFunctions": [
+          "register_graphql_field"
+        ]
+      },
+      "/recipes/register-object-and-field-for-custom-list-of-users": {
+        "title": "Register object and field for custom list of users",
+        "slug": "register-object-and-field-for-custom-list-of-users",
+        "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+        "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+        "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+        "group": "Custom Fields",
+        "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_field",
+          "register_graphql_object_type"
+        ]
+      },
+      "/recipes/remove-extensions-from-graphql-response": {
+        "title": "Remove Extensions from GraphQL Response",
+        "slug": "remove-extensions-from-graphql-response",
+        "uri": "/recipes/remove-extensions-from-graphql-response",
+        "wordpressUri": "/recipes/remove-extensions-from-graphql-response/",
+        "uriKey": "/recipes/remove-extensions-from-graphql-response",
+        "group": "Execution",
+        "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_request_results"
+        ],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/showing-post-type-labels-in-public-queries": {
+        "title": "Showing Post Type labels in public queries",
+        "slug": "showing-post-type-labels-in-public-queries",
+        "uri": "/recipes/showing-post-type-labels-in-public-queries",
+        "wordpressUri": "/recipes/showing-post-type-labels-in-public-queries/",
+        "uriKey": "/recipes/showing-post-type-labels-in-public-queries",
+        "group": "Authorization",
+        "summary": "WPGraphQL respects WordPress core access control rights. This means that data that is only available to authenticated users in the WordPress admin is only available to authenticated users making GraphQL requests. Sometim…",
+        "relatedActions": [],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/tag-to-content-node-connection": {
+        "title": "Tag to Content Node Connection",
+        "slug": "tag-to-content-node-connection",
+        "uri": "/recipes/tag-to-content-node-connection",
+        "wordpressUri": "/recipes/tag-to-content-node-connection/",
+        "uriKey": "/recipes/tag-to-content-node-connection",
+        "group": "Custom Post Types",
+        "summary": "The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term. add_action( '…",
+        "relatedActions": [
+          "graphql_register_types"
+        ],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql",
+          "register_graphql_connection"
+        ]
+      },
+      "/recipes/update-wpgraphql-endpoint-url": {
+        "title": "Update WPGraphQL Endpoint URL",
+        "slug": "update-wpgraphql-endpoint-url",
+        "uri": "/recipes/update-wpgraphql-endpoint-url",
+        "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+        "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+        "group": "WP Admin",
+        "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+        "relatedActions": [],
+        "relatedFilters": [
+          "graphql_endpoint"
+        ],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      },
+      "/recipes/using-graphql-fragments-in-php": {
+        "title": "Using GraphQL Fragments in PHP",
+        "slug": "using-graphql-fragments-in-php",
+        "uri": "/recipes/using-graphql-fragments-in-php",
+        "wordpressUri": "/recipes/using-graphql-fragments-in-php/",
+        "uriKey": "/recipes/using-graphql-fragments-in-php",
+        "group": "Queries",
+        "summary": "You can execute GraphQL queries in PHP. In this case, we even show using a GraphQL Fragment. add_action( 'init', function() { $results = graphql([ 'query' => ' { posts { nodes { ...PostFields } } } fragment PostFields on…",
+        "relatedActions": [],
+        "relatedFilters": [],
+        "relatedFunctions": [
+          "graphql"
+        ]
+      }
+    }
+  }
+}

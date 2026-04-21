@@ -21,8 +21,9 @@ import rehypeExternalLinks from "rehype-external-links"
 import rehypeUrlInspector from "@jsdevtools/rehype-url-inspector"
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
+  auth: process.env.GITHUB_TOKEN || undefined,
 })
+const publicOctokit = new Octokit()
 
 const DOCS_REPO = "wp-graphql"
 const DOCS_OWNER = "wp-graphql"
@@ -111,21 +112,76 @@ export function getRemoteImgUrl(localPath) {
 }
 
 export async function getAllDocMeta() {
-  const { status, data } = await octokit.request(
-    "GET /repos/{owner}/{repo}/contents/{path}",
-    {
-      owner: DOCS_OWNER,
-      repo: DOCS_REPO,
-      path: DOCS_FOLDER,
-      ref: DOCS_BRANCH, // This makes it so only released features show up in the docs.
-    }
-  )
-
-  if (status != 200) {
-    throw new Error(status)
+  const requestOptions = {
+    owner: DOCS_OWNER,
+    repo: DOCS_REPO,
+    path: DOCS_FOLDER,
+    ref: DOCS_BRANCH, // This makes it so only released features show up in the docs.
   }
 
-  return data
+  try {
+    const { status, data } = await octokit.request(
+      "GET /repos/{owner}/{repo}/contents/{path}",
+      requestOptions
+    )
+
+    if (status !== 200) {
+      throw new Error(String(status))
+    }
+
+    return data
+  } catch (error) {
+    // If token auth fails (bad credentials), fallback to unauthenticated GitHub API.
+    if (error?.status === 401 || /Bad credentials/i.test(error?.message || "")) {
+      const { status, data } = await publicOctokit.request(
+        "GET /repos/{owner}/{repo}/contents/{path}",
+        requestOptions
+      )
+      if (status !== 200) {
+        throw new Error(String(status))
+      }
+      return data
+    }
+
+    throw error
+  }
+}
+
+async function getLocalDocUris(): Promise<string[]> {
+  const uris = []
+
+  const walk = async (currentDir: string, relativePrefix = "") => {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true })
+
+    for (const entry of entries) {
+      if (entry.name.startsWith(".")) {
+        continue
+      }
+
+      const nextRelative = relativePrefix
+        ? `${relativePrefix}/${entry.name}`
+        : entry.name
+      const absolutePath = path.join(currentDir, entry.name)
+
+      if (entry.isDirectory()) {
+        await walk(absolutePath, nextRelative)
+        continue
+      }
+
+      if (!entry.isFile() || !entry.name.endsWith(".md")) {
+        continue
+      }
+
+      const slug = nextRelative.replace(/\.md$/, "")
+      uris.push(`/docs/${slug}`)
+    }
+  }
+
+  if (await fs.stat(LOCAL_DOCS_DIR).then(() => true).catch(() => false)) {
+    await walk(LOCAL_DOCS_DIR)
+  }
+
+  return uris
 }
 
 export async function getDocsNav() {
@@ -146,6 +202,15 @@ export async function getDocsNav() {
 }
 
 export async function getAllDocUri(): Promise<string[]> {
+  try {
+    const localUris = await getLocalDocUris()
+    if (localUris.length > 0) {
+      return localUris.sort((a, b) => a.localeCompare(b))
+    }
+  } catch (_error) {
+    // Fallback to GitHub API listing.
+  }
+
   const data = await getAllDocMeta()
 
   if (!Array.isArray(data)) {

@@ -39,10 +39,12 @@ export default function Singlar({ data }) {
                   </h1>
                   <div className="flex flex-wrap justify-center">
                     {post?.categories?.nodes?.map((category, i) => (
-                      <Link key={i} href={category.uri}>
-                        <a className="text-base font-semibold tracking-wider text-purple-600 dark:text-purple-400 px-3">
-                          {category.name}
-                        </a>
+                      <Link
+                        key={i}
+                        href={category.uri}
+                        className="text-base font-semibold tracking-wider text-purple-600 dark:text-purple-400 px-3"
+                      >
+                        {category.name}
                         {/* <a className="mr-3 text-sm font-medium uppercase text-sky-500 dark:text-sky-300 hover:text-primary-600 dark:hover:text-sky-400">
                           {category.name}
                         </a> */}
@@ -65,10 +67,11 @@ export default function Singlar({ data }) {
                         />
                       </dd>
                       <dd className="text-center items-center">
-                        <Link href={post?.author?.node?.uri}>
-                          <a className="text-sky-500 dark:text-sky-300 dark:hover:text-sky-400 hover:text-sky-600 dark:text-sky-400 pt-5 text-center">
-                            {post?.author?.node?.name}
-                          </a>
+                        <Link
+                          href={post?.author?.node?.uri}
+                          className="text-sky-500 dark:text-sky-300 dark:hover:text-sky-400 hover:text-sky-600 dark:text-sky-400 pt-5 text-center"
+                        >
+                          {post?.author?.node?.name}
                         </Link>
                       </dd>
                     </div>

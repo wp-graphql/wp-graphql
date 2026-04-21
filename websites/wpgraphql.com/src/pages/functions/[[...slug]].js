@@ -11,28 +11,35 @@ import components from "components/Docs/MdxComponents"
 
 import { getApolloClient, addApolloState } from "@faustwp/core/dist/mjs/client"
 
-function toActionDocSlug(slugParam) {
+function toFunctionDocSlug(slugParam) {
   if (!slugParam || (Array.isArray(slugParam) && slugParam.length === 0)) {
-    return "actions/index"
+    return "functions/index"
   }
 
   if (Array.isArray(slugParam)) {
-    return `actions/${slugParam.join("/")}`
+    return `functions/${slugParam.join("/")}`
   }
 
   if (typeof slugParam === "string") {
-    return `actions/${slugParam}`
+    return `functions/${slugParam}`
   }
 
   return null
 }
 
-export default function ActionDocPage({ source, toc, docsNavData, hasMarkdownH1 }) {
+export default function FunctionDocPage({
+  source,
+  toc,
+  docsNavData,
+  hasMarkdownH1,
+}) {
   return (
     <DocsLayout toc={toc} docsNavData={docsNavData}>
       <div
         id="content-wrapper"
-        className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
+        className={`relative z-20 max-w-none prose ${
+          hasMarkdownH1 ? "mt-2" : "mt-8"
+        } prose dark:prose-dark prose-h1:mt-0 prose-code:before:content-none prose-code:after:content-none`}
       >
         {source?.frontmatter?.title && !hasMarkdownH1 && (
           <header className="relative z-20 -mt-8">
@@ -46,7 +53,7 @@ export default function ActionDocPage({ source, toc, docsNavData, hasMarkdownH1 
 }
 
 export async function getStaticProps({ params }) {
-  const docSlug = toActionDocSlug(params?.slug)
+  const docSlug = toFunctionDocSlug(params?.slug)
 
   if (!docSlug) {
     return { notFound: true }
