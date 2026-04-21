@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 
@@ -25,17 +25,7 @@ export function useSchema(fetcher) {
 				query: getIntrospectionQuery(),
 			});
 			if (result?.data) {
-				// Defer buildClientSchema to avoid blocking the main thread
-				// on large schemas. This yields to the browser between the
-				// network response and the CPU-intensive schema building.
-				setTimeout(() => {
-					try {
-						setSchema(buildClientSchema(result.data));
-					} catch (buildError) {
-						// eslint-disable-next-line no-console
-						console.error('Schema build failed:', buildError);
-					}
-				}, 0);
+				setSchema(buildClientSchema(result.data));
 			}
 		} catch (error) {
 			// eslint-disable-next-line no-console
@@ -43,17 +33,14 @@ export function useSchema(fetcher) {
 		}
 	}, [fetcher, setSchema]);
 
-	// Only load schema when explicitly requested (refresh button or first Send).
-	// Auto-loading on mount caused browser freezes on large schemas.
-	const hasRequestedRef = useRef(false);
+	// Run introspection when schema is undefined (initial load or after invalidation).
 	useEffect(() => {
-		if (schema === undefined && hasRequestedRef.current) {
+		if (schema === undefined) {
 			fetchSchema();
 		}
 	}, [schema, fetchSchema]);
 
 	const refetch = useCallback(() => {
-		hasRequestedRef.current = true;
 		setSchema(undefined);
 	}, [setSchema]);
 

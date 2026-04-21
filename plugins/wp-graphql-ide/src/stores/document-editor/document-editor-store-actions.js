@@ -1,5 +1,5 @@
 import {
-	getDocument,
+	getDocuments,
 	createDocument,
 	updateDocument,
 	deleteDocument,
@@ -27,23 +27,18 @@ const actions = {
 		() =>
 		async ({ dispatch }) => {
 			try {
-				// Load preferences first, then only fetch open documents.
-				const prefs = await getPreferences();
-				const openTabs = prefs.open_tabs || [];
-				const activeTab = prefs.active_tab || '';
-
-				let docs = [];
-				if (openTabs.length > 0) {
-					// Fetch only the documents that are open, not the entire collection.
-					const fetches = openTabs.map((id) =>
-						getDocument(id).catch(() => null)
-					);
-					docs = (await Promise.all(fetches)).filter(Boolean);
-				}
+				const [docs, prefs] = await Promise.all([
+					getDocuments(),
+					getPreferences(),
+				]);
 
 				dispatch({ type: 'SET_DOCUMENTS', documents: docs });
 
+				const openTabs = prefs.open_tabs || [];
+				const activeTab = prefs.active_tab || '';
+
 				if (docs.length > 0) {
+					// Restore open tabs, filtering to docs that still exist.
 					const docIds = docs.map((d) => String(d.id));
 					const validTabs = openTabs.filter((id) =>
 						docIds.includes(String(id))
