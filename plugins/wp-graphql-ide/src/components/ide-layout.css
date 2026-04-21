@@ -412,6 +412,20 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-shrink: 0;
 }
 
+/* Hide duplicate titles rendered by plugin panel content —
+   our panel header already shows the title + close button */
+.wpgraphql-ide-plugin > div > .graphiql-explorer-title,
+.wpgraphql-ide-plugin > .graphiql-doc-explorer-title,
+.wpgraphql-ide-plugin > div:first-child > span:first-child {
+	display: none;
+}
+
+/* Query composer's internal close button (X) — hidden,
+   we have our own in the panel header */
+.wpgraphql-ide-plugin > div > .graphiql-explorer-actions > span:first-child {
+	display: none;
+}
+
 /* Query composer form controls — match WordPress admin native styles */
 .wpgraphql-ide-plugin input[type="text"],
 .wpgraphql-ide-plugin input[type="number"] {
