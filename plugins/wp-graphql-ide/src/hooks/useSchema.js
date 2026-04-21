@@ -43,30 +43,17 @@ export function useSchema(fetcher) {
 		}
 	}, [fetcher, setSchema]);
 
-	// Run introspection when schema is explicitly invalidated (refetch button).
-	// On initial mount, schema starts as undefined — we defer loading until
-	// the user's first interaction (execute or open docs) to avoid blocking.
-	const hasLoadedRef = useRef(false);
+	// Only load schema when explicitly requested (refresh button or first Send).
+	// Auto-loading on mount caused browser freezes on large schemas.
+	const hasRequestedRef = useRef(false);
 	useEffect(() => {
-		if (schema === undefined && hasLoadedRef.current) {
-			// Schema was invalidated (user clicked refresh) — reload.
+		if (schema === undefined && hasRequestedRef.current) {
 			fetchSchema();
 		}
 	}, [schema, fetchSchema]);
 
-	// Load schema once after a short delay to allow the UI to paint first.
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			hasLoadedRef.current = true;
-			if (schema === undefined) {
-				fetchSchema();
-			}
-		}, 500);
-		return () => clearTimeout(timer);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
 	const refetch = useCallback(() => {
+		hasRequestedRef.current = true;
 		setSchema(undefined);
 	}, [setSchema]);
 
