@@ -15,7 +15,6 @@ import {
 	help,
 	backup,
 	update,
-	keyboard,
 	chevronDown,
 	plus,
 	moreVertical,
@@ -28,7 +27,6 @@ import { ResponseViewer } from './editors/ResponseViewer';
 import { EditorToolbar } from './EditorToolbar';
 import ActivityPanel from './ActivityPanel';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
-import { ShortKeysDialog } from './ShortKeysDialog';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
@@ -135,7 +133,6 @@ export function IDELayout({ fetcher, onClose }) {
 		window.localStorage.getItem('wpgraphql_ide_editor_height') || '70%';
 	const [queryPaneWidth, setQueryPaneWidth] = useState(savedQueryWidth);
 	const [editorHeight, setEditorHeight] = useState(savedEditorHeight);
-	const [showDialog, setShowDialog] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [editTitle, setEditTitle] = useState('');
@@ -224,15 +221,11 @@ export function IDELayout({ fetcher, onClose }) {
 		[setHeaders, scheduleAutoSave]
 	);
 
-	const handleShowDialog = useCallback((e) => {
-		setShowDialog(e.currentTarget.dataset.value);
-	}, []);
-
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = () => {
 		if (isFetching) {
 			stop();
-		} else if (query && query.trim()) {
+		} else {
 			run();
 		}
 	};
@@ -313,13 +306,9 @@ export function IDELayout({ fetcher, onClose }) {
 							disabled={isSchemaLoading}
 							aria-label="Re-fetch schema"
 							size="compact"
-							className="wpgraphql-ide-refresh-button"
+							className={`wpgraphql-ide-refresh-button${isSchemaLoading ? ' is-loading' : ''}`}
 						>
-							{isSchemaLoading ? (
-								<Spinner />
-							) : (
-								<Icon icon={update} />
-							)}
+							<Icon icon={update} />
 						</Button>
 					</Tooltip>
 				</div>
@@ -442,17 +431,6 @@ export function IDELayout({ fetcher, onClose }) {
 					)}
 				</div>
 				<div className="wpgraphql-ide-header-right">
-					<Tooltip text="Keyboard shortcuts">
-						<Button
-							data-value="short-keys"
-							onClick={handleShowDialog}
-							aria-label="Keyboard shortcuts"
-							size="compact"
-						>
-							<Icon icon={keyboard} />
-						</Button>
-					</Tooltip>
-					<div className="wpgraphql-ide-header-separator" />
 					<div className="wpgraphql-ide-send-group">
 						<span className="wpgraphql-ide-method-label">POST</span>
 						<Tooltip
@@ -600,10 +578,6 @@ export function IDELayout({ fetcher, onClose }) {
 					<ResponseViewer value={response} />
 				</div>
 			</div>
-			<ShortKeysDialog
-				showDialog={showDialog}
-				handleOpenShortKeysDialog={() => setShowDialog(null)}
-			/>
 		</div>
 	);
 }

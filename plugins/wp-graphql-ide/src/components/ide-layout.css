@@ -197,9 +197,17 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	min-width: 32px;
 }
 
-.wpgraphql-ide-refresh-button .components-spinner {
-	width: 20px;
-	height: 20px;
+.wpgraphql-ide-refresh-button.is-loading svg {
+	animation: wpgraphql-ide-spin 1s linear infinite;
+}
+
+@keyframes wpgraphql-ide-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 /* ---------------------------------------------------------------------------
