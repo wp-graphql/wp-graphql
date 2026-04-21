@@ -76,19 +76,17 @@ export function IDELayout({ fetcher, onClose }) {
 		toggleAuthentication,
 	} = useDispatch('wpgraphql-ide/app');
 
-	const {
-		loadDocuments,
-		saveDocument,
-		createTab,
-		switchTab,
-		closeTab,
-		setDocumentResponse,
-	} = useDispatch('wpgraphql-ide/document-editor');
+	const { loadDocuments, saveDocument, createTab, switchTab, closeTab } =
+		useDispatch('wpgraphql-ide/document-editor');
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 
 	const activeDocRef = useRef(null);
 	activeDocRef.current = activeDocument;
+
+	// Capture the document ID when execution starts, so the result
+	// goes to the correct document even if the user switches tabs.
+	const executingDocIdRef = useRef(null);
 
 	const handleExecutionComplete = useCallback(
 		({
@@ -97,26 +95,40 @@ export function IDELayout({ fetcher, onClose }) {
 			status: execStatus,
 			variables: vars,
 		}) => {
-			const doc = activeDocRef.current;
-			if (!doc) {
+			const docId = executingDocIdRef.current;
+			if (!docId) {
 				return;
 			}
+
 			const responseStr = JSON.stringify(result, null, 2);
-			const history = doc.history || [];
 			const entry = {
 				timestamp: Math.floor(Date.now() / 1000),
-				variables: vars,
-				headers: headers || '',
+				variables: vars || '',
 				duration_ms: duration,
 				response_summary: responseStr.slice(0, 500),
 				status: execStatus,
 			};
-			const updated = [...history, entry].slice(-20);
-			saveDocument(doc.id, { history: updated });
 
-			setDocumentResponse(doc.id, responseStr);
+			// Dispatch a thunk that reads the latest history from the store
+			// to avoid stale closure issues.
+			const { select: sel, dispatch: dis } =
+				// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+				require('@wordpress/data');
+			const latestDoc = sel('wpgraphql-ide/document-editor').getDocument(
+				docId
+			);
+			const currentHistory = latestDoc?.history || [];
+			const updated = [...currentHistory, entry].slice(-20);
+
+			dis('wpgraphql-ide/document-editor').saveDocument(docId, {
+				history: updated,
+			});
+			dis('wpgraphql-ide/document-editor').setDocumentResponse(
+				docId,
+				responseStr
+			);
 		},
-		[saveDocument, setDocumentResponse]
+		[]
 	);
 
 	const executionOptions = useRef({ onComplete: handleExecutionComplete });
@@ -226,6 +238,8 @@ export function IDELayout({ fetcher, onClose }) {
 		if (isFetching) {
 			stop();
 		} else {
+			// Capture which document we're executing for.
+			executingDocIdRef.current = activeDocument?.id || null;
 			run();
 		}
 	};

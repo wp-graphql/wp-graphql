@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { Icon, backup } from '@wordpress/icons';
@@ -22,6 +23,14 @@ export function HistoryPanel() {
 
 	const { setVariables, setHeaders, setResponse } =
 		useDispatch('wpgraphql-ide/app');
+
+	const { saveDocument } = useDispatch('wpgraphql-ide/document-editor');
+
+	const clearHistory = () => {
+		if (activeDocument) {
+			saveDocument(activeDocument.id, { history: [] });
+		}
+	};
 
 	const history = activeDocument?.history || [];
 
@@ -59,6 +68,16 @@ export function HistoryPanel() {
 
 	return (
 		<div className="wpgraphql-ide-history-panel">
+			<div className="wpgraphql-ide-history-actions">
+				<Button
+					variant="link"
+					isDestructive
+					onClick={clearHistory}
+					size="small"
+				>
+					Clear history
+				</Button>
+			</div>
 			<ul className="wpgraphql-ide-history-list">
 				{[...history].reverse().map((entry, index) => (
 					<li
