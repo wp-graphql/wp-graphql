@@ -31,6 +31,8 @@ import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
 const AUTOSAVE_DELAY = 2000;
+const MAX_HISTORY_ENTRIES = 50;
+const HISTORY_PREVIEW_LENGTH = 500;
 
 /**
  * Main IDE layout component.
@@ -109,7 +111,7 @@ export function IDELayout({ fetcher, onClose }) {
 				variables: vars || '',
 				headers: executingHeadersRef.current || '',
 				duration_ms: duration,
-				response_summary: responseStr.slice(0, 500),
+				response_summary: responseStr.slice(0, HISTORY_PREVIEW_LENGTH),
 				status: execStatus,
 			};
 
@@ -122,7 +124,9 @@ export function IDELayout({ fetcher, onClose }) {
 				docId
 			);
 			const currentHistory = latestDoc?.history || [];
-			const updated = [...currentHistory, entry].slice(-20);
+			const updated = [...currentHistory, entry].slice(
+				-MAX_HISTORY_ENTRIES
+			);
 
 			dis('wpgraphql-ide/document-editor').saveDocument(docId, {
 				history: updated,
