@@ -19,6 +19,7 @@ import {
 	plus,
 	moreVertical,
 	close,
+	search,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -297,6 +298,7 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const panelIcons = {
 		'query-composer': edit,
+		'docs-explorer': search,
 		help,
 		history: backup,
 	};

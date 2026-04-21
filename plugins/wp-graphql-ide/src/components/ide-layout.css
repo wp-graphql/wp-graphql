@@ -740,6 +740,136 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f0f0f1;
 }
 
+/* ---------------------------------------------------------------------------
+   Docs Explorer panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-docs-panel {
+	font-size: 13px;
+}
+
+.wpgraphql-ide-docs-empty {
+	color: #757575;
+}
+
+.wpgraphql-ide-docs-back.components-button {
+	margin-bottom: 8px;
+	gap: 4px;
+	font-size: 12px;
+	color: #757575;
+}
+
+.wpgraphql-ide-docs-type-name {
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 8px;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-docs-description {
+	color: #757575;
+	font-size: 13px;
+	margin: 0 0 12px;
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-docs-section {
+	margin-bottom: 16px;
+}
+
+.wpgraphql-ide-docs-section-title {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #757575;
+	margin-bottom: 8px;
+	padding-bottom: 4px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wpgraphql-ide-docs-type-entry {
+	padding: 3px 0;
+}
+
+.wpgraphql-ide-docs-type-label {
+	color: #757575;
+	margin-right: 4px;
+	font-style: italic;
+}
+
+.wpgraphql-ide-docs-type-link {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--wp-admin-theme-color, #3858e9);
+	cursor: pointer;
+	font-family: monospace;
+	font-size: 13px;
+}
+
+.wpgraphql-ide-docs-type-link:hover {
+	text-decoration: underline;
+}
+
+.wpgraphql-ide-docs-field {
+	padding: 6px 0;
+	border-bottom: 1px solid #f9f9f9;
+}
+
+.wpgraphql-ide-docs-field-header {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-docs-field-name {
+	font-weight: 600;
+	font-family: monospace;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-docs-field-desc {
+	font-size: 12px;
+	color: #757575;
+	margin-top: 2px;
+	line-height: 1.4;
+}
+
+.wpgraphql-ide-docs-args {
+	margin-top: 4px;
+	padding-left: 16px;
+}
+
+.wpgraphql-ide-docs-arg {
+	display: flex;
+	align-items: baseline;
+	gap: 4px;
+	padding: 2px 0;
+}
+
+.wpgraphql-ide-docs-arg-name {
+	font-family: monospace;
+	font-size: 12px;
+	color: #757575;
+}
+
+.wpgraphql-ide-docs-arg-name::after {
+	content: ':';
+}
+
+.wpgraphql-ide-docs-enum-value {
+	padding: 3px 0;
+}
+
+.wpgraphql-ide-docs-enum-value code {
+	font-size: 13px;
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 2px;
+}
+
 .wpgraphql-ide-history-entry-header {
 	display: flex;
 	gap: 8px;
