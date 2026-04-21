@@ -552,16 +552,17 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0 12px;
+	padding: 4px 12px;
 	border-bottom: 1px solid #e0e0e0;
 	flex-shrink: 0;
-	height: 32px;
+	min-height: 32px;
+	background: #f9f9f9;
 }
 
 .wpgraphql-ide-response-label {
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: 600;
-	color: #1e1e1e;
+	color: #757575;
 }
 
 .wpgraphql-ide-response-header .components-spinner {
@@ -590,6 +591,15 @@
 .wpgraphql-ide-editor .cm-gutters {
 	background: #f9f9f9;
 	border-right: 1px solid #f0f0f1;
+}
+
+/* Suppress lint dot — less jarring, especially on empty documents */
+.wpgraphql-ide-editor .cm-lint-marker {
+	opacity: 0.4;
+}
+
+.wpgraphql-ide-editor .cm-lint-marker:hover {
+	opacity: 1;
 }
 
 /* ---------------------------------------------------------------------------

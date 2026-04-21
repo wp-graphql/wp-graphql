@@ -420,16 +420,16 @@ export function IDELayout({ fetcher }) {
 					)}
 				</div>
 				<div className="wpgraphql-ide-header-right">
-					<Tooltip text="Keyboard shortcuts">
-						<Button
-							data-value="short-keys"
-							onClick={handleShowDialog}
-							aria-label="Keyboard shortcuts"
-							size="compact"
-						>
-							<Icon icon={keyboard} />
-						</Button>
-					</Tooltip>
+					<Button
+						data-value="short-keys"
+						onClick={handleShowDialog}
+						aria-label="Keyboard shortcuts"
+						size="compact"
+						variant="tertiary"
+					>
+						<Icon icon={keyboard} />
+						Shortcuts
+					</Button>
 					<div className="wpgraphql-ide-header-separator" />
 					<div className="wpgraphql-ide-send-group">
 						<Tooltip
