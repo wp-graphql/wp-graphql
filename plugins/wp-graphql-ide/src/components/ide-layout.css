@@ -411,17 +411,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-plugin input[type="text"],
 .wpgraphql-ide-plugin input[type="number"] {
 	font-size: 13px;
-	padding: 0 8px;
+	padding: 4px 6px;
 	border: 1px solid #8c8f94;
 	border-radius: 0;
-	min-width: 0;
+	min-width: 60px;
 	width: auto;
 	max-width: none;
-	height: 28px;
-	box-sizing: border-box;
+	box-sizing: content-box;
 	background: #fff;
 	color: #2c3338;
-	line-height: 28px;
+	line-height: normal;
 }
 
 .wpgraphql-ide-plugin input[type="text"]:focus,
