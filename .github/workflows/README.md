@@ -123,6 +123,7 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Checks for breaking changes in the CHANGELOG
 - Updates the Upgrade Notice section in `readme.txt` if breaking changes exist
 - Regenerates hook docs/audits for supported components (`scripts/hooks/generate-hook-docs.js`)
+- Regenerates function docs for supported components (`scripts/functions/generate-function-docs.js`)
 - Updates readme changelog and optional POT file generation
 - Commits changes back to the Release PR branch
 - Ensures WordPress.org users see warnings before upgrading
@@ -174,8 +175,10 @@ flowchart TD
     RP --> |Creates/Updates| RPR[Release PR]
     RPR --> URP[Update Release PR tasks]
     URP --> HGD[Regenerate Hook Docs]
+    URP --> FGD[Regenerate Function Docs]
     URP --> |Merged| REL[Create Release]
     HGD --> |Included in PR| REL
+    FGD --> |Included in PR| REL
     REL --> WO[Deploy to WordPress.org]
     REL --> ZIP[Upload Zip Artifact]
     REL --> GH[GitHub Release]

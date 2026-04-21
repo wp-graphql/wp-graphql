@@ -162,7 +162,7 @@ jobs:
             --version="$VERSION" \
             --plugin-dir="$PLUGIN_DIR"
 
-      - name: Generate hook docs and naming audit
+      - name: Generate hook docs, naming audit, function docs, and recipe index
         if: steps.version_info.outputs.version != ''
         env:
           COMPONENT: ${{ steps.version_info.outputs.component }}
@@ -170,6 +170,10 @@ jobs:
           if node -e "const config=require('./scripts/hooks/plugin-config.json');process.exit(config['$COMPONENT']?0:1)"; then
             echo "Generating hook docs for ${COMPONENT}"
             node scripts/hooks/generate-hook-docs.js --plugin="$COMPONENT"
+            echo "Generating function docs for ${COMPONENT}"
+            node scripts/functions/generate-function-docs.js --plugin="$COMPONENT"
+            echo "Generating recipe docs index for ${COMPONENT}"
+            node scripts/recipes/generate-recipe-docs.js --plugin="$COMPONENT"
           else
             echo "No hook docs config found for ${COMPONENT}; skipping hook docs generation"
           fi
@@ -270,14 +274,14 @@ jobs:
           CHANGED_FILES=""
 
           # Check if any files changed
-          if ! git diff --quiet -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json"; then
-            CHANGED_FILES=$(git diff --name-only -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json")
+          if ! git diff --quiet -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"; then
+            CHANGED_FILES=$(git diff --name-only -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json")
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in:"
             echo "$CHANGED_FILES"
             echo ""
             echo "Diff:"
-            git diff -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json"
+            git diff -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected"
@@ -291,6 +295,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json"
+          git add "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
           git commit -m "chore: sync release placeholders and generated docs for ${COMPONENT}"
           git push
