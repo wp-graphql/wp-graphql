@@ -90,7 +90,7 @@ npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
 **Important**:
 - This check enforces that removed hooks remain documented historically.
 - `legacy-hooks.json` entries should include lifecycle metadata (`status`, `deprecatedIn`, optional `removedIn`, `replacement`) and should also include `since` when known.
-- `update-release-pr.yml` currently replaces placeholders inside the releasing plugin directory; if `legacy-hooks.json` still contains `x-release-please-version` for history-only hooks, update those values manually as part of the release PR.
+- `update-release-pr.yml` automatically replaces `x-release-please-version` placeholders inside `scripts/hooks/legacy-hooks.json` for the releasing component.
 
 **Naming audit behavior**:
 - Naming audit focuses on WPGraphQL-specific hooks and excludes core hooks from naming violations.

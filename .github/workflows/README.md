@@ -119,14 +119,13 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Replaces `x-release-please-version` placeholders with actual version:
   - In all PHP files (`@since x-release-please-version` → `@since 2.7.0`)
   - In `readme.txt` (`Stable tag: x-release-please-version` → `Stable tag: 2.7.0`)
+  - In `scripts/hooks/legacy-hooks.json` for the releasing component
 - Checks for breaking changes in the CHANGELOG
 - Updates the Upgrade Notice section in `readme.txt` if breaking changes exist
 - Regenerates hook docs/audits for supported components (`scripts/hooks/generate-hook-docs.js`)
 - Updates readme changelog and optional POT file generation
 - Commits changes back to the Release PR branch
 - Ensures WordPress.org users see warnings before upgrading
-
-Note: placeholder replacement in this workflow currently runs inside the releasing plugin directory. Repository-level files like `scripts/hooks/legacy-hooks.json` are not automatically rewritten by this step.
 
 ### Schema Artifact Upload (`upload-schema-artifact.yml`)
 

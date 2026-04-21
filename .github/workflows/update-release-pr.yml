@@ -7,7 +7,8 @@
 #
 # 1. Replaces x-release-please-version placeholders with actual version
 # 2. Updates the Upgrade Notice section in readme.txt if there are breaking changes
-# 3. Regenerates the POT file for translations (if languages/ directory exists)
+# 3. Regenerates hook docs/audits and updates legacy hook placeholders
+# 4. Regenerates the POT file for translations (if languages/ directory exists)
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
@@ -173,6 +174,68 @@ jobs:
             echo "No hook docs config found for ${COMPONENT}; skipping hook docs generation"
           fi
 
+      - name: Replace legacy hook placeholder versions
+        if: steps.version_info.outputs.version != ''
+        env:
+          COMPONENT: ${{ steps.version_info.outputs.component }}
+          VERSION: ${{ steps.version_info.outputs.version }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const filePath = 'scripts/hooks/legacy-hooks.json';
+          const component = process.env.COMPONENT;
+          const version = process.env.VERSION;
+
+          if (!component || !version) {
+            console.log('Missing COMPONENT or VERSION; skipping legacy hook replacement.');
+            process.exit(0);
+          }
+
+          if (!fs.existsSync(filePath)) {
+            console.log('No scripts/hooks/legacy-hooks.json found; skipping.');
+            process.exit(0);
+          }
+
+          const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          const entries = payload && typeof payload === 'object' ? payload[component] : null;
+
+          if (!Array.isArray(entries)) {
+            console.log(`No legacy hook entries for ${component}; skipping.`);
+            process.exit(0);
+          }
+
+          const replacePlaceholders = (value) => {
+            if (typeof value === 'string') {
+              return value.replace(/x-release-please-version/g, version);
+            }
+
+            if (Array.isArray(value)) {
+              return value.map(replacePlaceholders);
+            }
+
+            if (value && typeof value === 'object') {
+              return Object.fromEntries(
+                Object.entries(value).map(([key, nested]) => [key, replacePlaceholders(nested)])
+              );
+            }
+
+            return value;
+          };
+
+          const updatedEntries = replacePlaceholders(entries);
+          const before = JSON.stringify(entries);
+          const after = JSON.stringify(updatedEntries);
+
+          if (before === after) {
+            console.log(`No legacy hook placeholders to replace for ${component}.`);
+            process.exit(0);
+          }
+
+          payload[component] = updatedEntries;
+          fs.writeFileSync(filePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+          console.log(`✅ Updated scripts/hooks/legacy-hooks.json placeholders for ${component}`);
+          NODE
+
       - name: Check for languages directory
         id: i18n
         env:
@@ -207,14 +270,14 @@ jobs:
           CHANGED_FILES=""
 
           # Check if any files changed
-          if ! git diff --quiet "$PLUGIN_DIR"; then
-            CHANGED_FILES=$(git diff --name-only "$PLUGIN_DIR")
+          if ! git diff --quiet -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json"; then
+            CHANGED_FILES=$(git diff --name-only -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json")
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in:"
             echo "$CHANGED_FILES"
             echo ""
             echo "Diff:"
-            git diff "$PLUGIN_DIR"
+            git diff -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json"
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected"
@@ -228,6 +291,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "$PLUGIN_DIR"
-          git commit -m "chore: replace x-release-please-version placeholders, update upgrade notice, and regenerate translations for ${COMPONENT}"
+          git add "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json"
+          git commit -m "chore: sync release placeholders and generated docs for ${COMPONENT}"
           git push

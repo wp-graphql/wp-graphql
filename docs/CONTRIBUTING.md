@@ -156,9 +156,8 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Changelogs are generated from PR titles (via squash merge commits)
 - **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
 - Hook docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
+- `x-release-please-version` placeholders in `scripts/hooks/legacy-hooks.json` are automatically replaced for the releasing component (`update-release-pr.yml`)
 - Hook legacy coverage is enforced in CI (`lint.yml` → `wp-graphql-hook-legacy-coverage`)
-
-Note: release PR placeholder replacement currently operates on files inside the releasing plugin directory. If `scripts/hooks/legacy-hooks.json` contains `x-release-please-version` entries for history-only hooks, update those values during the release PR.
 
 > **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
 
