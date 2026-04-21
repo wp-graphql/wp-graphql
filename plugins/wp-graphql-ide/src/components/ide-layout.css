@@ -133,18 +133,23 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px;
-	height: 36px;
+	width: 28px;
+	height: 28px;
 	padding: 0;
 	border: none;
 	background: none;
 	cursor: pointer;
 	border-radius: 50%;
-	transition: opacity 0.2s;
+	transition: opacity 0.15s;
+}
+
+.wpgraphql-ide-auth-avatar .ToggleAuthenticationButton-module__authAvatar {
+	width: 24px;
+	height: 24px;
 }
 
 .wpgraphql-ide-auth-avatar:hover {
-	opacity: 0.8;
+	opacity: 0.75;
 }
 
 .wpgraphql-ide-doc-close.components-button {
@@ -160,33 +165,33 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #d63638;
 }
 
-/* Send group — avatar + method + send button */
+/* Send group — method + avatar + send button */
 .wpgraphql-ide-send-group {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: 4px;
+	background: #f0f0f1;
+	border-radius: 4px;
+	padding: 2px;
 }
 
 .wpgraphql-ide-method-label {
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 600;
-	color: #1e1e1e;
-	padding: 0 10px;
-	height: 32px;
-	line-height: 32px;
-	background: #f0f0f1;
-	border: 1px solid #e0e0e0;
-	border-radius: 2px;
+	color: #757575;
+	padding: 0 8px;
+	height: 28px;
+	line-height: 28px;
 	user-select: none;
 	letter-spacing: 0.5px;
 }
 
 .wpgraphql-ide-send-button.components-button {
-	padding: 0 20px;
-	height: 36px;
-	font-size: 14px;
+	padding: 0 16px;
+	height: 32px;
+	font-size: 13px;
 	font-weight: 600;
-	border-radius: 4px;
+	border-radius: 3px;
 }
 
 .wpgraphql-ide-loading-label {
