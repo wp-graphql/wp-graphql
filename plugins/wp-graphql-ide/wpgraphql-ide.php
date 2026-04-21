@@ -78,6 +78,12 @@ function initialize_plugin() {
 	// Scope REST queries to the current user's own documents.
 	add_filter( 'rest_graphql_ide_query_query', __NAMESPACE__ . '\\scope_ide_queries_to_current_user' );
 
+	// Enforce manage_graphql_ide capability on all IDE document REST routes.
+	add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\\enforce_ide_rest_permissions', 10, 3 );
+
+	// Prevent access to documents owned by other users on single routes.
+	add_filter( 'rest_prepare_graphql_ide_query', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
+
 	// Core plugins/modules.
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/help-panel/help-panel.php';
@@ -109,18 +115,28 @@ function register_ide_post_type() {
 	);
 
 	$post_meta_auth = function () {
-		return current_user_can( 'edit_posts' );
+		return current_user_can( 'manage_graphql_ide' );
+	};
+
+	$sanitize_json = function ( $value ) {
+		if ( empty( $value ) ) {
+			return '';
+		}
+		// Validate it's valid JSON if non-empty.
+		json_decode( $value );
+		return json_last_error() === JSON_ERROR_NONE ? $value : '';
 	};
 
 	register_post_meta(
 		'graphql_ide_query',
 		'_graphql_ide_variables',
 		[
-			'type'          => 'string',
-			'single'        => true,
-			'show_in_rest'  => true,
-			'default'       => '',
-			'auth_callback' => $post_meta_auth,
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
 		]
 	);
 
@@ -128,11 +144,12 @@ function register_ide_post_type() {
 		'graphql_ide_query',
 		'_graphql_ide_headers',
 		[
-			'type'          => 'string',
-			'single'        => true,
-			'show_in_rest'  => true,
-			'default'       => '',
-			'auth_callback' => $post_meta_auth,
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
 		]
 	);
 
@@ -233,6 +250,18 @@ function register_ide_user_meta() {
 			'auth_callback' => $auth_callback,
 		]
 	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_visible_panel',
+		[
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $auth_callback,
+		]
+	);
 }
 
 /**
@@ -244,6 +273,59 @@ function register_ide_user_meta() {
 function scope_ide_queries_to_current_user( $args ) {
 	$args['author'] = get_current_user_id();
 	return $args;
+}
+
+/**
+ * Enforce manage_graphql_ide capability on all IDE document REST endpoints.
+ *
+ * This prevents users without the manage_graphql_ide capability from
+ * accessing the graphql-ide-queries REST routes, even if they have
+ * the edit_posts capability from the CPT's capability_type.
+ *
+ * @param mixed            $result  Response to replace the requested version with.
+ * @param \WP_REST_Server  $server  Server instance.
+ * @param \WP_REST_Request $request Request used to generate the response.
+ * @return mixed|\WP_Error
+ */
+function enforce_ide_rest_permissions( $result, $server, $request ) {
+	$route = $request->get_route();
+
+	if ( strpos( $route, '/wp/v2/graphql-ide-queries' ) !== 0 ) {
+		return $result;
+	}
+
+	if ( ! current_user_can( 'manage_graphql_ide' ) ) {
+		return new \WP_Error(
+			'rest_forbidden',
+			__( 'You do not have permission to access IDE queries.', 'wpgraphql-ide' ),
+			[ 'status' => 403 ]
+		);
+	}
+
+	return $result;
+}
+
+/**
+ * Restrict single document responses to the document's author.
+ *
+ * Prevents users from accessing documents they don't own, even if
+ * they have the manage_graphql_ide capability.
+ *
+ * @param \WP_REST_Response $response The response object.
+ * @param \WP_Post          $post     The post object.
+ * @param \WP_REST_Request  $request  The request object.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function restrict_document_to_author( $response, $post, $request ) {
+	if ( (int) $post->post_author !== get_current_user_id() ) {
+		return new \WP_Error(
+			'rest_forbidden',
+			__( 'You do not have permission to access this document.', 'wpgraphql-ide' ),
+			[ 'status' => 403 ]
+		);
+	}
+
+	return $response;
 }
 
 /**
