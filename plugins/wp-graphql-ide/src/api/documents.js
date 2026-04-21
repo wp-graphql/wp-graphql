@@ -9,7 +9,7 @@ const ENDPOINT = '/wp/v2/graphql-ide-queries';
  */
 export async function getDocuments() {
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,meta`,
+		path: `${ENDPOINT}?per_page=20&status=publish,draft&context=edit&_fields=id,title,content`,
 	});
 
 	return posts.map(normalizeDocument);
