@@ -129,13 +129,23 @@ function BackButton({ onClick }) {
  * @param {Function} props.onSelectType Callback when a type is clicked.
  */
 function RootView({ schema, onSelectType }) {
+	const [searchTerm, setSearchTerm] = useState('');
+
 	const queryType = schema.getQueryType();
 	const mutationType = schema.getMutationType();
 	const subscriptionType = schema.getSubscriptionType();
 
-	const allTypes = Object.values(schema.getTypeMap())
-		.filter((t) => !t.name.startsWith('__'))
-		.sort((a, b) => a.name.localeCompare(b.name));
+	// Only compute filtered types when searching.
+	const filteredTypes = searchTerm.trim()
+		? Object.values(schema.getTypeMap())
+				.filter(
+					(t) =>
+						!t.name.startsWith('__') &&
+						t.name.toLowerCase().includes(searchTerm.toLowerCase())
+				)
+				.sort((a, b) => a.name.localeCompare(b.name))
+				.slice(0, 50)
+		: [];
 
 	return (
 		<div className="wpgraphql-ide-docs-panel">
@@ -167,15 +177,25 @@ function RootView({ schema, onSelectType }) {
 			</div>
 			<div className="wpgraphql-ide-docs-section">
 				<div className="wpgraphql-ide-docs-section-title">
-					All Types
+					Search Types
 				</div>
-				{allTypes.map((type) => (
+				<input
+					type="text"
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+					placeholder="Type name..."
+					className="wpgraphql-ide-docs-search"
+				/>
+				{filteredTypes.map((type) => (
 					<TypeLink
 						key={type.name}
 						type={type}
 						onClick={() => onSelectType(type)}
 					/>
 				))}
+				{searchTerm.trim() && filteredTypes.length === 0 && (
+					<p className="wpgraphql-ide-docs-empty">No types found.</p>
+				)}
 			</div>
 		</div>
 	);
