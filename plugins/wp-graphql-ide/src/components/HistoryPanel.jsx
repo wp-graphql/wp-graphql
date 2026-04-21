@@ -35,18 +35,10 @@ export function HistoryPanel() {
 	const history = activeDocument?.history || [];
 
 	const restoreEntry = (entry) => {
-		if (entry.query) {
-			setQuery(entry.query);
-		}
-		if (entry.variables) {
-			setVariables(entry.variables);
-		}
-		if (entry.headers) {
-			setHeaders(entry.headers);
-		}
-		if (entry.response_summary) {
-			setResponse(entry.response_summary);
-		}
+		setQuery(entry.query || '');
+		setVariables(entry.variables || '');
+		setHeaders(entry.headers || '');
+		setResponse(entry.response_summary || '');
 	};
 
 	if (!activeDocument) {
