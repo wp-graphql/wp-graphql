@@ -166,7 +166,9 @@ function register_ide_post_type() {
 						'type'       => 'object',
 						'properties' => [
 							'timestamp'        => [ 'type' => 'integer' ],
+							'query'            => [ 'type' => 'string' ],
 							'variables'        => [ 'type' => 'string' ],
+							'headers'          => [ 'type' => 'string' ],
 							'duration_ms'      => [ 'type' => 'integer' ],
 							'response_summary' => [ 'type' => 'string' ],
 							'status'           => [ 'type' => 'string' ],

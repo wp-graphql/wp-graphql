@@ -84,9 +84,11 @@ export function IDELayout({ fetcher, onClose }) {
 	const activeDocRef = useRef(null);
 	activeDocRef.current = activeDocument;
 
-	// Capture the document ID when execution starts, so the result
-	// goes to the correct document even if the user switches tabs.
+	// Capture the document ID and query when execution starts, so the
+	// result goes to the correct document even if the user switches tabs.
 	const executingDocIdRef = useRef(null);
+	const executingQueryRef = useRef(null);
+	const executingHeadersRef = useRef(null);
 
 	const handleExecutionComplete = useCallback(
 		({
@@ -103,7 +105,9 @@ export function IDELayout({ fetcher, onClose }) {
 			const responseStr = JSON.stringify(result, null, 2);
 			const entry = {
 				timestamp: Math.floor(Date.now() / 1000),
+				query: executingQueryRef.current || '',
 				variables: vars || '',
+				headers: executingHeadersRef.current || '',
 				duration_ms: duration,
 				response_summary: responseStr.slice(0, 500),
 				status: execStatus,
@@ -238,8 +242,10 @@ export function IDELayout({ fetcher, onClose }) {
 		if (isFetching) {
 			stop();
 		} else {
-			// Capture which document we're executing for.
+			// Capture execution context for the correct document.
 			executingDocIdRef.current = activeDocument?.id || null;
+			executingQueryRef.current = query;
+			executingHeadersRef.current = headers;
 			run();
 		}
 	};

@@ -21,7 +21,7 @@ export function HistoryPanel() {
 		[]
 	);
 
-	const { setVariables, setHeaders, setResponse } =
+	const { setQuery, setVariables, setHeaders, setResponse } =
 		useDispatch('wpgraphql-ide/app');
 
 	const { saveDocument } = useDispatch('wpgraphql-ide/document-editor');
@@ -35,6 +35,9 @@ export function HistoryPanel() {
 	const history = activeDocument?.history || [];
 
 	const restoreEntry = (entry) => {
+		if (entry.query) {
+			setQuery(entry.query);
+		}
 		if (entry.variables) {
 			setVariables(entry.variables);
 		}
