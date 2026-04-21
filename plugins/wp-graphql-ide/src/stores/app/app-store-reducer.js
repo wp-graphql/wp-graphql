@@ -1,5 +1,3 @@
-import { parse } from 'graphql';
-
 /**
  * The initial state of the app.
  * @type {Object}
@@ -26,28 +24,19 @@ const initialState = {
  *
  * @return {Object}
  */
+/**
+ * Set the query in state. Validation is handled by CodeMirror's
+ * cm6-graphql extension, not the reducer.
+ *
+ * @param {Object} state  Current state.
+ * @param {Object} action Action with query string.
+ * @return {Object} New state.
+ */
 const setQuery = (state, action) => {
-	const editedQuery = action.query;
-	const query = state.query;
-
-	if (editedQuery === query) {
-		return { ...state };
+	if (action.query === state.query) {
+		return state;
 	}
-
-	if (null === editedQuery || '' === editedQuery) {
-		// allow clearing the query without parsing
-	} else {
-		try {
-			parse(editedQuery);
-		} catch (error) {
-			return { ...state };
-		}
-	}
-
-	return {
-		...state,
-		query: action.query,
-	};
+	return { ...state, query: action.query };
 };
 
 /**
