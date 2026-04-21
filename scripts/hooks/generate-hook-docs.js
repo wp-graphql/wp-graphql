@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { loadRecipeRelations } = require('../recipes/recipe-relations');
 
 const GENERATED_NOTICE = [
 	'<!--',
@@ -47,6 +48,14 @@ function readJson(filePath) {
 	}
 
 	return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function escapeMdxText(value) {
+	if (typeof value !== 'string') {
+		return '';
+	}
+
+	return value.replace(/[{}]/g, '\\$&');
 }
 
 function normalizeRepoUrl(repoUrl) {
@@ -889,8 +898,9 @@ function renderHookDoc(hook) {
 	const params = hook.params || [];
 	const snippets = hook.relatedSnippets || [];
 	const references = hook.relatedReferences || [];
+	const relatedRecipes = hook.relatedRecipes || [];
 	const signature = hook.sourceCall ? hook.sourceCall.replace(/\s+/g, ' ').trim() : null;
-	const description = hook.description || 'No description available.';
+	const description = escapeMdxText(hook.description || 'No description available.');
 	const lifecycle = hook.lifecycle || { status: 'active' };
 	const statusLabel = lifecycle.status || 'active';
 
@@ -948,7 +958,7 @@ function renderHookDoc(hook) {
 			lines.push(`- **Replacement:** \`${lifecycle.replacement}\``);
 		}
 		if (lifecycle.message) {
-			lines.push(`- **Notes:** ${lifecycle.message}`);
+			lines.push(`- **Notes:** ${escapeMdxText(lifecycle.message)}`);
 		}
 		lines.push('');
 	}
@@ -957,7 +967,9 @@ function renderHookDoc(hook) {
 		lines.push('## Parameters');
 		lines.push('');
 		params.forEach((param) => {
-			lines.push(`- \`${param.name}\` (\`${param.type}\`): ${param.description || 'No description.'}`);
+			lines.push(
+				`- \`${param.name}\` (\`${param.type}\`): ${escapeMdxText(param.description || 'No description.')}`
+			);
 		});
 		lines.push('');
 	}
@@ -998,6 +1010,15 @@ function renderHookDoc(hook) {
 			});
 			const locationLabel = referenceUrl ? `[\`${location}\`](${referenceUrl})` : `\`${location}\``;
 			lines.push(`- ${symbolLabel} in ${locationLabel}`);
+		});
+		lines.push('');
+	}
+
+	if (relatedRecipes.length > 0) {
+		lines.push('## Recipes');
+		lines.push('');
+		relatedRecipes.forEach((recipe) => {
+			lines.push(`- [${recipe.title}](${recipe.uri})`);
 		});
 		lines.push('');
 	}
@@ -1723,6 +1744,7 @@ function main() {
 	});
 
 	const snippets = loadSnippets(snippetsDir);
+	const recipeRelations = loadRecipeRelations(docsDir);
 	let hookRecords = [];
 	const lint = {
 		errors: [],
@@ -1848,6 +1870,24 @@ function main() {
 		pluginSlug,
 	});
 	hookRecords = attachRelatedReferences(hookRecords);
+	hookRecords = hookRecords.map((hook) => {
+		if (!hook.name) {
+			return {
+				...hook,
+				relatedRecipes: [],
+			};
+		}
+
+		const relatedRecipes =
+			hook.kind === 'action'
+				? recipeRelations.byAction[hook.name] || []
+				: recipeRelations.byFilter[hook.name] || [];
+
+		return {
+			...hook,
+			relatedRecipes,
+		};
+	});
 
 	const actions = hookRecords.filter((hook) => hook.kind === 'action');
 	const filters = hookRecords.filter((hook) => hook.kind === 'filter');
