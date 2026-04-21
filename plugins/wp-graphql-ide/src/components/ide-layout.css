@@ -143,9 +143,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	transition: opacity 0.15s;
 }
 
-.wpgraphql-ide-auth-avatar .ToggleAuthenticationButton-module__authAvatar {
-	width: 24px;
-	height: 24px;
+/* Force avatar image to fit the button */
+.wpgraphql-ide-auth-avatar > span {
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .wpgraphql-ide-auth-avatar:hover {
