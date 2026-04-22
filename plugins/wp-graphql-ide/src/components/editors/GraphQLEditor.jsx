@@ -33,6 +33,7 @@ export function GraphQLEditor({
 	const viewRef = useRef(null);
 	const onChangeRef = useRef(onChange);
 	const readOnlyCompartment = useRef(new Compartment());
+	const graphqlCompartment = useRef(new Compartment());
 
 	// Keep callback ref current without recreating the editor.
 	useEffect(() => {
@@ -46,14 +47,30 @@ export function GraphQLEditor({
 		}
 
 		const updateListener = EditorView.updateListener.of((update) => {
-			if (update.docChanged && onChangeRef.current) {
-				onChangeRef.current(update.state.doc.toString());
+			if (update.docChanged) {
+				if (onChangeRef.current) {
+					onChangeRef.current(update.state.doc.toString());
+				}
+				// Activate graphql extension once the user types something.
+				const doc = update.state.doc.toString();
+				if (doc.trim().length > 0 && graphqlCompartment.current) {
+					update.view.dispatch({
+						effects: graphqlCompartment.current.reconfigure(
+							graphql(schema || undefined)
+						),
+					});
+				}
 			}
 		});
 
+		// Defer graphql linting until the doc has content to avoid
+		// a red lint dot on an empty editor.
+		const hasContent = value && value.trim().length > 0;
 		const extensions = [
 			basicSetup,
-			graphql(schema || undefined),
+			graphqlCompartment.current.of(
+				hasContent ? graphql(schema || undefined) : []
+			),
 			updateListener,
 			readOnlyCompartment.current.of([
 				EditorView.editable.of(!readOnly),

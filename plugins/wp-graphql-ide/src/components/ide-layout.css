@@ -60,31 +60,105 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	min-width: 0;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 }
 
-.wpgraphql-ide-document-switcher.components-button {
+/* Tab bar */
+.wpgraphql-ide-tab-bar {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	overflow: hidden;
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-tab {
+	display: flex;
+	align-items: center;
 	gap: 4px;
+	padding: 6px 12px;
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: none;
 	font-size: 13px;
-	font-weight: 500;
-	color: #1e1e1e;
-	height: 32px;
-	padding: 0 8px;
-}
-
-.wpgraphql-ide-document-switcher.components-button:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-.wpgraphql-ide-document-name {
+	color: #757575;
+	cursor: pointer;
 	white-space: nowrap;
+	max-width: 160px;
+	flex-shrink: 0;
+	transition: color 0.1s, border-color 0.1s;
+}
+
+.wpgraphql-ide-tab:hover {
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-tab.is-active {
+	color: #1e1e1e;
+	font-weight: 500;
+	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-tab-label {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 200px;
-	cursor: default;
 }
 
-.wpgraphql-ide-title-input {
+.wpgraphql-ide-tab-close {
+	visibility: hidden;
+	font-size: 14px;
+	line-height: 1;
+	color: #757575;
+	cursor: pointer;
+	padding: 0 2px;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-tab:hover .wpgraphql-ide-tab-close,
+.wpgraphql-ide-tab.is-active .wpgraphql-ide-tab-close {
+	visibility: visible;
+}
+
+.wpgraphql-ide-tab-close:hover {
+	color: #1e1e1e;
+	background: rgba(0, 0, 0, 0.08);
+}
+
+.wpgraphql-ide-tab-overflow.components-button {
+	font-size: 12px;
+	color: #757575;
+	padding: 4px 8px;
+	height: 28px;
+	min-width: auto;
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-tab-overflow.components-button:hover {
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-tab-add {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border: none;
+	background: none;
+	color: #757575;
+	cursor: pointer;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-tab-add:hover {
+	color: #1e1e1e;
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-tab-input {
 	font-size: 13px;
 	font-weight: 500;
 	color: #1e1e1e;
@@ -92,22 +166,9 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-radius: 2px;
 	padding: 4px 8px;
 	outline: none;
-	text-align: center;
-	max-width: 200px;
+	max-width: 160px;
 	background: #fff;
-}
-
-.wpgraphql-ide-document-switcher .components-dropdown-menu__toggle svg {
-	width: 16px;
-	height: 16px;
-}
-
-/* Prevent long doc names from overflowing the dropdown */
-.wpgraphql-ide-document-switcher + .components-popover .components-menu-item__item {
-	max-width: 250px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-header-right {
@@ -146,22 +207,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #d63638;
 }
 
-/* Send group — method + avatar + send button */
+/* Send group — method + avatar + send button (inline in editor toolbar) */
 .wpgraphql-ide-send-group {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 6px;
 }
 
 .wpgraphql-ide-method-label {
 	font-size: 11px;
 	font-weight: 600;
-	color: #757575;
-	padding: 0 10px;
-	height: 38px;
-	line-height: 38px;
+	color: #949494;
 	user-select: none;
 	letter-spacing: 0.5px;
+	line-height: 1;
+	display: flex;
+	align-items: center;
 	background: transparent;
 }
 
@@ -169,20 +230,20 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 38px;
-	height: 38px;
+	width: 28px;
+	height: 28px;
 	padding: 0;
 	border: none;
 	background: transparent;
 	cursor: pointer;
-	border-radius: 0;
+	border-radius: 50%;
 	transition: opacity 0.15s;
 }
 
 /* Force avatar image to fit the button */
 .wpgraphql-ide-auth-avatar > span {
-	width: 24px !important;
-	height: 24px !important;
+	width: 20px !important;
+	height: 20px !important;
 }
 
 .wpgraphql-ide-auth-avatar:hover {
@@ -190,10 +251,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-send-button.components-button {
-	padding: 0 24px;
-	height: 38px;
-	font-size: 14px;
-	font-weight: 600;
+	color: #fff !important;
 }
 
 .wpgraphql-ide-refresh-button.components-button {
@@ -306,11 +364,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-editor-toolbar {
 	display: flex;
 	align-items: center;
-	gap: 2px;
-	padding: 4px 12px;
+	gap: 4px;
+	padding: 4px 8px 4px 12px;
 	border-bottom: 1px solid #e0e0e0;
 	flex-shrink: 0;
-	min-height: 32px;
+	min-height: 36px;
 	background: #f9f9f9;
 }
 
@@ -368,21 +426,34 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 8px 12px;
+	padding: 4px 12px;
 	border-bottom: 1px solid #e0e0e0;
 	flex-shrink: 0;
+	min-height: 36px;
+	background: #f9f9f9;
 }
 
 .wpgraphql-ide-panel-title {
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: 600;
-	color: #1e1e1e;
+	color: #757575;
 }
 
 .wpgraphql-ide-panel-close.components-button {
 	min-width: 24px;
+	width: 24px;
 	height: 24px;
 	padding: 0;
+	color: #757575;
+}
+
+.wpgraphql-ide-panel-close.components-button:hover {
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-panel-close.components-button svg {
+	width: 20px;
+	height: 20px;
 }
 
 .wpgraphql-ide-plugin {
@@ -632,7 +703,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	padding: 4px 12px;
 	border-bottom: 1px solid #e0e0e0;
 	flex-shrink: 0;
-	min-height: 32px;
+	min-height: 36px;
 	background: #f9f9f9;
 }
 
@@ -645,6 +716,44 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-response-header .components-spinner {
 	width: 16px;
 	height: 16px;
+}
+
+.wpgraphql-ide-response-meta {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+}
+
+.wpgraphql-ide-response-status {
+	font-size: 11px;
+	font-weight: 600;
+	padding: 1px 6px;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-response-status--success {
+	background: #d4edda;
+	color: #155724;
+}
+
+.wpgraphql-ide-response-status--error {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.wpgraphql-ide-response-duration {
+	font-size: 11px;
+	color: #757575;
+}
+
+.wpgraphql-ide-response-empty {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #949494;
+	font-size: 13px;
 }
 
 .wpgraphql-ide-response-pane > .wpgraphql-ide-editor {
@@ -685,7 +794,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-editor-tools .components-tab-panel__tabs-item.is-active,
 .wpgraphql-ide-editor-tools [role="tab"][aria-selected="true"] {
-	box-shadow: inset 0 -3px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
 }
 
 /* ---------------------------------------------------------------------------
@@ -985,6 +1094,89 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-docs-enum-value:hover code {
 	background: #dcdcde;
+}
+
+/* ---------------------------------------------------------------------------
+   History panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-history-panel--empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+.wpgraphql-ide-history-empty-state {
+	text-align: center;
+	color: #949494;
+	font-size: 13px;
+}
+
+.wpgraphql-ide-history-empty-state p {
+	margin: 0 0 4px;
+}
+
+.wpgraphql-ide-history-empty-hint {
+	font-size: 12px;
+	color: #b0b0b0;
+}
+
+.wpgraphql-ide-history-empty-hint kbd {
+	display: inline-block;
+	padding: 1px 5px;
+	font-size: 11px;
+	font-family: inherit;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	background: #f0f0f1;
+	box-shadow: 0 1px 0 #dcdcde;
+}
+
+.wpgraphql-ide-history-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.wpgraphql-ide-history-actions .components-button.is-secondary,
+.wpgraphql-ide-history-actions .components-button.is-primary {
+	font-size: 11px;
+	height: 24px;
+	padding: 0 8px;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-history-actions .components-button.is-link {
+	font-size: 11px;
+	text-decoration: none;
+}
+
+.wpgraphql-ide-history-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-history-entry {
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wpgraphql-ide-history-entry-button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 10px 8px;
+	margin: 0 -8px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-history-entry-button:hover {
+	background: #f0f0f1;
 }
 
 .wpgraphql-ide-history-entry-header {

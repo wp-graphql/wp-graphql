@@ -15,7 +15,6 @@ import {
 	help,
 	backup,
 	update,
-	chevronDown,
 	plus,
 	moreVertical,
 	close,
@@ -32,7 +31,198 @@ import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
 const AUTOSAVE_DELAY = 2000;
-const MAX_HISTORY_ENTRIES = 50;
+const TAB_WIDTH_ESTIMATE = 140; // px per tab for overflow calculation
+
+// eslint-disable-next-line jsdoc/require-param
+function TabBar({
+	openTabs,
+	allDocuments,
+	activeDocument,
+	isEditingTitle,
+	editTitle,
+	setEditTitle,
+	setIsEditingTitle,
+	saveDocument,
+	switchTab,
+	closeTab,
+	createTab,
+}) {
+	const barRef = useRef(null);
+	const [maxVisible, setMaxVisible] = useState(Infinity);
+
+	useEffect(() => {
+		const el = barRef.current;
+		// eslint-disable-next-line no-undef
+		if (!el || typeof ResizeObserver === 'undefined') {
+			return;
+		}
+		// eslint-disable-next-line no-undef
+		const observer = new ResizeObserver(([entry]) => {
+			// Reserve 80px for the overflow button and "+" button.
+			const available = entry.contentRect.width - 80;
+			setMaxVisible(
+				Math.max(1, Math.floor(available / TAB_WIDTH_ESTIMATE))
+			);
+		});
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
+
+	const tabDocs = openTabs
+		.map((tabId) =>
+			allDocuments.find((d) => String(d.id) === String(tabId))
+		)
+		.filter(Boolean);
+
+	// Always include the active tab in the visible set.
+	const activeIdx = tabDocs.findIndex(
+		(d) => String(d.id) === String(activeDocument?.id)
+	);
+	let visibleDocs = tabDocs;
+	let overflowDocs = [];
+
+	if (tabDocs.length > maxVisible) {
+		visibleDocs = tabDocs.slice(0, maxVisible);
+		overflowDocs = tabDocs.slice(maxVisible);
+
+		// If active tab is in overflow, swap it into visible.
+		if (activeIdx >= maxVisible) {
+			const active = tabDocs[activeIdx];
+			visibleDocs[maxVisible - 1] = active;
+			overflowDocs = tabDocs
+				.slice(maxVisible)
+				.filter((d) => String(d.id) !== String(active.id));
+			overflowDocs.unshift(tabDocs[maxVisible - 1]);
+		}
+	}
+
+	const renderTab = (doc) => {
+		const isActive = String(doc.id) === String(activeDocument?.id);
+		if (isEditingTitle && isActive) {
+			return (
+				<input
+					key={doc.id}
+					type="text"
+					className="wpgraphql-ide-tab-input"
+					value={editTitle}
+					onChange={(e) => setEditTitle(e.target.value)}
+					onBlur={() => {
+						if (editTitle.trim()) {
+							saveDocument(doc.id, {
+								title: editTitle.trim(),
+							});
+						}
+						setIsEditingTitle(false);
+					}}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter') {
+							e.target.blur();
+						}
+						if (e.key === 'Escape') {
+							setIsEditingTitle(false);
+						}
+					}}
+					// eslint-disable-next-line jsx-a11y/no-autofocus
+					autoFocus
+				/>
+			);
+		}
+		return (
+			<button
+				key={doc.id}
+				type="button"
+				className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}`}
+				onClick={() => switchTab(String(doc.id))}
+				onDoubleClick={() => {
+					setEditTitle(doc.title || 'Untitled');
+					setIsEditingTitle(true);
+				}}
+			>
+				<span className="wpgraphql-ide-tab-label">
+					{doc.title || 'Untitled'}
+				</span>
+				{openTabs.length > 1 && (
+					<span
+						className="wpgraphql-ide-tab-close"
+						role="button"
+						tabIndex={-1}
+						onClick={(e) => {
+							e.stopPropagation();
+							closeTab(String(doc.id));
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') {
+								e.stopPropagation();
+								closeTab(String(doc.id));
+							}
+						}}
+						aria-label="Close tab"
+					>
+						&times;
+					</span>
+				)}
+			</button>
+		);
+	};
+
+	return (
+		<div className="wpgraphql-ide-tab-bar" ref={barRef}>
+			{visibleDocs.map(renderTab)}
+			{overflowDocs.length > 0 && (
+				<DropdownMenu
+					icon={null}
+					label="More tabs"
+					toggleProps={{
+						children: `+${overflowDocs.length}`,
+						className: 'wpgraphql-ide-tab-overflow',
+						size: 'compact',
+					}}
+				>
+					{({ onClose: closeMenu }) => (
+						<MenuGroup>
+							{overflowDocs.map((doc) => (
+								<MenuItem
+									key={doc.id}
+									onClick={() => {
+										switchTab(String(doc.id));
+										closeMenu();
+									}}
+									suffix={
+										openTabs.length > 1 ? (
+											<Button
+												size="small"
+												onClick={(e) => {
+													e.stopPropagation();
+													closeTab(String(doc.id));
+												}}
+												aria-label="Close tab"
+												className="wpgraphql-ide-overflow-close"
+											>
+												&times;
+											</Button>
+										) : null
+									}
+								>
+									{doc.title || 'Untitled'}
+								</MenuItem>
+							))}
+						</MenuGroup>
+					)}
+				</DropdownMenu>
+			)}
+			<Tooltip text="New document">
+				<Button
+					className="wpgraphql-ide-tab-add"
+					onClick={() => createTab()}
+					aria-label="New document"
+					size="compact"
+				>
+					<Icon icon={plus} size={16} />
+				</Button>
+			</Tooltip>
+		</div>
+	);
+}
 
 /**
  * Main IDE layout component.
@@ -87,6 +277,8 @@ export function IDELayout({ fetcher, onClose }) {
 		setHeaders,
 		setResponse,
 		toggleAuthentication,
+		loadHistory,
+		addHistoryEntry,
 	} = useDispatch('wpgraphql-ide/app');
 
 	const { loadDocuments, saveDocument, createTab, switchTab, closeTab } =
@@ -111,42 +303,35 @@ export function IDELayout({ fetcher, onClose }) {
 			variables: vars,
 		}) => {
 			const docId = executingDocIdRef.current;
-			if (!docId) {
-				return;
-			}
-
 			const responseStr = JSON.stringify(result, null, 2);
-			const entry = {
-				timestamp: Math.floor(Date.now() / 1000),
+
+			setLastExecution({
+				duration_ms: duration,
+				status: execStatus,
+			});
+
+			// Save to global history via CPT.
+			addHistoryEntry({
 				query: executingQueryRef.current || '',
 				variables: vars || '',
 				headers: executingHeadersRef.current || '',
 				duration_ms: duration,
 				status: execStatus,
-			};
-
-			// Dispatch a thunk that reads the latest history from the store
-			// to avoid stale closure issues.
-			const { select: sel, dispatch: dis } =
-				// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-				require('@wordpress/data');
-			const latestDoc = sel('wpgraphql-ide/document-editor').getDocument(
-				docId
-			);
-			const currentHistory = latestDoc?.history || [];
-			const updated = [...currentHistory, entry].slice(
-				-MAX_HISTORY_ENTRIES
-			);
-
-			dis('wpgraphql-ide/document-editor').saveDocument(docId, {
-				history: updated,
+				document_id: docId || 0,
 			});
-			dis('wpgraphql-ide/document-editor').setDocumentResponse(
-				docId,
-				responseStr
-			);
+
+			// Store response on the document for display.
+			if (docId) {
+				const { dispatch: dis } =
+					// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+					require('@wordpress/data');
+				dis('wpgraphql-ide/document-editor').setDocumentResponse(
+					docId,
+					responseStr
+				);
+			}
 		},
-		[]
+		[addHistoryEntry]
 	);
 
 	const executionOptions = useRef({ onComplete: handleExecutionComplete });
@@ -166,6 +351,7 @@ export function IDELayout({ fetcher, onClose }) {
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [editTitle, setEditTitle] = useState('');
+	const [lastExecution, setLastExecution] = useState(null);
 	const saveTimerRef = useRef(null);
 
 	// ESC key closes the drawer when in drawer mode.
@@ -182,9 +368,10 @@ export function IDELayout({ fetcher, onClose }) {
 		return () => document.removeEventListener('keydown', handleKeyDown);
 	}, [onClose]);
 
-	// Load documents after mount.
+	// Load documents and history after mount.
 	useEffect(() => {
 		loadDocuments().then(() => setIsLoaded(true));
+		loadHistory();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -208,7 +395,8 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isLoaded, activeDocument]);
 
-	// Debounced auto-save.
+	// Debounced auto-save. When saving a query, also auto-name the tab
+	// from the operation name if the title is still "Untitled".
 	const scheduleAutoSave = useCallback(
 		(field, value) => {
 			if (!activeDocument) {
@@ -218,7 +406,19 @@ export function IDELayout({ fetcher, onClose }) {
 				clearTimeout(saveTimerRef.current);
 			}
 			saveTimerRef.current = setTimeout(() => {
-				saveDocument(activeDocument.id, { [field]: value });
+				const data = { [field]: value };
+
+				// Auto-name from operation name when title is default.
+				if (field === 'query' && activeDocument.title === 'Untitled') {
+					const match = value.match(
+						/(?:query|mutation|subscription)\s+(\w+)/
+					);
+					if (match) {
+						data.title = match[1];
+					}
+				}
+
+				saveDocument(activeDocument.id, data);
 			}, AUTOSAVE_DELAY);
 		},
 		[activeDocument, saveDocument]
@@ -349,176 +549,31 @@ export function IDELayout({ fetcher, onClose }) {
 					</Tooltip>
 				</div>
 				<div className="wpgraphql-ide-header-center">
-					{isEditingTitle ? (
-						<input
-							type="text"
-							className="wpgraphql-ide-title-input"
-							value={editTitle}
-							onChange={(e) => setEditTitle(e.target.value)}
-							onBlur={() => {
-								if (activeDocument && editTitle.trim()) {
-									saveDocument(activeDocument.id, {
-										title: editTitle.trim(),
-									});
-								}
-								setIsEditingTitle(false);
-							}}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
-									e.target.blur();
-								}
-								if (e.key === 'Escape') {
-									setIsEditingTitle(false);
-								}
-							}}
-							// eslint-disable-next-line jsx-a11y/no-autofocus
-							autoFocus
-						/>
-					) : (
-						<DropdownMenu
-							icon={chevronDown}
-							label="Switch document"
-							toggleProps={{
-								children: (
-									<span
-										className="wpgraphql-ide-document-name"
-										onDoubleClick={() => {
-											setEditTitle(
-												activeDocument?.title ||
-													'Untitled'
-											);
-											setIsEditingTitle(true);
-										}}
-									>
-										{activeDocument?.title || 'Untitled'}
-									</span>
-								),
-								className: 'wpgraphql-ide-document-switcher',
-								size: 'compact',
-							}}
-						>
-							{({ onClose: closeMenu }) => (
-								<>
-									<MenuGroup>
-										{openTabs
-											.map((tabId) =>
-												allDocuments.find(
-													(d) =>
-														String(d.id) ===
-														String(tabId)
-												)
-											)
-											.filter(Boolean)
-											.map((doc) => (
-												<MenuItem
-													key={doc.id}
-													onClick={() => {
-														switchTab(
-															String(doc.id)
-														);
-														closeMenu();
-													}}
-													isSelected={
-														String(doc.id) ===
-														String(
-															activeDocument?.id
-														)
-													}
-													suffix={
-														openTabs.length > 1 ? (
-															<Button
-																size="small"
-																onClick={(
-																	e
-																) => {
-																	e.stopPropagation();
-																	closeTab(
-																		String(
-																			doc.id
-																		)
-																	);
-																}}
-																aria-label="Close document"
-																className="wpgraphql-ide-doc-close"
-															>
-																&times;
-															</Button>
-														) : null
-													}
-												>
-													{doc.title || 'Untitled'}
-												</MenuItem>
-											))}
-									</MenuGroup>
-									<MenuGroup>
-										<MenuItem
-											onClick={() => {
-												createTab();
-												closeMenu();
-											}}
-										>
-											<Icon icon={plus} />
-											New document
-										</MenuItem>
-									</MenuGroup>
-								</>
-							)}
-						</DropdownMenu>
-					)}
+					<TabBar
+						openTabs={openTabs}
+						allDocuments={allDocuments}
+						activeDocument={activeDocument}
+						isEditingTitle={isEditingTitle}
+						editTitle={editTitle}
+						setEditTitle={setEditTitle}
+						setIsEditingTitle={setIsEditingTitle}
+						saveDocument={saveDocument}
+						switchTab={switchTab}
+						closeTab={closeTab}
+						createTab={createTab}
+					/>
 				</div>
 				<div className="wpgraphql-ide-header-right">
-					<div className="wpgraphql-ide-send-group">
-						<span className="wpgraphql-ide-method-label">POST</span>
-						<Tooltip
-							text={
-								isAuthenticated
-									? 'Sending as logged-in user (click to switch)'
-									: 'Sending as public user (click to switch)'
-							}
-						>
-							<button
-								type="button"
-								onClick={toggleAuthentication}
-								className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-								aria-label={
-									isAuthenticated
-										? 'Switch to public'
-										: 'Switch to authenticated'
-								}
-							>
-								<span
-									className={authStyles.authAvatar}
-									style={{
-										backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
-									}}
-								>
-									<span className={authStyles.authBadge} />
-								</span>
-							</button>
-						</Tooltip>
-						<Button
-							variant="primary"
-							onClick={executeQuery}
-							disabled={isSchemaLoading}
-							className="wpgraphql-ide-send-button"
-							size="compact"
-						>
-							{isFetching ? 'Stop' : 'Send'}
-						</Button>
-					</div>
 					{onClose && (
-						<>
-							<div className="wpgraphql-ide-header-separator" />
-							<Tooltip text="Close">
-								<Button
-									onClick={onClose}
-									aria-label="Close drawer"
-									size="compact"
-								>
-									<Icon icon={close} />
-								</Button>
-							</Tooltip>
-						</>
+						<Tooltip text="Close">
+							<Button
+								onClick={onClose}
+								aria-label="Close drawer"
+								size="compact"
+							>
+								<Icon icon={close} />
+							</Button>
+						</Tooltip>
 					)}
 				</div>
 			</div>
@@ -554,6 +609,49 @@ export function IDELayout({ fetcher, onClose }) {
 								</MenuGroup>
 							)}
 						</DropdownMenu>
+						<div className="wpgraphql-ide-send-group">
+							<span className="wpgraphql-ide-method-label">
+								POST
+							</span>
+							<Tooltip
+								text={
+									isAuthenticated
+										? 'Sending as logged-in user (click to switch)'
+										: 'Sending as public user (click to switch)'
+								}
+							>
+								<button
+									type="button"
+									onClick={toggleAuthentication}
+									className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+									aria-label={
+										isAuthenticated
+											? 'Switch to public'
+											: 'Switch to authenticated'
+									}
+								>
+									<span
+										className={authStyles.authAvatar}
+										style={{
+											backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+										}}
+									>
+										<span
+											className={authStyles.authBadge}
+										/>
+									</span>
+								</button>
+							</Tooltip>
+							<Button
+								variant="primary"
+								onClick={executeQuery}
+								disabled={isSchemaLoading}
+								className="wpgraphql-ide-send-button"
+								size="compact"
+							>
+								{isFetching ? 'Stop' : 'Send'}
+							</Button>
+						</div>
 					</div>
 					<ResizableBox
 						size={{ width: '100%', height: editorHeight }}
@@ -610,8 +708,28 @@ export function IDELayout({ fetcher, onClose }) {
 							Response
 						</span>
 						{isFetching && <Spinner />}
+						{!isFetching && lastExecution && (
+							<span className="wpgraphql-ide-response-meta">
+								<span
+									className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${lastExecution.status}`}
+								>
+									{lastExecution.status === 'success'
+										? 'OK'
+										: 'ERR'}
+								</span>
+								<span className="wpgraphql-ide-response-duration">
+									{lastExecution.duration_ms}ms
+								</span>
+							</span>
+						)}
 					</div>
-					<ResponseViewer value={response} />
+					{response ? (
+						<ResponseViewer value={response} />
+					) : (
+						<div className="wpgraphql-ide-response-empty">
+							Run a query to see results
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
