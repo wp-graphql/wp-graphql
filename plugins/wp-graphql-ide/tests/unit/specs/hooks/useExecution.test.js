@@ -6,6 +6,8 @@ import { useExecution } from '../../../../src/hooks/useExecution';
 let mockState;
 let mockSetResponse;
 let mockSetIsFetching;
+let mockSetResponseHeaders;
+let mockSetResponseMeta;
 
 jest.mock('@wordpress/data', () => ({
 	useSelect: (fn) =>
@@ -18,6 +20,8 @@ jest.mock('@wordpress/data', () => ({
 	useDispatch: () => ({
 		setResponse: mockSetResponse,
 		setIsFetching: mockSetIsFetching,
+		setResponseHeaders: mockSetResponseHeaders,
+		setResponseMeta: mockSetResponseMeta,
 	}),
 }));
 
@@ -40,6 +44,8 @@ describe('useExecution', () => {
 		};
 		mockSetResponse = jest.fn();
 		mockSetIsFetching = jest.fn();
+		mockSetResponseHeaders = jest.fn();
+		mockSetResponseMeta = jest.fn();
 	});
 
 	test('run() calls fetcher with query and stores the response', async () => {
