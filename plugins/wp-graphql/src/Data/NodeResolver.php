@@ -362,8 +362,16 @@ class NodeResolver {
 
 		// Bail if external URI.
 		if ( isset( $parsed_url['host'] ) ) {
-			$site_url = wp_parse_url( site_url() );
-			$home_url = wp_parse_url( home_url() );
+			$site_parts = wp_parse_url( site_url() );
+			$home_parts = wp_parse_url( home_url() );
+
+			$default_allowed_hosts = [];
+			if ( is_array( $site_parts ) && isset( $site_parts['host'] ) ) {
+				$default_allowed_hosts[] = $site_parts['host'];
+			}
+			if ( is_array( $home_parts ) && isset( $home_parts['host'] ) ) {
+				$default_allowed_hosts[] = $home_parts['host'];
+			}
 
 			/**
 			 * Filters hostnames treated as belonging to this WordPress install when resolving node URIs.
@@ -375,7 +383,7 @@ class NodeResolver {
 			 *
 			 * @since x-release-please-version
 			 */
-			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', [ $site_url['host'], $home_url['host'] ] );
+			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', $default_allowed_hosts );
 
 			if ( ! in_array( $parsed_url['host'], $allowed_hosts, true ) ) {
 				graphql_debug(
