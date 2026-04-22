@@ -33,7 +33,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-tab-row {
 	display: flex;
 	align-items: stretch;
-	background: #f0f0f1;
+	background: #fff;
 	border-bottom: 1px solid #e0e0e0;
 	flex-shrink: 0;
 }
@@ -48,6 +48,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	flex: 1;
 	min-height: 0;
+	min-width: 0;
 	overflow: hidden;
 }
 
@@ -81,6 +82,24 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex: 1;
 }
 
+.wpgraphql-ide-activity-bar-divider {
+	width: 24px;
+	height: 1px;
+	background: #e0e0e0;
+	margin: 4px 0;
+}
+
+.wpgraphql-ide-auth-avatar--sidebar {
+	width: 36px !important;
+	height: 36px !important;
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-auth-avatar--sidebar > span {
+	width: 28px !important;
+	height: 28px !important;
+}
+
 /* Tab bar */
 .wpgraphql-ide-tab-bar {
 	display: flex;
@@ -101,9 +120,9 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	padding: 8px 12px;
-	border: 1px solid transparent;
-	border-bottom: none;
+	padding: 10px 12px;
+	border: none;
+	border-bottom: 2px solid transparent;
 	background: none;
 	font-size: 13px;
 	color: #757575;
@@ -112,7 +131,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	min-width: 80px;
 	max-width: 180px;
 	flex-shrink: 1;
-	transition: color 0.1s;
+	margin-bottom: -1px;
 }
 
 .wpgraphql-ide-tab:hover {
@@ -121,10 +140,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-tab.is-active {
 	color: #1e1e1e;
-	background: #fff;
-	border-color: #e0e0e0;
-	border-bottom: 1px solid #fff;
-	margin-bottom: -1px;
+	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 }
 
 .wpgraphql-ide-tab-label {
@@ -178,6 +194,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	justify-content: center;
 	width: 36px;
 	min-width: 36px;
+	height: auto;
 	border: none;
 	background: none;
 	color: #757575;
@@ -185,9 +202,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-radius: 0;
 	flex-shrink: 0;
 	align-self: stretch;
+	padding: 0;
+	box-shadow: none;
 }
 
-.wpgraphql-ide-tab-add:hover {
+.wpgraphql-ide-tab-add:hover,
+.wpgraphql-ide-tab-add.components-button:hover {
 	color: #1e1e1e;
 	background: #f0f0f1;
 }
@@ -229,11 +249,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #d63638;
 }
 
-/* Send group — method + avatar + send button (inline in editor toolbar) */
+/* Send group — method label + send button (inline in editor toolbar) */
 .wpgraphql-ide-send-group {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: 12px;
 }
 
 .wpgraphql-ide-method-label {
@@ -274,6 +294,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
+	width: 70px;
+	justify-content: center;
 }
 
 .wpgraphql-ide-refresh-button.components-button {
@@ -681,14 +703,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: var(--wp-admin-theme-color, #3858e9);
 }
 
-.wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom {
+/* Shared vertical split resize handle (used by query and response panes) */
+.wpgraphql-ide-resizable-split > .components-resizable-box__handle-bottom {
 	height: 8px;
 	bottom: -4px;
 	cursor: row-resize;
 	background: transparent;
+	z-index: 1;
 }
 
-.wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom::after {
+.wpgraphql-ide-resizable-split > .components-resizable-box__handle-bottom::after {
 	content: "";
 	position: absolute;
 	top: 50%;
@@ -700,7 +724,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-radius: 1px;
 }
 
-.wpgraphql-ide-editor-resizable > .components-resizable-box__handle-bottom:hover::after {
+.wpgraphql-ide-resizable-split > .components-resizable-box__handle-bottom:hover::after {
 	background: var(--wp-admin-theme-color, #3858e9);
 }
 
@@ -822,31 +846,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex: 1;
 	min-height: 0;
 	overflow: hidden;
-}
-
-/* Response data resize handle */
-.wpgraphql-ide-response-data > .components-resizable-box__handle-bottom {
-	height: 8px;
-	bottom: -4px;
-	cursor: row-resize;
-	background: transparent;
-	z-index: 1;
-}
-
-.wpgraphql-ide-response-data > .components-resizable-box__handle-bottom::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 24px;
-	height: 2px;
-	background: #ddd;
-	border-radius: 1px;
-}
-
-.wpgraphql-ide-response-data > .components-resizable-box__handle-bottom:hover::after {
-	background: var(--wp-admin-theme-color, #3858e9);
 }
 
 .wpgraphql-ide-response-tabs {

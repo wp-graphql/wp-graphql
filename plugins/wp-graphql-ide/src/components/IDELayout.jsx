@@ -98,7 +98,7 @@ function ResponseContent({
 				size={{ width: '100%', height: '60%' }}
 				minHeight={50}
 				enable={{ bottom: true }}
-				className="wpgraphql-ide-response-data"
+				className="wpgraphql-ide-response-data wpgraphql-ide-resizable-split"
 			>
 				<ResponseViewer value={dataStr || response} />
 			</ResizableBox>
@@ -732,6 +732,35 @@ export function IDELayout({ fetcher, onClose }) {
 							<Icon icon={update} />
 						</Button>
 					</Tooltip>
+					<div className="wpgraphql-ide-activity-bar-divider" />
+					<Tooltip
+						text={
+							isAuthenticated
+								? 'Authenticated (click to switch)'
+								: 'Public (click to switch)'
+						}
+						placement="right"
+					>
+						<button
+							type="button"
+							onClick={toggleAuthentication}
+							className={`wpgraphql-ide-auth-avatar wpgraphql-ide-auth-avatar--sidebar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+							aria-label={
+								isAuthenticated
+									? 'Switch to public'
+									: 'Switch to authenticated'
+							}
+						>
+							<span
+								className={authStyles.authAvatar}
+								style={{
+									backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+								}}
+							>
+								<span className={authStyles.authBadge} />
+							</span>
+						</button>
+					</Tooltip>
 				</div>
 				<div className="wpgraphql-ide-main">
 					<ActivityPanel />
@@ -753,7 +782,6 @@ export function IDELayout({ fetcher, onClose }) {
 							<span className="wpgraphql-ide-editor-label">
 								Query
 							</span>
-							<div className="wpgraphql-ide-editor-toolbar-spacer" />
 							<DropdownMenu
 								icon={moreVertical}
 								label="Editor actions"
@@ -764,39 +792,11 @@ export function IDELayout({ fetcher, onClose }) {
 									</MenuGroup>
 								)}
 							</DropdownMenu>
+							<div className="wpgraphql-ide-editor-toolbar-spacer" />
 							<div className="wpgraphql-ide-send-group">
 								<span className="wpgraphql-ide-method-label">
 									POST
 								</span>
-								<Tooltip
-									text={
-										isAuthenticated
-											? 'Sending as logged-in user (click to switch)'
-											: 'Sending as public user (click to switch)'
-									}
-								>
-									<button
-										type="button"
-										onClick={toggleAuthentication}
-										className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-										aria-label={
-											isAuthenticated
-												? 'Switch to public'
-												: 'Switch to authenticated'
-										}
-									>
-										<span
-											className={authStyles.authAvatar}
-											style={{
-												backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
-											}}
-										>
-											<span
-												className={authStyles.authBadge}
-											/>
-										</span>
-									</button>
-								</Tooltip>
 								<Button
 									variant="primary"
 									onClick={executeQuery}
@@ -820,7 +820,7 @@ export function IDELayout({ fetcher, onClose }) {
 									String(h)
 								);
 							}}
-							className="wpgraphql-ide-editor-resizable"
+							className="wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split"
 						>
 							<GraphQLEditor
 								key={activeDocument?.id || 'empty'}
