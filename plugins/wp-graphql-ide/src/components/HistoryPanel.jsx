@@ -47,9 +47,6 @@ export function HistoryPanel() {
 			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
 				<div className="wpgraphql-ide-history-empty-state">
 					<p>No executions yet</p>
-					<p className="wpgraphql-ide-history-empty-hint">
-						Press <kbd>Cmd</kbd>+<kbd>Enter</kbd> to execute a query
-					</p>
 				</div>
 			</div>
 		);
