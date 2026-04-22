@@ -161,6 +161,7 @@ function TabBar({
 	switchTab,
 	closeTab,
 	createTab,
+	getNextTabName,
 }) {
 	const barRef = useRef(null);
 	const [maxVisible, setMaxVisible] = useState(Infinity);
@@ -328,7 +329,7 @@ function TabBar({
 			<Tooltip text="New document">
 				<Button
 					className="wpgraphql-ide-tab-add"
-					onClick={() => createTab()}
+					onClick={() => createTab(getNextTabName())}
 					aria-label="New document"
 					size="compact"
 				>
@@ -521,10 +522,24 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeDocument?.id]);
 
+	const getNextTabName = useCallback(() => {
+		const existing = allDocuments.filter((d) =>
+			/^New Tab( \d+)?$/.test(d.title)
+		);
+		if (existing.length === 0) {
+			return 'New Tab';
+		}
+		const nums = existing.map((d) => {
+			const m = d.title.match(/^New Tab (\d+)$/);
+			return m ? parseInt(m[1], 10) : 1;
+		});
+		return `New Tab ${Math.max(...nums) + 1}`;
+	}, [allDocuments]);
+
 	// Create a default tab if loaded but no tabs exist.
 	useEffect(() => {
 		if (isLoaded && !activeDocument) {
-			createTab('Untitled');
+			createTab(getNextTabName());
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isLoaded, activeDocument]);
@@ -543,7 +558,10 @@ export function IDELayout({ fetcher, onClose }) {
 				const data = { [field]: value };
 
 				// Auto-name from operation name when title is default.
-				if (field === 'query' && activeDocument.title === 'Untitled') {
+				if (
+					field === 'query' &&
+					/^(Untitled|New Tab( \d+)?)$/.test(activeDocument.title)
+				) {
 					const match = value.match(
 						/(?:query|mutation|subscription)\s+(\w+)/
 					);
@@ -652,11 +670,44 @@ export function IDELayout({ fetcher, onClose }) {
 
 	return (
 		<div className="wpgraphql-ide-container">
-			{/* Header bar — matches Gutenberg post editor header */}
-			<div className="wpgraphql-ide-header">
-				<div className="wpgraphql-ide-header-left">
+			{/* Tab bar — own row */}
+			<div className="wpgraphql-ide-tab-row">
+				<TabBar
+					openTabs={openTabs}
+					allDocuments={allDocuments}
+					activeDocument={activeDocument}
+					isEditingTitle={isEditingTitle}
+					editTitle={editTitle}
+					setEditTitle={setEditTitle}
+					setIsEditingTitle={setIsEditingTitle}
+					saveDocument={saveDocument}
+					switchTab={switchTab}
+					closeTab={closeTab}
+					createTab={createTab}
+					getNextTabName={getNextTabName}
+				/>
+				{onClose && (
+					<Tooltip text="Close">
+						<Button
+							onClick={onClose}
+							aria-label="Close drawer"
+							size="compact"
+							className="wpgraphql-ide-close-btn"
+						>
+							<Icon icon={close} />
+						</Button>
+					</Tooltip>
+				)}
+			</div>
+			{/* Main content area with vertical activity bar */}
+			<div className="wpgraphql-ide-body">
+				<div className="wpgraphql-ide-activity-bar-vertical">
 					{toolPanels.map((panel) => (
-						<Tooltip key={panel.name} text={panel.title}>
+						<Tooltip
+							key={panel.name}
+							text={panel.title}
+							placement="right"
+						>
 							<Button
 								isPressed={visiblePanel?.name === panel.name}
 								onClick={() =>
@@ -669,8 +720,8 @@ export function IDELayout({ fetcher, onClose }) {
 							</Button>
 						</Tooltip>
 					))}
-					<div className="wpgraphql-ide-header-separator" />
-					<Tooltip text="Re-fetch schema">
+					<div className="wpgraphql-ide-activity-bar-spacer" />
+					<Tooltip text="Re-fetch schema" placement="right">
 						<Button
 							onClick={refetch}
 							disabled={isSchemaLoading}
@@ -682,215 +733,186 @@ export function IDELayout({ fetcher, onClose }) {
 						</Button>
 					</Tooltip>
 				</div>
-				<div className="wpgraphql-ide-header-center">
-					<TabBar
-						openTabs={openTabs}
-						allDocuments={allDocuments}
-						activeDocument={activeDocument}
-						isEditingTitle={isEditingTitle}
-						editTitle={editTitle}
-						setEditTitle={setEditTitle}
-						setIsEditingTitle={setIsEditingTitle}
-						saveDocument={saveDocument}
-						switchTab={switchTab}
-						closeTab={closeTab}
-						createTab={createTab}
-					/>
-				</div>
-				<div className="wpgraphql-ide-header-right">
-					{onClose && (
-						<Tooltip text="Close">
-							<Button
-								onClick={onClose}
-								aria-label="Close drawer"
-								size="compact"
-							>
-								<Icon icon={close} />
-							</Button>
-						</Tooltip>
-					)}
-				</div>
-			</div>
-			{/* Main content area */}
-			<div className="wpgraphql-ide-main">
-				<ActivityPanel />
-				<ResizableBox
-					size={{ width: queryPaneWidth, height: 'auto' }}
-					minWidth={200}
-					enable={{ right: true }}
-					onResizeStop={(e, d, elt) => {
-						const w = elt.offsetWidth;
-						setQueryPaneWidth(w);
-						window.localStorage.setItem(
-							'wpgraphql_ide_query_width',
-							String(w)
-						);
-					}}
-					className="wpgraphql-ide-query-pane"
-				>
-					<div className="wpgraphql-ide-editor-toolbar">
-						<span className="wpgraphql-ide-editor-label">
-							Query
-						</span>
-						<div className="wpgraphql-ide-editor-toolbar-spacer" />
-						<DropdownMenu
-							icon={moreVertical}
-							label="Editor actions"
-						>
-							{({ onClose: closeMenu }) => (
-								<MenuGroup>
-									<EditorToolbar onClose={closeMenu} />
-								</MenuGroup>
-							)}
-						</DropdownMenu>
-						<div className="wpgraphql-ide-send-group">
-							<span className="wpgraphql-ide-method-label">
-								POST
-							</span>
-							<Tooltip
-								text={
-									isAuthenticated
-										? 'Sending as logged-in user (click to switch)'
-										: 'Sending as public user (click to switch)'
-								}
-							>
-								<button
-									type="button"
-									onClick={toggleAuthentication}
-									className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-									aria-label={
-										isAuthenticated
-											? 'Switch to public'
-											: 'Switch to authenticated'
-									}
-								>
-									<span
-										className={authStyles.authAvatar}
-										style={{
-											backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
-										}}
-									>
-										<span
-											className={authStyles.authBadge}
-										/>
-									</span>
-								</button>
-							</Tooltip>
-							<Button
-								variant="primary"
-								onClick={executeQuery}
-								disabled={isSchemaLoading}
-								className="wpgraphql-ide-send-button"
-								size="compact"
-							>
-								{isFetching ? 'Stop' : 'Send'}
-							</Button>
-						</div>
-					</div>
+				<div className="wpgraphql-ide-main">
+					<ActivityPanel />
 					<ResizableBox
-						size={{ width: '100%', height: editorHeight }}
-						minHeight={50}
-						enable={{ bottom: true }}
+						size={{ width: queryPaneWidth, height: 'auto' }}
+						minWidth={200}
+						enable={{ right: true }}
 						onResizeStop={(e, d, elt) => {
-							const h = elt.offsetHeight;
-							setEditorHeight(h);
+							const w = elt.offsetWidth;
+							setQueryPaneWidth(w);
 							window.localStorage.setItem(
-								'wpgraphql_ide_editor_height',
-								String(h)
+								'wpgraphql_ide_query_width',
+								String(w)
 							);
 						}}
-						className="wpgraphql-ide-editor-resizable"
+						className="wpgraphql-ide-query-pane"
 					>
-						<GraphQLEditor
-							key={activeDocument?.id || 'empty'}
-							value={query}
-							onChange={handleQueryChange}
-							schema={schema}
-							extraKeys={editorKeyBindings.current}
-						/>
-					</ResizableBox>
-					<TabPanel
-						className="wpgraphql-ide-editor-tools"
-						tabs={[
-							{ name: 'variables', title: 'Variables' },
-							{ name: 'headers', title: 'Headers' },
-						]}
-					>
-						{(tab) =>
-							tab.name === 'variables' ? (
-								<JSONEditor
-									key="variables"
-									value={variables}
-									onChange={handleVariablesChange}
-									placeholder="Variables (JSON)"
-								/>
-							) : (
-								<JSONEditor
-									key="headers"
-									value={headers}
-									onChange={handleHeadersChange}
-									placeholder="Headers (JSON)"
-								/>
-							)
-						}
-					</TabPanel>
-				</ResizableBox>
-
-				<div className="wpgraphql-ide-response-pane">
-					<div className="wpgraphql-ide-response-header">
-						<span className="wpgraphql-ide-response-label">
-							Response
-						</span>
-						{isFetching && <Spinner />}
-						{!isFetching && responseStatus !== null && (
-							<span className="wpgraphql-ide-response-meta">
-								<span
-									className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${responseStatus >= 200 && responseStatus < 300 ? 'success' : 'error'}`}
-								>
-									{responseStatus}
-								</span>
-								{responseDuration !== null && (
-									<span className="wpgraphql-ide-response-duration">
-										{responseDuration >= 1000
-											? `${(responseDuration / 1000).toFixed(1)}s`
-											: `${responseDuration}ms`}
-									</span>
-								)}
-								{responseSize !== null && (
-									<span className="wpgraphql-ide-response-size">
-										{responseSize >= 1024
-											? `${(responseSize / 1024).toFixed(1)}KB`
-											: `${responseSize}B`}
-									</span>
-								)}
+						<div className="wpgraphql-ide-editor-toolbar">
+							<span className="wpgraphql-ide-editor-label">
+								Query
 							</span>
-						)}
-						<div className="wpgraphql-ide-response-mode-toggle">
-							{['formatted', 'table', 'raw'].map((mode) => (
-								<button
-									key={mode}
-									type="button"
-									className={`wpgraphql-ide-response-mode-btn${responseViewMode === mode ? ' is-active' : ''}`}
-									onClick={() => {
-										setResponseViewMode(mode);
-										window.localStorage.setItem(
-											'wpgraphql_ide_response_mode',
-											mode
-										);
-									}}
+							<div className="wpgraphql-ide-editor-toolbar-spacer" />
+							<DropdownMenu
+								icon={moreVertical}
+								label="Editor actions"
+							>
+								{({ onClose: closeMenu }) => (
+									<MenuGroup>
+										<EditorToolbar onClose={closeMenu} />
+									</MenuGroup>
+								)}
+							</DropdownMenu>
+							<div className="wpgraphql-ide-send-group">
+								<span className="wpgraphql-ide-method-label">
+									POST
+								</span>
+								<Tooltip
+									text={
+										isAuthenticated
+											? 'Sending as logged-in user (click to switch)'
+											: 'Sending as public user (click to switch)'
+									}
 								>
-									{mode.charAt(0).toUpperCase() +
-										mode.slice(1)}
-								</button>
-							))}
+									<button
+										type="button"
+										onClick={toggleAuthentication}
+										className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+										aria-label={
+											isAuthenticated
+												? 'Switch to public'
+												: 'Switch to authenticated'
+										}
+									>
+										<span
+											className={authStyles.authAvatar}
+											style={{
+												backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+											}}
+										>
+											<span
+												className={authStyles.authBadge}
+											/>
+										</span>
+									</button>
+								</Tooltip>
+								<Button
+									variant="primary"
+									onClick={executeQuery}
+									disabled={isSchemaLoading}
+									className="wpgraphql-ide-send-button"
+									size="compact"
+								>
+									{isFetching ? 'Stop' : 'Send'}
+								</Button>
+							</div>
 						</div>
+						<ResizableBox
+							size={{ width: '100%', height: editorHeight }}
+							minHeight={50}
+							enable={{ bottom: true }}
+							onResizeStop={(e, d, elt) => {
+								const h = elt.offsetHeight;
+								setEditorHeight(h);
+								window.localStorage.setItem(
+									'wpgraphql_ide_editor_height',
+									String(h)
+								);
+							}}
+							className="wpgraphql-ide-editor-resizable"
+						>
+							<GraphQLEditor
+								key={activeDocument?.id || 'empty'}
+								value={query}
+								onChange={handleQueryChange}
+								schema={schema}
+								extraKeys={editorKeyBindings.current}
+							/>
+						</ResizableBox>
+						<TabPanel
+							className="wpgraphql-ide-editor-tools"
+							tabs={[
+								{ name: 'variables', title: 'Variables' },
+								{ name: 'headers', title: 'Headers' },
+							]}
+						>
+							{(tab) =>
+								tab.name === 'variables' ? (
+									<JSONEditor
+										key="variables"
+										value={variables}
+										onChange={handleVariablesChange}
+										placeholder="Variables (JSON)"
+									/>
+								) : (
+									<JSONEditor
+										key="headers"
+										value={headers}
+										onChange={handleHeadersChange}
+										placeholder="Headers (JSON)"
+									/>
+								)
+							}
+						</TabPanel>
+					</ResizableBox>
+
+					<div className="wpgraphql-ide-response-pane">
+						<div className="wpgraphql-ide-response-header">
+							<span className="wpgraphql-ide-response-label">
+								Response
+							</span>
+							{isFetching && <Spinner />}
+							{!isFetching && responseStatus !== null && (
+								<span className="wpgraphql-ide-response-meta">
+									<span
+										className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${responseStatus >= 200 && responseStatus < 300 ? 'success' : 'error'}`}
+									>
+										{responseStatus}
+									</span>
+									{responseDuration !== null && (
+										<span className="wpgraphql-ide-response-duration">
+											{responseDuration >= 1000
+												? `${(responseDuration / 1000).toFixed(1)}s`
+												: `${responseDuration}ms`}
+										</span>
+									)}
+									{responseSize !== null && (
+										<span className="wpgraphql-ide-response-size">
+											{responseSize >= 1024
+												? `${(responseSize / 1024).toFixed(1)}KB`
+												: `${responseSize}B`}
+										</span>
+									)}
+								</span>
+							)}
+							<div className="wpgraphql-ide-response-mode-toggle">
+								{['formatted', 'table', 'raw'].map((mode) => (
+									<button
+										key={mode}
+										type="button"
+										className={`wpgraphql-ide-response-mode-btn${responseViewMode === mode ? ' is-active' : ''}`}
+										onClick={() => {
+											setResponseViewMode(mode);
+											window.localStorage.setItem(
+												'wpgraphql_ide_response_mode',
+												mode
+											);
+										}}
+									>
+										{mode.charAt(0).toUpperCase() +
+											mode.slice(1)}
+									</button>
+								))}
+							</div>
+						</div>
+						<ResponseContent
+							response={response}
+							responseViewMode={responseViewMode}
+							responseHeaders={responseHeaders}
+							extensionTabs={extensionTabs}
+						/>
 					</div>
-					<ResponseContent
-						response={response}
-						responseViewMode={responseViewMode}
-						responseHeaders={responseHeaders}
-						extensionTabs={extensionTabs}
-					/>
 				</div>
 			</div>
 		</div>
