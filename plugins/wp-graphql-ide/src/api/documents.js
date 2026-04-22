@@ -73,20 +73,13 @@ export async function updateDocument(id, doc) {
 	if (doc.query !== undefined) {
 		data.content = doc.query;
 	}
-	if (
-		doc.variables !== undefined ||
-		doc.headers !== undefined ||
-		doc.history !== undefined
-	) {
+	if (doc.variables !== undefined || doc.headers !== undefined) {
 		data.meta = {};
 		if (doc.variables !== undefined) {
 			data.meta._graphql_ide_variables = doc.variables;
 		}
 		if (doc.headers !== undefined) {
 			data.meta._graphql_ide_headers = doc.headers;
-		}
-		if (doc.history !== undefined) {
-			data.meta._graphql_ide_history = doc.history;
 		}
 	}
 
@@ -126,6 +119,5 @@ function normalizeDocument(post) {
 		query: post.content?.raw ?? post.content?.rendered ?? '',
 		variables: post.meta?._graphql_ide_variables ?? '',
 		headers: post.meta?._graphql_ide_headers ?? '',
-		history: post.meta?._graphql_ide_history ?? [],
 	};
 }

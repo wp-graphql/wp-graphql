@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
@@ -12,27 +12,24 @@ export const HistoryIcon = () => <Icon icon={backup} />;
 /**
  * History panel content.
  *
- * Displays the execution history for the active document. Clicking
- * an entry restores its variables, headers, and response.
+ * Displays global execution history. Can be filtered to show only
+ * entries from the active document.
  */
 export function HistoryPanel() {
+	const [filterByDoc, setFilterByDoc] = useState(false);
+
+	const history = useSelect(
+		(select) => select('wpgraphql-ide/app').getHistory(),
+		[]
+	);
+
 	const activeDocument = useSelect(
 		(select) => select('wpgraphql-ide/document-editor').getActiveDocument(),
 		[]
 	);
 
-	const { setQuery, setVariables, setHeaders } =
+	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
-
-	const { saveDocument } = useDispatch('wpgraphql-ide/document-editor');
-
-	const clearHistory = () => {
-		if (activeDocument) {
-			saveDocument(activeDocument.id, { history: [] });
-		}
-	};
-
-	const history = activeDocument?.history || [];
 
 	const restoreEntry = (entry) => {
 		setQuery(entry.query || '');
@@ -40,22 +37,20 @@ export function HistoryPanel() {
 		setHeaders(entry.headers || '');
 	};
 
-	if (!activeDocument) {
-		return (
-			<div className="wpgraphql-ide-history-panel">
-				<p className="wpgraphql-ide-history-empty">
-					No document selected.
-				</p>
-			</div>
-		);
-	}
+	const displayedHistory =
+		filterByDoc && activeDocument
+			? history.filter((e) => e.document_id === activeDocument.id)
+			: history;
 
 	if (history.length === 0) {
 		return (
-			<div className="wpgraphql-ide-history-panel">
-				<p className="wpgraphql-ide-history-empty">
-					No executions yet. Run a query to see history.
-				</p>
+			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
+				<div className="wpgraphql-ide-history-empty-state">
+					<p>No executions yet</p>
+					<p className="wpgraphql-ide-history-empty-hint">
+						Press <kbd>Cmd</kbd>+<kbd>Enter</kbd> to execute a query
+					</p>
+				</div>
 			</div>
 		);
 	}
@@ -63,52 +58,69 @@ export function HistoryPanel() {
 	return (
 		<div className="wpgraphql-ide-history-panel">
 			<div className="wpgraphql-ide-history-actions">
+				{activeDocument && (
+					<Button
+						variant={filterByDoc ? 'primary' : 'secondary'}
+						onClick={() => setFilterByDoc(!filterByDoc)}
+						size="small"
+					>
+						This document
+					</Button>
+				)}
 				<Button
 					variant="link"
 					isDestructive
-					onClick={clearHistory}
+					onClick={clearAllHistory}
 					size="small"
 				>
-					Clear history
+					Clear all
 				</Button>
 			</div>
-			<ul className="wpgraphql-ide-history-list">
-				{[...history].reverse().map((entry, index) => (
-					<li
-						key={`${entry.timestamp}-${index}`}
-						className="wpgraphql-ide-history-entry"
-					>
-						<button
-							type="button"
-							className="wpgraphql-ide-history-entry-button"
-							onClick={() => restoreEntry(entry)}
+			{displayedHistory.length === 0 ? (
+				<p className="wpgraphql-ide-history-empty">
+					No history for this document.
+				</p>
+			) : (
+				<ul className="wpgraphql-ide-history-list">
+					{displayedHistory.map((entry) => (
+						<li
+							key={entry.id}
+							className="wpgraphql-ide-history-entry"
 						>
-							<div className="wpgraphql-ide-history-entry-header">
-								<span
-									className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
-								>
-									{entry.status === 'success' ? 'OK' : 'ERR'}
-								</span>
-								<span className="wpgraphql-ide-history-duration">
-									{entry.duration_ms}ms
-								</span>
-								<span className="wpgraphql-ide-history-entry-time">
-									{dateI18n(
-										'M j, g:i A',
-										entry.timestamp * 1000
-									)}
-								</span>
-							</div>
-							{entry.query && (
-								<div className="wpgraphql-ide-history-entry-preview">
-									{entry.query.slice(0, 120)}
-									{entry.query.length > 120 ? '...' : ''}
+							<button
+								type="button"
+								className="wpgraphql-ide-history-entry-button"
+								onClick={() => restoreEntry(entry)}
+							>
+								<div className="wpgraphql-ide-history-entry-header">
+									<span
+										className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
+									>
+										{entry.status === 'success'
+											? 'OK'
+											: 'ERR'}
+									</span>
+									<span className="wpgraphql-ide-history-duration">
+										{entry.duration_ms}ms
+									</span>
+									<span className="wpgraphql-ide-history-entry-time">
+										{dateI18n(
+											'M j, g:i A',
+											entry.timestamp * 1000
+										)}
+									</span>
 								</div>
-							)}
-						</button>
-					</li>
-				))}
-			</ul>
+								{entry.query && (
+									<div className="wpgraphql-ide-history-entry-preview">
+										{entry.query.slice(0, 120)}
+										{entry.query.length > 120 ? '...' : ''}
+									</div>
+								)}
+							</button>
+						</li>
+					))}
+				</ul>
+			)}
 		</div>
 	);
 }

@@ -75,14 +75,16 @@ function initialize_plugin() {
 	add_filter( 'graphql_get_setting_section_field_value', __NAMESPACE__ . '\\ensure_graphiql_link_is_unchecked', 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), __NAMESPACE__ . '\\add_settings_link' );
 
-	// Scope REST queries to the current user's own documents.
+	// Scope REST queries to the current user's own documents/history.
 	add_filter( 'rest_graphql_ide_query_query', __NAMESPACE__ . '\\scope_ide_queries_to_current_user' );
+	add_filter( 'rest_graphql_ide_history_query', __NAMESPACE__ . '\\scope_ide_queries_to_current_user' );
 
-	// Enforce manage_graphql_ide capability on all IDE document REST routes.
+	// Enforce manage_graphql_ide capability on all IDE REST routes.
 	add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\\enforce_ide_rest_permissions', 10, 3 );
 
-	// Prevent access to documents owned by other users on single routes.
+	// Prevent access to documents/history owned by other users on single routes.
 	add_filter( 'rest_prepare_graphql_ide_query', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
+	add_filter( 'rest_prepare_graphql_ide_history', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 
 	// Core plugins/modules.
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
@@ -153,30 +155,92 @@ function register_ide_post_type() {
 		]
 	);
 
-	register_post_meta(
-		'graphql_ide_query',
-		'_graphql_ide_history',
+	// History CPT — global execution history, not scoped to a document.
+	register_post_type(
+		'graphql_ide_history',
 		[
-			'type'          => 'array',
+			'label'           => __( 'IDE History', 'wpgraphql-ide' ),
+			'description'     => __( 'GraphQL IDE execution history entries.', 'wpgraphql-ide' ),
+			'public'          => false,
+			'show_ui'         => false,
+			'show_in_rest'    => true,
+			'rest_base'       => 'graphql-ide-history',
+			'capability_type' => 'post',
+			'map_meta_cap'    => true,
+			'supports'        => [ 'author', 'custom-fields' ],
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_query',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_variables',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_headers',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_duration_ms',
+		[
+			'type'          => 'integer',
 			'single'        => true,
-			'show_in_rest'  => [
-				'schema' => [
-					'type'  => 'array',
-					'items' => [
-						'type'       => 'object',
-						'properties' => [
-							'timestamp'        => [ 'type' => 'integer' ],
-							'query'            => [ 'type' => 'string' ],
-							'variables'        => [ 'type' => 'string' ],
-							'headers'          => [ 'type' => 'string' ],
-							'duration_ms'      => [ 'type' => 'integer' ],
-							'response_summary' => [ 'type' => 'string' ],
-							'status'           => [ 'type' => 'string' ],
-						],
-					],
-				],
-			],
-			'default'       => [],
+			'show_in_rest'  => true,
+			'default'       => 0,
+			'auth_callback' => $post_meta_auth,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_status',
+		[
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $post_meta_auth,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_document_id',
+		[
+			'type'          => 'integer',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => 0,
 			'auth_callback' => $post_meta_auth,
 		]
 	);
@@ -280,7 +344,10 @@ function scope_ide_queries_to_current_user( $args ) {
 function enforce_ide_rest_permissions( $result, $server, $request ) {
 	$route = $request->get_route();
 
-	if ( strpos( $route, '/wp/v2/graphql-ide-queries' ) !== 0 ) {
+	$is_ide_route = strpos( $route, '/wp/v2/graphql-ide-queries' ) === 0
+		|| strpos( $route, '/wp/v2/graphql-ide-history' ) === 0;
+
+	if ( ! $is_ide_route ) {
 		return $result;
 	}
 

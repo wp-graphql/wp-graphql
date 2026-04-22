@@ -1,6 +1,11 @@
 import { parse, print } from 'graphql';
 import { mergeAst } from '@graphiql/toolkit';
 import { select } from '@wordpress/data';
+import {
+	getHistory as fetchHistory,
+	createHistoryEntry as postHistoryEntry,
+	clearHistory as deleteAllHistory,
+} from '../../api/history';
 
 /**
  * The initial state of the app.
@@ -95,6 +100,73 @@ const actions = {
 			isFetching,
 		};
 	},
+
+	/**
+	 * Load global execution history from the server.
+	 */
+	loadHistory:
+		() =>
+		async ({ dispatch }) => {
+			try {
+				const entries = await fetchHistory();
+				dispatch({ type: 'SET_HISTORY', history: entries });
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to load history:', error);
+			}
+		},
+
+	/**
+	 * Add a new history entry and persist it via the REST API.
+	 * Prunes the oldest entry if the limit is exceeded.
+	 *
+	 * @param {Object} entry History entry data.
+	 */
+	addHistoryEntry:
+		(entry) =>
+		async ({ dispatch, select: sel }) => {
+			try {
+				const current = sel.getHistory();
+				const oldestId =
+					current.length >= 50
+						? current[current.length - 1]?.id
+						: undefined;
+
+				const created = await postHistoryEntry({
+					...entry,
+					oldestId,
+				});
+
+				dispatch({ type: 'ADD_HISTORY_ENTRY', entry: created });
+
+				// Remove the pruned entry from local state.
+				if (oldestId) {
+					const updated = sel
+						.getHistory()
+						.filter((e) => e.id !== oldestId);
+					dispatch({ type: 'SET_HISTORY', history: updated });
+				}
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to save history entry:', error);
+			}
+		},
+
+	/**
+	 * Clear all history entries.
+	 */
+	clearAllHistory:
+		() =>
+		async ({ dispatch, select: sel }) => {
+			try {
+				const ids = sel.getHistory().map((e) => e.id);
+				dispatch({ type: 'CLEAR_HISTORY' });
+				await deleteAllHistory(ids);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to clear history:', error);
+			}
+		},
 };
 
 export default actions;

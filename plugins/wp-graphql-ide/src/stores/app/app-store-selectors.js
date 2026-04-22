@@ -45,6 +45,9 @@ const selectors = {
 	isFetching: (state) => {
 		return state.isFetching;
 	},
+	getHistory: (state) => {
+		return state.history;
+	},
 };
 
 export default selectors;

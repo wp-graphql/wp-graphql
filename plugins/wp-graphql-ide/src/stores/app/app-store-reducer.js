@@ -14,6 +14,7 @@ const initialState = {
 	headers: '',
 	response: '',
 	isFetching: false,
+	history: [],
 };
 
 /**
@@ -101,6 +102,21 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				isFetching: action.isFetching,
+			};
+		case 'SET_HISTORY':
+			return {
+				...state,
+				history: action.history,
+			};
+		case 'ADD_HISTORY_ENTRY':
+			return {
+				...state,
+				history: [action.entry, ...state.history],
+			};
+		case 'CLEAR_HISTORY':
+			return {
+				...state,
+				history: [],
 			};
 	}
 	return state;
