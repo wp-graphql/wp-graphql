@@ -24,11 +24,126 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
 import { ResponseViewer } from './editors/ResponseViewer';
+import { ErrorsPanel } from './ErrorsPanel';
+import { HeadersPanel } from './HeadersPanel';
+import { ResponseTableView } from './ResponseTableView';
 import { EditorToolbar } from './EditorToolbar';
 import ActivityPanel from './ActivityPanel';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
+
+// eslint-disable-next-line jsdoc/require-param
+function ResponseContent({
+	response,
+	responseViewMode,
+	responseHeaders,
+	extensionTabs,
+}) {
+	if (!response) {
+		return (
+			<div className="wpgraphql-ide-response-empty">
+				Run a query to see results
+			</div>
+		);
+	}
+
+	if (responseViewMode === 'raw') {
+		return <ResponseViewer value={response} />;
+	}
+
+	const parsed = (() => {
+		try {
+			return JSON.parse(response);
+		} catch {
+			return null;
+		}
+	})();
+
+	if (responseViewMode === 'table') {
+		return <ResponseTableView response={parsed} />;
+	}
+
+	// Formatted mode: data viewer + tabs for Headers/Errors/Extensions.
+	const errors = parsed?.errors || [];
+	const extensions = parsed?.extensions || {};
+	const dataStr = parsed?.data ? JSON.stringify(parsed.data, null, 2) : '';
+
+	// Filter extension tabs to only those with data in the current response.
+	const activeExtTabs = extensionTabs.filter(
+		(tab) => extensions[tab.name] !== undefined
+	);
+
+	const bottomTabs = [
+		{
+			name: 'headers',
+			title: `Headers${responseHeaders ? ` (${Object.keys(responseHeaders).length})` : ''}`,
+		},
+		...(errors.length > 0
+			? [{ name: 'errors', title: `Errors (${errors.length})` }]
+			: []),
+		...(activeExtTabs.length > 0
+			? [
+					{
+						name: 'extensions',
+						title: `Extensions (${activeExtTabs.length})`,
+					},
+				]
+			: []),
+	];
+
+	return (
+		<div className="wpgraphql-ide-response-formatted">
+			<ResizableBox
+				size={{ width: '100%', height: '60%' }}
+				minHeight={50}
+				enable={{ bottom: true }}
+				className="wpgraphql-ide-response-data"
+			>
+				<ResponseViewer value={dataStr || response} />
+			</ResizableBox>
+			{bottomTabs.length > 0 && (
+				<TabPanel
+					className="wpgraphql-ide-response-tabs"
+					tabs={bottomTabs}
+				>
+					{(tab) => {
+						if (tab.name === 'headers') {
+							return <HeadersPanel headers={responseHeaders} />;
+						}
+						if (tab.name === 'errors') {
+							return <ErrorsPanel errors={errors} />;
+						}
+						if (tab.name === 'extensions') {
+							return (
+								<TabPanel
+									className="wpgraphql-ide-extension-tabs"
+									tabs={activeExtTabs.map((t) => ({
+										name: t.name,
+										title: t.title || t.name,
+									}))}
+								>
+									{(extTab) => {
+										const ext = activeExtTabs.find(
+											(t) => t.name === extTab.name
+										);
+										const ExtContent = ext?.content;
+										return ExtContent ? (
+											<ExtContent
+												data={extensions[extTab.name]}
+											/>
+										) : null;
+									}}
+								</TabPanel>
+							);
+						}
+						return null;
+					}}
+				</TabPanel>
+			)}
+		</div>
+	);
+}
 
 const AUTOSAVE_DELAY = 2000;
 const TAB_WIDTH_ESTIMATE = 140; // px per tab for overflow calculation
@@ -141,26 +256,26 @@ function TabBar({
 				<span className="wpgraphql-ide-tab-label">
 					{doc.title || 'Untitled'}
 				</span>
-				{openTabs.length > 1 && (
-					<span
-						className="wpgraphql-ide-tab-close"
-						role="button"
-						tabIndex={-1}
-						onClick={(e) => {
+				<span
+					className={`wpgraphql-ide-tab-close${openTabs.length <= 1 ? ' is-hidden' : ''}`}
+					role="button"
+					tabIndex={-1}
+					onClick={(e) => {
+						e.stopPropagation();
+						if (openTabs.length > 1) {
+							closeTab(String(doc.id));
+						}
+					}}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' && openTabs.length > 1) {
 							e.stopPropagation();
 							closeTab(String(doc.id));
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter') {
-								e.stopPropagation();
-								closeTab(String(doc.id));
-							}
-						}}
-						aria-label="Close tab"
-					>
-						&times;
-					</span>
-				)}
+						}
+					}}
+					aria-label="Close tab"
+				>
+					&times;
+				</span>
 			</button>
 		);
 	};
@@ -270,6 +385,26 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/app').isAuthenticated(),
 		[]
 	);
+	const responseHeaders = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseHeaders(),
+		[]
+	);
+	const responseStatus = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseStatus(),
+		[]
+	);
+	const responseDuration = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseDuration(),
+		[]
+	);
+	const responseSize = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseSize(),
+		[]
+	);
+	const extensionTabs = useSelect(
+		(select) => select('wpgraphql-ide/response-extensions').extensionTabs(),
+		[]
+	);
 
 	const {
 		setQuery,
@@ -304,11 +439,6 @@ export function IDELayout({ fetcher, onClose }) {
 		}) => {
 			const docId = executingDocIdRef.current;
 			const responseStr = JSON.stringify(result, null, 2);
-
-			setLastExecution({
-				duration_ms: duration,
-				status: execStatus,
-			});
 
 			// Save to global history via CPT.
 			addHistoryEntry({
@@ -351,7 +481,11 @@ export function IDELayout({ fetcher, onClose }) {
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [editTitle, setEditTitle] = useState('');
-	const [lastExecution, setLastExecution] = useState(null);
+	const [responseViewMode, setResponseViewMode] = useState(
+		() =>
+			window.localStorage.getItem('wpgraphql_ide_response_mode') ||
+			'formatted'
+	);
 	const saveTimerRef = useRef(null);
 
 	// ESC key closes the drawer when in drawer mode.
@@ -708,28 +842,55 @@ export function IDELayout({ fetcher, onClose }) {
 							Response
 						</span>
 						{isFetching && <Spinner />}
-						{!isFetching && lastExecution && (
+						{!isFetching && responseStatus !== null && (
 							<span className="wpgraphql-ide-response-meta">
 								<span
-									className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${lastExecution.status}`}
+									className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${responseStatus >= 200 && responseStatus < 300 ? 'success' : 'error'}`}
 								>
-									{lastExecution.status === 'success'
-										? 'OK'
-										: 'ERR'}
+									{responseStatus}
 								</span>
-								<span className="wpgraphql-ide-response-duration">
-									{lastExecution.duration_ms}ms
-								</span>
+								{responseDuration !== null && (
+									<span className="wpgraphql-ide-response-duration">
+										{responseDuration >= 1000
+											? `${(responseDuration / 1000).toFixed(1)}s`
+											: `${responseDuration}ms`}
+									</span>
+								)}
+								{responseSize !== null && (
+									<span className="wpgraphql-ide-response-size">
+										{responseSize >= 1024
+											? `${(responseSize / 1024).toFixed(1)}KB`
+											: `${responseSize}B`}
+									</span>
+								)}
 							</span>
 						)}
-					</div>
-					{response ? (
-						<ResponseViewer value={response} />
-					) : (
-						<div className="wpgraphql-ide-response-empty">
-							Run a query to see results
+						<div className="wpgraphql-ide-response-mode-toggle">
+							{['formatted', 'table', 'raw'].map((mode) => (
+								<button
+									key={mode}
+									type="button"
+									className={`wpgraphql-ide-response-mode-btn${responseViewMode === mode ? ' is-active' : ''}`}
+									onClick={() => {
+										setResponseViewMode(mode);
+										window.localStorage.setItem(
+											'wpgraphql_ide_response_mode',
+											mode
+										);
+									}}
+								>
+									{mode.charAt(0).toUpperCase() +
+										mode.slice(1)}
+								</button>
+							))}
 						</div>
-					)}
+					</div>
+					<ResponseContent
+						response={response}
+						responseViewMode={responseViewMode}
+						responseHeaders={responseHeaders}
+						extensionTabs={extensionTabs}
+					/>
 				</div>
 			</div>
 		</div>
