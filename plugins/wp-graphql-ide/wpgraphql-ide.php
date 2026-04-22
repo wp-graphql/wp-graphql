@@ -940,7 +940,7 @@ add_filter(
 				$args,
 				[
 					'blocking' => false,
-					'timeout'  => 5,
+					'timeout'  => 3,
 				]
 			)
 		);
