@@ -94,6 +94,18 @@ const actions = {
 			response,
 		};
 	},
+	setResponseHeaders: (responseHeaders) => {
+		return {
+			type: 'SET_RESPONSE_HEADERS',
+			responseHeaders,
+		};
+	},
+	setResponseMeta: (meta) => {
+		return {
+			type: 'SET_RESPONSE_META',
+			meta: meta || {},
+		};
+	},
 	setIsFetching: (isFetching) => {
 		return {
 			type: 'SET_IS_FETCHING',

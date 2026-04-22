@@ -42,6 +42,18 @@ const selectors = {
 	getResponse: (state) => {
 		return state.response;
 	},
+	getResponseHeaders: (state) => {
+		return state.responseHeaders;
+	},
+	getResponseStatus: (state) => {
+		return state.responseStatus;
+	},
+	getResponseDuration: (state) => {
+		return state.responseDuration;
+	},
+	getResponseSize: (state) => {
+		return state.responseSize;
+	},
 	isFetching: (state) => {
 		return state.isFetching;
 	},

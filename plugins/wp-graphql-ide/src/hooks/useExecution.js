@@ -31,7 +31,8 @@ export function useExecution(fetcher, options = {}) {
 		[]
 	);
 
-	const { setResponse, setIsFetching } = useDispatch('wpgraphql-ide/app');
+	const { setResponse, setResponseHeaders, setResponseMeta, setIsFetching } =
+		useDispatch('wpgraphql-ide/app');
 
 	const abortControllerRef = useRef(null);
 
@@ -88,15 +89,41 @@ export function useExecution(fetcher, options = {}) {
 			const startTime = Date.now();
 			let status = 'success';
 			try {
-				const result = await fetcher(
+				const fetcherReturn = await fetcher(
 					{ query, variables: parsedVariables, operationName },
 					{
 						headers: parsedHeaders,
 						signal: controller.signal,
 					}
 				);
-				const responseStr = JSON.stringify(result, null, 2);
-				setResponse(responseStr);
+				// Support both new envelope shape and legacy fetchers that
+				// return the parsed result directly.
+				const hasEnvelope =
+					fetcherReturn &&
+					typeof fetcherReturn === 'object' &&
+					'result' in fetcherReturn &&
+					'headers' in fetcherReturn;
+				const result = hasEnvelope
+					? fetcherReturn.result
+					: fetcherReturn;
+				const responseHeaders = hasEnvelope
+					? fetcherReturn.headers
+					: null;
+				const httpStatus = hasEnvelope
+					? (fetcherReturn.status ?? null)
+					: null;
+				const responseSize = hasEnvelope
+					? (fetcherReturn.size ?? null)
+					: null;
+				const duration = Date.now() - startTime;
+
+				setResponse(JSON.stringify(result, null, 2));
+				setResponseHeaders(responseHeaders);
+				setResponseMeta({
+					status: httpStatus,
+					duration,
+					size: responseSize,
+				});
 
 				if (result?.errors) {
 					status = 'error';
@@ -105,9 +132,12 @@ export function useExecution(fetcher, options = {}) {
 				if (options.onComplete) {
 					options.onComplete({
 						result,
-						duration_ms: Date.now() - startTime,
+						duration_ms: duration,
 						status,
 						variables: variables || '',
+						responseHeaders,
+						httpStatus,
+						responseSize,
 					});
 				}
 			} catch (error) {
@@ -117,14 +147,24 @@ export function useExecution(fetcher, options = {}) {
 				const errorResponse = {
 					errors: [{ message: error.message }],
 				};
+				const duration = Date.now() - startTime;
 				setResponse(JSON.stringify(errorResponse, null, 2));
+				setResponseHeaders(null);
+				setResponseMeta({
+					status: null,
+					duration,
+					size: null,
+				});
 
 				if (options.onComplete) {
 					options.onComplete({
 						result: errorResponse,
-						duration_ms: Date.now() - startTime,
+						duration_ms: duration,
 						status: 'error',
 						variables: variables || '',
+						responseHeaders: null,
+						httpStatus: null,
+						responseSize: null,
 					});
 				}
 			} finally {
@@ -140,6 +180,8 @@ export function useExecution(fetcher, options = {}) {
 			variables,
 			headers,
 			setResponse,
+			setResponseHeaders,
+			setResponseMeta,
 			setIsFetching,
 			options,
 		]

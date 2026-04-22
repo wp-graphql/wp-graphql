@@ -68,21 +68,56 @@ export function App() {
 
 			const response = await fetch(graphqlEndpoint, fetchOptions);
 
+			// Collect response headers as a plain object so they can be
+			// displayed in the IDE's Headers tab.
+			const responseHeaders = {};
+			response.headers.forEach((value, key) => {
+				responseHeaders[key] = value;
+			});
+
+			const status = response.status;
+
+			// Read the body as text first so we can measure payload size
+			// accurately (Content-Length isn't always present).
+			const rawText = await response.text();
+			const contentLength = response.headers.get('content-length');
+			const size =
+				contentLength !== null
+					? parseInt(contentLength, 10)
+					: new Blob([rawText]).size;
+
 			// Handle non-OK responses (e.g., HTTP Auth, 500 errors).
 			if (!response.ok) {
 				const contentType = response.headers.get('content-type') || '';
 				if (!contentType.includes('application/json')) {
 					return {
-						errors: [
-							{
-								message: `HTTP ${response.status}: ${response.statusText}. The server returned a non-JSON response. This may be caused by HTTP authentication or a server misconfiguration.`,
-							},
-						],
+						result: {
+							errors: [
+								{
+									message: `HTTP ${response.status}: ${response.statusText}. The server returned a non-JSON response. This may be caused by HTTP authentication or a server misconfiguration.`,
+								},
+							],
+						},
+						headers: responseHeaders,
+						status,
+						size,
 					};
 				}
 			}
 
-			return response.json();
+			let result;
+			try {
+				result = JSON.parse(rawText);
+			} catch (err) {
+				result = {
+					errors: [
+						{
+							message: `Failed to parse response as JSON: ${err.message}`,
+						},
+					],
+				};
+			}
+			return { result, headers: responseHeaders, status, size };
 		},
 		[isAuthenticated]
 	);

@@ -13,6 +13,10 @@ const initialState = {
 	variables: '',
 	headers: '',
 	response: '',
+	responseHeaders: null,
+	responseStatus: null,
+	responseDuration: null,
+	responseSize: null,
 	isFetching: false,
 	history: [],
 };
@@ -97,6 +101,18 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				response: action.response,
+			};
+		case 'SET_RESPONSE_HEADERS':
+			return {
+				...state,
+				responseHeaders: action.responseHeaders,
+			};
+		case 'SET_RESPONSE_META':
+			return {
+				...state,
+				responseStatus: action.meta.status ?? null,
+				responseDuration: action.meta.duration ?? null,
+				responseSize: action.meta.size ?? null,
 			};
 		case 'SET_IS_FETCHING':
 			return {
