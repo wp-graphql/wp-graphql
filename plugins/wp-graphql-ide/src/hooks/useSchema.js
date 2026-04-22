@@ -24,9 +24,17 @@ export function useSchema(fetcher) {
 	const fetchSchema = useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const result = await fetcher({
+			const fetcherReturn = await fetcher({
 				query: getIntrospectionQuery(),
 			});
+			// Fetchers may return the parsed body directly or a
+			// { result, headers, status, size } envelope.
+			const hasEnvelope =
+				fetcherReturn &&
+				typeof fetcherReturn === 'object' &&
+				'result' in fetcherReturn &&
+				'headers' in fetcherReturn;
+			const result = hasEnvelope ? fetcherReturn.result : fetcherReturn;
 			if (result?.data) {
 				setSchema(buildClientSchema(result.data));
 			}
