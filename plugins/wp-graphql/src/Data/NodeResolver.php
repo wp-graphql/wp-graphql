@@ -362,8 +362,19 @@ class NodeResolver {
 
 		// Bail if external URI.
 		if ( isset( $parsed_url['host'] ) ) {
-			$site_url      = wp_parse_url( site_url() );
-			$home_url      = wp_parse_url( home_url() );
+			$site_url = wp_parse_url( site_url() );
+			$home_url = wp_parse_url( home_url() );
+
+			/**
+			 * Filters hostnames treated as belonging to this WordPress install when resolving node URIs.
+			 *
+			 * By default includes the hosts from `site_url()` and `home_url()`. Extensions may append
+			 * hosts (for example language-specific domains mapped to the same site).
+			 *
+			 * @param string[] $allowed_hosts Hostnames permitted when comparing the parsed URI host.
+			 *
+			 * @since x-release-please-version
+			 */
 			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', [ $site_url['host'], $home_url['host'] ] );
 
 			if ( ! in_array( $parsed_url['host'], $allowed_hosts, true ) ) {
