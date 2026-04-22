@@ -121,6 +121,17 @@ const reducer = (state = initialState, action) => {
 				visiblePanel: nextPanel,
 			};
 		}
+		case 'SET_VISIBLE_PANEL': {
+			try {
+				window.localStorage.setItem(
+					'wpgraphql_ide_visible_panel',
+					action.panel
+				);
+			} catch {
+				// localStorage unavailable
+			}
+			return { ...state, visiblePanel: action.panel };
+		}
 		default:
 			return state;
 	}

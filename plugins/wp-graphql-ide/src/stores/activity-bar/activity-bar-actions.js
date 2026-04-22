@@ -20,6 +20,10 @@ const actions = {
 		type: 'TOGGLE_ACTIVITY_PANEL_VISIBILITY',
 		panel,
 	}),
+	setVisiblePanel: (panel) => ({
+		type: 'SET_VISIBLE_PANEL',
+		panel,
+	}),
 };
 
 export default actions;
