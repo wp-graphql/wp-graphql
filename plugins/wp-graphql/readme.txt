@@ -389,7 +389,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.11.2
+* replace x-release-please-version placeholders with 2.12.0
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =
