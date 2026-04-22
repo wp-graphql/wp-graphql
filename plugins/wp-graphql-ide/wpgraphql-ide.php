@@ -906,3 +906,47 @@ function graphql_ide_init_appsero_telemetry(): void {
 }
 
 graphql_ide_init_appsero_telemetry();
+
+/**
+ * Mirror the Appsero API requests to our own telemetry server.
+ *
+ * @param bool|\WP_Error $preempt Whether to preempt the request.
+ * @param array          $args    The arguments for the request.
+ * @param string         $url     The URL for the request.
+ * @return bool|\WP_Error Whether to preempt the request.
+ */
+add_filter(
+	'pre_http_request',
+	static function ( $preempt, $args, $url ) {
+		if ( strpos( $url, 'api.appsero.com' ) === false ) {
+			return $preempt;
+		}
+
+		// Scope: only mirror this plugin's payloads, not other Appsero plugins on the site.
+		$body = is_array( $args['body'] ?? null ) ? $args['body'] : [];
+		if ( ( $body['hash'] ?? null ) !== 'e90103d6-2c09-4152-96e0-eb7d0d3b5c74' ) {
+			return $preempt;
+		}
+
+		$mirror = str_replace(
+			'https://api.appsero.com/',
+			'https://telemetry.wpgraphql.com/api/appsero/',
+			$url
+		);
+
+		wp_remote_post(
+			$mirror,
+			array_merge(
+				$args,
+				[
+					'blocking' => false,
+					'timeout'  => 0.01,
+				]
+			)
+		);
+
+		return $preempt; // let the real Appsero request proceed
+	},
+	10,
+	3
+);
