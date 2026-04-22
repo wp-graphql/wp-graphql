@@ -171,3 +171,5 @@ WPGraphQL is becoming a [Canonical Plugin on WordPress.org](https://wordpress.or
 ### 🛠 **Privacy & Telemetry**
 
 WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**, helping us improve the plugin responsibly.
+
+When telemetry is enabled, each payload is sent to Appsero **and** mirrored in non-blocking requests to WPGraphQL-operated infrastructure at [https://telemetry.wpgraphql.com](https://telemetry.wpgraphql.com) (the same data as described in Appsero’s policy).

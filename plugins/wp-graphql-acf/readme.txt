@@ -100,6 +100,8 @@ WPGraphQL for Advanced Custom Fields uses [Appsero](https://appsero.com) SDK to 
 
 The Appsero SDK **doesn't collect data by default** and only starts gathering basic telemetry data when a user allows it via the admin notice. No data is collected without user consent.
 
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
+
 Learn more about how [Appsero collects and uses data](https://appsero.com/privacy-policy/).
 
 == Upgrade Notice ==
