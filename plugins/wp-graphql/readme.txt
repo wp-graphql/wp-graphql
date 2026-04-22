@@ -59,7 +59,7 @@ Yes! WPGraphQL works with any client that can make HTTP requests to the GraphQL 
 You can join the WPGraphQL [Discord community](https://discord.gg/AGVBqqyaUY) for support, discussions, and announcements.
 
 = How does WPGraphQL handle privacy and telemetry? =
-WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy.
+WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com.
 
 == Privacy Policy ==
 
@@ -67,7 +67,7 @@ WPGraphQL uses [Appsero](https://appsero.com) SDK to collect some telemetry data
 
 Appsero SDK **does not gather any data by default.** The SDK starts gathering basic telemetry data **only when a user allows it via the admin notice**.
 
-Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
