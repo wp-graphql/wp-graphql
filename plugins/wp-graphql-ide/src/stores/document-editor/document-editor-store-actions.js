@@ -130,12 +130,14 @@ const actions = {
 		},
 
 	/**
-	 * Switch to a different tab.
+	 * Switch to a tab, opening it first if it isn't already in the tab bar.
 	 * @param {string} tabId
 	 */
 	switchTab:
 		(tabId) =>
 		async ({ dispatch }) => {
+			// OPEN_TAB is a no-op when the tab is already present.
+			dispatch({ type: 'OPEN_TAB', tabId: String(tabId) });
 			dispatch({ type: 'SET_ACTIVE_TAB', tabId: String(tabId) });
 			await dispatch.persistTabState();
 		},
