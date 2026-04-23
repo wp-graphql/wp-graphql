@@ -1,6 +1,6 @@
 {
-	"name": "@wpgraphql/wp-graphql-ide",
-	"version": "4.3.0",
+	"name": "@wpgraphql/ide",
+	"version": "4.2.0",
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -26,12 +26,9 @@
 		"clean": "rimraf node_modules plugins/*/node_modules plugins/*/build build",
 		"format": "wp-scripts format",
 		"install-test-deps": "true",
-		"lint": "npm run lint:js && npm run lint:php",
+		"lint": "npm run lint:js",
 		"lint:js": "wp-scripts lint-js ./src bin plugins/help-panel/src plugins/query-composer-panel/src tests-examples tests/e2e tests/unit webpack.config.js",
 		"lint:js:fix": "wp-scripts lint-js --fix ./src bin plugins/help-panel/src plugins/query-composer-panel/src tests-examples tests/e2e tests/unit webpack.config.js",
-		"lint:php": "npm run wp-env:cli -- composer run check-cs -- -d memory_limit=256M",
-		"lint:php:fix": "npm run wp-env:cli -- composer run fix-cs -- -d memory_limit=256M",
-		"lint:php:stan": "npm run wp-env:cli -- composer run phpstan",
 		"prepare": "husky install",
 		"start": "concurrently --kill-others-on-fail -n 'Main,Plugins' -c 'blue,green' \"wp-scripts start\" \"node bin/start-plugins.js\"",
 		"pretest:codecept": "npm run build:main || echo '⚠️  Build failed, tests may fail if build assets are missing'",
@@ -43,8 +40,7 @@
 		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
 		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
 		"test:unit": "jest --config tests/unit/jest.config.js",
-		"wp-env": "wp-env",
-		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql-ide/ --"
+		"wp-env": "wp-env"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json",
@@ -52,16 +48,20 @@
 	},
 	"overrides": {
 		"@babel/runtime": "^7.27.6",
-		"@graphiql/react": "^0.22.2",
 		"fast-xml-parser": ">5.3.0",
-		"graphiql": "^3.9.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"webpack-dev-server": ">=5.2.1"
 	},
 	"dependencies": {
-		"@graphiql/react": "^0.22.4",
+		"@codemirror/autocomplete": "^6.0.0",
+		"@codemirror/lang-json": "^6.0.2",
+		"@codemirror/language": "^6.0.0",
+		"@codemirror/lint": "^6.0.0",
+		"@codemirror/state": "^6.0.0",
+		"@codemirror/view": "^6.0.0",
 		"@graphiql/toolkit": "^0.9.1",
+		"@lezer/highlight": "^1.0.0",
 		"@wordpress/components": "^27.0.0",
 		"@wordpress/data": "^9.22.0",
 		"@wordpress/element": "^5.23.0",
@@ -69,8 +69,9 @@
 		"@wordpress/icons": "^9.43.0",
 		"@wpgraphql-ide/help-panel": "file:plugins/help-panel",
 		"@wpgraphql-ide/query-composer-panel": "file:plugins/query-composer-panel",
+		"cm6-graphql": "^0.2.1",
+		"codemirror": "^6.0.0",
 		"copy-to-clipboard": "^3.3.3",
-		"graphiql": "^3.0.10",
 		"graphql": "^16.13.2",
 		"graphql-ws": "^5.14.2",
 		"lz-string": "^1.5.0",

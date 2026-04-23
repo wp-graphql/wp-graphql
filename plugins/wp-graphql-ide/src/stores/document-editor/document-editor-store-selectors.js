@@ -14,6 +14,22 @@ const selectors = {
 		},
 		(state) => [state.buttons]
 	),
+
+	getDocuments: createSelector(
+		(state) => Object.values(state.documents),
+		(state) => [state.documents]
+	),
+
+	getOpenTabs: (state) => state.openTabs,
+
+	getActiveTab: (state) => state.activeTab,
+
+	getActiveDocument: (state) => {
+		if (!state.activeTab) {
+			return null;
+		}
+		return state.documents[state.activeTab] || null;
+	},
 };
 
 export default selectors;

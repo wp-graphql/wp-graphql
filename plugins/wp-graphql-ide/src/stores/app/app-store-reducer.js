@@ -1,5 +1,3 @@
-import { parse } from 'graphql';
-
 /**
  * The initial state of the app.
  * @type {Object}
@@ -8,10 +6,18 @@ const initialState = {
 	isDrawerOpen: false,
 	shouldRenderStandalone: false,
 	isInitialStateLoaded: false,
-	registeredPlugins: {},
 	query: null,
 	schema: undefined, // undefined is necessary to trigger the initial fetch
 	isAuthenticated: true,
+	variables: '',
+	headers: '',
+	response: '',
+	responseHeaders: null,
+	responseStatus: null,
+	responseDuration: null,
+	responseSize: null,
+	isFetching: false,
+	history: [],
 };
 
 /**
@@ -22,28 +28,19 @@ const initialState = {
  *
  * @return {Object}
  */
+/**
+ * Set the query in state. Validation is handled by CodeMirror's
+ * cm6-graphql extension, not the reducer.
+ *
+ * @param {Object} state  Current state.
+ * @param {Object} action Action with query string.
+ * @return {Object} New state.
+ */
 const setQuery = (state, action) => {
-	const editedQuery = action.query;
-	const query = state.query;
-
-	if (editedQuery === query) {
-		return { ...state };
+	if (action.query === state.query) {
+		return state;
 	}
-
-	if (null === editedQuery || '' === editedQuery) {
-		// allow clearing the query without parsing
-	} else {
-		try {
-			parse(editedQuery);
-		} catch (error) {
-			return { ...state };
-		}
-	}
-
-	return {
-		...state,
-		query: action.query,
-	};
+	return { ...state, query: action.query };
 };
 
 /**
@@ -76,18 +73,57 @@ const reducer = (state = initialState, action) => {
 				...state,
 				isInitialStateLoaded: true,
 			};
-		case 'REGISTER_PLUGIN':
-			return {
-				...state,
-				registeredPlugins: {
-					...state.registeredPlugins,
-					[action.name]: action.config,
-				},
-			};
 		case 'TOGGLE_AUTHENTICATION':
 			return {
 				...state,
 				isAuthenticated: !state.isAuthenticated,
+			};
+		case 'SET_VARIABLES':
+			return {
+				...state,
+				variables: action.variables,
+			};
+		case 'SET_HEADERS':
+			return {
+				...state,
+				headers: action.headers,
+			};
+		case 'SET_RESPONSE':
+			return {
+				...state,
+				response: action.response,
+			};
+		case 'SET_RESPONSE_HEADERS':
+			return {
+				...state,
+				responseHeaders: action.responseHeaders,
+			};
+		case 'SET_RESPONSE_META':
+			return {
+				...state,
+				responseStatus: action.meta.status ?? null,
+				responseDuration: action.meta.duration ?? null,
+				responseSize: action.meta.size ?? null,
+			};
+		case 'SET_IS_FETCHING':
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		case 'SET_HISTORY':
+			return {
+				...state,
+				history: action.history,
+			};
+		case 'ADD_HISTORY_ENTRY':
+			return {
+				...state,
+				history: [action.entry, ...state.history],
+			};
+		case 'CLEAR_HISTORY':
+			return {
+				...state,
+				history: [],
 			};
 	}
 	return state;

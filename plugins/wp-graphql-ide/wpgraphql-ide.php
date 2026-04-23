@@ -55,6 +55,8 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\check_wpgraphql_availability' )
  * @return void
  */
 function initialize_plugin() {
+	add_action( 'init', __NAMESPACE__ . '\\register_ide_post_type' );
+	add_action( 'init', __NAMESPACE__ . '\\register_ide_user_meta' );
 	add_action( 'admin_menu', __NAMESPACE__ . '\\register_dedicated_ide_menu' );
 	add_action( 'admin_bar_menu', __NAMESPACE__ . '\\register_wpadminbar_menus', 999 );
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_graphql_ide_menu_icon_css' );
@@ -73,11 +75,315 @@ function initialize_plugin() {
 	add_filter( 'graphql_get_setting_section_field_value', __NAMESPACE__ . '\\ensure_graphiql_link_is_unchecked', 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), __NAMESPACE__ . '\\add_settings_link' );
 
+	// Scope REST queries to the current user's own documents/history.
+	add_filter( 'rest_graphql_ide_query_query', __NAMESPACE__ . '\\scope_ide_queries_to_current_user' );
+	add_filter( 'rest_graphql_ide_history_query', __NAMESPACE__ . '\\scope_ide_queries_to_current_user' );
+
+	// Enforce manage_graphql_ide capability on all IDE REST routes.
+	add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\\enforce_ide_rest_permissions', 10, 3 );
+
+	// Prevent access to documents/history owned by other users on single routes.
+	add_filter( 'rest_prepare_graphql_ide_query', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
+	add_filter( 'rest_prepare_graphql_ide_history', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
+
 	// Core plugins/modules.
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/help-panel/help-panel.php';
 }
 add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
+
+/**
+ * Register the IDE query document custom post type.
+ *
+ * Each document stores a GraphQL query, its variables, and headers.
+ * Documents are scoped to the authoring user via REST API filters.
+ *
+ * @return void
+ */
+function register_ide_post_type() {
+	register_post_type(
+		'graphql_ide_query',
+		[
+			'label'               => __( 'IDE Queries', 'wpgraphql-ide' ),
+			'description'         => __( 'Saved GraphQL IDE query documents.', 'wpgraphql-ide' ),
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_rest'        => true,
+			'rest_base'           => 'graphql-ide-queries',
+			'capability_type'     => 'post',
+			'map_meta_cap'        => true,
+			'supports'            => [ 'title', 'editor', 'author', 'custom-fields' ],
+		]
+	);
+
+	$post_meta_auth = function () {
+		return current_user_can( 'manage_graphql_ide' );
+	};
+
+	$sanitize_json = function ( $value ) {
+		if ( empty( $value ) ) {
+			return '';
+		}
+		// Validate it's valid JSON if non-empty.
+		json_decode( $value );
+		return json_last_error() === JSON_ERROR_NONE ? $value : '';
+	};
+
+	register_post_meta(
+		'graphql_ide_query',
+		'_graphql_ide_variables',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_query',
+		'_graphql_ide_headers',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
+		]
+	);
+
+	// History CPT — global execution history, not scoped to a document.
+	register_post_type(
+		'graphql_ide_history',
+		[
+			'label'           => __( 'IDE History', 'wpgraphql-ide' ),
+			'description'     => __( 'GraphQL IDE execution history entries.', 'wpgraphql-ide' ),
+			'public'          => false,
+			'show_ui'         => false,
+			'show_in_rest'    => true,
+			'rest_base'       => 'graphql-ide-history',
+			'capability_type' => 'post',
+			'map_meta_cap'    => true,
+			'supports'        => [ 'author', 'custom-fields' ],
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_query',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_variables',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_headers',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $post_meta_auth,
+			'sanitize_callback' => $sanitize_json,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_duration_ms',
+		[
+			'type'          => 'integer',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => 0,
+			'auth_callback' => $post_meta_auth,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_status',
+		[
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $post_meta_auth,
+		]
+	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_document_id',
+		[
+			'type'          => 'integer',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => 0,
+			'auth_callback' => $post_meta_auth,
+		]
+	);
+}
+
+/**
+ * Register user meta fields for IDE preferences.
+ *
+ * These are exposed via the REST API so the IDE frontend can
+ * read and write user preferences with @wordpress/api-fetch.
+ *
+ * @return void
+ */
+function register_ide_user_meta() {
+	$auth_callback = function () {
+		return current_user_can( 'manage_graphql_ide' );
+	};
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_theme',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $auth_callback,
+			'sanitize_callback' => function ( $value ) {
+				return in_array( $value, [ '', 'light', 'dark' ], true ) ? $value : '';
+			},
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_persist_headers',
+		[
+			'type'          => 'boolean',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => false,
+			'auth_callback' => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_active_tab',
+		[
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_open_tabs',
+		[
+			'type'          => 'array',
+			'single'        => true,
+			'show_in_rest'  => [
+				'schema' => [
+					'type'  => 'array',
+					'items' => [
+						'type' => 'string',
+					],
+				],
+			],
+			'default'       => [],
+			'auth_callback' => $auth_callback,
+		]
+	);
+}
+
+/**
+ * Scope REST API queries for IDE documents to the current user.
+ *
+ * @param array<string, mixed> $args WP_Query arguments.
+ * @return array<string, mixed> Modified arguments.
+ */
+function scope_ide_queries_to_current_user( $args ) {
+	$args['author'] = get_current_user_id();
+	return $args;
+}
+
+/**
+ * Enforce manage_graphql_ide capability on all IDE document REST endpoints.
+ *
+ * This prevents users without the manage_graphql_ide capability from
+ * accessing the graphql-ide-queries REST routes, even if they have
+ * the edit_posts capability from the CPT's capability_type.
+ *
+ * @param mixed            $result  Response to replace the requested version with.
+ * @param \WP_REST_Server  $server  Server instance.
+ * @param \WP_REST_Request $request Request used to generate the response.
+ * @return mixed|\WP_Error
+ */
+function enforce_ide_rest_permissions( $result, $server, $request ) {
+	$route = $request->get_route();
+
+	$is_ide_route = strpos( $route, '/wp/v2/graphql-ide-queries' ) === 0
+		|| strpos( $route, '/wp/v2/graphql-ide-history' ) === 0;
+
+	if ( ! $is_ide_route ) {
+		return $result;
+	}
+
+	if ( ! current_user_can( 'manage_graphql_ide' ) ) {
+		return new \WP_Error(
+			'rest_forbidden',
+			__( 'You do not have permission to access IDE queries.', 'wpgraphql-ide' ),
+			[ 'status' => 403 ]
+		);
+	}
+
+	return $result;
+}
+
+/**
+ * Restrict single document responses to the document's author.
+ *
+ * Prevents users from accessing documents they don't own, even if
+ * they have the manage_graphql_ide capability.
+ *
+ * @param \WP_REST_Response $response The response object.
+ * @param \WP_Post          $post     The post object.
+ * @param \WP_REST_Request  $request  The request object.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function restrict_document_to_author( $response, $post, $request ) {
+	if ( (int) $post->post_author !== get_current_user_id() ) {
+		return new \WP_Error(
+			'rest_forbidden',
+			__( 'You do not have permission to access this document.', 'wpgraphql-ide' ),
+			[ 'status' => 403 ]
+		);
+	}
+
+	return $response;
+}
 
 /**
  * Show admin notice if WPGraphQL is not available.
@@ -318,11 +624,12 @@ function reorder_graphql_submenu_items(): void {
 		$graphql_ide_settings = get_option( 'graphql_ide_settings', [] );
 		$show_legacy_editor   = isset( $graphql_ide_settings['graphql_ide_show_legacy_editor'] ) ? $graphql_ide_settings['graphql_ide_show_legacy_editor'] : 'off';
 
-		// Extract existing submenu items.
+		// Extract known submenu items and preserve unknown 3rd-party items.
 		$graphql_ide  = null;
 		$graphiql_ide = null;
 		$extensions   = null;
 		$settings     = null;
+		$other_items  = [];
 
 		foreach ( $submenu['graphiql-ide'] as $item ) {
 			switch ( $item[0] ) {
@@ -337,6 +644,10 @@ function reorder_graphql_submenu_items(): void {
 					break;
 				case 'Settings':
 					$settings = $item;
+					break;
+				default:
+					// Preserve 3rd-party submenu items.
+					$other_items[] = $item;
 					break;
 			}
 		}
@@ -356,6 +667,11 @@ function reorder_graphql_submenu_items(): void {
 		}
 		if ( $settings ) {
 			$ordered_submenu[] = $settings;
+		}
+
+		// Append 3rd-party submenu items after our known items.
+		foreach ( $other_items as $item ) {
+			$ordered_submenu[] = $item;
 		}
 
 		// Merge the reordered submenu back into the global $submenu.
@@ -466,6 +782,7 @@ function enqueue_react_app_with_styles(): void {
 
 	$localized_data = [
 		'nonce'               => wp_create_nonce( 'wp_rest' ),
+		'restUrl'             => esc_url_raw( rest_url() ),
 		'graphqlEndpoint'     => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
 		'rootElementId'       => WPGRAPHQL_IDE_ROOT_ELEMENT_ID,
 		'context'             => $app_context,
@@ -493,9 +810,9 @@ function enqueue_react_app_with_styles(): void {
 		true
 	);
 
-	wp_enqueue_style( 'wpgraphql-ide-app', plugins_url( 'build/wpgraphql-ide.css', __FILE__ ), [], $asset_file['version'] );
-	// @wordpress/scripts generates CSS files with 'style-' prefix
-	wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/style-wpgraphql-ide-render.css', __FILE__ ), [], $asset_file['version'] );
+	wp_enqueue_style( 'wp-components' );
+	wp_enqueue_style( 'wpgraphql-ide-app', plugins_url( 'build/wpgraphql-ide.css', __FILE__ ), [ 'wp-components' ], $asset_file['version'] );
+	wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/wpgraphql-ide-render.css', __FILE__ ), [], $render_asset_file['version'] );
 
 	// Avoid running custom styles through a build process for an improved developer experience.
 	wp_enqueue_style( 'wpgraphql-ide', plugins_url( 'styles/wpgraphql-ide.css', __FILE__ ), [], $asset_file['version'] );
@@ -612,9 +929,6 @@ function graphql_admin_notices_render_notices( array $notices ): void {
             right: 0;
             z-index: 1;
             min-width: 40%;
-        }
-        body.graphql_page_graphql-ide #wpbody .graphiql-container {
-            padding-top: ' . count( $notices ) * 45 . 'px;
         }
         body.graphql_page_graphql-ide #wpgraphql-ide-root {
             height: calc(100vh - var(--wp-admin--admin-bar--height) - ' . count( $notices ) * 45 . 'px);

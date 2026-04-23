@@ -1,8 +1,7 @@
-import clsx from 'clsx';
 import { useSelect } from '@wordpress/data';
-import { ToolbarButton } from '@graphiql/react';
+import { MenuItem } from '@wordpress/components';
 
-export const EditorToolbar = () => {
+export const EditorToolbar = ({ onClose }) => {
 	const buttons = useSelect((select) =>
 		select('wpgraphql-ide/document-editor').buttons()
 	);
@@ -17,19 +16,19 @@ export const EditorToolbar = () => {
 					return null;
 				}
 
-				const baseClassName = `graphiql-${buttonName}-button`;
-
-				// Merge the base className with any classNames provided in props.
-				const mergedClassName = clsx(baseClassName, props?.className);
-
-				// If a component is provided, use it, otherwise use the default ToolbarButton
-				const Component = props.component || ToolbarButton;
 				return (
-					<Component
-						{...props}
-						className={mergedClassName} // mergedClassName must be below { ...props } in order to render with the correct classNames
+					<MenuItem
 						key={key}
-					/>
+						onClick={() => {
+							if (onClose) {
+								onClose();
+							}
+							props.onClick();
+						}}
+						aria-label={props.label}
+					>
+						{props.children || props.label}
+					</MenuItem>
 				);
 			})}
 		</>

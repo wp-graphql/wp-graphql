@@ -2,10 +2,11 @@ const ArrowOpen = () => (
 	<svg
 		viewBox="0 -4 13 15"
 		style={{
-			color: 'hsla(var(--color-neutral), var(--alpha-tertiary, 0.4))',
-			marginRight: 'var(--px-4)',
-			height: 'var(--px-16)',
-			width: 'var(--px-16)',
+			color: '#a7aaad',
+			marginRight: '4px',
+			height: '16px',
+			width: '16px',
+			flexShrink: 0,
 		}}
 	>
 		<path

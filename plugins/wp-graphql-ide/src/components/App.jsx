@@ -1,57 +1,27 @@
-import { useEffect, useCallback } from 'react';
-import { GraphiQL } from './GraphiQL';
+import { useCallback } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { parse, visit } from 'graphql';
-import 'graphiql/graphiql.css';
+import { IDELayout } from './IDELayout';
+import './ide-layout.css';
 
 export function App() {
-	const { query, shouldRenderStandalone, isAuthenticated, schema } =
-		useSelect((select) => {
-			const wpgraphqlIDEApp = select('wpgraphql-ide/app');
-			return {
-				query: wpgraphqlIDEApp.getQuery(),
-				shouldRenderStandalone:
-					wpgraphqlIDEApp.shouldRenderStandalone(),
-				isAuthenticated: wpgraphqlIDEApp.isAuthenticated(),
-				schema: wpgraphqlIDEApp.schema(),
-			};
-		});
+	const shouldRenderStandalone = useSelect(
+		(select) => select('wpgraphql-ide/app').shouldRenderStandalone(),
+		[]
+	);
+	const isAuthenticated = useSelect(
+		(select) => select('wpgraphql-ide/app').isAuthenticated(),
+		[]
+	);
 
-	const { setQuery, setDrawerOpen, setSchema } =
-		useDispatch('wpgraphql-ide/app');
-
-	useEffect(() => {
-		// find the target element in the DOM
-		const element = document.querySelector(
-			'[aria-label="Re-fetch GraphQL schema"]'
-		);
-		// if the element exists
-		if (element) {
-			// listen to click events on the element
-			element.addEventListener('click', () => {
-				setSchema(undefined);
-			});
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [schema]);
-
-	useEffect(() => {
-		// eslint-disable-next-line no-undef
-		localStorage.setItem(
-			'graphiql:isAuthenticated',
-			isAuthenticated.toString()
-		);
-	}, [isAuthenticated]);
+	const { setDrawerOpen } = useDispatch('wpgraphql-ide/app');
 
 	const fetcher = useCallback(
-		async (graphQLParams) => {
+		async (graphQLParams, options = {}) => {
 			let isIntrospectionQuery = false;
 
 			try {
-				// Parse the GraphQL query to AST only once and in a try-catch to handle potential syntax errors gracefully
 				const queryAST = parse(graphQLParams.query);
-
-				// Visit each node in the AST efficiently to check for introspection fields
 				visit(queryAST, {
 					Field(node) {
 						if (
@@ -59,7 +29,7 @@ export function App() {
 							node.name.value === '__type'
 						) {
 							isIntrospectionQuery = true;
-							return visit.BREAK; // Early exit if introspection query is detected
+							return visit.BREAK;
 						}
 					},
 				});
@@ -73,9 +43,9 @@ export function App() {
 			const headers = {
 				'Content-Type': 'application/json',
 				Accept: 'application/json',
+				...(options.headers || {}),
 			};
 
-			// Add nonce header for authenticated requests or introspection queries
 			if (nonce && (isIntrospectionQuery || isAuthenticated)) {
 				headers['X-WP-Nonce'] = nonce;
 			}
@@ -85,50 +55,83 @@ export function App() {
 				credentials = 'include';
 			}
 
-			const response = await fetch(graphqlEndpoint, {
+			const fetchOptions = {
 				method: 'POST',
 				headers,
 				body: JSON.stringify(graphQLParams),
 				credentials,
+			};
+
+			if (options.signal) {
+				fetchOptions.signal = options.signal;
+			}
+
+			const response = await fetch(graphqlEndpoint, fetchOptions);
+
+			// Collect response headers as a plain object so they can be
+			// displayed in the IDE's Headers tab.
+			const responseHeaders = {};
+			response.headers.forEach((value, key) => {
+				responseHeaders[key] = value;
 			});
 
-			return response.json();
+			const status = response.status;
+
+			// Read the body as text first so we can measure payload size
+			// accurately (Content-Length isn't always present).
+			const rawText = await response.text();
+			const contentLength = response.headers.get('content-length');
+			const size =
+				contentLength !== null
+					? parseInt(contentLength, 10)
+					: new Blob([rawText]).size;
+
+			// Handle non-OK responses (e.g., HTTP Auth, 500 errors).
+			if (!response.ok) {
+				const contentType = response.headers.get('content-type') || '';
+				if (!contentType.includes('application/json')) {
+					return {
+						result: {
+							errors: [
+								{
+									message: `HTTP ${response.status}: ${response.statusText}. The server returned a non-JSON response. This may be caused by HTTP authentication or a server misconfiguration.`,
+								},
+							],
+						},
+						headers: responseHeaders,
+						status,
+						size,
+					};
+				}
+			}
+
+			let result;
+			try {
+				result = JSON.parse(rawText);
+			} catch (err) {
+				result = {
+					errors: [
+						{
+							message: `Failed to parse response as JSON: ${err.message}`,
+						},
+					],
+				};
+			}
+			return { result, headers: responseHeaders, status, size };
 		},
 		[isAuthenticated]
 	);
 
-	const activityPanels = useSelect((select) => {
-		return select('wpgraphql-ide/activity-bar').activityPanels();
-	});
-
 	return (
-		<span id="wpgraphql-ide-app">
-			<GraphiQL
-				query={query}
+		<div id="wpgraphql-ide-app">
+			<IDELayout
 				fetcher={fetcher}
-				onEditQuery={setQuery}
-				schema={schema}
-				onSchemaChange={(newSchema) => {
-					if (schema !== newSchema) {
-						setSchema(newSchema);
-					}
-				}}
-				plugins={activityPanels}
-			>
-				<GraphiQL.Logo>
-					{!shouldRenderStandalone && (
-						<button
-							className="button AppDrawerCloseButton"
-							onClick={() => setDrawerOpen(false)}
-						>
-							X{' '}
-							<span className="screen-reader-text">
-								close drawer
-							</span>
-						</button>
-					)}
-				</GraphiQL.Logo>
-			</GraphiQL>
-		</span>
+				onClose={
+					!shouldRenderStandalone
+						? () => setDrawerOpen(false)
+						: undefined
+				}
+			/>
+		</div>
 	);
 }

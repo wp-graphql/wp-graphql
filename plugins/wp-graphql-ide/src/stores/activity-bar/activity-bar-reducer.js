@@ -2,10 +2,20 @@
  * The initial state of the activity bar.
  * @type {Object}
  */
+// Restore last open panel from localStorage, defaulting to docs-explorer.
+let savedPanel = null;
+try {
+	const stored = window.localStorage.getItem('wpgraphql_ide_visible_panel');
+	if (stored !== null) {
+		savedPanel = stored || null;
+	}
+} catch {
+	// localStorage unavailable
+}
+
 const initialState = {
 	activityPanels: {},
-	visiblePanel: null,
-	utilities: {},
+	visiblePanel: savedPanel,
 };
 
 /**
@@ -16,29 +26,6 @@ const initialState = {
  */
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
-		case 'REGISTER_UTILITY':
-			// Ensure button name is unique
-			if (action.name in state.utilities) {
-				console.warn({
-					message: `The "${action.name}" utility already exists. Name must be unique.`,
-					existingUtility: state.utilities[action.name],
-					duplicateUtility: action.config,
-				});
-				return state;
-			}
-
-			const utility = {
-				config: action.config,
-				priority: action.priority || 10, // default priority to 10 if not provided
-			};
-
-			return {
-				...state,
-				utilities: {
-					...state.utilities,
-					[action.name]: utility,
-				},
-			};
 		case 'REGISTER_PANEL':
 			// Ensure panel name is unique
 			if (action.name in state.activityPanels) {
@@ -88,16 +75,39 @@ const reducer = (state = initialState, action) => {
 					[action.name]: panel,
 				},
 			};
-		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY':
-			console.log({
-				message: `Toggling panel visibility.`,
-				panel: action.panel,
-			});
+		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY': {
+			const nextPanel =
+				state.visiblePanel === action.panel ? null : action.panel;
+			try {
+				if (nextPanel) {
+					window.localStorage.setItem(
+						'wpgraphql_ide_visible_panel',
+						nextPanel
+					);
+				} else {
+					window.localStorage.removeItem(
+						'wpgraphql_ide_visible_panel'
+					);
+				}
+			} catch {
+				// localStorage unavailable
+			}
 			return {
 				...state,
-				visiblePanel:
-					state.visiblePanel === action.panel ? null : action.panel,
+				visiblePanel: nextPanel,
 			};
+		}
+		case 'SET_VISIBLE_PANEL': {
+			try {
+				window.localStorage.setItem(
+					'wpgraphql_ide_visible_panel',
+					action.panel
+				);
+			} catch {
+				// localStorage unavailable
+			}
+			return { ...state, visiblePanel: action.panel };
+		}
 		default:
 			return state;
 	}
