@@ -1248,20 +1248,85 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 /* ---------------------------------------------------------------------------
-   CodeMirror
+   CodeMirror — light theme to match WordPress admin
    --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-editor .cm-editor {
 	height: 100%;
+	background: #fff;
+	color: #2c3338;
+}
+
+.wpgraphql-ide-editor .cm-editor.cm-focused {
+	outline: none;
 }
 
 .wpgraphql-ide-editor .cm-scroller {
 	overflow: auto;
+	font-family: Menlo, Consolas, Monaco, "Andale Mono", "Courier New", monospace;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-editor .cm-content {
+	padding: 4px 0;
+	caret-color: #2c3338;
 }
 
 .wpgraphql-ide-editor .cm-gutters {
 	background: #f6f7f7;
 	border-right: 1px solid #f0f0f1;
+	color: #a7aaad;
+}
+
+.wpgraphql-ide-editor .cm-activeLineGutter {
+	background: #f0f0f1;
+	color: #646970;
+}
+
+.wpgraphql-ide-editor .cm-activeLine {
+	background: #f6f7f7;
+}
+
+.wpgraphql-ide-editor .cm-selectionBackground,
+.wpgraphql-ide-editor .cm-editor.cm-focused .cm-selectionBackground {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.15) !important;
+}
+
+.wpgraphql-ide-editor .cm-cursor,
+.wpgraphql-ide-editor .cm-dropCursor {
+	border-left-color: #2c3338;
+}
+
+.wpgraphql-ide-editor .cm-matchingBracket {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.2);
+	color: inherit;
+}
+
+.wpgraphql-ide-editor .cm-searchMatch {
+	background: #fcf0b4;
+}
+
+.wpgraphql-ide-editor .cm-searchMatch.cm-searchMatch-selected {
+	background: #d4edda;
+}
+
+/* Placeholder text */
+.wpgraphql-ide-editor .cm-placeholder {
+	color: #a7aaad;
+	font-style: italic;
+}
+
+/* Tooltip (autocomplete, lint) */
+.wpgraphql-ide-editor .cm-tooltip {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.wpgraphql-ide-editor .cm-tooltip-autocomplete ul li[aria-selected] {
+	background: var(--wp-admin-theme-color, #3858e9);
+	color: #fff;
 }
 
 /* Suppress lint dot — less jarring, especially on empty documents */
@@ -1271,6 +1336,15 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-editor .cm-lint-marker:hover {
 	opacity: 1;
+}
+
+/* Fold markers */
+.wpgraphql-ide-editor .cm-foldGutter span {
+	color: #a7aaad;
+}
+
+.wpgraphql-ide-editor .cm-foldGutter span:hover {
+	color: #646970;
 }
 
 /* ---------------------------------------------------------------------------
