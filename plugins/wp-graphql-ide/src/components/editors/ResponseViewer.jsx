@@ -23,7 +23,6 @@ export function ResponseViewer({ value = '', className = '' }) {
 		const extensions = [
 			basicSetup,
 			json(),
-			EditorView.editable.of(false),
 			EditorState.readOnly.of(true),
 			EditorView.lineWrapping,
 		];
