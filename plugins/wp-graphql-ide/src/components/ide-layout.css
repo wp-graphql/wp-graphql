@@ -1748,6 +1748,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	opacity: 1;
 }
 
+/* Lint diagnostic tooltip */
+.cm-diagnostic {
+	font-size: 12px;
+	padding: 4px 8px;
+}
+
+.cm-diagnostic-error {
+	border-left: 3px solid #d63638;
+}
+
 /* Fold markers */
 .wpgraphql-ide-editor .cm-foldGutter span {
 	color: #a7aaad;
