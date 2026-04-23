@@ -946,12 +946,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
-	overflow: hidden;
+	overflow: visible;
 }
 
 .wpgraphql-ide-response-data {
-	flex: 1;
-	min-height: 0;
+	flex: none;
+	min-height: 50px;
 	overflow: hidden;
 }
 
@@ -966,8 +966,19 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom: 1px solid #dcdcde;
 }
 
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item {
+	font-size: 12px;
+	padding: 6px 12px;
+}
+
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item.is-active,
+.wpgraphql-ide-response-tabs [role="tab"][aria-selected="true"] {
+	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
 .wpgraphql-ide-response-tabs .components-tab-panel__tab-content {
 	padding: 8px 12px;
+	font-size: 13px;
 }
 
 /* Extension sub-tabs */
@@ -975,9 +986,18 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom: 1px solid #f0f0f1;
 }
 
-/* Extension panel content */
-.wpgraphql-ide-response-tabs .components-tab-panel__tab-content,
+.wpgraphql-ide-extension-tabs .components-tab-panel__tabs-item {
+	font-size: 12px;
+	padding: 4px 10px;
+}
+
+.wpgraphql-ide-extension-tabs .components-tab-panel__tabs-item.is-active,
+.wpgraphql-ide-extension-tabs [role="tab"][aria-selected="true"] {
+	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
 .wpgraphql-ide-extension-tabs .components-tab-panel__tab-content {
+	padding: 8px 12px;
 	font-size: 13px;
 }
 

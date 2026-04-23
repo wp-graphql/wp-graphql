@@ -41,9 +41,9 @@ function ResponseContent({
 	responseViewMode,
 	responseHeaders,
 	extensionTabs,
+	responseViewerHeight,
+	onResponseViewerResize,
 }) {
-	const [viewerHeight, setViewerHeight] = useState(250);
-
 	if (!response) {
 		return (
 			<div className="wpgraphql-ide-response-empty">
@@ -78,77 +78,80 @@ function ResponseContent({
 		(tab) => extensions[tab.name] !== undefined
 	);
 
+	const headersCount =
+		responseHeaders && typeof responseHeaders === 'object'
+			? Object.keys(responseHeaders).length
+			: 0;
+
 	const bottomTabs = [
+		{ name: 'headers', title: `Headers (${headersCount})` },
+		{ name: 'errors', title: `Errors (${errors.length})` },
 		{
-			name: 'headers',
-			title: `Headers${responseHeaders ? ` (${Object.keys(responseHeaders).length})` : ''}`,
+			name: 'extensions',
+			title: `Extensions (${activeExtTabs.length})`,
 		},
-		...(errors.length > 0
-			? [{ name: 'errors', title: `Errors (${errors.length})` }]
-			: []),
-		...(activeExtTabs.length > 0
-			? [
-					{
-						name: 'extensions',
-						title: `Extensions (${activeExtTabs.length})`,
-					},
-				]
-			: []),
 	];
 
 	return (
 		<div className="wpgraphql-ide-response-formatted">
 			<ResizableBox
-				size={{ width: '100%', height: viewerHeight }}
+				size={{ width: '100%', height: responseViewerHeight }}
 				minHeight={50}
 				enable={{ bottom: true }}
 				onResizeStop={(e, d, elt) => {
-					setViewerHeight(elt.offsetHeight);
+					onResponseViewerResize(elt.offsetHeight);
 				}}
 				className="wpgraphql-ide-response-data wpgraphql-ide-resizable-split"
 			>
 				<ResponseViewer value={dataStr || response} />
 			</ResizableBox>
-			{bottomTabs.length > 0 && (
-				<TabPanel
-					className="wpgraphql-ide-response-tabs"
-					tabs={bottomTabs}
-				>
-					{(tab) => {
-						if (tab.name === 'headers') {
-							return <HeadersPanel headers={responseHeaders} />;
-						}
-						if (tab.name === 'errors') {
-							return <ErrorsPanel errors={errors} />;
-						}
-						if (tab.name === 'extensions') {
+			<TabPanel className="wpgraphql-ide-response-tabs" tabs={bottomTabs}>
+				{(tab) => {
+					if (tab.name === 'headers') {
+						return <HeadersPanel headers={responseHeaders} />;
+					}
+					if (tab.name === 'errors') {
+						return <ErrorsPanel errors={errors} />;
+					}
+					if (tab.name === 'extensions') {
+						if (activeExtTabs.length === 0) {
+							const hasUnregistered =
+								Object.keys(extensions).length > 0;
 							return (
-								<TabPanel
-									className="wpgraphql-ide-extension-tabs"
-									tabs={activeExtTabs.map((t) => ({
-										name: t.name,
-										title: t.title || t.name,
-									}))}
-								>
-									{(extTab) => {
-										const ext = activeExtTabs.find(
-											(t) => t.name === extTab.name
-										);
-										const ExtContent = ext?.content;
-										return ExtContent ? (
-											<ExtContent
-												data={extensions[extTab.name]}
-												response={response}
-											/>
-										) : null;
-									}}
-								</TabPanel>
+								<p className="wpgraphql-ide-extensions-empty">
+									{hasUnregistered
+										? 'The response contains extension data, but no extension has registered a tab to display it.'
+										: 'No extensions in the last response.'}
+								</p>
 							);
 						}
-						return null;
-					}}
-				</TabPanel>
-			)}
+						return (
+							<TabPanel
+								className="wpgraphql-ide-extension-tabs"
+								key={activeExtTabs.map((t) => t.name).join('|')}
+								tabs={activeExtTabs.map((t) => ({
+									name: t.name,
+									title: t.title || t.name,
+								}))}
+							>
+								{(extTab) => {
+									const ext = activeExtTabs.find(
+										(t) => t.name === extTab.name
+									);
+									const ExtContent = ext?.content;
+									return ExtContent ? (
+										<ExtContent
+											data={extensions[extTab.name]}
+											response={response}
+										/>
+									) : null;
+								}}
+							</TabPanel>
+						);
+					}
+					return null;
+				}}
+			</TabPanel>
 		</div>
 	);
 }
@@ -299,8 +302,14 @@ export function IDELayout({ fetcher, onClose }) {
 		window.localStorage.getItem('wpgraphql_ide_query_width') || '50%';
 	const savedEditorHeight =
 		window.localStorage.getItem('wpgraphql_ide_editor_height') || '70%';
+	const savedResponseViewerHeight =
+		window.localStorage.getItem('wpgraphql_ide_response_viewer_height') ||
+		250;
 	const [queryPaneWidth, setQueryPaneWidth] = useState(savedQueryWidth);
 	const [editorHeight, setEditorHeight] = useState(savedEditorHeight);
+	const [responseViewerHeight, setResponseViewerHeight] = useState(
+		Number(savedResponseViewerHeight)
+	);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [responseViewMode, setResponseViewMode] = useState(
 		() =>
@@ -876,6 +885,14 @@ export function IDELayout({ fetcher, onClose }) {
 								responseViewMode={responseViewMode}
 								responseHeaders={responseHeaders}
 								extensionTabs={extensionTabs}
+								responseViewerHeight={responseViewerHeight}
+								onResponseViewerResize={(h) => {
+									setResponseViewerHeight(h);
+									window.localStorage.setItem(
+										'wpgraphql_ide_response_viewer_height',
+										String(h)
+									);
+								}}
 							/>
 						</div>
 					</div>
