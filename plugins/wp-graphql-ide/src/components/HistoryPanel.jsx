@@ -56,9 +56,37 @@ export function HistoryPanel() {
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
 
+	const { createTab, saveDocument } = useDispatch(
+		'wpgraphql-ide/document-editor'
+	);
+
 	const avatarUrl = window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || '';
 
-	const restoreEntry = (entry) => {
+	const restoreEntry = async (entry) => {
+		const opName = extractOperationName(entry.query);
+		const docName = getDocumentName(entry.document_id);
+		const timestamp = dateI18n('M j, g:i A', entry.timestamp * 1000);
+		let tabName = timestamp;
+		if (opName) {
+			tabName = `${opName} (restored)`;
+		} else if (docName) {
+			tabName = `${docName} (restored)`;
+		}
+
+		await createTab(tabName);
+
+		// The new tab is now active — populate it with the history entry.
+		const { select } = require('@wordpress/data');
+		const activeDoc = select(
+			'wpgraphql-ide/document-editor'
+		).getActiveDocument();
+		if (activeDoc) {
+			saveDocument(activeDoc.id, {
+				query: entry.query || '',
+				variables: entry.variables || '',
+				headers: entry.headers || '',
+			});
+		}
 		setQuery(entry.query || '');
 		setVariables(entry.variables || '');
 		setHeaders(entry.headers || '');
