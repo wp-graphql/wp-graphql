@@ -1,29 +1,98 @@
 # Access Functions
 
-Access Functions are functions that abstract several layers of complexity and provide simpler ways
-to accomplish common tasks. They are often used to provide a more readable and maintainable codebase.
+Access Functions abstract several layers of complexity and provide simpler ways to accomplish common tasks. They are modeled around core WordPress functions like `register_post_type`, `register_taxonomy`, etc.
 
-The concept is modeled around core WordPress functions like register_post_type, register_taxonomy, etc, where
-the function signature is simple and the function itself abstracts the complexity of the underlying APIs.
+All access functions are available on `window.WPGraphQLIDE` after the `WPGraphQLIDE_Window_Ready` event fires.
 
-## Table of Contents
+## registerDocumentEditorToolbarButton
 
-### registerDocumentEditorToolbarButton
+Registers a new toolbar button in the query editor toolbar.
 
-Registers a new toolbar button for the document editor.
+**Parameters:**
 
-This function allows registering a new editor toolbar button with the following parameters:
+- `name` (string): Unique identifier for the button.
+- `config` (Object): Button configuration object.
+- `priority` (number, optional): Lower numbers render first. Default: `10`.
 
-- `name` (string): The name of the button to register.
-- `config` (Object): The configuration object for the button.
-- `priority` (number, optional): The priority for the button, with lower numbers meaning higher priority. Default is 10.
+**Hooks fired:**
 
-Example usage:
+- `wpgraphql-ide.afterRegisterToolbarButton` on success
+- `wpgraphql-ide.registerToolbarButtonError` on failure
+
+**Example:**
 
 ```js
 const { registerDocumentEditorToolbarButton } = window.WPGraphQLIDE;
 
-registerDocumentEditorToolbarButton( 'toggle-auth', toggleAuthButton, 1 );
+registerDocumentEditorToolbarButton('my-button', {
+  label: 'My Button',
+  onClick: () => console.log('clicked'),
+}, 20);
 ```
 
-![Screenshot of the GraphiQL IDE highlighting the Toolbar buttons within the Document Editor region.](https://private-user-images.githubusercontent.com/1260765/332127315-2395c3c8-1915-4a24-b64e-35ebe16e674f.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTYyMjE0OTgsIm5iZiI6MTcxNjIyMTE5OCwicGF0aCI6Ii8xMjYwNzY1LzMzMjEyNzMxNS0yMzk1YzNjOC0xOTE1LTRhMjQtYjY0ZS0zNWViZTE2ZTY3NGYucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDUyMCUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA1MjBUMTYwNjM4WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9OWViMDgwNGUxN2Q5Yjc0OGYxYzAxNTIzNjg4OGJjM2RmYWRmNDU3YmRjNjVmZDhhNjI3ZjYzOThmZTJkNDExZCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.QoCTg1UY2hOVVdIm2soXm1cjEOeHew8HYCC0RePYmuk)
+## registerActivityBarPanel
+
+Registers a panel in the left activity bar sidebar.
+
+Activity bar panels are global to the IDE (not tied to a specific document). Built-in panels include Docs Explorer, Documents, and History.
+
+**Parameters:**
+
+- `name` (string): Unique identifier for the panel.
+- `config` (Object): Panel configuration.
+  - `title` (string): Human-readable panel title shown in the header.
+  - `icon` (Function): React component rendering the panel's icon.
+  - `content` (Function): React component rendering the panel's content.
+- `priority` (number, optional): Lower numbers render first. Default: `10`.
+
+**Hooks fired:**
+
+- `wpgraphql-ide.afterRegisterActivityBarPanel` on success
+- `wpgraphql-ide.registerActivityBarPanelError` on failure
+
+**Example:**
+
+```js
+const { registerActivityBarPanel } = window.WPGraphQLIDE;
+import { Icon, plugins } from '@wordpress/icons';
+
+registerActivityBarPanel('my-panel', {
+  title: 'My Panel',
+  icon: () => <Icon icon={plugins} />,
+  content: () => <div>Panel content here</div>,
+}, 20);
+```
+
+## registerResponseExtensionTab
+
+Registers a tab in the response pane's Extensions section.
+
+The `name` must match a top-level key in the GraphQL response `extensions` object. The tab is only shown when the latest response contains that key. This allows plugins like WPGraphQL Smart Cache, ACF, or WooCommerce to register tabs that render their extension data.
+
+**Parameters:**
+
+- `name` (string): Extension key in the response (e.g. `"debug"`, `"graphqlSmartCache"`).
+- `config` (Object): Tab configuration.
+  - `title` (string): Human-readable tab label.
+  - `content` (Function): React component receiving `{ data, response }`.
+- `priority` (number, optional): Lower numbers render first. Default: `10`.
+
+**Hooks fired:**
+
+- `wpgraphql-ide.afterRegisterResponseExtensionTab` on success
+- `wpgraphql-ide.registerResponseExtensionTabError` on failure
+
+**Example:**
+
+```js
+const { registerResponseExtensionTab } = window.WPGraphQLIDE;
+
+registerResponseExtensionTab('graphqlSmartCache', {
+  title: 'Smart Cache',
+  content: ({ data, response }) => (
+    <div>
+      <p>Cache status: {data?.cacheStatus}</p>
+    </div>
+  ),
+}, 50);
+```
