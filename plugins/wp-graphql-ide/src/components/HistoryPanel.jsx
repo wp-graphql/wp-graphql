@@ -66,10 +66,12 @@ export function HistoryPanel() {
 		const opName = extractOperationName(entry.query);
 		const docName = getDocumentName(entry.document_id);
 		const timestamp = dateI18n('M j, g:i A', entry.timestamp * 1000);
+		const isGenericName =
+			!docName || /^(Untitled|New Tab( \d+)?)$/.test(docName);
 		let tabName = timestamp;
 		if (opName) {
 			tabName = `${opName} (restored)`;
-		} else if (docName) {
+		} else if (!isGenericName) {
 			tabName = `${docName} (restored)`;
 		}
 

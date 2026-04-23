@@ -2148,7 +2148,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: block;
 	width: 100%;
 	text-align: left;
-	padding: 10px 8px;
+	padding: 6px 8px;
 	border: none;
 	background: none;
 	cursor: pointer;
@@ -2161,21 +2161,21 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-history-entry-header {
 	display: flex;
-	gap: 6px;
+	gap: 4px;
 	align-items: center;
 }
 
 .wpgraphql-ide-history-avatar {
-	width: 16px;
-	height: 16px;
+	width: 14px;
+	height: 14px;
 	border-radius: 50%;
 	flex-shrink: 0;
 }
 
 .wpgraphql-ide-history-status {
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 600;
-	padding: 2px 8px;
+	padding: 1px 5px;
 	border-radius: 2px;
 }
 
@@ -2190,13 +2190,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-history-duration {
-	font-size: 12px;
+	font-size: 11px;
 	color: #646970;
 }
 
 .wpgraphql-ide-history-entry-time {
-	font-size: 12px;
-	color: #646970;
+	font-size: 11px;
+	color: #a7aaad;
 }
 
 .wpgraphql-ide-history-entry-id {
@@ -2215,18 +2215,18 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-history-entry-detail {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
-	margin-top: 4px;
+	gap: 1px;
+	margin-top: 2px;
 }
 
 .wpgraphql-ide-history-entry-label {
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 500;
 	color: #2c3338;
 }
 
 .wpgraphql-ide-history-entry-preview {
-	font-size: 11px;
+	font-size: 10px;
 	color: #a7aaad;
 	font-family: Menlo, Consolas, Monaco, monospace;
 	white-space: nowrap;
