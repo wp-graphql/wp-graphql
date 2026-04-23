@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.2...wp-graphql-acf/v2.6.0) (2026-04-23)
+
+
+### New Features
+
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785)) ([bd0c310](https://github.com/wp-graphql/wp-graphql/commit/bd0c310147b7129a74dc9619d11fdf8d3f0d1975))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.26 to 2.2.27 in /plugins/wp-graphql-acf ([#3774](https://github.com/wp-graphql/wp-graphql/issues/3774)) ([5fc6977](https://github.com/wp-graphql/wp-graphql/commit/5fc6977d39d43b6ad6c00821da154056c7e5fb24))
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
 ## [2.5.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.1...wp-graphql-acf/v2.5.2) (2026-04-09)
 
 
