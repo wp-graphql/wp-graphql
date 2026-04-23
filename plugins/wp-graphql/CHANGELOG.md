@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.12.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.2...wp-graphql/v2.12.0) (2026-04-22)
+
+
+### New Features
+
+* allow additional valid hosts ([#3778](https://github.com/wp-graphql/wp-graphql/issues/3778)) ([c601b26](https://github.com/wp-graphql/wp-graphql/commit/c601b268fd20ad3be6aca559da5d64fece2079e5))
+* **deps:** bump sanitize-html from 2.17.2 to 2.17.3 ([#3779](https://github.com/wp-graphql/wp-graphql/issues/3779)) ([123177c](https://github.com/wp-graphql/wp-graphql/commit/123177c7a0110dce35922a2ad9c8e3286a939261))
+* **deps:** bump styled-components from 6.3.12 to 6.4.0 in the npm-prod-minor-patch group ([#3781](https://github.com/wp-graphql/wp-graphql/issues/3781)) ([a6cfe6c](https://github.com/wp-graphql/wp-graphql/commit/a6cfe6c4080e6f9c16504a257d6214570289fd10))
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785)) ([bd0c310](https://github.com/wp-graphql/wp-graphql/commit/bd0c310147b7129a74dc9619d11fdf8d3f0d1975))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.26 to 2.2.27 in /plugins/wp-graphql ([#3773](https://github.com/wp-graphql/wp-graphql/issues/3773)) ([8f249b6](https://github.com/wp-graphql/wp-graphql/commit/8f249b6788306a2b48e2cde91959caaf648476ac))
+* **deps:** bump webonyx/graphql-php from 15.31.4 to 15.31.5 in /plugins/wp-graphql ([#3766](https://github.com/wp-graphql/wp-graphql/issues/3766)) ([fa15880](https://github.com/wp-graphql/wp-graphql/commit/fa1588021293c8f69bffed7af0d76b2e6c3759c2))
+
 ## [2.11.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.1...wp-graphql/v2.11.2) (2026-04-13)
 
 
