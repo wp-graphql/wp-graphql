@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.12.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.2...wp-graphql/v2.12.0) (2026-04-22)
+## [2.12.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.2...wp-graphql/v2.12.0) (2026-04-23)
 
 
 ### New Features
