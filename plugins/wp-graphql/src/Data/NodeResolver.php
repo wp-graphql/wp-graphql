@@ -362,21 +362,30 @@ class NodeResolver {
 
 		// Bail if external URI.
 		if ( isset( $parsed_url['host'] ) ) {
-			$site_url = wp_parse_url( site_url() );
-			$home_url = wp_parse_url( home_url() );
+			$site_parts = wp_parse_url( site_url() );
+			$home_parts = wp_parse_url( home_url() );
+
+			$default_allowed_hosts = [];
+			if ( is_array( $site_parts ) && isset( $site_parts['host'] ) ) {
+				$default_allowed_hosts[] = $site_parts['host'];
+			}
+			if ( is_array( $home_parts ) && isset( $home_parts['host'] ) ) {
+				$default_allowed_hosts[] = $home_parts['host'];
+			}
 
 			/**
-			 * @var array<string,mixed> $home_url
-			 * @var array<string,mixed> $site_url
+			 * Filters hostnames treated as belonging to this WordPress install when resolving node URIs.
+			 *
+			 * By default includes the hosts from `site_url()` and `home_url()`. Extensions may append
+			 * hosts (for example language-specific domains mapped to the same site).
+			 *
+			 * @param string[] $allowed_hosts Hostnames permitted when comparing the parsed URI host.
+			 *
+			 * @since x-release-please-version
 			 */
-			if ( ! in_array(
-				$parsed_url['host'],
-				[
-					$site_url['host'],
-					$home_url['host'],
-				],
-				true
-			) ) {
+			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', $default_allowed_hosts );
+
+			if ( ! in_array( $parsed_url['host'], $allowed_hosts, true ) ) {
 				graphql_debug(
 					__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
 					[
