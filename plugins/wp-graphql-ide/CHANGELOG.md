@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.3.0...wp-graphql-ide/v4.4.0) (2026-04-22)
+
+
+### New Features
+
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785)) ([bd0c310](https://github.com/wp-graphql/wp-graphql/commit/bd0c310147b7129a74dc9619d11fdf8d3f0d1975))
+
 ## [4.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.2.0...wp-graphql-ide/v4.3.0) (2026-04-13)
 
 
