@@ -886,13 +886,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-response-status--success {
-	background: #d4edda;
-	color: #155724;
+	background: #edfaef;
+	color: #00a32a;
 }
 
 .wpgraphql-ide-response-status--error {
-	background: #f8d7da;
-	color: #721c24;
+	background: #fcf0f1;
+	color: #d63638;
 }
 
 .wpgraphql-ide-response-duration {
@@ -1035,7 +1035,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	padding: 2px 6px;
 	border-radius: 2px;
 	background: #fcf9e8;
-	color: #996800;
+	color: #dba617;
 	text-transform: uppercase;
 }
 
@@ -1396,7 +1396,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-error-card {
 	padding: 8px;
 	margin-bottom: 8px;
-	border: 1px solid #f8d7da;
+	border: 1px solid #fcf0f1;
 	border-radius: 2px;
 	background: #fff;
 }
@@ -1404,7 +1404,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-error-message {
 	font-size: 13px;
 	font-weight: 500;
-	color: #721c24;
+	color: #d63638;
 }
 
 .wpgraphql-ide-error-meta {
@@ -1696,7 +1696,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-editor .cm-searchMatch.cm-searchMatch-selected {
-	background: #d4edda;
+	background: #edfaef;
 }
 
 /* Placeholder text */
@@ -2142,13 +2142,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-history-status--success {
-	background: #d4edda;
-	color: #155724;
+	background: #edfaef;
+	color: #00a32a;
 }
 
 .wpgraphql-ide-history-status--error {
-	background: #f8d7da;
-	color: #721c24;
+	background: #fcf0f1;
+	color: #d63638;
 }
 
 .wpgraphql-ide-history-duration {
