@@ -64,13 +64,6 @@ const actions = {
 			type: 'SET_INITIAL_STATE_LOADED',
 		};
 	},
-	registerPlugin: (name, config) => {
-		return {
-			type: 'REGISTER_PLUGIN',
-			name,
-			config,
-		};
-	},
 	toggleAuthentication: () => {
 		return {
 			type: 'TOGGLE_AUTHENTICATION',

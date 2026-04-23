@@ -16,20 +16,6 @@ export async function getDocuments() {
 }
 
 /**
- * Fetch a single document by ID.
- *
- * @param {number} id Post ID.
- * @return {Promise<Object>} Document object.
- */
-export async function getDocument(id) {
-	const post = await apiFetch({
-		path: `${ENDPOINT}/${id}?context=edit&_fields=id,title,content,meta`,
-	});
-
-	return normalizeDocument(post);
-}
-
-/**
  * Create a new IDE query document.
  *
  * @param {Object} doc             Document data.

@@ -29,19 +29,6 @@ const selectors = {
 		},
 		(state) => [state.visiblePanel, state.activityPanels]
 	),
-	utilities: createSelector(
-		(state) => {
-			const utilities = Object.entries(state.utilities).map(
-				([name, utility]) => ({
-					name,
-					...utility,
-				})
-			);
-
-			return utilities.sort((a, b) => a.priority - b.priority);
-		},
-		(state) => [state.utilities]
-	),
 };
 
 export default selectors;

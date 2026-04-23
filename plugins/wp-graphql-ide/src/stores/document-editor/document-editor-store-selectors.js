@@ -20,8 +20,6 @@ const selectors = {
 		(state) => [state.documents]
 	),
 
-	getDocument: (state, id) => state.documents[String(id)] || null,
-
 	getOpenTabs: (state) => state.openTabs,
 
 	getActiveTab: (state) => state.activeTab,

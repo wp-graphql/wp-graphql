@@ -19,17 +19,6 @@ const selectors = {
 	isInitialStateLoaded: (state) => {
 		return state.isInitialStateLoaded;
 	},
-	getPluginsArray: (state) => {
-		const registeredPlugins = state.registeredPlugins;
-		const pluginsArray = [];
-		Object.entries(registeredPlugins).forEach(([, config]) => {
-			const plugin = () => {
-				return config;
-			};
-			pluginsArray.push(plugin());
-		});
-		return pluginsArray;
-	},
 	isAuthenticated: (state) => {
 		return state.isAuthenticated;
 	},

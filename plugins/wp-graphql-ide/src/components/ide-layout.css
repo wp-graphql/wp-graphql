@@ -225,11 +225,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	visibility: visible;
 }
 
-.wpgraphql-ide-tab-close.is-hidden {
-	visibility: hidden !important;
-	pointer-events: none;
-}
-
 .wpgraphql-ide-tab-close:hover {
 	color: #2c3338;
 	background: rgba(0, 0, 0, 0.08);
@@ -290,25 +285,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	max-width: 160px;
 	background: #fff;
 	flex-shrink: 0;
-}
-
-/* Tab bar add button */
-
-.wpgraphql-ide-doc-close.components-button {
-	min-width: 24px;
-	width: 24px;
-	height: 24px;
-	padding: 0;
-	color: #646970;
-	font-size: 16px;
-	line-height: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.wpgraphql-ide-doc-close.components-button:hover {
-	color: #d63638;
 }
 
 /* Send group — method label + send button (inline in editor toolbar) */
@@ -621,10 +597,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	transition: opacity 0.15s ease;
 }
 
-.wpgraphql-ide-editor-resizable.is-switching {
-	opacity: 0.5;
-}
-
 .wpgraphql-ide-plugin .components-spinner {
 	width: 24px;
 	height: 24px;
@@ -731,55 +703,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-activity-panel > .components-resizable-box__handle-right:hover::after {
 	background: var(--wp-admin-theme-color-darker-10, #2145e6);
-}
-
-/* ---------------------------------------------------------------------------
-   Settings panel (right sidebar)
-   --------------------------------------------------------------------------- */
-
-.wpgraphql-ide-settings-panel {
-	display: flex;
-	flex-direction: column;
-	width: 280px;
-	flex-shrink: 0;
-	border-left: 1px solid #dcdcde;
-	background: #fff;
-	overflow: hidden;
-}
-
-.wpgraphql-ide-settings-content {
-	flex: 1;
-	min-height: 0;
-	overflow-y: auto;
-	padding: 0;
-}
-
-.wpgraphql-ide-settings-content .components-panel {
-	border: none;
-}
-
-.wpgraphql-ide-settings-content .components-panel__body {
-	border-top: 1px solid #f0f0f1;
-	border-bottom: none;
-}
-
-.wpgraphql-ide-settings-content .components-panel__body-title {
-	font-size: 12px;
-}
-
-.wpgraphql-ide-settings-content .components-panel__row {
-	padding: 8px 0;
-}
-
-.wpgraphql-ide-settings-content .components-select-control,
-.wpgraphql-ide-settings-content .components-toggle-control {
-	width: 100%;
-}
-
-.wpgraphql-ide-settings-footer {
-	padding: 12px 16px;
-	border-top: 1px solid #f0f0f1;
-	font-size: 12px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1854,12 +1777,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-history-panel {
 	font-size: 13px;
-}
-
-.wpgraphql-ide-history-header {
-	font-weight: 600;
-	margin-bottom: 12px;
-	font-size: 14px;
 }
 
 .wpgraphql-ide-history-empty {

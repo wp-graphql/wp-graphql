@@ -6,7 +6,6 @@ const initialState = {
 	isDrawerOpen: false,
 	shouldRenderStandalone: false,
 	isInitialStateLoaded: false,
-	registeredPlugins: {},
 	query: null,
 	schema: undefined, // undefined is necessary to trigger the initial fetch
 	isAuthenticated: true,
@@ -73,14 +72,6 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				isInitialStateLoaded: true,
-			};
-		case 'REGISTER_PLUGIN':
-			return {
-				...state,
-				registeredPlugins: {
-					...state.registeredPlugins,
-					[action.name]: action.config,
-				},
 			};
 		case 'TOGGLE_AUTHENTICATION':
 			return {
