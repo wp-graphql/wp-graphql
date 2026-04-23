@@ -97,7 +97,7 @@ function ResponseContent({
 	return (
 		<div className="wpgraphql-ide-response-formatted">
 			<ResizableBox
-				size={{ width: '100%', height: '60%' }}
+				size={{ width: '100%', height: 250 }}
 				minHeight={50}
 				enable={{ bottom: true }}
 				className="wpgraphql-ide-response-data wpgraphql-ide-resizable-split"

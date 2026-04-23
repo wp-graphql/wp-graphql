@@ -975,6 +975,67 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom: 1px solid #f0f0f1;
 }
 
+/* Extension panel content */
+.wpgraphql-ide-response-tabs .components-tab-panel__tab-content,
+.wpgraphql-ide-extension-tabs .components-tab-panel__tab-content {
+	font-size: 13px;
+}
+
+/* Query Analyzer extension */
+.wpgraphql-ide-qa-grid {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 12px;
+	margin: 0;
+	font-size: 12px;
+}
+
+.wpgraphql-ide-qa-key {
+	font-weight: 600;
+	color: #2c3338;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-qa-value {
+	margin: 0;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-qa-value code {
+	font-size: 12px;
+	background: #f0f0f1;
+	padding: 1px 4px;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-qa-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-qa-list li {
+	padding: 1px 0;
+}
+
+.wpgraphql-ide-qa-json {
+	font-size: 11px;
+	margin: 0;
+	background: #f6f7f7;
+	padding: 4px 8px;
+	border-radius: 2px;
+	overflow-x: auto;
+}
+
+.wpgraphql-ide-qa-empty {
+	color: #a7aaad;
+	font-style: italic;
+}
+
+.wpgraphql-ide-qa-scalar {
+	font-size: 12px;
+}
+
 /* Headers panel */
 .wpgraphql-ide-headers-list {
 	display: grid;
@@ -1374,31 +1435,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
-.wpgraphql-ide-history-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.wpgraphql-ide-history-entry {
-	border-bottom: 1px solid #f0f0f1;
-}
-
-.wpgraphql-ide-history-entry-button {
-	display: block;
-	width: 100%;
-	padding: 10px 4px;
-	border: none;
-	background: none;
-	cursor: pointer;
-	text-align: left;
-	border-radius: 4px;
-}
-
-.wpgraphql-ide-history-entry-button:hover {
-	background: #f0f0f1;
-}
-
 /* ---------------------------------------------------------------------------
    Docs Explorer panel
    --------------------------------------------------------------------------- */
@@ -1696,28 +1732,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	margin-bottom: 12px;
 }
 
-.wpgraphql-ide-history-actions .components-button.is-secondary {
-	font-size: 11px;
-	height: 24px;
-	padding: 0 8px;
-	border-radius: 10px;
-	background: #f0f0f1;
-	color: #50575e;
-	border: none;
-}
-
-.wpgraphql-ide-history-actions .components-button.is-secondary:hover {
-	background: #dcdcde;
-}
-
-.wpgraphql-ide-history-actions .components-button.is-primary {
-	font-size: 11px;
-	height: 24px;
-	padding: 0 8px;
-	border-radius: 10px;
-	color: #fff !important;
-}
-
 .wpgraphql-ide-history-actions .components-button.is-link {
 	font-size: 11px;
 	text-decoration: none;
@@ -1750,9 +1764,15 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-history-entry-header {
 	display: flex;
-	gap: 8px;
+	gap: 6px;
 	align-items: center;
-	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-history-avatar {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-history-status {
@@ -1782,12 +1802,24 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
+.wpgraphql-ide-history-entry-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 4px;
+}
+
+.wpgraphql-ide-history-entry-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: #2c3338;
+}
+
 .wpgraphql-ide-history-entry-preview {
 	font-size: 11px;
-	color: #999;
-	font-family: monospace;
+	color: #a7aaad;
+	font-family: Menlo, Consolas, Monaco, monospace;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	margin-top: 4px;
 }
