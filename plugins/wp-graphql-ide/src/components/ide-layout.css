@@ -1484,7 +1484,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	align-items: center;
 	gap: 8px;
 	padding: 8px;
-	margin: 0 -8px;
 	border-radius: 2px;
 	cursor: pointer;
 }
@@ -1549,7 +1548,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 /* Field list items */
 .wpgraphql-ide-docs-field {
 	padding: 8px;
-	margin: 0 -8px;
 	border-radius: 2px;
 }
 
@@ -1636,7 +1634,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 /* Enum values */
 .wpgraphql-ide-docs-enum-value {
 	padding: 6px 8px;
-	margin: 0 -8px;
 	border-radius: 2px;
 }
 
@@ -1741,7 +1738,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	width: 100%;
 	text-align: left;
 	padding: 10px 8px;
-	margin: 0 -8px;
 	border: none;
 	background: none;
 	cursor: pointer;
