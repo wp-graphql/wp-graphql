@@ -2161,6 +2161,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
+.wpgraphql-ide-history-entry-id {
+	margin-left: auto;
+	font-size: 10px;
+	color: #a7aaad;
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
 .wpgraphql-ide-history-entry-detail {
 	display: flex;
 	flex-direction: column;

@@ -114,7 +114,6 @@ export function HistoryPanel() {
 								type="button"
 								className="wpgraphql-ide-history-entry-button"
 								onClick={() => restoreEntry(entry)}
-								title={`History #${entry.id}`}
 							>
 								<div className="wpgraphql-ide-history-entry-header">
 									{avatarUrl && (
@@ -139,6 +138,9 @@ export function HistoryPanel() {
 											'M j, g:i A',
 											entry.timestamp * 1000
 										)}
+									</span>
+									<span className="wpgraphql-ide-history-entry-id">
+										#{entry.id}
 									</span>
 								</div>
 								{(label || entry.query) && (
