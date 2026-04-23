@@ -1444,6 +1444,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-direction: column;
 	min-height: 0;
 	overflow: hidden;
+	font-size: 12px;
 }
 
 .wpgraphql-ide-table-toolbar {
@@ -1565,12 +1566,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	gap: 12px;
 	padding: 3px 0;
+	font-size: 12px;
 }
 
 .wpgraphql-ide-tree-field {
-	font-weight: 500;
-	color: #2c3338;
+	font-weight: 600;
+	color: #50575e;
 	min-width: 80px;
+	font-size: 12px;
 }
 
 .wpgraphql-ide-tree-section {
@@ -1613,6 +1616,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-tree-scalar {
 	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
 	padding: 4px 8px;
 	white-space: pre-wrap;
 	word-break: break-word;
@@ -1622,6 +1626,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex: 1;
 	color: #2c3338;
 	word-break: break-word;
+	font-size: 12px;
 }
 
 .wpgraphql-ide-response-pane > .wpgraphql-ide-editor {
