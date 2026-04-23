@@ -162,7 +162,7 @@ class RootQuery {
 					],
 				],
 				'fields'      => static function () {
-					return [
+					$fields = [
 						'allSettings' => [
 							'type'        => 'Settings',
 							'description' => static function () {
@@ -737,6 +737,13 @@ class RootQuery {
 							},
 						],
 					];
+
+					// Only expose allSettings when the Settings type can be built with real fields.
+					if ( empty( Settings::get_fields( \WPGraphQL::get_type_registry() ) ) ) {
+						unset( $fields['allSettings'] );
+					}
+
+					return $fields;
 				},
 			]
 		);
