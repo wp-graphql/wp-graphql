@@ -42,6 +42,8 @@ function ResponseContent({
 	responseHeaders,
 	extensionTabs,
 }) {
+	const [viewerHeight, setViewerHeight] = useState(250);
+
 	if (!response) {
 		return (
 			<div className="wpgraphql-ide-response-empty">
@@ -97,9 +99,12 @@ function ResponseContent({
 	return (
 		<div className="wpgraphql-ide-response-formatted">
 			<ResizableBox
-				size={{ width: '100%', height: 250 }}
+				size={{ width: '100%', height: viewerHeight }}
 				minHeight={50}
 				enable={{ bottom: true }}
+				onResizeStop={(e, d, elt) => {
+					setViewerHeight(elt.offsetHeight);
+				}}
 				className="wpgraphql-ide-response-data wpgraphql-ide-resizable-split"
 			>
 				<ResponseViewer value={dataStr || response} />
