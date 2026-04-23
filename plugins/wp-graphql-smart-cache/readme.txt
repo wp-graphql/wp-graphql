@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -114,6 +114,17 @@ In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.
 
 == Changelog ==
 
+= 2.1.0 =
+
+**New Features**
+
+* import WPGraphQL IDE into monorepo ([#3542](https://github.com/wp-graphql/wp-graphql/issues/3542))
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785))
+
+**Bug Fixes**
+
+* resolve post by percent-encoded slug/URI when post_name is stored encoded ([#3582](https://github.com/wp-graphql/wp-graphql/issues/3582)) ([#3611](https://github.com/wp-graphql/wp-graphql/issues/3611))
+
 = 2.0.1 =
 
 **Bugfixes**
@@ -172,7 +183,6 @@ In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.
 - [#251](https://github.com/wp-graphql/wp-graphql-smart-cache/pull/251): ci: add WP 6.3 to test matrix
 - [#258](https://github.com/wp-graphql/wp-graphql-smart-cache/pull/258): ci: add build-plugin command to set up no-dev
 
-
 = 1.2.0 =
 
 **New Features**
@@ -230,7 +240,6 @@ In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.
 = 1.0.4 =
 
 - [#210](https://github.com/wp-graphql/wp-graphql-smart-cache/pull/210) fix: post_exists being called even though the `post_exists` function doesn't exist in this context. Check instanceof WP_Post instead.
-
 
 = 1.0.3 =
 
@@ -317,7 +326,6 @@ In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.
 = 0.2.1 =
 
 - add temporary patch for wp-engine users. Will be removed when the wp engine mu plugin is updated.
-
 
 = 0.2.0
 
