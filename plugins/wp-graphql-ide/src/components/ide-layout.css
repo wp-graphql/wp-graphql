@@ -946,13 +946,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
-	overflow: visible;
+	overflow: hidden;
+	position: relative;
 }
 
 .wpgraphql-ide-response-data {
 	flex: none;
 	min-height: 50px;
-	overflow: hidden;
+	overflow: auto;
 }
 
 .wpgraphql-ide-response-tabs {
@@ -1001,31 +1002,131 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-size: 13px;
 }
 
-/* Query Analyzer extension */
+/* ---------------------------------------------------------------------------
+   Debug extension tab
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-debug-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-debug-entry {
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wpgraphql-ide-debug-entry:last-child {
+	border-bottom: none;
+}
+
+.wpgraphql-ide-debug-entry-header {
+	display: flex;
+	gap: 8px;
+	align-items: baseline;
+}
+
+.wpgraphql-ide-debug-type {
+	flex-shrink: 0;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	padding: 2px 6px;
+	border-radius: 2px;
+	background: #fcf9e8;
+	color: #996800;
+	text-transform: uppercase;
+}
+
+.wpgraphql-ide-debug-message {
+	font-size: 12px;
+	color: #2c3338;
+	line-height: 1.5;
+	word-break: break-word;
+}
+
+.wpgraphql-ide-debug-stack-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 6px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: 11px;
+	color: #646970;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-debug-stack-toggle:hover {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-debug-stack-chevron {
+	display: inline-block;
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-debug-stack-chevron.is-open {
+	transform: rotate(90deg);
+}
+
+.wpgraphql-ide-debug-stack {
+	margin: 6px 0 0 4px;
+	padding: 4px 0 4px 18px;
+	border-left: 2px solid #dcdcde;
+	font-size: 11px;
+	color: #50575e;
+}
+
+.wpgraphql-ide-debug-stack li {
+	padding: 2px 0;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-debug-stack code {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 11px;
+	background: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Query Analyzer extension tab
+   --------------------------------------------------------------------------- */
+
 .wpgraphql-ide-qa-grid {
 	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: 4px 12px;
+	grid-template-columns: minmax(120px, auto) 1fr;
+	gap: 6px 12px;
 	margin: 0;
 	font-size: 12px;
 }
 
 .wpgraphql-ide-qa-key {
 	font-weight: 600;
-	color: #2c3338;
-	white-space: nowrap;
+	color: #50575e;
+	padding-top: 2px;
 }
 
 .wpgraphql-ide-qa-value {
 	margin: 0;
+	color: #2c3338;
+	min-width: 0;
+}
+
+.wpgraphql-ide-qa-scalar {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+	background: #f0f0f1;
+	padding: 1px 6px;
+	border-radius: 2px;
 	word-break: break-all;
 }
 
-.wpgraphql-ide-qa-value code {
-	font-size: 12px;
-	background: #f0f0f1;
-	padding: 1px 4px;
-	border-radius: 2px;
+.wpgraphql-ide-qa-empty {
+	color: #a7aaad;
+	font-style: italic;
 }
 
 .wpgraphql-ide-qa-list {
@@ -1035,25 +1136,231 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-qa-list li {
-	padding: 1px 0;
+	padding: 2px 0;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-qa-list code {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+	background: #f0f0f1;
+	padding: 1px 4px;
+	border-radius: 2px;
 }
 
 .wpgraphql-ide-qa-json {
-	font-size: 11px;
 	margin: 0;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 11px;
+	color: #2c3338;
 	background: #f6f7f7;
-	padding: 4px 8px;
+	padding: 6px 8px;
 	border-radius: 2px;
-	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
 }
 
-.wpgraphql-ide-qa-empty {
-	color: #a7aaad;
-	font-style: italic;
+/* ---------------------------------------------------------------------------
+   Tracing extension tab
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-tracing-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
-.wpgraphql-ide-qa-scalar {
+.wpgraphql-ide-tracing-summary,
+.wpgraphql-ide-querylog-summary {
+	display: flex;
+	gap: 24px;
+	padding: 8px 10px;
+	background: #f6f7f7;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-tracing-summary > div,
+.wpgraphql-ide-querylog-summary > div {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.wpgraphql-ide-tracing-label {
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #646970;
+	font-weight: 600;
+}
+
+.wpgraphql-ide-tracing-value {
+	font-size: 13px;
+	color: #2c3338;
+	font-weight: 600;
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+.wpgraphql-ide-tracing-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 11px;
+	color: #646970;
+}
+
+.wpgraphql-ide-tracing-controls label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wpgraphql-ide-tracing-controls select {
 	font-size: 12px;
+	padding: 2px 6px;
+}
+
+.wpgraphql-ide-tracing-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.wpgraphql-ide-tracing-table th {
+	text-align: left;
+	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: #646970;
+	padding: 4px 8px;
+	border-bottom: 1px solid #dcdcde;
+	background: #f6f7f7;
+	position: sticky;
+	top: 0;
+}
+
+.wpgraphql-ide-tracing-table th.is-numeric,
+.wpgraphql-ide-tracing-table td.is-numeric {
+	text-align: right;
+	white-space: nowrap;
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+.wpgraphql-ide-tracing-table td {
+	padding: 6px 8px;
+	border-bottom: 1px solid #f0f0f1;
+	vertical-align: top;
+}
+
+.wpgraphql-ide-tracing-path {
+	display: block;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	color: #2c3338;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-tracing-parent {
+	display: block;
+	font-size: 10px;
+	color: #a7aaad;
+	margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Query Log extension tab
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-querylog-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.wpgraphql-ide-querylog-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-querylog-entry {
+	padding: 10px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wpgraphql-ide-querylog-entry:last-child {
+	border-bottom: none;
+}
+
+.wpgraphql-ide-querylog-entry-header {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.wpgraphql-ide-querylog-time {
+	flex-shrink: 0;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 11px;
+	font-weight: 600;
+	color: #50575e;
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 2px;
+	white-space: nowrap;
+	margin-top: 2px;
+}
+
+.wpgraphql-ide-querylog-sql {
+	margin: 0;
+	flex: 1;
+	min-width: 0;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+	color: #2c3338;
+	white-space: pre-wrap;
+	word-break: break-word;
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-querylog-stack-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 6px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: 11px;
+	color: #646970;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-querylog-stack-toggle:hover {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-querylog-stack-chevron {
+	display: inline-block;
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-querylog-stack-chevron.is-open {
+	transform: rotate(90deg);
+}
+
+.wpgraphql-ide-querylog-stack {
+	margin: 6px 0 0 4px;
+	padding: 4px 0 4px 18px;
+	border-left: 2px solid #dcdcde;
+	font-size: 11px;
+	color: #50575e;
+	list-style: decimal;
+}
+
+.wpgraphql-ide-querylog-stack li {
+	padding: 2px 0;
+	word-break: break-all;
 }
 
 /* Headers panel */
@@ -1398,16 +1705,38 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-style: italic;
 }
 
-/* Tooltip (autocomplete, lint) */
-.wpgraphql-ide-editor .cm-tooltip {
+/* Tooltip (autocomplete, lint) — rendered on document.body via tooltips() */
+.cm-tooltip {
 	background: #fff;
 	border: 1px solid #dcdcde;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+	z-index: 100000;
+	font-size: 13px;
 }
 
-.wpgraphql-ide-editor .cm-tooltip-autocomplete ul li[aria-selected] {
+.cm-tooltip-autocomplete {
+	max-height: 250px;
+}
+
+.cm-tooltip-autocomplete ul {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+}
+
+.cm-tooltip-autocomplete ul li {
+	padding: 4px 8px;
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] {
 	background: var(--wp-admin-theme-color, #3858e9);
 	color: #fff;
+}
+
+.cm-completionInfo {
+	padding: 8px;
+	font-size: 12px;
+	max-width: 300px;
+	border-left: 1px solid #dcdcde;
 }
 
 /* Suppress lint dot — less jarring, especially on empty documents */

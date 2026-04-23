@@ -3,6 +3,7 @@ import {
 	EditorView,
 	keymap,
 	placeholder as cmPlaceholder,
+	tooltips,
 } from '@codemirror/view';
 import { Compartment, EditorState } from '@codemirror/state';
 import { graphql, updateSchema } from 'cm6-graphql';
@@ -71,6 +72,7 @@ export function GraphQLEditor({
 			graphqlCompartment.current.of(
 				hasContent ? graphql(schema || undefined) : []
 			),
+			tooltips({ parent: document.body }),
 			updateListener,
 			readOnlyCompartment.current.of([
 				EditorView.editable.of(!readOnly),
