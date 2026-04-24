@@ -393,7 +393,7 @@ export function IDELayout({ fetcher, onClose }) {
 	const handleQueryChange = useCallback(
 		(value) => {
 			setQuery(value);
-			if (activeDocument) {
+			if (activeDocument && value !== (activeDocument.query || '')) {
 				setDocumentDirty(activeDocument.id, true);
 			}
 		},
@@ -403,7 +403,7 @@ export function IDELayout({ fetcher, onClose }) {
 	const handleVariablesChange = useCallback(
 		(value) => {
 			setVariables(value);
-			if (activeDocument) {
+			if (activeDocument && value !== (activeDocument.variables || '')) {
 				setDocumentDirty(activeDocument.id, true);
 			}
 		},
@@ -413,7 +413,7 @@ export function IDELayout({ fetcher, onClose }) {
 	const handleHeadersChange = useCallback(
 		(value) => {
 			setHeaders(value);
-			if (activeDocument) {
+			if (activeDocument && value !== (activeDocument.headers || '')) {
 				setDocumentDirty(activeDocument.id, true);
 			}
 		},
