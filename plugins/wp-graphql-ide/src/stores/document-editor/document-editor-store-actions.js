@@ -165,6 +165,29 @@ const actions = {
 		},
 
 	/**
+	 * Publish a saved document (change status from draft to publish).
+	 *
+	 * @param {string|number} id Document ID.
+	 * @return {Promise<Object|null>} Published document or null on error.
+	 */
+	publishTab:
+		(id) =>
+		async ({ dispatch }) => {
+			if (isTempId(id)) {
+				return null;
+			}
+			try {
+				const doc = await updateDocument(id, { status: 'publish' });
+				dispatch({ type: 'UPDATE_DOCUMENT', document: doc });
+				return doc;
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to publish document:', error);
+				throw error;
+			}
+		},
+
+	/**
 	 * Close a tab. If it's the active tab, switch to an adjacent one.
 	 *
 	 * @param {string} tabId Tab ID to close.

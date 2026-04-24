@@ -1,5 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Button, SearchControl, Tooltip } from '@wordpress/components';
+import {
+	Button,
+	SearchControl,
+	TabPanel,
+	Tooltip,
+} from '@wordpress/components';
 import { Icon, plus, close, file } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
@@ -9,11 +14,15 @@ import { isTempId } from '../stores/document-editor/document-editor-store-action
  */
 export const SavedQueriesIcon = () => <Icon icon={file} />;
 
+const STATUS_TABS = [
+	{ name: 'all', title: 'All' },
+	{ name: 'draft', title: 'Drafts' },
+	{ name: 'publish', title: 'Published' },
+];
+
 /**
- * Saved Queries panel — browse all saved documents with search.
- *
- * Shows all persisted documents (saved to the server) and unsaved
- * in-memory documents in a separate section. Click to open in a tab.
+ * Saved Queries panel — browse all saved documents with search and
+ * status filtering using a tabbed interface matching the block editor.
  */
 export function SavedQueriesPanel() {
 	const [search, setSearch] = useState('');
@@ -41,17 +50,23 @@ export function SavedQueriesPanel() {
 		[documents]
 	);
 
-	const filteredSaved = useMemo(() => {
-		if (!search.trim()) {
-			return savedDocs;
+	const filterDocs = (docs, status) => {
+		let filtered = docs;
+		if (status === 'draft') {
+			filtered = filtered.filter((d) => d.status === 'draft');
+		} else if (status === 'publish') {
+			filtered = filtered.filter((d) => d.status === 'publish');
 		}
-		const q = search.toLowerCase();
-		return savedDocs.filter(
-			(d) =>
-				(d.title || '').toLowerCase().includes(q) ||
-				(d.query || '').toLowerCase().includes(q)
-		);
-	}, [savedDocs, search]);
+		if (search.trim()) {
+			const q = search.toLowerCase();
+			filtered = filtered.filter(
+				(d) =>
+					(d.title || '').toLowerCase().includes(q) ||
+					(d.query || '').toLowerCase().includes(q)
+			);
+		}
+		return filtered;
+	};
 
 	const renderDoc = (doc) => {
 		const isActive = String(doc.id) === String(activeTab);
@@ -68,13 +83,20 @@ export function SavedQueriesPanel() {
 					className="wpgraphql-ide-document-label"
 					onClick={() => switchTab(String(doc.id))}
 				>
-					{isOpen && (
+					{isOpen && !isUnsaved && (
 						<span className="wpgraphql-ide-document-open-dot" />
 					)}
 					{isUnsaved && doc.dirty && (
 						<span className="wpgraphql-ide-document-dirty-dot" />
 					)}
-					{doc.title || 'Untitled'}
+					<span className="wpgraphql-ide-document-title-text">
+						{doc.title || 'Untitled'}
+					</span>
+					{!isUnsaved && doc.status === 'publish' && (
+						<span className="wpgraphql-ide-document-status">
+							Published
+						</span>
+					)}
 				</button>
 				<Tooltip text="Delete">
 					<button
@@ -102,40 +124,53 @@ export function SavedQueriesPanel() {
 
 	return (
 		<div className="wpgraphql-ide-saved-queries-panel">
-			<div className="wpgraphql-ide-documents-header">
-				<Tooltip text="New document">
-					<Button
-						size="compact"
-						onClick={() => createTab()}
-						aria-label="New document"
-					>
-						<Icon icon={plus} />
-					</Button>
-				</Tooltip>
-			</div>
-			<div className="wpgraphql-ide-saved-queries-search">
-				<SearchControl
-					value={search}
-					onChange={setSearch}
-					placeholder="Search documents..."
-					__nextHasNoMarginBottom
-				/>
-			</div>
-			{filteredSaved.length > 0 && (
-				<ul className="wpgraphql-ide-documents-list">
-					{filteredSaved.map(renderDoc)}
-				</ul>
-			)}
-			{filteredSaved.length === 0 && savedDocs.length === 0 && (
-				<p className="wpgraphql-ide-saved-queries-empty">
-					No saved documents yet. Save a query with Cmd+S.
-				</p>
-			)}
-			{filteredSaved.length === 0 && savedDocs.length > 0 && (
-				<p className="wpgraphql-ide-saved-queries-empty">
-					No documents match &ldquo;{search}&rdquo;
-				</p>
-			)}
+			<TabPanel
+				className="wpgraphql-ide-saved-queries-tabs"
+				tabs={STATUS_TABS}
+			>
+				{(tab) => {
+					const filtered = filterDocs(savedDocs, tab.name);
+					return (
+						<>
+							<div className="wpgraphql-ide-saved-queries-toolbar">
+								<SearchControl
+									value={search}
+									onChange={setSearch}
+									placeholder="Search..."
+									__nextHasNoMarginBottom
+								/>
+								<Tooltip text="New document">
+									<Button
+										size="compact"
+										onClick={() => createTab()}
+										aria-label="New document"
+										className="wpgraphql-ide-saved-queries-add"
+									>
+										<Icon icon={plus} size={20} />
+									</Button>
+								</Tooltip>
+							</div>
+							{filtered.length > 0 && (
+								<ul className="wpgraphql-ide-documents-list">
+									{filtered.map(renderDoc)}
+								</ul>
+							)}
+							{filtered.length === 0 &&
+								savedDocs.length === 0 && (
+									<p className="wpgraphql-ide-saved-queries-empty">
+										No saved documents yet. Save a query
+										with Cmd+S.
+									</p>
+								)}
+							{filtered.length === 0 && savedDocs.length > 0 && (
+								<p className="wpgraphql-ide-saved-queries-empty">
+									No documents match the current filter.
+								</p>
+							)}
+						</>
+					);
+				}}
+			</TabPanel>
 			{unsavedDocs.length > 0 && (
 				<>
 					<div className="wpgraphql-ide-saved-queries-divider">

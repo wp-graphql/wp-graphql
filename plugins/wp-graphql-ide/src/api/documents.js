@@ -9,7 +9,7 @@ const ENDPOINT = '/wp/v2/graphql-ide-queries';
  */
 export async function getDocuments() {
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,meta`,
+		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,status,meta`,
 	});
 
 	return posts.map(normalizeDocument);
@@ -23,6 +23,7 @@ export async function getDocuments() {
  * @param {string} doc.query       GraphQL query string.
  * @param {string} [doc.variables] Variables JSON string.
  * @param {string} [doc.headers]   Headers JSON string.
+ * @param {string} [doc.status]    Post status (default: 'draft').
  * @return {Promise<Object>} Created document.
  */
 export async function createDocument(doc) {
@@ -32,7 +33,7 @@ export async function createDocument(doc) {
 		data: {
 			title: doc.title || 'Untitled',
 			content: doc.query || '',
-			status: 'publish',
+			status: doc.status || 'draft',
 			meta: {
 				_graphql_ide_variables: doc.variables || '',
 				_graphql_ide_headers: doc.headers || '',
@@ -58,6 +59,9 @@ export async function updateDocument(id, doc) {
 	}
 	if (doc.query !== undefined) {
 		data.content = doc.query;
+	}
+	if (doc.status !== undefined) {
+		data.status = doc.status;
 	}
 	if (doc.variables !== undefined || doc.headers !== undefined) {
 		data.meta = {};
@@ -105,5 +109,6 @@ function normalizeDocument(post) {
 		query: post.content?.raw ?? post.content?.rendered ?? '',
 		variables: post.meta?._graphql_ide_variables ?? '',
 		headers: post.meta?._graphql_ide_headers ?? '',
+		status: post.status ?? 'draft',
 	};
 }

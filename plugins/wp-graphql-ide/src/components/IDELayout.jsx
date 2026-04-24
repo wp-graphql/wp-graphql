@@ -327,6 +327,7 @@ export function IDELayout({ fetcher, onClose }) {
 			window.localStorage.getItem('wpgraphql_ide_response_mode') ||
 			'formatted'
 	);
+	const saveTimerRef = useRef(null);
 	const [notices, setNotices] = useState([]);
 
 	const addNotice = useCallback((content, type = 'default') => {
@@ -417,28 +418,50 @@ export function IDELayout({ fetcher, onClose }) {
 		[activeDocument, setDocumentDirty]
 	);
 
+	// Auto-save drafts after 2 seconds of inactivity.
+	const scheduleAutoSave = useCallback(
+		(field, value) => {
+			if (
+				!activeDocument ||
+				String(activeDocument.id).startsWith('temp-')
+			) {
+				return;
+			}
+			if (saveTimerRef.current) {
+				clearTimeout(saveTimerRef.current);
+			}
+			saveTimerRef.current = setTimeout(() => {
+				saveDocument(activeDocument.id, { [field]: value });
+			}, 2000);
+		},
+		[activeDocument, saveDocument]
+	);
+
 	const handleQueryChange = useCallback(
 		(value) => {
 			setQuery(value);
 			checkDirty(value, variables, headers);
+			scheduleAutoSave('query', value);
 		},
-		[setQuery, checkDirty, variables, headers]
+		[setQuery, checkDirty, variables, headers, scheduleAutoSave]
 	);
 
 	const handleVariablesChange = useCallback(
 		(value) => {
 			setVariables(value);
 			checkDirty(query, value, headers);
+			scheduleAutoSave('variables', value);
 		},
-		[setVariables, checkDirty, query, headers]
+		[setVariables, checkDirty, query, headers, scheduleAutoSave]
 	);
 
 	const handleHeadersChange = useCallback(
 		(value) => {
 			setHeaders(value);
 			checkDirty(query, variables, value);
+			scheduleAutoSave('headers', value);
 		},
-		[setHeaders, checkDirty, query, variables]
+		[setHeaders, checkDirty, query, variables, scheduleAutoSave]
 	);
 
 	// Explicit save — Cmd+S / Save button.
