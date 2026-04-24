@@ -2217,6 +2217,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	gap: 4px;
 	align-items: center;
+	flex-wrap: wrap;
 }
 
 .wpgraphql-ide-history-avatar {
@@ -2236,6 +2237,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-weight: 600;
 	padding: 1px 5px;
 	border-radius: 2px;
+	white-space: nowrap;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-history-status--success {
@@ -2251,11 +2254,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-history-duration {
 	font-size: 11px;
 	color: #646970;
+	white-space: nowrap;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-history-entry-time {
 	font-size: 11px;
 	color: #a7aaad;
+	white-space: nowrap;
 }
 
 .wpgraphql-ide-history-entry-id {
