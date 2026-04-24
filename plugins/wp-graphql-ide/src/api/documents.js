@@ -83,6 +83,23 @@ export async function updateDocument(id, doc) {
 }
 
 /**
+ * Publish a draft document.
+ *
+ * The server computes the SHA-256 hash of the AST-normalized query,
+ * sets it as the post slug (queryId), and changes status to publish.
+ * If the query is already published, returns the existing document.
+ *
+ * @param {number} id Post ID.
+ * @return {Promise<Object>} Publish result with id, status, query_hash.
+ */
+export async function publishDocument(id) {
+	return apiFetch({
+		path: `/wpgraphql-ide/v1/documents/${id}/publish`,
+		method: 'POST',
+	});
+}
+
+/**
  * Delete an IDE query document.
  *
  * @param {number}  id    Post ID.

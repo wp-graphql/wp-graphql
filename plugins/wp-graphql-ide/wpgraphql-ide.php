@@ -86,6 +86,9 @@ function initialize_plugin() {
 	add_filter( 'rest_prepare_graphql_ide_query', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 	add_filter( 'rest_prepare_graphql_ide_history', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 
+	// Custom REST routes.
+	add_action( 'rest_api_init', __NAMESPACE__ . '\\register_ide_rest_routes' );
+
 	// Core plugins/modules.
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/help-panel/help-panel.php';
@@ -1232,3 +1235,137 @@ function graphql_ide_init_appsero_telemetry(): void {
 }
 
 graphql_ide_init_appsero_telemetry();
+
+/**
+ * Register custom REST routes for the IDE.
+ *
+ * @return void
+ */
+function register_ide_rest_routes() {
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/documents/(?P<id>\d+)/publish',
+		[
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_publish_document',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_graphql_ide' );
+			},
+			'args'                => [
+				'id' => [
+					'required'          => true,
+					'validate_callback' => function ( $param ) {
+						return is_numeric( $param );
+					},
+				],
+			],
+		]
+	);
+}
+
+/**
+ * Publish a draft document.
+ *
+ * Computes the SHA-256 hash of the AST-normalized query (matching
+ * Smart Cache's algorithm), sets it as the post slug, and changes
+ * the status to publish. If a published document with the same hash
+ * already exists, returns the existing document instead.
+ *
+ * @param \WP_REST_Request $request REST request.
+ * @return \WP_REST_Response|\WP_Error Response.
+ */
+function handle_publish_document( \WP_REST_Request $request ) {
+	$post_id = (int) $request->get_param( 'id' );
+	$post    = get_post( $post_id );
+
+	if ( ! $post || 'graphql_ide_query' !== $post->post_type ) {
+		return new \WP_Error(
+			'not_found',
+			__( 'Document not found.', 'wpgraphql-ide' ),
+			[ 'status' => 404 ]
+		);
+	}
+
+	// Ensure the current user owns this document.
+	if ( (int) $post->post_author !== get_current_user_id() ) {
+		return new \WP_Error(
+			'forbidden',
+			__( 'You do not have permission to publish this document.', 'wpgraphql-ide' ),
+			[ 'status' => 403 ]
+		);
+	}
+
+	$query_string = $post->post_content;
+
+	if ( empty( trim( $query_string ) ) ) {
+		return new \WP_Error(
+			'empty_query',
+			__( 'Cannot publish an empty document.', 'wpgraphql-ide' ),
+			[ 'status' => 400 ]
+		);
+	}
+
+	try {
+		// Parse and normalize the query using graphql-php (same as Smart Cache).
+		$ast        = \GraphQL\Language\Parser::parse( $query_string );
+		$normalized = \GraphQL\Language\Printer::doPrint( $ast );
+		$hash       = hash( 'sha256', $normalized );
+	} catch ( \GraphQL\Error\SyntaxError $e ) {
+		return new \WP_Error(
+			'invalid_query',
+			sprintf(
+				// translators: %s is the syntax error message.
+				__( 'Invalid GraphQL query: %s', 'wpgraphql-ide' ),
+				$e->getMessage()
+			),
+			[ 'status' => 400 ]
+		);
+	}
+
+	// Check if a published document with this hash already exists.
+	$existing = get_posts(
+		[
+			'post_type'   => 'graphql_ide_query',
+			'post_status' => 'publish',
+			'name'        => $hash,
+			'numberposts' => 1,
+		]
+	);
+
+	if ( ! empty( $existing ) ) {
+		// Document already published — return the existing one.
+		$existing_post = $existing[0];
+		return rest_ensure_response(
+			[
+				'id'            => $existing_post->ID,
+				'status'        => $existing_post->post_status,
+				'query_hash'    => $hash,
+				'already_exists' => true,
+				'message'       => __( 'This query is already published.', 'wpgraphql-ide' ),
+			]
+		);
+	}
+
+	// Publish: normalize content, set slug to hash, change status.
+	$result = wp_update_post(
+		[
+			'ID'           => $post_id,
+			'post_content' => $normalized,
+			'post_name'    => $hash,
+			'post_status'  => 'publish',
+		],
+		true
+	);
+
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	return rest_ensure_response(
+		[
+			'id'         => $post_id,
+			'status'     => 'publish',
+			'query_hash' => $hash,
+		]
+	);
+}

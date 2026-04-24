@@ -3,6 +3,7 @@ import {
 	createDocument,
 	updateDocument,
 	deleteDocument,
+	publishDocument,
 } from '../../api/documents';
 import { getPreferences, savePreference } from '../../api/preferences';
 
@@ -170,6 +171,17 @@ const actions = {
 	 * @param {string|number} id Document ID.
 	 * @return {Promise<Object|null>} Published document or null on error.
 	 */
+	/**
+	 * Publish a draft document via the server-side hash endpoint.
+	 *
+	 * The server normalizes the query, computes its SHA-256 hash,
+	 * sets it as the slug (queryId), and changes status to publish.
+	 * If the query already exists as a published document, the
+	 * server returns the existing document.
+	 *
+	 * @param {string|number} id Document ID (must be a saved draft).
+	 * @return {Promise<Object|null>} Publish result or null.
+	 */
 	publishTab:
 		(id) =>
 		async ({ dispatch }) => {
@@ -177,9 +189,16 @@ const actions = {
 				return null;
 			}
 			try {
-				const doc = await updateDocument(id, { status: 'publish' });
-				dispatch({ type: 'UPDATE_DOCUMENT', document: doc });
-				return doc;
+				const result = await publishDocument(id);
+				dispatch({
+					type: 'UPDATE_DOCUMENT',
+					document: {
+						id: result.id,
+						status: 'publish',
+						queryHash: result.query_hash,
+					},
+				});
+				return result;
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to publish document:', error);
