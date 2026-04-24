@@ -787,18 +787,18 @@ export function IDELayout({ fetcher, onClose }) {
 										</MenuGroup>
 									)}
 								</DropdownMenu>
+								<Tooltip text="Save (Cmd+S)">
+									<Button
+										onClick={saveCurrentDoc}
+										disabled={!activeDocument?.dirty}
+										size="compact"
+										className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
+									>
+										Save
+									</Button>
+								</Tooltip>
 								<div className="wpgraphql-ide-editor-toolbar-spacer" />
 								<div className="wpgraphql-ide-send-group">
-									<Tooltip text="Save (Cmd+S)">
-										<Button
-											onClick={saveCurrentDoc}
-											disabled={!activeDocument?.dirty}
-											size="compact"
-											className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
-										>
-											Save
-										</Button>
-									</Tooltip>
 									<span className="wpgraphql-ide-method-label">
 										POST
 									</span>
