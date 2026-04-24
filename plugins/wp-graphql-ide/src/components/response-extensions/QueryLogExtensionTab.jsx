@@ -29,6 +29,7 @@ const QueryEntry = ({ entry }) => {
 					<button
 						type="button"
 						className="wpgraphql-ide-querylog-stack-toggle"
+						aria-expanded={showStack}
 						onClick={() => setShowStack((s) => !s)}
 					>
 						<span

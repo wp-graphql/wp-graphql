@@ -1114,7 +1114,11 @@ export function IDELayout({ fetcher, onClose }) {
 										)}
 									</span>
 								)}
-								<div className="wpgraphql-ide-response-mode-toggle">
+								<div
+									className="wpgraphql-ide-response-mode-toggle"
+									role="group"
+									aria-label="View format"
+								>
 									{[
 										{
 											value: 'formatted',
@@ -1125,6 +1129,9 @@ export function IDELayout({ fetcher, onClose }) {
 										<button
 											key={opt.value}
 											type="button"
+											aria-pressed={
+												responseViewMode === opt.value
+											}
 											className={`wpgraphql-ide-response-mode-btn${responseViewMode === opt.value ? ' is-active' : ''}`}
 											onClick={() => {
 												setResponseViewMode(opt.value);

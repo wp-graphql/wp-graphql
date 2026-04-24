@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
-	Button,
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
 	SearchControl,
 	TabPanel,
 	Tooltip,
 } from '@wordpress/components';
-import { Icon, plus, close, file } from '@wordpress/icons';
+import { Icon, close, file, moreVertical } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 
@@ -20,16 +22,24 @@ export const SavedQueriesIcon = () => <Icon icon={file} />;
 export const SavedQueriesHeaderAction = () => {
 	const { createTab } = useDispatch('wpgraphql-ide/document-editor');
 	return (
-		<Tooltip text="New document">
-			<Button
-				size="small"
-				onClick={() => createTab()}
-				aria-label="New document"
-				className="wpgraphql-ide-panel-header-btn"
-			>
-				<Icon icon={plus} size={20} />
-			</Button>
-		</Tooltip>
+		<DropdownMenu
+			icon={moreVertical}
+			label="Saved queries actions"
+			className="wpgraphql-ide-panel-header-btn"
+		>
+			{({ onClose: closeMenu }) => (
+				<MenuGroup>
+					<MenuItem
+						onClick={() => {
+							createTab();
+							closeMenu();
+						}}
+					>
+						New document
+					</MenuItem>
+				</MenuGroup>
+			)}
+		</DropdownMenu>
 	);
 };
 

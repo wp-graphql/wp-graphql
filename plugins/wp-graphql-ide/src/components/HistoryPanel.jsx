@@ -105,7 +105,11 @@ export function HistoryPanel() {
 									{avatarUrl && (
 										<img
 											src={avatarUrl}
-											alt=""
+											alt={
+												entry.is_authenticated !== false
+													? 'Authenticated'
+													: 'Public'
+											}
 											className={`wpgraphql-ide-history-avatar${entry.is_authenticated === false ? ' is-public' : ''}`}
 										/>
 									)}

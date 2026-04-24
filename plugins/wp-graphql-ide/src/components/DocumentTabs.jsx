@@ -105,7 +105,11 @@ export function DocumentTabs({
 	const overflowTabs = ordered.slice(safeCutoff);
 
 	return (
-		<div ref={containerRef} className="wpgraphql-ide-tab-bar">
+		<div
+			ref={containerRef}
+			className="wpgraphql-ide-tab-bar"
+			role="tablist"
+		>
 			{visibleTabs.map((tab) => {
 				const isActive = String(tab.id) === String(activeId);
 				return (
@@ -117,6 +121,8 @@ export function DocumentTabs({
 							}
 						}}
 						type="button"
+						role="tab"
+						aria-selected={isActive}
 						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
 						onDoubleClick={() => {
@@ -126,6 +132,7 @@ export function DocumentTabs({
 					>
 						{editingId === tab.id ? (
 							<input
+								aria-label="Rename document"
 								className="wpgraphql-ide-tab-input"
 								value={editValue}
 								onChange={(e) => setEditValue(e.target.value)}

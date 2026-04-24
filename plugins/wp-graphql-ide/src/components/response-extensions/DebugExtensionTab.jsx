@@ -25,6 +25,7 @@ const DebugMessage = ({ entry }) => {
 					<button
 						type="button"
 						className="wpgraphql-ide-debug-stack-toggle"
+						aria-expanded={showStack}
 						onClick={() => setShowStack((s) => !s)}
 					>
 						<span

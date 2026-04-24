@@ -36,6 +36,7 @@ const ErrorCard = ({ error }) => {
 					<button
 						type="button"
 						className="wpgraphql-ide-error-details-toggle"
+						aria-expanded={showDetails}
 						onClick={() => setShowDetails((s) => !s)}
 					>
 						<span

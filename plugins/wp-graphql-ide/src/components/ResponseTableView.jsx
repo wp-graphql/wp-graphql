@@ -83,6 +83,7 @@ const TableCell = ({ value, onDrill }) => {
 				onClick={onDrill}
 				className="wpgraphql-ide-table-cell-drill"
 				title={`Array[${value.length}] — click to narrow to this path`}
+				aria-label={`Array[${value.length}] — click to narrow to this path`}
 			>
 				[{value.length}]
 			</button>
@@ -94,6 +95,7 @@ const TableCell = ({ value, onDrill }) => {
 			onClick={onDrill}
 			className="wpgraphql-ide-table-cell-drill"
 			title="Object — click to narrow to this path"
+			aria-label="Object — click to narrow to this path"
 		>
 			{'{'}
 			{Object.keys(value).length}
@@ -321,6 +323,7 @@ const TreeView = ({ value, path, onNavigate }) => {
 							className="wpgraphql-ide-tree-section-header"
 							onClick={() => onNavigate([...path, key])}
 							title="Click to narrow to this path"
+							aria-label="Click to narrow to this path"
 						>
 							{key}
 						</button>
