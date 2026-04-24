@@ -1721,9 +1721,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f6f7f7;
 }
 
-.wpgraphql-ide-editor .cm-selectionBackground,
-.wpgraphql-ide-editor .cm-editor.cm-focused .cm-selectionBackground {
-	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.15) !important;
+.wpgraphql-ide-editor .cm-selectionBackground {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.12) !important;
+}
+
+.wpgraphql-ide-editor .cm-focused .cm-selectionBackground {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.25) !important;
 }
 
 .wpgraphql-ide-editor .cm-cursor,
