@@ -18,7 +18,7 @@ const OVERFLOW_BTN_W = 32;
  * overflow dropdown on the right. Double-click a tab title to rename it.
  *
  * @param {Object}   props
- * @param {Array}    props.tabs     Array of `{ id, title }` tab descriptors.
+ * @param {Array}    props.tabs     Array of `{ id, title, dirty }` tab descriptors.
  * @param {string}   props.activeId Id of the currently active tab.
  * @param {Function} props.onSwitch Called with the clicked tab id.
  * @param {Function} props.onClose  Called with the id of the tab to close.
@@ -149,6 +149,9 @@ export function DocumentTabs({
 							/>
 						) : (
 							<span className="wpgraphql-ide-tab-label">
+								{tab.dirty && (
+									<span className="wpgraphql-ide-tab-dirty" />
+								)}
 								{tab.title || 'Untitled'}
 							</span>
 						)}

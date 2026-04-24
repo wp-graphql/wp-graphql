@@ -242,8 +242,14 @@ export function IDELayout({ fetcher, onClose }) {
 		addHistoryEntry,
 	} = useDispatch('wpgraphql-ide/app');
 
-	const { loadDocuments, saveDocument, createTab, switchTab, closeTab } =
-		useDispatch('wpgraphql-ide/document-editor');
+	const {
+		loadDocuments,
+		saveDocument,
+		createTab,
+		switchTab,
+		closeTab,
+		setDocumentDirty,
+	} = useDispatch('wpgraphql-ide/document-editor');
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
 
@@ -382,10 +388,12 @@ export function IDELayout({ fetcher, onClose }) {
 			if (!activeDocument) {
 				return;
 			}
+			// Mark document as dirty immediately.
+			setDocumentDirty(activeDocument.id, true);
 			if (saveTimerRef.current) {
 				clearTimeout(saveTimerRef.current);
 			}
-			saveTimerRef.current = setTimeout(() => {
+			saveTimerRef.current = setTimeout(async () => {
 				const data = { [field]: value };
 
 				// Auto-name from operation name when title is default.
@@ -401,10 +409,11 @@ export function IDELayout({ fetcher, onClose }) {
 					}
 				}
 
-				saveDocument(activeDocument.id, data);
+				await saveDocument(activeDocument.id, data);
+				setDocumentDirty(activeDocument.id, false);
 			}, AUTOSAVE_DELAY);
 		},
-		[activeDocument, saveDocument]
+		[activeDocument, saveDocument, setDocumentDirty]
 	);
 
 	const handleQueryChange = useCallback(
@@ -659,6 +668,7 @@ export function IDELayout({ fetcher, onClose }) {
 								.map((doc) => ({
 									id: doc.id,
 									title: doc.title || 'Untitled',
+									dirty: !!doc.dirty,
 								}))}
 							activeId={activeDocument?.id}
 							onSwitch={(id) => switchTab(id)}

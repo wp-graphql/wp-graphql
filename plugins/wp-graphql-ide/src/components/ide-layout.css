@@ -206,8 +206,19 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-tab-label {
+	display: flex;
+	align-items: center;
+	gap: 4px;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.wpgraphql-ide-tab-dirty {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #2c3338;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-tab-close {

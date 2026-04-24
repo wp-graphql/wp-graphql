@@ -14,6 +14,12 @@ const actions = {
 		priority,
 	}),
 
+	setDocumentDirty: (id, dirty) => ({
+		type: 'SET_DOCUMENT_DIRTY',
+		id,
+		dirty,
+	}),
+
 	setDocumentResponse: (id, response) => ({
 		type: 'SET_DOCUMENT_RESPONSE',
 		id,
