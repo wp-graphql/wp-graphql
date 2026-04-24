@@ -9,9 +9,31 @@ import {
 	wpAdminUrl,
 } from '../utils.js';
 
-import { getHashedQueryParams } from '../../../src/registry/editor-toolbar-buttons/share-button.js';
+import LZString from 'lz-string';
 
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
+
+/**
+ * Compresses and encodes a query parameter object for use in a shareable URL.
+ *
+ * @param {Object} obj The object containing query parameters to be compressed and encoded.
+ * @return {string} A compressed and encoded string representing the query parameters.
+ */
+function getHashedQueryParams(obj) {
+	if (typeof obj !== 'object' || obj === null) {
+		// eslint-disable-next-line no-console
+		console.error('Input must be a non-null object');
+		return '';
+	}
+	try {
+		const queryParamString = JSON.stringify(obj);
+		return LZString.compressToEncodedURIComponent(queryParamString);
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.error('Failed to compress query params:', error);
+		return '';
+	}
+}
 
 export const selectors = {
 	graphiqlContainer: '.graphiql-container',

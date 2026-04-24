@@ -116,7 +116,7 @@ export function AppWrapper() {
 	return <RenderAppWrapper />;
 }
 
-export function RenderAppWrapper() {
+function RenderAppWrapper() {
 	const isInitialStateLoaded = useSelect((select) => {
 		return select('wpgraphql-ide/app').isInitialStateLoaded();
 	});

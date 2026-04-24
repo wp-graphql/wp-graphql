@@ -15,9 +15,9 @@ export const EditorToolbar = ({ onClose, onNotice }) => {
 
 	return (
 		<>
-			{Object.entries(buttons).map(([key, button]) => {
+			{buttons.map((button, index) => {
 				const props = button.config();
-				const buttonName = buttons[key].name ?? key;
+				const buttonName = button.name ?? String(index);
 
 				if (!isValidButton(props, buttonName)) {
 					return null;
@@ -25,7 +25,7 @@ export const EditorToolbar = ({ onClose, onNotice }) => {
 
 				return (
 					<MenuItem
-						key={key}
+						key={button.name ?? index}
 						onClick={() => {
 							if (onClose) {
 								onClose();

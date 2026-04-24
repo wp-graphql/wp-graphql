@@ -1145,28 +1145,6 @@ function add_settings_link( array $links ): array {
 	return $links;
 }
 
-/**
- * Rename and reorder the submenu items under 'GraphQL'.
- */
-function rename_reorder_submenu_items(): void {
-	global $submenu;
-
-	if ( isset( $submenu['graphiql-ide'] ) ) {
-		$temp_submenu = $submenu['graphiql-ide'];
-		foreach ( $temp_submenu as $key => $value ) {
-			if ( 'GraphiQL IDE' === $value[0] ) {
-				$temp_submenu[ $key ][0] = 'Legacy GraphQL IDE';
-				$legacy_item             = $temp_submenu[ $key ];
-				unset( $temp_submenu[ $key ] );
-				$temp_submenu = array_values( $temp_submenu );
-				array_splice( $temp_submenu, 1, 0, [ $legacy_item ] );
-				break;
-			}
-		}
-        // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$submenu['graphiql-ide'] = $temp_submenu;
-	}
-}
 
 /**
  * Generates the SVG logo for GraphQL.

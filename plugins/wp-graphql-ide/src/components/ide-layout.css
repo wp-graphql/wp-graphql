@@ -528,22 +528,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
    Documents panel (sidebar list of open queries)
    --------------------------------------------------------------------------- */
 
-.wpgraphql-ide-documents-panel {
-	font-size: 13px;
-}
-
-.wpgraphql-ide-documents-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 8px;
-}
-
-.wpgraphql-ide-documents-title {
-	font-weight: 600;
-	font-size: 14px;
-}
-
 .wpgraphql-ide-documents-list {
 	list-style: none;
 	margin: 0;
@@ -657,22 +641,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-saved-queries-empty p {
 	margin: 0 0 4px;
-}
-
-.wpgraphql-ide-saved-queries-hint {
-	font-size: 12px;
-	color: #a7aaad;
-}
-
-.wpgraphql-ide-saved-queries-hint kbd {
-	display: inline-block;
-	padding: 1px 5px;
-	font-size: 11px;
-	font-family: inherit;
-	border: 1px solid #dcdcde;
-	border-radius: 2px;
-	background: #f0f0f1;
-	box-shadow: 0 1px 0 #dcdcde;
 }
 
 /* Unsaved section */
@@ -855,11 +823,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-size: 13px;
 }
 
-/* Document switch transition */
-.wpgraphql-ide-editor-resizable {
-	transition: opacity 0.15s ease;
-}
-
 .wpgraphql-ide-plugin .components-spinner {
 	width: 24px;
 	height: 24px;
@@ -987,6 +950,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-direction: column;
 	overflow: hidden;
 	position: relative;
+	transition: opacity 0.15s ease;
 }
 
 /* Space between editor toolbar and CodeMirror content */
@@ -2054,10 +2018,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-size: 13px;
 }
 
-.wpgraphql-ide-history-empty {
-	color: #646970;
-}
-
 /* ---------------------------------------------------------------------------
    Help panel
    --------------------------------------------------------------------------- */
@@ -2378,22 +2338,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-history-empty-state p {
 	margin: 0 0 4px;
-}
-
-.wpgraphql-ide-history-empty-hint {
-	font-size: 12px;
-	color: #b0b0b0;
-}
-
-.wpgraphql-ide-history-empty-hint kbd {
-	display: inline-block;
-	padding: 1px 5px;
-	font-size: 11px;
-	font-family: inherit;
-	border: 1px solid #dcdcde;
-	border-radius: 2px;
-	background: #f0f0f1;
-	box-shadow: 0 1px 0 #dcdcde;
 }
 
 .wpgraphql-ide-history-footer {

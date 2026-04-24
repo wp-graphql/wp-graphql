@@ -22,7 +22,7 @@ export const shareButton = () => {
  * @param {Object} obj The object containing query parameters to be compressed and encoded.
  * @return {string} A compressed and encoded string representing the query parameters.
  */
-export function getHashedQueryParams(obj) {
+function getHashedQueryParams(obj) {
 	if (typeof obj !== 'object' || obj === null) {
 		// eslint-disable-next-line no-console
 		console.error('Input must be a non-null object');

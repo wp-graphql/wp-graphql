@@ -57,15 +57,6 @@ const reducer = (state = initialState, action) => {
 			};
 		}
 
-		case 'ADD_DOCUMENT':
-			return {
-				...state,
-				documents: {
-					...state.documents,
-					[String(action.document.id)]: action.document,
-				},
-			};
-
 		case 'UPDATE_DOCUMENT_ID': {
 			const docs = { ...state.documents };
 			delete docs[action.oldId];
