@@ -136,14 +136,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active {
-	color: #fff;
-	background: #1e1e1e;
-	border-radius: 4px;
-}
-
-.wpgraphql-ide-activity-btn.components-button.is-active:hover {
-	color: #fff;
-	background: #1e1e1e;
+	color: #2c3338;
+	background: transparent;
+	border-radius: 0;
+	box-shadow: inset 3px 0 0 0 #2c3338;
 }
 
 .wpgraphql-ide-activity-btn.components-button svg {

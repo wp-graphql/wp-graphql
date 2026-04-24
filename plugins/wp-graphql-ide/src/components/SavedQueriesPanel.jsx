@@ -171,11 +171,7 @@ export function SavedQueriesPanel() {
 							{filtered.length === 0 &&
 								savedDocs.length === 0 && (
 									<div className="wpgraphql-ide-saved-queries-empty">
-										<p>No saved documents yet.</p>
-										<p className="wpgraphql-ide-saved-queries-hint">
-											Write a query and press{' '}
-											<kbd>Cmd+S</kbd> to save.
-										</p>
+										<p>No saved documents.</p>
 									</div>
 								)}
 							{filtered.length === 0 && savedDocs.length > 0 && (
