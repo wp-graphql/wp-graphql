@@ -85,25 +85,6 @@ export function HistoryPanel() {
 
 	return (
 		<div className="wpgraphql-ide-history-panel">
-			<div className="wpgraphql-ide-history-actions">
-				<Button
-					variant="link"
-					isDestructive
-					onClick={() => {
-						// eslint-disable-next-line no-alert
-						if (window.confirm('Clear all history?')) {
-							clearAllHistory();
-							hooks.doAction(
-								'wpgraphql-ide.notice',
-								'History cleared'
-							);
-						}
-					}}
-					size="small"
-				>
-					Clear all
-				</Button>
-			</div>
 			<ul className="wpgraphql-ide-history-list">
 				{history.map((entry) => {
 					const docName = getDocumentName(entry.document_id);
@@ -163,6 +144,25 @@ export function HistoryPanel() {
 					);
 				})}
 			</ul>
+			<div className="wpgraphql-ide-history-footer">
+				<Button
+					variant="link"
+					isDestructive
+					onClick={() => {
+						// eslint-disable-next-line no-alert
+						if (window.confirm('Clear all history?')) {
+							clearAllHistory();
+							hooks.doAction(
+								'wpgraphql-ide.notice',
+								'History cleared'
+							);
+						}
+					}}
+					size="small"
+				>
+					Clear all
+				</Button>
+			</div>
 		</div>
 	);
 }
