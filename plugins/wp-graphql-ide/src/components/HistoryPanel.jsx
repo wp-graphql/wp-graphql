@@ -39,8 +39,8 @@ function extractOperationName(query) {
 /**
  * History panel content.
  *
- * Displays global execution history with document name, avatar,
- * and operation preview for each entry.
+ * Displays global execution history. Clicking an entry restores its
+ * query, variables, and headers into the current active tab.
  */
 export function HistoryPanel() {
 	const history = useSelect(
@@ -56,39 +56,7 @@ export function HistoryPanel() {
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
 
-	const { createTab, saveDocument } = useDispatch(
-		'wpgraphql-ide/document-editor'
-	);
-
-	const avatarUrl = window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || '';
-
-	const restoreEntry = async (entry) => {
-		const opName = extractOperationName(entry.query);
-		const docName = getDocumentName(entry.document_id);
-		const timestamp = dateI18n('M j, g:i A', entry.timestamp * 1000);
-		const isGenericName =
-			!docName || /^(Untitled|New Tab( \d+)?)$/.test(docName);
-		let tabName = timestamp;
-		if (opName) {
-			tabName = `${opName} (restored)`;
-		} else if (!isGenericName) {
-			tabName = `${docName} (restored)`;
-		}
-
-		await createTab(tabName);
-
-		// The new tab is now active — populate it with the history entry.
-		const { select } = require('@wordpress/data');
-		const activeDoc = select(
-			'wpgraphql-ide/document-editor'
-		).getActiveDocument();
-		if (activeDoc) {
-			saveDocument(activeDoc.id, {
-				query: entry.query || '',
-				variables: entry.variables || '',
-				headers: entry.headers || '',
-			});
-		}
+	const restoreEntry = (entry) => {
 		setQuery(entry.query || '');
 		setVariables(entry.variables || '');
 		setHeaders(entry.headers || '');
@@ -146,13 +114,6 @@ export function HistoryPanel() {
 								onClick={() => restoreEntry(entry)}
 							>
 								<div className="wpgraphql-ide-history-entry-header">
-									{avatarUrl && (
-										<img
-											src={avatarUrl}
-											alt=""
-											className="wpgraphql-ide-history-avatar"
-										/>
-									)}
 									<span
 										className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
 									>

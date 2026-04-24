@@ -28,7 +28,9 @@ describe('ResponseViewer', () => {
 		const { container } = render(<ResponseViewer value='{ "data": {} }' />);
 		const cmContent = container.querySelector('.cm-content');
 		expect(cmContent).toBeInTheDocument();
-		expect(cmContent.getAttribute('contenteditable')).toBe('false');
+		// Editor is focusable (contenteditable=true) for Cmd+A selection,
+		// but EditorState.readOnly prevents actual edits.
+		expect(cmContent.getAttribute('contenteditable')).toBe('true');
 	});
 
 	test('updates when response value changes', () => {
