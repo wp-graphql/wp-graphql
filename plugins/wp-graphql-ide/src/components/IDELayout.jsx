@@ -727,9 +727,10 @@ export function IDELayout({ fetcher, onClose }) {
 							onSwitch={(id) => switchTab(id)}
 							onClose={(id) => handleCloseTab(id)}
 							onCreate={() => createTab(getNextTabName())}
-							onRename={(id, title) =>
-								saveDocument(id, { title })
-							}
+							onRename={(id, title) => {
+								saveDocument(id, { title });
+								setDocumentDirty(id, true);
+							}}
 						/>
 					</div>
 
