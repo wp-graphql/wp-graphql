@@ -1,7 +1,14 @@
 import { useSelect } from '@wordpress/data';
 import { MenuItem } from '@wordpress/components';
 
-export const EditorToolbar = ({ onClose }) => {
+const BUTTON_NOTICES = {
+	prettify: 'Query prettified',
+	share: 'Shareable link copied to clipboard',
+	'merge-fragments': 'Fragments merged',
+	'copy-query': 'Query copied to clipboard',
+};
+
+export const EditorToolbar = ({ onClose, onNotice }) => {
 	const buttons = useSelect((select) =>
 		select('wpgraphql-ide/document-editor').buttons()
 	);
@@ -24,6 +31,9 @@ export const EditorToolbar = ({ onClose }) => {
 								onClose();
 							}
 							props.onClick();
+							if (onNotice && BUTTON_NOTICES[buttonName]) {
+								onNotice(BUTTON_NOTICES[buttonName]);
+							}
 						}}
 						aria-label={props.label}
 					>

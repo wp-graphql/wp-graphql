@@ -33,7 +33,7 @@ import { EditorToolbar } from './EditorToolbar';
 import { DocumentTabs } from './DocumentTabs';
 import ActivityPanel from './ActivityPanel';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
-import hooksModule from '../wordpress-hooks';
+import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
@@ -336,27 +336,13 @@ export function IDELayout({ fetcher, onClose }) {
 		setNotices((prev) => prev.filter((n) => n.id !== id));
 	}, []);
 
-	// Listen for notice events from toolbar buttons and other actions.
-	// Register on both the module-level hooks and the window global to
-	// ensure we catch events regardless of which instance fires them.
+	// Listen for notice events from extensions via hooks.
 	useEffect(() => {
-		const handler = (content) => addNotice(content);
-		const ns = 'wpgraphql-ide/layout';
 		const hookName = 'wpgraphql-ide.notice';
-
-		hooksModule.addAction(hookName, ns, handler);
-
-		const globalHooks = window.WPGraphQLIDE?.hooks;
-		if (globalHooks && globalHooks !== hooksModule) {
-			globalHooks.addAction(hookName, ns, handler);
-		}
-
-		return () => {
-			hooksModule.removeAction(hookName, ns);
-			if (globalHooks && globalHooks !== hooksModule) {
-				globalHooks.removeAction(hookName, ns);
-			}
-		};
+		const ns = 'wpgraphql-ide/layout';
+		const handler = (content) => addNotice(content);
+		hooks.addAction(hookName, ns, handler);
+		return () => hooks.removeAction(hookName, ns);
 	}, [addNotice]);
 
 	// ESC key closes the drawer when in drawer mode.
@@ -798,6 +784,7 @@ export function IDELayout({ fetcher, onClose }) {
 										<MenuGroup>
 											<EditorToolbar
 												onClose={closeMenu}
+												onNotice={addNotice}
 											/>
 										</MenuGroup>
 									)}

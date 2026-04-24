@@ -8,10 +8,6 @@ export const copyQueryButton = () => {
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();
 			copyToClipboard(query);
-			window.WPGraphQLIDE?.hooks?.doAction(
-				'wpgraphql-ide.notice',
-				'Query copied to clipboard'
-			);
 		},
 	};
 };

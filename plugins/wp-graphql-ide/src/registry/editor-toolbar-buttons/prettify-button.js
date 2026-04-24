@@ -7,10 +7,6 @@ export const prettifyButton = () => {
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();
 			dispatch('wpgraphql-ide/app').prettifyQuery(query);
-			window.WPGraphQLIDE?.hooks?.doAction(
-				'wpgraphql-ide.notice',
-				'Query prettified'
-			);
 		},
 	};
 };

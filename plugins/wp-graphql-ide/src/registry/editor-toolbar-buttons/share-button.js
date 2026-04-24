@@ -12,10 +12,6 @@ export const shareButton = () => {
 			const hashedQueryParamObject = getHashedQueryParams({ query });
 			const fullUrl = `${dedicatedIdeBaseUrl}&wpgraphql_ide=${hashedQueryParamObject}`;
 			copy(fullUrl);
-			window.WPGraphQLIDE?.hooks?.doAction(
-				'wpgraphql-ide.notice',
-				'Shareable link copied to clipboard'
-			);
 		},
 	};
 };
