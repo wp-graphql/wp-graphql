@@ -465,6 +465,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-editor-resizable.has-composer {
 	display: flex;
 	flex-direction: row;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-editor-resizable.has-composer > .wpgraphql-ide-editor {
