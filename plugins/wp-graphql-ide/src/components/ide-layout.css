@@ -380,6 +380,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: var(--wp-admin-theme-color-darker-10, #2145e6);
 }
 
+/* Toolbar divider — separates document identity from actions */
+.wpgraphql-ide-toolbar-divider {
+	width: 1px;
+	height: 16px;
+	background: #dcdcde;
+	margin: 0 4px;
+	flex-shrink: 0;
+}
+
+/* Document actions group (Save + Publish) */
+.wpgraphql-ide-doc-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
 /* Snackbar — absolute to IDE container, bottom-left */
 .wpgraphql-ide-snackbar-list {
 	position: absolute;
@@ -578,8 +594,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	margin-right: 16px;
 }
 
-.wpgraphql-ide-saved-queries-tabs .components-tab-panel__tabs-item.is-active {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+.wpgraphql-ide-saved-queries-tabs .components-tab-panel__tabs-item.is-active,
+.wpgraphql-ide-saved-queries-tabs [role="tab"][aria-selected="true"] {
+	box-shadow: inset 0 -3px 0 0 var(--wp-admin-theme-color, #3858e9) !important;
+	font-weight: 600;
 }
 
 .wpgraphql-ide-saved-queries-tabs .components-tab-panel__tab-content {
@@ -1133,7 +1151,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-response-tabs {
 	border-top: 1px solid #dcdcde;
-	flex: 1;
+	flex: none;
+	max-height: 40%;
 	min-height: 0;
 	overflow-y: auto;
 }

@@ -887,44 +887,49 @@ export function IDELayout({ fetcher, onClose }) {
 										</MenuGroup>
 									)}
 								</DropdownMenu>
-								{isPublished ? (
-									<Tooltip text="Duplicate as draft to edit">
-										<Button
-											onClick={duplicateAsDraft}
-											size="compact"
-											className="wpgraphql-ide-save-button"
-										>
-											Duplicate
-										</Button>
-									</Tooltip>
-								) : (
-									<>
-										<Tooltip text="Save draft (Cmd+S)">
+								<div className="wpgraphql-ide-toolbar-divider" />
+								<div className="wpgraphql-ide-doc-actions">
+									{isPublished ? (
+										<Tooltip text="Duplicate as draft to edit">
 											<Button
-												onClick={saveCurrentDoc}
-												disabled={
-													!activeDocument?.dirty
-												}
+												onClick={duplicateAsDraft}
 												size="compact"
-												className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
+												className="wpgraphql-ide-save-button"
 											>
-												Save
+												Duplicate
 											</Button>
 										</Tooltip>
-										{isSavedDraft && (
-											<Tooltip text="Publish (immutable)">
+									) : (
+										<>
+											<Tooltip text="Save draft (Cmd+S)">
 												<Button
-													onClick={publishCurrentDoc}
+													onClick={saveCurrentDoc}
+													disabled={
+														!activeDocument?.dirty
+													}
 													size="compact"
-													variant="primary"
-													className="wpgraphql-ide-publish-button"
+													className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
 												>
-													Publish
+													Save
 												</Button>
 											</Tooltip>
-										)}
-									</>
-								)}
+											{isSavedDraft && (
+												<Tooltip text="Publish (immutable)">
+													<Button
+														onClick={
+															publishCurrentDoc
+														}
+														size="compact"
+														variant="primary"
+														className="wpgraphql-ide-publish-button"
+													>
+														Publish
+													</Button>
+												</Tooltip>
+											)}
+										</>
+									)}
+								</div>
 								<div className="wpgraphql-ide-editor-toolbar-spacer" />
 								<div className="wpgraphql-ide-send-group">
 									<span className="wpgraphql-ide-method-label">
