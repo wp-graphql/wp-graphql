@@ -1214,11 +1214,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	padding: 8px 12px;
 }
 
-.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item.is-active,
-.wpgraphql-ide-response-tabs [role="tab"][aria-selected="true"] {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
-}
-
 /* Red error indicator on the Errors tab when errors > 0 */
 .wpgraphql-ide-response-tabs.has-errors .components-tab-panel__tabs-item:nth-child(2) {
 	color: #d63638;
@@ -1239,10 +1234,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	padding: 4px 10px;
 }
 
-.wpgraphql-ide-extension-tabs .components-tab-panel__tabs-item.is-active,
-.wpgraphql-ide-extension-tabs [role="tab"][aria-selected="true"] {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
-}
 
 .wpgraphql-ide-extension-tabs .components-tab-panel__tab-content {
 	padding: 8px 12px;
@@ -2054,10 +2045,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	padding: 8px 12px;
 }
 
-.wpgraphql-ide-editor-tools .components-tab-panel__tabs-item.is-active,
-.wpgraphql-ide-editor-tools [role="tab"][aria-selected="true"] {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
-}
 
 /* ---------------------------------------------------------------------------
    History panel
