@@ -3,6 +3,7 @@ import {
 	Button,
 	DropdownMenu,
 	MenuGroup,
+	MenuItem,
 	ResizableBox,
 	SnackbarList,
 	TabPanel,
@@ -1063,20 +1064,6 @@ export function IDELayout({ fetcher, onClose }) {
 										)}
 									</span>
 								)}
-								<div className="wpgraphql-ide-response-scope-toggle">
-									{['data', 'full'].map((scope) => (
-										<button
-											key={scope}
-											type="button"
-											className={`wpgraphql-ide-response-mode-btn${responseDataScope === scope ? ' is-active' : ''}`}
-											onClick={() =>
-												setResponseDataScope(scope)
-											}
-										>
-											{scope === 'data' ? 'Data' : 'Full'}
-										</button>
-									))}
-								</div>
 								<div className="wpgraphql-ide-response-mode-toggle">
 									{[
 										{ value: 'formatted', label: 'JSON' },
@@ -1098,6 +1085,35 @@ export function IDELayout({ fetcher, onClose }) {
 										</button>
 									))}
 								</div>
+								<DropdownMenu
+									icon={moreVertical}
+									label="Response options"
+								>
+									{() => (
+										<MenuGroup>
+											<MenuItem
+												onClick={() =>
+													setResponseDataScope('data')
+												}
+												isSelected={
+													responseDataScope === 'data'
+												}
+											>
+												Show data only
+											</MenuItem>
+											<MenuItem
+												onClick={() =>
+													setResponseDataScope('full')
+												}
+												isSelected={
+													responseDataScope === 'full'
+												}
+											>
+												Show full response
+											</MenuItem>
+										</MenuGroup>
+									)}
+								</DropdownMenu>
 							</div>
 							<ResponseContent
 								response={response}
