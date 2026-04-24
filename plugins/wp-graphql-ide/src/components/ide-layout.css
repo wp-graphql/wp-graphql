@@ -2165,6 +2165,18 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	align-items: center;
 }
 
+.wpgraphql-ide-history-avatar {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-history-avatar.is-public {
+	filter: grayscale(100%);
+	opacity: 0.5;
+}
+
 .wpgraphql-ide-history-status {
 	font-size: 10px;
 	font-weight: 600;

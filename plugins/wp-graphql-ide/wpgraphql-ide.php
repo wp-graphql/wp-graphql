@@ -244,6 +244,18 @@ function register_ide_post_type() {
 			'auth_callback' => $post_meta_auth,
 		]
 	);
+
+	register_post_meta(
+		'graphql_ide_history',
+		'_graphql_ide_is_authenticated',
+		[
+			'type'          => 'boolean',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => true,
+			'auth_callback' => $post_meta_auth,
+		]
+	);
 }
 
 /**

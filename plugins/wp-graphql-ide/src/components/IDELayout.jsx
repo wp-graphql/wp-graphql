@@ -255,6 +255,7 @@ export function IDELayout({ fetcher, onClose }) {
 	const executingDocIdRef = useRef(null);
 	const executingQueryRef = useRef(null);
 	const executingHeadersRef = useRef(null);
+	const executingAuthRef = useRef(true);
 
 	const handleExecutionComplete = useCallback(
 		({
@@ -274,6 +275,7 @@ export function IDELayout({ fetcher, onClose }) {
 				duration_ms: duration,
 				status: execStatus,
 				document_id: docId || 0,
+				is_authenticated: executingAuthRef.current,
 			});
 
 			// Store response on the document for display.
@@ -442,6 +444,7 @@ export function IDELayout({ fetcher, onClose }) {
 			executingDocIdRef.current = activeDocument?.id || null;
 			executingQueryRef.current = query;
 			executingHeadersRef.current = headers;
+			executingAuthRef.current = isAuthenticated;
 			run();
 		}
 	};

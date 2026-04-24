@@ -21,14 +21,15 @@ export async function getHistory() {
  *
  * If the total count exceeds MAX_ENTRIES, the oldest entry is deleted.
  *
- * @param {Object} entry             History entry data.
- * @param {string} entry.query       GraphQL query string.
- * @param {string} entry.variables   Variables JSON string.
- * @param {string} entry.headers     Headers JSON string.
- * @param {number} entry.duration_ms Execution duration in ms.
- * @param {string} entry.status      'success' or 'error'.
- * @param {number} entry.document_id Source document ID.
- * @param {number} [entry.oldestId]  ID of the oldest entry to prune.
+ * @param {Object}  entry                  History entry data.
+ * @param {string}  entry.query            GraphQL query string.
+ * @param {string}  entry.variables        Variables JSON string.
+ * @param {string}  entry.headers          Headers JSON string.
+ * @param {number}  entry.duration_ms      Execution duration in ms.
+ * @param {string}  entry.status           'success' or 'error'.
+ * @param {number}  entry.document_id      Source document ID.
+ * @param {boolean} entry.is_authenticated Whether the request was authenticated.
+ * @param {number}  [entry.oldestId]       ID of the oldest entry to prune.
  * @return {Promise<Object>} Created history entry.
  */
 export async function createHistoryEntry(entry) {
@@ -44,6 +45,7 @@ export async function createHistoryEntry(entry) {
 				_graphql_ide_duration_ms: entry.duration_ms ?? 0,
 				_graphql_ide_status: entry.status ?? '',
 				_graphql_ide_document_id: entry.document_id ?? 0,
+				_graphql_ide_is_authenticated: entry.is_authenticated ?? true,
 			},
 		},
 	});
@@ -97,5 +99,6 @@ function normalizeHistoryEntry(post) {
 		duration_ms: post.meta?._graphql_ide_duration_ms ?? 0,
 		status: post.meta?._graphql_ide_status ?? '',
 		document_id: post.meta?._graphql_ide_document_id ?? 0,
+		is_authenticated: post.meta?._graphql_ide_is_authenticated ?? true,
 	};
 }

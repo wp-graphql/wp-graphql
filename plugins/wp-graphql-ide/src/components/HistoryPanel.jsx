@@ -56,6 +56,8 @@ export function HistoryPanel() {
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
 
+	const avatarUrl = window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || '';
+
 	const restoreEntry = (entry) => {
 		setQuery(entry.query || '');
 		setVariables(entry.variables || '');
@@ -114,6 +116,13 @@ export function HistoryPanel() {
 								onClick={() => restoreEntry(entry)}
 							>
 								<div className="wpgraphql-ide-history-entry-header">
+									{avatarUrl && (
+										<img
+											src={avatarUrl}
+											alt=""
+											className={`wpgraphql-ide-history-avatar${entry.is_authenticated === false ? ' is-public' : ''}`}
+										/>
+									)}
 									<span
 										className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
 									>
