@@ -143,20 +143,16 @@ export function HistoryPanel() {
 										#{entry.id}
 									</span>
 								</div>
-								{(label || entry.query) && (
-									<div className="wpgraphql-ide-history-entry-detail">
-										{label && (
-											<span className="wpgraphql-ide-history-entry-label">
-												{label}
-											</span>
-										)}
-										{entry.query && (
-											<span className="wpgraphql-ide-history-entry-preview">
-												{queryPreview(entry.query)}
-											</span>
-										)}
-									</div>
-								)}
+								<div className="wpgraphql-ide-history-entry-detail">
+									<span className="wpgraphql-ide-history-entry-label">
+										{label || 'Anonymous query'}
+									</span>
+									{entry.query && (
+										<span className="wpgraphql-ide-history-entry-preview">
+											{queryPreview(entry.query)}
+										</span>
+									)}
+								</div>
 							</button>
 						</li>
 					);

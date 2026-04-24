@@ -343,28 +343,26 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Save button */
 .wpgraphql-ide-save-button.components-button {
-	font-size: 12px;
+	font-size: 11px;
 	height: 28px;
 	padding: 0 10px;
-	color: #646970;
-	border: 1px solid #dcdcde;
-	background: #fff;
-	border-radius: 2px;
-	margin-right: 8px;
+	color: #a7aaad;
+	border: none;
+	background: none;
 }
 
 .wpgraphql-ide-save-button.components-button:disabled {
-	opacity: 0.4;
+	opacity: 0.3;
 	cursor: default;
 }
 
 .wpgraphql-ide-save-button.components-button.is-dirty {
 	color: #2c3338;
-	border-color: #2c3338;
+	font-weight: 500;
 }
 
 .wpgraphql-ide-save-button.components-button.is-dirty:hover {
-	background: #f0f0f1;
+	color: var(--wp-admin-theme-color, #3858e9);
 }
 
 /* Snackbar */
