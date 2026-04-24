@@ -23,6 +23,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	min-height: 0;
 	overflow: hidden;
 	background: #fff;
+	position: relative;
 }
 
 /* ---------------------------------------------------------------------------
@@ -365,22 +366,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: var(--wp-admin-theme-color, #3858e9);
 }
 
-/* Snackbar */
+/* Snackbar — absolute to IDE container */
 .wpgraphql-ide-snackbar-list {
-	position: fixed;
-	bottom: 24px;
-	left: 50%;
-	transform: translateX(-50%);
-	z-index: 1000001;
+	position: absolute;
+	bottom: 12px;
+	left: 12px;
+	z-index: 10;
 }
 
 .wpgraphql-ide-snackbar-list .components-snackbar {
 	background: #2c3338;
 	color: #fff;
 	border-radius: 4px;
-	padding: 8px 16px;
+	padding: 10px 16px;
 	font-size: 13px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+	min-width: 200px;
 }
 
 .wpgraphql-ide-send-button.components-button {
