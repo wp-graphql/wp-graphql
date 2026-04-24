@@ -778,36 +778,6 @@ export function IDELayout({ fetcher, onClose }) {
 							<Icon icon={update} />
 						</Button>
 					</Tooltip>
-					{isPublished ? (
-						<Button
-							onClick={duplicateAsDraft}
-							size="compact"
-							className="wpgraphql-ide-topbar-save"
-						>
-							Duplicate
-						</Button>
-					) : (
-						<>
-							<Button
-								onClick={saveCurrentDoc}
-								disabled={!activeDocument?.dirty}
-								size="compact"
-								className="wpgraphql-ide-topbar-save"
-							>
-								Save draft
-							</Button>
-							{isSavedDraft && (
-								<Button
-									onClick={publishCurrentDoc}
-									size="compact"
-									variant="primary"
-									className="wpgraphql-ide-publish-button"
-								>
-									Publish
-								</Button>
-							)}
-						</>
-					)}
 					<Tooltip text="WPGraphQL Settings">
 						<Button
 							href={settingsUrl}
@@ -939,6 +909,37 @@ export function IDELayout({ fetcher, onClose }) {
 										</MenuGroup>
 									)}
 								</DropdownMenu>
+								<div className="wpgraphql-ide-editor-toolbar-spacer" />
+								{isPublished ? (
+									<Button
+										onClick={duplicateAsDraft}
+										size="compact"
+										className="wpgraphql-ide-save-button"
+									>
+										Duplicate
+									</Button>
+								) : (
+									<>
+										<Button
+											onClick={saveCurrentDoc}
+											disabled={!activeDocument?.dirty}
+											size="compact"
+											className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
+										>
+											Save draft
+										</Button>
+										{isSavedDraft && (
+											<Button
+												onClick={publishCurrentDoc}
+												size="compact"
+												variant="primary"
+												className="wpgraphql-ide-publish-button"
+											>
+												Publish
+											</Button>
+										)}
+									</>
+								)}
 							</div>
 							{/* Floating execution pill — bottom-right of query pane */}
 							<div className="wpgraphql-ide-execution-pill">
