@@ -407,8 +407,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
-	width: 70px;
+	width: 32px;
+	min-width: 32px;
+	height: 32px;
+	padding: 0;
 	justify-content: center;
+	border-radius: 50%;
 }
 
 .wpgraphql-ide-send-button.components-button:hover {
@@ -1172,8 +1176,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs-item {
-	font-size: 12px;
-	padding: 6px 12px;
+	font-size: 13px;
+	padding: 8px 12px;
 }
 
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs-item.is-active,
@@ -2010,6 +2014,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 /* ---------------------------------------------------------------------------
    Variables/Headers tab indicator
    --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tabs-item {
+	font-size: 13px;
+	padding: 8px 12px;
+}
 
 .wpgraphql-ide-editor-tools .components-tab-panel__tabs-item.is-active,
 .wpgraphql-ide-editor-tools [role="tab"][aria-selected="true"] {

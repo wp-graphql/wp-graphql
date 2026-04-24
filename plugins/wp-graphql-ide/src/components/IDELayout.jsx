@@ -990,15 +990,52 @@ export function IDELayout({ fetcher, onClose }) {
 											</span>
 										</button>
 									</Tooltip>
-									<Button
-										variant="primary"
-										onClick={executeQuery}
-										disabled={isSchemaLoading}
-										className="wpgraphql-ide-send-button"
-										size="compact"
+									<Tooltip
+										text={
+											isFetching
+												? 'Stop (Cmd+Enter)'
+												: 'Execute (Cmd+Enter)'
+										}
 									>
-										{isFetching ? 'Stop' : 'Send'}
-									</Button>
+										<Button
+											variant="primary"
+											onClick={executeQuery}
+											disabled={isSchemaLoading}
+											className="wpgraphql-ide-send-button"
+											size="compact"
+											aria-label={
+												isFetching
+													? 'Stop execution'
+													: 'Execute query'
+											}
+										>
+											{isFetching ? (
+												<svg
+													viewBox="0 0 24 24"
+													width="16"
+													height="16"
+													fill="currentColor"
+												>
+													<rect
+														x="6"
+														y="6"
+														width="12"
+														height="12"
+														rx="1"
+													/>
+												</svg>
+											) : (
+												<svg
+													viewBox="0 0 24 24"
+													width="16"
+													height="16"
+													fill="currentColor"
+												>
+													<path d="M8 5v14l11-7z" />
+												</svg>
+											)}
+										</Button>
+									</Tooltip>
 								</div>
 							</div>
 							<ResizableBox
