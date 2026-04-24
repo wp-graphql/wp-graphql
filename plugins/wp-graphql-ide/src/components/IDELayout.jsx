@@ -98,11 +98,7 @@ function ResponseContent({
 	// Render the viewer based on view mode.
 	const renderViewer = () => {
 		if (!response) {
-			return (
-				<div className="wpgraphql-ide-response-empty">
-					Press <kbd>Send</kbd> or <kbd>Cmd+Enter</kbd>
-				</div>
-			);
+			return <div className="wpgraphql-ide-response-empty" />;
 		}
 		if (responseViewMode === 'table') {
 			return (

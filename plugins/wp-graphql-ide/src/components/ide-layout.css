@@ -1133,23 +1133,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-response-empty {
 	flex: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #a7aaad;
-	font-size: 12px;
-}
-
-.wpgraphql-ide-response-empty kbd {
-	display: inline-block;
-	padding: 1px 5px;
-	font-size: 11px;
-	font-family: inherit;
-	border: 1px solid #dcdcde;
-	border-radius: 2px;
-	background: #f0f0f1;
-	box-shadow: 0 1px 0 #dcdcde;
-	color: #646970;
+	background: #f6f7f7;
 }
 
 .wpgraphql-ide-response-size {
@@ -1205,9 +1189,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	overflow-y: auto;
 }
 
-.wpgraphql-ide-response-tabs .components-tab-panel__tabs {
-	border-bottom: 1px solid #dcdcde;
-}
 
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs-item {
 	font-size: 13px;
@@ -1225,9 +1206,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 /* Extension sub-tabs */
-.wpgraphql-ide-extension-tabs .components-tab-panel__tabs {
-	border-bottom: 1px solid #f0f0f1;
-}
 
 .wpgraphql-ide-extension-tabs .components-tab-panel__tabs-item {
 	font-size: 12px;
@@ -1943,16 +1921,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-editor .cm-selectionBackground {
-	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.12) !important;
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.15) !important;
 }
 
 .wpgraphql-ide-editor .cm-focused .cm-selectionBackground {
-	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.25) !important;
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.3) !important;
 }
 
 .wpgraphql-ide-editor .cm-cursor,
 .wpgraphql-ide-editor .cm-dropCursor {
-	border-left-color: #2c3338;
+	border-left: 2px solid #2c3338;
 }
 
 .wpgraphql-ide-editor .cm-matchingBracket {
