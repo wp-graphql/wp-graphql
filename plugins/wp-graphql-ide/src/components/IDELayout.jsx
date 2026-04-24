@@ -12,6 +12,7 @@ import {
 import {
 	Icon,
 	edit,
+	file,
 	help,
 	backup,
 	update,
@@ -159,6 +160,7 @@ function ResponseContent({
 }
 
 const PANEL_ICONS = {
+	'saved-queries': file,
 	'docs-explorer': search,
 	help,
 	history: backup,
@@ -553,9 +555,7 @@ export function IDELayout({ fetcher, onClose }) {
 	// Global panels for the activity bar — exclude document-scoped panels.
 	// Query composer is per-document (rendered inline in the editor area).
 	// Documents panel is accessed via tabs, not the activity bar.
-	const navPanels = panels.filter(
-		(p) => p.name !== 'documents' && p.name !== 'query-composer'
-	);
+	const navPanels = panels.filter((p) => p.name !== 'query-composer');
 
 	// Query composer panel — rendered inline within the document/editor area.
 	const queryComposerPanel = panels.find((p) => p.name === 'query-composer');

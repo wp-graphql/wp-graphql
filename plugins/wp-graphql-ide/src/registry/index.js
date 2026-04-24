@@ -3,7 +3,10 @@ import {
 	registerActivityBarPanel,
 	registerResponseExtensionTab,
 } from '../access-functions';
-import { DocumentsPanel, DocumentsIcon } from '../components/DocumentsPanel';
+import {
+	SavedQueriesPanel,
+	SavedQueriesIcon,
+} from '../components/SavedQueriesPanel';
 import {
 	DocsExplorerPanel,
 	DocsExplorerIcon,
@@ -18,11 +21,11 @@ export const initializeRegistry = () => {
 	registerEditorToolbarButtons();
 
 	registerActivityBarPanel(
-		'documents',
+		'saved-queries',
 		{
-			title: 'Documents',
-			icon: DocumentsIcon,
-			content: DocumentsPanel,
+			title: 'Saved Queries',
+			icon: SavedQueriesIcon,
+			content: SavedQueriesPanel,
 		},
 		5
 	);
