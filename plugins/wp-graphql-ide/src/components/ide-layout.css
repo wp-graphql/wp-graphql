@@ -75,7 +75,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-topbar-btn.components-button.is-active {
-	color: #2c3338;
+	color: #fff;
+	background: #1e1e1e;
+	border-radius: 4px;
+}
+
+.wpgraphql-ide-topbar-btn.components-button.is-active:hover {
+	color: #fff;
+	background: #1e1e1e;
 }
 
 .wpgraphql-ide-topbar-btn.is-loading svg {
@@ -122,11 +129,19 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-activity-btn.components-button:hover {
 	color: #2c3338;
+	background: #f0f0f1;
+	border-radius: 4px;
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active {
-	color: #2c3338;
-	background: #f0f0f1;
+	color: #fff;
+	background: #1e1e1e;
+	border-radius: 4px;
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-active:hover {
+	color: #fff;
+	background: #1e1e1e;
 }
 
 .wpgraphql-ide-activity-btn.components-button svg {

@@ -543,36 +543,6 @@ export function IDELayout({ fetcher, onClose }) {
 		addNotice,
 	]);
 
-	// Duplicate a published document as a new draft for editing.
-	const duplicateAsDraft = useCallback(async () => {
-		if (!activeDocument) {
-			return;
-		}
-		const title = `${activeDocument.title || 'Untitled'} (copy)`;
-		await createTab(title);
-
-		// The new tab is now active — populate it.
-		const { select: sel } =
-			// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-			require('@wordpress/data');
-		const newDoc = sel('wpgraphql-ide/document-editor').getActiveDocument();
-		if (newDoc) {
-			setQuery(activeDocument.query || '');
-			setVariables(activeDocument.variables || '');
-			setHeaders(activeDocument.headers || '');
-			setDocumentDirty(newDoc.id, true);
-		}
-		addNotice('Draft copy created');
-	}, [
-		activeDocument,
-		createTab,
-		setQuery,
-		setVariables,
-		setHeaders,
-		setDocumentDirty,
-		addNotice,
-	]);
-
 	// Whether the active document is published (immutable query).
 	const isPublished = activeDocument?.status === 'publish';
 	const isTempDoc = activeDocument
@@ -910,15 +880,7 @@ export function IDELayout({ fetcher, onClose }) {
 									)}
 								</DropdownMenu>
 								<div className="wpgraphql-ide-editor-toolbar-spacer" />
-								{isPublished ? (
-									<Button
-										onClick={duplicateAsDraft}
-										size="compact"
-										className="wpgraphql-ide-save-button"
-									>
-										Duplicate
-									</Button>
-								) : (
+								{!isPublished && (
 									<>
 										<Button
 											onClick={saveCurrentDoc}
@@ -940,87 +902,6 @@ export function IDELayout({ fetcher, onClose }) {
 										)}
 									</>
 								)}
-							</div>
-							{/* Floating execution pill — bottom-right of query pane */}
-							<div className="wpgraphql-ide-execution-pill">
-								<span className="wpgraphql-ide-method-label">
-									POST
-								</span>
-								<Tooltip
-									text={
-										isAuthenticated
-											? 'Authenticated (click to switch)'
-											: 'Public (click to switch)'
-									}
-								>
-									<button
-										type="button"
-										onClick={toggleAuthentication}
-										className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-										aria-label={
-											isAuthenticated
-												? 'Switch to public'
-												: 'Switch to authenticated'
-										}
-									>
-										<span
-											className={authStyles.authAvatar}
-											style={{
-												backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
-											}}
-										>
-											<span
-												className={authStyles.authBadge}
-											/>
-										</span>
-									</button>
-								</Tooltip>
-								<Tooltip
-									text={
-										isFetching
-											? 'Stop (Cmd+Enter)'
-											: 'Execute (Cmd+Enter)'
-									}
-								>
-									<Button
-										variant="primary"
-										onClick={executeQuery}
-										disabled={isSchemaLoading}
-										className="wpgraphql-ide-send-button"
-										size="compact"
-										aria-label={
-											isFetching
-												? 'Stop execution'
-												: 'Execute query'
-										}
-									>
-										{isFetching ? (
-											<svg
-												viewBox="0 0 24 24"
-												width="16"
-												height="16"
-												fill="currentColor"
-											>
-												<rect
-													x="6"
-													y="6"
-													width="12"
-													height="12"
-													rx="1"
-												/>
-											</svg>
-										) : (
-											<svg
-												viewBox="0 0 24 24"
-												width="16"
-												height="16"
-												fill="currentColor"
-											>
-												<path d="M8 5v14l11-7z" />
-											</svg>
-										)}
-									</Button>
-								</Tooltip>
 							</div>
 							<ResizableBox
 								size={{
@@ -1052,6 +933,90 @@ export function IDELayout({ fetcher, onClose }) {
 									readOnly={isPublished}
 									extraKeys={editorKeyBindings.current}
 								/>
+								<div className="wpgraphql-ide-execution-pill">
+									<span className="wpgraphql-ide-method-label">
+										POST
+									</span>
+									<Tooltip
+										text={
+											isAuthenticated
+												? 'Authenticated (click to switch)'
+												: 'Public (click to switch)'
+										}
+									>
+										<button
+											type="button"
+											onClick={toggleAuthentication}
+											className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+											aria-label={
+												isAuthenticated
+													? 'Switch to public'
+													: 'Switch to authenticated'
+											}
+										>
+											<span
+												className={
+													authStyles.authAvatar
+												}
+												style={{
+													backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+												}}
+											>
+												<span
+													className={
+														authStyles.authBadge
+													}
+												/>
+											</span>
+										</button>
+									</Tooltip>
+									<Tooltip
+										text={
+											isFetching
+												? 'Stop (Cmd+Enter)'
+												: 'Execute (Cmd+Enter)'
+										}
+									>
+										<Button
+											variant="primary"
+											onClick={executeQuery}
+											disabled={isSchemaLoading}
+											className="wpgraphql-ide-send-button"
+											size="compact"
+											aria-label={
+												isFetching
+													? 'Stop execution'
+													: 'Execute query'
+											}
+										>
+											{isFetching ? (
+												<svg
+													viewBox="0 0 24 24"
+													width="16"
+													height="16"
+													fill="currentColor"
+												>
+													<rect
+														x="6"
+														y="6"
+														width="12"
+														height="12"
+														rx="1"
+													/>
+												</svg>
+											) : (
+												<svg
+													viewBox="0 0 24 24"
+													width="16"
+													height="16"
+													fill="currentColor"
+												>
+													<path d="M8 5v14l11-7z" />
+												</svg>
+											)}
+										</Button>
+									</Tooltip>
+								</div>
 							</ResizableBox>
 							<TabPanel
 								className="wpgraphql-ide-editor-tools"
