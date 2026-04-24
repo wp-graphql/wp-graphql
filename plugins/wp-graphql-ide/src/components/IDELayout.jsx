@@ -33,6 +33,7 @@ import { EditorToolbar } from './EditorToolbar';
 import { DocumentTabs } from './DocumentTabs';
 import ActivityPanel from './ActivityPanel';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
+import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 
@@ -335,6 +336,14 @@ export function IDELayout({ fetcher, onClose }) {
 		setNotices((prev) => prev.filter((n) => n.id !== id));
 	}, []);
 
+	// Listen for notice events from toolbar buttons and other actions.
+	useEffect(() => {
+		const handler = (content) => addNotice(content);
+		hooks.addAction('wpgraphql-ide.notice', 'wpgraphql-ide', handler);
+		return () =>
+			hooks.removeAction('wpgraphql-ide.notice', 'wpgraphql-ide');
+	}, [addNotice]);
+
 	// ESC key closes the drawer when in drawer mode.
 	useEffect(() => {
 		if (!onClose) {
@@ -636,7 +645,10 @@ export function IDELayout({ fetcher, onClose }) {
 				<div className="wpgraphql-ide-topbar-right">
 					<Tooltip text="Re-fetch schema">
 						<Button
-							onClick={refetch}
+							onClick={() => {
+								refetch();
+								addNotice('Schema refreshed');
+							}}
 							disabled={isSchemaLoading}
 							aria-label="Re-fetch schema"
 							size="compact"

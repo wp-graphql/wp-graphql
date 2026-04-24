@@ -1,6 +1,7 @@
 import { select } from '@wordpress/data';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
+import hooks from '../../wordpress-hooks';
 
 export const shareButton = () => {
 	return {
@@ -12,8 +13,10 @@ export const shareButton = () => {
 			const hashedQueryParamObject = getHashedQueryParams({ query });
 			const fullUrl = `${dedicatedIdeBaseUrl}&wpgraphql_ide=${hashedQueryParamObject}`;
 			copy(fullUrl);
-
-			// TODO: notify user that a shareable link is copied to clipboard
+			hooks.doAction(
+				'wpgraphql-ide.notice',
+				'Shareable link copied to clipboard'
+			);
 		},
 	};
 };
