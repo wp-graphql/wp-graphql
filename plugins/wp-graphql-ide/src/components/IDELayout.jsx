@@ -1051,51 +1051,6 @@ export function IDELayout({ fetcher, onClose }) {
 								<span className="wpgraphql-ide-response-label">
 									Response
 								</span>
-								{isFetching && <Spinner />}
-								{!isFetching && responseStatus !== null && (
-									<span className="wpgraphql-ide-response-meta">
-										<span
-											className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${responseStatus >= 200 && responseStatus < 300 ? 'success' : 'error'}`}
-										>
-											{responseStatus}
-										</span>
-										{responseDuration !== null && (
-											<span className="wpgraphql-ide-response-duration">
-												{responseDuration >= 1000
-													? `${(responseDuration / 1000).toFixed(1)}s`
-													: `${responseDuration}ms`}
-											</span>
-										)}
-										{responseSize !== null && (
-											<span className="wpgraphql-ide-response-size">
-												{responseSize >= 1024
-													? `${(responseSize / 1024).toFixed(1)}KB`
-													: `${responseSize}B`}
-											</span>
-										)}
-									</span>
-								)}
-								<div className="wpgraphql-ide-response-mode-toggle">
-									{[
-										{ value: 'formatted', label: 'JSON' },
-										{ value: 'table', label: 'Table' },
-									].map((opt) => (
-										<button
-											key={opt.value}
-											type="button"
-											className={`wpgraphql-ide-response-mode-btn${responseViewMode === opt.value ? ' is-active' : ''}`}
-											onClick={() => {
-												setResponseViewMode(opt.value);
-												window.localStorage.setItem(
-													'wpgraphql_ide_response_mode',
-													opt.value
-												);
-											}}
-										>
-											{opt.label}
-										</button>
-									))}
-								</div>
 								<DropdownMenu
 									icon={moreVertical}
 									label="Response options"
@@ -1125,6 +1080,55 @@ export function IDELayout({ fetcher, onClose }) {
 										</MenuGroup>
 									)}
 								</DropdownMenu>
+								<div className="wpgraphql-ide-editor-toolbar-spacer" />
+								{isFetching && <Spinner />}
+								{!isFetching && responseStatus !== null && (
+									<span className="wpgraphql-ide-response-meta">
+										<span
+											className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${responseStatus >= 200 && responseStatus < 300 ? 'success' : 'error'}`}
+										>
+											{responseStatus}
+										</span>
+										{responseDuration !== null && (
+											<span className="wpgraphql-ide-response-duration">
+												{responseDuration >= 1000
+													? `${(responseDuration / 1000).toFixed(1)}s`
+													: `${responseDuration}ms`}
+											</span>
+										)}
+										{responseSize !== null && (
+											<span className="wpgraphql-ide-response-size">
+												{responseSize >= 1024
+													? `${(responseSize / 1024).toFixed(1)}KB`
+													: `${responseSize}B`}
+											</span>
+										)}
+									</span>
+								)}
+								<div className="wpgraphql-ide-response-mode-toggle">
+									{[
+										{
+											value: 'formatted',
+											label: 'JSON',
+										},
+										{ value: 'table', label: 'Table' },
+									].map((opt) => (
+										<button
+											key={opt.value}
+											type="button"
+											className={`wpgraphql-ide-response-mode-btn${responseViewMode === opt.value ? ' is-active' : ''}`}
+											onClick={() => {
+												setResponseViewMode(opt.value);
+												window.localStorage.setItem(
+													'wpgraphql_ide_response_mode',
+													opt.value
+												);
+											}}
+										>
+											{opt.label}
+										</button>
+									))}
+								</div>
 							</div>
 							<ResponseContent
 								response={response}
