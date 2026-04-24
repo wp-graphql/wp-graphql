@@ -8,8 +8,7 @@ export const HeadersPanel = ({ headers }) => {
 		return (
 			<div className="wpgraphql-ide-headers-panel">
 				<p className="wpgraphql-ide-extensions-empty">
-					No response headers to display. Run a query to capture
-					headers from the server.
+					No headers yet.
 				</p>
 			</div>
 		);

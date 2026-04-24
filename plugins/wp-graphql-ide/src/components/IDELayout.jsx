@@ -100,7 +100,7 @@ function ResponseContent({
 		if (!response) {
 			return (
 				<div className="wpgraphql-ide-response-empty">
-					Run a query to see results
+					Press <kbd>Send</kbd> or <kbd>Cmd+Enter</kbd>
 				</div>
 			);
 		}
