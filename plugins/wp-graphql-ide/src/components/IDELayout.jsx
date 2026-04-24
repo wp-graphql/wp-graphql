@@ -84,8 +84,11 @@ function ResponseContent({
 		if (!response) {
 			return '';
 		}
-		if (responseDataScope === 'data' && parsed?.data) {
-			return JSON.stringify(parsed.data, null, 2);
+		if (responseDataScope === 'data') {
+			if (parsed?.data !== undefined && parsed?.data !== null) {
+				return JSON.stringify(parsed.data, null, 2);
+			}
+			return '// No data in response';
 		}
 		return response;
 	}, [response, responseDataScope, parsed]);
@@ -118,7 +121,10 @@ function ResponseContent({
 				{renderViewer()}
 			</div>
 			{/* Bottom: always-visible tabs for Headers/Errors/Extensions */}
-			<TabPanel className="wpgraphql-ide-response-tabs" tabs={bottomTabs}>
+			<TabPanel
+				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
+				tabs={bottomTabs}
+			>
 				{(tab) => {
 					if (tab.name === 'headers') {
 						return <HeadersPanel headers={responseHeaders} />;

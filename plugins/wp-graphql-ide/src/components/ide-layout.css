@@ -1171,6 +1171,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
 }
 
+/* Red error indicator on the Errors tab when errors > 0 */
+.wpgraphql-ide-response-tabs.has-errors .components-tab-panel__tabs-item:nth-child(2) {
+	color: #d63638;
+}
+
 .wpgraphql-ide-response-tabs .components-tab-panel__tab-content {
 	padding: 8px 12px;
 	font-size: 13px;
@@ -1560,7 +1565,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 /* Headers panel */
 .wpgraphql-ide-headers-list {
 	display: grid;
-	grid-template-columns: auto 1fr;
+	grid-template-columns: auto minmax(0, 1fr);
 	gap: 4px 12px;
 	margin: 0;
 	font-size: 12px;
