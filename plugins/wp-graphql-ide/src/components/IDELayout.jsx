@@ -98,9 +98,6 @@ function ResponseContent({
 				</div>
 			);
 		}
-		if (responseViewMode === 'raw') {
-			return <ResponseViewer value={viewerContent} />;
-		}
 		if (responseViewMode === 'table') {
 			return (
 				<ResponseTableView
@@ -1081,25 +1078,25 @@ export function IDELayout({ fetcher, onClose }) {
 									))}
 								</div>
 								<div className="wpgraphql-ide-response-mode-toggle">
-									{['formatted', 'table', 'raw'].map(
-										(mode) => (
-											<button
-												key={mode}
-												type="button"
-												className={`wpgraphql-ide-response-mode-btn${responseViewMode === mode ? ' is-active' : ''}`}
-												onClick={() => {
-													setResponseViewMode(mode);
-													window.localStorage.setItem(
-														'wpgraphql_ide_response_mode',
-														mode
-													);
-												}}
-											>
-												{mode.charAt(0).toUpperCase() +
-													mode.slice(1)}
-											</button>
-										)
-									)}
+									{[
+										{ value: 'formatted', label: 'JSON' },
+										{ value: 'table', label: 'Table' },
+									].map((opt) => (
+										<button
+											key={opt.value}
+											type="button"
+											className={`wpgraphql-ide-response-mode-btn${responseViewMode === opt.value ? ' is-active' : ''}`}
+											onClick={() => {
+												setResponseViewMode(opt.value);
+												window.localStorage.setItem(
+													'wpgraphql_ide_response_mode',
+													opt.value
+												);
+											}}
+										>
+											{opt.label}
+										</button>
+									))}
 								</div>
 							</div>
 							<ResponseContent
