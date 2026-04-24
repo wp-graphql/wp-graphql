@@ -390,34 +390,43 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isLoaded, activeDocument]);
 
+	// Check if any editor content differs from the saved document.
+	const checkDirty = useCallback(
+		(nextQuery, nextVars, nextHeaders) => {
+			if (!activeDocument) {
+				return;
+			}
+			const isDirty =
+				nextQuery !== (activeDocument.query || '') ||
+				nextVars !== (activeDocument.variables || '') ||
+				nextHeaders !== (activeDocument.headers || '');
+			setDocumentDirty(activeDocument.id, isDirty);
+		},
+		[activeDocument, setDocumentDirty]
+	);
+
 	const handleQueryChange = useCallback(
 		(value) => {
 			setQuery(value);
-			if (activeDocument && value !== (activeDocument.query || '')) {
-				setDocumentDirty(activeDocument.id, true);
-			}
+			checkDirty(value, variables, headers);
 		},
-		[setQuery, activeDocument, setDocumentDirty]
+		[setQuery, checkDirty, variables, headers]
 	);
 
 	const handleVariablesChange = useCallback(
 		(value) => {
 			setVariables(value);
-			if (activeDocument && value !== (activeDocument.variables || '')) {
-				setDocumentDirty(activeDocument.id, true);
-			}
+			checkDirty(query, value, headers);
 		},
-		[setVariables, activeDocument, setDocumentDirty]
+		[setVariables, checkDirty, query, headers]
 	);
 
 	const handleHeadersChange = useCallback(
 		(value) => {
 			setHeaders(value);
-			if (activeDocument && value !== (activeDocument.headers || '')) {
-				setDocumentDirty(activeDocument.id, true);
-			}
+			checkDirty(query, variables, value);
 		},
-		[setHeaders, activeDocument, setDocumentDirty]
+		[setHeaders, checkDirty, query, variables]
 	);
 
 	// Explicit save — Cmd+S / Save button.
