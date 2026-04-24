@@ -6,6 +6,7 @@ import {
 import {
 	SavedQueriesPanel,
 	SavedQueriesIcon,
+	SavedQueriesHeaderAction,
 } from '../components/SavedQueriesPanel';
 import {
 	DocsExplorerPanel,
@@ -26,6 +27,7 @@ export const initializeRegistry = () => {
 			title: 'Saved Queries',
 			icon: SavedQueriesIcon,
 			content: SavedQueriesPanel,
+			headerAction: SavedQueriesHeaderAction,
 		},
 		5
 	);

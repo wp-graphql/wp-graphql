@@ -14,6 +14,25 @@ import { isTempId } from '../stores/document-editor/document-editor-store-action
  */
 export const SavedQueriesIcon = () => <Icon icon={file} />;
 
+/**
+ * Header action for the Saved Queries panel — "+" button in panel header.
+ */
+export const SavedQueriesHeaderAction = () => {
+	const { createTab } = useDispatch('wpgraphql-ide/document-editor');
+	return (
+		<Tooltip text="New document">
+			<Button
+				size="small"
+				onClick={() => createTab()}
+				aria-label="New document"
+				className="wpgraphql-ide-panel-header-btn"
+			>
+				<Icon icon={plus} size={20} />
+			</Button>
+		</Tooltip>
+	);
+};
+
 const STATUS_TABS = [
 	{ name: 'all', title: 'All' },
 	{ name: 'draft', title: 'Drafts' },
@@ -22,7 +41,8 @@ const STATUS_TABS = [
 
 /**
  * Saved Queries panel — browse all saved documents with search and
- * status filtering using a tabbed interface matching the block editor.
+ * status filtering. Layout matches the Gutenberg block inserter:
+ * search above tabs, both fixed; list scrolls below.
  */
 export function SavedQueriesPanel() {
 	const [search, setSearch] = useState('');
@@ -36,7 +56,7 @@ export function SavedQueriesPanel() {
 		};
 	}, []);
 
-	const { switchTab, createTab, removeDocument } = useDispatch(
+	const { switchTab, removeDocument } = useDispatch(
 		'wpgraphql-ide/document-editor'
 	);
 
@@ -124,6 +144,17 @@ export function SavedQueriesPanel() {
 
 	return (
 		<div className="wpgraphql-ide-saved-queries-panel">
+			{/* Search — fixed above tabs, part of panel infrastructure */}
+			<div className="wpgraphql-ide-saved-queries-search">
+				<SearchControl
+					value={search}
+					onChange={setSearch}
+					placeholder="Search..."
+					__nextHasNoMarginBottom
+				/>
+			</div>
+
+			{/* Tabs + content — scrollable below search */}
 			<TabPanel
 				className="wpgraphql-ide-saved-queries-tabs"
 				tabs={STATUS_TABS}
@@ -132,24 +163,6 @@ export function SavedQueriesPanel() {
 					const filtered = filterDocs(savedDocs, tab.name);
 					return (
 						<>
-							<div className="wpgraphql-ide-saved-queries-toolbar">
-								<SearchControl
-									value={search}
-									onChange={setSearch}
-									placeholder="Search..."
-									__nextHasNoMarginBottom
-								/>
-								<Tooltip text="New document">
-									<Button
-										size="compact"
-										onClick={() => createTab()}
-										aria-label="New document"
-										className="wpgraphql-ide-saved-queries-add"
-									>
-										<Icon icon={plus} size={20} />
-									</Button>
-								</Tooltip>
-							</div>
 							{filtered.length > 0 && (
 								<ul className="wpgraphql-ide-documents-list">
 									{filtered.map(renderDoc)}
@@ -157,29 +170,34 @@ export function SavedQueriesPanel() {
 							)}
 							{filtered.length === 0 &&
 								savedDocs.length === 0 && (
-									<p className="wpgraphql-ide-saved-queries-empty">
-										No saved documents yet. Save a query
-										with Cmd+S.
-									</p>
+									<div className="wpgraphql-ide-saved-queries-empty">
+										<p>No saved documents yet.</p>
+										<p className="wpgraphql-ide-saved-queries-hint">
+											Write a query and press{' '}
+											<kbd>Cmd+S</kbd> to save.
+										</p>
+									</div>
 								)}
 							{filtered.length === 0 && savedDocs.length > 0 && (
-								<p className="wpgraphql-ide-saved-queries-empty">
-									No documents match the current filter.
-								</p>
+								<div className="wpgraphql-ide-saved-queries-empty">
+									<p>No matching documents.</p>
+								</div>
 							)}
 						</>
 					);
 				}}
 			</TabPanel>
+
+			{/* Unsaved docs — below everything */}
 			{unsavedDocs.length > 0 && (
-				<>
+				<div className="wpgraphql-ide-saved-queries-unsaved">
 					<div className="wpgraphql-ide-saved-queries-divider">
 						Unsaved
 					</div>
 					<ul className="wpgraphql-ide-documents-list">
 						{unsavedDocs.map(renderDoc)}
 					</ul>
-				</>
+				</div>
 			)}
 		</div>
 	);
