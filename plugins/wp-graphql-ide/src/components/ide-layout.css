@@ -369,11 +369,20 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Snackbar */
 .wpgraphql-ide-snackbar-list {
-	position: absolute;
-	bottom: 16px;
+	position: fixed;
+	bottom: 24px;
 	left: 50%;
 	transform: translateX(-50%);
-	z-index: 100;
+	z-index: 1000001;
+}
+
+.wpgraphql-ide-snackbar-list .components-snackbar {
+	background: #2c3338;
+	color: #fff;
+	border-radius: 4px;
+	padding: 8px 16px;
+	font-size: 13px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .wpgraphql-ide-send-button.components-button {
