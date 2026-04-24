@@ -1144,16 +1144,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-response-viewer {
 	flex: 1;
-	min-height: 50px;
+	min-height: 80px;
 	overflow: auto;
 }
 
-
 .wpgraphql-ide-response-tabs {
 	border-top: 1px solid #dcdcde;
-	flex: none;
-	max-height: 40%;
-	min-height: 0;
+	flex: 1;
+	min-height: 120px;
 	overflow-y: auto;
 }
 
