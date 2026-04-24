@@ -610,21 +610,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-saved-queries-tabs .components-tab-panel__tabs {
-	border-bottom: 1px solid #dcdcde;
 	flex-shrink: 0;
 	padding: 0 12px;
-}
-
-.wpgraphql-ide-saved-queries-tabs .components-tab-panel__tabs-item {
-	font-size: 13px;
-	font-weight: 500;
-	padding: 8px 0;
-	margin-right: 16px;
-}
-
-.wpgraphql-ide-saved-queries-tabs .components-tab-panel__tabs-item.is-active,
-.wpgraphql-ide-saved-queries-tabs [role="tab"][aria-selected="true"] {
-	box-shadow: inset 0 -3px 0 0 var(--wp-admin-theme-color, #3858e9) !important;
 }
 
 .wpgraphql-ide-saved-queries-tabs .components-tab-panel__tab-content {
