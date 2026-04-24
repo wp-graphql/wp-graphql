@@ -20,6 +20,9 @@ const selectors = {
 		(state) => [state.documents]
 	),
 
+	isDocumentSaved: (state, id) =>
+		!String(id).startsWith('temp-') && !!state.documents[String(id)],
+
 	getOpenTabs: (state) => state.openTabs,
 
 	getActiveTab: (state) => state.activeTab,

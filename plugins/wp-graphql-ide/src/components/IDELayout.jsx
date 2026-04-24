@@ -4,6 +4,7 @@ import {
 	DropdownMenu,
 	MenuGroup,
 	ResizableBox,
+	SnackbarList,
 	TabPanel,
 	Spinner,
 	Tooltip,
@@ -156,8 +157,6 @@ function ResponseContent({
 	);
 }
 
-const AUTOSAVE_DELAY = 2000;
-
 const PANEL_ICONS = {
 	'docs-explorer': search,
 	help,
@@ -244,6 +243,7 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const {
 		loadDocuments,
+		saveTab,
 		saveDocument,
 		createTab,
 		switchTab,
@@ -324,7 +324,16 @@ export function IDELayout({ fetcher, onClose }) {
 			window.localStorage.getItem('wpgraphql_ide_response_mode') ||
 			'formatted'
 	);
-	const saveTimerRef = useRef(null);
+	const [notices, setNotices] = useState([]);
+
+	const addNotice = useCallback((content, type = 'default') => {
+		const id = `notice-${Date.now()}`;
+		setNotices((prev) => [...prev, { id, content, type }]);
+	}, []);
+
+	const removeNotice = useCallback((id) => {
+		setNotices((prev) => prev.filter((n) => n.id !== id));
+	}, []);
 
 	// ESC key closes the drawer when in drawer mode.
 	useEffect(() => {
@@ -381,63 +390,79 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isLoaded, activeDocument]);
 
-	// Debounced auto-save. When saving a query, also auto-name the tab
-	// from the operation name if the title is still "Untitled".
-	const scheduleAutoSave = useCallback(
-		(field, value) => {
-			if (!activeDocument) {
-				return;
-			}
-			// Mark document as dirty immediately.
-			setDocumentDirty(activeDocument.id, true);
-			if (saveTimerRef.current) {
-				clearTimeout(saveTimerRef.current);
-			}
-			saveTimerRef.current = setTimeout(async () => {
-				const data = { [field]: value };
-
-				// Auto-name from operation name when title is default.
-				if (
-					field === 'query' &&
-					/^(Untitled|New Tab( \d+)?)$/.test(activeDocument.title)
-				) {
-					const match = value.match(
-						/(?:query|mutation|subscription)\s+(\w+)/
-					);
-					if (match) {
-						data.title = match[1];
-					}
-				}
-
-				await saveDocument(activeDocument.id, data);
-				setDocumentDirty(activeDocument.id, false);
-			}, AUTOSAVE_DELAY);
-		},
-		[activeDocument, saveDocument, setDocumentDirty]
-	);
-
 	const handleQueryChange = useCallback(
 		(value) => {
 			setQuery(value);
-			scheduleAutoSave('query', value);
+			if (activeDocument) {
+				setDocumentDirty(activeDocument.id, true);
+			}
 		},
-		[setQuery, scheduleAutoSave]
+		[setQuery, activeDocument, setDocumentDirty]
 	);
 
 	const handleVariablesChange = useCallback(
 		(value) => {
 			setVariables(value);
-			scheduleAutoSave('variables', value);
+			if (activeDocument) {
+				setDocumentDirty(activeDocument.id, true);
+			}
 		},
-		[setVariables, scheduleAutoSave]
+		[setVariables, activeDocument, setDocumentDirty]
 	);
 
 	const handleHeadersChange = useCallback(
 		(value) => {
 			setHeaders(value);
-			scheduleAutoSave('headers', value);
+			if (activeDocument) {
+				setDocumentDirty(activeDocument.id, true);
+			}
 		},
-		[setHeaders, scheduleAutoSave]
+		[setHeaders, activeDocument, setDocumentDirty]
+	);
+
+	// Explicit save — Cmd+S / Save button.
+	const saveCurrentDoc = useCallback(async () => {
+		if (!activeDocument) {
+			return;
+		}
+		try {
+			await saveTab(activeDocument.id, {
+				query,
+				variables,
+				headers,
+			});
+			addNotice('Document saved');
+		} catch {
+			addNotice('Failed to save document', 'error');
+		}
+	}, [activeDocument, query, variables, headers, saveTab, addNotice]);
+
+	const saveCurrentDocRef = useRef(null);
+	saveCurrentDocRef.current = saveCurrentDoc;
+
+	// Close tab with confirmation for dirty documents.
+	const handleCloseTab = useCallback(
+		(tabId) => {
+			const doc = allDocuments.find(
+				(d) => String(d.id) === String(tabId)
+			);
+			if (doc?.dirty) {
+				// eslint-disable-next-line no-alert
+				const answer = window.confirm(
+					`Save changes to "${doc.title || 'Untitled'}" before closing?`
+				);
+				if (answer) {
+					saveTab(tabId, {
+						query: doc.query || query,
+						variables: doc.variables || variables,
+						headers: doc.headers || headers,
+					}).then(() => closeTab(tabId));
+					return;
+				}
+			}
+			closeTab(tabId);
+		},
+		[allDocuments, closeTab, saveTab, query, variables, headers]
 	);
 
 	const executeQueryRef = useRef(null);
@@ -473,6 +498,13 @@ export function IDELayout({ fetcher, onClose }) {
 			key: 'Mod-Enter',
 			run: () => {
 				executeQueryRef.current();
+				return true;
+			},
+		},
+		{
+			key: 'Mod-s',
+			run: () => {
+				saveCurrentDocRef.current();
 				return true;
 			},
 		},
@@ -672,7 +704,7 @@ export function IDELayout({ fetcher, onClose }) {
 								}))}
 							activeId={activeDocument?.id}
 							onSwitch={(id) => switchTab(id)}
-							onClose={(id) => closeTab(id)}
+							onClose={(id) => handleCloseTab(id)}
 							onCreate={() => createTab(getNextTabName())}
 							onRename={(id, title) =>
 								saveDocument(id, { title })
@@ -734,6 +766,16 @@ export function IDELayout({ fetcher, onClose }) {
 									)}
 								</DropdownMenu>
 								<div className="wpgraphql-ide-editor-toolbar-spacer" />
+								<Tooltip text="Save (Cmd+S)">
+									<Button
+										onClick={saveCurrentDoc}
+										disabled={!activeDocument?.dirty}
+										size="compact"
+										className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
+									>
+										Save
+									</Button>
+								</Tooltip>
 								<div className="wpgraphql-ide-send-group">
 									<span className="wpgraphql-ide-method-label">
 										POST
@@ -914,6 +956,13 @@ export function IDELayout({ fetcher, onClose }) {
 				{/* end .wpgraphql-ide-editor-area */}
 			</div>
 			{/* end .wpgraphql-ide-main */}
+			{notices.length > 0 && (
+				<SnackbarList
+					notices={notices}
+					onRemove={removeNotice}
+					className="wpgraphql-ide-snackbar-list"
+				/>
+			)}
 		</div>
 	);
 }

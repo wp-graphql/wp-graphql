@@ -37,6 +37,26 @@ const reducer = (state = initialState, action) => {
 			return { ...state, documents };
 		}
 
+		case 'CREATE_IN_MEMORY_TAB': {
+			const tempDoc = {
+				id: action.tempId,
+				title: action.title,
+				query: '',
+				variables: '',
+				headers: '',
+				dirty: false,
+			};
+			return {
+				...state,
+				documents: {
+					...state.documents,
+					[action.tempId]: tempDoc,
+				},
+				openTabs: [...state.openTabs, action.tempId],
+				activeTab: action.tempId,
+			};
+		}
+
 		case 'ADD_DOCUMENT':
 			return {
 				...state,
@@ -45,6 +65,27 @@ const reducer = (state = initialState, action) => {
 					[String(action.document.id)]: action.document,
 				},
 			};
+
+		case 'UPDATE_DOCUMENT_ID': {
+			const docs = { ...state.documents };
+			delete docs[action.oldId];
+			docs[String(action.newId)] = action.document;
+
+			const newTabs = state.openTabs.map((id) =>
+				id === action.oldId ? String(action.newId) : id
+			);
+			const newActive =
+				state.activeTab === action.oldId
+					? String(action.newId)
+					: state.activeTab;
+
+			return {
+				...state,
+				documents: docs,
+				openTabs: newTabs,
+				activeTab: newActive,
+			};
+		}
 
 		case 'UPDATE_DOCUMENT':
 			return {

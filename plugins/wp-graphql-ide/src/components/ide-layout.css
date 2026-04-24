@@ -341,6 +341,41 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	opacity: 0.75;
 }
 
+/* Save button */
+.wpgraphql-ide-save-button.components-button {
+	font-size: 12px;
+	height: 28px;
+	padding: 0 10px;
+	color: #646970;
+	border: 1px solid #dcdcde;
+	background: #fff;
+	border-radius: 2px;
+	margin-right: 8px;
+}
+
+.wpgraphql-ide-save-button.components-button:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.wpgraphql-ide-save-button.components-button.is-dirty {
+	color: #2c3338;
+	border-color: #2c3338;
+}
+
+.wpgraphql-ide-save-button.components-button.is-dirty:hover {
+	background: #f0f0f1;
+}
+
+/* Snackbar */
+.wpgraphql-ide-snackbar-list {
+	position: absolute;
+	bottom: 16px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100;
+}
+
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
 	width: 70px;
