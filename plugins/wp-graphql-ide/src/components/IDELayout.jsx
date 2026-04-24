@@ -46,6 +46,8 @@ function ResponseContent({
 	responseDataScope,
 	responseHeaders,
 	extensionTabs,
+	responseViewerHeight,
+	onResponseViewerResize,
 }) {
 	const parsed = React.useMemo(() => {
 		if (!response) {
@@ -116,10 +118,18 @@ function ResponseContent({
 
 	return (
 		<div className="wpgraphql-ide-response-body">
-			{/* Top: response viewer — scrollable */}
-			<div className="wpgraphql-ide-response-viewer">
+			{/* Top: response viewer — resizable, matching query editor split */}
+			<ResizableBox
+				size={{ width: '100%', height: responseViewerHeight }}
+				minHeight={50}
+				enable={{ bottom: true }}
+				onResizeStop={(e, d, elt) => {
+					onResponseViewerResize(elt.offsetHeight);
+				}}
+				className="wpgraphql-ide-response-viewer wpgraphql-ide-resizable-split"
+			>
 				{renderViewer()}
-			</div>
+			</ResizableBox>
 			{/* Bottom: always-visible tabs for Headers/Errors/Extensions */}
 			<TabPanel
 				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
@@ -330,8 +340,14 @@ export function IDELayout({ fetcher, onClose }) {
 		window.localStorage.getItem('wpgraphql_ide_query_width') || '50%';
 	const savedEditorHeight =
 		window.localStorage.getItem('wpgraphql_ide_editor_height') || '70%';
+	const savedResponseViewerHeight =
+		window.localStorage.getItem('wpgraphql_ide_response_viewer_height') ||
+		'50%';
 	const [queryPaneWidth, setQueryPaneWidth] = useState(savedQueryWidth);
 	const [editorHeight, setEditorHeight] = useState(savedEditorHeight);
+	const [responseViewerHeight, setResponseViewerHeight] = useState(
+		savedResponseViewerHeight
+	);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [responseDataScope, setResponseDataScope] = useState('data');
 	const [responseViewMode, setResponseViewMode] = useState(
@@ -1136,6 +1152,14 @@ export function IDELayout({ fetcher, onClose }) {
 								responseDataScope={responseDataScope}
 								responseHeaders={responseHeaders}
 								extensionTabs={extensionTabs}
+								responseViewerHeight={responseViewerHeight}
+								onResponseViewerResize={(h) => {
+									setResponseViewerHeight(h);
+									window.localStorage.setItem(
+										'wpgraphql_ide_response_viewer_height',
+										String(h)
+									);
+								}}
 							/>
 						</div>
 					</div>
