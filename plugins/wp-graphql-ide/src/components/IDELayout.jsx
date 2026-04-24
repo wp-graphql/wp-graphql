@@ -42,41 +42,24 @@ import { useExecution } from '../hooks/useExecution';
 function ResponseContent({
 	response,
 	responseViewMode,
+	responseDataScope,
 	responseHeaders,
 	extensionTabs,
-	responseViewerHeight,
-	onResponseViewerResize,
 }) {
-	if (!response) {
-		return (
-			<div className="wpgraphql-ide-response-empty">
-				Run a query to see results
-			</div>
-		);
-	}
-
-	if (responseViewMode === 'raw') {
-		return <ResponseViewer value={response} />;
-	}
-
-	const parsed = (() => {
+	const parsed = React.useMemo(() => {
+		if (!response) {
+			return null;
+		}
 		try {
 			return JSON.parse(response);
 		} catch {
 			return null;
 		}
-	})();
+	}, [response]);
 
-	if (responseViewMode === 'table') {
-		return <ResponseTableView response={parsed} />;
-	}
-
-	// Formatted mode: data viewer + tabs for Headers/Errors/Extensions.
 	const errors = parsed?.errors || [];
 	const extensions = parsed?.extensions || {};
-	const dataStr = parsed?.data ? JSON.stringify(parsed.data, null, 2) : '';
 
-	// Filter extension tabs to only those with data in the current response.
 	const activeExtTabs = extensionTabs.filter(
 		(tab) => extensions[tab.name] !== undefined
 	);
@@ -95,19 +78,48 @@ function ResponseContent({
 		},
 	];
 
+	// Determine what to show in the viewer based on scope.
+	const viewerContent = React.useMemo(() => {
+		if (!response) {
+			return '';
+		}
+		if (responseDataScope === 'data' && parsed?.data) {
+			return JSON.stringify(parsed.data, null, 2);
+		}
+		return response;
+	}, [response, responseDataScope, parsed]);
+
+	// Render the viewer based on view mode.
+	const renderViewer = () => {
+		if (!response) {
+			return (
+				<div className="wpgraphql-ide-response-empty">
+					Run a query to see results
+				</div>
+			);
+		}
+		if (responseViewMode === 'raw') {
+			return <ResponseViewer value={viewerContent} />;
+		}
+		if (responseViewMode === 'table') {
+			return (
+				<ResponseTableView
+					response={
+						responseDataScope === 'data' ? parsed?.data : parsed
+					}
+				/>
+			);
+		}
+		return <ResponseViewer value={viewerContent} />;
+	};
+
 	return (
-		<div className="wpgraphql-ide-response-formatted">
-			<ResizableBox
-				size={{ width: '100%', height: responseViewerHeight }}
-				minHeight={50}
-				enable={{ bottom: true }}
-				onResizeStop={(e, d, elt) => {
-					onResponseViewerResize(elt.offsetHeight);
-				}}
-				className="wpgraphql-ide-response-data wpgraphql-ide-resizable-split"
-			>
-				<ResponseViewer value={dataStr || response} />
-			</ResizableBox>
+		<div className="wpgraphql-ide-response-body">
+			{/* Top: response viewer — scrollable */}
+			<div className="wpgraphql-ide-response-viewer">
+				{renderViewer()}
+			</div>
+			{/* Bottom: always-visible tabs for Headers/Errors/Extensions */}
 			<TabPanel className="wpgraphql-ide-response-tabs" tabs={bottomTabs}>
 				{(tab) => {
 					if (tab.name === 'headers') {
@@ -247,6 +259,7 @@ export function IDELayout({ fetcher, onClose }) {
 	const {
 		loadDocuments,
 		saveTab,
+		publishTab,
 		saveDocument,
 		createTab,
 		switchTab,
@@ -313,15 +326,10 @@ export function IDELayout({ fetcher, onClose }) {
 		window.localStorage.getItem('wpgraphql_ide_query_width') || '50%';
 	const savedEditorHeight =
 		window.localStorage.getItem('wpgraphql_ide_editor_height') || '70%';
-	const savedResponseViewerHeight =
-		window.localStorage.getItem('wpgraphql_ide_response_viewer_height') ||
-		250;
 	const [queryPaneWidth, setQueryPaneWidth] = useState(savedQueryWidth);
 	const [editorHeight, setEditorHeight] = useState(savedEditorHeight);
-	const [responseViewerHeight, setResponseViewerHeight] = useState(
-		Number(savedResponseViewerHeight)
-	);
 	const [isLoaded, setIsLoaded] = useState(false);
+	const [responseDataScope, setResponseDataScope] = useState('data');
 	const [responseViewMode, setResponseViewMode] = useState(
 		() =>
 			window.localStorage.getItem('wpgraphql_ide_response_mode') ||
@@ -483,6 +491,75 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const saveCurrentDocRef = useRef(null);
 	saveCurrentDocRef.current = saveCurrentDoc;
+
+	// Publish the current document (draft → published with hash).
+	const publishCurrentDoc = useCallback(async () => {
+		if (!activeDocument || String(activeDocument.id).startsWith('temp-')) {
+			return;
+		}
+		// Save first to ensure content is persisted.
+		try {
+			await saveTab(activeDocument.id, {
+				query,
+				variables,
+				headers,
+			});
+			const result = await publishTab(activeDocument.id);
+			if (result?.already_exists) {
+				addNotice('This query is already published');
+			} else {
+				addNotice('Document published');
+			}
+		} catch {
+			addNotice('Failed to publish document', 'error');
+		}
+	}, [
+		activeDocument,
+		query,
+		variables,
+		headers,
+		saveTab,
+		publishTab,
+		addNotice,
+	]);
+
+	// Duplicate a published document as a new draft for editing.
+	const duplicateAsDraft = useCallback(async () => {
+		if (!activeDocument) {
+			return;
+		}
+		const title = `${activeDocument.title || 'Untitled'} (copy)`;
+		await createTab(title);
+
+		// The new tab is now active — populate it.
+		const { select: sel } =
+			// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+			require('@wordpress/data');
+		const newDoc = sel('wpgraphql-ide/document-editor').getActiveDocument();
+		if (newDoc) {
+			setQuery(activeDocument.query || '');
+			setVariables(activeDocument.variables || '');
+			setHeaders(activeDocument.headers || '');
+			setDocumentDirty(newDoc.id, true);
+		}
+		addNotice('Draft copy created');
+	}, [
+		activeDocument,
+		createTab,
+		setQuery,
+		setVariables,
+		setHeaders,
+		setDocumentDirty,
+		addNotice,
+	]);
+
+	// Whether the active document is published (immutable query).
+	const isPublished = activeDocument?.status === 'publish';
+	const isTempDoc = activeDocument
+		? String(activeDocument.id).startsWith('temp-')
+		: true;
+	const isSavedDraft =
+		activeDocument && !isTempDoc && activeDocument.status !== 'publish';
 
 	// Close tab with confirmation for dirty documents.
 	const handleCloseTab = useCallback(
@@ -812,16 +889,44 @@ export function IDELayout({ fetcher, onClose }) {
 										</MenuGroup>
 									)}
 								</DropdownMenu>
-								<Tooltip text="Save (Cmd+S)">
-									<Button
-										onClick={saveCurrentDoc}
-										disabled={!activeDocument?.dirty}
-										size="compact"
-										className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
-									>
-										Save
-									</Button>
-								</Tooltip>
+								{isPublished ? (
+									<Tooltip text="Duplicate as draft to edit">
+										<Button
+											onClick={duplicateAsDraft}
+											size="compact"
+											className="wpgraphql-ide-save-button"
+										>
+											Duplicate
+										</Button>
+									</Tooltip>
+								) : (
+									<>
+										<Tooltip text="Save draft (Cmd+S)">
+											<Button
+												onClick={saveCurrentDoc}
+												disabled={
+													!activeDocument?.dirty
+												}
+												size="compact"
+												className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
+											>
+												Save
+											</Button>
+										</Tooltip>
+										{isSavedDraft && (
+											<Tooltip text="Publish (immutable)">
+												<Button
+													onClick={publishCurrentDoc}
+													size="compact"
+													variant="primary"
+													className="wpgraphql-ide-publish-button"
+												>
+													Publish
+												</Button>
+											</Tooltip>
+										)}
+									</>
+								)}
 								<div className="wpgraphql-ide-editor-toolbar-spacer" />
 								<div className="wpgraphql-ide-send-group">
 									<span className="wpgraphql-ide-method-label">
@@ -898,6 +1003,7 @@ export function IDELayout({ fetcher, onClose }) {
 									value={query}
 									onChange={handleQueryChange}
 									schema={schema}
+									readOnly={isPublished}
 									extraKeys={editorKeyBindings.current}
 								/>
 							</ResizableBox>
@@ -960,6 +1066,20 @@ export function IDELayout({ fetcher, onClose }) {
 										)}
 									</span>
 								)}
+								<div className="wpgraphql-ide-response-scope-toggle">
+									{['data', 'full'].map((scope) => (
+										<button
+											key={scope}
+											type="button"
+											className={`wpgraphql-ide-response-mode-btn${responseDataScope === scope ? ' is-active' : ''}`}
+											onClick={() =>
+												setResponseDataScope(scope)
+											}
+										>
+											{scope === 'data' ? 'Data' : 'Full'}
+										</button>
+									))}
+								</div>
 								<div className="wpgraphql-ide-response-mode-toggle">
 									{['formatted', 'table', 'raw'].map(
 										(mode) => (
@@ -985,16 +1105,9 @@ export function IDELayout({ fetcher, onClose }) {
 							<ResponseContent
 								response={response}
 								responseViewMode={responseViewMode}
+								responseDataScope={responseDataScope}
 								responseHeaders={responseHeaders}
 								extensionTabs={extensionTabs}
-								responseViewerHeight={responseViewerHeight}
-								onResponseViewerResize={(h) => {
-									setResponseViewerHeight(h);
-									window.localStorage.setItem(
-										'wpgraphql_ide_response_viewer_height',
-										String(h)
-									);
-								}}
 							/>
 						</div>
 					</div>

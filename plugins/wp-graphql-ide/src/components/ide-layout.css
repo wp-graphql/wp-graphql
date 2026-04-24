@@ -368,6 +368,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: var(--wp-admin-theme-color, #3858e9);
 }
 
+/* Publish button */
+.wpgraphql-ide-publish-button.components-button {
+	font-size: 11px;
+	height: 28px;
+	padding: 0 12px;
+}
+
 /* Snackbar — absolute to IDE container, bottom-left */
 .wpgraphql-ide-snackbar-list {
 	position: absolute;
@@ -1103,20 +1110,26 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
-/* Formatted mode layout */
-.wpgraphql-ide-response-formatted {
+/* Response body — viewer + always-visible bottom tabs */
+.wpgraphql-ide-response-body {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
 	overflow: hidden;
-	position: relative;
 }
 
-.wpgraphql-ide-response-data {
-	flex: none;
+.wpgraphql-ide-response-viewer {
+	flex: 1;
 	min-height: 50px;
 	overflow: auto;
+}
+
+/* Scope toggle (Data / Full) */
+.wpgraphql-ide-response-scope-toggle {
+	display: flex;
+	gap: 2px;
+	margin-right: 8px;
 }
 
 .wpgraphql-ide-response-tabs {
