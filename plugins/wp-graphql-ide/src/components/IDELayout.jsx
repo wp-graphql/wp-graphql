@@ -1058,12 +1058,15 @@ export function IDELayout({ fetcher, onClose }) {
 									icon={moreVertical}
 									label="Response options"
 								>
-									{() => (
+									{({ onClose: closeMenu }) => (
 										<MenuGroup>
 											<MenuItem
-												onClick={() =>
-													setResponseDataScope('data')
-												}
+												onClick={() => {
+													setResponseDataScope(
+														'data'
+													);
+													closeMenu();
+												}}
 												isSelected={
 													responseDataScope === 'data'
 												}
@@ -1071,9 +1074,12 @@ export function IDELayout({ fetcher, onClose }) {
 												Show data only
 											</MenuItem>
 											<MenuItem
-												onClick={() =>
-													setResponseDataScope('full')
-												}
+												onClick={() => {
+													setResponseDataScope(
+														'full'
+													);
+													closeMenu();
+												}}
 												isSelected={
 													responseDataScope === 'full'
 												}

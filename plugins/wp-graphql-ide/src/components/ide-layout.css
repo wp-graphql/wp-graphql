@@ -492,8 +492,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	width: 260px;
 	min-width: 200px;
 	flex-shrink: 0;
+	height: 100%;
 	padding: 8px;
 	font-size: 13px;
+	box-sizing: border-box;
 	color: #2c3338;
 }
 
