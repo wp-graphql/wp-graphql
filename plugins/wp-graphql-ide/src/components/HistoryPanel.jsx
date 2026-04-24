@@ -3,7 +3,6 @@ import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { Icon, backup } from '@wordpress/icons';
-import hooks from '../wordpress-hooks';
 
 /**
  * History panel icon for the activity bar.
@@ -93,7 +92,7 @@ export function HistoryPanel() {
 						// eslint-disable-next-line no-alert
 						if (window.confirm('Clear all history?')) {
 							clearAllHistory();
-							hooks.doAction(
+							window.WPGraphQLIDE?.hooks?.doAction(
 								'wpgraphql-ide.notice',
 								'History cleared'
 							);

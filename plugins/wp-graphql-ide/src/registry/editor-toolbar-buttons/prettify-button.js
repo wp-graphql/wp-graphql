@@ -1,5 +1,4 @@
 import { select, dispatch } from '@wordpress/data';
-import hooks from '../../wordpress-hooks';
 
 export const prettifyButton = () => {
 	return {
@@ -8,7 +7,10 @@ export const prettifyButton = () => {
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();
 			dispatch('wpgraphql-ide/app').prettifyQuery(query);
-			hooks.doAction('wpgraphql-ide.notice', 'Query prettified');
+			window.WPGraphQLIDE?.hooks?.doAction(
+				'wpgraphql-ide.notice',
+				'Query prettified'
+			);
 		},
 	};
 };
