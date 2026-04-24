@@ -128,8 +128,10 @@ function ResponseContent({
 			</ResizableBox>
 			{/* Bottom: always-visible tabs for Headers/Errors/Extensions */}
 			<TabPanel
+				key={errors.length > 0 ? 'has-errors' : 'no-errors'}
 				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
 				tabs={bottomTabs}
+				initialTabName={errors.length > 0 ? 'errors' : 'headers'}
 			>
 				{(tab) => {
 					if (tab.name === 'headers') {
