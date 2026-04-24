@@ -344,6 +344,38 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	opacity: 0.75;
 }
 
+/* Topbar Save Draft link */
+.wpgraphql-ide-topbar-save.components-button {
+	font-size: 12px;
+	height: 32px;
+	color: #646970;
+	text-decoration: none;
+}
+
+.wpgraphql-ide-topbar-save.components-button:hover {
+	color: #2c3338;
+}
+
+.wpgraphql-ide-topbar-save.components-button:disabled {
+	opacity: 0.4;
+}
+
+/* Floating execution pill — bottom-right of query editor */
+.wpgraphql-ide-execution-pill {
+	position: absolute;
+	bottom: 12px;
+	right: 12px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 4px 4px 12px;
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid #dcdcde;
+	border-radius: 20px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	z-index: 5;
+}
+
 /* Save button */
 .wpgraphql-ide-save-button.components-button {
 	font-size: 11px;

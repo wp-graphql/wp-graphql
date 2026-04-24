@@ -778,6 +778,36 @@ export function IDELayout({ fetcher, onClose }) {
 							<Icon icon={update} />
 						</Button>
 					</Tooltip>
+					{isPublished ? (
+						<Button
+							onClick={duplicateAsDraft}
+							size="compact"
+							className="wpgraphql-ide-topbar-save"
+						>
+							Duplicate
+						</Button>
+					) : (
+						<>
+							<Button
+								onClick={saveCurrentDoc}
+								disabled={!activeDocument?.dirty}
+								size="compact"
+								className="wpgraphql-ide-topbar-save"
+							>
+								Save draft
+							</Button>
+							{isSavedDraft && (
+								<Button
+									onClick={publishCurrentDoc}
+									size="compact"
+									variant="primary"
+									className="wpgraphql-ide-publish-button"
+								>
+									Publish
+								</Button>
+							)}
+						</>
+					)}
 					<Tooltip text="WPGraphQL Settings">
 						<Button
 							href={settingsUrl}
@@ -909,134 +939,87 @@ export function IDELayout({ fetcher, onClose }) {
 										</MenuGroup>
 									)}
 								</DropdownMenu>
-								<div className="wpgraphql-ide-toolbar-divider" />
-								<div className="wpgraphql-ide-doc-actions">
-									{isPublished ? (
-										<Tooltip text="Duplicate as draft to edit">
-											<Button
-												onClick={duplicateAsDraft}
-												size="compact"
-												className="wpgraphql-ide-save-button"
-											>
-												Duplicate
-											</Button>
-										</Tooltip>
-									) : (
-										<>
-											<Tooltip text="Save draft (Cmd+S)">
-												<Button
-													onClick={saveCurrentDoc}
-													disabled={
-														!activeDocument?.dirty
-													}
-													size="compact"
-													className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
-												>
-													Save
-												</Button>
-											</Tooltip>
-											{isSavedDraft && (
-												<Tooltip text="Publish (immutable)">
-													<Button
-														onClick={
-															publishCurrentDoc
-														}
-														size="compact"
-														variant="primary"
-														className="wpgraphql-ide-publish-button"
-													>
-														Publish
-													</Button>
-												</Tooltip>
-											)}
-										</>
-									)}
-								</div>
-								<div className="wpgraphql-ide-editor-toolbar-spacer" />
-								<div className="wpgraphql-ide-send-group">
-									<span className="wpgraphql-ide-method-label">
-										POST
-									</span>
-									<Tooltip
-										text={
+							</div>
+							{/* Floating execution pill — bottom-right of query pane */}
+							<div className="wpgraphql-ide-execution-pill">
+								<span className="wpgraphql-ide-method-label">
+									POST
+								</span>
+								<Tooltip
+									text={
+										isAuthenticated
+											? 'Authenticated (click to switch)'
+											: 'Public (click to switch)'
+									}
+								>
+									<button
+										type="button"
+										onClick={toggleAuthentication}
+										className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+										aria-label={
 											isAuthenticated
-												? 'Sending as logged-in user (click to switch)'
-												: 'Sending as public user (click to switch)'
+												? 'Switch to public'
+												: 'Switch to authenticated'
 										}
 									>
-										<button
-											type="button"
-											onClick={toggleAuthentication}
-											className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-											aria-label={
-												isAuthenticated
-													? 'Switch to public'
-													: 'Switch to authenticated'
-											}
+										<span
+											className={authStyles.authAvatar}
+											style={{
+												backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+											}}
 										>
 											<span
-												className={
-													authStyles.authAvatar
-												}
-												style={{
-													backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
-												}}
-											>
-												<span
-													className={
-														authStyles.authBadge
-													}
-												/>
-											</span>
-										</button>
-									</Tooltip>
-									<Tooltip
-										text={
+												className={authStyles.authBadge}
+											/>
+										</span>
+									</button>
+								</Tooltip>
+								<Tooltip
+									text={
+										isFetching
+											? 'Stop (Cmd+Enter)'
+											: 'Execute (Cmd+Enter)'
+									}
+								>
+									<Button
+										variant="primary"
+										onClick={executeQuery}
+										disabled={isSchemaLoading}
+										className="wpgraphql-ide-send-button"
+										size="compact"
+										aria-label={
 											isFetching
-												? 'Stop (Cmd+Enter)'
-												: 'Execute (Cmd+Enter)'
+												? 'Stop execution'
+												: 'Execute query'
 										}
 									>
-										<Button
-											variant="primary"
-											onClick={executeQuery}
-											disabled={isSchemaLoading}
-											className="wpgraphql-ide-send-button"
-											size="compact"
-											aria-label={
-												isFetching
-													? 'Stop execution'
-													: 'Execute query'
-											}
-										>
-											{isFetching ? (
-												<svg
-													viewBox="0 0 24 24"
-													width="16"
-													height="16"
-													fill="currentColor"
-												>
-													<rect
-														x="6"
-														y="6"
-														width="12"
-														height="12"
-														rx="1"
-													/>
-												</svg>
-											) : (
-												<svg
-													viewBox="0 0 24 24"
-													width="16"
-													height="16"
-													fill="currentColor"
-												>
-													<path d="M8 5v14l11-7z" />
-												</svg>
-											)}
-										</Button>
-									</Tooltip>
-								</div>
+										{isFetching ? (
+											<svg
+												viewBox="0 0 24 24"
+												width="16"
+												height="16"
+												fill="currentColor"
+											>
+												<rect
+													x="6"
+													y="6"
+													width="12"
+													height="12"
+													rx="1"
+												/>
+											</svg>
+										) : (
+											<svg
+												viewBox="0 0 24 24"
+												width="16"
+												height="16"
+												fill="currentColor"
+											>
+												<path d="M8 5v14l11-7z" />
+											</svg>
+										)}
+									</Button>
+								</Tooltip>
 							</div>
 							<ResizableBox
 								size={{
