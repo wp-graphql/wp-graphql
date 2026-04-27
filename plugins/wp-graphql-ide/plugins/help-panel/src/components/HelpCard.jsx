@@ -1,5 +1,5 @@
 const HelpCard = ({ card }) => {
-	const { title, description, linkUrl, linkText } = card;
+	const { description, linkUrl, linkText } = card;
 	return (
 		<div className="wpgraphql-ide-help-card">
 			<p className="wpgraphql-ide-help-card-desc">{description}</p>

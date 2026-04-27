@@ -3,7 +3,7 @@
  * @type {Object}
  */
 const selectors = {
-	// TODO: update "getQuery" to simply "query" since we are in the context of selectors.
+	// Named "getQuery" for public API consistency. Renaming would be a breaking change.
 	getQuery: (state) => {
 		return state.query;
 	},
