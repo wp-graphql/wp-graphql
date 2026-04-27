@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.0...wp-graphql-ide/v4.4.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.47 to 2.1.50 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3790](https://github.com/wp-graphql/wp-graphql/issues/3790)) ([4e9cb0d](https://github.com/wp-graphql/wp-graphql/commit/4e9cb0d84cdc9143c554fb7025798a7bf2e3d544))
+
 ## [4.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.3.0...wp-graphql-ide/v4.4.0) (2026-04-22)
 
 
