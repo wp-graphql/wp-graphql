@@ -675,10 +675,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 /* Panel header actions container */
-.wpgraphql-ide-panel-header-actions {
-	display: flex;
-	align-items: center;
-	gap: 2px;
+.wpgraphql-ide-panel-header-spacer {
+	flex: 1;
 }
 
 .wpgraphql-ide-panel-header-btn.components-button {

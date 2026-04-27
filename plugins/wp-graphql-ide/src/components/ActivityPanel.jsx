@@ -63,19 +63,18 @@ const ActivityPanel = () => {
 				<span className="wpgraphql-ide-panel-title">
 					{visiblePanel.title}
 				</span>
-				<div className="wpgraphql-ide-panel-header-actions">
-					{visiblePanel.headerAction && <visiblePanel.headerAction />}
-					<Button
-						className="wpgraphql-ide-panel-close"
-						onClick={() =>
-							toggleActivityPanelVisibility(visiblePanel.name)
-						}
-						aria-label="Close panel"
-						size="small"
-					>
-						<Icon icon={close} size={20} />
-					</Button>
-				</div>
+				{visiblePanel.headerAction && <visiblePanel.headerAction />}
+				<div className="wpgraphql-ide-panel-header-spacer" />
+				<Button
+					className="wpgraphql-ide-panel-close"
+					onClick={() =>
+						toggleActivityPanelVisibility(visiblePanel.name)
+					}
+					aria-label="Close panel"
+					size="small"
+				>
+					<Icon icon={close} size={20} />
+				</Button>
 			</div>
 			<div className="wpgraphql-ide-plugin">
 				{PluginContent ? <PluginContent /> : null}
