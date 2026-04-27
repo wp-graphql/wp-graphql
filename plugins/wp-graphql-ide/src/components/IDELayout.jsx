@@ -818,7 +818,9 @@ export function IDELayout({ fetcher, onClose }) {
 							onCreate={() => createTab(getNextTabName())}
 							onRename={(id, title) => {
 								saveDocument(id, { title });
-								setDocumentDirty(id, true);
+								if (String(id).startsWith('temp-')) {
+									setDocumentDirty(id, true);
+								}
 							}}
 						/>
 					</div>

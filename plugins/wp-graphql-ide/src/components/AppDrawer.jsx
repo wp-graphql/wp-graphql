@@ -136,7 +136,7 @@ export function AppDrawer({ children, buttonLabel }) {
 	return (
 		<div className="AppDrawerRoot">
 			<VaulDrawer.Root
-				dismissible={true}
+				dismissible={false}
 				closeThreshold={1}
 				shouldScaleBackground={false}
 				open={localOpen}
@@ -170,7 +170,12 @@ export function AppDrawer({ children, buttonLabel }) {
 						</VaulDrawer.Description>
 						{childrenReady ? children : null}
 					</VaulDrawer.Content>
-					<VaulDrawer.Overlay />
+					<VaulDrawer.Overlay
+						onClick={() => {
+							setLocalOpen(false);
+							setDrawerOpen(false);
+						}}
+					/>
 				</VaulDrawer.Portal>
 			</VaulDrawer.Root>
 		</div>
