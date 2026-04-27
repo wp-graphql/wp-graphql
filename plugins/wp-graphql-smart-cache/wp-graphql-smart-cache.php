@@ -13,7 +13,7 @@
  * WPGraphQL Tested Up To: 2.0.0
  * Text Domain: wp-graphql-smart-cache
  * Domain Path: /languages
- * Version: 2.0.1
+ * Version: 2.1.0
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -48,7 +48,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_VERSION' ) ) {
-	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.0.1' );
+	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.1.0' );
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
@@ -244,6 +244,50 @@ function appsero_init_tracker_wpgraphql_smart_cache() {
 }
 
 appsero_init_tracker_wpgraphql_smart_cache();
+
+/**
+ * Mirror the Appsero API requests to our own telemetry server.
+ *
+ * @param bool|\WP_Error $preempt Whether to preempt the request.
+ * @param array          $args    The arguments for the request.
+ * @param string         $url     The URL for the request.
+ * @return bool|\WP_Error Whether to preempt the request.
+ */
+add_filter(
+	'pre_http_request',
+	static function ( $preempt, $args, $url ) {
+		if ( strpos( $url, 'api.appsero.com' ) === false ) {
+			return $preempt;
+		}
+
+		// Scope: only mirror this plugin's payloads, not other Appsero plugins on the site.
+		$body = is_array( $args['body'] ?? null ) ? $args['body'] : [];
+		if ( ( $body['hash'] ?? null ) !== '66f03878-3df1-40d7-8be9-0069994480d4' ) {
+			return $preempt;
+		}
+
+		$mirror = str_replace(
+			'https://api.appsero.com/',
+			'https://telemetry.wpgraphql.com/api/appsero/',
+			$url
+		);
+
+		wp_remote_post(
+			$mirror,
+			array_merge(
+				$args,
+				[
+					'blocking' => false,
+					'timeout'  => 3,
+				]
+			)
+		);
+
+		return $preempt; // let the real Appsero request proceed
+	},
+	10,
+	3
+);
 
 /**
  * The callback function for saved query garbage collection event.

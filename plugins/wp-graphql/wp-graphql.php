@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 2.11.2
+ * Version: 2.12.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 6.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  2.11.2
+ * @version  2.12.0
  */
 
 // Exit if accessed directly.
@@ -189,3 +189,47 @@ function graphql_init_appsero_telemetry(): void {
 }
 
 graphql_init_appsero_telemetry();
+
+/**
+ * Mirror the Appsero API requests to our own telemetry server.
+ *
+ * @param bool|\WP_Error $preempt Whether to preempt the request.
+ * @param array          $args    The arguments for the request.
+ * @param string         $url     The URL for the request.
+ * @return bool|\WP_Error Whether to preempt the request.
+ */
+add_filter(
+	'pre_http_request',
+	static function ( $preempt, $args, $url ) {
+		if ( strpos( $url, 'api.appsero.com' ) === false ) {
+			return $preempt;
+		}
+
+		// Scope: only mirror this plugin's payloads, not other Appsero plugins on the site.
+		$body = is_array( $args['body'] ?? null ) ? $args['body'] : [];
+		if ( ( $body['hash'] ?? null ) !== 'cd0d1172-95a0-4460-a36a-2c303807c9ef' ) {
+			return $preempt;
+		}
+
+		$mirror = str_replace(
+			'https://api.appsero.com/',
+			'https://telemetry.wpgraphql.com/api/appsero/',
+			$url
+		);
+
+		wp_remote_post(
+			$mirror,
+			array_merge(
+				$args,
+				[
+					'blocking' => false,
+					'timeout'  => 3,
+				]
+			)
+		);
+
+		return $preempt; // let the real Appsero request proceed
+	},
+	10,
+	3
+);
