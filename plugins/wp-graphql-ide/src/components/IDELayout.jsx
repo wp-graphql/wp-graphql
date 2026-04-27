@@ -876,12 +876,39 @@ export function IDELayout({ fetcher, onClose }) {
 									label="Editor actions"
 								>
 									{({ onClose: closeMenu }) => (
-										<MenuGroup>
-											<EditorToolbar
-												onClose={closeMenu}
-												onNotice={addNotice}
-											/>
-										</MenuGroup>
+										<>
+											<MenuGroup>
+												<EditorToolbar
+													onClose={closeMenu}
+													onNotice={addNotice}
+												/>
+											</MenuGroup>
+											{isPublished && (
+												<MenuGroup>
+													<MenuItem
+														onClick={() => {
+															closeMenu();
+															createTab(
+																`${activeDocument?.title || 'Untitled'} (copy)`
+															).then(() => {
+																setQuery(query);
+																setVariables(
+																	variables
+																);
+																setHeaders(
+																	headers
+																);
+																addNotice(
+																	'Draft copy created'
+																);
+															});
+														}}
+													>
+														Duplicate as draft
+													</MenuItem>
+												</MenuGroup>
+											)}
+										</>
 									)}
 								</DropdownMenu>
 								<div className="wpgraphql-ide-editor-toolbar-spacer" />

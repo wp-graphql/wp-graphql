@@ -363,7 +363,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	line-height: 1;
 	display: flex;
 	align-items: center;
-	background: transparent;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-method-label:hover {
+	color: #2c3338;
 }
 
 .wpgraphql-ide-auth-avatar {

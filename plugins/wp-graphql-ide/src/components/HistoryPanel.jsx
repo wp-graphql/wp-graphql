@@ -57,9 +57,24 @@ export function HistoryPanel() {
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
 
+	const { createTab } = useDispatch('wpgraphql-ide/document-editor');
+
 	const avatarUrl = window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || '';
 
-	const restoreEntry = (entry) => {
+	const restoreEntry = async (entry) => {
+		const opName = extractOperationName(entry.query);
+		const docName = getDocumentName(entry.document_id);
+		const timestamp = dateI18n('M j, g:i A', entry.timestamp * 1000);
+		const isGenericName =
+			!docName || /^(Untitled|New Tab( \d+)?)$/.test(docName);
+		let tabName = timestamp;
+		if (opName) {
+			tabName = opName;
+		} else if (!isGenericName) {
+			tabName = docName;
+		}
+
+		await createTab(tabName);
 		setQuery(entry.query || '');
 		setVariables(entry.variables || '');
 		setHeaders(entry.headers || '');

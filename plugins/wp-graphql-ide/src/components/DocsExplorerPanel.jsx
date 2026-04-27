@@ -163,11 +163,27 @@ function RootView({ schema, onSelectType }) {
 	// Only compute filtered types when searching.
 	const filteredTypes = searchTerm.trim()
 		? Object.values(schema.getTypeMap())
-				.filter(
-					(t) =>
-						!t.name.startsWith('__') &&
-						t.name.toLowerCase().includes(searchTerm.toLowerCase())
-				)
+				.filter((t) => {
+					if (t.name.startsWith('__')) {
+						return false;
+					}
+					const q = searchTerm.toLowerCase();
+					if (t.name.toLowerCase().includes(q)) {
+						return true;
+					}
+					// Also search field names.
+					if (typeof t.getFields === 'function') {
+						try {
+							const fields = t.getFields();
+							return Object.keys(fields).some((f) =>
+								f.toLowerCase().includes(q)
+							);
+						} catch {
+							return false;
+						}
+					}
+					return false;
+				})
 				.sort((a, b) => a.name.localeCompare(b.name))
 				.slice(0, 25)
 		: [];
@@ -208,7 +224,7 @@ function RootView({ schema, onSelectType }) {
 					type="text"
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
-					placeholder="Type name..."
+					placeholder="Search types and fields..."
 					className="wpgraphql-ide-docs-search"
 				/>
 				{filteredTypes.map((type) => (
@@ -220,7 +236,7 @@ function RootView({ schema, onSelectType }) {
 					/>
 				))}
 				{searchTerm.trim() && filteredTypes.length === 0 && (
-					<p className="wpgraphql-ide-docs-empty">No types found.</p>
+					<p className="wpgraphql-ide-docs-empty">No results.</p>
 				)}
 			</div>
 		</div>
