@@ -79,7 +79,7 @@
 		"@typescript-eslint/parser": "^6.21.0",
 		"@wordpress/babel-preset-default": "^7.42.0",
 		"@wordpress/env": "^10.39.0",
-		"@wordpress/jest-preset-default": "^12.43.0",
+		"@wordpress/jest-preset-default": "^12.44.0",
 		"@wordpress/scripts": "^27.9.0",
 		"babel-jest": "^30.3.0",
 		"babel-plugin-inline-json-import": "^0.3.2",
