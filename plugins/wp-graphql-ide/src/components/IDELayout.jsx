@@ -798,33 +798,30 @@ export function IDELayout({ fetcher, onClose }) {
 
 				{/* Editor area: tabs + editors are document-scoped */}
 				<div className="wpgraphql-ide-editor-area">
-					{openTabs.length > 1 && (
-						<div className="wpgraphql-ide-tab-row">
-							<DocumentTabs
-								tabs={openTabs
-									.map((tabId) =>
-										allDocuments.find(
-											(d) =>
-												String(d.id) === String(tabId)
-										)
+					<div className="wpgraphql-ide-tab-row">
+						<DocumentTabs
+							tabs={openTabs
+								.map((tabId) =>
+									allDocuments.find(
+										(d) => String(d.id) === String(tabId)
 									)
-									.filter(Boolean)
-									.map((doc) => ({
-										id: doc.id,
-										title: doc.title || 'Untitled',
-										dirty: !!doc.dirty,
-									}))}
-								activeId={activeDocument?.id}
-								onSwitch={(id) => switchTab(id)}
-								onClose={(id) => handleCloseTab(id)}
-								onCreate={() => createTab(getNextTabName())}
-								onRename={(id, title) => {
-									saveDocument(id, { title });
-									setDocumentDirty(id, true);
-								}}
-							/>
-						</div>
-					)}
+								)
+								.filter(Boolean)
+								.map((doc) => ({
+									id: doc.id,
+									title: doc.title || 'Untitled',
+									dirty: !!doc.dirty,
+								}))}
+							activeId={activeDocument?.id}
+							onSwitch={(id) => switchTab(id)}
+							onClose={(id) => handleCloseTab(id)}
+							onCreate={() => createTab(getNextTabName())}
+							onRename={(id, title) => {
+								saveDocument(id, { title });
+								setDocumentDirty(id, true);
+							}}
+						/>
+					</div>
 
 					<div className="wpgraphql-ide-editors">
 						<ResizableBox
