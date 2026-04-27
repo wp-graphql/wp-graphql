@@ -257,6 +257,10 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/response-extensions').extensionTabs(),
 		[]
 	);
+	const httpMethod = useSelect(
+		(select) => select('wpgraphql-ide/app').getHttpMethod(),
+		[]
+	);
 
 	const {
 		setQuery,
@@ -264,6 +268,7 @@ export function IDELayout({ fetcher, onClose }) {
 		setHeaders,
 		setResponse,
 		toggleAuthentication,
+		setHttpMethod,
 		loadHistory,
 		addHistoryEntry,
 	} = useDispatch('wpgraphql-ide/app');
@@ -934,9 +939,20 @@ export function IDELayout({ fetcher, onClose }) {
 									extraKeys={editorKeyBindings.current}
 								/>
 								<div className="wpgraphql-ide-execution-pill">
-									<span className="wpgraphql-ide-method-label">
-										POST
-									</span>
+									<button
+										type="button"
+										className="wpgraphql-ide-method-label"
+										onClick={() =>
+											setHttpMethod(
+												httpMethod === 'POST'
+													? 'GET'
+													: 'POST'
+											)
+										}
+										aria-label={`Switch to ${httpMethod === 'POST' ? 'GET' : 'POST'}`}
+									>
+										{httpMethod}
+									</button>
 									<Tooltip
 										text={
 											isAuthenticated

@@ -55,18 +55,44 @@ export function App() {
 				credentials = 'include';
 			}
 
-			const fetchOptions = {
-				method: 'POST',
-				headers,
-				body: JSON.stringify(graphQLParams),
-				credentials,
-			};
+			const method = options?.method || 'POST';
+
+			let url = graphqlEndpoint;
+			let fetchOptions;
+			if (method === 'GET') {
+				const params = new URLSearchParams();
+				params.set('query', graphQLParams.query);
+				if (graphQLParams.variables) {
+					params.set(
+						'variables',
+						JSON.stringify(graphQLParams.variables)
+					);
+				}
+				if (graphQLParams.operationName) {
+					params.set('operationName', graphQLParams.operationName);
+				}
+				fetchOptions = {
+					method: 'GET',
+					headers: { ...headers },
+					credentials,
+				};
+				// Remove Content-Type for GET requests.
+				delete fetchOptions.headers['Content-Type'];
+				url = `${url}?${params.toString()}`;
+			} else {
+				fetchOptions = {
+					method: 'POST',
+					headers,
+					body: JSON.stringify(graphQLParams),
+					credentials,
+				};
+			}
 
 			if (options.signal) {
 				fetchOptions.signal = options.signal;
 			}
 
-			const response = await fetch(graphqlEndpoint, fetchOptions);
+			const response = await fetch(url, fetchOptions);
 
 			// Collect response headers as a plain object so they can be
 			// displayed in the IDE's Headers tab.

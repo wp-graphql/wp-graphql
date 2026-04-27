@@ -43,6 +43,9 @@ const selectors = {
 	getResponseSize: (state) => {
 		return state.responseSize;
 	},
+	getHttpMethod: (state) => {
+		return state.httpMethod;
+	},
 	isFetching: (state) => {
 		return state.isFetching;
 	},

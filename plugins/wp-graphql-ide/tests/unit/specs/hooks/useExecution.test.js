@@ -16,6 +16,7 @@ jest.mock('@wordpress/data', () => ({
 			getQuery: () => mockState.query,
 			getVariables: () => mockState.variables,
 			getHeaders: () => mockState.headers,
+			getHttpMethod: () => mockState.httpMethod,
 		})),
 	useDispatch: () => ({
 		setResponse: mockSetResponse,
@@ -41,6 +42,7 @@ describe('useExecution', () => {
 			query: '{ hello }',
 			variables: '',
 			headers: '',
+			httpMethod: 'POST',
 		};
 		mockSetResponse = jest.fn();
 		mockSetIsFetching = jest.fn();

@@ -99,6 +99,12 @@ const actions = {
 			meta: meta || {},
 		};
 	},
+	setHttpMethod: (method) => {
+		return {
+			type: 'SET_HTTP_METHOD',
+			method,
+		};
+	},
 	setIsFetching: (isFetching) => {
 		return {
 			type: 'SET_IS_FETCHING',

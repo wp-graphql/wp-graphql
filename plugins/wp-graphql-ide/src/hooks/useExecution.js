@@ -30,6 +30,10 @@ export function useExecution(fetcher, options = {}) {
 		(select) => select('wpgraphql-ide/app').getHeaders(),
 		[]
 	);
+	const httpMethod = useSelect(
+		(select) => select('wpgraphql-ide/app').getHttpMethod(),
+		[]
+	);
 
 	const { setResponse, setResponseHeaders, setResponseMeta, setIsFetching } =
 		useDispatch('wpgraphql-ide/app');
@@ -94,6 +98,7 @@ export function useExecution(fetcher, options = {}) {
 					{
 						headers: parsedHeaders,
 						signal: controller.signal,
+						method: httpMethod,
 					}
 				);
 				// Support both new envelope shape and legacy fetchers that
@@ -179,6 +184,7 @@ export function useExecution(fetcher, options = {}) {
 			query,
 			variables,
 			headers,
+			httpMethod,
 			setResponse,
 			setResponseHeaders,
 			setResponseMeta,

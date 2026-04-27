@@ -18,6 +18,7 @@ const initialState = {
 	responseSize: null,
 	isFetching: false,
 	history: [],
+	httpMethod: 'POST',
 };
 
 /**
@@ -124,6 +125,11 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				history: [],
+			};
+		case 'SET_HTTP_METHOD':
+			return {
+				...state,
+				httpMethod: action.method,
 			};
 	}
 	return state;
