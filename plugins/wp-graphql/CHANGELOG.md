@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.13.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.12.0...wp-graphql/v2.13.0) (2026-04-27)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group with 3 updates ([#3792](https://github.com/wp-graphql/wp-graphql/issues/3792)) ([42b200b](https://github.com/wp-graphql/wp-graphql/commit/42b200be4c1c723d191fbcbc0c04818b4b313676))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.46 to 2.1.50 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3789](https://github.com/wp-graphql/wp-graphql/issues/3789)) ([9c4173a](https://github.com/wp-graphql/wp-graphql/commit/9c4173a018e6a5efe1628c23a3f05654bf72b879))
+
 ## [2.12.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.2...wp-graphql/v2.12.0) (2026-04-23)
 
 
