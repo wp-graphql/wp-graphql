@@ -162,26 +162,24 @@ export function DocumentTabs({
 								{tab.title || 'Untitled'}
 							</span>
 						)}
-						{tabs.length > 1 && (
-							<span
-								className="wpgraphql-ide-tab-close"
-								role="button"
-								tabIndex={-1}
-								onClick={(e) => {
+						<span
+							className="wpgraphql-ide-tab-close"
+							role="button"
+							tabIndex={-1}
+							onClick={(e) => {
+								e.stopPropagation();
+								onClose(String(tab.id));
+							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
 									e.stopPropagation();
 									onClose(String(tab.id));
-								}}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter') {
-										e.stopPropagation();
-										onClose(String(tab.id));
-									}
-								}}
-								aria-label={`Close ${tab.title || 'Untitled'}`}
-							>
-								&times;
-							</span>
-						)}
+								}
+							}}
+							aria-label={`Close ${tab.title || 'Untitled'}`}
+						>
+							&times;
+						</span>
 					</button>
 				);
 			})}
@@ -206,20 +204,18 @@ export function DocumentTabs({
 										closeMenu();
 									}}
 									suffix={
-										tabs.length > 1 ? (
-											<Button
-												size="small"
-												onClick={(e) => {
-													e.stopPropagation();
-													onClose(String(tab.id));
-													closeMenu();
-												}}
-												aria-label={`Close ${tab.title || 'Untitled'}`}
-												className="wpgraphql-ide-overflow-close"
-											>
-												&times;
-											</Button>
-										) : null
+										<Button
+											size="small"
+											onClick={(e) => {
+												e.stopPropagation();
+												onClose(String(tab.id));
+												closeMenu();
+											}}
+											aria-label={`Close ${tab.title || 'Untitled'}`}
+											className="wpgraphql-ide-overflow-close"
+										>
+											&times;
+										</Button>
 									}
 								>
 									{tab.title || 'Untitled'}

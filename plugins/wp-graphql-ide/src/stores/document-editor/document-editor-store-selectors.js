@@ -20,9 +20,14 @@ const selectors = {
 		(state) => [state.documents]
 	),
 
-	getOpenTabs: (state) => state.openTabs,
+	getOpenTabs: (state) => state.openTabs.map((tab) => tab.id),
+
+	getOpenTabObjects: (state) => state.openTabs,
 
 	getActiveTab: (state) => state.activeTab,
+
+	getActiveTabType: (state) =>
+		state.openTabs.find((tab) => tab.id === state.activeTab)?.type || null,
 
 	getActiveDocument: (state) => {
 		if (!state.activeTab) {
@@ -30,6 +35,10 @@ const selectors = {
 		}
 		return state.documents[state.activeTab] || null;
 	},
+
+	getTabTypes: (state) => state.tabTypes,
+
+	getTabType: (state, name) => state.tabTypes[name] || null,
 };
 
 export default selectors;

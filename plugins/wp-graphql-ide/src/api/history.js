@@ -29,6 +29,7 @@ export async function getHistory() {
  * @param {string}  entry.status           'success' or 'error'.
  * @param {number}  entry.document_id      Source document ID.
  * @param {boolean} entry.is_authenticated Whether the request was authenticated.
+ * @param {string}  entry.http_method      HTTP method used (GET or POST).
  * @param {number}  [entry.oldestId]       ID of the oldest entry to prune.
  * @return {Promise<Object>} Created history entry.
  */
@@ -46,6 +47,7 @@ export async function createHistoryEntry(entry) {
 				_graphql_ide_status: entry.status ?? '',
 				_graphql_ide_document_id: entry.document_id ?? 0,
 				_graphql_ide_is_authenticated: entry.is_authenticated ?? true,
+				_graphql_ide_http_method: entry.http_method ?? 'POST',
 			},
 		},
 	});
@@ -100,5 +102,6 @@ function normalizeHistoryEntry(post) {
 		status: post.meta?._graphql_ide_status ?? '',
 		document_id: post.meta?._graphql_ide_document_id ?? 0,
 		is_authenticated: post.meta?._graphql_ide_is_authenticated ?? true,
+		http_method: post.meta?._graphql_ide_http_method ?? 'POST',
 	};
 }

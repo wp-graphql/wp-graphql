@@ -128,6 +128,9 @@ export function HistoryPanel() {
 											className={`wpgraphql-ide-history-avatar${entry.is_authenticated === false ? ' is-public' : ''}`}
 										/>
 									)}
+									<span className="wpgraphql-ide-history-method">
+										{entry.http_method || 'POST'}
+									</span>
 									<span
 										className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
 									>

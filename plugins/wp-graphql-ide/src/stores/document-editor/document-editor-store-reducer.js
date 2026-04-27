@@ -3,6 +3,7 @@ const initialState = {
 	documents: {},
 	openTabs: [],
 	activeTab: null,
+	tabTypes: {},
 };
 
 const reducer = (state = initialState, action) => {
@@ -52,7 +53,10 @@ const reducer = (state = initialState, action) => {
 					...state.documents,
 					[action.tempId]: tempDoc,
 				},
-				openTabs: [...state.openTabs, action.tempId],
+				openTabs: [
+					...state.openTabs,
+					{ id: action.tempId, type: 'query-editor' },
+				],
 				activeTab: action.tempId,
 			};
 		}
@@ -62,8 +66,10 @@ const reducer = (state = initialState, action) => {
 			delete docs[action.oldId];
 			docs[String(action.newId)] = action.document;
 
-			const newTabs = state.openTabs.map((id) =>
-				id === action.oldId ? String(action.newId) : id
+			const newTabs = state.openTabs.map((tab) =>
+				tab.id === action.oldId
+					? { ...tab, id: String(action.newId) }
+					: tab
 			);
 			const newActive =
 				state.activeTab === action.oldId
@@ -127,30 +133,56 @@ const reducer = (state = initialState, action) => {
 			};
 
 		case 'SET_OPEN_TABS':
-			return { ...state, openTabs: action.tabIds };
+			return {
+				...state,
+				openTabs: action.tabIds.map((t) =>
+					typeof t === 'string' ? { id: t, type: 'query-editor' } : t
+				),
+			};
 
 		case 'OPEN_TAB':
-			if (state.openTabs.includes(action.tabId)) {
+			if (state.openTabs.some((tab) => tab.id === action.tabId)) {
 				return state;
 			}
 			return {
 				...state,
-				openTabs: [...state.openTabs, action.tabId],
+				openTabs: [
+					...state.openTabs,
+					{
+						id: action.tabId,
+						type: action.tabType || 'query-editor',
+					},
+				],
 			};
 
 		case 'CLOSE_TAB':
 			return {
 				...state,
-				openTabs: state.openTabs.filter((id) => id !== action.tabId),
+				openTabs: state.openTabs.filter(
+					(tab) => tab.id !== action.tabId
+				),
 				activeTab:
 					state.activeTab === action.tabId
-						? state.openTabs.find((id) => id !== action.tabId) ||
-							null
+						? state.openTabs.find((tab) => tab.id !== action.tabId)
+								?.id || null
 						: state.activeTab,
 			};
 
 		case 'SET_ACTIVE_TAB':
 			return { ...state, activeTab: action.tabId };
+
+		case 'REGISTER_TAB_TYPE':
+			return {
+				...state,
+				tabTypes: {
+					...state.tabTypes,
+					[action.name]: {
+						title: action.config.title,
+						content: action.config.content,
+						icon: action.config.icon || null,
+					},
+				},
+			};
 
 		default:
 			return state;

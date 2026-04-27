@@ -25,6 +25,47 @@ const actions = {
 		priority,
 	}),
 
+	/**
+	 * Register a workspace tab type with a content renderer.
+	 *
+	 * @param {string} name   Unique tab type identifier.
+	 * @param {Object} config Tab type config (title, content component, optional icon).
+	 */
+	registerTabType: (name, config) => ({
+		type: 'REGISTER_TAB_TYPE',
+		name,
+		config,
+	}),
+
+	/**
+	 * Open a workspace tab of a given type. Creates a virtual tab entry
+	 * (not backed by a document) and makes it active.
+	 *
+	 * @param {string} name  Tab type name (must be registered).
+	 * @param {string} tabId Unique tab ID.
+	 * @param {string} title Display title for the tab.
+	 */
+	openWorkspaceTab:
+		(name, tabId, title) =>
+		async ({ dispatch, select }) => {
+			// If already open, just switch to it.
+			if (select.getOpenTabs().includes(tabId)) {
+				dispatch({ type: 'SET_ACTIVE_TAB', tabId });
+				return;
+			}
+			dispatch({
+				type: 'OPEN_TAB',
+				tabId,
+				tabType: name,
+			});
+			dispatch({ type: 'SET_ACTIVE_TAB', tabId });
+			// Store a minimal virtual document for the tab title.
+			dispatch({
+				type: 'UPDATE_DOCUMENT',
+				document: { id: tabId, title: title || name },
+			});
+		},
+
 	setDocumentDirty: (id, dirty) => ({
 		type: 'SET_DOCUMENT_DIRTY',
 		id,
@@ -238,12 +279,17 @@ const actions = {
 	/**
 	 * Switch to a tab, opening it first if it isn't already in the tab bar.
 	 *
-	 * @param {string} tabId Tab ID to switch to.
+	 * @param {string} tabId   Tab ID to switch to.
+	 * @param {string} tabType Optional tab type (defaults to 'query-editor').
 	 */
 	switchTab:
-		(tabId) =>
+		(tabId, tabType) =>
 		async ({ dispatch }) => {
-			dispatch({ type: 'OPEN_TAB', tabId: String(tabId) });
+			dispatch({
+				type: 'OPEN_TAB',
+				tabId: String(tabId),
+				tabType,
+			});
 			dispatch({ type: 'SET_ACTIVE_TAB', tabId: String(tabId) });
 			await dispatch.persistTabState();
 		},
