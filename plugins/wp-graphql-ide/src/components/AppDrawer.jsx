@@ -136,7 +136,7 @@ export function AppDrawer({ children, buttonLabel }) {
 	return (
 		<div className="AppDrawerRoot">
 			<VaulDrawer.Root
-				dismissible={false}
+				dismissible={true}
 				closeThreshold={1}
 				shouldScaleBackground={false}
 				open={localOpen}
