@@ -24,6 +24,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	overflow: hidden;
 	background: #fff;
 	position: relative;
+	user-select: none;
+}
+
+/* Content areas where text SHOULD be selectable */
+.wpgraphql-ide-editor,
+.wpgraphql-ide-response-viewer,
+.wpgraphql-ide-headers-list,
+.wpgraphql-ide-errors-list,
+.wpgraphql-ide-extensions-panel,
+.wpgraphql-ide-debug-list,
+.wpgraphql-ide-tracing-table,
+.wpgraphql-ide-querylog-list,
+.wpgraphql-ide-qa-grid,
+.wpgraphql-ide-history-entry-preview,
+.wpgraphql-ide-saved-queries-empty {
+	user-select: text;
 }
 
 /* Thin scrollbars throughout the IDE */
