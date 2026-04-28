@@ -505,6 +505,15 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	max-width: 400px;
 }
 
+.wpgraphql-ide-snackbar-list .components-snackbar.is-error {
+	background: #d63638;
+	color: #fff;
+}
+
+.wpgraphql-ide-snackbar-list .components-snackbar.is-error .components-snackbar__action {
+	color: #fff;
+}
+
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
 	width: 32px;
@@ -810,7 +819,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-size: 13px;
 	font-weight: 400;
 	flex-shrink: 0;
-	margin-left: 4px;
+	margin-left: 6px;
 }
 
 /* Kebab — hidden until hover */
@@ -826,6 +835,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-collection-kebab.components-button:focus {
 	opacity: 1;
+}
+
+/* Spacer matching kebab width for sections without a menu */
+.wpgraphql-ide-collection-kebab-spacer {
+	width: 28px;
+	flex-shrink: 0;
 }
 
 .wpgraphql-ide-collection-body {
@@ -974,7 +989,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-document-badge {
 	font-size: 10px;
-	color: #c3c4c7;
+	color: #646970;
 	white-space: nowrap;
 }
 

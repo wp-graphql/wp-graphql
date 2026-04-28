@@ -517,23 +517,10 @@ export function IDELayout({ fetcher, onClose }) {
 			return;
 		}
 		try {
-			// Prompt for a name if the tab still has a generic title.
-			const isGenericName = /^New Tab( \d+)?$/.test(activeDocument.title);
-			let title;
-			if (isGenericName) {
-				// eslint-disable-next-line no-alert
-				const input = window.prompt(
-					'Name this document:',
-					activeDocument.title
-				);
-				title = input?.trim() || undefined;
-			}
-
 			await saveTab(activeDocument.id, {
 				query,
 				variables,
 				headers,
-				...(title ? { title } : {}),
 			});
 			addNotice('Document saved');
 		} catch {
@@ -579,8 +566,9 @@ export function IDELayout({ fetcher, onClose }) {
 				headers,
 			});
 			const result = await publishTab(activeDocument.id);
-			if (result?.already_exists) {
-				addNotice('This query is already published');
+			if (result?.already_exists && result?.id) {
+				switchTab(String(result.id));
+				addNotice('Query already published — opened existing');
 			} else {
 				addNotice('Document published');
 			}
@@ -1571,7 +1559,10 @@ export function IDELayout({ fetcher, onClose }) {
 			{/* end .wpgraphql-ide-main */}
 			{notices.length > 0 && (
 				<SnackbarList
-					notices={notices}
+					notices={notices.map((n) => ({
+						...n,
+						className: n.type === 'error' ? 'is-error' : '',
+					}))}
 					onRemove={removeNotice}
 					className="wpgraphql-ide-snackbar-list"
 				/>

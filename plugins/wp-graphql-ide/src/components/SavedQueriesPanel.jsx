@@ -140,7 +140,7 @@ function CollectionSection({
 						({count})
 					</span>
 				)}
-				{hasMenu && (
+				{hasMenu ? (
 					<DropdownMenu
 						icon={moreVertical}
 						label="Collection actions"
@@ -204,6 +204,8 @@ function CollectionSection({
 							</>
 						)}
 					</DropdownMenu>
+				) : (
+					<span className="wpgraphql-ide-collection-kebab-spacer" />
 				)}
 			</div>
 			{!collapsed && (
