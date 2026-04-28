@@ -594,12 +594,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-weight: 500;
 }
 
-.wpgraphql-ide-document-close {
+.wpgraphql-ide-document-delete {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 20px;
-	height: 20px;
+	width: 24px;
+	height: 24px;
 	padding: 0;
 	margin-right: 4px;
 	border: none;
@@ -610,13 +610,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
-.wpgraphql-ide-document-item:hover .wpgraphql-ide-document-close {
+.wpgraphql-ide-document-item:hover .wpgraphql-ide-document-delete {
 	opacity: 1;
 }
 
-.wpgraphql-ide-document-close:hover {
-	background: rgba(0, 0, 0, 0.08);
-	color: #2c3338;
+.wpgraphql-ide-document-delete:hover {
+	background: rgba(214, 54, 54, 0.08);
+	color: #d63638;
 }
 
 /* Saved Queries panel — matches Gutenberg block inserter layout */

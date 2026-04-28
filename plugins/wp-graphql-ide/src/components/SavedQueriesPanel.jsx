@@ -7,7 +7,7 @@ import {
 	TabPanel,
 	Tooltip,
 } from '@wordpress/components';
-import { Icon, close, file, moreVertical } from '@wordpress/icons';
+import { Icon, file, moreVertical, trash } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 
@@ -128,10 +128,10 @@ export function SavedQueriesPanel() {
 						</span>
 					)}
 				</button>
-				<Tooltip text="Delete">
+				<Tooltip text="Delete document">
 					<button
 						type="button"
-						className="wpgraphql-ide-document-close"
+						className="wpgraphql-ide-document-delete"
 						onClick={(e) => {
 							e.stopPropagation();
 							if (
@@ -145,7 +145,7 @@ export function SavedQueriesPanel() {
 						}}
 						aria-label="Delete document"
 					>
-						<Icon icon={close} size={12} />
+						<Icon icon={trash} size={16} />
 					</button>
 				</Tooltip>
 			</li>
