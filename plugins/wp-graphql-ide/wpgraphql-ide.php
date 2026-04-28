@@ -31,6 +31,10 @@ define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
+// Modular feature includes — kept out of this main plugin file to avoid
+// further bloat. Each include hooks into WordPress on its own.
+require_once __DIR__ . '/includes/settings.php';
+
 /**
  * Check if WPGraphQL is available and handle the case where it is not.
  *
@@ -817,6 +821,15 @@ function enqueue_react_app_with_styles(): void {
 		'isDedicatedIdePage'  => current_screen_is_dedicated_ide_page(),
 		'dedicatedIdeBaseUrl' => get_dedicated_ide_base_url(),
 	];
+
+	/**
+	 * Allow internal modules and external extensions to inject keys into the
+	 * IDE's bootstrap data (window.WPGRAPHQL_IDE_DATA).
+	 *
+	 * @param array<string,mixed> $localized_data The bootstrap data being passed to the IDE.
+	 * @param array<string,mixed> $app_context    The current app context.
+	 */
+	$localized_data = apply_filters( 'wpgraphql_ide_localized_data', $localized_data, $app_context );
 
 	$escaped_data = wp_localize_escaped_data( $localized_data );
 

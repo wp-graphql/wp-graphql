@@ -352,12 +352,38 @@ add_filter( 'wpgraphql_ide_localized_data', __NAMESPACE__ . '\\localize_settings
 /**
  * Register the GraphQL types and mutation that drive Settings persistence.
  *
+ * The input/output value types share the same shape — one optional field per
+ * registered settings field type — so callers can read/write the variant that
+ * matches the field they're targeting (e.g. `value: { checkbox: true }` for a
+ * checkbox-typed field). The `@oneOf` directive on the input enforces that
+ * exactly one variant is provided; the resolver additionally rejects any
+ * variant whose name doesn't match the field's registered type.
+ *
  * Schema:
  *   input UpdateGraphqlSettingValueInput @oneOf {
- *     string: String
+ *     text: String
+ *     url: String
+ *     textarea: String
  *     number: Float
- *     boolean: Boolean
- *     stringList: [String!]
+ *     checkbox: Boolean
+ *     select: String
+ *     radio: String
+ *     multicheck: [String!]
+ *     color: String
+ *     userRoleSelect: String
+ *   }
+ *
+ *   type UpdateGraphqlSettingValue {
+ *     text: String
+ *     url: String
+ *     textarea: String
+ *     number: Float
+ *     checkbox: Boolean
+ *     select: String
+ *     radio: String
+ *     multicheck: [String!]
+ *     color: String
+ *     userRoleSelect: String
  *   }
  *
  *   input UpdateGraphqlSettingInput {
@@ -371,7 +397,8 @@ add_filter( 'wpgraphql_ide_localized_data', __NAMESPACE__ . '\\localize_settings
  *     success: Boolean!
  *     section: String!
  *     field: String!
- *     valueJSON: String   # The saved value, JSON-encoded, for the client to apply optimistically.
+ *     fieldType: String!
+ *     value: UpdateGraphqlSettingValue!
  *     message: String
  *     clientMutationId: String
  *   }
@@ -380,29 +407,66 @@ add_action(
 	'graphql_register_types',
 	static function (): void {
 
+		// Field configurations shared between the input and output value types
+		// so the schema reads symmetrically. Definitions are scalar-only —
+		// nothing in here is itself a OneOf.
+		$value_fields = [
+			'text'           => [
+				'type'        => 'String',
+				'description' => __( 'Plain text value.', 'wp-graphql-ide' ),
+			],
+			'url'            => [
+				'type'        => 'String',
+				'description' => __( 'URL value.', 'wp-graphql-ide' ),
+			],
+			'textarea'       => [
+				'type'        => 'String',
+				'description' => __( 'Multi-line text value.', 'wp-graphql-ide' ),
+			],
+			'number'         => [
+				'type'        => 'Float',
+				'description' => __( 'Numeric value.', 'wp-graphql-ide' ),
+			],
+			'checkbox'       => [
+				'type'        => 'Boolean',
+				'description' => __( 'Boolean value (checkbox-typed setting).', 'wp-graphql-ide' ),
+			],
+			'select'         => [
+				'type'        => 'String',
+				'description' => __( 'String value matching one of the registered select options.', 'wp-graphql-ide' ),
+			],
+			'radio'          => [
+				'type'        => 'String',
+				'description' => __( 'String value matching one of the registered radio options.', 'wp-graphql-ide' ),
+			],
+			'multicheck'     => [
+				'type'        => [ 'list_of' => 'String' ],
+				'description' => __( 'Array of string values matching the registered multicheck options.', 'wp-graphql-ide' ),
+			],
+			'color'          => [
+				'type'        => 'String',
+				'description' => __( 'CSS color value.', 'wp-graphql-ide' ),
+			],
+			'userRoleSelect' => [
+				'type'        => 'String',
+				'description' => __( 'WordPress user role slug.', 'wp-graphql-ide' ),
+			],
+		];
+
 		register_graphql_input_type(
 			'UpdateGraphqlSettingValueInput',
 			[
-				'description' => __( 'Value to set for a WPGraphQL setting. Exactly one variant must be provided.', 'wp-graphql-ide' ),
+				'description' => __( 'Value to set for a WPGraphQL setting. Exactly one variant must be provided, matching the registered field type.', 'wp-graphql-ide' ),
 				'isOneOf'     => true,
-				'fields'      => [
-					'string'     => [
-						'type'        => 'String',
-						'description' => __( 'String value (text, url, textarea, select, radio, color).', 'wp-graphql-ide' ),
-					],
-					'number'     => [
-						'type'        => 'Float',
-						'description' => __( 'Numeric value (number-typed settings).', 'wp-graphql-ide' ),
-					],
-					'boolean'    => [
-						'type'        => 'Boolean',
-						'description' => __( 'Boolean value (checkbox-typed settings).', 'wp-graphql-ide' ),
-					],
-					'stringList' => [
-						'type'        => [ 'list_of' => 'String' ],
-						'description' => __( 'Multi-string value (multicheck-typed settings).', 'wp-graphql-ide' ),
-					],
-				],
+				'fields'      => $value_fields,
+			]
+		);
+
+		register_graphql_object_type(
+			'UpdateGraphqlSettingValue',
+			[
+				'description' => __( 'The current value of a WPGraphQL setting, surfaced in the variant that matches the registered field type. Other variants are null.', 'wp-graphql-ide' ),
+				'fields'      => $value_fields,
 			]
 		);
 
@@ -421,7 +485,7 @@ add_action(
 					],
 					'value'   => [
 						'type'        => [ 'non_null' => 'UpdateGraphqlSettingValueInput' ],
-						'description' => __( 'The new value, expressed via the matching OneOf variant.', 'wp-graphql-ide' ),
+						'description' => __( 'The new value. The variant key must match the field\'s registered type (text → text, checkbox → checkbox, etc).', 'wp-graphql-ide' ),
 					],
 				],
 				'outputFields'        => [
@@ -437,9 +501,13 @@ add_action(
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'The field name that was updated.', 'wp-graphql-ide' ),
 					],
-					'valueJSON' => [
-						'type'        => 'String',
-						'description' => __( 'The persisted value, JSON-encoded, so the client can echo it back into local state.', 'wp-graphql-ide' ),
+					'fieldType' => [
+						'type'        => [ 'non_null' => 'String' ],
+						'description' => __( 'The registered type of the field, so the client knows which `value` variant to read.', 'wp-graphql-ide' ),
+					],
+					'value'     => [
+						'type'        => [ 'non_null' => 'UpdateGraphqlSettingValue' ],
+						'description' => __( 'The persisted value, in the variant matching the field type.', 'wp-graphql-ide' ),
 					],
 					'message'   => [
 						'type'        => 'String',
@@ -496,6 +564,38 @@ add_action(
 						);
 					}
 
+					// Validate that the OneOf variant the caller used matches
+					// the field's registered type. The @oneOf directive ensures
+					// exactly one variant was sent; we just need to check it's
+					// the right one.
+					$field_type       = (string) ( $field_config['type'] ?? 'text' );
+					$variant_map      = field_type_variants();
+					$expected_variant = $variant_map[ $field_type ] ?? null;
+					$actual_variant   = provided_variant( $value_input );
+
+					if ( null === $expected_variant ) {
+						throw new \GraphQL\Error\UserError(
+							sprintf(
+								/* translators: 1: field name, 2: field type */
+								esc_html__( 'Field "%1$s" uses type "%2$s" which is not editable through this mutation.', 'wp-graphql-ide' ),
+								esc_html( $field_name ),
+								esc_html( $field_type )
+							)
+						);
+					}
+
+					if ( $actual_variant !== $expected_variant ) {
+						throw new \GraphQL\Error\UserError(
+							sprintf(
+								/* translators: 1: field name, 2: expected variant, 3: actual variant */
+								esc_html__( 'Field "%1$s" expects the "%2$s" value variant, but got "%3$s".', 'wp-graphql-ide' ),
+								esc_html( $field_name ),
+								esc_html( $expected_variant ),
+								esc_html( $actual_variant ?? 'none' )
+							)
+						);
+					}
+
 					$coerced   = coerce_value( $value_input, $field_config );
 					$sanitized = sanitize_value( $coerced, $field_config );
 
@@ -516,7 +616,8 @@ add_action(
 						'success'   => $success,
 						'section'   => $section_slug,
 						'field'     => $field_name,
-						'valueJSON' => wp_json_encode( $sanitized ),
+						'fieldType' => $field_type,
+						'value'     => build_value_output( $sanitized, $field_config ),
 						'message'   => null,
 					];
 				},
