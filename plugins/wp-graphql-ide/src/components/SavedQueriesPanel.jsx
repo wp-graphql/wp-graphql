@@ -11,16 +11,15 @@ import {
 	MenuGroup,
 	MenuItem,
 	SearchControl,
-	Tooltip,
 } from '@wordpress/components';
 import {
 	Icon,
 	file,
-	trash,
-	plus,
 	moreVertical,
 	chevronDown,
 	chevronRight,
+	plus,
+	lock,
 } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
@@ -32,21 +31,20 @@ import { updateDocument } from '../api/documents';
 export const SavedQueriesIcon = () => <Icon icon={file} />;
 
 /**
- * Collapsible section — header with chevron toggle + kebab menu.
- * Doubles as a drop target for dragging documents between collections.
+ * Collapsible collection section with kebab menu and drop target.
  *
  * @param {Object}          root0              Props.
  * @param {string}          root0.title        Section title.
- * @param {number}          root0.count        Document count badge.
- * @param {boolean}         root0.collapsed    Whether the section is collapsed.
- * @param {Function}        root0.onToggle     Toggle collapse callback.
- * @param {Function}        root0.onDelete     Delete collection callback (optional).
- * @param {Function}        root0.onRename     Rename callback (newName) (optional).
+ * @param {number}          root0.count        Document count.
+ * @param {boolean}         root0.collapsed    Whether collapsed.
+ * @param {Function}        root0.onToggle     Toggle callback.
+ * @param {Function}        root0.onDelete     Delete callback (optional).
+ * @param {Function}        root0.onRename     Rename callback (optional).
  * @param {Function}        root0.onMoveUp     Move up callback (optional).
  * @param {Function}        root0.onMoveDown   Move down callback (optional).
- * @param {Function}        root0.onDrop       Drop handler (docId) callback.
- * @param {string}          root0.dropTargetId Unique ID for this drop zone.
- * @param {string}          root0.dragOverId   Currently hovered drop zone ID.
+ * @param {Function}        root0.onDrop       Drop handler callback.
+ * @param {string}          root0.dropTargetId Drop zone ID.
+ * @param {string}          root0.dragOverId   Currently hovered drop zone.
  * @param {Function}        root0.setDragOver  Set drag-over state.
  * @param {React.ReactNode} root0.children     Nested content.
  */
@@ -101,11 +99,10 @@ function CollectionSection({
 					type="button"
 					className="wpgraphql-ide-collection-toggle"
 					onClick={onToggle}
-					aria-label={collapsed ? 'Expand' : 'Collapse'}
 				>
 					<Icon
 						icon={collapsed ? chevronRight : chevronDown}
-						size={16}
+						size={18}
 					/>
 				</button>
 				{editing ? (
@@ -130,12 +127,10 @@ function CollectionSection({
 				) : (
 					<button
 						type="button"
-						className="wpgraphql-ide-collection-title-btn"
+						className="wpgraphql-ide-collection-title"
 						onClick={onToggle}
 					>
-						<span className="wpgraphql-ide-collection-name">
-							{title}
-						</span>
+						{title}
 					</button>
 				)}
 				{count > 0 && (
@@ -147,10 +142,9 @@ function CollectionSection({
 					<DropdownMenu
 						icon={moreVertical}
 						label="Collection actions"
-						className="wpgraphql-ide-collection-kebab"
 						toggleProps={{
 							size: 'small',
-							className: 'wpgraphql-ide-collection-kebab-toggle',
+							className: 'wpgraphql-ide-collection-kebab',
 						}}
 					>
 						{({ onClose: closeMenu }) => (
@@ -201,7 +195,7 @@ function CollectionSection({
 												closeMenu();
 											}}
 										>
-											Delete
+											Delete collection
 										</MenuItem>
 									</MenuGroup>
 								)}
@@ -218,9 +212,7 @@ function CollectionSection({
 }
 
 /**
- * Saved Queries panel — browse all saved documents grouped by collection.
- * Each collection renders as a collapsible section (like WP Engine Local).
- * Documents can be dragged between sections to reassign collections.
+ * Saved Queries panel — documents grouped by collection.
  */
 export function SavedQueriesPanel() {
 	const [search, setSearch] = useState('');
@@ -289,7 +281,6 @@ export function SavedQueriesPanel() {
 		const filtered = searchFilter(savedDocs);
 		const groups = {};
 		const ungrouped = [];
-
 		for (const doc of filtered) {
 			const docCollections = doc.collections || [];
 			if (docCollections.length === 0) {
@@ -355,7 +346,6 @@ export function SavedQueriesPanel() {
 		reloadDocs();
 	};
 
-	// Drop handler: move doc to a specific collection (replace all current assignments).
 	const handleDropToCollection = async (docId, collectionId) => {
 		await updateDocument(docId, {
 			collections: collectionId ? [collectionId] : [],
@@ -367,6 +357,7 @@ export function SavedQueriesPanel() {
 		const isActive = String(doc.id) === String(activeTab);
 		const isOpen = openTabs.includes(String(doc.id));
 		const isUnsaved = isTempId(doc.id);
+		const isPublished = !isUnsaved && doc.status === 'publish';
 
 		return (
 			<li
@@ -381,88 +372,88 @@ export function SavedQueriesPanel() {
 					dragDocRef.current = null;
 					setDragOverId(null);
 				}}
-				className={`wpgraphql-ide-document-item${isActive ? ' is-active' : ''}${!isUnsaved ? ' is-draggable' : ''}`}
+				className={`wpgraphql-ide-document-item${isActive ? ' is-active' : ''}${isPublished ? ' is-published' : ''}${!isUnsaved ? ' is-draggable' : ''}`}
 			>
 				<button
 					type="button"
 					className="wpgraphql-ide-document-label"
 					onClick={() => switchTab(String(doc.id))}
 				>
-					{isOpen && !isUnsaved && (
+					{isOpen && (
 						<span className="wpgraphql-ide-document-open-dot" />
 					)}
-					{isUnsaved && doc.dirty && (
-						<span className="wpgraphql-ide-document-dirty-dot" />
+					{isPublished && (
+						<Icon
+							icon={lock}
+							size={14}
+							className="wpgraphql-ide-document-status-icon"
+						/>
 					)}
 					<span className="wpgraphql-ide-document-title-text">
 						{doc.title || 'Untitled'}
 					</span>
-					{!isUnsaved && doc.status === 'publish' && (
-						<span className="wpgraphql-ide-document-status">
-							Published
-						</span>
-					)}
 				</button>
-				<span className="wpgraphql-ide-document-actions">
-					{!isUnsaved && collections.length > 0 && (
-						<DropdownMenu
-							icon={moreVertical}
-							label="Move to collection"
-							toggleProps={{
-								className:
-									'wpgraphql-ide-document-collection-btn',
-								size: 'small',
-							}}
-						>
-							{({ onClose: closeMenu }) => (
-								<MenuGroup label="Collections">
-									{collections.map((c) => {
-										const assigned = (
-											doc.collections || []
-										).includes(c.id);
-										return (
-											<MenuItem
-												key={c.id}
-												icon={
-													assigned ? '✓' : undefined
-												}
-												onClick={() => {
-													handleAssignCollection(
-														doc.id,
-														c.id
-													);
-													closeMenu();
-												}}
-											>
-												{c.name}
-											</MenuItem>
-										);
-									})}
+				{!isUnsaved && (
+					<DropdownMenu
+						icon={moreVertical}
+						label="Document actions"
+						toggleProps={{
+							size: 'small',
+							className: 'wpgraphql-ide-document-kebab',
+						}}
+					>
+						{({ onClose: closeMenu }) => (
+							<>
+								{collections.length > 0 && (
+									<MenuGroup label="Move to">
+										{collections.map((c) => {
+											const assigned = (
+												doc.collections || []
+											).includes(c.id);
+											return (
+												<MenuItem
+													key={c.id}
+													icon={
+														assigned
+															? '✓'
+															: undefined
+													}
+													onClick={() => {
+														handleAssignCollection(
+															doc.id,
+															c.id
+														);
+														closeMenu();
+													}}
+												>
+													{c.name}
+												</MenuItem>
+											);
+										})}
+									</MenuGroup>
+								)}
+								<MenuGroup>
+									<MenuItem
+										isDestructive
+										onClick={() => {
+											closeMenu();
+											if (
+												// eslint-disable-next-line no-alert
+												window.confirm(
+													`Delete "${doc.title || 'Untitled'}"?`
+												)
+											) {
+												removeDocument(doc.id);
+											}
+										}}
+									>
+										Delete
+									</MenuItem>
 								</MenuGroup>
-							)}
-						</DropdownMenu>
-					)}
-					<Tooltip text="Delete document">
-						<button
-							type="button"
-							className="wpgraphql-ide-document-delete"
-							onClick={(e) => {
-								e.stopPropagation();
-								if (
-									// eslint-disable-next-line no-alert
-									window.confirm(
-										`Delete "${doc.title || 'Untitled'}"?`
-									)
-								) {
-									removeDocument(doc.id);
-								}
-							}}
-							aria-label="Delete document"
-						>
-							<Icon icon={trash} size={14} />
-						</button>
-					</Tooltip>
-				</span>
+							</>
+						)}
+					</DropdownMenu>
+				)}
 			</li>
 		);
 	};
@@ -490,6 +481,7 @@ export function SavedQueriesPanel() {
 					onChange={setSearch}
 					placeholder="Search..."
 					__nextHasNoMarginBottom
+					size="compact"
 				/>
 			</div>
 
@@ -535,31 +527,17 @@ export function SavedQueriesPanel() {
 					);
 				})}
 
+				{/* Uncategorized docs — flat at root, no section wrapper */}
 				{uncategorized.length > 0 && (
-					<CollectionSection
-						title="Uncategorized"
-						count={uncategorized.length}
-						collapsed={!!collapsedSections._uncategorized}
-						onToggle={() => toggleSection('_uncategorized')}
-						onDrop={(docId) => handleDropToCollection(docId, null)}
-						dropTargetId="collection-uncategorized"
-						dragOverId={dragOverId}
-						setDragOver={setDragOverId}
-					>
-						{renderDocList(uncategorized)}
-					</CollectionSection>
+					<ul className="wpgraphql-ide-documents-list">
+						{uncategorized.map(renderDoc)}
+					</ul>
 				)}
 
 				{savedDocs.length === 0 && unsavedDocs.length === 0 && (
 					<div className="wpgraphql-ide-saved-queries-empty">
 						<p>No saved documents.</p>
 					</div>
-				)}
-
-				{collections.length === 0 && savedDocs.length > 0 && (
-					<ul className="wpgraphql-ide-documents-list">
-						{searchFilter(savedDocs).map(renderDoc)}
-					</ul>
 				)}
 			</div>
 
@@ -594,8 +572,8 @@ export function SavedQueriesPanel() {
 						size="small"
 						onClick={() => setCreatingCollection(true)}
 						className="wpgraphql-ide-collection-add-btn"
+						icon={plus}
 					>
-						<Icon icon={plus} size={16} />
 						New collection
 					</Button>
 				)}
