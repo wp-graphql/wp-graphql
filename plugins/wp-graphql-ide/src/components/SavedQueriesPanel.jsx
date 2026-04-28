@@ -137,7 +137,7 @@ function CollectionSection({
 				)}
 				{count > 0 && (
 					<span className="wpgraphql-ide-collection-count">
-						{count}
+						({count})
 					</span>
 				)}
 				{hasMenu && (
@@ -408,6 +408,7 @@ export function SavedQueriesPanel() {
 					<DropdownMenu
 						icon={moreVertical}
 						label="Document actions"
+						popoverProps={{ placement: 'bottom-start' }}
 						toggleProps={{
 							size: 'small',
 							className: 'wpgraphql-ide-document-kebab',
@@ -462,17 +463,32 @@ export function SavedQueriesPanel() {
 											)}
 											{inCollection && (
 												<MenuGroup>
-													<MenuItem
-														onClick={() => {
-															handleDropToCollection(
-																String(doc.id),
-																null
+													{docCols.map((cId) => {
+														const col =
+															collections.find(
+																(cx) =>
+																	cx.id ===
+																	cId
 															);
-															closeMenu();
-														}}
-													>
-														Remove from collection
-													</MenuItem>
+														if (!col) {
+															return null;
+														}
+														return (
+															<MenuItem
+																key={`remove-${cId}`}
+																onClick={() => {
+																	handleAssignCollection(
+																		doc.id,
+																		cId
+																	);
+																	closeMenu();
+																}}
+															>
+																Remove from{' '}
+																{col.name}
+															</MenuItem>
+														);
+													})}
 												</MenuGroup>
 											)}
 										</>
@@ -590,18 +606,27 @@ export function SavedQueriesPanel() {
 					);
 				})}
 
-				{/* Uncategorized docs — flat at root, no section wrapper */}
-				{uncategorized.length > 0 && (
-					<ul className="wpgraphql-ide-documents-list">
-						{uncategorized.map(renderDoc)}
-					</ul>
-				)}
-
-				{savedDocs.length === 0 && unsavedDocs.length === 0 && (
-					<div className="wpgraphql-ide-saved-queries-empty">
-						<p>No saved documents.</p>
-					</div>
-				)}
+				{/* "Documents" — permanent section for uncollected docs */}
+				<CollectionSection
+					title="Documents"
+					count={uncategorized.length}
+					collapsed={!!collapsedSections._documents}
+					onToggle={() => toggleSection('_documents')}
+					onDrop={(docId) => handleDropToCollection(docId, null)}
+					dropTargetId="collection-documents"
+					dragOverId={dragOverId}
+					setDragOver={setDragOverId}
+				>
+					{uncategorized.length > 0 ? (
+						<ul className="wpgraphql-ide-documents-list">
+							{uncategorized.map(renderDoc)}
+						</ul>
+					) : (
+						<p className="wpgraphql-ide-collection-empty">
+							No documents
+						</p>
+					)}
+				</CollectionSection>
 			</div>
 
 			<div className="wpgraphql-ide-collection-footer">
