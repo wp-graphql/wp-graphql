@@ -20,7 +20,14 @@ const selectors = {
 		(state) => [state.documents]
 	),
 
-	getOpenTabs: (state) => state.openTabs.map((tab) => tab.id),
+	// Memoized: returns the same array reference when `state.openTabs`
+	// is unchanged. Without this, `useSelect` consumers see a fresh
+	// `.map(...)` array on every dispatch and trigger a wp-data
+	// "non-equal value" warning + needless re-renders.
+	getOpenTabs: createSelector(
+		(state) => state.openTabs.map((tab) => tab.id),
+		(state) => [state.openTabs]
+	),
 
 	getOpenTabObjects: (state) => state.openTabs,
 
