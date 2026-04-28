@@ -1207,20 +1207,19 @@ export function IDELayout({ fetcher, onClose }) {
 													>
 														Save draft
 													</Button>
-													<Button
-														onClick={
-															publishCurrentDoc
-														}
-														disabled={
-															!isSavedDraft ||
-															!query?.trim()
-														}
-														size="compact"
-														variant="primary"
-														className="wpgraphql-ide-publish-button"
-													>
-														Publish
-													</Button>
+													{isSavedDraft &&
+														query?.trim() && (
+															<Button
+																onClick={
+																	publishCurrentDoc
+																}
+																size="compact"
+																variant="primary"
+																className="wpgraphql-ide-publish-button"
+															>
+																Publish
+															</Button>
+														)}
 												</>
 											)}
 										</div>
