@@ -168,6 +168,22 @@ export async function createCollection(name) {
 }
 
 /**
+ * Rename a collection.
+ *
+ * @param {number} id   Term ID.
+ * @param {string} name New name.
+ * @return {Promise<Object>} Updated collection { id, name, count }.
+ */
+export async function renameCollection(id, name) {
+	const term = await apiFetch({
+		path: `${COLLECTIONS_ENDPOINT}/${id}`,
+		method: 'POST',
+		data: { name },
+	});
+	return { id: term.id, name: term.name, count: term.count ?? 0 };
+}
+
+/**
  * Delete a collection.
  *
  * @param {number} id Term ID.

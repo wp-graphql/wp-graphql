@@ -9,6 +9,7 @@ import {
 import {
 	getCollections as fetchCollections,
 	createCollection as postCollection,
+	renameCollection as patchCollection,
 	deleteCollection as removeCollection,
 } from '../../api/documents';
 
@@ -257,6 +258,46 @@ const actions = {
 		type: 'SET_ACTIVE_COLLECTION',
 		id,
 	}),
+
+	/**
+	 * Rename a collection.
+	 *
+	 * @param {number} id   Term ID.
+	 * @param {string} name New name.
+	 */
+	renameCollection:
+		(id, name) =>
+		async ({ dispatch }) => {
+			try {
+				const updated = await patchCollection(id, name);
+				dispatch({ type: 'UPDATE_COLLECTION', collection: updated });
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to rename collection:', error);
+			}
+		},
+
+	/**
+	 * Move a collection up or down in the list.
+	 *
+	 * @param {number} id        Term ID.
+	 * @param {string} direction 'up' or 'down'.
+	 */
+	moveCollection:
+		(id, direction) =>
+		({ dispatch, select: sel }) => {
+			const list = [...sel.getCollections()];
+			const idx = list.findIndex((c) => c.id === id);
+			if (idx === -1) {
+				return;
+			}
+			const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+			if (swapIdx < 0 || swapIdx >= list.length) {
+				return;
+			}
+			[list[idx], list[swapIdx]] = [list[swapIdx], list[idx]];
+			dispatch({ type: 'SET_COLLECTIONS', collections: list });
+		},
 };
 
 export default actions;

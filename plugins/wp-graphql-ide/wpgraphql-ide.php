@@ -59,6 +59,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\check_wpgraphql_availability' )
  * @return void
  */
 function initialize_plugin() {
+	add_action( 'init', __NAMESPACE__ . '\\load_ide_textdomain', 9 );
 	add_action( 'init', __NAMESPACE__ . '\\register_ide_post_type' );
 	add_action( 'init', __NAMESPACE__ . '\\register_ide_user_meta' );
 	add_action( 'admin_menu', __NAMESPACE__ . '\\register_dedicated_ide_menu' );
@@ -107,6 +108,20 @@ add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
  *
  * @return void
  */
+
+/**
+ * Load the plugin textdomain.
+ *
+ * Must run before register_post_type / register_taxonomy so that
+ * label strings using __() don't trigger a just-in-time textdomain
+ * load warning on WP 6.7+.
+ *
+ * @return void
+ */
+function load_ide_textdomain() {
+	load_plugin_textdomain( 'wpgraphql-ide', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+
 function register_ide_post_type() {
 	register_post_type(
 		'graphql_ide_query',

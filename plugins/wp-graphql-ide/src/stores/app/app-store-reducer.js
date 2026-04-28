@@ -153,6 +153,13 @@ const reducer = (state = initialState, action) => {
 				...state,
 				collections: [...state.collections, action.collection],
 			};
+		case 'UPDATE_COLLECTION':
+			return {
+				...state,
+				collections: state.collections.map((c) =>
+					c.id === action.collection.id ? action.collection : c
+				),
+			};
 		case 'REMOVE_COLLECTION':
 			return {
 				...state,

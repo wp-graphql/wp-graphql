@@ -18,16 +18,20 @@ export const HeadersPanel = ({ headers }) => {
 
 	return (
 		<div className="wpgraphql-ide-headers-panel">
-			<dl className="wpgraphql-ide-headers-list">
-				{sorted.map(([name, value]) => (
-					<React.Fragment key={name}>
-						<dt className="wpgraphql-ide-header-name">{name}</dt>
-						<dd className="wpgraphql-ide-header-value">
-							<code>{value}</code>
-						</dd>
-					</React.Fragment>
-				))}
-			</dl>
+			<table className="wpgraphql-ide-headers-table">
+				<tbody>
+					{sorted.map(([name, value]) => (
+						<tr key={name} className="wpgraphql-ide-header-row">
+							<td className="wpgraphql-ide-header-name">
+								{name}
+							</td>
+							<td className="wpgraphql-ide-header-value">
+								{value}
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
 		</div>
 	);
 };
