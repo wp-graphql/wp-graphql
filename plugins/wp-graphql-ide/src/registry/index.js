@@ -2,7 +2,9 @@ import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import {
 	registerActivityBarPanel,
 	registerResponseExtensionTab,
+	registerWorkspaceTabType,
 } from '../access-functions';
+import { SettingsWorkspaceTab } from '../components/settings/SettingsWorkspaceTab';
 import {
 	SavedQueriesPanel,
 	SavedQueriesIcon,
@@ -89,4 +91,11 @@ export const initializeRegistry = () => {
 		},
 		40
 	);
+
+	// Built-in "Settings" workspace tab — opened from the topbar settings
+	// button when the current user can manage WPGraphQL settings.
+	registerWorkspaceTabType('graphql-settings', {
+		title: 'Settings',
+		content: SettingsWorkspaceTab,
+	});
 };
