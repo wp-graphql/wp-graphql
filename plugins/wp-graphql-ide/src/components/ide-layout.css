@@ -866,6 +866,17 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-shrink: 0;
 }
 
+.wpgraphql-ide-collection-footer-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.wpgraphql-ide-collection-footer-actions .wpgraphql-ide-collection-add-btn {
+	flex: 1;
+	justify-content: flex-start;
+}
+
 .wpgraphql-ide-collection-input {
 	width: 100%;
 	font-size: 12px;
@@ -1469,6 +1480,21 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-response-viewer .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
+}
+
+/* Response viewer: extend gutter + content background to fill the
+   container so line numbers run top-to-bottom even when the response
+   has fewer lines than the available height. */
+.wpgraphql-ide-response-viewer .cm-scroller {
+	min-height: 100%;
+}
+
+.wpgraphql-ide-response-viewer .cm-content {
+	min-height: 100%;
+}
+
+.wpgraphql-ide-response-viewer .cm-gutter {
+	min-height: 100%;
 }
 
 .wpgraphql-ide-response-tabs {
@@ -2225,8 +2251,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
+/* Active-line indicator: inset left bar instead of an opaque background.
+   A background here would paint over `.cm-selectionLayer`, hiding the
+   selection on whichever line holds the caret (notably the last line
+   after Cmd+A). The inset shadow is non-occluding. */
 .wpgraphql-ide-editor .cm-activeLine {
-	background: #f6f7f7;
+	background: transparent;
+	box-shadow: inset 2px 0 0 #dcdcde;
 }
 
 .wpgraphql-ide-editor .cm-selectionBackground {
