@@ -78,7 +78,8 @@ export function App() {
 				};
 				// Remove Content-Type for GET requests.
 				delete fetchOptions.headers['Content-Type'];
-				url = `${url}?${params.toString()}`;
+				const separator = url.includes('?') ? '&' : '?';
+				url = `${url}${separator}${params.toString()}`;
 			} else {
 				fetchOptions = {
 					method: 'POST',
