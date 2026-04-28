@@ -37,13 +37,10 @@ const reducer = (state = initialState, action) => {
 				return state;
 			}
 
-			// Panels must have either a content callback or an action callback.
-			if (
-				typeof action.config.content !== 'function' &&
-				typeof action.config.action !== 'function'
-			) {
+			// Ensure config has a content callback.
+			if (typeof action.config.content !== 'function') {
 				console.error(
-					`Config for panel "${action.name}" requires a content or action callback.`
+					`Config for panel "${action.name}" requires a content callback.`
 				);
 				return state;
 			}

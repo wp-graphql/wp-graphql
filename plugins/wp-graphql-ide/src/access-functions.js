@@ -163,3 +163,37 @@ export function openWorkspaceTab(typeName, { id, title } = {}) {
 		tabTitle
 	);
 }
+
+/**
+ * Register a topbar action button that opens a workspace tab.
+ *
+ * Topbar actions appear in the global top bar (right side, after schema
+ * refresh). Clicking one opens or switches to a singleton workspace tab.
+ *
+ * @param {string}   name           Unique action identifier.
+ * @param {Object}   config         Action configuration.
+ * @param {string}   config.title   Tooltip / aria-label text.
+ * @param {Function} config.icon    React component rendering the icon.
+ * @param {string}   config.tabType Workspace tab type to open (must be registered).
+ * @param {string}   [config.tabId] Singleton tab ID (defaults to tabType).
+ * @param {number}   [priority=10]  Sort order (lower = first).
+ *
+ * @return {void}
+ */
+export function registerTopbarAction(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/document-editor').registerTopbarAction(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterTopbarAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register topbar action: ${name}`, error);
+	}
+}

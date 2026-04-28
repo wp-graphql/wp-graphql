@@ -39,6 +39,15 @@ const selectors = {
 	getTabTypes: (state) => state.tabTypes,
 
 	getTabType: (state, name) => state.tabTypes[name] || null,
+
+	getTopbarActions: createSelector(
+		(state) => {
+			return Object.entries(state.topbarActions)
+				.map(([name, action]) => ({ name, ...action }))
+				.sort((a, b) => a.priority - b.priority);
+		},
+		(state) => [state.topbarActions]
+	),
 };
 
 export default selectors;

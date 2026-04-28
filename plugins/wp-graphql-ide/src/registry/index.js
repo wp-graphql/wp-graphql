@@ -2,8 +2,10 @@ import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import {
 	registerActivityBarPanel,
 	registerResponseExtensionTab,
+	registerTopbarAction,
 	registerWorkspaceTabType,
 } from '../access-functions';
+import { Icon, cog } from '@wordpress/icons';
 import { SettingsWorkspaceTab } from '../components/settings/SettingsWorkspaceTab';
 import {
 	SavedQueriesPanel,
@@ -98,4 +100,22 @@ export const initializeRegistry = () => {
 		title: 'Settings',
 		content: SettingsWorkspaceTab,
 	});
+
+	// Register the settings topbar action if the user can manage settings.
+	const canManageSettings =
+		typeof window !== 'undefined' &&
+		!!window.WPGRAPHQL_IDE_DATA?.canManageSettings;
+
+	if (canManageSettings) {
+		registerTopbarAction(
+			'graphql-settings',
+			{
+				title: 'WPGraphQL Settings',
+				icon: () => <Icon icon={cog} />,
+				tabType: 'graphql-settings',
+				tabId: 'graphql-settings',
+			},
+			10
+		);
+	}
 };

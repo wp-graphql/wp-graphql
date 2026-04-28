@@ -4,6 +4,7 @@ const initialState = {
 	openTabs: [],
 	activeTab: null,
 	tabTypes: {},
+	topbarActions: {},
 };
 
 const reducer = (state = initialState, action) => {
@@ -180,6 +181,21 @@ const reducer = (state = initialState, action) => {
 						title: action.config.title,
 						content: action.config.content,
 						icon: action.config.icon || null,
+					},
+				},
+			};
+
+		case 'REGISTER_TOPBAR_ACTION':
+			return {
+				...state,
+				topbarActions: {
+					...state.topbarActions,
+					[action.name]: {
+						title: action.config.title,
+						icon: action.config.icon,
+						tabType: action.config.tabType,
+						tabId: action.config.tabId || action.config.tabType,
+						priority: action.priority || 10,
 					},
 				},
 			};

@@ -96,7 +96,6 @@ function initialize_plugin() {
 	// Core plugins/modules.
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/help-panel/help-panel.php';
-	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/test-panel/test-panel.php';
 }
 add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
 

@@ -38,6 +38,20 @@ const actions = {
 	}),
 
 	/**
+	 * Register a topbar action button that opens a workspace tab.
+	 *
+	 * @param {string} name     Unique action identifier.
+	 * @param {Object} config   Action config (title, icon, tabType, tabId).
+	 * @param {number} priority Sort order (lower = first).
+	 */
+	registerTopbarAction: (name, config, priority) => ({
+		type: 'REGISTER_TOPBAR_ACTION',
+		name,
+		config,
+		priority,
+	}),
+
+	/**
 	 * Open a workspace tab of a given type. Creates a virtual tab entry
 	 * (not backed by a document) and makes it active.
 	 *

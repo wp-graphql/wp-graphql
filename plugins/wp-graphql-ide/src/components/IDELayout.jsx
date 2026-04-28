@@ -21,7 +21,6 @@ import {
 	moreVertical,
 	close,
 	search,
-	settings,
 	sidebar,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -238,6 +237,10 @@ export function IDELayout({ fetcher, onClose }) {
 	);
 	const tabTypes = useSelect(
 		(select) => select('wpgraphql-ide/document-editor').getTabTypes(),
+		[]
+	);
+	const topbarActions = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getTopbarActions(),
 		[]
 	);
 
@@ -754,34 +757,6 @@ export function IDELayout({ fetcher, onClose }) {
 		[setVisiblePanel, setDocsNavTarget]
 	);
 
-	// Settings button: open the in-IDE Settings workspace tab if the user
-	// can manage settings; otherwise link out to the WP admin settings page
-	// so they at least get a meaningful destination.
-	//
-	// `wp_localize_script` casts scalars to strings, so the PHP boolean
-	// `true` arrives here as the string "1". Use a truthy check to handle
-	// both shapes.
-	const canManageSettings =
-		typeof window !== 'undefined' &&
-		!!window.WPGRAPHQL_IDE_DATA?.canManageSettings;
-
-	const settingsUrl =
-		typeof window !== 'undefined' && window.wpApiSettings?.root
-			? window.location.origin +
-				'/wp-admin/admin.php?page=graphql-settings'
-			: '/wp-admin/admin.php?page=graphql-settings';
-
-	const handleOpenSettings = () => {
-		if (canManageSettings && window.WPGraphQLIDE?.openWorkspaceTab) {
-			window.WPGraphQLIDE.openWorkspaceTab('graphql-settings', {
-				id: 'graphql-settings',
-				title: 'Settings',
-			});
-		} else if (typeof window !== 'undefined') {
-			window.location.href = settingsUrl;
-		}
-	};
-
 	return (
 		<div className="wpgraphql-ide-container">
 			{/* Global top bar */}
@@ -826,16 +801,35 @@ export function IDELayout({ fetcher, onClose }) {
 							<Icon icon={update} />
 						</Button>
 					</Tooltip>
-					<Tooltip text="WPGraphQL Settings">
-						<Button
-							onClick={handleOpenSettings}
-							aria-label="WPGraphQL Settings"
-							size="compact"
-							className="wpgraphql-ide-topbar-btn"
-						>
-							<Icon icon={settings} />
-						</Button>
-					</Tooltip>
+					{topbarActions.length > 0 && (
+						<>
+							<div className="wpgraphql-ide-topbar-sep" />
+							{topbarActions.map((action) => (
+								<Tooltip key={action.name} text={action.title}>
+									<Button
+										onClick={() =>
+											window.WPGraphQLIDE?.openWorkspaceTab(
+												action.tabType,
+												{
+													id: action.tabId,
+													title: action.title,
+												}
+											)
+										}
+										aria-label={action.title}
+										size="compact"
+										className="wpgraphql-ide-topbar-btn"
+									>
+										{action.icon ? (
+											<action.icon />
+										) : (
+											<Icon icon={edit} />
+										)}
+									</Button>
+								</Tooltip>
+							))}
+						</>
+					)}
 					{onClose && (
 						<>
 							<div className="wpgraphql-ide-topbar-sep" />
@@ -861,11 +855,7 @@ export function IDELayout({ fetcher, onClose }) {
 						<Tooltip key={panel.name} text={panel.title}>
 							<Button
 								onClick={() =>
-									panel.action
-										? panel.action()
-										: toggleActivityPanelVisibility(
-												panel.name
-											)
+									toggleActivityPanelVisibility(panel.name)
 								}
 								aria-label={panel.title}
 								size="compact"
