@@ -1,6 +1,6 @@
 {
   "$schema": "https://schemas.wp.org/trunk/wp-env.json",
-  "core": null,
+  "core": "https://wordpress.org/wordpress-7.0-RC2.zip",
   "plugins": [
     "./plugins/wp-graphql",
     "./plugins/wp-graphql-smart-cache",

@@ -28,6 +28,7 @@ import {
 	moreVertical,
 	close,
 	search,
+	share,
 	sidebar,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -35,6 +36,7 @@ import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
 import { ResponseViewer } from './editors/ResponseViewer';
 import { ErrorsPanel } from './ErrorsPanel';
+import { shareButton } from '../registry/editor-toolbar-buttons/share-button';
 import { HeadersPanel } from './HeadersPanel';
 import { ResponseTableView } from './ResponseTableView';
 import { EditorToolbar } from './EditorToolbar';
@@ -1154,6 +1156,23 @@ export function IDELayout({ fetcher, onClose }) {
 												)}
 											</DropdownMenu>
 											<div className="wpgraphql-ide-editor-toolbar-spacer" />
+											<Tooltip text="Copy share link">
+												<Button
+													onClick={() => {
+														const config =
+															shareButton();
+														config.onClick();
+														addNotice(
+															'Share link copied'
+														);
+													}}
+													aria-label="Copy share link"
+													size="compact"
+													className="wpgraphql-ide-toolbar-share-btn"
+												>
+													<Icon icon={share} />
+												</Button>
+											</Tooltip>
 											{!isPublished && (
 												<>
 													<Button
