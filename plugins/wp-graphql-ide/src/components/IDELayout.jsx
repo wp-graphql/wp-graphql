@@ -505,10 +505,23 @@ export function IDELayout({ fetcher, onClose }) {
 			return;
 		}
 		try {
+			// Prompt for a name if the tab still has a generic title.
+			const isGenericName = /^New Tab( \d+)?$/.test(activeDocument.title);
+			let title;
+			if (isGenericName) {
+				// eslint-disable-next-line no-alert
+				const input = window.prompt(
+					'Name this document:',
+					activeDocument.title
+				);
+				title = input?.trim() || undefined;
+			}
+
 			await saveTab(activeDocument.id, {
 				query,
 				variables,
 				headers,
+				...(title ? { title } : {}),
 			});
 			addNotice('Document saved');
 		} catch {

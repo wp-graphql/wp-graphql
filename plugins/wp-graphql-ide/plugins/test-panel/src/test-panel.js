@@ -1,11 +1,10 @@
 /**
- * Test Panel — internal plugin that dogfoods the workspace tab API.
+ * Test Tabbed Workspacebed Workspace — internal plugin that dogfoods the workspace tab API.
  *
- * Registers an activity bar panel and a custom workspace tab type.
- * Clicking "Open Test Tab" in the sidebar opens a full-workspace tab
- * rendered by this plugin instead of the query editor.
+ * Registers a workspace tab type and an activity bar action button.
+ * Clicking the button directly opens a workspace tab.
  */
-import { Button } from '@wordpress/components';
+import { Icon, plugins as pluginsIcon } from '@wordpress/icons';
 
 const TestTabContent = () => (
 	<div
@@ -36,7 +35,7 @@ const TestTabContent = () => (
 		>
 			T
 		</div>
-		<h2 style={{ margin: 0, fontSize: 18 }}>Test Workspace Tab</h2>
+		<h2 style={{ margin: 0, fontSize: 18 }}>Test Tabbed Workspace</h2>
 		<p
 			style={{
 				margin: 0,
@@ -55,67 +54,39 @@ const TestTabContent = () => (
 	</div>
 );
 
-const TestPanelSidebar = () => {
-	const { openWorkspaceTab } = window.WPGraphQLIDE;
-
-	return (
-		<div style={{ padding: '12px 8px' }}>
-			<p style={{ margin: '0 0 12px', color: '#757575', fontSize: 13 }}>
-				Internal test plugin for the workspace tab API.
-			</p>
-			<Button
-				variant="secondary"
-				onClick={() =>
-					openWorkspaceTab('test-panel', {
-						id: 'test-panel-singleton',
-						title: 'Test Tab',
-					})
-				}
-				style={{ width: '100%', justifyContent: 'center' }}
-			>
-				Open Test Tab
-			</Button>
-		</div>
-	);
-};
-
-const TestPanelIcon = () => (
-	<svg
-		viewBox="0 0 24 24"
-		width="24"
-		height="24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-	>
-		<path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
-	</svg>
-);
+const TestPanelIcon = () => <Icon icon={pluginsIcon} />;
 
 window.addEventListener('WPGraphQLIDE_Window_Ready', () => {
 	if (!window.WPGraphQLIDE) {
 		return;
 	}
 
-	const { registerActivityBarPanel, registerWorkspaceTabType } =
-		window.WPGraphQLIDE;
+	const {
+		registerActivityBarPanel,
+		registerWorkspaceTabType,
+		openWorkspaceTab,
+	} = window.WPGraphQLIDE;
 
 	// Register the custom workspace tab type.
 	if (typeof registerWorkspaceTabType === 'function') {
 		registerWorkspaceTabType('test-panel', {
-			title: 'Test Tab',
+			title: 'Test Tabbed Workspace',
 			content: TestTabContent,
 		});
 	}
 
-	// Register the activity bar panel (sidebar).
+	// Register an activity bar action that opens the tab directly.
 	if (typeof registerActivityBarPanel === 'function') {
 		registerActivityBarPanel(
 			'test-panel',
 			{
-				title: 'Test Panel',
+				title: 'Test Tabbed Workspacebed Workspace',
 				icon: TestPanelIcon,
-				content: TestPanelSidebar,
+				action: () =>
+					openWorkspaceTab('test-panel', {
+						id: 'test-panel-singleton',
+						title: 'Test Tabbed Workspace',
+					}),
 			},
 			99
 		);
