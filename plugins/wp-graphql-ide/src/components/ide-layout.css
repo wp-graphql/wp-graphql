@@ -171,21 +171,30 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-activity-btn.components-button:hover {
-	color: #2c3338;
-	background: #f0f0f1;
+	color: var(--wp-admin-theme-color, #3858e9);
+	background: #f6f7f7;
 }
 
+.wpgraphql-ide-activity-btn.components-button:focus,
 .wpgraphql-ide-activity-btn.components-button:focus-visible {
+	color: var(--wp-admin-theme-color, #3858e9);
+	background: transparent;
 	border-radius: 0;
 	box-shadow: inset 0 0 0 1.5px var(--wp-admin-theme-color, #3858e9);
 	outline: none;
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active {
-	color: #2c3338;
+	color: var(--wp-admin-theme-color, #3858e9);
 	background: transparent;
 	border-radius: 0;
-	box-shadow: inset 3px 0 0 0 #2c3338;
+	box-shadow: inset 3px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-active:focus,
+.wpgraphql-ide-activity-btn.components-button.is-active:focus-visible {
+	box-shadow: inset 3px 0 0 0 var(--wp-admin-theme-color, #3858e9),
+		inset 0 0 0 1.5px var(--wp-admin-theme-color, #3858e9);
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-drag-before {
@@ -625,6 +634,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 /* Published documents — muted to signal read-only */
 
 /* Published/readonly editor — gray tint to signal immutable */
+.wpgraphql-ide-editor.is-readonly,
 .wpgraphql-ide-editor.is-readonly .cm-editor {
 	background: #f6f7f7;
 }
@@ -1227,6 +1237,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	overflow-y: auto;
 	overflow-x: hidden;
 	border-top: 1px solid #dcdcde;
+}
+
+.wpgraphql-ide-editor-tools.is-readonly {
+	background: #f6f7f7;
 }
 
 /* Resize handles */

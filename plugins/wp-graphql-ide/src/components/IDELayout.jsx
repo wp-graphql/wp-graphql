@@ -5,7 +5,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import { parse as parseGraphQL } from 'graphql';
+import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import {
 	Button,
 	DropdownMenu,
@@ -555,11 +555,20 @@ export function IDELayout({ fetcher, onClose }) {
 			addNotice('Cannot publish an empty document', 'error');
 			return;
 		}
+		let doc;
 		try {
-			parseGraphQL(query);
+			doc = parseGraphQL(query);
 		} catch (syntaxError) {
 			addNotice(`Invalid GraphQL: ${syntaxError.message}`, 'error');
 			return;
+		}
+		// Schema-aware validation — catches empty selections, unknown fields, etc.
+		if (schema) {
+			const errors = validateGraphQL(schema, doc);
+			if (errors.length > 0) {
+				addNotice(`Invalid query: ${errors[0].message}`, 'error');
+				return;
+			}
 		}
 
 		// Save first to ensure content is persisted.
@@ -1374,7 +1383,7 @@ export function IDELayout({ fetcher, onClose }) {
 											</div>
 										</ResizableBox>
 										<TabPanel
-											className="wpgraphql-ide-editor-tools"
+											className={`wpgraphql-ide-editor-tools${isPublished ? ' is-readonly' : ''}`}
 											tabs={[
 												{
 													name: 'variables',
