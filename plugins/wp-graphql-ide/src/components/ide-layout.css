@@ -1963,38 +1963,160 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-style: italic;
 }
 
-/* Tooltip (autocomplete, lint) — rendered on document.body via tooltips() */
+/* Tooltip (autocomplete, lint, hover docs) — rendered on document.body via
+   tooltips() so they live outside the editor's stacking context. We must
+   constrain width here since the body offers no container width.
+   Field-description tooltips can carry long deprecation messages, so without
+   a max-width they previously stretched end-to-end across the viewport.
+   Keep this rule narrow: don't touch padding, display, or other layout
+   properties that the graphql/autocomplete extensions rely on internally.
+   Colors / borders / shadows tuned to match WP admin's elevation tokens. */
 .cm-tooltip {
+	max-width: 460px;
 	background: #fff;
-	border: 1px solid #dcdcde;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-	z-index: 100000;
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+	border-radius: 4px;
+	color: #1d2327;
 	font-size: 13px;
+	line-height: 1.5;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	z-index: 100000;
 }
 
-.cm-tooltip-autocomplete {
-	max-height: 250px;
+/* Pad the inner section that CM6 renders for hover/info tooltips. The
+   autocomplete dropdown's <ul> isn't wrapped in a section, so it's
+   unaffected. */
+.cm-tooltip .cm-tooltip-section {
+	padding: 12px 14px;
 }
 
-.cm-tooltip-autocomplete ul {
+.cm-tooltip code {
+	background: #f0f0f1;
+	padding: 1px 5px;
+	border-radius: 2px;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+	color: #2c3338;
+}
+
+.cm-tooltip p {
+	margin: 0 0 6px;
+}
+
+.cm-tooltip p:last-child {
+	margin-bottom: 0;
+}
+
+/* Schema hover docs — two-section layout with a monospaced type signature
+   above a hairline divider, then prose description below. Mirrors the WP
+   admin docs panel idiom: muted signature, plain-language body.
+   Token spans (.wpgraphql-ide-hov-*) reuse the editor's syntax-highlight
+   palette so the signature reads in the same visual language as the code. */
+.wpgraphql-ide-hover-signature {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+	letter-spacing: 0.1px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #f0f0f1;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wpgraphql-ide-hover-signature:last-child {
+	padding-bottom: 0;
+	margin-bottom: 0;
+	border-bottom: none;
+}
+
+/* Signature token colors — match wpgraphqlHighlightStyle in GraphQLEditor.jsx */
+.wpgraphql-ide-hov-type {
+	color: #117a3e;
+}
+.wpgraphql-ide-hov-field {
+	color: #1f61a0;
+}
+.wpgraphql-ide-hov-arg {
+	color: #996800;
+}
+.wpgraphql-ide-hov-punct {
+	color: #50575e;
+}
+
+.wpgraphql-ide-hover-description {
+	font-size: 13px;
+	color: #1d2327;
+	line-height: 1.6;
+	white-space: pre-wrap;
+}
+
+/* Inline `code` snippets inside descriptions get the same chip treatment
+   as `.cm-tooltip code`, but scoped here so it survives if the outer
+   `.cm-tooltip code` rule changes. */
+.wpgraphql-ide-hov-code {
+	background: #f0f0f1;
+	color: #2c3338;
+	padding: 1px 5px;
+	border-radius: 2px;
 	font-family: Menlo, Consolas, Monaco, monospace;
 	font-size: 12px;
 }
 
-.cm-tooltip-autocomplete ul li {
+/* Autocomplete dropdown overrides: max-width clamp doesn't apply here, and
+   the list itself controls its own padding. */
+.cm-tooltip.cm-tooltip-autocomplete {
+	max-width: none;
+	max-height: 250px;
+}
+
+.cm-tooltip-autocomplete > ul {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+}
+
+.cm-tooltip-autocomplete > ul > li {
 	padding: 4px 8px;
 }
 
-.cm-tooltip-autocomplete ul li[aria-selected] {
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
 	background: var(--wp-admin-theme-color, #3858e9);
 	color: #fff;
 }
 
+/* Side panel that CM6 renders next to the autocomplete dropdown to show
+   the highlighted suggestion's description. CM6 places it as a sibling of
+   `.cm-tooltip-autocomplete` (not a child), so it needs its own background
+   and border or it renders invisible against the page. */
 .cm-completionInfo {
-	padding: 8px;
+	max-width: 360px;
+	padding: 8px 10px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+	color: #1e1e1e;
 	font-size: 12px;
-	max-width: 300px;
-	border-left: 1px solid #dcdcde;
+	line-height: 1.5;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+.cm-completionInfo p {
+	margin: 0 0 6px;
+}
+
+.cm-completionInfo p:last-child {
+	margin-bottom: 0;
+}
+
+.cm-completionInfo code {
+	background: rgba(0, 0, 0, 0.05);
+	padding: 1px 4px;
+	border-radius: 3px;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 11px;
 }
 
 /* Suppress lint dot — less jarring, especially on empty documents */
