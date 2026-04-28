@@ -425,7 +425,9 @@ export function IDELayout({ fetcher, onClose }) {
 	}, []);
 
 	// When active document changes, populate editors and restore response.
+	// Cancel any pending auto-save from the previous document.
 	useEffect(() => {
+		cancelAutoSave();
 		if (!activeDocument) {
 			return;
 		}
@@ -466,6 +468,13 @@ export function IDELayout({ fetcher, onClose }) {
 	);
 
 	// Auto-save drafts after 2 seconds of inactivity.
+	const cancelAutoSave = useCallback(() => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current);
+			saveTimerRef.current = null;
+		}
+	}, []);
+
 	const scheduleAutoSave = useCallback(
 		(field, value) => {
 			if (
@@ -474,14 +483,12 @@ export function IDELayout({ fetcher, onClose }) {
 			) {
 				return;
 			}
-			if (saveTimerRef.current) {
-				clearTimeout(saveTimerRef.current);
-			}
+			cancelAutoSave();
 			saveTimerRef.current = setTimeout(() => {
 				saveDocument(activeDocument.id, { [field]: value });
 			}, 2000);
 		},
-		[activeDocument, saveDocument]
+		[activeDocument, saveDocument, cancelAutoSave]
 	);
 
 	const handleQueryChange = useCallback(
