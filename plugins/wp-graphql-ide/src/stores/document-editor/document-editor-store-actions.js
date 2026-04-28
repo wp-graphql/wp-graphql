@@ -6,6 +6,11 @@ import {
 	publishDocument,
 } from '../../api/documents';
 import { getPreferences, savePreference } from '../../api/preferences';
+import {
+	getUnsavedTabs,
+	saveUnsavedTab,
+	removeUnsavedTab,
+} from './unsaved-tabs-storage';
 
 /**
  * Check whether a document ID is a temporary (unsaved) client-side ID.
@@ -104,43 +109,66 @@ const actions = {
 					getPreferences(),
 				]);
 
-				dispatch({ type: 'SET_DOCUMENTS', documents: docs });
+				// Hydrate any unsaved drafts the user had open before
+				// the page reloaded. They live alongside saved docs in
+				// the documents store but keep their `temp-*` IDs.
+				const unsaved = getUnsavedTabs().map((t) => ({
+					id: t.id,
+					title: t.title || 'Untitled',
+					query: t.query || '',
+					variables: t.variables || '',
+					headers: t.headers || '',
+					status: 'draft',
+					collections: [],
+				}));
+
+				dispatch({
+					type: 'SET_DOCUMENTS',
+					documents: [...docs, ...unsaved],
+				});
 
 				const openTabs = prefs.open_tabs || [];
 				const activeTab = prefs.active_tab || '';
 
-				if (docs.length > 0) {
-					// Restore open tabs, filtering to docs that still exist.
-					const docIds = docs.map((d) => String(d.id));
-					const validTabs = openTabs.filter((id) =>
-						docIds.includes(String(id))
-					);
+				const docIds = docs.map((d) => String(d.id));
+				const unsavedIds = unsaved.map((d) => String(d.id));
 
-					if (validTabs.length > 0) {
-						dispatch({
-							type: 'SET_OPEN_TABS',
-							tabIds: validTabs,
-						});
-						const validActive = validTabs.includes(
-							String(activeTab)
-						)
-							? String(activeTab)
-							: validTabs[0];
-						dispatch({
-							type: 'SET_ACTIVE_TAB',
-							tabId: validActive,
-						});
+				// Saved docs the server-side prefs say should be open,
+				// preserved in the order they were last arranged.
+				const savedTabs = openTabs.filter((id) =>
+					docIds.includes(String(id))
+				);
+
+				// Append every unsaved tab — server prefs don't know
+				// about them, so they couldn't already be in the list.
+				const tabIds = [...savedTabs, ...unsavedIds];
+
+				if (tabIds.length > 0) {
+					dispatch({ type: 'SET_OPEN_TABS', tabIds });
+
+					let activeId = '';
+					if (tabIds.includes(String(activeTab))) {
+						activeId = String(activeTab);
+					} else if (unsavedIds.length > 0) {
+						// Prefer landing on the most recent draft so a
+						// reload of an unsaved tab puts the user back
+						// where they were typing.
+						activeId = unsavedIds[unsavedIds.length - 1];
 					} else {
-						// No saved tabs — open the first document.
-						dispatch({
-							type: 'SET_OPEN_TABS',
-							tabIds: [String(docs[0].id)],
-						});
-						dispatch({
-							type: 'SET_ACTIVE_TAB',
-							tabId: String(docs[0].id),
-						});
+						activeId = tabIds[0];
 					}
+					dispatch({ type: 'SET_ACTIVE_TAB', tabId: activeId });
+				} else if (docs.length > 0) {
+					// First-time load with no remembered state — open
+					// the first saved doc so the editor isn't empty.
+					dispatch({
+						type: 'SET_OPEN_TABS',
+						tabIds: [String(docs[0].id)],
+					});
+					dispatch({
+						type: 'SET_ACTIVE_TAB',
+						tabId: String(docs[0].id),
+					});
 				}
 			} catch (error) {
 				// eslint-disable-next-line no-console
@@ -154,11 +182,22 @@ const actions = {
 	 *
 	 * @param {string} title Tab title.
 	 */
-	createTab: (title = 'Untitled') => ({
-		type: 'CREATE_IN_MEMORY_TAB',
-		title,
-		tempId: `temp-${Date.now()}`,
-	}),
+	createTab:
+		(title = 'Untitled') =>
+		({ dispatch }) => {
+			const tempId = `temp-${Date.now()}`;
+			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId });
+			// Seed localStorage so the tab survives a refresh even
+			// before the user types anything into it.
+			saveUnsavedTab({
+				id: tempId,
+				title,
+				query: '',
+				variables: '',
+				headers: '',
+			});
+			return tempId;
+		},
 
 	/**
 	 * Save the active document to the server.
@@ -199,6 +238,8 @@ const actions = {
 						newId: String(saved.id),
 						document: saved,
 					});
+					// Promoted to a real doc — drop the localStorage draft.
+					removeUnsavedTab(id);
 				} else {
 					// Subsequent save — update existing.
 					saved = await updateDocument(id, payload);
@@ -271,9 +312,12 @@ const actions = {
 		async ({ dispatch, select }) => {
 			dispatch({ type: 'CLOSE_TAB', tabId: String(tabId) });
 
-			// If the closed doc was temp (unsaved), remove it from state.
+			// If the closed doc was temp (unsaved), remove it from state
+			// and drop the localStorage copy so it doesn't reappear next
+			// time the IDE loads.
 			if (isTempId(tabId)) {
 				dispatch({ type: 'REMOVE_DOCUMENT', id: tabId });
+				removeUnsavedTab(tabId);
 			}
 
 			const openTabs = select.getOpenTabs();
@@ -317,13 +361,20 @@ const actions = {
 	 */
 	saveDocument:
 		(id, data) =>
-		async ({ dispatch }) => {
+		async ({ dispatch, select }) => {
 			if (isTempId(id)) {
-				// In-memory doc — update local state only.
+				// In-memory doc — update local state and mirror to
+				// localStorage so the draft survives a page refresh.
 				dispatch({
 					type: 'UPDATE_DOCUMENT',
 					document: { id, ...data },
 				});
+				const updated = select
+					.getDocuments()
+					.find((d) => String(d.id) === String(id));
+				if (updated) {
+					saveUnsavedTab(updated);
+				}
 				return;
 			}
 			try {
@@ -346,7 +397,9 @@ const actions = {
 			try {
 				dispatch({ type: 'CLOSE_TAB', tabId: String(id) });
 				dispatch({ type: 'REMOVE_DOCUMENT', id });
-				if (!isTempId(id)) {
+				if (isTempId(id)) {
+					removeUnsavedTab(id);
+				} else {
 					await deleteDocument(id, true);
 				}
 				await dispatch.persistTabState();
