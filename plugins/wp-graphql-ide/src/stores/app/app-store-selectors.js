@@ -55,6 +55,12 @@ const selectors = {
 	getDocsNavTarget: (state) => {
 		return state.docsNavTarget;
 	},
+	getCollections: (state) => {
+		return state.collections;
+	},
+	getActiveCollection: (state) => {
+		return state.activeCollection;
+	},
 };
 
 export default selectors;

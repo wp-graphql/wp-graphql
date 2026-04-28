@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 
 const ENDPOINT = '/wp/v2/graphql-ide-queries';
+const COLLECTIONS_ENDPOINT = '/wp/v2/graphql-ide-collections';
 
 /**
  * Fetch all IDE query documents for the current user.
@@ -9,7 +10,7 @@ const ENDPOINT = '/wp/v2/graphql-ide-queries';
  */
 export async function getDocuments() {
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,status,meta`,
+		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,status,meta,graphql-ide-collections`,
 	});
 
 	return posts.map(normalizeDocument);
@@ -27,18 +28,23 @@ export async function getDocuments() {
  * @return {Promise<Object>} Created document.
  */
 export async function createDocument(doc) {
+	const data = {
+		title: doc.title || 'Untitled',
+		content: doc.query || '',
+		status: doc.status || 'draft',
+		meta: {
+			_graphql_ide_variables: doc.variables || '',
+			_graphql_ide_headers: doc.headers || '',
+		},
+	};
+	if (doc.collections) {
+		data['graphql-ide-collections'] = doc.collections;
+	}
+
 	const post = await apiFetch({
 		path: ENDPOINT,
 		method: 'POST',
-		data: {
-			title: doc.title || 'Untitled',
-			content: doc.query || '',
-			status: doc.status || 'draft',
-			meta: {
-				_graphql_ide_variables: doc.variables || '',
-				_graphql_ide_headers: doc.headers || '',
-			},
-		},
+		data,
 	});
 
 	return normalizeDocument(post);
@@ -71,6 +77,9 @@ export async function updateDocument(id, doc) {
 		if (doc.headers !== undefined) {
 			data.meta._graphql_ide_headers = doc.headers;
 		}
+	}
+	if (doc.collections !== undefined) {
+		data['graphql-ide-collections'] = doc.collections;
 	}
 
 	const post = await apiFetch({
@@ -127,5 +136,46 @@ function normalizeDocument(post) {
 		variables: post.meta?._graphql_ide_variables ?? '',
 		headers: post.meta?._graphql_ide_headers ?? '',
 		status: post.status ?? 'draft',
+		collections: post['graphql-ide-collections'] ?? [],
 	};
+}
+
+/**
+ * Fetch all collections (taxonomy terms).
+ *
+ * @return {Promise<Array>} Array of { id, name, count } objects.
+ */
+export async function getCollections() {
+	const terms = await apiFetch({
+		path: `${COLLECTIONS_ENDPOINT}?per_page=100&_fields=id,name,count`,
+	});
+	return terms.map((t) => ({ id: t.id, name: t.name, count: t.count }));
+}
+
+/**
+ * Create a new collection.
+ *
+ * @param {string} name Collection name.
+ * @return {Promise<Object>} Created collection { id, name, count }.
+ */
+export async function createCollection(name) {
+	const term = await apiFetch({
+		path: COLLECTIONS_ENDPOINT,
+		method: 'POST',
+		data: { name },
+	});
+	return { id: term.id, name: term.name, count: term.count ?? 0 };
+}
+
+/**
+ * Delete a collection.
+ *
+ * @param {number} id Term ID.
+ * @return {Promise<Object>} Deletion response.
+ */
+export async function deleteCollection(id) {
+	return apiFetch({
+		path: `${COLLECTIONS_ENDPOINT}/${id}?force=true`,
+		method: 'DELETE',
+	});
 }

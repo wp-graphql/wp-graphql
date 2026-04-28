@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, {
+	useState,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import { parse as parseGraphQL } from 'graphql';
 import {
 	Button,
@@ -683,7 +689,78 @@ export function IDELayout({ fetcher, onClose }) {
 	// Global panels for the activity bar — exclude document-scoped panels.
 	// Query composer is per-document (rendered inline in the editor area).
 	// Documents panel is accessed via tabs, not the activity bar.
-	const navPanels = panels.filter((p) => p.name !== 'query-composer');
+	const unfilteredNavPanels = panels.filter(
+		(p) => p.name !== 'query-composer'
+	);
+
+	// Apply user-saved panel order (loaded from preferences).
+	const [panelOrder, setPanelOrder] = useState([]);
+	const [dragOverPanel, setDragOverPanel] = useState(null);
+	const dragSrcPanel = useRef(null);
+
+	// Load saved panel order from preferences on mount.
+	useEffect(() => {
+		const saved =
+			typeof window !== 'undefined' &&
+			window.WPGRAPHQL_IDE_DATA?.panelOrder;
+		if (Array.isArray(saved) && saved.length > 0) {
+			setPanelOrder(saved);
+		}
+	}, []);
+
+	const navPanels = useMemo(() => {
+		if (panelOrder.length === 0) {
+			return unfilteredNavPanels;
+		}
+		const ordered = [];
+		for (const name of panelOrder) {
+			const panel = unfilteredNavPanels.find((p) => p.name === name);
+			if (panel) {
+				ordered.push(panel);
+			}
+		}
+		// Append any panels not in the saved order.
+		for (const panel of unfilteredNavPanels) {
+			if (!panelOrder.includes(panel.name)) {
+				ordered.push(panel);
+			}
+		}
+		return ordered;
+	}, [unfilteredNavPanels, panelOrder]);
+
+	const handlePanelDrop = useCallback(
+		(targetName, pos) => {
+			const srcName = dragSrcPanel.current;
+			if (!srcName || srcName === targetName) {
+				setDragOverPanel(null);
+				return;
+			}
+			const names = navPanels.map((p) => p.name);
+			const srcIdx = names.indexOf(srcName);
+			if (srcIdx === -1) {
+				setDragOverPanel(null);
+				return;
+			}
+			names.splice(srcIdx, 1);
+			let tgtIdx = names.indexOf(targetName);
+			if (tgtIdx === -1) {
+				setDragOverPanel(null);
+				return;
+			}
+			if (pos === 'after') {
+				tgtIdx += 1;
+			}
+			names.splice(tgtIdx, 0, srcName);
+			setPanelOrder(names);
+			setDragOverPanel(null);
+
+			// Persist to user meta.
+			import('../api/preferences').then(({ savePreference }) => {
+				savePreference('panel_order', names);
+			});
+		},
+		[navPanels]
+	);
 
 	// Query composer panel — rendered inline within the document/editor area.
 	const queryComposerPanel = panels.find((p) => p.name === 'query-composer');
@@ -866,14 +943,49 @@ export function IDELayout({ fetcher, onClose }) {
 				{/* Vertical activity bar — global, owns panel toggle buttons */}
 				<div className="wpgraphql-ide-activity-bar">
 					{navPanels.map((panel) => (
-						<Tooltip key={panel.name} text={panel.title}>
+						<Tooltip
+							key={panel.name}
+							text={panel.title}
+							placement="right"
+						>
 							<Button
+								draggable
+								onDragStart={(e) => {
+									dragSrcPanel.current = panel.name;
+									e.dataTransfer.effectAllowed = 'move';
+								}}
+								onDragOver={(e) => {
+									e.preventDefault();
+									e.dataTransfer.dropEffect = 'move';
+									const rect =
+										e.currentTarget.getBoundingClientRect();
+									const pos =
+										e.clientY < rect.top + rect.height / 2
+											? 'before'
+											: 'after';
+									setDragOverPanel({
+										name: panel.name,
+										pos,
+									});
+								}}
+								onDragLeave={() => setDragOverPanel(null)}
+								onDrop={(e) => {
+									e.preventDefault();
+									handlePanelDrop(
+										panel.name,
+										dragOverPanel?.pos || 'after'
+									);
+								}}
+								onDragEnd={() => {
+									dragSrcPanel.current = null;
+									setDragOverPanel(null);
+								}}
 								onClick={() =>
 									toggleActivityPanelVisibility(panel.name)
 								}
 								aria-label={panel.title}
 								size="compact"
-								className={`wpgraphql-ide-activity-btn${visiblePanel?.name === panel.name ? ' is-active' : ''}`}
+								className={`wpgraphql-ide-activity-btn${visiblePanel?.name === panel.name ? ' is-active' : ''}${dragOverPanel?.name === panel.name ? ` is-drag-${dragOverPanel.pos}` : ''}`}
 							>
 								{panel.icon ? (
 									<panel.icon />

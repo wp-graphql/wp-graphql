@@ -6,6 +6,11 @@ import {
 	createHistoryEntry as postHistoryEntry,
 	clearHistory as deleteAllHistory,
 } from '../../api/history';
+import {
+	getCollections as fetchCollections,
+	createCollection as postCollection,
+	deleteCollection as removeCollection,
+} from '../../api/documents';
 
 /**
  * The initial state of the app.
@@ -191,6 +196,67 @@ const actions = {
 				console.error('Failed to clear history:', error);
 			}
 		},
+
+	/**
+	 * Load collections from the server.
+	 */
+	loadCollections:
+		() =>
+		async ({ dispatch }) => {
+			try {
+				const collections = await fetchCollections();
+				dispatch({ type: 'SET_COLLECTIONS', collections });
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to load collections:', error);
+			}
+		},
+
+	/**
+	 * Create a new collection.
+	 *
+	 * @param {string} name Collection name.
+	 */
+	addCollection:
+		(name) =>
+		async ({ dispatch }) => {
+			try {
+				const collection = await postCollection(name);
+				dispatch({ type: 'ADD_COLLECTION', collection });
+				return collection;
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to create collection:', error);
+				return null;
+			}
+		},
+
+	/**
+	 * Delete a collection.
+	 *
+	 * @param {number} id Term ID.
+	 */
+	removeCollection:
+		(id) =>
+		async ({ dispatch }) => {
+			try {
+				dispatch({ type: 'REMOVE_COLLECTION', id });
+				await removeCollection(id);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to delete collection:', error);
+			}
+		},
+
+	/**
+	 * Set the active collection filter.
+	 *
+	 * @param {number|null} id Collection term ID, or null for all.
+	 */
+	setActiveCollection: (id) => ({
+		type: 'SET_ACTIVE_COLLECTION',
+		id,
+	}),
 };
 
 export default actions;

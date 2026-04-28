@@ -24,6 +24,8 @@ const initialState = {
 	// wants the panel to navigate. The Docs panel reads this, pushes a frame
 	// onto its own navigation stack, and dispatches a clear back to null.
 	docsNavTarget: null,
+	collections: [],
+	activeCollection: null,
 };
 
 /**
@@ -140,6 +142,32 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				httpMethod: action.method,
+			};
+		case 'SET_COLLECTIONS':
+			return {
+				...state,
+				collections: action.collections,
+			};
+		case 'ADD_COLLECTION':
+			return {
+				...state,
+				collections: [...state.collections, action.collection],
+			};
+		case 'REMOVE_COLLECTION':
+			return {
+				...state,
+				collections: state.collections.filter(
+					(c) => c.id !== action.id
+				),
+				activeCollection:
+					state.activeCollection === action.id
+						? null
+						: state.activeCollection,
+			};
+		case 'SET_ACTIVE_COLLECTION':
+			return {
+				...state,
+				activeCollection: action.id,
 			};
 	}
 	return state;

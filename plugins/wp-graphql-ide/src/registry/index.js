@@ -31,7 +31,7 @@ export const initializeRegistry = () => {
 			icon: SavedQueriesIcon,
 			content: SavedQueriesPanel,
 		},
-		5
+		1
 	);
 
 	registerActivityBarPanel(
@@ -41,7 +41,7 @@ export const initializeRegistry = () => {
 			icon: DocsExplorerIcon,
 			content: DocsExplorerPanel,
 		},
-		1
+		5
 	);
 
 	registerActivityBarPanel(

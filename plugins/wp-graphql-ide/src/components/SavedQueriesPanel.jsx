@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
+	Button,
 	DropdownMenu,
 	MenuGroup,
 	MenuItem,
@@ -7,41 +8,15 @@ import {
 	TabPanel,
 	Tooltip,
 } from '@wordpress/components';
-import { Icon, file, moreVertical, trash } from '@wordpress/icons';
+import { Icon, file, trash, plus } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
+import { updateDocument } from '../api/documents';
 
 /**
  * Saved Queries panel icon for the activity bar.
  */
 export const SavedQueriesIcon = () => <Icon icon={file} />;
-
-/**
- * Header action for the Saved Queries panel — "+" button in panel header.
- */
-export const SavedQueriesHeaderAction = () => {
-	const { createTab } = useDispatch('wpgraphql-ide/document-editor');
-	return (
-		<DropdownMenu
-			icon={moreVertical}
-			label="Saved queries actions"
-			className="wpgraphql-ide-panel-header-btn"
-		>
-			{({ onClose: closeMenu }) => (
-				<MenuGroup>
-					<MenuItem
-						onClick={() => {
-							createTab();
-							closeMenu();
-						}}
-					>
-						New document
-					</MenuItem>
-				</MenuGroup>
-			)}
-		</DropdownMenu>
-	);
-};
 
 const STATUS_TABS = [
 	{ name: 'all', title: 'All' },
@@ -50,12 +25,13 @@ const STATUS_TABS = [
 ];
 
 /**
- * Saved Queries panel — browse all saved documents with search and
- * status filtering. Layout matches the Gutenberg block inserter:
- * search above tabs, both fixed; list scrolls below.
+ * Saved Queries panel — browse all saved documents with search,
+ * status filtering, and collection grouping.
  */
 export function SavedQueriesPanel() {
 	const [search, setSearch] = useState('');
+	const [creatingCollection, setCreatingCollection] = useState(false);
+	const [newCollectionName, setNewCollectionName] = useState('');
 
 	const { documents, openTabs, activeTab } = useSelect((select) => {
 		const editor = select('wpgraphql-ide/document-editor');
@@ -66,9 +42,25 @@ export function SavedQueriesPanel() {
 		};
 	}, []);
 
+	const { collections, activeCollection } = useSelect((select) => {
+		const app = select('wpgraphql-ide/app');
+		return {
+			collections: app.getCollections(),
+			activeCollection: app.getActiveCollection(),
+		};
+	}, []);
+
 	const { switchTab, removeDocument } = useDispatch(
 		'wpgraphql-ide/document-editor'
 	);
+	const { loadCollections, addCollection, setActiveCollection } =
+		useDispatch('wpgraphql-ide/app');
+
+	// Load collections on mount.
+	useEffect(() => {
+		loadCollections();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const savedDocs = useMemo(
 		() => documents.filter((d) => !isTempId(d.id)),
@@ -87,6 +79,12 @@ export function SavedQueriesPanel() {
 		} else if (status === 'publish') {
 			filtered = filtered.filter((d) => d.status === 'publish');
 		}
+		// Filter by active collection.
+		if (activeCollection) {
+			filtered = filtered.filter(
+				(d) => d.collections && d.collections.includes(activeCollection)
+			);
+		}
 		if (search.trim()) {
 			const q = search.toLowerCase();
 			filtered = filtered.filter(
@@ -96,6 +94,33 @@ export function SavedQueriesPanel() {
 			);
 		}
 		return filtered;
+	};
+
+	const handleCreateCollection = async () => {
+		const name = newCollectionName.trim();
+		if (!name) {
+			return;
+		}
+		await addCollection(name);
+		setNewCollectionName('');
+		setCreatingCollection(false);
+	};
+
+	const handleAssignCollection = async (docId, collectionId) => {
+		const doc = documents.find((d) => String(d.id) === String(docId));
+		if (!doc) {
+			return;
+		}
+		const current = doc.collections || [];
+		const next = current.includes(collectionId)
+			? current.filter((c) => c !== collectionId)
+			: [...current, collectionId];
+		await updateDocument(docId, { collections: next });
+		// Reload to get fresh data.
+		const { dispatch: dis } =
+			// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+			require('@wordpress/data');
+		dis('wpgraphql-ide/document-editor').loadDocuments();
 	};
 
 	const renderDoc = (doc) => {
@@ -128,6 +153,42 @@ export function SavedQueriesPanel() {
 						</span>
 					)}
 				</button>
+				{!isUnsaved && collections.length > 0 && (
+					<DropdownMenu
+						icon={null}
+						label="Assign to collection"
+						toggleProps={{
+							children: '…',
+							className: 'wpgraphql-ide-document-collection-btn',
+							size: 'small',
+						}}
+					>
+						{({ onClose: closeMenu }) => (
+							<MenuGroup label="Collections">
+								{collections.map((c) => {
+									const assigned = (
+										doc.collections || []
+									).includes(c.id);
+									return (
+										<MenuItem
+											key={c.id}
+											icon={assigned ? '✓' : undefined}
+											onClick={() => {
+												handleAssignCollection(
+													doc.id,
+													c.id
+												);
+												closeMenu();
+											}}
+										>
+											{c.name}
+										</MenuItem>
+									);
+								})}
+							</MenuGroup>
+						)}
+					</DropdownMenu>
+				)}
 				<Tooltip text="Delete document">
 					<button
 						type="button"
@@ -154,7 +215,7 @@ export function SavedQueriesPanel() {
 
 	return (
 		<div className="wpgraphql-ide-saved-queries-panel">
-			{/* Search — fixed above tabs, part of panel infrastructure */}
+			{/* Search — fixed above tabs */}
 			<div className="wpgraphql-ide-saved-queries-search">
 				<SearchControl
 					value={search}
@@ -164,7 +225,75 @@ export function SavedQueriesPanel() {
 				/>
 			</div>
 
-			{/* Tabs + content — scrollable below search */}
+			{/* Collections chip bar */}
+			{collections.length > 0 && (
+				<div className="wpgraphql-ide-collections-bar">
+					<button
+						type="button"
+						className={`wpgraphql-ide-collection-chip${!activeCollection ? ' is-active' : ''}`}
+						onClick={() => setActiveCollection(null)}
+					>
+						All
+					</button>
+					{collections.map((c) => (
+						<button
+							key={c.id}
+							type="button"
+							className={`wpgraphql-ide-collection-chip${activeCollection === c.id ? ' is-active' : ''}`}
+							onClick={() =>
+								setActiveCollection(
+									activeCollection === c.id ? null : c.id
+								)
+							}
+						>
+							{c.name}
+						</button>
+					))}
+				</div>
+			)}
+
+			{/* Inline collection creation */}
+			{creatingCollection ? (
+				<div className="wpgraphql-ide-collection-create">
+					<input
+						className="wpgraphql-ide-collection-input"
+						value={newCollectionName}
+						onChange={(e) => setNewCollectionName(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') {
+								handleCreateCollection();
+							}
+							if (e.key === 'Escape') {
+								setCreatingCollection(false);
+								setNewCollectionName('');
+							}
+						}}
+						onBlur={() => {
+							if (newCollectionName.trim()) {
+								handleCreateCollection();
+							} else {
+								setCreatingCollection(false);
+							}
+						}}
+						placeholder="Collection name..."
+						// eslint-disable-next-line jsx-a11y/no-autofocus
+						autoFocus
+					/>
+				</div>
+			) : (
+				<div className="wpgraphql-ide-collection-add">
+					<Button
+						size="small"
+						onClick={() => setCreatingCollection(true)}
+						className="wpgraphql-ide-collection-add-btn"
+					>
+						<Icon icon={plus} size={16} />
+						New collection
+					</Button>
+				</div>
+			)}
+
+			{/* Tabs + content */}
 			<TabPanel
 				className="wpgraphql-ide-saved-queries-tabs"
 				tabs={STATUS_TABS}
@@ -194,7 +323,7 @@ export function SavedQueriesPanel() {
 				}}
 			</TabPanel>
 
-			{/* Unsaved docs — below everything */}
+			{/* Unsaved docs */}
 			{unsavedDocs.length > 0 && (
 				<div className="wpgraphql-ide-saved-queries-unsaved">
 					<div className="wpgraphql-ide-saved-queries-divider">

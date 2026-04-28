@@ -275,6 +275,30 @@ function register_ide_post_type() {
 			'auth_callback' => $post_meta_auth,
 		]
 	);
+
+	// Collections taxonomy for grouping saved queries.
+	register_taxonomy(
+		'graphql_ide_collection',
+		'graphql_ide_query',
+		[
+			'labels'            => [
+				'name'          => __( 'Collections', 'wpgraphql-ide' ),
+				'singular_name' => __( 'Collection', 'wpgraphql-ide' ),
+			],
+			'public'            => false,
+			'show_in_rest'      => true,
+			'rest_base'         => 'graphql-ide-collections',
+			'hierarchical'      => true,
+			'show_ui'           => false,
+			'show_admin_column' => false,
+			'capabilities'      => [
+				'manage_terms' => 'manage_graphql_ide',
+				'edit_terms'   => 'manage_graphql_ide',
+				'delete_terms' => 'manage_graphql_ide',
+				'assign_terms' => 'manage_graphql_ide',
+			],
+		]
+	);
 }
 
 /**
@@ -325,6 +349,25 @@ function register_ide_user_meta() {
 			'single'        => true,
 			'show_in_rest'  => true,
 			'default'       => '',
+			'auth_callback' => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_panel_order',
+		[
+			'type'          => 'array',
+			'single'        => true,
+			'show_in_rest'  => [
+				'schema' => [
+					'type'  => 'array',
+					'items' => [
+						'type' => 'string',
+					],
+				],
+			],
+			'default'       => [],
 			'auth_callback' => $auth_callback,
 		]
 	);
@@ -811,6 +854,8 @@ function enqueue_react_app_with_styles(): void {
 		true
 	);
 
+	$panel_order = get_user_meta( get_current_user_id(), 'wpgraphql_ide_panel_order', true );
+
 	$localized_data = [
 		'nonce'               => wp_create_nonce( 'wp_rest' ),
 		'restUrl'             => esc_url_raw( rest_url() ),
@@ -819,6 +864,7 @@ function enqueue_react_app_with_styles(): void {
 		'context'             => $app_context,
 		'isDedicatedIdePage'  => current_screen_is_dedicated_ide_page(),
 		'dedicatedIdeBaseUrl' => get_dedicated_ide_base_url(),
+		'panelOrder'          => is_array( $panel_order ) ? $panel_order : [],
 	];
 
 	/**
