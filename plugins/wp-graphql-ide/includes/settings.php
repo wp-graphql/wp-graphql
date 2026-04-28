@@ -318,7 +318,7 @@ function localize_settings_data( array $data ): array {
 				'name'        => $name,
 				'type'        => $type,
 				'label'       => isset( $field['label'] ) ? (string) $field['label'] : '',
-				'desc'        => isset( $field['desc'] ) ? (string) $field['desc'] : '',
+				'desc'        => isset( $field['desc'] ) ? wp_kses_post( (string) $field['desc'] ) : '',
 				'default'     => $default,
 				'value'       => $current,
 				'options'     => isset( $field['options'] ) ? $field['options'] : null,
@@ -333,7 +333,7 @@ function localize_settings_data( array $data ): array {
 		$sections[] = [
 			'slug'   => (string) $slug,
 			'title'  => isset( $section['title'] ) ? (string) $section['title'] : (string) $slug,
-			'desc'   => isset( $section['desc'] ) ? (string) $section['desc'] : '',
+			'desc'   => isset( $section['desc'] ) ? wp_kses_post( (string) $section['desc'] ) : '',
 			'fields' => $fields,
 		];
 	}
