@@ -36,12 +36,15 @@ import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
 import { ResponseViewer } from './editors/ResponseViewer';
 import { ErrorsPanel } from './ErrorsPanel';
-import { shareButton } from '../registry/editor-toolbar-buttons/share-button';
+import { ShareDialog } from './dialogs/ShareDialog';
+import { SaveDialog } from './dialogs/SaveDialog';
+import { updateDocument as updateDocumentApi } from '../api/documents';
 import { HeadersPanel } from './HeadersPanel';
 import { ResponseTableView } from './ResponseTableView';
 import { EditorToolbar } from './EditorToolbar';
 import { DocumentTabs } from './DocumentTabs';
 import ActivityPanel from './ActivityPanel';
+import { useDialog } from './dialogs/DialogProvider';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
@@ -211,6 +214,9 @@ const PANEL_ICONS = {
  * @param {Function} [props.onClose] - Optional close handler for drawer mode.
  */
 export function IDELayout({ fetcher, onClose }) {
+	const { confirm } = useDialog();
+	const [shareDialogOpen, setShareDialogOpen] = useState(false);
+	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
 		[]
@@ -281,6 +287,10 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/app').getHttpMethod(),
 		[]
 	);
+	const collectionsList = useSelect(
+		(select) => select('wpgraphql-ide/app').getCollections(),
+		[]
+	);
 
 	const {
 		setQuery,
@@ -292,6 +302,7 @@ export function IDELayout({ fetcher, onClose }) {
 		loadHistory,
 		addHistoryEntry,
 		setDocsNavTarget,
+		loadCollections,
 	} = useDispatch('wpgraphql-ide/app');
 
 	const {
@@ -417,10 +428,14 @@ export function IDELayout({ fetcher, onClose }) {
 		return () => document.removeEventListener('keydown', handleKeyDown);
 	}, [onClose]);
 
-	// Load documents and history after mount.
+	// Load documents, history, and collections after mount. Collections
+	// power the SaveDialog's collection picker so we need them ready
+	// before the user hits Cmd+S, even if they haven't opened the
+	// Documents panel yet.
 	useEffect(() => {
 		loadDocuments();
 		loadHistory();
+		loadCollections();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -477,10 +492,15 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const scheduleAutoSave = useCallback(
 		(field, value) => {
-			if (
-				!activeDocument ||
-				String(activeDocument.id).startsWith('temp-')
-			) {
+			if (!activeDocument) {
+				return;
+			}
+			// Temp drafts only live client-side, so just push edits
+			// straight to the doc store + localStorage. No debounce —
+			// `saveDocument` for a temp ID is a synchronous local
+			// update and skips the network entirely.
+			if (String(activeDocument.id).startsWith('temp-')) {
+				saveDocument(activeDocument.id, { [field]: value });
 				return;
 			}
 			cancelAutoSave();
@@ -518,9 +538,16 @@ export function IDELayout({ fetcher, onClose }) {
 		[setHeaders, checkDirty, query, variables, scheduleAutoSave]
 	);
 
-	// Explicit save — Cmd+S / Save button.
+	// Explicit save — Cmd+S / Save button. For a brand-new draft (temp
+	// id), open the SaveDialog so the user can name it and pick a
+	// collection in one step. Subsequent saves write straight through.
 	const saveCurrentDoc = useCallback(async () => {
 		if (!activeDocument) {
+			return;
+		}
+		const isFirstSave = String(activeDocument.id).startsWith('temp-');
+		if (isFirstSave) {
+			setSaveDialogOpen(true);
 			return;
 		}
 		try {
@@ -602,27 +629,30 @@ export function IDELayout({ fetcher, onClose }) {
 
 	// Close tab with confirmation for dirty documents.
 	const handleCloseTab = useCallback(
-		(tabId) => {
+		async (tabId) => {
 			const doc = allDocuments.find(
 				(d) => String(d.id) === String(tabId)
 			);
 			if (doc?.dirty) {
-				// eslint-disable-next-line no-alert
-				const answer = window.confirm(
-					`Save changes to "${doc.title || 'Untitled'}" before closing?`
-				);
+				const answer = await confirm({
+					title: 'Unsaved changes',
+					message: `Save changes to "${
+						doc.title || 'Untitled'
+					}" before closing?`,
+					confirmLabel: 'Save and close',
+					cancelLabel: 'Discard',
+				});
 				if (answer) {
-					saveTab(tabId, {
+					await saveTab(tabId, {
 						query: doc.query || query,
 						variables: doc.variables || variables,
 						headers: doc.headers || headers,
-					}).then(() => closeTab(tabId));
-					return;
+					});
 				}
 			}
 			closeTab(tabId);
 		},
-		[allDocuments, closeTab, saveTab, query, variables, headers]
+		[allDocuments, closeTab, saveTab, query, variables, headers, confirm]
 	);
 
 	const executeQueryRef = useRef(null);
@@ -1174,21 +1204,13 @@ export function IDELayout({ fetcher, onClose }) {
 												)}
 											</DropdownMenu>
 											<div className="wpgraphql-ide-editor-toolbar-spacer" />
-											<Tooltip text="Copy share link">
+											<Tooltip text="Share link…">
 												<Button
-													onClick={() => {
-														const config =
-															shareButton();
-														config.onClick();
-														addNotice(
-															'Share link copied'
-														);
-													}}
-													disabled={
-														!query?.trim() ||
-														isTempDoc
+													onClick={() =>
+														setShareDialogOpen(true)
 													}
-													aria-label="Copy share link"
+													disabled={!query?.trim()}
+													aria-label="Share link"
 													size="compact"
 													className="wpgraphql-ide-toolbar-share-btn"
 												>
@@ -1572,6 +1594,38 @@ export function IDELayout({ fetcher, onClose }) {
 					}))}
 					onRemove={removeNotice}
 					className="wpgraphql-ide-snackbar-list"
+				/>
+			)}
+			{shareDialogOpen && (
+				<ShareDialog
+					onClose={() => setShareDialogOpen(false)}
+					onCopy={() => addNotice('Share link copied')}
+				/>
+			)}
+			{saveDialogOpen && activeDocument && (
+				<SaveDialog
+					defaultTitle={activeDocument.title || ''}
+					collections={collectionsList}
+					onClose={() => setSaveDialogOpen(false)}
+					onSave={async ({ title, collectionId }) => {
+						const saved = await saveTab(activeDocument.id, {
+							title,
+							query,
+							variables,
+							headers,
+						});
+						if (saved && collectionId !== null) {
+							try {
+								await updateDocumentApi(saved.id, {
+									collections: [collectionId],
+								});
+							} catch {
+								// Silent — the doc is saved; collection
+								// assignment failure is non-fatal.
+							}
+						}
+						addNotice('Document saved');
+					}}
 				/>
 			)}
 		</div>

@@ -6,6 +6,7 @@ import LZString from 'lz-string';
 
 import { AppDrawer } from './AppDrawer';
 import { App } from './App';
+import { DialogProvider } from './dialogs/DialogProvider';
 
 // eslint-disable-next-line no-undef
 const {
@@ -24,6 +25,8 @@ const setInitialState = (dispatch) => {
 	const {
 		setDrawerOpen,
 		setQuery,
+		setVariables,
+		setHeaders,
 		setShouldRenderStandalone,
 		setInitialStateLoaded,
 	} = dispatch;
@@ -38,7 +41,11 @@ const setInitialState = (dispatch) => {
 			LZString.decompressFromEncodedURIComponent(queryParam);
 		const queryParamShareObject = JSON.parse(queryParamShareObjectString);
 
-		const { query } = queryParamShareObject;
+		const {
+			query,
+			variables: sharedVariables,
+			headers: sharedHeaders,
+		} = queryParamShareObject;
 
 		let parsedQuery;
 		let printedQuery = null;
@@ -71,6 +78,12 @@ const setInitialState = (dispatch) => {
 		if (null !== printedQuery && url) {
 			setDrawerOpen(true);
 			setQuery(printedQuery);
+			if (typeof sharedVariables === 'string' && setVariables) {
+				setVariables(sharedVariables);
+			}
+			if (typeof sharedHeaders === 'string' && setHeaders) {
+				setHeaders(sharedHeaders);
+			}
 			params.delete('wpgraphql_ide');
 			window.history.pushState({}, '', url.toString());
 		}
@@ -132,16 +145,20 @@ function RenderAppWrapper() {
 	if (shouldRenderStandalone) {
 		return (
 			<div className="AppRoot">
-				<App />
+				<DialogProvider>
+					<App />
+				</DialogProvider>
 			</div>
 		);
 	}
 
 	return (
 		<div className="AppRoot">
-			<AppDrawer buttonLabel={drawerButtonLabel}>
-				<App />
-			</AppDrawer>
+			<DialogProvider>
+				<AppDrawer buttonLabel={drawerButtonLabel}>
+					<App />
+				</AppDrawer>
+			</DialogProvider>
 		</div>
 	);
 }

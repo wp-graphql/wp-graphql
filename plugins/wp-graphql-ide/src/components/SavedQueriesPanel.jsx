@@ -23,6 +23,8 @@ import {
 	download,
 } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { doAction } from '@wordpress/hooks';
+import { useDialog } from './dialogs/DialogProvider';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 import {
 	updateDocument,
@@ -241,6 +243,10 @@ function CollectionSection({
  * Saved Queries panel — documents grouped by collection.
  */
 export function SavedQueriesPanel() {
+	const { confirm, prompt } = useDialog();
+	const notify = (content, type = 'default') =>
+		doAction('wpgraphql-ide.notice', content, type);
+
 	const [search, setSearch] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [collapsedSections, setCollapsedSections] = useState({});
@@ -348,24 +354,26 @@ export function SavedQueriesPanel() {
 	};
 
 	const handleDeleteCollection = async (id, name) => {
-		if (
-			// eslint-disable-next-line no-alert
-			!window.confirm(
-				`Delete collection "${name}"? Documents will not be deleted.`
-			)
-		) {
+		const ok = await confirm({
+			title: 'Delete collection',
+			message: `Delete "${name}"? Documents will not be deleted.`,
+			confirmLabel: 'Delete collection',
+			isDestructive: true,
+		});
+		if (!ok) {
 			return;
 		}
 		await removeCollection(id);
 	};
 
 	const handleDeleteCollectionWithContents = async (id, name) => {
-		if (
-			// eslint-disable-next-line no-alert
-			!window.confirm(
-				`Delete collection "${name}" AND every document in it? This cannot be undone.`
-			)
-		) {
+		const ok = await confirm({
+			title: 'Delete collection and contents',
+			message: `Delete "${name}" AND every document in it? This cannot be undone.`,
+			confirmLabel: 'Delete everything',
+			isDestructive: true,
+		});
+		if (!ok) {
 			return;
 		}
 		await deleteCollectionWithContents(id);
@@ -390,8 +398,7 @@ export function SavedQueriesPanel() {
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.error('Export failed:', err);
-			// eslint-disable-next-line no-alert
-			window.alert('Export failed. Check the console for details.');
+			notify('Export failed. Check the console for details.', 'error');
 		}
 	};
 
@@ -413,21 +420,22 @@ export function SavedQueriesPanel() {
 			const payload = JSON.parse(text);
 			const result = await importDocuments(payload);
 			if (result?.error) {
-				// eslint-disable-next-line no-alert
-				window.alert(`Import failed: ${result.error}`);
+				notify(`Import failed: ${result.error}`, 'error');
 				return;
 			}
 			await loadCollections();
 			reloadDocs();
-			// eslint-disable-next-line no-alert
-			window.alert(
-				`Imported ${result.created || 0} documents (${result.skipped || 0} skipped as duplicates).`
+			notify(
+				`Imported ${result.created || 0} documents${
+					result.skipped
+						? ` (${result.skipped} skipped as duplicates)`
+						: ''
+				}.`
 			);
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.error('Import failed:', err);
-			// eslint-disable-next-line no-alert
-			window.alert('Import failed. Make sure the file is valid JSON.');
+			notify('Import failed. Make sure the file is valid JSON.', 'error');
 		}
 	};
 
@@ -514,17 +522,20 @@ export function SavedQueriesPanel() {
 							<>
 								<MenuGroup>
 									<MenuItem
-										onClick={() => {
+										onClick={async () => {
 											closeMenu();
-											// eslint-disable-next-line no-alert
-											const newName = window.prompt(
-												'Rename document:',
-												doc.title || 'Untitled'
-											);
-											if (newName?.trim()) {
-												updateDocument(doc.id, {
-													title: newName.trim(),
-												}).then(reloadDocs);
+											const newName = await prompt({
+												title: 'Rename document',
+												inputLabel: 'Title',
+												defaultValue:
+													doc.title || 'Untitled',
+												confirmLabel: 'Rename',
+											});
+											if (newName) {
+												await updateDocument(doc.id, {
+													title: newName,
+												});
+												reloadDocs();
 											}
 										}}
 									>
@@ -593,14 +604,17 @@ export function SavedQueriesPanel() {
 								<MenuGroup>
 									<MenuItem
 										isDestructive
-										onClick={() => {
+										onClick={async () => {
 											closeMenu();
-											if (
-												// eslint-disable-next-line no-alert
-												window.confirm(
-													`Delete "${doc.title || 'Untitled'}"?`
-												)
-											) {
+											const ok = await confirm({
+												title: 'Delete document',
+												message: `Delete "${
+													doc.title || 'Untitled'
+												}"? This cannot be undone.`,
+												confirmLabel: 'Delete',
+												isDestructive: true,
+											});
+											if (ok) {
 												removeDocument(doc.id);
 											}
 										}}

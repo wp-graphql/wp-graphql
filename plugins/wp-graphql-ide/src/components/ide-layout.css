@@ -3,6 +3,46 @@
    White header bar, panel sidebar from left, clean content area.
    ========================================================================== */
 
+/* Dialog Modal — confirm/prompt replacements for window.confirm/alert. */
+.wpgraphql-ide-dialog .components-modal__content {
+	min-width: 360px;
+	max-width: 480px;
+}
+
+.wpgraphql-ide-dialog-message {
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #2c3338;
+}
+
+.wpgraphql-ide-dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.wpgraphql-ide-share-toggles {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.wpgraphql-ide-share-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.wpgraphql-ide-share-footer .wpgraphql-ide-dialog-actions {
+	margin-top: 0;
+}
+
 #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;

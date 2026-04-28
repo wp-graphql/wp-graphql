@@ -4,6 +4,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { Icon, backup } from '@wordpress/icons';
 import hooks from '../wordpress-hooks';
+import { useDialog } from './dialogs/DialogProvider';
 
 /**
  * History panel icon for the activity bar.
@@ -44,6 +45,7 @@ function extractOperationName(query) {
  * query, variables, and headers into the current active tab.
  */
 export function HistoryPanel() {
+	const { confirm } = useDialog();
 	const history = useSelect(
 		(select) => select('wpgraphql-ide/app').getHistory(),
 		[]
@@ -170,9 +172,15 @@ export function HistoryPanel() {
 				<Button
 					variant="link"
 					isDestructive
-					onClick={() => {
-						// eslint-disable-next-line no-alert
-						if (window.confirm('Clear all history?')) {
+					onClick={async () => {
+						const ok = await confirm({
+							title: 'Clear all history',
+							message:
+								'This will remove every entry in your execution history. This cannot be undone.',
+							confirmLabel: 'Clear all',
+							isDestructive: true,
+						});
+						if (ok) {
 							clearAllHistory();
 							hooks.doAction(
 								'wpgraphql-ide.notice',
