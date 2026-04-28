@@ -52,6 +52,9 @@ const selectors = {
 	getHistory: (state) => {
 		return state.history;
 	},
+	getDocsNavTarget: (state) => {
+		return state.docsNavTarget;
+	},
 };
 
 export default selectors;

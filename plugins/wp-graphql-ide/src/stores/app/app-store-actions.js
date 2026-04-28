@@ -113,6 +113,19 @@ const actions = {
 	},
 
 	/**
+	 * Request the Docs Explorer panel to navigate to a type/field. Pass null
+	 * to clear the request once the panel has consumed it.
+	 *
+	 * @param {{ typeName: string, fieldName: ?string } | null} target
+	 */
+	setDocsNavTarget: (target) => {
+		return {
+			type: 'SET_DOCS_NAV_TARGET',
+			target,
+		};
+	},
+
+	/**
 	 * Load global execution history from the server.
 	 */
 	loadHistory:

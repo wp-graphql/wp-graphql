@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@wordpress/components';
 import { Icon, arrowLeft, search } from '@wordpress/icons';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	isObjectType,
 	isInputObjectType,
@@ -16,6 +16,18 @@ import {
  * Docs Explorer panel icon.
  */
 export const DocsExplorerIcon = () => <Icon icon={search} />;
+
+// Decode HTML entities like `&quot;`, `&gt;`, `&#39;` without executing markup.
+// Schema descriptions can carry these when authored in admin UIs that escape
+// on save (e.g. `&quot;fresh&quot;`, `WP_User-&gt;display_name`).
+function decodeEntities(str) {
+	if (!str || typeof str !== 'string' || str.indexOf('&') === -1) {
+		return str || '';
+	}
+	const ta = document.createElement('textarea');
+	ta.innerHTML = str;
+	return ta.value;
+}
 
 /**
  * Get the named type, unwrapping NonNull and List wrappers.
@@ -96,6 +108,44 @@ export function DocsExplorerPanel() {
 		setStack((prev) => prev.slice(0, -1));
 	};
 
+	// Push a frame onto the navigation stack, optionally focusing a specific
+	// field within that type. Idempotent if the top of the stack already
+	// targets the same type+field — avoids spurious history entries when the
+	// same target is delivered twice in a row.
+	const pushFrame = (typeName, fieldName) => {
+		setStack((prev) => {
+			const top = prev[prev.length - 1];
+			if (
+				top &&
+				top.name === typeName &&
+				(top.focusField || null) === (fieldName || null)
+			) {
+				return prev;
+			}
+			return [...prev, { name: typeName, focusField: fieldName || null }];
+		});
+	};
+
+	// One-shot navigation request from outside the panel (e.g. cmd-click in
+	// the editor). The app store holds it as a `{ typeName, fieldName }` pair;
+	// we read via useSelect, push onto the stack, and dispatch a clear so the
+	// effect doesn't re-fire on subsequent renders. This survives mount/unmount
+	// cycles and avoids the timing fragility of an event-based bridge.
+	const docsNavTarget = useSelect(
+		(select) => select('wpgraphql-ide/app').getDocsNavTarget(),
+		[]
+	);
+	const { setDocsNavTarget } = useDispatch('wpgraphql-ide/app');
+
+	useEffect(() => {
+		if (!docsNavTarget || !docsNavTarget.typeName) {
+			return;
+		}
+		pushFrame(docsNavTarget.typeName, docsNavTarget.fieldName || null);
+		setDocsNavTarget(null);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [docsNavTarget]);
+
 	if (!schema) {
 		return (
 			<div className="wpgraphql-ide-docs-panel">
@@ -110,7 +160,15 @@ export function DocsExplorerPanel() {
 	const current = stack.length > 0 ? stack[stack.length - 1] : null;
 
 	if (!current) {
-		return <RootView schema={schema} onSelectType={pushType} />;
+		return (
+			<RootView
+				schema={schema}
+				onSelectType={pushType}
+				onSelectField={(typeName, fieldName) =>
+					pushFrame(typeName, fieldName)
+				}
+			/>
+		);
 	}
 
 	const type = schema.getType(current.name);
@@ -123,7 +181,14 @@ export function DocsExplorerPanel() {
 		);
 	}
 
-	return <TypeView type={type} onSelectType={pushType} onBack={goBack} />;
+	return (
+		<TypeView
+			type={type}
+			focusField={current.focusField || null}
+			onSelectType={pushType}
+			onBack={goBack}
+		/>
+	);
 }
 
 /**
@@ -150,43 +215,61 @@ function BackButton({ onClick }) {
  * and a list of all types.
  *
  * @param {Object}   props
- * @param {Object}   props.schema       GraphQL schema.
- * @param {Function} props.onSelectType Callback when a type is clicked.
+ * @param {Object}   props.schema        GraphQL schema.
+ * @param {Function} props.onSelectType  Called with a type object when a type is clicked.
+ * @param {Function} props.onSelectField Called with `(typeName, fieldName)` when a
+ *                                       field-search result is clicked.
  */
-function RootView({ schema, onSelectType }) {
+function RootView({ schema, onSelectType, onSelectField }) {
 	const [searchTerm, setSearchTerm] = useState('');
 
 	const queryType = schema.getQueryType();
 	const mutationType = schema.getMutationType();
 	const subscriptionType = schema.getSubscriptionType();
 
-	// Only compute filtered types when searching.
-	const filteredTypes = searchTerm.trim()
-		? Object.values(schema.getTypeMap())
-				.filter((t) => {
-					if (t.name.startsWith('__')) {
-						return false;
+	// Categorized search results — types and fields are surfaced separately
+	// so users can pick the right kind of match. Both lists are capped to keep
+	// large schemas (the WPGraphQL schema has ~600 types) responsive.
+	const trimmed = searchTerm.trim();
+	const { typeMatches, fieldMatches } = React.useMemo(() => {
+		if (!trimmed) {
+			return { typeMatches: [], fieldMatches: [] };
+		}
+		const q = trimmed.toLowerCase();
+		const types = [];
+		const fields = [];
+		for (const type of Object.values(schema.getTypeMap())) {
+			if (type.name.startsWith('__')) {
+				continue;
+			}
+			if (type.name.toLowerCase().includes(q)) {
+				types.push(type);
+			}
+			if (typeof type.getFields === 'function') {
+				let fieldMap;
+				try {
+					fieldMap = type.getFields();
+				} catch {
+					continue;
+				}
+				for (const field of Object.values(fieldMap)) {
+					if (field.name.toLowerCase().includes(q)) {
+						fields.push({ type, field });
 					}
-					const q = searchTerm.toLowerCase();
-					if (t.name.toLowerCase().includes(q)) {
-						return true;
-					}
-					// Also search field names.
-					if (typeof t.getFields === 'function') {
-						try {
-							const fields = t.getFields();
-							return Object.keys(fields).some((f) =>
-								f.toLowerCase().includes(q)
-							);
-						} catch {
-							return false;
-						}
-					}
-					return false;
-				})
-				.sort((a, b) => a.name.localeCompare(b.name))
-				.slice(0, 25)
-		: [];
+				}
+			}
+		}
+		types.sort((a, b) => a.name.localeCompare(b.name));
+		fields.sort((a, b) => {
+			const aKey = `${a.type.name}.${a.field.name}`;
+			const bKey = `${b.type.name}.${b.field.name}`;
+			return aKey.localeCompare(bKey);
+		});
+		return {
+			typeMatches: types.slice(0, 25),
+			fieldMatches: fields.slice(0, 50),
+		};
+	}, [schema, trimmed]);
 
 	return (
 		<div className="wpgraphql-ide-docs-panel">
@@ -217,9 +300,7 @@ function RootView({ schema, onSelectType }) {
 				)}
 			</div>
 			<div className="wpgraphql-ide-docs-section">
-				<div className="wpgraphql-ide-docs-section-title">
-					Search Types
-				</div>
+				<div className="wpgraphql-ide-docs-section-title">Search</div>
 				<input
 					type="text"
 					value={searchTerm}
@@ -227,17 +308,61 @@ function RootView({ schema, onSelectType }) {
 					placeholder="Search types and fields..."
 					className="wpgraphql-ide-docs-search"
 				/>
-				{filteredTypes.map((type) => (
-					<TypeLink
-						key={type.name}
-						type={type}
-						kind={getTypeKind(type)}
-						onClick={() => onSelectType(type)}
-					/>
-				))}
-				{searchTerm.trim() && filteredTypes.length === 0 && (
-					<p className="wpgraphql-ide-docs-empty">No results.</p>
+
+				{trimmed && typeMatches.length > 0 && (
+					<div className="wpgraphql-ide-docs-search-group">
+						<div className="wpgraphql-ide-docs-search-group-title">
+							Types
+						</div>
+						{typeMatches.map((type) => (
+							<TypeLink
+								key={type.name}
+								type={type}
+								kind={getTypeKind(type)}
+								onClick={() => onSelectType(type)}
+							/>
+						))}
+					</div>
 				)}
+
+				{trimmed && fieldMatches.length > 0 && (
+					<div className="wpgraphql-ide-docs-search-group">
+						<div className="wpgraphql-ide-docs-search-group-title">
+							Fields
+						</div>
+						{fieldMatches.map(({ type, field }) => (
+							<button
+								key={`${type.name}.${field.name}`}
+								type="button"
+								className="wpgraphql-ide-docs-field-link"
+								onClick={() =>
+									onSelectField(type.name, field.name)
+								}
+							>
+								<span className="wpgraphql-ide-docs-field-link-path">
+									<span className="wpgraphql-ide-docs-field-link-type">
+										{type.name}
+									</span>
+									<span className="wpgraphql-ide-docs-field-link-dot">
+										.
+									</span>
+									<span className="wpgraphql-ide-docs-field-link-name">
+										{field.name}
+									</span>
+								</span>
+								<span className="wpgraphql-ide-docs-field-link-type-ref">
+									{formatType(field.type)}
+								</span>
+							</button>
+						))}
+					</div>
+				)}
+
+				{trimmed &&
+					typeMatches.length === 0 &&
+					fieldMatches.length === 0 && (
+						<p className="wpgraphql-ide-docs-empty">No results.</p>
+					)}
 			</div>
 		</div>
 	);
@@ -247,27 +372,34 @@ function RootView({ schema, onSelectType }) {
  * Detailed view for a single type — shows description, fields, enum
  * values, or union members.
  *
- * @param {Object}   props
- * @param {Object}   props.type         GraphQL type.
- * @param {Function} props.onSelectType Callback when a type is clicked.
- * @param {Function} props.onBack       Back navigation callback.
+ * @param {Object}      props
+ * @param {Object}      props.type         GraphQL type.
+ * @param {string|null} props.focusField   Optional field name to scroll to / highlight.
+ * @param {Function}    props.onSelectType Callback when a type is clicked.
+ * @param {Function}    props.onBack       Back navigation callback.
  */
-function TypeView({ type, onSelectType, onBack }) {
+function TypeView({ type, focusField, onSelectType, onBack }) {
 	return (
 		<div className="wpgraphql-ide-docs-panel">
-			<BackButton onClick={onBack} />
-			<div className="wpgraphql-ide-docs-type-name">{type.name}</div>
-			{type.description && (
-				<p className="wpgraphql-ide-docs-description">
-					{type.description}
-				</p>
-			)}
+			{/* Sticky header — pins the Back button, type name, and description
+				to the top of the panel's scroll container so they stay visible
+				as the user scrolls through long fields lists. */}
+			<header className="wpgraphql-ide-docs-type-header">
+				<BackButton onClick={onBack} />
+				<div className="wpgraphql-ide-docs-type-name">{type.name}</div>
+				{type.description && (
+					<p className="wpgraphql-ide-docs-description">
+						{decodeEntities(type.description)}
+					</p>
+				)}
+			</header>
 
 			{(isObjectType(type) ||
 				isInputObjectType(type) ||
 				isInterfaceType(type)) && (
 				<FieldsList
 					fields={Object.values(type.getFields())}
+					focusField={focusField}
 					onSelectType={onSelectType}
 				/>
 			)}
@@ -285,7 +417,7 @@ function TypeView({ type, onSelectType, onBack }) {
 							<code>{val.name}</code>
 							{val.description && (
 								<span className="wpgraphql-ide-docs-field-desc">
-									{val.description}
+									{decodeEntities(val.description)}
 								</span>
 							)}
 						</div>
@@ -314,11 +446,12 @@ function TypeView({ type, onSelectType, onBack }) {
 /**
  * Renders a list of fields with their types and arguments.
  *
- * @param {Object}   props
- * @param {Array}    props.fields       Array of GraphQL field objects.
- * @param {Function} props.onSelectType Callback when a type is clicked.
+ * @param {Object}      props
+ * @param {Array}       props.fields       Array of GraphQL field objects.
+ * @param {string|null} props.focusField   Optional field name to scroll to / highlight.
+ * @param {Function}    props.onSelectType Callback when a type is clicked.
  */
-function FieldsList({ fields, onSelectType }) {
+function FieldsList({ fields, focusField, onSelectType }) {
 	return (
 		<div className="wpgraphql-ide-docs-section">
 			<div className="wpgraphql-ide-docs-section-title">Fields</div>
@@ -326,6 +459,7 @@ function FieldsList({ fields, onSelectType }) {
 				<FieldItem
 					key={field.name}
 					field={field}
+					isFocused={focusField === field.name}
 					onSelectType={onSelectType}
 				/>
 			))}
@@ -338,14 +472,37 @@ function FieldsList({ fields, onSelectType }) {
  *
  * @param {Object}   props
  * @param {Object}   props.field        GraphQL field object.
+ * @param {boolean}  props.isFocused    Whether this field is the cmd-click target.
  * @param {Function} props.onSelectType Callback when a type is clicked.
  */
-function FieldItem({ field, onSelectType }) {
+function FieldItem({ field, isFocused, onSelectType }) {
 	const [argsOpen, setArgsOpen] = useState(false);
 	const hasArgs = field.args && field.args.length > 0;
+	const rowRef = useRef(null);
+
+	// When this field is the cmd-click target, scroll it into view and pulse
+	// a brief highlight so it stands out among its siblings.
+	useEffect(() => {
+		if (!isFocused || !rowRef.current) {
+			return undefined;
+		}
+		rowRef.current.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+		});
+		// Auto-expand args for the focused field so the user lands on a
+		// fully-revealed row.
+		if (field.args && field.args.length > 0) {
+			setArgsOpen(true);
+		}
+		return undefined;
+	}, [isFocused, field.args]);
 
 	return (
-		<div className="wpgraphql-ide-docs-field">
+		<div
+			ref={rowRef}
+			className={`wpgraphql-ide-docs-field${isFocused ? ' is-focused' : ''}`}
+		>
 			<div className="wpgraphql-ide-docs-field-header">
 				<span className="wpgraphql-ide-docs-field-name">
 					{field.name}
@@ -360,7 +517,7 @@ function FieldItem({ field, onSelectType }) {
 			</div>
 			{field.description && (
 				<div className="wpgraphql-ide-docs-field-desc">
-					{field.description}
+					{decodeEntities(field.description)}
 				</div>
 			)}
 			{hasArgs && (

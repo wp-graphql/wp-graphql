@@ -279,6 +279,7 @@ export function IDELayout({ fetcher, onClose }) {
 		setHttpMethod,
 		loadHistory,
 		addHistoryEntry,
+		setDocsNavTarget,
 	} = useDispatch('wpgraphql-ide/app');
 
 	const {
@@ -379,11 +380,13 @@ export function IDELayout({ fetcher, onClose }) {
 		setNotices((prev) => prev.filter((n) => n.id !== id));
 	}, []);
 
-	// Listen for notice events from extensions via hooks.
+	// Listen for notice events from extensions via hooks. The optional
+	// `type` arg lets callers raise error/warning notices without prop
+	// drilling addNotice everywhere.
 	useEffect(() => {
 		const hookName = 'wpgraphql-ide.notice';
 		const ns = 'wpgraphql-ide/layout';
-		const handler = (content) => addNotice(content);
+		const handler = (content, type = 'default') => addNotice(content, type);
 		hooks.addAction(hookName, ns, handler);
 		return () => hooks.removeAction(hookName, ns);
 	}, [addNotice]);
@@ -702,12 +705,69 @@ export function IDELayout({ fetcher, onClose }) {
 		}
 	};
 
-	// Settings URL — links to WPGraphQL general settings in WP admin.
+	// Cmd/ctrl-click on an identifier in the editor: open the Docs panel and
+	// hand it a navigation target through the app store. We use a store-backed
+	// "one-shot" target rather than a hook event so that mount-vs-event timing
+	// can't drop the request: the panel reads the value via useSelect, pushes
+	// onto its stack when it appears, and dispatches the target back to null.
+	const handleShowInDocs = useCallback(
+		(field, type, parentType) => {
+			// cm6-graphql hands us types via `.toString()`, which includes
+			// non-null (`User!`) and list (`[Post]`) wrappers. The schema's
+			// `getType()` only resolves named types, so we have to unwrap.
+			const unwrap = (name) =>
+				name ? name.replace(/[[\]!]/g, '') : null;
+
+			// When the user clicks a field, jump to the field's parent type
+			// so the field is in context. When clicking a type literal, jump
+			// to that type directly.
+			let targetType;
+			let targetField = null;
+			if (field && parentType) {
+				targetType = unwrap(parentType);
+				targetField = field;
+			} else {
+				targetType = unwrap(type) || unwrap(parentType);
+			}
+			if (!targetType) {
+				return;
+			}
+			setDocsNavTarget({
+				typeName: targetType,
+				fieldName: targetField,
+			});
+			setVisiblePanel('docs-explorer');
+		},
+		[setVisiblePanel, setDocsNavTarget]
+	);
+
+	// Settings button: open the in-IDE Settings workspace tab if the user
+	// can manage settings; otherwise link out to the WP admin settings page
+	// so they at least get a meaningful destination.
+	//
+	// `wp_localize_script` casts scalars to strings, so the PHP boolean
+	// `true` arrives here as the string "1". Use a truthy check to handle
+	// both shapes.
+	const canManageSettings =
+		typeof window !== 'undefined' &&
+		!!window.WPGRAPHQL_IDE_DATA?.canManageSettings;
+
 	const settingsUrl =
 		typeof window !== 'undefined' && window.wpApiSettings?.root
 			? window.location.origin +
 				'/wp-admin/admin.php?page=graphql-settings'
 			: '/wp-admin/admin.php?page=graphql-settings';
+
+	const handleOpenSettings = () => {
+		if (canManageSettings && window.WPGraphQLIDE?.openWorkspaceTab) {
+			window.WPGraphQLIDE.openWorkspaceTab('graphql-settings', {
+				id: 'graphql-settings',
+				title: 'Settings',
+			});
+		} else if (typeof window !== 'undefined') {
+			window.location.href = settingsUrl;
+		}
+	};
 
 	return (
 		<div className="wpgraphql-ide-container">
@@ -755,7 +815,7 @@ export function IDELayout({ fetcher, onClose }) {
 					</Tooltip>
 					<Tooltip text="WPGraphQL Settings">
 						<Button
-							href={settingsUrl}
+							onClick={handleOpenSettings}
 							aria-label="WPGraphQL Settings"
 							size="compact"
 							className="wpgraphql-ide-topbar-btn"
@@ -1027,6 +1087,7 @@ export function IDELayout({ fetcher, onClose }) {
 												extraKeys={
 													editorKeyBindings.current
 												}
+												onShowInDocs={handleShowInDocs}
 											/>
 											<div className="wpgraphql-ide-execution-pill">
 												<div

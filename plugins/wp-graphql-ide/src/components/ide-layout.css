@@ -2239,6 +2239,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: var(--wp-admin-theme-color, #3858e9);
 }
 
+/* Sticky header for the type detail view — pins Back + name + description
+   to the top of the panel's scroll container so the user can always see
+   *what type they're looking at* while scrolling its (often long) field list.
+   The negative top/horizontal offsets and matching padding cancel out the
+   16px padding `.wpgraphql-ide-plugin` applies, so the sticky surface spans
+   the panel's full width and reaches all the way to the top edge. */
+.wpgraphql-ide-docs-type-header {
+	position: sticky;
+	top: -16px;
+	margin: -16px -16px 12px;
+	padding: 16px 16px 8px;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f1;
+	z-index: 1;
+}
+
 /* Type detail heading */
 .wpgraphql-ide-docs-type-name {
 	font-size: 13px;
@@ -2251,8 +2267,12 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-docs-description {
 	color: #646970;
 	font-size: 12px;
-	margin: 0 0 16px;
+	margin: 0;
 	line-height: 1.5;
+}
+
+.wpgraphql-ide-docs-type-header .wpgraphql-ide-docs-back {
+	margin-bottom: 4px;
 }
 
 /* Section grouping */
@@ -2290,6 +2310,69 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border: none !important;
 	box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
 	outline: none;
+}
+
+/* Search results — categorized into Types and Fields. */
+.wpgraphql-ide-docs-search-group {
+	margin-top: 12px;
+}
+
+.wpgraphql-ide-docs-search-group-title {
+	font-size: 11px;
+	font-weight: 600;
+	color: #646970;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	padding: 4px 0;
+}
+
+/* Field-match row — clickable, with the parent type prefix muted so the
+   field name reads as the primary identifier. */
+.wpgraphql-ide-docs-field-link {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 8px;
+	border: none;
+	background: transparent;
+	text-align: left;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: 12px;
+	color: #1d2327;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-docs-field-link:hover {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+}
+
+.wpgraphql-ide-docs-field-link-path {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-docs-field-link-type {
+	color: #117a3e;
+}
+
+.wpgraphql-ide-docs-field-link-dot {
+	color: #50575e;
+}
+
+.wpgraphql-ide-docs-field-link-name {
+	color: #1f61a0;
+	font-weight: 600;
+}
+
+.wpgraphql-ide-docs-field-link-type-ref {
+	flex-shrink: 0;
+	color: #117a3e;
+	font-size: 11px;
 }
 
 /* Root type entries (query, mutation, subscription) */
@@ -2371,6 +2454,23 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-docs-field:hover {
 	background: #f6f7f7;
+}
+
+/* Field that was cmd-clicked from the editor — give it a steady tint so the
+   user can find it inside a long fields list, plus a gentle pulse on entry. */
+.wpgraphql-ide-docs-field.is-focused {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	box-shadow: inset 3px 0 0 var(--wp-admin-theme-color, #3858e9);
+	animation: wpgraphql-ide-docs-field-pulse 1.2s ease-out;
+}
+
+@keyframes wpgraphql-ide-docs-field-pulse {
+	0% {
+		background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.22);
+	}
+	100% {
+		background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	}
 }
 
 .wpgraphql-ide-docs-field-header {

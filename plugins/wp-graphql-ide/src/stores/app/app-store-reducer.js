@@ -19,6 +19,11 @@ const initialState = {
 	isFetching: false,
 	history: [],
 	httpMethod: 'POST',
+	// One-shot docs-nav request: { typeName, fieldName } | null. Set when
+	// something outside the Docs panel (e.g. the editor's cmd-click handler)
+	// wants the panel to navigate. The Docs panel reads this, pushes a frame
+	// onto its own navigation stack, and dispatches a clear back to null.
+	docsNavTarget: null,
 };
 
 /**
@@ -110,6 +115,11 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				isFetching: action.isFetching,
+			};
+		case 'SET_DOCS_NAV_TARGET':
+			return {
+				...state,
+				docsNavTarget: action.target || null,
 			};
 		case 'SET_HISTORY':
 			return {
