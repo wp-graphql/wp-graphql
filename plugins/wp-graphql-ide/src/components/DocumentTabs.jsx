@@ -162,24 +162,26 @@ export function DocumentTabs({
 								{tab.title || 'Untitled'}
 							</span>
 						)}
-						<span
-							className="wpgraphql-ide-tab-close"
-							role="button"
-							tabIndex={-1}
-							onClick={(e) => {
-								e.stopPropagation();
-								onClose(String(tab.id));
-							}}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
+						{editingId !== tab.id && (
+							<span
+								className="wpgraphql-ide-tab-close"
+								role="button"
+								tabIndex={-1}
+								onClick={(e) => {
 									e.stopPropagation();
 									onClose(String(tab.id));
-								}
-							}}
-							aria-label={`Close ${tab.title || 'Untitled'}`}
-						>
-							&times;
-						</span>
+								}}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e.stopPropagation();
+										onClose(String(tab.id));
+									}
+								}}
+								aria-label={`Close ${tab.title || 'Untitled'}`}
+							>
+								&times;
+							</span>
+						)}
 					</button>
 				);
 			})}

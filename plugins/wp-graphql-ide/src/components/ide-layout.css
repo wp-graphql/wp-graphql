@@ -271,6 +271,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	max-width: 160px;
 	flex-shrink: 1;
 	margin-bottom: -1px;
+	overflow: hidden;
 }
 
 .wpgraphql-ide-tab:hover {
@@ -371,10 +372,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-radius: 0;
 	padding: 2px 4px;
 	outline: none;
-	max-width: 140px;
-	min-width: 40px;
+	width: 100%;
+	min-width: 0;
 	background: transparent;
-	flex-shrink: 0;
+	flex-shrink: 1;
 }
 
 .wpgraphql-ide-auth-avatar {
@@ -591,7 +592,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-document-item.is-active .wpgraphql-ide-document-label {
-	font-weight: 500;
+	color: #1e1e1e;
 }
 
 .wpgraphql-ide-document-delete {

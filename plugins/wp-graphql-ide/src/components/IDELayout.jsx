@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { parse as parseGraphQL } from 'graphql';
 import {
 	Button,
 	DropdownMenu,
@@ -540,6 +541,19 @@ export function IDELayout({ fetcher, onClose }) {
 		if (!activeDocument || String(activeDocument.id).startsWith('temp-')) {
 			return;
 		}
+
+		// Validate the query is valid GraphQL before publishing.
+		if (!query || !query.trim()) {
+			addNotice('Cannot publish an empty document', 'error');
+			return;
+		}
+		try {
+			parseGraphQL(query);
+		} catch (syntaxError) {
+			addNotice(`Invalid GraphQL: ${syntaxError.message}`, 'error');
+			return;
+		}
+
 		// Save first to ensure content is persisted.
 		try {
 			await saveTab(activeDocument.id, {
