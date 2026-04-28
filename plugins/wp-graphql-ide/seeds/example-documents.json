@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "collections": [
+    {
+      "name": "GraphQL Basics",
+      "documents": [
+        {
+          "title": "Hello World",
+          "query": "{\n  generalSettings {\n    title\n    description\n    language\n  }\n}"
+        },
+        {
+          "title": "Posts",
+          "query": "{\n  posts {\n    edges {\n      node {\n        id\n        title\n        date\n        excerpt\n      }\n    }\n  }\n}\n"
+        }
+      ]
+    },
+    {
+      "name": "GraphQL Query Language",
+      "documents": [
+        {
+          "title": "Multiple Root Resources",
+          "query": "query PostsAndUsers {\n  posts(first: 5) {\n    nodes {\n      id\n      title\n      link\n      author {\n        node {\n          id\n          name\n        }\n      }\n    }\n  }\n  users(first: 2) {\n    nodes {\n      id\n      name\n      posts(first: 1) {\n        nodes {\n          id\n          title\n          link\n          author {\n            node {\n              id\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+        },
+        {
+          "title": "Fragments",
+          "query": "query GetPostsWithFragments {\n  posts(first: 1) {\n    nodes {\n      ...post\n    }\n  }\n}\n\nfragment post on Post {\n  id\n  title\n  date\n  link\n  excerpt\n  author {\n    node {\n      ...author\n    }\n  }\n}\n\nfragment author on User {\n  id\n  name\n  firstName\n  lastName\n}\n"
+        },
+        {
+          "title": "Aliases",
+          "query": "query GetPostsWithAliases {\n  cardList: posts {\n    cards: nodes {\n      key: id\n      cardTitle: title\n      cardDescription: excerpt\n    }\n  }\n}\n"
+        },
+        {
+          "title": "More Aliases",
+          "query": "query PostsAndCategoriesWithAliases {\n  list1: posts {\n    cards: nodes {\n      __typename\n      key: id\n      title\n      description: excerpt\n      link\n    }\n  }\n  list2: categories {\n    cards: nodes {\n      __typename\n      key: id\n      title: name\n      description: description\n      link\n    }\n  }\n}\n"
+        },
+        {
+          "title": "Variables",
+          "query": "query GetPosts($first: Int) {\n  posts(first: $first) {\n    nodes {\n      id\n      title\n      link\n    }\n  }\n}\n"
+        },
+        {
+          "title": "More Variables",
+          "query": "query GetPosts($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToPostConnectionWhereArgs) {\n  posts(first: $first, last: $last, after: $after, before: $before, where: $where) {\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n    edges {\n      node {\n        id\n        title\n        link\n      }\n    }\n  }\n}\n"
+        },
+        {
+          "title": "Directives",
+          "query": "query GetPosts($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToPostConnectionWhereArgs, $includeField: Boolean!) {\n  posts(first: $first, last: $last, after: $after, before: $before, where: $where) {\n    pageInfo @include(if: $includeField) {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n    edges {\n      node {\n        id\n        title\n        link @include(if: $includeField)\n      }\n    }\n  }\n}\n",
+          "variables": "{\n  \"includeField\": true\n}"
+        }
+      ]
+    }
+  ]
+}

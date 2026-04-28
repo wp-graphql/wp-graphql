@@ -19,10 +19,17 @@ import {
 	chevronDown,
 	chevronRight,
 	plus,
+	upload,
+	download,
 } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
-import { updateDocument } from '../api/documents';
+import {
+	updateDocument,
+	deleteCollectionWithContents,
+	exportDocuments,
+	importDocuments,
+} from '../api/documents';
 
 /**
  * Saved Queries panel icon for the activity bar.
@@ -53,6 +60,7 @@ function CollectionSection({
 	collapsed,
 	onToggle,
 	onDelete,
+	onDeleteWithContents,
 	onRename,
 	onMoveUp,
 	onMoveDown,
@@ -65,7 +73,8 @@ function CollectionSection({
 	const isOver = dragOverId === dropTargetId;
 	const [editing, setEditing] = useState(false);
 	const [editValue, setEditValue] = useState(title);
-	const hasMenu = onDelete || onRename || onMoveUp || onMoveDown;
+	const hasMenu =
+		onDelete || onDeleteWithContents || onRename || onMoveUp || onMoveDown;
 
 	const commitRename = () => {
 		const trimmed = editValue.trim();
@@ -188,17 +197,30 @@ function CollectionSection({
 										)}
 									</MenuGroup>
 								)}
-								{onDelete && (
+								{(onDelete || onDeleteWithContents) && (
 									<MenuGroup>
-										<MenuItem
-											isDestructive
-											onClick={() => {
-												onDelete();
-												closeMenu();
-											}}
-										>
-											Delete collection
-										</MenuItem>
+										{onDelete && (
+											<MenuItem
+												isDestructive
+												onClick={() => {
+													onDelete();
+													closeMenu();
+												}}
+											>
+												Delete collection
+											</MenuItem>
+										)}
+										{onDeleteWithContents && (
+											<MenuItem
+												isDestructive
+												onClick={() => {
+													onDeleteWithContents();
+													closeMenu();
+												}}
+											>
+												Delete collection and contents
+											</MenuItem>
+										)}
 									</MenuGroup>
 								)}
 							</>
@@ -335,6 +357,78 @@ export function SavedQueriesPanel() {
 			return;
 		}
 		await removeCollection(id);
+	};
+
+	const handleDeleteCollectionWithContents = async (id, name) => {
+		if (
+			// eslint-disable-next-line no-alert
+			!window.confirm(
+				`Delete collection "${name}" AND every document in it? This cannot be undone.`
+			)
+		) {
+			return;
+		}
+		await deleteCollectionWithContents(id);
+		await loadCollections();
+		reloadDocs();
+	};
+
+	const handleExport = async () => {
+		try {
+			const data = await exportDocuments();
+			const blob = new Blob([JSON.stringify(data, null, 2)], {
+				type: 'application/json',
+			});
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `wpgraphql-ide-documents-${new Date().toISOString().slice(0, 10)}.json`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.error('Export failed:', err);
+			// eslint-disable-next-line no-alert
+			window.alert('Export failed. Check the console for details.');
+		}
+	};
+
+	const importInputRef = useRef(null);
+
+	const handleImport = () => {
+		importInputRef.current?.click();
+	};
+
+	const handleImportFile = async (e) => {
+		// eslint-disable-next-line no-shadow
+		const importedFile = e.target.files?.[0];
+		e.target.value = '';
+		if (!importedFile) {
+			return;
+		}
+		try {
+			const text = await importedFile.text();
+			const payload = JSON.parse(text);
+			const result = await importDocuments(payload);
+			if (result?.error) {
+				// eslint-disable-next-line no-alert
+				window.alert(`Import failed: ${result.error}`);
+				return;
+			}
+			await loadCollections();
+			reloadDocs();
+			// eslint-disable-next-line no-alert
+			window.alert(
+				`Imported ${result.created || 0} documents (${result.skipped || 0} skipped as duplicates).`
+			);
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.error('Import failed:', err);
+			// eslint-disable-next-line no-alert
+			window.alert('Import failed. Make sure the file is valid JSON.');
+		}
 	};
 
 	const reloadDocs = () => {
@@ -583,6 +677,9 @@ export function SavedQueriesPanel() {
 							onDelete={() =>
 								handleDeleteCollection(c.id, c.name)
 							}
+							onDeleteWithContents={() =>
+								handleDeleteCollectionWithContents(c.id, c.name)
+							}
 							onRename={(newName) =>
 								renameCollection(c.id, newName)
 							}
@@ -658,14 +755,37 @@ export function SavedQueriesPanel() {
 						autoFocus
 					/>
 				) : (
-					<Button
-						size="small"
-						onClick={() => setCreatingCollection(true)}
-						className="wpgraphql-ide-collection-add-btn"
-						icon={plus}
-					>
-						New collection
-					</Button>
+					<div className="wpgraphql-ide-collection-footer-actions">
+						<Button
+							size="small"
+							onClick={() => setCreatingCollection(true)}
+							className="wpgraphql-ide-collection-add-btn"
+							icon={plus}
+						>
+							New collection
+						</Button>
+						<Button
+							size="small"
+							onClick={handleImport}
+							icon={upload}
+							label="Import documents"
+							showTooltip
+						/>
+						<Button
+							size="small"
+							onClick={handleExport}
+							icon={download}
+							label="Export documents"
+							showTooltip
+						/>
+						<input
+							ref={importInputRef}
+							type="file"
+							accept="application/json,.json"
+							onChange={handleImportFile}
+							style={{ display: 'none' }}
+						/>
+					</div>
 				)}
 			</div>
 

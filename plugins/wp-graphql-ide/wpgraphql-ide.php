@@ -492,14 +492,330 @@ function show_admin_notice() {
 
 /**
  * Assign custom capability to administrator role on plugin activation.
+ *
+ * Also seeds example collections + documents on first activation so a
+ * fresh install isn't an empty IDE. Seeding is gated by an option so
+ * re-activation never duplicates content.
  */
 function wpgraphql_ide_activate(): void {
 	$administrator = get_role( 'administrator' );
 	if ( $administrator ) {
 		$administrator->add_cap( 'manage_graphql_ide' );
 	}
+
+	// Post types/taxonomies registered on `init` aren't available during
+	// activation, so register them ad-hoc before seeding.
+	if ( ! post_type_exists( 'graphql_ide_query' ) ) {
+		register_ide_post_type();
+	}
+
+	seed_example_documents();
 }
 register_activation_hook( __FILE__, __NAMESPACE__ . '\\wpgraphql_ide_activate' );
+
+/**
+ * The seed schema version. Bump this to push new example documents to
+ * existing installs. Documents are only seeded when the stored option
+ * version differs from this value, so users who deleted earlier seeds
+ * won't get them recreated unless we ship a newer set.
+ */
+const SEED_VERSION = '1';
+
+/**
+ * Wire format version for the import/export JSON. Bump on any
+ * breaking schema change (renamed/removed fields, restructured
+ * collections, etc.). Additive changes don't require a bump.
+ */
+const IMPORT_SCHEMA_VERSION = 1;
+
+/**
+ * Seed example collections and documents for the activating user.
+ * Idempotent via `wpgraphql_ide_seed_version`.
+ *
+ * Documents are seeded as published with SHA-256 content-addressed
+ * slugs (same algorithm as `handle_publish_document`), so the
+ * activated install matches the canonical example dataset exactly.
+ *
+ * @return void
+ */
+function seed_example_documents(): void {
+	if ( get_option( 'wpgraphql_ide_seed_version' ) === SEED_VERSION ) {
+		return;
+	}
+
+	$author_id = get_current_user_id();
+	if ( ! $author_id ) {
+		return;
+	}
+
+	import_documents_data( get_seed_definitions(), $author_id );
+	update_option( 'wpgraphql_ide_seed_version', SEED_VERSION, false );
+}
+
+/**
+ * Import a `{ collections: [...] }` payload as documents owned by the
+ * given user. Idempotent for published docs (SHA-256 dedup); drafts
+ * are always created fresh (drafts are mutable working copies).
+ *
+ * @param array<string,mixed> $data       Payload matching the seed JSON schema.
+ * @param int                 $author_id  Owner of imported documents.
+ * @return array{created: int, skipped: int, collections: array<int,int>}
+ */
+function import_documents_data( array $data, int $author_id ): array {
+	// Treat a missing version as v1 so legacy/un-versioned payloads
+	// (including the very first seed file) still import cleanly.
+	$version = isset( $data['version'] ) ? (int) $data['version'] : IMPORT_SCHEMA_VERSION;
+	if ( IMPORT_SCHEMA_VERSION !== $version ) {
+		return [
+			'created'     => 0,
+			'skipped'     => 0,
+			'collections' => [],
+			'error'       => sprintf(
+				/* translators: 1: payload version, 2: supported version */
+				__( 'Unsupported import schema version %1$d (this build expects version %2$d).', 'wpgraphql-ide' ),
+				$version,
+				IMPORT_SCHEMA_VERSION
+			),
+		];
+	}
+
+	$created     = 0;
+	$skipped     = 0;
+	$term_ids    = [];
+	$collections = $data['collections'] ?? [];
+
+	if ( ! is_array( $collections ) ) {
+		return [
+			'created'     => 0,
+			'skipped'     => 0,
+			'collections' => [],
+		];
+	}
+
+	foreach ( $collections as $collection ) {
+		$name = isset( $collection['name'] ) ? (string) $collection['name'] : '';
+		$docs = $collection['documents'] ?? [];
+		if ( '' === $name || ! is_array( $docs ) ) {
+			continue;
+		}
+
+		$term = term_exists( $name, 'graphql_ide_collection' );
+		if ( ! $term ) {
+			$term = wp_insert_term( $name, 'graphql_ide_collection' );
+		}
+		if ( is_wp_error( $term ) || empty( $term['term_id'] ) ) {
+			continue;
+		}
+
+		$term_id    = (int) $term['term_id'];
+		$term_ids[] = $term_id;
+
+		foreach ( $docs as $doc ) {
+			$result = upsert_document( $doc, $term_id, $author_id );
+			if ( 'created' === $result ) {
+				++$created;
+			} elseif ( 'skipped' === $result ) {
+				++$skipped;
+			}
+		}
+	}
+
+	return [
+		'created'     => $created,
+		'skipped'     => $skipped,
+		'collections' => $term_ids,
+	];
+}
+
+/**
+ * Insert or attach a single document. Returns the action taken so the
+ * importer can report counts back to the UI.
+ *
+ * @param array<string,mixed> $doc
+ * @param int                 $term_id
+ * @param int                 $author_id
+ * @return 'created'|'skipped'|'error'
+ */
+function upsert_document( array $doc, int $term_id, int $author_id ): string {
+	$query = isset( $doc['query'] ) ? (string) $doc['query'] : '';
+	if ( '' === trim( $query ) ) {
+		return 'error';
+	}
+
+	$status = ( $doc['status'] ?? 'publish' ) === 'draft' ? 'draft' : 'publish';
+	$title  = isset( $doc['title'] ) && '' !== $doc['title'] ? (string) $doc['title'] : __( 'Untitled', 'wpgraphql-ide' );
+
+	$body = $query;
+	$slug = '';
+
+	if ( 'publish' === $status ) {
+		try {
+			$ast  = \GraphQL\Language\Parser::parse( $query );
+			$body = \GraphQL\Language\Printer::doPrint( $ast );
+			$slug = hash( 'sha256', $body );
+		} catch ( \Throwable $e ) {
+			return 'error';
+		}
+
+		$existing = get_posts(
+			[
+				'post_type'      => 'graphql_ide_query',
+				'post_status'    => 'publish',
+				'name'           => $slug,
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			]
+		);
+		if ( ! empty( $existing ) ) {
+			wp_set_object_terms( (int) $existing[0], [ $term_id ], 'graphql_ide_collection', true );
+			return 'skipped';
+		}
+	}
+
+	$postarr = [
+		'post_type'    => 'graphql_ide_query',
+		'post_status'  => $status,
+		'post_author'  => $author_id,
+		'post_title'   => $title,
+		'post_content' => $body,
+	];
+	if ( '' !== $slug ) {
+		$postarr['post_name'] = $slug;
+	}
+
+	$post_id = wp_insert_post( $postarr, true );
+	if ( is_wp_error( $post_id ) || ! $post_id ) {
+		return 'error';
+	}
+
+	wp_set_object_terms( $post_id, [ $term_id ], 'graphql_ide_collection' );
+
+	if ( ! empty( $doc['variables'] ) ) {
+		update_post_meta( $post_id, '_graphql_ide_variables', (string) $doc['variables'] );
+	}
+	if ( ! empty( $doc['headers'] ) ) {
+		update_post_meta( $post_id, '_graphql_ide_headers', (string) $doc['headers'] );
+	}
+
+	return 'created';
+}
+
+/**
+ * Build an export payload — current user's documents grouped by
+ * collection. Documents not assigned to any collection are skipped so
+ * the export round-trips through the importer cleanly.
+ *
+ * @param int $author_id
+ * @return array{collections: array<int,array{name:string,documents:array<int,array<string,mixed>>}>}
+ */
+function export_documents_data( int $author_id ): array {
+	$terms = get_terms(
+		[
+			'taxonomy'   => 'graphql_ide_collection',
+			'hide_empty' => false,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		]
+	);
+
+	if ( is_wp_error( $terms ) ) {
+		return [
+			'version'     => IMPORT_SCHEMA_VERSION,
+			'collections' => [],
+		];
+	}
+
+	$collections = [];
+
+	foreach ( $terms as $term ) {
+		$post_ids = get_posts(
+			[
+				'post_type'      => 'graphql_ide_query',
+				'post_status'    => [ 'draft', 'publish' ],
+				'author'         => $author_id,
+				'tax_query'      => [
+					[
+						'taxonomy' => 'graphql_ide_collection',
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					],
+				],
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+				'orderby'        => 'date',
+				'order'          => 'ASC',
+			]
+		);
+
+		if ( empty( $post_ids ) ) {
+			continue;
+		}
+
+		$documents = [];
+		foreach ( $post_ids as $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post ) {
+				continue;
+			}
+
+			$doc = [
+				'title' => $post->post_title,
+				'query' => $post->post_content,
+			];
+
+			$variables = (string) get_post_meta( $post->ID, '_graphql_ide_variables', true );
+			if ( '' !== $variables ) {
+				$doc['variables'] = $variables;
+			}
+
+			$headers = (string) get_post_meta( $post->ID, '_graphql_ide_headers', true );
+			if ( '' !== $headers ) {
+				$doc['headers'] = $headers;
+			}
+
+			// `publish` is the default — only emit when it differs.
+			if ( 'publish' !== $post->post_status ) {
+				$doc['status'] = $post->post_status;
+			}
+
+			$documents[] = $doc;
+		}
+
+		$collections[] = [
+			'name'      => $term->name,
+			'documents' => $documents,
+		];
+	}
+
+	return [
+		'version'     => IMPORT_SCHEMA_VERSION,
+		'collections' => $collections,
+	];
+}
+
+/**
+ * Load the canonical example dataset from `seeds/example-documents.json`.
+ * Returns the raw parsed payload — same shape the importer accepts.
+ * Edit the JSON file and bump `SEED_VERSION` to push updated examples
+ * to existing installs.
+ *
+ * @return array{collections?: array<int, array{name:string, documents:array<int,array<string,mixed>>}>}
+ */
+function get_seed_definitions(): array {
+	$path = WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'seeds/example-documents.json';
+	if ( ! file_exists( $path ) ) {
+		return [ 'collections' => [] ];
+	}
+
+	// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- Reading a local plugin file.
+	$contents = file_get_contents( $path );
+	if ( false === $contents ) {
+		return [ 'collections' => [] ];
+	}
+
+	$data = json_decode( $contents, true );
+	return is_array( $data ) ? $data : [ 'collections' => [] ];
+}
 
 /**
  * Adds custom capabilities to specified roles.
@@ -1323,6 +1639,140 @@ function register_ide_rest_routes() {
 					},
 				],
 			],
+		]
+	);
+
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/collections/(?P<id>\d+)/cascade',
+		[
+			'methods'             => 'DELETE',
+			'callback'            => __NAMESPACE__ . '\\handle_delete_collection_cascade',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_graphql_ide' );
+			},
+			'args'                => [
+				'id' => [
+					'required'          => true,
+					'validate_callback' => function ( $param ) {
+						return is_numeric( $param );
+					},
+				],
+			],
+		]
+	);
+
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/documents/export',
+		[
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\\handle_export_documents',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_graphql_ide' );
+			},
+		]
+	);
+
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/documents/import',
+		[
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_import_documents',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_graphql_ide' );
+			},
+		]
+	);
+}
+
+/**
+ * Export the current user's documents grouped by collection. Returns
+ * the same JSON shape used by `seeds/example-documents.json` and
+ * accepted by the importer.
+ *
+ * @param \WP_REST_Request $request
+ * @return \WP_REST_Response
+ */
+function handle_export_documents( \WP_REST_Request $request ) {
+	return rest_ensure_response( export_documents_data( get_current_user_id() ) );
+}
+
+/**
+ * Import a documents JSON payload into the current user's library.
+ *
+ * @param \WP_REST_Request $request
+ * @return \WP_REST_Response|\WP_Error
+ */
+function handle_import_documents( \WP_REST_Request $request ) {
+	$body = $request->get_json_params();
+	if ( ! is_array( $body ) || empty( $body['collections'] ) ) {
+		return new \WP_Error(
+			'invalid_payload',
+			__( 'Import payload must be an object with a non-empty "collections" array.', 'wpgraphql-ide' ),
+			[ 'status' => 400 ]
+		);
+	}
+
+	$result = import_documents_data( $body, get_current_user_id() );
+	return rest_ensure_response( $result );
+}
+
+/**
+ * Delete a collection along with all documents in it owned by the
+ * current user. Documents owned by other users are left intact —
+ * removing a shared term's assignment is enough to detach them.
+ *
+ * @param \WP_REST_Request $request REST request.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function handle_delete_collection_cascade( \WP_REST_Request $request ) {
+	$term_id = (int) $request->get_param( 'id' );
+	$term    = get_term( $term_id, 'graphql_ide_collection' );
+
+	if ( ! $term || is_wp_error( $term ) ) {
+		return new \WP_Error(
+			'not_found',
+			__( 'Collection not found.', 'wpgraphql-ide' ),
+			[ 'status' => 404 ]
+		);
+	}
+
+	$user_id  = get_current_user_id();
+	$post_ids = get_posts(
+		[
+			'post_type'      => 'graphql_ide_query',
+			'post_status'    => [ 'draft', 'publish' ],
+			'author'         => $user_id,
+			'tax_query'      => [
+				[
+					'taxonomy' => 'graphql_ide_collection',
+					'field'    => 'term_id',
+					'terms'    => $term_id,
+				],
+			],
+			'fields'         => 'ids',
+			'posts_per_page' => -1,
+		]
+	);
+
+	$deleted = [];
+	foreach ( $post_ids as $post_id ) {
+		if ( wp_delete_post( (int) $post_id, true ) ) {
+			$deleted[] = (int) $post_id;
+		}
+	}
+
+	$result = wp_delete_term( $term_id, 'graphql_ide_collection' );
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	return rest_ensure_response(
+		[
+			'collection_id'    => $term_id,
+			'deleted_post_ids' => $deleted,
 		]
 	);
 }

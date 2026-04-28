@@ -195,3 +195,42 @@ export async function deleteCollection(id) {
 		method: 'DELETE',
 	});
 }
+
+/**
+ * Delete a collection and every document in it owned by the current
+ * user. Documents owned by other users are left intact.
+ *
+ * @param {number} id Term ID.
+ * @return {Promise<Object>} Cascade response with deleted post IDs.
+ */
+export async function deleteCollectionWithContents(id) {
+	return apiFetch({
+		path: `/wpgraphql-ide/v1/collections/${id}/cascade`,
+		method: 'DELETE',
+	});
+}
+
+/**
+ * Export the current user's documents grouped by collection.
+ *
+ * @return {Promise<Object>} JSON payload matching the seed schema.
+ */
+export async function exportDocuments() {
+	return apiFetch({
+		path: '/wpgraphql-ide/v1/documents/export',
+	});
+}
+
+/**
+ * Import a documents payload (same shape as the export and seed JSON).
+ *
+ * @param {Object} payload Object with a `collections` array.
+ * @return {Promise<Object>} Counts of created/skipped documents.
+ */
+export async function importDocuments(payload) {
+	return apiFetch({
+		path: '/wpgraphql-ide/v1/documents/import',
+		method: 'POST',
+		data: payload,
+	});
+}
