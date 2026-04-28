@@ -175,10 +175,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f0f0f1;
 }
 
-.wpgraphql-ide-activity-btn.components-button:focus {
+.wpgraphql-ide-activity-btn.components-button:focus-visible {
 	border-radius: 0;
-	box-shadow: inset 0 0 0 var(--wp-admin-border-width-focus, 2px)
-		var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 0 0 1.5px var(--wp-admin-theme-color, #3858e9);
+	outline: none;
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active {
@@ -592,6 +592,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	padding: 0;
 }
 
+/* Root-level uncategorized items — slight indent to align with collection body */
+.wpgraphql-ide-collections-list > .wpgraphql-ide-documents-list {
+	padding-left: 4px;
+}
+
 /* Document list items */
 .wpgraphql-ide-document-item {
 	display: flex;
@@ -618,13 +623,49 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 /* Published documents — muted to signal read-only */
-.wpgraphql-ide-document-item.is-published .wpgraphql-ide-document-label {
-	color: #757575;
+
+/* Published/readonly editor — gray tint to signal immutable */
+.wpgraphql-ide-editor.is-readonly .cm-editor {
+	background: #f6f7f7;
 }
 
-.wpgraphql-ide-document-status-icon {
+.wpgraphql-ide-editor.is-readonly .cm-gutters {
+	background: #f0f0f1;
+}
+
+/* Share button — no hover when disabled */
+.wpgraphql-ide-toolbar-share-btn.components-button:disabled {
+	pointer-events: none;
+	opacity: 0.3;
+}
+
+/* Status filter chips */
+.wpgraphql-ide-status-filters {
+	display: flex;
+	gap: 4px;
+	padding: 0 12px 6px;
 	flex-shrink: 0;
-	color: #a7aaad;
+}
+
+.wpgraphql-ide-status-chip {
+	padding: 2px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 12px;
+	background: none;
+	font-size: 11px;
+	color: #646970;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-status-chip:hover {
+	border-color: #c3c4c7;
+	color: #2c3338;
+}
+
+.wpgraphql-ide-status-chip.is-active {
+	background: #f0f0f1;
+	border-color: #c3c4c7;
+	color: #1e1e1e;
 }
 
 /* Document label */
@@ -648,13 +689,15 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #1e1e1e;
 }
 
-/* Document kebab — hidden until hover, uses WP DropdownMenu */
+
+/* Document kebab — hidden until hover/focus */
 .wpgraphql-ide-document-kebab.components-button {
 	opacity: 0;
 	flex-shrink: 0;
 }
 
-.wpgraphql-ide-document-item:hover .wpgraphql-ide-document-kebab.components-button {
+.wpgraphql-ide-document-item:hover .wpgraphql-ide-document-kebab.components-button,
+.wpgraphql-ide-document-kebab.components-button:focus {
 	opacity: 1;
 }
 
@@ -910,6 +953,17 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
+.wpgraphql-ide-document-title-text.is-unsaved {
+	font-style: italic;
+}
+
+.wpgraphql-ide-document-badge {
+	font-size: 10px;
+	color: #c3c4c7;
+	white-space: nowrap;
+}
+
 
 
 /* ---------------------------------------------------------------------------
@@ -2100,6 +2154,14 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-family: Menlo, Consolas, Monaco, "Andale Mono", "Courier New", monospace;
 	font-size: 13px;
 	line-height: 1.5;
+}
+
+.wpgraphql-ide-editor .cm-editor {
+	height: 100%;
+}
+
+.wpgraphql-ide-editor .cm-scroller {
+	height: 100%;
 }
 
 .wpgraphql-ide-editor .cm-content {

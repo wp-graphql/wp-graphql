@@ -306,6 +306,7 @@ function RootView({ schema, onSelectType, onSelectField }) {
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
 					placeholder="Search types and fields..."
+					aria-label="Search GraphQL schema types and fields"
 					className="wpgraphql-ide-docs-search"
 				/>
 

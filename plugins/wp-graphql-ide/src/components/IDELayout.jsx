@@ -986,6 +986,7 @@ export function IDELayout({ fetcher, onClose }) {
 									toggleActivityPanelVisibility(panel.name)
 								}
 								aria-label={panel.title}
+								aria-pressed={visiblePanel?.name === panel.name}
 								size="compact"
 								className={`wpgraphql-ide-activity-btn${visiblePanel?.name === panel.name ? ' is-active' : ''}${dragOverPanel?.name === panel.name ? ` is-drag-${dragOverPanel.pos}` : ''}`}
 							>
@@ -1179,6 +1180,10 @@ export function IDELayout({ fetcher, onClose }) {
 															'Share link copied'
 														);
 													}}
+													disabled={
+														!query?.trim() ||
+														isTempDoc
+													}
 													aria-label="Copy share link"
 													size="compact"
 													className="wpgraphql-ide-toolbar-share-btn"
@@ -1198,18 +1203,19 @@ export function IDELayout({ fetcher, onClose }) {
 													>
 														Save draft
 													</Button>
-													{isSavedDraft && (
-														<Button
-															onClick={
-																publishCurrentDoc
-															}
-															size="compact"
-															variant="primary"
-															className="wpgraphql-ide-publish-button"
-														>
-															Publish
-														</Button>
-													)}
+													{isSavedDraft &&
+														query?.trim() && (
+															<Button
+																onClick={
+																	publishCurrentDoc
+																}
+																size="compact"
+																variant="primary"
+																className="wpgraphql-ide-publish-button"
+															>
+																Publish
+															</Button>
+														)}
 												</>
 											)}
 										</div>
@@ -1240,6 +1246,11 @@ export function IDELayout({ fetcher, onClose }) {
 												key={
 													activeDocument?.id ||
 													'empty'
+												}
+												className={
+													isPublished
+														? 'is-readonly'
+														: ''
 												}
 												value={query}
 												onChange={handleQueryChange}
@@ -1379,20 +1390,32 @@ export function IDELayout({ fetcher, onClose }) {
 												tab.name === 'variables' ? (
 													<JSONEditor
 														key="variables"
+														className={
+															isPublished
+																? 'is-readonly'
+																: ''
+														}
 														value={variables}
 														onChange={
 															handleVariablesChange
 														}
 														placeholder="Variables (JSON)"
+														readOnly={isPublished}
 													/>
 												) : (
 													<JSONEditor
 														key="headers"
+														className={
+															isPublished
+																? 'is-readonly'
+																: ''
+														}
 														value={headers}
 														onChange={
 															handleHeadersChange
 														}
 														placeholder="Headers (JSON)"
+														readOnly={isPublished}
 													/>
 												)
 											}

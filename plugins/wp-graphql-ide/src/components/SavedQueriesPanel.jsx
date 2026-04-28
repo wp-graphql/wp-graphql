@@ -19,7 +19,6 @@ import {
 	chevronDown,
 	chevronRight,
 	plus,
-	lock,
 } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
@@ -99,6 +98,8 @@ function CollectionSection({
 					type="button"
 					className="wpgraphql-ide-collection-toggle"
 					onClick={onToggle}
+					aria-expanded={!collapsed}
+					aria-label={`${title}: ${collapsed ? 'expand' : 'collapse'}`}
 				>
 					<Icon
 						icon={collapsed ? chevronRight : chevronDown}
@@ -121,6 +122,7 @@ function CollectionSection({
 							}
 						}}
 						onClick={(e) => e.stopPropagation()}
+						aria-label="Rename collection"
 						// eslint-disable-next-line jsx-a11y/no-autofocus
 						autoFocus
 					/>
@@ -216,6 +218,7 @@ function CollectionSection({
  */
 export function SavedQueriesPanel() {
 	const [search, setSearch] = useState('');
+	const [statusFilter, setStatusFilter] = useState('all');
 	const [collapsedSections, setCollapsedSections] = useState({});
 	const [creatingCollection, setCreatingCollection] = useState(false);
 	const [newCollectionName, setNewCollectionName] = useState('');
@@ -262,23 +265,29 @@ export function SavedQueriesPanel() {
 		[documents]
 	);
 
-	const searchFilter = useCallback(
+	const filterDocs = useCallback(
 		(docs) => {
-			if (!search.trim()) {
-				return docs;
+			let filtered = docs;
+			if (statusFilter === 'publish') {
+				filtered = filtered.filter((d) => d.status === 'publish');
+			} else if (statusFilter === 'draft') {
+				filtered = filtered.filter((d) => d.status !== 'publish');
 			}
-			const q = search.toLowerCase();
-			return docs.filter(
-				(d) =>
-					(d.title || '').toLowerCase().includes(q) ||
-					(d.query || '').toLowerCase().includes(q)
-			);
+			if (search.trim()) {
+				const q = search.toLowerCase();
+				filtered = filtered.filter(
+					(d) =>
+						(d.title || '').toLowerCase().includes(q) ||
+						(d.query || '').toLowerCase().includes(q)
+				);
+			}
+			return filtered;
 		},
-		[search]
+		[search, statusFilter]
 	);
 
 	const { grouped, uncategorized } = useMemo(() => {
-		const filtered = searchFilter(savedDocs);
+		const filtered = filterDocs(savedDocs);
 		const groups = {};
 		const ungrouped = [];
 		for (const doc of filtered) {
@@ -295,7 +304,7 @@ export function SavedQueriesPanel() {
 			}
 		}
 		return { grouped: groups, uncategorized: ungrouped };
-	}, [savedDocs, searchFilter]);
+	}, [savedDocs, filterDocs]);
 
 	const toggleSection = (key) => {
 		setCollapsedSections((prev) => ({
@@ -358,6 +367,7 @@ export function SavedQueriesPanel() {
 		const isOpen = openTabs.includes(String(doc.id));
 		const isUnsaved = isTempId(doc.id);
 		const isPublished = !isUnsaved && doc.status === 'publish';
+		const isDraft = !isUnsaved && !isPublished;
 
 		return (
 			<li
@@ -382,15 +392,16 @@ export function SavedQueriesPanel() {
 					{isOpen && (
 						<span className="wpgraphql-ide-document-open-dot" />
 					)}
-					{isPublished && (
-						<Icon
-							icon={lock}
-							size={14}
-							className="wpgraphql-ide-document-status-icon"
-						/>
-					)}
-					<span className="wpgraphql-ide-document-title-text">
+					<span
+						className={`wpgraphql-ide-document-title-text${isUnsaved ? ' is-unsaved' : ''}`}
+					>
 						{doc.title || 'Untitled'}
+						{isDraft && (
+							<span className="wpgraphql-ide-document-badge">
+								{' '}
+								— Draft
+							</span>
+						)}
 					</span>
 				</button>
 				{!isUnsaved && (
@@ -404,34 +415,69 @@ export function SavedQueriesPanel() {
 					>
 						{({ onClose: closeMenu }) => (
 							<>
-								{collections.length > 0 && (
-									<MenuGroup label="Move to">
-										{collections.map((c) => {
-											const assigned = (
-												doc.collections || []
-											).includes(c.id);
-											return (
-												<MenuItem
-													key={c.id}
-													icon={
-														assigned
-															? '✓'
-															: undefined
-													}
-													onClick={() => {
-														handleAssignCollection(
-															doc.id,
-															c.id
-														);
-														closeMenu();
-													}}
-												>
-													{c.name}
-												</MenuItem>
+								<MenuGroup>
+									<MenuItem
+										onClick={() => {
+											closeMenu();
+											// eslint-disable-next-line no-alert
+											const newName = window.prompt(
+												'Rename document:',
+												doc.title || 'Untitled'
 											);
-										})}
-									</MenuGroup>
-								)}
+											if (newName?.trim()) {
+												updateDocument(doc.id, {
+													title: newName.trim(),
+												}).then(reloadDocs);
+											}
+										}}
+									>
+										Rename
+									</MenuItem>
+								</MenuGroup>
+								{(() => {
+									const docCols = doc.collections || [];
+									const available = collections.filter(
+										(c) => !docCols.includes(c.id)
+									);
+									const inCollection = docCols.length > 0;
+									return (
+										<>
+											{available.length > 0 && (
+												<MenuGroup label="Move to">
+													{available.map((c) => (
+														<MenuItem
+															key={c.id}
+															onClick={() => {
+																handleAssignCollection(
+																	doc.id,
+																	c.id
+																);
+																closeMenu();
+															}}
+														>
+															{c.name}
+														</MenuItem>
+													))}
+												</MenuGroup>
+											)}
+											{inCollection && (
+												<MenuGroup>
+													<MenuItem
+														onClick={() => {
+															handleDropToCollection(
+																String(doc.id),
+																null
+															);
+															closeMenu();
+														}}
+													>
+														Remove from collection
+													</MenuItem>
+												</MenuGroup>
+											)}
+										</>
+									);
+								})()}
 								<MenuGroup>
 									<MenuItem
 										isDestructive
@@ -483,6 +529,23 @@ export function SavedQueriesPanel() {
 					__nextHasNoMarginBottom
 					size="compact"
 				/>
+			</div>
+
+			<div className="wpgraphql-ide-status-filters">
+				{[
+					{ key: 'all', label: 'All' },
+					{ key: 'draft', label: 'Drafts' },
+					{ key: 'publish', label: 'Published' },
+				].map((s) => (
+					<button
+						key={s.key}
+						type="button"
+						className={`wpgraphql-ide-status-chip${statusFilter === s.key ? ' is-active' : ''}`}
+						onClick={() => setStatusFilter(s.key)}
+					>
+						{s.label}
+					</button>
+				))}
 			</div>
 
 			<div className="wpgraphql-ide-collections-list">

@@ -70,7 +70,7 @@ const ActivityPanel = () => {
 					onClick={() =>
 						toggleActivityPanelVisibility(visiblePanel.name)
 					}
-					aria-label="Close panel"
+					aria-label={`Close ${visiblePanel.title} panel`}
 					size="small"
 				>
 					<Icon icon={close} size={20} />

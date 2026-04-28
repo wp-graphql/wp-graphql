@@ -110,7 +110,7 @@ export function DocumentTabs({
 			className="wpgraphql-ide-tab-bar"
 			role="tablist"
 		>
-			{visibleTabs.map((tab) => {
+			{visibleTabs.map((tab, idx) => {
 				const isActive = String(tab.id) === String(activeId);
 				return (
 					<button
@@ -123,11 +123,31 @@ export function DocumentTabs({
 						type="button"
 						role="tab"
 						aria-selected={isActive}
+						tabIndex={isActive ? 0 : -1}
 						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
 						onDoubleClick={() => {
 							setEditingId(tab.id);
 							setEditValue(tab.title || 'Untitled');
+						}}
+						onKeyDown={(e) => {
+							if (
+								e.key === 'ArrowRight' &&
+								idx < visibleTabs.length - 1
+							) {
+								e.preventDefault();
+								onSwitch(String(visibleTabs[idx + 1].id));
+								tabRefs.current[
+									visibleTabs[idx + 1].id
+								]?.focus();
+							}
+							if (e.key === 'ArrowLeft' && idx > 0) {
+								e.preventDefault();
+								onSwitch(String(visibleTabs[idx - 1].id));
+								tabRefs.current[
+									visibleTabs[idx - 1].id
+								]?.focus();
+							}
 						}}
 					>
 						{editingId === tab.id ? (
@@ -166,13 +186,14 @@ export function DocumentTabs({
 							<span
 								className="wpgraphql-ide-tab-close"
 								role="button"
-								tabIndex={-1}
+								tabIndex={0}
 								onClick={(e) => {
 									e.stopPropagation();
 									onClose(String(tab.id));
 								}}
 								onKeyDown={(e) => {
-									if (e.key === 'Enter') {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
 										e.stopPropagation();
 										onClose(String(tab.id));
 									}
