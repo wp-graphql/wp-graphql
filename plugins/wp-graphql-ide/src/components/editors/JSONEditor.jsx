@@ -48,7 +48,7 @@ export function JSONEditor({
 			json(),
 			updateListener,
 			readOnlyCompartment.current.of([
-				EditorView.editable.of(!readOnly),
+				EditorView.editable.of(true),
 				EditorState.readOnly.of(readOnly),
 			]),
 		];
@@ -102,7 +102,7 @@ export function JSONEditor({
 		}
 		view.dispatch({
 			effects: readOnlyCompartment.current.reconfigure([
-				EditorView.editable.of(!readOnly),
+				EditorView.editable.of(true),
 				EditorState.readOnly.of(readOnly),
 			]),
 		});

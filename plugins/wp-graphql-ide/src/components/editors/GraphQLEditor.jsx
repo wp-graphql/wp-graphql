@@ -351,8 +351,11 @@ export function GraphQLEditor({
 			tooltips({ parent: document.body }),
 			buildHoverTooltip(schemaRef),
 			updateListener,
+			// Keep contenteditable on even when readOnly so the user can
+			// focus, select (Cmd+A), and copy. EditorState.readOnly blocks
+			// the actual edits.
 			readOnlyCompartment.current.of([
-				EditorView.editable.of(!readOnly),
+				EditorView.editable.of(true),
 				EditorState.readOnly.of(readOnly),
 			]),
 		];
@@ -418,7 +421,7 @@ export function GraphQLEditor({
 		}
 		view.dispatch({
 			effects: readOnlyCompartment.current.reconfigure([
-				EditorView.editable.of(!readOnly),
+				EditorView.editable.of(true),
 				EditorState.readOnly.of(readOnly),
 			]),
 		});

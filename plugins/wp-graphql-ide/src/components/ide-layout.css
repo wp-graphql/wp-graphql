@@ -789,9 +789,15 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
    gray treatment reads as a single mode, not a single panel. */
 .wpgraphql-ide-editor.is-readonly,
 .wpgraphql-ide-editor.is-readonly .cm-editor,
-.wpgraphql-ide-editor.is-readonly .cm-scroller,
-.wpgraphql-ide-editor.is-readonly .cm-content {
+.wpgraphql-ide-editor.is-readonly .cm-scroller {
 	background: #f0f0f1;
+}
+
+/* `cm-content` stays transparent in readonly mode so the
+   `.cm-selectionLayer` (which sits underneath cm-content in the DOM)
+   isn't covered by an opaque grey when the user selects text. */
+.wpgraphql-ide-editor.is-readonly .cm-content {
+	background: transparent;
 }
 
 .wpgraphql-ide-editor.is-readonly .cm-gutters {
