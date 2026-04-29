@@ -1,4 +1,10 @@
-import React, { useRef, useState, useLayoutEffect, useCallback } from 'react';
+import React, {
+	useRef,
+	useState,
+	useLayoutEffect,
+	useCallback,
+	useEffect,
+} from 'react';
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -37,9 +43,13 @@ export function DocumentTabs({
 }) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
+	const menuRef = useRef(null);
 	const [cutoff, setCutoff] = useState(tabs.length);
 	const [editingId, setEditingId] = useState(null);
 	const [editValue, setEditValue] = useState('');
+	// Right-click context menu: { tabId, x, y } | null. Position is in
+	// viewport coords so the menu can render outside the tab bar.
+	const [contextMenu, setContextMenu] = useState(null);
 
 	const recalculate = useCallback(() => {
 		const container = containerRef.current;
@@ -90,6 +100,55 @@ export function DocumentTabs({
 		return () => obs.disconnect();
 	}, [recalculate]);
 
+	// Dismiss the context menu on outside click or Escape.
+	useEffect(() => {
+		if (!contextMenu) {
+			return undefined;
+		}
+		const handleDown = (e) => {
+			if (menuRef.current && !menuRef.current.contains(e.target)) {
+				setContextMenu(null);
+			}
+		};
+		const handleKey = (e) => {
+			if (e.key === 'Escape') {
+				setContextMenu(null);
+			}
+		};
+		document.addEventListener('mousedown', handleDown);
+		document.addEventListener('keydown', handleKey);
+		return () => {
+			document.removeEventListener('mousedown', handleDown);
+			document.removeEventListener('keydown', handleKey);
+		};
+	}, [contextMenu]);
+
+	const closeMany = (ids) => {
+		for (const id of ids) {
+			onClose(String(id));
+		}
+	};
+
+	const closeOthers = (keepId) => {
+		closeMany(
+			tabs.filter((t) => String(t.id) !== String(keepId)).map((t) => t.id)
+		);
+	};
+
+	const closeToRight = (anchorId) => {
+		const anchorIdx = tabs.findIndex(
+			(t) => String(t.id) === String(anchorId)
+		);
+		if (anchorIdx < 0) {
+			return;
+		}
+		closeMany(tabs.slice(anchorIdx + 1).map((t) => t.id));
+	};
+
+	const closeAll = () => {
+		closeMany(tabs.map((t) => t.id));
+	};
+
 	// Always keep the active tab in the visible range.
 	const ordered = [...tabs];
 	const activeIdx = ordered.findIndex(
@@ -127,6 +186,14 @@ export function DocumentTabs({
 						tabIndex={isActive ? 0 : -1}
 						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${isUnsaved ? ' is-unsaved' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
+						onContextMenu={(e) => {
+							e.preventDefault();
+							setContextMenu({
+								tabId: String(tab.id),
+								x: e.clientX,
+								y: e.clientY,
+							});
+						}}
 						onKeyDown={(e) => {
 							if (
 								e.key === 'ArrowRight' &&
@@ -256,6 +323,70 @@ export function DocumentTabs({
 					<Icon icon={plus} size={16} />
 				</Button>
 			</Tooltip>
+
+			{contextMenu &&
+				(() => {
+					const targetIdx = tabs.findIndex(
+						(t) => String(t.id) === contextMenu.tabId
+					);
+					const hasRight =
+						targetIdx >= 0 && targetIdx < tabs.length - 1;
+					const hasOthers = tabs.length > 1;
+					return (
+						<div
+							ref={menuRef}
+							className="wpgraphql-ide-tab-context-menu"
+							role="menu"
+							style={{
+								top: contextMenu.y,
+								left: contextMenu.x,
+							}}
+						>
+							<button
+								type="button"
+								role="menuitem"
+								onClick={() => {
+									onClose(contextMenu.tabId);
+									setContextMenu(null);
+								}}
+							>
+								Close
+							</button>
+							<button
+								type="button"
+								role="menuitem"
+								disabled={!hasOthers}
+								onClick={() => {
+									closeOthers(contextMenu.tabId);
+									setContextMenu(null);
+								}}
+							>
+								Close others
+							</button>
+							<button
+								type="button"
+								role="menuitem"
+								disabled={!hasRight}
+								onClick={() => {
+									closeToRight(contextMenu.tabId);
+									setContextMenu(null);
+								}}
+							>
+								Close to the right
+							</button>
+							<button
+								type="button"
+								role="menuitem"
+								onClick={() => {
+									closeAll();
+									setContextMenu(null);
+								}}
+							>
+								Close all
+							</button>
+						</div>
+					);
+				})()}
 		</div>
 	);
 }

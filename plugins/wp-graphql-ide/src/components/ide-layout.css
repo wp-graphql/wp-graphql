@@ -388,7 +388,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	cursor: pointer;
 	white-space: nowrap;
 	min-width: 60px;
-	max-width: 160px;
+	max-width: 240px;
 	flex-shrink: 1;
 	margin-bottom: -1px;
 	overflow: hidden;
@@ -405,6 +405,38 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-tab.is-unsaved .wpgraphql-ide-tab-label {
 	font-style: italic;
+}
+
+.wpgraphql-ide-tab-context-menu {
+	position: fixed;
+	z-index: 1000;
+	min-width: 180px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+	padding: 4px 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-tab-context-menu button {
+	border: none;
+	background: none;
+	text-align: left;
+	padding: 6px 12px;
+	font-size: 13px;
+	color: #1e1e1e;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-tab-context-menu button:hover:not(:disabled) {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-tab-context-menu button:disabled {
+	color: #a7aaad;
+	cursor: default;
 }
 
 .wpgraphql-ide-tab-label {
@@ -1631,28 +1663,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	letter-spacing: 0.01em;
 }
 
-/* Published docs are immutable: paint the response surfaces with the
-   same muted readonly tokens used for the query / variables editors. */
-.wpgraphql-ide-response-body.is-readonly,
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-empty {
-	background: #f0f0f1;
-}
-
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-editor,
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-scroller,
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-content {
-	background: #f0f0f1;
-}
-
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-gutters {
-	background: #f0f0f1;
-}
-
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs,
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs .components-tab-panel__tab-content,
-.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs .components-tab-panel__tabs {
-	background: #f0f0f1;
-}
 
 .wpgraphql-ide-response-size {
 	font-size: 11px;

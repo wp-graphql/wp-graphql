@@ -56,7 +56,6 @@ function ResponseContent({
 	responseDataScope,
 	responseHeaders,
 	extensionTabs,
-	isReadOnly = false,
 	responseViewerHeight,
 	onResponseViewerResize,
 }) {
@@ -128,9 +127,7 @@ function ResponseContent({
 	// that fills the full panel height.
 	if (!response) {
 		return (
-			<div
-				className={`wpgraphql-ide-response-body wpgraphql-ide-response-body--empty${isReadOnly ? ' is-readonly' : ''}`}
-			>
+			<div className="wpgraphql-ide-response-body wpgraphql-ide-response-body--empty">
 				<div className="wpgraphql-ide-response-empty">
 					<div className="wpgraphql-ide-response-empty-hint">
 						<span
@@ -159,9 +156,7 @@ function ResponseContent({
 	}
 
 	return (
-		<div
-			className={`wpgraphql-ide-response-body${isReadOnly ? ' is-readonly' : ''}`}
-		>
+		<div className="wpgraphql-ide-response-body">
 			{/* Top: response viewer — resizable, matching query editor split */}
 			<ResizableBox
 				size={{ width: '100%', height: responseViewerHeight }}
@@ -1619,7 +1614,6 @@ export function IDELayout({ fetcher, onClose }) {
 											}
 											responseHeaders={responseHeaders}
 											extensionTabs={extensionTabs}
-											isReadOnly={isPublished}
 											responseViewerHeight={
 												responseViewerHeight
 											}
