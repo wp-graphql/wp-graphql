@@ -15,7 +15,7 @@ const OVERFLOW_BTN_W = 32;
  * IDE-style tab strip for open documents.
  *
  * Visible tabs are rendered inline; any tabs that don't fit fold into an
- * overflow dropdown on the right. Double-click a tab title to rename it.
+ * overflow dropdown on the right. Renames are triggered from the sidebar.
  *
  * @param {Object}   props
  * @param {Array}    props.tabs     Array of `{ id, title, dirty }` tab descriptors.
@@ -112,6 +112,7 @@ export function DocumentTabs({
 		>
 			{visibleTabs.map((tab, idx) => {
 				const isActive = String(tab.id) === String(activeId);
+				const isUnsaved = String(tab.id).startsWith('temp-');
 				return (
 					<button
 						key={tab.id}
@@ -124,12 +125,8 @@ export function DocumentTabs({
 						role="tab"
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
-						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}`}
+						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${isUnsaved ? ' is-unsaved' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
-						onDoubleClick={() => {
-							setEditingId(tab.id);
-							setEditValue(tab.title || 'Untitled');
-						}}
 						onKeyDown={(e) => {
 							if (
 								e.key === 'ArrowRight' &&

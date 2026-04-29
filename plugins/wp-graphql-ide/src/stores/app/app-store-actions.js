@@ -11,7 +11,38 @@ import {
 	createCollection as postCollection,
 	renameCollection as patchCollection,
 	deleteCollection as removeCollection,
+	reorderCollections as persistCollectionOrder,
 } from '../../api/documents';
+import { getPreferences, savePreference } from '../../api/preferences';
+
+const VALID_SORT_MODES = ['manual', 'title_asc', 'modified_desc', 'status'];
+
+/**
+ * Apply a user-saved order to a collections list. IDs not in the
+ * preference fall through in their original order at the end so a
+ * newly-created collection still shows up.
+ *
+ * @param {Array<Object>} collections Collection list as fetched.
+ * @param {Array<number>} orderPref   Preferred order from user meta.
+ * @return {Array<Object>} Sorted collection list.
+ */
+function sortCollectionsByPreference(collections, orderPref) {
+	if (!orderPref || orderPref.length === 0) {
+		return collections;
+	}
+	const byId = new Map(collections.map((c) => [c.id, c]));
+	const ordered = [];
+	for (const id of orderPref) {
+		if (byId.has(id)) {
+			ordered.push(byId.get(id));
+			byId.delete(id);
+		}
+	}
+	for (const c of byId.values()) {
+		ordered.push(c);
+	}
+	return ordered;
+}
 
 /**
  * The initial state of the app.
@@ -205,8 +236,34 @@ const actions = {
 		() =>
 		async ({ dispatch }) => {
 			try {
-				const collections = await fetchCollections();
-				dispatch({ type: 'SET_COLLECTIONS', collections });
+				const [collections, prefs] = await Promise.all([
+					fetchCollections(),
+					getPreferences().catch(() => ({})),
+				]);
+				const orderPref = Array.isArray(prefs.collection_order)
+					? prefs.collection_order.map(Number)
+					: [];
+				const sorted = sortCollectionsByPreference(
+					collections,
+					orderPref
+				);
+				dispatch({ type: 'SET_COLLECTIONS', collections: sorted });
+
+				const rawModes =
+					prefs.collection_sort_modes &&
+					typeof prefs.collection_sort_modes === 'object'
+						? prefs.collection_sort_modes
+						: {};
+				const modes = {};
+				for (const [key, value] of Object.entries(rawModes)) {
+					if (
+						VALID_SORT_MODES.includes(value) &&
+						value !== 'manual'
+					) {
+						modes[key] = value;
+					}
+				}
+				dispatch({ type: 'SET_COLLECTION_SORT_MODES', modes });
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to load collections:', error);
@@ -278,25 +335,55 @@ const actions = {
 		},
 
 	/**
-	 * Move a collection up or down in the list.
+	 * Reorder collections by an explicit ID list. Used by drag-and-drop.
+	 * Optimistic local update + server persist.
 	 *
-	 * @param {number} id        Term ID.
-	 * @param {string} direction 'up' or 'down'.
+	 * @param {Array<number>} ids Term IDs in their new order.
 	 */
-	moveCollection:
-		(id, direction) =>
-		({ dispatch, select: sel }) => {
-			const list = [...sel.getCollections()];
-			const idx = list.findIndex((c) => c.id === id);
-			if (idx === -1) {
-				return;
+	reorderCollections:
+		(ids) =>
+		async ({ dispatch, select: sel }) => {
+			const list = sel.getCollections();
+			const sorted = sortCollectionsByPreference(list, ids);
+			dispatch({ type: 'SET_COLLECTIONS', collections: sorted });
+			try {
+				await persistCollectionOrder(sorted.map((c) => c.id));
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to persist collection order:', error);
 			}
-			const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-			if (swapIdx < 0 || swapIdx >= list.length) {
-				return;
+		},
+
+	/**
+	 * Set the sort mode for a single collection (or virtual section
+	 * key like '_documents' / '_unsaved') and persist the full map
+	 * to user meta.
+	 *
+	 * @param {string|number} key  Collection ID or virtual section key.
+	 * @param {string}        mode One of 'manual', 'title_asc', 'modified_desc', 'status'.
+	 */
+	setCollectionSortMode:
+		(key, mode) =>
+		async ({ dispatch, select: sel }) => {
+			const next = VALID_SORT_MODES.includes(mode) ? mode : 'manual';
+			const normalizedKey = String(key);
+			dispatch({
+				type: 'SET_COLLECTION_SORT_MODE',
+				key: normalizedKey,
+				mode: next,
+			});
+			const updated = { ...sel.getCollectionSortModes() };
+			if (next === 'manual') {
+				delete updated[normalizedKey];
+			} else {
+				updated[normalizedKey] = next;
 			}
-			[list[idx], list[swapIdx]] = [list[swapIdx], list[idx]];
-			dispatch({ type: 'SET_COLLECTIONS', collections: list });
+			try {
+				await savePreference('collection_sort_modes', updated);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to persist collection sort mode:', error);
+			}
 		},
 };
 

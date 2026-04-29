@@ -16,8 +16,11 @@ const selectors = {
 	),
 
 	getDocuments: createSelector(
-		(state) => Object.values(state.documents),
-		(state) => [state.documents]
+		(state) =>
+			(state.documentIds || [])
+				.map((id) => state.documents[id])
+				.filter(Boolean),
+		(state) => [state.documents, state.documentIds]
 	),
 
 	// Memoized: returns the same array reference when `state.openTabs`

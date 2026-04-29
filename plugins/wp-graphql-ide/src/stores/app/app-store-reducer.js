@@ -26,6 +26,11 @@ const initialState = {
 	docsNavTarget: null,
 	collections: [],
 	activeCollection: null,
+	// Per-collection sort mode applied to the saved-queries panel. Keyed
+	// by collection ID (number) for taxonomy collections, or by the
+	// virtual section keys '_documents' / '_unsaved'. Each value is one
+	// of: 'manual' | 'title_asc' | 'modified_desc' | 'status'.
+	collectionSortModes: {},
 };
 
 /**
@@ -148,6 +153,23 @@ const reducer = (state = initialState, action) => {
 				...state,
 				collections: action.collections,
 			};
+		case 'SET_COLLECTION_SORT_MODES':
+			return {
+				...state,
+				collectionSortModes: action.modes || {},
+			};
+		case 'SET_COLLECTION_SORT_MODE': {
+			const next = { ...state.collectionSortModes };
+			if (!action.mode || action.mode === 'manual') {
+				delete next[action.key];
+			} else {
+				next[action.key] = action.mode;
+			}
+			return {
+				...state,
+				collectionSortModes: next,
+			};
+		}
 		case 'ADD_COLLECTION':
 			return {
 				...state,

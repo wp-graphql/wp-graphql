@@ -23,6 +23,37 @@
 	margin-top: 16px;
 }
 
+.wpgraphql-ide-save-dialog-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.wpgraphql-ide-save-dialog-new-collection {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px;
+	background: #f6f7f7;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+}
+
+.wpgraphql-ide-save-dialog-new-collection-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.wpgraphql-ide-export-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 50vh;
+	overflow-y: auto;
+	padding: 4px 0;
+}
+
 .wpgraphql-ide-share-toggles {
 	display: flex;
 	flex-direction: column;
@@ -32,11 +63,12 @@
 
 .wpgraphql-ide-share-footer {
 	display: flex;
-	align-items: center;
+	align-items: flex-end;
 	justify-content: space-between;
 	gap: 16px;
+	margin-top: 8px;
 	padding-top: 12px;
-	border-top: 1px solid #f0f0f1;
+	border-top: 1px solid #e0e0e0;
 }
 
 .wpgraphql-ide-share-footer .wpgraphql-ide-dialog-actions {
@@ -255,6 +287,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-activity-btn.components-button svg {
 	width: 20px;
 	height: 20px;
+	fill: currentColor;
 }
 
 /* ---------------------------------------------------------------------------
@@ -280,6 +313,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	text-align: center;
 	gap: 12px;
 	padding: 32px;
+	background: #f0f0f1;
 }
 
 .wpgraphql-ide-empty-icon {
@@ -367,6 +401,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-tab.is-active {
 	color: #2c3338;
 	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-tab.is-unsaved .wpgraphql-ide-tab-label {
+	font-style: italic;
 }
 
 .wpgraphql-ide-tab-label {
@@ -678,6 +716,33 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	cursor: grabbing;
 }
 
+/* Drop indicator — a 2px accent line drawn at the top or bottom edge
+   of the hovered item while dragging a sibling for reorder. Used for
+   both document items and collection sections. */
+.wpgraphql-ide-document-item.is-drop-above {
+	box-shadow: inset 0 2px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-document-item.is-drop-below {
+	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-collection-section.is-drop-above {
+	box-shadow: inset 0 2px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-collection-section.is-drop-below {
+	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-collection-header.is-reorderable {
+	cursor: grab;
+}
+
+.wpgraphql-ide-collection-header.is-reorderable:active {
+	cursor: grabbing;
+}
+
 .wpgraphql-ide-document-item.is-active {
 	background: #f0f0f1;
 	box-shadow: inset 3px 0 0 0 var(--wp-admin-theme-color, #3858e9);
@@ -687,16 +752,43 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f6f7f7;
 }
 
-/* Published documents — muted to signal read-only */
-
-/* Published/readonly editor — gray tint to signal immutable */
+/* Published documents — muted to signal "stored, not changeable".
+   Touches every editor surface and the surrounding chrome so the
+   gray treatment reads as a single mode, not a single panel. */
 .wpgraphql-ide-editor.is-readonly,
-.wpgraphql-ide-editor.is-readonly .cm-editor {
-	background: #f6f7f7;
+.wpgraphql-ide-editor.is-readonly .cm-editor,
+.wpgraphql-ide-editor.is-readonly .cm-scroller,
+.wpgraphql-ide-editor.is-readonly .cm-content {
+	background: #f0f0f1;
 }
 
 .wpgraphql-ide-editor.is-readonly .cm-gutters {
 	background: #f0f0f1;
+}
+
+.wpgraphql-ide-editor.is-readonly .cm-activeLine {
+	background: transparent;
+}
+
+/* Variables/Headers TabPanel surrounding the JSON editor when the
+   active doc is a published (immutable) doc. */
+.wpgraphql-ide-editor-tools.is-readonly,
+.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tab-content {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tabs {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tabs-item {
+	color: #646970;
+}
+
+/* Subdue the active-tab underline in readonly mode so the strong WP
+   admin blue doesn't compete with the muted plate. */
+.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tabs-item[aria-selected="true"] {
+	box-shadow: inset 0 -2px 0 0 #757575 !important;
 }
 
 /* Share button — no hover when disabled */
@@ -705,32 +797,23 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	opacity: 0.3;
 }
 
-/* Status filter chips */
-.wpgraphql-ide-status-filters {
-	display: flex;
-	gap: 4px;
-	padding: 0 12px 6px;
+/* Status filter — wraps a @wordpress/components ToggleGroupControl. */
+.wpgraphql-ide-status-filter-tabs {
 	flex-shrink: 0;
+	border-bottom: 1px solid #e0e0e0;
 }
 
-/* Status filter — underline-active pattern like WP TabPanel */
-.wpgraphql-ide-status-chip {
-	padding: 4px 8px;
-	border: none;
-	border-bottom: 2px solid transparent;
-	background: none;
-	font-size: 12px;
-	color: #646970;
-	cursor: pointer;
+.wpgraphql-ide-status-filter-tabs .components-tab-panel__tabs {
+	padding: 0 8px;
 }
 
-.wpgraphql-ide-status-chip:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+.wpgraphql-ide-status-filter-tabs .components-tab-panel__tabs-item {
+	font-size: 13px;
+	padding: 8px 12px;
 }
 
-.wpgraphql-ide-status-chip.is-active {
-	color: #1e1e1e;
-	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+.wpgraphql-ide-status-filter-tabs .components-tab-panel__tab-content {
+	display: none;
 }
 
 /* Document label */
@@ -740,7 +823,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: center;
 	gap: 3px;
-	padding: 0 4px 0 4px;
+	padding: 0 4px 0 12px;
 	border: none;
 	background: none;
 	font-size: 12px;
@@ -777,15 +860,52 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Search — fixed above tabs, part of panel infrastructure */
 .wpgraphql-ide-saved-queries-search {
-	padding: 6px 12px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 6px 8px 6px 12px;
 	flex-shrink: 0;
+}
+
+.wpgraphql-ide-saved-queries-search > .components-base-control,
+.wpgraphql-ide-saved-queries-search > .components-search-control {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-panel-kebab.components-button {
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	min-width: 24px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: #646970;
+}
+
+.wpgraphql-ide-panel-kebab.components-button:hover {
+	color: var(--wp-admin-theme-color, #3858e9);
+	background: transparent;
+}
+
+.wpgraphql-ide-new-collection-row {
+	padding: 4px 12px 8px;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-new-collection-row .wpgraphql-ide-collection-input {
+	width: 100%;
 }
 
 /* Collection sections — collapsible groups like WP Engine Local */
 .wpgraphql-ide-collections-list {
 	flex: 1;
 	overflow-y: auto;
+	overflow-x: hidden;
 	min-height: 0;
+	min-width: 0;
 }
 
 /* Collection sections — match Gutenberg PanelBody */
@@ -900,23 +1020,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-style: italic;
 }
 
-.wpgraphql-ide-collection-footer {
-	padding: 6px 12px;
-	border-top: 1px solid #f6f7f7;
-	flex-shrink: 0;
-}
-
-.wpgraphql-ide-collection-footer-actions {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.wpgraphql-ide-collection-footer-actions .wpgraphql-ide-collection-add-btn {
-	flex: 1;
-	justify-content: flex-start;
-}
-
 .wpgraphql-ide-collection-input {
 	width: 100%;
 	font-size: 12px;
@@ -931,17 +1034,21 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
 }
 
-.wpgraphql-ide-collection-add-btn.components-button {
-	font-size: 11px;
-	color: #646970;
-	padding: 2px 6px;
-	gap: 2px;
-	height: auto;
-	min-height: 0;
+.wpgraphql-ide-export-divider {
+	border-top: 1px solid #e0e0e0;
+	margin: 4px 0;
 }
 
-.wpgraphql-ide-collection-add-btn.components-button:hover {
-	color: #2c3338;
+.wpgraphql-ide-export-empty {
+	color: #757575;
+	font-size: 13px;
+	margin: 0;
+}
+
+.wpgraphql-ide-export-footer {
+	border-top: 1px solid #e0e0e0;
+	padding-top: 12px;
+	margin-top: 8px;
 }
 
 
@@ -1015,14 +1122,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f0f0f1;
 }
 
-.wpgraphql-ide-document-open-dot {
-	width: 4px;
-	height: 4px;
-	border-radius: 50%;
-	background: #a7aaad;
-	flex-shrink: 0;
-}
-
 .wpgraphql-ide-document-dirty-dot {
 	width: 5px;
 	height: 5px;
@@ -1048,6 +1147,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 	white-space: nowrap;
 }
+
 
 
 
@@ -1133,6 +1233,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	font-size: 12px;
 	font-weight: 600;
 	color: #646970;
+	line-height: 1;
 }
 
 .wpgraphql-ide-panel-close.components-button {
@@ -1296,10 +1397,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 /* Space between editor toolbar and CodeMirror content */
-.wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor .cm-editor {
-	padding-top: 4px;
-}
-
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
@@ -1312,10 +1409,40 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	overflow-y: auto;
 	overflow-x: hidden;
 	border-top: 1px solid #dcdcde;
+	display: flex;
+	flex-direction: column;
 }
 
 .wpgraphql-ide-editor-tools.is-readonly {
 	background: #f6f7f7;
+}
+
+/* Make the Variables/Headers editors fill the tab body so clicking
+   anywhere in the empty space focuses the editor (mirrors how the
+   main query editor behaves). Without this, the JSONEditor only
+   occupies a single line of height with a dead zone underneath. */
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content > .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content .cm-editor {
+	height: 100%;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content .cm-scroller {
+	min-height: 100%;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content .cm-gutters {
+	min-height: 100%;
 }
 
 /* Resize handles */
@@ -1463,9 +1590,68 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	color: #646970;
 }
 
+/* The empty response state is always painted with the readonly token
+   (regardless of draft/published) so the editor never shows a stark
+   white "nothing here" plate. White returns only when there's actual
+   response data and the doc is a draft. */
 .wpgraphql-ide-response-empty {
 	flex: 1;
-	background: #f6f7f7;
+	background: #f0f0f1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wpgraphql-ide-response-body--empty {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-response-empty-hint {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	color: #757575;
+	font-size: 13px;
+	user-select: none;
+}
+
+.wpgraphql-ide-response-empty-glyph {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #e0e0e0;
+	color: #8c8f94;
+}
+
+.wpgraphql-ide-response-empty-text {
+	letter-spacing: 0.01em;
+}
+
+/* Published docs are immutable: paint the response surfaces with the
+   same muted readonly tokens used for the query / variables editors. */
+.wpgraphql-ide-response-body.is-readonly,
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-empty {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-editor,
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-scroller,
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-content {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-viewer .cm-gutters {
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs,
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs .components-tab-panel__tab-content,
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs .components-tab-panel__tabs {
+	background: #f0f0f1;
 }
 
 .wpgraphql-ide-response-size {
@@ -1511,7 +1697,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-response-viewer {
 	flex: none;
 	min-height: 50px;
-	max-height: calc(100% - 80px);
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
@@ -1522,26 +1707,29 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	min-height: 0;
 }
 
-/* Response viewer: extend gutter + content background to fill the
-   container so line numbers run top-to-bottom even when the response
-   has fewer lines than the available height. */
+/* Response viewer fill: the response often has fewer lines than the
+   panel is tall. Stretch the scroller and the gutters wrapper (where
+   the gray paints) to fill, and force a white scroller background so
+   the area to the right of the gutter looks like clean content
+   instead of a hole between the JSON and the bottom tabs. */
 .wpgraphql-ide-response-viewer .cm-scroller {
 	min-height: 100%;
+	background: #fff;
 }
 
-.wpgraphql-ide-response-viewer .cm-content {
-	min-height: 100%;
-}
-
-.wpgraphql-ide-response-viewer .cm-gutter {
+.wpgraphql-ide-response-viewer .cm-gutters {
 	min-height: 100%;
 }
 
 .wpgraphql-ide-response-tabs {
-	border-top: 1px solid #dcdcde;
+	border-top: 1px solid #e0e0e0;
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs {
+	border-top-color: #dcdcde;
 }
 
 
@@ -1952,6 +2140,17 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f0f0f1;
 }
 
+/* In readonly mode the surrounding plate is already #f0f0f1, so the
+   default zebra/hover swap inverts visually. Soften both: zebra to
+   blend against the plate, hover to a slightly darker pick-out. */
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-header-row:nth-child(even) {
+	background: transparent;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-header-row:hover {
+	background: #e8eaed;
+}
+
 .wpgraphql-ide-header-name {
 	color: #8b3dff;
 	font-weight: 400;
@@ -2276,7 +2475,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-editor .cm-content {
-	padding: 4px 0;
+	padding: 0 0 4px;
 	caret-color: #2c3338;
 }
 

@@ -10,6 +10,7 @@ import { SettingsWorkspaceTab } from '../components/settings/SettingsWorkspaceTa
 import {
 	SavedQueriesPanel,
 	SavedQueriesIcon,
+	SavedQueriesPanelHeaderAction,
 } from '../components/SavedQueriesPanel';
 import {
 	DocsExplorerPanel,
@@ -30,6 +31,7 @@ export const initializeRegistry = () => {
 			title: 'Saved Queries',
 			icon: SavedQueriesIcon,
 			content: SavedQueriesPanel,
+			headerAction: SavedQueriesPanelHeaderAction,
 		},
 		1
 	);

@@ -61,6 +61,13 @@ const selectors = {
 	getActiveCollection: (state) => {
 		return state.activeCollection;
 	},
+	getCollectionSortModes: (state) => {
+		return state.collectionSortModes || {};
+	},
+	getCollectionSortMode: (state, key) => {
+		const modes = state.collectionSortModes || {};
+		return modes[key] || 'manual';
+	},
 };
 
 export default selectors;

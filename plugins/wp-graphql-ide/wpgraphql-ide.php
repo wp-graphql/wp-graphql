@@ -134,7 +134,7 @@ function register_ide_post_type() {
 			'rest_base'           => 'graphql-ide-queries',
 			'capability_type'     => 'post',
 			'map_meta_cap'        => true,
-			'supports'            => [ 'title', 'editor', 'author', 'custom-fields' ],
+			'supports'            => [ 'title', 'editor', 'author', 'custom-fields', 'page-attributes' ],
 		]
 	);
 
@@ -383,6 +383,45 @@ function register_ide_user_meta() {
 				],
 			],
 			'default'       => [],
+			'auth_callback' => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_collection_order',
+		[
+			'type'          => 'array',
+			'single'        => true,
+			'show_in_rest'  => [
+				'schema' => [
+					'type'  => 'array',
+					'items' => [
+						'type' => 'integer',
+					],
+				],
+			],
+			'default'       => [],
+			'auth_callback' => $auth_callback,
+		]
+	);
+
+	register_meta(
+		'user',
+		'wpgraphql_ide_collection_sort_modes',
+		[
+			'type'          => 'object',
+			'single'        => true,
+			'show_in_rest'  => [
+				'schema' => [
+					'type'                 => 'object',
+					'additionalProperties' => [
+						'type' => 'string',
+						'enum' => [ 'manual', 'title_asc', 'modified_desc', 'status' ],
+					],
+				],
+			],
+			'default'       => new \stdClass(),
 			'auth_callback' => $auth_callback,
 		]
 	);
@@ -1684,6 +1723,30 @@ function register_ide_rest_routes() {
 			},
 		]
 	);
+
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/documents/reorder',
+		[
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_reorder_documents',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_graphql_ide' );
+			},
+		]
+	);
+
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/collections/reorder',
+		[
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_reorder_collections',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_graphql_ide' );
+			},
+		]
+	);
 }
 
 /**
@@ -1716,6 +1779,66 @@ function handle_import_documents( \WP_REST_Request $request ) {
 
 	$result = import_documents_data( $body, get_current_user_id() );
 	return rest_ensure_response( $result );
+}
+
+/**
+ * Persist a reorder of documents — sets `menu_order` for each post in
+ * the order provided. The post type's `page-attributes` support
+ * surfaces `menu_order` to WP REST and to the default `WP_Query` sort.
+ *
+ * @param \WP_REST_Request $request REST request.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function handle_reorder_documents( \WP_REST_Request $request ) {
+	$body  = $request->get_json_params();
+	$order = isset( $body['order'] ) && is_array( $body['order'] ) ? $body['order'] : null;
+	if ( ! $order ) {
+		return new \WP_Error(
+			'invalid_payload',
+			__( 'Reorder payload must include an "order" array of post IDs.', 'wpgraphql-ide' ),
+			[ 'status' => 400 ]
+		);
+	}
+	$author_id = get_current_user_id();
+	foreach ( $order as $position => $post_id ) {
+		$post_id = (int) $post_id;
+		$post    = get_post( $post_id );
+		// Only touch posts the user owns and that match our CPT.
+		if ( ! $post || 'graphql_ide_query' !== $post->post_type || (int) $post->post_author !== $author_id ) {
+			continue;
+		}
+		wp_update_post(
+			[
+				'ID'         => $post_id,
+				'menu_order' => (int) $position,
+			]
+		);
+	}
+	return rest_ensure_response( [ 'ok' => true ] );
+}
+
+/**
+ * Persist a reorder of collections per-user via term meta. Collection
+ * order is user-scoped because terms themselves are global; per-user
+ * ordering keeps the IDE feeling personal without leaking another
+ * user's preferred order onto everyone.
+ *
+ * @param \WP_REST_Request $request REST request.
+ * @return \WP_REST_Response|\WP_Error
+ */
+function handle_reorder_collections( \WP_REST_Request $request ) {
+	$body  = $request->get_json_params();
+	$order = isset( $body['order'] ) && is_array( $body['order'] ) ? $body['order'] : null;
+	if ( ! $order ) {
+		return new \WP_Error(
+			'invalid_payload',
+			__( 'Reorder payload must include an "order" array of term IDs.', 'wpgraphql-ide' ),
+			[ 'status' => 400 ]
+		);
+	}
+	$ids = array_values( array_filter( array_map( 'intval', $order ) ) );
+	update_user_meta( get_current_user_id(), 'wpgraphql_ide_collection_order', $ids );
+	return rest_ensure_response( [ 'ok' => true ] );
 }
 
 /**

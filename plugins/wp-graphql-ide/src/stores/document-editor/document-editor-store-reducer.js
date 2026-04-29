@@ -1,6 +1,10 @@
 const initialState = {
 	buttons: {},
 	documents: {},
+	// Numeric-string object keys are normalised to numeric ascending
+	// order by the JS engine, which clobbers insertion order. Track
+	// document order separately so reorder actions actually stick.
+	documentIds: [],
 	openTabs: [],
 	activeTab: null,
 	tabTypes: {},
@@ -33,10 +37,32 @@ const reducer = (state = initialState, action) => {
 
 		case 'SET_DOCUMENTS': {
 			const documents = {};
+			const documentIds = [];
 			for (const doc of action.documents) {
-				documents[String(doc.id)] = doc;
+				const key = String(doc.id);
+				documents[key] = doc;
+				documentIds.push(key);
 			}
-			return { ...state, documents };
+			return { ...state, documents, documentIds };
+		}
+
+		case 'REORDER_DOCUMENTS': {
+			const known = new Set(state.documentIds);
+			const ordered = [];
+			for (const id of action.ids) {
+				const key = String(id);
+				if (known.has(key)) {
+					ordered.push(key);
+					known.delete(key);
+				}
+			}
+			// Append any IDs not in the new order (e.g. temp drafts).
+			for (const key of state.documentIds) {
+				if (known.has(key)) {
+					ordered.push(key);
+				}
+			}
+			return { ...state, documentIds: ordered };
 		}
 
 		case 'CREATE_IN_MEMORY_TAB': {
@@ -54,6 +80,7 @@ const reducer = (state = initialState, action) => {
 					...state.documents,
 					[action.tempId]: tempDoc,
 				},
+				documentIds: [...state.documentIds, action.tempId],
 				openTabs: [
 					...state.openTabs,
 					{ id: action.tempId, type: 'query-editor' },
@@ -66,6 +93,10 @@ const reducer = (state = initialState, action) => {
 			const docs = { ...state.documents };
 			delete docs[action.oldId];
 			docs[String(action.newId)] = action.document;
+
+			const documentIds = state.documentIds.map((id) =>
+				id === action.oldId ? String(action.newId) : id
+			);
 
 			const newTabs = state.openTabs.map((tab) =>
 				tab.id === action.oldId
@@ -80,6 +111,7 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				documents: docs,
+				documentIds,
 				openTabs: newTabs,
 				activeTab: newActive,
 			};
@@ -98,9 +130,14 @@ const reducer = (state = initialState, action) => {
 			};
 
 		case 'REMOVE_DOCUMENT': {
+			const key = String(action.id);
 			const next = { ...state.documents };
-			delete next[String(action.id)];
-			return { ...state, documents: next };
+			delete next[key];
+			return {
+				...state,
+				documents: next,
+				documentIds: state.documentIds.filter((id) => id !== key),
+			};
 		}
 
 		case 'SET_DOCUMENT_DIRTY':

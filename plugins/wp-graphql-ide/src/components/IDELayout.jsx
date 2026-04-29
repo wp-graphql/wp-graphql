@@ -38,7 +38,6 @@ import { ResponseViewer } from './editors/ResponseViewer';
 import { ErrorsPanel } from './ErrorsPanel';
 import { ShareDialog } from './dialogs/ShareDialog';
 import { SaveDialog } from './dialogs/SaveDialog';
-import { updateDocument as updateDocumentApi } from '../api/documents';
 import { HeadersPanel } from './HeadersPanel';
 import { ResponseTableView } from './ResponseTableView';
 import { EditorToolbar } from './EditorToolbar';
@@ -57,6 +56,7 @@ function ResponseContent({
 	responseDataScope,
 	responseHeaders,
 	extensionTabs,
+	isReadOnly = false,
 	responseViewerHeight,
 	onResponseViewerResize,
 }) {
@@ -123,8 +123,45 @@ function ResponseContent({
 		return <ResponseViewer value={viewerContent} />;
 	};
 
+	// With no response, the panel is intentionally bare — no
+	// Headers/Errors/Extensions tabs, no resizer, just an empty surface
+	// that fills the full panel height.
+	if (!response) {
+		return (
+			<div
+				className={`wpgraphql-ide-response-body wpgraphql-ide-response-body--empty${isReadOnly ? ' is-readonly' : ''}`}
+			>
+				<div className="wpgraphql-ide-response-empty">
+					<div className="wpgraphql-ide-response-empty-hint">
+						<span
+							className="wpgraphql-ide-response-empty-glyph"
+							aria-hidden="true"
+						>
+							<svg
+								width="20"
+								height="20"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="M6 4.5v11l9-5.5-9-5.5z"
+									fill="currentColor"
+								/>
+							</svg>
+						</span>
+						<span className="wpgraphql-ide-response-empty-text">
+							Run the query to see the response
+						</span>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div className="wpgraphql-ide-response-body">
+		<div
+			className={`wpgraphql-ide-response-body${isReadOnly ? ' is-readonly' : ''}`}
+		>
 			{/* Top: response viewer — resizable, matching query editor split */}
 			<ResizableBox
 				size={{ width: '100%', height: responseViewerHeight }}
@@ -137,7 +174,6 @@ function ResponseContent({
 			>
 				{renderViewer()}
 			</ResizableBox>
-			{/* Bottom: always-visible tabs for Headers/Errors/Extensions */}
 			<TabPanel
 				key={errors.length > 0 ? 'has-errors' : 'no-errors'}
 				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
@@ -297,12 +333,14 @@ export function IDELayout({ fetcher, onClose }) {
 		setVariables,
 		setHeaders,
 		setResponse,
+		setResponseHeaders,
 		toggleAuthentication,
 		setHttpMethod,
 		loadHistory,
 		addHistoryEntry,
 		setDocsNavTarget,
 		loadCollections,
+		addCollection,
 	} = useDispatch('wpgraphql-ide/app');
 
 	const {
@@ -440,10 +478,18 @@ export function IDELayout({ fetcher, onClose }) {
 	}, []);
 
 	// When active document changes, populate editors and restore response.
-	// Cancel any pending auto-save from the previous document.
+	// Cancel any pending auto-save from the previous document. When no doc
+	// is active (last tab closed), clear editor + response state so the
+	// next "New tab" starts blank instead of inheriting stale content.
 	useEffect(() => {
 		cancelAutoSave();
 		if (!activeDocument) {
+			setQuery('');
+			setVariables('');
+			setHeaders('');
+			setResponse('');
+			setResponseHeaders(null);
+			setResponseDataScope('data');
 			return;
 		}
 		setQuery(activeDocument.query || '');
@@ -614,8 +660,10 @@ export function IDELayout({ fetcher, onClose }) {
 		query,
 		variables,
 		headers,
+		schema,
 		saveTab,
 		publishTab,
+		switchTab,
 		addNotice,
 	]);
 
@@ -890,6 +938,7 @@ export function IDELayout({ fetcher, onClose }) {
 			<div className="wpgraphql-ide-topbar">
 				<div className="wpgraphql-ide-topbar-left">
 					<Tooltip
+						placement="right"
 						text={
 							visiblePanel ? 'Collapse sidebar' : 'Expand sidebar'
 						}
@@ -1127,30 +1176,33 @@ export function IDELayout({ fetcher, onClose }) {
 										className="wpgraphql-ide-query-pane"
 									>
 										<div className="wpgraphql-ide-editor-toolbar">
-											{ComposerContent && (
-												<Tooltip
-													text={
-														showQueryComposer
-															? 'Hide Query Composer'
-															: 'Show Query Composer'
-													}
-												>
-													<Button
-														onClick={
-															toggleQueryComposer
-														}
-														aria-label={
+											{ComposerContent &&
+												!isPublished && (
+													<Tooltip
+														text={
 															showQueryComposer
 																? 'Hide Query Composer'
 																: 'Show Query Composer'
 														}
-														size="compact"
-														className={`wpgraphql-ide-toolbar-composer-btn${showQueryComposer ? ' is-active' : ''}`}
 													>
-														<Icon icon={listView} />
-													</Button>
-												</Tooltip>
-											)}
+														<Button
+															onClick={
+																toggleQueryComposer
+															}
+															aria-label={
+																showQueryComposer
+																	? 'Hide Query Composer'
+																	: 'Show Query Composer'
+															}
+															size="compact"
+															className={`wpgraphql-ide-toolbar-composer-btn${showQueryComposer ? ' is-active' : ''}`}
+														>
+															<Icon
+																icon={listView}
+															/>
+														</Button>
+													</Tooltip>
+												)}
 											<span className="wpgraphql-ide-editor-label">
 												Query
 											</span>
@@ -1260,10 +1312,11 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent ? ' has-composer' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}`}
 										>
 											{ComposerContent &&
-												showQueryComposer && (
+												showQueryComposer &&
+												!isPublished && (
 													<div className="wpgraphql-ide-query-composer-inline">
 														<ComposerContent />
 													</div>
@@ -1566,6 +1619,7 @@ export function IDELayout({ fetcher, onClose }) {
 											}
 											responseHeaders={responseHeaders}
 											extensionTabs={extensionTabs}
+											isReadOnly={isPublished}
 											responseViewerHeight={
 												responseViewerHeight
 											}
@@ -1606,24 +1660,21 @@ export function IDELayout({ fetcher, onClose }) {
 				<SaveDialog
 					defaultTitle={activeDocument.title || ''}
 					collections={collectionsList}
+					onCreateCollection={async (name) => {
+						const created = await addCollection(name);
+						return created || null;
+					}}
 					onClose={() => setSaveDialogOpen(false)}
 					onSave={async ({ title, collectionId }) => {
-						const saved = await saveTab(activeDocument.id, {
+						await saveTab(activeDocument.id, {
 							title,
 							query,
 							variables,
 							headers,
+							collections:
+								collectionId !== null ? [collectionId] : [],
 						});
-						if (saved && collectionId !== null) {
-							try {
-								await updateDocumentApi(saved.id, {
-									collections: [collectionId],
-								});
-							} catch {
-								// Silent — the doc is saved; collection
-								// assignment failure is non-fatal.
-							}
-						}
+						loadDocuments();
 						addNotice('Document saved');
 					}}
 				/>

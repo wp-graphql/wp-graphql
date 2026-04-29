@@ -4,6 +4,7 @@ import {
 	updateDocument,
 	deleteDocument,
 	publishDocument,
+	reorderDocuments,
 } from '../../api/documents';
 import { getPreferences, savePreference } from '../../api/preferences';
 import {
@@ -227,6 +228,9 @@ const actions = {
 					variables: data.variables ?? doc.variables ?? '',
 					headers: data.headers ?? doc.headers ?? '',
 				};
+				if (Array.isArray(data.collections)) {
+					payload.collections = data.collections;
+				}
 
 				let saved;
 				if (isTempId(id)) {
@@ -406,6 +410,31 @@ const actions = {
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to delete document:', error);
+			}
+		},
+
+	/**
+	 * Reorder documents — applies the order locally for instant feedback,
+	 * then persists `menu_order` server-side. Temp (unsaved) IDs are
+	 * filtered out before hitting the network.
+	 *
+	 * @param {Array<string|number>} ids Document IDs in their new order.
+	 */
+	reorderDocuments:
+		(ids) =>
+		async ({ dispatch }) => {
+			dispatch({ type: 'REORDER_DOCUMENTS', ids });
+			const persistableIds = ids
+				.filter((id) => !isTempId(id))
+				.map((id) => Number(id));
+			if (persistableIds.length === 0) {
+				return;
+			}
+			try {
+				await reorderDocuments(persistableIds);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to persist document order:', error);
 			}
 		},
 

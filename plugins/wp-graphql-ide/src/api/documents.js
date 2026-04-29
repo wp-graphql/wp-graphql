@@ -10,7 +10,7 @@ const COLLECTIONS_ENDPOINT = '/wp/v2/graphql-ide-collections';
  */
 export async function getDocuments() {
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&_fields=id,title,content,status,meta,graphql-ide-collections`,
+		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&orderby=menu_order&order=asc&_fields=id,title,content,status,meta,menu_order,modified,graphql-ide-collections`,
 	});
 
 	return posts.map(normalizeDocument);
@@ -137,6 +137,7 @@ function normalizeDocument(post) {
 		headers: post.meta?._graphql_ide_headers ?? '',
 		status: post.status ?? 'draft',
 		collections: post['graphql-ide-collections'] ?? [],
+		modified: post.modified ?? null,
 	};
 }
 
@@ -232,5 +233,33 @@ export async function importDocuments(payload) {
 		path: '/wpgraphql-ide/v1/documents/import',
 		method: 'POST',
 		data: payload,
+	});
+}
+
+/**
+ * Persist a new menu_order for the given document IDs (server stores
+ * the position as `menu_order`; the documents endpoint sorts by it).
+ *
+ * @param {Array<number>} ids Document IDs in their new order.
+ */
+export async function reorderDocuments(ids) {
+	return apiFetch({
+		path: '/wpgraphql-ide/v1/documents/reorder',
+		method: 'POST',
+		data: { order: ids },
+	});
+}
+
+/**
+ * Persist a per-user collection order. Term order is user-scoped via
+ * the `wpgraphql_ide_collection_order` user-meta.
+ *
+ * @param {Array<number>} ids Term IDs in their new order.
+ */
+export async function reorderCollections(ids) {
+	return apiFetch({
+		path: '/wpgraphql-ide/v1/collections/reorder',
+		method: 'POST',
+		data: { order: ids },
 	});
 }
