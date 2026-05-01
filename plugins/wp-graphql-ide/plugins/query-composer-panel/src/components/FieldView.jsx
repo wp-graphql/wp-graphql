@@ -169,7 +169,7 @@ class FieldView extends React.PureComponent {
 	};
 
 	render() {
-		const { field, schema, getDefaultFieldNames, styleConfig } = this.props;
+		const { field, schema, getDefaultFieldNames } = this.props;
 		const selection = this._getSelection();
 		const type = unwrapOutputType(field.type);
 		const args = field.args.sort((a, b) => a.name.localeCompare(b.name));
@@ -191,14 +191,7 @@ class FieldView extends React.PureComponent {
 					role="button"
 					tabIndex="0"
 					title={field.description}
-					style={{
-						cursor: 'pointer',
-						display: 'inline-flex',
-						alignItems: 'center',
-						minHeight: '16px',
-						WebkitUserSelect: 'none',
-						userSelect: 'none',
-					}}
+					className="graphiql-explorer-row"
 					data-field-name={field.name}
 					data-field-type={type.name}
 					onClick={this._handleUpdateSelections}
@@ -239,16 +232,13 @@ class FieldView extends React.PureComponent {
 							styleConfig={this.props.styleConfig}
 						/>
 					)}
-					<span
-						style={{ color: styleConfig.colors.property }}
-						className="graphiql-explorer-field-view"
-					>
+					<span className="graphiql-explorer-field-view">
 						{field.name}
 					</span>
 					{!this.state.displayFieldActions ? null : (
 						<button
-							type="submit"
-							className="toolbar-button"
+							type="button"
+							className="graphiql-explorer-extract"
 							title="Extract selections into a new reusable fragment"
 							onClick={(event) => {
 								event.preventDefault();
@@ -326,9 +316,6 @@ class FieldView extends React.PureComponent {
 										'Unable to complete extractFragment operation'
 									);
 								}
-							}}
-							style={{
-								...styleConfig.styles.actionButtonStyle,
 							}}
 						>
 							<span>{'…'}</span>

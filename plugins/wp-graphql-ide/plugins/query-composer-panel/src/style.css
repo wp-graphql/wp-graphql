@@ -1,77 +1,360 @@
 /**
- * GraphiQL Explorer Styles
+ * Query Composer styles. Scoped to .wpgraphql-ide-query-composer-inline,
+ * the wrapper IDELayout renders. WP-native palette to match the rest of the IDE.
  */
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap {
-	width: 100% !important;
 
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .docExplorerWrap {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .doc-explorer-title {
-	font-weight: var(--font-weight-medium);
-	font-size: var(--font-size-h2);
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .doc-explorer-contents {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-root {
+	font-size: 13px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	color: #2c3338;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+/* The scroll container intentionally has NO padding: sticky elements
+   inside it stick relative to the scroll viewport (which includes
+   padding), so any padding-top here would let previous-card content
+   show through above the sticky title-bar. The first/last cards get
+   their breathing room from explicit margins instead. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operations {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
 	overflow-x: hidden;
-	text-overflow: ellipsis;
+	padding: 0 8px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operations > .graphiql-explorer-operation:first-child {
+	margin-top: 8px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operations > .graphiql-explorer-operation:last-child {
+	margin-bottom: 8px;
+}
+
+/* Operation block (query/mutation/fragment). Each operation forms its own
+   containing block so sticky stays scoped to that card — content from one
+   operation can never bleed past the next operation's header. Cards stack
+   with no margin between them so the sticky handoff between consecutive
+   operations is instant. The double-border between adjacent cards is
+   collapsed via margin-top: -1px on subsequent cards. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation {
+	border: 1px solid #dcdcde;
+	background: #fff;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation + .graphiql-explorer-operation {
+	margin-top: -1px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+/* Toolbar-style title bar — sticky at the top of its operation card. As
+   the user scrolls past the card's body, the title-bar gets pushed up by
+   the card's bottom edge, then the next operation's title-bar enters at
+   top: 0 of its own card. The cards are flush (no inter-card margin) so
+   the handoff is seamless. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-title-bar {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+	min-height: 32px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation:first-child .graphiql-operation-title-bar {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation.is-collapsed .graphiql-operation-title-bar {
+	border-bottom: none;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation:last-child.is-collapsed .graphiql-operation-title-bar,
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation:last-child .graphiql-operation-body {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+/* Operation body — white surface for the field list. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-body {
+	padding: 8px;
+	background: #fff;
+}
+
+/* Collapse/expand toggle on the operation header */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 3px;
+	color: #646970;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-toggle:hover {
+	background: rgba(0, 0, 0, 0.06);
+	color: #2c3338;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-keyword {
+	color: var(--gql-color-keyword);
+	font-weight: 500;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-name {
+	flex: 1;
+	min-width: 0;
+	border: 1px solid transparent;
+	background: transparent;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	color: var(--gql-color-operation-name);
+	padding: 1px 6px;
+	margin-left: 4px;
+	border-radius: 3px;
+	box-shadow: none;
+	width: auto;
+	max-width: none;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-name:hover {
+	background: rgba(0, 0, 0, 0.04);
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-name:focus {
+	outline: none;
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	background: #fff;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-typename {
+	color: var(--gql-color-type);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	margin-right: 4px;
+}
+
+/* Operation action buttons (delete, clone) */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 3px;
+	color: #646970;
+	cursor: pointer;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-action:hover {
+	background: #f0f0f1;
+	color: #2c3338;
+}
+
+/* Field/arg row — clickable, full-width, hover highlight */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-row {
+	display: inline-flex;
+	align-items: center;
+	min-height: 22px;
+	padding: 1px 4px;
+	border-radius: 3px;
+	gap: 2px;
+	cursor: pointer;
+	user-select: none;
 	white-space: nowrap;
 }
-#wpgraphql-ide-app .graphiql-plugin .docExplorerWrap .doc-explorer-title-bar {
-	padding: var(--px-16);
-	padding-bottom: 0;
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-row:hover {
+	background: #f0f0f1;
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .doc-explorer-rhs {
-	display: none!important;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-field-view {
+	color: var(--gql-color-field);
 }
 
-#wpgraphql-ide-app .graphiql-plugin .doc-explorer-contents {
-	height: 100%;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-deprecated > .graphiql-explorer-row .graphiql-explorer-field-view {
+	text-decoration: line-through;
+	opacity: 0.7;
 }
 
-#wpgraphql-ide-app .graphiql-plugin .docExplorerWrap .graphiql-explorer-root {
-	padding: 0!important;
+/* Argument rows */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-graphql-arguments {
+	margin-left: 16px;
 }
 
-#wpgraphql-ide-app .graphiql-plugin:has(div.docExplorerWrap) {
-	padding: 0!important;
+/* Arrow icons (chevrons for objects/input objects) */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arrow {
+	color: #646970;
+	margin-right: 2px;
+	flex-shrink: 0;
 }
 
-#wpgraphql-ide-app .graphiql-plugin .docExplorerWrap .graphiql-explorer-root > div:first-of-type {
-	padding: 20px!important;
-	flex: 3 1 0!important;
+/* Checkbox span (for leaf-type fields and required args) */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-checkbox {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+	color: #c3c4c7;
+	flex-shrink: 0;
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root input {
-	width: auto!important;
-	padding: 0 8px;
-	line-height: 2;
-	min-height: 30px;
-	box-shadow: 0 0 0 transparent;
-	border-radius: 4px;
-	border: 1px solid
-	hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-checkbox.is-checked {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+/* Inline value editors (scalar text inputs, enum selects, boolean selects) */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-scalar-input {
+	border: none;
+	border-bottom: 1px solid #c3c4c7;
 	background: transparent;
+	padding: 0 0 1px 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	box-shadow: none;
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root .graphiql-explorer-actions {
-	border-top: 1px solid
-	hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
-}
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root .graphiql-explorer-actions > span:first-of-type{
-	padding: 10px;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-scalar-input:focus {
+	outline: none;
+	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root>div>div {
-	border-bottom: 1px solid hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
-	margin-bottom: 15px!important;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline select {
+	font-size: 13px;
+	padding: 0 20px 0 6px;
+	min-height: 22px;
+	height: auto;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	color: #2c3338;
+	border-radius: 2px;
+	cursor: pointer;
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root>div>div:last-of-type {
-	border-bottom: none!important;
-	margin-bottom: 0!important;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline select:focus {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
+	outline: none;
 }
 
-#wpgraphql-ide-app  .graphiql-plugin .docExplorerWrap .graphiql-explorer-root .graphiql-explorer-actions > select {
-	color: hsl(var(--color-primary));
-	border: 1px solid
-	hsla(var(--color-neutral), var(--alpha-background-heavy))!important;
+/* Variable button ($) and inline action buttons */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-extract,
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arg-action {
 	background: transparent;
+	border: none;
+	color: #646970;
+	cursor: pointer;
+	padding: 0 4px;
+	font-size: 12px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-extract:hover,
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arg-action:hover {
+	color: #2c3338;
+}
+
+/* OneOf input variant picker */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-oneof-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 4px 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-oneof-label {
+	color: #646970;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	flex-shrink: 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-oneof-variant {
+	flex: 1;
+	min-width: 0;
+}
+
+/* Bottom "Add new" actions form — pinned to the bottom of the composer */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-actions {
+	flex-shrink: 0;
+	padding: 8px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: #f6f7f7;
+	border-top: 1px solid #dcdcde;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-actions-label {
+	color: #646970;
+	font-size: 12px;
+	flex-shrink: 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-actions select {
+	flex: 1;
+	min-width: 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-actions-add {
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	color: #2c3338;
+	border-radius: 2px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-actions-add:hover {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wp-admin-theme-color, #3858e9);
 }

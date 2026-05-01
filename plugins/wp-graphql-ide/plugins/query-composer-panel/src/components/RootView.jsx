@@ -1,9 +1,20 @@
 import React from 'react';
+import {
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
+	Tooltip,
+} from '@wordpress/components';
+import {
+	Icon,
+	chevronDown,
+	chevronRight,
+	moreVertical,
+} from '@wordpress/icons';
 import { canRunOperation, capitalize, isRunShortcut } from '../utils';
 import FieldView from './FieldView';
 
 class RootView extends React.PureComponent {
-	state = { displayTitleActions: false };
 	_previousOperationDef;
 
 	_modifySelections = (selections, options) => {
@@ -83,21 +94,15 @@ class RootView extends React.PureComponent {
 	}
 
 	render() {
-		const {
-			operationType,
-			definition,
-			schema,
-			getDefaultFieldNames,
-			styleConfig,
-		} = this.props;
+		const { operationType, definition, schema, getDefaultFieldNames } =
+			this.props;
 		const rootViewElId = this._rootViewElId();
 
 		const fields = this.props.fields || {};
 		const operationDef = definition;
 		const selections = operationDef.selectionSet.selections;
 
-		const operationDisplayName =
-			this.props.name || `${capitalize(operationType)} Name`;
+		const { canCollapse, isCollapsed, onToggleCollapsed } = this.props;
 
 		return (
 			// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
@@ -106,104 +111,114 @@ class RootView extends React.PureComponent {
 				role="group"
 				tabIndex="0"
 				onKeyDown={this._handlePotentialRun}
-				style={{
-					borderBottom: this.props.isLast
-						? 'none'
-						: '1px solid #d6d6d6',
-					marginBottom: '0em',
-					paddingBottom: '1em',
-				}}
+				className={`graphiql-explorer-operation${this.props.isLast ? ' is-last' : ''}${isCollapsed ? ' is-collapsed' : ''}`}
 			>
-				<div
-					style={{
-						color: styleConfig.colors.keyword,
-						paddingBottom: 4,
-					}}
-					className="graphiql-operation-title-bar"
-					onMouseEnter={() =>
-						this.setState({ displayTitleActions: true })
-					}
-					onMouseLeave={() =>
-						this.setState({ displayTitleActions: false })
-					}
-				>
-					{operationType}{' '}
-					<span style={{ color: styleConfig.colors.def }}>
-						<input
-							style={{
-								color: styleConfig.colors.def,
-								border: 'none',
-								borderBottom: '1px solid #888',
-								outline: 'none',
-								width: `${Math.max(
-									4,
-									operationDisplayName.length
-								)}ch`,
-							}}
-							autoComplete="false"
-							placeholder={`${capitalize(operationType)} Name`}
-							value={this.props.name}
-							onKeyDown={this._handlePotentialRun}
-							onChange={this._onOperationRename}
-						/>
+				<div className="graphiql-operation-title-bar">
+					{canCollapse ? (
+						<Tooltip
+							text={
+								isCollapsed
+									? 'Expand operation'
+									: 'Collapse operation'
+							}
+						>
+							<button
+								type="button"
+								className="graphiql-operation-toggle"
+								aria-label={
+									isCollapsed
+										? 'Expand operation'
+										: 'Collapse operation'
+								}
+								aria-expanded={!isCollapsed}
+								onClick={onToggleCollapsed}
+							>
+								<Icon
+									icon={
+										isCollapsed ? chevronRight : chevronDown
+									}
+									size={16}
+								/>
+							</button>
+						</Tooltip>
+					) : null}
+					<span className="graphiql-operation-keyword">
+						{operationType}
 					</span>
+					<input
+						className="graphiql-operation-name"
+						autoComplete="false"
+						placeholder={`${capitalize(operationType)} Name`}
+						value={this.props.name}
+						onKeyDown={this._handlePotentialRun}
+						onChange={this._onOperationRename}
+					/>
 					{!!this.props.onTypeName ? (
-						<span>
-							<br />
+						<span className="graphiql-operation-typename">
 							{`on ${this.props.onTypeName}`}
 						</span>
-					) : (
-						''
-					)}
-					{!!this.state.displayTitleActions ? (
-						<React.Fragment>
-							<button
-								type="submit"
-								className="toolbar-button"
-								onClick={() => this.props.onOperationDestroy()}
-								style={{
-									...styleConfig.styles.actionButtonStyle,
-								}}
-							>
-								<span>{'\u2715'}</span>
-							</button>
-							<button
-								type="submit"
-								className="toolbar-button"
-								onClick={() => this.props.onOperationClone()}
-								style={{
-									...styleConfig.styles.actionButtonStyle,
-								}}
-							>
-								<span>{'⎘'}</span>
-							</button>
-						</React.Fragment>
-					) : (
-						''
-					)}
+					) : null}
+					<DropdownMenu
+						icon={moreVertical}
+						label="Operation actions"
+						toggleProps={{
+							className: 'graphiql-operation-action',
+							size: 'small',
+							showTooltip: true,
+						}}
+						popoverProps={{ placement: 'bottom-end' }}
+					>
+						{({ onClose: closeMenu }) => (
+							<MenuGroup>
+								<MenuItem
+									onClick={() => {
+										closeMenu();
+										this.props.onOperationClone();
+									}}
+								>
+									Duplicate
+								</MenuItem>
+								<MenuItem
+									isDestructive
+									onClick={() => {
+										closeMenu();
+										this.props.onOperationDestroy();
+									}}
+								>
+									Remove
+								</MenuItem>
+							</MenuGroup>
+						)}
+					</DropdownMenu>
 				</div>
 
-				{Object.keys(fields)
-					.sort()
-					.map((fieldName) => (
-						<FieldView
-							key={fieldName}
-							field={fields[fieldName]}
-							selections={selections}
-							modifySelections={this._modifySelections}
-							schema={schema}
-							getDefaultFieldNames={getDefaultFieldNames}
-							getDefaultScalarArgValue={
-								this.props.getDefaultScalarArgValue
-							}
-							makeDefaultArg={this.props.makeDefaultArg}
-							onRunOperation={this.props.onRunOperation}
-							styleConfig={this.props.styleConfig}
-							onCommit={this.props.onCommit}
-							definition={this.props.definition}
-							availableFragments={this.props.availableFragments}
-						/>
-					))}
+				{isCollapsed ? null : (
+					<div className="graphiql-operation-body">
+						{Object.keys(fields)
+							.sort()
+							.map((fieldName) => (
+								<FieldView
+									key={fieldName}
+									field={fields[fieldName]}
+									selections={selections}
+									modifySelections={this._modifySelections}
+									schema={schema}
+									getDefaultFieldNames={getDefaultFieldNames}
+									getDefaultScalarArgValue={
+										this.props.getDefaultScalarArgValue
+									}
+									makeDefaultArg={this.props.makeDefaultArg}
+									onRunOperation={this.props.onRunOperation}
+									styleConfig={this.props.styleConfig}
+									onCommit={this.props.onCommit}
+									definition={this.props.definition}
+									availableFragments={
+										this.props.availableFragments
+									}
+								/>
+							))}
+					</div>
+				)}
 			</div>
 		);
 	}
