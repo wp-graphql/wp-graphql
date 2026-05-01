@@ -8,9 +8,11 @@ import React, {
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import {
 	Button,
+	Dropdown,
 	DropdownMenu,
 	MenuGroup,
 	MenuItem,
+	NavigableMenu,
 	ResizableBox,
 	SnackbarList,
 	TabPanel,
@@ -334,6 +336,7 @@ export function IDELayout({ fetcher, onClose }) {
 		loadHistory,
 		addHistoryEntry,
 		setDocsNavTarget,
+		setCursorOffset,
 		loadCollections,
 		addCollection,
 	} = useDispatch('wpgraphql-ide/app');
@@ -698,8 +701,30 @@ export function IDELayout({ fetcher, onClose }) {
 		[allDocuments, closeTab, saveTab, query, variables, headers, confirm]
 	);
 
+	// Operation names declared in the current document. The Execute button
+	// turns into an op-picker dropdown when there's more than one — graphql-php
+	// returns an error if multiple operations are sent without a target.
+	const operationNames = useMemo(() => {
+		if (!query) {
+			return [];
+		}
+		try {
+			const ast = parseGraphQL(query);
+			return ast.definitions
+				.filter(
+					(d) =>
+						d.kind === 'OperationDefinition' &&
+						d.name &&
+						d.name.value
+				)
+				.map((d) => d.name.value);
+		} catch {
+			return [];
+		}
+	}, [query]);
+
 	const executeQueryRef = useRef(null);
-	executeQueryRef.current = () => {
+	executeQueryRef.current = (operationName) => {
 		if (isFetching) {
 			stop();
 		} else {
@@ -713,11 +738,18 @@ export function IDELayout({ fetcher, onClose }) {
 			executingHeadersRef.current = headers;
 			executingAuthRef.current = isAuthenticated;
 			executingMethodRef.current = httpMethod;
-			run();
+			// When the doc has multiple named operations and the caller didn't
+			// pick one (e.g. keyboard shortcut), default to the first.
+			let target = operationName;
+			if (!target && operationNames.length > 1) {
+				target = operationNames[0];
+			}
+			run(target);
 		}
 	};
 
-	const executeQuery = () => executeQueryRef.current();
+	const executeQuery = (operationName) =>
+		executeQueryRef.current(operationName);
 
 	const { prettifyQuery } = useDispatch('wpgraphql-ide/app');
 	const prettifyRef = useRef(null);
@@ -854,6 +886,18 @@ export function IDELayout({ fetcher, onClose }) {
 			);
 		} catch {
 			return false;
+		}
+	});
+
+	const [composerWidth, setComposerWidth] = useState(() => {
+		try {
+			const w = parseInt(
+				window.localStorage.getItem('wpgraphql_ide_composer_width'),
+				10
+			);
+			return w > 0 ? w : 280;
+		} catch {
+			return 280;
 		}
 	});
 
@@ -1158,7 +1202,13 @@ export function IDELayout({ fetcher, onClose }) {
 											width: queryPaneWidth,
 											height: 'auto',
 										}}
-										minWidth={200}
+										minWidth={
+											showQueryComposer &&
+											ComposerContent &&
+											!isPublished
+												? 480
+												: 280
+										}
 										enable={{ right: true }}
 										onResizeStop={(e, d, elt) => {
 											const w = elt.offsetWidth;
@@ -1312,9 +1362,40 @@ export function IDELayout({ fetcher, onClose }) {
 											{ComposerContent &&
 												showQueryComposer &&
 												!isPublished && (
-													<div className="wpgraphql-ide-query-composer-inline">
+													<ResizableBox
+														size={{
+															width: composerWidth,
+															height: '100%',
+														}}
+														minWidth={200}
+														maxWidth={600}
+														enable={{
+															top: false,
+															right: true,
+															bottom: false,
+															left: false,
+														}}
+														onResizeStop={(
+															e,
+															d,
+															elt
+														) => {
+															const w =
+																elt.offsetWidth;
+															setComposerWidth(w);
+															try {
+																window.localStorage.setItem(
+																	'wpgraphql_ide_composer_width',
+																	String(w)
+																);
+															} catch {
+																// ignore
+															}
+														}}
+														className="wpgraphql-ide-query-composer-inline"
+													>
 														<ComposerContent />
-													</div>
+													</ResizableBox>
 												)}
 											<GraphQLEditor
 												key={
@@ -1334,6 +1415,7 @@ export function IDELayout({ fetcher, onClose }) {
 													editorKeyBindings.current
 												}
 												onShowInDocs={handleShowInDocs}
+												onCursorChange={setCursorOffset}
 											/>
 											<div className="wpgraphql-ide-execution-pill">
 												<div
@@ -1397,54 +1479,134 @@ export function IDELayout({ fetcher, onClose }) {
 														</span>
 													</button>
 												</Tooltip>
-												<Tooltip
-													text={
-														isFetching
-															? 'Stop (Cmd+Enter)'
-															: 'Execute (Cmd+Enter)'
+												{(() => {
+													const PlayIcon = (
+														<svg
+															viewBox="0 0 24 24"
+															width="16"
+															height="16"
+															fill="currentColor"
+														>
+															<path d="M8 5v14l11-7z" />
+														</svg>
+													);
+													const StopIcon = (
+														<svg
+															viewBox="0 0 24 24"
+															width="16"
+															height="16"
+															fill="currentColor"
+														>
+															<rect
+																x="6"
+																y="6"
+																width="12"
+																height="12"
+																rx="1"
+															/>
+														</svg>
+													);
+													if (
+														!isFetching &&
+														operationNames.length >
+															1
+													) {
+														return (
+															<Dropdown
+																popoverProps={{
+																	placement:
+																		'top-end',
+																}}
+																renderToggle={({
+																	isOpen,
+																	onToggle,
+																}) => (
+																	<Tooltip text="Execute (pick operation)">
+																		<Button
+																			variant="primary"
+																			onClick={
+																				onToggle
+																			}
+																			aria-expanded={
+																				isOpen
+																			}
+																			disabled={
+																				isSchemaLoading
+																			}
+																			className="wpgraphql-ide-send-button"
+																			size="compact"
+																			aria-label="Execute query"
+																		>
+																			{
+																				PlayIcon
+																			}
+																		</Button>
+																	</Tooltip>
+																)}
+																renderContent={({
+																	onClose:
+																		closeMenu,
+																}) => (
+																	<NavigableMenu>
+																		<MenuGroup label="Run operation">
+																			{operationNames.map(
+																				(
+																					name
+																				) => (
+																					<MenuItem
+																						key={
+																							name
+																						}
+																						onClick={() => {
+																							closeMenu();
+																							executeQuery(
+																								name
+																							);
+																						}}
+																					>
+																						{
+																							name
+																						}
+																					</MenuItem>
+																				)
+																			)}
+																		</MenuGroup>
+																	</NavigableMenu>
+																)}
+															/>
+														);
 													}
-												>
-													<Button
-														variant="primary"
-														onClick={executeQuery}
-														disabled={
-															isSchemaLoading
-														}
-														className="wpgraphql-ide-send-button"
-														size="compact"
-														aria-label={
-															isFetching
-																? 'Stop execution'
-																: 'Execute query'
-														}
-													>
-														{isFetching ? (
-															<svg
-																viewBox="0 0 24 24"
-																width="16"
-																height="16"
-																fill="currentColor"
+													return (
+														<Tooltip
+															text={
+																isFetching
+																	? 'Stop (Cmd+Enter)'
+																	: 'Execute (Cmd+Enter)'
+															}
+														>
+															<Button
+																variant="primary"
+																onClick={() =>
+																	executeQuery()
+																}
+																disabled={
+																	isSchemaLoading
+																}
+																className="wpgraphql-ide-send-button"
+																size="compact"
+																aria-label={
+																	isFetching
+																		? 'Stop execution'
+																		: 'Execute query'
+																}
 															>
-																<rect
-																	x="6"
-																	y="6"
-																	width="12"
-																	height="12"
-																	rx="1"
-																/>
-															</svg>
-														) : (
-															<svg
-																viewBox="0 0 24 24"
-																width="16"
-																height="16"
-																fill="currentColor"
-															>
-																<path d="M8 5v14l11-7z" />
-															</svg>
-														)}
-													</Button>
-												</Tooltip>
+																{isFetching
+																	? StopIcon
+																	: PlayIcon}
+															</Button>
+														</Tooltip>
+													);
+												})()}
 											</div>
 										</ResizableBox>
 										<TabPanel

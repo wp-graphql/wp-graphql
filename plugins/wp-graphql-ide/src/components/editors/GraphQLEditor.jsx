@@ -22,45 +22,56 @@ import { basicSetup } from 'codemirror';
  * explicit style, every field/argument/directive in a query renders in the
  * default body color. This style fills those gaps and replaces the muted
  * defaults with a palette that reads cleanly next to WordPress's UI chrome.
+ *
+ * Colors come from `--gql-color-*` CSS variables defined on
+ * `#wpgraphql-ide-app` (see `ide-layout.css`) so the editor, Query
+ * Composer, Docs Explorer, and hover tooltips share one palette.
  */
 const wpgraphqlHighlightStyle = HighlightStyle.define([
 	// Keywords: query, mutation, fragment, on, etc.
-	{ tag: t.keyword, color: '#a31515' },
-	{ tag: t.definitionKeyword, color: '#a31515', fontWeight: '600' },
+	{ tag: t.keyword, color: 'var(--gql-color-keyword)' },
+	{
+		tag: t.definitionKeyword,
+		color: 'var(--gql-color-keyword)',
+		fontWeight: '600',
+	},
 
 	// Field & argument names — the bulk of any query.
-	{ tag: t.propertyName, color: '#1f61a0' },
-	{ tag: t.attributeName, color: '#996800' },
+	{ tag: t.propertyName, color: 'var(--gql-color-field)' },
+	{ tag: t.attributeName, color: 'var(--gql-color-argument)' },
 
-	// Type references and atoms (Name nodes outside fields).
-	{ tag: t.typeName, color: '#117a3e' },
-	{ tag: t.atom, color: '#1f61a0' },
-	{ tag: t.className, color: '#117a3e' },
+	// Type references and atoms (Name nodes outside fields). cm6-graphql
+	// tags every bare `Name` node — including operation names and type
+	// references — as `t.atom`, so this rule controls the color of both
+	// `GetPosts` and `Int` in `query GetPosts($first: Int)`.
+	{ tag: t.typeName, color: 'var(--gql-color-type)' },
+	{ tag: t.atom, color: 'var(--gql-color-type)' },
+	{ tag: t.className, color: 'var(--gql-color-type)' },
 
 	// Values.
-	{ tag: t.string, color: '#a31515' },
-	{ tag: t.number, color: '#005cc5' },
-	{ tag: t.integer, color: '#005cc5' },
-	{ tag: t.float, color: '#005cc5' },
-	{ tag: t.bool, color: '#005cc5' },
-	{ tag: t.null, color: '#005cc5' },
-	{ tag: t.special(t.name), color: '#996800' }, // EnumValue
+	{ tag: t.string, color: 'var(--gql-color-string)' },
+	{ tag: t.number, color: 'var(--gql-color-number)' },
+	{ tag: t.integer, color: 'var(--gql-color-number)' },
+	{ tag: t.float, color: 'var(--gql-color-number)' },
+	{ tag: t.bool, color: 'var(--gql-color-bool)' },
+	{ tag: t.null, color: 'var(--gql-color-null)' },
+	{ tag: t.special(t.name), color: 'var(--gql-color-enum)' }, // EnumValue
 
 	// Variables ($foo).
-	{ tag: t.variableName, color: '#aa6900' },
+	{ tag: t.variableName, color: 'var(--gql-color-variable)' },
 
 	// Directives (@include, @skip).
-	{ tag: t.modifier, color: '#7a3e9d' },
+	{ tag: t.modifier, color: 'var(--gql-color-directive)' },
 
 	// Comments.
 	{
 		tag: [t.comment, t.lineComment, t.blockComment],
-		color: '#6a9955',
+		color: 'var(--gql-color-comment)',
 		fontStyle: 'italic',
 	},
 
 	// Punctuation kept neutral so braces/commas don't distract.
-	{ tag: t.punctuation, color: '#50575e' },
+	{ tag: t.punctuation, color: 'var(--gql-color-punctuation)' },
 ]);
 
 const FIELD_NAME_RE = /[A-Za-z0-9_$]/;
@@ -252,16 +263,19 @@ const buildHoverTooltip = (schemaRef) =>
  * CodeMirror 6 GraphQL editor with schema-driven autocomplete, linting, and syntax highlighting.
  *
  * @param {Object}   props
- * @param {string}   props.value          - Current editor content.
- * @param {Function} props.onChange       - Called with new content string on edit.
- * @param {Object}   [props.schema]       - GraphQL schema for autocomplete/linting.
- * @param {boolean}  [props.readOnly]     - If true, editor is not editable.
- * @param {string}   [props.placeholder]  - Placeholder text when empty.
- * @param {Array}    [props.extraKeys]    - Additional keybindings ({ key, run } objects).
- * @param {string}   [props.className]    - Additional CSS class for the wrapper.
- * @param {Function} [props.onShowInDocs] - Called with `(field, type, parentType)` when
- *                                        the user cmd/ctrl-clicks an identifier so the
- *                                        parent can navigate the Docs panel.
+ * @param {string}   props.value            - Current editor content.
+ * @param {Function} props.onChange         - Called with new content string on edit.
+ * @param {Object}   [props.schema]         - GraphQL schema for autocomplete/linting.
+ * @param {boolean}  [props.readOnly]       - If true, editor is not editable.
+ * @param {string}   [props.placeholder]    - Placeholder text when empty.
+ * @param {Array}    [props.extraKeys]      - Additional keybindings ({ key, run } objects).
+ * @param {string}   [props.className]      - Additional CSS class for the wrapper.
+ * @param {Function} [props.onShowInDocs]   - Called with `(field, type, parentType)` when
+ *                                          the user cmd/ctrl-clicks an identifier so the
+ *                                          parent can navigate the Docs panel.
+ * @param {Function} [props.onCursorChange] - Called with the cursor offset whenever
+ *                                          the selection or doc changes; consumers can
+ *                                          sync UI (e.g. Query Composer expansion).
  */
 export function GraphQLEditor({
 	value = '',
@@ -272,6 +286,7 @@ export function GraphQLEditor({
 	extraKeys = [],
 	className = '',
 	onShowInDocs,
+	onCursorChange,
 }) {
 	const containerRef = useRef(null);
 	const viewRef = useRef(null);
@@ -280,6 +295,7 @@ export function GraphQLEditor({
 	const graphqlCompartment = useRef(new Compartment());
 	const schemaRef = useRef(schema);
 	const onShowInDocsRef = useRef(onShowInDocs);
+	const onCursorChangeRef = useRef(onCursorChange);
 
 	// Keep callback ref current without recreating the editor.
 	useEffect(() => {
@@ -297,6 +313,10 @@ export function GraphQLEditor({
 	useEffect(() => {
 		onShowInDocsRef.current = onShowInDocs;
 	}, [onShowInDocs]);
+
+	useEffect(() => {
+		onCursorChangeRef.current = onCursorChange;
+	}, [onCursorChange]);
 
 	// Initialize CodeMirror.
 	useEffect(() => {
@@ -330,6 +350,15 @@ export function GraphQLEditor({
 						),
 					});
 				}
+			}
+			// Broadcast cursor offset so the Query Composer can sync the
+			// expanded operation. Both selection moves and doc edits can
+			// shift the cursor.
+			if (
+				(update.docChanged || update.selectionSet) &&
+				onCursorChangeRef.current
+			) {
+				onCursorChangeRef.current(update.state.selection.main.head);
 			}
 		});
 
@@ -395,7 +424,11 @@ export function GraphQLEditor({
 		}
 	}, [schema]);
 
-	// Sync external value changes (e.g., prettify, load from history).
+	// Sync external value changes (e.g., prettify, load from history,
+	// duplicate operation in the Query Composer). Without resetting the
+	// selection + scroll, CodeMirror keeps the cursor at its prior offset
+	// and the viewport ends up showing the bottom of the new doc — which
+	// looks like the editor's top has been clipped.
 	useEffect(() => {
 		const view = viewRef.current;
 		if (!view) {
@@ -409,6 +442,8 @@ export function GraphQLEditor({
 					to: currentDoc.length,
 					insert: value,
 				},
+				selection: { anchor: 0 },
+				scrollIntoView: true,
 			});
 		}
 	}, [value]);

@@ -163,6 +163,19 @@ const actions = {
 	},
 
 	/**
+	 * Set the cursor offset broadcast by the main query editor. Drives
+	 * cursor-following expansion in the Query Composer.
+	 *
+	 * @param {number|null} offset Zero-based character offset, or null to clear.
+	 */
+	setCursorOffset: (offset) => {
+		return {
+			type: 'SET_CURSOR_OFFSET',
+			offset,
+		};
+	},
+
+	/**
 	 * Load global execution history from the server.
 	 */
 	loadHistory:

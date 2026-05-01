@@ -677,19 +677,20 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #1e1e1e;
 }
 
-/* Query composer rendered inline within the editor area */
+/* Query composer rendered inline within the editor area. The wrapper itself
+   is a flex column with no scroll — the inner operations region scrolls and
+   the "Add new" footer stays pinned at the bottom. */
 .wpgraphql-ide-query-composer-inline {
 	border-right: 1px solid #dcdcde;
-	overflow-y: auto;
-	overflow-x: hidden;
-	width: 260px;
-	min-width: 200px;
+	overflow: hidden;
 	flex-shrink: 0;
 	height: 100%;
-	padding: 8px;
+	display: flex;
+	flex-direction: column;
 	font-size: 13px;
 	box-sizing: border-box;
 	color: #2c3338;
+	background: #fff;
 }
 
 /* Constrain SVG icons inside the query composer (checkboxes, arrows) */
@@ -706,6 +707,30 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	box-sizing: border-box;
 }
 
+/* Composer column right-edge resize handle */
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
 .wpgraphql-ide-editor-resizable.has-composer {
 	display: flex;
 	flex-direction: row;
@@ -714,7 +739,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-editor-resizable.has-composer > .wpgraphql-ide-editor {
 	flex: 1;
-	min-width: 0;
+	/* Keep the editor wider than the floating execution pill (GET/POST + auth + run). */
+	min-width: 280px;
+	/* Without these, CodeMirror's content can push this flex child taller
+	   than the resizable area, making the editor overflow and the bottom
+	   tabs (Variables/Headers) drift away with a white gap. */
+	min-height: 0;
+	overflow: hidden;
 }
 
 /* ---------------------------------------------------------------------------

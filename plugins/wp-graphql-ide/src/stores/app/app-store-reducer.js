@@ -24,6 +24,10 @@ const initialState = {
 	// wants the panel to navigate. The Docs panel reads this, pushes a frame
 	// onto its own navigation stack, and dispatches a clear back to null.
 	docsNavTarget: null,
+	// Last known cursor offset in the main query editor. Used to drive
+	// query-composer expansion (sync the open operation with where the user
+	// is typing). null = no cursor reported yet.
+	cursorOffset: null,
 	collections: [],
 	activeCollection: null,
 	// Per-collection sort mode applied to the saved-queries panel. Keyed
@@ -127,6 +131,12 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				docsNavTarget: action.target || null,
+			};
+		case 'SET_CURSOR_OFFSET':
+			return {
+				...state,
+				cursorOffset:
+					typeof action.offset === 'number' ? action.offset : null,
 			};
 		case 'SET_HISTORY':
 			return {
