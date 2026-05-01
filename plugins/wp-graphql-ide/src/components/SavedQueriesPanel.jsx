@@ -444,8 +444,12 @@ export function SavedQueriesPanel() {
 
 	const { documents, activeTab } = useSelect((select) => {
 		const editor = select('wpgraphql-ide/document-editor');
+		// Workspace tabs (e.g. Settings) live in the documents store so
+		// the tab strip can render their titles, but they aren't query
+		// documents — exclude them from the Saved Queries panel.
+		const all = editor.getDocuments();
 		return {
-			documents: editor.getDocuments(),
+			documents: all.filter((d) => !d.tabType),
 			activeTab: editor.getActiveTab(),
 		};
 	}, []);

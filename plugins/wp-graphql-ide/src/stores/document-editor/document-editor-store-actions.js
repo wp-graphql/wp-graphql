@@ -79,10 +79,12 @@ const actions = {
 				tabType: name,
 			});
 			dispatch({ type: 'SET_ACTIVE_TAB', tabId });
-			// Store a minimal virtual document for the tab title.
+			// Store a minimal virtual document for the tab title. The
+			// `tabType` marker lets consumers (e.g. SavedQueriesPanel)
+			// distinguish workspace tabs from real query documents.
 			dispatch({
 				type: 'UPDATE_DOCUMENT',
-				document: { id: tabId, title: title || name },
+				document: { id: tabId, title: title || name, tabType: name },
 			});
 		},
 
