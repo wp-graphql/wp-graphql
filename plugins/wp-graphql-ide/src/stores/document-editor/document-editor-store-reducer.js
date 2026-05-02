@@ -117,17 +117,26 @@ const reducer = (state = initialState, action) => {
 			};
 		}
 
-		case 'UPDATE_DOCUMENT':
+		case 'UPDATE_DOCUMENT': {
+			// Also append to documentIds so virtual workspace-tab documents
+			// (registered via openWorkspaceTab → UPDATE_DOCUMENT) show up in
+			// `getDocuments()` and the IDE tab strip can render them. For
+			// real documents already in documentIds this is a no-op.
+			const key = String(action.document.id);
 			return {
 				...state,
 				documents: {
 					...state.documents,
-					[String(action.document.id)]: {
-						...state.documents[String(action.document.id)],
+					[key]: {
+						...state.documents[key],
 						...action.document,
 					},
 				},
+				documentIds: state.documentIds.includes(key)
+					? state.documentIds
+					: [...state.documentIds, key],
 			};
+		}
 
 		case 'REMOVE_DOCUMENT': {
 			const key = String(action.id);
