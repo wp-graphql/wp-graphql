@@ -999,9 +999,19 @@ export function IDELayout({ fetcher, onClose }) {
 				<div className="wpgraphql-ide-topbar-right">
 					<Tooltip text="Re-fetch schema">
 						<Button
-							onClick={() => {
-								refetch();
-								addNotice('Schema refreshed');
+							onClick={async () => {
+								const result = await refetch();
+								if (result?.ok) {
+									addNotice('Schema refreshed');
+								} else {
+									addNotice(
+										`Failed to refresh schema: ${
+											result?.error?.message ??
+											'Unknown error'
+										}`,
+										'error'
+									);
+								}
 							}}
 							disabled={isSchemaLoading}
 							aria-label="Re-fetch schema"
