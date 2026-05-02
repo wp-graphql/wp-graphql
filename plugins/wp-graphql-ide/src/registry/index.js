@@ -8,6 +8,12 @@ import {
 import { Icon, cog } from '@wordpress/icons';
 import { SettingsWorkspaceTab } from '../components/settings/SettingsWorkspaceTab';
 import {
+	SETTINGS_TAB_ID,
+	saveAllSettings,
+	clearPending as clearPendingSettings,
+} from '../components/settings/settings-tab-state';
+import { registerWorkspacePersistence } from '../components/workspace-persistence';
+import {
 	SavedQueriesPanel,
 	SavedQueriesIcon,
 	SavedQueriesPanelHeaderAction,
@@ -96,9 +102,13 @@ export const initializeRegistry = () => {
 
 	// Built-in "Settings" workspace tab — opened from the topbar settings
 	// button when the current user can manage WPGraphQL settings.
-	registerWorkspaceTabType('graphql-settings', {
+	registerWorkspaceTabType(SETTINGS_TAB_ID, {
 		title: 'Settings',
 		content: SettingsWorkspaceTab,
+	});
+	registerWorkspacePersistence(SETTINGS_TAB_ID, {
+		save: saveAllSettings,
+		discard: clearPendingSettings,
 	});
 
 	// Register the settings topbar action if the user can manage settings.

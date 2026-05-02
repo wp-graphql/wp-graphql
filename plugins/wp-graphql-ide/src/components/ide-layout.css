@@ -403,10 +403,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 }
 
-.wpgraphql-ide-tab.is-unsaved .wpgraphql-ide-tab-label {
-	font-style: italic;
-}
-
 .wpgraphql-ide-tab-context-menu {
 	position: fixed;
 	z-index: 1000;
@@ -3323,8 +3319,8 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-settings-nav {
 	flex-shrink: 0;
-	width: 220px;
-	min-width: 200px;
+	width: 240px;
+	min-width: 220px;
 	border-right: 1px solid #e0e0e0;
 	background: #fafafa;
 	overflow-y: auto;
@@ -3348,6 +3344,9 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	color: #2c3338;
 	cursor: pointer;
 	border-left: 3px solid transparent;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .wpgraphql-ide-settings-nav-item:hover {
@@ -3368,6 +3367,26 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	padding: 24px 32px;
 }
 
+.wpgraphql-ide-settings-pane-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.wpgraphql-ide-settings-pane-heading {
+	min-width: 0;
+	flex: 1;
+}
+
+.wpgraphql-ide-settings-pane-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
 .wpgraphql-ide-settings-pane-header h2 {
 	margin: 0 0 4px;
 	font-size: 18px;
@@ -3376,7 +3395,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-settings-pane-desc {
-	margin: 0 0 24px;
+	margin: 0;
 	color: #757575;
 	font-size: 13px;
 	line-height: 1.5;
@@ -3393,27 +3412,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-}
-
-.wpgraphql-ide-settings-field-status {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	min-height: 18px;
-	font-size: 11px;
-	color: #757575;
-}
-
-.wpgraphql-ide-settings-field-status .components-spinner {
-	margin: 0;
-}
-
-.wpgraphql-ide-settings-field-status .is-saved {
-	color: #00a32a;
-}
-
-.wpgraphql-ide-settings-field-status .is-error {
-	color: #d63638;
 }
 
 /* Individual field controls */

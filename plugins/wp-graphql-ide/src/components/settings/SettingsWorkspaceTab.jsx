@@ -1,129 +1,16 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Spinner } from '@wordpress/components';
-import hooks from '../../wordpress-hooks';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Button, Spinner } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { SettingsField } from './SettingsField';
-
-const AUTOSAVE_DEBOUNCE_MS = 500;
-
-// Map WPGraphQL field types → OneOf variant names used in the schema. Mirrors
-// the `field_type_variants()` map in PHP. Field types not in this map are
-// not editable through the mutation (e.g. read-only `html`).
-const FIELD_TYPE_TO_VARIANT = {
-	text: 'text',
-	url: 'url',
-	textarea: 'textarea',
-	number: 'number',
-	checkbox: 'checkbox',
-	select: 'select',
-	radio: 'radio',
-	multicheck: 'multicheck',
-	color: 'color',
-	user_role_select: 'userRoleSelect',
-};
-
-// Build the OneOf input for the mutation. The variant key matches the
-// registered field type so the server can validate that the caller is
-// targeting the correct shape.
-const buildValue = (fieldConfig, value) => {
-	const variant = FIELD_TYPE_TO_VARIANT[fieldConfig.type];
-	if (!variant) {
-		// No editable variant for this type (e.g. html). Caller shouldn't
-		// reach this — surface as an error so the failure is loud.
-		throw new Error(
-			`Field type "${fieldConfig.type}" is not editable through the IDE.`
-		);
-	}
-
-	switch (variant) {
-		case 'checkbox':
-			return { checkbox: Boolean(value) };
-		case 'number':
-			return {
-				number:
-					typeof value === 'number' ? value : parseFloat(value) || 0,
-			};
-		case 'multicheck':
-			return {
-				multicheck: Array.isArray(value)
-					? value.map((v) => String(v))
-					: [],
-			};
-		default:
-			// All remaining variants are string-shaped.
-			return {
-				[variant]:
-					value === null || value === undefined ? '' : String(value),
-			};
-	}
-};
-
-// Read the saved value out of the typed UpdateGraphqlSettingValue payload.
-const readSavedValue = (fieldConfig, valuePayload) => {
-	if (!valuePayload || typeof valuePayload !== 'object') {
-		return undefined;
-	}
-	const variant = FIELD_TYPE_TO_VARIANT[fieldConfig.type];
-	if (!variant) {
-		return undefined;
-	}
-	return valuePayload[variant];
-};
-
-const callMutation = async (fieldConfig, sectionSlug, value) => {
-	const { graphqlEndpoint, nonce } = window.WPGRAPHQL_IDE_DATA || {};
-
-	const query = `
-		mutation UpdateGraphqlSetting($input: UpdateGraphqlSettingInput!) {
-			updateGraphqlSetting(input: $input) {
-				success
-				section
-				field
-				fieldType
-				value {
-					text
-					url
-					textarea
-					number
-					checkbox
-					select
-					radio
-					multicheck
-					color
-					userRoleSelect
-				}
-				message
-			}
-		}
-	`;
-
-	const response = await fetch(graphqlEndpoint, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-			...(nonce ? { 'X-WP-Nonce': nonce } : {}),
-		},
-		credentials: 'include',
-		body: JSON.stringify({
-			query,
-			variables: {
-				input: {
-					section: sectionSlug,
-					field: fieldConfig.name,
-					value: buildValue(fieldConfig, value),
-				},
-			},
-		}),
-	});
-
-	const json = await response.json();
-
-	if (json.errors && json.errors.length > 0) {
-		throw new Error(json.errors[0].message || 'Failed to save setting.');
-	}
-
-	return json.data?.updateGraphqlSetting || null;
-};
+import {
+	SETTINGS_TAB_ID,
+	getOriginalValues,
+	getPendingValues,
+	setPendingValues,
+	computeIsDirty,
+	saveAllSettings,
+	subscribeSettingsSaved,
+} from './settings-tab-state';
 
 export function SettingsWorkspaceTab() {
 	const sections = useMemo(() => {
@@ -135,92 +22,72 @@ export function SettingsWorkspaceTab() {
 		() => sections[0]?.slug || null
 	);
 
-	// Local copy of values keyed by `${section}.${field}` so we can update
-	// optimistically without mutating the bootstrap data, and surface
-	// per-field saving/saved/error state for inline feedback.
-	const [values, setValues] = useState(() => {
-		const next = {};
-		sections.forEach((section) => {
-			section.fields.forEach((field) => {
-				next[`${section.slug}.${field.name}`] = field.value;
-			});
+	// Hydrate from the module-level cache so unsaved edits survive a tab
+	// switch and return. Falls back to the server-provided baseline.
+	const [values, setValues] = useState(
+		() => getPendingValues() || { ...getOriginalValues() }
+	);
+	const [isSaving, setIsSaving] = useState(false);
+
+	const { updateWorkspaceTab } = useDispatch('wpgraphql-ide/document-editor');
+
+	const isDirty = useMemo(() => computeIsDirty(values), [values]);
+
+	// Keep the workspace virtual doc's dirty flag in sync so the tab
+	// strip dot mirrors actual unsaved state.
+	useEffect(() => {
+		updateWorkspaceTab(SETTINGS_TAB_ID, { dirty: isDirty });
+	}, [isDirty, updateWorkspaceTab]);
+
+	// External save (e.g. close-tab "Save and close") may finish while the
+	// component is mounted — sync local state to the new baseline so the
+	// fields reflect any server-side sanitization.
+	useEffect(() => {
+		return subscribeSettingsSaved((savedValues) => {
+			setValues(savedValues);
 		});
-		return next;
-	});
-	const [statuses, setStatuses] = useState({});
-
-	const debounceRef = useRef({});
-
-	const setStatus = useCallback((key, status) => {
-		setStatuses((prev) => ({ ...prev, [key]: status }));
 	}, []);
 
-	const persist = useCallback(
-		async (sectionSlug, field, nextValue) => {
-			const key = `${sectionSlug}.${field.name}`;
-			setStatus(key, 'saving');
-			try {
-				const result = await callMutation(
-					field,
-					sectionSlug,
-					nextValue
-				);
-				if (!result || !result.success) {
-					throw new Error(
-						result?.message ||
-							'The mutation did not report success.'
-					);
-				}
-				// Echo the server's saved value back into local state in case
-				// sanitize_callback mutated it (e.g. number bounds, checkbox
-				// boolean → 'on'/'off' coercion).
-				const savedValue = readSavedValue(field, result.value);
-				if (savedValue !== undefined) {
-					// Local state holds checkbox values as 'on'/'off' strings to
-					// match the `value` shape in the bootstrap data; the server
-					// returns them as booleans, so re-encode for consistency.
-					let localValue = savedValue;
-					if (field.type === 'checkbox') {
-						localValue = savedValue ? 'on' : 'off';
-					}
-					setValues((prev) => ({ ...prev, [key]: localValue }));
-				}
-				setStatus(key, 'saved');
-				hooks.doAction(
-					'wpgraphql-ide.notice',
-					`Saved "${field.label || field.name}"`
-				);
-				// Clear the "saved" pulse after a moment so it doesn't linger.
-				setTimeout(() => {
-					setStatus(key, 'idle');
-				}, 1500);
-			} catch (error) {
-				setStatus(key, 'error');
-				hooks.doAction(
-					'wpgraphql-ide.notice',
-					`Failed to save "${field.label || field.name}": ${error.message}`,
-					'error'
-				);
-			}
-		},
-		[setStatus]
-	);
+	const onFieldChange = useCallback((sectionSlug, field, nextValue) => {
+		const key = `${sectionSlug}.${field.name}`;
+		setValues((prev) => {
+			const next = { ...prev, [key]: nextValue };
+			setPendingValues(next);
+			return next;
+		});
+	}, []);
 
-	const onFieldChange = useCallback(
-		(sectionSlug, field, nextValue) => {
-			const key = `${sectionSlug}.${field.name}`;
-			setValues((prev) => ({ ...prev, [key]: nextValue }));
+	const handleSave = useCallback(async () => {
+		setIsSaving(true);
+		try {
+			// Mirror the latest local values to the module cache before
+			// saving, in case onFieldChange updates haven't flushed.
+			setPendingValues(values);
+			await saveAllSettings();
+		} finally {
+			setIsSaving(false);
+		}
+	}, [values]);
 
-			// Debounce per-field so rapid keystrokes only trigger one save.
-			if (debounceRef.current[key]) {
-				clearTimeout(debounceRef.current[key]);
+	// Cmd+S / Ctrl+S while the Settings tab is mounted (active).
+	useEffect(() => {
+		const onKeyDown = (event) => {
+			const isSave =
+				(event.metaKey || event.ctrlKey) &&
+				!event.shiftKey &&
+				!event.altKey &&
+				event.key.toLowerCase() === 's';
+			if (!isSave) {
+				return;
 			}
-			debounceRef.current[key] = setTimeout(() => {
-				persist(sectionSlug, field, nextValue);
-			}, AUTOSAVE_DEBOUNCE_MS);
-		},
-		[persist]
-	);
+			event.preventDefault();
+			if (isDirty && !isSaving) {
+				handleSave();
+			}
+		};
+		window.addEventListener('keydown', onKeyDown);
+		return () => window.removeEventListener('keydown', onKeyDown);
+	}, [isDirty, isSaving, handleSave]);
 
 	const activeSection = useMemo(
 		() => sections.find((s) => s.slug === activeSlug) || sections[0],
@@ -254,6 +121,7 @@ export function SettingsWorkspaceTab() {
 										? ' is-active'
 										: ''
 								}`}
+								title={section.title}
 								onClick={() => setActiveSlug(section.slug)}
 							>
 								{section.title}
@@ -266,24 +134,36 @@ export function SettingsWorkspaceTab() {
 				{activeSection && (
 					<>
 						<header className="wpgraphql-ide-settings-pane-header">
-							<h2>{activeSection.title}</h2>
-							{activeSection.desc && (
-								<p
-									className="wpgraphql-ide-settings-pane-desc"
-									dangerouslySetInnerHTML={{
-										__html: activeSection.desc,
-									}}
-								/>
-							)}
+							<div className="wpgraphql-ide-settings-pane-heading">
+								<h2>{activeSection.title}</h2>
+								{activeSection.desc && (
+									<p
+										className="wpgraphql-ide-settings-pane-desc"
+										dangerouslySetInnerHTML={{
+											__html: activeSection.desc,
+										}}
+									/>
+								)}
+							</div>
+							<div className="wpgraphql-ide-settings-pane-actions">
+								{isSaving && <Spinner />}
+								<Button
+									variant="primary"
+									size="compact"
+									onClick={handleSave}
+									disabled={!isDirty || isSaving}
+								>
+									Save changes
+								</Button>
+							</div>
 						</header>
 						<div className="wpgraphql-ide-settings-fields">
 							{activeSection.fields.map((field) => {
 								const key = `${activeSection.slug}.${field.name}`;
-								const status = statuses[key] || 'idle';
 								return (
 									<div
 										key={field.name}
-										className={`wpgraphql-ide-settings-field is-${status}`}
+										className="wpgraphql-ide-settings-field"
 									>
 										<SettingsField
 											field={field}
@@ -296,24 +176,6 @@ export function SettingsWorkspaceTab() {
 												)
 											}
 										/>
-										<div className="wpgraphql-ide-settings-field-status">
-											{status === 'saving' && (
-												<>
-													<Spinner />
-													<span>Saving…</span>
-												</>
-											)}
-											{status === 'saved' && (
-												<span className="is-saved">
-													Saved
-												</span>
-											)}
-											{status === 'error' && (
-												<span className="is-error">
-													Save failed
-												</span>
-											)}
-										</div>
 									</div>
 								);
 							})}

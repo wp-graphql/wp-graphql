@@ -72,7 +72,6 @@ const reducer = (state = initialState, action) => {
 				query: '',
 				variables: '',
 				headers: '',
-				dirty: false,
 			};
 			return {
 				...state,
@@ -148,21 +147,6 @@ const reducer = (state = initialState, action) => {
 				documentIds: state.documentIds.filter((id) => id !== key),
 			};
 		}
-
-		case 'SET_DOCUMENT_DIRTY':
-			if (!state.documents[String(action.id)]) {
-				return state;
-			}
-			return {
-				...state,
-				documents: {
-					...state.documents,
-					[String(action.id)]: {
-						...state.documents[String(action.id)],
-						dirty: action.dirty,
-					},
-				},
-			};
 
 		case 'SET_DOCUMENT_RESPONSE':
 			if (!state.documents[String(action.id)]) {

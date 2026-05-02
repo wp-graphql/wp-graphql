@@ -171,7 +171,6 @@ export function DocumentTabs({
 		>
 			{visibleTabs.map((tab, idx) => {
 				const isActive = String(tab.id) === String(activeId);
-				const isUnsaved = String(tab.id).startsWith('temp-');
 				return (
 					<button
 						key={tab.id}
@@ -184,7 +183,7 @@ export function DocumentTabs({
 						role="tab"
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
-						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${isUnsaved ? ' is-unsaved' : ''}`}
+						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
 						onContextMenu={(e) => {
 							e.preventDefault();
