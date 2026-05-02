@@ -88,10 +88,17 @@ const actions = {
 			});
 		},
 
-	setDocumentDirty: (id, dirty) => ({
-		type: 'SET_DOCUMENT_DIRTY',
-		id,
-		dirty,
+	/**
+	 * Patch the virtual document backing a workspace tab (e.g. Settings).
+	 * Used by workspace tab content to surface their own dirty/title state
+	 * to the document store without going through the server save flow.
+	 *
+	 * @param {string} id    Workspace tab id (matches tabId in openWorkspaceTab).
+	 * @param {Object} patch Partial fields to merge into the virtual doc.
+	 */
+	updateWorkspaceTab: (id, patch) => ({
+		type: 'UPDATE_DOCUMENT',
+		document: { id, ...patch },
 	}),
 
 	setDocumentResponse: (id, response) => ({
@@ -125,9 +132,16 @@ const actions = {
 					collections: [],
 				}));
 
+				const hydratedDocs = docs.map((d) => ({
+					...d,
+					lastSavedQuery: d.query ?? '',
+					lastSavedVariables: d.variables ?? '',
+					lastSavedHeaders: d.headers ?? '',
+				}));
+
 				dispatch({
 					type: 'SET_DOCUMENTS',
-					documents: [...docs, ...unsaved],
+					documents: [...hydratedDocs, ...unsaved],
 				});
 
 				const openTabs = prefs.open_tabs || [];
@@ -242,21 +256,28 @@ const actions = {
 						type: 'UPDATE_DOCUMENT_ID',
 						oldId: String(id),
 						newId: String(saved.id),
-						document: saved,
+						document: {
+							...saved,
+							lastSavedQuery: saved.query ?? '',
+							lastSavedVariables: saved.variables ?? '',
+							lastSavedHeaders: saved.headers ?? '',
+						},
 					});
 					// Promoted to a real doc — drop the localStorage draft.
 					removeUnsavedTab(id);
 				} else {
 					// Subsequent save — update existing.
 					saved = await updateDocument(id, payload);
-					dispatch({ type: 'UPDATE_DOCUMENT', document: saved });
+					dispatch({
+						type: 'UPDATE_DOCUMENT',
+						document: {
+							...saved,
+							lastSavedQuery: saved.query ?? '',
+							lastSavedVariables: saved.variables ?? '',
+							lastSavedHeaders: saved.headers ?? '',
+						},
+					});
 				}
-
-				dispatch({
-					type: 'SET_DOCUMENT_DIRTY',
-					id: String(saved.id),
-					dirty: false,
-				});
 
 				await dispatch.persistTabState();
 				return saved;
@@ -385,7 +406,15 @@ const actions = {
 			}
 			try {
 				const doc = await updateDocument(id, data);
-				dispatch({ type: 'UPDATE_DOCUMENT', document: doc });
+				dispatch({
+					type: 'UPDATE_DOCUMENT',
+					document: {
+						...doc,
+						lastSavedQuery: doc.query ?? '',
+						lastSavedVariables: doc.variables ?? '',
+						lastSavedHeaders: doc.headers ?? '',
+					},
+				});
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to save document:', error);

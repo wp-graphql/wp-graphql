@@ -48,6 +48,7 @@ import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
+import { getWorkspacePersistence } from './workspace-persistence';
 
 // eslint-disable-next-line jsdoc/require-param
 function ResponseContent({
@@ -346,7 +347,6 @@ export function IDELayout({ fetcher, onClose }) {
 		createTab,
 		switchTab,
 		closeTab,
-		setDocumentDirty,
 	} = useDispatch('wpgraphql-ide/document-editor');
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
@@ -508,21 +508,6 @@ export function IDELayout({ fetcher, onClose }) {
 		return `New Tab ${Math.max(...nums) + 1}`;
 	}, [allDocuments]);
 
-	// Check if any editor content differs from the saved document.
-	const checkDirty = useCallback(
-		(nextQuery, nextVars, nextHeaders) => {
-			if (!activeDocument) {
-				return;
-			}
-			const isDirty =
-				nextQuery !== (activeDocument.query || '') ||
-				nextVars !== (activeDocument.variables || '') ||
-				nextHeaders !== (activeDocument.headers || '');
-			setDocumentDirty(activeDocument.id, isDirty);
-		},
-		[activeDocument, setDocumentDirty]
-	);
-
 	// Auto-save drafts after 2 seconds of inactivity.
 	const cancelAutoSave = useCallback(() => {
 		if (saveTimerRef.current) {
@@ -555,28 +540,25 @@ export function IDELayout({ fetcher, onClose }) {
 	const handleQueryChange = useCallback(
 		(value) => {
 			setQuery(value);
-			checkDirty(value, variables, headers);
 			scheduleAutoSave('query', value);
 		},
-		[setQuery, checkDirty, variables, headers, scheduleAutoSave]
+		[setQuery, scheduleAutoSave]
 	);
 
 	const handleVariablesChange = useCallback(
 		(value) => {
 			setVariables(value);
-			checkDirty(query, value, headers);
 			scheduleAutoSave('variables', value);
 		},
-		[setVariables, checkDirty, query, headers, scheduleAutoSave]
+		[setVariables, scheduleAutoSave]
 	);
 
 	const handleHeadersChange = useCallback(
 		(value) => {
 			setHeaders(value);
-			checkDirty(query, variables, value);
 			scheduleAutoSave('headers', value);
 		},
-		[setHeaders, checkDirty, query, variables, scheduleAutoSave]
+		[setHeaders, scheduleAutoSave]
 	);
 
 	// Explicit save — Cmd+S / Save button. For a brand-new draft (temp
@@ -670,13 +652,50 @@ export function IDELayout({ fetcher, onClose }) {
 	const isSavedDraft =
 		activeDocument && !isTempDoc && activeDocument.status !== 'publish';
 
-	// Close tab with confirmation for dirty documents.
+	// Derive whether a document has unsaved changes vs. its last server-saved
+	// snapshot. Workspace tabs (Settings, etc.) carry their own `dirty` flag
+	// since they don't have query/variables/headers. Temp drafts are always
+	// dirty (localStorage-only). For the active doc, compare against the
+	// live editor state since pending edits haven't reached the store yet
+	// between keystroke and autosave.
+	const isDocDirty = useCallback(
+		(doc) => {
+			if (!doc) {
+				return false;
+			}
+			if (doc.tabType) {
+				return !!doc.dirty;
+			}
+			if (String(doc.id).startsWith('temp-')) {
+				return true;
+			}
+			const isActive = String(doc.id) === String(activeDocument?.id);
+			const currentQuery = isActive ? query : doc.query || '';
+			const currentVars = isActive ? variables : doc.variables || '';
+			const currentHeaders = isActive ? headers : doc.headers || '';
+			return (
+				currentQuery !== (doc.lastSavedQuery || '') ||
+				currentVars !== (doc.lastSavedVariables || '') ||
+				currentHeaders !== (doc.lastSavedHeaders || '')
+			);
+		},
+		[activeDocument?.id, query, variables, headers]
+	);
+
+	const activeDocDirty = isDocDirty(activeDocument);
+
+	// Close tab with confirmation for dirty documents. Workspace tabs
+	// (Settings, etc.) delegate save/discard to whatever they registered
+	// via `registerWorkspacePersistence`; query docs use saveTab.
 	const handleCloseTab = useCallback(
 		async (tabId) => {
 			const doc = allDocuments.find(
 				(d) => String(d.id) === String(tabId)
 			);
-			if (doc?.dirty) {
+			if (isDocDirty(doc)) {
+				const persistence = doc.tabType
+					? getWorkspacePersistence(doc.tabType)
+					: null;
 				const answer = await confirm({
 					title: 'Unsaved changes',
 					message: `Save changes to "${
@@ -686,16 +705,31 @@ export function IDELayout({ fetcher, onClose }) {
 					cancelLabel: 'Discard',
 				});
 				if (answer) {
-					await saveTab(tabId, {
-						query: doc.query || query,
-						variables: doc.variables || variables,
-						headers: doc.headers || headers,
-					});
+					if (persistence?.save) {
+						await persistence.save();
+					} else if (!doc.tabType) {
+						await saveTab(tabId, {
+							query: doc.query || query,
+							variables: doc.variables || variables,
+							headers: doc.headers || headers,
+						});
+					}
+				} else if (persistence?.discard) {
+					persistence.discard();
 				}
 			}
 			closeTab(tabId);
 		},
-		[allDocuments, closeTab, saveTab, query, variables, headers, confirm]
+		[
+			allDocuments,
+			closeTab,
+			saveTab,
+			query,
+			variables,
+			headers,
+			confirm,
+			isDocDirty,
+		]
 	);
 
 	const executeQueryRef = useRef(null);
@@ -1128,7 +1162,7 @@ export function IDELayout({ fetcher, onClose }) {
 										.map((doc) => ({
 											id: doc.id,
 											title: doc.title || 'Untitled',
-											dirty: !!doc.dirty,
+											dirty: isDocDirty(doc),
 										}))}
 									activeId={activeDocument?.id}
 									onSwitch={(id) => switchTab(id)}
@@ -1136,9 +1170,6 @@ export function IDELayout({ fetcher, onClose }) {
 									onCreate={() => createTab(getNextTabName())}
 									onRename={(id, title) => {
 										saveDocument(id, { title });
-										if (String(id).startsWith('temp-')) {
-											setDocumentDirty(id, true);
-										}
 									}}
 								/>
 							</div>
@@ -1269,10 +1300,10 @@ export function IDELayout({ fetcher, onClose }) {
 													<Button
 														onClick={saveCurrentDoc}
 														disabled={
-															!activeDocument?.dirty
+															!activeDocDirty
 														}
 														size="compact"
-														className={`wpgraphql-ide-save-button${activeDocument?.dirty ? ' is-dirty' : ''}`}
+														className={`wpgraphql-ide-save-button${activeDocDirty ? ' is-dirty' : ''}`}
 													>
 														Save draft
 													</Button>
