@@ -19,18 +19,15 @@ const selectors = {
 		},
 		(state) => [state.activityPanels]
 	),
-	utilities: createSelector(
+	visiblePanel: createSelector(
 		(state) => {
-			const utilities = Object.entries(state.utilities).map(
-				([name, utility]) => ({
-					name,
-					...utility,
-				})
-			);
-
-			return utilities.sort((a, b) => a.priority - b.priority);
+			if (!state.visiblePanel) {
+				return null;
+			}
+			const panel = state.activityPanels[state.visiblePanel];
+			return panel ? { name: state.visiblePanel, ...panel } : null;
 		},
-		(state) => [state.utilities]
+		(state) => [state.visiblePanel, state.activityPanels]
 	),
 };
 

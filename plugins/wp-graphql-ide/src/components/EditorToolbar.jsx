@@ -1,35 +1,44 @@
-import clsx from 'clsx';
 import { useSelect } from '@wordpress/data';
-import { ToolbarButton } from '@graphiql/react';
+import { MenuItem } from '@wordpress/components';
 
-export const EditorToolbar = () => {
+const BUTTON_NOTICES = {
+	prettify: 'Query prettified',
+	share: 'Shareable link copied to clipboard',
+	'merge-fragments': 'Fragments merged',
+	'copy-query': 'Query copied to clipboard',
+};
+
+export const EditorToolbar = ({ onClose, onNotice }) => {
 	const buttons = useSelect((select) =>
 		select('wpgraphql-ide/document-editor').buttons()
 	);
 
 	return (
 		<>
-			{Object.entries(buttons).map(([key, button]) => {
+			{buttons.map((button, index) => {
 				const props = button.config();
-				const buttonName = buttons[key].name ?? key;
+				const buttonName = button.name ?? String(index);
 
 				if (!isValidButton(props, buttonName)) {
 					return null;
 				}
 
-				const baseClassName = `graphiql-${buttonName}-button`;
-
-				// Merge the base className with any classNames provided in props.
-				const mergedClassName = clsx(baseClassName, props?.className);
-
-				// If a component is provided, use it, otherwise use the default ToolbarButton
-				const Component = props.component || ToolbarButton;
 				return (
-					<Component
-						{...props}
-						className={mergedClassName} // mergedClassName must be below { ...props } in order to render with the correct classNames
-						key={key}
-					/>
+					<MenuItem
+						key={button.name ?? index}
+						onClick={() => {
+							if (onClose) {
+								onClose();
+							}
+							props.onClick();
+							if (onNotice && BUTTON_NOTICES[buttonName]) {
+								onNotice(BUTTON_NOTICES[buttonName]);
+							}
+						}}
+						aria-label={props.label}
+					>
+						{props.children || props.label}
+					</MenuItem>
 				);
 			})}
 		</>

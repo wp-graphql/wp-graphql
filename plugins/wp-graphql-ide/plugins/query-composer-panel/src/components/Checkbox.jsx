@@ -4,10 +4,11 @@ export const checkboxUnchecked = (
 	<svg
 		viewBox="0 0 15 15"
 		style={{
-			color: 'hsla(var(--color-neutral), var(--alpha-tertiary, 0.4))',
-			marginRight: 'var(--px-4)',
-			height: 'var(--px-16)',
-			width: 'var(--px-16)',
+			color: '#a7aaad',
+			marginRight: '4px',
+			height: '16px',
+			width: '16px',
+			flexShrink: 0,
 		}}
 	>
 		<circle cx="7.5" cy="7.5" r="6" stroke="currentColor" fill="none" />
@@ -18,10 +19,11 @@ export const checkboxChecked = (
 	<svg
 		viewBox="0 0 15 15"
 		style={{
-			color: 'hsl(var(--color-info))',
-			marginRight: 'var(--px-4)',
-			height: 'var(--px-16)',
-			width: 'var(--px-16)',
+			color: 'var(--wp-admin-theme-color, #3858e9)',
+			marginRight: '4px',
+			height: '16px',
+			width: '16px',
+			flexShrink: 0,
 		}}
 	>
 		<circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" />

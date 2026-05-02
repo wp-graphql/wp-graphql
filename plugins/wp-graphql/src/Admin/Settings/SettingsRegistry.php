@@ -32,6 +32,16 @@ class SettingsRegistry {
 	protected $settings_fields = [];
 
 	/**
+	 * Whether init_registry() has been run for this instance.
+	 *
+	 * Used to make registry initialization idempotent within a single request
+	 * regardless of whether it is reached via the `init` hook or `admin_init`.
+	 *
+	 * @var bool
+	 */
+	protected $registry_initialized = false;
+
+	/**
 	 * Returns the settings sections.
 	 *
 	 * @return array<string,array<string,mixed>>
@@ -146,17 +156,25 @@ class SettingsRegistry {
 	}
 
 	/**
-	 * Initialize and registers the settings sections and fields to WordPress
+	 * Initialize the settings registry on every request.
 	 *
-	 * Usually this should be called at `admin_init` hook.
+	 * Fires the `graphql_init_settings` action so registered settings are
+	 * available outside admin contexts (e.g. during a /graphql request),
+	 * and ensures each section's option exists in the wp_options table.
 	 *
-	 * This function gets the initiated settings sections and fields. Then
-	 * registers them to WordPress and ready for use.
+	 * Idempotent: guarded by `did_action('graphql_init_settings')` so the
+	 * action can't fire twice when both `init` and `admin_init` paths run
+	 * during the same request.
 	 *
 	 * @return void
 	 */
-	public function admin_init() {
-		// Action that fires when settings are being initialized
+	public function init_registry() {
+		if ( $this->registry_initialized ) {
+			return;
+		}
+		$this->registry_initialized = true;
+
+		// Action that fires when settings are being initialized.
 		do_action( 'graphql_init_settings', $this );
 
 		/**
@@ -168,9 +186,37 @@ class SettingsRegistry {
 
 		foreach ( $setting_sections as $id => $section ) {
 			if ( false === get_option( $id ) ) {
-				add_option( $id );
+				// Initialize as an empty array so callers can safely merge
+				// onto get_option( $id, [] ) without type-juggling.
+				add_option( $id, [] );
 			}
 
+			register_setting( $id, $id, [ $this, 'sanitize_options' ] );
+		}
+	}
+
+	/**
+	 * Initialize and registers the settings sections and fields to WordPress
+	 *
+	 * Usually this should be called at `admin_init` hook.
+	 *
+	 * This function gets the initiated settings sections and fields. Then
+	 * registers them to WordPress and ready for use.
+	 *
+	 * @return void
+	 */
+	public function admin_init() {
+		// Make sure registration has happened (idempotent — see init_registry).
+		$this->init_registry();
+
+		/**
+		 * Filter the settings sections
+		 *
+		 * @param array<string,array<string,mixed>> $setting_sections The registered settings sections
+		 */
+		$setting_sections = apply_filters( 'graphql_settings_sections', $this->settings_sections );
+
+		foreach ( $setting_sections as $id => $section ) {
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
 				$callback        = static function () use ( $section ) {
@@ -218,11 +264,6 @@ class SettingsRegistry {
 
 				add_settings_field( "{$section}[{$name}]", $label, $callback, $section, $section, $args );
 			}
-		}
-
-		// creates our settings in the options table
-		foreach ( $this->settings_sections as $id => $section ) {
-			register_setting( $id, $id, [ $this, 'sanitize_options' ] );
 		}
 	}
 

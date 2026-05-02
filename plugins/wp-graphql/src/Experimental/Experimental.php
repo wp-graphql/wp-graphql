@@ -41,11 +41,13 @@ final class Experimental {
 		$extensions = new Extensions();
 		$extensions->init();
 
-		// Register Admin functionality.
-		if ( is_admin() ) {
-			$admin = new Admin();
-			$admin->init();
-		}
+		// Register Admin functionality. The Admin class only does
+		// registration work (register_graphql_settings_section/field plus an
+		// `updated_option` listener) — all of which is safe to run in any
+		// context. Keeping it un-gated lets the GraphQL endpoint resolve
+		// experiment settings without depending on an admin request.
+		$admin = new Admin();
+		$admin->init();
 	}
 
 	/**

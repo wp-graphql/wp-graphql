@@ -1,5 +1,3 @@
-import { parse } from 'graphql';
-
 /**
  * The initial state of the app.
  * @type {Object}
@@ -8,10 +6,31 @@ const initialState = {
 	isDrawerOpen: false,
 	shouldRenderStandalone: false,
 	isInitialStateLoaded: false,
-	registeredPlugins: {},
 	query: null,
 	schema: undefined, // undefined is necessary to trigger the initial fetch
 	isAuthenticated: true,
+	variables: '',
+	headers: '',
+	response: '',
+	responseHeaders: null,
+	responseStatus: null,
+	responseDuration: null,
+	responseSize: null,
+	isFetching: false,
+	history: [],
+	httpMethod: 'POST',
+	// One-shot docs-nav request: { typeName, fieldName } | null. Set when
+	// something outside the Docs panel (e.g. the editor's cmd-click handler)
+	// wants the panel to navigate. The Docs panel reads this, pushes a frame
+	// onto its own navigation stack, and dispatches a clear back to null.
+	docsNavTarget: null,
+	collections: [],
+	activeCollection: null,
+	// Per-collection sort mode applied to the saved-queries panel. Keyed
+	// by collection ID (number) for taxonomy collections, or by the
+	// virtual section keys '_documents' / '_unsaved'. Each value is one
+	// of: 'manual' | 'title_asc' | 'modified_desc' | 'status'.
+	collectionSortModes: {},
 };
 
 /**
@@ -22,28 +41,19 @@ const initialState = {
  *
  * @return {Object}
  */
+/**
+ * Set the query in state. Validation is handled by CodeMirror's
+ * cm6-graphql extension, not the reducer.
+ *
+ * @param {Object} state  Current state.
+ * @param {Object} action Action with query string.
+ * @return {Object} New state.
+ */
 const setQuery = (state, action) => {
-	const editedQuery = action.query;
-	const query = state.query;
-
-	if (editedQuery === query) {
-		return { ...state };
+	if (action.query === state.query) {
+		return state;
 	}
-
-	if (null === editedQuery || '' === editedQuery) {
-		// allow clearing the query without parsing
-	} else {
-		try {
-			parse(editedQuery);
-		} catch (error) {
-			return { ...state };
-		}
-	}
-
-	return {
-		...state,
-		query: action.query,
-	};
+	return { ...state, query: action.query };
 };
 
 /**
@@ -76,18 +86,117 @@ const reducer = (state = initialState, action) => {
 				...state,
 				isInitialStateLoaded: true,
 			};
-		case 'REGISTER_PLUGIN':
-			return {
-				...state,
-				registeredPlugins: {
-					...state.registeredPlugins,
-					[action.name]: action.config,
-				},
-			};
 		case 'TOGGLE_AUTHENTICATION':
 			return {
 				...state,
 				isAuthenticated: !state.isAuthenticated,
+			};
+		case 'SET_VARIABLES':
+			return {
+				...state,
+				variables: action.variables,
+			};
+		case 'SET_HEADERS':
+			return {
+				...state,
+				headers: action.headers,
+			};
+		case 'SET_RESPONSE':
+			return {
+				...state,
+				response: action.response,
+			};
+		case 'SET_RESPONSE_HEADERS':
+			return {
+				...state,
+				responseHeaders: action.responseHeaders,
+			};
+		case 'SET_RESPONSE_META':
+			return {
+				...state,
+				responseStatus: action.meta.status ?? null,
+				responseDuration: action.meta.duration ?? null,
+				responseSize: action.meta.size ?? null,
+			};
+		case 'SET_IS_FETCHING':
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		case 'SET_DOCS_NAV_TARGET':
+			return {
+				...state,
+				docsNavTarget: action.target || null,
+			};
+		case 'SET_HISTORY':
+			return {
+				...state,
+				history: action.history,
+			};
+		case 'ADD_HISTORY_ENTRY':
+			return {
+				...state,
+				history: [action.entry, ...state.history],
+			};
+		case 'CLEAR_HISTORY':
+			return {
+				...state,
+				history: [],
+			};
+		case 'SET_HTTP_METHOD':
+			return {
+				...state,
+				httpMethod: action.method,
+			};
+		case 'SET_COLLECTIONS':
+			return {
+				...state,
+				collections: action.collections,
+			};
+		case 'SET_COLLECTION_SORT_MODES':
+			return {
+				...state,
+				collectionSortModes: action.modes || {},
+			};
+		case 'SET_COLLECTION_SORT_MODE': {
+			const next = { ...state.collectionSortModes };
+			if (!action.mode || action.mode === 'manual') {
+				delete next[action.key];
+			} else {
+				next[action.key] = action.mode;
+			}
+			return {
+				...state,
+				collectionSortModes: next,
+			};
+		}
+		case 'ADD_COLLECTION':
+			return {
+				...state,
+				collections: [...state.collections, action.collection],
+			};
+		case 'UPDATE_COLLECTION':
+			return {
+				...state,
+				collections: state.collections.map((c) =>
+					c.id === action.collection.id ? action.collection : c
+				),
+			};
+		case 'REMOVE_COLLECTION':
+			return {
+				...state,
+				collections: state.collections.filter(
+					(c) => c.id !== action.id
+				),
+				activeCollection:
+					state.activeCollection === action.id
+						? null
+						: state.activeCollection,
+			};
+		case 'SET_ACTIVE_COLLECTION':
+			return {
+				...state,
+				activeCollection: action.id,
 			};
 	}
 	return state;

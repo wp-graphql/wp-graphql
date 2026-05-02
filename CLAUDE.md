@@ -60,8 +60,8 @@ npm run -w @wpgraphql/wp-graphql-acf test:e2e   # wp-graphql-acf (requires wp-en
 
 # Other plugins
 npm run -w @wpgraphql/wp-graphql-smart-cache test:codecept:wpunit
-npm run -w @wpgraphql/wp-graphql-ide test:unit
-npm run -w @wpgraphql/wp-graphql-ide test:e2e
+npm run -w @wpgraphql/ide test:unit
+npm run -w @wpgraphql/ide test:e2e
 ```
 
 ## Linting and Static Analysis

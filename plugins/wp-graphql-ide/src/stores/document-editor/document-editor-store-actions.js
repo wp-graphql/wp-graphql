@@ -1,3 +1,28 @@
+import {
+	getDocuments,
+	createDocument,
+	updateDocument,
+	deleteDocument,
+	publishDocument,
+	reorderDocuments,
+} from '../../api/documents';
+import { getPreferences, savePreference } from '../../api/preferences';
+import {
+	getUnsavedTabs,
+	saveUnsavedTab,
+	removeUnsavedTab,
+} from './unsaved-tabs-storage';
+
+/**
+ * Check whether a document ID is a temporary (unsaved) client-side ID.
+ *
+ * @param {string|number} id Document ID.
+ * @return {boolean} True if the ID is temporary.
+ */
+export function isTempId(id) {
+	return String(id).startsWith('temp-');
+}
+
 const actions = {
 	registerButton: (name, config, priority) => ({
 		type: 'REGISTER_BUTTON',
@@ -5,6 +30,466 @@ const actions = {
 		config,
 		priority,
 	}),
+
+	/**
+	 * Register a workspace tab type with a content renderer.
+	 *
+	 * @param {string} name   Unique tab type identifier.
+	 * @param {Object} config Tab type config (title, content component, optional icon).
+	 */
+	registerTabType: (name, config) => ({
+		type: 'REGISTER_TAB_TYPE',
+		name,
+		config,
+	}),
+
+	/**
+	 * Register a topbar action button that opens a workspace tab.
+	 *
+	 * @param {string} name     Unique action identifier.
+	 * @param {Object} config   Action config (title, icon, tabType, tabId).
+	 * @param {number} priority Sort order (lower = first).
+	 */
+	registerTopbarAction: (name, config, priority) => ({
+		type: 'REGISTER_TOPBAR_ACTION',
+		name,
+		config,
+		priority,
+	}),
+
+	/**
+	 * Open a workspace tab of a given type. Creates a virtual tab entry
+	 * (not backed by a document) and makes it active.
+	 *
+	 * @param {string} name  Tab type name (must be registered).
+	 * @param {string} tabId Unique tab ID.
+	 * @param {string} title Display title for the tab.
+	 */
+	openWorkspaceTab:
+		(name, tabId, title) =>
+		async ({ dispatch, select }) => {
+			// If already open, just switch to it.
+			if (select.getOpenTabs().includes(tabId)) {
+				dispatch({ type: 'SET_ACTIVE_TAB', tabId });
+				return;
+			}
+			dispatch({
+				type: 'OPEN_TAB',
+				tabId,
+				tabType: name,
+			});
+			dispatch({ type: 'SET_ACTIVE_TAB', tabId });
+			// Store a minimal virtual document for the tab title. The
+			// `tabType` marker lets consumers (e.g. SavedQueriesPanel)
+			// distinguish workspace tabs from real query documents.
+			dispatch({
+				type: 'UPDATE_DOCUMENT',
+				document: { id: tabId, title: title || name, tabType: name },
+			});
+		},
+
+	/**
+	 * Patch the virtual document backing a workspace tab (e.g. Settings).
+	 * Used by workspace tab content to surface their own dirty/title state
+	 * to the document store without going through the server save flow.
+	 *
+	 * @param {string} id    Workspace tab id (matches tabId in openWorkspaceTab).
+	 * @param {Object} patch Partial fields to merge into the virtual doc.
+	 */
+	updateWorkspaceTab: (id, patch) => ({
+		type: 'UPDATE_DOCUMENT',
+		document: { id, ...patch },
+	}),
+
+	setDocumentResponse: (id, response) => ({
+		type: 'SET_DOCUMENT_RESPONSE',
+		id,
+		response,
+	}),
+
+	/**
+	 * Load saved documents and preferences from the server.
+	 */
+	loadDocuments:
+		() =>
+		async ({ dispatch }) => {
+			try {
+				const [docs, prefs] = await Promise.all([
+					getDocuments(),
+					getPreferences(),
+				]);
+
+				// Hydrate any unsaved drafts the user had open before
+				// the page reloaded. They live alongside saved docs in
+				// the documents store but keep their `temp-*` IDs.
+				const unsaved = getUnsavedTabs().map((t) => ({
+					id: t.id,
+					title: t.title || 'Untitled',
+					query: t.query || '',
+					variables: t.variables || '',
+					headers: t.headers || '',
+					status: 'draft',
+					collections: [],
+				}));
+
+				const hydratedDocs = docs.map((d) => ({
+					...d,
+					lastSavedQuery: d.query ?? '',
+					lastSavedVariables: d.variables ?? '',
+					lastSavedHeaders: d.headers ?? '',
+				}));
+
+				dispatch({
+					type: 'SET_DOCUMENTS',
+					documents: [...hydratedDocs, ...unsaved],
+				});
+
+				const openTabs = prefs.open_tabs || [];
+				const activeTab = prefs.active_tab || '';
+
+				const docIds = docs.map((d) => String(d.id));
+				const unsavedIds = unsaved.map((d) => String(d.id));
+
+				// Saved docs the server-side prefs say should be open,
+				// preserved in the order they were last arranged.
+				const savedTabs = openTabs.filter((id) =>
+					docIds.includes(String(id))
+				);
+
+				// Append every unsaved tab — server prefs don't know
+				// about them, so they couldn't already be in the list.
+				const tabIds = [...savedTabs, ...unsavedIds];
+
+				if (tabIds.length > 0) {
+					dispatch({ type: 'SET_OPEN_TABS', tabIds });
+
+					let activeId = '';
+					if (tabIds.includes(String(activeTab))) {
+						activeId = String(activeTab);
+					} else if (unsavedIds.length > 0) {
+						// Prefer landing on the most recent draft so a
+						// reload of an unsaved tab puts the user back
+						// where they were typing.
+						activeId = unsavedIds[unsavedIds.length - 1];
+					} else {
+						activeId = tabIds[0];
+					}
+					dispatch({ type: 'SET_ACTIVE_TAB', tabId: activeId });
+				} else if (docs.length > 0) {
+					// First-time load with no remembered state — open
+					// the first saved doc so the editor isn't empty.
+					dispatch({
+						type: 'SET_OPEN_TABS',
+						tabIds: [String(docs[0].id)],
+					});
+					dispatch({
+						type: 'SET_ACTIVE_TAB',
+						tabId: String(docs[0].id),
+					});
+				}
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to load IDE documents:', error);
+			}
+		},
+
+	/**
+	 * Create a new in-memory tab. No server call — the document only
+	 * persists when the user explicitly saves (via saveTab).
+	 *
+	 * @param {string} title Tab title.
+	 */
+	createTab:
+		(title = 'Untitled') =>
+		({ dispatch }) => {
+			const tempId = `temp-${Date.now()}`;
+			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId });
+			// Seed localStorage so the tab survives a refresh even
+			// before the user types anything into it.
+			saveUnsavedTab({
+				id: tempId,
+				title,
+				query: '',
+				variables: '',
+				headers: '',
+			});
+			return tempId;
+		},
+
+	/**
+	 * Save the active document to the server.
+	 *
+	 * If the document has a temporary ID (never saved), creates a new
+	 * CPT post and swaps the temp ID for the real server ID. If it has
+	 * a real ID, updates the existing post.
+	 *
+	 * @param {string|number} id   Document ID (may be temp).
+	 * @param {Object}        data Document fields to save.
+	 * @return {Promise<Object|null>} Saved document or null on error.
+	 */
+	saveTab:
+		(id, data) =>
+		async ({ dispatch, select }) => {
+			try {
+				const doc = select
+					.getDocuments()
+					.find((d) => String(d.id) === String(id));
+				if (!doc) {
+					return null;
+				}
+
+				const payload = {
+					title: data.title ?? doc.title ?? 'Untitled',
+					query: data.query ?? doc.query ?? '',
+					variables: data.variables ?? doc.variables ?? '',
+					headers: data.headers ?? doc.headers ?? '',
+				};
+				if (Array.isArray(data.collections)) {
+					payload.collections = data.collections;
+				}
+
+				let saved;
+				if (isTempId(id)) {
+					// First save — create on server.
+					saved = await createDocument(payload);
+					dispatch({
+						type: 'UPDATE_DOCUMENT_ID',
+						oldId: String(id),
+						newId: String(saved.id),
+						document: {
+							...saved,
+							lastSavedQuery: saved.query ?? '',
+							lastSavedVariables: saved.variables ?? '',
+							lastSavedHeaders: saved.headers ?? '',
+						},
+					});
+					// Promoted to a real doc — drop the localStorage draft.
+					removeUnsavedTab(id);
+				} else {
+					// Subsequent save — update existing.
+					saved = await updateDocument(id, payload);
+					dispatch({
+						type: 'UPDATE_DOCUMENT',
+						document: {
+							...saved,
+							lastSavedQuery: saved.query ?? '',
+							lastSavedVariables: saved.variables ?? '',
+							lastSavedHeaders: saved.headers ?? '',
+						},
+					});
+				}
+
+				await dispatch.persistTabState();
+				return saved;
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to save document:', error);
+				throw error;
+			}
+		},
+
+	/**
+	 * Publish a saved document (change status from draft to publish).
+	 *
+	 * @param {string|number} id Document ID.
+	 * @return {Promise<Object|null>} Published document or null on error.
+	 */
+	/**
+	 * Publish a draft document via the server-side hash endpoint.
+	 *
+	 * The server normalizes the query, computes its SHA-256 hash,
+	 * sets it as the slug (queryId), and changes status to publish.
+	 * If the query already exists as a published document, the
+	 * server returns the existing document.
+	 *
+	 * @param {string|number} id Document ID (must be a saved draft).
+	 * @return {Promise<Object|null>} Publish result or null.
+	 */
+	publishTab:
+		(id) =>
+		async ({ dispatch }) => {
+			if (isTempId(id)) {
+				return null;
+			}
+			try {
+				const result = await publishDocument(id);
+				dispatch({
+					type: 'UPDATE_DOCUMENT',
+					document: {
+						id: result.id,
+						status: 'publish',
+						queryHash: result.query_hash,
+					},
+				});
+				return result;
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to publish document:', error);
+				throw error;
+			}
+		},
+
+	/**
+	 * Close a tab. If it's the active tab, switch to an adjacent one.
+	 *
+	 * @param {string} tabId Tab ID to close.
+	 */
+	closeTab:
+		(tabId) =>
+		async ({ dispatch, select }) => {
+			dispatch({ type: 'CLOSE_TAB', tabId: String(tabId) });
+
+			// If the closed doc was temp (unsaved), remove it from state
+			// and drop the localStorage copy so it doesn't reappear next
+			// time the IDE loads.
+			if (isTempId(tabId)) {
+				dispatch({ type: 'REMOVE_DOCUMENT', id: tabId });
+				removeUnsavedTab(tabId);
+			}
+
+			const openTabs = select.getOpenTabs();
+			const activeTab = select.getActiveTab();
+
+			// If we closed the active tab, switch to first remaining.
+			if (String(tabId) === activeTab && openTabs.length > 0) {
+				dispatch({
+					type: 'SET_ACTIVE_TAB',
+					tabId: openTabs[0],
+				});
+			}
+
+			await dispatch.persistTabState();
+		},
+
+	/**
+	 * Switch to a tab, opening it first if it isn't already in the tab bar.
+	 *
+	 * @param {string} tabId   Tab ID to switch to.
+	 * @param {string} tabType Optional tab type (defaults to 'query-editor').
+	 */
+	switchTab:
+		(tabId, tabType) =>
+		async ({ dispatch }) => {
+			dispatch({
+				type: 'OPEN_TAB',
+				tabId: String(tabId),
+				tabType,
+			});
+			dispatch({ type: 'SET_ACTIVE_TAB', tabId: String(tabId) });
+			await dispatch.persistTabState();
+		},
+
+	/**
+	 * Save document content to the server (legacy — use saveTab for
+	 * the explicit save flow).
+	 *
+	 * @param {number} id   Post ID.
+	 * @param {Object} data Fields to update.
+	 */
+	saveDocument:
+		(id, data) =>
+		async ({ dispatch, select }) => {
+			if (isTempId(id)) {
+				// In-memory doc — update local state and mirror to
+				// localStorage so the draft survives a page refresh.
+				dispatch({
+					type: 'UPDATE_DOCUMENT',
+					document: { id, ...data },
+				});
+				const updated = select
+					.getDocuments()
+					.find((d) => String(d.id) === String(id));
+				if (updated) {
+					saveUnsavedTab(updated);
+				}
+				return;
+			}
+			try {
+				const doc = await updateDocument(id, data);
+				dispatch({
+					type: 'UPDATE_DOCUMENT',
+					document: {
+						...doc,
+						lastSavedQuery: doc.query ?? '',
+						lastSavedVariables: doc.variables ?? '',
+						lastSavedHeaders: doc.headers ?? '',
+					},
+				});
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to save document:', error);
+			}
+		},
+
+	/**
+	 * Delete a document permanently.
+	 *
+	 * @param {number} id Post ID.
+	 */
+	removeDocument:
+		(id) =>
+		async ({ dispatch }) => {
+			try {
+				dispatch({ type: 'CLOSE_TAB', tabId: String(id) });
+				dispatch({ type: 'REMOVE_DOCUMENT', id });
+				if (isTempId(id)) {
+					removeUnsavedTab(id);
+				} else {
+					await deleteDocument(id, true);
+				}
+				await dispatch.persistTabState();
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to delete document:', error);
+			}
+		},
+
+	/**
+	 * Reorder documents — applies the order locally for instant feedback,
+	 * then persists `menu_order` server-side. Temp (unsaved) IDs are
+	 * filtered out before hitting the network.
+	 *
+	 * @param {Array<string|number>} ids Document IDs in their new order.
+	 */
+	reorderDocuments:
+		(ids) =>
+		async ({ dispatch }) => {
+			dispatch({ type: 'REORDER_DOCUMENTS', ids });
+			const persistableIds = ids
+				.filter((id) => !isTempId(id))
+				.map((id) => Number(id));
+			if (persistableIds.length === 0) {
+				return;
+			}
+			try {
+				await reorderDocuments(persistableIds);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to persist document order:', error);
+			}
+		},
+
+	/**
+	 * Persist open tabs and active tab to user meta.
+	 * Only includes saved (non-temp) document IDs.
+	 */
+	persistTabState:
+		() =>
+		async ({ select }) => {
+			const openTabs = select.getOpenTabs().filter((id) => !isTempId(id));
+			const activeTab = select.getActiveTab();
+			const persistedActive = isTempId(activeTab) ? '' : activeTab;
+
+			try {
+				await Promise.all([
+					savePreference('open_tabs', openTabs),
+					savePreference('active_tab', persistedActive),
+				]);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to persist tab state:', error);
+			}
+		},
 };
 
 export default actions;

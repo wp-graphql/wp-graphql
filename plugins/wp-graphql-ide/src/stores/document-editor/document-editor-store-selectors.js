@@ -14,6 +14,50 @@ const selectors = {
 		},
 		(state) => [state.buttons]
 	),
+
+	getDocuments: createSelector(
+		(state) =>
+			(state.documentIds || [])
+				.map((id) => state.documents[id])
+				.filter(Boolean),
+		(state) => [state.documents, state.documentIds]
+	),
+
+	// Memoized: returns the same array reference when `state.openTabs`
+	// is unchanged. Without this, `useSelect` consumers see a fresh
+	// `.map(...)` array on every dispatch and trigger a wp-data
+	// "non-equal value" warning + needless re-renders.
+	getOpenTabs: createSelector(
+		(state) => state.openTabs.map((tab) => tab.id),
+		(state) => [state.openTabs]
+	),
+
+	getOpenTabObjects: (state) => state.openTabs,
+
+	getActiveTab: (state) => state.activeTab,
+
+	getActiveTabType: (state) =>
+		state.openTabs.find((tab) => tab.id === state.activeTab)?.type || null,
+
+	getActiveDocument: (state) => {
+		if (!state.activeTab) {
+			return null;
+		}
+		return state.documents[state.activeTab] || null;
+	},
+
+	getTabTypes: (state) => state.tabTypes,
+
+	getTabType: (state, name) => state.tabTypes[name] || null,
+
+	getTopbarActions: createSelector(
+		(state) => {
+			return Object.entries(state.topbarActions)
+				.map(([name, action]) => ({ name, ...action }))
+				.sort((a, b) => a.priority - b.priority);
+		},
+		(state) => [state.topbarActions]
+	),
 };
 
 export default selectors;

@@ -5,6 +5,7 @@
  */
 
 // External dependencies
+import apiFetch from '@wordpress/api-fetch';
 import * as accessFunctions from './access-functions';
 
 // Local imports including the hook configuration and the main App component.
@@ -17,6 +18,20 @@ import { initializeRegistry } from './registry';
  * Initializes the application's regions by registering stores.
  */
 const init = () => {
+	// Configure apiFetch with the WordPress REST API root URL and nonce.
+	apiFetch.use(
+		apiFetch.createRootURLMiddleware(
+			window.WPGRAPHQL_IDE_DATA?.restUrl ||
+				window.wpApiSettings?.root ||
+				'/wp-json/'
+		)
+	);
+
+	const nonce = window.WPGRAPHQL_IDE_DATA?.nonce;
+	if (nonce) {
+		apiFetch.use(apiFetch.createNonceMiddleware(nonce));
+	}
+
 	registerStores();
 	initializeRegistry();
 	hooks.doAction('wpgraphql-ide.init');
