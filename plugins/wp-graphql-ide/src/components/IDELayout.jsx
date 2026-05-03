@@ -710,14 +710,22 @@ export function IDELayout({ fetcher, onClose }) {
 					cancelLabel: 'Discard',
 				});
 				if (answer) {
-					if (persistence?.save) {
-						await persistence.save();
-					} else if (!doc.tabType) {
-						await saveTab(tabId, {
-							query: doc.query || query,
-							variables: doc.variables || variables,
-							headers: doc.headers || headers,
-						});
+					try {
+						if (persistence?.save) {
+							await persistence.save();
+						} else if (!doc.tabType) {
+							await saveTab(tabId, {
+								query: doc.query || query,
+								variables: doc.variables || variables,
+								headers: doc.headers || headers,
+							});
+						}
+					} catch (error) {
+						addNotice(
+							`Failed to save before closing: ${error.message}`,
+							'error'
+						);
+						return;
 					}
 				} else if (persistence?.discard) {
 					persistence.discard();
@@ -729,6 +737,7 @@ export function IDELayout({ fetcher, onClose }) {
 			allDocuments,
 			closeTab,
 			saveTab,
+			addNotice,
 			query,
 			variables,
 			headers,

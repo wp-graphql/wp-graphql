@@ -1,9 +1,9 @@
 import { useEffect } from '@wordpress/element';
-import { doAction } from '@wordpress/hooks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { parse, print } from 'graphql';
 import LZString from 'lz-string';
 
+import hooks from '../wordpress-hooks';
 import { AppDrawer } from './AppDrawer';
 import { App } from './App';
 import { DialogProvider } from './dialogs/DialogProvider';
@@ -113,7 +113,7 @@ export function AppWrapper() {
 		 * the current state of `drawerOpen` to any listeners, providing context
 		 * about the application's UI state.
 		 */
-		doAction('wpgraphql-ide.rendered');
+		hooks.doAction('wpgraphql-ide.rendered');
 
 		/**
 		 * Cleanup action on component unmount.
@@ -123,7 +123,7 @@ export function AppWrapper() {
 		 * any necessary cleanup or teardown operations in response to the App
 		 * component's lifecycle.
 		 */
-		return () => doAction('wpgraphql-ide.destroyed');
+		return () => hooks.doAction('wpgraphql-ide.destroyed');
 	}, []);
 
 	return <RenderAppWrapper />;

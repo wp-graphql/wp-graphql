@@ -21,7 +21,7 @@ import {
 	check,
 } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { doAction, addAction, removeAction } from '@wordpress/hooks';
+import hooks from '../wordpress-hooks';
 import { useDialog } from './dialogs/DialogProvider';
 import { DeleteCollectionDialog } from './dialogs/DeleteCollectionDialog';
 import { ExportDialog } from './dialogs/ExportDialog';
@@ -68,7 +68,10 @@ export function SavedQueriesPanelHeaderAction() {
 						<MenuItem
 							onClick={() => {
 								closeMenu();
-								doAction(PANEL_ACTION_HOOK, 'new-collection');
+								hooks.doAction(
+									PANEL_ACTION_HOOK,
+									'new-collection'
+								);
 							}}
 						>
 							New collection
@@ -78,7 +81,7 @@ export function SavedQueriesPanelHeaderAction() {
 						<MenuItem
 							onClick={() => {
 								closeMenu();
-								doAction(PANEL_ACTION_HOOK, 'import');
+								hooks.doAction(PANEL_ACTION_HOOK, 'import');
 							}}
 						>
 							Import documents…
@@ -87,7 +90,7 @@ export function SavedQueriesPanelHeaderAction() {
 							disabled={collectionCount === 0}
 							onClick={() => {
 								closeMenu();
-								doAction(PANEL_ACTION_HOOK, 'export');
+								hooks.doAction(PANEL_ACTION_HOOK, 'export');
 							}}
 						>
 							Export documents…
@@ -426,7 +429,7 @@ function CollectionSection({
 export function SavedQueriesPanel() {
 	const { confirm } = useDialog();
 	const notify = (content, type = 'default') =>
-		doAction('wpgraphql-ide.notice', content, type);
+		hooks.doAction('wpgraphql-ide.notice', content, type);
 
 	const [search, setSearch] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
@@ -488,7 +491,7 @@ export function SavedQueriesPanel() {
 
 	useEffect(() => {
 		const namespace = 'wpgraphql-ide/saved-queries-panel';
-		addAction(PANEL_ACTION_HOOK, namespace, (action) => {
+		hooks.addAction(PANEL_ACTION_HOOK, namespace, (action) => {
 			if (action === 'new-collection') {
 				setCreatingCollection(true);
 			} else if (action === 'import') {
@@ -497,7 +500,7 @@ export function SavedQueriesPanel() {
 				setExportOpen(true);
 			}
 		});
-		return () => removeAction(PANEL_ACTION_HOOK, namespace);
+		return () => hooks.removeAction(PANEL_ACTION_HOOK, namespace);
 	}, []);
 
 	const savedDocs = useMemo(
