@@ -1,5 +1,9 @@
 import React from 'react';
-import { isRequiredArgument, unwrapInputType } from '../utils';
+import {
+	defaultInputObjectFields,
+	isRequiredArgument,
+	unwrapInputType,
+} from '../utils';
 import {
 	isEnumType,
 	isInputObjectType,
@@ -87,14 +91,83 @@ class AbstractArgView extends React.PureComponent {
 			} else if (isInputObjectType(argType)) {
 				if (argValue.kind === 'ObjectValue') {
 					const fields = argType.getFields();
-					input = (
-						<div style={{ marginLeft: 16 }}>
-							{Object.keys(fields)
-								.sort()
-								.map((fieldName) => (
+					if (argType.isOneOf) {
+						const variantNames = Object.keys(fields).sort();
+						const currentVariant =
+							argValue.fields && argValue.fields[0]
+								? argValue.fields[0].name.value
+								: '';
+						const handleVariantChange = (event) => {
+							const variantName = event.target.value;
+							if (!variantName) {
+								this.props.setArgFields([], true);
+								return;
+							}
+							const variantField = fields[variantName];
+							const variantType = unwrapInputType(
+								variantField.type
+							);
+							let value;
+							if (isInputObjectType(variantType)) {
+								const subFields = variantType.getFields();
+								value = {
+									kind: 'ObjectValue',
+									fields: defaultInputObjectFields(
+										this.props.getDefaultScalarArgValue,
+										this.props.makeDefaultArg,
+										this.props.parentField,
+										Object.keys(subFields).map(
+											(k) => subFields[k]
+										)
+									),
+								};
+							} else {
+								value = this.props.getDefaultScalarArgValue(
+									this.props.parentField,
+									variantField,
+									variantType
+								);
+							}
+							this.props.setArgFields(
+								[
+									{
+										kind: 'ObjectField',
+										name: {
+											kind: 'Name',
+											value: variantName,
+										},
+										value,
+									},
+								],
+								true
+							);
+						};
+						input = (
+							<div
+								className="graphiql-explorer-oneof"
+								style={{ marginLeft: 16 }}
+							>
+								<div className="graphiql-explorer-oneof-row">
+									<span className="graphiql-explorer-oneof-label">
+										variant:
+									</span>
+									<select
+										className="graphiql-explorer-oneof-variant"
+										value={currentVariant}
+										onChange={handleVariantChange}
+									>
+										<option value="">(choose)</option>
+										{variantNames.map((name) => (
+											<option key={name} value={name}>
+												{name}
+											</option>
+										))}
+									</select>
+								</div>
+								{currentVariant && fields[currentVariant] && (
 									<InputArgView
-										key={fieldName}
-										arg={fields[fieldName]}
+										key={currentVariant}
+										arg={fields[currentVariant]}
 										parentField={this.props.parentField}
 										selection={argValue}
 										modifyFields={this.props.setArgFields}
@@ -111,9 +184,41 @@ class AbstractArgView extends React.PureComponent {
 										onCommit={this.props.onCommit}
 										definition={this.props.definition}
 									/>
-								))}
-						</div>
-					);
+								)}
+							</div>
+						);
+					} else {
+						input = (
+							<div style={{ marginLeft: 16 }}>
+								{Object.keys(fields)
+									.sort()
+									.map((fieldName) => (
+										<InputArgView
+											key={fieldName}
+											arg={fields[fieldName]}
+											parentField={this.props.parentField}
+											selection={argValue}
+											modifyFields={
+												this.props.setArgFields
+											}
+											getDefaultScalarArgValue={
+												this.props
+													.getDefaultScalarArgValue
+											}
+											makeDefaultArg={
+												this.props.makeDefaultArg
+											}
+											onRunOperation={
+												this.props.onRunOperation
+											}
+											styleConfig={this.props.styleConfig}
+											onCommit={this.props.onCommit}
+											definition={this.props.definition}
+										/>
+									))}
+							</div>
+						);
+					}
 				} else {
 					// eslint-disable-next-line no-console
 					console.error(

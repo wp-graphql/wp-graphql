@@ -5,38 +5,28 @@ import ArrowOpen from './ArrowOpen';
 import ArrowClosed from './ArrowClosed';
 import { checkboxUnchecked, checkboxChecked } from './Checkbox';
 
+// Palette mirrors the editor's syntax-highlight tokens so the composer reads
+// like the GraphQL document on the right. Values resolve from the
+// `--gql-color-*` CSS variables defined on `#wpgraphql-ide-app`, so updating
+// one place themes the whole IDE.
 const colors = {
-	keyword: 'hsl(var(--color-primary))',
-	def: 'hsl(var(--color-tertiary))',
-	property: 'hsl(var(--color-info))',
-	qualifier: 'hsl(var(--color-secondary))',
-	attribute: 'hsl(var(--color-tertiary))',
-	number: 'hsl(var(--color-success))',
-	string: 'hsl(var(--color-warning))',
-	builtin: 'hsl(var(--color-success))',
-	string2: 'hsl(var(--color-secondary))',
-	variable: 'hsl(var(--color-secondary))',
-	atom: 'hsl(var(--color-tertiary))',
+	keyword: 'var(--gql-color-keyword)',
+	def: 'var(--gql-color-operation-name)',
+	property: 'var(--gql-color-field)',
+	qualifier: 'var(--gql-color-argument)',
+	attribute: 'var(--gql-color-argument)',
+	number: 'var(--gql-color-number)',
+	string: 'var(--gql-color-string)',
+	builtin: 'var(--gql-color-bool)',
+	string2: 'var(--gql-color-enum)',
+	variable: 'var(--gql-color-variable)',
+	atom: 'var(--gql-color-enum)',
 };
 
 const styles = {
-	buttonStyle: {
-		backgroundColor: 'transparent',
-		border: 'none',
-		color: 'hsla(var(--color-neutral), var(--alpha-secondary, 0.6))',
-		cursor: 'pointer',
-		fontSize: '1em',
-	},
-	explorerActionsStyle: {
-		padding: 'var(--px-8) var(--px-4)',
-	},
-	actionButtonStyle: {
-		backgroundColor: 'transparent',
-		border: 'none',
-		color: 'hsla(var(--color-neutral), var(--alpha-secondary, 0.6))',
-		cursor: 'pointer',
-		fontSize: '1em',
-	},
+	buttonStyle: {},
+	explorerActionsStyle: {},
+	actionButtonStyle: {},
 };
 
 export const QueryComposer = (props) => {
@@ -44,26 +34,29 @@ export const QueryComposer = (props) => {
 
 	const query = useSelect((select) => select('wpgraphql-ide/app').getQuery());
 
+	const cursorOffset = useSelect((select) =>
+		select('wpgraphql-ide/app').getCursorOffset()
+	);
+
 	const { setQuery } = useDispatch('wpgraphql-ide/app');
 
 	return (
-		<>
-			<ExplorerWrapper
-				{...props}
-				schema={schema}
-				query={query}
-				explorerIsOpen
-				colors={colors}
-				arrowOpen={ArrowOpen}
-				arrowClosed={ArrowClosed}
-				checkboxUnchecked={checkboxUnchecked}
-				checkboxChecked={checkboxChecked}
-				styles={styles}
-				title={'Query Composer'}
-				onEdit={(newQuery) => {
-					setQuery(newQuery);
-				}}
-			/>
-		</>
+		<ExplorerWrapper
+			{...props}
+			schema={schema}
+			query={query}
+			cursorOffset={cursorOffset}
+			explorerIsOpen
+			colors={colors}
+			arrowOpen={ArrowOpen}
+			arrowClosed={ArrowClosed}
+			checkboxUnchecked={checkboxUnchecked}
+			checkboxChecked={checkboxChecked}
+			styles={styles}
+			title={'Query Composer'}
+			onEdit={(newQuery) => {
+				setQuery(newQuery);
+			}}
+		/>
 	);
 };

@@ -3,6 +3,29 @@
    White header bar, panel sidebar from left, clean content area.
    ========================================================================== */
 
+/* GraphQL syntax palette. Single source of truth for token colors used
+   across the query editor (CodeMirror), Query Composer, Docs Explorer,
+   and hover tooltips. Defined on :root so the values also cascade to
+   CodeMirror's hover/autocomplete tooltips, which the editor renders
+   into <body> (outside the #wpgraphql-ide-app subtree). Override any of
+   these on `:root` or a narrower selector to theme the whole IDE. */
+:root {
+	--gql-color-keyword: #a31515;          /* query | mutation | fragment | on */
+	--gql-color-operation-name: #117a3e;   /* the name after query/mutation */
+	--gql-color-field: #1f61a0;            /* field name on a type */
+	--gql-color-argument: #996800;         /* arg / input field name */
+	--gql-color-type: #117a3e;             /* TypeName references */
+	--gql-color-string: #a31515;
+	--gql-color-number: #005cc5;
+	--gql-color-bool: #005cc5;
+	--gql-color-null: #005cc5;
+	--gql-color-enum: #996800;             /* EnumValue */
+	--gql-color-variable: #aa6900;         /* $foo */
+	--gql-color-directive: #7a3e9d;        /* @include / @skip */
+	--gql-color-comment: #6a9955;
+	--gql-color-punctuation: #50575e;      /* { } , : . */
+}
+
 /* Dialog Modal — confirm/prompt replacements for window.confirm/alert. */
 .wpgraphql-ide-dialog .components-modal__content {
 	min-width: 360px;
@@ -673,19 +696,20 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #1e1e1e;
 }
 
-/* Query composer rendered inline within the editor area */
+/* Query composer rendered inline within the editor area. The wrapper itself
+   is a flex column with no scroll — the inner operations region scrolls and
+   the "Add new" footer stays pinned at the bottom. */
 .wpgraphql-ide-query-composer-inline {
 	border-right: 1px solid #dcdcde;
-	overflow-y: auto;
-	overflow-x: hidden;
-	width: 260px;
-	min-width: 200px;
+	overflow: hidden;
 	flex-shrink: 0;
 	height: 100%;
-	padding: 8px;
+	display: flex;
+	flex-direction: column;
 	font-size: 13px;
 	box-sizing: border-box;
 	color: #2c3338;
+	background: #fff;
 }
 
 /* Constrain SVG icons inside the query composer (checkboxes, arrows) */
@@ -702,6 +726,30 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	box-sizing: border-box;
 }
 
+/* Composer column right-edge resize handle */
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
 .wpgraphql-ide-editor-resizable.has-composer {
 	display: flex;
 	flex-direction: row;
@@ -710,7 +758,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-editor-resizable.has-composer > .wpgraphql-ide-editor {
 	flex: 1;
-	min-width: 0;
+	/* Keep the editor wider than the floating execution pill (GET/POST + auth + run). */
+	min-width: 280px;
+	/* Without these, CodeMirror's content can push this flex child taller
+	   than the resizable area, making the editor overflow and the bottom
+	   tabs (Variables/Headers) drift away with a white gap. */
+	min-height: 0;
+	overflow: hidden;
 }
 
 /* ---------------------------------------------------------------------------
@@ -2611,18 +2665,19 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom: none;
 }
 
-/* Signature token colors — match wpgraphqlHighlightStyle in GraphQLEditor.jsx */
+/* Signature token colors — share the unified --gql-color-* palette so the
+   tooltip reads like the editor and Docs panel. */
 .wpgraphql-ide-hov-type {
-	color: #117a3e;
+	color: var(--gql-color-type);
 }
 .wpgraphql-ide-hov-field {
-	color: #1f61a0;
+	color: var(--gql-color-field);
 }
 .wpgraphql-ide-hov-arg {
-	color: #996800;
+	color: var(--gql-color-argument);
 }
 .wpgraphql-ide-hov-punct {
-	color: #50575e;
+	color: var(--gql-color-punctuation);
 }
 
 .wpgraphql-ide-hover-description {
@@ -2839,7 +2894,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-docs-type-name {
 	font-size: 13px;
 	font-weight: 600;
-	color: #2c3338;
+	color: var(--gql-color-type);
 	font-family: monospace;
 	padding: 4px 0;
 }
@@ -2937,21 +2992,21 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-docs-field-link-type {
-	color: #117a3e;
+	color: var(--gql-color-type);
 }
 
 .wpgraphql-ide-docs-field-link-dot {
-	color: #50575e;
+	color: var(--gql-color-punctuation);
 }
 
 .wpgraphql-ide-docs-field-link-name {
-	color: #1f61a0;
+	color: var(--gql-color-field);
 	font-weight: 600;
 }
 
 .wpgraphql-ide-docs-field-link-type-ref {
 	flex-shrink: 0;
-	color: #117a3e;
+	color: var(--gql-color-type);
 	font-size: 11px;
 }
 
@@ -2979,7 +3034,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	background: none;
 	border: none;
 	padding: 0;
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--gql-color-type);
 	cursor: pointer;
 	font-family: monospace;
 	font-size: 13px;
@@ -3004,7 +3059,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border: none;
 	border-radius: 2px;
 	padding: 1px 6px;
-	color: #50575e;
+	color: var(--gql-color-type);
 	cursor: pointer;
 	font-family: monospace;
 	font-size: 11px;
@@ -3014,7 +3069,8 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-docs-type-badge:hover {
 	background: #dcdcde;
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--gql-color-type);
+	text-decoration: underline;
 }
 
 .wpgraphql-ide-docs-type-badge.is-small {
@@ -3063,7 +3119,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-docs-field-name {
 	font-weight: 600;
 	font-size: 12px;
-	color: #2c3338;
+	color: var(--gql-color-field);
 }
 
 .wpgraphql-ide-docs-field-desc {
@@ -3118,7 +3174,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-docs-arg-name {
 	font-size: 12px;
-	color: #50575e;
+	color: var(--gql-color-argument);
 }
 
 .wpgraphql-ide-docs-arg-name::after {

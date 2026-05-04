@@ -16,14 +16,7 @@ window.addEventListener('WPGraphQLIDE_Window_Ready', function (_event) {
 			'query-composer',
 			{
 				title: 'Query Composer',
-				icon: () => (
-					<Icon
-						icon={editIcon}
-						style={{
-							fill: 'hsla(var(--color-neutral), var(--alpha-tertiary))',
-						}}
-					/>
-				),
+				icon: () => <Icon icon={editIcon} />,
 				content: () => <QueryComposer />,
 			},
 			3 // Priority

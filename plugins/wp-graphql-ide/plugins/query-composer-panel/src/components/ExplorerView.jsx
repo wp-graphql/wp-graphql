@@ -14,10 +14,73 @@ import { defaultCheckboxChecked, defaultCheckboxUnchecked } from './Checkbox';
 import ArrowOpen from './ArrowOpen';
 import ArrowClosed from './ArrowClosed';
 
+// Stable key for an operation/fragment so user-toggled collapse state survives
+// re-parses (the AST node object identity changes on every keystroke).
+function operationKey(operation, index) {
+	const name = operation && operation.name && operation.name.value;
+	const kind =
+		operation.kind === 'FragmentDefinition'
+			? 'fragment'
+			: operation.operation || 'query';
+	return name ? `${kind}:${name}` : `${kind}:_${index}`;
+}
+
+// Find the operation key whose AST loc spans the given cursor offset. Returns
+// null if the cursor isn't inside any named operation (or locations are absent).
+function findOpKeyAtCursor(operations, cursorOffset) {
+	if (typeof cursorOffset !== 'number') {
+		return null;
+	}
+	for (let i = 0; i < operations.length; i++) {
+		const op = operations[i];
+		if (
+			op.loc &&
+			cursorOffset >= op.loc.start &&
+			cursorOffset <= op.loc.end
+		) {
+			return operationKey(op, i);
+		}
+	}
+	return null;
+}
+
 class ExplorerView extends React.PureComponent {
 	state = {
 		newOperationType: 'query',
 		operationToScrollTo: null,
+		// Map of `${kind}:${name}` -> boolean. Absent key means "use default
+		// (cursor-matched op expanded, rest collapsed when multiple exist)".
+		collapsedByKey: {},
+		// Tracks which op the cursor was last in, so we can wipe stale user
+		// toggles when the cursor moves to a different operation.
+		lastCursorOpKey: null,
+	};
+
+	static getDerivedStateFromProps(props, state) {
+		// When the cursor enters a new operation, drop user toggles so the
+		// composer refocuses on the active op.
+		const ops = (() => {
+			try {
+				return memoizeParseQuery(props.query).definitions.filter(
+					(d) =>
+						d.kind === 'OperationDefinition' ||
+						d.kind === 'FragmentDefinition'
+				);
+			} catch {
+				return [];
+			}
+		})();
+		const cursorOpKey = findOpKeyAtCursor(ops, props.cursorOffset);
+		if (cursorOpKey && cursorOpKey !== state.lastCursorOpKey) {
+			return { lastCursorOpKey: cursorOpKey, collapsedByKey: {} };
+		}
+		return null;
+	}
+
+	_setCollapsed = (key, collapsed) => {
+		this.setState((prev) => ({
+			collapsedByKey: { ...prev.collapsedByKey, [key]: collapsed },
+		}));
 	};
 
 	_ref;
@@ -114,6 +177,11 @@ class ExplorerView extends React.PureComponent {
 			_relevantOperations.length === 0
 				? DEFAULT_DOCUMENT.definitions
 				: _relevantOperations;
+
+		const cursorOpKey = findOpKeyAtCursor(
+			_relevantOperations,
+			this.props.cursorOffset
+		);
 
 		const renameOperation = (targetOperation, name) => {
 			const newName =
@@ -292,60 +360,34 @@ class ExplorerView extends React.PureComponent {
 
 		const actionsEl =
 			actionsOptions.length === 0 || this.props.hideActions ? null : (
-				<div
-					style={{
-						minHeight: '50px',
-						maxHeight: '50px',
-						overflow: 'none',
-					}}
+				<form
+					className="graphiql-explorer-actions"
+					onSubmit={(event) => event.preventDefault()}
 				>
-					<form
-						className="variable-editor-title graphiql-explorer-actions"
-						style={{
-							...styleConfig.styles.explorerActionsStyle,
-							display: 'flex',
-							flexDirection: 'row',
-							alignItems: 'center',
-							borderTop: '1px solid rgb(214, 214, 214)',
-						}}
-						onSubmit={(event) => event.preventDefault()}
+					<span className="graphiql-explorer-actions-label">
+						Add new
+					</span>
+					<select
+						onChange={(event) =>
+							this._setAddOperationType(event.target.value)
+						}
+						value={this.state.newOperationType}
 					>
-						<span
-							style={{
-								display: 'inline-block',
-								flexGrow: '0',
-								textAlign: 'right',
-							}}
-						>
-							Add new{' '}
-						</span>
-						<select
-							onChange={(event) =>
-								this._setAddOperationType(event.target.value)
-							}
-							value={this.state.newOperationType}
-							style={{ flexGrow: '2' }}
-						>
-							{actionsOptions}
-						</select>
-						<button
-							type="submit"
-							className="toolbar-button"
-							onClick={() =>
-								this.state.newOperationType
-									? addOperation(this.state.newOperationType)
-									: null
-							}
-							style={{
-								...styleConfig.styles.buttonStyle,
-								height: '22px',
-								width: '22px',
-							}}
-						>
-							<span>+</span>
-						</button>
-					</form>
-				</div>
+						{actionsOptions}
+					</select>
+					<button
+						type="submit"
+						className="graphiql-explorer-actions-add"
+						aria-label="Add operation"
+						onClick={() =>
+							this.state.newOperationType
+								? addOperation(this.state.newOperationType)
+								: null
+						}
+					>
+						+
+					</button>
+				</form>
 			);
 
 		const externalFragments =
@@ -399,26 +441,9 @@ class ExplorerView extends React.PureComponent {
 				ref={(ref) => {
 					this._ref = ref;
 				}}
-				style={{
-					fontSize: 12,
-					textOverflow: 'ellipsis',
-					whiteSpace: 'nowrap',
-					margin: 0,
-					padding: 8,
-					fontFamily:
-						'Consolas, Inconsolata, "Droid Sans Mono", Monaco, monospace',
-					display: 'flex',
-					flexDirection: 'column',
-					height: '100%',
-				}}
 				className="graphiql-explorer-root"
 			>
-				<div
-					style={{
-						flexGrow: '1',
-						overflow: 'scroll',
-					}}
-				>
+				<div className="graphiql-explorer-operations">
 					{relevantOperations.map((operation, index) => {
 						const operationName =
 							operation && operation.name && operation.name.value;
@@ -478,6 +503,28 @@ class ExplorerView extends React.PureComponent {
 							this.props.onEdit(textualNewDocument);
 						};
 
+						// With multiple operations: when the editor cursor
+						// is inside an operation, that one is the default-
+						// expanded; otherwise the first is. User toggles
+						// override the default until the cursor moves to a
+						// new operation (which wipes the toggle map).
+						const opKey = operationKey(operation, index);
+						const userCollapsed = this.state.collapsedByKey[opKey];
+						let defaultCollapsed;
+						if (relevantOperations.length <= 1) {
+							defaultCollapsed = false;
+						} else if (cursorOpKey) {
+							defaultCollapsed = opKey !== cursorOpKey;
+						} else {
+							defaultCollapsed = index !== 0;
+						}
+						const isCollapsed =
+							typeof userCollapsed === 'boolean'
+								? userCollapsed
+								: defaultCollapsed;
+						const onToggleCollapsed = () =>
+							this._setCollapsed(opKey, !isCollapsed);
+
 						return (
 							<RootView
 								key={index}
@@ -486,6 +533,9 @@ class ExplorerView extends React.PureComponent {
 								operationType={operationType}
 								name={operationName}
 								definition={operation}
+								isCollapsed={isCollapsed}
+								onToggleCollapsed={onToggleCollapsed}
+								canCollapse={relevantOperations.length > 1}
 								onOperationRename={onOperationRename}
 								onOperationDestroy={onOperationDestroy}
 								onOperationClone={onOperationClone}

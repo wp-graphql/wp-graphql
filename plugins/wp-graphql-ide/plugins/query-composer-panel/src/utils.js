@@ -256,7 +256,9 @@ export function parseQuery(text) {
 		if (!text.trim()) {
 			return null;
 		}
-		return parse(text, { noLocation: true });
+		// Keep locations so the composer can map editor cursor offsets back
+		// to the operation that contains them (drives auto-expansion).
+		return parse(text);
 	} catch (e) {
 		return new Error(e);
 	}

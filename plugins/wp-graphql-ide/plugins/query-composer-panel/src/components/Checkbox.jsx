@@ -1,72 +1,57 @@
 import React from 'react';
 
 export const checkboxUnchecked = (
-	<svg
-		viewBox="0 0 15 15"
-		style={{
-			color: '#a7aaad',
-			marginRight: '4px',
-			height: '16px',
-			width: '16px',
-			flexShrink: 0,
-		}}
-	>
-		<circle cx="7.5" cy="7.5" r="6" stroke="currentColor" fill="none" />
-	</svg>
+	<span className="graphiql-explorer-checkbox" aria-hidden="true">
+		<svg
+			viewBox="0 0 16 16"
+			width="14"
+			height="14"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect
+				x="1.5"
+				y="1.5"
+				width="13"
+				height="13"
+				rx="1.5"
+				stroke="currentColor"
+			/>
+		</svg>
+	</span>
 );
 
 export const checkboxChecked = (
-	<svg
-		viewBox="0 0 15 15"
-		style={{
-			color: 'var(--wp-admin-theme-color, #3858e9)',
-			marginRight: '4px',
-			height: '16px',
-			width: '16px',
-			flexShrink: 0,
-		}}
-	>
-		<circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" />
-		<path
-			d="M4.64641 7.00106L6.8801 9.23256L10.5017 5.61325"
+	<span className="graphiql-explorer-checkbox is-checked" aria-hidden="true">
+		<svg
+			viewBox="0 0 16 16"
+			width="14"
+			height="14"
 			fill="none"
-			stroke="white"
-			strokeWidth="1.5"
-		/>
-	</svg>
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect
+				x="1"
+				y="1"
+				width="14"
+				height="14"
+				rx="2"
+				fill="currentColor"
+			/>
+			<path
+				d="M4.5 8.2 L7 10.7 L11.5 5.7"
+				stroke="#fff"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				fill="none"
+			/>
+		</svg>
+	</span>
 );
 
-export const defaultCheckboxChecked = (
-	<svg
-		style={{ marginRight: '3px', marginLeft: '-3px' }}
-		width="12"
-		height="12"
-		viewBox="0 0 18 18"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-	>
-		<path
-			d="M16 0H2C0.9 0 0 0.9 0 2V16C0 17.1 0.9 18 2 18H16C17.1 18 18 17.1 18 16V2C18 0.9 17.1 0 16 0ZM16 16H2V2H16V16ZM14.99 6L13.58 4.58L6.99 11.17L4.41 8.6L2.99 10.01L6.99 14L14.99 6Z"
-			fill="#666"
-		/>
-	</svg>
-);
-
-export const defaultCheckboxUnchecked = (
-	<svg
-		style={{ marginRight: '3px', marginLeft: '-3px' }}
-		width="12"
-		height="12"
-		viewBox="0 0 18 18"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-	>
-		<path
-			d="M16 2V16H2V2H16ZM16 0H2C0.9 0 0 0.9 0 2V16C0 17.1 0.9 18 2 18H16C17.1 18 18 17.1 18 16V2C18 0.9 17.1 0 16 0Z"
-			fill="#CCC"
-		/>
-	</svg>
-);
+export const defaultCheckboxChecked = checkboxChecked;
+export const defaultCheckboxUnchecked = checkboxUnchecked;
 
 export default function Checkbox(props) {
 	return props.checked

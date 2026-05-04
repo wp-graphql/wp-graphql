@@ -55,6 +55,9 @@ const selectors = {
 	getDocsNavTarget: (state) => {
 		return state.docsNavTarget;
 	},
+	getCursorOffset: (state) => {
+		return state.cursorOffset;
+	},
 	getCollections: (state) => {
 		return state.collections;
 	},
