@@ -514,10 +514,16 @@ export function SavedQueriesPanel() {
 		hooks.doAction('wpgraphql-ide.notice', content, type);
 
 	const [search, setSearch] = useState('');
-	// WP-style filter row: All / Mine / Shared. Acts as a *filter*, not a
-	// folder — sections render in their own order below; the filter just
-	// hides the ones that don't match. Avoids the public/private "folder"
-	// mental model that taxonomy-style tabs invite.
+	// WP-style filter row. Acts as a *filter*, not a folder — sections
+	// render in their own order below; the filter just hides the ones
+	// that don't match. Avoids the public/private "folder" mental model
+	// that taxonomy-style tabs invite.
+	//
+	// Currently `'all' | 'mine'`. The internal predicates already
+	// distinguish sitewide / personal / shared independently, so adding
+	// a 'sitewide' filter is a one-line addition: a new tab descriptor
+	// below + a `filter === 'sitewide'` branch wherever a section's
+	// `show*` flag needs it.
 	const [filter, setFilter] = useState('all');
 	// Seed from per-user meta so a user's collapse choices survive a
 	// reload. The hydrator only pulls the `collapsed` field; other
