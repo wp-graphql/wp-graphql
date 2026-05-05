@@ -97,9 +97,13 @@ function initialize_plugin() {
 	// GraphQL: register IDE-specific fields (meta) on the exposed types
 	// and scope connections to the current user so the IDE's data is
 	// queryable from GraphQL but isolated per user — same contract as
-	// the REST endpoints.
+	// the REST endpoints. The `graphql_data_is_private` filter closes
+	// the single-node lookup hole left by the connection-only filter:
+	// without it, `node(id: "...")` could resolve another user's
+	// IdeQuery if the requester knew its global ID.
 	add_action( 'graphql_register_types', __NAMESPACE__ . '\\register_ide_graphql_fields' );
 	add_filter( 'graphql_connection_query_args', __NAMESPACE__ . '\\scope_ide_graphql_connections_to_current_user', 10, 2 );
+	add_filter( 'graphql_data_is_private', __NAMESPACE__ . '\\restrict_ide_post_visibility_to_author', 10, 6 );
 
 	// Strip a deleted document's id from its owner's personal collections.
 	add_action( 'before_delete_post', __NAMESPACE__ . '\\purge_document_from_personal_collections', 10, 2 );
@@ -847,6 +851,62 @@ function scope_ide_graphql_connections_to_current_user( $query_args, $source ): 
 	$query_args['author'] = get_current_user_id();
 
 	return $query_args;
+}
+
+/**
+ * Mark IDE post objects as private when the current user isn't the
+ * author. The connection-level filter already scopes list queries,
+ * but `node(id: "...")` resolves a model directly from the global ID
+ * and bypasses connection args entirely. Without this filter, a user
+ * holding `manage_graphql_ide` could read another user's IdeQuery or
+ * IdeHistoryEntry just by guessing or sharing its global ID.
+ *
+ * Visibility is decided in the WPGraphQL Model layer: returning true
+ * here marks the data private so the model's restricted fields (id,
+ * databaseId, isRestricted, etc.) are still readable, but the rest
+ * resolves to null. This matches WPGraphQL's existing pattern for
+ * draft posts and is the same path used by core's `is_post_private()`.
+ *
+ * @since x-release-please-version
+ *
+ * @param bool                  $is_private   Whether the model is private.
+ * @param string                $model_name   Name of the WPGraphQL model.
+ * @param mixed                 $data         The un-modeled data (a `WP_Post` for `PostObject`).
+ * @param string|null           $visibility   Visibility set so far.
+ * @param int|null              $owner        Owner user ID, if any.
+ * @param \WP_User              $current_user Current user for the session.
+ * @return bool
+ */
+function restrict_ide_post_visibility_to_author( $is_private, $model_name, $data, $visibility, $owner, $current_user ): bool {
+	unset( $visibility ); // Unused — we make a final decision based on the data + current user.
+
+	if ( 'PostObject' !== $model_name ) {
+		return (bool) $is_private;
+	}
+
+	if ( ! $data instanceof \WP_Post ) {
+		return (bool) $is_private;
+	}
+
+	$ide_post_types = [ 'graphql_ide_query', 'graphql_ide_history' ];
+	if ( ! in_array( $data->post_type, $ide_post_types, true ) ) {
+		return (bool) $is_private;
+	}
+
+	$current_user_id = $current_user instanceof \WP_User ? (int) $current_user->ID : 0;
+	$post_author_id  = (int) $data->post_author;
+
+	// Owner is the source of truth when the model layer set it (matches
+	// the User-owner pattern used elsewhere in WPGraphQL).
+	if ( null !== $owner ) {
+		$post_author_id = (int) $owner;
+	}
+
+	if ( $current_user_id > 0 && $current_user_id === $post_author_id ) {
+		return (bool) $is_private;
+	}
+
+	return true;
 }
 
 /**

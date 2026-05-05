@@ -50,9 +50,12 @@ Defined in `register_ide_graphql_fields()` in `wpgraphql-ide.php`.
 | `IdeHistoryEntry` | `isAuthenticated: Boolean` | `_graphql_ide_is_authenticated` meta | |
 | `IdeHistoryEntry` | `httpMethod: String` | `_graphql_ide_http_method` meta | |
 
-### Connection scoping
+### Authorization
 
-`scope_ide_graphql_connections_to_current_user()` adds `author = get_current_user_id()` to every `IdeQuery` and `IdeHistoryEntry` connection so per-user isolation matches the REST endpoints. Without it, anyone with `manage_graphql_ide` could enumerate every other user's saved queries.
+Two filters together enforce per-user isolation across both query paths:
+
+- `scope_ide_graphql_connections_to_current_user()` on `graphql_connection_query_args` — adds `author = get_current_user_id()` to every `IdeQuery` and `IdeHistoryEntry` connection so list reads only return the requester's own data.
+- `restrict_ide_post_visibility_to_author()` on `graphql_data_is_private` — marks an IDE post object private when the current user isn't its author. Closes the single-node lookup path: without this filter, `node(id: "...")` and `ideQuery(id: "...")` would resolve another user's data when the requester knew the global ID.
 
 ### Client-side GraphQL callsites
 
@@ -102,47 +105,19 @@ These don't map cleanly to a CRUD verb on a single entity. They live in `registe
 - `enforce_ide_rest_permissions()` on `rest_pre_dispatch` — gates every IDE REST route on `manage_graphql_ide`.
 - `restrict_document_to_author()` on `rest_prepare_graphql_ide_query` / `rest_prepare_graphql_ide_history` — single-doc author check.
 
-The GraphQL surface mirrors these via `scope_ide_graphql_connections_to_current_user`, but **single-node access by global ID is not gated** — users with `manage_graphql_ide` can `node(id: "...")` an arbitrary `IdeQuery` if they know its global ID. This is a [known gap](#gap-d-single-node-id-access-not-author-gated).
+The GraphQL surface mirrors these via the two filters described in [Authorization](#authorization).
 
 ---
 
 ## Gaps blocking full GraphQL adoption
 
-These would all need to land before the IDE could remove `@wordpress/api-fetch` entirely.
+What's still on REST and why a clean migration to GraphQL is blocked. Land all three before the IDE could remove `@wordpress/api-fetch` entirely.
 
-### Gap A — Meta inputs on auto-generated mutations
-
-WPGraphQL auto-generates `createIdeQuery` / `updateIdeQuery` / `createIdeHistoryEntry` from the CPT registration, but the input types only carry core post fields. To set `variables`, `headers`, or read `queryString` on create/update, the input types need additional fields registered (likely via `graphql_input_fields` filter or `register_graphql_field` against the input type).
-
-### Gap B — Custom workflow mutations
-
-Each of the six bespoke REST routes needs a corresponding GraphQL mutation:
-
-- `publishIdeQuery(input: { id: ID! }): PublishIdeQueryPayload`
-- `cascadeDeleteIdeCollection(input: { id: ID! }): DeleteIdeCollectionPayload`
-- `exportIdeDocuments(input: {}): ExportIdeDocumentsPayload`
-- `importIdeDocuments(input: { payload: String! }): ImportIdeDocumentsPayload`
-- `reorderIdeQueries(input: { ids: [ID!]! }): ReorderIdeQueriesPayload`
-- `reorderIdeCollections(input: { ids: [ID!]! }): ReorderIdeCollectionsPayload`
-
-Each requires `register_graphql_mutation()` plumbing and matching payload types. This is the largest piece of work in a full migration.
-
-### Gap C — User preference blobs not in the schema
-
-The IDE persists eight JSON-blob user metas (`wpgraphql_ide_panel_order`, `wpgraphql_ide_section_states`, `wpgraphql_ide_collapsed_notices`, `wpgraphql_ide_personal_collections`, `wpgraphql_ide_seen_shared_collections`, `wpgraphql_ide_collection_order`, `wpgraphql_ide_collection_sort_modes`, `wpgraphql_ide_theme`).
-
-Two viable shapes for migration:
-
-1. Register each meta as a typed `User` field with a setter mutation (`updateIdePanelOrder`, etc.). Honest about the JSON shape but produces a wide and ugly schema.
-2. Wrap them in an `IdeUserPreferences` object type with `getIdePreferences { ... }` query and a single `updateIdePreference(input: { key: String!, value: String! })` mutation. Cleaner schema, but the JSON-blob nature is still leaking through `value: String`.
-
-Pick the second for any future migration unless one of the blobs grows into a structured shape worth modeling individually.
-
-### Gap D — Single-node ID access not author-gated
-
-`scope_ide_graphql_connections_to_current_user` only filters list connections. A `node(id: "<base64 of post:123>")` query still resolves an `IdeQuery` even if the requester isn't the author. Either add a `pre_resolve_node` style filter that rejects cross-author lookups, or shift the author check into the model layer (`WPGraphQL\Model\Post`) via the existing `is_private` mechanism.
-
-This is the most urgent gap to close before the schema is widely used by third parties.
+| # | Gap | What it blocks | Recommended shape |
+| --- | --- | --- | --- |
+| A | Meta inputs missing on auto-generated mutations. WPGraphQL generates `createIdeQuery` / `updateIdeQuery` / `createIdeHistoryEntry` from the CPT registration, but their input types only carry core post fields. | All write paths for documents and history. | Register `variables`, `headers`, `queryString` as input fields via the `graphql_input_fields` filter. |
+| B | Six bespoke workflow REST routes have no GraphQL equivalents: `/documents/{id}/publish`, `/collections/{id}/cascade`, `/documents/export`, `/documents/import`, `/documents/reorder`, `/collections/reorder`. | Publish, cascade-delete, bulk export/import, manual reorder. The biggest piece of work. | One `register_graphql_mutation()` per route with a matching payload type. |
+| C | Eight JSON-blob user-preference metas (`wpgraphql_ide_panel_order`, `wpgraphql_ide_section_states`, `wpgraphql_ide_collapsed_notices`, `wpgraphql_ide_personal_collections`, `wpgraphql_ide_seen_shared_collections`, `wpgraphql_ide_collection_order`, `wpgraphql_ide_collection_sort_modes`, `wpgraphql_ide_theme`) aren't on the schema. | Every `getPreferences` / `savePreference` callsite. | One `IdeUserPreferences` object type with `viewer { idePreferences { ... } }` and a single `updateIdePreference(input: { key, value })` mutation. Avoids one-mutation-per-blob schema bloat. |
 
 ---
 
