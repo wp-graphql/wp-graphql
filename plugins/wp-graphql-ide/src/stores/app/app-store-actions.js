@@ -530,6 +530,26 @@ const actions = {
 				);
 			}
 		},
+
+	/**
+	 * Persist an IDE-scoped user preference. Thin wrapper around the REST
+	 * helper that exists so consumers (DocumentNotices, SavedQueriesPanel,
+	 * third-party panels) write through the public store API instead of
+	 * importing `savePreference` directly. Failures are swallowed and
+	 * logged — preferences are best-effort and shouldn't surface as user-
+	 * facing errors.
+	 *
+	 * @param {string} key   Preference name (without the `wpgraphql_ide_` prefix).
+	 * @param {*}      value Preference value (string, array, or JSON-encodable).
+	 */
+	saveUserPreference: (key, value) => async () => {
+		try {
+			await savePreference(key, value);
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.error(`Failed to persist preference "${key}":`, error);
+		}
+	},
 };
 
 export default actions;

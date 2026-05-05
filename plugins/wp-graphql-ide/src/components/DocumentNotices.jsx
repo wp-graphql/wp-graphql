@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button, Notice } from '@wordpress/components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import { savePreference } from '../api/preferences';
+import { useDispatch } from '@wordpress/data';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 
 /**
@@ -46,10 +46,12 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 		readCollapsedNotices().has(NOTICE_PUBLISHED_READONLY)
 	);
 
-	// Debounced REST write so a fast toggle (or a dev double-click) only
-	// hits the network once.
+	const { saveUserPreference } = useDispatch('wpgraphql-ide/app');
+
+	// Debounced write so a fast toggle (or a dev double-click) only hits
+	// the network once.
 	const [persistCollapsed] = useDebouncedCallback((set) => {
-		savePreference('collapsed_notices', Array.from(set)).catch(() => {});
+		saveUserPreference('collapsed_notices', Array.from(set));
 	}, 300);
 
 	const toggle = useCallback(() => {

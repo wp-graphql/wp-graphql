@@ -37,7 +37,6 @@ import {
 	importDocuments,
 } from '../api/documents';
 import { displayDocTitle } from '../utils/derive-doc-title';
-import { savePreference } from '../api/preferences';
 
 /**
  * Hydrate the `collapsedSections` map from the bootstrap-localized
@@ -479,12 +478,6 @@ export function SavedQueriesPanel() {
 	const [collapsedSections, setCollapsedSections] = useState(
 		hydrateCollapsedSections
 	);
-	// Debounce the persist so rapid toggles coalesce into a single
-	// REST write. The 500ms tail keeps the network quiet while still
-	// feeling instantaneous to the user.
-	const [persistSectionStates] = useDebouncedCallback((blob) => {
-		savePreference('section_states', JSON.stringify(blob)).catch(() => {});
-	}, 500);
 	const [newCollectionOpen, setNewCollectionOpen] = useState(false);
 	const [shareTarget, setShareTarget] = useState(null);
 	const [dragOverId, setDragOverId] = useState(null);
@@ -540,7 +533,15 @@ export function SavedQueriesPanel() {
 		removePersonalCollection,
 		togglePersonalCollectionMembership,
 		updatePersonalCollectionSharedWith,
+		saveUserPreference,
 	} = useDispatch('wpgraphql-ide/app');
+
+	// Debounce the persist so rapid toggles coalesce into a single
+	// store dispatch (which in turn handles the REST write). 500ms keeps
+	// the network quiet while still feeling instantaneous to the user.
+	const [persistSectionStates] = useDebouncedCallback((blob) => {
+		saveUserPreference('section_states', JSON.stringify(blob));
+	}, 500);
 
 	const [exportOpen, setExportOpen] = useState(false);
 
