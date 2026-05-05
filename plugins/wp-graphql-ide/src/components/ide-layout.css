@@ -65,43 +65,68 @@
 	gap: 16px;
 }
 
-/* Multi-select collection checklists in SaveDialog. The fieldset gives
-   the section a clear label and groups the checkboxes so the dialog
-   reads as one form, not two competing pickers. */
-.wpgraphql-ide-save-dialog-fieldset {
-	border: 0;
-	padding: 0;
-	margin: 0;
-}
-
-.wpgraphql-ide-save-dialog-legend {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 0 0 8px;
-	font-size: 11px;
-	font-weight: 500;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-	color: #1d2327;
-}
-
-.wpgraphql-ide-save-dialog-legend svg {
-	fill: #646970;
-}
-
-.wpgraphql-ide-save-dialog-checklist {
-	list-style: none;
-	margin: 0;
-	padding: 8px 12px;
+/* SaveDialog collections picker. Sitewide and personal collections share
+   one flat list; an inline divider separates the two groups when both
+   are present. Personal rows carry a small lock + "Personal" pill so the
+   scope is legible without a second fieldset. */
+.wpgraphql-ide-save-dialog-section {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	max-height: 180px;
+	gap: 6px;
+}
+
+.wpgraphql-ide-save-dialog-section-label {
+	font-size: 11px;
+	font-weight: 500;
+	color: #50575e;
+}
+
+.wpgraphql-ide-save-dialog-list {
+	list-style: none;
+	margin: 0;
+	padding: 4px 0;
+	display: flex;
+	flex-direction: column;
+	max-height: 220px;
 	overflow-y: auto;
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
+}
+
+.wpgraphql-ide-save-dialog-row {
+	padding: 6px 4px;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-save-dialog-row:hover {
+	background: #f6f7f7;
+}
+
+.wpgraphql-ide-save-dialog-divider {
+	height: 1px;
+	margin: 6px 4px;
+	padding: 0;
+	background: #dcdcde;
+}
+
+.wpgraphql-ide-save-dialog-row-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wpgraphql-ide-save-dialog-row-scope {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 1px 6px;
+	font-size: 11px;
+	font-weight: 500;
+	color: #50575e;
+	background: #f0f0f1;
+	border-radius: 10px;
+}
+
+.wpgraphql-ide-save-dialog-row-scope svg {
+	fill: #646970;
 }
 
 .wpgraphql-ide-save-dialog-empty {

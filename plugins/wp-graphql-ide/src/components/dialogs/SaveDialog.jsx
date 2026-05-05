@@ -20,12 +20,17 @@ const MODE_LABELS = {
 	},
 };
 
-// Document details dialog — shared between the "Save" flow (promoting
-// a temp draft to a real document) and the "Rename" flow (editing an
-// existing saved document). The user can assign the doc to any
-// combination of sitewide and personal collections via checkboxes.
-// Creating new collections happens in the dedicated NewCollectionDialog
-// from the panel kebab.
+// Document details dialog — shared between the "Save" flow (promoting a
+// temp draft to a real document) and the "Rename" flow (editing an
+// existing saved document).
+//
+// Visual model: one form, one collections list. Sitewide and personal
+// collections render as a single picker so the user reads the dialog
+// top-to-bottom without bouncing between competing fieldsets. Personal
+// collections sit below an in-line separator and carry a small lock
+// glyph next to the name to convey scope. Creating new collections is
+// out of scope for this dialog and lives in the saved-queries panel
+// kebab.
 //
 // Props:
 //   {
@@ -129,6 +134,8 @@ export function SaveDialog({
 
 	const hasAnyCollections =
 		collections.length > 0 || personalCollections.length > 0;
+	const hasBothGroups =
+		collections.length > 0 && personalCollections.length > 0;
 
 	return (
 		<Modal
@@ -156,59 +163,71 @@ export function SaveDialog({
 
 				{!hasAnyCollections ? (
 					<p className="wpgraphql-ide-save-dialog-empty">
-						No collections yet — you can create one from the
-						saved-queries panel.
+						No collections yet — create one from the saved queries
+						panel.
 					</p>
 				) : (
-					<>
-						{collections.length > 0 && (
-							<fieldset className="wpgraphql-ide-save-dialog-fieldset">
-								<legend className="wpgraphql-ide-save-dialog-legend">
-									Collections
-								</legend>
-								<ul className="wpgraphql-ide-save-dialog-checklist">
-									{collections.map((c) => (
-										<li key={c.id}>
-											<CheckboxControl
-												__nextHasNoMarginBottom
-												label={c.name}
-												checked={pickedSitewide.has(
-													Number(c.id)
-												)}
-												onChange={() =>
-													toggleSitewide(Number(c.id))
-												}
-											/>
-										</li>
-									))}
-								</ul>
-							</fieldset>
-						)}
-						{personalCollections.length > 0 && (
-							<fieldset className="wpgraphql-ide-save-dialog-fieldset">
-								<legend className="wpgraphql-ide-save-dialog-legend">
-									<Icon icon={lock} size={14} /> Personal
-									collections
-								</legend>
-								<ul className="wpgraphql-ide-save-dialog-checklist">
-									{personalCollections.map((pc) => (
-										<li key={pc.id}>
-											<CheckboxControl
-												__nextHasNoMarginBottom
-												label={pc.name}
-												checked={pickedPersonal.has(
-													pc.id
-												)}
-												onChange={() =>
-													togglePersonal(pc.id)
-												}
-											/>
-										</li>
-									))}
-								</ul>
-							</fieldset>
-						)}
-					</>
+					<div
+						className="wpgraphql-ide-save-dialog-section"
+						role="group"
+						aria-label="Add to collections"
+					>
+						<span className="wpgraphql-ide-save-dialog-section-label">
+							Add to collections
+						</span>
+						<ul className="wpgraphql-ide-save-dialog-list">
+							{collections.map((c) => (
+								<li
+									key={`s-${c.id}`}
+									className="wpgraphql-ide-save-dialog-row"
+								>
+									<CheckboxControl
+										__nextHasNoMarginBottom
+										label={c.name}
+										checked={pickedSitewide.has(
+											Number(c.id)
+										)}
+										onChange={() =>
+											toggleSitewide(Number(c.id))
+										}
+									/>
+								</li>
+							))}
+							{hasBothGroups && (
+								<li
+									className="wpgraphql-ide-save-dialog-divider"
+									aria-hidden="true"
+								/>
+							)}
+							{personalCollections.map((pc) => (
+								<li
+									key={`p-${pc.id}`}
+									className="wpgraphql-ide-save-dialog-row wpgraphql-ide-save-dialog-row--personal"
+								>
+									<CheckboxControl
+										__nextHasNoMarginBottom
+										label={
+											<span className="wpgraphql-ide-save-dialog-row-label">
+												{pc.name}
+												<span
+													className="wpgraphql-ide-save-dialog-row-scope"
+													aria-label="Personal collection"
+												>
+													<Icon
+														icon={lock}
+														size={12}
+													/>
+													Personal
+												</span>
+											</span>
+										}
+										checked={pickedPersonal.has(pc.id)}
+										onChange={() => togglePersonal(pc.id)}
+									/>
+								</li>
+							))}
+						</ul>
+					</div>
 				)}
 			</div>
 			<div className="wpgraphql-ide-dialog-actions">
