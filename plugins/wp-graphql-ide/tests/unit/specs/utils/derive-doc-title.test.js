@@ -37,9 +37,9 @@ describe('deriveDocTitle', () => {
 	});
 
 	it('handles mutation and subscription operations', () => {
-		expect(deriveDocTitle('mutation CreateThing { createThing { id } }')).toBe(
-			'CreateThing'
-		);
+		expect(
+			deriveDocTitle('mutation CreateThing { createThing { id } }')
+		).toBe('CreateThing');
 		expect(
 			deriveDocTitle('subscription WatchThing { thingChanged { id } }')
 		).toBe('WatchThing');
@@ -57,7 +57,9 @@ describe('deriveStableDocTitle', () => {
 		expect(deriveStableDocTitle('query GetPosts {')).toBe('GetPosts');
 		expect(deriveStableDocTitle('query GetPosts(')).toBe('GetPosts');
 		expect(
-			deriveStableDocTitle('mutation Save($id: ID!) { save(id: $id) { ok } }')
+			deriveStableDocTitle(
+				'mutation Save($id: ID!) { save(id: $id) { ok } }'
+			)
 		).toBe('Save');
 	});
 
@@ -101,7 +103,10 @@ describe('displayDocTitle', () => {
 	});
 
 	it('returns title verbatim when manually named', () => {
-		const doc = { title: 'My Query', query: 'query Anything { posts { id } }' };
+		const doc = {
+			title: 'My Query',
+			query: 'query Anything { posts { id } }',
+		};
 		expect(displayDocTitle(doc)).toBe('My Query');
 	});
 

@@ -40,7 +40,10 @@ describe('app reducer', () => {
 
 		it('is a no-op when the query is unchanged (referential stability)', () => {
 			const before = seed({ query: '{ x }' });
-			const after = reducer(before, { type: 'SET_QUERY', query: '{ x }' });
+			const after = reducer(before, {
+				type: 'SET_QUERY',
+				query: '{ x }',
+			});
 			expect(after).toBe(before);
 		});
 	});
@@ -151,7 +154,7 @@ describe('app reducer', () => {
 		it('SET_COLLECTION_SORT_MODES replaces the map', () => {
 			const after = reducer(seed(), {
 				type: 'SET_COLLECTION_SORT_MODES',
-				modes: { '_unsaved': 'modified_desc' },
+				modes: { _unsaved: 'modified_desc' },
 			});
 			expect(after.collectionSortModes).toEqual({
 				_unsaved: 'modified_desc',

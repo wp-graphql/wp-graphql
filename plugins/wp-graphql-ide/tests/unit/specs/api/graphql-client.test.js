@@ -1,7 +1,4 @@
-import {
-	gql,
-	GraphQLClientError,
-} from '../../../../src/api/graphql-client';
+import { gql, GraphQLClientError } from '../../../../src/api/graphql-client';
 
 describe('graphql-client', () => {
 	const ENDPOINT = 'http://example.test/graphql';
@@ -53,7 +50,10 @@ describe('graphql-client', () => {
 						Accept: 'application/json',
 						'X-WP-Nonce': 'test-nonce',
 					}),
-					body: JSON.stringify({ query: '{ foo }', variables: { x: 1 } }),
+					body: JSON.stringify({
+						query: '{ foo }',
+						variables: { x: 1 },
+					}),
 				})
 			);
 		});
@@ -89,36 +89,27 @@ describe('graphql-client', () => {
 
 		it('throws with auth-distinct message and status on 401', async () => {
 			mockResponse({ ok: false, status: 401 });
-			try {
-				await gql('{ foo }');
-				throw new Error('expected gql to throw');
-			} catch (e) {
-				expect(e).toBeInstanceOf(GraphQLClientError);
-				expect(e.status).toBe(401);
-				expect(e.message).toMatch(/Authentication required/);
-			}
+			await expect(gql('{ foo }')).rejects.toMatchObject({
+				constructor: GraphQLClientError,
+				status: 401,
+				message: expect.stringMatching(/Authentication required/),
+			});
 		});
 
 		it('throws with auth-distinct message and status on 403', async () => {
 			mockResponse({ ok: false, status: 403 });
-			try {
-				await gql('{ foo }');
-				throw new Error('expected gql to throw');
-			} catch (e) {
-				expect(e.status).toBe(403);
-				expect(e.message).toMatch(/Authentication required/);
-			}
+			await expect(gql('{ foo }')).rejects.toMatchObject({
+				status: 403,
+				message: expect.stringMatching(/Authentication required/),
+			});
 		});
 
 		it('throws with the HTTP status preserved on other failures', async () => {
 			mockResponse({ ok: false, status: 500 });
-			try {
-				await gql('{ foo }');
-				throw new Error('expected gql to throw');
-			} catch (e) {
-				expect(e.status).toBe(500);
-				expect(e.message).toMatch(/500/);
-			}
+			await expect(gql('{ foo }')).rejects.toMatchObject({
+				status: 500,
+				message: expect.stringMatching(/500/),
+			});
 		});
 
 		it('preserves the full errors[] array on a GraphQL-level error', async () => {
@@ -130,15 +121,14 @@ describe('graphql-client', () => {
 					],
 				},
 			});
-			try {
-				await gql('{ foo }');
-				throw new Error('expected gql to throw');
-			} catch (e) {
-				expect(e.errors).toHaveLength(2);
-				expect(e.errors[1].message).toBe('second error');
-				// `message` mirrors the first error for single-string consumers.
-				expect(e.message).toBe('first error');
-			}
+			// `message` mirrors the first error for single-string consumers.
+			await expect(gql('{ foo }')).rejects.toMatchObject({
+				message: 'first error',
+				errors: expect.arrayContaining([
+					expect.objectContaining({ message: 'first error' }),
+					expect.objectContaining({ message: 'second error' }),
+				]),
+			});
 		});
 
 		it('throws when the response body is invalid JSON', async () => {
