@@ -84,26 +84,8 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 				className="wpgraphql-ide-document-notice"
 			>
 				<div className="wpgraphql-ide-document-notice-header">
-					<Button
-						variant="link"
-						onClick={toggle}
-						className="wpgraphql-ide-document-notice-toggle"
-						aria-expanded={!collapsed}
-						aria-controls="wpgraphql-ide-document-notice-detail"
-						aria-label={
-							collapsed
-								? 'Show details about read-only documents'
-								: 'Hide details about read-only documents'
-						}
-					>
-						<Icon
-							icon={collapsed ? chevronDown : chevronUp}
-							size={18}
-							aria-hidden="true"
-						/>
-					</Button>
 					<span className="wpgraphql-ide-document-notice-summary">
-						This document is published and read-only.
+						This query is published and read-only.
 						{onDuplicate && (
 							<>
 								{' '}
@@ -112,11 +94,30 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 									onClick={onDuplicate}
 									className="wpgraphql-ide-document-notice-link"
 								>
-									Duplicate to edit
-								</Button>
+									Duplicate as draft
+								</Button>{' '}
+								to keep iterating.
 							</>
 						)}
 					</span>
+					<Button
+						variant="link"
+						onClick={toggle}
+						className="wpgraphql-ide-document-notice-toggle"
+						aria-expanded={!collapsed}
+						aria-controls="wpgraphql-ide-document-notice-detail"
+						aria-label={
+							collapsed
+								? 'Show details about read-only queries'
+								: 'Hide details about read-only queries'
+						}
+					>
+						<Icon
+							icon={collapsed ? chevronDown : chevronUp}
+							size={18}
+							aria-hidden="true"
+						/>
+					</Button>
 				</div>
 				{!collapsed && (
 					<div
@@ -124,18 +125,16 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 						className="wpgraphql-ide-document-notice-detail"
 					>
 						<p>
-							Published documents have a stable identifier other
-							apps may reference (mobile clients, persisted-query
-							caches, automation). Editing a published doc would
-							change its identifier and silently break those
-							consumers.
+							Other apps — mobile clients, persisted-query caches,
+							automation — reference this query by its stable ID.
+							Editing it would change the ID and silently break
+							them.
 						</p>
 						<p>
-							Use <strong>Duplicate to edit</strong> to spawn a
-							draft copy you can change without affecting
-							downstream consumers. Re-publish the draft when
-							you&apos;re ready and the new identifier rolls
-							forward alongside the original.
+							<strong>Duplicate as draft</strong> creates an
+							editable copy. Publishing the copy produces a new,
+							separate ID, so consumers can adopt it on their own
+							schedule.
 						</p>
 					</div>
 				)}
