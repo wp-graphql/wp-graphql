@@ -76,7 +76,7 @@
     "eslint-plugin-unused-imports": "^3.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.12",
     "postcss-focus-visible": "^7.1.0",
     "postcss-import": "^15.1.0",
     "prettier": "^3.8.3",
