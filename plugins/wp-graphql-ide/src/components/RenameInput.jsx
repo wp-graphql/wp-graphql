@@ -6,17 +6,21 @@ import React, { useRef } from 'react';
  * - Enter blurs (which commits via onCommit).
  * - Escape cancels (calls onCancel, suppresses commit-on-blur).
  * - Blur commits with the trimmed current value.
+ * - Empty trimmed value on blur/Enter cancels instead of committing
+ *   (callers don't want to clear a tab/collection name to "").
  * - Click stops propagation so the surrounding row doesn't toggle.
  *
  * Callers own the trimmed-value semantics — onCommit may decide to
  * no-op (e.g. unchanged value) or call out to a server. RenameInput
- * just delivers the value cleanly.
+ * just delivers the value cleanly. Either onCommit or onCancel is
+ * always invoked on blur, so callers can rely on one of them to exit
+ * the editing state.
  *
  * @param {Object}   props
  * @param {string}   props.value
  * @param {Function} props.onChange    Called with the next raw input value.
  * @param {Function} props.onCommit    Called with the trimmed value on Enter or blur. Skipped if empty or after Escape.
- * @param {Function} [props.onCancel]  Called on Escape.
+ * @param {Function} [props.onCancel]  Called on Escape, or on blur/Enter when trimmed value is empty.
  * @param {string}   [props.className]
  * @param {string}   [props.ariaLabel]
  */
@@ -30,10 +34,12 @@ export function RenameInput({
 }) {
 	const cancelledRef = useRef(false);
 
-	const commit = () => {
+	const finish = () => {
 		const trimmed = (value || '').trim();
 		if (trimmed && onCommit) {
 			onCommit(trimmed);
+		} else if (onCancel) {
+			onCancel();
 		}
 	};
 
@@ -49,7 +55,7 @@ export function RenameInput({
 					cancelledRef.current = false;
 					return;
 				}
-				commit();
+				finish();
 			}}
 			onKeyDown={(e) => {
 				if (e.key === 'Enter') {

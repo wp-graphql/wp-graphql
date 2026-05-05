@@ -706,8 +706,11 @@ export function IDELayout({ fetcher, onClose }) {
 					],
 				});
 				if (choice === 'open') {
-					switchTab(existingId);
-					closeTab(String(draftId));
+					// Switch first so closing the draft doesn't trigger
+					// the active-tab fallback inside closeTab; then both
+					// persistTabState writes land in deterministic order.
+					await switchTab(existingId);
+					await closeTab(String(draftId));
 				}
 				// 'keep' or null: stay on the draft, no tab change.
 			} else {

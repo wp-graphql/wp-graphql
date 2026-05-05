@@ -1913,6 +1913,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-radius: 2px;
 }
 
+.wpgraphql-ide-response-status--success {
+	background: #edfaef;
+	color: #00a32a;
+}
+
+.wpgraphql-ide-response-status--error {
+	background: #fcf0f1;
+	color: #d63638;
+}
+
 .wpgraphql-ide-response-duration {
 	font-size: 11px;
 	color: #646970;
@@ -3538,6 +3548,16 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border-radius: 2px;
 	white-space: nowrap;
 	flex-shrink: 0;
+}
+
+.wpgraphql-ide-history-status--success {
+	background: #edfaef;
+	color: #00a32a;
+}
+
+.wpgraphql-ide-history-status--error {
+	background: #fcf0f1;
+	color: #d63638;
 }
 
 .wpgraphql-ide-history-duration {
