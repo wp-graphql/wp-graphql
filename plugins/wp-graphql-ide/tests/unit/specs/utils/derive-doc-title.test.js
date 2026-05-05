@@ -1,5 +1,6 @@
 import {
 	deriveDocTitle,
+	deriveStableDocTitle,
 	isAutoTitle,
 	displayDocTitle,
 } from '../../../../src/utils/derive-doc-title';
@@ -42,6 +43,31 @@ describe('deriveDocTitle', () => {
 		expect(
 			deriveDocTitle('subscription WatchThing { thingChanged { id } }')
 		).toBe('WatchThing');
+	});
+});
+
+describe('deriveStableDocTitle', () => {
+	it('returns null until the op-body opens', () => {
+		// Before `(` or `{` arrives, the op name is still being typed.
+		expect(deriveStableDocTitle('query GetPo')).toBeNull();
+		expect(deriveStableDocTitle('query GetPosts')).toBeNull();
+	});
+
+	it('returns the op name once body or args open', () => {
+		expect(deriveStableDocTitle('query GetPosts {')).toBe('GetPosts');
+		expect(deriveStableDocTitle('query GetPosts(')).toBe('GetPosts');
+		expect(
+			deriveStableDocTitle('mutation Save($id: ID!) { save(id: $id) { ok } }')
+		).toBe('Save');
+	});
+
+	it('returns null for null/empty input', () => {
+		expect(deriveStableDocTitle(null)).toBeNull();
+		expect(deriveStableDocTitle('')).toBeNull();
+	});
+
+	it('returns null for anonymous operations', () => {
+		expect(deriveStableDocTitle('{ posts { id } }')).toBeNull();
 	});
 });
 

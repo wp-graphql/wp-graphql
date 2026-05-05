@@ -136,7 +136,7 @@ function load_ide_textdomain() {
 	load_plugin_textdomain( 'wpgraphql-ide', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
 
-function register_ide_post_type() {
+function register_ide_post_type(): void {
 	register_post_type(
 		'graphql_ide_query',
 		[
