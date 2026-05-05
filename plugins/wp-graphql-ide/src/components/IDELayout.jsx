@@ -425,8 +425,21 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const savedQueryWidth =
 		window.localStorage.getItem('wpgraphql_ide_query_width') || '50%';
-	const savedEditorHeight =
-		window.localStorage.getItem('wpgraphql_ide_editor_height') || '70%';
+	// Clamp the persisted editor height so a previous tiny-drag (or stale
+	// flex-mode height saved while the bottom strip was hidden) can't leave
+	// the editor unreadable on the next visit. Percent strings pass through.
+	const MIN_EDITOR_HEIGHT_PX = 220;
+	const savedEditorHeight = (() => {
+		const raw = window.localStorage.getItem('wpgraphql_ide_editor_height');
+		if (!raw) {
+			return '70%';
+		}
+		const asNumber = Number(raw);
+		if (Number.isFinite(asNumber)) {
+			return Math.max(MIN_EDITOR_HEIGHT_PX, asNumber);
+		}
+		return raw;
+	})();
 	const savedResponseViewerHeight =
 		window.localStorage.getItem('wpgraphql_ide_response_viewer_height') ||
 		'50%';
@@ -1569,7 +1582,7 @@ export function IDELayout({ fetcher, onClose }) {
 												width: '100%',
 												height: editorHeight,
 											}}
-											minHeight={50}
+											minHeight={MIN_EDITOR_HEIGHT_PX}
 											enable={{
 												bottom:
 													editorBottomTabs.length > 0,
