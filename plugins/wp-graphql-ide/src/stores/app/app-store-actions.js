@@ -535,21 +535,42 @@ const actions = {
 	 * Persist an IDE-scoped user preference. Thin wrapper around the REST
 	 * helper that exists so consumers (DocumentNotices, SavedQueriesPanel,
 	 * third-party panels) write through the public store API instead of
-	 * importing `savePreference` directly. Failures are swallowed and
-	 * logged — preferences are best-effort and shouldn't surface as user-
-	 * facing errors.
+	 * importing `savePreference` directly.
+	 *
+	 * Preferences are best-effort: a failure logs to the console and
+	 * shows a non-blocking snackbar via `core/notices` so the user knows
+	 * their last toggle didn't stick (e.g. the section will collapse
+	 * again next reload). The failed local state isn't reverted — the
+	 * write is the only side effect; the component already updated its
+	 * own UI optimistically.
+	 *
+	 * @since x-release-please-version
 	 *
 	 * @param {string} key   Preference name (without the `wpgraphql_ide_` prefix).
 	 * @param {*}      value Preference value (string, array, or JSON-encodable).
 	 */
-	saveUserPreference: (key, value) => async () => {
-		try {
-			await savePreference(key, value);
-		} catch (error) {
-			// eslint-disable-next-line no-console
-			console.error(`Failed to persist preference "${key}":`, error);
-		}
-	},
+	saveUserPreference:
+		(key, value) =>
+		async ({ registry }) => {
+			try {
+				await savePreference(key, value);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(`Failed to persist preference "${key}":`, error);
+				// `registry` is the @wordpress/data registry control.
+				// Dispatch through it (rather than importing `dispatch`
+				// directly) so this stays a pure thunk that's easy to
+				// test and doesn't reach into global state.
+				const notices = registry?.dispatch?.('core/notices');
+				if (notices && typeof notices.createNotice === 'function') {
+					notices.createNotice(
+						'warning',
+						'Couldn\u2019t save your IDE preference. It may reset on reload.',
+						{ type: 'snackbar', isDismissible: true }
+					);
+				}
+			}
+		},
 };
 
 export default actions;

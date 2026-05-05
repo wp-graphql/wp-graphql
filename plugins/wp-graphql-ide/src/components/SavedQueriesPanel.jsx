@@ -37,6 +37,7 @@ import {
 	importDocuments,
 } from '../api/documents';
 import { displayDocTitle } from '../utils/derive-doc-title';
+import { isTempId } from '../utils/document-id';
 
 /**
  * Hydrate the `collapsedSections` map from the bootstrap-localized
@@ -59,6 +60,22 @@ function hydrateCollapsedSections() {
 		}
 	}
 	return out;
+}
+
+/**
+ * Whether the current WordPress user can enumerate other users.
+ *
+ * The Sharing dialog needs to search and resolve user IDs, which the
+ * GraphQL `users` field gates on the `list_users` capability. IDE
+ * access is gated on `manage_graphql_ide`, which is a strict superset
+ * — admins have both, but a custom role granted IDE access (e.g. an
+ * author with the editor toolkit) may not. Hide the Sharing
+ * affordance entirely in that case so the dialog never opens onto a
+ * "0 users found" / silent 401 dead end.
+ */
+function userCanListUsers() {
+	const data = window.WPGRAPHQL_IDE_DATA || {};
+	return Boolean(data.capabilities && data.capabilities.listUsers);
 }
 
 /**
@@ -510,6 +527,7 @@ export function SavedQueriesPanel() {
 	);
 	const [newCollectionOpen, setNewCollectionOpen] = useState(false);
 	const [shareTarget, setShareTarget] = useState(null);
+	const canListUsers = userCanListUsers();
 	const [dragOverId, setDragOverId] = useState(null);
 	const [deleteTarget, setDeleteTarget] = useState(null);
 	const [renameTarget, setRenameTarget] = useState(null);
@@ -519,7 +537,7 @@ export function SavedQueriesPanel() {
 	const dragDocRef = useRef(null);
 	const dragCollectionRef = useRef(null);
 
-	const { documents, activeTab, isTempId } = useSelect((select) => {
+	const { documents, activeTab } = useSelect((select) => {
 		const editor = select('wpgraphql-ide/document-editor');
 		// Workspace tabs (e.g. Settings) live in the documents store so
 		// the tab strip can render their titles, but they aren't query
@@ -528,7 +546,6 @@ export function SavedQueriesPanel() {
 		return {
 			documents: all.filter((d) => !d.tabType),
 			activeTab: editor.getActiveTab(),
-			isTempId: editor.isTempId,
 		};
 	}, []);
 
@@ -1304,7 +1321,11 @@ export function SavedQueriesPanel() {
 								onRename={(newName) =>
 									renamePersonalCollection(pc.id, newName)
 								}
-								onShare={() => setShareTarget(pc)}
+								onShare={
+									canListUsers
+										? () => setShareTarget(pc)
+										: undefined
+								}
 								sortMode={sortModeFor(pc.id)}
 								onSortModeChange={(mode) =>
 									setCollectionSortMode(pc.id, mode)

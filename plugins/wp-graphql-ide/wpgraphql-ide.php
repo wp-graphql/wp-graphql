@@ -1626,6 +1626,15 @@ function enqueue_react_app_with_styles(): void {
 		'sharedCollections'      => $shared_collections,
 		'seenSharedCollections'  => is_array( $seen_shared_collections ) ? $seen_shared_collections : [],
 		'sectionStates'          => empty( $section_states ) ? new \stdClass() : $section_states,
+		// `manage_graphql_ide` is the gate for using the IDE at all, but
+		// the share dialog needs to search and resolve other users — that
+		// requires `list_users`, which is a strict subset of editor and
+		// administrator. Surface it as a separate flag so the client can
+		// hide the share affordance for IDE users who can't enumerate
+		// other users (e.g. authors granted IDE access via a custom cap).
+		'capabilities'           => [
+			'listUsers' => current_user_can( 'list_users' ),
+		],
 	];
 
 	/**

@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Button, Modal, SearchControl, Spinner } from '@wordpress/components';
+import {
+	Button,
+	Modal,
+	Notice,
+	SearchControl,
+	Spinner,
+} from '@wordpress/components';
 import { Icon, close, plus } from '@wordpress/icons';
 import { gql } from '../../api/graphql-client';
 
@@ -57,6 +63,18 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 	const [searching, setSearching] = useState(false);
 	const [usersById, setUsersById] = useState({});
 	const [submitting, setSubmitting] = useState(false);
+	// Track the most recent error so the user knows when search/hydrate
+	// failed instead of seeing a silent empty result list. Auth failures
+	// (401/403) get a distinct message so the fix is obvious; everything
+	// else falls back to a generic "couldn't load users".
+	const [error, setError] = useState(null);
+
+	const messageForError = useCallback((e) => {
+		if (e && (e.status === 401 || e.status === 403)) {
+			return 'You don\u2019t have permission to look up users on this site.';
+		}
+		return 'Couldn\u2019t load users. Check your connection and try again.';
+	}, []);
 
 	// Hydrate display names for already-shared users so the chip list reads
 	// nicely on first paint.
@@ -68,7 +86,12 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 		if (missing.length === 0) {
 			return;
 		}
-		gql(USERS_BY_ID_QUERY, { ids: missing.map(Number) })
+		const controller = new AbortController();
+		gql(
+			USERS_BY_ID_QUERY,
+			{ ids: missing.map(Number) },
+			{ signal: controller.signal }
+		)
 			.then((result) => {
 				const map = { ...usersById };
 				for (const node of result?.users?.nodes || []) {
@@ -76,12 +99,20 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 					map[u.id] = u;
 				}
 				setUsersById(map);
+				setError(null);
 			})
-			.catch(() => {});
+			.catch((e) => {
+				if (e?.name === 'AbortError') {
+					return;
+				}
+				setError(messageForError(e));
+			});
+		return () => controller.abort();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [shared]);
 
-	// Debounced user search.
+	// Debounced user search. AbortController on each keystroke so a slow
+	// in-flight request can't overwrite a fresher result list.
 	useEffect(() => {
 		const term = search.trim();
 		if (term.length < 2) {
@@ -89,18 +120,33 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 			return undefined;
 		}
 		setSearching(true);
+		const controller = new AbortController();
 		const timer = setTimeout(() => {
-			gql(USER_SEARCH_QUERY, { search: term })
+			gql(
+				USER_SEARCH_QUERY,
+				{ search: term },
+				{ signal: controller.signal }
+			)
 				.then((result) => {
 					setSearchResults(
 						(result?.users?.nodes || []).map(nodeToUser)
 					);
+					setError(null);
 				})
-				.catch(() => setSearchResults([]))
+				.catch((e) => {
+					if (e?.name === 'AbortError') {
+						return;
+					}
+					setSearchResults([]);
+					setError(messageForError(e));
+				})
 				.finally(() => setSearching(false));
 		}, 250);
-		return () => clearTimeout(timer);
-	}, [search]);
+		return () => {
+			clearTimeout(timer);
+			controller.abort();
+		};
+	}, [search, messageForError]);
 
 	const addUser = useCallback((user) => {
 		setShared((prev) =>
@@ -167,6 +213,15 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 					<div className="wpgraphql-ide-share-collection-status">
 						<Spinner /> Searching…
 					</div>
+				)}
+				{error && !searching && (
+					<Notice
+						status="error"
+						isDismissible
+						onRemove={() => setError(null)}
+					>
+						{error}
+					</Notice>
 				)}
 				{visibleResults.length > 0 && (
 					<ul className="wpgraphql-ide-share-collection-results">

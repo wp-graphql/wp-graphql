@@ -9,6 +9,7 @@
  */
 
 import { getStorageJSON, setStorageJSON } from '../../utils/storage';
+import { isTempId } from '../../utils/document-id';
 
 const STORAGE_KEY = 'wpgraphql-ide:unsaved-tabs:v1';
 
@@ -21,15 +22,11 @@ function writeAll(tabs) {
 	setStorageJSON(STORAGE_KEY, tabs);
 }
 
-function isTempIdLocal(id) {
-	return String(id).startsWith('temp-');
-}
-
 /**
  * @return {Array<Object>} Stored unsaved tabs, oldest first.
  */
 export function getUnsavedTabs() {
-	return readAll().filter((t) => t && isTempIdLocal(t.id));
+	return readAll().filter((t) => t && isTempId(t.id));
 }
 
 /**
@@ -39,7 +36,7 @@ export function getUnsavedTabs() {
  * @param {Object} doc Document object with at least { id, title }.
  */
 export function saveUnsavedTab(doc) {
-	if (!doc || !isTempIdLocal(doc.id)) {
+	if (!doc || !isTempId(doc.id)) {
 		return;
 	}
 	const tabs = readAll();

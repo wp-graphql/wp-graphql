@@ -12,16 +12,9 @@ import {
 	saveUnsavedTab,
 	removeUnsavedTab,
 } from './unsaved-tabs-storage';
+import { isTempId } from '../../utils/document-id';
 
-/**
- * Check whether a document ID is a temporary (unsaved) client-side ID.
- *
- * @param {string|number} id Document ID.
- * @return {boolean} True if the ID is temporary.
- */
-export function isTempId(id) {
-	return String(id).startsWith('temp-');
-}
+export { isTempId };
 
 const actions = {
 	registerButton: (name, config, priority) => ({

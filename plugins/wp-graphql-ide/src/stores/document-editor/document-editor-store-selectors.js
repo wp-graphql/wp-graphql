@@ -1,4 +1,5 @@
 import { createSelector } from '@wordpress/data';
+import { isTempId } from '../../utils/document-id';
 
 const selectors = {
 	buttons: createSelector(
@@ -62,8 +63,10 @@ const selectors = {
 	// State-free helper exposed as a selector so internal components and
 	// third parties have one place to ask "is this an unsaved tab?" Tabs
 	// the editor created in-memory carry a `temp-…` ID prefix until
-	// `saveTab` swaps it for the real CPT post id.
-	isTempId: (state, id) => String(id).startsWith('temp-'),
+	// `saveTab` swaps it for the real CPT post id. Implementation lives
+	// in `utils/document-id.js` so the predicate isn't redefined in
+	// three places.
+	isTempId: (state, id) => isTempId(id),
 };
 
 export default selectors;
