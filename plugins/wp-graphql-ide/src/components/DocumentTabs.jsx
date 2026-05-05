@@ -20,15 +20,12 @@ const OVERFLOW_BTN_W = 32;
  * overflow dropdown on the right. Renames are triggered from the sidebar.
  *
  * @param {Object}   props
- * @param {Array}    props.tabs               Array of `{ id, title, dirty }` tab descriptors.
- * @param {string}   props.activeId           Id of the currently active tab.
- * @param {Function} props.onSwitch           Called with the clicked tab id.
- * @param {Function} props.onClose            Called with the id of the tab to close.
- * @param {Function} props.onCreate           Called when the "+" button is clicked.
- * @param {Function} props.onRename           Called with `(id, title)` after inline rename.
- * @param {Function} [props.onRefreshActive]  Re-fetch the active tab from the server.
- * @param {boolean}  [props.canRefreshActive] Whether the refresh action is enabled
- *                                            (false when the active tab is unsaved).
+ * @param {Array}    props.tabs     Array of `{ id, title, dirty }` tab descriptors.
+ * @param {string}   props.activeId Id of the currently active tab.
+ * @param {Function} props.onSwitch Called with the clicked tab id.
+ * @param {Function} props.onClose  Called with the id of the tab to close.
+ * @param {Function} props.onCreate Called when the "+" button is clicked.
+ * @param {Function} props.onRename Called with `(id, title)` after inline rename.
  *
  * @return {JSX.Element}
  */
@@ -39,8 +36,6 @@ export function DocumentTabs({
 	onClose,
 	onCreate,
 	onRename,
-	onRefreshActive,
-	canRefreshActive = false,
 }) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
@@ -295,19 +290,6 @@ export function DocumentTabs({
 						const hasInactive = tabs.length > 1;
 						return (
 							<>
-								{onRefreshActive && (
-									<MenuGroup>
-										<MenuItem
-											onClick={() => {
-												onRefreshActive();
-												closeMenu();
-											}}
-											disabled={!canRefreshActive}
-										>
-											Refresh tab names
-										</MenuItem>
-									</MenuGroup>
-								)}
 								<MenuGroup>
 									<MenuItem
 										onClick={() => {

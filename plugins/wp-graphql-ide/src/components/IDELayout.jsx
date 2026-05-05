@@ -737,49 +737,19 @@ export function IDELayout({ fetcher, onClose }) {
 	const isPublished = activeDocument?.status === 'publish';
 
 	// Whether the variables/headers JSON strings carry any meaningful
-	// content. Empty string, blank, or `{}` all count as "no content"
-	// — published docs should hide those tabs since there's nothing to
-	// see and the editor is read-only anyway.
-	const hasJsonContent = useCallback((raw) => {
-		if (!raw || typeof raw !== 'string') {
-			return false;
-		}
-		const trimmed = raw.trim();
-		if (!trimmed || trimmed === '{}') {
-			return false;
-		}
-		try {
-			const parsed = JSON.parse(trimmed);
-			if (parsed && typeof parsed === 'object') {
-				return Object.keys(parsed).length > 0;
-			}
-			return false;
-		} catch {
-			// Malformed JSON — treat as content so the user can still
-			// see what's there (and the editor surfaces parse errors).
-			return true;
-		}
-	}, []);
-	const hasVariables = useMemo(
-		() => hasJsonContent(variables),
-		[hasJsonContent, variables]
+	// Variables + Headers belong to the *request*, not the immutable
+	// document. A published doc's query body is locked, but the
+	// variables and HTTP headers can change per request (auth tokens,
+	// pagination cursors, etc.) so the panel stays editable on every
+	// doc. Both tabs are always rendered so users can add content even
+	// when the persisted doc shipped without it.
+	const editorBottomTabs = useMemo(
+		() => [
+			{ name: 'variables', title: 'Variables' },
+			{ name: 'headers', title: 'Headers' },
+		],
+		[]
 	);
-	const hasHeaders = useMemo(
-		() => hasJsonContent(headers),
-		[hasJsonContent, headers]
-	);
-	// Tabs to render in the lower toolbar. On published docs we filter
-	// out empty Variables/Headers since they're read-only and offer
-	// nothing to look at; on drafts we always show both so the user
-	// has a place to add content.
-	const editorBottomTabs = useMemo(() => {
-		const all = [
-			{ name: 'variables', title: 'Variables', present: hasVariables },
-			{ name: 'headers', title: 'Headers', present: hasHeaders },
-		];
-		const filtered = isPublished ? all.filter((t) => t.present) : all;
-		return filtered.map(({ present, ...tab }) => tab);
-	}, [isPublished, hasVariables, hasHeaders]);
 
 	// Spawn a fresh draft tab seeded with the current doc's query, variables,
 	// and headers. Used by the "Duplicate as draft" kebab item and the
@@ -1395,11 +1365,6 @@ export function IDELayout({ fetcher, onClose }) {
 									onRename={(id, title) => {
 										saveDocument(id, { title });
 									}}
-									onRefreshActive={() => loadDocuments()}
-									canRefreshActive={
-										!!activeDocument?.id &&
-										!isTempId(activeDocument.id)
-									}
 								/>
 							</div>
 
@@ -1854,43 +1819,27 @@ export function IDELayout({ fetcher, onClose }) {
 										</ResizableBox>
 										{editorBottomTabs.length > 0 && (
 											<TabPanel
-												className={`wpgraphql-ide-editor-tools${isPublished ? ' is-readonly' : ''}`}
+												className="wpgraphql-ide-editor-tools"
 												tabs={editorBottomTabs}
 											>
 												{(tab) =>
 													tab.name === 'variables' ? (
 														<JSONEditor
 															key="variables"
-															className={
-																isPublished
-																	? 'is-readonly'
-																	: ''
-															}
 															value={variables}
 															onChange={
 																handleVariablesChange
 															}
 															placeholder="Variables (JSON)"
-															readOnly={
-																isPublished
-															}
 														/>
 													) : (
 														<JSONEditor
 															key="headers"
-															className={
-																isPublished
-																	? 'is-readonly'
-																	: ''
-															}
 															value={headers}
 															onChange={
 																handleHeadersChange
 															}
 															placeholder="Headers (JSON)"
-															readOnly={
-																isPublished
-															}
 														/>
 													)
 												}
