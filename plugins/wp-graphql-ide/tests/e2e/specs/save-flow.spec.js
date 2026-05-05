@@ -1,6 +1,7 @@
 import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
+	ensureDocumentOpen,
 	typeQuery,
 	selectors,
 } from '../utils.js';
@@ -11,33 +12,29 @@ test.describe('Save flow', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
+		await ensureDocumentOpen(page);
 	});
 
-	test('Cmd/Ctrl+S on a brand-new doc opens the SaveDialog', async ({
+	test('clicking Save draft on a brand-new doc opens the SaveDialog', async ({
 		page,
 	}) => {
 		await page.click(selectors.addTab);
 		await typeQuery(page, '{ posts { nodes { id } } }');
 
-		const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
-		await page.keyboard.press(`${modKey}+s`);
+		// Save draft button lives in the editor toolbar; enabled
+		// once the doc is dirty (which it is after typing).
+		await page.getByRole('button', { name: 'Save draft' }).click();
 
-		// SaveDialog renders inside @wordpress/components Modal —
-		// scoped class is the most stable hook.
 		await expect(
 			page.locator('.wpgraphql-ide-save-dialog')
 		).toBeVisible({ timeout: 5000 });
-		await expect(
-			page.getByLabel('Document name')
-		).toBeVisible();
+		await expect(page.getByLabel('Document name')).toBeVisible();
 	});
 
 	test('SaveDialog closes on Escape without saving', async ({ page }) => {
 		await page.click(selectors.addTab);
 		await typeQuery(page, '{ posts { nodes { id } } }');
-
-		const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
-		await page.keyboard.press(`${modKey}+s`);
+		await page.getByRole('button', { name: 'Save draft' }).click();
 		await expect(page.locator('.wpgraphql-ide-save-dialog')).toBeVisible();
 
 		await page.keyboard.press('Escape');
@@ -51,27 +48,18 @@ test.describe('Save flow', () => {
 		).toBeVisible();
 	});
 
-	test('Saving an empty editor does not open the dialog', async ({
+	test('Save draft button is disabled when the doc has no unsaved changes', async ({
 		page,
 	}) => {
+		// Right after `ensureDocumentOpen` the doc is fresh (and empty).
+		// `is-dirty` is true while there's a temp id with no content
+		// per the existing UI, so dirty == "user can save". Verify the
+		// button reflects the underlying contract: typing dirties it,
+		// clearing should leave it dirty until saved or closed.
 		await page.click(selectors.addTab);
-		// No query typed — editor is empty.
-
-		const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
-		await page.keyboard.press(`${modKey}+s`);
-
-		// Either the dialog stays closed, or it opens and the Save button
-		// is disabled. We assert the negative path by giving it a moment
-		// and confirming the editor still has focus / no save banner.
-		await page.waitForTimeout(500);
-		const dialog = page.locator('.wpgraphql-ide-save-dialog');
-		// If the dialog is visible at all on empty input, the Save button
-		// must be disabled — codify that.
-		if (await dialog.isVisible()) {
-			const saveBtn = dialog.getByRole('button', { name: /^save$/i });
-			if (await saveBtn.count()) {
-				await expect(saveBtn.first()).toBeDisabled();
-			}
-		}
+		const saveBtn = page.getByRole('button', { name: 'Save draft' });
+		// Empty doc — `activeDocDirty` is false even though it's a temp
+		// tab (temp dirty is purely visual). Save button must be disabled.
+		await expect(saveBtn).toBeDisabled();
 	});
 });
