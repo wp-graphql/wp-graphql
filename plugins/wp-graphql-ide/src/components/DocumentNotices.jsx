@@ -85,7 +85,30 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 				isDismissible={false}
 				className="wpgraphql-ide-document-notice"
 			>
-				<div className="wpgraphql-ide-document-notice-header">
+				{/* The whole header row is the disclosure target so the
+				    user has a generous click area; "Duplicate as draft"
+				    is a nested link that stops propagation so it can
+				    fire without flipping the disclosure. The chevron
+				    remains as the visual cue, no longer its own button. */}
+				<div
+					className="wpgraphql-ide-document-notice-header"
+					role="button"
+					tabIndex={0}
+					aria-expanded={!collapsed}
+					aria-controls="wpgraphql-ide-document-notice-detail"
+					aria-label={
+						collapsed
+							? 'Show details about read-only queries'
+							: 'Hide details about read-only queries'
+					}
+					onClick={toggle}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							toggle();
+						}
+					}}
+				>
 					<span className="wpgraphql-ide-document-notice-summary">
 						This query is published and read-only.
 						{onDuplicate && (
@@ -93,7 +116,10 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 								{' '}
 								<Button
 									variant="link"
-									onClick={onDuplicate}
+									onClick={(e) => {
+										e.stopPropagation();
+										onDuplicate();
+									}}
 									className="wpgraphql-ide-document-notice-link"
 								>
 									Duplicate as draft
@@ -102,24 +128,12 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 							</>
 						)}
 					</span>
-					<Button
-						variant="link"
-						onClick={toggle}
-						className="wpgraphql-ide-document-notice-toggle"
-						aria-expanded={!collapsed}
-						aria-controls="wpgraphql-ide-document-notice-detail"
-						aria-label={
-							collapsed
-								? 'Show details about read-only queries'
-								: 'Hide details about read-only queries'
-						}
-					>
-						<Icon
-							icon={collapsed ? chevronDown : chevronUp}
-							size={18}
-							aria-hidden="true"
-						/>
-					</Button>
+					<Icon
+						icon={collapsed ? chevronDown : chevronUp}
+						size={18}
+						className="wpgraphql-ide-document-notice-chevron"
+						aria-hidden="true"
+					/>
 				</div>
 				{!collapsed && (
 					<div

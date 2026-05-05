@@ -466,6 +466,13 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	align-items: flex-start;
 	gap: 6px;
+	cursor: pointer;
+}
+
+.wpgraphql-ide-document-notice-header:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 
 .wpgraphql-ide-document-notice-summary {
@@ -473,17 +480,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	min-width: 0;
 }
 
-.wpgraphql-ide-document-notice-toggle.components-button {
-	min-width: 0;
-	height: auto;
-	padding: 0;
-	color: #1e40af;
+.wpgraphql-ide-document-notice-chevron {
 	flex-shrink: 0;
-}
-
-.wpgraphql-ide-document-notice-toggle.components-button:hover {
-	background: transparent;
-	color: #0a3a99;
+	color: #50575e;
+	margin-top: 2px;
 }
 
 .wpgraphql-ide-document-notice-detail {
