@@ -8,7 +8,7 @@ const BUTTON_NOTICES = {
 	'copy-query': 'Query copied to clipboard',
 };
 
-export const EditorToolbar = ({ onClose, onNotice }) => {
+export const EditorToolbar = ({ onClose, onNotice, hideMutating = false }) => {
 	const buttons = useSelect((select) =>
 		select('wpgraphql-ide/document-editor').buttons()
 	);
@@ -20,6 +20,13 @@ export const EditorToolbar = ({ onClose, onNotice }) => {
 				const buttonName = button.name ?? String(index);
 
 				if (!isValidButton(props, buttonName)) {
+					return null;
+				}
+
+				// Buttons that mutate the query (Prettify, Merge) are hidden
+				// on read-only documents. Authors opt in by declaring
+				// `mutates: true` in their config.
+				if (hideMutating && props.mutates) {
 					return null;
 				}
 

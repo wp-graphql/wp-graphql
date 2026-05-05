@@ -1479,6 +1479,9 @@ export function IDELayout({ fetcher, onClose }) {
 																onNotice={
 																	addNotice
 																}
+																hideMutating={
+																	isPublished
+																}
 															/>
 														</MenuGroup>
 														<MenuGroup>
