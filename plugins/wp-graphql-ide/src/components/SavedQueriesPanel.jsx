@@ -29,6 +29,7 @@ import { SaveDialog } from './dialogs/SaveDialog';
 import { NewCollectionDialog } from './dialogs/NewCollectionDialog';
 import { ShareCollectionDialog } from './dialogs/ShareCollectionDialog';
 import { RenameInput } from './RenameInput';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 import {
 	updateDocument,
@@ -482,7 +483,9 @@ export function SavedQueriesPanel() {
 	// Debounce the persist so rapid toggles coalesce into a single
 	// REST write. The 500ms tail keeps the network quiet while still
 	// feeling instantaneous to the user.
-	const persistCollapsedRef = useRef(null);
+	const [persistSectionStates] = useDebouncedCallback((blob) => {
+		savePreference('section_states', JSON.stringify(blob)).catch(() => {});
+	}, 500);
 	const [newCollectionOpen, setNewCollectionOpen] = useState(false);
 	const [shareTarget, setShareTarget] = useState(null);
 	const [dragOverId, setDragOverId] = useState(null);
@@ -672,23 +675,15 @@ export function SavedQueriesPanel() {
 	const toggleSection = (key) => {
 		setCollapsedSections((prev) => {
 			const next = { ...prev, [key]: !prev[key] };
-			if (persistCollapsedRef.current) {
-				clearTimeout(persistCollapsedRef.current);
+			// Wrap each boolean in a per-section object so the envelope
+			// can carry additional fields later (sort preferences,
+			// last-viewed timestamps, etc.) without breaking the
+			// hydration path or requiring a server release.
+			const blob = {};
+			for (const [k, collapsed] of Object.entries(next)) {
+				blob[k] = { collapsed };
 			}
-			persistCollapsedRef.current = setTimeout(() => {
-				// Wrap each boolean in a per-section object so the
-				// envelope can carry additional fields later (sort
-				// preferences, last-viewed timestamps, etc.) without
-				// breaking the hydration path or requiring a server
-				// release.
-				const blob = {};
-				for (const [k, collapsed] of Object.entries(next)) {
-					blob[k] = { collapsed };
-				}
-				savePreference('section_states', JSON.stringify(blob)).catch(
-					() => {}
-				);
-			}, 500);
+			persistSectionStates(blob);
 			return next;
 		});
 	};

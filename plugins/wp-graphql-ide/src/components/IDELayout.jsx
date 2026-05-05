@@ -50,6 +50,7 @@ import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { getWorkspacePersistence } from './workspace-persistence';
 import {
 	displayDocTitle,
@@ -454,7 +455,6 @@ export function IDELayout({ fetcher, onClose }) {
 			window.localStorage.getItem('wpgraphql_ide_response_mode') ||
 			'formatted'
 	);
-	const saveTimerRef = useRef(null);
 	const [notices, setNotices] = useState([]);
 
 	const addNotice = useCallback((content, type = 'default') => {
@@ -562,12 +562,12 @@ export function IDELayout({ fetcher, onClose }) {
 	}, [activeDocument?.id]);
 
 	// Auto-save drafts after 2 seconds of inactivity.
-	const cancelAutoSave = useCallback(() => {
-		if (saveTimerRef.current) {
-			clearTimeout(saveTimerRef.current);
-			saveTimerRef.current = null;
-		}
-	}, []);
+	const [debouncedSave, cancelAutoSave] = useDebouncedCallback(
+		(docId, payload) => {
+			saveDocument(docId, payload);
+		},
+		2000
+	);
 
 	const scheduleAutoSave = useCallback(
 		(field, value) => {
@@ -580,30 +580,24 @@ export function IDELayout({ fetcher, onClose }) {
 			// persisted, the title stops following the query — even if the
 			// user later edits or removes the op name. Mirrors WP's "slug
 			// freezes after first publish" behavior.
-			const buildPayload = () => {
-				const payload = { [field]: value };
-				if (field === 'query' && isAutoTitle(activeDocument.title)) {
-					const stable = deriveStableDocTitle(value);
-					if (stable) {
-						payload.title = stable;
-					}
+			const payload = { [field]: value };
+			if (field === 'query' && isAutoTitle(activeDocument.title)) {
+				const stable = deriveStableDocTitle(value);
+				if (stable) {
+					payload.title = stable;
 				}
-				return payload;
-			};
+			}
 			// Temp drafts only live client-side, so just push edits
 			// straight to the doc store + localStorage. No debounce —
 			// `saveDocument` for a temp ID is a synchronous local
 			// update and skips the network entirely.
 			if (String(activeDocument.id).startsWith('temp-')) {
-				saveDocument(activeDocument.id, buildPayload());
+				saveDocument(activeDocument.id, payload);
 				return;
 			}
-			cancelAutoSave();
-			saveTimerRef.current = setTimeout(() => {
-				saveDocument(activeDocument.id, buildPayload());
-			}, 2000);
+			debouncedSave(activeDocument.id, payload);
 		},
-		[activeDocument, saveDocument, cancelAutoSave]
+		[activeDocument, saveDocument, debouncedSave]
 	);
 
 	const handleQueryChange = useCallback(
