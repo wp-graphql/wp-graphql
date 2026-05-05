@@ -20,13 +20,15 @@ parameters:
     phpVersion: 70400
     bootstrapFiles:
         - phpstan/constants.php
-    # Pull in webonyx/graphql-php from the wp-graphql plugin's vendor.
-    # The IDE plugin doesn't ship its own copy — it relies on wp-graphql
-    # being active alongside it — but PHPStan needs the classes for
-    # static analysis. Without this, every Parser / Printer / SyntaxError
-    # use in handle_publish_document trips a class.notFound error.
-    scanDirectories:
-        - ../wp-graphql/vendor/webonyx/graphql-php/src
+    # Pull in the wp-graphql-stubs dev dependency so PHPStan can resolve
+    # webonyx symbols (GraphQL\Language\Parser, GraphQL\Language\Printer,
+    # GraphQL\Error\SyntaxError) without depending on the actual
+    # webonyx vendor sources. The stubs package isn't auto-loaded — it
+    # ships no extension.neon — so we point at the file explicitly.
+    # This works in CI because the stubs are a `require-dev` of *this*
+    # plugin's composer.json, so they're installed by the lint job.
+    scanFiles:
+        - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
     paths:
         - wpgraphql-ide.php
     excludePaths:
