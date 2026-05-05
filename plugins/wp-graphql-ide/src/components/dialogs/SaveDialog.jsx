@@ -6,6 +6,7 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { Icon, lock } from '@wordpress/icons';
+import { useToggleSet } from '../../hooks/useToggleSet';
 
 const MODE_LABELS = {
 	save: {
@@ -88,31 +89,9 @@ export function SaveDialog({
 	})();
 
 	const [title, setTitle] = useState(defaultTitle);
-	const [pickedSitewide, setPickedSitewide] = useState(new Set(seedSitewide));
-	const [pickedPersonal, setPickedPersonal] = useState(new Set(seedPersonal));
+	const [pickedSitewide, toggleSitewide] = useToggleSet(seedSitewide);
+	const [pickedPersonal, togglePersonal] = useToggleSet(seedPersonal);
 	const [submitting, setSubmitting] = useState(false);
-
-	const toggleSitewide = (id) =>
-		setPickedSitewide((prev) => {
-			const next = new Set(prev);
-			if (next.has(id)) {
-				next.delete(id);
-			} else {
-				next.add(id);
-			}
-			return next;
-		});
-
-	const togglePersonal = (id) =>
-		setPickedPersonal((prev) => {
-			const next = new Set(prev);
-			if (next.has(id)) {
-				next.delete(id);
-			} else {
-				next.add(id);
-			}
-			return next;
-		});
 
 	const submit = async () => {
 		const trimmed = title.trim();
