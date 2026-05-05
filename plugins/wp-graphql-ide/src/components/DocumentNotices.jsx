@@ -1,20 +1,40 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button, Notice } from '@wordpress/components';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { savePreference } from '../api/preferences';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+
+/**
+ * IDs of notices that support an expand/collapse with extra detail.
+ * Each notice is identified by a stable string key so the persisted
+ * collapsed state survives schema changes (don't rename without a
+ * migration of the user-meta blob).
+ */
+const NOTICE_PUBLISHED_READONLY = 'doc-published-readonly';
+
+function readCollapsedNotices() {
+	const data = window.WPGRAPHQL_IDE_DATA || {};
+	const list = Array.isArray(data.collapsedNotices)
+		? data.collapsedNotices
+		: [];
+	return new Set(list);
+}
 
 /**
  * Document-level notices row.
  *
- * Renders inside the query pane, just below the editor toolbar, to surface
- * persistent, state-derived facts about the current document (e.g. "this
- * doc is published and read-only"). Scoped to the document area so the
- * user understands the state applies to the document itself, not the
- * workspace. Not for transient feedback — that's what the snackbar is for.
+ * Renders inside the query pane, just below the editor toolbar, to
+ * surface persistent, state-derived facts about the current document
+ * (e.g. "this doc is published and read-only"). Scoped to the document
+ * area so the user understands the state applies to the document
+ * itself, not the workspace. Not for transient feedback — the snackbar
+ * handles that.
  *
- * Built on `@wordpress/components` `Notice` so the body styling matches
- * WP admin notices. The action is rendered as an inline `variant="link"`
- * Button inside the message rather than via Notice's `actions` prop —
- * the prop renders a full secondary button on its own line, which felt
- * far too heavy for what should read as a single-sentence call to action.
+ * Each notice supports an expand/collapse with extra detail; the user's
+ * choice persists per WordPress user via the
+ * `wpgraphql_ide_collapsed_notices` user meta. A persisted collapsed
+ * state means the user has already read the long form and only wants
+ * the one-line summary going forward.
  *
  * @param {Object}   props
  * @param {boolean}  props.isPublished   Whether the active document is published.
@@ -22,6 +42,36 @@ import { Button, Notice } from '@wordpress/components';
  * @return {JSX.Element|null}
  */
 export function DocumentNotices({ isPublished, onDuplicate }) {
+	const [collapsed, setCollapsed] = useState(() =>
+		readCollapsedNotices().has(NOTICE_PUBLISHED_READONLY)
+	);
+
+	// Debounced REST write so a fast toggle (or a dev double-click) only
+	// hits the network once.
+	const [persistCollapsed] = useDebouncedCallback((set) => {
+		savePreference('collapsed_notices', Array.from(set)).catch(() => {});
+	}, 300);
+
+	const toggle = useCallback(() => {
+		setCollapsed((prev) => {
+			const next = !prev;
+			const set = readCollapsedNotices();
+			if (next) {
+				set.add(NOTICE_PUBLISHED_READONLY);
+			} else {
+				set.delete(NOTICE_PUBLISHED_READONLY);
+			}
+			persistCollapsed(set);
+			// Mirror the change onto the bootstrap blob so a remount
+			// (e.g. switching tabs and back) hydrates from the latest
+			// state without waiting for the REST write to round-trip.
+			if (window.WPGRAPHQL_IDE_DATA) {
+				window.WPGRAPHQL_IDE_DATA.collapsedNotices = Array.from(set);
+			}
+			return next;
+		});
+	}, [persistCollapsed]);
+
 	if (!isPublished) {
 		return null;
 	}
@@ -33,16 +83,61 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 				isDismissible={false}
 				className="wpgraphql-ide-document-notice"
 			>
-				This document is published and read-only. Other apps may rely on
-				it.{' '}
-				{onDuplicate && (
+				<div className="wpgraphql-ide-document-notice-header">
 					<Button
 						variant="link"
-						onClick={onDuplicate}
-						className="wpgraphql-ide-document-notice-link"
+						onClick={toggle}
+						className="wpgraphql-ide-document-notice-toggle"
+						aria-expanded={!collapsed}
+						aria-controls="wpgraphql-ide-document-notice-detail"
+						aria-label={
+							collapsed
+								? 'Show details about read-only documents'
+								: 'Hide details about read-only documents'
+						}
 					>
-						Duplicate to edit
+						<Icon
+							icon={collapsed ? chevronDown : chevronUp}
+							size={18}
+							aria-hidden="true"
+						/>
 					</Button>
+					<span className="wpgraphql-ide-document-notice-summary">
+						This document is published and read-only.
+						{onDuplicate && (
+							<>
+								{' '}
+								<Button
+									variant="link"
+									onClick={onDuplicate}
+									className="wpgraphql-ide-document-notice-link"
+								>
+									Duplicate to edit
+								</Button>
+							</>
+						)}
+					</span>
+				</div>
+				{!collapsed && (
+					<div
+						id="wpgraphql-ide-document-notice-detail"
+						className="wpgraphql-ide-document-notice-detail"
+					>
+						<p>
+							Published documents have a stable identifier other
+							apps may reference (mobile clients, persisted-query
+							caches, automation). Editing a published doc would
+							change its identifier and silently break those
+							consumers.
+						</p>
+						<p>
+							Use <strong>Duplicate to edit</strong> to spawn a
+							draft copy you can change without affecting
+							downstream consumers. Re-publish the draft when
+							you&apos;re ready and the new identifier rolls
+							forward alongside the original.
+						</p>
+					</div>
 				)}
 			</Notice>
 		</div>

@@ -462,6 +462,45 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	text-decoration: underline;
 }
 
+.wpgraphql-ide-document-notice-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.wpgraphql-ide-document-notice-summary {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-document-notice-toggle.components-button {
+	min-width: 0;
+	height: auto;
+	padding: 0;
+	color: #1e40af;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-document-notice-toggle.components-button:hover {
+	background: transparent;
+	color: #0a3a99;
+}
+
+.wpgraphql-ide-document-notice-detail {
+	margin-top: 8px;
+	padding-left: 24px;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-document-notice-detail p {
+	margin: 0 0 6px;
+}
+
+.wpgraphql-ide-document-notice-detail p:last-child {
+	margin-bottom: 0;
+}
+
 .wpgraphql-ide-editors {
 	display: flex;
 	flex: 1;
