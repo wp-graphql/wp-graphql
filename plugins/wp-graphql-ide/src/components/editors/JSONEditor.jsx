@@ -1,6 +1,11 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { EditorView, placeholder as cmPlaceholder } from '@codemirror/view';
+import {
+	EditorView,
+	keymap,
+	placeholder as cmPlaceholder,
+} from '@codemirror/view';
 import { Compartment, EditorState } from '@codemirror/state';
+import { indentWithTab } from '@codemirror/commands';
 import { json } from '@codemirror/lang-json';
 import { basicSetup } from 'codemirror';
 
@@ -45,6 +50,9 @@ export function JSONEditor({
 
 		const extensions = [
 			basicSetup,
+			// Match the GraphQL editor: Tab indents instead of moving
+			// focus out. Esc-then-Tab still escapes for keyboard users.
+			keymap.of([indentWithTab]),
 			json(),
 			updateListener,
 			readOnlyCompartment.current.of([

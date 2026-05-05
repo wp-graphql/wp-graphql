@@ -7,6 +7,7 @@ import {
 	tooltips,
 } from '@codemirror/view';
 import { Compartment, EditorState, Prec } from '@codemirror/state';
+import { indentWithTab } from '@codemirror/commands';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { graphql, jump, updateSchema, offsetToPos } from 'cm6-graphql';
@@ -367,6 +368,14 @@ export function GraphQLEditor({
 		const hasContent = value && value.trim().length > 0;
 		const extensions = [
 			basicSetup,
+			// Tab in CodeMirror 6 defaults to moving focus out of the
+			// editor (accessibility-first), but writing GraphQL by hand
+			// without a working Tab indent is genuinely painful and is
+			// what users coming from the previous IDE expect. Bind Tab
+			// to indent / Shift-Tab to outdent. Esc-then-Tab still
+			// escapes focus for keyboard users, which is the WAI-ARIA
+			// recommended way to keep the editor accessible.
+			keymap.of([indentWithTab]),
 			graphqlCompartment.current.of(
 				hasContent ? graphql(schema || undefined, graphqlOpts) : []
 			),
