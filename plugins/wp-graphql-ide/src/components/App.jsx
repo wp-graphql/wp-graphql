@@ -150,7 +150,7 @@ export function App() {
 	);
 
 	return (
-		<div id="wpgraphql-ide-app">
+		<div id="wpgraphql-ide-app" className="wp-exclude-emoji">
 			<IDELayout
 				fetcher={fetcher}
 				onClose={

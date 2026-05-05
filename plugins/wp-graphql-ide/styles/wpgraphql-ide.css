@@ -150,3 +150,63 @@ body.graphql_page_graphql-ide .AppRoot {
   height: 100%;
 }
 
+/* ==========================================================================
+   Front-end drawer style isolation
+   --------------------------------------------------------------------------
+   The drawer renders inside whatever theme the visitor is using, so the
+   IDE inherits any global rules the theme set on `body`, `button`, `svg`,
+   `img`, etc. We saw two visible regressions on real sites:
+
+   1. Kebab buttons sit a couple pixels above their row because the active
+      theme set `button { vertical-align: middle | bottom }` or messed
+      with `line-height`. The IDE's component buttons don't override
+      vertical-align by themselves, so they pick up whatever the theme
+      cascades down.
+   2. Emojis render in two visibly different styles in the same drawer:
+      wp-emoji replaces unicode emoji with `<img class="emoji">` on
+      initial server-rendered DOM, but content rendered later by React
+      stays as the native font glyph. Result: a heart from one source
+      looks like a flat illustration while a heart from React looks like
+      a system emoji.
+
+   Fix both at the drawer + dedicated-page level by re-establishing a
+   baseline for text-flow, button alignment, and inline media. Scoped to
+   the IDE so theme styles outside the drawer keep working.
+   ========================================================================== */
+
+[data-vaul-drawer] #wpgraphql-ide-app,
+.AppRoot #wpgraphql-ide-app {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1e1e1e;
+}
+
+/* Themes commonly set `button { vertical-align: bottom | middle }` or
+   inflate `line-height`, both of which push the icon a few pixels off
+   center and make kebabs look unaligned with the rest of the row. Pin
+   buttons inside the IDE to a known baseline. */
+[data-vaul-drawer] #wpgraphql-ide-app button,
+.AppRoot #wpgraphql-ide-app button {
+  vertical-align: baseline;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+[data-vaul-drawer] #wpgraphql-ide-app svg,
+.AppRoot #wpgraphql-ide-app svg {
+  vertical-align: middle;
+}
+
+/* wp-emoji's `<img class="emoji">` substitution and React's native
+   emoji rendering produce two visibly different glyph styles in the
+   same drawer (twemoji image vs system font). React owns this subtree
+   anyway — wp-emoji's mutations get clobbered on the next render — so
+   App.jsx tags the IDE root with WordPress's official opt-out class,
+   `wp-exclude-emoji`. wp-emoji's parser checks for that class and
+   skips the subtree, so every emoji inside the IDE renders the same
+   way (native font). See wp-includes/js/wp-emoji.js. */
+
