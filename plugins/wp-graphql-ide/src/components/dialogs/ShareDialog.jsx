@@ -8,6 +8,7 @@ import {
 import { select } from '@wordpress/data';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
+import { getStorageJSON, setStorageJSON } from '../../utils/storage';
 
 const PREFS_KEY = 'wpgraphql-ide:share-prefs:v1';
 
@@ -19,33 +20,24 @@ const DEFAULT_PREFS = {
 };
 
 function readPrefs() {
-	try {
-		const raw = window.localStorage.getItem(PREFS_KEY);
-		if (!raw) {
-			return null;
-		}
-		const parsed = JSON.parse(raw);
-		return {
-			includeVariables:
-				typeof parsed.includeVariables === 'boolean'
-					? parsed.includeVariables
-					: DEFAULT_PREFS.includeVariables,
-			includeHeaders:
-				typeof parsed.includeHeaders === 'boolean'
-					? parsed.includeHeaders
-					: DEFAULT_PREFS.includeHeaders,
-		};
-	} catch (e) {
+	const parsed = getStorageJSON(PREFS_KEY, null);
+	if (!parsed) {
 		return null;
 	}
+	return {
+		includeVariables:
+			typeof parsed.includeVariables === 'boolean'
+				? parsed.includeVariables
+				: DEFAULT_PREFS.includeVariables,
+		includeHeaders:
+			typeof parsed.includeHeaders === 'boolean'
+				? parsed.includeHeaders
+				: DEFAULT_PREFS.includeHeaders,
+	};
 }
 
 function writePrefs(prefs) {
-	try {
-		window.localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-	} catch (e) {
-		// ignore quota / privacy mode
-	}
+	setStorageJSON(PREFS_KEY, prefs);
 }
 
 // Build a shareable URL for the current editor state. Pulls query

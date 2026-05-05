@@ -8,33 +8,17 @@
  * state, and the per-browser scope matches user expectation.
  */
 
+import { getStorageJSON, setStorageJSON } from '../../utils/storage';
+
 const STORAGE_KEY = 'wpgraphql-ide:unsaved-tabs:v1';
 
-function safeParse(raw) {
-	try {
-		const parsed = JSON.parse(raw);
-		return Array.isArray(parsed) ? parsed : [];
-	} catch (e) {
-		return [];
-	}
-}
-
 function readAll() {
-	try {
-		const raw = window.localStorage.getItem(STORAGE_KEY);
-		return raw ? safeParse(raw) : [];
-	} catch (e) {
-		return [];
-	}
+	const data = getStorageJSON(STORAGE_KEY, []);
+	return Array.isArray(data) ? data : [];
 }
 
 function writeAll(tabs) {
-	try {
-		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tabs));
-	} catch (e) {
-		// Quota exceeded or storage disabled — drafts won't survive
-		// the next refresh, but the editor still works.
-	}
+	setStorageJSON(STORAGE_KEY, tabs);
 }
 
 function isTempIdLocal(id) {

@@ -2,18 +2,12 @@ import React, { useState } from 'react';
 import { Button, ResizableBox } from '@wordpress/components';
 import { Icon, close } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { getStorageItem, setStorageItem } from '../utils/storage';
 
 // Persist panel width across open/close cycles via window.localStorage.
 function getPersistedWidth() {
-	try {
-		const w = parseInt(
-			window.localStorage.getItem('wpgraphql_ide_panel_width'),
-			10
-		);
-		return w > 0 ? w : 300;
-	} catch {
-		return 300;
-	}
+	const w = parseInt(getStorageItem('wpgraphql_ide_panel_width'), 10);
+	return w > 0 ? w : 300;
 }
 
 const ActivityPanel = () => {
@@ -48,14 +42,7 @@ const ActivityPanel = () => {
 			onResizeStop={(e, d, elt) => {
 				const w = elt.offsetWidth;
 				setPanelWidth(w);
-				try {
-					window.localStorage.setItem(
-						'wpgraphql_ide_panel_width',
-						String(w)
-					);
-				} catch {
-					// localStorage unavailable
-				}
+				setStorageItem('wpgraphql_ide_panel_width', w);
 			}}
 			className="wpgraphql-ide-activity-panel"
 		>
