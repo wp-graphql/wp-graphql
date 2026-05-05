@@ -250,6 +250,29 @@ function CollectionSection({
 		>
 			<div
 				className={`wpgraphql-ide-collection-header${isOver ? ' is-drag-over' : ''}${isReorderable ? ' is-reorderable' : ''}`}
+				role="button"
+				tabIndex={editing ? -1 : 0}
+				aria-expanded={!collapsed}
+				aria-label={`${title}: ${collapsed ? 'expand' : 'collapse'} section`}
+				onClick={() => {
+					// Don't toggle when the user is mid-rename or interacting
+					// with a control inside the row (kebab, rename input).
+					// Inner controls stop propagation themselves; this guard
+					// covers focus rings on link hover etc.
+					if (editing) {
+						return;
+					}
+					onToggle();
+				}}
+				onKeyDown={(e) => {
+					if (editing) {
+						return;
+					}
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						onToggle();
+					}
+				}}
 				draggable={isReorderable}
 				onDragStart={(e) => {
 					if (!isReorderable || !onCollectionDragStart) {
@@ -312,18 +335,17 @@ function CollectionSection({
 					setDragOver(null);
 				}}
 			>
-				<button
-					type="button"
+				{/* Chevron is a static visual cue now; the parent header
+				    handles the click target so the entire row is hit-able. */}
+				<span
 					className="wpgraphql-ide-collection-toggle"
-					onClick={onToggle}
-					aria-expanded={!collapsed}
-					aria-label={`${title}: ${collapsed ? 'expand' : 'collapse'}`}
+					aria-hidden="true"
 				>
 					<Icon
 						icon={collapsed ? chevronRight : chevronDown}
 						size={18}
 					/>
-				</button>
+				</span>
 				{editing ? (
 					<RenameInput
 						className="wpgraphql-ide-collection-rename-input"
@@ -342,29 +364,33 @@ function CollectionSection({
 						}}
 					/>
 				) : (
-					<button
-						type="button"
-						className="wpgraphql-ide-collection-title"
-						onClick={onToggle}
-					>
+					<span className="wpgraphql-ide-collection-title">
 						{title}
-					</button>
+					</span>
 				)}
 				<span className="wpgraphql-ide-collection-count">
 					({count})
 				</span>
 				{hasMenu ? (
-					<DropdownMenu
-						icon={moreVertical}
-						label="Collection actions"
-						toggleProps={{
-							size: 'small',
-							className: 'wpgraphql-ide-collection-kebab',
-						}}
+					// Wrap in a stopPropagation span so clicks on the kebab
+					// (toggle, menu items) don't bubble up to the header's
+					// expand/collapse handler.
+					// eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+					<span
+						className="wpgraphql-ide-collection-kebab-wrap"
+						onClick={(e) => e.stopPropagation()}
 					>
-						{({ onClose: closeMenu }) => (
-							<>
-								{/* Order is risk-ascending: safe / reversible
+						<DropdownMenu
+							icon={moreVertical}
+							label="Collection actions"
+							toggleProps={{
+								size: 'small',
+								className: 'wpgraphql-ide-collection-kebab',
+							}}
+						>
+							{({ onClose: closeMenu }) => (
+								<>
+									{/* Order is risk-ascending: safe / reversible
 								    actions first, data-mutating actions
 								    further down, destructive at the bottom.
 								    Share is the most common safe action so
@@ -372,81 +398,85 @@ function CollectionSection({
 								    Rename modifies the source-of-truth name
 								    so it sits closer to Delete to make
 								    accidental clicks less likely. */}
-								{typeof onShare === 'function' && (
-									<MenuGroup>
-										<MenuItem
-											onClick={() => {
-												onShare();
-												closeMenu();
-											}}
-										>
-											Sharing
-										</MenuItem>
-									</MenuGroup>
-								)}
-								{typeof onSortModeChange === 'function' && (
-									<MenuGroup label="Sort by">
-										{SORT_OPTIONS.map((opt) => (
+									{typeof onShare === 'function' && (
+										<MenuGroup>
 											<MenuItem
-												key={opt.value}
-												icon={
-													(sortMode || 'manual') ===
-													opt.value
-														? check
-														: null
-												}
 												onClick={() => {
-													onSortModeChange(opt.value);
+													onShare();
 													closeMenu();
 												}}
 											>
-												{opt.label}
+												Sharing
 											</MenuItem>
-										))}
-									</MenuGroup>
-								)}
-								{onRename && (
-									<MenuGroup>
-										<MenuItem
-											onClick={() => {
-												setEditValue(title);
-												setEditing(true);
-												closeMenu();
-											}}
-										>
-											Rename
-										</MenuItem>
-									</MenuGroup>
-								)}
-								{onDelete && (
-									<MenuGroup>
-										<MenuItem
-											isDestructive
-											onClick={() => {
-												onDelete();
-												closeMenu();
-											}}
-										>
-											Delete collection
-										</MenuItem>
-									</MenuGroup>
-								)}
-								{typeof onDeleteAll === 'function' && (
-									<MenuGroup>
-										<MenuItem
-											isDestructive
-											onClick={() => {
-												closeMenu();
-												onDeleteAll();
-											}}
-										>
-											{deleteAllLabel}
-										</MenuItem>
-									</MenuGroup>
-								)}
-							</>
-						)}
-					</DropdownMenu>
+										</MenuGroup>
+									)}
+									{typeof onSortModeChange === 'function' && (
+										<MenuGroup label="Sort by">
+											{SORT_OPTIONS.map((opt) => (
+												<MenuItem
+													key={opt.value}
+													icon={
+														(sortMode ||
+															'manual') ===
+														opt.value
+															? check
+															: null
+													}
+													onClick={() => {
+														onSortModeChange(
+															opt.value
+														);
+														closeMenu();
+													}}
+												>
+													{opt.label}
+												</MenuItem>
+											))}
+										</MenuGroup>
+									)}
+									{onRename && (
+										<MenuGroup>
+											<MenuItem
+												onClick={() => {
+													setEditValue(title);
+													setEditing(true);
+													closeMenu();
+												}}
+											>
+												Rename
+											</MenuItem>
+										</MenuGroup>
+									)}
+									{onDelete && (
+										<MenuGroup>
+											<MenuItem
+												isDestructive
+												onClick={() => {
+													onDelete();
+													closeMenu();
+												}}
+											>
+												Delete collection
+											</MenuItem>
+										</MenuGroup>
+									)}
+									{typeof onDeleteAll === 'function' && (
+										<MenuGroup>
+											<MenuItem
+												isDestructive
+												onClick={() => {
+													closeMenu();
+													onDeleteAll();
+												}}
+											>
+												{deleteAllLabel}
+											</MenuItem>
+										</MenuGroup>
+									)}
+								</>
+							)}
+						</DropdownMenu>
+					</span>
 				) : (
 					<span className="wpgraphql-ide-collection-kebab-spacer" />
 				)}
