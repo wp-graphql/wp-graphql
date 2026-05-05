@@ -94,6 +94,13 @@ function initialize_plugin() {
 	// Custom REST routes.
 	add_action( 'rest_api_init', __NAMESPACE__ . '\\register_ide_rest_routes' );
 
+	// GraphQL: register IDE-specific fields (meta) on the exposed types
+	// and scope connections to the current user so the IDE's data is
+	// queryable from GraphQL but isolated per user — same contract as
+	// the REST endpoints.
+	add_action( 'graphql_register_types', __NAMESPACE__ . '\\register_ide_graphql_fields' );
+	add_filter( 'graphql_connection_query_args', __NAMESPACE__ . '\\scope_ide_graphql_connections_to_current_user', 10, 2 );
+
 	// Strip a deleted document's id from its owner's personal collections.
 	add_action( 'before_delete_post', __NAMESPACE__ . '\\purge_document_from_personal_collections', 10, 2 );
 
@@ -135,6 +142,14 @@ function register_ide_post_type() {
 			'show_ui'             => false,
 			'show_in_rest'        => true,
 			'rest_base'           => 'graphql-ide-queries',
+			// Expose to WPGraphQL so the IDE (and integrations that
+			// follow) can read saved queries through the GraphQL
+			// surface instead of REST. A scoping filter on
+			// `graphql_connection_query_args` enforces per-user
+			// ownership so this isn't a leak of other users' data.
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'IdeQuery',
+			'graphql_plural_name' => 'IdeQueries',
 			'capability_type'     => 'post',
 			'map_meta_cap'        => true,
 			'supports'            => [ 'title', 'editor', 'author', 'custom-fields', 'page-attributes' ],
@@ -184,15 +199,18 @@ function register_ide_post_type() {
 	register_post_type(
 		'graphql_ide_history',
 		[
-			'label'           => __( 'IDE History', 'wpgraphql-ide' ),
-			'description'     => __( 'GraphQL IDE execution history entries.', 'wpgraphql-ide' ),
-			'public'          => false,
-			'show_ui'         => false,
-			'show_in_rest'    => true,
-			'rest_base'       => 'graphql-ide-history',
-			'capability_type' => 'post',
-			'map_meta_cap'    => true,
-			'supports'        => [ 'author', 'custom-fields' ],
+			'label'               => __( 'IDE History', 'wpgraphql-ide' ),
+			'description'         => __( 'GraphQL IDE execution history entries.', 'wpgraphql-ide' ),
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_rest'        => true,
+			'rest_base'           => 'graphql-ide-history',
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'IdeHistoryEntry',
+			'graphql_plural_name' => 'IdeHistoryEntries',
+			'capability_type'     => 'post',
+			'map_meta_cap'        => true,
+			'supports'            => [ 'author', 'custom-fields' ],
 		]
 	);
 
@@ -299,17 +317,20 @@ function register_ide_post_type() {
 		'graphql_ide_collection',
 		'graphql_ide_query',
 		[
-			'labels'            => [
+			'labels'              => [
 				'name'          => __( 'Collections', 'wpgraphql-ide' ),
 				'singular_name' => __( 'Collection', 'wpgraphql-ide' ),
 			],
-			'public'            => false,
-			'show_in_rest'      => true,
-			'rest_base'         => 'graphql-ide-collections',
-			'hierarchical'      => true,
-			'show_ui'           => false,
-			'show_admin_column' => false,
-			'capabilities'      => [
+			'public'              => false,
+			'show_in_rest'        => true,
+			'rest_base'           => 'graphql-ide-collections',
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'IdeCollection',
+			'graphql_plural_name' => 'IdeCollections',
+			'hierarchical'        => true,
+			'show_ui'             => false,
+			'show_admin_column'   => false,
+			'capabilities'        => [
 				'manage_terms' => 'manage_graphql_ide',
 				'edit_terms'   => 'manage_graphql_ide',
 				'delete_terms' => 'manage_graphql_ide',
@@ -786,6 +807,176 @@ function purge_document_from_personal_collections( int $post_id, $post ): void {
 function scope_ide_queries_to_current_user( $args ) {
 	$args['author'] = get_current_user_id();
 	return $args;
+}
+
+/**
+ * Scope GraphQL connections on IDE post types to the current user.
+ *
+ * The IDE exposes `IdeQuery` and `IdeHistoryEntry` to GraphQL so the
+ * client (and integrations) can read saved queries and history without
+ * REST. Without scoping, anyone holding `manage_graphql_ide` would see
+ * every other IDE user's queries through `ideQueries` / `ideHistoryEntries`
+ * — the GraphQL surface would be a wider read than the REST endpoints
+ * already enforce. Mirror the REST behavior here so the per-user
+ * isolation is the same on both surfaces.
+ *
+ * @since x-release-please-version
+ *
+ * @param array<string, mixed> $query_args  Connection query args (forwarded to WP_Query).
+ * @param mixed                $source      The parent (root) source for the connection.
+ * @return array<string, mixed>
+ */
+function scope_ide_graphql_connections_to_current_user( $query_args, $source ): array {
+	unset( $source ); // Source is unused — scoping is global per current user.
+
+	$post_type = isset( $query_args['post_type'] ) ? $query_args['post_type'] : null;
+
+	$ide_post_types = [ 'graphql_ide_query', 'graphql_ide_history' ];
+
+	$matches_ide_pt = false;
+	if ( is_string( $post_type ) ) {
+		$matches_ide_pt = in_array( $post_type, $ide_post_types, true );
+	} elseif ( is_array( $post_type ) ) {
+		$matches_ide_pt = (bool) array_intersect( $post_type, $ide_post_types );
+	}
+
+	if ( ! $matches_ide_pt ) {
+		return $query_args;
+	}
+
+	$query_args['author'] = get_current_user_id();
+
+	return $query_args;
+}
+
+/**
+ * Register IDE-specific GraphQL fields backed by post meta.
+ *
+ * Post meta isn't auto-exposed by `register_post_meta` — WPGraphQL
+ * needs explicit `register_graphql_field` calls. The field names
+ * strip the internal `_graphql_ide_` prefix and switch to camelCase
+ * to match the rest of the WPGraphQL schema. Resolvers read from the
+ * underlying post meta; the meta keys themselves are unchanged so
+ * existing REST and direct DB access keep working.
+ *
+ * The query body itself lives in `post_content` (so the editor's
+ * autosave + revision history work), but consumers expect a clearly
+ * named field — we expose `queryString` as a thin alias that returns
+ * `post_content` so neither audience has to know about the storage
+ * detail.
+ *
+ * @since x-release-please-version
+ */
+function register_ide_graphql_fields(): void {
+	if ( ! function_exists( 'register_graphql_field' ) ) {
+		return;
+	}
+
+	register_graphql_field(
+		'IdeQuery',
+		'queryString',
+		[
+			'type'        => 'String',
+			'description' => __( 'The GraphQL document body for this saved query.', 'wpgraphql-ide' ),
+			'resolve'     => static function ( $post ) {
+				return get_post_field( 'post_content', $post->databaseId );
+			},
+		]
+	);
+
+	register_graphql_field(
+		'IdeQuery',
+		'variables',
+		[
+			'type'        => 'String',
+			'description' => __( 'JSON-encoded variables for this saved query.', 'wpgraphql-ide' ),
+			'resolve'     => static function ( $post ) {
+				return (string) get_post_meta( $post->databaseId, '_graphql_ide_variables', true );
+			},
+		]
+	);
+
+	register_graphql_field(
+		'IdeQuery',
+		'headers',
+		[
+			'type'        => 'String',
+			'description' => __( 'JSON-encoded HTTP headers stored with this saved query.', 'wpgraphql-ide' ),
+			'resolve'     => static function ( $post ) {
+				return (string) get_post_meta( $post->databaseId, '_graphql_ide_headers', true );
+			},
+		]
+	);
+
+	$history_meta_fields = [
+		'queryString'     => [
+			'meta'        => '_graphql_ide_query',
+			'type'        => 'String',
+			'description' => __( 'The GraphQL document executed for this history entry.', 'wpgraphql-ide' ),
+		],
+		'variables'       => [
+			'meta'        => '_graphql_ide_variables',
+			'type'        => 'String',
+			'description' => __( 'JSON-encoded variables sent with the request.', 'wpgraphql-ide' ),
+		],
+		'headers'         => [
+			'meta'        => '_graphql_ide_headers',
+			'type'        => 'String',
+			'description' => __( 'JSON-encoded HTTP headers sent with the request.', 'wpgraphql-ide' ),
+		],
+		'durationMs'      => [
+			'meta'        => '_graphql_ide_duration_ms',
+			'type'        => 'Int',
+			'description' => __( 'How long the request took, in milliseconds.', 'wpgraphql-ide' ),
+		],
+		'status'          => [
+			'meta'        => '_graphql_ide_status',
+			'type'        => 'String',
+			'description' => __( 'Result status (e.g. success, error).', 'wpgraphql-ide' ),
+		],
+		'documentId'      => [
+			'meta'        => '_graphql_ide_document_id',
+			'type'        => 'Int',
+			'description' => __( 'Database ID of the saved IdeQuery this entry was executed against, if any.', 'wpgraphql-ide' ),
+		],
+		'isAuthenticated' => [
+			'meta'        => '_graphql_ide_is_authenticated',
+			'type'        => 'Boolean',
+			'description' => __( 'Whether the request was sent with an authenticated session.', 'wpgraphql-ide' ),
+		],
+		'httpMethod'      => [
+			'meta'        => '_graphql_ide_http_method',
+			'type'        => 'String',
+			'description' => __( 'HTTP method used for the request.', 'wpgraphql-ide' ),
+		],
+	];
+
+	foreach ( $history_meta_fields as $field_name => $config ) {
+		$meta_key = $config['meta'];
+		$type     = $config['type'];
+
+		register_graphql_field(
+			'IdeHistoryEntry',
+			$field_name,
+			[
+				'type'        => $type,
+				'description' => $config['description'],
+				'resolve'     => static function ( $post ) use ( $meta_key, $type ) {
+					$value = get_post_meta( $post->databaseId, $meta_key, true );
+
+					if ( 'Int' === $type ) {
+						return (int) $value;
+					}
+					if ( 'Boolean' === $type ) {
+						// Stored as `1`/empty by post meta. Cast through
+						// (int) first to keep `'0'` falsy.
+						return (bool) (int) $value;
+					}
+					return (string) $value;
+				},
+			]
+		);
+	}
 }
 
 /**
