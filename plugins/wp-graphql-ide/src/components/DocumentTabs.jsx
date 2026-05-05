@@ -7,6 +7,7 @@ import {
 	Tooltip,
 } from '@wordpress/components';
 import { Icon, plus, moreVertical } from '@wordpress/icons';
+import { RenameInput } from './RenameInput';
 
 const ADD_BTN_W = 32;
 const KEBAB_BTN_W = 32;
@@ -180,28 +181,16 @@ export function DocumentTabs({
 						}}
 					>
 						{editingId === tab.id ? (
-							<input
-								aria-label="Rename document"
+							<RenameInput
 								className="wpgraphql-ide-tab-input"
+								ariaLabel="Rename document"
 								value={editValue}
-								onChange={(e) => setEditValue(e.target.value)}
-								onBlur={() => {
-									if (editValue.trim()) {
-										onRename(tab.id, editValue.trim());
-									}
+								onChange={setEditValue}
+								onCommit={(trimmed) => {
+									onRename(tab.id, trimmed);
 									setEditingId(null);
 								}}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter') {
-										e.target.blur();
-									}
-									if (e.key === 'Escape') {
-										setEditingId(null);
-									}
-								}}
-								onClick={(e) => e.stopPropagation()}
-								// eslint-disable-next-line jsx-a11y/no-autofocus
-								autoFocus
+								onCancel={() => setEditingId(null)}
 							/>
 						) : (
 							<span className="wpgraphql-ide-tab-label">

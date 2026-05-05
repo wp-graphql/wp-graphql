@@ -28,6 +28,7 @@ import { ExportDialog } from './dialogs/ExportDialog';
 import { SaveDialog } from './dialogs/SaveDialog';
 import { NewCollectionDialog } from './dialogs/NewCollectionDialog';
 import { ShareCollectionDialog } from './dialogs/ShareCollectionDialog';
+import { RenameInput } from './RenameInput';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 import {
 	updateDocument,
@@ -244,14 +245,6 @@ function CollectionSection({
 		typeof onShare === 'function';
 	const isReorderable = typeof collectionId === 'number';
 
-	const commitRename = () => {
-		const trimmed = editValue.trim();
-		if (trimmed && trimmed !== title && onRename) {
-			onRename(trimmed);
-		}
-		setEditing(false);
-	};
-
 	return (
 		<div
 			className={`wpgraphql-ide-collection-section${collectionDropPos === 'before' ? ' is-drop-above' : ''}${collectionDropPos === 'after' ? ' is-drop-below' : ''}`}
@@ -333,24 +326,21 @@ function CollectionSection({
 					/>
 				</button>
 				{editing ? (
-					<input
+					<RenameInput
 						className="wpgraphql-ide-collection-rename-input"
+						ariaLabel="Rename collection"
 						value={editValue}
-						onChange={(e) => setEditValue(e.target.value)}
-						onBlur={commitRename}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter') {
-								commitRename();
+						onChange={setEditValue}
+						onCommit={(trimmed) => {
+							if (trimmed !== title && onRename) {
+								onRename(trimmed);
 							}
-							if (e.key === 'Escape') {
-								setEditing(false);
-								setEditValue(title);
-							}
+							setEditing(false);
 						}}
-						onClick={(e) => e.stopPropagation()}
-						aria-label="Rename collection"
-						// eslint-disable-next-line jsx-a11y/no-autofocus
-						autoFocus
+						onCancel={() => {
+							setEditing(false);
+							setEditValue(title);
+						}}
 					/>
 				) : (
 					<button
