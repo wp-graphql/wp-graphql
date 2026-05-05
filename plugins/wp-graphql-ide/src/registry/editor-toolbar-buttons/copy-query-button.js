@@ -3,7 +3,7 @@ import copyToClipboard from 'copy-to-clipboard';
 
 export const copyQueryButton = () => {
 	return {
-		label: 'Copy query (Shift-Ctrl-C)',
+		label: 'Copy query',
 		children: 'Copy',
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();

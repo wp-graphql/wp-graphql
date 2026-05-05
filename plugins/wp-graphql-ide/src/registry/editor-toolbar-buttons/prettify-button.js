@@ -2,7 +2,7 @@ import { select, dispatch } from '@wordpress/data';
 
 export const prettifyButton = () => {
 	return {
-		label: 'Prettify query (Shift-Ctrl-P)',
+		label: 'Prettify query',
 		children: 'Prettify',
 		mutates: true,
 		onClick: () => {

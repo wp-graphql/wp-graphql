@@ -2,7 +2,7 @@ import { select, dispatch } from '@wordpress/data';
 
 export const mergeFragmentsButton = () => {
 	return {
-		label: 'Merge fragments into query (Shift-Ctrl-M)',
+		label: 'Merge fragments into query',
 		children: 'Merge',
 		mutates: true,
 		onClick: () => {

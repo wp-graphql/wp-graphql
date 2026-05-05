@@ -6,7 +6,7 @@ import {
 	placeholder as cmPlaceholder,
 	tooltips,
 } from '@codemirror/view';
-import { Compartment, EditorState } from '@codemirror/state';
+import { Compartment, EditorState, Prec } from '@codemirror/state';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { graphql, jump, updateSchema, offsetToPos } from 'cm6-graphql';
@@ -394,7 +394,12 @@ export function GraphQLEditor({
 		}
 
 		if (extraKeys.length > 0) {
-			extensions.push(keymap.of(extraKeys));
+			// Bump caller-supplied bindings to highest precedence so things
+			// like Cmd+Enter (run query) and Cmd+S (save) win over any
+			// keymap that basicSetup, the graphql extension, or cm6-graphql
+			// register internally — they otherwise sit at default precedence
+			// and can be silently shadowed.
+			extensions.push(Prec.highest(keymap.of(extraKeys)));
 		}
 
 		const state = EditorState.create({

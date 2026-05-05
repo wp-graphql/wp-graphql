@@ -648,9 +648,6 @@ export function IDELayout({ fetcher, onClose }) {
 		}
 	}, [activeDocument, query, variables, headers, saveTab, addNotice]);
 
-	const saveCurrentDocRef = useRef(null);
-	saveCurrentDocRef.current = saveCurrentDoc;
-
 	// Publish the current document (draft → published with hash).
 	const publishCurrentDoc = useCallback(async () => {
 		if (!activeDocument || String(activeDocument.id).startsWith('temp-')) {
@@ -961,33 +958,15 @@ export function IDELayout({ fetcher, onClose }) {
 	const executeQuery = (operationName) =>
 		executeQueryRef.current(operationName);
 
-	const { prettifyQuery } = useDispatch('wpgraphql-ide/app');
-	const prettifyRef = useRef(null);
-	prettifyRef.current = () => {
-		if (query) {
-			prettifyQuery(query);
-		}
-	};
-
+	// Cmd/Ctrl+Enter to run the query is the universal convention for
+	// GraphQL clients (GraphiQL, Postman, Insomnia, Apollo Sandbox).
+	// Keeping this single custom binding; everything else (undo/redo,
+	// search, indent, comment, history) comes for free from CodeMirror.
 	const editorKeyBindings = useRef([
 		{
 			key: 'Mod-Enter',
 			run: () => {
 				executeQueryRef.current();
-				return true;
-			},
-		},
-		{
-			key: 'Mod-s',
-			run: () => {
-				saveCurrentDocRef.current();
-				return true;
-			},
-		},
-		{
-			key: 'Ctrl-Shift-p',
-			run: () => {
-				prettifyRef.current();
 				return true;
 			},
 		},
