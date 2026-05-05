@@ -21,10 +21,6 @@ const config = defineConfig({
 	reporter: process.env.CI ? [['list'], ['github']] : baseConfig.reporter,
 	retries: process.env.CI ? 0 : (baseConfig.retries ?? 0),
 	globalSetup: require.resolve('./config/global-setup.js'),
-	// Teardown wipes the saved storage state so a follow-up run can't
-	// inherit cookies that the next wp-env restart has already
-	// invalidated — the canonical "back-to-back failure" footgun.
-	globalTeardown: require.resolve('./config/global-teardown.js'),
 	webServer: {
 		...baseConfig.webServer,
 		command: 'npm run wp-env -- start',

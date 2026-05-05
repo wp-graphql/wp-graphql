@@ -80,37 +80,6 @@ export async function visitDedicatedIde(page) {
 }
 
 /**
- * Reset IDE-side localStorage and reload so the test starts from a
- * known empty state. The IDE persists unsaved tabs, the active panel,
- * the editor height, and other UI prefs in localStorage; without this
- * a flake from one test (orphan unsaved tab, stuck panel) bleeds into
- * the next.
- * @param page
- */
-export async function resetIdeClientState(page) {
-	await page.evaluate(() => {
-		try {
-			const keys = Object.keys(window.localStorage);
-			for (const key of keys) {
-				if (
-					key.startsWith('wpgraphql_ide') ||
-					key.startsWith('wpgraphql-ide')
-				) {
-					window.localStorage.removeItem(key);
-				}
-			}
-		} catch {
-			// localStorage may be blocked in private mode; ignore
-		}
-	});
-	await page.reload({ waitUntil: 'domcontentloaded' });
-	await page.waitForSelector(SELECTORS.ideRoot, {
-		state: 'visible',
-		timeout: 15000,
-	});
-}
-
-/**
  * Ensure there's at least one document tab open.
  *
  * On a fresh session the IDE may render the "No open documents"

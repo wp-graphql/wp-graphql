@@ -2,7 +2,6 @@ import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
 	ensureDocumentOpen,
-	resetIdeClientState,
 	typeQuery,
 	readQuery,
 	selectors,
@@ -14,7 +13,6 @@ test.describe('Dedicated IDE page', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
-		await resetIdeClientState(page);
 		await ensureDocumentOpen(page);
 	});
 

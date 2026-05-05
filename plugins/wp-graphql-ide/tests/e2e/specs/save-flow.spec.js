@@ -2,7 +2,6 @@ import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
 	ensureDocumentOpen,
-	resetIdeClientState,
 	typeQuery,
 	selectors,
 } from '../utils.js';
@@ -13,7 +12,6 @@ test.describe('Save flow', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
-		await resetIdeClientState(page);
 		await ensureDocumentOpen(page);
 	});
 

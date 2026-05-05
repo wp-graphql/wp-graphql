@@ -2,7 +2,6 @@ import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
 	ensureDocumentOpen,
-	resetIdeClientState,
 	selectors,
 } from '../utils.js';
 
@@ -25,7 +24,6 @@ test.describe('Activity bar panels', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
-		await resetIdeClientState(page);
 		await ensureDocumentOpen(page);
 	});
 
