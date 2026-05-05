@@ -398,6 +398,138 @@ const actions = {
 				console.error('Failed to persist collection sort mode:', error);
 			}
 		},
+
+	/*
+	 * Personal collections — per-user grouping stored in user meta. The
+	 * full array is rewritten on every mutation; saves are best-effort
+	 * (UI updates immediately, server failure logs but doesn't block).
+	 */
+
+	createPersonalCollection:
+		(name) =>
+		async ({ dispatch, select: sel }) => {
+			const trimmed = String(name || '').trim();
+			if (!trimmed) {
+				return null;
+			}
+			const id = `pc_${Date.now().toString(36)}_${Math.random()
+				.toString(36)
+				.slice(2, 8)}`;
+			const next = [
+				...sel.getPersonalCollections(),
+				{ id, name: trimmed, document_ids: [] },
+			];
+			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
+			try {
+				await savePreference('personal_collections', next);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Failed to persist personal collection create:',
+					error
+				);
+			}
+			return id;
+		},
+
+	renamePersonalCollection:
+		(id, name) =>
+		async ({ dispatch, select: sel }) => {
+			const trimmed = String(name || '').trim();
+			if (!trimmed) {
+				return;
+			}
+			const next = sel
+				.getPersonalCollections()
+				.map((c) => (c.id === id ? { ...c, name: trimmed } : c));
+			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
+			try {
+				await savePreference('personal_collections', next);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Failed to persist personal collection rename:',
+					error
+				);
+			}
+		},
+
+	removePersonalCollection:
+		(id) =>
+		async ({ dispatch, select: sel }) => {
+			const next = sel
+				.getPersonalCollections()
+				.filter((c) => c.id !== id);
+			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
+			try {
+				await savePreference('personal_collections', next);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Failed to persist personal collection delete:',
+					error
+				);
+			}
+		},
+
+	updatePersonalCollectionSharedWith:
+		(collectionId, sharedWith) =>
+		async ({ dispatch, select: sel }) => {
+			const ids = Array.isArray(sharedWith)
+				? sharedWith
+						.map(Number)
+						.filter((n) => Number.isFinite(n) && n > 0)
+				: [];
+			const next = sel
+				.getPersonalCollections()
+				.map((c) =>
+					c.id === collectionId ? { ...c, shared_with: ids } : c
+				);
+			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
+			try {
+				await savePreference('personal_collections', next);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Failed to persist personal collection sharing:',
+					error
+				);
+			}
+		},
+
+	togglePersonalCollectionMembership:
+		(collectionId, documentId) =>
+		async ({ dispatch, select: sel }) => {
+			const docId = Number(documentId);
+			if (!docId) {
+				return;
+			}
+			const next = sel.getPersonalCollections().map((c) => {
+				if (c.id !== collectionId) {
+					return c;
+				}
+				const ids = Array.isArray(c.document_ids)
+					? c.document_ids.map(Number)
+					: [];
+				const has = ids.includes(docId);
+				return {
+					...c,
+					document_ids: has
+						? ids.filter((id) => id !== docId)
+						: [...ids, docId],
+				};
+			});
+			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
+			try {
+				await savePreference('personal_collections', next);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Failed to persist personal collection membership:',
+					error
+				);
+			}
+		},
 };
 
 export default actions;

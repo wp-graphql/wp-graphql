@@ -46,10 +46,69 @@
 	margin-top: 16px;
 }
 
+/* Vertical-rhythm helper for dialog bodies. Each direct child is a control
+   group (a label-and-control pair). Uses a consistent 20px gap between
+   groups so labels never crash into the field above — matches WP admin's
+   default form spacing. The `--tight` modifier (12px) is for nested rows
+   like the inline new-collection mini-form. */
+.wpgraphql-ide-dialog-stack > * + * {
+	margin-top: 20px;
+}
+
+.wpgraphql-ide-dialog-stack--tight > * + * {
+	margin-top: 12px;
+}
+
 .wpgraphql-ide-save-dialog-fields {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+}
+
+/* Multi-select collection checklists in SaveDialog. The fieldset gives
+   the section a clear label and groups the checkboxes so the dialog
+   reads as one form, not two competing pickers. */
+.wpgraphql-ide-save-dialog-fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.wpgraphql-ide-save-dialog-legend {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 0 8px;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #1d2327;
+}
+
+.wpgraphql-ide-save-dialog-legend svg {
+	fill: #646970;
+}
+
+.wpgraphql-ide-save-dialog-checklist {
+	list-style: none;
+	margin: 0;
+	padding: 8px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 180px;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.wpgraphql-ide-save-dialog-empty {
+	margin: 0;
+	font-size: 12px;
+	color: #50575e;
+	font-style: italic;
 }
 
 .wpgraphql-ide-save-dialog-new-collection {
@@ -375,6 +434,31 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-shrink: 0;
 }
 
+/* Document notices — wraps a stock @wordpress/components Notice so the
+   visual treatment (left border, palette, action button styling) comes
+   from WP's admin notice tokens rather than custom CSS. We only bound
+   the wrapper geometrically so the notice sits flush below the toolbar
+   and stretches to the full pane width. */
+.wpgraphql-ide-document-notices {
+	flex-shrink: 0;
+}
+
+/* Info-tinted background paired with the Notice's blue left border. Soft
+   enough not to fight the editor; tinted enough to read as a state chip
+   rather than a third grey tone. Mirrors WP admin info-notice palette. */
+.wpgraphql-ide-document-notice.components-notice {
+	margin: 0;
+	border-radius: 0;
+	background: #e7f0fa;
+	color: #1e1e1e;
+	border-bottom: 1px solid #c3d4e7;
+}
+
+.wpgraphql-ide-document-notice .wpgraphql-ide-document-notice-link.components-button {
+	color: #1e40af;
+	text-decoration: underline;
+}
+
 .wpgraphql-ide-editors {
 	display: flex;
 	flex: 1;
@@ -426,36 +510,27 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 }
 
-.wpgraphql-ide-tab-context-menu {
-	position: fixed;
-	z-index: 1000;
-	min-width: 180px;
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-	padding: 4px 0;
-	display: flex;
-	flex-direction: column;
-}
-
-.wpgraphql-ide-tab-context-menu button {
+/* Global tabs kebab — sits to the right of the + button. Anchors close
+   actions on the active tab so we don't need a per-tab context menu. */
+.wpgraphql-ide-tab-kebab.components-button {
+	height: 32px;
+	min-width: 32px;
+	padding: 0;
+	color: #50575e;
+	border-radius: 0;
+	background: transparent;
 	border: none;
-	background: none;
-	text-align: left;
-	padding: 6px 12px;
-	font-size: 13px;
-	color: #1e1e1e;
-	cursor: pointer;
+	border-left: 1px solid #dcdcde;
 }
 
-.wpgraphql-ide-tab-context-menu button:hover:not(:disabled) {
+.wpgraphql-ide-tab-kebab.components-button:hover {
+	color: #1e1e1e;
 	background: #f0f0f1;
 }
 
-.wpgraphql-ide-tab-context-menu button:disabled {
-	color: #a7aaad;
-	cursor: default;
+.wpgraphql-ide-tab-kebab.components-button svg {
+	width: 18px;
+	height: 18px;
 }
 
 .wpgraphql-ide-tab-label {
@@ -472,6 +547,10 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-radius: 50%;
 	background: #2c3338;
 	flex-shrink: 0;
+}
+
+.wpgraphql-ide-tab.is-dirty .wpgraphql-ide-tab-label {
+	font-style: italic;
 }
 
 .wpgraphql-ide-tab-close {
@@ -538,19 +617,29 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	outline: none;
 }
 
+/* Inline rename input. Renders in the exact box the label occupied so the
+   tab strip doesn't grow or break its bottom border while editing. The
+   active-tab underline carries focus emphasis — the input adds none. */
 .wpgraphql-ide-tab-input {
-	font-size: 13px;
-	font-weight: 400;
+	font: inherit;
 	color: #2c3338;
 	border: none;
-	border-bottom: 1px solid #dcdcde;
 	border-radius: 0;
-	padding: 2px 4px;
+	padding: 0;
+	margin: 0;
 	outline: none;
+	box-shadow: none;
 	width: 100%;
 	min-width: 0;
+	height: auto;
+	line-height: inherit;
 	background: transparent;
 	flex-shrink: 1;
+}
+
+.wpgraphql-ide-tab-input:focus {
+	box-shadow: none;
+	outline: none;
 }
 
 .wpgraphql-ide-auth-avatar {
@@ -569,8 +658,16 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Force avatar image to fit the button */
 .wpgraphql-ide-auth-avatar > span {
-	width: 20px !important;
-	height: 20px !important;
+	width: 24px !important;
+	height: 24px !important;
+}
+
+/* Shrink the auth status badge so the avatar reads clearly inside the pill.
+   The module-CSS hash prevents a direct class selector, so target by structure. */
+.wpgraphql-ide-auth-avatar > span > span {
+	width: 7px !important;
+	height: 7px !important;
+	border-width: 1.5px !important;
 }
 
 .wpgraphql-ide-auth-avatar:hover {
@@ -843,6 +940,27 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #f0f0f1;
 }
 
+/* Drop syntax highlighting entirely in readonly mode — published docs
+   read as plain text, signalling "this is stored output, not editable
+   source". Overrides the shared --gql-color-* palette to a single neutral
+   so every token (keyword, field, type, etc.) renders the same. */
+.wpgraphql-ide-editor.is-readonly {
+	--gql-color-keyword: #50575e;
+	--gql-color-operation-name: #50575e;
+	--gql-color-field: #50575e;
+	--gql-color-argument: #50575e;
+	--gql-color-type: #50575e;
+	--gql-color-string: #50575e;
+	--gql-color-number: #50575e;
+	--gql-color-bool: #50575e;
+	--gql-color-null: #50575e;
+	--gql-color-enum: #50575e;
+	--gql-color-variable: #50575e;
+	--gql-color-directive: #50575e;
+	--gql-color-comment: #50575e;
+	--gql-color-punctuation: #50575e;
+}
+
 /* `cm-content` stays transparent in readonly mode so the
    `.cm-selectionLayer` (which sits underneath cm-content in the DOM)
    isn't covered by an opaque grey when the user selects text. */
@@ -850,12 +968,49 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: transparent;
 }
 
-.wpgraphql-ide-editor.is-readonly .cm-gutters {
-	background: #f0f0f1;
+/* Force every CodeMirror highlight token (set inline by lezer's highlight
+   theme) back to the neutral colour. The CSS variable override above
+   covers our own selectors; this catches the tokens CM6 paints inline. */
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-keyword,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-string,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-number,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-bool,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-atom,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-variableName,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-typeName,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-propertyName,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-className,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-meta,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-comment,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-punctuation,
+.wpgraphql-ide-editor.is-readonly .cm-content [class*='tok-'] {
+	color: #50575e !important;
+	font-weight: normal !important;
 }
 
-.wpgraphql-ide-editor.is-readonly .cm-activeLine {
+.wpgraphql-ide-editor.is-readonly .cm-gutters {
+	background: #f0f0f1;
+	color: #a7aaad;
+}
+
+.wpgraphql-ide-editor.is-readonly .cm-activeLine,
+.wpgraphql-ide-editor.is-readonly .cm-activeLineGutter {
 	background: transparent;
+}
+
+/* Strip every visual cue that would make the user think they can type:
+   no caret, no caret blink animation, no focus outline. Selection-and-
+   copy still works because contenteditable stays on (see GraphQLEditor). */
+.wpgraphql-ide-editor.is-readonly .cm-cursor,
+.wpgraphql-ide-editor.is-readonly .cm-cursorLayer,
+.wpgraphql-ide-editor.is-readonly .cm-dropCursor {
+	display: none !important;
+}
+
+.wpgraphql-ide-editor.is-readonly .cm-content,
+.wpgraphql-ide-editor.is-readonly .cm-editor.cm-focused {
+	outline: none !important;
+	caret-color: transparent;
 }
 
 /* Variables/Headers TabPanel surrounding the JSON editor when the
@@ -885,23 +1040,50 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	opacity: 0.3;
 }
 
-/* Status filter — wraps a @wordpress/components ToggleGroupControl. */
-.wpgraphql-ide-status-filter-tabs {
+/* Filter tabs — All / Mine / Shared. Active state uses underline +
+   color only; font-weight is held constant across active/inactive
+   states so tab labels don't reflow when switching (font-weight
+   changes glyph widths and would cause a visible jiggle). */
+.wpgraphql-ide-saved-queries-filter {
 	flex-shrink: 0;
 	border-bottom: 1px solid #e0e0e0;
 }
 
-.wpgraphql-ide-status-filter-tabs .components-tab-panel__tabs {
+.wpgraphql-ide-saved-queries-filter .components-tab-panel__tabs {
 	padding: 0 8px;
 }
 
-.wpgraphql-ide-status-filter-tabs .components-tab-panel__tabs-item {
+.wpgraphql-ide-saved-queries-filter .components-tab-panel__tabs-item {
 	font-size: 13px;
+	font-weight: 500;
 	padding: 8px 12px;
+	color: #50575e;
 }
 
-.wpgraphql-ide-status-filter-tabs .components-tab-panel__tab-content {
+.wpgraphql-ide-saved-queries-filter
+	.components-tab-panel__tabs-item.is-active {
+	font-weight: 500;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-saved-queries-filter
+	.components-tab-panel__tabs-item:hover:not(.is-active) {
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-saved-queries-filter .components-tab-panel__tab-content {
 	display: none;
+}
+
+/* Unsaved section — pinned to the bottom of the panel, outside the
+   filter so it's always visible when present. Higher specificity than
+   the base `.wpgraphql-ide-collections-list { flex: 1 }` rule below
+   so the unsaved block sits tight to its content while the filtered
+   list above absorbs any remaining vertical space. */
+.wpgraphql-ide-collections-list.wpgraphql-ide-collections-list--unsaved {
+	flex: 0 0 auto;
+	overflow: visible;
+	border-top: 1px solid #e0e0e0;
 }
 
 /* Document label */
@@ -1052,6 +1234,9 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 4px;
 }
 
 /* Rename input */
@@ -1461,6 +1646,127 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 /* ---------------------------------------------------------------------------
+   Share Collection dialog
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-share-collection-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #50575e;
+	font-size: 13px;
+}
+
+/* Search results — list rows with a `+` affordance, visually distinct
+   from the shared-with chips below so it's obvious they're click-to-add,
+   not already-added. */
+.wpgraphql-ide-share-collection-results {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.wpgraphql-ide-share-collection-results > li + li {
+	border-top: 1px solid #f0f0f0;
+}
+
+.wpgraphql-ide-share-collection-result {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 8px 12px;
+	background: transparent;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+	font: inherit;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-share-collection-result:hover,
+.wpgraphql-ide-share-collection-result:focus-visible {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	outline: none;
+}
+
+.wpgraphql-ide-share-collection-result-name {
+	font-weight: 500;
+}
+
+.wpgraphql-ide-share-collection-result-slug {
+	color: #50575e;
+	font-size: 12px;
+}
+
+.wpgraphql-ide-share-collection-result-add {
+	margin-left: auto;
+	fill: var(--wp-admin-theme-color, #2271b1);
+}
+
+/* Shared-with section — chips for users who currently have access. */
+.wpgraphql-ide-share-collection-shared-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #50575e;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-share-collection-empty {
+	margin: 0;
+	color: #50575e;
+	font-size: 13px;
+	font-style: italic;
+}
+
+.wpgraphql-ide-share-collection-chips {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.wpgraphql-ide-share-collection-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 4px 2px 10px;
+	background: #f0f0f1;
+	border-radius: 12px;
+	font-size: 13px;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-share-collection-chip-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	border-radius: 50%;
+	cursor: pointer;
+	color: #50575e;
+}
+
+.wpgraphql-ide-share-collection-chip-remove:hover,
+.wpgraphql-ide-share-collection-chip-remove:focus-visible {
+	background: #dcdcde;
+	outline: none;
+}
+
+/* ---------------------------------------------------------------------------
    Query pane
    --------------------------------------------------------------------------- */
 
@@ -1468,7 +1774,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
 	min-width: 200px;
-	max-width: calc(100% - 200px);
+	max-width: calc(100% - 300px);
 	border-right: 1px solid #dcdcde;
 	position: relative;
 	overflow: hidden;
@@ -1482,6 +1788,18 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	position: relative;
 	transition: opacity 0.15s ease;
 	max-height: calc(100% - 120px);
+}
+
+/* When the bottom strip (Variables/Headers, or any registered editor-bottom
+   panel) has nothing to render, reclaim the reserved space so the editor
+   fills the pane and no empty white strip is left behind. flex:1 in the
+   query-pane column overrides the ResizableBox's inline height so the
+   editor — and the absolutely-positioned execution pill anchored to its
+   bottom-right — keep a stable layout. The resize handle is disabled in
+   JS for this state since there's nothing to resize against. */
+.wpgraphql-ide-editor-resizable.is-fullheight {
+	flex: 1;
+	max-height: 100%;
 }
 
 /* Space between editor toolbar and CodeMirror content */
@@ -1603,7 +1921,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	min-width: 0;
+	min-width: 300px;
 	position: relative;
 	background: #fff;
 	overflow: hidden;
@@ -1728,8 +2046,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 /* View mode toggle (JSON | Table) */
 .wpgraphql-ide-response-mode-toggle {
 	display: flex;
-	margin-left: auto;
 	gap: 2px;
+}
+
+.wpgraphql-ide-response-header .wpgraphql-ide-response-meta + .wpgraphql-ide-response-mode-toggle {
+	margin-left: 16px;
 }
 
 .wpgraphql-ide-response-mode-btn {

@@ -30,7 +30,6 @@ import {
 	moreVertical,
 	close,
 	search,
-	share,
 	sidebar,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -44,6 +43,7 @@ import { HeadersPanel } from './HeadersPanel';
 import { ResponseTableView } from './ResponseTableView';
 import { EditorToolbar } from './EditorToolbar';
 import { DocumentTabs } from './DocumentTabs';
+import { DocumentNotices } from './DocumentNotices';
 import ActivityPanel from './ActivityPanel';
 import { useDialog } from './dialogs/DialogProvider';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
@@ -51,6 +51,12 @@ import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 import { getWorkspacePersistence } from './workspace-persistence';
+import {
+	displayDocTitle,
+	deriveStableDocTitle,
+	isAutoTitle,
+} from '../utils/derive-doc-title';
+import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 
 // eslint-disable-next-line jsdoc/require-param
 function ResponseContent({
@@ -251,6 +257,10 @@ export function IDELayout({ fetcher, onClose }) {
 	const { confirm } = useDialog();
 	const [shareDialogOpen, setShareDialogOpen] = useState(false);
 	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+	// Reused for both first-save (temp doc → server doc) and rename
+	// (existing doc → new title/collections). Mode controls the
+	// dialog's labels and which onSave path runs.
+	const [saveDialogMode, setSaveDialogMode] = useState('save');
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
 		[]
@@ -325,6 +335,10 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/app').getCollections(),
 		[]
 	);
+	const personalCollectionsList = useSelect(
+		(select) => select('wpgraphql-ide/app').getPersonalCollections(),
+		[]
+	);
 
 	const {
 		setQuery,
@@ -339,7 +353,7 @@ export function IDELayout({ fetcher, onClose }) {
 		setDocsNavTarget,
 		setCursorOffset,
 		loadCollections,
-		addCollection,
+		togglePersonalCollectionMembership,
 	} = useDispatch('wpgraphql-ide/app');
 
 	const {
@@ -475,6 +489,43 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	// Notify the user about personal collections that have been newly
+	// shared with them since their last visit. Compares the bootstrap's
+	// `sharedCollections` (live aggregator output) against
+	// `seenSharedCollections` (per-user meta of what they've already
+	// been notified about). Persists the current id set so the same
+	// collection doesn't notify twice.
+	useEffect(() => {
+		const data = window.WPGRAPHQL_IDE_DATA || {};
+		const shared = Array.isArray(data.sharedCollections)
+			? data.sharedCollections
+			: [];
+		const seen = new Set(
+			Array.isArray(data.seenSharedCollections)
+				? data.seenSharedCollections.map(String)
+				: []
+		);
+		const unseen = shared.filter((sc) => !seen.has(String(sc.id)));
+		if (unseen.length === 0) {
+			return;
+		}
+		for (const sc of unseen) {
+			const owner = sc.owner?.display_name || 'Another user';
+			addNotice(`${owner} shared "${sc.name}" with you.`);
+		}
+		// Persist the full current id list — not just `unseen`, so that
+		// if a collection is later unshared and then reshared, it'll
+		// notify again. Fire-and-forget; failure just means we'll
+		// re-notify next load, which is acceptable.
+		import('../api/preferences').then(({ savePreference }) => {
+			savePreference(
+				'seen_shared_collections',
+				shared.map((sc) => String(sc.id))
+			).catch(() => {});
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	// When active document changes, populate editors and restore response.
 	// Cancel any pending auto-save from the previous document. When no doc
 	// is active (last tab closed), clear editor + response state so the
@@ -497,20 +548,6 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeDocument?.id]);
 
-	const getNextTabName = useCallback(() => {
-		const existing = allDocuments.filter((d) =>
-			/^New Tab( \d+)?$/.test(d.title)
-		);
-		if (existing.length === 0) {
-			return 'New Tab';
-		}
-		const nums = existing.map((d) => {
-			const m = d.title.match(/^New Tab (\d+)$/);
-			return m ? parseInt(m[1], 10) : 1;
-		});
-		return `New Tab ${Math.max(...nums) + 1}`;
-	}, [allDocuments]);
-
 	// Auto-save drafts after 2 seconds of inactivity.
 	const cancelAutoSave = useCallback(() => {
 		if (saveTimerRef.current) {
@@ -524,17 +561,33 @@ export function IDELayout({ fetcher, onClose }) {
 			if (!activeDocument) {
 				return;
 			}
+			// Sticky-title persist: when the active doc's title is still in
+			// the auto state and the query has a clearly-complete op name
+			// (followed by `{` or `(`), freeze that name as the title. Once
+			// persisted, the title stops following the query — even if the
+			// user later edits or removes the op name. Mirrors WP's "slug
+			// freezes after first publish" behavior.
+			const buildPayload = () => {
+				const payload = { [field]: value };
+				if (field === 'query' && isAutoTitle(activeDocument.title)) {
+					const stable = deriveStableDocTitle(value);
+					if (stable) {
+						payload.title = stable;
+					}
+				}
+				return payload;
+			};
 			// Temp drafts only live client-side, so just push edits
 			// straight to the doc store + localStorage. No debounce —
 			// `saveDocument` for a temp ID is a synchronous local
 			// update and skips the network entirely.
 			if (String(activeDocument.id).startsWith('temp-')) {
-				saveDocument(activeDocument.id, { [field]: value });
+				saveDocument(activeDocument.id, buildPayload());
 				return;
 			}
 			cancelAutoSave();
 			saveTimerRef.current = setTimeout(() => {
-				saveDocument(activeDocument.id, { [field]: value });
+				saveDocument(activeDocument.id, buildPayload());
 			}, 2000);
 		},
 		[activeDocument, saveDocument, cancelAutoSave]
@@ -649,6 +702,75 @@ export function IDELayout({ fetcher, onClose }) {
 
 	// Whether the active document is published (immutable query).
 	const isPublished = activeDocument?.status === 'publish';
+
+	// Whether the variables/headers JSON strings carry any meaningful
+	// content. Empty string, blank, or `{}` all count as "no content"
+	// — published docs should hide those tabs since there's nothing to
+	// see and the editor is read-only anyway.
+	const hasJsonContent = useCallback((raw) => {
+		if (!raw || typeof raw !== 'string') {
+			return false;
+		}
+		const trimmed = raw.trim();
+		if (!trimmed || trimmed === '{}') {
+			return false;
+		}
+		try {
+			const parsed = JSON.parse(trimmed);
+			if (parsed && typeof parsed === 'object') {
+				return Object.keys(parsed).length > 0;
+			}
+			return false;
+		} catch {
+			// Malformed JSON — treat as content so the user can still
+			// see what's there (and the editor surfaces parse errors).
+			return true;
+		}
+	}, []);
+	const hasVariables = useMemo(
+		() => hasJsonContent(variables),
+		[hasJsonContent, variables]
+	);
+	const hasHeaders = useMemo(
+		() => hasJsonContent(headers),
+		[hasJsonContent, headers]
+	);
+	// Tabs to render in the lower toolbar. On published docs we filter
+	// out empty Variables/Headers since they're read-only and offer
+	// nothing to look at; on drafts we always show both so the user
+	// has a place to add content.
+	const editorBottomTabs = useMemo(() => {
+		const all = [
+			{ name: 'variables', title: 'Variables', present: hasVariables },
+			{ name: 'headers', title: 'Headers', present: hasHeaders },
+		];
+		const filtered = isPublished ? all.filter((t) => t.present) : all;
+		return filtered.map(({ present, ...tab }) => tab);
+	}, [isPublished, hasVariables, hasHeaders]);
+
+	// Spawn a fresh draft tab seeded with the current doc's query, variables,
+	// and headers. Used by the "Duplicate as draft" kebab item and the
+	// document-notice link on published docs — keep them in lockstep.
+	const duplicateAsDraft = useCallback(async () => {
+		if (!activeDocument) {
+			return;
+		}
+		await createTab(`${displayDocTitle(activeDocument)} (copy)`);
+		setQuery(query);
+		setVariables(variables);
+		setHeaders(headers);
+		addNotice('Draft copy created');
+	}, [
+		activeDocument,
+		createTab,
+		setQuery,
+		setVariables,
+		setHeaders,
+		query,
+		variables,
+		headers,
+		addNotice,
+	]);
 	const isTempDoc = activeDocument
 		? String(activeDocument.id).startsWith('temp-')
 		: true;
@@ -749,27 +871,34 @@ export function IDELayout({ fetcher, onClose }) {
 		]
 	);
 
+	// Parse the current query once; reused for op-picker, Publish guard, and
+	// Composer state. parseable=false means the editor content is unparseable
+	// GraphQL (or empty).
+	const parsedQuery = useMemo(() => {
+		if (!query || !query.trim()) {
+			return { ast: null, parseable: false, empty: true };
+		}
+		try {
+			return { ast: parseGraphQL(query), parseable: true, empty: false };
+		} catch {
+			return { ast: null, parseable: false, empty: false };
+		}
+	}, [query]);
+
 	// Operation names declared in the current document. The Execute button
 	// turns into an op-picker dropdown when there's more than one — graphql-php
 	// returns an error if multiple operations are sent without a target.
 	const operationNames = useMemo(() => {
-		if (!query) {
+		if (!parsedQuery.ast) {
 			return [];
 		}
-		try {
-			const ast = parseGraphQL(query);
-			return ast.definitions
-				.filter(
-					(d) =>
-						d.kind === 'OperationDefinition' &&
-						d.name &&
-						d.name.value
-				)
-				.map((d) => d.name.value);
-		} catch {
-			return [];
-		}
-	}, [query]);
+		return parsedQuery.ast.definitions
+			.filter(
+				(d) =>
+					d.kind === 'OperationDefinition' && d.name && d.name.value
+			)
+			.map((d) => d.name.value);
+	}, [parsedQuery]);
 
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
@@ -1209,7 +1338,7 @@ export function IDELayout({ fetcher, onClose }) {
 							</p>
 							<Button
 								variant="primary"
-								onClick={() => createTab(getNextTabName())}
+								onClick={() => createTab('')}
 							>
 								New Document
 							</Button>
@@ -1229,16 +1358,33 @@ export function IDELayout({ fetcher, onClose }) {
 										.filter(Boolean)
 										.map((doc) => ({
 											id: doc.id,
-											title: doc.title || 'Untitled',
-											dirty: isDocDirty(doc),
+											title: displayDocTitle(doc),
+											// Temp docs are visually marked
+											// dirty even when empty so the
+											// "unsaved" affordance is on from
+											// the moment a tab is created.
+											// Close-confirmation still uses
+											// `isDocDirty`, which gates on
+											// actual content.
+											dirty:
+												isDocDirty(doc) ||
+												(!doc.tabType &&
+													String(doc.id).startsWith(
+														'temp-'
+													)),
 										}))}
 									activeId={activeDocument?.id}
 									onSwitch={(id) => switchTab(id)}
 									onClose={(id) => handleCloseTab(id)}
-									onCreate={() => createTab(getNextTabName())}
+									onCreate={() => createTab('')}
 									onRename={(id, title) => {
 										saveDocument(id, { title });
 									}}
+									onRefreshActive={() => loadDocuments()}
+									canRefreshActive={
+										!!activeDocument?.id &&
+										!isTempId(activeDocument.id)
+									}
 								/>
 							</div>
 
@@ -1322,29 +1468,48 @@ export function IDELayout({ fetcher, onClose }) {
 																}
 															/>
 														</MenuGroup>
+														<MenuGroup>
+															<MenuItem
+																onClick={() => {
+																	closeMenu();
+																	setShareDialogOpen(
+																		true
+																	);
+																}}
+																disabled={
+																	!query?.trim()
+																}
+															>
+																Share link…
+															</MenuItem>
+														</MenuGroup>
+														{!!activeDocument?.id &&
+															!isTempId(
+																activeDocument.id
+															) && (
+																<MenuGroup>
+																	<MenuItem
+																		onClick={() => {
+																			closeMenu();
+																			setSaveDialogMode(
+																				'rename'
+																			);
+																			setSaveDialogOpen(
+																				true
+																			);
+																		}}
+																	>
+																		Rename
+																		document
+																	</MenuItem>
+																</MenuGroup>
+															)}
 														{isPublished && (
 															<MenuGroup>
 																<MenuItem
 																	onClick={() => {
 																		closeMenu();
-																		createTab(
-																			`${activeDocument?.title || 'Untitled'} (copy)`
-																		).then(
-																			() => {
-																				setQuery(
-																					query
-																				);
-																				setVariables(
-																					variables
-																				);
-																				setHeaders(
-																					headers
-																				);
-																				addNotice(
-																					'Draft copy created'
-																				);
-																			}
-																		);
+																		duplicateAsDraft();
 																	}}
 																>
 																	Duplicate as
@@ -1356,19 +1521,6 @@ export function IDELayout({ fetcher, onClose }) {
 												)}
 											</DropdownMenu>
 											<div className="wpgraphql-ide-editor-toolbar-spacer" />
-											<Tooltip text="Share link…">
-												<Button
-													onClick={() =>
-														setShareDialogOpen(true)
-													}
-													disabled={!query?.trim()}
-													aria-label="Share link"
-													size="compact"
-													className="wpgraphql-ide-toolbar-share-btn"
-												>
-													<Icon icon={share} />
-												</Button>
-											</Tooltip>
 											{!isPublished && (
 												<>
 													<Button
@@ -1383,27 +1535,45 @@ export function IDELayout({ fetcher, onClose }) {
 													</Button>
 													{isSavedDraft &&
 														query?.trim() && (
-															<Button
-																onClick={
-																	publishCurrentDoc
+															<Tooltip
+																text={
+																	!parsedQuery.parseable
+																		? 'Fix the syntax error to publish'
+																		: ''
 																}
-																size="compact"
-																variant="primary"
-																className="wpgraphql-ide-publish-button"
 															>
-																Publish
-															</Button>
+																<Button
+																	onClick={
+																		publishCurrentDoc
+																	}
+																	disabled={
+																		!parsedQuery.parseable
+																	}
+																	size="compact"
+																	variant="primary"
+																	className="wpgraphql-ide-publish-button"
+																>
+																	Publish
+																</Button>
+															</Tooltip>
 														)}
 												</>
 											)}
 										</div>
+										<DocumentNotices
+											isPublished={isPublished}
+											onDuplicate={duplicateAsDraft}
+										/>
 										<ResizableBox
 											size={{
 												width: '100%',
 												height: editorHeight,
 											}}
 											minHeight={50}
-											enable={{ bottom: true }}
+											enable={{
+												bottom:
+													editorBottomTabs.length > 0,
+											}}
 											onResizeStop={(e, d, elt) => {
 												const h = elt.offsetHeight;
 												setEditorHeight(h);
@@ -1412,7 +1582,7 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}`}
 										>
 											{ComposerContent &&
 												showQueryComposer &&
@@ -1664,53 +1834,50 @@ export function IDELayout({ fetcher, onClose }) {
 												})()}
 											</div>
 										</ResizableBox>
-										<TabPanel
-											className={`wpgraphql-ide-editor-tools${isPublished ? ' is-readonly' : ''}`}
-											tabs={[
-												{
-													name: 'variables',
-													title: 'Variables',
-												},
-												{
-													name: 'headers',
-													title: 'Headers',
-												},
-											]}
-										>
-											{(tab) =>
-												tab.name === 'variables' ? (
-													<JSONEditor
-														key="variables"
-														className={
-															isPublished
-																? 'is-readonly'
-																: ''
-														}
-														value={variables}
-														onChange={
-															handleVariablesChange
-														}
-														placeholder="Variables (JSON)"
-														readOnly={isPublished}
-													/>
-												) : (
-													<JSONEditor
-														key="headers"
-														className={
-															isPublished
-																? 'is-readonly'
-																: ''
-														}
-														value={headers}
-														onChange={
-															handleHeadersChange
-														}
-														placeholder="Headers (JSON)"
-														readOnly={isPublished}
-													/>
-												)
-											}
-										</TabPanel>
+										{editorBottomTabs.length > 0 && (
+											<TabPanel
+												className={`wpgraphql-ide-editor-tools${isPublished ? ' is-readonly' : ''}`}
+												tabs={editorBottomTabs}
+											>
+												{(tab) =>
+													tab.name === 'variables' ? (
+														<JSONEditor
+															key="variables"
+															className={
+																isPublished
+																	? 'is-readonly'
+																	: ''
+															}
+															value={variables}
+															onChange={
+																handleVariablesChange
+															}
+															placeholder="Variables (JSON)"
+															readOnly={
+																isPublished
+															}
+														/>
+													) : (
+														<JSONEditor
+															key="headers"
+															className={
+																isPublished
+																	? 'is-readonly'
+																	: ''
+															}
+															value={headers}
+															onChange={
+																handleHeadersChange
+															}
+															placeholder="Headers (JSON)"
+															readOnly={
+																isPublished
+															}
+														/>
+													)
+												}
+											</TabPanel>
+										)}
 									</ResizableBox>
 
 									<div className="wpgraphql-ide-response-pane">
@@ -1869,24 +2036,109 @@ export function IDELayout({ fetcher, onClose }) {
 			)}
 			{saveDialogOpen && activeDocument && (
 				<SaveDialog
-					defaultTitle={activeDocument.title || ''}
+					mode={saveDialogMode}
+					defaultTitle={
+						saveDialogMode === 'rename'
+							? activeDocument.title || ''
+							: ''
+					}
+					defaultCollectionIds={
+						saveDialogMode === 'rename' &&
+						Array.isArray(activeDocument.collections)
+							? activeDocument.collections
+							: []
+					}
+					defaultPersonalCollectionIds={
+						saveDialogMode === 'rename'
+							? personalCollectionsList
+									.filter((pc) =>
+										(pc.document_ids || [])
+											.map(Number)
+											.includes(Number(activeDocument.id))
+									)
+									.map((pc) => pc.id)
+							: []
+					}
 					collections={collectionsList}
-					onCreateCollection={async (name) => {
-						const created = await addCollection(name);
-						return created || null;
+					personalCollections={personalCollectionsList}
+					onClose={() => {
+						setSaveDialogOpen(false);
+						setSaveDialogMode('save');
 					}}
-					onClose={() => setSaveDialogOpen(false)}
-					onSave={async ({ title, collectionId }) => {
-						await saveTab(activeDocument.id, {
-							title,
-							query,
-							variables,
-							headers,
-							collections:
-								collectionId !== null ? [collectionId] : [],
-						});
+					onSave={async ({
+						title,
+						collectionIds,
+						personalCollectionIds,
+					}) => {
+						const isRename = saveDialogMode === 'rename';
+						// Rename only writes the user-visible bits (title +
+						// collection memberships). Save also captures
+						// in-flight editor content. Keeping the rename path
+						// content-free means a draft with unsaved changes
+						// stays dirty after a rename, which matches user
+						// expectation.
+						const saved = isRename
+							? await saveTab(activeDocument.id, {
+									title,
+									collections: Array.isArray(collectionIds)
+										? collectionIds
+										: [],
+								})
+							: await saveTab(activeDocument.id, {
+									title,
+									query,
+									variables,
+									headers,
+									collections: Array.isArray(collectionIds)
+										? collectionIds
+										: [],
+								});
+						const docId = saved?.id || activeDocument.id;
+						const desired = new Set(
+							Array.isArray(personalCollectionIds)
+								? personalCollectionIds
+								: []
+						);
+						if (isRename) {
+							// Rename: diff current vs desired, toggle the
+							// symmetric difference. (toggle flips state, so
+							// toggling every changed id lands the right
+							// final membership.)
+							const current = new Set(
+								personalCollectionsList
+									.filter((pc) =>
+										(pc.document_ids || [])
+											.map(Number)
+											.includes(Number(docId))
+									)
+									.map((pc) => pc.id)
+							);
+							const toAdd = [...desired].filter(
+								(id) => !current.has(id)
+							);
+							const toRemove = [...current].filter(
+								(id) => !desired.has(id)
+							);
+							for (const pcId of [...toAdd, ...toRemove]) {
+								await togglePersonalCollectionMembership(
+									pcId,
+									docId
+								);
+							}
+						} else if (desired.size > 0) {
+							// First save: doc isn't in any personal collection
+							// yet, so every desired id is a pure add.
+							for (const pcId of desired) {
+								await togglePersonalCollectionMembership(
+									pcId,
+									docId
+								);
+							}
+						}
 						loadDocuments();
-						addNotice('Document saved');
+						addNotice(
+							isRename ? 'Document renamed' : 'Document saved'
+						);
 					}}
 				/>
 			)}

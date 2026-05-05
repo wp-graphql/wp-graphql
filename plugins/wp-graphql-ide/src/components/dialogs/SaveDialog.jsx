@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import {
 	Button,
+	CheckboxControl,
 	Modal,
-	SelectControl,
 	TextControl,
 } from '@wordpress/components';
-
-const NEW_COLLECTION_OPTION = '__new__';
+import { Icon, lock } from '@wordpress/icons';
 
 const MODE_LABELS = {
 	save: {
@@ -23,26 +22,33 @@ const MODE_LABELS = {
 
 // Document details dialog — shared between the "Save" flow (promoting
 // a temp draft to a real document) and the "Rename" flow (editing an
-// existing saved document). Both flows let the user set/change the
-// title and collection (with inline collection creation) in a single
-// step.
+// existing saved document). The user can assign the doc to any
+// combination of sitewide and personal collections via checkboxes.
+// Creating new collections happens in the dedicated NewCollectionDialog
+// from the panel kebab.
 //
 // Props:
 //   {
-//     mode?: 'save' | 'rename',           // default 'save'
+//     mode?: 'save' | 'rename',                    // default 'save'
 //     defaultTitle?: string,
-//     defaultCollectionId?: number|null,  // only used by rename
-//     collections: Array<{id, name}>,
-//     onCreateCollection?: (name) => Promise<{id}>,
-//     onSubmit: ({title, collectionId|null}) => Promise<void>,
+//     defaultCollectionIds?: number[],             // sitewide rename default
+//     defaultPersonalCollectionIds?: string[],     // personal rename default
+//     collections: Array<{id, name}>,              // sitewide
+//     personalCollections?: Array<{id, name}>,     // user-meta backed
+//     onSubmit: ({title, collectionIds, personalCollectionIds}) => Promise<void>,
 //     onClose: () => void,
 //   }
 export function SaveDialog({
 	mode = 'save',
 	defaultTitle = '',
+	defaultCollectionIds = [],
+	defaultPersonalCollectionIds = [],
+	// Backwards-compat with the singular default-id props that earlier
+	// callers pass. If the array variant isn't supplied, fall back.
 	defaultCollectionId = null,
+	defaultPersonalCollectionId = null,
 	collections = [],
-	onCreateCollection,
+	personalCollections = [],
 	onSubmit,
 	// Backwards-compat: callers used to pass `onSave`. Either alias works.
 	onSave,
@@ -50,15 +56,58 @@ export function SaveDialog({
 }) {
 	const submitHandler = onSubmit || onSave;
 	const labels = MODE_LABELS[mode] || MODE_LABELS.save;
+
+	const seedSitewide = (() => {
+		if (
+			Array.isArray(defaultCollectionIds) &&
+			defaultCollectionIds.length
+		) {
+			return defaultCollectionIds.map(Number);
+		}
+		if (defaultCollectionId !== null && defaultCollectionId !== undefined) {
+			return [Number(defaultCollectionId)];
+		}
+		return [];
+	})();
+	const seedPersonal = (() => {
+		if (
+			Array.isArray(defaultPersonalCollectionIds) &&
+			defaultPersonalCollectionIds.length
+		) {
+			return defaultPersonalCollectionIds.map(String);
+		}
+		if (defaultPersonalCollectionId) {
+			return [String(defaultPersonalCollectionId)];
+		}
+		return [];
+	})();
+
 	const [title, setTitle] = useState(defaultTitle);
-	const [collectionId, setCollectionId] = useState(
-		defaultCollectionId !== null && defaultCollectionId !== undefined
-			? String(defaultCollectionId)
-			: ''
-	);
-	const [newCollectionName, setNewCollectionName] = useState('');
-	const [creatingCollection, setCreatingCollection] = useState(false);
+	const [pickedSitewide, setPickedSitewide] = useState(new Set(seedSitewide));
+	const [pickedPersonal, setPickedPersonal] = useState(new Set(seedPersonal));
 	const [submitting, setSubmitting] = useState(false);
+
+	const toggleSitewide = (id) =>
+		setPickedSitewide((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) {
+				next.delete(id);
+			} else {
+				next.add(id);
+			}
+			return next;
+		});
+
+	const togglePersonal = (id) =>
+		setPickedPersonal((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) {
+				next.delete(id);
+			} else {
+				next.add(id);
+			}
+			return next;
+		});
 
 	const submit = async () => {
 		const trimmed = title.trim();
@@ -69,7 +118,8 @@ export function SaveDialog({
 		try {
 			await submitHandler({
 				title: trimmed,
-				collectionId: collectionId === '' ? null : Number(collectionId),
+				collectionIds: Array.from(pickedSitewide),
+				personalCollectionIds: Array.from(pickedPersonal),
 			});
 			onClose();
 		} catch (e) {
@@ -77,42 +127,8 @@ export function SaveDialog({
 		}
 	};
 
-	const handleCreateCollection = async () => {
-		const name = newCollectionName.trim();
-		if (!name || !onCreateCollection) {
-			return;
-		}
-		const created = await onCreateCollection(name);
-		if (created?.id) {
-			setCollectionId(String(created.id));
-		}
-		setNewCollectionName('');
-		setCreatingCollection(false);
-	};
-
-	const cancelNewCollection = () => {
-		setCreatingCollection(false);
-		setNewCollectionName('');
-	};
-
-	const handleCollectionChange = (value) => {
-		if (value === NEW_COLLECTION_OPTION) {
-			setCreatingCollection(true);
-			return;
-		}
-		setCollectionId(value);
-	};
-
-	const collectionOptions = [
-		{ label: '— None —', value: '' },
-		...collections.map((c) => ({
-			label: c.name,
-			value: String(c.id),
-		})),
-		...(onCreateCollection
-			? [{ label: '+ New collection…', value: NEW_COLLECTION_OPTION }]
-			: []),
-	];
+	const hasAnyCollections =
+		collections.length > 0 || personalCollections.length > 0;
 
 	return (
 		<Modal
@@ -120,7 +136,7 @@ export function SaveDialog({
 			onRequestClose={() => (submitting ? null : onClose())}
 			className={`wpgraphql-ide-dialog wpgraphql-ide-save-dialog wpgraphql-ide-save-dialog--${mode}`}
 		>
-			<div className="wpgraphql-ide-save-dialog-fields">
+			<div className="wpgraphql-ide-dialog-stack">
 				<TextControl
 					label="Document name"
 					value={title}
@@ -137,53 +153,62 @@ export function SaveDialog({
 						}
 					}}
 				/>
-				<SelectControl
-					label="Collection"
-					value={
-						creatingCollection
-							? NEW_COLLECTION_OPTION
-							: collectionId
-					}
-					options={collectionOptions}
-					onChange={handleCollectionChange}
-					__nextHasNoMarginBottom
-					__next40pxDefaultSize
-				/>
-				{creatingCollection && (
-					<div className="wpgraphql-ide-save-dialog-new-collection">
-						<TextControl
-							label="New collection name"
-							value={newCollectionName}
-							onChange={setNewCollectionName}
-							placeholder="Collection name"
-							__nextHasNoMarginBottom
-							__next40pxDefaultSize
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
-									e.preventDefault();
-									handleCreateCollection();
-								}
-								if (e.key === 'Escape') {
-									cancelNewCollection();
-								}
-							}}
-						/>
-						<div className="wpgraphql-ide-save-dialog-new-collection-actions">
-							<Button
-								variant="tertiary"
-								onClick={cancelNewCollection}
-							>
-								Cancel
-							</Button>
-							<Button
-								variant="secondary"
-								onClick={handleCreateCollection}
-								disabled={!newCollectionName.trim()}
-							>
-								Create collection
-							</Button>
-						</div>
-					</div>
+
+				{!hasAnyCollections ? (
+					<p className="wpgraphql-ide-save-dialog-empty">
+						No collections yet — you can create one from the
+						saved-queries panel.
+					</p>
+				) : (
+					<>
+						{collections.length > 0 && (
+							<fieldset className="wpgraphql-ide-save-dialog-fieldset">
+								<legend className="wpgraphql-ide-save-dialog-legend">
+									Collections
+								</legend>
+								<ul className="wpgraphql-ide-save-dialog-checklist">
+									{collections.map((c) => (
+										<li key={c.id}>
+											<CheckboxControl
+												__nextHasNoMarginBottom
+												label={c.name}
+												checked={pickedSitewide.has(
+													Number(c.id)
+												)}
+												onChange={() =>
+													toggleSitewide(Number(c.id))
+												}
+											/>
+										</li>
+									))}
+								</ul>
+							</fieldset>
+						)}
+						{personalCollections.length > 0 && (
+							<fieldset className="wpgraphql-ide-save-dialog-fieldset">
+								<legend className="wpgraphql-ide-save-dialog-legend">
+									<Icon icon={lock} size={14} /> Personal
+									collections
+								</legend>
+								<ul className="wpgraphql-ide-save-dialog-checklist">
+									{personalCollections.map((pc) => (
+										<li key={pc.id}>
+											<CheckboxControl
+												__nextHasNoMarginBottom
+												label={pc.name}
+												checked={pickedPersonal.has(
+													pc.id
+												)}
+												onChange={() =>
+													togglePersonal(pc.id)
+												}
+											/>
+										</li>
+									))}
+								</ul>
+							</fieldset>
+						)}
+					</>
 				)}
 			</div>
 			<div className="wpgraphql-ide-dialog-actions">

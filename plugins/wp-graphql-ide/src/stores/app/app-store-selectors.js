@@ -71,6 +71,12 @@ const selectors = {
 		const modes = state.collectionSortModes || {};
 		return modes[key] || 'manual';
 	},
+	getPersonalCollections: (state) => {
+		return state.personalCollections || [];
+	},
+	getSharedCollections: (state) => {
+		return state.sharedCollections || [];
+	},
 };
 
 export default selectors;

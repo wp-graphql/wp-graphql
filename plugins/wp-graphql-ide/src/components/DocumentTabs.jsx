@@ -1,10 +1,4 @@
-import React, {
-	useRef,
-	useState,
-	useLayoutEffect,
-	useCallback,
-	useEffect,
-} from 'react';
+import React, { useRef, useState, useLayoutEffect, useCallback } from 'react';
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -12,9 +6,10 @@ import {
 	Button,
 	Tooltip,
 } from '@wordpress/components';
-import { Icon, plus } from '@wordpress/icons';
+import { Icon, plus, moreVertical } from '@wordpress/icons';
 
 const ADD_BTN_W = 32;
+const KEBAB_BTN_W = 32;
 const OVERFLOW_BTN_W = 32;
 
 /**
@@ -24,12 +19,15 @@ const OVERFLOW_BTN_W = 32;
  * overflow dropdown on the right. Renames are triggered from the sidebar.
  *
  * @param {Object}   props
- * @param {Array}    props.tabs     Array of `{ id, title, dirty }` tab descriptors.
- * @param {string}   props.activeId Id of the currently active tab.
- * @param {Function} props.onSwitch Called with the clicked tab id.
- * @param {Function} props.onClose  Called with the id of the tab to close.
- * @param {Function} props.onCreate Called when the "+" button is clicked.
- * @param {Function} props.onRename Called with `(id, title)` after inline rename.
+ * @param {Array}    props.tabs               Array of `{ id, title, dirty }` tab descriptors.
+ * @param {string}   props.activeId           Id of the currently active tab.
+ * @param {Function} props.onSwitch           Called with the clicked tab id.
+ * @param {Function} props.onClose            Called with the id of the tab to close.
+ * @param {Function} props.onCreate           Called when the "+" button is clicked.
+ * @param {Function} props.onRename           Called with `(id, title)` after inline rename.
+ * @param {Function} [props.onRefreshActive]  Re-fetch the active tab from the server.
+ * @param {boolean}  [props.canRefreshActive] Whether the refresh action is enabled
+ *                                            (false when the active tab is unsaved).
  *
  * @return {JSX.Element}
  */
@@ -40,16 +38,14 @@ export function DocumentTabs({
 	onClose,
 	onCreate,
 	onRename,
+	onRefreshActive,
+	canRefreshActive = false,
 }) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
-	const menuRef = useRef(null);
 	const [cutoff, setCutoff] = useState(tabs.length);
 	const [editingId, setEditingId] = useState(null);
 	const [editValue, setEditValue] = useState('');
-	// Right-click context menu: { tabId, x, y } | null. Position is in
-	// viewport coords so the menu can render outside the tab bar.
-	const [contextMenu, setContextMenu] = useState(null);
 
 	const recalculate = useCallback(() => {
 		const container = containerRef.current;
@@ -58,8 +54,8 @@ export function DocumentTabs({
 		}
 		const available = container.clientWidth;
 
-		// First pass — do all tabs fit with just the "+" button?
-		let sum = ADD_BTN_W;
+		// First pass — do all tabs fit with the trailing "+" + kebab?
+		let sum = ADD_BTN_W + KEBAB_BTN_W;
 		for (const tab of tabs) {
 			const el = tabRefs.current[tab.id];
 			sum += el ? el.offsetWidth : 140;
@@ -70,7 +66,7 @@ export function DocumentTabs({
 		}
 
 		// Second pass — reserve space for the overflow button too.
-		sum = ADD_BTN_W + OVERFLOW_BTN_W;
+		sum = ADD_BTN_W + KEBAB_BTN_W + OVERFLOW_BTN_W;
 		let count = 0;
 		for (const tab of tabs) {
 			const el = tabRefs.current[tab.id];
@@ -100,29 +96,6 @@ export function DocumentTabs({
 		return () => obs.disconnect();
 	}, [recalculate]);
 
-	// Dismiss the context menu on outside click or Escape.
-	useEffect(() => {
-		if (!contextMenu) {
-			return undefined;
-		}
-		const handleDown = (e) => {
-			if (menuRef.current && !menuRef.current.contains(e.target)) {
-				setContextMenu(null);
-			}
-		};
-		const handleKey = (e) => {
-			if (e.key === 'Escape') {
-				setContextMenu(null);
-			}
-		};
-		document.addEventListener('mousedown', handleDown);
-		document.addEventListener('keydown', handleKey);
-		return () => {
-			document.removeEventListener('mousedown', handleDown);
-			document.removeEventListener('keydown', handleKey);
-		};
-	}, [contextMenu]);
-
 	const closeMany = (ids) => {
 		for (const id of ids) {
 			onClose(String(id));
@@ -133,16 +106,6 @@ export function DocumentTabs({
 		closeMany(
 			tabs.filter((t) => String(t.id) !== String(keepId)).map((t) => t.id)
 		);
-	};
-
-	const closeToRight = (anchorId) => {
-		const anchorIdx = tabs.findIndex(
-			(t) => String(t.id) === String(anchorId)
-		);
-		if (anchorIdx < 0) {
-			return;
-		}
-		closeMany(tabs.slice(anchorIdx + 1).map((t) => t.id));
 	};
 
 	const closeAll = () => {
@@ -183,15 +146,18 @@ export function DocumentTabs({
 						role="tab"
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
-						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}`}
+						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${tab.dirty ? ' is-dirty' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
-						onContextMenu={(e) => {
+						// Double-click to rename — matches macOS Finder, Chrome
+						// bookmarks, and most native tab UIs. Lets the user
+						// override the auto-derived title without hunting
+						// through a kebab. Falls back to the existing kebab
+						// rename in IDELayout for discoverability.
+						onDoubleClick={(e) => {
 							e.preventDefault();
-							setContextMenu({
-								tabId: String(tab.id),
-								x: e.clientX,
-								y: e.clientY,
-							});
+							e.stopPropagation();
+							setEditValue(tab.title || '');
+							setEditingId(tab.id);
 						}}
 						onKeyDown={(e) => {
 							if (
@@ -323,69 +289,68 @@ export function DocumentTabs({
 				</Button>
 			</Tooltip>
 
-			{contextMenu &&
-				(() => {
-					const targetIdx = tabs.findIndex(
-						(t) => String(t.id) === contextMenu.tabId
-					);
-					const hasRight =
-						targetIdx >= 0 && targetIdx < tabs.length - 1;
-					const hasOthers = tabs.length > 1;
-					return (
-						<div
-							ref={menuRef}
-							className="wpgraphql-ide-tab-context-menu"
-							role="menu"
-							style={{
-								top: contextMenu.y,
-								left: contextMenu.x,
-							}}
-						>
-							<button
-								type="button"
-								role="menuitem"
-								onClick={() => {
-									onClose(contextMenu.tabId);
-									setContextMenu(null);
-								}}
-							>
-								Close
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								disabled={!hasOthers}
-								onClick={() => {
-									closeOthers(contextMenu.tabId);
-									setContextMenu(null);
-								}}
-							>
-								Close others
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								disabled={!hasRight}
-								onClick={() => {
-									closeToRight(contextMenu.tabId);
-									setContextMenu(null);
-								}}
-							>
-								Close to the right
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								onClick={() => {
-									closeAll();
-									setContextMenu(null);
-								}}
-							>
-								Close all
-							</button>
-						</div>
-					);
-				})()}
+			{tabs.length > 0 && (
+				<DropdownMenu
+					icon={moreVertical}
+					label="Tab actions"
+					toggleProps={{
+						className: 'wpgraphql-ide-tab-kebab',
+						size: 'compact',
+					}}
+				>
+					{({ onClose: closeMenu }) => {
+						const hasInactive = tabs.length > 1;
+						return (
+							<>
+								{onRefreshActive && (
+									<MenuGroup>
+										<MenuItem
+											onClick={() => {
+												onRefreshActive();
+												closeMenu();
+											}}
+											disabled={!canRefreshActive}
+										>
+											Refresh tab names
+										</MenuItem>
+									</MenuGroup>
+								)}
+								<MenuGroup>
+									<MenuItem
+										onClick={() => {
+											if (activeId) {
+												onClose(String(activeId));
+											}
+											closeMenu();
+										}}
+										disabled={!activeId}
+									>
+										Close active tab
+									</MenuItem>
+									<MenuItem
+										onClick={() => {
+											closeOthers(activeId);
+											closeMenu();
+										}}
+										disabled={!hasInactive}
+									>
+										Close inactive tabs
+									</MenuItem>
+									<MenuItem
+										onClick={() => {
+											closeAll();
+											closeMenu();
+										}}
+										isDestructive
+									>
+										Close all tabs
+									</MenuItem>
+								</MenuGroup>
+							</>
+						);
+					}}
+				</DropdownMenu>
+			)}
 		</div>
 	);
 }

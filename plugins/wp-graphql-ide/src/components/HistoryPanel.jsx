@@ -1,10 +1,18 @@
 import React from 'react';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { dateI18n } from '@wordpress/date';
 import { Icon, backup } from '@wordpress/icons';
 import hooks from '../wordpress-hooks';
 import { useDialog } from './dialogs/DialogProvider';
+import { deriveDocTitle } from '../utils/derive-doc-title';
+
+const HISTORY_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
+	month: 'short',
+	day: 'numeric',
+	hour: 'numeric',
+	minute: '2-digit',
+	hour12: true,
+});
 
 /**
  * History panel icon for the activity bar.
@@ -25,20 +33,6 @@ function queryPreview(query) {
 }
 
 /**
- * Extract operation name from a query string.
- *
- * @param {string} query Raw query string.
- * @return {string|null} Operation name or null.
- */
-function extractOperationName(query) {
-	if (!query) {
-		return null;
-	}
-	const match = query.match(/(?:query|mutation|subscription)\s+(\w+)/);
-	return match ? match[1] : null;
-}
-
-/**
  * History panel content.
  *
  * Displays global execution history. Clicking an entry restores its
@@ -51,11 +45,6 @@ export function HistoryPanel() {
 		[]
 	);
 
-	const allDocuments = useSelect(
-		(select) => select('wpgraphql-ide/document-editor').getDocuments(),
-		[]
-	);
-
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
 
@@ -64,30 +53,11 @@ export function HistoryPanel() {
 	const avatarUrl = window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || '';
 
 	const restoreEntry = async (entry) => {
-		const opName = extractOperationName(entry.query);
-		const docName = getDocumentName(entry.document_id);
-		const timestamp = dateI18n('M j, g:i A', entry.timestamp * 1000);
-		const isGenericName =
-			!docName || /^(Untitled|New Tab( \d+)?)$/.test(docName);
-		let tabName = timestamp;
-		if (opName) {
-			tabName = opName;
-		} else if (!isGenericName) {
-			tabName = docName;
-		}
-
-		await createTab(tabName);
+		// Tab title derives from the restored query; no need to compute a name.
+		await createTab('');
 		setQuery(entry.query || '');
 		setVariables(entry.variables || '');
 		setHeaders(entry.headers || '');
-	};
-
-	const getDocumentName = (docId) => {
-		if (!docId) {
-			return null;
-		}
-		const doc = allDocuments.find((d) => String(d.id) === String(docId));
-		return doc?.title || null;
 	};
 
 	if (history.length === 0) {
@@ -104,9 +74,8 @@ export function HistoryPanel() {
 		<div className="wpgraphql-ide-history-panel">
 			<ul className="wpgraphql-ide-history-list">
 				{history.map((entry) => {
-					const docName = getDocumentName(entry.document_id);
-					const opName = extractOperationName(entry.query);
-					const label = opName || docName;
+					const derived = deriveDocTitle(entry.query);
+					const label = derived === 'Untitled' ? null : derived;
 
 					return (
 						<li
@@ -144,9 +113,8 @@ export function HistoryPanel() {
 										{entry.duration_ms}ms
 									</span>
 									<span className="wpgraphql-ide-history-entry-time">
-										{dateI18n(
-											'M j, g:i A',
-											entry.timestamp * 1000
+										{HISTORY_TIME_FORMATTER.format(
+											new Date(entry.timestamp * 1000)
 										)}
 									</span>
 									<span className="wpgraphql-ide-history-entry-id">

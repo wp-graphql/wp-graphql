@@ -200,7 +200,7 @@ const actions = {
 	 * @param {string} title Tab title.
 	 */
 	createTab:
-		(title = 'Untitled') =>
+		(title = '') =>
 		({ dispatch }) => {
 			const tempId = `temp-${Date.now()}`;
 			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId });

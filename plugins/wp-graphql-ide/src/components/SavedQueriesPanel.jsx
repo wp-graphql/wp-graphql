@@ -26,6 +26,8 @@ import { useDialog } from './dialogs/DialogProvider';
 import { DeleteCollectionDialog } from './dialogs/DeleteCollectionDialog';
 import { ExportDialog } from './dialogs/ExportDialog';
 import { SaveDialog } from './dialogs/SaveDialog';
+import { NewCollectionDialog } from './dialogs/NewCollectionDialog';
+import { ShareCollectionDialog } from './dialogs/ShareCollectionDialog';
 import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 import {
 	updateDocument,
@@ -33,6 +35,31 @@ import {
 	exportDocuments,
 	importDocuments,
 } from '../api/documents';
+import { displayDocTitle } from '../utils/derive-doc-title';
+import { savePreference } from '../api/preferences';
+
+/**
+ * Hydrate the `collapsedSections` map from the bootstrap-localized
+ * `sectionStates` meta blob. The server stores arbitrary per-section
+ * state under each key; here we project it down to just the
+ * `collapsed` booleans this component cares about. Keys we don't
+ * recognize (or sections without a `collapsed` field) are ignored,
+ * which means the future-proof envelope can grow new fields without
+ * breaking the hydration path.
+ *
+ * @return {Object<string, boolean>} Map of section key to collapsed flag.
+ */
+function hydrateCollapsedSections() {
+	const data = window.WPGRAPHQL_IDE_DATA || {};
+	const raw = data.sectionStates || {};
+	const out = {};
+	for (const [key, state] of Object.entries(raw)) {
+		if (state && typeof state.collapsed === 'boolean') {
+			out[key] = state.collapsed;
+		}
+	}
+	return out;
+}
 
 /**
  * Saved Queries panel icon for the activity bar.
@@ -60,7 +87,7 @@ export function SavedQueriesPanelHeaderAction() {
 				size: 'small',
 				className: 'wpgraphql-ide-panel-kebab',
 			}}
-			popoverProps={{ placement: 'bottom-end' }}
+			popoverProps={{ placement: 'bottom-start' }}
 		>
 			{({ onClose: closeMenu }) => (
 				<>
@@ -119,13 +146,9 @@ const SORT_OPTIONS = [
 function sortDocuments(docs, mode) {
 	const out = [...docs];
 	const titleCmp = (a, b) =>
-		(a.title || 'Untitled').localeCompare(
-			b.title || 'Untitled',
-			undefined,
-			{
-				sensitivity: 'base',
-			}
-		);
+		displayDocTitle(a).localeCompare(displayDocTitle(b), undefined, {
+			sensitivity: 'base',
+		});
 
 	switch (mode) {
 		case 'title_asc':
@@ -184,6 +207,7 @@ function sortDocuments(docs, mode) {
  * @param {Function}        [root0.onSortModeChange]      Sort mode change handler.
  * @param {Function}        [root0.onDeleteAll]           Bulk-delete-all-docs handler.
  * @param {string}          [root0.deleteAllLabel]        Label for the bulk-delete menu item.
+ * @param {Function}        [root0.onShare]               Open a sharing dialog for this collection.
  */
 function CollectionSection({
 	title,
@@ -206,16 +230,18 @@ function CollectionSection({
 	onSortModeChange,
 	onDeleteAll,
 	deleteAllLabel = 'Delete all documents',
+	onShare,
 	children,
 }) {
-	const isOver = dragOverId === dropTargetId;
+	const isOver = !!dropTargetId && dragOverId === dropTargetId;
 	const [editing, setEditing] = useState(false);
 	const [editValue, setEditValue] = useState(title);
 	const hasMenu =
 		onDelete ||
 		onRename ||
 		typeof onSortModeChange === 'function' ||
-		typeof onDeleteAll === 'function';
+		typeof onDeleteAll === 'function' ||
+		typeof onShare === 'function';
 	const isReorderable = typeof collectionId === 'number';
 
 	const commitRename = () => {
@@ -349,16 +375,23 @@ function CollectionSection({
 					>
 						{({ onClose: closeMenu }) => (
 							<>
-								{onRename && (
+								{/* Order is risk-ascending: safe / reversible
+								    actions first, data-mutating actions
+								    further down, destructive at the bottom.
+								    Share is the most common safe action so
+								    it leads. Sort is purely a view setting.
+								    Rename modifies the source-of-truth name
+								    so it sits closer to Delete to make
+								    accidental clicks less likely. */}
+								{typeof onShare === 'function' && (
 									<MenuGroup>
 										<MenuItem
 											onClick={() => {
-												setEditValue(title);
-												setEditing(true);
+												onShare();
 												closeMenu();
 											}}
 										>
-											Rename
+											Sharing
 										</MenuItem>
 									</MenuGroup>
 								)}
@@ -381,6 +414,19 @@ function CollectionSection({
 												{opt.label}
 											</MenuItem>
 										))}
+									</MenuGroup>
+								)}
+								{onRename && (
+									<MenuGroup>
+										<MenuItem
+											onClick={() => {
+												setEditValue(title);
+												setEditing(true);
+												closeMenu();
+											}}
+										>
+											Rename
+										</MenuItem>
 									</MenuGroup>
 								)}
 								{onDelete && (
@@ -432,10 +478,23 @@ export function SavedQueriesPanel() {
 		hooks.doAction('wpgraphql-ide.notice', content, type);
 
 	const [search, setSearch] = useState('');
-	const [statusFilter, setStatusFilter] = useState('all');
-	const [collapsedSections, setCollapsedSections] = useState({});
-	const [creatingCollection, setCreatingCollection] = useState(false);
-	const [newCollectionName, setNewCollectionName] = useState('');
+	// WP-style filter row: All / Mine / Shared. Acts as a *filter*, not a
+	// folder — sections render in their own order below; the filter just
+	// hides the ones that don't match. Avoids the public/private "folder"
+	// mental model that taxonomy-style tabs invite.
+	const [filter, setFilter] = useState('all');
+	// Seed from per-user meta so a user's collapse choices survive a
+	// reload. The hydrator only pulls the `collapsed` field; other
+	// per-section state (added later) sits alongside it server-side.
+	const [collapsedSections, setCollapsedSections] = useState(
+		hydrateCollapsedSections
+	);
+	// Debounce the persist so rapid toggles coalesce into a single
+	// REST write. The 500ms tail keeps the network quiet while still
+	// feeling instantaneous to the user.
+	const persistCollapsedRef = useRef(null);
+	const [newCollectionOpen, setNewCollectionOpen] = useState(false);
+	const [shareTarget, setShareTarget] = useState(null);
 	const [dragOverId, setDragOverId] = useState(null);
 	const [deleteTarget, setDeleteTarget] = useState(null);
 	const [renameTarget, setRenameTarget] = useState(null);
@@ -457,13 +516,16 @@ export function SavedQueriesPanel() {
 		};
 	}, []);
 
-	const { collections, sortModes } = useSelect((select) => {
-		const app = select('wpgraphql-ide/app');
-		return {
-			collections: app.getCollections(),
-			sortModes: app.getCollectionSortModes(),
-		};
-	}, []);
+	const { collections, sortModes, personalCollections, sharedCollections } =
+		useSelect((select) => {
+			const app = select('wpgraphql-ide/app');
+			return {
+				collections: app.getCollections(),
+				sortModes: app.getCollectionSortModes(),
+				personalCollections: app.getPersonalCollections(),
+				sharedCollections: app.getSharedCollections(),
+			};
+		}, []);
 
 	const sortModeFor = useCallback(
 		(key) => sortModes[String(key)] || 'manual',
@@ -480,6 +542,11 @@ export function SavedQueriesPanel() {
 		renameCollection,
 		reorderCollections,
 		setCollectionSortMode,
+		createPersonalCollection,
+		renamePersonalCollection,
+		removePersonalCollection,
+		togglePersonalCollectionMembership,
+		updatePersonalCollectionSharedWith,
 	} = useDispatch('wpgraphql-ide/app');
 
 	const [exportOpen, setExportOpen] = useState(false);
@@ -493,7 +560,7 @@ export function SavedQueriesPanel() {
 		const namespace = 'wpgraphql-ide/saved-queries-panel';
 		hooks.addAction(PANEL_ACTION_HOOK, namespace, (action) => {
 			if (action === 'new-collection') {
-				setCreatingCollection(true);
+				setNewCollectionOpen(true);
 			} else if (action === 'import') {
 				importInputRef.current?.click();
 			} else if (action === 'export') {
@@ -516,22 +583,17 @@ export function SavedQueriesPanel() {
 	const filterDocs = useCallback(
 		(docs) => {
 			let filtered = docs;
-			if (statusFilter === 'publish') {
-				filtered = filtered.filter((d) => d.status === 'publish');
-			} else if (statusFilter === 'draft') {
-				filtered = filtered.filter((d) => d.status !== 'publish');
-			}
 			if (search.trim()) {
 				const q = search.toLowerCase();
 				filtered = filtered.filter(
 					(d) =>
-						(d.title || '').toLowerCase().includes(q) ||
+						displayDocTitle(d).toLowerCase().includes(q) ||
 						(d.query || '').toLowerCase().includes(q)
 				);
 			}
 			return filtered;
 		},
-		[search, statusFilter]
+		[search]
 	);
 
 	const { grouped, uncategorized } = useMemo(() => {
@@ -560,21 +622,85 @@ export function SavedQueriesPanel() {
 		};
 	}, [savedDocs, filterDocs, sortModeFor]);
 
-	const toggleSection = (key) => {
-		setCollapsedSections((prev) => ({
-			...prev,
-			[key]: !prev[key],
-		}));
-	};
-
-	const handleCreateCollection = async () => {
-		const name = newCollectionName.trim();
-		if (!name) {
-			return;
+	// Personal-collection groupings, derived from each entry's document_ids.
+	// Lookup is O(n) per personal collection; fine at IDE-scale.
+	const personalGrouped = useMemo(() => {
+		const filtered = filterDocs(savedDocs);
+		const byId = new Map(filtered.map((d) => [Number(d.id), d]));
+		const groups = {};
+		for (const pc of personalCollections) {
+			const docs = (pc.document_ids || [])
+				.map((id) => byId.get(Number(id)))
+				.filter(Boolean);
+			groups[pc.id] = sortDocuments(docs, sortModeFor(pc.id));
 		}
-		await addCollection(name);
-		setNewCollectionName('');
-		setCreatingCollection(false);
+		return groups;
+	}, [savedDocs, filterDocs, personalCollections, sortModeFor]);
+
+	// Filter-row counts: unique-doc counts so a doc in multiple
+	// collections doesn't double-count in `All`. Sharing semantics are
+	// communicated per-section (inline attribution + kebab actions),
+	// not via a dedicated filter — keeping the filter row to two
+	// values matches WP admin convention.
+	const { allCount, mineCount } = useMemo(() => {
+		// `Mine` counts only docs that live in a personal collection.
+		// Uncategorized docs surface under `All` (which already covers
+		// everything the user can see), so they're intentionally
+		// excluded from Mine to keep Mine = "my organized collections."
+		const mineIds = new Set();
+		for (const pc of personalCollections) {
+			for (const id of pc.document_ids || []) {
+				if (savedDocs.find((d) => Number(d.id) === Number(id))) {
+					mineIds.add(Number(id));
+				}
+			}
+		}
+		const incomingSharedIds = new Set();
+		for (const sc of sharedCollections) {
+			for (const d of sc.documents || []) {
+				incomingSharedIds.add(Number(d.id));
+			}
+		}
+		const allIds = new Set([
+			...savedDocs.map((d) => Number(d.id)),
+			...incomingSharedIds,
+		]);
+		return {
+			allCount: allIds.size,
+			mineCount: mineIds.size,
+		};
+	}, [savedDocs, personalCollections, sharedCollections]);
+
+	const showSitewide = filter === 'all';
+	const showPersonal = filter === 'all' || filter === 'mine';
+	const showShared = filter === 'all';
+	// Uncategorized "Documents" — author-scoped catch-all that doesn't
+	// belong to a curated personal collection. Surfaces under All only;
+	// Mine is reserved for the user's *organized* collections.
+	const showUncategorized = filter === 'all';
+
+	const toggleSection = (key) => {
+		setCollapsedSections((prev) => {
+			const next = { ...prev, [key]: !prev[key] };
+			if (persistCollapsedRef.current) {
+				clearTimeout(persistCollapsedRef.current);
+			}
+			persistCollapsedRef.current = setTimeout(() => {
+				// Wrap each boolean in a per-section object so the
+				// envelope can carry additional fields later (sort
+				// preferences, last-viewed timestamps, etc.) without
+				// breaking the hydration path or requiring a server
+				// release.
+				const blob = {};
+				for (const [k, collapsed] of Object.entries(next)) {
+					blob[k] = { collapsed };
+				}
+				savePreference('section_states', JSON.stringify(blob)).catch(
+					() => {}
+				);
+			}, 500);
+			return next;
+		});
 	};
 
 	const performDeleteCollection = async ({ deleteContents }) => {
@@ -793,7 +919,7 @@ export function SavedQueriesPanel() {
 					<span
 						className={`wpgraphql-ide-document-title-text${isUnsaved ? ' is-unsaved' : ''}`}
 					>
-						{doc.title || 'Untitled'}
+						{displayDocTitle(doc)}
 						{isDraft && (
 							<span className="wpgraphql-ide-document-badge">
 								{' '}
@@ -890,9 +1016,7 @@ export function SavedQueriesPanel() {
 											closeMenu();
 											const ok = await confirm({
 												title: 'Delete document',
-												message: `Delete "${
-													doc.title || 'Untitled'
-												}"? This cannot be undone.`,
+												message: `Delete "${displayDocTitle(doc)}"? This cannot be undone.`,
 												confirmLabel: 'Delete',
 												isDestructive: true,
 											});
@@ -912,15 +1036,7 @@ export function SavedQueriesPanel() {
 		);
 	};
 
-	const emptyMessage = () => {
-		if (statusFilter === 'draft') {
-			return 'No drafts in this collection';
-		}
-		if (statusFilter === 'publish') {
-			return 'No published documents in this collection';
-		}
-		return 'No documents in this collection';
-	};
+	const emptyMessage = () => 'No documents in this collection';
 
 	const renderDocList = (docs) => {
 		if (docs.length === 0) {
@@ -957,137 +1073,238 @@ export function SavedQueriesPanel() {
 			</div>
 
 			<TabPanel
-				className="wpgraphql-ide-status-filter-tabs"
+				className="wpgraphql-ide-saved-queries-filter"
 				tabs={[
-					{ name: 'all', title: 'All' },
-					{ name: 'draft', title: 'Drafts' },
-					{ name: 'publish', title: 'Published' },
+					{ name: 'all', title: `All (${allCount})` },
+					{ name: 'mine', title: `Mine (${mineCount})` },
 				]}
-				initialTabName={statusFilter}
-				onSelect={(name) => setStatusFilter(name)}
+				initialTabName={filter}
+				onSelect={(name) => setFilter(name)}
 			>
 				{() => null}
 			</TabPanel>
 
 			<div className="wpgraphql-ide-collections-list">
-				{collections.map((c) => {
-					const docs = grouped[c.id] || [];
-					return (
-						<CollectionSection
-							key={c.id}
-							title={c.name}
-							count={docs.length}
-							collapsed={
-								c.id in collapsedSections
-									? collapsedSections[c.id]
-									: docs.length === 0
-							}
-							onToggle={() => toggleSection(c.id)}
-							onDelete={() =>
-								setDeleteTarget({ id: c.id, name: c.name })
-							}
-							onRename={(newName) =>
-								renameCollection(c.id, newName)
-							}
-							onDrop={(docId) =>
-								handleDropToCollection(docId, c.id)
-							}
-							dropTargetId={`collection-${c.id}`}
-							dragOverId={dragOverId}
-							setDragOver={setDragOverId}
-							collectionId={c.id}
-							onCollectionDragStart={(id) => {
-								dragCollectionRef.current = id;
-								dragDocRef.current = null;
-							}}
-							onCollectionDragOver={(id, position) => {
-								if (!dragCollectionRef.current) {
-									return;
-								}
-								if (dragCollectionRef.current === id) {
-									return;
-								}
-								setDropIndicator({
-									kind: 'collection',
-									id,
-									position,
-								});
-							}}
-							onCollectionDrop={(targetId) => {
-								const sourceId = dragCollectionRef.current;
-								if (!sourceId || sourceId === targetId) {
-									return;
-								}
-								const ids = collections.map((col) => col.id);
-								const fromIdx = ids.indexOf(sourceId);
-								if (fromIdx === -1) {
-									return;
-								}
-								ids.splice(fromIdx, 1);
-								let toIdx = ids.indexOf(targetId);
-								if (toIdx === -1) {
-									return;
-								}
-								if (dropIndicator?.position === 'after') {
-									toIdx += 1;
-								}
-								ids.splice(toIdx, 0, sourceId);
-								reorderCollections(ids);
-								setDropIndicator(null);
-								dragCollectionRef.current = null;
-							}}
-							collectionDropPos={
-								dropIndicator?.kind === 'collection' &&
-								dropIndicator.id === c.id
-									? dropIndicator.position
-									: null
-							}
-							onCollectionDragEnd={() => {
-								dragCollectionRef.current = null;
-								setDropIndicator(null);
-							}}
-							sortMode={sortModeFor(c.id)}
-							onSortModeChange={(mode) =>
-								setCollectionSortMode(c.id, mode)
-							}
-						>
-							{renderDocList(docs)}
-						</CollectionSection>
-					);
-				})}
+				{/* "Documents" — uncategorized author-scoped docs. Pinned
+				    above the curated collections per the inbox-at-top
+				    pattern (Gmail, Linear, VS Code Source Control): the
+				    user's default working bucket goes first, organized
+				    layers below. Renders under "All" and "Mine" since
+				    these are effectively private until assigned to a
+				    sitewide collection. */}
+				{showUncategorized && (
+					<CollectionSection
+						title="Documents"
+						count={uncategorized.length}
+						collapsed={!!collapsedSections._documents}
+						onToggle={() => toggleSection('_documents')}
+						onDrop={(docId) => handleDropToCollection(docId, null)}
+						dropTargetId="collection-documents"
+						dragOverId={dragOverId}
+						setDragOver={setDragOverId}
+						sortMode={sortModeFor('_documents')}
+						onSortModeChange={(mode) =>
+							setCollectionSortMode('_documents', mode)
+						}
+						onDeleteAll={
+							uncategorized.length > 0
+								? handleDeleteAllUncategorized
+								: undefined
+						}
+					>
+						{uncategorized.length > 0 ? (
+							<ul className="wpgraphql-ide-documents-list">
+								{uncategorized.map(renderDoc)}
+							</ul>
+						) : (
+							<p className="wpgraphql-ide-collection-empty">
+								No documents
+							</p>
+						)}
+					</CollectionSection>
+				)}
 
-				{/* "Documents" — permanent section for uncollected docs */}
-				<CollectionSection
-					title="Documents"
-					count={uncategorized.length}
-					collapsed={!!collapsedSections._documents}
-					onToggle={() => toggleSection('_documents')}
-					onDrop={(docId) => handleDropToCollection(docId, null)}
-					dropTargetId="collection-documents"
-					dragOverId={dragOverId}
-					setDragOver={setDragOverId}
-					sortMode={sortModeFor('_documents')}
-					onSortModeChange={(mode) =>
-						setCollectionSortMode('_documents', mode)
-					}
-					onDeleteAll={
-						uncategorized.length > 0
-							? handleDeleteAllUncategorized
-							: undefined
-					}
-				>
-					{uncategorized.length > 0 ? (
-						<ul className="wpgraphql-ide-documents-list">
-							{uncategorized.map(renderDoc)}
-						</ul>
-					) : (
-						<p className="wpgraphql-ide-collection-empty">
-							No documents
-						</p>
-					)}
-				</CollectionSection>
+				{showSitewide &&
+					collections.map((c) => {
+						const docs = grouped[c.id] || [];
+						return (
+							<CollectionSection
+								key={c.id}
+								title={c.name}
+								count={docs.length}
+								collapsed={
+									c.id in collapsedSections
+										? collapsedSections[c.id]
+										: docs.length === 0
+								}
+								onToggle={() => toggleSection(c.id)}
+								onDelete={() =>
+									setDeleteTarget({ id: c.id, name: c.name })
+								}
+								onRename={(newName) =>
+									renameCollection(c.id, newName)
+								}
+								onDrop={(docId) =>
+									handleDropToCollection(docId, c.id)
+								}
+								dropTargetId={`collection-${c.id}`}
+								dragOverId={dragOverId}
+								setDragOver={setDragOverId}
+								collectionId={c.id}
+								onCollectionDragStart={(id) => {
+									dragCollectionRef.current = id;
+									dragDocRef.current = null;
+								}}
+								onCollectionDragOver={(id, position) => {
+									if (!dragCollectionRef.current) {
+										return;
+									}
+									if (dragCollectionRef.current === id) {
+										return;
+									}
+									setDropIndicator({
+										kind: 'collection',
+										id,
+										position,
+									});
+								}}
+								onCollectionDrop={(targetId) => {
+									const sourceId = dragCollectionRef.current;
+									if (!sourceId || sourceId === targetId) {
+										return;
+									}
+									const ids = collections.map(
+										(col) => col.id
+									);
+									const fromIdx = ids.indexOf(sourceId);
+									if (fromIdx === -1) {
+										return;
+									}
+									ids.splice(fromIdx, 1);
+									let toIdx = ids.indexOf(targetId);
+									if (toIdx === -1) {
+										return;
+									}
+									if (dropIndicator?.position === 'after') {
+										toIdx += 1;
+									}
+									ids.splice(toIdx, 0, sourceId);
+									reorderCollections(ids);
+									setDropIndicator(null);
+									dragCollectionRef.current = null;
+								}}
+								collectionDropPos={
+									dropIndicator?.kind === 'collection' &&
+									dropIndicator.id === c.id
+										? dropIndicator.position
+										: null
+								}
+								onCollectionDragEnd={() => {
+									dragCollectionRef.current = null;
+									setDropIndicator(null);
+								}}
+								sortMode={sortModeFor(c.id)}
+								onSortModeChange={(mode) =>
+									setCollectionSortMode(c.id, mode)
+								}
+							>
+								{renderDocList(docs)}
+							</CollectionSection>
+						);
+					})}
 
-				{unsavedDocs.length > 0 && (
+				{/* Shared with me — read-only personal collections owned by
+				    other users that have been shared with the current user. */}
+				{showShared &&
+					sharedCollections.map((sc) => {
+						const sectionKey = `shared-${sc.id}`;
+						const sortedDocs = sortDocuments(
+							Array.isArray(sc.documents) ? sc.documents : [],
+							sortModeFor(sectionKey)
+						);
+						return (
+							<CollectionSection
+								key={sectionKey}
+								title={`${sc.name} — shared by ${sc.owner?.display_name || 'another user'}`}
+								count={sortedDocs.length}
+								collapsed={
+									sectionKey in collapsedSections
+										? collapsedSections[sectionKey]
+										: sortedDocs.length === 0
+								}
+								onToggle={() => toggleSection(sectionKey)}
+								sortMode={sortModeFor(sectionKey)}
+								onSortModeChange={(mode) =>
+									setCollectionSortMode(sectionKey, mode)
+								}
+							>
+								{sortedDocs.length > 0 ? (
+									<ul className="wpgraphql-ide-documents-list">
+										{sortedDocs.map((doc) => (
+											<li
+												key={doc.id}
+												className="wpgraphql-ide-document-item"
+											>
+												<button
+													type="button"
+													className="wpgraphql-ide-document-button"
+													onClick={() =>
+														switchTab(doc.id)
+													}
+												>
+													<span className="wpgraphql-ide-document-title-text">
+														{doc.title ||
+															'Untitled'}
+													</span>
+												</button>
+											</li>
+										))}
+									</ul>
+								) : (
+									<p className="wpgraphql-ide-collection-empty">
+										No documents
+									</p>
+								)}
+							</CollectionSection>
+						);
+					})}
+
+				{/* Personal collections — per-user, with sharing ACL. */}
+				{showPersonal &&
+					personalCollections.map((pc) => {
+						const docs = personalGrouped[pc.id] || [];
+						return (
+							<CollectionSection
+								key={`pc-${pc.id}`}
+								title={pc.name}
+								count={docs.length}
+								collapsed={
+									pc.id in collapsedSections
+										? collapsedSections[pc.id]
+										: docs.length === 0
+								}
+								onToggle={() => toggleSection(pc.id)}
+								onDelete={() => removePersonalCollection(pc.id)}
+								onRename={(newName) =>
+									renamePersonalCollection(pc.id, newName)
+								}
+								onShare={() => setShareTarget(pc)}
+								sortMode={sortModeFor(pc.id)}
+								onSortModeChange={(mode) =>
+									setCollectionSortMode(pc.id, mode)
+								}
+							>
+								{renderDocList(docs)}
+							</CollectionSection>
+						);
+					})}
+			</div>
+
+			{/* Unsaved tabs — orthogonal to the visibility filter (they
+			    aren't on the server yet), so render them outside the
+			    filtered list so they're always visible when present. */}
+			{unsavedDocs.length > 0 && (
+				<div className="wpgraphql-ide-collections-list wpgraphql-ide-collections-list--unsaved">
 					<CollectionSection
 						title="Unsaved"
 						count={unsavedDocs.length}
@@ -1103,36 +1320,31 @@ export function SavedQueriesPanel() {
 							{unsavedDocs.map(renderDoc)}
 						</ul>
 					</CollectionSection>
-				)}
-			</div>
-
-			{creatingCollection && (
-				<div className="wpgraphql-ide-new-collection-row">
-					<input
-						className="wpgraphql-ide-collection-input"
-						value={newCollectionName}
-						onChange={(e) => setNewCollectionName(e.target.value)}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter') {
-								handleCreateCollection();
-							}
-							if (e.key === 'Escape') {
-								setCreatingCollection(false);
-								setNewCollectionName('');
-							}
-						}}
-						onBlur={() => {
-							if (newCollectionName.trim()) {
-								handleCreateCollection();
-							} else {
-								setCreatingCollection(false);
-							}
-						}}
-						placeholder="New collection name…"
-						// eslint-disable-next-line jsx-a11y/no-autofocus
-						autoFocus
-					/>
 				</div>
+			)}
+
+			{newCollectionOpen && (
+				<NewCollectionDialog
+					onClose={() => setNewCollectionOpen(false)}
+					onCreateSitewide={async (name) => {
+						await addCollection(name);
+					}}
+					onCreatePersonal={async (name) => {
+						await createPersonalCollection(name);
+					}}
+				/>
+			)}
+			{shareTarget && (
+				<ShareCollectionDialog
+					collection={shareTarget}
+					onClose={() => setShareTarget(null)}
+					onSubmit={async (sharedWith) => {
+						await updatePersonalCollectionSharedWith(
+							shareTarget.id,
+							sharedWith
+						);
+					}}
+				/>
 			)}
 			{exportOpen && (
 				<ExportDialog
@@ -1152,23 +1364,35 @@ export function SavedQueriesPanel() {
 				<SaveDialog
 					mode="rename"
 					defaultTitle={renameTarget.title || ''}
-					defaultCollectionId={
-						Array.isArray(renameTarget.collections) &&
-						renameTarget.collections.length > 0
-							? renameTarget.collections[0]
-							: null
+					defaultCollectionIds={
+						Array.isArray(renameTarget.collections)
+							? renameTarget.collections
+							: []
 					}
 					collections={collections}
-					onCreateCollection={async (name) => {
-						const created = await addCollection(name);
-						return created || null;
-					}}
-					onSubmit={async ({ title, collectionId }) => {
+					personalCollections={personalCollections}
+					onSubmit={async ({
+						title,
+						collectionIds,
+						personalCollectionIds,
+					}) => {
 						await updateDocument(renameTarget.id, {
 							title,
-							collections:
-								collectionId !== null ? [collectionId] : [],
+							collections: Array.isArray(collectionIds)
+								? collectionIds
+								: [],
 						});
+						if (
+							Array.isArray(personalCollectionIds) &&
+							personalCollectionIds.length > 0
+						) {
+							for (const pcId of personalCollectionIds) {
+								await togglePersonalCollectionMembership(
+									pcId,
+									renameTarget.id
+								);
+							}
+						}
 						reloadDocs();
 					}}
 					onClose={() => setRenameTarget(null)}

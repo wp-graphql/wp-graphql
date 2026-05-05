@@ -35,6 +35,27 @@ const initialState = {
 	// virtual section keys '_documents' / '_unsaved'. Each value is one
 	// of: 'manual' | 'title_asc' | 'modified_desc' | 'status'.
 	collectionSortModes: {},
+	// Personal collections — per-user grouping, separate from the sitewide
+	// `collections` taxonomy. Each entry: { id, name, document_ids: [],
+	// shared_with: [] }. Seeded synchronously from
+	// WPGRAPHQL_IDE_DATA.personalCollections at boot; mutations write the
+	// full updated array back via savePreference.
+	personalCollections: Array.isArray(
+		typeof window !== 'undefined' &&
+			window.WPGRAPHQL_IDE_DATA?.personalCollections
+	)
+		? window.WPGRAPHQL_IDE_DATA.personalCollections
+		: [],
+	// Personal collections owned by other users that have been shared with
+	// the current user. Read-only — assembled server-side at bootstrap and
+	// not mutated by the client. Each entry adds an `owner: { id,
+	// display_name }` so the panel can attribute the section.
+	sharedCollections: Array.isArray(
+		typeof window !== 'undefined' &&
+			window.WPGRAPHQL_IDE_DATA?.sharedCollections
+	)
+		? window.WPGRAPHQL_IDE_DATA.sharedCollections
+		: [],
 };
 
 /**
@@ -202,6 +223,13 @@ const reducer = (state = initialState, action) => {
 					state.activeCollection === action.id
 						? null
 						: state.activeCollection,
+			};
+		case 'SET_PERSONAL_COLLECTIONS':
+			return {
+				...state,
+				personalCollections: Array.isArray(action.collections)
+					? action.collections
+					: [],
 			};
 		case 'SET_ACTIVE_COLLECTION':
 			return {
