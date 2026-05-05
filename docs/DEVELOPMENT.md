@@ -138,7 +138,7 @@ The POT file is automatically regenerated during releases via the `update-releas
 
 ## Custom Environment Configuration
 
-Create a `.wp-env.override.json` file in the root to customize the environment:
+Create a `.wp-env.override.json` file in the root to customize the environment per-developer. The override file is gitignored, so changes never affect other contributors. wp-env merges it on top of the shared `.wp-env.json` at startup.
 
 ```json
 {
@@ -149,6 +149,27 @@ Create a `.wp-env.override.json` file in the root to customize the environment:
 ```
 
 See the [@wordpress/env documentation](https://www.npmjs.com/package/@wordpress/env) for all options.
+
+### Resolving port conflicts
+
+WPGraphQL follows the WordPress convention of running the dev site on `:8888` and the test site on `:8889`. Several other WordPress projects use the same defaults — WordPress core's [develop.git](https://github.com/WordPress/wordpress-develop) Docker setup, the @wordpress/scripts Playwright runner, Local by Flywheel exports, and so on. If you work on more than one of those at the same time, `npm run wp-env start` will fail with `port is already allocated`.
+
+Don't change the shared `.wp-env.json` — moving the ports universally fights `@wordpress/scripts`'s hardcoded `localhost:8889` baseURL and forces every contributor (and CI) to drift in lockstep. Instead, pick non-default ports in your local override:
+
+```json
+{
+  "port": 8898,
+  "testsPort": 8899
+}
+```
+
+Restart the env after editing (`npm run wp-env stop && npm run wp-env start`). When running Playwright E2E tests against the moved test site, override the baseURL too:
+
+```bash
+WP_BASE_URL=http://localhost:8899 npm run -w @wpgraphql/wp-graphql test:e2e
+```
+
+The override file is the right tool for this — it's `.wp-env`'s designed escape hatch for per-machine collisions, and it keeps every other contributor on convention.
 
 ## XDebug Setup
 
