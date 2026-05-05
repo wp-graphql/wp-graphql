@@ -175,7 +175,7 @@ export function SaveDialog({
 							{hasBothGroups && (
 								<li
 									className="wpgraphql-ide-save-dialog-divider"
-									aria-hidden="true"
+									role="separator"
 								/>
 							)}
 							{personalCollections.map((pc) => (
@@ -195,6 +195,7 @@ export function SaveDialog({
 													<Icon
 														icon={lock}
 														size={12}
+														aria-hidden="true"
 													/>
 													Personal
 												</span>

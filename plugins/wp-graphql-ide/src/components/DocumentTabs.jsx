@@ -195,7 +195,11 @@ export function DocumentTabs({
 						) : (
 							<span className="wpgraphql-ide-tab-label">
 								{tab.dirty && (
-									<span className="wpgraphql-ide-tab-dirty" />
+									<span
+										className="wpgraphql-ide-tab-dirty"
+										aria-label="Unsaved changes"
+										role="img"
+									/>
 								)}
 								{tab.title || 'Untitled'}
 							</span>

@@ -6,6 +6,13 @@ import { useCallback, useState } from 'react';
  * lifting it out keeps callsites focused on the domain (which collection
  * is picked, which item is selected) rather than Set bookkeeping.
  *
+ * `initial` is captured lazily on mount; later changes to it are NOT
+ * reflected. This matches React's standard `useState(initial)` semantics
+ * and is appropriate when the consumer is mounted fresh per session
+ * (e.g. a dialog opened on demand). If a parent loads `initial`
+ * asynchronously, mount the consumer behind a guard that waits for the
+ * data so the first render gets the real seed.
+ *
  * @param {Iterable} initial Initial members.
  * @return {[Set, (id: any) => void]} `[set, toggle]`
  */
