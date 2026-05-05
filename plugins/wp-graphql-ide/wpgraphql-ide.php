@@ -989,10 +989,10 @@ function register_ide_graphql_fields(): void {
 			'type'        => 'Int',
 			'description' => __( 'How long the request took, in milliseconds.', 'wpgraphql-ide' ),
 		],
-		'status'          => [
+		'executionStatus' => [
 			'meta'        => '_graphql_ide_status',
 			'type'        => 'String',
-			'description' => __( 'Result status (e.g. success, error).', 'wpgraphql-ide' ),
+			'description' => __( 'Result status of the executed request (e.g. success, error). Distinct from post_status (which is on the inherited Post.status field).', 'wpgraphql-ide' ),
 		],
 		'documentId'      => [
 			'meta'        => '_graphql_ide_document_id',

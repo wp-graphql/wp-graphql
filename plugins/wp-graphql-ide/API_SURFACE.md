@@ -30,7 +30,7 @@ Registered in `register_ide_graphql_fields()`.
 | `IdeHistoryEntry` | `variables: String` | `_graphql_ide_variables` |
 | `IdeHistoryEntry` | `headers: String` | `_graphql_ide_headers` |
 | `IdeHistoryEntry` | `durationMs: Int` | `_graphql_ide_duration_ms` |
-| `IdeHistoryEntry` | `status: String` | `_graphql_ide_status` |
+| `IdeHistoryEntry` | `executionStatus: String` | `_graphql_ide_status` |
 | `IdeHistoryEntry` | `documentId: Int` | `_graphql_ide_document_id` |
 | `IdeHistoryEntry` | `isAuthenticated: Boolean` | `_graphql_ide_is_authenticated` |
 | `IdeHistoryEntry` | `httpMethod: String` | `_graphql_ide_http_method` |
