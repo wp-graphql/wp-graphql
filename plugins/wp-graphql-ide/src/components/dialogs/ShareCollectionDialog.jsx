@@ -1,7 +1,39 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button, Modal, SearchControl, Spinner } from '@wordpress/components';
 import { Icon, close, plus } from '@wordpress/icons';
-import apiFetch from '@wordpress/api-fetch';
+import { gql } from '../../api/graphql-client';
+
+// Hydrate shared users by databaseId. Returns the WP user objects keyed
+// by id so the chip list reads as names rather than numeric IDs.
+const USERS_BY_ID_QUERY = `
+	query SharedUsers($ids: [Int]) {
+		users(where: { include: $ids }, first: 100) {
+			nodes {
+				databaseId
+				name
+				slug
+			}
+		}
+	}
+`;
+
+// Search by name/email. The 250ms debounce stays in the component;
+// this just packages the query.
+const USER_SEARCH_QUERY = `
+	query SearchUsers($search: String) {
+		users(where: { search: $search }, first: 10) {
+			nodes {
+				databaseId
+				name
+				slug
+			}
+		}
+	}
+`;
+
+function nodeToUser(n) {
+	return { id: n.databaseId, name: n.name, slug: n.slug };
+}
 
 /**
  * Share a personal collection with specific other users.
@@ -36,12 +68,11 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 		if (missing.length === 0) {
 			return;
 		}
-		apiFetch({
-			path: `/wp/v2/users?include=${missing.join(',')}&per_page=${missing.length}`,
-		})
-			.then((users) => {
+		gql(USERS_BY_ID_QUERY, { ids: missing.map(Number) })
+			.then((result) => {
 				const map = { ...usersById };
-				for (const u of users) {
+				for (const node of result?.users?.nodes || []) {
+					const u = nodeToUser(node);
 					map[u.id] = u;
 				}
 				setUsersById(map);
@@ -59,11 +90,11 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 		}
 		setSearching(true);
 		const timer = setTimeout(() => {
-			apiFetch({
-				path: `/wp/v2/users?search=${encodeURIComponent(term)}&per_page=10`,
-			})
-				.then((users) => {
-					setSearchResults(users || []);
+			gql(USER_SEARCH_QUERY, { search: term })
+				.then((result) => {
+					setSearchResults(
+						(result?.users?.nodes || []).map(nodeToUser)
+					);
 				})
 				.catch(() => setSearchResults([]))
 				.finally(() => setSearching(false));
