@@ -254,7 +254,7 @@ const PANEL_ICONS = {
  * @param {Function} [props.onClose] - Optional close handler for drawer mode.
  */
 export function IDELayout({ fetcher, onClose }) {
-	const { confirm } = useDialog();
+	const { confirm, choose } = useDialog();
 	const [shareDialogOpen, setShareDialogOpen] = useState(false);
 	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 	// Reused for both first-save (temp doc → server doc) and rename
@@ -693,8 +693,29 @@ export function IDELayout({ fetcher, onClose }) {
 			});
 			const result = await publishTab(activeDocument.id);
 			if (result?.already_exists && result?.id) {
-				switchTab(String(result.id));
-				addNotice('Query already published — opened existing');
+				// Server detected an identical published document. Don't
+				// silently swap tabs — the draft tab would be left
+				// orphaned. Ask the user how to resolve.
+				const draftId = activeDocument.id;
+				const existingId = String(result.id);
+				const choice = await choose({
+					title: 'This query is already published',
+					message:
+						'An existing published document has the same content. Open it, or keep editing this draft to make it different.',
+					actions: [
+						{
+							key: 'open',
+							label: 'Open existing',
+							variant: 'primary',
+						},
+						{ key: 'keep', label: 'Keep editing' },
+					],
+				});
+				if (choice === 'open') {
+					switchTab(existingId);
+					closeTab(String(draftId));
+				}
+				// 'keep' or null: stay on the draft, no tab change.
 			} else {
 				addNotice('Document published');
 			}
@@ -710,6 +731,8 @@ export function IDELayout({ fetcher, onClose }) {
 		saveTab,
 		publishTab,
 		switchTab,
+		closeTab,
+		choose,
 		addNotice,
 	]);
 

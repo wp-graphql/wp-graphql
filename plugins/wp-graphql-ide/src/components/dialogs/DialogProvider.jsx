@@ -31,8 +31,13 @@ const DialogContext =
 // Prompt options:
 //   { title, message?, defaultValue?, placeholder?, inputLabel?,
 //     confirmLabel?, cancelLabel? }
-// Both helpers return Promises that resolve when the user closes the
-// dialog (boolean for confirm, string|null for prompt).
+// Choose options (3+ outcomes, e.g. duplicate-publish flow):
+//   { title, message?, actions: [{ key, label, variant?, isDestructive? }],
+//     cancelLabel? }
+// All helpers return Promises:
+//   confirm → boolean
+//   prompt  → string | null
+//   choose  → action.key | null  (null = cancel/dismiss)
 
 export function DialogProvider({ children }) {
 	const [dialog, setDialog] = useState(null);
@@ -63,7 +68,18 @@ export function DialogProvider({ children }) {
 		[]
 	);
 
-	const value = useMemo(() => ({ confirm, prompt }), [confirm, prompt]);
+	const choose = useCallback(
+		(opts) =>
+			new Promise((resolve) => {
+				setDialog({ kind: 'choose', opts, resolve });
+			}),
+		[]
+	);
+
+	const value = useMemo(
+		() => ({ confirm, prompt, choose }),
+		[confirm, prompt, choose]
+	);
 
 	return (
 		<DialogContext.Provider value={value}>
@@ -98,7 +114,40 @@ function DialogHost({ kind, opts, onClose }) {
 	if (kind === 'prompt') {
 		return <PromptDialog opts={opts} onClose={onClose} />;
 	}
+	if (kind === 'choose') {
+		return <ChooseDialog opts={opts} onClose={onClose} />;
+	}
 	return null;
+}
+
+function ChooseDialog({ opts, onClose }) {
+	const { title, message, actions = [], cancelLabel = 'Cancel' } = opts;
+	return (
+		<Modal
+			title={title}
+			onRequestClose={() => onClose(null)}
+			className="wpgraphql-ide-dialog"
+		>
+			{message && (
+				<p className="wpgraphql-ide-dialog-message">{message}</p>
+			)}
+			<div className="wpgraphql-ide-dialog-actions">
+				<Button variant="tertiary" onClick={() => onClose(null)}>
+					{cancelLabel}
+				</Button>
+				{actions.map((action) => (
+					<Button
+						key={action.key}
+						variant={action.variant || 'secondary'}
+						isDestructive={!!action.isDestructive}
+						onClick={() => onClose(action.key)}
+					>
+						{action.label}
+					</Button>
+				))}
+			</div>
+		</Modal>
+	);
 }
 
 function ConfirmDialog({ opts, onClose }) {
