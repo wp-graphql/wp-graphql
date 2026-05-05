@@ -1621,7 +1621,7 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}${isPublished && editorBottomTabs.length > 0 ? ' is-readonly-flex' : ''}`}
 										>
 											{ComposerContent &&
 												showQueryComposer &&

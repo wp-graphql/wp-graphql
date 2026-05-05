@@ -1827,6 +1827,22 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	max-height: 100%;
 }
 
+/* On a published, read-only document the user can't grow Variables/Headers
+   content, so the resizable split would just leave a sparse JSON editor
+   floating in dead space. Pin the editor to flex:1 and let the bottom
+   strip size itself to content (capped) so it always sits flush at the
+   bottom of the query pane. */
+.wpgraphql-ide-editor-resizable.is-readonly-flex {
+	flex: 1;
+	max-height: 100%;
+}
+
+.wpgraphql-ide-query-pane:has(.is-readonly-flex)
+	> .wpgraphql-ide-editor-tools {
+	flex: 0 0 auto;
+	max-height: 200px;
+}
+
 /* Space between editor toolbar and CodeMirror content */
 .wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
 	flex: 1;
