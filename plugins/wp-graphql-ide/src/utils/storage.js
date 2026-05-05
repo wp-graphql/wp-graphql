@@ -40,17 +40,25 @@ export function getStorageJSON(key, defaultValue) {
 	if (raw === null || raw === undefined) {
 		return defaultValue;
 	}
+	let parsed;
 	try {
-		return JSON.parse(raw);
+		parsed = JSON.parse(raw);
 	} catch {
 		return defaultValue;
 	}
+	// A literal `null` payload should also fall back so callers can rely
+	// on the typed default they passed in.
+	return parsed === null || parsed === undefined ? defaultValue : parsed;
 }
 
 export function setStorageJSON(key, value) {
+	let serialized;
 	try {
-		setStorageItem(key, JSON.stringify(value));
+		serialized = JSON.stringify(value);
 	} catch {
-		// JSON.stringify can throw on circular refs.
+		// JSON.stringify can throw on circular refs; drop the write
+		// rather than corrupt the stored payload.
+		return;
 	}
+	setStorageItem(key, serialized);
 }

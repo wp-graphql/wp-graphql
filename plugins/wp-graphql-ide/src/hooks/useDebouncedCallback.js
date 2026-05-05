@@ -40,7 +40,9 @@ export function useDebouncedCallback(fn, delay) {
 		[cancel, delay]
 	);
 
-	useEffect(() => cancel, [cancel]);
+	// `cancel` has stable identity from useCallback([]) above, so the
+	// dependency array stays empty.
+	useEffect(() => cancel, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return [debounced, cancel];
 }

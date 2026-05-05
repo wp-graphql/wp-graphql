@@ -12,6 +12,10 @@ Registers a new toolbar button in the query editor toolbar.
 
 - `name` (string): Unique identifier for the button.
 - `config` (Object): Button configuration object.
+  - `label` (string): Tooltip / aria-label.
+  - `children` (string|Element): Visible label inside the menu item.
+  - `onClick` (Function): Handler fired on click.
+  - `mutates` (boolean, optional): Set `true` if the action edits the query buffer (e.g. format, merge fragments). Such buttons are auto-hidden when the active document is published/read-only. Default: `false`.
 - `priority` (number, optional): Lower numbers render first. Default: `10`.
 
 **Hooks fired:**
@@ -26,7 +30,10 @@ const { registerDocumentEditorToolbarButton } = window.WPGraphQLIDE;
 
 registerDocumentEditorToolbarButton('my-button', {
   label: 'My Button',
+  children: 'My Button',
   onClick: () => console.log('clicked'),
+  // Hide on read-only docs because this action would change the query.
+  mutates: true,
 }, 20);
 ```
 
