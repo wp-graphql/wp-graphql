@@ -35,6 +35,14 @@ setup_wp() {
 		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-smart-cache 2>/dev/null || true
 	fi
 
+	# Always activate wp-graphql-ide on both dev and test envs. The IDE
+	# plugin needs to be running for its dedicated admin page to load,
+	# its CPTs to register, and its REST + GraphQL surface to be
+	# exposed — without this, e2e tests against the dedicated IDE page
+	# return "Sorry, you are not allowed to access this page" and
+	# wp-env starts ship without the IDE active by default.
+	npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-ide 2>/dev/null || true
+
 	# Flush permalinks (must be done after plugins are activated so GraphQL endpoint is registered)
 	npm run wp-env run $ENV_NAME -- wp rewrite structure /%postname%/ --hard
 	npm run wp-env run $ENV_NAME -- wp rewrite flush --hard

@@ -254,7 +254,7 @@ const PANEL_ICONS = {
  * @param {Function} [props.onClose] - Optional close handler for drawer mode.
  */
 export function IDELayout({ fetcher, onClose }) {
-	const { confirm, choose } = useDialog();
+	const { choose } = useDialog();
 	const [shareDialogOpen, setShareDialogOpen] = useState(false);
 	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 	// Reused for both first-save (temp doc → server doc) and rename
@@ -817,9 +817,19 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const activeDocDirty = isDocDirty(activeDocument);
 
-	// Close tab with confirmation for dirty documents. Workspace tabs
-	// (Settings, etc.) delegate save/discard to whatever they registered
-	// via `registerWorkspacePersistence`; query docs use saveTab.
+	// Close tab with a 3-way prompt for dirty documents:
+	//   Save and close (primary)  → persist, then close
+	//   Discard         (destructive) → drop changes, then close
+	//   Cancel          (returns null) → leave the tab open as-is
+	//
+	// The previous binary confirm conflated "Cancel" with "Discard" —
+	// hitting Esc or clicking the dismiss X tossed the user's work
+	// silently. The choose dialog separates the two so accidental
+	// dismissal is non-destructive.
+	//
+	// Workspace tabs (Settings, etc.) delegate save/discard to whatever
+	// they registered via `registerWorkspacePersistence`; query docs
+	// use saveTab.
 	const handleCloseTab = useCallback(
 		async (tabId) => {
 			const doc = allDocuments.find(
@@ -829,15 +839,32 @@ export function IDELayout({ fetcher, onClose }) {
 				const persistence = doc.tabType
 					? getWorkspacePersistence(doc.tabType)
 					: null;
-				const answer = await confirm({
+				const answer = await choose({
 					title: 'Unsaved changes',
-					message: `Save changes to "${
+					message: `You have unsaved changes in "${
 						doc.title || 'Untitled'
-					}" before closing?`,
-					confirmLabel: 'Save and close',
-					cancelLabel: 'Discard',
+					}". What would you like to do?`,
+					cancelLabel: 'Cancel',
+					actions: [
+						{
+							key: 'discard',
+							label: 'Discard',
+							isDestructive: true,
+						},
+						{
+							key: 'save',
+							label: 'Save and close',
+							variant: 'primary',
+						},
+					],
 				});
-				if (answer) {
+
+				if (answer === null) {
+					// Cancel — leave the tab open. No close, no save, no discard.
+					return;
+				}
+
+				if (answer === 'save') {
 					try {
 						if (persistence?.save) {
 							await persistence.save();
@@ -855,7 +882,7 @@ export function IDELayout({ fetcher, onClose }) {
 						);
 						return;
 					}
-				} else if (persistence?.discard) {
+				} else if (answer === 'discard' && persistence?.discard) {
 					persistence.discard();
 				}
 			}
@@ -869,7 +896,7 @@ export function IDELayout({ fetcher, onClose }) {
 			query,
 			variables,
 			headers,
-			confirm,
+			choose,
 			isDocDirty,
 		]
 	);
@@ -1553,10 +1580,7 @@ export function IDELayout({ fetcher, onClose }) {
 												height: editorHeight,
 											}}
 											minHeight={MIN_EDITOR_HEIGHT_PX}
-											enable={{
-												bottom:
-													editorBottomTabs.length > 0,
-											}}
+											enable={{ bottom: true }}
 											onResizeStop={(e, d, elt) => {
 												const h = elt.offsetHeight;
 												setEditorHeight(h);
@@ -1565,7 +1589,7 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}${isPublished && editorBottomTabs.length > 0 ? ' is-readonly-flex' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}${isPublished ? ' is-readonly-flex' : ''}`}
 										>
 											{ComposerContent &&
 												showQueryComposer &&
@@ -1817,34 +1841,32 @@ export function IDELayout({ fetcher, onClose }) {
 												})()}
 											</div>
 										</ResizableBox>
-										{editorBottomTabs.length > 0 && (
-											<TabPanel
-												className="wpgraphql-ide-editor-tools"
-												tabs={editorBottomTabs}
-											>
-												{(tab) =>
-													tab.name === 'variables' ? (
-														<JSONEditor
-															key="variables"
-															value={variables}
-															onChange={
-																handleVariablesChange
-															}
-															placeholder="Variables (JSON)"
-														/>
-													) : (
-														<JSONEditor
-															key="headers"
-															value={headers}
-															onChange={
-																handleHeadersChange
-															}
-															placeholder="Headers (JSON)"
-														/>
-													)
-												}
-											</TabPanel>
-										)}
+										<TabPanel
+											className="wpgraphql-ide-editor-tools"
+											tabs={editorBottomTabs}
+										>
+											{(tab) =>
+												tab.name === 'variables' ? (
+													<JSONEditor
+														key="variables"
+														value={variables}
+														onChange={
+															handleVariablesChange
+														}
+														placeholder="Variables (JSON)"
+													/>
+												) : (
+													<JSONEditor
+														key="headers"
+														value={headers}
+														onChange={
+															handleHeadersChange
+														}
+														placeholder="Headers (JSON)"
+													/>
+												)
+											}
+										</TabPanel>
 									</ResizableBox>
 
 									<div className="wpgraphql-ide-response-pane">

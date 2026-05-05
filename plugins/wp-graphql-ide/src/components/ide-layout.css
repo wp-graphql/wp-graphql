@@ -1054,27 +1054,6 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	caret-color: transparent;
 }
 
-/* Variables/Headers TabPanel surrounding the JSON editor when the
-   active doc is a published (immutable) doc. */
-.wpgraphql-ide-editor-tools.is-readonly,
-.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tab-content {
-	background: #f0f0f1;
-}
-
-.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tabs {
-	background: #f0f0f1;
-}
-
-.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tabs-item {
-	color: #646970;
-}
-
-/* Subdue the active-tab underline in readonly mode so the strong WP
-   admin blue doesn't compete with the muted plate. */
-.wpgraphql-ide-editor-tools.is-readonly .components-tab-panel__tabs-item[aria-selected="true"] {
-	box-shadow: inset 0 -2px 0 0 #757575 !important;
-}
-
 /* Filter tabs — All / Mine / Shared. Active state uses underline +
    color only; font-weight is held constant across active/inactive
    states so tab labels don't reflow when switching (font-weight
@@ -3505,13 +3484,33 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-history-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 24px 20px;
 	text-align: center;
-	color: #a7aaad;
+	color: #50575e;
 	font-size: 13px;
+	max-width: 280px;
 }
 
-.wpgraphql-ide-history-empty-state p {
-	margin: 0 0 4px;
+.wpgraphql-ide-history-empty-icon {
+	color: #a7aaad;
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-history-empty-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-history-empty-description {
+	margin: 0;
+	color: #646970;
+	line-height: 1.5;
 }
 
 .wpgraphql-ide-history-footer {

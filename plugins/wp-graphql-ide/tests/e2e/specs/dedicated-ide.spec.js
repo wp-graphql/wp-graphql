@@ -2,10 +2,9 @@ import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
 	ensureDocumentOpen,
+	resetIdeClientState,
 	typeQuery,
 	readQuery,
-	runQuery,
-	waitForGraphQLResponse,
 	selectors,
 } from '../utils.js';
 
@@ -15,12 +14,15 @@ test.describe('Dedicated IDE page', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
+		await resetIdeClientState(page);
 		await ensureDocumentOpen(page);
 	});
 
 	test('renders the IDE root, editor, and tab strip', async ({ page }) => {
 		await expect(page.locator(selectors.ideRoot)).toBeVisible();
-		await expect(page.locator(selectors.graphqlEditor).first()).toBeVisible();
+		await expect(
+			page.locator(selectors.graphqlEditor).first()
+		).toBeVisible();
 		await expect(page.locator(selectors.tabRow)).toBeVisible();
 	});
 

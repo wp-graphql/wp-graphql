@@ -2,6 +2,7 @@ import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
 	ensureDocumentOpen,
+	resetIdeClientState,
 	typeQuery,
 	selectors,
 } from '../utils.js';
@@ -12,6 +13,7 @@ test.describe('Save flow', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
+		await resetIdeClientState(page);
 		await ensureDocumentOpen(page);
 	});
 
@@ -25,9 +27,9 @@ test.describe('Save flow', () => {
 		// once the doc is dirty (which it is after typing).
 		await page.getByRole('button', { name: 'Save draft' }).click();
 
-		await expect(
-			page.locator('.wpgraphql-ide-save-dialog')
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.locator('.wpgraphql-ide-save-dialog')).toBeVisible({
+			timeout: 5000,
+		});
 		await expect(page.getByLabel('Document name')).toBeVisible();
 	});
 

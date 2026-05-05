@@ -363,8 +363,12 @@ export function GraphQLEditor({
 			}
 		});
 
-		// Defer graphql linting until the doc has content to avoid
-		// a red lint dot on an empty editor.
+		// Defer schema-driven LINTING until the doc has content (avoids a
+		// red error dot on a brand-new tab), but always seed the
+		// `graphql()` extension itself — `jump` reads state fields it
+		// registers, and a click on the editor would throw
+		// `RangeError: Field is not present in this state` if those
+		// fields hadn't been installed yet.
 		const hasContent = value && value.trim().length > 0;
 		const extensions = [
 			basicSetup,
@@ -377,7 +381,10 @@ export function GraphQLEditor({
 			// recommended way to keep the editor accessible.
 			keymap.of([indentWithTab]),
 			graphqlCompartment.current.of(
-				hasContent ? graphql(schema || undefined, graphqlOpts) : []
+				graphql(
+					hasContent ? schema || undefined : undefined,
+					graphqlOpts
+				)
 			),
 			// `jump` adds the cmd/ctrl-click "go to docs" gesture. It calls
 			// the `onShowInDocs` callback registered via graphql() options.

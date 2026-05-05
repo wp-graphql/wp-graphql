@@ -2,6 +2,7 @@ import {
 	loginToWordPressAdmin,
 	visitDedicatedIde,
 	ensureDocumentOpen,
+	resetIdeClientState,
 	selectors,
 } from '../utils.js';
 
@@ -16,12 +17,15 @@ const PANELS = [
 // Activity-bar buttons share their label text with kebab/close buttons
 // inside the panel header. Restrict to the activity bar specifically.
 const activityBarButton = (page, label) =>
-	page.locator(selectors.activityBar).getByRole('button', { name: label, exact: true });
+	page
+		.locator(selectors.activityBar)
+		.getByRole('button', { name: label, exact: true });
 
 test.describe('Activity bar panels', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await visitDedicatedIde(page);
+		await resetIdeClientState(page);
 		await ensureDocumentOpen(page);
 	});
 

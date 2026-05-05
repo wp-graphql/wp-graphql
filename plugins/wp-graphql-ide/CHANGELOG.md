@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+> **Breaking changes (5.0.0 prep)** — surfaced here ahead of release because the
+> commits landed in mixed `feat(ide)!:` and `test(ide):` shapes during the rebuild.
+> release-please will regenerate this section from commit history on the next
+> release; until then this is the source of truth.
+
+### Breaking changes
+
+- **Schema:** `IdeHistoryEntry.status` renamed to `IdeHistoryEntry.executionStatus`.
+  The original name shadowed the inherited `Post.status` field (which returns
+  `post_status`) and silently resolved to the post status instead of the meta
+  value. Any consumer reading `status` for the meta value (success/error/etc.)
+  must update to `executionStatus`.
+- **Schema:** Three new public types — `IdeQuery`, `IdeHistoryEntry`,
+  `IdeCollection` — and three new root connections — `ideQuery(ies)`,
+  `ideHistoryEntry(ies)`, `ideCollection(s)` — are now part of the public
+  WPGraphQL schema. Renaming or removing them in a future release would be a
+  breaking change for any external consumer that adopts them.
+- **REST capability:** the share-collection dialog now requires `list_users`
+  in addition to `manage_graphql_ide`. IDE users without `list_users` will see
+  the Sharing affordance hidden instead of opening onto a permission-denied
+  dead end.
+
 ## [4.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.3.0...wp-graphql-ide/v4.4.0) (2026-04-22)
 
 
