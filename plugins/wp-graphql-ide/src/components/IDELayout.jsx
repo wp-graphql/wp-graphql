@@ -57,7 +57,6 @@ import {
 	deriveStableDocTitle,
 	isAutoTitle,
 } from '../utils/derive-doc-title';
-import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 
 // eslint-disable-next-line jsdoc/require-param
 function ResponseContent({
@@ -281,6 +280,10 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const activeDocument = useSelect(
 		(select) => select('wpgraphql-ide/document-editor').getActiveDocument(),
+		[]
+	);
+	const isTempId = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').isTempId,
 		[]
 	);
 	const allDocuments = useSelect(

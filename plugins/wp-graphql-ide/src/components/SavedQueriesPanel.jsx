@@ -30,7 +30,6 @@ import { NewCollectionDialog } from './dialogs/NewCollectionDialog';
 import { ShareCollectionDialog } from './dialogs/ShareCollectionDialog';
 import { RenameInput } from './RenameInput';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
-import { isTempId } from '../stores/document-editor/document-editor-store-actions';
 import {
 	updateDocument,
 	deleteCollectionWithContents,
@@ -497,7 +496,7 @@ export function SavedQueriesPanel() {
 	const dragDocRef = useRef(null);
 	const dragCollectionRef = useRef(null);
 
-	const { documents, activeTab } = useSelect((select) => {
+	const { documents, activeTab, isTempId } = useSelect((select) => {
 		const editor = select('wpgraphql-ide/document-editor');
 		// Workspace tabs (e.g. Settings) live in the documents store so
 		// the tab strip can render their titles, but they aren't query
@@ -506,6 +505,7 @@ export function SavedQueriesPanel() {
 		return {
 			documents: all.filter((d) => !d.tabType),
 			activeTab: editor.getActiveTab(),
+			isTempId: editor.isTempId,
 		};
 	}, []);
 

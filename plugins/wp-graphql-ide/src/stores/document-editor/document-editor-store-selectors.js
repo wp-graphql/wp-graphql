@@ -58,6 +58,12 @@ const selectors = {
 		},
 		(state) => [state.topbarActions]
 	),
+
+	// State-free helper exposed as a selector so internal components and
+	// third parties have one place to ask "is this an unsaved tab?" Tabs
+	// the editor created in-memory carry a `temp-…` ID prefix until
+	// `saveTab` swaps it for the real CPT post id.
+	isTempId: (state, id) => String(id).startsWith('temp-'),
 };
 
 export default selectors;
