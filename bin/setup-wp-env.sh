@@ -35,6 +35,18 @@ setup_wp() {
 		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-smart-cache 2>/dev/null || true
 	fi
 
+	# Activate wp-graphql-ide only on the dev container so contributors
+	# get the IDE up after `npm run wp-env start`. We DON'T activate it
+	# on tests-cli here — having the IDE plugin active during another
+	# plugin's E2E suite changes the admin page DOM (settings tab, etc.)
+	# and causes false negatives. The IDE's own test:codecept:wpunit
+	# and test:e2e scripts re-activate the plugin in tests-cli right
+	# before they run, so IDE tests still get the active plugin
+	# without polluting other plugins' test runs.
+	if [ "$ENV_NAME" = "cli" ]; then
+		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-ide 2>/dev/null || true
+	fi
+
 	# Flush permalinks (must be done after plugins are activated so GraphQL endpoint is registered)
 	npm run wp-env run $ENV_NAME -- wp rewrite structure /%postname%/ --hard
 	npm run wp-env run $ENV_NAME -- wp rewrite flush --hard

@@ -5,6 +5,8 @@ module.exports = {
 		'^.+\\.[t|j]sx?$': 'babel-jest',
 	},
 	transformIgnorePatterns: [
-		'node_modules/(?!(cm6-graphql|graphql-language-service|vscode-languageserver-types|@codemirror|@lezer|codemirror|@codemirror/lang-json)/)',
+		// `@codemirror` covers `@codemirror/lang-json` and the rest of
+		// the family — listing the child explicitly is redundant.
+		'node_modules/(?!(cm6-graphql|graphql-language-service|vscode-languageserver-types|@codemirror|@lezer|codemirror)/)',
 	],
 };

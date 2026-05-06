@@ -67,7 +67,13 @@ const actions = {
 		try {
 			editedQuery = print(parse(editedQuery));
 		} catch (error) {
-			console.warn(error);
+			// Unparseable input — pass the original through unchanged so
+			// the user keeps what they typed and the editor's lint
+			// surfaces the real error.
+			console.warn(
+				'prettifyQuery: input is not parseable GraphQL',
+				error
+			);
 		}
 
 		return {

@@ -48,6 +48,7 @@ export const selectors = SELECTORS;
 
 /**
  * Log into wp-admin if not already logged in.
+ * @param page
  */
 export async function loginToWordPressAdmin(page) {
 	await page.goto(wpAdminUrl, { waitUntil: 'domcontentloaded' });
@@ -66,7 +67,10 @@ export async function loginToWordPressAdmin(page) {
 	await page.waitForSelector('#wpadminbar', { state: 'visible' });
 }
 
-/** Navigate to the dedicated IDE page (no drawer). */
+/**
+ * Navigate to the dedicated IDE page (no drawer).
+ * @param page
+ */
 export async function visitDedicatedIde(page) {
 	await page.goto(wpDedicatedIdeUrl, { waitUntil: 'domcontentloaded' });
 	await page.waitForSelector(SELECTORS.ideRoot, {
@@ -75,7 +79,30 @@ export async function visitDedicatedIde(page) {
 	});
 }
 
-/** Open the drawer from any admin page. Idempotent. */
+/**
+ * Ensure there's at least one document tab open.
+ *
+ * On a fresh session the IDE may render the "No open documents"
+ * empty state instead of the tab strip. Click the inline "New
+ * Document" button when present so the editor surface is mounted
+ * and selectors like `.wpgraphql-ide-tab-add` are available.
+ * @param page
+ */
+export async function ensureDocumentOpen(page) {
+	const empty = page.locator('.wpgraphql-ide-workspace-empty');
+	if (await empty.isVisible().catch(() => false)) {
+		await empty.getByRole('button', { name: 'New Document' }).click();
+	}
+	await page.waitForSelector(SELECTORS.tabRow, {
+		state: 'visible',
+		timeout: 10000,
+	});
+}
+
+/**
+ * Open the drawer from any admin page. Idempotent.
+ * @param page
+ */
 export async function openDrawer(page) {
 	await page.waitForSelector(SELECTORS.drawerButton, {
 		state: 'visible',
@@ -97,6 +124,8 @@ export async function openDrawer(page) {
  * Type into the active GraphQL editor. Replaces any existing content.
  * Uses CodeMirror 6's contentEditable surface — Playwright can target it
  * directly via `.cm-content`.
+ * @param page
+ * @param query
  */
 export async function typeQuery(page, query) {
 	const editor = page.locator(SELECTORS.graphqlEditorContent).first();
@@ -105,7 +134,10 @@ export async function typeQuery(page, query) {
 	await page.keyboard.type(query);
 }
 
-/** Read the contents of the GraphQL editor. */
+/**
+ * Read the contents of the GraphQL editor.
+ * @param page
+ */
 export async function readQuery(page) {
 	return await page
 		.locator(SELECTORS.graphqlEditorContent)
@@ -113,7 +145,10 @@ export async function readQuery(page) {
 		.evaluate((el) => el.innerText);
 }
 
-/** Press Cmd/Ctrl+Enter to execute the query. */
+/**
+ * Press Cmd/Ctrl+Enter to execute the query.
+ * @param page
+ */
 export async function runQuery(page) {
 	const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
 	await page.keyboard.press(`${modKey}+Enter`);
@@ -125,11 +160,15 @@ async function selectAllAndDelete(page) {
 	await page.keyboard.press('Backspace');
 }
 
-/** Wait until a GraphQL request initiated by the IDE has settled. */
+/**
+ * Wait until a GraphQL request initiated by the IDE has settled.
+ * @param page
+ */
 export async function waitForGraphQLResponse(page) {
 	await page.waitForResponse(
 		(response) =>
-			/index\.php\?graphql/.test(response.url()) && response.status() < 500,
+			/index\.php\?graphql/.test(response.url()) &&
+			response.status() < 500,
 		{ timeout: 10000 }
 	);
 }

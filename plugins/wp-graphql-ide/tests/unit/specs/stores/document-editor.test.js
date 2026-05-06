@@ -88,7 +88,7 @@ describe('document-editor reducer', () => {
 	describe('UPDATE_DOCUMENT', () => {
 		it('merges an update into an existing doc', () => {
 			const before = seed({
-				documents: { '1': { id: 1, title: 'old', query: 'x' } },
+				documents: { 1: { id: 1, title: 'old', query: 'x' } },
 				documentIds: ['1'],
 			});
 
@@ -117,7 +117,7 @@ describe('document-editor reducer', () => {
 	describe('REMOVE_DOCUMENT', () => {
 		it('removes the doc and drops it from documentIds', () => {
 			const before = seed({
-				documents: { '1': { id: 1 }, '2': { id: 2 } },
+				documents: { 1: { id: 1 }, 2: { id: 2 } },
 				documentIds: ['1', '2'],
 			});
 			const after = reducer(before, { type: 'REMOVE_DOCUMENT', id: 1 });
@@ -165,13 +165,10 @@ describe('document-editor selectors', () => {
 
 	it('getDocuments returns docs in documentIds order, missing ids dropped', () => {
 		const state = seed({
-			documents: { '1': { id: 1 }, '3': { id: 3 } },
+			documents: { 1: { id: 1 }, 3: { id: 3 } },
 			documentIds: ['1', '2', '3'],
 		});
-		expect(selectors.getDocuments(state)).toEqual([
-			{ id: 1 },
-			{ id: 3 },
-		]);
+		expect(selectors.getDocuments(state)).toEqual([{ id: 1 }, { id: 3 }]);
 	});
 
 	it('getActiveTab returns the active tab id', () => {
@@ -180,7 +177,7 @@ describe('document-editor selectors', () => {
 
 	it('getActiveDocument returns the doc for the active tab', () => {
 		const state = seed({
-			documents: { '7': { id: 7, title: 'X' } },
+			documents: { 7: { id: 7, title: 'X' } },
 			activeTab: '7',
 		});
 		expect(selectors.getActiveDocument(state)).toEqual({

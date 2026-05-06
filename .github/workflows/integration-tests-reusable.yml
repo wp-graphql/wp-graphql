@@ -330,11 +330,20 @@ jobs:
           echo "Testing GraphQL endpoint..."
           npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
 
+      # Acceptance / Functional steps are skipped when a plugin has no
+      # specs in the corresponding directory. wp-graphql-ide dropped its
+      # acceptance/functional suites during the rebuild; running an empty
+      # suite makes codecept exit 1 even though there's nothing to test.
+      # The hashFiles guard makes the steps only fire when there's actual
+      # content under the directory, which is what every other plugin in
+      # the matrix already has.
       - name: Run Acceptance Tests
+        if: hashFiles(format('plugins/{0}/tests/acceptance/**/*.php', inputs.plugin_name)) != ''
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}
 
       - name: Run Functional Tests
+        if: hashFiles(format('plugins/{0}/tests/functional/**/*.php', inputs.plugin_name)) != ''
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 

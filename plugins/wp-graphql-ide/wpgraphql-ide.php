@@ -60,7 +60,14 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\check_wpgraphql_availability' )
  * @return void
  */
 function initialize_plugin() {
-	add_action( 'init', __NAMESPACE__ . '\\load_ide_textdomain', 9 );
+	// Translation loading is handled by WordPress automatically since
+	// 4.6+ for plugins with a matching `Text Domain:` header (we have
+	// it, line 10). Calling `load_plugin_textdomain` ourselves used to
+	// be the convention but is now redundant — and on WP 6.7+ it
+	// actively races with WordPress's own just-in-time loader, which
+	// fires `_doing_it_wrong` warnings whenever WP-CLI scans plugin
+	// metadata before `init`. Letting WP own the loading entirely
+	// removes our half of the race.
 	add_action( 'init', __NAMESPACE__ . '\\register_ide_post_type' );
 	add_action( 'init', __NAMESPACE__ . '\\register_ide_user_meta' );
 	add_action( 'admin_menu', __NAMESPACE__ . '\\register_dedicated_ide_menu' );
@@ -120,24 +127,8 @@ add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
  *
  * Each document stores a GraphQL query, its variables, and headers.
  * Documents are scoped to the authoring user via REST API filters.
- *
- * @return void
  */
-
-/**
- * Load the plugin textdomain.
- *
- * Must run before register_post_type / register_taxonomy so that
- * label strings using __() don't trigger a just-in-time textdomain
- * load warning on WP 6.7+.
- *
- * @return void
- */
-function load_ide_textdomain() {
-	load_plugin_textdomain( 'wpgraphql-ide', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-
-function register_ide_post_type() {
+function register_ide_post_type(): void {
 	register_post_type(
 		'graphql_ide_query',
 		[
@@ -161,11 +152,11 @@ function register_ide_post_type() {
 		]
 	);
 
-	$post_meta_auth = function () {
+	$post_meta_auth = static function () {
 		return current_user_can( 'manage_graphql_ide' );
 	};
 
-	$sanitize_json = function ( $value ) {
+	$sanitize_json = static function ( $value ) {
 		if ( empty( $value ) ) {
 			return '';
 		}
@@ -223,11 +214,11 @@ function register_ide_post_type() {
 		'graphql_ide_history',
 		'_graphql_ide_query',
 		[
-			'type'              => 'string',
-			'single'            => true,
-			'show_in_rest'      => true,
-			'default'           => '',
-			'auth_callback'     => $post_meta_auth,
+			'type'          => 'string',
+			'single'        => true,
+			'show_in_rest'  => true,
+			'default'       => '',
+			'auth_callback' => $post_meta_auth,
 		]
 	);
 
@@ -354,7 +345,7 @@ function register_ide_post_type() {
  * @return void
  */
 function register_ide_user_meta() {
-	$auth_callback = function () {
+	$auth_callback = static function () {
 		return current_user_can( 'manage_graphql_ide' );
 	};
 
@@ -367,7 +358,7 @@ function register_ide_user_meta() {
 			'show_in_rest'      => true,
 			'default'           => '',
 			'auth_callback'     => $auth_callback,
-			'sanitize_callback' => function ( $value ) {
+			'sanitize_callback' => static function ( $value ) {
 				return in_array( $value, [ '', 'light', 'dark' ], true ) ? $value : '';
 			},
 		]
@@ -484,9 +475,9 @@ function register_ide_user_meta() {
 	// the server — UI owns the shape — so adding a new field on the
 	// client doesn't require a server release.
 	//
-	//   { "_documents": { "collapsed": false },
-	//     "5":          { "collapsed": true },
-	//     "pc_abc":     { "collapsed": false } }
+	// { "_documents": { "collapsed": false },
+	// "5":          { "collapsed": true },
+	// "pc_abc":     { "collapsed": false } }
 	//
 	// String storage (vs. type=object) sidesteps WP's REST schema
 	// validation for arbitrary nested objects, which is finicky with
@@ -764,7 +755,6 @@ function aggregate_shared_collections(): array {
  *
  * @param int      $post_id Post ID being deleted.
  * @param \WP_Post $post    Post object.
- * @return void
  */
 function purge_document_from_personal_collections( int $post_id, $post ): void {
 	if ( ! ( $post instanceof \WP_Post ) || 'graphql_ide_query' !== $post->post_type ) {
@@ -870,13 +860,12 @@ function scope_ide_graphql_connections_to_current_user( $query_args, $source ): 
  *
  * @since x-release-please-version
  *
- * @param bool                  $is_private   Whether the model is private.
- * @param string                $model_name   Name of the WPGraphQL model.
- * @param mixed                 $data         The un-modeled data (a `WP_Post` for `PostObject`).
- * @param string|null           $visibility   Visibility set so far.
- * @param int|null              $owner        Owner user ID, if any.
- * @param \WP_User              $current_user Current user for the session.
- * @return bool
+ * @param bool        $is_private   Whether the model is private.
+ * @param string      $model_name   Name of the WPGraphQL model.
+ * @param mixed       $data         The un-modeled data (a `WP_Post` for `PostObject`).
+ * @param string|null $visibility   Visibility set so far.
+ * @param int|null    $owner        Owner user ID, if any.
+ * @param \WP_User    $current_user Current user for the session.
  */
 function restrict_ide_post_visibility_to_author( $is_private, $model_name, $data, $visibility, $owner, $current_user ): bool {
 	unset( $visibility ); // Unused — we make a final decision based on the data + current user.
@@ -1115,7 +1104,6 @@ function restrict_document_to_author( $response, $post, $request ) {
  * scale only; cache if this turns into a hot path.
  *
  * @param int $doc_id
- * @return bool
  */
 function document_is_shared_with_current_user( int $doc_id ): bool {
 	if ( $doc_id <= 0 ) {
@@ -1195,8 +1183,6 @@ const IMPORT_SCHEMA_VERSION = 1;
  * Documents are seeded as published with SHA-256 content-addressed
  * slugs (same algorithm as `handle_publish_document`), so the
  * activated install matches the canonical example dataset exactly.
- *
- * @return void
  */
 function seed_example_documents(): void {
 	if ( get_option( 'wpgraphql_ide_seed_version' ) === SEED_VERSION ) {
@@ -1845,7 +1831,7 @@ function enqueue_react_app_with_styles(): void {
 		true
 	);
 
-	$user_id              = get_current_user_id();
+	$user_id                 = get_current_user_id();
 	$panel_order             = get_user_meta( $user_id, 'wpgraphql_ide_panel_order', true );
 	$collapsed_notices       = get_user_meta( $user_id, 'wpgraphql_ide_collapsed_notices', true );
 	$personal_collections    = get_user_meta( $user_id, 'wpgraphql_ide_personal_collections', true );
@@ -1865,26 +1851,26 @@ function enqueue_react_app_with_styles(): void {
 	}
 
 	$localized_data = [
-		'nonce'               => wp_create_nonce( 'wp_rest' ),
-		'restUrl'             => esc_url_raw( rest_url() ),
-		'graphqlEndpoint'     => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
-		'rootElementId'       => WPGRAPHQL_IDE_ROOT_ELEMENT_ID,
-		'context'             => $app_context,
-		'isDedicatedIdePage'  => current_screen_is_dedicated_ide_page(),
-		'dedicatedIdeBaseUrl' => get_dedicated_ide_base_url(),
-		'panelOrder'             => is_array( $panel_order ) ? $panel_order : [],
-		'collapsedNotices'       => is_array( $collapsed_notices ) ? $collapsed_notices : [],
-		'personalCollections'    => is_array( $personal_collections ) ? $personal_collections : [],
-		'sharedCollections'      => $shared_collections,
-		'seenSharedCollections'  => is_array( $seen_shared_collections ) ? $seen_shared_collections : [],
-		'sectionStates'          => empty( $section_states ) ? new \stdClass() : $section_states,
+		'nonce'                 => wp_create_nonce( 'wp_rest' ),
+		'restUrl'               => esc_url_raw( rest_url() ),
+		'graphqlEndpoint'       => trailingslashit( site_url() ) . 'index.php?' . \WPGraphQL\Router::$route,
+		'rootElementId'         => WPGRAPHQL_IDE_ROOT_ELEMENT_ID,
+		'context'               => $app_context,
+		'isDedicatedIdePage'    => current_screen_is_dedicated_ide_page(),
+		'dedicatedIdeBaseUrl'   => get_dedicated_ide_base_url(),
+		'panelOrder'            => is_array( $panel_order ) ? $panel_order : [],
+		'collapsedNotices'      => is_array( $collapsed_notices ) ? $collapsed_notices : [],
+		'personalCollections'   => is_array( $personal_collections ) ? $personal_collections : [],
+		'sharedCollections'     => $shared_collections,
+		'seenSharedCollections' => is_array( $seen_shared_collections ) ? $seen_shared_collections : [],
+		'sectionStates'         => empty( $section_states ) ? new \stdClass() : $section_states,
 		// `manage_graphql_ide` is the gate for using the IDE at all, but
 		// the share dialog needs to search and resolve other users — that
 		// requires `list_users`, which is a strict subset of editor and
 		// administrator. Surface it as a separate flag so the client can
 		// hide the share affordance for IDE users who can't enumerate
 		// other users (e.g. authors granted IDE access via a custom cap).
-		'capabilities'           => [
+		'capabilities'          => [
 			'listUsers' => current_user_can( 'list_users' ),
 		],
 	];
@@ -2318,13 +2304,13 @@ function register_ide_rest_routes() {
 		[
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\\handle_publish_document',
-			'permission_callback' => function () {
+			'permission_callback' => static function () {
 				return current_user_can( 'manage_graphql_ide' );
 			},
 			'args'                => [
 				'id' => [
 					'required'          => true,
-					'validate_callback' => function ( $param ) {
+					'validate_callback' => static function ( $param ) {
 						return is_numeric( $param );
 					},
 				],
@@ -2338,13 +2324,13 @@ function register_ide_rest_routes() {
 		[
 			'methods'             => 'DELETE',
 			'callback'            => __NAMESPACE__ . '\\handle_delete_collection_cascade',
-			'permission_callback' => function () {
+			'permission_callback' => static function () {
 				return current_user_can( 'manage_graphql_ide' );
 			},
 			'args'                => [
 				'id' => [
 					'required'          => true,
-					'validate_callback' => function ( $param ) {
+					'validate_callback' => static function ( $param ) {
 						return is_numeric( $param );
 					},
 				],
@@ -2358,7 +2344,7 @@ function register_ide_rest_routes() {
 		[
 			'methods'             => 'GET',
 			'callback'            => __NAMESPACE__ . '\\handle_export_documents',
-			'permission_callback' => function () {
+			'permission_callback' => static function () {
 				return current_user_can( 'manage_graphql_ide' );
 			},
 		]
@@ -2370,7 +2356,7 @@ function register_ide_rest_routes() {
 		[
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\\handle_import_documents',
-			'permission_callback' => function () {
+			'permission_callback' => static function () {
 				return current_user_can( 'manage_graphql_ide' );
 			},
 		]
@@ -2382,7 +2368,7 @@ function register_ide_rest_routes() {
 		[
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\\handle_reorder_documents',
-			'permission_callback' => function () {
+			'permission_callback' => static function () {
 				return current_user_can( 'manage_graphql_ide' );
 			},
 		]
@@ -2394,7 +2380,7 @@ function register_ide_rest_routes() {
 		[
 			'methods'             => 'POST',
 			'callback'            => __NAMESPACE__ . '\\handle_reorder_collections',
-			'permission_callback' => function () {
+			'permission_callback' => static function () {
 				return current_user_can( 'manage_graphql_ide' );
 			},
 		]
@@ -2575,7 +2561,7 @@ function handle_publish_document( \WP_REST_Request $request ) {
 	}
 
 	// Ensure the current user owns this document.
-	if ( (int) $post->post_author !== get_current_user_id() ) {
+	if ( get_current_user_id() !== (int) $post->post_author ) {
 		return new \WP_Error(
 			'forbidden',
 			__( 'You do not have permission to publish this document.', 'wpgraphql-ide' ),
@@ -2625,11 +2611,11 @@ function handle_publish_document( \WP_REST_Request $request ) {
 		$existing_post = $existing[0];
 		return rest_ensure_response(
 			[
-				'id'            => $existing_post->ID,
-				'status'        => $existing_post->post_status,
-				'query_hash'    => $hash,
+				'id'             => $existing_post->ID,
+				'status'         => $existing_post->post_status,
+				'query_hash'     => $hash,
 				'already_exists' => true,
-				'message'       => __( 'This query is already published.', 'wpgraphql-ide' ),
+				'message'        => __( 'This query is already published.', 'wpgraphql-ide' ),
 			]
 		);
 	}

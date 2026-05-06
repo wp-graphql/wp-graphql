@@ -14,11 +14,21 @@ parameters:
 
     # Configuration
     level: 8
-    phpVersion:
-      min: 70400
-      max: 80300
+    # Lowest PHP version we support. PHPStan 2.x dropped the
+    # `min: ... / max: ...` array form; using a single int matches
+    # the documented schema (`int|null`).
+    phpVersion: 70400
     bootstrapFiles:
         - phpstan/constants.php
+    # Pull in the wp-graphql-stubs dev dependency so PHPStan can resolve
+    # webonyx symbols (GraphQL\Language\Parser, GraphQL\Language\Printer,
+    # GraphQL\Error\SyntaxError) without depending on the actual
+    # webonyx vendor sources. The stubs package isn't auto-loaded — it
+    # ships no extension.neon — so we point at the file explicitly.
+    # This works in CI because the stubs are a `require-dev` of *this*
+    # plugin's composer.json, so they're installed by the lint job.
+    scanFiles:
+        - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
     paths:
         - wpgraphql-ide.php
     excludePaths:

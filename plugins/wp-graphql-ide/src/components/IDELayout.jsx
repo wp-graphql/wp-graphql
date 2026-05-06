@@ -256,7 +256,7 @@ const PANEL_ICONS = {
  * @param {Function} [props.onClose] - Optional close handler for drawer mode.
  */
 export function IDELayout({ fetcher, onClose }) {
-	const { confirm, choose } = useDialog();
+	const { choose } = useDialog();
 	const [shareDialogOpen, setShareDialogOpen] = useState(false);
 	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 	// Reused for both first-save (temp doc → server doc) and rename
@@ -786,49 +786,19 @@ export function IDELayout({ fetcher, onClose }) {
 	const isPublished = activeDocument?.status === 'publish';
 
 	// Whether the variables/headers JSON strings carry any meaningful
-	// content. Empty string, blank, or `{}` all count as "no content"
-	// — published docs should hide those tabs since there's nothing to
-	// see and the editor is read-only anyway.
-	const hasJsonContent = useCallback((raw) => {
-		if (!raw || typeof raw !== 'string') {
-			return false;
-		}
-		const trimmed = raw.trim();
-		if (!trimmed || trimmed === '{}') {
-			return false;
-		}
-		try {
-			const parsed = JSON.parse(trimmed);
-			if (parsed && typeof parsed === 'object') {
-				return Object.keys(parsed).length > 0;
-			}
-			return false;
-		} catch {
-			// Malformed JSON — treat as content so the user can still
-			// see what's there (and the editor surfaces parse errors).
-			return true;
-		}
-	}, []);
-	const hasVariables = useMemo(
-		() => hasJsonContent(variables),
-		[hasJsonContent, variables]
+	// Variables + Headers belong to the *request*, not the immutable
+	// document. A published doc's query body is locked, but the
+	// variables and HTTP headers can change per request (auth tokens,
+	// pagination cursors, etc.) so the panel stays editable on every
+	// doc. Both tabs are always rendered so users can add content even
+	// when the persisted doc shipped without it.
+	const editorBottomTabs = useMemo(
+		() => [
+			{ name: 'variables', title: 'Variables' },
+			{ name: 'headers', title: 'Headers' },
+		],
+		[]
 	);
-	const hasHeaders = useMemo(
-		() => hasJsonContent(headers),
-		[hasJsonContent, headers]
-	);
-	// Tabs to render in the lower toolbar. On published docs we filter
-	// out empty Variables/Headers since they're read-only and offer
-	// nothing to look at; on drafts we always show both so the user
-	// has a place to add content.
-	const editorBottomTabs = useMemo(() => {
-		const all = [
-			{ name: 'variables', title: 'Variables', present: hasVariables },
-			{ name: 'headers', title: 'Headers', present: hasHeaders },
-		];
-		const filtered = isPublished ? all.filter((t) => t.present) : all;
-		return filtered.map(({ present, ...tab }) => tab);
-	}, [isPublished, hasVariables, hasHeaders]);
 
 	// Spawn a fresh draft tab seeded with the current doc's query, variables,
 	// and headers. Used by the "Duplicate as draft" kebab item and the
@@ -914,9 +884,19 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const activeDocDirty = isDocDirty(activeDocument);
 
-	// Close tab with confirmation for dirty documents. Workspace tabs
-	// (Settings, etc.) delegate save/discard to whatever they registered
-	// via `registerWorkspacePersistence`; query docs use saveTab.
+	// Close tab with a 3-way prompt for dirty documents:
+	//   Save and close (primary)  → persist, then close
+	//   Discard         (destructive) → drop changes, then close
+	//   Cancel          (returns null) → leave the tab open as-is
+	//
+	// The previous binary confirm conflated "Cancel" with "Discard" —
+	// hitting Esc or clicking the dismiss X tossed the user's work
+	// silently. The choose dialog separates the two so accidental
+	// dismissal is non-destructive.
+	//
+	// Workspace tabs (Settings, etc.) delegate save/discard to whatever
+	// they registered via `registerWorkspacePersistence`; query docs
+	// use saveTab.
 	const handleCloseTab = useCallback(
 		async (tabId) => {
 			const doc = allDocuments.find(
@@ -926,15 +906,32 @@ export function IDELayout({ fetcher, onClose }) {
 				const persistence = doc.tabType
 					? getWorkspacePersistence(doc.tabType)
 					: null;
-				const answer = await confirm({
+				const answer = await choose({
 					title: 'Unsaved changes',
-					message: `Save changes to "${
+					message: `You have unsaved changes in "${
 						doc.title || 'Untitled'
-					}" before closing?`,
-					confirmLabel: 'Save and close',
-					cancelLabel: 'Discard',
+					}". What would you like to do?`,
+					cancelLabel: 'Cancel',
+					actions: [
+						{
+							key: 'discard',
+							label: 'Discard',
+							isDestructive: true,
+						},
+						{
+							key: 'save',
+							label: 'Save and close',
+							variant: 'primary',
+						},
+					],
 				});
-				if (answer) {
+
+				if (answer === null) {
+					// Cancel — leave the tab open. No close, no save, no discard.
+					return;
+				}
+
+				if (answer === 'save') {
 					try {
 						if (persistence?.save) {
 							await persistence.save();
@@ -952,7 +949,7 @@ export function IDELayout({ fetcher, onClose }) {
 						);
 						return;
 					}
-				} else if (persistence?.discard) {
+				} else if (answer === 'discard' && persistence?.discard) {
 					persistence.discard();
 				}
 			}
@@ -966,7 +963,7 @@ export function IDELayout({ fetcher, onClose }) {
 			query,
 			variables,
 			headers,
-			confirm,
+			choose,
 			isDocDirty,
 		]
 	);
@@ -1501,11 +1498,6 @@ export function IDELayout({ fetcher, onClose }) {
 									onRename={(id, title) => {
 										saveDocument(id, { title });
 									}}
-									onRefreshActive={() => loadDocuments()}
-									canRefreshActive={
-										!!activeDocument?.id &&
-										!isTempId(activeDocument.id)
-									}
 								/>
 							</div>
 
@@ -1724,10 +1716,7 @@ export function IDELayout({ fetcher, onClose }) {
 												height: editorHeight,
 											}}
 											minHeight={MIN_EDITOR_HEIGHT_PX}
-											enable={{
-												bottom:
-													editorBottomTabs.length > 0,
-											}}
+											enable={{ bottom: true }}
 											onResizeStop={(e, d, elt) => {
 												const h = elt.offsetHeight;
 												setEditorHeight(h);
@@ -1736,7 +1725,7 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${(showQueryComposer && ComposerContent && !isPublished) || showDocSettingsPanel ? ' has-left-panel' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}${isPublished && editorBottomTabs.length > 0 ? ' is-readonly-flex' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${(showQueryComposer && ComposerContent && !isPublished) || showDocSettingsPanel ? ' has-left-panel' : ''}${isPublished ? ' is-readonly-flex' : ''}`}
 										>
 											{ComposerContent &&
 												showQueryComposer &&
@@ -2051,50 +2040,32 @@ export function IDELayout({ fetcher, onClose }) {
 												})()}
 											</div>
 										</ResizableBox>
-										{editorBottomTabs.length > 0 && (
-											<TabPanel
-												className={`wpgraphql-ide-editor-tools${isPublished ? ' is-readonly' : ''}`}
-												tabs={editorBottomTabs}
-											>
-												{(tab) =>
-													tab.name === 'variables' ? (
-														<JSONEditor
-															key="variables"
-															className={
-																isPublished
-																	? 'is-readonly'
-																	: ''
-															}
-															value={variables}
-															onChange={
-																handleVariablesChange
-															}
-															placeholder="Variables (JSON)"
-															readOnly={
-																isPublished
-															}
-														/>
-													) : (
-														<JSONEditor
-															key="headers"
-															className={
-																isPublished
-																	? 'is-readonly'
-																	: ''
-															}
-															value={headers}
-															onChange={
-																handleHeadersChange
-															}
-															placeholder="Headers (JSON)"
-															readOnly={
-																isPublished
-															}
-														/>
-													)
-												}
-											</TabPanel>
-										)}
+										<TabPanel
+											className="wpgraphql-ide-editor-tools"
+											tabs={editorBottomTabs}
+										>
+											{(tab) =>
+												tab.name === 'variables' ? (
+													<JSONEditor
+														key="variables"
+														value={variables}
+														onChange={
+															handleVariablesChange
+														}
+														placeholder="Variables (JSON)"
+													/>
+												) : (
+													<JSONEditor
+														key="headers"
+														value={headers}
+														onChange={
+															handleHeadersChange
+														}
+														placeholder="Headers (JSON)"
+													/>
+												)
+											}
+										</TabPanel>
 									</ResizableBox>
 
 									<div className="wpgraphql-ide-response-pane">

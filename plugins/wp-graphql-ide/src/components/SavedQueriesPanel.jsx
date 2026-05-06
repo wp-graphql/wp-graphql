@@ -514,10 +514,16 @@ export function SavedQueriesPanel() {
 		hooks.doAction('wpgraphql-ide.notice', content, type);
 
 	const [search, setSearch] = useState('');
-	// WP-style filter row: All / Mine / Shared. Acts as a *filter*, not a
-	// folder — sections render in their own order below; the filter just
-	// hides the ones that don't match. Avoids the public/private "folder"
-	// mental model that taxonomy-style tabs invite.
+	// WP-style filter row: `'all' | 'sitewide' | 'mine'`. Acts as a
+	// *filter*, not a folder — sections render in their own order
+	// below and the filter hides the ones that don't match.
+	//
+	//   all      → everything the user can see (sitewide collections,
+	//              personal collections, collections shared with them,
+	//              and their uncategorized drafts)
+	//   sitewide → only docs assigned to a sitewide (taxonomy-backed)
+	//              collection
+	//   mine     → only docs in the user's own personal collections
 	const [filter, setFilter] = useState('all');
 	// Seed from per-user meta so a user's collapse choices survive a
 	// reload. The hydrator only pulls the `collapsed` field; other
@@ -679,11 +685,8 @@ export function SavedQueriesPanel() {
 	}, [savedDocs, filterDocs, personalCollections, sortModeFor]);
 
 	// Filter-row counts: unique-doc counts so a doc in multiple
-	// collections doesn't double-count in `All`. Sharing semantics are
-	// communicated per-section (inline attribution + kebab actions),
-	// not via a dedicated filter — keeping the filter row to two
-	// values matches WP admin convention.
-	const { allCount, mineCount } = useMemo(() => {
+	// collections doesn't double-count.
+	const { allCount, sitewideCount, mineCount } = useMemo(() => {
 		// `Mine` counts only docs that live in a personal collection.
 		// Uncategorized docs surface under `All` (which already covers
 		// everything the user can see), so they're intentionally
@@ -694,6 +697,16 @@ export function SavedQueriesPanel() {
 				if (savedDocs.find((d) => Number(d.id) === Number(id))) {
 					mineIds.add(Number(id));
 				}
+			}
+		}
+		// `Sitewide` = docs assigned to one or more sitewide
+		// (taxonomy-backed) collections. Drives the second filter tab —
+		// "show me only the things any admin can curate", separate from
+		// "Mine" (personal) and from uncategorized author-scoped drafts.
+		const sitewideIds = new Set();
+		for (const doc of savedDocs) {
+			if ((doc.collections || []).length > 0) {
+				sitewideIds.add(Number(doc.id));
 			}
 		}
 		const incomingSharedIds = new Set();
@@ -708,16 +721,20 @@ export function SavedQueriesPanel() {
 		]);
 		return {
 			allCount: allIds.size,
+			sitewideCount: sitewideIds.size,
 			mineCount: mineIds.size,
 		};
 	}, [savedDocs, personalCollections, sharedCollections]);
 
-	const showSitewide = filter === 'all';
+	const showSitewide = filter === 'all' || filter === 'sitewide';
 	const showPersonal = filter === 'all' || filter === 'mine';
+	// `Shared with me` is read-only borrowed content — surfaces under
+	// All only; Mine is reserved for the user's own organized
+	// collections, Sitewide is reserved for the taxonomy.
 	const showShared = filter === 'all';
 	// Uncategorized "Documents" — author-scoped catch-all that doesn't
-	// belong to a curated personal collection. Surfaces under All only;
-	// Mine is reserved for the user's *organized* collections.
+	// belong to a curated personal or sitewide collection. Surfaces
+	// under All only.
 	const showUncategorized = filter === 'all';
 
 	const toggleSection = (key) => {
@@ -1109,6 +1126,7 @@ export function SavedQueriesPanel() {
 				className="wpgraphql-ide-saved-queries-filter"
 				tabs={[
 					{ name: 'all', title: `All (${allCount})` },
+					{ name: 'sitewide', title: `Sitewide (${sitewideCount})` },
 					{ name: 'mine', title: `Mine (${mineCount})` },
 				]}
 				initialTabName={filter}

@@ -64,7 +64,19 @@ export function HistoryPanel() {
 		return (
 			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
 				<div className="wpgraphql-ide-history-empty-state">
-					<p>No executions yet</p>
+					<Icon
+						icon={backup}
+						size={32}
+						className="wpgraphql-ide-history-empty-icon"
+					/>
+					<h3 className="wpgraphql-ide-history-empty-title">
+						No executions yet
+					</h3>
+					<p className="wpgraphql-ide-history-empty-description">
+						Run a query and the request will appear here. Click any
+						entry to restore its query, variables, and headers into
+						a new tab.
+					</p>
 				</div>
 			</div>
 		);
