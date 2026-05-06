@@ -553,25 +553,35 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Global tabs kebab — sits to the right of the + button. Anchors close
    actions on the active tab so we don't need a per-tab context menu.
-   Uses `align-self: stretch` + `height: auto` to match `+`, which lets
-   the button fill the full tab-strip row height instead of leaving a
-   gap below at 32px when the row grows taller. */
+   Mirrors the `+` button's geometry exactly so the two trailing
+   controls read as a unit; only the left separator distinguishes
+   them visually. */
 .wpgraphql-ide-tab-kebab.components-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	min-width: 36px;
 	height: auto;
-	min-width: 32px;
 	padding: 0;
-	color: #50575e;
-	border-radius: 0;
-	background: transparent;
 	border: none;
 	border-left: 1px solid #dcdcde;
-	align-self: stretch;
+	background: none;
+	color: #646970;
+	border-radius: 0;
 	flex-shrink: 0;
+	align-self: stretch;
+	box-shadow: none;
 }
 
 .wpgraphql-ide-tab-kebab.components-button:hover {
-	color: #1e1e1e;
+	color: #2c3338;
 	background: #f0f0f1;
+}
+
+.wpgraphql-ide-tab-kebab.components-button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
 }
 
 .wpgraphql-ide-tab-kebab.components-button svg {
