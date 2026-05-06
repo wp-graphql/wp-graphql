@@ -1736,10 +1736,6 @@ export function IDELayout({ fetcher, onClose }) {
 												</>
 											)}
 										</div>
-										<DocumentNotices
-											isPublished={isPublished}
-											onDuplicate={duplicateAsDraft}
-										/>
 										<ResizableBox
 											size={{
 												width: '100%',
@@ -1755,319 +1751,386 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${(showQueryComposer && ComposerContent && !isPublished) || showDocSettingsPanel ? ' has-left-panel' : ''}${isPublished ? ' is-readonly-flex' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${(showQueryComposer && ComposerContent && !isPublished) || showDocSettingsPanel ? ' has-left-panel' : ''}`}
 										>
-											{ComposerContent &&
-												showQueryComposer &&
-												!isPublished && (
-													<ResizableBox
-														size={{
-															width: composerWidth,
-															height: '100%',
-														}}
-														minWidth={200}
-														maxWidth={600}
-														enable={{
-															top: false,
-															right: true,
-															bottom: false,
-															left: false,
-														}}
-														onResizeStop={(
-															e,
-															d,
-															elt
-														) => {
-															const w =
-																elt.offsetWidth;
-															setComposerWidth(w);
-															try {
-																window.localStorage.setItem(
-																	'wpgraphql_ide_composer_width',
-																	String(w)
-																);
-															} catch {
-																// ignore
-															}
-														}}
-														className="wpgraphql-ide-query-composer-inline"
-													>
-														<ComposerContent />
-													</ResizableBox>
-												)}
-											{showDocSettingsPanel &&
-												docSettingsFields.length >
-													0 && (
-													<ResizableBox
-														size={{
-															width: docSettingsPanelWidth,
-															height: '100%',
-														}}
-														minWidth={240}
-														maxWidth={600}
-														enable={{
-															top: false,
-															right: true,
-															bottom: false,
-															left: false,
-														}}
-														onResizeStop={(
-															e,
-															d,
-															elt
-														) => {
-															const w =
-																elt.offsetWidth;
-															setDocSettingsPanelWidth(
-																w
-															);
-															try {
-																window.localStorage.setItem(
-																	'wpgraphql_ide_settings_panel_width',
-																	String(w)
-																);
-															} catch {
-																// ignore
-															}
-														}}
-														className="wpgraphql-ide-doc-settings-inline"
-													>
-														<DocumentSettingsDrawer
-															fields={
-																docSettingsFields
-															}
-															values={
-																docSettingsValues
-															}
-															onChange={
-																handleDocumentSettingChange
-															}
-															docId={
-																activeDocument?.id ??
-																null
-															}
-															globalGrantMode={
-																docSettingsGlobalGrant
-															}
-														/>
-													</ResizableBox>
-												)}
-											{
-												<GraphQLEditor
-													key={
-														activeDocument?.id ||
-														'empty'
-													}
-													className={
-														isPublished
-															? 'is-readonly'
-															: ''
-													}
-													value={query}
-													onChange={handleQueryChange}
-													schema={schema}
-													readOnly={isPublished}
-													extraKeys={
-														editorKeyBindings.current
-													}
-													onShowInDocs={
-														handleShowInDocs
-													}
-													onCursorChange={
-														setCursorOffset
-													}
-												/>
-											}
-											<div className="wpgraphql-ide-execution-pill">
-												<div
-													className="wpgraphql-ide-response-mode-toggle"
-													role="group"
-													aria-label="HTTP method"
-												>
-													{['GET', 'POST'].map(
-														(m) => (
-															<button
-																key={m}
-																type="button"
-																aria-pressed={
-																	httpMethod ===
-																	m
-																}
-																className={`wpgraphql-ide-response-mode-btn${httpMethod === m ? ' is-active' : ''}`}
-																onClick={() =>
-																	setHttpMethod(
-																		m
-																	)
-																}
-															>
-																{m}
-															</button>
-														)
-													)}
-												</div>
-												<Tooltip
-													text={
-														isAuthenticated
-															? 'Authenticated (click to switch)'
-															: 'Public (click to switch)'
-													}
-												>
-													<button
-														type="button"
-														onClick={
-															toggleAuthentication
-														}
-														className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-														aria-label={
-															isAuthenticated
-																? 'Switch to public'
-																: 'Switch to authenticated'
-														}
-													>
-														<span
-															className={
-																authStyles.authAvatar
-															}
-															style={{
-																backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
+											{/* Mounted inside the ResizableBox so its height
+											    is borrowed from the editor area, not added
+											    above it — keeps the bottom Variables/Headers
+											    panel anchored to the same position whether
+											    or not the notice is showing. */}
+											<DocumentNotices
+												isPublished={isPublished}
+												onDuplicate={duplicateAsDraft}
+											/>
+											<div className="wpgraphql-ide-editor-resizable-body">
+												{ComposerContent &&
+													showQueryComposer &&
+													!isPublished && (
+														<ResizableBox
+															size={{
+																width: composerWidth,
+																height: '100%',
 															}}
+															minWidth={200}
+															maxWidth={600}
+															enable={{
+																top: false,
+																right: true,
+																bottom: false,
+																left: false,
+															}}
+															onResizeStop={(
+																e,
+																d,
+																elt
+															) => {
+																const w =
+																	elt.offsetWidth;
+																setComposerWidth(
+																	w
+																);
+																try {
+																	window.localStorage.setItem(
+																		'wpgraphql_ide_composer_width',
+																		String(
+																			w
+																		)
+																	);
+																} catch {
+																	// ignore
+																}
+															}}
+															className="wpgraphql-ide-query-composer-inline"
+														>
+															<div className="wpgraphql-ide-panel-header">
+																<span className="wpgraphql-ide-panel-title">
+																	Query
+																	Composer
+																</span>
+																<div className="wpgraphql-ide-panel-header-spacer" />
+																<Button
+																	className="wpgraphql-ide-panel-close"
+																	onClick={() =>
+																		setLeftPanel(
+																			null
+																		)
+																	}
+																	aria-label="Close Query Composer panel"
+																	size="small"
+																>
+																	<Icon
+																		icon={
+																			close
+																		}
+																		size={
+																			20
+																		}
+																	/>
+																</Button>
+															</div>
+															<ComposerContent />
+														</ResizableBox>
+													)}
+												{showDocSettingsPanel &&
+													docSettingsFields.length >
+														0 && (
+														<ResizableBox
+															size={{
+																width: docSettingsPanelWidth,
+																height: '100%',
+															}}
+															minWidth={240}
+															maxWidth={600}
+															enable={{
+																top: false,
+																right: true,
+																bottom: false,
+																left: false,
+															}}
+															onResizeStop={(
+																e,
+																d,
+																elt
+															) => {
+																const w =
+																	elt.offsetWidth;
+																setDocSettingsPanelWidth(
+																	w
+																);
+																try {
+																	window.localStorage.setItem(
+																		'wpgraphql_ide_settings_panel_width',
+																		String(
+																			w
+																		)
+																	);
+																} catch {
+																	// ignore
+																}
+															}}
+															className="wpgraphql-ide-doc-settings-inline"
+														>
+															<div className="wpgraphql-ide-panel-header">
+																<span className="wpgraphql-ide-panel-title">
+																	Document
+																	Settings
+																</span>
+																<div className="wpgraphql-ide-panel-header-spacer" />
+																<Button
+																	className="wpgraphql-ide-panel-close"
+																	onClick={() =>
+																		setLeftPanel(
+																			null
+																		)
+																	}
+																	aria-label="Close Document Settings panel"
+																	size="small"
+																>
+																	<Icon
+																		icon={
+																			close
+																		}
+																		size={
+																			20
+																		}
+																	/>
+																</Button>
+															</div>
+															<DocumentSettingsDrawer
+																fields={
+																	docSettingsFields
+																}
+																values={
+																	docSettingsValues
+																}
+																onChange={
+																	handleDocumentSettingChange
+																}
+																globalGrantMode={
+																	docSettingsGlobalGrant
+																}
+															/>
+														</ResizableBox>
+													)}
+												{
+													<GraphQLEditor
+														key={
+															activeDocument?.id ||
+															'empty'
+														}
+														className={
+															isPublished
+																? 'is-readonly'
+																: ''
+														}
+														value={query}
+														onChange={
+															handleQueryChange
+														}
+														schema={schema}
+														readOnly={isPublished}
+														extraKeys={
+															editorKeyBindings.current
+														}
+														onShowInDocs={
+															handleShowInDocs
+														}
+														onCursorChange={
+															setCursorOffset
+														}
+													/>
+												}
+												<div className="wpgraphql-ide-execution-pill">
+													<div
+														className="wpgraphql-ide-response-mode-toggle"
+														role="group"
+														aria-label="HTTP method"
+													>
+														{['GET', 'POST'].map(
+															(m) => (
+																<button
+																	key={m}
+																	type="button"
+																	aria-pressed={
+																		httpMethod ===
+																		m
+																	}
+																	className={`wpgraphql-ide-response-mode-btn${httpMethod === m ? ' is-active' : ''}`}
+																	onClick={() =>
+																		setHttpMethod(
+																			m
+																		)
+																	}
+																>
+																	{m}
+																</button>
+															)
+														)}
+													</div>
+													<Tooltip
+														text={
+															isAuthenticated
+																? 'Authenticated (click to switch)'
+																: 'Public (click to switch)'
+														}
+													>
+														<button
+															type="button"
+															onClick={
+																toggleAuthentication
+															}
+															className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+															aria-label={
+																isAuthenticated
+																	? 'Switch to public'
+																	: 'Switch to authenticated'
+															}
 														>
 															<span
 																className={
-																	authStyles.authBadge
+																	authStyles.authAvatar
 																}
-															/>
-														</span>
-													</button>
-												</Tooltip>
-												{(() => {
-													const PlayIcon = (
-														<svg
-															viewBox="0 0 24 24"
-															width="16"
-															height="16"
-															fill="currentColor"
-														>
-															<path d="M8 5v14l11-7z" />
-														</svg>
-													);
-													const StopIcon = (
-														<svg
-															viewBox="0 0 24 24"
-															width="16"
-															height="16"
-															fill="currentColor"
-														>
-															<rect
-																x="6"
-																y="6"
-																width="12"
-																height="12"
-																rx="1"
-															/>
-														</svg>
-													);
-													if (
-														!isFetching &&
-														operationNames.length >
-															1
-													) {
-														return (
-															<Dropdown
-																popoverProps={{
-																	placement:
-																		'top-end',
+																style={{
+																	backgroundImage: `url(${window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || ''})`,
 																}}
-																renderToggle={({
-																	isOpen,
-																	onToggle,
-																}) => (
-																	<Tooltip text="Execute (pick operation)">
-																		<Button
-																			variant="primary"
-																			onClick={
-																				onToggle
-																			}
-																			aria-expanded={
-																				isOpen
-																			}
-																			disabled={
-																				isSchemaLoading
-																			}
-																			className="wpgraphql-ide-send-button"
-																			size="compact"
-																			aria-label="Execute query"
-																		>
-																			{
-																				PlayIcon
-																			}
-																		</Button>
-																	</Tooltip>
-																)}
-																renderContent={({
-																	onClose:
-																		closeMenu,
-																}) => (
-																	<NavigableMenu>
-																		<MenuGroup label="Run operation">
-																			{operationNames.map(
-																				(
-																					name
-																				) => (
-																					<MenuItem
-																						key={
-																							name
-																						}
-																						onClick={() => {
-																							closeMenu();
-																							executeQuery(
-																								name
-																							);
-																						}}
-																					>
-																						{
-																							name
-																						}
-																					</MenuItem>
-																				)
-																			)}
-																		</MenuGroup>
-																	</NavigableMenu>
-																)}
-															/>
+															>
+																<span
+																	className={
+																		authStyles.authBadge
+																	}
+																/>
+															</span>
+														</button>
+													</Tooltip>
+													{(() => {
+														const PlayIcon = (
+															<svg
+																viewBox="0 0 24 24"
+																width="16"
+																height="16"
+																fill="currentColor"
+															>
+																<path d="M8 5v14l11-7z" />
+															</svg>
 														);
-													}
-													return (
-														<Tooltip
-															text={
-																isFetching
-																	? 'Stop (Cmd+Enter)'
-																	: 'Execute (Cmd+Enter)'
-															}
-														>
-															<Button
-																variant="primary"
-																onClick={() =>
-																	executeQuery()
-																}
-																disabled={
-																	isSchemaLoading
-																}
-																className="wpgraphql-ide-send-button"
-																size="compact"
-																aria-label={
+														const StopIcon = (
+															<svg
+																viewBox="0 0 24 24"
+																width="16"
+																height="16"
+																fill="currentColor"
+															>
+																<rect
+																	x="6"
+																	y="6"
+																	width="12"
+																	height="12"
+																	rx="1"
+																/>
+															</svg>
+														);
+														if (
+															!isFetching &&
+															operationNames.length >
+																1
+														) {
+															return (
+																<Dropdown
+																	popoverProps={{
+																		placement:
+																			'top-end',
+																	}}
+																	renderToggle={({
+																		isOpen,
+																		onToggle,
+																	}) => (
+																		<Tooltip text="Execute (pick operation)">
+																			<Button
+																				variant="primary"
+																				onClick={
+																					onToggle
+																				}
+																				aria-expanded={
+																					isOpen
+																				}
+																				disabled={
+																					isSchemaLoading
+																				}
+																				className="wpgraphql-ide-send-button"
+																				size="compact"
+																				aria-label="Execute query"
+																			>
+																				{
+																					PlayIcon
+																				}
+																			</Button>
+																		</Tooltip>
+																	)}
+																	renderContent={({
+																		onClose:
+																			closeMenu,
+																	}) => (
+																		<NavigableMenu>
+																			<MenuGroup label="Run operation">
+																				{operationNames.map(
+																					(
+																						name
+																					) => (
+																						<MenuItem
+																							key={
+																								name
+																							}
+																							onClick={() => {
+																								closeMenu();
+																								executeQuery(
+																									name
+																								);
+																							}}
+																						>
+																							{
+																								name
+																							}
+																						</MenuItem>
+																					)
+																				)}
+																			</MenuGroup>
+																		</NavigableMenu>
+																	)}
+																/>
+															);
+														}
+														return (
+															<Tooltip
+																text={
 																	isFetching
-																		? 'Stop execution'
-																		: 'Execute query'
+																		? 'Stop (Cmd+Enter)'
+																		: 'Execute (Cmd+Enter)'
 																}
 															>
-																{isFetching
-																	? StopIcon
-																	: PlayIcon}
-															</Button>
-														</Tooltip>
-													);
-												})()}
+																<Button
+																	variant="primary"
+																	onClick={() =>
+																		executeQuery()
+																	}
+																	disabled={
+																		isSchemaLoading
+																	}
+																	className="wpgraphql-ide-send-button"
+																	size="compact"
+																	aria-label={
+																		isFetching
+																			? 'Stop execution'
+																			: 'Execute query'
+																	}
+																>
+																	{isFetching
+																		? StopIcon
+																		: PlayIcon}
+																</Button>
+															</Tooltip>
+														);
+													})()}
+												</div>
 											</div>
 										</ResizableBox>
 										<TabPanel

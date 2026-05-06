@@ -1055,13 +1055,27 @@ input.wpgraphql-ide-tab-input:focus {
 	overflow-y: auto;
 }
 
-.wpgraphql-ide-editor-resizable.has-left-panel {
+/* Body row inside the resizable editor area — siblings of the
+   composer/settings panel and the GraphQL editor itself. The notice
+   sits *above* this row inside the same ResizableBox so the bottom
+   Variables/Headers strip stays anchored regardless of whether a notice
+   is showing. */
+.wpgraphql-ide-editor-resizable-body {
+	flex: 1;
+	min-height: 0;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	overflow: hidden;
 }
 
-.wpgraphql-ide-editor-resizable.has-left-panel > .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-resizable.has-left-panel
+	> .wpgraphql-ide-editor-resizable-body {
+	flex-direction: row;
+}
+
+.wpgraphql-ide-editor-resizable.has-left-panel
+	> .wpgraphql-ide-editor-resizable-body
+	> .wpgraphql-ide-editor {
 	flex: 1;
 	/* Keep the editor wider than the floating execution pill (GET/POST + auth + run). */
 	min-width: 280px;
@@ -1902,24 +1916,9 @@ input.wpgraphql-ide-tab-input:focus {
 	max-height: 100%;
 }
 
-/* On a published, read-only document the user can't grow Variables/Headers
-   content, so the resizable split would just leave a sparse JSON editor
-   floating in dead space. Pin the editor to flex:1 and let the bottom
-   strip size itself to content (capped) so it always sits flush at the
-   bottom of the query pane. */
-.wpgraphql-ide-editor-resizable.is-readonly-flex {
-	flex: 1;
-	max-height: 100%;
-}
-
-.wpgraphql-ide-query-pane:has(.is-readonly-flex)
-	> .wpgraphql-ide-editor-tools {
-	flex: 0 0 auto;
-	max-height: 200px;
-}
 
 /* Space between editor toolbar and CodeMirror content */
-.wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-resizable .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
 	overflow: hidden;
