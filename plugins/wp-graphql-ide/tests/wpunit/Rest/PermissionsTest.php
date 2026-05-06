@@ -43,13 +43,34 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 		parent::tearDown();
 	}
 
-	private function dispatch( string $method, string $path, array $body = [] ): \WP_REST_Response {
+	/**
+	 * Dispatch a REST request and return a `WP_REST_Response`.
+	 *
+	 * On WP 6.1 the server returns `WP_Error` directly when a
+	 * permission callback rejects the request; later versions
+	 * normalize that to a `WP_REST_Response` with the appropriate
+	 * status. `rest_ensure_response()` handles the conversion in both
+	 * directions, so tests can rely on a single shape regardless of
+	 * the WP version they're running against.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch( string $method, string $path, array $body = [] ) {
 		$request = new \WP_REST_Request( $method, $path );
 		if ( ! empty( $body ) ) {
 			$request->set_header( 'content-type', 'application/json' );
 			$request->set_body( wp_json_encode( $body ) );
 		}
-		return $this->rest_server->dispatch( $request );
+		$result = $this->rest_server->dispatch( $request );
+		if ( $result instanceof \WP_Error ) {
+			$status = $result->get_error_data();
+			$status = is_array( $status ) && isset( $status['status'] )
+				? (int) $status['status']
+				: 500;
+			$response = new \WP_REST_Response( $result, $status );
+			return $response;
+		}
+		return $result;
 	}
 
 	private function create_doc( int $author ): int {
