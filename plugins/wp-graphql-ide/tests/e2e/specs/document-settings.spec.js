@@ -85,9 +85,7 @@ test.describe('Document Settings (left-panel toggle)', () => {
 
 		await page.locator('.wpgraphql-ide-toolbar-doc-settings-btn').click();
 
-		await page
-			.getByLabel('Description')
-			.fill('Used by the homepage feed');
+		await page.getByLabel('Description').fill('Used by the homepage feed');
 
 		const aliasInput = page.getByLabel('Alias Names');
 		await aliasInput.fill('home-feed');
