@@ -266,6 +266,14 @@ export function IDELayout({ fetcher, onClose }) {
 	// Pending edits in the document-settings view. Reset to the active
 	// document's saved values whenever the active tab changes.
 	const [docSettingsValues, setDocSettingsValues] = useState({});
+	// Which document id the live `query`/`variables`/`headers` state
+	// currently mirrors. The sync useEffect lags one render behind a tab
+	// switch, so anything that compares live editor state with the active
+	// doc (notably the dirty check) must guard against the in-between
+	// frame where they don't match — otherwise a saved tab transiently
+	// appears dirty during the swap and flickers a dot + italic in/out,
+	// which reflows the tab strip.
+	const [editorSyncedDocId, setEditorSyncedDocId] = useState(null);
 	const docSettingsConfig =
 		(typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.documentSettings) ||
@@ -380,6 +388,7 @@ export function IDELayout({ fetcher, onClose }) {
 		createTab,
 		switchTab,
 		closeTab,
+		reorderTabs,
 	} = useDispatch('wpgraphql-ide/document-editor');
 
 	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
@@ -568,6 +577,7 @@ export function IDELayout({ fetcher, onClose }) {
 			setResponseHeaders(null);
 			setResponseDataScope('data');
 			setDocSettingsValues({});
+			setEditorSyncedDocId(null);
 			return;
 		}
 		setQuery(activeDocument.query || '');
@@ -580,6 +590,7 @@ export function IDELayout({ fetcher, onClose }) {
 				? { ...activeDocument.documentSettings }
 				: {}
 		);
+		setEditorSyncedDocId(activeDocument.id);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeDocument?.id]);
 
@@ -845,9 +856,20 @@ export function IDELayout({ fetcher, onClose }) {
 				return !!doc.dirty;
 			}
 			const isActive = String(doc.id) === String(activeDocument?.id);
-			const currentQuery = isActive ? query : doc.query || '';
-			const currentVars = isActive ? variables : doc.variables || '';
-			const currentHeaders = isActive ? headers : doc.headers || '';
+			// Trust the live editor state only when it's already been
+			// synced to this doc — otherwise we're on the in-between frame
+			// after a tab switch where `query`/etc still hold the previous
+			// tab's content. Falling back to `doc.*` keeps the dirty flag
+			// stable across the swap so the dot/italic don't flicker.
+			const liveStateMatches =
+				isActive && String(editorSyncedDocId) === String(doc.id);
+			const currentQuery = liveStateMatches ? query : doc.query || '';
+			const currentVars = liveStateMatches
+				? variables
+				: doc.variables || '';
+			const currentHeaders = liveStateMatches
+				? headers
+				: doc.headers || '';
 			if (String(doc.id).startsWith('temp-')) {
 				return (
 					currentQuery.trim() !== '' ||
@@ -862,7 +884,7 @@ export function IDELayout({ fetcher, onClose }) {
 			) {
 				return true;
 			}
-			if (isActive) {
+			if (liveStateMatches) {
 				const savedSettings =
 					(doc.documentSettings &&
 						typeof doc.documentSettings === 'object' &&
@@ -879,7 +901,14 @@ export function IDELayout({ fetcher, onClose }) {
 			}
 			return false;
 		},
-		[activeDocument?.id, query, variables, headers, docSettingsValues]
+		[
+			activeDocument?.id,
+			editorSyncedDocId,
+			query,
+			variables,
+			headers,
+			docSettingsValues,
+		]
 	);
 
 	const activeDocDirty = isDocDirty(activeDocument);
@@ -1498,6 +1527,7 @@ export function IDELayout({ fetcher, onClose }) {
 									onRename={(id, title) => {
 										saveDocument(id, { title });
 									}}
+									onReorder={(ids) => reorderTabs(ids)}
 								/>
 							</div>
 
