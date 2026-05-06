@@ -34,6 +34,7 @@ define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 // Modular feature includes — kept out of this main plugin file to avoid
 // further bloat. Each include hooks into WordPress on its own.
 require_once __DIR__ . '/includes/settings.php';
+require_once __DIR__ . '/includes/document-settings.php';
 
 /**
  * Check if WPGraphQL is available and handle the case where it is not.
@@ -156,7 +157,7 @@ function register_ide_post_type() {
 			'graphql_plural_name' => 'IdeQueries',
 			'capability_type'     => 'post',
 			'map_meta_cap'        => true,
-			'supports'            => [ 'title', 'editor', 'author', 'custom-fields', 'page-attributes' ],
+			'supports'            => [ 'title', 'editor', 'excerpt', 'author', 'custom-fields', 'page-attributes' ],
 		]
 	);
 
