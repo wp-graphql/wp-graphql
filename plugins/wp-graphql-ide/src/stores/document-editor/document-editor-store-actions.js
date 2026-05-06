@@ -240,6 +240,12 @@ const actions = {
 				if (Array.isArray(data.collections)) {
 					payload.collections = data.collections;
 				}
+				if (
+					data.documentSettings &&
+					typeof data.documentSettings === 'object'
+				) {
+					payload.documentSettings = data.documentSettings;
+				}
 
 				let saved;
 				if (isTempId(id)) {

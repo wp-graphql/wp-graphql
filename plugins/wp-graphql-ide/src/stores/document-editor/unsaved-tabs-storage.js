@@ -46,6 +46,10 @@ export function saveUnsavedTab(doc) {
 		query: doc.query || '',
 		variables: doc.variables || '',
 		headers: doc.headers || '',
+		documentSettings:
+			doc.documentSettings && typeof doc.documentSettings === 'object'
+				? doc.documentSettings
+				: {},
 	};
 	const idx = tabs.findIndex((t) => String(t.id) === slim.id);
 	if (idx >= 0) {

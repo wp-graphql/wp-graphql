@@ -888,13 +888,58 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: var(--wp-admin-theme-color-darker-10, #2145e6);
 }
 
-.wpgraphql-ide-editor-resizable.has-composer {
+/* Document Settings panel — shares the editor's left slot with the Query
+   Composer (mutually exclusive). Same structural treatment as the composer
+   wrapper, with its own scrollable form body. */
+.wpgraphql-ide-doc-settings-inline {
+	border-right: 1px solid #dcdcde;
+	overflow: hidden;
+	flex-shrink: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	font-size: 13px;
+	box-sizing: border-box;
+	color: #2c3338;
+	background: #fff;
+}
+
+.wpgraphql-ide-doc-settings-inline > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-doc-settings-inline > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-doc-settings-inline > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* The settings form scrolls vertically when content overflows the panel. */
+.wpgraphql-ide-doc-settings-inline > .wpgraphql-ide-doc-settings-panel {
+	flex: 1;
+	overflow-y: auto;
+}
+
+.wpgraphql-ide-editor-resizable.has-left-panel {
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
 }
 
-.wpgraphql-ide-editor-resizable.has-composer > .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-resizable.has-left-panel > .wpgraphql-ide-editor {
 	flex: 1;
 	/* Keep the editor wider than the floating execution pill (GET/POST + auth + run). */
 	min-width: 280px;
@@ -3841,4 +3886,146 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border-left: 3px solid #ddb900;
 	color: #614c00;
 	font-size: 12px;
+}
+
+/* Document Settings view — swaps in place of the GraphQL editor (and the
+   request-scoped Variables/Headers tabs) when the user toggles the
+   Query/Settings switch. Settings are persistent properties of the saved
+   document; Variables/Headers belong to the request, so they're hidden
+   while in this view. */
+
+/* Document Settings gear in the editor toolbar — sits next to the Query
+   Composer toggle and uses identical styling so the icon-button cluster
+   reads as one group (grey idle, dark filled when active). */
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button {
+	color: #646970;
+	border-radius: 4px;
+}
+
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button:hover {
+	color: #2c3338;
+	background: #f0f0f1;
+}
+
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button.is-active {
+	color: #fff;
+	background: #1e1e1e;
+}
+
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button.is-active:hover {
+	color: #fff;
+	background: #1e1e1e;
+}
+
+.wpgraphql-ide-editor-settings-view {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	background: #fff;
+}
+
+.wpgraphql-ide-doc-settings-panel {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: 16px 20px;
+	box-sizing: border-box;
+	gap: 16px;
+}
+
+.wpgraphql-ide-doc-settings-empty {
+	margin: 0;
+	color: #757575;
+	font-size: 13px;
+}
+
+.wpgraphql-ide-doc-setting {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wpgraphql-ide-doc-setting-label {
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.wpgraphql-ide-doc-setting-desc {
+	margin: 0;
+	font-size: 12px;
+	color: #757575;
+}
+
+.wpgraphql-ide-doc-setting input[type='text'],
+.wpgraphql-ide-doc-setting input[type='number'],
+.wpgraphql-ide-doc-setting textarea {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	font-size: 13px;
+	font-family: inherit;
+}
+
+.wpgraphql-ide-doc-setting-tag-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	padding: 4px;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	min-height: 32px;
+	background: #fff;
+}
+
+.wpgraphql-ide-doc-setting-tag-list.is-disabled {
+	background: #f6f7f7;
+}
+
+.wpgraphql-ide-doc-setting-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 6px;
+	background: #e5f1f8;
+	border-radius: 2px;
+	font-size: 12px;
+}
+
+.wpgraphql-ide-doc-setting-tag-remove {
+	background: none;
+	border: none;
+	color: #555;
+	cursor: pointer;
+	padding: 0 2px;
+	font-size: 14px;
+	line-height: 1;
+}
+
+.wpgraphql-ide-doc-setting-tag-remove:hover {
+	color: #d63638;
+}
+
+.wpgraphql-ide-doc-setting-tag-input {
+	flex: 1;
+	min-width: 80px;
+	padding: 2px 4px;
+	border: none;
+	background: transparent;
+	font-size: 13px;
+	outline: none;
+}
+
+.wpgraphql-ide-doc-setting-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.wpgraphql-ide-doc-setting-radio-option {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	cursor: pointer;
 }

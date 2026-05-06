@@ -10,7 +10,7 @@ const COLLECTIONS_ENDPOINT = '/wp/v2/graphql-ide-collections';
  */
 export async function getDocuments() {
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&orderby=menu_order&order=asc&_fields=id,title,content,status,meta,menu_order,modified,graphql-ide-collections`,
+		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&orderby=menu_order&order=asc&_fields=id,title,content,status,meta,menu_order,modified,graphql-ide-collections,documentSettings`,
 	});
 
 	return posts.map(normalizeDocument);
@@ -39,6 +39,9 @@ export async function createDocument(doc) {
 	};
 	if (doc.collections) {
 		data['graphql-ide-collections'] = doc.collections;
+	}
+	if (doc.documentSettings && typeof doc.documentSettings === 'object') {
+		data.documentSettings = doc.documentSettings;
 	}
 
 	const post = await apiFetch({
@@ -80,6 +83,9 @@ export async function updateDocument(id, doc) {
 	}
 	if (doc.collections !== undefined) {
 		data['graphql-ide-collections'] = doc.collections;
+	}
+	if (doc.documentSettings && typeof doc.documentSettings === 'object') {
+		data.documentSettings = doc.documentSettings;
 	}
 
 	const post = await apiFetch({
@@ -137,6 +143,10 @@ function normalizeDocument(post) {
 		headers: post.meta?._graphql_ide_headers ?? '',
 		status: post.status ?? 'draft',
 		collections: post['graphql-ide-collections'] ?? [],
+		documentSettings:
+			post.documentSettings && typeof post.documentSettings === 'object'
+				? post.documentSettings
+				: {},
 		modified: post.modified ?? null,
 	};
 }

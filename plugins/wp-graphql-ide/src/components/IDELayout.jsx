@@ -31,6 +31,7 @@ import {
 	close,
 	search,
 	sidebar,
+	cog,
 } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
@@ -46,6 +47,7 @@ import { DocumentTabs } from './DocumentTabs';
 import { DocumentNotices } from './DocumentNotices';
 import ActivityPanel from './ActivityPanel';
 import { useDialog } from './dialogs/DialogProvider';
+import { DocumentSettingsDrawer } from './document-settings/DocumentSettingsDrawer';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
@@ -261,6 +263,16 @@ export function IDELayout({ fetcher, onClose }) {
 	// (existing doc → new title/collections). Mode controls the
 	// dialog's labels and which onSave path runs.
 	const [saveDialogMode, setSaveDialogMode] = useState('save');
+	// Pending edits in the document-settings view. Reset to the active
+	// document's saved values whenever the active tab changes.
+	const [docSettingsValues, setDocSettingsValues] = useState({});
+	const docSettingsConfig =
+		(typeof window !== 'undefined' &&
+			window.WPGRAPHQL_IDE_DATA?.documentSettings) ||
+		{};
+	const docSettingsFields = docSettingsConfig.fields || [];
+	const docSettingsGlobalGrant =
+		docSettingsConfig.globalGrantMode || 'public';
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
 		[]
@@ -555,12 +567,19 @@ export function IDELayout({ fetcher, onClose }) {
 			setResponse('');
 			setResponseHeaders(null);
 			setResponseDataScope('data');
+			setDocSettingsValues({});
 			return;
 		}
 		setQuery(activeDocument.query || '');
 		setVariables(activeDocument.variables || '');
 		setHeaders(activeDocument.headers || '');
 		setResponse(activeDocument.lastResponse || '');
+		setDocSettingsValues(
+			activeDocument.documentSettings &&
+				typeof activeDocument.documentSettings === 'object'
+				? { ...activeDocument.documentSettings }
+				: {}
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeDocument?.id]);
 
@@ -627,6 +646,17 @@ export function IDELayout({ fetcher, onClose }) {
 		[setHeaders, scheduleAutoSave]
 	);
 
+	const handleDocumentSettingChange = useCallback(
+		(name, value) => {
+			setDocSettingsValues((prev) => {
+				const next = { ...prev, [name]: value };
+				scheduleAutoSave('documentSettings', next);
+				return next;
+			});
+		},
+		[scheduleAutoSave]
+	);
+
 	// Explicit save — Cmd+S / Save button. For a brand-new draft (temp
 	// id), open the SaveDialog so the user can name it and pick a
 	// collection in one step. Subsequent saves write straight through.
@@ -644,12 +674,25 @@ export function IDELayout({ fetcher, onClose }) {
 				query,
 				variables,
 				headers,
+				documentSettings: docSettingsValues,
 			});
 			addNotice('Document saved');
-		} catch {
-			addNotice('Failed to save document', 'error');
+		} catch (error) {
+			const message =
+				error?.message && typeof error.message === 'string'
+					? `Failed to save document: ${error.message}`
+					: 'Failed to save document';
+			addNotice(message, 'error');
 		}
-	}, [activeDocument, query, variables, headers, saveTab, addNotice]);
+	}, [
+		activeDocument,
+		query,
+		variables,
+		headers,
+		docSettingsValues,
+		saveTab,
+		addNotice,
+	]);
 
 	// Publish the current document (draft → published with hash).
 	const publishCurrentDoc = useCallback(async () => {
@@ -684,6 +727,7 @@ export function IDELayout({ fetcher, onClose }) {
 				query,
 				variables,
 				headers,
+				documentSettings: docSettingsValues,
 			});
 			const result = await publishTab(activeDocument.id);
 			if (result?.already_exists && result?.id) {
@@ -716,14 +760,19 @@ export function IDELayout({ fetcher, onClose }) {
 			} else {
 				addNotice('Document published');
 			}
-		} catch {
-			addNotice('Failed to publish document', 'error');
+		} catch (error) {
+			const message =
+				error?.message && typeof error.message === 'string'
+					? `Failed to publish document: ${error.message}`
+					: 'Failed to publish document';
+			addNotice(message, 'error');
 		}
 	}, [
 		activeDocument,
 		query,
 		variables,
 		headers,
+		docSettingsValues,
 		schema,
 		saveTab,
 		publishTab,
@@ -836,13 +885,31 @@ export function IDELayout({ fetcher, onClose }) {
 					currentHeaders.trim() !== ''
 				);
 			}
-			return (
+			if (
 				currentQuery !== (doc.lastSavedQuery || '') ||
 				currentVars !== (doc.lastSavedVariables || '') ||
 				currentHeaders !== (doc.lastSavedHeaders || '')
-			);
+			) {
+				return true;
+			}
+			if (isActive) {
+				const savedSettings =
+					(doc.documentSettings &&
+						typeof doc.documentSettings === 'object' &&
+						doc.documentSettings) ||
+					{};
+				try {
+					return (
+						JSON.stringify(docSettingsValues) !==
+						JSON.stringify(savedSettings)
+					);
+				} catch {
+					return false;
+				}
+			}
+			return false;
 		},
-		[activeDocument?.id, query, variables, headers]
+		[activeDocument?.id, query, variables, headers, docSettingsValues]
 	);
 
 	const activeDocDirty = isDocDirty(activeDocument);
@@ -1069,17 +1136,57 @@ export function IDELayout({ fetcher, onClose }) {
 	const queryComposerPanel = panels.find((p) => p.name === 'query-composer');
 	const ComposerContent = queryComposerPanel?.content || null;
 
-	const [showQueryComposer, setShowQueryComposer] = useState(() => {
+	// Single slot to the left of the GraphQL editor that hosts either the
+	// Query Composer or the Document Settings panel. Mutually exclusive —
+	// only one (or none) is open at a time. Persists the user's last
+	// choice, falling back to the legacy composer flag for users coming
+	// from older versions.
+	const [leftPanel, setLeftPanelState] = useState(() => {
 		try {
-			return (
+			const stored = window.localStorage.getItem(
+				'wpgraphql_ide_left_panel'
+			);
+			if (stored === 'composer' || stored === 'settings') {
+				return stored;
+			}
+			// Legacy compatibility: a `true` value from the older composer
+			// flag becomes a Composer-open default.
+			if (
 				window.localStorage.getItem(
 					'wpgraphql_ide_show_query_composer'
 				) === 'true'
-			);
+			) {
+				return 'composer';
+			}
 		} catch {
-			return false;
+			// ignore
 		}
+		return null;
 	});
+
+	const setLeftPanel = useCallback((next) => {
+		setLeftPanelState(next);
+		try {
+			if (next === null) {
+				window.localStorage.removeItem('wpgraphql_ide_left_panel');
+			} else {
+				window.localStorage.setItem('wpgraphql_ide_left_panel', next);
+			}
+		} catch {
+			// ignore
+		}
+	}, []);
+
+	const showQueryComposer = leftPanel === 'composer';
+	const showDocSettingsPanel = leftPanel === 'settings';
+
+	const toggleQueryComposer = useCallback(() => {
+		setLeftPanel(leftPanel === 'composer' ? null : 'composer');
+	}, [leftPanel, setLeftPanel]);
+
+	const toggleDocSettingsPanel = useCallback(() => {
+		setLeftPanel(leftPanel === 'settings' ? null : 'settings');
+	}, [leftPanel, setLeftPanel]);
 
 	const [composerWidth, setComposerWidth] = useState(() => {
 		try {
@@ -1093,20 +1200,19 @@ export function IDELayout({ fetcher, onClose }) {
 		}
 	});
 
-	const toggleQueryComposer = () => {
-		setShowQueryComposer((prev) => {
-			const next = !prev;
-			try {
-				window.localStorage.setItem(
-					'wpgraphql_ide_show_query_composer',
-					String(next)
-				);
-			} catch {
-				// ignore
-			}
-			return next;
-		});
-	};
+	const [docSettingsPanelWidth, setDocSettingsPanelWidth] = useState(() => {
+		try {
+			const w = parseInt(
+				window.localStorage.getItem(
+					'wpgraphql_ide_settings_panel_width'
+				),
+				10
+			);
+			return w > 0 ? w : 360;
+		} catch {
+			return 360;
+		}
+	});
 
 	// Remember the last open panel so the sidebar toggle can restore it.
 	const lastPanelRef = useRef(null);
@@ -1455,6 +1561,9 @@ export function IDELayout({ fetcher, onClose }) {
 																	? 'Hide Query Composer'
 																	: 'Show Query Composer'
 															}
+															aria-pressed={
+																showQueryComposer
+															}
 															size="compact"
 															className={`wpgraphql-ide-toolbar-composer-btn${showQueryComposer ? ' is-active' : ''}`}
 														>
@@ -1464,6 +1573,33 @@ export function IDELayout({ fetcher, onClose }) {
 														</Button>
 													</Tooltip>
 												)}
+											{docSettingsFields.length > 0 && (
+												<Tooltip
+													text={
+														showDocSettingsPanel
+															? 'Hide Document Settings'
+															: 'Show Document Settings'
+													}
+												>
+													<Button
+														onClick={
+															toggleDocSettingsPanel
+														}
+														aria-label={
+															showDocSettingsPanel
+																? 'Hide Document Settings'
+																: 'Show Document Settings'
+														}
+														aria-pressed={
+															showDocSettingsPanel
+														}
+														size="compact"
+														className={`wpgraphql-ide-toolbar-doc-settings-btn${showDocSettingsPanel ? ' is-active' : ''}`}
+													>
+														<Icon icon={cog} />
+													</Button>
+												</Tooltip>
+											)}
 											<span className="wpgraphql-ide-editor-label">
 												Query
 											</span>
@@ -1600,7 +1736,7 @@ export function IDELayout({ fetcher, onClose }) {
 													String(h)
 												);
 											}}
-											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${showQueryComposer && ComposerContent && !isPublished ? ' has-composer' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}${isPublished && editorBottomTabs.length > 0 ? ' is-readonly-flex' : ''}`}
+											className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${(showQueryComposer && ComposerContent && !isPublished) || showDocSettingsPanel ? ' has-left-panel' : ''}${editorBottomTabs.length === 0 ? ' is-fullheight' : ''}${isPublished && editorBottomTabs.length > 0 ? ' is-readonly-flex' : ''}`}
 										>
 											{ComposerContent &&
 												showQueryComposer &&
@@ -1640,26 +1776,89 @@ export function IDELayout({ fetcher, onClose }) {
 														<ComposerContent />
 													</ResizableBox>
 												)}
-											<GraphQLEditor
-												key={
-													activeDocument?.id ||
-													'empty'
-												}
-												className={
-													isPublished
-														? 'is-readonly'
-														: ''
-												}
-												value={query}
-												onChange={handleQueryChange}
-												schema={schema}
-												readOnly={isPublished}
-												extraKeys={
-													editorKeyBindings.current
-												}
-												onShowInDocs={handleShowInDocs}
-												onCursorChange={setCursorOffset}
-											/>
+											{showDocSettingsPanel &&
+												docSettingsFields.length >
+													0 && (
+													<ResizableBox
+														size={{
+															width: docSettingsPanelWidth,
+															height: '100%',
+														}}
+														minWidth={240}
+														maxWidth={600}
+														enable={{
+															top: false,
+															right: true,
+															bottom: false,
+															left: false,
+														}}
+														onResizeStop={(
+															e,
+															d,
+															elt
+														) => {
+															const w =
+																elt.offsetWidth;
+															setDocSettingsPanelWidth(
+																w
+															);
+															try {
+																window.localStorage.setItem(
+																	'wpgraphql_ide_settings_panel_width',
+																	String(w)
+																);
+															} catch {
+																// ignore
+															}
+														}}
+														className="wpgraphql-ide-doc-settings-inline"
+													>
+														<DocumentSettingsDrawer
+															fields={
+																docSettingsFields
+															}
+															values={
+																docSettingsValues
+															}
+															onChange={
+																handleDocumentSettingChange
+															}
+															docId={
+																activeDocument?.id ??
+																null
+															}
+															globalGrantMode={
+																docSettingsGlobalGrant
+															}
+														/>
+													</ResizableBox>
+												)}
+											{
+												<GraphQLEditor
+													key={
+														activeDocument?.id ||
+														'empty'
+													}
+													className={
+														isPublished
+															? 'is-readonly'
+															: ''
+													}
+													value={query}
+													onChange={handleQueryChange}
+													schema={schema}
+													readOnly={isPublished}
+													extraKeys={
+														editorKeyBindings.current
+													}
+													onShowInDocs={
+														handleShowInDocs
+													}
+													onCursorChange={
+														setCursorOffset
+													}
+												/>
+											}
 											<div className="wpgraphql-ide-execution-pill">
 												<div
 													className="wpgraphql-ide-response-mode-toggle"
@@ -2110,6 +2309,7 @@ export function IDELayout({ fetcher, onClose }) {
 									collections: Array.isArray(collectionIds)
 										? collectionIds
 										: [],
+									documentSettings: docSettingsValues,
 								});
 						const docId = saved?.id || activeDocument.id;
 						const desired = new Set(
