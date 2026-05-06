@@ -551,6 +551,23 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 }
 
+/* The kebab is a DropdownMenu; @wordpress/components wraps its toggle
+   in a `<div class="components-dropdown">`. That wrapper — not the
+   toggle button — is the flex child of `.wpgraphql-ide-tab-bar`.
+   Without this rule the inner button's `align-self: stretch` is
+   fighting against the wrapper's natural (content-sized) height
+   instead of the row's height, so the kebab dots float at the top
+   of an undersized box while the sibling `+` (a plain Button, no
+   wrapper) stretches correctly. Stretching the wrapper and making
+   it a flex container lets the inner button fill the row. Scoped
+   to direct children of `.wpgraphql-ide-tab-bar` so the overflow
+   `+N` dropdown isn't caught (it has its own fixed-height
+   treatment). */
+.wpgraphql-ide-tab-bar > .components-dropdown:has(> .wpgraphql-ide-tab-kebab) {
+	display: flex;
+	align-self: stretch;
+}
+
 /* Global tabs kebab — sits to the right of the + button. Anchors close
    actions on the active tab so we don't need a per-tab context menu.
    Mirrors the `+` button's geometry exactly so the two trailing
