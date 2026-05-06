@@ -91,7 +91,14 @@ export async function visitDedicatedIde(page) {
 export async function ensureDocumentOpen(page) {
 	const empty = page.locator('.wpgraphql-ide-workspace-empty');
 	if (await empty.isVisible().catch(() => false)) {
-		await empty.getByRole('button', { name: 'New Document' }).click();
+		// Bypass Playwright's actionability layer with a JS-side click.
+		// `locator.click()` re-checks the element is "stable" mid-action
+		// and retries on detach — which races the new DOM since the
+		// click itself causes the detach. `evaluate(el.click())` fires
+		// once and returns; we then wait for the new DOM state.
+		await empty
+			.getByRole('button', { name: 'New Document' })
+			.evaluate((el) => el.click());
 	}
 	await page.waitForSelector(SELECTORS.tabRow, {
 		state: 'visible',
