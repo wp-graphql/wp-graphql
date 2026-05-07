@@ -125,3 +125,36 @@ Singlar.query = gql`
   }
   ${NavMenuFragment}
 `
+
+Singlar.queries = {
+  post: {
+    query: gql`
+      query Singular_Post($uri: ID!) {
+        post(id: $uri, idType: URI) {
+          id
+          title
+          uri
+          date
+          content
+          author {
+            node {
+              name
+              uri
+              avatar {
+                url
+              }
+            }
+          }
+          categories {
+            nodes {
+              id
+              name
+              uri
+            }
+          }
+        }
+      }
+    `,
+    variables: ({ uri }) => ({ uri }),
+  },
+}
