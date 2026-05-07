@@ -87,9 +87,9 @@ describe("getTemplateStaticProps", () => {
 
     assert.equal(result.props.template, "archive-post")
     assert.equal(result.props.uri, "/blog/")
-    // single-field queries auto-unwrap the operation root
+    // each query's `data` fields are spread into the flat data prop
     assert.equal(result.props.data.posts.nodes[0].title, "Hello")
-    assert.equal(result.props.layoutData.navMenu.menuItems.nodes[0].label, "Home")
+    assert.equal(result.props.layoutData.menu.menuItems.nodes[0].label, "Home")
     assert.equal(result.revalidate, 5)
     // 1 seed + 1 template + 1 layout = 3 calls
     assert.equal(calls.length, 3)
@@ -133,7 +133,7 @@ describe("getTemplateStaticProps", () => {
     const result = await getTemplateStaticProps({ params: {} })
     assert.equal(result.props.template, "front-page")
     assert.equal(result.props.uri, "/")
-    // hello query has only the 'hello' field — auto-unwrap returns the scalar
+    // top-level GraphQL fields are spread directly into props.data
     assert.equal(result.props.data.hello, "world")
   })
 
@@ -161,7 +161,6 @@ describe("getTemplateStaticProps", () => {
   })
 
   it("propagates skip predicates on template queries", async () => {
-    let templateCallCount = 0
     const responses = [
       {
         data: {
@@ -175,11 +174,9 @@ describe("getTemplateStaticProps", () => {
           generalSettings: null,
         },
       },
+      { data: { b: "value-from-b" } },
     ]
-    const { fn, calls } = makeFetchSpy(({ callIndex }) => {
-      if (callIndex >= 1) templateCallCount++
-      return responses[callIndex] ?? { data: {} }
-    })
+    const { fn, calls } = makeFetchSpy(({ callIndex }) => responses[callIndex])
     setFetch(fn)
 
     const ArchivePost = () => null
@@ -194,9 +191,11 @@ describe("getTemplateStaticProps", () => {
 
     const result = await getTemplateStaticProps({ params: { wordpressNode: ["blog"] } })
 
+    // 'a' was skipped — its top-level fields aren't in data
     assert.equal("a" in result.props.data, false)
-    assert.equal("b" in result.props.data, true)
-    // 1 seed + 1 template (skipped) = 2 calls
+    // 'b' ran — its top-level field is in data
+    assert.equal(result.props.data.b, "value-from-b")
+    // 1 seed + 1 template (only b) = 2 calls
     assert.equal(calls.length, 2)
   })
 })

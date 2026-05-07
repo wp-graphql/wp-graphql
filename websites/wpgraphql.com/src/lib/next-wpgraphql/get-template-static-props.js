@@ -12,15 +12,10 @@ function uriFromCtx(ctx) {
   return "/" + segments.join("/") + "/"
 }
 
-function unwrapData(result) {
-  const data =
-    result && Object.prototype.hasOwnProperty.call(result, "data")
-      ? result.data
-      : result
-  if (!data || typeof data !== "object") return data ?? null
-  const keys = Object.keys(data)
-  if (keys.length === 1) return data[keys[0]]
-  return data
+function dataFrom(result) {
+  return result && Object.prototype.hasOwnProperty.call(result, "data")
+    ? (result.data ?? null)
+    : (result ?? null)
 }
 
 async function runQueries(entries, reqCtx) {
@@ -30,9 +25,10 @@ async function runQueries(entries, reqCtx) {
   )
   const results = await Promise.all(promises)
   const out = {}
-  filtered.forEach(([key], i) => {
-    out[key] = unwrapData(results[i])
-  })
+  for (const result of results) {
+    const data = dataFrom(result)
+    if (data && typeof data === "object") Object.assign(out, data)
+  }
   return out
 }
 

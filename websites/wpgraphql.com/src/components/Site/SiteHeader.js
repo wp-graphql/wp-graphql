@@ -53,10 +53,10 @@ export default function SiteHeader() {
       }
       ${NavMenuFragment}
     `,
-    { skip: Boolean(layoutData?.navMenu) }
+    { skip: Boolean(layoutData?.menu) }
   )
 
-  const menu = layoutData?.navMenu ?? clientData?.menu
+  const menu = layoutData?.menu ?? clientData?.menu
   const menuItems = flatListToHierarchical(menu?.menuItems?.nodes, {
     idKey: "id",
     parentKey: "parentId",
