@@ -13,10 +13,14 @@ function uriFromCtx(ctx) {
 }
 
 function unwrapData(result) {
-  if (result && Object.prototype.hasOwnProperty.call(result, "data")) {
-    return result.data ?? null
-  }
-  return result ?? null
+  const data =
+    result && Object.prototype.hasOwnProperty.call(result, "data")
+      ? result.data
+      : result
+  if (!data || typeof data !== "object") return data ?? null
+  const keys = Object.keys(data)
+  if (keys.length === 1) return data[keys[0]]
+  return data
 }
 
 async function runQueries(entries, reqCtx) {

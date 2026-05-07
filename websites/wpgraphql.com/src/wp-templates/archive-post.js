@@ -3,7 +3,7 @@ import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
 import PostPreview, { PostPreviewFragment } from "components/Preview/PostPreview"
 
 export default function ArchivePost({ data }) {
-  const posts = data?.posts?.nodes ?? data?.posts?.posts?.nodes
+  const posts = data?.posts?.nodes
 
   return (
     <SiteLayout>

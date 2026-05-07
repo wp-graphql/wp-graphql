@@ -87,8 +87,9 @@ describe("getTemplateStaticProps", () => {
 
     assert.equal(result.props.template, "archive-post")
     assert.equal(result.props.uri, "/blog/")
-    assert.equal(result.props.data.posts.posts.nodes[0].title, "Hello")
-    assert.equal(result.props.layoutData.navMenu.menu.menuItems.nodes[0].label, "Home")
+    // single-field queries auto-unwrap the operation root
+    assert.equal(result.props.data.posts.nodes[0].title, "Hello")
+    assert.equal(result.props.layoutData.navMenu.menuItems.nodes[0].label, "Home")
     assert.equal(result.revalidate, 5)
     // 1 seed + 1 template + 1 layout = 3 calls
     assert.equal(calls.length, 3)
@@ -132,7 +133,8 @@ describe("getTemplateStaticProps", () => {
     const result = await getTemplateStaticProps({ params: {} })
     assert.equal(result.props.template, "front-page")
     assert.equal(result.props.uri, "/")
-    assert.equal(result.props.data.hello.hello, "world")
+    // hello query has only the 'hello' field — auto-unwrap returns the scalar
+    assert.equal(result.props.data.hello, "world")
   })
 
   it("respects the revalidate option", async () => {
