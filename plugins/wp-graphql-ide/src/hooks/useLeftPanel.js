@@ -45,6 +45,22 @@ function readPersistedWidth(key, fallback) {
 	}
 }
 
+function usePersistedWidth(key, fallback) {
+	const [width, setWidth] = useState(() => readPersistedWidth(key, fallback));
+	const setPersistedWidth = useCallback(
+		(next) => {
+			setWidth(next);
+			try {
+				window.localStorage.setItem(key, String(next));
+			} catch {
+				// ignore
+			}
+		},
+		[key]
+	);
+	return [width, setPersistedWidth];
+}
+
 /**
  * Single-slot left panel state that mutually hosts the Query Composer
  * or the Document Settings panel. Persists the choice + each panel's
@@ -87,11 +103,13 @@ export function useLeftPanel() {
 		setLeftPanel(leftPanel === 'settings' ? null : 'settings');
 	}, [leftPanel, setLeftPanel]);
 
-	const [composerWidth, setComposerWidth] = useState(() =>
-		readPersistedWidth('wpgraphql_ide_composer_width', 280)
+	const [composerWidth, setComposerWidth] = usePersistedWidth(
+		'wpgraphql_ide_composer_width',
+		280
 	);
-	const [docSettingsPanelWidth, setDocSettingsPanelWidth] = useState(() =>
-		readPersistedWidth('wpgraphql_ide_settings_panel_width', 360)
+	const [docSettingsPanelWidth, setDocSettingsPanelWidth] = usePersistedWidth(
+		'wpgraphql_ide_settings_panel_width',
+		360
 	);
 
 	return {
