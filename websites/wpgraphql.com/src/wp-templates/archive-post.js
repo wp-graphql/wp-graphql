@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import SiteLayout from "components/Site/SiteLayout"
 import PostPreview, { PostPreviewFragment } from "components/Preview/PostPreview"
 

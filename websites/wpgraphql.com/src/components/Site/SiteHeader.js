@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect } from "react"
 import Link from "next/link"
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import classNames from "clsx"
 
 import { Popover, Transition } from "@headlessui/react"

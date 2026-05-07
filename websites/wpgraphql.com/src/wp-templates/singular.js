@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 
 import SiteLayout from "components/Site/SiteLayout"
 

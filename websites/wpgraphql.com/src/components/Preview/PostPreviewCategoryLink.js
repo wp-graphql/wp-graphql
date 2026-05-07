@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import Link from "next/link"
 
 export const PostPreviewCategoryLinkFragment = gql`

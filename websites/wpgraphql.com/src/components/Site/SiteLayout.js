@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import Header, { NavMenuFragment } from "./SiteHeader"
 import Footer from "./SiteFooter"
 
