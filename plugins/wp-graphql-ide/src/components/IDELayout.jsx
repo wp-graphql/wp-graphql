@@ -6,6 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
+import { collectVariables } from 'graphql-language-service';
 import {
 	Button,
 	Dropdown,
@@ -996,6 +997,24 @@ export function IDELayout({ fetcher, onClose }) {
 			)
 			.map((d) => d.name.value);
 	}, [parsedQuery]);
+
+	// Map of declared variable name → GraphQLInputType, derived from the
+	// parsed operation. The Variables JSON editor uses this to lint the
+	// JSON document against the operation's expected types so users get
+	// inline feedback when a value's shape (number vs string, missing
+	// required input field, etc.) doesn't match. Null when the schema
+	// hasn't loaded or the document doesn't parse — the JSON editor's
+	// linter falls back to syntax-only checking in that case.
+	const variableToType = useMemo(() => {
+		if (!schema || !parsedQuery.ast) {
+			return null;
+		}
+		try {
+			return collectVariables(schema, parsedQuery.ast);
+		} catch {
+			return null;
+		}
+	}, [schema, parsedQuery]);
 
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
@@ -2066,6 +2085,9 @@ export function IDELayout({ fetcher, onClose }) {
 															handleVariablesChange
 														}
 														placeholder="Variables (JSON)"
+														variableToType={
+															variableToType
+														}
 													/>
 												) : (
 													<JSONEditor
