@@ -37,205 +37,28 @@ import {
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
-import { ResponseViewer } from './editors/ResponseViewer';
-import { ErrorsPanel } from './ErrorsPanel';
 import { ShareDialog } from './dialogs/ShareDialog';
 import { SaveDialog } from './dialogs/SaveDialog';
-import { HeadersPanel } from './HeadersPanel';
-import { ResponseTableView } from './ResponseTableView';
 import { EditorToolbar } from './EditorToolbar';
 import { DocumentTabs } from './DocumentTabs';
 import { DocumentNotices } from './DocumentNotices';
 import ActivityPanel from './ActivityPanel';
 import { useDialog } from './dialogs/DialogProvider';
 import { DocumentSettingsDrawer } from './document-settings/DocumentSettingsDrawer';
+import { ResponseContent } from './ide-layout/ResponseContent';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
-import hooks from '../wordpress-hooks';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import { useNotices } from '../hooks/useNotices';
+import { useLeftPanel } from '../hooks/useLeftPanel';
+import { usePanelOrder } from '../hooks/usePanelOrder';
 import { getWorkspacePersistence } from './workspace-persistence';
 import {
 	displayDocTitle,
 	deriveStableDocTitle,
 	isAutoTitle,
 } from '../utils/derive-doc-title';
-
-// eslint-disable-next-line jsdoc/require-param
-function ResponseContent({
-	response,
-	responseViewMode,
-	responseDataScope,
-	responseHeaders,
-	extensionTabs,
-	responseViewerHeight,
-	onResponseViewerResize,
-}) {
-	const parsed = React.useMemo(() => {
-		if (!response) {
-			return null;
-		}
-		try {
-			return JSON.parse(response);
-		} catch {
-			return null;
-		}
-	}, [response]);
-
-	const errors = parsed?.errors || [];
-	const extensions = parsed?.extensions || {};
-
-	const activeExtTabs = extensionTabs.filter(
-		(tab) => extensions[tab.name] !== undefined
-	);
-
-	const headersCount =
-		responseHeaders && typeof responseHeaders === 'object'
-			? Object.keys(responseHeaders).length
-			: 0;
-
-	const bottomTabs = [
-		{ name: 'headers', title: `Headers (${headersCount})` },
-		{ name: 'errors', title: `Errors (${errors.length})` },
-		{
-			name: 'extensions',
-			title: `Extensions (${activeExtTabs.length})`,
-		},
-	];
-
-	// Determine what to show in the viewer based on scope.
-	const viewerContent = React.useMemo(() => {
-		if (!response) {
-			return '';
-		}
-		if (responseDataScope === 'data') {
-			if (parsed?.data !== undefined && parsed?.data !== null) {
-				return JSON.stringify(parsed.data, null, 2);
-			}
-			return '// No data in response';
-		}
-		return response;
-	}, [response, responseDataScope, parsed]);
-
-	// Render the viewer based on view mode.
-	const renderViewer = () => {
-		if (!response) {
-			return <div className="wpgraphql-ide-response-empty" />;
-		}
-		if (responseViewMode === 'table') {
-			return (
-				<ResponseTableView
-					response={
-						responseDataScope === 'data' ? parsed?.data : parsed
-					}
-				/>
-			);
-		}
-		return <ResponseViewer value={viewerContent} />;
-	};
-
-	// With no response, the panel is intentionally bare — no
-	// Headers/Errors/Extensions tabs, no resizer, just an empty surface
-	// that fills the full panel height.
-	if (!response) {
-		return (
-			<div className="wpgraphql-ide-response-body wpgraphql-ide-response-body--empty">
-				<div className="wpgraphql-ide-response-empty">
-					<div className="wpgraphql-ide-response-empty-hint">
-						<span
-							className="wpgraphql-ide-response-empty-glyph"
-							aria-hidden="true"
-						>
-							<svg
-								width="20"
-								height="20"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M6 4.5v11l9-5.5-9-5.5z"
-									fill="currentColor"
-								/>
-							</svg>
-						</span>
-						<span className="wpgraphql-ide-response-empty-text">
-							Run the query to see the response
-						</span>
-					</div>
-				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div className="wpgraphql-ide-response-body">
-			{/* Top: response viewer — resizable, matching query editor split */}
-			<ResizableBox
-				size={{ width: '100%', height: responseViewerHeight }}
-				minHeight={50}
-				enable={{ bottom: true }}
-				onResizeStop={(e, d, elt) => {
-					onResponseViewerResize(elt.offsetHeight);
-				}}
-				className="wpgraphql-ide-response-viewer wpgraphql-ide-resizable-split"
-			>
-				{renderViewer()}
-			</ResizableBox>
-			<TabPanel
-				key={errors.length > 0 ? 'has-errors' : 'no-errors'}
-				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
-				tabs={bottomTabs}
-				initialTabName={errors.length > 0 ? 'errors' : 'headers'}
-			>
-				{(tab) => {
-					if (tab.name === 'headers') {
-						return <HeadersPanel headers={responseHeaders} />;
-					}
-					if (tab.name === 'errors') {
-						return <ErrorsPanel errors={errors} />;
-					}
-					if (tab.name === 'extensions') {
-						if (activeExtTabs.length === 0) {
-							const hasUnregistered =
-								Object.keys(extensions).length > 0;
-							return (
-								<p className="wpgraphql-ide-extensions-empty">
-									{hasUnregistered
-										? 'The response contains extension data, but no extension has registered a tab to display it.'
-										: 'No extensions in the last response.'}
-								</p>
-							);
-						}
-						return (
-							<TabPanel
-								className="wpgraphql-ide-extension-tabs"
-								key={activeExtTabs.map((t) => t.name).join('|')}
-								tabs={activeExtTabs.map((t) => ({
-									name: t.name,
-									title: t.title || t.name,
-								}))}
-							>
-								{(extTab) => {
-									const ext = activeExtTabs.find(
-										(t) => t.name === extTab.name
-									);
-									const ExtContent = ext?.content;
-									return ExtContent ? (
-										<ExtContent
-											data={extensions[extTab.name]}
-											response={response}
-										/>
-									) : null;
-								}}
-							</TabPanel>
-						);
-					}
-					return null;
-				}}
-			</TabPanel>
-		</div>
-	);
-}
 
 const PANEL_ICONS = {
 	'saved-queries': file,
@@ -480,27 +303,7 @@ export function IDELayout({ fetcher, onClose }) {
 			window.localStorage.getItem('wpgraphql_ide_response_mode') ||
 			'formatted'
 	);
-	const [notices, setNotices] = useState([]);
-
-	const addNotice = useCallback((content, type = 'default') => {
-		const id = `notice-${Date.now()}`;
-		setNotices((prev) => [...prev, { id, content, type }]);
-	}, []);
-
-	const removeNotice = useCallback((id) => {
-		setNotices((prev) => prev.filter((n) => n.id !== id));
-	}, []);
-
-	// Listen for notice events from extensions via hooks. The optional
-	// `type` arg lets callers raise error/warning notices without prop
-	// drilling addNotice everywhere.
-	useEffect(() => {
-		const hookName = 'wpgraphql-ide.notice';
-		const ns = 'wpgraphql-ide/layout';
-		const handler = (content, type = 'default') => addNotice(content, type);
-		hooks.addAction(hookName, ns, handler);
-		return () => hooks.removeAction(hookName, ns);
-	}, [addNotice]);
+	const { notices, addNotice, removeNotice } = useNotices();
 
 	// ESC key closes the drawer when in drawer mode.
 	useEffect(() => {
@@ -1108,169 +911,31 @@ export function IDELayout({ fetcher, onClose }) {
 		(p) => p.name !== 'query-composer'
 	);
 
-	// Apply user-saved panel order (loaded from preferences).
-	const [panelOrder, setPanelOrder] = useState([]);
-	const [dragOverPanel, setDragOverPanel] = useState(null);
-	const dragSrcPanel = useRef(null);
-
-	// Load saved panel order from preferences on mount.
-	useEffect(() => {
-		const saved =
-			typeof window !== 'undefined' &&
-			window.WPGRAPHQL_IDE_DATA?.panelOrder;
-		if (Array.isArray(saved) && saved.length > 0) {
-			setPanelOrder(saved);
-		}
-	}, []);
-
-	const navPanels = useMemo(() => {
-		if (panelOrder.length === 0) {
-			return unfilteredNavPanels;
-		}
-		const ordered = [];
-		for (const name of panelOrder) {
-			const panel = unfilteredNavPanels.find((p) => p.name === name);
-			if (panel) {
-				ordered.push(panel);
-			}
-		}
-		// Append any panels not in the saved order.
-		for (const panel of unfilteredNavPanels) {
-			if (!panelOrder.includes(panel.name)) {
-				ordered.push(panel);
-			}
-		}
-		return ordered;
-	}, [unfilteredNavPanels, panelOrder]);
-
-	const handlePanelDrop = useCallback(
-		(targetName, pos) => {
-			const srcName = dragSrcPanel.current;
-			if (!srcName || srcName === targetName) {
-				setDragOverPanel(null);
-				return;
-			}
-			const names = navPanels.map((p) => p.name);
-			const srcIdx = names.indexOf(srcName);
-			if (srcIdx === -1) {
-				setDragOverPanel(null);
-				return;
-			}
-			names.splice(srcIdx, 1);
-			let tgtIdx = names.indexOf(targetName);
-			if (tgtIdx === -1) {
-				setDragOverPanel(null);
-				return;
-			}
-			if (pos === 'after') {
-				tgtIdx += 1;
-			}
-			names.splice(tgtIdx, 0, srcName);
-			setPanelOrder(names);
-			setDragOverPanel(null);
-
-			// Persist to user meta.
-			import('../api/preferences').then(({ savePreference }) => {
-				savePreference('panel_order', names);
-			});
-		},
-		[navPanels]
-	);
+	const {
+		navPanels,
+		dragOverPanel,
+		onDragStart: onPanelDragStart,
+		onDragOver: onPanelDragOver,
+		onDragLeave: onPanelDragLeave,
+		onDrop: onPanelDrop,
+		onDragEnd: onPanelDragEnd,
+	} = usePanelOrder(unfilteredNavPanels);
 
 	// Query composer panel — rendered inline within the document/editor area.
 	const queryComposerPanel = panels.find((p) => p.name === 'query-composer');
 	const ComposerContent = queryComposerPanel?.content || null;
 
-	// Single slot to the left of the GraphQL editor that hosts either the
-	// Query Composer or the Document Settings panel. Mutually exclusive —
-	// only one (or none) is open at a time. Persists the user's last
-	// choice in `wpgraphql_ide_left_panel`.
-	const [leftPanel, setLeftPanelState] = useState(() => {
-		try {
-			// One-time migration from the older standalone flag to the
-			// unified key. Consume (delete) the legacy entry so it can't
-			// keep re-opening the panel after the user has closed it —
-			// since closing clears the unified key, leaving the legacy
-			// flag in place would silently override the user's choice
-			// on every refresh.
-			const legacy = window.localStorage.getItem(
-				'wpgraphql_ide_show_query_composer'
-			);
-			if (legacy !== null) {
-				window.localStorage.removeItem(
-					'wpgraphql_ide_show_query_composer'
-				);
-				if (
-					legacy === 'true' &&
-					!window.localStorage.getItem('wpgraphql_ide_left_panel')
-				) {
-					window.localStorage.setItem(
-						'wpgraphql_ide_left_panel',
-						'composer'
-					);
-				}
-			}
-			const stored = window.localStorage.getItem(
-				'wpgraphql_ide_left_panel'
-			);
-			if (stored === 'composer' || stored === 'settings') {
-				return stored;
-			}
-		} catch {
-			// ignore
-		}
-		return null;
-	});
-
-	const setLeftPanel = useCallback((next) => {
-		setLeftPanelState(next);
-		try {
-			if (next === null) {
-				window.localStorage.removeItem('wpgraphql_ide_left_panel');
-			} else {
-				window.localStorage.setItem('wpgraphql_ide_left_panel', next);
-			}
-		} catch {
-			// ignore
-		}
-	}, []);
-
-	const showQueryComposer = leftPanel === 'composer';
-	const showDocSettingsPanel = leftPanel === 'settings';
-
-	const toggleQueryComposer = useCallback(() => {
-		setLeftPanel(leftPanel === 'composer' ? null : 'composer');
-	}, [leftPanel, setLeftPanel]);
-
-	const toggleDocSettingsPanel = useCallback(() => {
-		setLeftPanel(leftPanel === 'settings' ? null : 'settings');
-	}, [leftPanel, setLeftPanel]);
-
-	const [composerWidth, setComposerWidth] = useState(() => {
-		try {
-			const w = parseInt(
-				window.localStorage.getItem('wpgraphql_ide_composer_width'),
-				10
-			);
-			return w > 0 ? w : 280;
-		} catch {
-			return 280;
-		}
-	});
-
-	const [docSettingsPanelWidth, setDocSettingsPanelWidth] = useState(() => {
-		try {
-			const w = parseInt(
-				window.localStorage.getItem(
-					'wpgraphql_ide_settings_panel_width'
-				),
-				10
-			);
-			return w > 0 ? w : 360;
-		} catch {
-			return 360;
-		}
-	});
+	const {
+		setLeftPanel,
+		showQueryComposer,
+		showDocSettingsPanel,
+		toggleQueryComposer,
+		toggleDocSettingsPanel,
+		composerWidth,
+		setComposerWidth,
+		docSettingsPanelWidth,
+		setDocSettingsPanelWidth,
+	} = useLeftPanel();
 
 	// Remember the last open panel so the sidebar toggle can restore it.
 	const lastPanelRef = useRef(null);
@@ -1440,36 +1105,11 @@ export function IDELayout({ fetcher, onClose }) {
 						>
 							<Button
 								draggable
-								onDragStart={(e) => {
-									dragSrcPanel.current = panel.name;
-									e.dataTransfer.effectAllowed = 'move';
-								}}
-								onDragOver={(e) => {
-									e.preventDefault();
-									e.dataTransfer.dropEffect = 'move';
-									const rect =
-										e.currentTarget.getBoundingClientRect();
-									const pos =
-										e.clientY < rect.top + rect.height / 2
-											? 'before'
-											: 'after';
-									setDragOverPanel({
-										name: panel.name,
-										pos,
-									});
-								}}
-								onDragLeave={() => setDragOverPanel(null)}
-								onDrop={(e) => {
-									e.preventDefault();
-									handlePanelDrop(
-										panel.name,
-										dragOverPanel?.pos || 'after'
-									);
-								}}
-								onDragEnd={() => {
-									dragSrcPanel.current = null;
-									setDragOverPanel(null);
-								}}
+								onDragStart={onPanelDragStart(panel.name)}
+								onDragOver={onPanelDragOver(panel.name)}
+								onDragLeave={onPanelDragLeave}
+								onDrop={onPanelDrop(panel.name)}
+								onDragEnd={onPanelDragEnd}
 								onClick={() =>
 									toggleActivityPanelVisibility(panel.name)
 								}
