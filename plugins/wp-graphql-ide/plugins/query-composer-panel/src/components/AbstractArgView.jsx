@@ -18,6 +18,7 @@ import {
 import ScalarInput from './ScalarInput';
 import InputArgView from './InputArgView';
 import Checkbox from './Checkbox';
+import ArgHoverTooltip from './ArgHoverTooltip';
 
 class AbstractArgView extends React.PureComponent {
 	// Replace the whole list value with a new one and commit. Used by
@@ -226,6 +227,7 @@ class AbstractArgView extends React.PureComponent {
 											key={fieldName}
 											arg={itemFields[fieldName]}
 											parentField={this.props.parentField}
+											parentTypeName={namedItemType.name}
 											selection={item}
 											modifyFields={this._setListObjectItemFields(
 												i
@@ -466,6 +468,7 @@ class AbstractArgView extends React.PureComponent {
 										key={currentVariant}
 										arg={fields[currentVariant]}
 										parentField={this.props.parentField}
+										parentTypeName={argType.name}
 										selection={argValue}
 										modifyFields={this.props.setArgFields}
 										getDefaultScalarArgValue={
@@ -494,6 +497,13 @@ class AbstractArgView extends React.PureComponent {
 											key={fieldName}
 											arg={fields[fieldName]}
 											parentField={this.props.parentField}
+											// Children of this input object
+											// belong to *this* type — used by
+											// the hover tooltip to render
+											// `<InputObjectType>.<field>` instead
+											// of inheriting the outermost
+											// field's name.
+											parentTypeName={argType.name}
 											selection={argValue}
 											modifyFields={
 												this.props.setArgFields
@@ -865,17 +875,31 @@ class AbstractArgView extends React.PureComponent {
 								styleConfig={this.props.styleConfig}
 							/>
 						)}
-						<span
-							style={{ color: styleConfig.colors.attribute }}
-							title={
-								arg.description
-									? `${arg.type.toString()}: ${arg.description}`
-									: arg.type.toString()
+						<ArgHoverTooltip
+							argName={arg.name}
+							argType={arg.type.toString()}
+							parentName={
+								// Nested input fields: the immediate
+								// container is an `InputObjectType`, so
+								// show its name (e.g.
+								// `RootQueryToPostConnectionWhereArgs`).
+								// Top-level args fall back to the field
+								// they're declared on (e.g. `posts`).
+								this.props.parentTypeName ||
+								(this.props.parentField &&
+									this.props.parentField.name)
 							}
+							description={arg.description}
 						>
-							{arg.name}
-							{isRequiredArgument(arg) ? '*' : ''}:
-						</span>
+							<span
+								style={{
+									color: styleConfig.colors.attribute,
+								}}
+							>
+								{arg.name}
+								{isRequiredArgument(arg) ? '*' : ''}:
+							</span>
+						</ArgHoverTooltip>
 					</span>
 					{inlineInput}
 					{variablizeActionButton}

@@ -167,6 +167,7 @@ class InputArgView extends React.PureComponent {
 				argValue={argSelection ? argSelection.value : null}
 				arg={arg}
 				parentField={parentField}
+				parentTypeName={this.props.parentTypeName}
 				addArg={this._addArg}
 				removeArg={this._removeArg}
 				setArgFields={this._modifyChildFields}
