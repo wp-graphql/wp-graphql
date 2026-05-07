@@ -84,3 +84,27 @@ Author.variables = ({ id }) => {
     id,
   }
 }
+
+Author.queries = {
+  user: {
+    query: gql`
+      query Author_User($id: ID!) {
+        user(id: $id, idType: URI) {
+          id
+          name
+          description
+          avatar {
+            url
+          }
+          posts {
+            nodes {
+              ...PostPreview
+            }
+          }
+        }
+      }
+      ${PostPreviewFragment}
+    `,
+    variables: ({ seed }) => ({ id: seed?.uri }),
+  },
+}
