@@ -33,3 +33,5 @@ FrontPage.query = gql`
   }
   ${NavMenuFragment}
 `
+
+FrontPage.queries = {}
