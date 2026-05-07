@@ -11,6 +11,7 @@
     "test:lint": "faust lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:unit": "node --test src/lib/next-wpgraphql/__tests__",
     "test:build-without-possibletypes": "node scripts/test-build-without-possibletypes.js",
     "postbuild": "next-sitemap",
     "predev": "npm run generate",

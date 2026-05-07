@@ -1,3 +1,10 @@
 export function getGraphqlEndpoint() {
-  throw new Error("next-wpgraphql/endpoint: not yet implemented")
+  const raw = process.env.NEXT_PUBLIC_WPGRAPHQL_URL || process.env.WPGRAPHQL_URL || ""
+  const trimmed = raw.replace(/\/+$/, "")
+  if (!trimmed) {
+    throw new Error(
+      "next-wpgraphql: NEXT_PUBLIC_WPGRAPHQL_URL or WPGRAPHQL_URL must be set"
+    )
+  }
+  return trimmed
 }
