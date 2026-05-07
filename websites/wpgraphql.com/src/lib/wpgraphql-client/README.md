@@ -1,35 +1,89 @@
 # wpgraphql-client
 
-A small library for building WPGraphQL-backed Next.js sites with WordPress-style template resolution and server-side multi-query data fetching.
+A small library for building WPGraphQL-backed sites with WordPress-style template resolution, server-side multi-query data fetching, and cache-friendly transport.
+
+It's organized as three layers — a framework-agnostic core and thin adapters for React and Next.js — so any framework with a server-side data fetching primitive (Nuxt's `asyncData`, SvelteKit's `load`, Astro's `getStaticPaths` / frontmatter, Remix's `loader`, etc.) can sit on top of the same core.
 
 ## What it provides
 
 - **Template hierarchy** — map a URI to the most specific template (e.g. `single-post-{slug}` → `single-post` → `single` → `singular` → `index`), driven by a seed query against WPGraphQL. Mirrors [WordPress's template hierarchy](https://developer.wordpress.org/themes/basics/template-hierarchy/).
-- **Multi-query templates** — each template declares one or more named queries with independent variables. All queries run in parallel from `getStaticProps`, and their top-level GraphQL fields spread into a single flat `data` prop.
-- **Server-only data fetching** — there is no `useQuery` hook. Pages render with all their data already in props. SSR and SSG pages never make a GraphQL request from the browser.
+- **Multi-query templates** — each template declares one or more named queries with independent variables. All queries run in parallel server-side, and their top-level GraphQL fields spread into a single flat `data` prop.
+- **Server-only data fetching** — there is no `useQuery` hook in the public API. Pages render with all their data already in props. SSR and SSG pages never make a GraphQL request from the browser.
 - **Cache-friendly transport** — queries go out as `GET ?queryId=<sha256>&variables=...` so [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache) (or any HTTP cache in front of WPGraphQL) can cache them by URL. On the first request for a new hash the server returns `PersistedQueryNotFound`; the client falls back to a single APQ-style POST that registers the document, and subsequent requests are pure GETs.
 - **Mutations stay POST** — `request()` parses the document, sees the `mutation` keyword, and POSTs with the full query string.
-- **Layout queries** — chrome data shared across pages (nav menu, footer, site settings) is registered once on the layout and exposed through React context.
+- **Layout queries** — chrome data shared across pages (nav menu, footer, site settings) is registered once on the layout and exposed through framework-native context (React context today; Vue provide/inject, Svelte stores, etc. would each ship their own adapter).
 
-## Public API
+## Architecture
+
+```
+wpgraphql-client/
+  core/    framework-agnostic   fetch + Web Crypto + GraphQL
+  react/   React adapter        LayoutProvider / useLayoutData
+  next/    Next.js adapter      getStaticProps wrapper
+  index.js aggregate            re-exports the three layers
+```
+
+Each layer can be extracted as its own package later:
+
+| in-tree                  | future package          | depends on                     |
+|--------------------------|-------------------------|--------------------------------|
+| `wpgraphql-client/core`  | `@wpgraphql/client`     | `graphql`, `graphql-tag` (peer)|
+| `wpgraphql-client/react` | `@wpgraphql/react`      | `@wpgraphql/client`, `react`   |
+| `wpgraphql-client/next`  | `@wpgraphql/next`       | `@wpgraphql/client`, `next`    |
+| (new)                    | `@wpgraphql/nuxt`       | `@wpgraphql/client`, `vue`     |
+| (new)                    | `@wpgraphql/sveltekit`  | `@wpgraphql/client`, `svelte`  |
+| (new)                    | `@wpgraphql/astro`      | `@wpgraphql/client`            |
+
+The aggregate import (`from "lib/wpgraphql-client"`) is convenient for sites that use everything at once. Apps that want to be specific can import directly from a layer:
 
 ```js
-import {
-  configure,         // configure({ templates, Layout })
-  getTemplateStaticProps,
-                     // Next.js getStaticProps for the catch-all route
-  getLayoutData,     // run Layout.queries from a non-template page
-  LayoutProvider,    // <LayoutProvider value={layoutData}>
-  useLayoutData,     // hook — returns the flat layoutData object
-  request,           // low-level GraphQL client
-  resolveTemplateName,
-                     // pure hierarchy resolver (seed + registry → template name)
-  getGraphqlEndpoint,
-                     // env-var-based endpoint resolution
-  SEED_QUERY,        // the URI seed query (advanced use)
-  normalizeSeed,     // GraphQL response → flat seed object
-} from "lib/wpgraphql-client"
+// just the core, e.g. inside an API route or non-React framework
+import { request, resolveTemplate, getLayoutData } from "lib/wpgraphql-client/core"
+
+// just the React adapter
+import { LayoutProvider, useLayoutData } from "lib/wpgraphql-client/react"
+
+// just the Next.js adapter
+import { getTemplateStaticProps } from "lib/wpgraphql-client/next"
 ```
+
+## What's in each layer
+
+### `core/` — framework-agnostic
+
+| export | purpose |
+|---|---|
+| `request({ query, variables, operationName, endpoint })` | Low-level GraphQL client. GET+queryId for queries, POST APQ fallback on `PersistedQueryNotFound`, POST always for mutations, 6KB URL-length guard. |
+| `setFetch(fn)` | Inject a fetch implementation (mostly for tests). Defaults to `globalThis.fetch`. |
+| `getGraphqlEndpoint()` | Reads `NEXT_PUBLIC_WPGRAPHQL_URL` or `WPGRAPHQL_URL`. Trims trailing slashes; throws if both are unset. |
+| `sha256(string)` | Hex SHA-256 via Web Crypto. |
+| `printQuery(documentOrString)` | gql AST → stable string (uses `graphql/language/printer`). |
+| `getOperation(document)` | Returns `"query"` / `"mutation"` / `"subscription"` from a parsed document. |
+| `SEED_QUERY` / `normalizeSeed(response, uri)` | The URI seed query and a normalizer that flattens the GraphQL response into the shape the hierarchy resolver expects. |
+| `resolveTemplateName(seed, registry)` / `buildCandidateNames(seed)` | Pure hierarchy resolver. |
+| `configure({ templates, Layout })` / `getRegistry()` | Module-level registry of templates and layout. |
+| `runQueries(entries, reqCtx)` | Run an array of `[name, { query, variables, skip }]` entries in parallel and spread their `data` envelopes into one flat object. |
+| `resolveTemplate({ uri, params })` | Framework-agnostic orchestrator. Runs the seed query, resolves a template, executes its queries + the layout queries in parallel, returns `{ template, data, layoutData, uri, seed }` or `{ notFound, uri, seed }`. |
+| `getLayoutData(reqCtx?)` | Run only the configured `Layout.queries`. Useful for non-template pages. |
+
+The core has no React or Next.js imports. It runs anywhere with `fetch` and Web Crypto (Node 22+, Cloudflare Workers, Deno, modern browsers).
+
+### `react/` — React adapter
+
+| export | purpose |
+|---|---|
+| `LayoutProvider` | `<LayoutProvider value={layoutData}>` — provides layout data to descendants via React context. |
+| `useLayoutData()` | Hook returning the flat layout data object. |
+
+Works with any React framework (Next.js, Remix, Astro w/ React, Gatsby) — it's just a thin context wrapper.
+
+### `next/` — Next.js adapter
+
+| export | purpose |
+|---|---|
+| `getTemplateStaticProps(ctx, opts?)` | Reads URI from `ctx.params.wordpressNode`, calls `resolveTemplate()`, formats the result as Next's `{ props, revalidate }` / `{ notFound, revalidate }`. |
+
+This is the only file in the library that knows about `GetStaticPropsContext`. Other framework adapters would each provide a similar thin wrapper around `resolveTemplate()`.
 
 ## Setup
 
@@ -55,7 +109,7 @@ Set one of these env vars to the WPGraphQL endpoint:
 
 Trailing slashes are stripped. If neither is set, `request()` throws.
 
-### 3. Wire the catch-all route
+### 3. Wire the catch-all route (Next.js)
 
 ```js
 // src/pages/[...wordpressNode].js
@@ -84,9 +138,41 @@ export const getStaticPaths = async () => ({
 
 For the front page, use the same body without `getStaticPaths`.
 
+#### Wiring an adapter for another framework
+
+Build a thin equivalent of `getTemplateStaticProps` over `resolveTemplate()`. Sketch for Nuxt 3:
+
+```ts
+// pages/[...slug].vue
+<script setup>
+import { resolveTemplate } from "@wpgraphql/client"
+const route = useRoute()
+const uri = "/" + (Array.isArray(route.params.slug)
+  ? route.params.slug.join("/") : route.params.slug ?? "") + "/"
+const result = await resolveTemplate({ uri, params: route.params })
+if (result.notFound) throw createError({ statusCode: 404 })
+provide("layoutData", result.layoutData)
+</script>
+```
+
+Sketch for SvelteKit `+page.server.ts`:
+
+```ts
+import { resolveTemplate } from "@wpgraphql/client"
+
+export async function load({ params }) {
+  const uri = "/" + (params.slug ?? "") + "/"
+  const result = await resolveTemplate({ uri, params })
+  if (result.notFound) throw error(404)
+  return result
+}
+```
+
+The point: `resolveTemplate()` returns plain data and the framework adapter shapes it into the framework's preferred load/route/get-props convention.
+
 ## Templates
 
-A template is a React component that renders a `data` prop. Its `queries` static field declares what to fetch.
+A template is a component that renders a `data` prop. Its `queries` static field declares what to fetch.
 
 ```js
 // src/wp-templates/archive-post.js
@@ -133,7 +219,7 @@ Each query's `data` envelope is **spread** into the template's `data` prop. So:
 query ArchivePost_Posts { posts { nodes { ... } } }
 ```
 
-surfaces as `data.posts.nodes`. If you declare two queries that each return distinct top-level fields, both fields appear on `data` side by side. If two queries declare the same top-level field, the later entry wins — use field aliases to disambiguate.
+surfaces as `data.posts.nodes`. If you declare two queries with distinct top-level fields, both fields appear on `data` side by side. If two queries declare the same top-level field, the later entry wins — use field aliases to disambiguate.
 
 ## Layout (chrome) queries
 
@@ -237,7 +323,7 @@ Slugs, post type names, and taxonomy names are normalized to lowercase. The cand
 
 ## Seed query
 
-Before resolving a template, `getTemplateStaticProps` runs `SEED_QUERY` to identify the node behind the URI:
+Before resolving a template, `resolveTemplate()` runs `SEED_QUERY` to identify the node behind the URI:
 
 ```graphql
 query WpGraphQLClientSeed($uri: String!) {
@@ -265,9 +351,9 @@ query WpGraphQLClientSeed($uri: String!) {
 
 The seed query is itself sent as a GET-with-queryId, so it benefits from the same caching as the template queries.
 
-## GraphQL client
+## GraphQL client transport
 
-`request({ query, variables, operationName, endpoint })` is the low-level entry point. Behavior:
+`request({ query, variables, operationName, endpoint })`:
 
 1. Print the query to a stable string (via `graphql/language/printer`).
 2. Compute `queryId = sha256(printed)`.
@@ -282,7 +368,7 @@ The seed query is itself sent as a GET-with-queryId, so it benefits from the sam
 
 The library never exports a `useQuery` hook. Templates and components consume data from `data` / `useLayoutData()` props rendered server-side. To enforce this in CI:
 
-- Templates and components don't import from `wpgraphql-client/client` (verifiable with grep)
+- Templates and components don't import `request()` from a `useEffect` (verifiable with grep)
 - A 6000-byte GET URL guard prevents oversized variable payloads
 - All queries run from `getStaticProps` (or `getServerSideProps` / API routes) — never from `useEffect`
 
@@ -301,29 +387,47 @@ Coverage areas:
 - `client.test.js` — GET URL shape, APQ retry, mutation always POSTs, URL-length guard
 - `hierarchy.test.js` — every hierarchy slot, slug normalization, registry fallthrough
 - `seed-query.test.js` — response → normalized seed for Page / Post / Category / ContentType / front-page / missing-node
-- `get-template-static-props.test.js` — happy path, notFound, front-page routing, revalidate, skip predicates
+- `resolve-template.test.js` — happy path, notFound, front-page bypass, input validation
+- `get-template-static-props.test.js` — Next.js adapter happy path, notFound + revalidate, skip predicates
 - `templates.test.js` — registry configure/getRegistry
 
-## Layout of the library
+## File layout
 
 ```
 wpgraphql-client/
-  index.js                      public exports
-  client.js                     fetch client
-  endpoint.js                   env-var endpoint resolver
-  hash.js                       sha256 (Web Crypto)
-  print.js                      gql AST → string
-  seed-query.js                 SEED_QUERY + normalizeSeed
-  hierarchy.js                  pure resolveTemplateName
-  templates.js                  configure / getRegistry
-  layout.js                     LayoutProvider / useLayoutData
-  get-template-static-props.js  Next.js adapter + getLayoutData
+  index.js                      aggregate public API
+
+  core/
+    index.js                    re-exports core surface
+    client.js                   fetch client
+    endpoint.js                 env-var endpoint resolver
+    hash.js                     sha256 (Web Crypto)
+    print.js                    gql AST → string + getOperation
+    seed-query.js               SEED_QUERY + normalizeSeed
+    hierarchy.js                pure resolveTemplateName / buildCandidateNames
+    templates.js                configure / getRegistry
+    run-queries.js              parallel runner used by both
+                                resolveTemplate and getLayoutData
+    resolve-template.js         framework-agnostic orchestrator
+    get-layout-data.js          run-only-Layout-queries helper
+
+  react/
+    index.js                    re-exports
+    layout.js                   LayoutProvider / useLayoutData
+
+  next/
+    index.js                    re-exports
+    get-template-static-props.js
+                                Next.js getStaticProps wrapper around
+                                core/resolveTemplate
+
   package.json                  type:module so node:test sees ESM
   __tests__/                    node:test unit tests
 ```
 
 ## Requirements
 
-- Next.js 15+ (`pages/` router)
-- Node 22+ (Web Crypto + `node:test`)
-- A WPGraphQL endpoint, optionally with WPGraphQL Smart Cache for the GET caching benefit
+- **Core**: Node 22+ (Web Crypto + `node:test`), or any modern runtime with `fetch` and `globalThis.crypto.subtle`. Peer deps: `graphql`, `graphql-tag`.
+- **React adapter**: React 18+.
+- **Next.js adapter**: Next.js 15+ (`pages/` router).
+- A WPGraphQL endpoint, ideally with WPGraphQL Smart Cache for the GET caching benefit.
