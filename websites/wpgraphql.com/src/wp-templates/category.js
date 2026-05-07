@@ -58,3 +58,23 @@ Category.query = gql`
   ${NavMenuFragment}
   ${PostPreviewFragment}
 `
+
+Category.queries = {
+  category: {
+    query: gql`
+      query Category_Node($id: ID!) {
+        category(id: $id, idType: URI) {
+          name
+          description
+          posts {
+            nodes {
+              ...PostPreview
+            }
+          }
+        }
+      }
+      ${PostPreviewFragment}
+    `,
+    variables: ({ seed }) => ({ id: seed?.uri }),
+  },
+}
