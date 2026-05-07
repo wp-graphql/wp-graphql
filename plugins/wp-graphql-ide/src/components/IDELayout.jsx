@@ -1136,24 +1136,37 @@ export function IDELayout({ fetcher, onClose }) {
 	// Single slot to the left of the GraphQL editor that hosts either the
 	// Query Composer or the Document Settings panel. Mutually exclusive —
 	// only one (or none) is open at a time. Persists the user's last
-	// choice, falling back to the legacy composer flag for users coming
-	// from older versions.
+	// choice in `wpgraphql_ide_left_panel`.
 	const [leftPanel, setLeftPanelState] = useState(() => {
 		try {
+			// One-time migration from the older standalone flag to the
+			// unified key. Consume (delete) the legacy entry so it can't
+			// keep re-opening the panel after the user has closed it —
+			// since closing clears the unified key, leaving the legacy
+			// flag in place would silently override the user's choice
+			// on every refresh.
+			const legacy = window.localStorage.getItem(
+				'wpgraphql_ide_show_query_composer'
+			);
+			if (legacy !== null) {
+				window.localStorage.removeItem(
+					'wpgraphql_ide_show_query_composer'
+				);
+				if (
+					legacy === 'true' &&
+					!window.localStorage.getItem('wpgraphql_ide_left_panel')
+				) {
+					window.localStorage.setItem(
+						'wpgraphql_ide_left_panel',
+						'composer'
+					);
+				}
+			}
 			const stored = window.localStorage.getItem(
 				'wpgraphql_ide_left_panel'
 			);
 			if (stored === 'composer' || stored === 'settings') {
 				return stored;
-			}
-			// Legacy compatibility: a `true` value from the older composer
-			// flag becomes a Composer-open default.
-			if (
-				window.localStorage.getItem(
-					'wpgraphql_ide_show_query_composer'
-				) === 'true'
-			) {
-				return 'composer';
 			}
 		} catch {
 			// ignore
