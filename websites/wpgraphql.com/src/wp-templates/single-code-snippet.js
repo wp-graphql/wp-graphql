@@ -80,3 +80,32 @@ SingleRecipe.variables = ({ uri }) => {
     uri,
   }
 }
+
+SingleRecipe.queries = {
+  node: {
+    query: gql`
+      query SingleCodeSnippet_Node($uri: ID!) {
+        node: contentNode(id: $uri, idType: URI) {
+          id
+          ... on NodeWithTitle {
+            title
+          }
+          uri
+          ... on NodeWithContentEditor {
+            content
+          }
+          ... on CodeSnippet {
+            recipeTags: codeSnippetTags {
+              nodes {
+                id
+                name
+                uri
+              }
+            }
+          }
+        }
+      }
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
+}
