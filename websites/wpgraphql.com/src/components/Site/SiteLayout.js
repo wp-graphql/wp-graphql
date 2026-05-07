@@ -12,3 +12,7 @@ export default function SiteLayout({ children }) {
 }
 
 export { NavMenuFragment }
+
+export const Layout = {
+  queries: {},
+}

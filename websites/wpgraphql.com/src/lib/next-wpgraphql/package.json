@@ -1,5 +1,6 @@
 {
   "name": "next-wpgraphql-internal",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "main": "./index.js"
 }

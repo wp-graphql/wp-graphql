@@ -3,7 +3,7 @@ import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
 import PostPreview, { PostPreviewFragment } from "components/Preview/PostPreview"
 
 export default function ArchivePost({ data }) {
-  const posts = data?.posts?.nodes
+  const posts = data?.posts?.nodes ?? data?.posts?.posts?.nodes
 
   return (
     <SiteLayout>
@@ -46,3 +46,19 @@ ArchivePost.query = gql`
   ${PostPreviewFragment}
   ${NavMenuFragment}
 `
+
+ArchivePost.queries = {
+  posts: {
+    query: gql`
+      query ArchivePost_Posts($first: Int) {
+        posts(first: $first) {
+          nodes {
+            ...PostPreview
+          }
+        }
+      }
+      ${PostPreviewFragment}
+    `,
+    variables: () => ({ first: 100 }),
+  },
+}
