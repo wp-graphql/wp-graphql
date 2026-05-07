@@ -23,6 +23,7 @@ import React, { useRef } from 'react';
  * @param {Function} [props.onCancel]  Called on Escape, or on blur/Enter when trimmed value is empty.
  * @param {string}   [props.className]
  * @param {string}   [props.ariaLabel]
+ * @param {number}   [props.size]      Browser fallback for `field-sizing: content`. Sized in characters.
  */
 export function RenameInput({
 	value,
@@ -31,6 +32,7 @@ export function RenameInput({
 	onCancel,
 	className,
 	ariaLabel,
+	size,
 }) {
 	const cancelledRef = useRef(false);
 
@@ -49,6 +51,7 @@ export function RenameInput({
 			className={className}
 			value={value}
 			aria-label={ariaLabel}
+			size={size}
 			onChange={(e) => onChange(e.target.value)}
 			onBlur={() => {
 				if (cancelledRef.current) {

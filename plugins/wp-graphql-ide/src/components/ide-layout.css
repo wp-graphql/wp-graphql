@@ -551,6 +551,37 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
 }
 
+/* Drag-to-reorder feedback. The dragged tab dims so it visually
+   "lifts"; the target shows a thin vertical insertion bar via inset
+   box-shadow on the appropriate edge so layout never shifts. */
+.wpgraphql-ide-tab.is-dragging {
+	opacity: 0.4;
+}
+
+.wpgraphql-ide-tab.is-drop-before {
+	box-shadow: inset 2px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-tab.is-drop-after {
+	box-shadow: inset -2px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+}
+
+/* The tab is a native `<button>`, so the browser draws its default focus
+   ring on click and (via the inline rename input) on `:focus-within` —
+   which produces a visual jump when the user double-clicks to rename.
+   The `is-active` underline already carries focus emphasis for mouse
+   users; restore a real ring only for keyboard navigation. */
+.wpgraphql-ide-tab:focus,
+.wpgraphql-ide-tab:focus-within {
+	outline: none;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-tab:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: -2px;
+}
+
 /* The kebab is a DropdownMenu; @wordpress/components wraps its toggle
    in a `<div class="components-dropdown">`. That wrapper — not the
    toggle button — is the flex child of `.wpgraphql-ide-tab-bar`.
@@ -614,6 +645,25 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	text-overflow: ellipsis;
 }
 
+/* Holds the title text node in idle state and overlays the rename input
+   on top of it during edit. The static text is always rendered, so the
+   wrap's intrinsic width drives the tab — toggling editingId does not
+   reflow the strip. */
+.wpgraphql-ide-tab-text-wrap {
+	position: relative;
+	display: inline-block;
+	min-width: 0;
+}
+
+.wpgraphql-ide-tab-text {
+	white-space: pre;
+	visibility: visible;
+}
+
+.wpgraphql-ide-tab-text[aria-hidden="true"] {
+	visibility: hidden;
+}
+
 .wpgraphql-ide-tab-dirty {
 	width: 6px;
 	height: 6px;
@@ -644,6 +694,17 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-tab-close:hover {
 	color: #2c3338;
 	background: rgba(0, 0, 0, 0.08);
+}
+
+/* Disabled while inline-renaming so the click doesn't fire mid-edit, but
+   still occupies its slot in the tab so the input doesn't reflow into it. */
+.wpgraphql-ide-tab-close.is-disabled,
+.wpgraphql-ide-tab-close.is-disabled:hover {
+	pointer-events: none;
+	cursor: default;
+	opacity: 0.4;
+	background: transparent;
+	color: #646970;
 }
 
 .wpgraphql-ide-tab-overflow.components-button {
@@ -692,27 +753,56 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 /* Inline rename input. Renders in the exact box the label occupied so the
    tab strip doesn't grow or break its bottom border while editing. The
-   active-tab underline carries focus emphasis — the input adds none. */
-.wpgraphql-ide-tab-input {
+   active-tab underline carries focus emphasis — the input adds none.
+   `appearance: none` and explicit font-* properties strip the user-agent
+   stylesheet's input metrics, which otherwise add a hidden min-height and
+   internal padding that push the tab taller than its idle state. */
+/* Inline rename input. `field-sizing: content` (Chrome 123+, Firefox 123+,
+   Safari 18+) makes the input intrinsically size to its text the way the
+   static span does, so swapping span ↔ input doesn't reflow the tab strip.
+   Browsers without that property fall back to a `size` attribute set on
+   the element (DocumentTabs renders it dynamically). The visual chrome is
+   an `inset` box-shadow so the border paints inside the input box and
+   doesn't add a single pixel of layout width.
+
+   We override at `input.<class>` specificity to beat WordPress admin's
+   `input[type="text"]` rule, which otherwise injects padding, min-height,
+   and a real border that all push the tab taller and wider. */
+/* Overlays the static text node so the input occupies exactly the same
+   pixels — no layout participation, no width drift. The static text
+   under it sets the tab's intrinsic width and grows/shrinks as the user
+   types. */
+input.wpgraphql-ide-tab-input {
+	appearance: none;
+	-webkit-appearance: none;
+	position: absolute;
+	inset: 0;
 	font: inherit;
-	color: #2c3338;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	font-style: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
+	color: inherit;
 	border: none;
-	border-radius: 0;
+	border-radius: 2px;
 	padding: 0;
 	margin: 0;
 	outline: none;
-	box-shadow: none;
-	width: 100%;
-	min-width: 0;
-	height: auto;
-	line-height: inherit;
 	background: transparent;
-	flex-shrink: 1;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	box-sizing: border-box;
+	box-shadow: none;
+	cursor: text;
 }
 
-.wpgraphql-ide-tab-input:focus {
-	box-shadow: none;
+input.wpgraphql-ide-tab-input:focus {
 	outline: none;
+	box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
 }
 
 .wpgraphql-ide-auth-avatar {
@@ -965,13 +1055,27 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	overflow-y: auto;
 }
 
-.wpgraphql-ide-editor-resizable.has-left-panel {
+/* Body row inside the resizable editor area — siblings of the
+   composer/settings panel and the GraphQL editor itself. The notice
+   sits *above* this row inside the same ResizableBox so the bottom
+   Variables/Headers strip stays anchored regardless of whether a notice
+   is showing. */
+.wpgraphql-ide-editor-resizable-body {
+	flex: 1;
+	min-height: 0;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	overflow: hidden;
 }
 
-.wpgraphql-ide-editor-resizable.has-left-panel > .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-resizable.has-left-panel
+	> .wpgraphql-ide-editor-resizable-body {
+	flex-direction: row;
+}
+
+.wpgraphql-ide-editor-resizable.has-left-panel
+	> .wpgraphql-ide-editor-resizable-body
+	> .wpgraphql-ide-editor {
 	flex: 1;
 	/* Keep the editor wider than the floating execution pill (GET/POST + auth + run). */
 	min-width: 280px;
@@ -1812,24 +1916,9 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	max-height: 100%;
 }
 
-/* On a published, read-only document the user can't grow Variables/Headers
-   content, so the resizable split would just leave a sparse JSON editor
-   floating in dead space. Pin the editor to flex:1 and let the bottom
-   strip size itself to content (capped) so it always sits flush at the
-   bottom of the query pane. */
-.wpgraphql-ide-editor-resizable.is-readonly-flex {
-	flex: 1;
-	max-height: 100%;
-}
-
-.wpgraphql-ide-query-pane:has(.is-readonly-flex)
-	> .wpgraphql-ide-editor-tools {
-	flex: 0 0 auto;
-	max-height: 200px;
-}
 
 /* Space between editor toolbar and CodeMirror content */
-.wpgraphql-ide-editor-resizable > .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-resizable .wpgraphql-ide-editor {
 	flex: 1;
 	min-height: 0;
 	overflow: hidden;
