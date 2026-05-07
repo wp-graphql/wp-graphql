@@ -1,6 +1,6 @@
 import SiteLayout from "../components/Site/SiteLayout";
-import { getLayoutData, LayoutProvider } from "lib/next-wpgraphql"
-import "lib/next-wpgraphql-config"
+import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 import {FaDiscord, FaGithub, FaTwitter, FaYoutube} from "react-icons/fa";
 
 function Community({ layoutData }) {

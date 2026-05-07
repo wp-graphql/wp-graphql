@@ -13,7 +13,7 @@ export async function sha256(input) {
   const subtle = globalThis.crypto?.subtle
   if (!subtle) {
     throw new Error(
-      "next-wpgraphql/hash: Web Crypto (globalThis.crypto.subtle) is not available in this runtime"
+      "wpgraphql-client/hash: Web Crypto (globalThis.crypto.subtle) is not available in this runtime"
     )
   }
   const bytes = new TextEncoder().encode(input)

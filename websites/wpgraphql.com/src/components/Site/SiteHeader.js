@@ -17,7 +17,7 @@ import {
   flatListToHierarchical,
   getIconNameFromMenuItem,
 } from "lib/menu-helpers"
-import { useLayoutData } from "lib/next-wpgraphql"
+import { useLayoutData } from "lib/wpgraphql-client"
 import { socialHeaderLinks } from "../../data/social"
 import { SearchButton } from "./SearchButton";
 

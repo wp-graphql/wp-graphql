@@ -1,4 +1,4 @@
-# next-wpgraphql
+# wpgraphql-client
 
 A small library for building WPGraphQL-backed Next.js sites with WordPress-style template resolution and server-side multi-query data fetching.
 
@@ -28,7 +28,7 @@ import {
                      // env-var-based endpoint resolution
   SEED_QUERY,        // the URI seed query (advanced use)
   normalizeSeed,     // GraphQL response → flat seed object
-} from "lib/next-wpgraphql"
+} from "lib/wpgraphql-client"
 ```
 
 ## Setup
@@ -38,8 +38,8 @@ import {
 Call `configure()` once at module load. The site's catch-all and any custom pages should import this side-effect module:
 
 ```js
-// src/lib/next-wpgraphql-config.js
-import { configure } from "./next-wpgraphql"
+// src/lib/wpgraphql-client-config.js
+import { configure } from "./wpgraphql-client"
 import templates from "wp-templates"
 import { Layout } from "components/Site/SiteLayout"
 
@@ -59,8 +59,8 @@ Trailing slashes are stripped. If neither is set, `request()` throws.
 
 ```js
 // src/pages/[...wordpressNode].js
-import { getTemplateStaticProps, LayoutProvider } from "lib/next-wpgraphql"
-import "lib/next-wpgraphql-config"
+import { getTemplateStaticProps, LayoutProvider } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 import templates from "wp-templates"
 
 export default function Page({ template, data, layoutData, seed, uri }) {
@@ -164,7 +164,7 @@ export const Layout = {
 
 ```js
 // src/components/Site/SiteHeader.js
-import { useLayoutData } from "lib/next-wpgraphql"
+import { useLayoutData } from "lib/wpgraphql-client"
 
 export default function SiteHeader() {
   const layoutData = useLayoutData()
@@ -180,8 +180,8 @@ Layout queries are spread into `layoutData` the same way template queries are sp
 For pages outside the catch-all that still want shared chrome, pull layout data in `getStaticProps` and wrap the page in `LayoutProvider`:
 
 ```js
-import { getLayoutData, LayoutProvider } from "lib/next-wpgraphql"
-import "lib/next-wpgraphql-config"
+import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 import SiteLayout from "components/Site/SiteLayout"
 
 export default function Community({ layoutData }) {
@@ -201,7 +201,7 @@ export async function getStaticProps() {
 For pages with their own data needs, call `request()` directly:
 
 ```js
-import { request } from "lib/next-wpgraphql"
+import { request } from "lib/wpgraphql-client"
 
 const NOT_FOUND_QUERY = /* GraphQL */ `
   query NotFoundQuery { menu(id: "Primary Nav", idType: NAME) { /* … */ } }
@@ -240,7 +240,7 @@ Slugs, post type names, and taxonomy names are normalized to lowercase. The cand
 Before resolving a template, `getTemplateStaticProps` runs `SEED_QUERY` to identify the node behind the URI:
 
 ```graphql
-query NextWpGraphQLSeed($uri: String!) {
+query WpGraphQLClientSeed($uri: String!) {
   node: nodeByUri(uri: $uri) {
     __typename id uri
     ... on ContentNode { databaseId slug isPreview isRestricted
@@ -282,7 +282,7 @@ The seed query is itself sent as a GET-with-queryId, so it benefits from the sam
 
 The library never exports a `useQuery` hook. Templates and components consume data from `data` / `useLayoutData()` props rendered server-side. To enforce this in CI:
 
-- Templates and components don't import from `next-wpgraphql/client` (verifiable with grep)
+- Templates and components don't import from `wpgraphql-client/client` (verifiable with grep)
 - A 6000-byte GET URL guard prevents oversized variable payloads
 - All queries run from `getStaticProps` (or `getServerSideProps` / API routes) — never from `useEffect`
 
@@ -307,7 +307,7 @@ Coverage areas:
 ## Layout of the library
 
 ```
-next-wpgraphql/
+wpgraphql-client/
   index.js                      public exports
   client.js                     fetch client
   endpoint.js                   env-var endpoint resolver

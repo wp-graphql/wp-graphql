@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next"
 import { getServerSideSitemap } from "next-sitemap"
 
-import { request } from "lib/next-wpgraphql"
+import { request } from "lib/wpgraphql-client"
 
 const SITEMAP_QUERY = /* GraphQL */ `
   query SitemapQuery($after: String) {

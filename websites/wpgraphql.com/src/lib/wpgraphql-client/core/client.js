@@ -37,7 +37,7 @@ function buildGetUrl(endpoint, { queryId, variables, operationName }) {
 
 async function postJson(endpoint, body) {
   if (!_fetch) {
-    throw new Error("next-wpgraphql/client: no fetch implementation available")
+    throw new Error("wpgraphql-client/client: no fetch implementation available")
   }
   const res = await _fetch(endpoint, {
     method: "POST",
@@ -49,7 +49,7 @@ async function postJson(endpoint, body) {
 
 async function getJson(url) {
   if (!_fetch) {
-    throw new Error("next-wpgraphql/client: no fetch implementation available")
+    throw new Error("wpgraphql-client/client: no fetch implementation available")
   }
   const res = await _fetch(url, {
     method: "GET",

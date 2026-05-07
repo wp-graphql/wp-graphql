@@ -1,8 +1,8 @@
 import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
-import { getLayoutData, LayoutProvider, request } from "lib/next-wpgraphql"
-import "lib/next-wpgraphql-config"
+import { getLayoutData, LayoutProvider, request } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 
 import { getParsedDoc, getDocsNav } from "lib/parse-mdx-docs"
 

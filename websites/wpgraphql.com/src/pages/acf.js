@@ -1,5 +1,5 @@
-import { getLayoutData, LayoutProvider } from "lib/next-wpgraphql"
-import "lib/next-wpgraphql-config"
+import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 import SiteLayout from "../components/Site/SiteLayout";
 import Image from 'next/image'
 import {Disclosure} from "@headlessui/react";

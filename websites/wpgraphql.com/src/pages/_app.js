@@ -1,4 +1,4 @@
-import "lib/next-wpgraphql-config"
+import "lib/wpgraphql-client-config"
 import { useRouter } from "next/router"
 import Script from "next/script"
 import * as gtag from "../lib/gtag";

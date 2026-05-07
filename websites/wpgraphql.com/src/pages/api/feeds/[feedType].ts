@@ -1,7 +1,7 @@
 import { createHash } from "crypto"
 import { Temporal } from "@js-temporal/polyfill"
 
-import { request } from "lib/next-wpgraphql"
+import { request } from "lib/wpgraphql-client"
 import { StatusCodes, getReasonPhrase } from "http-status-codes"
 
 import { FEED_QUERY, createFeed } from "../../../lib/feed"

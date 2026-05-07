@@ -1,6 +1,6 @@
 import { describe, it, beforeEach } from "node:test"
 import assert from "node:assert/strict"
-import { request, setFetch } from "../client.js"
+import { request, setFetch } from "../core/client.js"
 
 const ENDPOINT = "https://example.com/graphql"
 

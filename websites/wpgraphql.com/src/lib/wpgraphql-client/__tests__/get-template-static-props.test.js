@@ -1,8 +1,8 @@
 import { describe, it, beforeEach } from "node:test"
 import assert from "node:assert/strict"
-import { setFetch } from "../client.js"
-import { configure } from "../templates.js"
-import { getTemplateStaticProps } from "../get-template-static-props.js"
+import { setFetch } from "../core/client.js"
+import { configure } from "../core/templates.js"
+import { getTemplateStaticProps } from "../next/get-template-static-props.js"
 
 const ENDPOINT = "https://example.com/graphql"
 
@@ -37,7 +37,7 @@ beforeEach(() => {
 describe("getTemplateStaticProps", () => {
   it("runs seed query, resolves a template, and returns props with data + layoutData", async () => {
     const responses = {
-      NextWpGraphQLSeed: {
+      WpGraphQLClientSeed: {
         data: {
           node: {
             __typename: "ContentType",

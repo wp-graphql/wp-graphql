@@ -1,4 +1,4 @@
-import { request } from "lib/next-wpgraphql"
+import { request } from "lib/wpgraphql-client"
 
 import { ChevronRightIcon } from "@heroicons/react/20/solid"
 import DynamicHeroIcon from "components/DynamicHeroIcon"

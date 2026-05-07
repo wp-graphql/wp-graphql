@@ -1,6 +1,6 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
-import { configure, getRegistry } from "../templates.js"
+import { configure, getRegistry } from "../core/templates.js"
 
 describe("configure / getRegistry", () => {
   it("stores templates and Layout passed to configure()", () => {

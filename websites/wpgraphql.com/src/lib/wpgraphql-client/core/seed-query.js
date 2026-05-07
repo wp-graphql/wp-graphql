@@ -1,5 +1,5 @@
 export const SEED_QUERY = /* GraphQL */ `
-  query NextWpGraphQLSeed($uri: String!) {
+  query WpGraphQLClientSeed($uri: String!) {
     node: nodeByUri(uri: $uri) {
       __typename
       id

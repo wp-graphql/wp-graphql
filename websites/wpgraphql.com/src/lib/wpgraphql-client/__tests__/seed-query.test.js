@@ -1,7 +1,7 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import { parse } from "graphql"
-import { SEED_QUERY, normalizeSeed } from "../seed-query.js"
+import { SEED_QUERY, normalizeSeed } from "../core/seed-query.js"
 
 describe("SEED_QUERY", () => {
   it("is a parseable GraphQL document", () => {

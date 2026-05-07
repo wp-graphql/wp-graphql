@@ -1,7 +1,7 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import { parse } from "graphql"
-import { printQuery, getOperation } from "../print.js"
+import { printQuery, getOperation } from "../core/print.js"
 
 describe("printQuery", () => {
   it("returns the same string for an already-printed query", () => {

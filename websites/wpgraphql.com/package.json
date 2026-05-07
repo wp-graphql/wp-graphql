@@ -11,7 +11,7 @@
     "test:lint": "next lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:unit": "node --test src/lib/next-wpgraphql/__tests__",
+    "test:unit": "node --test src/lib/wpgraphql-client/__tests__",
     "postbuild": "next-sitemap",
     "format": "npm run test:format -- --write",
     "prepare": "husky install"

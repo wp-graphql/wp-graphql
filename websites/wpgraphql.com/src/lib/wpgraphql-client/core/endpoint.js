@@ -3,7 +3,7 @@ export function getGraphqlEndpoint() {
   const trimmed = raw.replace(/\/+$/, "")
   if (!trimmed) {
     throw new Error(
-      "next-wpgraphql: NEXT_PUBLIC_WPGRAPHQL_URL or WPGRAPHQL_URL must be set"
+      "wpgraphql-client: NEXT_PUBLIC_WPGRAPHQL_URL or WPGRAPHQL_URL must be set"
     )
   }
   return trimmed

@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from "node:test"
 import assert from "node:assert/strict"
-import { getGraphqlEndpoint } from "../endpoint.js"
+import { getGraphqlEndpoint } from "../core/endpoint.js"
 
 const ENV_KEYS = ["NEXT_PUBLIC_WPGRAPHQL_URL", "WPGRAPHQL_URL"]
 

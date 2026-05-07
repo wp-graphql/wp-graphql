@@ -1,5 +1,5 @@
-import { getTemplateStaticProps, LayoutProvider } from "lib/next-wpgraphql"
-import "lib/next-wpgraphql-config"
+import { getTemplateStaticProps, LayoutProvider } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 import templates from "wp-templates"
 
 export default function Page({ template, data, layoutData, seed, uri }) {

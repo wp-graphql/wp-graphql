@@ -1,6 +1,6 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
-import { buildCandidateNames, resolveTemplateName } from "../hierarchy.js"
+import { buildCandidateNames, resolveTemplateName } from "../core/hierarchy.js"
 
 const Stub = () => null
 const fullRegistry = {

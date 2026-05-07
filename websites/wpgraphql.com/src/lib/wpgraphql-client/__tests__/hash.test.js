@@ -1,6 +1,6 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
-import { sha256 } from "../hash.js"
+import { sha256 } from "../core/hash.js"
 
 describe("sha256", () => {
   it("produces the standard SHA-256 hex digest for the empty string", async () => {
