@@ -89,3 +89,7 @@ ArchivePost.queries = {
 - **[Hierarchy](./docs/hierarchy.md)** — the WordPress template hierarchy as candidate-list resolution
 - **[Transport](./docs/transport.md)** — `request()`, the seed query, GET+queryId, APQ, server-only design
 - **[Testing](./docs/testing.md)** — `node:test` setup, coverage areas, file layout, requirements
+
+## Roadmap
+
+- **[Preview](./docs/preview.md)** — design for an Application Password + shared secret flow that lets WordPress editors preview drafts on the headless site. Not implemented yet; doc captures the intended library API, site wiring, and WP-side setup so we can build to it.
