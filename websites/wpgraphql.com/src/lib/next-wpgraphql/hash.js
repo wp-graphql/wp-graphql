@@ -1,16 +1,3 @@
-async function hashWithWebCrypto(input) {
-  const subtle = globalThis.crypto?.subtle
-  if (!subtle) return null
-  const bytes = new TextEncoder().encode(input)
-  const buf = await subtle.digest("SHA-256", bytes)
-  return bufferToHex(new Uint8Array(buf))
-}
-
-async function hashWithNodeCrypto(input) {
-  const { createHash } = await import("node:crypto")
-  return createHash("sha256").update(input, "utf8").digest("hex")
-}
-
 function bufferToHex(bytes) {
   const out = new Array(bytes.length)
   for (let i = 0; i < bytes.length; i++) {
@@ -23,7 +10,13 @@ export async function sha256(input) {
   if (typeof input !== "string") {
     throw new TypeError("sha256: input must be a string")
   }
-  const fromWebCrypto = await hashWithWebCrypto(input)
-  if (fromWebCrypto) return fromWebCrypto
-  return hashWithNodeCrypto(input)
+  const subtle = globalThis.crypto?.subtle
+  if (!subtle) {
+    throw new Error(
+      "next-wpgraphql/hash: Web Crypto (globalThis.crypto.subtle) is not available in this runtime"
+    )
+  }
+  const bytes = new TextEncoder().encode(input)
+  const buf = await subtle.digest("SHA-256", bytes)
+  return bufferToHex(new Uint8Array(buf))
 }
