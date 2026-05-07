@@ -6,6 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
+import { collectVariables } from 'graphql-language-service';
 import {
 	Button,
 	Dropdown,
@@ -1026,6 +1027,24 @@ export function IDELayout({ fetcher, onClose }) {
 			.map((d) => d.name.value);
 	}, [parsedQuery]);
 
+	// Map of declared variable name → GraphQLInputType, derived from the
+	// parsed operation. The Variables JSON editor uses this to lint the
+	// JSON document against the operation's expected types so users get
+	// inline feedback when a value's shape (number vs string, missing
+	// required input field, etc.) doesn't match. Null when the schema
+	// hasn't loaded or the document doesn't parse — the JSON editor's
+	// linter falls back to syntax-only checking in that case.
+	const variableToType = useMemo(() => {
+		if (!schema || !parsedQuery.ast) {
+			return null;
+		}
+		try {
+			return collectVariables(schema, parsedQuery.ast);
+		} catch {
+			return null;
+		}
+	}, [schema, parsedQuery]);
+
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
 		if (isFetching) {
@@ -1165,24 +1184,37 @@ export function IDELayout({ fetcher, onClose }) {
 	// Single slot to the left of the GraphQL editor that hosts either the
 	// Query Composer or the Document Settings panel. Mutually exclusive —
 	// only one (or none) is open at a time. Persists the user's last
-	// choice, falling back to the legacy composer flag for users coming
-	// from older versions.
+	// choice in `wpgraphql_ide_left_panel`.
 	const [leftPanel, setLeftPanelState] = useState(() => {
 		try {
+			// One-time migration from the older standalone flag to the
+			// unified key. Consume (delete) the legacy entry so it can't
+			// keep re-opening the panel after the user has closed it —
+			// since closing clears the unified key, leaving the legacy
+			// flag in place would silently override the user's choice
+			// on every refresh.
+			const legacy = window.localStorage.getItem(
+				'wpgraphql_ide_show_query_composer'
+			);
+			if (legacy !== null) {
+				window.localStorage.removeItem(
+					'wpgraphql_ide_show_query_composer'
+				);
+				if (
+					legacy === 'true' &&
+					!window.localStorage.getItem('wpgraphql_ide_left_panel')
+				) {
+					window.localStorage.setItem(
+						'wpgraphql_ide_left_panel',
+						'composer'
+					);
+				}
+			}
 			const stored = window.localStorage.getItem(
 				'wpgraphql_ide_left_panel'
 			);
 			if (stored === 'composer' || stored === 'settings') {
 				return stored;
-			}
-			// Legacy compatibility: a `true` value from the older composer
-			// flag becomes a Composer-open default.
-			if (
-				window.localStorage.getItem(
-					'wpgraphql_ide_show_query_composer'
-				) === 'true'
-			) {
-				return 'composer';
 			}
 		} catch {
 			// ignore
@@ -2146,6 +2178,9 @@ export function IDELayout({ fetcher, onClose }) {
 															handleVariablesChange
 														}
 														placeholder="Variables (JSON)"
+														variableToType={
+															variableToType
+														}
 													/>
 												) : (
 													<JSONEditor
