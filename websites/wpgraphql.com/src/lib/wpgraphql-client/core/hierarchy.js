@@ -5,14 +5,48 @@ function slugify(value) {
   return lower
 }
 
+/**
+ * Generate sensible kebab/snake/lowered variants of a post type or taxonomy
+ * name, so authors can declare templates using either the JS-idiomatic
+ * kebab-case form (e.g. "code-snippet") or the lowered-compact form
+ * ("codesnippet"), regardless of how WPGraphQL exposes the type name
+ * ("CodeSnippet", "codeSnippet", "code_snippet", etc.).
+ *
+ * Returns an ordered, deduplicated array. Order matters: more-specific
+ * variants come first so registries that opt into both forms get the
+ * intended one.
+ */
+function nameVariants(value) {
+  if (typeof value !== "string") return []
+  const trimmed = value.trim()
+  if (!trimmed) return []
+  const lower = trimmed.toLowerCase()
+  const kebab = trimmed
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2") // camelCase boundary
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2") // ACRONYM_Word boundary
+    .replace(/[_\s]+/g, "-") // snake_case / spaces
+    .toLowerCase()
+  const out = []
+  const seen = new Set()
+  for (const v of [kebab, lower]) {
+    if (v && !seen.has(v)) {
+      seen.add(v)
+      out.push(v)
+    }
+  }
+  return out
+}
+
 export function buildCandidateNames(seed) {
   const names = []
   if (!seed) return names
 
   const typename = seed.typename
   const slug = slugify(seed.slug)
-  const postType = slugify(seed.postType)
-  const taxonomy = slugify(seed.taxonomy)
+  const postTypeVariants = nameVariants(seed.postType)
+  const taxonomyVariants = nameVariants(seed.taxonomy)
+  const archiveTypeSource = seed.postType ?? seed.name
+  const archiveTypeVariants = nameVariants(archiveTypeSource)
 
   if (seed.isFrontPage) names.push("front-page")
   if (seed.isPostsPage) names.push("home")
@@ -22,8 +56,7 @@ export function buildCandidateNames(seed) {
     names.push("page")
     names.push("singular")
   } else if (typename === "ContentType") {
-    const archiveType = postType ?? slugify(seed.name)
-    if (archiveType) names.push(`archive-${archiveType}`)
+    for (const v of archiveTypeVariants) names.push(`archive-${v}`)
     names.push("archive")
   } else if (typename === "Category") {
     if (slug) names.push(`category-${slug}`)
@@ -37,14 +70,18 @@ export function buildCandidateNames(seed) {
     if (slug) names.push(`author-${slug}`)
     names.push("author")
     names.push("archive")
-  } else if (typename && taxonomy) {
-    if (slug) names.push(`taxonomy-${taxonomy}-${slug}`)
-    names.push(`taxonomy-${taxonomy}`)
+  } else if (typename && taxonomyVariants.length > 0) {
+    for (const tax of taxonomyVariants) {
+      if (slug) names.push(`taxonomy-${tax}-${slug}`)
+      names.push(`taxonomy-${tax}`)
+    }
     names.push("taxonomy")
     names.push("archive")
-  } else if (postType) {
-    if (slug) names.push(`single-${postType}-${slug}`)
-    names.push(`single-${postType}`)
+  } else if (postTypeVariants.length > 0) {
+    for (const pt of postTypeVariants) {
+      if (slug) names.push(`single-${pt}-${slug}`)
+      names.push(`single-${pt}`)
+    }
     names.push("single")
     names.push("singular")
   } else if (typename) {

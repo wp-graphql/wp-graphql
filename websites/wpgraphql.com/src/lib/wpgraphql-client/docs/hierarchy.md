@@ -23,12 +23,25 @@ This mirrors WordPress's [template hierarchy](https://developer.wordpress.org/th
 ## Algorithm
 
 1. Build the candidate list from the seed.
-2. Normalize slugs, post type names, and taxonomy names to lowercase.
-3. Deduplicate the list (some seeds map to the same candidate twice — e.g. a Page named "page").
-4. Walk in order; return the first key present in the registry.
-5. If no key matches, throw an error listing the candidates that were tried.
+2. Normalize slugs to lowercase.
+3. For post type and taxonomy names, emit **two variants** so authors can use either form:
+   - **Kebab-case** (e.g. `CodeSnippet` → `code-snippet`, `code_snippet` → `code-snippet`) — JS-idiomatic, matches WordPress's PHP `single-{post_type}.php` convention.
+   - **Lowered-compact** (e.g. `CodeSnippet` → `codesnippet`) — fallback for registries that omit hyphens.
+   The kebab form comes first, so a registry containing both wins on the kebab one.
+4. Deduplicate the list (some seeds map to the same candidate twice — e.g. a Page named "page").
+5. Walk in order; return the first key present in the registry.
+6. If no key matches, throw an error listing the candidates that were tried.
 
 The candidate-building logic is exposed separately as `buildCandidateNames(seed)` so it can be tested without a registry.
+
+### Variant examples
+
+| `seed.postType` | candidates emitted (most specific first) |
+|---|---|
+| `CodeSnippet`   | `single-code-snippet-{slug}`, `single-code-snippet`, `single-codesnippet-{slug}`, `single-codesnippet`, `single`, `singular` |
+| `code_snippet`  | `single-code-snippet-{slug}`, `single-code-snippet`, `single-code_snippet-{slug}`, `single-code_snippet`, `single`, `singular` |
+| `bookReview`    | `single-book-review-{slug}`, `single-book-review`, `single-bookreview-{slug}`, `single-bookreview`, `single`, `singular` |
+| `post`          | `single-post-{slug}`, `single-post`, `single`, `singular` |
 
 ## Adding a new specificity slot
 

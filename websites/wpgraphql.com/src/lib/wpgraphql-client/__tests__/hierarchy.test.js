@@ -113,6 +113,42 @@ describe("buildCandidateNames", () => {
     assert.ok(names.includes("single-post"))
   })
 
+  it("emits both kebab-case and lowered variants for camelCase post types", () => {
+    const names = buildCandidateNames({
+      typename: "CodeSnippet",
+      postType: "CodeSnippet",
+      slug: "page-siblings-connection",
+    })
+    // kebab form first
+    assert.ok(
+      names.includes("single-code-snippet-page-siblings-connection"),
+      "expected kebab single-{slug} variant"
+    )
+    assert.ok(names.includes("single-code-snippet"), "expected kebab variant")
+    // also the lowered-compact form
+    assert.ok(names.includes("single-codesnippet"), "expected lowered variant")
+  })
+
+  it("emits both variants for snake_case post types", () => {
+    const names = buildCandidateNames({
+      typename: "Post",
+      postType: "code_snippet",
+      slug: "x",
+    })
+    assert.ok(names.includes("single-code-snippet"))
+    assert.ok(names.includes("single-code_snippet"))
+  })
+
+  it("emits archive-{type} variants for ContentType nodes", () => {
+    const names = buildCandidateNames({
+      typename: "ContentType",
+      postType: "CodeSnippet",
+    })
+    assert.ok(names.includes("archive-code-snippet"))
+    assert.ok(names.includes("archive-codesnippet"))
+    assert.ok(names.includes("archive"))
+  })
+
   it("returns an empty array for null seed", () => {
     assert.deepEqual(buildCandidateNames(null), [])
   })
@@ -165,17 +201,17 @@ describe("resolveTemplateName", () => {
     )
   })
 
-  it("matches the existing wpgraphql.com registry shape", () => {
+  it("matches the wpgraphql.com registry shape", () => {
     const liveLikeRegistry = {
       category: Stub,
       author: Stub,
       archive: Stub,
       "archive-post": Stub,
       singular: Stub,
-      "single-code-snippets": Stub,
-      "single-functions": Stub,
-      "single-actions": Stub,
-      "single-filters": Stub,
+      "single-code-snippet": Stub,
+      "single-function": Stub,
+      "single-action": Stub,
+      "single-filter": Stub,
       "front-page": Stub,
     }
 
@@ -201,6 +237,21 @@ describe("resolveTemplateName", () => {
         liveLikeRegistry
       ),
       "singular"
+    )
+    // Custom post types resolve to their dedicated single-* slot via kebab variant
+    assert.equal(
+      resolveTemplateName(
+        { typename: "CodeSnippet", postType: "CodeSnippet", slug: "x" },
+        liveLikeRegistry
+      ),
+      "single-code-snippet"
+    )
+    assert.equal(
+      resolveTemplateName(
+        { typename: "Function", postType: "Function", slug: "x" },
+        liveLikeRegistry
+      ),
+      "single-function"
     )
   })
 })
