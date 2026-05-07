@@ -84,7 +84,7 @@ export default function SiteHeader() {
     >
       <div className="max-w-8xl mx-auto flex justify-between items-center px-4 py-4 sm:px-6 md:justify-start md:space-x-10">
         <div className="flex justify-start lg:w-0 lg:flex-1">
-          <Link href="/">
+          <Link href="/" legacyBehavior>
             <a>
               <span className="sr-only">WPGraphQL</span>
               <div className="relative h-full w-auto sm:h-10">
@@ -122,7 +122,7 @@ export default function SiteHeader() {
             menuItems.map((item) => {
               if (!item.children || !item.children.length) {
                 return (
-                  <Link key={item.id} href={item.path}>
+                  <Link key={item.id} href={item.path} legacyBehavior>
                     <a className="text-base font-medium text-gray-700 hover:text-gray-900 dark:text-white dark:hover:text-gray-300">
                       {item.label}
                     </a>
@@ -250,7 +250,7 @@ export default function SiteHeader() {
             <div className="pt-5 pb-6 px-5">
               <div className="flex items-center align-center justify-between">
                 <div className="h-full w-auto">
-                  <Link href="/">
+                  <Link href="/" legacyBehavior>
                     <a>
                       <SiteLogo />
                     </a>
@@ -273,6 +273,7 @@ export default function SiteHeader() {
                         key={menuItem.path}
                         href={menuItem.path}
                         className="-m-3 p-3 flex items-center rounded-lg hover:bg-gray-50 dark:hover:bg-slate-900"
+                        legacyBehavior
                       >
                         <a className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600">
                           <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-md bg-gradient-build text-white">

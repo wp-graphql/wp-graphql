@@ -23,7 +23,7 @@ export default function SingleRecipe({ data }) {
                   ) : null}
                   <div className="flex flex-wrap justify-center">
                     {node?.recipeTags?.nodes?.map((tag, i) => (
-                      <Link key={i} href={tag.uri}>
+                      <Link key={i} href={tag.uri} legacyBehavior>
                         <a className="mr-3 text-sm font-medium uppercase text-sky-500 dark:text-sky-300 hover:text-primary-600 dark:hover:text-sky-400">
                           {tag.name}
                         </a>

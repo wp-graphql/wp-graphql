@@ -27,7 +27,7 @@ export default function FunctionPreview({ node }) {
       </div>
 
       <div className="text-base font-medium leading-6">
-        <Link href={node.uri}>
+        <Link href={node.uri} legacyBehavior>
           <a className="btn-primary-sm">
             <span className="pr-2">View Function →</span>
           </a>

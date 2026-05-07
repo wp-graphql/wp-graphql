@@ -15,7 +15,7 @@ export default function HomepageHero() {
                 WPGraphQL is a free, open-source WordPress plugin that provides
                 an extendable GraphQL schema and API for any WordPress site.
               </p>
-              <Link href="/docs/introduction">
+              <Link href="/docs/introduction" legacyBehavior>
                 <a className="btn-secondary">
                   Get Started
                 </a>

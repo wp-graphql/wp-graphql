@@ -54,7 +54,7 @@ export default function PostPreview({ post, isLatest }) {
       </div>
       <div>
         <h2 className="text-2xl font-bold leading-8 tracking-tight mb-2">
-          <Link href={post.uri}>
+          <Link href={post.uri} legacyBehavior>
             <a className="text-navy dark:text-gray-100">{post.title}</a>
           </Link>
         </h2>

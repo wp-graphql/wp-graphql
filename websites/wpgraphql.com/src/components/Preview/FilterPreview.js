@@ -27,7 +27,7 @@ export default function FilterPreview({ filter }) {
       </div>
 
       <div className="text-base font-medium leading-6">
-        <Link href={filter.uri}>
+        <Link href={filter.uri} legacyBehavior>
           <a className="btn-primary-sm">
             <span className="pr-2">View Filter →</span>
           </a>
