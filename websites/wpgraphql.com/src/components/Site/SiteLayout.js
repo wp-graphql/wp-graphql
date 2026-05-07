@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client"
 import Header, { NavMenuFragment } from "./SiteHeader"
 import Footer from "./SiteFooter"
 
@@ -14,5 +15,15 @@ export default function SiteLayout({ children }) {
 export { NavMenuFragment }
 
 export const Layout = {
-  queries: {},
+  queries: {
+    navMenu: {
+      query: gql`
+        query Layout_NavMenu {
+          ...NavMenu
+        }
+        ${NavMenuFragment}
+      `,
+      variables: () => ({}),
+    },
+  },
 }

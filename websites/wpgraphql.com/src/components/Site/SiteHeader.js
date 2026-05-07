@@ -17,6 +17,7 @@ import {
   flatListToHierarchical,
   getIconNameFromMenuItem,
 } from "lib/menu-helpers"
+import { useLayoutData } from "lib/next-wpgraphql"
 import { socialHeaderLinks } from "../../data/social"
 import { SearchButton } from "./SearchButton";
 
@@ -44,16 +45,19 @@ export const NavMenuFragment = gql`
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false)
 
-  const { data } = useQuery(
+  const layoutData = useLayoutData()
+  const { data: clientData } = useQuery(
     gql`
       {
         ...NavMenu
       }
       ${NavMenuFragment}
-    `
+    `,
+    { skip: Boolean(layoutData?.navMenu) }
   )
 
-  const menuItems = flatListToHierarchical(data?.menu?.menuItems?.nodes, {
+  const menu = layoutData?.navMenu ?? clientData?.menu
+  const menuItems = flatListToHierarchical(menu?.menuItems?.nodes, {
     idKey: "id",
     parentKey: "parentId",
     childrenKey: "children",
