@@ -59,7 +59,7 @@ Category.query = gql`
   ${PostPreviewFragment}
 `
 
-Category.queries = {
+Category.nextQueries = {
   category: {
     query: gql`
       query Category_Node($id: ID!) {

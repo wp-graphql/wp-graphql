@@ -33,7 +33,7 @@ Index.query = gql`
   ${NavMenuFragment}
 `
 
-Index.queries = {
+Index.nextQueries = {
   posts: {
     query: gql`
       query Index_Posts {

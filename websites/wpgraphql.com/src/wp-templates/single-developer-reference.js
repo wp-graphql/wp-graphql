@@ -55,7 +55,7 @@ SingleDeveloperReference.query = gql`
   ${NavMenuFragment}
 `
 
-SingleDeveloperReference.queries = {
+SingleDeveloperReference.nextQueries = {
   post: {
     query: gql`
       query SingleDeveloperReference_Post($uri: ID!) {

@@ -53,7 +53,7 @@ export async function getTemplateStaticProps(ctx, opts = {}) {
   const Template = templates[templateName]
   const reqCtx = { uri, seed, params: ctx?.params ?? {} }
 
-  const templateEntries = Object.entries(Template.queries ?? {})
+  const templateEntries = Object.entries(Template.nextQueries ?? {})
   const layoutEntries = Object.entries(Layout?.queries ?? {})
 
   const [data, layoutData] = await Promise.all([

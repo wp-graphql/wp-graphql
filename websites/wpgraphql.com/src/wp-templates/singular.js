@@ -126,7 +126,7 @@ Singlar.query = gql`
   ${NavMenuFragment}
 `
 
-Singlar.queries = {
+Singlar.nextQueries = {
   post: {
     query: gql`
       query Singular_Post($uri: ID!) {

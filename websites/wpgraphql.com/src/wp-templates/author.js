@@ -85,7 +85,7 @@ Author.variables = ({ id }) => {
   }
 }
 
-Author.queries = {
+Author.nextQueries = {
   user: {
     query: gql`
       query Author_User($id: ID!) {

@@ -118,7 +118,7 @@ Archive.query = gql`
   ${ActionPreviewFragment}
 `
 
-Archive.queries = {
+Archive.nextQueries = {
   archive: {
     query: gql`
       query Archive_Node($uri: String!) {

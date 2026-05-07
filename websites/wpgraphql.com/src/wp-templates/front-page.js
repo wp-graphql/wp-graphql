@@ -34,4 +34,4 @@ FrontPage.query = gql`
   ${NavMenuFragment}
 `
 
-FrontPage.queries = {}
+FrontPage.nextQueries = {}

@@ -64,7 +64,7 @@ describe("getTemplateStaticProps", () => {
     setFetch(fn)
 
     const ArchivePost = () => null
-    ArchivePost.queries = {
+    ArchivePost.nextQueries = {
       posts: {
         query: /* GraphQL */ `query ArchivePost_Posts { posts { nodes { id title } } }`,
         variables: () => ({}),
@@ -122,7 +122,7 @@ describe("getTemplateStaticProps", () => {
     setFetch(fn)
 
     const FrontPage = () => null
-    FrontPage.queries = {
+    FrontPage.nextQueries = {
       hello: { query: `query Hello { hello }`, variables: () => ({}) },
     }
     configure({
@@ -147,7 +147,7 @@ describe("getTemplateStaticProps", () => {
     setFetch(fn)
 
     const Page = () => null
-    Page.queries = {}
+    Page.nextQueries = {}
     configure({
       templates: { page: Page, singular: Page, index: () => null },
       Layout: { queries: {} },
@@ -180,7 +180,7 @@ describe("getTemplateStaticProps", () => {
     setFetch(fn)
 
     const ArchivePost = () => null
-    ArchivePost.queries = {
+    ArchivePost.nextQueries = {
       a: { query: `query A { a }`, variables: () => ({}), skip: () => true },
       b: { query: `query B { b }`, variables: () => ({}), skip: () => false },
     }

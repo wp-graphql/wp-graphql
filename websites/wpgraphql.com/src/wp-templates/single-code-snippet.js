@@ -81,7 +81,7 @@ SingleRecipe.variables = ({ uri }) => {
   }
 }
 
-SingleRecipe.queries = {
+SingleRecipe.nextQueries = {
   node: {
     query: gql`
       query SingleCodeSnippet_Node($uri: ID!) {

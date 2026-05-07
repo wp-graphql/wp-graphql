@@ -47,7 +47,7 @@ ArchivePost.query = gql`
   ${NavMenuFragment}
 `
 
-ArchivePost.queries = {
+ArchivePost.nextQueries = {
   posts: {
     query: gql`
       query ArchivePost_Posts($first: Int) {
