@@ -32,3 +32,26 @@ Index.query = gql`
   }
   ${NavMenuFragment}
 `
+
+Index.queries = {
+  posts: {
+    query: gql`
+      query Index_Posts {
+        INDEX: __typename
+        posts {
+          nodes {
+            id
+            title
+            author {
+              node {
+                name
+                uri
+              }
+            }
+          }
+        }
+      }
+    `,
+    variables: () => ({}),
+  },
+}
