@@ -149,7 +149,12 @@ class RootView extends React.PureComponent {
 						className="graphiql-operation-name"
 						autoComplete="false"
 						placeholder={`${capitalize(operationType)} Name`}
-						value={this.props.name}
+						/* Coerce to '' so the input stays controlled when
+						   the active document has an anonymous query
+						   (`{ posts { id } }`). Otherwise React treats
+						   `undefined` as uncontrolled and the input keeps
+						   the previous tab's operation name on screen. */
+						value={this.props.name || ''}
 						onKeyDown={this._handlePotentialRun}
 						onChange={this._onOperationRename}
 					/>

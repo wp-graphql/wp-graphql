@@ -142,16 +142,31 @@ const actions = {
 
 				const docIds = docs.map((d) => String(d.id));
 				const unsavedIds = unsaved.map((d) => String(d.id));
+				const validIds = new Set([...docIds, ...unsavedIds]);
 
-				// Saved docs the server-side prefs say should be open,
-				// preserved in the order they were last arranged.
-				const savedTabs = openTabs.filter((id) =>
-					docIds.includes(String(id))
+				// Reconstruct the full tab order from persisted prefs.
+				// Saved docs and temp drafts both have stable ids across
+				// refreshes (saved docs via post id, temp drafts via the
+				// localStorage-pinned `temp-{timestamp}` id), so the
+				// stored order is a 1:1 record of what the user had.
+				// Drop any id that no longer resolves to a doc or draft.
+				const persisted = openTabs
+					.map(String)
+					.filter((id) => validIds.has(id));
+
+				// Saved docs only appear as tabs if they're in the
+				// persisted list — opening a saved doc is always an
+				// explicit user action. Temp drafts, on the other hand,
+				// live in localStorage and may exist without being in
+				// the persisted list (e.g. created in another browser
+				// window, or carried over from older builds whose
+				// persistTabState filtered out temps). Append any such
+				// orphaned temps so refresh doesn't lose them.
+				const orphanedTemps = unsavedIds.filter(
+					(id) => !persisted.includes(id)
 				);
 
-				// Append every unsaved tab — server prefs don't know
-				// about them, so they couldn't already be in the list.
-				const tabIds = [...savedTabs, ...unsavedIds];
+				const tabIds = [...persisted, ...orphanedTemps];
 
 				if (tabIds.length > 0) {
 					dispatch({ type: 'SET_OPEN_TABS', tabIds });
@@ -469,20 +484,48 @@ const actions = {
 		},
 
 	/**
+	 * Set the open-tabs order to an explicit array of ids. Used by the
+	 * tab strip's drag-to-reorder. Persists immediately so refresh
+	 * preserves the new order.
+	 *
+	 * @param {Array<string>} tabIds Tab ids in the desired order.
+	 */
+	reorderTabs:
+		(tabIds) =>
+		async ({ dispatch }) => {
+			if (!Array.isArray(tabIds)) {
+				return;
+			}
+			dispatch({
+				type: 'SET_OPEN_TABS',
+				tabIds: tabIds.map(String),
+			});
+			await dispatch.persistTabState();
+		},
+
+	/**
 	 * Persist open tabs and active tab to user meta.
-	 * Only includes saved (non-temp) document IDs.
+	 *
+	 * Both saved and temp ids are persisted. Temp ids look like
+	 * `temp-{timestamp}` and are stable across refreshes because the
+	 * unsaved-tabs localStorage shape stores them with their original id —
+	 * so persisting the full order lets the tab strip reconstruct exactly
+	 * what the user had open, including the relative position of temp
+	 * drafts interleaved with saved docs. The post-refresh hydration in
+	 * `loadDocuments` resolves each id against the freshly-loaded doc set
+	 * and silently drops any that no longer correspond to a saved doc or
+	 * an unsaved draft.
 	 */
 	persistTabState:
 		() =>
 		async ({ select }) => {
-			const openTabs = select.getOpenTabs().filter((id) => !isTempId(id));
+			const openTabs = select.getOpenTabs();
 			const activeTab = select.getActiveTab();
-			const persistedActive = isTempId(activeTab) ? '' : activeTab;
 
 			try {
 				await Promise.all([
 					savePreference('open_tabs', openTabs),
-					savePreference('active_tab', persistedActive),
+					savePreference('active_tab', activeTab || ''),
 				]);
 			} catch (error) {
 				// eslint-disable-next-line no-console

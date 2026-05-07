@@ -20,12 +20,13 @@ const OVERFLOW_BTN_W = 32;
  * overflow dropdown on the right. Renames are triggered from the sidebar.
  *
  * @param {Object}   props
- * @param {Array}    props.tabs     Array of `{ id, title, dirty }` tab descriptors.
- * @param {string}   props.activeId Id of the currently active tab.
- * @param {Function} props.onSwitch Called with the clicked tab id.
- * @param {Function} props.onClose  Called with the id of the tab to close.
- * @param {Function} props.onCreate Called when the "+" button is clicked.
- * @param {Function} props.onRename Called with `(id, title)` after inline rename.
+ * @param {Array}    props.tabs      Array of `{ id, title, dirty }` tab descriptors.
+ * @param {string}   props.activeId  Id of the currently active tab.
+ * @param {Function} props.onSwitch  Called with the clicked tab id.
+ * @param {Function} props.onClose   Called with the id of the tab to close.
+ * @param {Function} props.onCreate  Called when the "+" button is clicked.
+ * @param {Function} props.onRename  Called with `(id, title)` after inline rename.
+ * @param {Function} props.onReorder Called with the next id-array after a drag-drop reorder.
  *
  * @return {JSX.Element}
  */
@@ -36,12 +37,50 @@ export function DocumentTabs({
 	onClose,
 	onCreate,
 	onRename,
+	onReorder,
 }) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
 	const [cutoff, setCutoff] = useState(tabs.length);
 	const [editingId, setEditingId] = useState(null);
 	const [editValue, setEditValue] = useState('');
+	// Drag-to-reorder state. `dragId` holds the id of the tab being
+	// dragged; `dropTarget` holds the id and side ('before' | 'after')
+	// of the tab the cursor is currently over. Both null when idle.
+	const [dragId, setDragId] = useState(null);
+	const [dropTarget, setDropTarget] = useState(null);
+
+	const clearDrag = useCallback(() => {
+		setDragId(null);
+		setDropTarget(null);
+	}, []);
+
+	const handleDrop = useCallback(
+		(targetId, position) => {
+			if (!dragId || !targetId || dragId === targetId || !onReorder) {
+				clearDrag();
+				return;
+			}
+			const ids = tabs.map((t) => String(t.id));
+			const fromIdx = ids.indexOf(String(dragId));
+			let toIdx = ids.indexOf(String(targetId));
+			if (fromIdx === -1 || toIdx === -1) {
+				clearDrag();
+				return;
+			}
+			// Remove first, then insert at the resolved index. Account
+			// for the index shift when removing an earlier element.
+			const [moved] = ids.splice(fromIdx, 1);
+			if (fromIdx < toIdx) {
+				toIdx -= 1;
+			}
+			const insertAt = position === 'after' ? toIdx + 1 : toIdx;
+			ids.splice(insertAt, 0, moved);
+			onReorder(ids);
+			clearDrag();
+		},
+		[dragId, onReorder, tabs, clearDrag]
+	);
 
 	const recalculate = useCallback(() => {
 		const container = containerRef.current;
@@ -142,8 +181,52 @@ export function DocumentTabs({
 						role="tab"
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
-						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${tab.dirty ? ' is-dirty' : ''}`}
+						draggable={editingId !== tab.id}
+						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${tab.dirty ? ' is-dirty' : ''}${dragId === tab.id ? ' is-dragging' : ''}${dropTarget?.id === tab.id && dropTarget?.position === 'before' ? ' is-drop-before' : ''}${dropTarget?.id === tab.id && dropTarget?.position === 'after' ? ' is-drop-after' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
+						onDragStart={(e) => {
+							setDragId(String(tab.id));
+							e.dataTransfer.effectAllowed = 'move';
+							// Required for Firefox to fire dragover/drop.
+							e.dataTransfer.setData(
+								'text/plain',
+								String(tab.id)
+							);
+						}}
+						onDragOver={(e) => {
+							if (!dragId || dragId === String(tab.id)) {
+								return;
+							}
+							e.preventDefault();
+							e.dataTransfer.dropEffect = 'move';
+							const rect =
+								e.currentTarget.getBoundingClientRect();
+							const position =
+								e.clientX < rect.left + rect.width / 2
+									? 'before'
+									: 'after';
+							setDropTarget((prev) => {
+								if (
+									prev?.id === String(tab.id) &&
+									prev.position === position
+								) {
+									return prev;
+								}
+								return { id: String(tab.id), position };
+							});
+						}}
+						onDragLeave={() => {
+							// Clear only when leaving *this* tab; the
+							// next dragover on a sibling will set fresh.
+							setDropTarget((prev) =>
+								prev?.id === String(tab.id) ? null : prev
+							);
+						}}
+						onDrop={(e) => {
+							e.preventDefault();
+							handleDrop(String(tab.id), dropTarget?.position);
+						}}
+						onDragEnd={clearDrag}
 						// Double-click to rename — matches macOS Finder, Chrome
 						// bookmarks, and most native tab UIs. Lets the user
 						// override the auto-derived title without hunting
@@ -175,51 +258,81 @@ export function DocumentTabs({
 							}
 						}}
 					>
-						{editingId === tab.id ? (
-							<RenameInput
-								className="wpgraphql-ide-tab-input"
-								ariaLabel="Rename document"
-								value={editValue}
-								onChange={setEditValue}
-								onCommit={(trimmed) => {
-									onRename(tab.id, trimmed);
-									setEditingId(null);
-								}}
-								onCancel={() => setEditingId(null)}
-							/>
-						) : (
-							<span className="wpgraphql-ide-tab-label">
-								{tab.dirty && (
-									<span
-										className="wpgraphql-ide-tab-dirty"
-										aria-label="Unsaved changes"
-										role="img"
+						<span className="wpgraphql-ide-tab-label">
+							{tab.dirty && (
+								<span
+									className="wpgraphql-ide-tab-dirty"
+									aria-label="Unsaved changes"
+									role="img"
+								/>
+							)}
+							{/* The static text is always rendered so it
+							    drives the label's intrinsic width — no
+							    layout shift when the input mounts on top
+							    of it for inline rename. While editing
+							    we show the in-flight value so the wrap
+							    grows/shrinks naturally as the user types. */}
+							<span className="wpgraphql-ide-tab-text-wrap">
+								<span
+									className="wpgraphql-ide-tab-text"
+									aria-hidden={editingId === tab.id}
+								>
+									{editingId === tab.id
+										? editValue || ' '
+										: tab.title || 'Untitled'}
+								</span>
+								{editingId === tab.id && (
+									<RenameInput
+										className="wpgraphql-ide-tab-input"
+										ariaLabel="Rename document"
+										value={editValue}
+										onChange={setEditValue}
+										onCommit={(trimmed) => {
+											onRename(tab.id, trimmed);
+											setEditingId(null);
+										}}
+										onCancel={() => setEditingId(null)}
 									/>
 								)}
-								{tab.title || 'Untitled'}
 							</span>
-						)}
-						{editingId !== tab.id && (
-							<span
-								className="wpgraphql-ide-tab-close"
-								role="button"
-								tabIndex={0}
-								onClick={(e) => {
-									e.stopPropagation();
-									onClose(String(tab.id));
-								}}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										e.stopPropagation();
-										onClose(String(tab.id));
+						</span>
+
+						{(() => {
+							const isEditingThis = editingId === tab.id;
+							return (
+								<span
+									className={`wpgraphql-ide-tab-close${isEditingThis ? ' is-disabled' : ''}`}
+									role="button"
+									tabIndex={isEditingThis ? -1 : 0}
+									aria-disabled={
+										isEditingThis ? true : undefined
 									}
-								}}
-								aria-label={`Close ${tab.title || 'Untitled'}`}
-							>
-								&times;
-							</span>
-						)}
+									onClick={(e) => {
+										e.stopPropagation();
+										if (isEditingThis) {
+											return;
+										}
+										onClose(String(tab.id));
+									}}
+									onKeyDown={(e) => {
+										if (isEditingThis) {
+											return;
+										}
+										if (
+											e.key === 'Enter' ||
+											e.key === ' '
+										) {
+											e.preventDefault();
+											e.stopPropagation();
+											onClose(String(tab.id));
+										}
+									}}
+									aria-label={`Close ${tab.title || 'Untitled'}`}
+								>
+									&times;
+								</span>
+							);
+						})()}
 					</button>
 				);
 			})}
