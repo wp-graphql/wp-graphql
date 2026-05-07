@@ -49,7 +49,7 @@ export default function SingleRecipe({ data }) {
   )
 }
 
-SingleRecipe.nextQueries = {
+SingleRecipe.queries = {
   node: {
     query: gql`
       query SingleCodeSnippet_Node($uri: ID!) {

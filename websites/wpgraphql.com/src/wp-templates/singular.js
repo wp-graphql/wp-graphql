@@ -90,7 +90,7 @@ export default function Singlar({ data }) {
   )
 }
 
-Singlar.nextQueries = {
+Singlar.queries = {
   post: {
     query: gql`
       query Singular_Post($uri: ID!) {

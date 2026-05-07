@@ -36,7 +36,7 @@ export default function SingleDeveloperReference({ data }) {
   )
 }
 
-SingleDeveloperReference.nextQueries = {
+SingleDeveloperReference.queries = {
   post: {
     query: gql`
       query SingleDeveloperReference_Post($uri: ID!) {

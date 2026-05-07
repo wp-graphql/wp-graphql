@@ -13,7 +13,7 @@ export default function Index({ data }) {
   )
 }
 
-Index.nextQueries = {
+Index.queries = {
   posts: {
     query: gql`
       query Index_Posts {

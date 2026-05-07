@@ -38,7 +38,7 @@ export default function Category({ data }) {
   )
 }
 
-Category.nextQueries = {
+Category.queries = {
   category: {
     query: gql`
       query Category_Node($id: ID!) {

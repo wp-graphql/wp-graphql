@@ -58,7 +58,7 @@ export default function Author({ data }) {
   )
 }
 
-Author.nextQueries = {
+Author.queries = {
   user: {
     query: gql`
       query Author_User($id: ID!) {

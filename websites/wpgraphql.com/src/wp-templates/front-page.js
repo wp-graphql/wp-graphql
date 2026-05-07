@@ -25,4 +25,4 @@ FrontPage.layoutProps = {
   },
 }
 
-FrontPage.nextQueries = {}
+FrontPage.queries = {}

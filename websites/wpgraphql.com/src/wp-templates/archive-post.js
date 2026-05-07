@@ -28,7 +28,7 @@ export default function ArchivePost({ data }) {
   )
 }
 
-ArchivePost.nextQueries = {
+ArchivePost.queries = {
   posts: {
     query: gql`
       query ArchivePost_Posts($first: Int) {

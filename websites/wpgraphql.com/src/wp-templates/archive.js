@@ -64,7 +64,7 @@ export default function Archive({ data }) {
   )
 }
 
-Archive.nextQueries = {
+Archive.queries = {
   archive: {
     query: gql`
       query Archive_Node($uri: String!) {
