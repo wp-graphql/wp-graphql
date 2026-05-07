@@ -2,6 +2,7 @@ import {
 	isEnumType,
 	isInputObjectType,
 	isLeafType,
+	isListType,
 	isNonNullType,
 	isRequiredInputField,
 	isScalarType,
@@ -105,6 +106,86 @@ export function unwrapInputType(inputType) {
 		unwrappedType = unwrappedType.ofType;
 	}
 	return unwrappedType;
+}
+
+/**
+ * If `inputType` is a list (optionally wrapped in non-null), return the
+ * list's element type. The element type is returned with its own
+ * wrappers intact so the caller can distinguish `[ID!]` from `[ID]`.
+ * Returns null when the type isn't a list.
+ *
+ * @param {*} inputType
+ */
+export function getListItemType(inputType) {
+	let t = inputType;
+	if (isNonNullType(t)) {
+		t = t.ofType;
+	}
+	if (isListType(t)) {
+		return t.ofType;
+	}
+	return null;
+}
+
+/**
+ * Build a default GraphQL value AST node for any input type, peeling
+ * non-null and list wrappers as it goes. Used when the composer needs
+ * to seed a value — e.g. when the user first checks an arg, when a new
+ * list item is added, or when `Inline` rebuilds an inline structure
+ * for a variable that has no captured `defaultValue`.
+ *
+ * @param {*}        type
+ * @param {Function} getDefaultScalarArgValue
+ * @param {Function} makeDefaultArg
+ * @param {*}        parentField
+ * @param {*}        field
+ */
+export function makeDefaultValueNode(
+	type,
+	getDefaultScalarArgValue,
+	makeDefaultArg,
+	parentField,
+	field
+) {
+	if (isNonNullType(type)) {
+		return makeDefaultValueNode(
+			type.ofType,
+			getDefaultScalarArgValue,
+			makeDefaultArg,
+			parentField,
+			field
+		);
+	}
+	if (isListType(type)) {
+		const itemType = type.ofType;
+		const item = makeDefaultValueNode(
+			itemType,
+			getDefaultScalarArgValue,
+			makeDefaultArg,
+			parentField,
+			field
+		);
+		return {
+			kind: 'ListValue',
+			values: item ? [item] : [],
+		};
+	}
+	if (isInputObjectType(type)) {
+		const fields = type.getFields();
+		return {
+			kind: 'ObjectValue',
+			fields: defaultInputObjectFields(
+				getDefaultScalarArgValue,
+				makeDefaultArg,
+				parentField,
+				Object.keys(fields).map((k) => fields[k])
+			),
+		};
+	}
+	if (isLeafType(type)) {
+		return getDefaultScalarArgValue(parentField, field || { type }, type);
+	}
+	return null;
 }
 
 export function coerceArgValue(argType, value) {

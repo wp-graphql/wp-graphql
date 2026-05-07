@@ -10,6 +10,7 @@ import Checkbox from './Checkbox';
 import ArgView from './ArgView';
 import FragmentView from './FragmentView';
 import AbstractView from './AbstractView';
+import ArgHoverTooltip from './ArgHoverTooltip';
 
 class FieldView extends React.PureComponent {
 	state = { displayFieldActions: false };
@@ -187,141 +188,147 @@ class FieldView extends React.PureComponent {
 
 		const node = (
 			<div className={className}>
-				<span
-					role="button"
-					tabIndex="0"
-					title={field.description}
-					className="graphiql-explorer-row"
-					data-field-name={field.name}
-					data-field-type={type.name}
-					onClick={this._handleUpdateSelections}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault();
-							this._handleUpdateSelections();
-						}
-					}}
-					onMouseEnter={() => {
-						const containsMeaningfulSubselection =
-							isObjectType(type) &&
-							selection &&
-							selection.selectionSet &&
-							selection.selectionSet.selections.filter(
-								(subSelection) =>
-									subSelection.kind !== 'FragmentSpread'
-							).length > 0;
-
-						if (containsMeaningfulSubselection) {
-							this.setState({ displayFieldActions: true });
-						}
-					}}
-					onMouseLeave={() =>
-						this.setState({ displayFieldActions: false })
-					}
+				<ArgHoverTooltip
+					argName={field.name}
+					argType={field.type.toString()}
+					parentName={this.props.parentTypeName}
+					description={field.description}
 				>
-					{isObjectType(type) ? (
-						<span>
-							{!!selection
-								? this.props.styleConfig.arrowOpen
-								: this.props.styleConfig.arrowClosed}
+					<span
+						role="button"
+						tabIndex="0"
+						className="graphiql-explorer-row"
+						data-field-name={field.name}
+						data-field-type={type.name}
+						onClick={this._handleUpdateSelections}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								this._handleUpdateSelections();
+							}
+						}}
+						onMouseEnter={() => {
+							const containsMeaningfulSubselection =
+								isObjectType(type) &&
+								selection &&
+								selection.selectionSet &&
+								selection.selectionSet.selections.filter(
+									(subSelection) =>
+										subSelection.kind !== 'FragmentSpread'
+								).length > 0;
+
+							if (containsMeaningfulSubselection) {
+								this.setState({ displayFieldActions: true });
+							}
+						}}
+						onMouseLeave={() =>
+							this.setState({ displayFieldActions: false })
+						}
+					>
+						{isObjectType(type) ? (
+							<span>
+								{!!selection
+									? this.props.styleConfig.arrowOpen
+									: this.props.styleConfig.arrowClosed}
+							</span>
+						) : null}
+						{isObjectType(type) ? null : (
+							<Checkbox
+								checked={!!selection}
+								styleConfig={this.props.styleConfig}
+							/>
+						)}
+						<span className="graphiql-explorer-field-view">
+							{field.name}
 						</span>
-					) : null}
-					{isObjectType(type) ? null : (
-						<Checkbox
-							checked={!!selection}
-							styleConfig={this.props.styleConfig}
-						/>
-					)}
-					<span className="graphiql-explorer-field-view">
-						{field.name}
-					</span>
-					{!this.state.displayFieldActions ? null : (
-						<button
-							type="button"
-							className="graphiql-explorer-extract"
-							title="Extract selections into a new reusable fragment"
-							onClick={(event) => {
-								event.preventDefault();
-								event.stopPropagation();
-								const typeName = type.name;
-								let newFragmentName = `${typeName}Fragment`;
+						{!this.state.displayFieldActions ? null : (
+							<button
+								type="button"
+								className="graphiql-explorer-extract"
+								title="Extract selections into a new reusable fragment"
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									const typeName = type.name;
+									let newFragmentName = `${typeName}Fragment`;
 
-								const conflictingNameCount = (
-									applicableFragments || []
-								).filter((fragment) => {
-									return fragment.name.value.startsWith(
-										newFragmentName
-									);
-								}).length;
+									const conflictingNameCount = (
+										applicableFragments || []
+									).filter((fragment) => {
+										return fragment.name.value.startsWith(
+											newFragmentName
+										);
+									}).length;
 
-								if (conflictingNameCount > 0) {
-									newFragmentName = `${newFragmentName}${conflictingNameCount}`;
-								}
+									if (conflictingNameCount > 0) {
+										newFragmentName = `${newFragmentName}${conflictingNameCount}`;
+									}
 
-								let childSelections = [];
-								if (selection && selection.selectionSet) {
-									childSelections =
-										selection.selectionSet.selections;
-								}
+									let childSelections = [];
+									if (selection && selection.selectionSet) {
+										childSelections =
+											selection.selectionSet.selections;
+									}
 
-								const nextSelections = [
-									{
-										kind: 'FragmentSpread',
+									const nextSelections = [
+										{
+											kind: 'FragmentSpread',
+											name: {
+												kind: 'Name',
+												value: newFragmentName,
+											},
+											directives: [],
+										},
+									];
+
+									const newFragmentDefinition = {
+										kind: 'FragmentDefinition',
 										name: {
 											kind: 'Name',
 											value: newFragmentName,
 										},
-										directives: [],
-									},
-								];
-
-								const newFragmentDefinition = {
-									kind: 'FragmentDefinition',
-									name: {
-										kind: 'Name',
-										value: newFragmentName,
-									},
-									typeCondition: {
-										kind: 'NamedType',
-										name: {
-											kind: 'Name',
-											value: type.name,
+										typeCondition: {
+											kind: 'NamedType',
+											name: {
+												kind: 'Name',
+												value: type.name,
+											},
 										},
-									},
-									directives: [],
-									selectionSet: {
-										kind: 'SelectionSet',
-										selections: childSelections,
-									},
-								};
-
-								const newDoc = this._modifyChildSelections(
-									nextSelections,
-									false
-								);
-
-								if (newDoc) {
-									const newDocWithFragment = {
-										...newDoc,
-										definitions: [
-											...newDoc.definitions,
-											newFragmentDefinition,
-										],
+										directives: [],
+										selectionSet: {
+											kind: 'SelectionSet',
+											selections: childSelections,
+										},
 									};
 
-									this.props.onCommit(newDocWithFragment);
-								} else {
-									// eslint-disable-next-line no-console
-									console.warn(
-										'Unable to complete extractFragment operation'
+									const newDoc = this._modifyChildSelections(
+										nextSelections,
+										false
 									);
-								}
-							}}
-						>
-							<span>{'…'}</span>
-						</button>
-					)}
-				</span>
+
+									if (newDoc) {
+										const newDocWithFragment = {
+											...newDoc,
+											definitions: [
+												...newDoc.definitions,
+												newFragmentDefinition,
+											],
+										};
+
+										this.props.onCommit(newDocWithFragment);
+									} else {
+										// eslint-disable-next-line no-console
+										console.warn(
+											'Unable to complete extractFragment operation'
+										);
+									}
+								}}
+							>
+								<span>{'…'}</span>
+							</button>
+						)}
+					</span>
+				</ArgHoverTooltip>
 				{selection && args.length ? (
 					<div
 						style={{ marginLeft: 16 }}
@@ -389,6 +396,11 @@ class FieldView extends React.PureComponent {
 								<FieldView
 									key={fieldName}
 									field={fields[fieldName]}
+									// Children of this field's return type
+									// belong to *that* type — surface its
+									// name in the hover signature instead of
+									// inheriting our own parent's name.
+									parentTypeName={type.name}
 									selections={childSelections}
 									modifySelections={
 										this._modifyChildSelections

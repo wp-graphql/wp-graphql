@@ -525,11 +525,32 @@ class ExplorerView extends React.PureComponent {
 						const onToggleCollapsed = () =>
 							this._setCollapsed(opKey, !isCollapsed);
 
+						let rootTypeName = null;
+						if (operationType === 'query' && queryType) {
+							rootTypeName = queryType.name;
+						} else if (
+							operationType === 'mutation' &&
+							mutationType
+						) {
+							rootTypeName = mutationType.name;
+						} else if (
+							operationType === 'subscription' &&
+							subscriptionType
+						) {
+							rootTypeName = subscriptionType.name;
+						} else if (
+							operation.kind === 'FragmentDefinition' &&
+							fragmentTypeName
+						) {
+							rootTypeName = fragmentTypeName;
+						}
+
 						return (
 							<RootView
 								key={index}
 								isLast={index === relevantOperations.length - 1}
 								fields={fields}
+								rootTypeName={rootTypeName}
 								operationType={operationType}
 								name={operationName}
 								definition={operation}

@@ -205,6 +205,7 @@ class RootView extends React.PureComponent {
 								<FieldView
 									key={fieldName}
 									field={fields[fieldName]}
+									parentTypeName={this.props.rootTypeName}
 									selections={selections}
 									modifySelections={this._modifySelections}
 									schema={schema}

@@ -246,54 +246,296 @@
 	color: var(--wp-admin-theme-color, #3858e9);
 }
 
-/* Inline value editors (scalar text inputs, enum selects, boolean selects) */
+/* Inline value editor — reads as plain text until focused, then a soft
+   tint + underline mark it as the active field. Used to ship with a
+   permanent border-bottom and 1px padding that made the input sit
+   slightly wider than the equivalent text node, so swapping between a
+   literal `10` (input) and a `$first` (text span) on Extract/Inline
+   visibly jumped the row. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-scalar-input {
 	border: none;
-	border-bottom: 1px solid #c3c4c7;
 	background: transparent;
-	padding: 0 0 1px 0;
+	padding: 0;
+	margin: 0;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 13px;
+	line-height: inherit;
 	box-shadow: none;
+	box-sizing: content-box;
+	min-height: 0;
+	vertical-align: baseline;
 }
 
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-scalar-input:focus {
 	outline: none;
-	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	border-radius: 2px;
+	box-shadow: inset 0 -1px 0 var(--wp-admin-theme-color, #3858e9);
 }
 
+/* Enum / boolean selects are styled to mirror the Extract/Inline pill:
+   18px tall, 11px text, 10px radius, 1px border, white surface. The
+   native chevron is stripped via `appearance: none` and replaced with
+   a small inline SVG so the dropdown affordance is still visible.
+   Without this, WordPress admin's global `forms.css` `<select>` rule
+   towers over the rest of the composer's compact rows. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline select {
-	font-size: 13px;
-	padding: 0 20px 0 6px;
-	min-height: 22px;
-	height: auto;
-	border: 1px solid #c3c4c7;
+	height: 18px;
+	min-height: 0;
+	max-width: 100%;
+	margin: 0;
+	padding: 0 18px 0 8px;
 	background: #fff;
-	color: #2c3338;
-	border-radius: 2px;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path fill='%2350575e' d='M0 2l4 4 4-4z'/></svg>");
+	background-repeat: no-repeat;
+	background-position: right 6px center;
+	background-size: 7px 7px;
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	box-shadow: none;
+	color: #50575e;
 	cursor: pointer;
+	font-family: inherit;
+	font-size: 11px;
+	line-height: 1.4;
+	vertical-align: middle;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline select:hover {
+	background-color: #f0f0f1;
+	border-color: #c3c4c7;
+	color: #1d2327;
 }
 
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline select:focus {
 	border-color: var(--wp-admin-theme-color, #3858e9);
 	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
+	color: #1d2327;
 	outline: none;
 }
 
-/* Variable button ($) and inline action buttons */
-#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-extract,
-#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arg-action {
-	background: transparent;
-	border: none;
-	color: #646970;
-	cursor: pointer;
-	padding: 0 4px;
-	font-size: 12px;
+/* Argument rows. The row itself is a normal block — its body is the
+   nested input-object children (rendered as a block-level div with
+   margin-left:16) and needs to stack below the row's header, not get
+   pulled into a flex line beside it. The header is a separate flex
+   container so the Extract/Inline pill can be pinned to the right edge
+   (changing the value's representation between literal `10` and
+   `$first` would otherwise visibly jump the pill). */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arg-row {
+	min-height: 16px;
 }
 
-#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-extract:hover,
-#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arg-action:hover {
-	color: #2c3338;
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-arg-row-head {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+/* Extract/Inline pill — converts an inline value to a `$variable` on
+   the operation, or back. Right-aligned via auto margin so it stays put
+   regardless of how wide the value display is. Always visible when the
+   arg has a value (the button is only rendered in that case), since
+   the user explicitly opted into the row by checking it; the hover and
+   focus states just brighten background/border for click affordance. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-variablize {
+	margin-left: auto;
+	padding: 1px 7px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	color: #50575e;
+	cursor: pointer;
+	font: inherit;
+	font-size: 11px;
+	line-height: 1.4;
+	white-space: nowrap;
+	transition: background-color 0.12s ease, border-color 0.12s ease,
+		color 0.12s ease;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-variablize:hover {
+	background: #f0f0f1;
+	border-color: #c3c4c7;
+	color: #1d2327;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-variablize.is-active {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	border-color: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-variablize:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 1px;
+}
+
+/* List editor — chips for each value, wrapping horizontally like a
+   tag input. Each chip combines the editable value with an always-
+   visible × so removal is a single click, no hover discovery needed.
+   A trailing dashed "+ Add" pill keeps the same chip footprint so
+   adding feels like the same gesture as editing. Used for `[ID]`,
+   `[Int]`, `[String!]`, `[SomeEnum]`, `[Boolean]`, etc. — the inner
+   element type controls what the chip's input element is. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 2px 0;
+}
+
+/* Chip dimensions mirror the Extract/Inline pill (.graphiql-explorer-variablize)
+   so values, action buttons, and the trailing "+ Add" pill all share the
+   same visual rhythm: 11px text, 1px+7px padding, 10px radius, 1px border.
+   Height locked to 18px so the embedded `<input>`/`<select>` can't push the
+   chip taller via user-agent defaults (Safari/Chrome both ship ≥21px min-height
+   on form controls without explicit overrides). */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	height: 18px;
+	padding: 0 1px 0 7px;
+	background: #f0f6fc;
+	border: 1px solid #c5d9ef;
+	border-radius: 10px;
+	box-sizing: border-box;
+	transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item:focus-within {
+	background: #fff;
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
+}
+
+/* Bare input/select inside the chip — the chip itself supplies the
+   border and surface; the embedded control is borderless and fills
+   the chip. `appearance:none` strips the native select chevron so
+   booleans/enums match the scalar input visually. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item-input {
+	min-width: 3ch;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	line-height: 1;
+	color: inherit;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item-input:focus {
+	outline: none;
+}
+
+/* Always-visible × — destructive but unambiguous. Subtle gray by
+   default, brightens to admin-red on hover/focus so the user knows
+   the click target is real. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 14px;
+	height: 14px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	color: #757575;
+	cursor: pointer;
+	font-size: 11px;
+	line-height: 1;
+	transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item-remove:hover,
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-item-remove:focus-visible {
+	background: #fbeaea;
+	color: #b32d2e;
+	outline: none;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-add {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	background: #fff;
+	border: 1px dashed #c3c4c7;
+	border-radius: 10px;
+	color: #50575e;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	line-height: 1;
+	box-sizing: border-box;
+	transition: background-color 0.12s ease, border-color 0.12s ease,
+		color 0.12s ease;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-add:hover {
+	background: #f0f0f1;
+	border-color: #a7aaad;
+	color: #1d2327;
+}
+
+/* Block-layout list editor for `[InputObject]` types. Each list item
+   stacks vertically as its own indented block with a small header
+   row carrying the type name + index and a remove button, then the
+   InputObject's fields rendered below as ordinary nested input rows.
+   A trailing dashed pill ("+ TypeName") sits below the last item to
+   add another. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-objects {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 4px 0;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-object-item {
+	border-left: 2px solid #dcdcde;
+	padding: 2px 0 2px 8px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-object-head {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 18px;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-object-index {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: #757575;
+}
+
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-object-body {
+	margin-top: 2px;
+}
+
+/* Block-style add pill that matches the section width rather than
+   the small `+` chip used for scalar lists — labeled with the type
+   name so the action is concrete (`+ PostObjectsConnectionOrderbyInput`). */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-list-add-block {
+	width: auto;
+	height: auto;
+	padding: 1px 8px;
+	font-size: 11px;
+	align-self: flex-start;
 }
 
 /* OneOf input variant picker */
