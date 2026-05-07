@@ -25,7 +25,19 @@ export default async function HandleFeeds(
 
     //Fetch content from WP
     const result = await request({ query: FEED_QUERY })
+    if ((result as any)?.errors?.length) {
+      console.error("[feeds] GraphQL errors:", JSON.stringify((result as any).errors, null, 2))
+      throw new Error("GraphQL errors fetching feed data")
+    }
     const feed_data = (result as any)?.data ?? {}
+
+    if (!feed_data?.last_modified?.nodes?.[0]?.modifiedGmt) {
+      console.error("[feeds] feed query returned no posts; result:", JSON.stringify(result, null, 2))
+      throw {
+        status: StatusCodes.NOT_FOUND,
+        body: getReasonPhrase(StatusCodes.NOT_FOUND),
+      }
+    }
 
     const last_modified = Temporal.PlainDateTime.from(
       feed_data.last_modified.nodes[0].modifiedGmt,
@@ -98,6 +110,7 @@ export default async function HandleFeeds(
       res.status(e.status)
       res.send(e.body)
     } else {
+      console.error("[feeds] handler error:", e)
       res.status(StatusCodes.INTERNAL_SERVER_ERROR)
       res.send(getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR))
     }
