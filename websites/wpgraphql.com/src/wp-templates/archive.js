@@ -117,3 +117,54 @@ Archive.query = gql`
   ${FunctionPreviewFragment}
   ${ActionPreviewFragment}
 `
+
+Archive.queries = {
+  archive: {
+    query: gql`
+      query Archive_Node($uri: String!) {
+        archive: nodeByUri(uri: $uri) {
+          __typename
+          id
+          uri
+          ... on ContentType {
+            name
+            description
+            label
+            contentNodes(first: 100) {
+              nodes {
+                __typename
+                ...ExtensionPreview
+                ...RecipePreview
+                ...FilterPreview
+                ...FunctionPreview
+                ...ActionPreview
+              }
+            }
+          }
+          ... on TermNode {
+            name
+            description
+            ... on CodeSnippetTag {
+              contentNodes(first: 100) {
+                nodes {
+                  __typename
+                  ...ExtensionPreview
+                  ...RecipePreview
+                  ...FilterPreview
+                  ...FunctionPreview
+                  ...ActionPreview
+                }
+              }
+            }
+          }
+        }
+      }
+      ${ExtensionFragment}
+      ${RecipePreviewFragment}
+      ${FilterPreviewFragment}
+      ${FunctionPreviewFragment}
+      ${ActionPreviewFragment}
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
+}
