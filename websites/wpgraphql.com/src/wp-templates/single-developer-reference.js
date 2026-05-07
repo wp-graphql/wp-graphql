@@ -54,3 +54,19 @@ SingleDeveloperReference.query = gql`
   }
   ${NavMenuFragment}
 `
+
+SingleDeveloperReference.queries = {
+  post: {
+    query: gql`
+      query SingleDeveloperReference_Post($uri: ID!) {
+        post(id: $uri, idType: URI) {
+          id
+          title
+          uri
+          content
+        }
+      }
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
+}
