@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function SingleDeveloperReference({ data }) {
   const { post } = data
@@ -35,25 +35,6 @@ export default function SingleDeveloperReference({ data }) {
     </SiteLayout>
   )
 }
-
-SingleDeveloperReference.variables = ({ uri }) => {
-  return {
-    uri,
-  }
-}
-
-SingleDeveloperReference.query = gql`
-  query GetSingularNode($uri: ID!) {
-    post(id: $uri, idType: URI) {
-      id
-      title
-      uri
-      content
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
 
 SingleDeveloperReference.nextQueries = {
   post: {

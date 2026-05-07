@@ -3,24 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "faust dev",
-    "build": "faust build",
-    "start": "faust start",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "npm run test:lint -- --fix",
     "test:format": "prettier '*.{js,jsx,ts,tsx,css,mdx,json}'",
-    "test:lint": "faust lint",
+    "test:lint": "next lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:unit": "node --test src/lib/next-wpgraphql/__tests__",
-    "test:build-without-possibletypes": "node scripts/test-build-without-possibletypes.js",
     "postbuild": "next-sitemap",
-    "predev": "npm run generate",
     "format": "npm run test:format -- --write",
-    "generate": "faust generatePossibleTypes",
-    "ensure-possibletypes": "node scripts/ensure-possibletypes.js",
-    "postinstall": "npm run ensure-possibletypes",
-    "prepare": "husky install",
-    "prebuild": "npm run ensure-possibletypes && npm run generate && npm run ensure-possibletypes"
+    "prepare": "husky install"
   },
   "browserslist": [
     "> 1%"
@@ -32,8 +26,6 @@
   "dependencies": {
     "@apollo/client": "^3.14.0",
     "@docsearch/react": "^3.3.0",
-    "@faustwp/cli": "3.3.6",
-    "@faustwp/core": "3.4.0",
     "@headlessui/react": "^1.7.3",
     "@heroicons/react": "2.0.12",
     "@js-temporal/polyfill": "^0.4.2",

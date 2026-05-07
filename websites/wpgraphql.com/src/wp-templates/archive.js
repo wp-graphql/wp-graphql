@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 import ExtensionPreview, {
   ExtensionFragment,
@@ -63,60 +63,6 @@ export default function Archive({ data }) {
     </SiteLayout>
   )
 }
-
-Archive.variables = ({ uri }) => {
-  return {
-    uri,
-  }
-}
-
-Archive.query = gql`
-  query GetContentType($uri: String!) {
-      archive: nodeByUri(uri: $uri) {
-        __typename
-        id
-        uri
-        ... on ContentType {
-          name
-          description
-          label
-          contentNodes(first: 100) {
-            nodes {
-              __typename
-              ...ExtensionPreview
-              ...RecipePreview
-              ...FilterPreview
-              ...FunctionPreview
-              ...ActionPreview
-            }
-          }
-        }
-        ... on TermNode {
-          name
-          description
-          ... on CodeSnippetTag {
-            contentNodes(first: 100) {
-              nodes {
-                __typename
-                ...ExtensionPreview
-                ...RecipePreview
-                ...FilterPreview
-                ...FunctionPreview
-                ...ActionPreview
-              }
-            }
-          }
-        }
-      }
-      ...NavMenu
-  }
-  ${NavMenuFragment}
-  ${ExtensionFragment}
-  ${RecipePreviewFragment}
-  ${FilterPreviewFragment}
-  ${FunctionPreviewFragment}
-  ${ActionPreviewFragment}
-`
 
 Archive.nextQueries = {
   archive: {

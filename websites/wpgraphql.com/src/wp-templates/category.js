@@ -2,7 +2,7 @@ import { gql } from "@apollo/client"
 import PostPreview, {
   PostPreviewFragment,
 } from "components/Preview/PostPreview"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function Category({ data }) {
   if (!data) {
@@ -37,27 +37,6 @@ export default function Category({ data }) {
     </SiteLayout>
   )
 }
-
-Category.variables = ({ id }) => ({
-  id,
-})
-
-Category.query = gql`
-  query GetCategory($id: ID!) {
-    category(id: $id) {
-      name
-      description
-      posts {
-        nodes {
-          ...PostPreview
-        }
-      }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-  ${PostPreviewFragment}
-`
 
 Category.nextQueries = {
   category: {

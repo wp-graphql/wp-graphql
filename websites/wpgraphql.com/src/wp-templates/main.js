@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function Index({ data }) {
   return (
@@ -12,26 +12,6 @@ export default function Index({ data }) {
     </SiteLayout>
   )
 }
-
-Index.query = gql`
-  query {
-    INDEX: __typename
-    posts {
-      nodes {
-        id
-        title
-        author {
-          node {
-            name
-            uri
-          }
-        }
-      }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
 
 Index.nextQueries = {
   posts: {

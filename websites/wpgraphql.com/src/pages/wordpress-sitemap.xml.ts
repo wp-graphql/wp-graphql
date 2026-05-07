@@ -1,12 +1,9 @@
 import { GetServerSideProps } from "next"
 import { getServerSideSitemap } from "next-sitemap"
 
-import { gql } from "@apollo/client"
-import { getApolloClient } from "@faustwp/core/dist/mjs/client"
+import { request } from "lib/next-wpgraphql"
 
-const client = getApolloClient()
-
-const SITEMAP_QUERY = gql`
+const SITEMAP_QUERY = /* GraphQL */ `
   query SitemapQuery($after: String) {
     contentNodes(
       where: {
@@ -35,41 +32,32 @@ const SITEMAP_QUERY = gql`
   }
 `
 
-async function getAllWPContent(after = null, acc = []) {
-  const { data } = await client.query({
+async function getAllWPContent(after: string | null = null, acc: any[] = []): Promise<any[]> {
+  const result = await request({
     query: SITEMAP_QUERY,
-    variables: {
-      after,
-    },
+    variables: { after },
   })
+  const data = (result as any)?.data ?? {}
+  acc = [...acc, ...(data.contentNodes?.nodes ?? [])]
 
-  console.log(data.contentNodes.nodes)
-  acc = [...acc, ...data.contentNodes.nodes]
-
-  if (data.contentNodes.pageInfo.hasNextPage) {
+  if (data.contentNodes?.pageInfo?.hasNextPage) {
     acc = await getAllWPContent(data.contentNodes.pageInfo.endCursor, acc)
   }
 
   return acc
 }
 
-// Sitemap component
 export default function WPSitemap() {}
 
-// collect all the post
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const nodes = await getAllWPContent()
 
-  const allRoutes = nodes.reduce((acc, node) => {
-    if (!node.uri) {
-      return acc
-    }
-
+  const allRoutes = nodes.reduce((acc: any[], node: any) => {
+    if (!node.uri) return acc
     acc.push({
       loc: node.uri,
       lastmod: new Date(node.modifiedGmt).toISOString(),
     })
-
     return acc
   }, [])
 

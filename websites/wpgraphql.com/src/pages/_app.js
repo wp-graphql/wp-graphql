@@ -1,6 +1,5 @@
-import "../../faust.config"
+import "lib/next-wpgraphql-config"
 import { useRouter } from "next/router"
-import { FaustProvider } from "@faustwp/core"
 import Script from "next/script"
 import * as gtag from "../lib/gtag";
 
@@ -25,27 +24,25 @@ export default function MyApp({ Component, pageProps }) {
 
   return (
     <SearchProvider>
-      <FaustProvider pageProps={pageProps}>
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${gtag.GA_TRACKING_ID}', {
-              page_path: window.location.pathname,
-            });
-          `,
-          }}
-        />
-        <Component {...pageProps} key={router.asPath} />
-      </FaustProvider>
+      <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+      />
+      <Script
+        id="google-analytics"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gtag.GA_TRACKING_ID}', {
+            page_path: window.location.pathname,
+          });
+        `,
+        }}
+      />
+      <Component {...pageProps} key={router.asPath} />
     </SearchProvider>
   )
 }

@@ -1,9 +1,17 @@
-import { getWordPressProps, WordPressTemplate } from "@faustwp/core"
+import { getTemplateStaticProps, LayoutProvider } from "lib/next-wpgraphql"
+import "lib/next-wpgraphql-config"
+import templates from "wp-templates"
 
-export default function Page(props) {
-  return <WordPressTemplate {...props} />
+export default function Page({ template, data, layoutData, seed, uri }) {
+  const Template = templates[template]
+  if (!Template) return null
+  return (
+    <LayoutProvider value={layoutData}>
+      <Template data={data} seed={seed} uri={uri} />
+    </LayoutProvider>
+  )
 }
 
 export function getStaticProps(ctx) {
-  return getWordPressProps({ ctx })
+  return getTemplateStaticProps(ctx, { revalidate: 5 })
 }

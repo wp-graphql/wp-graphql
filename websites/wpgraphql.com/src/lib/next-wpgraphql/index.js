@@ -1,5 +1,5 @@
 export { configure, getRegistry } from "./templates.js"
-export { getTemplateStaticProps } from "./get-template-static-props.js"
+export { getTemplateStaticProps, getLayoutData } from "./get-template-static-props.js"
 export { LayoutProvider, useLayoutData } from "./layout.js"
 export { resolveTemplateName } from "./hierarchy.js"
 export { request } from "./client.js"

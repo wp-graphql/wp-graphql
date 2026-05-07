@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 import Link from "next/link"
 
 export default function SingleRecipe({ data }) {
@@ -47,38 +47,6 @@ export default function SingleRecipe({ data }) {
       </div>
     </SiteLayout>
   )
-}
-
-SingleRecipe.query = gql`
-  query GetRecipe($uri: ID!) {
-    node: contentNode(id: $uri, idType: URI) {
-      id
-      ... on NodeWithTitle {
-        title
-      }
-      uri
-      ... on NodeWithContentEditor {
-        content
-      }
-      ... on CodeSnippet {
-        recipeTags: codeSnippetTags {
-          nodes {
-            id
-            name
-            uri
-          }
-        }
-      }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
-
-SingleRecipe.variables = ({ uri }) => {
-  return {
-    uri,
-  }
 }
 
 SingleRecipe.nextQueries = {

@@ -5,6 +5,12 @@ import { getRegistry } from "./templates.js"
 
 const DEFAULT_REVALIDATE = 5
 
+export async function getLayoutData(reqCtx = {}) {
+  const { Layout } = getRegistry()
+  const layoutEntries = Object.entries(Layout?.queries ?? {})
+  return runQueries(layoutEntries, reqCtx)
+}
+
 function uriFromCtx(ctx) {
   const node = ctx?.params?.wordpressNode
   if (!node || (Array.isArray(node) && node.length === 0)) return "/"

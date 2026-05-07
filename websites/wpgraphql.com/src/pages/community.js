@@ -1,17 +1,9 @@
-import {gql} from "@apollo/client";
-import {NavMenuFragment} from "../components/Site/SiteHeader";
 import SiteLayout from "../components/Site/SiteLayout";
-import {addApolloState, getApolloClient} from "@faustwp/core/dist/mjs/client";
+import { getLayoutData, LayoutProvider } from "lib/next-wpgraphql"
+import "lib/next-wpgraphql-config"
 import {FaDiscord, FaGithub, FaTwitter, FaYoutube} from "react-icons/fa";
 
-const GET_NAV_MENU = gql`
-query GetNavMenu {
-   ...NavMenu
-}
-${NavMenuFragment}
-`
-
-function Community() {
+function Community({ layoutData }) {
 
   const communities = [
     {
@@ -42,42 +34,42 @@ function Community() {
   ];
 
   return (
-    <SiteLayout>
-      <header className="w-full flex justify-center">
-        <div className=" w-3/4 pt-5 pt-10 md:pt-20 prose dark:prose-dark">
-          <h1 className="text-5xl">Community</h1>
-          <p className="text-3xl">On this page, we’ve listed some WPGraphQL-related communities that you can be a part of, and tools and resources in the community that may benefit you as you use WPGraphQL.</p>
-        </div>
-      </header>
-      <main className="content mx-auto w-3/4 pt-5 pb-5 pt-10 md:pb-20 prose dark:prose-dark">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {communities.map((community, i) => (
-            <div key={i} className="box-shadow bg-slate-200 dark:bg-slate-800 rounded-lg drop-shadow-lg p-5 pb-7">
-              { community?.icon && <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white"><community.icon className="h-6 w-6" aria-hidden="true" /></div> }
-              <h3 className="">{community.name}</h3>
-              <p>{community.description}</p>
-              <a
-                className="bg-slate-500 hover:bg-slate-400 text-white dark:text-white font-bold py-2 px-4 rounded inline-flex items-center border-b-0"
-                href={community.link}
-                target="_blank"
-                rel="noreferrer"
-              >Visit {community.name}</a>
-            </div>
-          ))}
-        </div>
-      </main>
-    </SiteLayout>
+    <LayoutProvider value={layoutData}>
+      <SiteLayout>
+        <header className="w-full flex justify-center">
+          <div className=" w-3/4 pt-5 pt-10 md:pt-20 prose dark:prose-dark">
+            <h1 className="text-5xl">Community</h1>
+            <p className="text-3xl">On this page, we’ve listed some WPGraphQL-related communities that you can be a part of, and tools and resources in the community that may benefit you as you use WPGraphQL.</p>
+          </div>
+        </header>
+        <main className="content mx-auto w-3/4 pt-5 pb-5 pt-10 md:pb-20 prose dark:prose-dark">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {communities.map((community, i) => (
+              <div key={i} className="box-shadow bg-slate-200 dark:bg-slate-800 rounded-lg drop-shadow-lg p-5 pb-7">
+                { community?.icon && <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white"><community.icon className="h-6 w-6" aria-hidden="true" /></div> }
+                <h3 className="">{community.name}</h3>
+                <p>{community.description}</p>
+                <a
+                  className="bg-slate-500 hover:bg-slate-400 text-white dark:text-white font-bold py-2 px-4 rounded inline-flex items-center border-b-0"
+                  href={community.link}
+                  target="_blank"
+                  rel="noreferrer"
+                >Visit {community.name}</a>
+              </div>
+            ))}
+          </div>
+        </main>
+      </SiteLayout>
+    </LayoutProvider>
   )
 }
 
 export default Community;
 
 export async function getStaticProps() {
-  const client = getApolloClient()
-  await client.query({query: GET_NAV_MENU})
-  return addApolloState( client, {
-    props: {
-      revalidate: 30
-    }
-  })
+  const layoutData = await getLayoutData()
+  return {
+    props: { layoutData },
+    revalidate: 30,
+  }
 }

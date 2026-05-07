@@ -1,30 +1,30 @@
-import { gql } from "@apollo/client"
 import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
-import { NavMenuFragment } from "components/Site/SiteHeader"
+import { getLayoutData, LayoutProvider, request } from "lib/next-wpgraphql"
+import "lib/next-wpgraphql-config"
 
 import { getParsedDoc, getDocsNav } from "lib/parse-mdx-docs"
 
 import components from "components/Docs/MdxComponents"
 
-import { getApolloClient, addApolloState } from "@faustwp/core/dist/mjs/client"
-
-export default function Doc({ source, toc, docsNavData }) {
+export default function Doc({ source, toc, docsNavData, layoutData }) {
   return (
-    <DocsLayout toc={toc} docsNavData={docsNavData}>
-      <div
-        id="content-wrapper"
-        className="relative z-20 prose mt-8 prose dark:prose-dark"
-      >
-        {source?.frontmatter?.title && (
-          <header className="relative z-20 -mt-8">
-            <h1>{source.frontmatter.title}</h1>
-          </header>
-        )}
-        <MDXRemote {...source} components={components} />
-      </div>
-    </DocsLayout>
+    <LayoutProvider value={layoutData}>
+      <DocsLayout toc={toc} docsNavData={docsNavData}>
+        <div
+          id="content-wrapper"
+          className="relative z-20 prose mt-8 prose dark:prose-dark"
+        >
+          {source?.frontmatter?.title && (
+            <header className="relative z-20 -mt-8">
+              <h1>{source.frontmatter.title}</h1>
+            </header>
+          )}
+          <MDXRemote {...source} components={components} />
+        </div>
+      </DocsLayout>
+    </LayoutProvider>
   )
 }
 
@@ -32,25 +32,17 @@ export async function getStaticProps({ params }) {
   try {
     const { source, toc } = await getParsedDoc(params.slug)
     const docsNavData = await getDocsNav()
-    const apolloClient = getApolloClient()
+    const layoutData = await getLayoutData()
 
-    await apolloClient.query({
-      query: gql`
-        query NavQuery {
-          ...NavMenu
-        }
-        ${NavMenuFragment}
-      `,
-    })
-
-    return addApolloState(apolloClient, {
+    return {
       props: {
         toc,
         source,
         docsNavData,
+        layoutData,
       },
       revalidate: 30,
-    })
+    }
   } catch (e) {
     if (e.notFound) {
       console.error(params, e)
@@ -61,25 +53,23 @@ export async function getStaticProps({ params }) {
   }
 }
 
-export async function getStaticPaths() {
-  const apolloClient = getApolloClient()
-
-  const { data } = await apolloClient.query({
-    query: gql`
-      query PrebuildDocsQuery {
-        menu(id: "Primary Nav", idType: NAME) {
-          menuItems {
-            nodes {
-              parentDatabaseId
-              uri
-            }
-          }
+const PREBUILD_DOCS_QUERY = /* GraphQL */ `
+  query PrebuildDocsQuery {
+    menu(id: "Primary Nav", idType: NAME) {
+      menuItems {
+        nodes {
+          parentDatabaseId
+          uri
         }
       }
-    `,
-  })
+    }
+  }
+`
 
-  // Adds prerendering for Docs linked from main nav menu
+export async function getStaticPaths() {
+  const result = await request({ query: PREBUILD_DOCS_QUERY })
+  const data = result?.data ?? {}
+
   const docs_menu_paths = data?.menu?.menuItems?.nodes?.reduce(
     (acc, menu_item) => {
       if (

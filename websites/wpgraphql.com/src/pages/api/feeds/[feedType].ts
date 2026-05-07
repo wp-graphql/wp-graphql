@@ -1,14 +1,12 @@
 import { createHash } from "crypto"
 import { Temporal } from "@js-temporal/polyfill"
 
-import { getApolloClient } from "@faustwp/core/dist/mjs/client"
+import { request } from "lib/next-wpgraphql"
 import { StatusCodes, getReasonPhrase } from "http-status-codes"
 
 import { FEED_QUERY, createFeed } from "../../../lib/feed"
 
 import type { NextApiRequest, NextApiResponse } from "next"
-
-const client = getApolloClient()
 
 type ResponseData = {
   content_type: string
@@ -26,9 +24,8 @@ export default async function HandleFeeds(
     const { feedType } = req.query
 
     //Fetch content from WP
-    const { data: feed_data } = await client.query({
-      query: FEED_QUERY,
-    })
+    const result = await request({ query: FEED_QUERY })
+    const feed_data = (result as any)?.data ?? {}
 
     const last_modified = Temporal.PlainDateTime.from(
       feed_data.last_modified.nodes[0].modifiedGmt,

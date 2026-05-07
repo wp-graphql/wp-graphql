@@ -1,5 +1,4 @@
-import { gql, useQuery } from "@apollo/client"
-import { getApolloClient, addApolloState } from "@faustwp/core/dist/mjs/client"
+import { request } from "lib/next-wpgraphql"
 
 import { ChevronRightIcon } from "@heroicons/react/20/solid"
 import DynamicHeroIcon from "components/DynamicHeroIcon"
@@ -7,7 +6,7 @@ import { getIconNameFromMenuItem } from "lib/menu-helpers"
 import SiteLogo from "components/Site/SiteLogo"
 import Link from "next/link"
 
-const NOT_FOUND_QUERY = gql`
+const NOT_FOUND_QUERY = /* GraphQL */ `
   query NotFoundQuery {
     menu(id: "Primary Nav", idType: NAME) {
       id
@@ -25,9 +24,8 @@ const NOT_FOUND_QUERY = gql`
   }
 `
 
-export default function NotFound() {
-  const { data } = useQuery(NOT_FOUND_QUERY)
-  const links = data.menu.menuItems.nodes
+export default function NotFound({ menu }) {
+  const links = menu?.menuItems?.nodes ?? []
 
   return (
     <div className="bg-white">
@@ -110,13 +108,11 @@ export default function NotFound() {
   )
 }
 
-export async function getStaticProps(ctx) {
-  const client = getApolloClient()
-
-  const { data } = await client.query({ query: NOT_FOUND_QUERY })
-
-  return addApolloState(client, {
-    props: {},
+export async function getStaticProps() {
+  const result = await request({ query: NOT_FOUND_QUERY })
+  const data = result?.data ?? {}
+  return {
+    props: { menu: data.menu ?? null },
     revalidate: 30,
-  })
+  }
 }

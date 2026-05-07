@@ -1,18 +1,10 @@
-import {addApolloState, getApolloClient} from "@faustwp/core/dist/mjs/client"
-import {NavMenuFragment} from "../components/Site/SiteHeader";
-import {gql} from "@apollo/client";
+import { getLayoutData, LayoutProvider } from "lib/next-wpgraphql"
+import "lib/next-wpgraphql-config"
 import SiteLayout from "../components/Site/SiteLayout";
 import Image from 'next/image'
 import {Disclosure} from "@headlessui/react";
 import {ChevronUpIcon} from "@heroicons/react/20/solid";
 import Link from "next/link";
-
-const GET_NAV_MENU = gql`
-query GetNavMenu {
-   ...NavMenu
-}
-${NavMenuFragment}
-`
 
 function AcfHero() {
   return (
@@ -327,32 +319,32 @@ function PageContainer({children}) {
   )
 }
 
-function Acf() {
+function Acf({ layoutData }) {
   return (
-    <SiteLayout>
-      <main className="content">
-        <AcfHero/>
-        <PageContainer>
-          <HowItWorks/>
-          <SupportedFields/>
-          <Why/>
-          <WorksWithJS/>
-          <Pricing/>
-          <Faq/>
-        </PageContainer>
-      </main>
-    </SiteLayout>
+    <LayoutProvider value={layoutData}>
+      <SiteLayout>
+        <main className="content">
+          <AcfHero/>
+          <PageContainer>
+            <HowItWorks/>
+            <SupportedFields/>
+            <Why/>
+            <WorksWithJS/>
+            <Pricing/>
+            <Faq/>
+          </PageContainer>
+        </main>
+      </SiteLayout>
+    </LayoutProvider>
   )
 }
 
 export default Acf;
 
 export async function getStaticProps() {
-  const client = getApolloClient()
-  await client.query({query: GET_NAV_MENU})
-  return addApolloState(client, {
-    props: {
-      revalidate: 30
-    }
-  })
+  const layoutData = await getLayoutData()
+  return {
+    props: { layoutData },
+    revalidate: 30,
+  }
 }

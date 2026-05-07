@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect } from "react"
 import Link from "next/link"
-import { gql, useQuery } from "@apollo/client"
+import { gql } from "@apollo/client"
 import classNames from "clsx"
 
 import { Popover, Transition } from "@headlessui/react"
@@ -46,18 +46,7 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false)
 
   const layoutData = useLayoutData()
-  const { data: clientData } = useQuery(
-    gql`
-      {
-        ...NavMenu
-      }
-      ${NavMenuFragment}
-    `,
-    { skip: Boolean(layoutData?.menu) }
-  )
-
-  const menu = layoutData?.menu ?? clientData?.menu
-  const menuItems = flatListToHierarchical(menu?.menuItems?.nodes, {
+  const menuItems = flatListToHierarchical(layoutData?.menu?.menuItems?.nodes, {
     idKey: "id",
     parentKey: "parentId",
     childrenKey: "children",

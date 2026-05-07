@@ -3,7 +3,7 @@ import Image from "next/image"
 
 import { gql } from "@apollo/client"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function Singlar({ data }) {
   const { post } = data
@@ -89,42 +89,6 @@ export default function Singlar({ data }) {
     </SiteLayout>
   )
 }
-
-Singlar.variables = ({ uri }) => {
-  return {
-    uri,
-  }
-}
-
-Singlar.query = gql`
-  query GetSingularNode($uri: ID!) {
-    post(id: $uri, idType: URI) {
-      id
-      title
-      uri
-      date
-      content
-      author {
-        node {
-          name
-          uri
-          avatar {
-            url
-          }
-        }
-      }
-      categories {
-        nodes {
-          id
-          name
-          uri
-        }
-      }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
 
 Singlar.nextQueries = {
   post: {

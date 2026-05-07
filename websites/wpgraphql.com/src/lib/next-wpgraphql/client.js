@@ -58,6 +58,13 @@ async function getJson(url) {
   return res.json()
 }
 
+/**
+ * @param {object} args
+ * @param {string|object} args.query
+ * @param {Record<string, unknown>} [args.variables]
+ * @param {string} [args.operationName]
+ * @param {string} [args.endpoint]
+ */
 export async function request({ query, variables = {}, operationName, endpoint } = {}) {
   if (!query) throw new TypeError("request: query is required")
 
