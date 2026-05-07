@@ -20,20 +20,7 @@ import {
 	Spinner,
 	Tooltip,
 } from '@wordpress/components';
-import {
-	Icon,
-	edit,
-	file,
-	help,
-	backup,
-	update,
-	listView,
-	moreVertical,
-	close,
-	search,
-	sidebar,
-	cog,
-} from '@wordpress/icons';
+import { Icon, listView, moreVertical, close, cog } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { GraphQLEditor } from './editors/GraphQLEditor';
 import { JSONEditor } from './editors/JSONEditor';
@@ -45,7 +32,10 @@ import { DocumentNotices } from './DocumentNotices';
 import ActivityPanel from './ActivityPanel';
 import { useDialog } from './dialogs/DialogProvider';
 import { DocumentSettingsDrawer } from './document-settings/DocumentSettingsDrawer';
+import { IDEActivityBar } from './ide-layout/IDEActivityBar';
+import { IDETopbar } from './ide-layout/IDETopbar';
 import { ResponseContent } from './ide-layout/ResponseContent';
+import { WorkspaceEmpty } from './ide-layout/WorkspaceEmpty';
 import authStyles from '../../styles/ToggleAuthenticationButton.module.css';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
@@ -59,13 +49,6 @@ import {
 	deriveStableDocTitle,
 	isAutoTitle,
 } from '../utils/derive-doc-title';
-
-const PANEL_ICONS = {
-	'saved-queries': file,
-	'docs-explorer': search,
-	help,
-	history: backup,
-};
 
 /**
  * Main IDE layout component.
@@ -994,141 +977,39 @@ export function IDELayout({ fetcher, onClose }) {
 
 	return (
 		<div className="wpgraphql-ide-container">
-			{/* Global top bar */}
-			<div className="wpgraphql-ide-topbar">
-				<div className="wpgraphql-ide-topbar-left">
-					<Tooltip
-						placement="right"
-						text={
-							visiblePanel ? 'Collapse sidebar' : 'Expand sidebar'
-						}
-					>
-						<Button
-							onClick={handleSidebarToggle}
-							aria-label={
-								visiblePanel
-									? 'Collapse sidebar'
-									: 'Expand sidebar'
-							}
-							size="compact"
-							className={`wpgraphql-ide-topbar-btn${visiblePanel ? ' is-active' : ''}`}
-						>
-							<Icon icon={sidebar} />
-						</Button>
-					</Tooltip>
-				</div>
-				<div className="wpgraphql-ide-topbar-center">
-					<span className="wpgraphql-ide-topbar-title">
-						WPGraphQL
-					</span>
-				</div>
-				<div className="wpgraphql-ide-topbar-right">
-					<Tooltip text="Re-fetch schema">
-						<Button
-							onClick={async () => {
-								const result = await refetch();
-								if (result?.ok) {
-									addNotice('Schema refreshed');
-								} else {
-									addNotice(
-										`Failed to refresh schema: ${
-											result?.error?.message ??
-											'Unknown error'
-										}`,
-										'error'
-									);
-								}
-							}}
-							disabled={isSchemaLoading}
-							aria-label="Re-fetch schema"
-							size="compact"
-							className={`wpgraphql-ide-topbar-btn${isSchemaLoading ? ' is-loading' : ''}`}
-						>
-							<Icon icon={update} />
-						</Button>
-					</Tooltip>
-					{topbarActions.length > 0 && (
-						<>
-							<div className="wpgraphql-ide-topbar-sep" />
-							{topbarActions.map((action) => (
-								<Tooltip key={action.name} text={action.title}>
-									<Button
-										onClick={() =>
-											window.WPGraphQLIDE?.openWorkspaceTab(
-												action.tabType,
-												{
-													id: action.tabId,
-													title: action.title,
-												}
-											)
-										}
-										aria-label={action.title}
-										size="compact"
-										className="wpgraphql-ide-topbar-btn"
-									>
-										{action.icon ? (
-											<action.icon />
-										) : (
-											<Icon icon={edit} />
-										)}
-									</Button>
-								</Tooltip>
-							))}
-						</>
-					)}
-					{onClose && (
-						<>
-							<div className="wpgraphql-ide-topbar-sep" />
-							<Tooltip text="Close">
-								<Button
-									onClick={onClose}
-									aria-label="Close"
-									size="compact"
-									className="wpgraphql-ide-topbar-btn"
-								>
-									<Icon icon={close} />
-								</Button>
-							</Tooltip>
-						</>
-					)}
-				</div>
-			</div>
+			<IDETopbar
+				visiblePanel={visiblePanel}
+				onSidebarToggle={handleSidebarToggle}
+				isSchemaLoading={isSchemaLoading}
+				onRefetchSchema={async () => {
+					const result = await refetch();
+					if (result?.ok) {
+						addNotice('Schema refreshed');
+					} else {
+						addNotice(
+							`Failed to refresh schema: ${
+								result?.error?.message ?? 'Unknown error'
+							}`,
+							'error'
+						);
+					}
+				}}
+				topbarActions={topbarActions}
+				onClose={onClose}
+			/>
 
 			<div className="wpgraphql-ide-main">
-				{/* Vertical activity bar — global, owns panel toggle buttons */}
-				<div className="wpgraphql-ide-activity-bar">
-					{navPanels.map((panel) => (
-						<Tooltip
-							key={panel.name}
-							text={panel.title}
-							placement="right"
-						>
-							<Button
-								draggable
-								onDragStart={onPanelDragStart(panel.name)}
-								onDragOver={onPanelDragOver(panel.name)}
-								onDragLeave={onPanelDragLeave}
-								onDrop={onPanelDrop(panel.name)}
-								onDragEnd={onPanelDragEnd}
-								onClick={() =>
-									toggleActivityPanelVisibility(panel.name)
-								}
-								aria-label={panel.title}
-								aria-pressed={visiblePanel?.name === panel.name}
-								size="compact"
-								className={`wpgraphql-ide-activity-btn${visiblePanel?.name === panel.name ? ' is-active' : ''}${dragOverPanel?.name === panel.name ? ` is-drag-${dragOverPanel.pos}` : ''}`}
-							>
-								{panel.icon ? (
-									<panel.icon />
-								) : (
-									<Icon
-										icon={PANEL_ICONS[panel.name] ?? edit}
-									/>
-								)}
-							</Button>
-						</Tooltip>
-					))}
-				</div>
+				<IDEActivityBar
+					navPanels={navPanels}
+					visiblePanel={visiblePanel}
+					dragOverPanel={dragOverPanel}
+					onDragStart={onPanelDragStart}
+					onDragOver={onPanelDragOver}
+					onDragLeave={onPanelDragLeave}
+					onDrop={onPanelDrop}
+					onDragEnd={onPanelDragEnd}
+					onPanelClick={toggleActivityPanelVisibility}
+				/>
 
 				{/* Collapsible side panel — global, shows active panel content */}
 				<ActivityPanel />
@@ -1136,32 +1017,7 @@ export function IDELayout({ fetcher, onClose }) {
 				{/* Editor area: tabs + editors are document-scoped */}
 				<div className="wpgraphql-ide-editor-area">
 					{openTabs.length === 0 ? (
-						<div className="wpgraphql-ide-workspace-empty">
-							<svg
-								className="wpgraphql-ide-empty-icon"
-								viewBox="0 0 24 24"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
-									fill="currentColor"
-								/>
-							</svg>
-							<h3 className="wpgraphql-ide-empty-title">
-								No open documents
-							</h3>
-							<p className="wpgraphql-ide-empty-description">
-								Create a new document to start writing GraphQL
-								queries, or open one from the sidebar.
-							</p>
-							<Button
-								variant="primary"
-								onClick={() => createTab('')}
-							>
-								New Document
-							</Button>
-						</div>
+						<WorkspaceEmpty onCreate={() => createTab('')} />
 					) : (
 						<>
 							<div className="wpgraphql-ide-tab-row">
