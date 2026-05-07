@@ -17,6 +17,7 @@ export default async function HandleFeeds(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log(`[feeds] handler invoked: feedType=${String(req.query.feedType)} url=${req.url}`)
   try {
     // Get needed Reqest info
     const if_modified_since: string = req.headers["if-modified-since"]
@@ -24,12 +25,20 @@ export default async function HandleFeeds(
     const { feedType } = req.query
 
     //Fetch content from WP
+    console.log("[feeds] running BlogFeedQuery against", process.env.NEXT_PUBLIC_WPGRAPHQL_URL || process.env.WPGRAPHQL_URL)
     const result = await request({ query: FEED_QUERY })
+    console.log("[feeds] result keys:", Object.keys((result as any) ?? {}))
     if ((result as any)?.errors?.length) {
       console.error("[feeds] GraphQL errors:", JSON.stringify((result as any).errors, null, 2))
       throw new Error("GraphQL errors fetching feed data")
     }
     const feed_data = (result as any)?.data ?? {}
+    console.log(
+      "[feeds] data shape:",
+      Object.keys(feed_data),
+      "posts.nodes:", feed_data?.posts?.nodes?.length,
+      "last_modified.nodes:", feed_data?.last_modified?.nodes?.length
+    )
 
     if (!feed_data?.last_modified?.nodes?.[0]?.modifiedGmt) {
       console.error("[feeds] feed query returned no posts; result:", JSON.stringify(result, null, 2))
