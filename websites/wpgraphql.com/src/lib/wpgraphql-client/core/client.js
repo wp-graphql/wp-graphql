@@ -13,7 +13,7 @@ export function setFetch(fn) {
 
 function asDocument(query) {
   if (typeof query === "string") return parse(query)
-  if (query && query.kind === "Document") return query
+  if (query.kind === "Document") return query
   throw new TypeError("request: query must be a string or DocumentNode")
 }
 
