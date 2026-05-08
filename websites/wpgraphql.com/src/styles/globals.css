@@ -1,8 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @import "./docsearch.css";
 
 @plugin "@tailwindcss/typography";
-@import "tw-animate-css";
 
 @source "../../src/**/*.{js,jsx,ts,tsx,mdx}";
 

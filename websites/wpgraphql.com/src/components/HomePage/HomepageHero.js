@@ -10,7 +10,7 @@ export default function HomepageHero() {
           <div className="lg:max-w-xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 font-mono text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-primary animate-glow-pulse" />
-              Open Source · MIT · 6M+ downloads
+              Free · Open Source · GPL-3
             </span>
             <h1 className="mt-6 text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
               GraphQL API for{" "}

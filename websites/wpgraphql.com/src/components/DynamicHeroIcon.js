@@ -1,24 +1,43 @@
-import dynamic from "next/dynamic"
+import {
+  Bars3Icon,
+  BoltIcon,
+  BookOpenIcon,
+  ChartBarIcon,
+  CodeBracketIcon,
+  CommandLineIcon,
+  FunnelIcon,
+  PuzzlePieceIcon,
+  ShieldCheckIcon,
+} from "@heroicons/react/24/outline"
 
 /**
- * Renders a Heroicon by name (string passed from a WordPress Nav Menu Item).
- * Returns null when the icon prop is missing or doesn't resolve to a real
- * Heroicon export — without this guard, an invalid name produces a
- * "ForwardRef(LoadableComponent)" React error.
+ * Renders a Heroicon by name (set via WordPress Nav Menu CSS class
+ * `icon-{HeroiconName}`, e.g. `icon-BookOpenIcon`).
  *
- * @see: https://github.com/tailwindlabs/heroicons/issues/278#issuecomment-851594776
+ * Uses static imports rather than `next/dynamic` so the icons SSR correctly
+ * (next/dynamic skipped server rendering and left empty tiles in dropdowns
+ * until client hydration). When adding a new icon to a WP menu CSS class,
+ * import it here and add it to ICON_MAP.
+ *
+ * `Bars` is mapped to `Bars3Icon` so legacy `icon-Bars` menu classes
+ * continue working.
  */
-export default function DynamicHeroIcon(props) {
-  if (!props?.icon) return null
+const ICON_MAP = {
+  Bars: Bars3Icon,
+  Bars3Icon,
+  BoltIcon,
+  BookOpenIcon,
+  ChartBarIcon,
+  CodeBracketIcon,
+  CommandLineIcon,
+  FunnelIcon,
+  PuzzlePieceIcon,
+  ShieldCheckIcon,
+}
 
-  const Icon = dynamic(() =>
-    import(`@heroicons/react/24/outline/esm`).then((icons) => {
-      const candidate = icons[props.icon]
-      if (typeof candidate === "function") return candidate
-      // Render nothing if the icon name didn't resolve to a component
-      return () => null
-    })
-  )
-
-  return <Icon className="h-6 w-6" aria-hidden="true" {...props} />
+export default function DynamicHeroIcon({ icon, ...rest }) {
+  if (!icon) return null
+  const Icon = ICON_MAP[icon]
+  if (!Icon) return null
+  return <Icon className="h-6 w-6" aria-hidden="true" {...rest} />
 }
