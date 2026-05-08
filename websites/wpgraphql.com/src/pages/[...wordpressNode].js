@@ -13,7 +13,11 @@ export default function Page({ template, data, layoutData, seed, uri }) {
 }
 
 export async function getStaticProps(ctx) {
-  return getTemplateStaticProps(ctx, { revalidate: 5 })
+  // 5 minutes. Acts as a safety net for any CMS changes Smart Cache
+  // doesn't track; on-demand revalidation via /api/revalidate is the
+  // primary path. Tight enough to keep stale-window bounded if the
+  // webhook ever silently fails.
+  return getTemplateStaticProps(ctx, { revalidate: 300 })
 }
 
 export async function getStaticPaths() {
