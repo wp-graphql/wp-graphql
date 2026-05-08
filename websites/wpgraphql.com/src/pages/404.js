@@ -44,11 +44,9 @@ export default function NotFound({ menu }) {
           The page you are looking for could not be found.
         </p>
         <div className="mt-8 flex justify-center">
-          <Link href="/" legacyBehavior>
-            <Button asChild size="lg">
-              <a>Go back home</a>
-            </Button>
-          </Link>
+          <Button asChild size="lg">
+            <Link href="/">Go back home</Link>
+          </Button>
         </div>
       </div>
 

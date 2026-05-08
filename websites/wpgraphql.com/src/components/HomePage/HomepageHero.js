@@ -22,19 +22,18 @@ export default function HomepageHero() {
               WordPress site.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
-              <Link
-                href="https://wordpress.org/plugins/wp-graphql"
-                legacyBehavior
-              >
-                <Button asChild size="lg">
-                  <a target="_blank" rel="noreferrer">Download the Plugin</a>
-                </Button>
-              </Link>
-              <Link href="/docs/introduction" legacyBehavior>
-                <Button asChild variant="secondary" size="lg">
-                  <a>Read the Docs</a>
-                </Button>
-              </Link>
+              <Button asChild size="lg">
+                <a
+                  href="https://wordpress.org/plugins/wp-graphql"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Download the Plugin
+                </a>
+              </Button>
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/docs/introduction">Read the Docs</Link>
+              </Button>
             </div>
           </div>
 
