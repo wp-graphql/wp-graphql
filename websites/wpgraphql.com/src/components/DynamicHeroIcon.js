@@ -20,5 +20,5 @@ export default function DynamicHeroIcon(props) {
     })
   )
 
-  return <Icon className="h-6 w-6 text-white" aria-hidden="true" {...props} />
+  return <Icon className="h-6 w-6" aria-hidden="true" {...props} />
 }

@@ -36,7 +36,7 @@ export default function DocsLayout({ children, toc, docsNavData }) {
             id="doc-table-of-contents"
             className="sticky top-6 col-start-3 col-end-4 hidden md:block max-w-30ch z-20"
           >
-            <div className="w-[30ch] text-slate-900 font-semibold mb-4 text-sm leading-6 dark:text-slate-100 ">
+            <div className="w-[30ch] text-foreground font-semibold mb-4 text-sm leading-6">
               {toc && <TableOfContents toc={toc} />}
             </div>
           </aside>
