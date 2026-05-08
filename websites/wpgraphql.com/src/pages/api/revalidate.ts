@@ -76,7 +76,7 @@ export default async function HandleRevalidate(
       revalidated.push(path)
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      console.error(`[revalidate] failed for ${path}:`, message)
+      console.error("[revalidate] failed for %s: %s", path, message)
       failed.push({ path, error: message })
     }
   }
