@@ -304,9 +304,17 @@
    plugin's own defaults on `.prose` (which set --tw-prose-body to slate-700
    by default). Spec: same selector + later rule wins, and the plugin's
    rules register at @layer base. */
+/*
+   Brand has three text tiers:
+     foreground (~white #F0F4FF)  — headings, strong, emphasis
+     navy-200   (#A3B4CC)         — body copy ("text-secondary" in brand HTML)
+     muted-foreground (navy-300)  — captions, leads, helpers
+   Pure foreground for all body copy reads as too bright on the dark
+   background; navy-200 matches the brand HTML's `--text-sec`.
+*/
 .prose,
 .prose.prose {
-  --tw-prose-body:          hsl(var(--foreground));
+  --tw-prose-body:          var(--color-navy-200);
   --tw-prose-headings:      hsl(var(--foreground));
   --tw-prose-lead:          hsl(var(--muted-foreground));
   --tw-prose-links:         hsl(var(--primary));
@@ -322,7 +330,7 @@
   --tw-prose-pre-bg:        hsl(var(--card));
   --tw-prose-th-borders:    hsl(var(--border));
   --tw-prose-td-borders:    hsl(var(--border));
-  --tw-prose-invert-body:          hsl(var(--foreground));
+  --tw-prose-invert-body:          var(--color-navy-200);
   --tw-prose-invert-headings:      hsl(var(--foreground));
   --tw-prose-invert-lead:          hsl(var(--muted-foreground));
   --tw-prose-invert-links:         hsl(var(--primary));
@@ -338,17 +346,14 @@
   --tw-prose-invert-pre-bg:        hsl(var(--card));
   --tw-prose-invert-th-borders:    hsl(var(--border));
   --tw-prose-invert-td-borders:    hsl(var(--border));
-  color: hsl(var(--foreground));
+  color: var(--color-navy-200);
   max-width: none;
 }
 
-/* Force descendant text colors (paragraphs, list items, definition terms) to
-   our foreground — the plugin's `color: var(--tw-prose-body)` rule on `p`
-   gets overridden by our token, but some content uses inline color attributes
-   from the WordPress editor. We intentionally only do this for plain block
-   elements; <strong>, <a>, <code>, headings keep their plugin colors. */
+/* Backstop: paragraph / list / dl text gets navy-200 even if the
+   typography plugin's selector loses to inline color from WP-rendered HTML. */
 .prose :where(p, li, dt, dd):not(:where([class~="not-prose"] *)) {
-  color: hsl(var(--foreground));
+  color: var(--color-navy-200);
 }
 
 @layer base {
