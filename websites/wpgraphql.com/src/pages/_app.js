@@ -8,6 +8,7 @@ import * as gtag from "../lib/gtag";
 import "../styles/globals.css"
 import "../styles/docs.css"
 import { SearchProvider } from "../components/Site/SearchButton";
+import EnhanceCodeBlocks from "../components/EnhanceCodeBlocks";
 import { useEffect } from "react";
 
 export default function MyApp({ Component, pageProps }) {
@@ -46,6 +47,7 @@ export default function MyApp({ Component, pageProps }) {
           }}
         />
         <Component {...pageProps} key={router.asPath} />
+        <EnhanceCodeBlocks />
       </SearchProvider>
     </ThemeProvider>
   )
