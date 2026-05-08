@@ -35,13 +35,38 @@ function buildGetUrl(endpoint, { queryId, variables, operationName }) {
   return `${endpoint}?${params.toString()}`
 }
 
+/**
+ * Hostname of this site, advertised to the RadiQL proxy via
+ * X-RadiQL-Origin-Host so its dashboard can attribute server-side
+ * traffic. Server-side fetch() in Node doesn't send Origin/Referer,
+ * so without this header the dashboard's "Origin" column stays blank
+ * for SSR/SSG/ISR requests originating from this app.
+ *
+ * Falls back gracefully when NEXT_PUBLIC_SITE_URL isn't set (e.g.
+ * unit-test runs that don't load the .env file) — the header is
+ * simply omitted and RadiQL records null.
+ */
+function originHostHeaders() {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL
+  if (!raw) return {}
+  try {
+    return { "X-RadiQL-Origin-Host": new URL(raw).hostname }
+  } catch {
+    return {}
+  }
+}
+
 async function postJson(endpoint, body) {
   if (!_fetch) {
     throw new Error("wpgraphql-client/client: no fetch implementation available")
   }
   const res = await _fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...originHostHeaders(),
+    },
     body: JSON.stringify(body),
   })
   return res.json()
@@ -53,7 +78,7 @@ async function getJson(url) {
   }
   const res = await _fetch(url, {
     method: "GET",
-    headers: { Accept: "application/json" },
+    headers: { Accept: "application/json", ...originHostHeaders() },
   })
   return res.json()
 }

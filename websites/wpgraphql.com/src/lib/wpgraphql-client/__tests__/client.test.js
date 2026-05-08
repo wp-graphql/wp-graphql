@@ -135,3 +135,46 @@ describe("request — input validation", () => {
     await assert.rejects(() => request({ query: 42 }), /string or DocumentNode/)
   })
 })
+
+describe("request — X-RadiQL-Origin-Host header", () => {
+  it("sends the site hostname so RadiQL can attribute SSR traffic", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://wpgraphql.com"
+    const { fn, calls } = makeFetchSpy({ data: {} })
+    setFetch(fn)
+
+    await request({ query: "query Foo { foo }" })
+
+    assert.equal(calls[0].init.headers["X-RadiQL-Origin-Host"], "wpgraphql.com")
+  })
+
+  it("sends the header on POST mutations as well as GET queries", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://wpgraphql.com"
+    const { fn, calls } = makeFetchSpy({ data: {} })
+    setFetch(fn)
+
+    await request({ query: "mutation DoIt { doIt }" })
+
+    assert.equal(calls[0].init.method, "POST")
+    assert.equal(calls[0].init.headers["X-RadiQL-Origin-Host"], "wpgraphql.com")
+  })
+
+  it("omits the header when NEXT_PUBLIC_SITE_URL is not set", async () => {
+    delete process.env.NEXT_PUBLIC_SITE_URL
+    const { fn, calls } = makeFetchSpy({ data: {} })
+    setFetch(fn)
+
+    await request({ query: "query Foo { foo }" })
+
+    assert.equal(calls[0].init.headers["X-RadiQL-Origin-Host"], undefined)
+  })
+
+  it("omits the header when NEXT_PUBLIC_SITE_URL is unparseable", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "not a url"
+    const { fn, calls } = makeFetchSpy({ data: {} })
+    setFetch(fn)
+
+    await request({ query: "query Foo { foo }" })
+
+    assert.equal(calls[0].init.headers["X-RadiQL-Origin-Host"], undefined)
+  })
+})
