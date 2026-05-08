@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.13.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.12.0...wp-graphql/v2.13.0) (2026-05-08)
+
+
+### New Features
+
+* **deps:** bump styled-components from 6.4.0 to 6.4.1 in the npm-prod-minor-patch group ([#3805](https://github.com/wp-graphql/wp-graphql/issues/3805)) ([4bf5402](https://github.com/wp-graphql/wp-graphql/commit/4bf5402097329bf340fded88dea1ae29bce037b1))
+* **deps:** bump the npm-prod-minor-patch group with 3 updates ([#3792](https://github.com/wp-graphql/wp-graphql/issues/3792)) ([42b200b](https://github.com/wp-graphql/wp-graphql/commit/42b200be4c1c723d191fbcbc0c04818b4b313676))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.46 to 2.1.50 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3789](https://github.com/wp-graphql/wp-graphql/issues/3789)) ([9c4173a](https://github.com/wp-graphql/wp-graphql/commit/9c4173a018e6a5efe1628c23a3f05654bf72b879))
+* **deps-dev:** bump phpstan/phpstan from 2.1.50 to 2.1.51 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3802](https://github.com/wp-graphql/wp-graphql/issues/3802)) ([05b8711](https://github.com/wp-graphql/wp-graphql/commit/05b8711beb0bc5a1adba2aade44c7c48ba1f3712))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 6 updates ([#3799](https://github.com/wp-graphql/wp-graphql/issues/3799)) ([5e01960](https://github.com/wp-graphql/wp-graphql/commit/5e0196088e807cabeb502b3e868685c8d6878863))
+* **deps:** bump webonyx/graphql-php from 15.31.5 to 15.32.3 in /plugins/wp-graphql ([#3804](https://github.com/wp-graphql/wp-graphql/issues/3804)) ([ed641bb](https://github.com/wp-graphql/wp-graphql/commit/ed641bb513c3d6f7d62ecfd36a6ff3dd472425fb))
+
 ## [2.12.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.2...wp-graphql/v2.12.0) (2026-04-23)
 
 
