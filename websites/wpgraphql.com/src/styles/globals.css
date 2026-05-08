@@ -449,9 +449,8 @@
    ============================================================ */
 .code-block-wrap {
   margin: 1.5em 0 2em;
-  /* Always dark — the Night Owl Prism theme in docs.css is designed for
-     a dark background. We vary the *framing* per mode (border + shadow)
-     so the block reads differently against light vs dark page surfaces. */
+  /* Dark by default. Light-mode override below swaps to a light surface
+     plus a GitHub-light Prism theme. */
   background: hsl(222 45% 10%); /* navy-900 */
   color: hsl(220 60% 97%);
   border: 1px solid hsl(224 43% 21%); /* navy-700 */
@@ -460,13 +459,66 @@
   box-shadow: var(--shadow-elev-sm);
 }
 
-/* Light mode: lift the dark code block off the page with a stronger
-   drop shadow so it reads as a floating panel rather than a heavy block. */
+/* ── Light mode: light code surface ───────────────────────────────── */
 .light .code-block-wrap {
+  background: hsl(220 35% 98%);                /* near-white, a hair off navy-50 */
+  color: hsl(222 47% 8%);                       /* navy-950 */
+  border-color: hsl(219 23% 80%);
   box-shadow:
-    0 12px 28px -10px hsl(222 47% 4% / 0.18),
-    0 4px 10px -4px hsl(222 47% 4% / 0.10);
+    0 8px 20px -10px hsl(222 47% 4% / 0.10),
+    0 2px 6px -2px hsl(222 47% 4% / 0.06);
 }
+
+.light .code-block-wrap .code-block-header {
+  background: hsl(220 30% 94%);
+  border-bottom-color: hsl(219 23% 85%);
+}
+
+.light .code-block-wrap .code-block-lang,
+.light .code-block-wrap .code-block-copy {
+  color: hsl(220 31% 42%); /* navy-400 */
+  border-color: hsl(219 23% 80%);
+}
+.light .code-block-wrap .code-block-copy:hover {
+  color: hsl(28 100% 47%); /* primary, light mode */
+  border-color: hsl(28 100% 47%);
+  background: hsl(220 35% 98%);
+}
+
+/* GitHub-light–inspired Prism colours, scoped to .light .code-block-wrap so
+   they only fire when the surrounding wrapper is light. The dark Night Owl
+   theme in docs.css continues to apply when the wrapper is dark. */
+.light .code-block-wrap .token.comment,
+.light .code-block-wrap .token.prolog,
+.light .code-block-wrap .token.doctype,
+.light .code-block-wrap .token.cdata        { color: #6a737d; }
+.light .code-block-wrap .token.punctuation  { color: #24292e; }
+.light .code-block-wrap .token.property,
+.light .code-block-wrap .token.tag,
+.light .code-block-wrap .token.boolean,
+.light .code-block-wrap .token.number,
+.light .code-block-wrap .token.constant,
+.light .code-block-wrap .token.symbol,
+.light .code-block-wrap .token.deleted      { color: #005cc5; }
+.light .code-block-wrap .token.selector,
+.light .code-block-wrap .token.attr-name,
+.light .code-block-wrap .token.string,
+.light .code-block-wrap .token.char,
+.light .code-block-wrap .token.builtin,
+.light .code-block-wrap .token.inserted     { color: #032f62; }
+.light .code-block-wrap .token.operator,
+.light .code-block-wrap .token.entity,
+.light .code-block-wrap .token.url,
+.light .code-block-wrap .language-css .token.string,
+.light .code-block-wrap .style .token.string{ color: #d73a49; }
+.light .code-block-wrap .token.atrule,
+.light .code-block-wrap .token.attr-value,
+.light .code-block-wrap .token.keyword      { color: #d73a49; }
+.light .code-block-wrap .token.function,
+.light .code-block-wrap .token.class-name   { color: #6f42c1; }
+.light .code-block-wrap .token.regex,
+.light .code-block-wrap .token.important,
+.light .code-block-wrap .token.variable     { color: #e36209; }
 
 .code-block-wrap pre {
   margin: 0 !important;
