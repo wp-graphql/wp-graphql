@@ -29,23 +29,20 @@ export default function Singlar({ data }) {
               <header>
                 <dl>
                   <dt className="sr-only">Date</dt>
-                  <dd className="absolute top-0 inset-x-0 text-navy text-center dark:text-slate-400">
+                  <dd className="absolute inset-x-0 top-0 text-center text-sm font-mono text-muted-foreground">
                     <time dateTime={post?.date}>{date}</time>
                   </dd>
                 </dl>
                 <div className="space-y-6">
-                  <h1 className="col-span-full break-words text-3xl sm:text-4xl text-center xl:mb-5 font-extrabold tracking-tight text-navy dark:text-slate-200">
+                  <h1 className="col-span-full break-words text-center text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
                     {post.title}
                   </h1>
-                  <div className="flex flex-wrap justify-center">
+                  <div className="flex flex-wrap justify-center gap-3">
                     {post?.categories?.nodes?.map((category, i) => (
                       <Link key={i} href={category.uri} legacyBehavior>
-                        <a className="text-base font-semibold tracking-wider text-purple-600 dark:text-purple-400 px-3">
+                        <a className="font-mono text-xs font-medium uppercase tracking-widest text-primary hover:text-orange-wpg-200">
                           {category.name}
                         </a>
-                        {/* <a className="mr-3 text-sm font-medium uppercase text-sky-500 dark:text-sky-300 hover:text-primary-600 dark:hover:text-sky-400">
-                          {category.name}
-                        </a> */}
                       </Link>
                     ))}
                   </div>
@@ -61,12 +58,12 @@ export default function Singlar({ data }) {
                           alt={post?.author?.node?.name}
                           width={50}
                           height={50}
-                          className="mr-3 w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800"
+                          className="mr-3 h-10 w-10 rounded-full border border-border bg-muted"
                         />
                       </dd>
                       <dd className="text-center items-center">
                         <Link href={post?.author?.node?.uri} legacyBehavior>
-                          <a className="text-sky-500 dark:text-sky-300 dark:hover:text-sky-400 hover:text-sky-600 dark:text-sky-400 pt-5 text-center">
+                          <a className="text-primary hover:text-orange-wpg-200 transition-colors pt-5 text-center">
                             {post?.author?.node?.name}
                           </a>
                         </Link>
@@ -78,7 +75,7 @@ export default function Singlar({ data }) {
               <div className="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-12">
                 <div
                   id="content"
-                  className="prose dark:prose-dark"
+                  className="prose"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
               </div>

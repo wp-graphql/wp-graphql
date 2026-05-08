@@ -17,14 +17,14 @@ export default function SingleRecipe({ data }) {
               <header>
                 <div className="space-y-6">
                   {node.title ? (
-                    <h1 className="col-span-full break-words text-3xl sm:text-4xl text-center xl:mb-5 font-extrabold tracking-tight text-slate-900 dark:text-slate-200">
+                    <h1 className="col-span-full break-words text-center text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
                       {node.title}
                     </h1>
                   ) : null}
                   <div className="flex flex-wrap justify-center">
                     {node?.recipeTags?.nodes?.map((tag, i) => (
                       <Link key={i} href={tag.uri} legacyBehavior>
-                        <a className="mr-3 text-sm font-medium uppercase text-sky-500 dark:text-sky-300 hover:text-primary-600 dark:hover:text-sky-400">
+                        <a className="mr-3 font-mono text-xs font-medium uppercase tracking-widest text-primary hover:text-orange-wpg-200">
                           {tag.name}
                         </a>
                       </Link>
@@ -36,7 +36,7 @@ export default function SingleRecipe({ data }) {
                 {node.content ? (
                   <div
                     id="content"
-                    className="prose dark:prose-dark"
+                    className="prose"
                     dangerouslySetInnerHTML={{ __html: node.content }}
                   />
                 ) : null}

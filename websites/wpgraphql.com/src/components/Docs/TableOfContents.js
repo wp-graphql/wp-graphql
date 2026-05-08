@@ -6,15 +6,15 @@ export default function TableOfContents({ toc }) {
   }
 
   return (
-    <nav className="">
-      <h2 className="text-slate-900 font-semibold mb-4 text-sm leading-6 dark:text-slate-100">
+    <nav>
+      <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-muted-foreground">
         On this page
       </h2>
-      <ul className="text-slate-700 text-sm leading-6">
+      <ul className="space-y-1 text-sm leading-6">
         {toc.map((item) => (
           <li key={item.id} className={item.tagName === "h3" ? "ml-3" : ""}>
             <Link href={`#${item.id}`} legacyBehavior>
-              <a className="block py-1 font-medium hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-300">
+              <a className="block py-1 text-muted-foreground transition-colors hover:text-primary">
                 {item.title}
               </a>
             </Link>

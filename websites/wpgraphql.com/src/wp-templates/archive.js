@@ -25,17 +25,17 @@ export default function Archive({ data }) {
       <div className="overflow-hidden">
         <div className="mx-auto mt-10 px-4 pb-6 sm:mt-16 sm:px-6 md:px-8 xl:px-12 xl:max-w-4xl">
           <header className="text-center">
-            <h1 className="mb-6 text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+            <h1 className="mb-6 text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
               {archive?.label ? archive.label : archive?.name ?? "Archive"}
             </h1>
-            <p className="text-lg leading-7 prose dark:prose-dark max-w-3xl mx-auto">
+            <p className="prose mx-auto max-w-3xl text-lg leading-7">
               <span
                 dangerouslySetInnerHTML={{ __html: archive?.description }}
               />
             </p>
           </header>
           <main className="content relative pt-10 max-w-3xl mx-auto mb-10">
-            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+            <ul className="divide-y divide-border">
               {archive?.contentNodes?.nodes?.map((node) => {
                 switch (node.__typename) {
                   case "ExtensionPlugin":

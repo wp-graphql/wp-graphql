@@ -35,27 +35,27 @@ export default function PostPreview({ post, isLatest }) {
 
   return (
     <article
-      className={`bg-gradient-elevate-light dark:bg-gradient-elevate p-6 rounded-lg flex flex-col justify-between w-full ${
+      className={`flex w-full flex-col justify-between rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/40 hover:shadow-glow-sm ${
         isLatest ? "xl:col-span-2 xl:row-span-2" : ""
       }`}
     >
-      <div className="flex items-center mb-4">
+      <div className="mb-4 flex items-center">
         <img
-          className="w-10 h-10 rounded-full mr-4"
+          className="mr-4 h-10 w-10 rounded-full border border-border"
           src={post.author.node.avatar.url}
           alt={post.author.node.name}
         />
         <div className="text-sm">
-          <p className="text-navy dark:text-gray-100 leading-none">{post.author.node.name}</p>
-          <time className="text-gray-500 dark:text-gray-300" dateTime={post.date}>
+          <p className="leading-none text-foreground">{post.author.node.name}</p>
+          <time className="font-mono text-xs text-muted-foreground" dateTime={post.date}>
             {date}
           </time>
         </div>
       </div>
       <div>
-        <h2 className="text-2xl font-bold leading-8 tracking-tight mb-2">
+        <h2 className="mb-2 text-2xl font-bold leading-8 tracking-tight">
           <Link href={post.uri} legacyBehavior>
-            <a className="text-navy dark:text-gray-100">{post.title}</a>
+            <a className="text-foreground hover:text-primary transition-colors">{post.title}</a>
           </Link>
         </h2>
       </div>

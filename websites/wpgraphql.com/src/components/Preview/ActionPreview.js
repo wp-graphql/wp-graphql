@@ -16,12 +16,12 @@ export default function ActionPreview({ node }) {
 
   return (
     <div className="mb-10 pt-10">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <h2 className="text-2xl font-bold text-foreground">
         {node.title}
       </h2>
       <div className="py-5">
         <div
-          className="prose dark:prose-dark"
+          className="prose"
           dangerouslySetInnerHTML={{ __html: excerpt }}
         />
       </div>
