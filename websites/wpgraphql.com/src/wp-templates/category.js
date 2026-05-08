@@ -1,8 +1,8 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import PostPreview, {
   PostPreviewFragment,
 } from "components/Preview/PostPreview"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function Category({ data }) {
   if (!data) {
@@ -38,23 +38,22 @@ export default function Category({ data }) {
   )
 }
 
-Category.variables = ({ id }) => ({
-  id,
-})
-
-Category.query = gql`
-  query GetCategory($id: ID!) {
-    category(id: $id) {
-      name
-      description
-      posts {
-        nodes {
-          ...PostPreview
+Category.queries = {
+  category: {
+    query: gql`
+      query Category_Node($id: ID!) {
+        category(id: $id, idType: URI) {
+          name
+          description
+          posts {
+            nodes {
+              ...PostPreview
+            }
+          }
         }
       }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-  ${PostPreviewFragment}
-`
+      ${PostPreviewFragment}
+    `,
+    variables: ({ seed }) => ({ id: seed?.uri }),
+  },
+}

@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import Link from "next/link"
 
 export const ActionPreviewFragment = gql`
@@ -27,7 +27,7 @@ export default function ActionPreview({ node }) {
       </div>
 
       <div className="text-base font-medium leading-6">
-        <Link href={node.uri}>
+        <Link href={node.uri} legacyBehavior>
           <a className="btn-primary-sm">
             <span className="pr-2">View Action →</span>
           </a>

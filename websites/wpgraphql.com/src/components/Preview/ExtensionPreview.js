@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline"
 
 export const ExtensionFragment = gql`

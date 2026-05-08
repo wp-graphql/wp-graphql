@@ -1,8 +1,8 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import PostPreview, {
   PostPreviewFragment,
 } from "components/Preview/PostPreview"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 import Image from "next/image"
 
 export default function Author({ data }) {
@@ -58,29 +58,26 @@ export default function Author({ data }) {
   )
 }
 
-Author.query = gql`
-  query GetAuthor($id: ID!) {
-    user(id: $id) {
-      id
-      name
-      description
-      avatar {
-        url
-      }
-      posts {
-        nodes {
-          ...PostPreview
+Author.queries = {
+  user: {
+    query: gql`
+      query Author_User($id: ID!) {
+        user(id: $id, idType: URI) {
+          id
+          name
+          description
+          avatar {
+            url
+          }
+          posts {
+            nodes {
+              ...PostPreview
+            }
+          }
         }
       }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-  ${PostPreviewFragment}
-`
-
-Author.variables = ({ id }) => {
-  return {
-    id,
-  }
+      ${PostPreviewFragment}
+    `,
+    variables: ({ seed }) => ({ id: seed?.uri }),
+  },
 }
