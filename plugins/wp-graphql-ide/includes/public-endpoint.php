@@ -25,7 +25,7 @@
  * @package WPGraphQL\IDE
  */
 
-namespace WPGraphQL\IDE;
+namespace WPGraphQLIDE;
 
 /**
  * Read-only getter / setter for the in-flight "we're rendering the
