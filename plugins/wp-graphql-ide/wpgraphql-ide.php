@@ -99,6 +99,12 @@ function initialize_plugin() {
 	add_filter( 'rest_prepare_graphql_ide_query', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 	add_filter( 'rest_prepare_graphql_ide_history', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 
+	// Cap document title length on every write path so a long POST body
+	// can't bloat the DB or break admin-UI layouts. Covers REST creates
+	// and updates, the import/upsert flow, and any future direct
+	// `wp_insert_post` callers.
+	add_filter( 'wp_insert_post_data', __NAMESPACE__ . '\\cap_ide_document_title_length', 10, 2 );
+
 	// Custom REST routes.
 	add_action( 'rest_api_init', __NAMESPACE__ . '\\register_ide_rest_routes' );
 
@@ -1096,6 +1102,34 @@ function restrict_document_to_author( $response, $post, $request ) {
 		__( 'You do not have permission to access this document.', 'wpgraphql-ide' ),
 		[ 'status' => 403 ]
 	);
+}
+
+/**
+ * Truncate `post_title` to 200 chars on `graphql_ide_query` writes.
+ *
+ * The `post_title` column is TEXT in MySQL with no hard cap, so a
+ * long POST body could bloat the database or break admin UIs (post
+ * lists, the IDE's own tab strip) that can't reasonably display past
+ * ~200 chars. Applies to every write path — REST creates/updates,
+ * the import/upsert flow, and any direct `wp_insert_post` callers.
+ *
+ * Other CPTs pass through unchanged. `mb_substr` is used so we never
+ * slice through a multi-byte character.
+ *
+ * @param array<string,mixed> $data    Slashed, sanitized post data about to be written.
+ * @param array<string,mixed> $postarr Original input array (unsanitized).
+ *
+ * @return array<string,mixed>
+ */
+function cap_ide_document_title_length( array $data, array $postarr ): array {
+	if ( ( $data['post_type'] ?? '' ) !== 'graphql_ide_query' ) {
+		return $data;
+	}
+	$title = (string) ( $data['post_title'] ?? '' );
+	if ( mb_strlen( $title ) > 200 ) {
+		$data['post_title'] = mb_substr( $title, 0, 200 );
+	}
+	return $data;
 }
 
 /**
