@@ -294,61 +294,105 @@
 
 /* ============================================================
    PROSE — typography customization for MDX/docs content
+
+   Strategy: override the @tailwindcss/typography plugin's CSS variables
+   (--tw-prose-*) so the plugin's default rules use our brand colors,
+   instead of fighting selector specificity. Add a few extras on top
+   for things the plugin doesn't cover (custom bullet, mono <small>).
    ============================================================ */
 @layer base {
   .prose {
-    color: hsl(var(--foreground));
+    --tw-prose-body:          hsl(var(--foreground));
+    --tw-prose-headings:      hsl(var(--foreground));
+    --tw-prose-lead:          hsl(var(--muted-foreground));
+    --tw-prose-links:         hsl(var(--primary));
+    --tw-prose-bold:          hsl(var(--foreground));
+    --tw-prose-counters:      hsl(var(--muted-foreground));
+    --tw-prose-bullets:       hsl(var(--muted-foreground));
+    --tw-prose-hr:            hsl(var(--border));
+    --tw-prose-quotes:        hsl(var(--foreground));
+    --tw-prose-quote-borders: hsl(var(--primary));
+    --tw-prose-captions:      hsl(var(--muted-foreground));
+    --tw-prose-code:          hsl(var(--primary));
+    --tw-prose-pre-code:      hsl(var(--card-foreground));
+    --tw-prose-pre-bg:        hsl(var(--card));
+    --tw-prose-th-borders:    hsl(var(--border));
+    --tw-prose-td-borders:    hsl(var(--border));
+    /* Mirror to -invert so prose-invert callers also stay on-brand */
+    --tw-prose-invert-body:          var(--tw-prose-body);
+    --tw-prose-invert-headings:      var(--tw-prose-headings);
+    --tw-prose-invert-lead:          var(--tw-prose-lead);
+    --tw-prose-invert-links:         var(--tw-prose-links);
+    --tw-prose-invert-bold:          var(--tw-prose-bold);
+    --tw-prose-invert-counters:      var(--tw-prose-counters);
+    --tw-prose-invert-bullets:       var(--tw-prose-bullets);
+    --tw-prose-invert-hr:            var(--tw-prose-hr);
+    --tw-prose-invert-quotes:        var(--tw-prose-quotes);
+    --tw-prose-invert-quote-borders: var(--tw-prose-quote-borders);
+    --tw-prose-invert-captions:      var(--tw-prose-captions);
+    --tw-prose-invert-code:          var(--tw-prose-code);
+    --tw-prose-invert-pre-code:      var(--tw-prose-pre-code);
+    --tw-prose-invert-pre-bg:        var(--tw-prose-pre-bg);
+    --tw-prose-invert-th-borders:    var(--tw-prose-th-borders);
+    --tw-prose-invert-td-borders:    var(--tw-prose-td-borders);
+
     max-width: none;
   }
 
+  /* Headings: brand display font + tracking, anchor scroll margin */
   .prose :where(h1, h2, h3, h4, h5):not(:where([class~="not-prose"] *)) {
-    color: hsl(var(--foreground));
     font-family: var(--font-display);
     letter-spacing: -0.025em;
     scroll-margin-top: var(--scroll-mt);
   }
 
+  /* Mono <small> tags inside headings (used in API reference) */
   .prose :where(h2 small, h3 small, h4 small):not(:where([class~="not-prose"] *)) {
     font-family: var(--font-mono);
     color: hsl(var(--muted-foreground));
     font-weight: 500;
   }
 
+  /* Links: subtler underline (not the plugin's default thick one),
+     orange on hover, no underline when wrapping a code/heading element */
   .prose :where(a):not(:where([class~="not-prose"] *)) {
-    color: hsl(var(--primary));
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 2px solid hsl(var(--primary));
-    transition: color .22s cubic-bezier(0.65,0.05,0.36,1), border-color .22s cubic-bezier(0.65,0.05,0.36,1);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--primary) / 0.4);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color .15s ease, text-decoration-color .15s ease;
   }
   .prose :where(a:hover):not(:where([class~="not-prose"] *)) {
     color: hsl(31 100% 65%); /* orange-wpg-200 */
-    border-color: currentColor;
+    text-decoration-color: currentColor;
   }
   .prose :where(a code):not(:where([class~="not-prose"] *)) {
     color: inherit;
     font-weight: inherit;
   }
-
-  .prose :where(strong):not(:where([class~="not-prose"] *)) {
-    color: hsl(var(--foreground));
-    font-weight: 600;
+  .prose :where(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a):not(:where([class~="not-prose"] *)) {
+    text-decoration: none;
+    color: inherit;
   }
 
+  /* Inline code: orange on muted bg pill */
   .prose :where(code):not(:where([class~="not-prose"] *)) {
     font-family: var(--font-mono);
     font-weight: 500;
     font-variant-ligatures: none;
-    color: hsl(var(--primary));
     background: hsl(var(--muted));
     padding: 0.15em 0.4em;
     border-radius: 0.25rem;
     font-size: 0.9em;
   }
+  .prose :where(code)::before,
+  .prose :where(code)::after {
+    content: none; /* drop the plugin's "" quote characters */
+  }
 
+  /* Code blocks: brand card surface */
   .prose :where(pre):not(:where([class~="not-prose"] *)) {
-    color: hsl(var(--card-foreground));
-    background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
     padding: 1.25rem;
@@ -357,11 +401,11 @@
   }
   .prose :where(pre code):not(:where([class~="not-prose"] *)) {
     background: transparent;
-    color: inherit;
     padding: 0;
     font-weight: 400;
   }
 
+  /* Custom bullet (preserved from legacy: thin orange-ish dash) */
   .prose :where(ul):not(:where([class~="not-prose"] *)) {
     list-style: none;
     padding-left: 0;
@@ -379,46 +423,6 @@
     left: 0;
     border-radius: 999px;
     background: hsl(var(--muted-foreground));
-  }
-
-  .prose :where(hr):not(:where([class~="not-prose"] *)) {
-    border-color: hsl(var(--border));
-    margin-top: 3em;
-    margin-bottom: 3em;
-  }
-
-  .prose :where(blockquote):not(:where([class~="not-prose"] *)) {
-    color: hsl(var(--foreground));
-    border-left-color: hsl(var(--primary));
-  }
-
-  .prose :where(thead):not(:where([class~="not-prose"] *)) {
-    color: hsl(var(--foreground));
-    border-bottom-color: hsl(var(--border));
-  }
-  .prose :where(thead th):not(:where([class~="not-prose"] *)) {
-    padding-top: 0;
-    font-weight: 600;
-  }
-  .prose :where(tbody tr):not(:where([class~="not-prose"] *)) {
-    border-bottom-color: hsl(var(--border));
-  }
-  .prose :where(tbody tr:last-child):not(:where([class~="not-prose"] *)) {
-    border-bottom-width: 1px;
-  }
-  .prose :where(tbody code):not(:where([class~="not-prose"] *)) {
-    font-size: 0.75rem;
-  }
-
-  .prose :where(figure figcaption):not(:where([class~="not-prose"] *)) {
-    text-align: center;
-    font-style: italic;
-    color: hsl(var(--muted-foreground));
-  }
-
-  .prose :where(h2 a, h3 a, h4 a, h5 a, h6 a):not(:where([class~="not-prose"] *)) {
-    text-decoration: none;
-    border-bottom: 0;
   }
 
   .prose :where(iframe):not(:where([class~="not-prose"] *)) {
