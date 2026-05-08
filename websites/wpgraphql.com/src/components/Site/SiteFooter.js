@@ -1,30 +1,36 @@
+import Link from "next/link"
 import { socialFooterLinks } from "data/social"
+import SiteLogo from "./SiteLogo"
 
 export default function Footer() {
   const year = new Date().getFullYear()
   return (
-    <footer className="border-t border-slate-200 dark:border-slate-200/5 py-10">
-      <div className="max-w-7xl mx-auto px-10 flex flex-col gap-6 justify-between md:flex-row text-slate-500">
-        <div className="flex justify-center space-x-6 md:order-2">
+    <footer className="mt-24 border-t border-border bg-card/50">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4">
+          <Link href="/" legacyBehavior>
+            <a className="flex items-center">
+              <span className="sr-only">WPGraphQL</span>
+              <SiteLogo size={32} />
+            </a>
+          </Link>
+          <p className="font-mono text-xs text-muted-foreground">
+            &copy; {year} WPGraphQL · MIT Licensed
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
           {socialFooterLinks.map((item) => (
             <a
               key={item.name}
               href={item.href}
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-100"
-              target={"_blank"}
+              className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              target="_blank"
               rel="noreferrer"
             >
-              <div>
-                <span className="sr-only">{item.name}</span>
-                <item.icon className="h-6 w-6" aria-hidden="true" />
-              </div>
+              <span className="sr-only">{item.name}</span>
+              <item.icon className="h-5 w-5" aria-hidden="true" />
             </a>
           ))}
-        </div>
-        <div className="mt-8 md:mt-0 md:order-1 prose dark:prose-invert">
-          <p className="text-center text-base text-navy dark:text-gray-300">
-            &copy; {year} WPGraphQL. All rights reserved.
-          </p>
         </div>
       </div>
     </footer>
