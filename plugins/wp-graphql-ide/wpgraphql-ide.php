@@ -35,6 +35,7 @@ define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 // further bloat. Each include hooks into WordPress on its own.
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/document-settings.php';
+require_once __DIR__ . '/includes/public-endpoint.php';
 
 /**
  * Check if WPGraphQL is available and handle the case where it is not.
@@ -1775,14 +1776,22 @@ function enqueue_react_app_with_styles(): void {
 		return;
 	}
 
-	if ( ! user_has_graphql_ide_capability() ) {
-		return;
-	}
+	// The public-endpoint render path enqueues for anonymous + non-IDE
+	// visitors by design. Skip the capability + admin-bar gates only
+	// when that flag is set; every other call site still requires an
+	// IDE-capable user with the admin bar visible (or wp-admin context).
+	$is_public_render = public_endpoint_render_is_active();
 
-	// On frontend, only enqueue if admin bar is showing
-	if ( ! is_admin() ) {
-		if ( ! is_admin_bar_showing() ) {
+	if ( ! $is_public_render ) {
+		if ( ! user_has_graphql_ide_capability() ) {
 			return;
+		}
+
+		// On frontend, only enqueue if admin bar is showing
+		if ( ! is_admin() ) {
+			if ( ! is_admin_bar_showing() ) {
+				return;
+			}
 		}
 	}
 
