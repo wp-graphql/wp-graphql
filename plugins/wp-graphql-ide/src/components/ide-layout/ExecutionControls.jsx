@@ -34,7 +34,7 @@ const StopIcon = (
 );
 
 /**
- * Floating pill anchored to the GraphQL editor's bottom-right corner:
+ * Controls anchored to the GraphQL editor's bottom-right corner:
  * HTTP method toggle (GET/POST), authentication avatar, and the
  * execute button — promoted to a dropdown when the document declares
  * more than one named operation so the user can pick which one to run.
@@ -50,7 +50,7 @@ const StopIcon = (
  * @param {boolean}       props.isSchemaLoading - Disables the Execute button while the schema fetches.
  * @param {Function}      props.onExecute       - Called with an optional operation name; no-arg defaults to the first.
  */
-export function ExecutionPill({
+export function ExecutionControls({
 	httpMethod,
 	onSetHttpMethod,
 	isAuthenticated,

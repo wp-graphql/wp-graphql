@@ -14,7 +14,7 @@ import { JSONEditor } from '../editors/JSONEditor';
 import { DocumentNotices } from '../DocumentNotices';
 import { DocumentSettingsDrawer } from '../document-settings/DocumentSettingsDrawer';
 import { EditorToolbar } from '../EditorToolbar';
-import { ExecutionPill } from './ExecutionPill';
+import { ExecutionControls } from './ExecutionControls';
 import { LeftPanel } from './LeftPanel';
 
 /**
@@ -299,7 +299,7 @@ export function EditorPane({
 						onShowInDocs={onShowInDocs}
 						onCursorChange={onCursorChange}
 					/>
-					<ExecutionPill
+					<ExecutionControls
 						httpMethod={httpMethod}
 						onSetHttpMethod={onSetHttpMethod}
 						isAuthenticated={isAuthenticated}
