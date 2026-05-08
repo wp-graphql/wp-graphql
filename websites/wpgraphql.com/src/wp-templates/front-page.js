@@ -1,11 +1,9 @@
-import { gql } from "@apollo/client"
-
 import HomepageCta from "components/HomePage/HomepageCta"
 import HomepageFeatures from "components/HomePage/HomepageFeatures"
 import HomepageFrameworks from "components/HomePage/HomepageFrameworks"
 import HomepageHero from "components/HomePage/HomepageHero"
 import HomePageTrust from "components/HomePage/HomepageTrust"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function FrontPage({ data }) {
   return (
@@ -27,9 +25,4 @@ FrontPage.layoutProps = {
   },
 }
 
-FrontPage.query = gql`
-  query frontPageQuery {
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
+FrontPage.queries = {}
