@@ -53,10 +53,12 @@ function enhancePre(pre) {
       <span class="code-block-dot" style="background:#FEBC2E"></span>
       <span class="code-block-dot" style="background:#28C840"></span>
     </div>
-    ${lang ? `<span class="code-block-lang">${lang}</span>` : ""}
-    <button type="button" class="code-block-copy" aria-label="Copy code">
-      ${COPY_ICON_SVG}<span class="code-block-copy-label">Copy</span>
-    </button>
+    <div class="code-block-meta">
+      ${lang ? `<span class="code-block-lang">${lang}</span>` : ""}
+      <button type="button" class="code-block-copy" aria-label="Copy code">
+        ${COPY_ICON_SVG}<span class="code-block-copy-label">Copy</span>
+      </button>
+    </div>
   `
 
   const copyBtn = header.querySelector(".code-block-copy")
