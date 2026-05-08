@@ -26,6 +26,7 @@ import { useNotices } from '../hooks/useNotices';
 import { useLeftPanel } from '../hooks/useLeftPanel';
 import { usePanelOrder } from '../hooks/usePanelOrder';
 import { usePersistedSize } from '../hooks/usePersistedSize';
+import { savePreference } from '../api/preferences';
 import { getWorkspacePersistence } from './workspace-persistence';
 import {
 	displayDocTitle,
@@ -252,10 +253,36 @@ export function IDELayout({ fetcher, onClose }) {
 		'50%'
 	);
 	const [responseDataScope, setResponseDataScope] = useState('data');
-	const [responseViewMode, setResponseViewMode] = usePersistedSize(
-		'wpgraphql_ide_response_mode',
-		'formatted'
-	);
+	// Response view mode (JSON / Table) persists per-user via REST so
+	// the choice rides across browsers. Pane-size ergonomics above stay
+	// in localStorage per the design rule (sizes are session-scoped UI,
+	// settings are user-scoped). Read from the bootstrap on first paint;
+	// fire-and-forget write on change. Falls back to localStorage one
+	// last time during the migration window so users coming from the
+	// previous build don't lose their selection.
+	const [responseViewMode, setResponseViewModeState] = useState(() => {
+		const fromBootstrap = window.WPGRAPHQL_IDE_DATA?.responseViewMode;
+		if (fromBootstrap === 'formatted' || fromBootstrap === 'table') {
+			return fromBootstrap;
+		}
+		try {
+			const legacy = window.localStorage.getItem(
+				'wpgraphql_ide_response_mode'
+			);
+			if (legacy === 'formatted' || legacy === 'table') {
+				window.localStorage.removeItem('wpgraphql_ide_response_mode');
+				savePreference('response_view_mode', legacy).catch(() => {});
+				return legacy;
+			}
+		} catch {
+			// ignore
+		}
+		return 'formatted';
+	});
+	const setResponseViewMode = useCallback((next) => {
+		setResponseViewModeState(next);
+		savePreference('response_view_mode', next).catch(() => {});
+	}, []);
 	const { notices, addNotice, removeNotice } = useNotices();
 
 	// ESC key closes the drawer when in drawer mode.
@@ -311,12 +338,10 @@ export function IDELayout({ fetcher, onClose }) {
 		// if a collection is later unshared and then reshared, it'll
 		// notify again. Fire-and-forget; failure just means we'll
 		// re-notify next load, which is acceptable.
-		import('../api/preferences').then(({ savePreference }) => {
-			savePreference(
-				'seen_shared_collections',
-				shared.map((sc) => String(sc.id))
-			).catch(() => {});
-		});
+		savePreference(
+			'seen_shared_collections',
+			shared.map((sc) => String(sc.id))
+		).catch(() => {});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
