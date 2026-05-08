@@ -18,7 +18,8 @@ export default class Document extends NextDocument {
     return (
       <Html
         lang="en"
-        className={`dark ${bricolage.variable} ${dmMono.variable}`}
+        suppressHydrationWarning
+        className={`${bricolage.variable} ${dmMono.variable}`}
       >
         <Head>
           <link
