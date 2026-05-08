@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.1.0...wp-graphql-smart-cache/v2.2.0) (2026-05-08)
+
+
+### New Features
+
+* support on-demand revalidation via graphql_purge ([#3810](https://github.com/wp-graphql/wp-graphql/issues/3810)) ([6c1d176](https://github.com/wp-graphql/wp-graphql/commit/6c1d17685d2d20428d41d67debe911e09e8597ea))
+
 ## [2.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.0.1...wp-graphql-smart-cache/v2.1.0) (2026-04-23)
 
 
