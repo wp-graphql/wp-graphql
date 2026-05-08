@@ -12,4 +12,6 @@ In this document you will find information related to extending and custimizing 
 
 ## Purging in response to a custom event
 
-@todo
+WPGraphQL Smart Cache fires the `graphql_purge` action whenever a tracked event invalidates a cache entry. You can listen for this action to run your own logic — for example, sending a webhook to a static frontend so it can rebuild only the affected pages.
+
+For a complete walk-through (including key formats, batching, authentication, and a Next.js example), see [On-Demand Revalidation](./on-demand-revalidation.md).
