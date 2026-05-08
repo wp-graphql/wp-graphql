@@ -71,14 +71,15 @@ export function IDELayout({ fetcher, onClose }) {
 	const docSettingsFields = docSettingsConfig.fields || [];
 	const docSettingsGlobalGrant =
 		docSettingsConfig.globalGrantMode || 'public';
-	// Lite mode: rendered when the IDE shell is served from the public
-	// `?graphql` endpoint to anonymous / non-IDE-capable visitors. The
-	// editor + variables/headers + execute + docs explorer stay; the
-	// per-user features (save, saved queries, history, document
-	// settings, share, registered topbar actions) are gated off.
+	// Endpoint mode: rendered when the IDE shell is served from the
+	// public `?graphql` endpoint URL (vs the dedicated admin page or
+	// the drawer). The editor + variables/headers + execute + docs
+	// explorer stay; the per-user features (save, saved queries,
+	// history, document settings, share, registered topbar actions,
+	// the auth toggle for anonymous visitors) are gated off.
 	// `wp_localize_script` serializes PHP `true` as the string `"1"`,
 	// so a truthy check is what's needed here.
-	const liteMode = !!window.WPGRAPHQL_IDE_DATA?.liteMode;
+	const endpointMode = !!window.WPGRAPHQL_IDE_DATA?.endpointMode;
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
 		[]
@@ -285,11 +286,11 @@ export function IDELayout({ fetcher, onClose }) {
 	// before the user hits Cmd+S, even if they haven't opened the
 	// Documents panel yet.
 	useEffect(() => {
-		// Lite mode (anonymous / non-IDE-capable visitors via the
+		// Endpoint mode (anonymous / non-IDE-capable visitors via the
 		// public endpoint) skips per-user fetches — they'd 401 anyway
 		// since the routes require manage_graphql_ide. Spawn a fresh
 		// temp tab so the editor surface is mounted and ready.
-		if (liteMode) {
+		if (endpointMode) {
 			createTab('');
 			return;
 		}
@@ -876,14 +877,14 @@ export function IDELayout({ fetcher, onClose }) {
 	// Global panels for the activity bar — exclude document-scoped panels.
 	// Query composer is per-document (rendered inline in the editor area).
 	// Documents panel is accessed via tabs, not the activity bar.
-	// Lite mode also drops the per-user panels — those routes require
+	// Endpoint mode also drops the per-user panels — those routes require
 	// `manage_graphql_ide` and would 401 anyway.
-	const litePanelDenylist = new Set(['saved-queries', 'history']);
+	const endpointPanelDenylist = new Set(['saved-queries', 'history']);
 	const unfilteredNavPanels = panels.filter((p) => {
 		if (p.name === 'query-composer') {
 			return false;
 		}
-		if (liteMode && litePanelDenylist.has(p.name)) {
+		if (endpointMode && endpointPanelDenylist.has(p.name)) {
 			return false;
 		}
 		return true;
@@ -989,7 +990,7 @@ export function IDELayout({ fetcher, onClose }) {
 						);
 					}
 				}}
-				topbarActions={liteMode ? [] : topbarActions}
+				topbarActions={endpointMode ? [] : topbarActions}
 				onClose={onClose}
 			/>
 
@@ -1065,7 +1066,7 @@ export function IDELayout({ fetcher, onClose }) {
 							) : (
 								<div className="wpgraphql-ide-editors">
 									<EditorPane
-										liteMode={liteMode}
+										endpointMode={endpointMode}
 										queryPaneWidth={queryPaneWidth}
 										onSetQueryPaneWidth={setQueryPaneWidth}
 										editorHeight={editorHeight}
@@ -1181,13 +1182,13 @@ export function IDELayout({ fetcher, onClose }) {
 					className="wpgraphql-ide-snackbar-list"
 				/>
 			)}
-			{!liteMode && shareDialogOpen && (
+			{!endpointMode && shareDialogOpen && (
 				<ShareDialog
 					onClose={() => setShareDialogOpen(false)}
 					onCopy={() => addNotice('Share link copied')}
 				/>
 			)}
-			{!liteMode && saveDialogOpen && activeDocument && (
+			{!endpointMode && saveDialogOpen && activeDocument && (
 				<SaveDialog
 					mode={saveDialogMode}
 					defaultTitle={

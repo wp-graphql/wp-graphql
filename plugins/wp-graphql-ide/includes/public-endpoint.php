@@ -123,11 +123,11 @@ add_action( 'parse_request', __NAMESPACE__ . '\\maybe_render_public_ide', 9 );
  * chrome.
  */
 function render_public_ide_shell(): void {
-	// Tell the IDE bootstrap to enter lite mode. The same bundle handles
-	// both modes; the flag rides through `WPGRAPHQL_IDE_DATA`.
+	// Tell the IDE bootstrap to enter endpoint mode. The same bundle
+	// handles both modes; the flag rides through `WPGRAPHQL_IDE_DATA`.
 	add_filter(
 		'wpgraphql_ide_localized_data',
-		__NAMESPACE__ . '\\inject_lite_mode_flag',
+		__NAMESPACE__ . '\\inject_endpoint_mode_flag',
 		10,
 		1
 	);
@@ -159,19 +159,31 @@ function render_public_ide_shell(): void {
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
 	<meta name="robots" content="noindex,nofollow" />
 	<title><?php esc_html_e( 'GraphQL IDE', 'wpgraphql-ide' ); ?></title>
-	<style>
-		/*
-		 * The public-endpoint shell is its own page — make the IDE root
-		 * fill the viewport so the IDE's internal flex layout has the
-		 * height it expects. Front-end themes don't set body height by
-		 * default; the dedicated admin page gets it from wp-admin's
-		 * own styles.
-		 */
-		html, body { height: 100%; margin: 0; padding: 0; }
-		body.wpgraphql-ide-public-endpoint { overflow: hidden; }
-		#<?php echo esc_attr( $root_id ); ?> { height: 100vh; }
-	</style>
 	<?php wp_head(); ?>
+	<?php
+	/*
+	 * Inline style emitted *after* `wp_head()` so theme / WP styles can't
+	 * win the cascade and collapse the IDE to its content height.
+	 *
+	 * The dedicated admin page gets full-height from wp-admin's own
+	 * styles. On the front-end public render there's no equivalent —
+	 * we set it explicitly with selectors specific enough to beat any
+	 * theme's `body { height: auto }`.
+	 */
+	?>
+	<style>
+		html, body.wpgraphql-ide-public-endpoint {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		body.wpgraphql-ide-public-endpoint #<?php echo esc_attr( $root_id ); ?>,
+		body.wpgraphql-ide-public-endpoint #wpgraphql-ide-app {
+			height: 100vh;
+			width: 100vw;
+		}
+	</style>
 </head>
 <body class="wpgraphql-ide-public-endpoint">
 	<div id="<?php echo esc_attr( $root_id ); ?>"></div>
@@ -197,16 +209,22 @@ function enqueue_for_public_endpoint(): void {
 }
 
 /**
- * Add `liteMode: true` to the bootstrap data. The IDE reads it on mount
- * and conditionally hides Save buttons, Saved Queries, History,
- * Document Settings, share, and topbar actions.
+ * Add `endpointMode: true` and the current login state to the bootstrap.
+ *
+ * The IDE reads `endpointMode` on mount and conditionally hides Save
+ * buttons, Saved Queries, History, Document Settings, share, topbar
+ * actions, and (when the visitor is anonymous) the auth toggle. The
+ * `isUserLoggedIn` flag seeds the app store's initial auth state so
+ * anonymous visitors don't start with the toggle in the "send my
+ * nonce" position.
  *
  * @param array<string,mixed> $data
  *
  * @return array<string,mixed>
  */
-function inject_lite_mode_flag( array $data ): array {
-	$data['liteMode'] = true;
+function inject_endpoint_mode_flag( array $data ): array {
+	$data['endpointMode']   = true;
+	$data['isUserLoggedIn'] = is_user_logged_in();
 	return $data;
 }
 

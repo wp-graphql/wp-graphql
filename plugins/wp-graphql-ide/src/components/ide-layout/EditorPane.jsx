@@ -38,10 +38,10 @@ const MIN_EDITOR_HEIGHT_PX = 220;
  * below for the full set.
  */
 export function EditorPane({
-	// Lite mode (public-endpoint render): hides Save / Publish, the
+	// Endpoint mode (public-endpoint render): hides Save / Publish, the
 	// share / rename / duplicate kebab items, and the Document Settings
 	// toggle. Editor + variables/headers + execute pill stay visible.
-	liteMode = false,
+	endpointMode = false,
 	// Sizing
 	queryPaneWidth,
 	onSetQueryPaneWidth,
@@ -137,7 +137,7 @@ export function EditorPane({
 						</Button>
 					</Tooltip>
 				)}
-				{!liteMode && docSettingsFields.length > 0 && (
+				{!endpointMode && docSettingsFields.length > 0 && (
 					<Tooltip
 						text={
 							showDocSettingsPanel
@@ -171,7 +171,7 @@ export function EditorPane({
 									hideMutating={isPublished}
 								/>
 							</MenuGroup>
-							{!liteMode && (
+							{!endpointMode && (
 								<MenuGroup>
 									<MenuItem
 										onClick={() => {
@@ -184,7 +184,7 @@ export function EditorPane({
 									</MenuItem>
 								</MenuGroup>
 							)}
-							{!liteMode &&
+							{!endpointMode &&
 								!!activeDocument?.id &&
 								!isTempId(activeDocument.id) && (
 									<MenuGroup>
@@ -198,7 +198,7 @@ export function EditorPane({
 										</MenuItem>
 									</MenuGroup>
 								)}
-							{!liteMode && isPublished && (
+							{!endpointMode && isPublished && (
 								<MenuGroup>
 									<MenuItem
 										onClick={() => {
@@ -214,7 +214,7 @@ export function EditorPane({
 					)}
 				</DropdownMenu>
 				<div className="wpgraphql-ide-editor-toolbar-spacer" />
-				{!liteMode && !isPublished && (
+				{!endpointMode && !isPublished && (
 					<>
 						<Button
 							onClick={onSave}
@@ -316,6 +316,10 @@ export function EditorPane({
 						isFetching={isFetching}
 						isSchemaLoading={isSchemaLoading}
 						onExecute={onExecute}
+						// Public-endpoint render for an anonymous visitor:
+						// no nonce to send, no toggle to show. Authed
+						// visitors at the same URL still get the toggle.
+						canSwitchAuth={!endpointMode || isAuthenticated}
 					/>
 				</div>
 			</ResizableBox>
