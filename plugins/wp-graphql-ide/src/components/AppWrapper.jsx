@@ -11,6 +11,7 @@ import { DialogProvider } from './dialogs/DialogProvider';
 // eslint-disable-next-line no-undef
 const {
 	isDedicatedIdePage,
+	liteMode,
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
 
@@ -31,7 +32,10 @@ const setInitialState = (dispatch) => {
 		setInitialStateLoaded,
 	} = dispatch;
 
-	if (isDedicatedIdePage) {
+	// Standalone mode: full-page render with no drawer-close button.
+	// Dedicated admin page and the public-endpoint render both want
+	// this — they're full-page surfaces, not slide-up drawers.
+	if (isDedicatedIdePage || liteMode) {
 		setShouldRenderStandalone(true);
 	}
 
