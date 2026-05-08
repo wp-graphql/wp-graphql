@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 5.7
 Tested up to: 6.8
-Stable tag: 4.4.0
+Stable tag: 4.4.1
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -55,6 +55,15 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 4.4.1 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump dotenv from 16.6.1 to 17.4.1 ([#3807](https://github.com/wp-graphql/wp-graphql/issues/3807))
+* **deps-dev:** bump phpstan/phpstan from 2.1.47 to 2.1.50 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3790](https://github.com/wp-graphql/wp-graphql/issues/3790))
+* **deps-dev:** bump phpstan/phpstan from 2.1.50 to 2.1.51 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3803](https://github.com/wp-graphql/wp-graphql/issues/3803))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 6 updates ([#3799](https://github.com/wp-graphql/wp-graphql/issues/3799))
 
 = 4.4.0 =
 
