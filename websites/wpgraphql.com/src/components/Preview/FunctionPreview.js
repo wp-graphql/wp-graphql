@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import Link from "next/link"
+import PreviewCard from "./PreviewCard"
 
 export const FunctionPreviewFragment = gql`
   fragment FunctionPreview on Function {
@@ -15,24 +15,11 @@ export default function FunctionPreview({ node }) {
   const excerpt = paragraphs ? paragraphs[0] + "</p>" : null
 
   return (
-    <div className="mb-10 pt-10">
-      <h2 className="text-2xl font-bold text-foreground">
-        {node.title}
-      </h2>
-      <div className="py-5">
-        <div
-          className="prose"
-          dangerouslySetInnerHTML={{ __html: excerpt }}
-        />
-      </div>
-
-      <div className="text-base font-medium leading-6">
-        <Link href={node.uri} legacyBehavior>
-          <a className="btn-primary-sm">
-            <span className="pr-2">View Function →</span>
-          </a>
-        </Link>
-      </div>
-    </div>
+    <PreviewCard
+      title={node.title}
+      excerpt={excerpt}
+      href={node.uri}
+      cta="View Function"
+    />
   )
 }

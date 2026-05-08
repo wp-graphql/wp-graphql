@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import Link from "next/link"
+import PreviewCard from "./PreviewCard"
 
 export const RecipePreviewFragment = gql`
   fragment RecipePreview on CodeSnippet {
@@ -15,24 +15,11 @@ export default function RecipePreview({ recipe }) {
   const excerpt = paragraphs ? paragraphs[0] + "</p>" : null
 
   return (
-    <div className="mb-10 pt-10">
-      <h2 className="text-2xl font-bold text-foreground">
-        {recipe.title}
-      </h2>
-      <div className="py-5">
-        <div
-          className="prose"
-          dangerouslySetInnerHTML={{ __html: excerpt }}
-        />
-      </div>
-
-      <div className="text-base font-medium leading-6">
-        <Link href={recipe.uri} legacyBehavior>
-          <a className="btn-primary-sm">
-            <span className="pr-2">View Recipe →</span>
-          </a>
-        </Link>
-      </div>
-    </div>
+    <PreviewCard
+      title={recipe.title}
+      excerpt={excerpt}
+      href={recipe.uri}
+      cta="View Recipe"
+    />
   )
 }

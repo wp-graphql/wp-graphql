@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline"
+import PreviewCard from "./PreviewCard"
 
 export const ExtensionFragment = gql`
   fragment ExtensionPreview on ExtensionPlugin {
@@ -17,27 +17,12 @@ export const ExtensionFragment = gql`
 
 export default function ExtensionPreview({ extension }) {
   return (
-    <div className="mb-10 pt-10">
-      <h2 className="text-2xl font-bold text-foreground">
-        {extension.title}
-      </h2>
-      <div className="py-5">
-        <div
-          className="prose"
-          dangerouslySetInnerHTML={{ __html: extension?.content }}
-        />
-      </div>
-      <div className="text-base font-medium leading-6">
-        <a
-          href={extension.extensionFields.pluginLink}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-primary-sm"
-        >
-          <span className="pr-2">View Extension</span>
-          <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-        </a>
-      </div>
-    </div>
+    <PreviewCard
+      title={extension.title}
+      excerpt={extension?.content}
+      href={extension.extensionFields?.pluginLink}
+      cta="View Extension"
+      external
+    />
   )
 }
