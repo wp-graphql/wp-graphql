@@ -15,7 +15,7 @@ export default function Footer() {
             </a>
           </Link>
           <p className="font-mono text-xs text-muted-foreground">
-            &copy; {year} WPGraphQL · MIT Licensed
+            &copy; {year} WPGraphQL · GPL-3 Licensed
           </p>
         </div>
         <div className="flex items-center gap-2">
