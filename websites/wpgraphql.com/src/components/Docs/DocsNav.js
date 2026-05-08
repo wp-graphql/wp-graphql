@@ -1,11 +1,20 @@
+import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { cn } from "@/lib/utils"
 
 export default function DocsNav({ docsNavData }) {
   const { asPath } = useRouter()
-  // Strip query and hash so we just compare paths.
   const currentPath = asPath.split(/[?#]/)[0].replace(/\/$/, "")
+  const activeRef = useRef(null)
+
+  // On mount and on path change, bring the active nav item into view inside
+  // the nav's scroll container. `block: "nearest"` is a no-op when the
+  // element is already visible, so this only scrolls when needed.
+  useEffect(() => {
+    if (!activeRef.current) return
+    activeRef.current.scrollIntoView({ block: "nearest", inline: "nearest" })
+  }, [currentPath])
 
   if (!docsNavData) {
     return null
@@ -30,6 +39,7 @@ export default function DocsNav({ docsNavData }) {
                     <li key={child.href}>
                       <Link href={child.href} legacyBehavior>
                         <a
+                          ref={isActive ? activeRef : undefined}
                           aria-current={isActive ? "page" : undefined}
                           className={cn(
                             "-ml-px block border-l py-1 pl-4 text-sm transition-colors",
