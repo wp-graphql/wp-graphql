@@ -132,6 +132,11 @@ function render_public_ide_shell(): void {
 		1
 	);
 
+	// No admin bar on the public render — the page is the IDE; the
+	// admin-bar trigger would also try to mount its own IDE instance
+	// into a sibling div, double-mounting the React root.
+	add_filter( 'show_admin_bar', '__return_false' );
+
 	// Defer to WP's enqueue / head pipeline by emitting a minimal HTML
 	// document. The IDE's existing `wp_enqueue_script` registration
 	// (gated on `is_dedicated_ide_page` today) needs to run here too —
@@ -145,7 +150,7 @@ function render_public_ide_shell(): void {
 
 	$root_id = defined( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID' )
 		? WPGRAPHQL_IDE_ROOT_ELEMENT_ID
-		: 'wpgraphql-ide-app';
+		: 'wpgraphql-ide-root';
 
 	?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -154,6 +159,18 @@ function render_public_ide_shell(): void {
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
 	<meta name="robots" content="noindex,nofollow" />
 	<title><?php esc_html_e( 'GraphQL IDE', 'wpgraphql-ide' ); ?></title>
+	<style>
+		/*
+		 * The public-endpoint shell is its own page — make the IDE root
+		 * fill the viewport so the IDE's internal flex layout has the
+		 * height it expects. Front-end themes don't set body height by
+		 * default; the dedicated admin page gets it from wp-admin's
+		 * own styles.
+		 */
+		html, body { height: 100%; margin: 0; padding: 0; }
+		body.wpgraphql-ide-public-endpoint { overflow: hidden; }
+		#<?php echo esc_attr( $root_id ); ?> { height: 100vh; }
+	</style>
 	<?php wp_head(); ?>
 </head>
 <body class="wpgraphql-ide-public-endpoint">

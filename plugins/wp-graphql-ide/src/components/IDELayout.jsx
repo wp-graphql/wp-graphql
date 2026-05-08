@@ -76,7 +76,9 @@ export function IDELayout({ fetcher, onClose }) {
 	// editor + variables/headers + execute + docs explorer stay; the
 	// per-user features (save, saved queries, history, document
 	// settings, share, registered topbar actions) are gated off.
-	const liteMode = window.WPGRAPHQL_IDE_DATA?.liteMode === true;
+	// `wp_localize_script` serializes PHP `true` as the string `"1"`,
+	// so a truthy check is what's needed here.
+	const liteMode = !!window.WPGRAPHQL_IDE_DATA?.liteMode;
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
 		[]
