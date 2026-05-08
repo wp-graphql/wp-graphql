@@ -176,6 +176,10 @@
   --input:                  224 43% 21%;
   --ring:                   30 100% 55%;
 
+  /* Body-text tier — softer than --foreground for long-form copy.
+     navy-200 (#A3B4CC) on dark bg = brand "text-secondary". */
+  --body-text:              219 23% 73%;
+
   --radius: 0.5rem;
 
   /* Scroll margin used by docs anchor links (was inline on <Html> previously) */
@@ -216,6 +220,10 @@
   --border:                 219 23% 73%;
   --input:                  219 23% 73%;
   --ring:                   28 100% 47%;
+
+  /* Body-text tier in light mode — navy-700 (#1E2D50). Dark enough to
+     read against the navy-50 background but softer than --foreground. */
+  --body-text:              224 43% 21%;
 }
 
 /* ============================================================
@@ -314,7 +322,7 @@
 */
 .prose,
 .prose.prose {
-  --tw-prose-body:          var(--color-navy-200);
+  --tw-prose-body:          hsl(var(--body-text));
   --tw-prose-headings:      hsl(var(--foreground));
   --tw-prose-lead:          hsl(var(--muted-foreground));
   --tw-prose-links:         hsl(var(--primary));
@@ -330,7 +338,7 @@
   --tw-prose-pre-bg:        hsl(var(--card));
   --tw-prose-th-borders:    hsl(var(--border));
   --tw-prose-td-borders:    hsl(var(--border));
-  --tw-prose-invert-body:          var(--color-navy-200);
+  --tw-prose-invert-body:          hsl(var(--body-text));
   --tw-prose-invert-headings:      hsl(var(--foreground));
   --tw-prose-invert-lead:          hsl(var(--muted-foreground));
   --tw-prose-invert-links:         hsl(var(--primary));
@@ -346,14 +354,14 @@
   --tw-prose-invert-pre-bg:        hsl(var(--card));
   --tw-prose-invert-th-borders:    hsl(var(--border));
   --tw-prose-invert-td-borders:    hsl(var(--border));
-  color: var(--color-navy-200);
+  color: hsl(var(--body-text));
   max-width: none;
 }
 
 /* Backstop: paragraph / list / dl text gets navy-200 even if the
    typography plugin's selector loses to inline color from WP-rendered HTML. */
 .prose :where(p, li, dt, dd):not(:where([class~="not-prose"] *)) {
-  color: var(--color-navy-200);
+  color: hsl(var(--body-text));
 }
 
 @layer base {
