@@ -1,56 +1,427 @@
-@import "docsearch.css";
+@import "tailwindcss";
+@import "./docsearch.css";
 
-@tailwind base;
+@plugin "@tailwindcss/typography";
+@import "tw-animate-css";
 
-html {
-  scroll-behavior: smooth;
+@source "../../src/**/*.{js,jsx,ts,tsx,mdx}";
+
+/* Class-based dark mode (works with next-themes attribute="class") */
+@custom-variant dark (&:is(.dark *), &.dark);
+
+/* ============================================================
+   THEME TOKENS — exposed as Tailwind utilities
+   ============================================================ */
+@theme {
+  /* ── Navy scale ── */
+  --color-navy-50:  hsl(220 35% 95%);
+  --color-navy-100: hsl(219 30% 86%);
+  --color-navy-200: hsl(219 23% 73%);
+  --color-navy-300: hsl(219 26% 57%);
+  --color-navy-400: hsl(220 31% 42%);
+  --color-navy-500: hsl(226 40% 31%);
+  --color-navy-600: hsl(225 42% 26%);
+  --color-navy-700: hsl(224 43% 21%);
+  --color-navy-800: hsl(222 42% 15%);
+  --color-navy-900: hsl(222 45% 10%);
+  --color-navy-950: hsl(222 47% 8%);
+
+  /* ── Orange (WPG accent) — prefixed to avoid colliding with Tailwind's built-in orange ── */
+  --color-orange-wpg-50:  hsl(35 100% 93%);
+  --color-orange-wpg-100: hsl(33 100% 80%);
+  --color-orange-wpg-200: hsl(31 100% 65%);
+  --color-orange-wpg-300: hsl(30 100% 55%);   /* PRIMARY ACCENT — #FF8C1A */
+  --color-orange-wpg-400: hsl(28 100% 47%);
+  --color-orange-wpg-500: hsl(27 100% 44%);
+  --color-orange-wpg-600: hsl(26 100% 38%);
+
+  /* ── Typography — fonts ──
+     `--font-bricolage` and `--font-dm-mono` are injected onto <html> by next/font/google
+     in src/lib/fonts.js. We provide system fallbacks here. */
+  --font-sans:    var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-mono:    var(--font-dm-mono), "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+
+  /* ── Typography — display sizes ── */
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.04em;
+  --text-display-xl--font-weight: 800;
+
+  --text-display-lg: 3.75rem;
+  --text-display-lg--line-height: 1.02;
+  --text-display-lg--letter-spacing: -0.035em;
+  --text-display-lg--font-weight: 800;
+
+  --text-display-md: 3rem;
+  --text-display-md--line-height: 1.05;
+  --text-display-md--letter-spacing: -0.03em;
+  --text-display-md--font-weight: 700;
+
+  --text-display-sm: 2.25rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-sm--letter-spacing: -0.025em;
+  --text-display-sm--font-weight: 700;
+
+  --text-headline: 1.875rem;
+  --text-headline--line-height: 1.15;
+  --text-headline--letter-spacing: -0.02em;
+  --text-headline--font-weight: 600;
+
+  /* ── Shadows — orange glow + navy elevation ── */
+  --shadow-glow-sm: 0 0 12px -2px hsl(30 100% 55% / 0.25);
+  --shadow-glow-md: 0 0 24px -4px hsl(30 100% 55% / 0.30);
+  --shadow-glow-lg: 0 0 40px -8px hsl(30 100% 55% / 0.35);
+  --shadow-elev-sm: 0 1px 3px 0 hsl(222 47% 4% / 0.4), 0 1px 2px -1px hsl(222 47% 4% / 0.4);
+  --shadow-elev-md: 0 4px 12px -2px hsl(222 47% 4% / 0.5), 0 2px 4px -2px hsl(222 47% 4% / 0.3);
+  --shadow-elev-lg: 0 12px 32px -4px hsl(222 47% 4% / 0.6), 0 4px 8px -4px hsl(222 47% 4% / 0.3);
+
+  /* ── Spacing extensions ── */
+  --spacing-18: 4.5rem;
+
+  /* ── Layout ── */
+  --container-8xl: 90rem;
+
+  /* ── Breakpoints (preserve existing custom values) ── */
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1800px;
+
+  /* ── Radius extras ── */
+  --radius-pill: 9999px;
+
+  /* ── Animations ── */
+  --animate-fade-in:        fade-in 0.2s ease-out;
+  --animate-fade-out:       fade-out 0.15s ease-in;
+  --animate-slide-in-right: slide-in-right 0.25s ease-out;
+  --animate-glow-pulse:     glow-pulse 2.5s ease-in-out infinite;
 }
 
-@tailwind components;
-@tailwind utilities;
-
-@font-face {
-  font-family: 'Lora';
-  src: url('/fonts/lora/Lora-VariableFont_wght.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(4px); }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px -2px hsl(30 100% 55% / 0.2); }
+  50%      { box-shadow: 0 0 24px -2px hsl(30 100% 55% / 0.5); }
 }
 
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter/InterVariable.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+/* ============================================================
+   SEMANTIC TOKENS — runtime swap between dark (default) and light
+   ============================================================ */
+@theme inline {
+  --color-background:        hsl(var(--background));
+  --color-foreground:        hsl(var(--foreground));
+  --color-card:              hsl(var(--card));
+  --color-card-foreground:   hsl(var(--card-foreground));
+  --color-popover:           hsl(var(--popover));
+  --color-popover-foreground:hsl(var(--popover-foreground));
+  --color-primary:           hsl(var(--primary));
+  --color-primary-foreground:hsl(var(--primary-foreground));
+  --color-secondary:         hsl(var(--secondary));
+  --color-secondary-foreground:hsl(var(--secondary-foreground));
+  --color-muted:             hsl(var(--muted));
+  --color-muted-foreground:  hsl(var(--muted-foreground));
+  --color-accent:            hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive:       hsl(var(--destructive));
+  --color-destructive-foreground:hsl(var(--destructive-foreground));
+  --color-border:            hsl(var(--border));
+  --color-input:             hsl(var(--input));
+  --color-ring:              hsl(var(--ring));
+
+  --radius-lg:  var(--radius);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-xl:  calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
-h1, h2 {
-  font-family: 'Lora', serif;
+:root {
+  /* DARK is the default — applied at :root so body/html use it before next-themes hydrates */
+  --background:             222 47% 8%;
+  --foreground:             220 60% 97%;
+
+  --card:                   222 45% 10%;
+  --card-foreground:        220 60% 97%;
+
+  --popover:                222 45% 10%;
+  --popover-foreground:     220 60% 97%;
+
+  --primary:                30 100% 55%;
+  --primary-foreground:     222 47% 8%;
+
+  --secondary:              224 43% 21%;
+  --secondary-foreground:   220 60% 97%;
+
+  --muted:                  222 42% 15%;
+  --muted-foreground:       219 26% 57%;
+
+  --accent:                 224 43% 21%;
+  --accent-foreground:      220 60% 97%;
+
+  --destructive:            0 84% 60%;
+  --destructive-foreground: 220 60% 97%;
+
+  --border:                 224 43% 21%;
+  --input:                  224 43% 21%;
+  --ring:                   30 100% 55%;
+
+  --radius: 0.5rem;
+
+  /* Scroll margin used by docs anchor links (was inline on <Html> previously) */
+  --scroll-mt: 9.875rem;
 }
 
-
-/* Regular buttons */
-.btn-primary {
-  @apply mt-8 bg-blue text-white border border-transparent rounded-full shadow px-5 py-3 inline-flex items-center text-base font-medium hover:bg-blue-500 hover:shadow-lg transition-all duration-300;
+@media (min-width: 1024px) {
+  :root {
+    --scroll-mt: 6.3125rem;
+  }
 }
 
-.btn-secondary {
-  @apply mt-8 border-2 dark:text-white dark:border-white border-navy text-navy bg-transparent rounded-full shadow px-5 py-3 inline-flex items-center text-base font-medium hover:bg-navy hover:text-white hover:shadow-lg dark:hover:bg-white dark:hover:text-navy duration-300;
+.light {
+  --background:             220 35% 95%;
+  --foreground:             222 47% 8%;
+
+  --card:                   220 60% 99%;
+  --card-foreground:        222 47% 8%;
+
+  --popover:                220 60% 99%;
+  --popover-foreground:     222 47% 8%;
+
+  --primary:                28 100% 47%;
+  --primary-foreground:     220 60% 99%;
+
+  --secondary:              219 30% 86%;
+  --secondary-foreground:   222 42% 15%;
+
+  --muted:                  219 30% 86%;
+  --muted-foreground:       220 31% 42%;
+
+  --accent:                 219 30% 86%;
+  --accent-foreground:      222 42% 15%;
+
+  --destructive:            0 72% 51%;
+  --destructive-foreground: 220 60% 99%;
+
+  --border:                 219 23% 73%;
+  --input:                  219 23% 73%;
+  --ring:                   28 100% 47%;
 }
 
-/* Small buttons */
-.btn-primary-sm {
-  @apply mt-8 bg-blue text-white border border-transparent rounded-full shadow px-3 py-2 inline-flex items-center text-sm font-medium hover:bg-blue-600 hover:shadow-lg transition-all duration-300;
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  *, ::before, ::after {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    font-feature-settings: "cv01", "cv02", "cv03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, kbd, pre, samp, .font-mono {
+    font-family: var(--font-mono);
+  }
 }
 
-.btn-secondary-sm {
-  @apply mt-8 border-2 border-navy text-navy bg-transparent rounded-full shadow px-3 py-2 inline-flex items-center text-sm font-medium hover:bg-navy hover:text-white hover:shadow-lg transition-all duration-300;
+/* ============================================================
+   COMPONENTS — restyled legacy button utilities so existing usages auto-rebrand
+   ============================================================ */
+@layer components {
+  .btn-primary {
+    @apply mt-8 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-base font-semibold text-primary-foreground shadow-glow-sm transition-all duration-200;
+  }
+  .btn-primary:hover {
+    background-color: hsl(31 100% 65%); /* orange-wpg-200 */
+    box-shadow: var(--shadow-glow-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary-sm {
+    @apply mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-glow-sm transition-all duration-200;
+  }
+  .btn-primary-sm:hover {
+    background-color: hsl(31 100% 65%);
+    box-shadow: var(--shadow-glow-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    @apply mt-8 inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-3 text-base font-semibold text-secondary-foreground transition-colors duration-200;
+  }
+  .btn-secondary:hover {
+    background-color: hsl(225 42% 26%); /* navy-600 */
+    border-color: hsl(226 40% 31%); /* navy-500 */
+  }
+
+  .btn-secondary-sm {
+    @apply mt-8 inline-flex items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-sm font-semibold text-secondary-foreground transition-colors duration-200;
+  }
+  .btn-secondary-sm:hover {
+    background-color: hsl(225 42% 26%);
+    border-color: hsl(226 40% 31%);
+  }
+
+  .subtitle {
+    @apply font-mono text-xs font-medium uppercase tracking-widest text-muted-foreground;
+  }
+
+  /* Adjacent buttons spacing — preserved from legacy */
+  [class*='btn-'] + [class*='btn-'] {
+    @apply ml-4;
+  }
 }
 
-.subtitle {
-  @apply text-base font-semibold tracking-wider text-purple-600 dark:text-purple-400 uppercase;
-}
+/* ============================================================
+   PROSE — typography customization for MDX/docs content
+   ============================================================ */
+@layer base {
+  .prose {
+    color: hsl(var(--foreground));
+    max-width: none;
+  }
 
-/* Apply margin left to all adjacent "buttons", excluding the first button */
-[class*='btn-'] + [class*='btn-'] {
-  @apply ml-4;
+  .prose :where(h1, h2, h3, h4, h5):not(:where([class~="not-prose"] *)) {
+    color: hsl(var(--foreground));
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    scroll-margin-top: var(--scroll-mt);
+  }
+
+  .prose :where(h2 small, h3 small, h4 small):not(:where([class~="not-prose"] *)) {
+    font-family: var(--font-mono);
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  .prose :where(a):not(:where([class~="not-prose"] *)) {
+    color: hsl(var(--primary));
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid hsl(var(--primary));
+    transition: color .22s cubic-bezier(0.65,0.05,0.36,1), border-color .22s cubic-bezier(0.65,0.05,0.36,1);
+  }
+  .prose :where(a:hover):not(:where([class~="not-prose"] *)) {
+    color: hsl(31 100% 65%); /* orange-wpg-200 */
+    border-color: currentColor;
+  }
+  .prose :where(a code):not(:where([class~="not-prose"] *)) {
+    color: inherit;
+    font-weight: inherit;
+  }
+
+  .prose :where(strong):not(:where([class~="not-prose"] *)) {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+
+  .prose :where(code):not(:where([class~="not-prose"] *)) {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-variant-ligatures: none;
+    color: hsl(var(--primary));
+    background: hsl(var(--muted));
+    padding: 0.15em 0.4em;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+
+  .prose :where(pre):not(:where([class~="not-prose"] *)) {
+    color: hsl(var(--card-foreground));
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-top: 1.5em;
+    margin-bottom: 2em;
+  }
+  .prose :where(pre code):not(:where([class~="not-prose"] *)) {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-weight: 400;
+  }
+
+  .prose :where(ul):not(:where([class~="not-prose"] *)) {
+    list-style: none;
+    padding-left: 0;
+  }
+  .prose :where(ul > li):not(:where([class~="not-prose"] *)) {
+    position: relative;
+    padding-left: 1.75em;
+  }
+  .prose :where(ul > li)::before {
+    content: '';
+    width: 0.75em;
+    height: 0.125em;
+    position: absolute;
+    top: calc(0.875em - 0.0625em);
+    left: 0;
+    border-radius: 999px;
+    background: hsl(var(--muted-foreground));
+  }
+
+  .prose :where(hr):not(:where([class~="not-prose"] *)) {
+    border-color: hsl(var(--border));
+    margin-top: 3em;
+    margin-bottom: 3em;
+  }
+
+  .prose :where(blockquote):not(:where([class~="not-prose"] *)) {
+    color: hsl(var(--foreground));
+    border-left-color: hsl(var(--primary));
+  }
+
+  .prose :where(thead):not(:where([class~="not-prose"] *)) {
+    color: hsl(var(--foreground));
+    border-bottom-color: hsl(var(--border));
+  }
+  .prose :where(thead th):not(:where([class~="not-prose"] *)) {
+    padding-top: 0;
+    font-weight: 600;
+  }
+  .prose :where(tbody tr):not(:where([class~="not-prose"] *)) {
+    border-bottom-color: hsl(var(--border));
+  }
+  .prose :where(tbody tr:last-child):not(:where([class~="not-prose"] *)) {
+    border-bottom-width: 1px;
+  }
+  .prose :where(tbody code):not(:where([class~="not-prose"] *)) {
+    font-size: 0.75rem;
+  }
+
+  .prose :where(figure figcaption):not(:where([class~="not-prose"] *)) {
+    text-align: center;
+    font-style: italic;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .prose :where(h2 a, h3 a, h4 a, h5 a, h6 a):not(:where([class~="not-prose"] *)) {
+    text-decoration: none;
+    border-bottom: 0;
+  }
+
+  .prose :where(iframe):not(:where([class~="not-prose"] *)) {
+    max-width: 100%;
+  }
 }

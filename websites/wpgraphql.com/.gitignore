@@ -21,6 +21,9 @@ yarn-error.log*
 .next
 next-env.d.ts
 
+# typescript build info
+*.tsbuildinfo
+
 ## Build artifacts for sitemaps
 /public/sitemap*.xml
 /public/robots.txt
