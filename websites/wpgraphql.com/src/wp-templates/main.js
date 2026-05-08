@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function Index({ data }) {
   return (
@@ -13,22 +13,25 @@ export default function Index({ data }) {
   )
 }
 
-Index.query = gql`
-  query {
-    INDEX: __typename
-    posts {
-      nodes {
-        id
-        title
-        author {
-          node {
-            name
-            uri
+Index.queries = {
+  posts: {
+    query: gql`
+      query Index_Posts {
+        INDEX: __typename
+        posts {
+          nodes {
+            id
+            title
+            author {
+              node {
+                name
+                uri
+              }
+            }
           }
         }
       }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
+    `,
+    variables: () => ({}),
+  },
+}

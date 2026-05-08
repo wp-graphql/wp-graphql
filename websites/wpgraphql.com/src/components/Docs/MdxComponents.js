@@ -22,7 +22,7 @@ function LinkedHeading({ id, as, children, className }) {
         })}
       >
         <span>{children}</span>
-        <Link href={`#${id}`}>
+        <Link href={`#${id}`} legacyBehavior>
           <a
             className="flex items-center ml-4 hover:bg-slate-500 "
             aria-label="Anchor"
