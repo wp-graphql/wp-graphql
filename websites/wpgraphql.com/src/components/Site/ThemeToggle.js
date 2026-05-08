@@ -1,4 +1,4 @@
-import { Fragment } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { Listbox } from "@headlessui/react"
 import { useTheme } from "next-themes"
 import { Sun, Moon, Monitor } from "lucide-react"
@@ -13,10 +13,16 @@ const settings = [
 
 export default function ThemeToggle({ panelClassName = "mt-4" }) {
   const { theme, setTheme, resolvedTheme } = useTheme()
+  // Gate on `mounted` to avoid a hydration mismatch: next-themes' inline
+  // script applies the stored theme class to <html> before React hydrates,
+  // so the client knows the user's preference on the first render but the
+  // server doesn't. Render a stable placeholder until mount, then swap to
+  // the real value.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   const setting = theme ?? "system"
-  // While next-themes is hydrating, theme can be undefined; use resolvedTheme
-  // (or fall back to dark) so the trigger icon doesn't flash.
-  const displayTheme = resolvedTheme ?? "dark"
+  const displayTheme = mounted ? (resolvedTheme ?? "dark") : "dark"
 
   return (
     <Listbox value={setting} onChange={setTheme}>
