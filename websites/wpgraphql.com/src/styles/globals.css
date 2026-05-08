@@ -489,10 +489,18 @@
    they only fire when the surrounding wrapper is light. The dark Night Owl
    theme in docs.css continues to apply when the wrapper is dark. */
 
+/* Override the Night Owl base color (#d6deeb is set on every
+   code[class*="language-"] / pre[class*="language-"] in docs.css). Without
+   this, GraphQL scalars / type-names / directives that we don't explicitly
+   theme inherit Night Owl's near-white text onto the light surface. */
+.light .code-block-wrap pre[class*="language-"],
+.light .code-block-wrap code[class*="language-"] {
+  color: hsl(222 47% 8%); /* navy-950 */
+}
+
 /* Fallback: any token we haven't explicitly themed inherits the wrapper's
-   foreground colour (navy-950) instead of Night Owl's washed-out dark
-   colours, so language tokens like GraphQL scalars, type-names, and
-   directives stay readable on the light surface. */
+   navy-950 foreground from the rule above. Specific overrides below win
+   on higher specificity. */
 .light .code-block-wrap .token {
   color: inherit;
 }
