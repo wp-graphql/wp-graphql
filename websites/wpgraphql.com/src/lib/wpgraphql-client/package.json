@@ -1,0 +1,6 @@
+{
+  "name": "wpgraphql-client-internal",
+  "private": true,
+  "type": "module",
+  "main": "./index.js"
+}

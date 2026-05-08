@@ -1,5 +1,4 @@
-import { gql, useQuery } from "@apollo/client"
-import { getApolloClient, addApolloState } from "@faustwp/core/dist/mjs/client"
+import { request } from "lib/wpgraphql-client"
 
 import { ChevronRightIcon } from "@heroicons/react/20/solid"
 import DynamicHeroIcon from "components/DynamicHeroIcon"
@@ -7,7 +6,7 @@ import { getIconNameFromMenuItem } from "lib/menu-helpers"
 import SiteLogo from "components/Site/SiteLogo"
 import Link from "next/link"
 
-const NOT_FOUND_QUERY = gql`
+const NOT_FOUND_QUERY = /* GraphQL */ `
   query NotFoundQuery {
     menu(id: "Primary Nav", idType: NAME) {
       id
@@ -25,9 +24,8 @@ const NOT_FOUND_QUERY = gql`
   }
 `
 
-export default function NotFound() {
-  const { data } = useQuery(NOT_FOUND_QUERY)
-  const links = data.menu.menuItems.nodes
+export default function NotFound({ menu }) {
+  const links = menu?.menuItems?.nodes ?? []
 
   return (
     <div className="bg-white">
@@ -72,7 +70,7 @@ export default function NotFound() {
                   <div className="min-w-0 flex-1">
                     <h3 className="text-base font-medium text-gray-900">
                       <span className="rounded-sm focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                        <Link href={link.path}>
+                        <Link href={link.path} legacyBehavior>
                           <a className="focus:outline-none">
                             <span
                               className="absolute inset-0"
@@ -97,7 +95,7 @@ export default function NotFound() {
               ))}
             </ul>
             <div className="mt-8">
-              <Link href="/">
+              <Link href="/" legacyBehavior>
                 <a className="text-base font-medium text-indigo-600 hover:text-indigo-500">
                   Or go back home<span aria-hidden="true"> &rarr;</span>
                 </a>
@@ -110,13 +108,11 @@ export default function NotFound() {
   )
 }
 
-export async function getStaticProps(ctx) {
-  const client = getApolloClient()
-
-  const { data } = await client.query({ query: NOT_FOUND_QUERY })
-
-  return addApolloState(client, {
-    props: {},
+export async function getStaticProps() {
+  const result = await request({ query: NOT_FOUND_QUERY })
+  const data = result?.data ?? {}
+  return {
+    props: { menu: data.menu ?? null },
     revalidate: 30,
-  })
+  }
 }

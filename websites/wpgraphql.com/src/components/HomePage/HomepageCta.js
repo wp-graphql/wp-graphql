@@ -8,7 +8,7 @@ export default function HomepageCta() {
           <span className="block">Boost your productivity</span>
           <span className="block">Start using WPGraphQL today!</span>
         </h2>
-        <Link href="/docs/introduction">
+        <Link href="/docs/introduction" legacyBehavior>
           <a className="btn-secondary">
             Get Started
           </a>

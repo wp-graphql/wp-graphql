@@ -1,5 +1,7 @@
-import { WordPressTemplate } from "@faustwp/core"
+export default function Preview() {
+  return null
+}
 
-export default function Preview(props) {
-  return <WordPressTemplate {...props} />
+export async function getServerSideProps() {
+  return { notFound: true }
 }
