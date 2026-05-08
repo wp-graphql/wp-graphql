@@ -300,45 +300,58 @@
    instead of fighting selector specificity. Add a few extras on top
    for things the plugin doesn't cover (custom bullet, mono <small>).
    ============================================================ */
+/* Outside @layer so we win the cascade against the @tailwindcss/typography
+   plugin's own defaults on `.prose` (which set --tw-prose-body to slate-700
+   by default). Spec: same selector + later rule wins, and the plugin's
+   rules register at @layer base. */
+.prose,
+.prose.prose {
+  --tw-prose-body:          hsl(var(--foreground));
+  --tw-prose-headings:      hsl(var(--foreground));
+  --tw-prose-lead:          hsl(var(--muted-foreground));
+  --tw-prose-links:         hsl(var(--primary));
+  --tw-prose-bold:          hsl(var(--foreground));
+  --tw-prose-counters:      hsl(var(--muted-foreground));
+  --tw-prose-bullets:       hsl(var(--muted-foreground));
+  --tw-prose-hr:            hsl(var(--border));
+  --tw-prose-quotes:        hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--primary));
+  --tw-prose-captions:      hsl(var(--muted-foreground));
+  --tw-prose-code:          hsl(var(--primary));
+  --tw-prose-pre-code:      hsl(var(--card-foreground));
+  --tw-prose-pre-bg:        hsl(var(--card));
+  --tw-prose-th-borders:    hsl(var(--border));
+  --tw-prose-td-borders:    hsl(var(--border));
+  --tw-prose-invert-body:          hsl(var(--foreground));
+  --tw-prose-invert-headings:      hsl(var(--foreground));
+  --tw-prose-invert-lead:          hsl(var(--muted-foreground));
+  --tw-prose-invert-links:         hsl(var(--primary));
+  --tw-prose-invert-bold:          hsl(var(--foreground));
+  --tw-prose-invert-counters:      hsl(var(--muted-foreground));
+  --tw-prose-invert-bullets:       hsl(var(--muted-foreground));
+  --tw-prose-invert-hr:            hsl(var(--border));
+  --tw-prose-invert-quotes:        hsl(var(--foreground));
+  --tw-prose-invert-quote-borders: hsl(var(--primary));
+  --tw-prose-invert-captions:      hsl(var(--muted-foreground));
+  --tw-prose-invert-code:          hsl(var(--primary));
+  --tw-prose-invert-pre-code:      hsl(var(--card-foreground));
+  --tw-prose-invert-pre-bg:        hsl(var(--card));
+  --tw-prose-invert-th-borders:    hsl(var(--border));
+  --tw-prose-invert-td-borders:    hsl(var(--border));
+  color: hsl(var(--foreground));
+  max-width: none;
+}
+
+/* Force descendant text colors (paragraphs, list items, definition terms) to
+   our foreground — the plugin's `color: var(--tw-prose-body)` rule on `p`
+   gets overridden by our token, but some content uses inline color attributes
+   from the WordPress editor. We intentionally only do this for plain block
+   elements; <strong>, <a>, <code>, headings keep their plugin colors. */
+.prose :where(p, li, dt, dd):not(:where([class~="not-prose"] *)) {
+  color: hsl(var(--foreground));
+}
+
 @layer base {
-  .prose {
-    --tw-prose-body:          hsl(var(--foreground));
-    --tw-prose-headings:      hsl(var(--foreground));
-    --tw-prose-lead:          hsl(var(--muted-foreground));
-    --tw-prose-links:         hsl(var(--primary));
-    --tw-prose-bold:          hsl(var(--foreground));
-    --tw-prose-counters:      hsl(var(--muted-foreground));
-    --tw-prose-bullets:       hsl(var(--muted-foreground));
-    --tw-prose-hr:            hsl(var(--border));
-    --tw-prose-quotes:        hsl(var(--foreground));
-    --tw-prose-quote-borders: hsl(var(--primary));
-    --tw-prose-captions:      hsl(var(--muted-foreground));
-    --tw-prose-code:          hsl(var(--primary));
-    --tw-prose-pre-code:      hsl(var(--card-foreground));
-    --tw-prose-pre-bg:        hsl(var(--card));
-    --tw-prose-th-borders:    hsl(var(--border));
-    --tw-prose-td-borders:    hsl(var(--border));
-    /* Mirror to -invert so prose-invert callers also stay on-brand */
-    --tw-prose-invert-body:          var(--tw-prose-body);
-    --tw-prose-invert-headings:      var(--tw-prose-headings);
-    --tw-prose-invert-lead:          var(--tw-prose-lead);
-    --tw-prose-invert-links:         var(--tw-prose-links);
-    --tw-prose-invert-bold:          var(--tw-prose-bold);
-    --tw-prose-invert-counters:      var(--tw-prose-counters);
-    --tw-prose-invert-bullets:       var(--tw-prose-bullets);
-    --tw-prose-invert-hr:            var(--tw-prose-hr);
-    --tw-prose-invert-quotes:        var(--tw-prose-quotes);
-    --tw-prose-invert-quote-borders: var(--tw-prose-quote-borders);
-    --tw-prose-invert-captions:      var(--tw-prose-captions);
-    --tw-prose-invert-code:          var(--tw-prose-code);
-    --tw-prose-invert-pre-code:      var(--tw-prose-pre-code);
-    --tw-prose-invert-pre-bg:        var(--tw-prose-pre-bg);
-    --tw-prose-invert-th-borders:    var(--tw-prose-th-borders);
-    --tw-prose-invert-td-borders:    var(--tw-prose-td-borders);
-
-    max-width: none;
-  }
-
   /* Headings: brand display font + tracking, anchor scroll margin */
   .prose :where(h1, h2, h3, h4, h5):not(:where([class~="not-prose"] *)) {
     font-family: var(--font-display);
