@@ -1,5 +1,5 @@
-import { gql } from "@apollo/client"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import gql from "graphql-tag"
+import SiteLayout from "components/Site/SiteLayout"
 import PostPreview, { PostPreviewFragment } from "components/Preview/PostPreview"
 
 export default function ArchivePost({ data }) {
@@ -28,21 +28,18 @@ export default function ArchivePost({ data }) {
   )
 }
 
-ArchivePost.variables = (_props) => {
-  return {
-    first: 100,
-  }
-}
-
-ArchivePost.query = gql`
-  query GetPostsForBlog($first: Int) {
-    posts(first: $first) {
-      nodes {
-        ...PostPreview
+ArchivePost.queries = {
+  posts: {
+    query: gql`
+      query ArchivePost_Posts($first: Int) {
+        posts(first: $first) {
+          nodes {
+            ...PostPreview
+          }
+        }
       }
-    }
-    ...NavMenu
-  }
-  ${PostPreviewFragment}
-  ${NavMenuFragment}
-`
+      ${PostPreviewFragment}
+    `,
+    variables: () => ({ first: 100 }),
+  },
+}
