@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.12.0
+Stable tag: 2.13.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -300,6 +300,20 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.13.0 =
+
+**New Features**
+
+* **deps:** bump styled-components from 6.4.0 to 6.4.1 in the npm-prod-minor-patch group ([#3805](https://github.com/wp-graphql/wp-graphql/issues/3805))
+* **deps:** bump the npm-prod-minor-patch group with 3 updates ([#3792](https://github.com/wp-graphql/wp-graphql/issues/3792))
+
+**Bug Fixes**
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.46 to 2.1.50 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3789](https://github.com/wp-graphql/wp-graphql/issues/3789))
+* **deps-dev:** bump phpstan/phpstan from 2.1.50 to 2.1.51 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3802](https://github.com/wp-graphql/wp-graphql/issues/3802))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 6 updates ([#3799](https://github.com/wp-graphql/wp-graphql/issues/3799))
+* **deps:** bump webonyx/graphql-php from 15.31.5 to 15.32.3 in /plugins/wp-graphql ([#3804](https://github.com/wp-graphql/wp-graphql/issues/3804))
 
 = 2.12.0 =
 
