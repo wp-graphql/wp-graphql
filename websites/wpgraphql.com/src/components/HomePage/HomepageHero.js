@@ -1,45 +1,70 @@
 import Image from "next/image"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default function HomepageHero() {
   return (
-    <div className="bg-white dark:bg-navy">
-      <div className="max-w-8xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <div className="dark:bg-slate-900 bg-slate-100 rounded-lg shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
-          <div className="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
-            <div className="lg:self-center">
-              <h2 className="text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">
-                <span className="block">GraphQL API for WordPress</span>
-              </h2>
-              <p className="mt-4 text-lg leading-6 text-navy dark:text-slate-100">
-                WPGraphQL is a free, open-source WordPress plugin that provides
-                an extendable GraphQL schema and API for any WordPress site.
-              </p>
-              <Link href="/docs/introduction" legacyBehavior>
-                <a className="btn-secondary">
-                  Get Started
-                </a>
-              </Link>
-              <a
+    <section className="relative overflow-hidden">
+      <div className="mx-auto max-w-8xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div className="lg:max-w-xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 font-mono text-xs text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-primary animate-glow-pulse" />
+              Open Source · MIT · 6M+ downloads
+            </span>
+            <h1 className="mt-6 text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
+              GraphQL API for{" "}
+              <span className="text-primary">every WordPress site</span>
+            </h1>
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+              WPGraphQL is a free, open-source WordPress plugin that
+              provides an extendable GraphQL schema and API for any
+              WordPress site.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Link
                 href="https://wordpress.org/plugins/wp-graphql"
-                rel="noreferrer"
-                target="_blank"
-                className="btn-primary"
+                legacyBehavior
               >
-                Download the Plugin
-              </a>
+                <Button asChild size="lg">
+                  <a target="_blank" rel="noreferrer">Download the Plugin</a>
+                </Button>
+              </Link>
+              <Link href="/docs/introduction" legacyBehavior>
+                <Button asChild variant="secondary" size="lg">
+                  <a>Read the Docs</a>
+                </Button>
+              </Link>
             </div>
           </div>
-          <div className="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1">
-            <Image
-              className="transform translate-x-6 translate-y-6 rounded-md object-cover object-left-top sm:translate-x-16 lg:translate-y-20"
-              src="/images/query-posts.png"
-              alt="App screenshot"
-              layout="fill"
+
+          <div className="relative">
+            <div className="overflow-hidden rounded-xl border border-border bg-card shadow-elev-lg">
+              <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
+                <div className="flex gap-1.5">
+                  <span className="size-2.5 rounded-full bg-[#FF5F57]" />
+                  <span className="size-2.5 rounded-full bg-[#FEBC2E]" />
+                  <span className="size-2.5 rounded-full bg-[#28C840]" />
+                </div>
+                <span className="font-mono text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+                  GraphiQL
+                </span>
+              </div>
+              <Image
+                src="/images/query-posts.png"
+                alt="GraphiQL query posts example"
+                width={1024}
+                height={620}
+                className="block h-auto w-full"
+              />
+            </div>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-x-10 -bottom-10 -top-10 -z-10 bg-[radial-gradient(circle_at_70%_30%,_hsl(30_100%_55%_/_0.18),_transparent_60%)]"
             />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
