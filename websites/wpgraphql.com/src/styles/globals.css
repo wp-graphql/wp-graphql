@@ -423,25 +423,11 @@
     font-weight: 400;
   }
 
-  /* Custom bullet (preserved from legacy: thin orange-ish dash) */
-  .prose :where(ul):not(:where([class~="not-prose"] *)) {
-    list-style: none;
-    padding-left: 0;
-  }
-  .prose :where(ul > li):not(:where([class~="not-prose"] *)) {
-    position: relative;
-    padding-left: 1.75em;
-  }
-  .prose :where(ul > li)::before {
-    content: '';
-    width: 0.75em;
-    height: 0.125em;
-    position: absolute;
-    top: calc(0.875em - 0.0625em);
-    left: 0;
-    border-radius: 999px;
-    background: hsl(var(--muted-foreground));
-  }
+  /* Lists use the typography plugin's default disc/decimal markers,
+     coloured by --tw-prose-bullets / --tw-prose-counters (set above to
+     muted-foreground). The previous custom horizontal-dash ::before
+     marker collided with the plugin's bullets — both rendered, and the
+     dash got mis-positioned in nested lists. */
 
   .prose :where(iframe):not(:where([class~="not-prose"] *)) {
     max-width: 100%;
