@@ -13,7 +13,7 @@ function AcfHero() {
     <section className="relative overflow-hidden border-b border-border">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-20%,_hsl(30_100%_55%_/_0.15),_transparent_60%)]"
+        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[55vh] w-[55vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl"
       />
       <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">

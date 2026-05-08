@@ -60,7 +60,7 @@ export default function HomepageHero() {
             </div>
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-10 -bottom-10 -top-10 -z-10 bg-[radial-gradient(circle_at_70%_30%,_hsl(30_100%_55%_/_0.18),_transparent_60%)]"
+              className="pointer-events-none absolute right-0 top-0 -z-10 h-[55vh] w-[55vh] -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/15 blur-3xl"
             />
           </div>
         </div>

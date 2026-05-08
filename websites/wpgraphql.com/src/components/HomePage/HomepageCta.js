@@ -7,7 +7,7 @@ export default function HomepageCta() {
       <div className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-card px-8 py-16 text-center shadow-elev-lg sm:px-16">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_120%,_hsl(30_100%_55%_/_0.25),_transparent_60%)]"
+          className="pointer-events-none absolute left-1/2 -bottom-1/4 -z-10 h-[60%] w-[60%] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"
         />
         <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
           Get Started
