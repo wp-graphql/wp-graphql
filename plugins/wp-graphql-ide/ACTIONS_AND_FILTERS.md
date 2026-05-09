@@ -24,6 +24,22 @@ Modify the app context object passed to `window.WPGRAPHQL_IDE_DATA.context`.
 
 Add external GraphQL fragments (strings) that are auto-merged into every query.
 
+### `wpgraphql_ide_endpoint_api_params`
+
+When the public IDE at the GraphQL endpoint URL is enabled, browser GETs that include any of these query-string params are treated as API calls and pass through to WPGraphQL's JSON handler instead of rendering the IDE shell. Default list:
+
+- `query`, `variables`, `operationName`, `extensions` (GraphQL-over-HTTP spec)
+- `queryId` (WPGraphQL Smart Cache persisted-query convention)
+
+Extensions that introduce additional GET params (custom persisted-query layers, etc.) should hook this filter to keep their requests on the JSON path.
+
+```php
+add_filter( 'wpgraphql_ide_endpoint_api_params', function ( array $params ) {
+	$params[] = 'myCustomParam';
+	return $params;
+} );
+```
+
 ## JavaScript Actions
 
 All JavaScript hooks use a private `@wordpress/hooks` instance exposed on `window.WPGraphQLIDE.hooks`.
