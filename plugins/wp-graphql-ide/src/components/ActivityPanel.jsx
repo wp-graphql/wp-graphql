@@ -3,6 +3,7 @@ import { Button, ResizableBox } from '@wordpress/components';
 import { Icon, close } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { getStorageItem, setStorageItem } from '../utils/storage';
+import { useResizeReporter } from './ResizeOverlay';
 
 // Persist panel width across open/close cycles via window.localStorage.
 function getPersistedWidth() {
@@ -22,6 +23,8 @@ const ActivityPanel = () => {
 		'wpgraphql-ide/activity-bar'
 	);
 
+	const reporter = useResizeReporter(visiblePanel?.title || 'Panel');
+
 	if (!visiblePanel) {
 		return null;
 	}
@@ -39,13 +42,17 @@ const ActivityPanel = () => {
 				bottom: false,
 				left: false,
 			}}
+			onResizeStart={reporter.reportStart}
+			onResize={reporter.reportResize}
 			onResizeStop={(e, d, elt) => {
+				reporter.reportStop();
 				const w = elt.offsetWidth;
 				setPanelWidth(w);
 				setStorageItem('wpgraphql_ide_panel_width', w);
 			}}
 			className="wpgraphql-ide-activity-panel"
 		>
+			{reporter.indicator}
 			<div className="wpgraphql-ide-panel-header">
 				<span className="wpgraphql-ide-panel-title">
 					{visiblePanel.title}

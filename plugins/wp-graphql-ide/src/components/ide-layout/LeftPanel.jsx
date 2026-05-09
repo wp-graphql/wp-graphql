@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ResizableBox } from '@wordpress/components';
 import { Icon, close } from '@wordpress/icons';
+import { useResizeReporter } from '../ResizeOverlay';
 
 /**
  * Resizable left-side panel that hosts either the Query Composer or
@@ -30,15 +31,22 @@ export function LeftPanel({
 	closeLabel,
 	children,
 }) {
+	const reporter = useResizeReporter(title);
 	return (
 		<ResizableBox
 			size={{ width, height: '100%' }}
 			minWidth={minWidth}
 			maxWidth={maxWidth}
 			enable={{ top: false, right: true, bottom: false, left: false }}
-			onResizeStop={(e, d, elt) => onResize(elt.offsetWidth)}
+			onResizeStart={reporter.reportStart}
+			onResize={reporter.reportResize}
+			onResizeStop={(e, d, elt) => {
+				reporter.reportStop();
+				onResize(elt.offsetWidth);
+			}}
 			className={className}
 		>
+			{reporter.indicator}
 			<div className="wpgraphql-ide-panel-header">
 				<span className="wpgraphql-ide-panel-title">{title}</span>
 				<div className="wpgraphql-ide-panel-header-spacer" />

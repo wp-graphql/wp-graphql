@@ -4,6 +4,7 @@ import { ResponseViewer } from '../editors/ResponseViewer';
 import { ErrorsPanel } from '../ErrorsPanel';
 import { HeadersPanel } from '../HeadersPanel';
 import { ResponseTableView } from '../ResponseTableView';
+import { useResizeReporter } from '../ResizeOverlay';
 
 /**
  * Body of the response pane: the JSON / table viewer up top with a
@@ -108,6 +109,9 @@ export function ResponseContent({
 		return response;
 	}, [response, responseDataScope, parsed]);
 
+	const reporter = useResizeReporter('Response viewer');
+	const tabsReporter = useResizeReporter('Response tabs');
+
 	const renderViewer = () => {
 		if (!response) {
 			return <div className="wpgraphql-ide-response-empty" />;
@@ -127,6 +131,7 @@ export function ResponseContent({
 	if (!response) {
 		return (
 			<div className="wpgraphql-ide-response-body wpgraphql-ide-response-body--empty">
+				{reporter.indicator}
 				<div className="wpgraphql-ide-response-empty">
 					<div className="wpgraphql-ide-response-empty-hint">
 						<h3 className="wpgraphql-ide-response-empty-title">
@@ -147,67 +152,77 @@ export function ResponseContent({
 				size={{ width: '100%', height: responseViewerHeight }}
 				minHeight={50}
 				enable={{ bottom: true }}
+				onResizeStart={reporter.reportStart}
+				onResize={reporter.reportResize}
 				onResizeStop={(e, d, elt) => {
+					reporter.reportStop();
 					onResponseViewerResize(elt.offsetHeight);
 				}}
 				className="wpgraphql-ide-response-viewer wpgraphql-ide-resizable-split"
 			>
+				{reporter.indicator}
 				{renderViewer()}
 			</ResizableBox>
-			<TabPanel
-				// Re-key on the request token so every status-bar click
-				// (even repeated clicks targeting the same tab) remounts
-				// the TabPanel with the requested initialTabName. Without
-				// the token, a click while the requested tab is already
-				// active is a no-op state change.
-				key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${tabRequest?.token || ''}`}
-				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
-				tabs={bottomTabs}
-				initialTabName={
-					tabRequest?.name ||
-					(errors.length > 0 ? 'errors' : 'ext:tracing')
-				}
-			>
-				{(tab) => {
-					if (tab.name === 'headers') {
-						return <HeadersPanel headers={responseHeaders} />;
+			<div className="wpgraphql-ide-response-tabs-wrap">
+				{tabsReporter.indicator}
+				<TabPanel
+					// Re-key on the request token so every status-bar click
+					// (even repeated clicks targeting the same tab) remounts
+					// the TabPanel with the requested initialTabName. Without
+					// the token, a click while the requested tab is already
+					// active is a no-op state change.
+					key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${tabRequest?.token || ''}`}
+					className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
+					tabs={bottomTabs}
+					initialTabName={
+						tabRequest?.name ||
+						(errors.length > 0 ? 'errors' : 'ext:tracing')
 					}
-					if (tab.name === 'errors') {
-						return <ErrorsPanel errors={errors} />;
-					}
-					if (tab.name.startsWith('ext:')) {
-						const extName = tab.name.slice(4);
-						const ext = activeExtTabs.find(
-							(t) => t.name === extName
-						);
-						const ExtContent = ext?.content;
-						return ExtContent ? (
-							<ExtContent
-								data={extensions[extName]}
-								response={response}
-							/>
-						) : null;
-					}
-					if (tab.name === 'extensions:unregistered') {
-						return (
-							<div className="wpgraphql-ide-extensions-empty">
-								<p>
-									The response contains extension data, but no
-									plugin has registered a renderer for it:
-								</p>
-								<ul>
-									{unregisteredExtensionKeys.map((key) => (
-										<li key={key}>
-											<code>{key}</code>
-										</li>
-									))}
-								</ul>
-							</div>
-						);
-					}
-					return null;
-				}}
-			</TabPanel>
+				>
+					{(tab) => {
+						if (tab.name === 'headers') {
+							return <HeadersPanel headers={responseHeaders} />;
+						}
+						if (tab.name === 'errors') {
+							return <ErrorsPanel errors={errors} />;
+						}
+						if (tab.name.startsWith('ext:')) {
+							const extName = tab.name.slice(4);
+							const ext = activeExtTabs.find(
+								(t) => t.name === extName
+							);
+							const ExtContent = ext?.content;
+							return ExtContent ? (
+								<ExtContent
+									data={extensions[extName]}
+									response={response}
+								/>
+							) : null;
+						}
+						if (tab.name === 'extensions:unregistered') {
+							return (
+								<div className="wpgraphql-ide-extensions-empty">
+									<p>
+										The response contains extension data,
+										but no plugin has registered a renderer
+										for it:
+									</p>
+									<ul>
+										{unregisteredExtensionKeys.map(
+											(key) => (
+												<li key={key}>
+													<code>{key}</code>
+												</li>
+											)
+										)}
+									</ul>
+								</div>
+							);
+						}
+						return null;
+					}}
+				</TabPanel>
+			</div>
 		</div>
 	);
 }
