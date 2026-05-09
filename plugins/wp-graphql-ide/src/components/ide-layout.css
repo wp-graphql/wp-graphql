@@ -2250,19 +2250,6 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: 13px;
 }
 
-/* Extension sub-tabs */
-
-.wpgraphql-ide-extension-tabs .components-tab-panel__tabs-item {
-	font-size: 12px;
-	padding: 4px 10px;
-}
-
-
-.wpgraphql-ide-extension-tabs .components-tab-panel__tab-content {
-	padding: 8px 12px;
-	font-size: 13px;
-}
-
 /* ---------------------------------------------------------------------------
    Debug extension tab
    --------------------------------------------------------------------------- */
@@ -2771,11 +2758,24 @@ input.wpgraphql-ide-tab-input:focus {
 	overflow-x: auto;
 }
 
-/* Extensions empty state */
+/* Extensions empty state — surfaced as a synthetic tab when the
+   response includes extension keys nothing has registered for. */
 .wpgraphql-ide-extensions-empty {
-	color: #a7aaad;
+	color: #50575e;
 	font-size: 13px;
+}
+
+.wpgraphql-ide-extensions-empty p {
+	margin: 0 0 8px;
+}
+
+.wpgraphql-ide-extensions-empty ul {
 	margin: 0;
+	padding-left: 20px;
+}
+
+.wpgraphql-ide-extensions-empty code {
+	font-size: 12px;
 }
 
 /* Table view */

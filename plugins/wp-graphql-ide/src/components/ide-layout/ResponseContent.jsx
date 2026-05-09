@@ -54,13 +54,32 @@ export function ResponseContent({
 			? Object.keys(responseHeaders).length
 			: 0;
 
+	// Each registered extension that has data in the response gets its
+	// own top-level tab (Debug, Tracing, Query Analyzer, etc.) instead
+	// of being nested under a generic "Extensions" wrapper. The wrapper
+	// added a click for every visit to a tracing or debug payload —
+	// flattening pulls those one level closer to the user.
+	//
+	// The synthetic "Extensions" tab still appears when the response
+	// includes extension data that no plugin has registered a renderer
+	// for — useful as a "you have data here but nothing's reading it"
+	// signal. It hides itself as soon as that data is registered or
+	// the response stops emitting it.
+	const unregisteredExtensionKeys = Object.keys(extensions).filter(
+		(key) => !extensionTabs.some((t) => t.name === key)
+	);
+	const showUnregisteredFallback = unregisteredExtensionKeys.length > 0;
+
 	const bottomTabs = [
 		{ name: 'headers', title: `Headers (${headersCount})` },
 		{ name: 'errors', title: `Errors (${errors.length})` },
-		{
-			name: 'extensions',
-			title: `Extensions (${activeExtTabs.length})`,
-		},
+		...activeExtTabs.map((t) => ({
+			name: `ext:${t.name}`,
+			title: t.title || t.name,
+		})),
+		...(showUnregisteredFallback
+			? [{ name: 'extensions:unregistered', title: 'Extensions' }]
+			: []),
 	];
 
 	const viewerContent = useMemo(() => {
@@ -135,40 +154,34 @@ export function ResponseContent({
 					if (tab.name === 'errors') {
 						return <ErrorsPanel errors={errors} />;
 					}
-					if (tab.name === 'extensions') {
-						if (activeExtTabs.length === 0) {
-							const hasUnregistered =
-								Object.keys(extensions).length > 0;
-							return (
-								<p className="wpgraphql-ide-extensions-empty">
-									{hasUnregistered
-										? 'The response contains extension data, but no extension has registered a tab to display it.'
-										: 'No extensions in the last response.'}
-								</p>
-							);
-						}
+					if (tab.name.startsWith('ext:')) {
+						const extName = tab.name.slice(4);
+						const ext = activeExtTabs.find(
+							(t) => t.name === extName
+						);
+						const ExtContent = ext?.content;
+						return ExtContent ? (
+							<ExtContent
+								data={extensions[extName]}
+								response={response}
+							/>
+						) : null;
+					}
+					if (tab.name === 'extensions:unregistered') {
 						return (
-							<TabPanel
-								className="wpgraphql-ide-extension-tabs"
-								key={activeExtTabs.map((t) => t.name).join('|')}
-								tabs={activeExtTabs.map((t) => ({
-									name: t.name,
-									title: t.title || t.name,
-								}))}
-							>
-								{(extTab) => {
-									const ext = activeExtTabs.find(
-										(t) => t.name === extTab.name
-									);
-									const ExtContent = ext?.content;
-									return ExtContent ? (
-										<ExtContent
-											data={extensions[extTab.name]}
-											response={response}
-										/>
-									) : null;
-								}}
-							</TabPanel>
+							<div className="wpgraphql-ide-extensions-empty">
+								<p>
+									The response contains extension data, but no
+									plugin has registered a renderer for it:
+								</p>
+								<ul>
+									{unregisteredExtensionKeys.map((key) => (
+										<li key={key}>
+											<code>{key}</code>
+										</li>
+									))}
+								</ul>
+							</div>
 						);
 					}
 					return null;
