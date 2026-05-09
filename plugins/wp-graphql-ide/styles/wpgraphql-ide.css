@@ -145,9 +145,39 @@ body.graphql_page_graphql-ide #wpfooter {
   display: none
 }
 
-/* Ful-height AppRoot on dedicated IDE page */
-body.graphql_page_graphql-ide .AppRoot {
+/* Ful-height shell on dedicated IDE page */
+body.graphql_page_graphql-ide .wpgraphql-ide-shell {
   height: 100%;
+}
+
+/* Theme insulation — scoped to `#wpgraphql-ide-app` and portaled
+   `.wpgraphql-ide-dialog`, never `.wpgraphql-ide-shell` (which also
+   wraps the WP-admin-bar drawer trigger that must inherit adminbar
+   styling). */
+.wpgraphql-ide-shell #wpgraphql-ide-app,
+.wpgraphql-ide-dialog {
+  isolation: isolate;
+}
+
+.wpgraphql-ide-shell #wpgraphql-ide-app,
+.wpgraphql-ide-shell #wpgraphql-ide-app *,
+.wpgraphql-ide-shell #wpgraphql-ide-app *::before,
+.wpgraphql-ide-shell #wpgraphql-ide-app *::after,
+.wpgraphql-ide-dialog,
+.wpgraphql-ide-dialog *,
+.wpgraphql-ide-dialog *::before,
+.wpgraphql-ide-dialog *::after {
+  box-sizing: border-box;
+}
+
+/* Theme rules like `button { padding: 12px 24px; font-family: serif }`
+   bleed into our chrome because form controls don't inherit `font` by
+   default. Force inheritance so our parent typography is honored. */
+.wpgraphql-ide-shell #wpgraphql-ide-app :is(button, input, select, textarea),
+.wpgraphql-ide-dialog :is(button, input, select, textarea) {
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 /* ==========================================================================
@@ -175,7 +205,8 @@ body.graphql_page_graphql-ide .AppRoot {
    ========================================================================== */
 
 [data-vaul-drawer] #wpgraphql-ide-app,
-.AppRoot #wpgraphql-ide-app {
+.wpgraphql-ide-shell #wpgraphql-ide-app,
+.wpgraphql-ide-dialog {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -189,7 +220,7 @@ body.graphql_page_graphql-ide .AppRoot {
    center and make kebabs look unaligned with the rest of the row. Pin
    buttons inside the IDE to a known baseline. */
 [data-vaul-drawer] #wpgraphql-ide-app button,
-.AppRoot #wpgraphql-ide-app button {
+.wpgraphql-ide-shell #wpgraphql-ide-app button {
   vertical-align: baseline;
   line-height: 1.4;
   text-transform: none;
@@ -197,7 +228,7 @@ body.graphql_page_graphql-ide .AppRoot {
 }
 
 [data-vaul-drawer] #wpgraphql-ide-app svg,
-.AppRoot #wpgraphql-ide-app svg {
+.wpgraphql-ide-shell #wpgraphql-ide-app svg {
   vertical-align: middle;
 }
 

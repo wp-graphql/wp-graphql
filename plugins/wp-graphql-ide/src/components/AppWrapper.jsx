@@ -7,6 +7,7 @@ import hooks from '../wordpress-hooks';
 import { AppDrawer } from './AppDrawer';
 import { App } from './App';
 import { DialogProvider } from './dialogs/DialogProvider';
+import { ResizeOverlayProvider } from './ResizeOverlay';
 
 import {
 	endpointMode,
@@ -168,20 +169,24 @@ function RenderAppWrapper() {
 
 	if (shouldRenderStandalone) {
 		return (
-			<div className="AppRoot">
+			<div className="wpgraphql-ide-shell">
 				<DialogProvider>
-					<App />
+					<ResizeOverlayProvider>
+						<App />
+					</ResizeOverlayProvider>
 				</DialogProvider>
 			</div>
 		);
 	}
 
 	return (
-		<div className="AppRoot">
+		<div className="wpgraphql-ide-shell">
 			<DialogProvider>
-				<AppDrawer buttonLabel={drawerButtonLabel}>
-					<App />
-				</AppDrawer>
+				<ResizeOverlayProvider>
+					<AppDrawer buttonLabel={drawerButtonLabel}>
+						<App />
+					</AppDrawer>
+				</ResizeOverlayProvider>
 			</DialogProvider>
 		</div>
 	);
