@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { ResizableBox, TabPanel } from '@wordpress/components';
+import { ResizableBox } from '@wordpress/components';
 import { ResponseViewer } from '../editors/ResponseViewer';
 import { ErrorsPanel } from '../ErrorsPanel';
 import { HeadersPanel } from '../HeadersPanel';
 import { ResponseTableView } from '../ResponseTableView';
 import { useResizeReporter } from '../ResizeOverlay';
+import { OverflowTabs } from '../OverflowTabs';
 
 /**
  * Body of the response pane: the JSON / table viewer up top with a
@@ -165,10 +166,10 @@ export function ResponseContent({
 			</ResizableBox>
 			<div className="wpgraphql-ide-response-tabs-wrap">
 				{tabsReporter.indicator}
-				<TabPanel
+				<OverflowTabs
 					// Re-key on the request token so every status-bar click
 					// (even repeated clicks targeting the same tab) remounts
-					// the TabPanel with the requested initialTabName. Without
+					// the tab strip with the requested initialTabName. Without
 					// the token, a click while the requested tab is already
 					// active is a no-op state change.
 					key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${tabRequest?.token || ''}`}
@@ -221,7 +222,7 @@ export function ResponseContent({
 						}
 						return null;
 					}}
-				</TabPanel>
+				</OverflowTabs>
 			</div>
 		</div>
 	);

@@ -2334,9 +2334,32 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+}
+
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs-item {
 	font-size: 13px;
 	padding: 8px 12px;
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-tabs-overflow.components-button {
+	font-size: 12px;
+	color: var(--wp-components-color-gray-700, #50575e);
+	padding: 4px 10px;
+	min-width: auto;
+	flex-shrink: 0;
+	white-space: nowrap;
+	margin-left: 4px;
+	align-self: center;
+}
+
+.wpgraphql-ide-tabs-overflow.components-button:hover {
+	color: var(--wp-components-color-foreground, #1e1e1e);
 }
 
 /* Red error indicator on the Errors tab when errors > 0 */
