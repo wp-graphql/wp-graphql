@@ -63,6 +63,11 @@ export function saveUnsavedTab(doc) {
 		query: doc.query || '',
 		variables: doc.variables || '',
 		headers: doc.headers || '',
+		// Persist the saved-baseline so dirty detection survives a
+		// refresh — otherwise seeded content reads as dirty on hydrate.
+		lastSavedQuery: doc.lastSavedQuery ?? doc.query ?? '',
+		lastSavedVariables: doc.lastSavedVariables ?? doc.variables ?? '',
+		lastSavedHeaders: doc.lastSavedHeaders ?? doc.headers ?? '',
 		documentSettings:
 			doc.documentSettings && typeof doc.documentSettings === 'object'
 				? doc.documentSettings

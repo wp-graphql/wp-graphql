@@ -57,12 +57,10 @@ export function useDocumentDirty({
 			const currentHeaders = liveStateMatches
 				? headers
 				: doc.headers || '';
+			// Temp drafts autopersist to localStorage on every keystroke,
+			// so they can't be lost on close — never dirty.
 			if (String(doc.id).startsWith('temp-')) {
-				return (
-					currentQuery !== (doc.lastSavedQuery || '') ||
-					currentVars !== (doc.lastSavedVariables || '') ||
-					currentHeaders !== (doc.lastSavedHeaders || '')
-				);
+				return false;
 			}
 			if (
 				currentQuery !== (doc.lastSavedQuery || '') ||

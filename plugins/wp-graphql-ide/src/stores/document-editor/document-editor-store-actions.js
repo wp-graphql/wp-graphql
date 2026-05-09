@@ -138,15 +138,25 @@ const actions = {
 				// Hydrate any unsaved drafts the user had open before
 				// the page reloaded. They live alongside saved docs in
 				// the documents store but keep their `temp-*` IDs.
-				const unsaved = getUnsavedTabs().map((t) => ({
-					id: t.id,
-					title: t.title || 'Untitled',
-					query: t.query || '',
-					variables: t.variables || '',
-					headers: t.headers || '',
-					status: 'draft',
-					collections: [],
-				}));
+				const unsaved = getUnsavedTabs().map((t) => {
+					const query = t.query || '';
+					const variables = t.variables || '';
+					const headers = t.headers || '';
+					return {
+						id: t.id,
+						title: t.title || 'Untitled',
+						query,
+						variables,
+						headers,
+						// Pre-baseline entries fall back to live values
+						// (hydrate as clean — best we can do).
+						lastSavedQuery: t.lastSavedQuery ?? query,
+						lastSavedVariables: t.lastSavedVariables ?? variables,
+						lastSavedHeaders: t.lastSavedHeaders ?? headers,
+						status: 'draft',
+						collections: [],
+					};
+				});
 
 				const hydratedDocs = docs.map((d) => ({
 					...d,
@@ -214,7 +224,7 @@ const actions = {
 					// refresh was confusing. createTab seeds the welcome
 					// boilerplate, persists the temp draft to localStorage,
 					// and sets it active.
-					dispatch.createTab('');
+					dispatch.createTab('', WELCOME_QUERY);
 				}
 			} catch (error) {
 				// eslint-disable-next-line no-console
@@ -226,13 +236,15 @@ const actions = {
 	 * Create a new in-memory tab. No server call — the document only
 	 * persists when the user explicitly saves (via saveTab).
 	 *
+	 * Defaults to an empty doc. Welcome boilerplate is opt-in (pass
+	 * `WELCOME_QUERY`) and reserved for the initial IDE-load-with-no-
+	 * tabs fallback — clicking `+` should give the user a clean slate.
+	 *
 	 * @param {string} title Tab title.
-	 * @param {string} query Initial query content. Defaults to the welcome
-	 *                       boilerplate; pass an explicit string (including
-	 *                       `''`) to skip the welcome.
+	 * @param {string} query Initial query content. Defaults to empty.
 	 */
 	createTab:
-		(title = '', query = WELCOME_QUERY) =>
+		(title = '', query = '') =>
 		({ dispatch }) => {
 			const tempId = `temp-${Date.now()}`;
 			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId, query });
