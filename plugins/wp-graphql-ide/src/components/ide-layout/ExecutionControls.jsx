@@ -7,17 +7,16 @@ import {
 	NavigableMenu,
 	Tooltip,
 } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
+import hooks from '../../wordpress-hooks';
 
 // --- Play-button easter egg ---------------------------------------------
 // If the user mash-clicks the play button (gap < 1.5s between clicks),
-// we count consecutive presses and surface a playful snackbar at preset
-// milestones. Sharing a stable notice id means each new milestone
-// replaces the previous one — no stack of giggling snackbars.
+// we count consecutive presses and fire a playful snackbar at preset
+// milestones via the IDE's `wpgraphql-ide.notice` hook bus — the same
+// channel `useNotices` listens on for the SnackbarList renderer.
 const PLAY_RAPID_WINDOW_MS = 1500;
-const PLAY_NOTICE_ID = 'wpgraphql-ide-play-easter-egg';
 const PLAY_MILESTONES = {
 	5: 'Whoa there, speedy.',
 	10: 'GraphQL fan club, party of one.',
@@ -143,7 +142,6 @@ export function ExecutionControls({
 }) {
 	const showOpPicker = !isFetching && operationNames.length > 1;
 
-	const noticesDispatch = useDispatch('core/notices');
 	const playCountRef = useRef(0);
 	const lastPlayAtRef = useRef(0);
 	const handleExecute = useCallback(
@@ -157,17 +155,13 @@ export function ExecutionControls({
 			lastPlayAtRef.current = now;
 
 			const message = PLAY_MILESTONES[playCountRef.current];
-			if (message && noticesDispatch?.createNotice) {
-				noticesDispatch.createNotice('info', message, {
-					id: PLAY_NOTICE_ID,
-					type: 'snackbar',
-					isDismissible: true,
-				});
+			if (message) {
+				hooks.doAction('wpgraphql-ide.notice', message, 'default');
 			}
 
 			onExecute(opName);
 		},
-		[noticesDispatch, onExecute]
+		[onExecute]
 	);
 
 	return (
