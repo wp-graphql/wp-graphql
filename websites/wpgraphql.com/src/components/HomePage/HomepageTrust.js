@@ -31,7 +31,7 @@ export default function HomePageTrust() {
           {logos.map((logo) => (
             <div
               key={logo.alt}
-              className="flex h-28 items-center justify-center rounded-xl border border-border bg-card px-8 transition-colors hover:border-primary/30"
+              className="flex h-28 items-center justify-center rounded-xl border border-border bg-white px-8 ring-1 ring-transparent transition-all hover:ring-primary/40"
             >
               <Image
                 src={logo.src}
