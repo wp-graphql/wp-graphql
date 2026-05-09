@@ -1,42 +1,60 @@
 import { useCallback, useState } from 'react';
+import { savePreference } from '../api/preferences';
 
-const STORAGE_KEY = 'wpgraphql_ide_left_panel';
-const LEGACY_KEY = 'wpgraphql_ide_show_query_composer';
+const LEGACY_LOCAL_KEY = 'wpgraphql_ide_left_panel';
+const LEGACY_FLAG_KEY = 'wpgraphql_ide_show_query_composer';
 
 /**
- * Read the persisted left-panel choice (Composer or Document Settings),
- * consuming the legacy `wpgraphql_ide_show_query_composer` flag during
- * the migration window.
+ * Read the initial panel choice. Resolution order:
  *
- * Closing the panel clears the unified key. If the legacy entry stayed
- * around it would silently override that close on the next refresh, so
- * we delete it on first read regardless of value, then promote a
- * truthy legacy value into a Composer-open default only if the unified
- * key is empty.
+ *   1. Server-injected user meta (`WPGRAPHQL_IDE_DATA.leftPanel`) wins
+ *      if set — that's the durable, per-user, cross-browser value.
+ *   2. Otherwise, accept the older `wpgraphql_ide_left_panel`
+ *      localStorage value and, on the same load, promote it to user
+ *      meta so future paints read directly from the bootstrap.
+ *   3. Otherwise, fall back to the even-older `show_query_composer`
+ *      flag (also localStorage) and promote it the same way.
+ *   4. Otherwise, in endpoint mode, default to opening the Query
+ *      Composer — schema browsing is the primary use case for the
+ *      public-endpoint render. The dedicated admin page keeps `null`
+ *      so existing users don't see the composer pop open on next visit.
  *
- * In endpoint mode, when no preference has been recorded, default to
- * opening the Query Composer — schema browsing is the primary use case
- * for the public-endpoint render. The dedicated admin page keeps the
- * `null` default so existing users don't suddenly see the composer pop
- * open on next visit.
+ * Both legacy localStorage keys are deleted on first read so they
+ * can't silently override a future close. The user-meta write is
+ * fire-and-forget; failure leaves the localStorage hint in place,
+ * which means the migration retries on the next page load.
  *
  * @param {boolean} [endpointMode]
  */
 function readInitialPanel(endpointMode = false) {
+	const fromBootstrap =
+		typeof window !== 'undefined' && window.WPGRAPHQL_IDE_DATA?.leftPanel;
+	if (fromBootstrap === 'composer' || fromBootstrap === 'settings') {
+		return fromBootstrap;
+	}
+
 	try {
-		const legacy = window.localStorage.getItem(LEGACY_KEY);
-		if (legacy !== null) {
-			window.localStorage.removeItem(LEGACY_KEY);
-			if (
-				legacy === 'true' &&
-				!window.localStorage.getItem(STORAGE_KEY)
-			) {
-				window.localStorage.setItem(STORAGE_KEY, 'composer');
-			}
-		}
-		const stored = window.localStorage.getItem(STORAGE_KEY);
+		const stored = window.localStorage.getItem(LEGACY_LOCAL_KEY);
+		const legacyFlag = window.localStorage.getItem(LEGACY_FLAG_KEY);
+		let migrated = null;
 		if (stored === 'composer' || stored === 'settings') {
-			return stored;
+			migrated = stored;
+		} else if (legacyFlag === 'true') {
+			migrated = 'composer';
+		}
+		if (stored !== null) {
+			window.localStorage.removeItem(LEGACY_LOCAL_KEY);
+		}
+		if (legacyFlag !== null) {
+			window.localStorage.removeItem(LEGACY_FLAG_KEY);
+		}
+		if (migrated) {
+			savePreference('left_panel', migrated).catch(() => {
+				// Best-effort. If the write fails the migration retries
+				// next load (legacy keys are already cleared, so it'll
+				// quietly fall through to the endpoint-mode default).
+			});
+			return migrated;
 		}
 	} catch {
 		// ignore
@@ -71,8 +89,8 @@ function usePersistedWidth(key, fallback) {
 
 /**
  * Single-slot left panel state that mutually hosts the Query Composer
- * or the Document Settings panel. Persists the choice + each panel's
- * resizable width to localStorage.
+ * or the Document Settings panel. Persists the choice via user meta
+ * (REST) and each panel's resizable width to localStorage.
  *
  * @param {Object}  [opts]
  * @param {boolean} [opts.endpointMode] When true and no preference is
@@ -99,15 +117,12 @@ export function useLeftPanel({ endpointMode = false } = {}) {
 
 	const setLeftPanel = useCallback((next) => {
 		setLeftPanelState(next);
-		try {
-			if (next === null) {
-				window.localStorage.removeItem(STORAGE_KEY);
-			} else {
-				window.localStorage.setItem(STORAGE_KEY, next);
-			}
-		} catch {
+		// Persist per-user via REST. Fire-and-forget; failures fall back
+		// to the in-memory state for the rest of the session and
+		// re-attempt next time the user toggles.
+		savePreference('left_panel', next === null ? '' : next).catch(() => {
 			// ignore
-		}
+		});
 	}, []);
 
 	const toggleQueryComposer = useCallback(() => {

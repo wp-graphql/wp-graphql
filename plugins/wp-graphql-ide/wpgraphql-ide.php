@@ -100,6 +100,12 @@ function initialize_plugin() {
 	add_filter( 'rest_prepare_graphql_ide_query', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 	add_filter( 'rest_prepare_graphql_ide_history', __NAMESPACE__ . '\\restrict_document_to_author', 10, 3 );
 
+	// Cap document title length on every write path so a long POST body
+	// can't bloat the DB or break admin-UI layouts. Covers REST creates
+	// and updates, the import/upsert flow, and any future direct
+	// `wp_insert_post` callers.
+	add_filter( 'wp_insert_post_data', __NAMESPACE__ . '\\cap_ide_document_title_length', 10, 2 );
+
 	// Custom REST routes.
 	add_action( 'rest_api_init', __NAMESPACE__ . '\\register_ide_rest_routes' );
 
@@ -386,6 +392,42 @@ function register_ide_user_meta() {
 			'show_in_rest'  => true,
 			'default'       => '',
 			'auth_callback' => $auth_callback,
+		]
+	);
+
+	// Which inline document panel (Composer / Settings) is open. Empty
+	// string means no panel is open. Persists per-user so the user's
+	// last choice rides across browsers, not just localStorage.
+	register_meta(
+		'user',
+		'wpgraphql_ide_left_panel',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'auth_callback'     => $auth_callback,
+			'sanitize_callback' => static function ( $value ) {
+				return in_array( $value, [ '', 'composer', 'settings' ], true ) ? $value : '';
+			},
+		]
+	);
+
+	// JSON vs Table view mode for the response pane. Per-user so the
+	// preference rides across browsers (matches the design rule for
+	// settings; pane-size ergonomics stay in localStorage).
+	register_meta(
+		'user',
+		'wpgraphql_ide_response_view_mode',
+		[
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => 'formatted',
+			'auth_callback'     => $auth_callback,
+			'sanitize_callback' => static function ( $value ) {
+				return in_array( $value, [ 'formatted', 'table' ], true ) ? $value : 'formatted';
+			},
 		]
 	);
 
@@ -1097,6 +1139,34 @@ function restrict_document_to_author( $response, $post, $request ) {
 		__( 'You do not have permission to access this document.', 'wpgraphql-ide' ),
 		[ 'status' => 403 ]
 	);
+}
+
+/**
+ * Truncate `post_title` to 200 chars on `graphql_ide_query` writes.
+ *
+ * The `post_title` column is TEXT in MySQL with no hard cap, so a
+ * long POST body could bloat the database or break admin UIs (post
+ * lists, the IDE's own tab strip) that can't reasonably display past
+ * ~200 chars. Applies to every write path — REST creates/updates,
+ * the import/upsert flow, and any direct `wp_insert_post` callers.
+ *
+ * Other CPTs pass through unchanged. `mb_substr` is used so we never
+ * slice through a multi-byte character.
+ *
+ * @param array<string,mixed> $data    Slashed, sanitized post data about to be written.
+ * @param array<string,mixed> $postarr Original input array (unsanitized).
+ *
+ * @return array<string,mixed>
+ */
+function cap_ide_document_title_length( array $data, array $postarr ): array {
+	if ( ( $data['post_type'] ?? '' ) !== 'graphql_ide_query' ) {
+		return $data;
+	}
+	$title = (string) ( $data['post_title'] ?? '' );
+	if ( mb_strlen( $title ) > 200 ) {
+		$data['post_title'] = mb_substr( $title, 0, 200 );
+	}
+	return $data;
 }
 
 /**
@@ -1845,6 +1915,8 @@ function enqueue_react_app_with_styles(): void {
 	$collapsed_notices       = get_user_meta( $user_id, 'wpgraphql_ide_collapsed_notices', true );
 	$personal_collections    = get_user_meta( $user_id, 'wpgraphql_ide_personal_collections', true );
 	$seen_shared_collections = get_user_meta( $user_id, 'wpgraphql_ide_seen_shared_collections', true );
+	$left_panel              = get_user_meta( $user_id, 'wpgraphql_ide_left_panel', true );
+	$response_view_mode      = get_user_meta( $user_id, 'wpgraphql_ide_response_view_mode', true );
 	$shared_collections      = aggregate_shared_collections();
 
 	// Decode the JSON-string blob into an array for the bootstrap so
@@ -1868,6 +1940,8 @@ function enqueue_react_app_with_styles(): void {
 		'isDedicatedIdePage'    => current_screen_is_dedicated_ide_page(),
 		'dedicatedIdeBaseUrl'   => get_dedicated_ide_base_url(),
 		'panelOrder'            => is_array( $panel_order ) ? $panel_order : [],
+		'leftPanel'             => in_array( $left_panel, [ 'composer', 'settings' ], true ) ? $left_panel : '',
+		'responseViewMode'      => in_array( $response_view_mode, [ 'formatted', 'table' ], true ) ? $response_view_mode : 'formatted',
 		'collapsedNotices'      => is_array( $collapsed_notices ) ? $collapsed_notices : [],
 		'personalCollections'   => is_array( $personal_collections ) ? $personal_collections : [],
 		'sharedCollections'     => $shared_collections,
