@@ -65,9 +65,11 @@ export function ResponsePane({
 }) {
 	// Programmatic tab navigation: status-bar badges set this, which
 	// remounts the response TabPanel via `key` to honor the new
-	// `initialTabName`. Cleared after the parent restream by passing
-	// down the same value (idempotent).
-	const [requestedTab, setRequestedTab] = useState(null);
+	// `initialTabName`. Each click increments `token` so re-clicking
+	// the same badge while that tab is already active still produces
+	// a key change and re-applies focus — without the token, the
+	// second click would be a no-op.
+	const [tabRequest, setTabRequest] = useState(null);
 
 	// Surface tracing headlines in the always-visible status bar so
 	// "this query has 11 resolvers and 1 likely N+1" is information
@@ -95,7 +97,8 @@ export function ResponsePane({
 		}
 	}, [response]);
 
-	const focusTracing = () => setRequestedTab('ext:tracing');
+	const focusTracing = () =>
+		setTabRequest({ name: 'ext:tracing', token: Date.now() });
 
 	return (
 		<div className="wpgraphql-ide-response-pane">
@@ -197,7 +200,7 @@ export function ResponsePane({
 				extensionTabs={extensionTabs}
 				responseViewerHeight={responseViewerHeight}
 				onResponseViewerResize={onResponseViewerResize}
-				requestedTab={requestedTab}
+				tabRequest={tabRequest}
 			/>
 		</div>
 	);

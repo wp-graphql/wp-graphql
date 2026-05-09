@@ -13,15 +13,15 @@ import { ResponseTableView } from '../ResponseTableView';
  * tabs, no resizer, just an empty surface with a "Run the query…" hint
  * filling the panel height.
  *
- * @param {Object}              props
- * @param {string}              props.response               - JSON-stringified response body, or empty string.
- * @param {'formatted'|'table'} props.responseViewMode       - Top-pane render mode.
- * @param {'data'|'full'}       props.responseDataScope      - Whether the viewer renders only `data` or the full envelope.
- * @param {Object|null}         props.responseHeaders        - Response headers map (count drives the Headers tab label).
- * @param {Array}               props.extensionTabs          - Extension tab descriptors registered via the response-extensions store.
- * @param {string|number}       props.responseViewerHeight   - Height of the top pane (px or '%').
- * @param {Function}            props.onResponseViewerResize - Called with the new px height on resize stop.
- * @param {string|null}         props.requestedTab           - Programmatic tab navigation request from the parent (e.g. status-bar badge). The TabPanel re-keys when this changes.
+ * @param {Object}                             props
+ * @param {string}                             props.response               - JSON-stringified response body, or empty string.
+ * @param {'formatted'|'table'}                props.responseViewMode       - Top-pane render mode.
+ * @param {'data'|'full'}                      props.responseDataScope      - Whether the viewer renders only `data` or the full envelope.
+ * @param {Object|null}                        props.responseHeaders        - Response headers map (count drives the Headers tab label).
+ * @param {Array}                              props.extensionTabs          - Extension tab descriptors registered via the response-extensions store.
+ * @param {string|number}                      props.responseViewerHeight   - Height of the top pane (px or '%').
+ * @param {Function}                           props.onResponseViewerResize - Called with the new px height on resize stop.
+ * @param {{name: string, token: number}|null} props.tabRequest             - Programmatic tab navigation request from the parent (e.g. status-bar badge). `name` is the tab to focus; `token` is bumped on every click so re-clicking the same tab still re-keys the TabPanel and re-applies focus.
  */
 export function ResponseContent({
 	response,
@@ -31,7 +31,7 @@ export function ResponseContent({
 	extensionTabs,
 	responseViewerHeight,
 	onResponseViewerResize,
-	requestedTab,
+	tabRequest,
 }) {
 	const parsed = useMemo(() => {
 		if (!response) {
@@ -155,14 +155,16 @@ export function ResponseContent({
 				{renderViewer()}
 			</ResizableBox>
 			<TabPanel
-				// Re-key on `requestedTab` so the TabPanel honors any new
-				// programmatic navigation (e.g. clicking a status-bar
-				// badge) by remounting with the new initialTabName.
-				key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${requestedTab || ''}`}
+				// Re-key on the request token so every status-bar click
+				// (even repeated clicks targeting the same tab) remounts
+				// the TabPanel with the requested initialTabName. Without
+				// the token, a click while the requested tab is already
+				// active is a no-op state change.
+				key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${tabRequest?.token || ''}`}
 				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
 				tabs={bottomTabs}
 				initialTabName={
-					requestedTab ||
+					tabRequest?.name ||
 					(errors.length > 0 ? 'errors' : 'ext:tracing')
 				}
 			>
