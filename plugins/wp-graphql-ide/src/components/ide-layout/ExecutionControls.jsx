@@ -7,6 +7,7 @@ import {
 	NavigableMenu,
 	Tooltip,
 } from '@wordpress/components';
+import { Icon, chevronDown } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 
 const PlayIcon = (
@@ -33,11 +34,13 @@ const StopIcon = (
 	</svg>
 );
 
+const HTTP_METHODS = ['GET', 'POST'];
+
 /**
  * Controls anchored to the GraphQL editor's bottom-right corner:
- * HTTP method toggle (GET/POST), authentication avatar, and the
- * execute button — promoted to a dropdown when the document declares
- * more than one named operation so the user can pick which one to run.
+ * HTTP method dropdown, authentication-mode dropdown, and the execute
+ * button — promoted to a dropdown of operation names when the document
+ * declares more than one named operation.
  *
  * @param {Object}        props
  * @param {'GET'|'POST'}  props.httpMethod      - Active HTTP method.
@@ -49,7 +52,7 @@ const StopIcon = (
  * @param {boolean}       props.isFetching      - Whether a request is in flight (Stop icon).
  * @param {boolean}       props.isSchemaLoading - Disables the Execute button while the schema fetches.
  * @param {Function}      props.onExecute       - Called with an optional operation name; no-arg defaults to the first.
- * @param {boolean}       [props.canSwitchAuth] - Whether the auth toggle should render. False on the public endpoint for anonymous visitors (nothing to switch).
+ * @param {boolean}       [props.canSwitchAuth] - Whether the auth dropdown should render. False on the public endpoint for anonymous visitors (nothing to switch).
  */
 export function ExecutionControls({
 	httpMethod,
@@ -67,51 +70,99 @@ export function ExecutionControls({
 
 	return (
 		<div className="wpgraphql-ide-execution-pill">
-			<div
-				className="wpgraphql-ide-response-mode-toggle"
-				role="group"
-				aria-label="HTTP method"
-			>
-				{['GET', 'POST'].map((m) => (
-					<button
-						key={m}
-						type="button"
-						aria-pressed={httpMethod === m}
-						className={`wpgraphql-ide-response-mode-btn${httpMethod === m ? ' is-active' : ''}`}
-						onClick={() => onSetHttpMethod(m)}
-					>
-						{m}
-					</button>
-				))}
-			</div>
-			{canSwitchAuth && (
-				<Tooltip
-					text={
-						isAuthenticated
-							? 'Authenticated (click to switch)'
-							: 'Public (click to switch)'
-					}
-				>
-					<button
-						type="button"
-						onClick={onToggleAuth}
-						className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-						aria-label={
-							isAuthenticated
-								? 'Switch to public'
-								: 'Switch to authenticated'
-						}
-					>
-						<span
-							className={authStyles.authAvatar}
-							style={{
-								backgroundImage: `url(${avatarUrl || ''})`,
-							}}
+			<Dropdown
+				popoverProps={{ placement: 'top-end' }}
+				renderToggle={({ isOpen, onToggle }) => (
+					<Tooltip text="HTTP method">
+						<Button
+							onClick={onToggle}
+							aria-expanded={isOpen}
+							aria-haspopup="menu"
+							className="wpgraphql-ide-execution-method-btn"
+							size="compact"
 						>
-							<span className={authStyles.authBadge} />
-						</span>
-					</button>
-				</Tooltip>
+							{httpMethod}
+							<Icon icon={chevronDown} size={14} />
+						</Button>
+					</Tooltip>
+				)}
+				renderContent={({ onClose: closeMenu }) => (
+					<NavigableMenu>
+						<MenuGroup label="HTTP method">
+							{HTTP_METHODS.map((m) => (
+								<MenuItem
+									key={m}
+									isSelected={httpMethod === m}
+									onClick={() => {
+										onSetHttpMethod(m);
+										closeMenu();
+									}}
+								>
+									{m}
+								</MenuItem>
+							))}
+						</MenuGroup>
+					</NavigableMenu>
+				)}
+			/>
+			{canSwitchAuth && (
+				<Dropdown
+					popoverProps={{ placement: 'top-end' }}
+					renderToggle={({ isOpen, onToggle }) => (
+						<Tooltip
+							text={
+								isAuthenticated
+									? 'Sending as authenticated user'
+									: 'Sending as public visitor'
+							}
+						>
+							<Button
+								onClick={onToggle}
+								aria-expanded={isOpen}
+								aria-haspopup="menu"
+								className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+								aria-label="Authentication mode"
+							>
+								<span
+									className={authStyles.authAvatar}
+									style={{
+										backgroundImage: `url(${avatarUrl || ''})`,
+									}}
+								>
+									<span className={authStyles.authBadge} />
+								</span>
+							</Button>
+						</Tooltip>
+					)}
+					renderContent={({ onClose: closeMenu }) => (
+						<NavigableMenu>
+							<MenuGroup label="Send as">
+								<MenuItem
+									isSelected={isAuthenticated}
+									onClick={() => {
+										if (!isAuthenticated) {
+											onToggleAuth();
+										}
+										closeMenu();
+									}}
+								>
+									Authenticated user
+								</MenuItem>
+								<MenuItem
+									isSelected={!isAuthenticated}
+									onClick={() => {
+										if (isAuthenticated) {
+											onToggleAuth();
+										}
+										closeMenu();
+									}}
+								>
+									Public visitor
+								</MenuItem>
+							</MenuGroup>
+						</NavigableMenu>
+					)}
+				/>
 			)}
 			{showOpPicker ? (
 				<Dropdown
