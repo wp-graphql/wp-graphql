@@ -752,6 +752,24 @@ export function IDELayout({ fetcher, onClose }) {
 		onDragEnd: onPanelDragEnd,
 	} = usePanelOrder(unfilteredNavPanels);
 
+	// Activity-bar `visiblePanel` is store-backed and survives across
+	// renders independently of `navPanels`. In endpoint mode the
+	// denylisted panels are filtered out of the bar's icon list, but
+	// nothing closes a panel that was already visible from a prior
+	// session. Result: orphan rendering — the panel shows with no
+	// button to dismiss it. Force-close on mount when the visible
+	// panel name lands on the denylist.
+	useEffect(() => {
+		if (
+			endpointMode &&
+			visiblePanel &&
+			endpointPanelDenylist.has(visiblePanel.name)
+		) {
+			setVisiblePanel(null);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	// Query composer panel — rendered inline within the document/editor area.
 	const queryComposerPanel = panels.find((p) => p.name === 'query-composer');
 	const ComposerContent = queryComposerPanel?.content || null;
