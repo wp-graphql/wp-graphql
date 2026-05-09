@@ -350,9 +350,13 @@ export const initializeRegistry = () => {
 	// Built-in topbar actions — refresh-schema lives in the same
 	// registry as Settings so plugins can drop in alongside them.
 	//
-	// Easter egg: if the user mash-refreshes the schema (gap < 1.5s
-	// between clicks), surface a playful snackbar at preset milestones
-	// — same pattern as the play-button mash in ExecutionControls.
+	// Notice strategy: a single click fires the baseline "Schema
+	// refreshed" success notice. Mashing (gap < 1.5s) suppresses the
+	// baseline so the easter-egg milestones aren't drowned out by a
+	// stack of identical "Schema refreshed" snackbars; between
+	// milestones, the user just sees nothing — they're mash-clicking,
+	// and silence reads as "the system heard you, no further commentary
+	// needed." Errors always surface, regardless of mash state.
 	let schemaRefreshCount = 0;
 	let lastSchemaRefreshAt = 0;
 	const SCHEMA_REFRESH_RAPID_MS = 1500;
@@ -367,7 +371,7 @@ export const initializeRegistry = () => {
 		{
 			title: 'Re-fetch schema',
 			icon: () => <Icon icon={update} />,
-			onClick: ({ refetchSchema }) => {
+			onClick: async ({ refetchSchema }) => {
 				const now = Date.now();
 				if (now - lastSchemaRefreshAt < SCHEMA_REFRESH_RAPID_MS) {
 					schemaRefreshCount += 1;
@@ -375,11 +379,32 @@ export const initializeRegistry = () => {
 					schemaRefreshCount = 1;
 				}
 				lastSchemaRefreshAt = now;
-				const message = SCHEMA_REFRESH_MILESTONES[schemaRefreshCount];
-				if (message) {
-					hooks.doAction('wpgraphql-ide.notice', message, 'default');
+				const milestone = SCHEMA_REFRESH_MILESTONES[schemaRefreshCount];
+				if (milestone) {
+					hooks.doAction(
+						'wpgraphql-ide.notice',
+						milestone,
+						'default'
+					);
 				}
-				refetchSchema?.();
+
+				const result = await refetchSchema?.();
+
+				if (result && !result.ok) {
+					hooks.doAction(
+						'wpgraphql-ide.notice',
+						`Failed to refresh schema: ${
+							result?.error?.message ?? 'Unknown error'
+						}`,
+						'error'
+					);
+				} else if (schemaRefreshCount === 1) {
+					hooks.doAction(
+						'wpgraphql-ide.notice',
+						'Schema refreshed',
+						'default'
+					);
+				}
 			},
 			isDisabled: ({ isSchemaLoading }) => !!isSchemaLoading,
 			className: ({ isSchemaLoading }) =>

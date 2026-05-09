@@ -867,19 +867,13 @@ export function IDELayout({ fetcher, onClose }) {
 				onSidebarToggle={handleSidebarToggle}
 				topbarCtx={{
 					isSchemaLoading,
-					refetchSchema: async () => {
-						const result = await refetch();
-						if (result?.ok) {
-							addNotice('Schema refreshed');
-						} else {
-							addNotice(
-								`Failed to refresh schema: ${
-									result?.error?.message ?? 'Unknown error'
-								}`,
-								'error'
-							);
-						}
-					},
+					// Returns the refetch result so the topbar action's onClick
+					// (registry/index.js) can decide which user-facing notice
+					// to fire. Centralising notice emission there lets the
+					// schema-refresh-mash easter egg suppress the baseline
+					// "Schema refreshed" snackbar in mash mode without this
+					// callback having to know about the easter-egg counter.
+					refetchSchema: () => refetch(),
 				}}
 				topbarActions={endpointMode ? [] : topbarActions}
 				signInUrl={
