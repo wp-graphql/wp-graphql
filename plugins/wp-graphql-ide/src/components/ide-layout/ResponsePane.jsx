@@ -9,11 +9,6 @@ import { useSelect } from '@wordpress/data';
 import { moreVertical } from '@wordpress/icons';
 import { ResponseContent } from './ResponseContent';
 
-const VIEW_MODES = [
-	{ value: 'formatted', label: 'JSON' },
-	{ value: 'table', label: 'Table' },
-];
-
 /**
  * Right side of the editor split: response header (data-scope kebab,
  * status / duration / size meta, JSON/Table view toggle) plus the
@@ -59,6 +54,10 @@ export function ResponsePane({
 
 	const statusBarItems = useSelect(
 		(s) => s('wpgraphql-ide/status-bar-items').statusBarItems(),
+		[]
+	);
+	const viewModes = useSelect(
+		(s) => s('wpgraphql-ide/response-view-modes').responseViewModes(),
 		[]
 	);
 
@@ -143,15 +142,15 @@ export function ResponsePane({
 					role="group"
 					aria-label="View format"
 				>
-					{VIEW_MODES.map((opt) => (
+					{viewModes.map((mode) => (
 						<button
-							key={opt.value}
+							key={mode.value}
 							type="button"
-							aria-pressed={responseViewMode === opt.value}
-							className={`wpgraphql-ide-response-mode-btn${responseViewMode === opt.value ? ' is-active' : ''}`}
-							onClick={() => onSetViewMode(opt.value)}
+							aria-pressed={responseViewMode === mode.value}
+							className={`wpgraphql-ide-response-mode-btn${responseViewMode === mode.value ? ' is-active' : ''}`}
+							onClick={() => onSetViewMode(mode.value)}
 						>
-							{opt.label}
+							{mode.label}
 						</button>
 					))}
 				</div>

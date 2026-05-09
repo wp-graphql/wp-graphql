@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { ResizableBox } from '@wordpress/components';
-import { ResponseViewer } from '../editors/ResponseViewer';
-import { ResponseTableView } from '../ResponseTableView';
+import { useSelect } from '@wordpress/data';
 import { useResizeReporter } from '../ResizeOverlay';
 import { OverflowTabs } from '../OverflowTabs';
 
@@ -97,20 +96,25 @@ export function ResponseContent({
 	const reporter = useResizeReporter('Response viewer');
 	const tabsReporter = useResizeReporter('Response tabs');
 
+	const viewModes = useSelect(
+		(s) => s('wpgraphql-ide/response-view-modes').responseViewModes(),
+		[]
+	);
+	const activeMode =
+		viewModes.find((m) => m.value === responseViewMode) || viewModes[0];
+
 	const renderViewer = () => {
 		if (!response) {
 			return <div className="wpgraphql-ide-response-empty" />;
 		}
-		if (responseViewMode === 'table') {
-			return (
-				<ResponseTableView
-					response={
-						responseDataScope === 'data' ? parsed?.data : parsed
-					}
-				/>
-			);
-		}
-		return <ResponseViewer value={viewerContent} />;
+		return activeMode
+			? activeMode.render({
+					response,
+					parsed,
+					dataScope: responseDataScope,
+					viewerContent,
+				})
+			: null;
 	};
 
 	if (!response) {

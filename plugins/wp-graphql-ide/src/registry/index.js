@@ -3,6 +3,7 @@ import {
 	registerActivityBarPanel,
 	registerEditorBottomTab,
 	registerResponseExtensionTab,
+	registerResponseViewMode,
 	registerStatusBarItem,
 	registerTopbarAction,
 	registerWorkspaceTabType,
@@ -40,6 +41,10 @@ import {
 	ResolverCountItem,
 	NPlusOneItem,
 } from '../components/status-bar-items/built-in-items';
+import {
+	FormattedViewMode,
+	TableViewMode,
+} from '../components/response-view-modes/built-in-modes';
 
 export const initializeRegistry = () => {
 	registerEditorToolbarButtons();
@@ -189,6 +194,25 @@ export const initializeRegistry = () => {
 		'n-plus-one',
 		{ render: (ctx) => <NPlusOneItem {...ctx} /> },
 		50
+	);
+
+	// Built-in response view modes (JSON / Table). Same registry plugins
+	// can drop into for additional viewers (Diff, Schema-aware, Raw, etc.).
+	registerResponseViewMode(
+		'formatted',
+		{
+			label: 'JSON',
+			render: (ctx) => <FormattedViewMode {...ctx} />,
+		},
+		10
+	);
+	registerResponseViewMode(
+		'table',
+		{
+			label: 'Table',
+			render: (ctx) => <TableViewMode {...ctx} />,
+		},
+		20
 	);
 
 	// Built-in "Settings" workspace tab — opened from the topbar settings

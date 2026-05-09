@@ -6,6 +6,7 @@ import { store as activityBarStore } from './activity-bar';
 import { store as responseExtensionsStore } from './response-extensions';
 import { store as editorBottomTabsStore } from './editor-bottom-tabs';
 import { store as statusBarItemsStore } from './status-bar-items';
+import { store as responseViewModesStore } from './response-view-modes';
 
 export function registerStores() {
 	register(appStore);
@@ -14,4 +15,5 @@ export function registerStores() {
 	register(responseExtensionsStore);
 	register(editorBottomTabsStore);
 	register(statusBarItemsStore);
+	register(responseViewModesStore);
 }

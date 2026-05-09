@@ -210,6 +210,49 @@ export function registerStatusBarItem(name, config, priority = 10) {
 }
 
 /**
+ * Register a response viewer mode (the JSON / Table / etc. toggle in the
+ * response toolbar). Each mode owns both the toggle button label and the
+ * top-pane content when it's active.
+ *
+ * The `render` callback receives:
+ *   { response, parsed, dataScope, viewerContent }
+ * where `viewerContent` is the pre-formatted string the JSON viewer
+ * uses (already filtered by data-scope).
+ *
+ * @param {string}   value         Unique mode value (e.g. "formatted", "table").
+ * @param {Object}   config        Mode configuration.
+ * @param {string}   config.label  Toggle-button label.
+ * @param {Function} config.render Render callback returning a ReactNode.
+ * @param {number}   [priority=10] Lower values render first (left-to-right).
+ *
+ * @return {void}
+ */
+export function registerResponseViewMode(value, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/response-view-modes').registerResponseViewMode(
+			value,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterResponseViewMode',
+			value,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register response view mode: ${value}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerResponseViewModeError',
+			value,
+			config,
+			priority,
+			error
+		);
+	}
+}
+
+/**
  * Register a workspace tab type with a content renderer.
  *
  * Once registered, the tab type can be opened with `openWorkspaceTab`.
