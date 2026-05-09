@@ -182,7 +182,7 @@ export function DocumentTabs({
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
 						draggable={editingId !== tab.id}
-						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${tab.dirty ? ' is-dirty' : ''}${dragId === tab.id ? ' is-dragging' : ''}${dropTarget?.id === tab.id && dropTarget?.position === 'before' ? ' is-drop-before' : ''}${dropTarget?.id === tab.id && dropTarget?.position === 'after' ? ' is-drop-after' : ''}`}
+						className={`wpgraphql-ide-tab${isActive ? ' is-active' : ''}${tab.dirty ? ' is-dirty' : ''}${tab.temp ? ' is-temp' : ''}${dragId === tab.id ? ' is-dragging' : ''}${dropTarget?.id === tab.id && dropTarget?.position === 'before' ? ' is-drop-before' : ''}${dropTarget?.id === tab.id && dropTarget?.position === 'after' ? ' is-drop-after' : ''}`}
 						onClick={() => onSwitch(String(tab.id))}
 						onDragStart={(e) => {
 							setDragId(String(tab.id));

@@ -16,6 +16,7 @@ import { DocumentSettingsDrawer } from '../document-settings/DocumentSettingsDra
 import { EditorToolbar } from '../EditorToolbar';
 import { ExecutionControls } from './ExecutionControls';
 import { LeftPanel } from './LeftPanel';
+import { useResizeReporter } from '../ResizeOverlay';
 
 /**
  * Minimum px height we'll allow the editor to be persisted at. Recovers
@@ -107,12 +108,21 @@ export function EditorPane({
 	const hasLeftPanel =
 		(hasComposer && showQueryComposer) || showDocSettingsPanel;
 
+	const queryPaneReporter = useResizeReporter('Query pane');
+	const editorAreaReporter = useResizeReporter('Editor');
+	const bottomToolsReporter = useResizeReporter('Variables / Headers');
+
 	return (
 		<ResizableBox
 			size={{ width: queryPaneWidth, height: 'auto' }}
 			minWidth={hasComposer && showQueryComposer ? 480 : 280}
 			enable={{ right: true }}
-			onResizeStop={(e, d, elt) => onSetQueryPaneWidth(elt.offsetWidth)}
+			onResizeStart={queryPaneReporter.reportStart}
+			onResize={queryPaneReporter.reportResize}
+			onResizeStop={(e, d, elt) => {
+				queryPaneReporter.reportStop();
+				onSetQueryPaneWidth(elt.offsetWidth);
+			}}
 			className="wpgraphql-ide-query-pane"
 		>
 			<div className="wpgraphql-ide-editor-toolbar">
@@ -218,14 +228,26 @@ export function EditorPane({
 				<div className="wpgraphql-ide-editor-toolbar-spacer" />
 				{!endpointMode && !isPublished && (
 					<>
-						<Button
-							onClick={onSave}
-							disabled={!activeDocDirty}
-							size="compact"
-							className={`wpgraphql-ide-save-button${activeDocDirty ? ' is-dirty' : ''}`}
-						>
-							Save draft
-						</Button>
+						{(() => {
+							// Temp drafts have never been saved to the
+							// server — Save must be reachable regardless of
+							// the dirty bullet (which is suppressed for
+							// autopersisted temps).
+							const isTemp =
+								!!activeDocument?.id &&
+								isTempId(activeDocument.id);
+							const canSave = activeDocDirty || isTemp;
+							return (
+								<Button
+									onClick={onSave}
+									disabled={!canSave}
+									size="compact"
+									className={`wpgraphql-ide-save-button${canSave ? ' is-dirty' : ''}`}
+								>
+									Save draft
+								</Button>
+							);
+						})()}
 						{isSavedDraft && query?.trim() && (
 							<Tooltip
 								text={
@@ -252,11 +274,15 @@ export function EditorPane({
 				size={{ width: '100%', height: editorHeight }}
 				minHeight={MIN_EDITOR_HEIGHT_PX}
 				enable={{ bottom: true }}
-				onResizeStop={(e, d, elt) =>
-					onSetEditorHeight(elt.offsetHeight)
-				}
+				onResizeStart={editorAreaReporter.reportStart}
+				onResize={editorAreaReporter.reportResize}
+				onResizeStop={(e, d, elt) => {
+					editorAreaReporter.reportStop();
+					onSetEditorHeight(elt.offsetHeight);
+				}}
 				className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${hasLeftPanel ? ' has-left-panel' : ''}`}
 			>
+				{editorAreaReporter.indicator}
 				{/* Mounted inside the ResizableBox so its height is borrowed
 				    from the editor area, not added above it — keeps the bottom
 				    Variables/Headers panel anchored to the same position
@@ -327,29 +353,32 @@ export function EditorPane({
 					/>
 				</div>
 			</ResizableBox>
-			<TabPanel
-				className="wpgraphql-ide-editor-tools"
-				tabs={editorBottomTabs}
-			>
-				{(tab) =>
-					tab.name === 'variables' ? (
-						<JSONEditor
-							key="variables"
-							value={variables}
-							onChange={onVariablesChange}
-							placeholder="Variables (JSON)"
-							variableToType={variableToType}
-						/>
-					) : (
-						<JSONEditor
-							key="headers"
-							value={headers}
-							onChange={onHeadersChange}
-							placeholder="Headers (JSON)"
-						/>
-					)
-				}
-			</TabPanel>
+			<div className="wpgraphql-ide-editor-bottom">
+				{bottomToolsReporter.indicator}
+				<TabPanel
+					className="wpgraphql-ide-editor-tools"
+					tabs={editorBottomTabs}
+				>
+					{(tab) =>
+						tab.name === 'variables' ? (
+							<JSONEditor
+								key="variables"
+								value={variables}
+								onChange={onVariablesChange}
+								placeholder="Variables (JSON)"
+								variableToType={variableToType}
+							/>
+						) : (
+							<JSONEditor
+								key="headers"
+								value={headers}
+								onChange={onHeadersChange}
+								placeholder="Headers (JSON)"
+							/>
+						)
+					}
+				</TabPanel>
+			</div>
 		</ResizableBox>
 	);
 }

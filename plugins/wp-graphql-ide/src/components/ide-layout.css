@@ -435,6 +435,9 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	background: #fff;
 	border-bottom: 1px solid #dcdcde;
 	flex-shrink: 0;
+	/* Hold tab-row height when no tabs are open so the strip doesn't
+	   collapse to the size of the `+` button. */
+	min-height: 36px;
 }
 
 /* Document notices — wraps a stock @wordpress/components Notice so the
@@ -672,7 +675,8 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-shrink: 0;
 }
 
-.wpgraphql-ide-tab.is-dirty .wpgraphql-ide-tab-label {
+.wpgraphql-ide-tab.is-dirty .wpgraphql-ide-tab-label,
+.wpgraphql-ide-tab.is-temp .wpgraphql-ide-tab-label {
 	font-style: italic;
 }
 
@@ -1972,6 +1976,55 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-container .components-resizable-box__side-handle::before,
 .wpgraphql-ide-container .components-resizable-box__side-handle::after {
 	display: none !important;
+}
+
+/* Drag-time dimensions pill — anchored to its own pane's top-right.
+   Hidden by default; `.is-active` reveals it during any drag. */
+.wpgraphql-ide-resize-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 100;
+	display: none;
+	padding: 3px 8px;
+	background: rgba(255, 255, 255, 0.85);
+	color: #1e1e1e;
+	font-size: 11px;
+	line-height: 1.4;
+	font-weight: 600;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", sans-serif;
+	font-variant-numeric: tabular-nums;
+	pointer-events: none;
+	user-select: none;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-resize-overlay.is-active {
+	display: inline-block;
+}
+
+/* Containers that aren't ResizableBoxes themselves but still host an
+   indicator — give them a positioning context so the pill anchors,
+   and let them fill the remaining flex space so the pill measures the
+   *visible* pane (not just the inner tab strip). */
+.wpgraphql-ide-response-body--empty {
+	position: relative;
+}
+.wpgraphql-ide-response-tabs-wrap,
+.wpgraphql-ide-editor-bottom {
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+.wpgraphql-ide-response-tabs-wrap > .components-tab-panel,
+.wpgraphql-ide-editor-bottom > .components-tab-panel {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,

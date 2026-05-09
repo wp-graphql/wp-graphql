@@ -31,6 +31,7 @@ import { readDevicePreference, setPreference } from '../api/preferences';
 import { endpointMode, isUserLoggedIn, loginUrl } from '../bootstrap';
 import { getWorkspacePersistence } from './workspace-persistence';
 import { displayDocTitle } from '../utils/derive-doc-title';
+import { WELCOME_QUERY } from '../stores/document-editor/welcome-query';
 
 /**
  * Main IDE layout component.
@@ -343,7 +344,7 @@ export function IDELayout({ fetcher, onClose }) {
 				openTabsRef.current &&
 				openTabsRef.current.length === 0
 			) {
-				createTab('');
+				createTab('', WELCOME_QUERY);
 			}
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -918,50 +919,42 @@ export function IDELayout({ fetcher, onClose }) {
 				{/* Collapsible side panel — global, shows active panel content */}
 				<ActivityPanel />
 
-				{/* Editor area: tabs + editors are document-scoped */}
 				<div className="wpgraphql-ide-editor-area">
+					<div className="wpgraphql-ide-tab-row">
+						<DocumentTabs
+							tabs={openTabs
+								.map((tabId) =>
+									allDocuments.find(
+										(d) => String(d.id) === String(tabId)
+									)
+								)
+								.filter(Boolean)
+								.map((doc) => ({
+									id: doc.id,
+									title: displayDocTitle(doc),
+									dirty: isDocDirty(doc),
+									// Italic title mirrors the saved-queries
+									// "Unsaved" group — temp drafts aren't
+									// on the server yet.
+									temp:
+										!doc.tabType &&
+										String(doc.id).startsWith('temp-'),
+								}))}
+							activeId={activeDocument?.id}
+							onSwitch={(id) => switchTab(id)}
+							onClose={(id) => handleCloseTab(id)}
+							onCreate={() => createTab('')}
+							onRename={(id, title) => {
+								saveDocument(id, { title });
+							}}
+							onReorder={(ids) => reorderTabs(ids)}
+						/>
+					</div>
+
 					{openTabs.length === 0 ? (
-						<WorkspaceEmpty onCreate={() => createTab('')} />
+						<WorkspaceEmpty />
 					) : (
 						<>
-							<div className="wpgraphql-ide-tab-row">
-								<DocumentTabs
-									tabs={openTabs
-										.map((tabId) =>
-											allDocuments.find(
-												(d) =>
-													String(d.id) ===
-													String(tabId)
-											)
-										)
-										.filter(Boolean)
-										.map((doc) => ({
-											id: doc.id,
-											title: displayDocTitle(doc),
-											// Bullet means "you have unsaved
-											// changes" plus, on admin only,
-											// "this is a temp draft" — that
-											// fallback is gated to surfaces
-											// where Save is reachable.
-											dirty:
-												isDocDirty(doc) ||
-												(!endpointMode &&
-													!doc.tabType &&
-													String(doc.id).startsWith(
-														'temp-'
-													)),
-										}))}
-									activeId={activeDocument?.id}
-									onSwitch={(id) => switchTab(id)}
-									onClose={(id) => handleCloseTab(id)}
-									onCreate={() => createTab('')}
-									onRename={(id, title) => {
-										saveDocument(id, { title });
-									}}
-									onReorder={(ids) => reorderTabs(ids)}
-								/>
-							</div>
-
 							{activeTabType &&
 							activeTabType !== 'query-editor' &&
 							tabTypes[activeTabType] ? (
