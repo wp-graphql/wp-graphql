@@ -1906,7 +1906,10 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	flex-direction: column;
 	min-width: 200px;
-	max-width: calc(100% - 300px);
+	/* Pair with .wpgraphql-ide-response-pane min-width — dragging the
+	   editor's right edge can never push the response below its 440px
+	   floor. */
+	max-width: calc(100% - 440px);
 	border-right: 1px solid #dcdcde;
 	position: relative;
 	overflow: hidden;
