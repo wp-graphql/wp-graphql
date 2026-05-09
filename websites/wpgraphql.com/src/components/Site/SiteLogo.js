@@ -10,7 +10,7 @@ export default function SiteLogo({
   size,
   markOnly,
   variant = "default",
-  subLabel = "for WordPress",
+  subLabel,
   className,
 }) {
   const resolvedSize = size ?? width ?? height ?? 40
