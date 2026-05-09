@@ -1,4 +1,5 @@
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
+import hooks from '../wordpress-hooks';
 import {
 	registerActivityBarPanel,
 	registerDocumentTabAction,
@@ -348,12 +349,38 @@ export const initializeRegistry = () => {
 
 	// Built-in topbar actions — refresh-schema lives in the same
 	// registry as Settings so plugins can drop in alongside them.
+	//
+	// Easter egg: if the user mash-refreshes the schema (gap < 1.5s
+	// between clicks), surface a playful snackbar at preset milestones
+	// — same pattern as the play-button mash in ExecutionControls.
+	let schemaRefreshCount = 0;
+	let lastSchemaRefreshAt = 0;
+	const SCHEMA_REFRESH_RAPID_MS = 1500;
+	const SCHEMA_REFRESH_MILESTONES = {
+		3: "Refreshing again? It hasn't changed since 0.5s ago.",
+		5: 'Trust the cache.',
+		8: 'The schema is doing its best.',
+		12: 'Your schema is fine, I promise.',
+	};
 	registerTopbarAction(
 		'refresh-schema',
 		{
 			title: 'Re-fetch schema',
 			icon: () => <Icon icon={update} />,
-			onClick: ({ refetchSchema }) => refetchSchema?.(),
+			onClick: ({ refetchSchema }) => {
+				const now = Date.now();
+				if (now - lastSchemaRefreshAt < SCHEMA_REFRESH_RAPID_MS) {
+					schemaRefreshCount += 1;
+				} else {
+					schemaRefreshCount = 1;
+				}
+				lastSchemaRefreshAt = now;
+				const message = SCHEMA_REFRESH_MILESTONES[schemaRefreshCount];
+				if (message) {
+					hooks.doAction('wpgraphql-ide.notice', message, 'default');
+				}
+				refetchSchema?.();
+			},
 			isDisabled: ({ isSchemaLoading }) => !!isSchemaLoading,
 			className: ({ isSchemaLoading }) =>
 				isSchemaLoading ? 'is-loading' : '',

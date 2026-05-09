@@ -11,11 +11,12 @@ import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../../wordpress-hooks';
 
-// --- Play-button easter egg ---------------------------------------------
-// If the user mash-clicks the play button (gap < 1.5s between clicks),
-// we count consecutive presses and fire a playful snackbar at preset
-// milestones via the IDE's `wpgraphql-ide.notice` hook bus — the same
-// channel `useNotices` listens on for the SnackbarList renderer.
+// --- Play-button easter eggs --------------------------------------------
+// All easter-egg snackbars fire through the IDE's `wpgraphql-ide.notice`
+// hook bus — the same channel `useNotices` listens on for SnackbarList.
+//
+// Mash detection: count consecutive play-button presses with < 1.5s
+// between them; pause longer than that → counter resets.
 const PLAY_RAPID_WINDOW_MS = 1500;
 const PLAY_MILESTONES = {
 	5: 'Whoa there, speedy.',
@@ -24,6 +25,18 @@ const PLAY_MILESTONES = {
 	20: "OK now you're just showing off.",
 	30: 'Have you tried Cmd+Enter? Just saying.',
 };
+
+// Empty-query execute: server returns "Syntax Error: Unexpected EOF"
+// for an empty body — replace that with something kinder. Cycle through
+// the quips in order so a user testing this twice in a row still gets
+// variety.
+const EMPTY_QUERY_QUIPS = [
+	'Profound. Also empty.',
+	'Quiet contemplation. The server expects fields, though.',
+	"You can't query nothing. Or can you?",
+	'The empty query: simple, elegant, useless.',
+];
+let emptyQueryQuipIndex = 0;
 
 /**
  * Renders a select-style menu (single-choice). Auto-focuses the
@@ -117,6 +130,7 @@ const HTTP_METHODS = ['GET', 'POST'];
  * declares more than one named operation.
  *
  * @param {Object}        props
+ * @param {string}        [props.query]         - Current query text. Used for the empty-query easter egg; not required for execution itself.
  * @param {'GET'|'POST'}  props.httpMethod      - Active HTTP method.
  * @param {Function}      props.onSetHttpMethod - Setter for `httpMethod`.
  * @param {boolean}       props.isAuthenticated - Whether requests carry the user's nonce.
@@ -129,6 +143,7 @@ const HTTP_METHODS = ['GET', 'POST'];
  * @param {boolean}       [props.canSwitchAuth] - Whether the auth dropdown should render. False on the public endpoint for anonymous visitors (nothing to switch).
  */
 export function ExecutionControls({
+	query,
 	httpMethod,
 	onSetHttpMethod,
 	isAuthenticated,
@@ -146,6 +161,19 @@ export function ExecutionControls({
 	const lastPlayAtRef = useRef(0);
 	const handleExecute = useCallback(
 		(opName) => {
+			// Empty-query easter egg: short-circuit before the request
+			// fires so the user gets a friendly snackbar instead of a
+			// "Syntax Error: Unexpected EOF" from the server.
+			if (!query || !query.trim()) {
+				const quip =
+					EMPTY_QUERY_QUIPS[
+						emptyQueryQuipIndex % EMPTY_QUERY_QUIPS.length
+					];
+				emptyQueryQuipIndex += 1;
+				hooks.doAction('wpgraphql-ide.notice', quip, 'default');
+				return;
+			}
+
 			const now = Date.now();
 			if (now - lastPlayAtRef.current < PLAY_RAPID_WINDOW_MS) {
 				playCountRef.current += 1;
@@ -161,7 +189,7 @@ export function ExecutionControls({
 
 			onExecute(opName);
 		},
-		[onExecute]
+		[query, onExecute]
 	);
 
 	return (

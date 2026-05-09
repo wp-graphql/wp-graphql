@@ -378,6 +378,7 @@ export function EditorPane({
 						onJumpApplied={onJumpApplied}
 					/>
 					<ExecutionControls
+						query={query}
 						httpMethod={httpMethod}
 						onSetHttpMethod={onSetHttpMethod}
 						isAuthenticated={isAuthenticated}
