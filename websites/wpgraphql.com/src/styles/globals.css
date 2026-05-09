@@ -634,3 +634,50 @@
     padding: 0.25rem 0.4rem;
   }
 }
+
+/* ============================================================
+   MOCK IDE — homepage demo component (MockIDE.js). Theme-aware:
+   dark surface in dark mode, light surface in light mode, with
+   syntax token colours per mode.
+   ============================================================ */
+:root {
+  --ide-bg:            222 45% 10%; /* navy-900 */
+  --ide-header-bg:     222 42% 15%; /* navy-800 */
+  --ide-pane-bg:       222 47% 9%;  /* navy-950-ish */
+  --ide-border:        224 43% 21%; /* navy-700 */
+  --ide-text:          220 60% 97%;
+  --ide-muted:         219 26% 57%; /* navy-300 */
+  --ide-tok-key:       216 100% 75%; /* #82AAFF light blue */
+  --ide-tok-str:       35 70% 73%;   /* #ECC48D warm tan */
+  --ide-tok-num:       18 90% 70%;
+  --ide-tok-kw:        271 65% 75%;  /* purple */
+  --ide-tok-punc:      215 16% 47%;  /* muted slate */
+}
+
+.light {
+  --ide-bg:            220 35% 98%;
+  --ide-header-bg:     220 30% 94%;
+  --ide-pane-bg:       220 30% 97%;
+  --ide-border:        219 23% 82%;
+  --ide-text:          222 47% 8%;
+  --ide-muted:         220 31% 42%;
+  --ide-tok-key:       212 100% 35%; /* GitHub blue */
+  --ide-tok-str:       222 90% 25%;  /* GitHub deep blue (strings) */
+  --ide-tok-num:       19 90% 35%;
+  --ide-tok-kw:        271 65% 35%;
+  --ide-tok-punc:      215 16% 35%;
+}
+
+.ide-bg            { background-color: hsl(var(--ide-bg)); }
+.ide-header-bg     { background-color: hsl(var(--ide-header-bg)); }
+.ide-pane-bg       { background-color: hsl(var(--ide-pane-bg)); }
+.ide-border        { border-color: hsl(var(--ide-border)); }
+.ide-divide > * + * { border-color: hsl(var(--ide-border)); }
+.ide-text          { color: hsl(var(--ide-text)); }
+.ide-muted         { color: hsl(var(--ide-muted)); }
+.ide-tok-key       { color: hsl(var(--ide-tok-key)); }
+.ide-tok-str       { color: hsl(var(--ide-tok-str)); }
+.ide-tok-num       { color: hsl(var(--ide-tok-num)); }
+.ide-tok-kw        { color: hsl(var(--ide-tok-kw)); }
+.ide-tok-punc      { color: hsl(var(--ide-tok-punc)); }
+.ide-tok-cmt       { color: hsl(var(--ide-muted)); font-style: italic; }

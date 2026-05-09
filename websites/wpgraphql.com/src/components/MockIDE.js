@@ -1,8 +1,11 @@
 /**
- * Renders a miniature, always-dark "GraphiQL"-style IDE with a Query pane on
+ * Renders a miniature, theme-aware "GraphiQL"-style IDE with a Query pane on
  * the left and a Response pane on the right. Used on the homepage to
  * illustrate WPGraphQL in action — replaces flat screenshot PNGs with a
  * crisper, scalable mock that reads at any size.
+ *
+ * Colours come from the `.ide-*` semantic classes defined in globals.css,
+ * which swap between dark and light values via the `.light` override.
  *
  * Pass `query` and `response` as React children. Use the exported `Tok`
  * helper to syntax-tint individual tokens. Whitespace + newlines in the
@@ -10,18 +13,12 @@
  */
 
 const TOKEN_CLASSES = {
-  // Field names / JSON object keys (warm blue, like Night Owl's ":methods")
-  key:  "text-[#82AAFF]",
-  // Strings (warm tan)
-  str:  "text-[#ECC48D]",
-  // Numbers / dates
-  num:  "text-[#F78C6C]",
-  // Keywords (true / false / null / GraphQL `query`)
-  kw:   "text-[#C792EA]",
-  // Punctuation: braces, brackets, commas, colons
-  punc: "text-[#637777]",
-  // Comments / muted hints
-  cmt:  "text-[#637777] italic",
+  key:  "ide-tok-key",
+  str:  "ide-tok-str",
+  num:  "ide-tok-num",
+  kw:   "ide-tok-kw",
+  punc: "ide-tok-punc",
+  cmt:  "ide-tok-cmt",
 }
 
 export function Tok({ kind = "key", children }) {
@@ -30,7 +27,7 @@ export function Tok({ kind = "key", children }) {
 
 function PaneHeader({ children }) {
   return (
-    <div className="border-b border-[#1E2D50] bg-[#0A0F1E]/60 px-4 py-2 font-mono text-[0.6rem] font-medium uppercase tracking-widest text-[#7189B0]">
+    <div className="ide-pane-bg ide-muted border-b ide-border px-4 py-2 text-left font-mono text-[0.6rem] font-medium uppercase tracking-widest">
       {children}
     </div>
   )
@@ -44,33 +41,33 @@ export default function MockIDE({
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-xl border border-[#1E2D50] bg-[#0E1628] shadow-elev-lg ${className}`}
+      className={`ide-bg ide-text overflow-hidden rounded-xl border ide-border text-left shadow-elev-lg ${className}`}
       role="img"
       aria-label="Mock GraphQL IDE showing a query and its response"
     >
       {/* Window chrome */}
-      <div className="flex items-center justify-between border-b border-[#1E2D50] bg-[#162039] px-4 py-2.5">
+      <div className="ide-header-bg flex items-center justify-between border-b ide-border px-4 py-2.5">
         <div className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#FF5F57]" />
           <span className="size-2.5 rounded-full bg-[#FEBC2E]" />
           <span className="size-2.5 rounded-full bg-[#28C840]" />
         </div>
-        <span className="font-mono text-[0.65rem] font-medium uppercase tracking-widest text-[#7189B0]">
+        <span className="ide-muted font-mono text-[0.65rem] font-medium uppercase tracking-widest">
           {label}
         </span>
       </div>
 
       {/* Two-pane body — stacks on mobile, side-by-side on sm+ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 divide-y divide-[#1E2D50] sm:divide-y-0 sm:divide-x">
+      <div className="ide-divide grid grid-cols-1 sm:grid-cols-2 [&>*+*]:border-t sm:[&>*+*]:border-t-0 sm:[&>*+*]:border-l">
         <section>
           <PaneHeader>Query</PaneHeader>
-          <pre className="overflow-x-auto px-4 py-4 font-mono text-[0.8rem] leading-relaxed text-[#D6DEEB]">
+          <pre className="overflow-x-auto px-4 py-4 text-left font-mono text-[0.8rem] leading-relaxed">
             {query}
           </pre>
         </section>
         <section>
           <PaneHeader>Response</PaneHeader>
-          <pre className="overflow-x-auto px-4 py-4 font-mono text-[0.8rem] leading-relaxed text-[#D6DEEB]">
+          <pre className="overflow-x-auto px-4 py-4 text-left font-mono text-[0.8rem] leading-relaxed">
             {response}
           </pre>
         </section>
