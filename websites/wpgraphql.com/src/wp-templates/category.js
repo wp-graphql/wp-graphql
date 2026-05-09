@@ -19,10 +19,10 @@ export default function Category({ data }) {
     <SiteLayout>
       <main className="content px-6 max-w-lg mx-auto md:max-w-5xl mb-10">
         <div className="space-y-2 pt-6 pb-8 md:space-y-5">
-          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-navy dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+          <h1 className="text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
             Category: {category?.name ?? null}
           </h1>
-          <p className="text-lg leading-7 text-navy dark:text-white">
+          <p className="text-lg leading-7 text-muted-foreground">
             {category?.description ?? null}
           </p>
         </div>
