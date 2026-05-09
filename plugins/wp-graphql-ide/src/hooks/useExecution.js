@@ -2,6 +2,56 @@ import { useCallback, useRef } from 'react';
 import { parse as parseGraphQL } from 'graphql';
 import { useDispatch, useSelect } from '@wordpress/data';
 
+const NO_OPERATION_MESSAGE =
+	'No operation to execute. Type a GraphQL query, mutation, or subscription and run again.';
+
+/**
+ * Pure validator: classify a query string as runnable or not, with a
+ * user-facing message for the non-runnable cases. Extracted so the
+ * decision tree is testable without spinning up a hook + Redux store.
+ *
+ * Returns one of:
+ * - `{ runnable: true }`
+ * - `{ runnable: false, message: string }`
+ *
+ * Cases:
+ * 1. Empty editor or comments-only doc → friendly "no operation" message.
+ *    Comments-only has to be handled *before* parse: the GraphQL parser
+ *    throws `Unexpected <EOF>` because it expected at least one
+ *    definition, and we want the friendly message rather than the raw
+ *    parser error.
+ * 2. Parses but contains zero `OperationDefinition` nodes (e.g.
+ *    fragment-only) → same friendly message.
+ * 3. Parser throws on actually-malformed input → surface the parse
+ *    error message verbatim.
+ *
+ * @param {string} query
+ * @return {{ runnable: true } | { runnable: false, message: string }}
+ */
+export function validateExecutableQuery(query) {
+	const stripped = String(query || '')
+		.replace(/^\s*#.*$/gm, '')
+		.trim();
+	if (stripped === '') {
+		return { runnable: false, message: NO_OPERATION_MESSAGE };
+	}
+	try {
+		const ast = parseGraphQL(query);
+		const ops = ast.definitions.filter(
+			(d) => d.kind === 'OperationDefinition'
+		);
+		if (ops.length === 0) {
+			return { runnable: false, message: NO_OPERATION_MESSAGE };
+		}
+		return { runnable: true };
+	} catch (error) {
+		return {
+			runnable: false,
+			message: `Query parse error: ${error.message}`,
+		};
+	}
+}
+
 /**
  * Manages GraphQL query execution state.
  *
@@ -50,70 +100,14 @@ export function useExecution(fetcher, options = {}) {
 			const controller = new AbortController();
 			abortControllerRef.current = controller;
 
-			// Short-circuit when the document has no operation to run.
-			// Three cases need the same friendly response:
-			//   1. Empty editor.
-			//   2. Comments-only doc (the welcome boilerplate is the
-			//      common one) — the GraphQL parser throws
-			//      `Unexpected <EOF>` here because it expected at least
-			//      one definition, so this case has to be detected
-			//      *before* calling parse.
-			//   3. Parses but contains zero OperationDefinition nodes
-			//      (e.g. fragment-only).
-			// Without the guard, the request fires and the server
-			// returns 500 for an empty body — confusing first-run UX.
-			const stripped = String(query || '')
-				.replace(/^\s*#.*$/gm, '')
-				.trim();
-			if (stripped === '') {
+			// Short-circuit on empty / comments-only / fragment-only /
+			// unparseable queries before firing the request — see
+			// `validateExecutableQuery` for the case breakdown.
+			const validation = validateExecutableQuery(query);
+			if (!validation.runnable) {
 				setResponse(
 					JSON.stringify(
-						{
-							errors: [
-								{
-									message:
-										'No operation to execute. Type a GraphQL query, mutation, or subscription and run again.',
-								},
-							],
-						},
-						null,
-						2
-					)
-				);
-				return;
-			}
-			try {
-				const ast = parseGraphQL(query);
-				const ops = ast.definitions.filter(
-					(d) => d.kind === 'OperationDefinition'
-				);
-				if (ops.length === 0) {
-					setResponse(
-						JSON.stringify(
-							{
-								errors: [
-									{
-										message:
-											'No operation to execute. Type a GraphQL query, mutation, or subscription and run again.',
-									},
-								],
-							},
-							null,
-							2
-						)
-					);
-					return;
-				}
-			} catch (error) {
-				setResponse(
-					JSON.stringify(
-						{
-							errors: [
-								{
-									message: `Query parse error: ${error.message}`,
-								},
-							],
-						},
+						{ errors: [{ message: validation.message }] },
 						null,
 						2
 					)
