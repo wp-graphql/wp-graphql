@@ -50,7 +50,9 @@ describe('preferences adapter', () => {
 		});
 
 		it('returns undefined for user-scope keys (sync path is device-only)', () => {
-			expect(readDevicePreference('personal_collections')).toBeUndefined();
+			expect(
+				readDevicePreference('personal_collections')
+			).toBeUndefined();
 		});
 
 		it('reads from the per-user-and-context bucket', () => {
@@ -134,9 +136,9 @@ describe('preferences adapter', () => {
 					wpgraphql_ide_personal_collections: [{ id: 'pc_x' }],
 				},
 			});
-			await expect(getPreference('personal_collections')).resolves.toEqual([
-				{ id: 'pc_x' },
-			]);
+			await expect(
+				getPreference('personal_collections')
+			).resolves.toEqual([{ id: 'pc_x' }]);
 		});
 	});
 

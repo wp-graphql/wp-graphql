@@ -196,17 +196,15 @@ const actions = {
 						activeId = tabIds[0];
 					}
 					dispatch({ type: 'SET_ACTIVE_TAB', tabId: activeId });
-				} else if (docs.length > 0) {
-					// First-time load with no remembered state — open
-					// the first saved doc so the editor isn't empty.
-					dispatch({
-						type: 'SET_OPEN_TABS',
-						tabIds: [String(docs[0].id)],
-					});
-					dispatch({
-						type: 'SET_ACTIVE_TAB',
-						tabId: String(docs[0].id),
-					});
+				} else {
+					// No remembered tabs and no orphaned drafts. Spawn a
+					// fresh welcome tab rather than auto-opening a saved
+					// doc — silently dropping the user into an existing
+					// published doc on every "I closed everything"
+					// refresh was confusing. createTab seeds the welcome
+					// boilerplate, persists the temp draft to localStorage,
+					// and sets it active.
+					dispatch.createTab('');
 				}
 			} catch (error) {
 				// eslint-disable-next-line no-console
