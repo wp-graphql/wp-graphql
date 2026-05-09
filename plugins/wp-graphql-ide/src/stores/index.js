@@ -9,6 +9,7 @@ import { store as statusBarItemsStore } from './status-bar-items';
 import { store as responseViewModesStore } from './response-view-modes';
 import { store as responseActionsStore } from './response-actions';
 import { store as editorActionsStore } from './editor-actions';
+import { store as documentTabActionsStore } from './document-tab-actions';
 
 export function registerStores() {
 	register(appStore);
@@ -20,4 +21,5 @@ export function registerStores() {
 	register(responseViewModesStore);
 	register(responseActionsStore);
 	register(editorActionsStore);
+	register(documentTabActionsStore);
 }

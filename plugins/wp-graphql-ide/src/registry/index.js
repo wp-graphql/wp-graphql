@@ -1,6 +1,7 @@
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import {
 	registerActivityBarPanel,
+	registerDocumentTabAction,
 	registerEditorAction,
 	registerEditorBottomTab,
 	registerResponseAction,
@@ -289,6 +290,47 @@ export const initializeRegistry = () => {
 			},
 			predicate: ({ endpointMode, isPublished }) =>
 				!endpointMode && isPublished,
+		},
+		30
+	);
+
+	// Built-in document-tab kebab actions. Plugins can add "Pin tab",
+	// "Lock tab", "Move all to collection", etc. through this registry.
+	registerDocumentTabAction(
+		'close-active',
+		{
+			label: 'Close active tab',
+			onClick: ({ activeId, onClose, closeMenu }) => {
+				if (activeId) {
+					onClose(String(activeId));
+				}
+				closeMenu();
+			},
+			isDisabled: ({ activeId }) => !activeId,
+		},
+		10
+	);
+	registerDocumentTabAction(
+		'close-inactive',
+		{
+			label: 'Close inactive tabs',
+			onClick: ({ activeId, onCloseOthers, closeMenu }) => {
+				onCloseOthers(activeId);
+				closeMenu();
+			},
+			isDisabled: ({ tabs }) => tabs.length <= 1,
+		},
+		20
+	);
+	registerDocumentTabAction(
+		'close-all',
+		{
+			label: 'Close all tabs',
+			onClick: ({ onCloseAll, closeMenu }) => {
+				onCloseAll();
+				closeMenu();
+			},
+			isDestructive: true,
 		},
 		30
 	);

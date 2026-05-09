@@ -356,6 +356,51 @@ export function registerEditorAction(name, config, priority = 10) {
 }
 
 /**
+ * Register an item in the document-tabs kebab dropdown (Close active /
+ * Close inactive / Close all). Plugins can extend with "Pin tab",
+ * "Lock tab", "Move all to collection", etc.
+ *
+ * Same shape as registerEditorAction. The action callbacks receive a
+ * ctx object:
+ *   { activeId, tabs, onClose, onCloseOthers, onCloseAll, closeMenu }
+ *
+ * @param {string}          name                   Unique action identifier.
+ * @param {Object}          config                 Action configuration.
+ * @param {string|Function} config.label           Item label (or fn(ctx) => string).
+ * @param {Function}        config.onClick         Click handler `(ctx) => void`.
+ * @param {Function}        [config.isSelected]    Returns true to render a checkmark.
+ * @param {Function}        [config.isDisabled]    Returns true to disable.
+ * @param {boolean}         [config.isDestructive] Renders destructive style.
+ * @param {string}          [config.group]         Group label (drives MenuGroup).
+ * @param {Function}        [config.predicate]     Hide when this returns false.
+ * @param {number}          [priority=10]          Sort order within group.
+ *
+ * @return {void}
+ */
+export function registerDocumentTabAction(name, config, priority = 10) {
+	try {
+		dispatch(
+			'wpgraphql-ide/document-tab-actions'
+		).registerDocumentTabAction(name, config, priority);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterDocumentTabAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register document tab action: ${name}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerDocumentTabActionError',
+			name,
+			config,
+			priority,
+			error
+		);
+	}
+}
+
+/**
  * Register a workspace tab type with a content renderer.
  *
  * Once registered, the tab type can be opened with `openWorkspaceTab`.

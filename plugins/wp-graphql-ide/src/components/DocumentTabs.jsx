@@ -6,6 +6,7 @@ import {
 	Button,
 	Tooltip,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { Icon, plus, moreVertical } from '@wordpress/icons';
 import { RenameInput } from './RenameInput';
 
@@ -42,6 +43,10 @@ export function DocumentTabs({
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
 	const [cutoff, setCutoff] = useState(tabs.length);
+	const tabActions = useSelect(
+		(s) => s('wpgraphql-ide/document-tab-actions').documentTabActions(),
+		[]
+	);
 	const [editingId, setEditingId] = useState(null);
 	const [editValue, setEditValue] = useState('');
 	// Drag-to-reorder state. `dragId` holds the id of the tab being
@@ -400,40 +405,70 @@ export function DocumentTabs({
 					}}
 				>
 					{({ onClose: closeMenu }) => {
-						const hasInactive = tabs.length > 1;
+						const ctx = {
+							activeId,
+							tabs,
+							onClose,
+							onCloseOthers: closeOthers,
+							onCloseAll: closeAll,
+							closeMenu,
+						};
+						const visible = tabActions.filter((a) =>
+							a.predicate ? a.predicate(ctx) : true
+						);
+						const groups = [];
+						const groupIndex = new Map();
+						for (const a of visible) {
+							const key = a.group || '';
+							if (!groupIndex.has(key)) {
+								groupIndex.set(key, groups.length);
+								groups.push({ label: key, items: [] });
+							}
+							groups[groupIndex.get(key)].items.push(a);
+						}
 						return (
 							<>
-								<MenuGroup>
-									<MenuItem
-										onClick={() => {
-											if (activeId) {
-												onClose(String(activeId));
-											}
-											closeMenu();
-										}}
-										disabled={!activeId}
+								{groups.map((g, i) => (
+									<MenuGroup
+										key={g.label || `group-${i}`}
+										label={g.label || undefined}
 									>
-										Close active tab
-									</MenuItem>
-									<MenuItem
-										onClick={() => {
-											closeOthers(activeId);
-											closeMenu();
-										}}
-										disabled={!hasInactive}
-									>
-										Close inactive tabs
-									</MenuItem>
-									<MenuItem
-										onClick={() => {
-											closeAll();
-											closeMenu();
-										}}
-										isDestructive
-									>
-										Close all tabs
-									</MenuItem>
-								</MenuGroup>
+										{g.items.map((item) => {
+											const handleClick = () => {
+												item.onClick(ctx);
+											};
+											const labelText =
+												typeof item.label === 'function'
+													? item.label(ctx)
+													: item.label;
+											return (
+												<MenuItem
+													key={item.name}
+													onClick={handleClick}
+													isSelected={
+														item.isSelected
+															? item.isSelected(
+																	ctx
+																)
+															: undefined
+													}
+													isDestructive={
+														!!item.isDestructive
+													}
+													disabled={
+														item.isDisabled
+															? !!item.isDisabled(
+																	ctx
+																)
+															: false
+													}
+												>
+													{labelText}
+												</MenuItem>
+											);
+										})}
+									</MenuGroup>
+								))}
 							</>
 						);
 					}}
