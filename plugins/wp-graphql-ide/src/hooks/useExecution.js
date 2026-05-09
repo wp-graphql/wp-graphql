@@ -93,16 +93,8 @@ export function useExecution(fetcher, options = {}) {
 
 	const run = useCallback(
 		async (operationName) => {
-			// Cancel any in-flight request.
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
-			}
-			const controller = new AbortController();
-			abortControllerRef.current = controller;
-
-			// Short-circuit on empty / comments-only / fragment-only /
-			// unparseable queries before firing the request — see
-			// `validateExecutableQuery` for the case breakdown.
+			// Validate inputs before allocating the controller — early
+			// returns below would otherwise leave a dangling ref.
 			const validation = validateExecutableQuery(query);
 			if (!validation.runnable) {
 				setResponse(
@@ -154,6 +146,12 @@ export function useExecution(fetcher, options = {}) {
 				);
 				return;
 			}
+
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+			const controller = new AbortController();
+			abortControllerRef.current = controller;
 
 			setIsFetching(true);
 			const startTime = Date.now();
