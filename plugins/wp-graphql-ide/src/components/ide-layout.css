@@ -2344,7 +2344,12 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs {
 	display: flex;
 	flex-wrap: nowrap;
-	overflow: hidden;
+	align-items: stretch;
+	/* No `overflow: hidden` — the OverflowTabs cutoff calc already
+	   ensures children don't exceed the strip's width, and clipping
+	   here was hiding the top edge of each tab label when the strip's
+	   intrinsic height ended up shorter than the buttons (which
+	   happened in some flex layouts). */
 }
 
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs-item {
@@ -2354,14 +2359,30 @@ input.wpgraphql-ide-tab-input:focus {
 	white-space: nowrap;
 }
 
-/* Style the overflow button to integrate with the tab strip — same
-   height/padding/typography as `.components-tab-panel__tabs-item`, no
-   boxed outline (the wp-components Button default would otherwise sit
-   above the tab baseline as a chip). */
+/* The overflow trigger is a wp-components DropdownMenu, which wraps its
+   toggle in `<div class="components-dropdown">`. That wrapper — not the
+   button — is the flex child of the strip, so stretching the *button*
+   has no effect (its parent is the wrapper at natural toggle height,
+   floating above the row). Stretch the wrapper itself and let the
+   inner button fill it via height: 100%. Matches the established
+   pattern for the document-tab kebab. */
+.wpgraphql-ide-response-tabs
+	.components-tab-panel__tabs
+	> .components-dropdown {
+	display: flex;
+	align-items: stretch;
+	align-self: stretch;
+	flex-shrink: 0;
+}
+
 .wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	font-size: 13px;
+	line-height: 1;
 	padding: 8px 12px;
-	height: auto;
+	height: 100%;
 	color: var(--wp-components-color-gray-700, #50575e);
 	background: transparent;
 	border: 0;
@@ -2369,7 +2390,6 @@ input.wpgraphql-ide-tab-input:focus {
 	min-width: auto;
 	flex-shrink: 0;
 	white-space: nowrap;
-	align-self: stretch;
 	box-shadow: none;
 }
 

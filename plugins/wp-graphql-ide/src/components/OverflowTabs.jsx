@@ -145,7 +145,6 @@ function TabStrip({ tabs, activeName, onSelect }) {
 					toggleProps={{
 						children: `+${overflow.length}`,
 						className: 'wpgraphql-ide-tabs-overflow',
-						size: 'compact',
 					}}
 				>
 					{({ onClose }) => (
