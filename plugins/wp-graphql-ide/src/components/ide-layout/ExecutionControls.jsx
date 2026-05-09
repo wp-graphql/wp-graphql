@@ -22,8 +22,11 @@ import hooks from '../../wordpress-hooks';
 // snackbar with one new keyboard shortcut or workflow nudge.
 //
 // Mash detection: count consecutive play-button presses with < 1.5s
-// between them; pause longer than that → counter resets.
+// between them; pause longer than that → counter resets. All milestones
+// share one stable notice id so a sustained mash replaces the snackbar
+// in place rather than piling four stacked toasts down the screen.
 const PLAY_RAPID_WINDOW_MS = 1500;
+const PLAY_NOTICE_ID = 'wpgraphql-ide-play-mash';
 const PLAY_MILESTONES = {
 	5: 'Whoa there, speedy. Tip: Cmd+Enter runs the query, no clicking required.',
 	10: 'GraphQL fan club, party of one. Tip: variables live in the Variables tab below the editor.',
@@ -243,7 +246,11 @@ export function ExecutionControls({
 
 			const message = PLAY_MILESTONES[playCountRef.current];
 			if (message) {
-				hooks.doAction('wpgraphql-ide.notice', message, 'default');
+				hooks.doAction(
+					'wpgraphql-ide.notice',
+					{ id: PLAY_NOTICE_ID, content: message },
+					'default'
+				);
 			}
 
 			onExecute(opName);

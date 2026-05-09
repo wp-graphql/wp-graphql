@@ -965,13 +965,104 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 /* Toolbar divider — separates document identity from actions */
-/* Snackbar — absolute to IDE container, bottom-left */
+/* Smart Cache extension renderer (registered by the smart-cache-panel
+   sub-plugin). Lives in the main IDE stylesheet for now since extension
+   tabs share the response-extensions container; can move to the plugin
+   bundle when we lift this into wp-graphql-smart-cache. */
+.wpgraphql-ide-smart-cache {
+	padding: 16px;
+	font-size: 13px;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-smart-cache-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	border-radius: 4px;
+	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-status.is-hit {
+	background: #edf7ed;
+	border-color: #c8e6c9;
+}
+
+.wpgraphql-ide-smart-cache-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--wp-components-color-gray-500, #9ca3af);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-smart-cache-status.is-hit .wpgraphql-ide-smart-cache-status-dot {
+	background: #2d8a3e;
+}
+
+.wpgraphql-ide-smart-cache-status-label {
+	font-weight: 600;
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.wpgraphql-ide-smart-cache-status-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: 12px;
+}
+
+.wpgraphql-ide-smart-cache-meta {
+	margin: 16px 0 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 8px;
+}
+
+.wpgraphql-ide-smart-cache-meta dt {
+	font-weight: 600;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wpgraphql-ide-smart-cache-meta dd {
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 12px;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-smart-cache-hint {
+	margin: 16px 0 0;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+/* Snackbar — absolute to IDE container, bottom-left.
+   Width grows with content (up to a sane cap) so short, single-thought
+   notices stay on one line — wrapping a 50-character quip into two
+   lines reads as a layout bug, not a stylistic choice. The cap keeps
+   long error messages from running across the entire IDE. */
 .wpgraphql-ide-snackbar-list {
 	position: absolute;
 	bottom: 16px;
 	left: 16px;
 	z-index: 10;
-	max-width: 400px;
+	max-width: min(720px, calc(100% - 32px));
+}
+
+/* Individual snackbars inside the list — let their content set the
+   width up to the list's cap, so a short notice doesn't get padded
+   out to 720px. */
+.wpgraphql-ide-snackbar-list .components-snackbar {
+	width: max-content;
+	max-width: 100%;
 }
 
 .wpgraphql-ide-snackbar-list .components-snackbar.is-error {

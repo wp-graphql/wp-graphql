@@ -360,6 +360,9 @@ export const initializeRegistry = () => {
 	let schemaRefreshCount = 0;
 	let lastSchemaRefreshAt = 0;
 	const SCHEMA_REFRESH_RAPID_MS = 1500;
+	// Stable id so milestones replace the prior snackbar in place rather
+	// than stacking four toasts when a user mashes refresh past 12.
+	const SCHEMA_REFRESH_NOTICE_ID = 'wpgraphql-ide-schema-refresh-mash';
 	// Each milestone ends with a tip — the joke earns the interruption,
 	// the tip justifies it. A user who mashes refresh five times in a
 	// row probably doesn't know the schema is cached client-side; tell
@@ -387,7 +390,10 @@ export const initializeRegistry = () => {
 				if (milestone) {
 					hooks.doAction(
 						'wpgraphql-ide.notice',
-						milestone,
+						{
+							id: SCHEMA_REFRESH_NOTICE_ID,
+							content: milestone,
+						},
 						'default'
 					);
 				}
