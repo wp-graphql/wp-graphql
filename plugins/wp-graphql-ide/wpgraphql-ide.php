@@ -57,6 +57,7 @@ spl_autoload_register(
 		$relative = substr( $class, $len );
 		$file     = WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
 		if ( file_exists( $file ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is constrained by the prefix check + file_exists guard above; mapping a class name to its PSR-4 file is intrinsically variable.
 			require_once $file;
 		}
 	}
