@@ -30,6 +30,7 @@ define( 'WPGRAPHQL_IDE_VERSION', '4.4.1' );
 define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'WPGRAPHQL_IDE_PLUGIN_FILE', __FILE__ );
 
 // Modular feature includes — kept out of this main plugin file to avoid
 // further bloat. Each include hooks into WordPress on its own.
@@ -1258,41 +1259,6 @@ function graphql_logo_svg(): string {
 	return $svg;
 }
 
-/**
- * Initialize the plugin tracker.
- */
-function graphql_ide_init_appsero_telemetry(): void {
-	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
-		return;
-	}
-
-	try {
-		$client = new \Appsero\Client( 'e90103d6-2c09-4152-96e0-eb7d0d3b5c74', 'WPGraphQL IDE', __FILE__ );
-
-		/**
-		 * @var \Appsero\Insights $insights
-		 *
-		 * @phpstan-ignore varTag.type (The doctype for Appsero\Client::insights() is wrong.)
-		 */
-		$insights = $client->insights();
-
-		if ( method_exists( $insights, 'add_plugin_data' ) ) {
-			$insights->add_plugin_data();
-		}
-
-		$insights->init();
-	} catch ( \Throwable $e ) {
-		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
-			sprintf(
-				// translators: %s is the error message
-				__( 'Error initializing Appsero: %s', 'wpgraphql-ide' ),
-				$e->getMessage()
-			)
-		);
-	}
-}
-
-graphql_ide_init_appsero_telemetry();
 
 /**
  * Register custom REST routes for the IDE.
@@ -1646,46 +1612,5 @@ function handle_publish_document( \WP_REST_Request $request ) {
 	);
 }
 
-/**
- * Mirror the Appsero API requests to our own telemetry server.
- *
- * @param bool|\WP_Error $preempt Whether to preempt the request.
- * @param array          $args    The arguments for the request.
- * @param string         $url     The URL for the request.
- * @return bool|\WP_Error Whether to preempt the request.
- */
-add_filter(
-	'pre_http_request',
-	static function ( $preempt, $args, $url ) {
-		if ( strpos( $url, 'api.appsero.com' ) === false ) {
-			return $preempt;
-		}
 
-		// Scope: only mirror this plugin's payloads, not other Appsero plugins on the site.
-		$body = is_array( $args['body'] ?? null ) ? $args['body'] : [];
-		if ( ( $body['hash'] ?? null ) !== 'e90103d6-2c09-4152-96e0-eb7d0d3b5c74' ) {
-			return $preempt;
-		}
-
-		$mirror = str_replace(
-			'https://api.appsero.com/',
-			'https://telemetry.wpgraphql.com/api/appsero/',
-			$url
-		);
-
-		wp_remote_post(
-			$mirror,
-			array_merge(
-				$args,
-				[
-					'blocking' => false,
-					'timeout'  => 3,
-				]
-			)
-		);
-
-		return $preempt; // let the real Appsero request proceed
-	},
-	10,
-	3
-);
+\WPGraphQLIDE\Telemetry::init();
