@@ -8,12 +8,15 @@ import { AppDrawer } from './AppDrawer';
 import { App } from './App';
 import { DialogProvider } from './dialogs/DialogProvider';
 
+import {
+	endpointMode,
+	isUserLoggedIn,
+	isDedicatedIdePage,
+	renderStandalone,
+} from '../bootstrap';
+
 // eslint-disable-next-line no-undef
 const {
-	isDedicatedIdePage,
-	endpointMode,
-	renderStandalone,
-	isUserLoggedIn,
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
 

@@ -28,6 +28,7 @@ import { useParsedQuery } from '../hooks/useParsedQuery';
 import { usePanelOrder } from '../hooks/usePanelOrder';
 import { usePersistedSize } from '../hooks/usePersistedSize';
 import { savePreference } from '../api/preferences';
+import { endpointMode, isUserLoggedIn, loginUrl } from '../bootstrap';
 import { getWorkspacePersistence } from './workspace-persistence';
 import { displayDocTitle } from '../utils/derive-doc-title';
 
@@ -69,15 +70,9 @@ export function IDELayout({ fetcher, onClose }) {
 	const docSettingsFields = docSettingsConfig.fields || [];
 	const docSettingsGlobalGrant =
 		docSettingsConfig.globalGrantMode || 'public';
-	// Endpoint mode: rendered when the IDE shell is served from the
-	// public `?graphql` endpoint URL (vs the dedicated admin page or
-	// the drawer). The editor + variables/headers + execute + docs
-	// explorer stay; the per-user features (save, saved queries,
-	// history, document settings, share, registered topbar actions,
-	// the auth toggle for anonymous visitors) are gated off.
-	// `wp_localize_script` serializes PHP `true` as the string `"1"`,
-	// so a truthy check is what's needed here.
-	const endpointMode = !!window.WPGRAPHQL_IDE_DATA?.endpointMode;
+	// `endpointMode` rides through the bootstrap module so the
+	// `=== true` truthy gotcha lives in one place. See
+	// `src/bootstrap.js` for the rest of the public-endpoint flags.
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
 		[]
@@ -849,9 +844,7 @@ export function IDELayout({ fetcher, onClose }) {
 				}}
 				topbarActions={endpointMode ? [] : topbarActions}
 				signInUrl={
-					endpointMode && !window.WPGRAPHQL_IDE_DATA?.isUserLoggedIn
-						? window.WPGRAPHQL_IDE_DATA?.loginUrl
-						: undefined
+					endpointMode && !isUserLoggedIn ? loginUrl : undefined
 				}
 				onClose={onClose}
 			/>

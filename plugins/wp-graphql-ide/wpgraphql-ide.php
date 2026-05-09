@@ -1836,8 +1836,17 @@ function enqueue_graphql_ide_menu_icon_css(): void {
 
 /**
  * Enqueues the React application script and associated styles.
+ *
+ * @param bool $bypass_dedicated_page_gate When true, skip the
+ *                                          capability + admin-bar gates
+ *                                          that normally restrict this
+ *                                          to logged-in IDE users on
+ *                                          the right pages. The
+ *                                          public-endpoint render passes
+ *                                          true here because it serves
+ *                                          anonymous visitors by design.
  */
-function enqueue_react_app_with_styles(): void {
+function enqueue_react_app_with_styles( bool $bypass_dedicated_page_gate = false ): void {
 	if ( is_legacy_ide_page() ) {
 		return;
 	}
@@ -1846,13 +1855,7 @@ function enqueue_react_app_with_styles(): void {
 		return;
 	}
 
-	// The public-endpoint render path enqueues for anonymous + non-IDE
-	// visitors by design. Skip the capability + admin-bar gates only
-	// when that flag is set; every other call site still requires an
-	// IDE-capable user with the admin bar visible (or wp-admin context).
-	$is_public_render = public_endpoint_render_is_active();
-
-	if ( ! $is_public_render ) {
+	if ( ! $bypass_dedicated_page_gate ) {
 		if ( ! user_has_graphql_ide_capability() ) {
 			return;
 		}
