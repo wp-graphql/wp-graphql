@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
 	Button,
 	Dropdown,
@@ -7,8 +7,24 @@ import {
 	NavigableMenu,
 	Tooltip,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
+
+// --- Play-button easter egg ---------------------------------------------
+// If the user mash-clicks the play button (gap < 1.5s between clicks),
+// we count consecutive presses and surface a playful snackbar at preset
+// milestones. Sharing a stable notice id means each new milestone
+// replaces the previous one — no stack of giggling snackbars.
+const PLAY_RAPID_WINDOW_MS = 1500;
+const PLAY_NOTICE_ID = 'wpgraphql-ide-play-easter-egg';
+const PLAY_MILESTONES = {
+	5: 'Whoa there, speedy.',
+	10: 'GraphQL fan club, party of one.',
+	15: 'Achievement unlocked: Excessive Curiosity.',
+	20: "OK now you're just showing off.",
+	30: 'Have you tried Cmd+Enter? Just saying.',
+};
 
 /**
  * Renders a select-style menu (single-choice). Auto-focuses the
@@ -127,6 +143,33 @@ export function ExecutionControls({
 }) {
 	const showOpPicker = !isFetching && operationNames.length > 1;
 
+	const noticesDispatch = useDispatch('core/notices');
+	const playCountRef = useRef(0);
+	const lastPlayAtRef = useRef(0);
+	const handleExecute = useCallback(
+		(opName) => {
+			const now = Date.now();
+			if (now - lastPlayAtRef.current < PLAY_RAPID_WINDOW_MS) {
+				playCountRef.current += 1;
+			} else {
+				playCountRef.current = 1;
+			}
+			lastPlayAtRef.current = now;
+
+			const message = PLAY_MILESTONES[playCountRef.current];
+			if (message && noticesDispatch?.createNotice) {
+				noticesDispatch.createNotice('info', message, {
+					id: PLAY_NOTICE_ID,
+					type: 'snackbar',
+					isDismissible: true,
+				});
+			}
+
+			onExecute(opName);
+		},
+		[noticesDispatch, onExecute]
+	);
+
 	return (
 		<div className="wpgraphql-ide-execution-pill">
 			<Dropdown
@@ -241,7 +284,7 @@ export function ExecutionControls({
 										key={name}
 										onClick={() => {
 											closeMenu();
-											onExecute(name);
+											handleExecute(name);
 										}}
 									>
 										{name}
@@ -259,7 +302,7 @@ export function ExecutionControls({
 				>
 					<Button
 						variant="primary"
-						onClick={() => onExecute()}
+						onClick={() => handleExecute()}
 						disabled={isSchemaLoading}
 						className="wpgraphql-ide-send-button"
 						size="compact"
