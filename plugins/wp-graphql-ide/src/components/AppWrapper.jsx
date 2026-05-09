@@ -11,6 +11,8 @@ import { DialogProvider } from './dialogs/DialogProvider';
 // eslint-disable-next-line no-undef
 const {
 	isDedicatedIdePage,
+	endpointMode,
+	isUserLoggedIn,
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
 
@@ -29,10 +31,25 @@ const setInitialState = (dispatch) => {
 		setHeaders,
 		setShouldRenderStandalone,
 		setInitialStateLoaded,
+		toggleAuthentication,
 	} = dispatch;
 
-	if (isDedicatedIdePage) {
+	// Standalone mode: full-page render with no drawer-close button.
+	// Dedicated admin page and the public-endpoint render both want
+	// this — they're full-page surfaces, not slide-up drawers.
+	if (isDedicatedIdePage || endpointMode) {
 		setShouldRenderStandalone(true);
+	}
+
+	// Public-endpoint render for an anonymous visitor: the app store's
+	// `isAuthenticated` initial state is `true` because most surfaces
+	// only mount for logged-in admins. On the public endpoint that
+	// default would have us send a useless / invalid nonce. Flip it
+	// off once on hydration when we know the visitor is anonymous.
+	// `wp_localize_script` serializes PHP `false` as the empty string
+	// `""`, so a truthy check is right here.
+	if (endpointMode && !isUserLoggedIn) {
+		toggleAuthentication();
 	}
 
 	if (url && params.has('wpgraphql_ide')) {

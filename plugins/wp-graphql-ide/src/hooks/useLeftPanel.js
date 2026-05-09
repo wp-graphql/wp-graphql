@@ -5,10 +5,8 @@ const LEGACY_LOCAL_KEY = 'wpgraphql_ide_left_panel';
 const LEGACY_FLAG_KEY = 'wpgraphql_ide_show_query_composer';
 
 /**
- * Read the initial panel choice from the user-meta bootstrap, falling
- * back to legacy localStorage for users coming from earlier builds.
+ * Read the initial panel choice. Resolution order:
  *
- * Migration order:
  *   1. Server-injected user meta (`WPGRAPHQL_IDE_DATA.leftPanel`) wins
  *      if set — that's the durable, per-user, cross-browser value.
  *   2. Otherwise, accept the older `wpgraphql_ide_left_panel`
@@ -16,13 +14,19 @@ const LEGACY_FLAG_KEY = 'wpgraphql_ide_show_query_composer';
  *      meta so future paints read directly from the bootstrap.
  *   3. Otherwise, fall back to the even-older `show_query_composer`
  *      flag (also localStorage) and promote it the same way.
+ *   4. Otherwise, in endpoint mode, default to opening the Query
+ *      Composer — schema browsing is the primary use case for the
+ *      public-endpoint render. The dedicated admin page keeps `null`
+ *      so existing users don't see the composer pop open on next visit.
  *
  * Both legacy localStorage keys are deleted on first read so they
  * can't silently override a future close. The user-meta write is
  * fire-and-forget; failure leaves the localStorage hint in place,
  * which means the migration retries on the next page load.
+ *
+ * @param {boolean} [endpointMode]
  */
-function readInitialPanel() {
+function readInitialPanel(endpointMode = false) {
 	const fromBootstrap =
 		typeof window !== 'undefined' && window.WPGRAPHQL_IDE_DATA?.leftPanel;
 	if (fromBootstrap === 'composer' || fromBootstrap === 'settings') {
@@ -48,14 +52,14 @@ function readInitialPanel() {
 			savePreference('left_panel', migrated).catch(() => {
 				// Best-effort. If the write fails the migration retries
 				// next load (legacy keys are already cleared, so it'll
-				// quietly fall through to null).
+				// quietly fall through to the endpoint-mode default).
 			});
 			return migrated;
 		}
 	} catch {
 		// ignore
 	}
-	return null;
+	return endpointMode ? 'composer' : null;
 }
 
 function readPersistedWidth(key, fallback) {
@@ -85,8 +89,13 @@ function usePersistedWidth(key, fallback) {
 
 /**
  * Single-slot left panel state that mutually hosts the Query Composer
- * or the Document Settings panel. Persists the choice + each panel's
- * resizable width to localStorage.
+ * or the Document Settings panel. Persists the choice via user meta
+ * (REST) and each panel's resizable width to localStorage.
+ *
+ * @param {Object}  [opts]
+ * @param {boolean} [opts.endpointMode] When true and no preference is
+ *                                      stored, default to the Query
+ *                                      Composer being open.
  *
  * @return {{
  *   leftPanel: 'composer' | 'settings' | null,
@@ -101,8 +110,10 @@ function usePersistedWidth(key, fallback) {
  *   setDocSettingsPanelWidth: Function,
  * }}
  */
-export function useLeftPanel() {
-	const [leftPanel, setLeftPanelState] = useState(readInitialPanel);
+export function useLeftPanel({ endpointMode = false } = {}) {
+	const [leftPanel, setLeftPanelState] = useState(() =>
+		readInitialPanel(endpointMode)
+	);
 
 	const setLeftPanel = useCallback((next) => {
 		setLeftPanelState(next);

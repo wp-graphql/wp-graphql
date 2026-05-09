@@ -38,6 +38,10 @@ const MIN_EDITOR_HEIGHT_PX = 220;
  * below for the full set.
  */
 export function EditorPane({
+	// Endpoint mode (public-endpoint render): hides Save / Publish, the
+	// share / rename / duplicate kebab items, and the Document Settings
+	// toggle. Editor + variables/headers + execute pill stay visible.
+	endpointMode = false,
 	// Sizing
 	queryPaneWidth,
 	onSetQueryPaneWidth,
@@ -133,7 +137,7 @@ export function EditorPane({
 						</Button>
 					</Tooltip>
 				)}
-				{docSettingsFields.length > 0 && (
+				{!endpointMode && docSettingsFields.length > 0 && (
 					<Tooltip
 						text={
 							showDocSettingsPanel
@@ -167,18 +171,21 @@ export function EditorPane({
 									hideMutating={isPublished}
 								/>
 							</MenuGroup>
-							<MenuGroup>
-								<MenuItem
-									onClick={() => {
-										closeMenu();
-										onOpenShareDialog();
-									}}
-									disabled={!query?.trim()}
-								>
-									Share link…
-								</MenuItem>
-							</MenuGroup>
-							{!!activeDocument?.id &&
+							{!endpointMode && (
+								<MenuGroup>
+									<MenuItem
+										onClick={() => {
+											closeMenu();
+											onOpenShareDialog();
+										}}
+										disabled={!query?.trim()}
+									>
+										Share link…
+									</MenuItem>
+								</MenuGroup>
+							)}
+							{!endpointMode &&
+								!!activeDocument?.id &&
 								!isTempId(activeDocument.id) && (
 									<MenuGroup>
 										<MenuItem
@@ -191,7 +198,7 @@ export function EditorPane({
 										</MenuItem>
 									</MenuGroup>
 								)}
-							{isPublished && (
+							{!endpointMode && isPublished && (
 								<MenuGroup>
 									<MenuItem
 										onClick={() => {
@@ -207,7 +214,7 @@ export function EditorPane({
 					)}
 				</DropdownMenu>
 				<div className="wpgraphql-ide-editor-toolbar-spacer" />
-				{!isPublished && (
+				{!endpointMode && !isPublished && (
 					<>
 						<Button
 							onClick={onSave}
@@ -309,6 +316,10 @@ export function EditorPane({
 						isFetching={isFetching}
 						isSchemaLoading={isSchemaLoading}
 						onExecute={onExecute}
+						// Public-endpoint render for an anonymous visitor:
+						// no nonce to send, no toggle to show. Authed
+						// visitors at the same URL still get the toggle.
+						canSwitchAuth={!endpointMode || isAuthenticated}
 					/>
 				</div>
 			</ResizableBox>

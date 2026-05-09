@@ -49,6 +49,7 @@ const StopIcon = (
  * @param {boolean}       props.isFetching      - Whether a request is in flight (Stop icon).
  * @param {boolean}       props.isSchemaLoading - Disables the Execute button while the schema fetches.
  * @param {Function}      props.onExecute       - Called with an optional operation name; no-arg defaults to the first.
+ * @param {boolean}       [props.canSwitchAuth] - Whether the auth toggle should render. False on the public endpoint for anonymous visitors (nothing to switch).
  */
 export function ExecutionControls({
 	httpMethod,
@@ -60,6 +61,7 @@ export function ExecutionControls({
 	isFetching,
 	isSchemaLoading,
 	onExecute,
+	canSwitchAuth = true,
 }) {
 	const showOpPicker = !isFetching && operationNames.length > 1;
 
@@ -82,33 +84,35 @@ export function ExecutionControls({
 					</button>
 				))}
 			</div>
-			<Tooltip
-				text={
-					isAuthenticated
-						? 'Authenticated (click to switch)'
-						: 'Public (click to switch)'
-				}
-			>
-				<button
-					type="button"
-					onClick={onToggleAuth}
-					className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-					aria-label={
+			{canSwitchAuth && (
+				<Tooltip
+					text={
 						isAuthenticated
-							? 'Switch to public'
-							: 'Switch to authenticated'
+							? 'Authenticated (click to switch)'
+							: 'Public (click to switch)'
 					}
 				>
-					<span
-						className={authStyles.authAvatar}
-						style={{
-							backgroundImage: `url(${avatarUrl || ''})`,
-						}}
+					<button
+						type="button"
+						onClick={onToggleAuth}
+						className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+						aria-label={
+							isAuthenticated
+								? 'Switch to public'
+								: 'Switch to authenticated'
+						}
 					>
-						<span className={authStyles.authBadge} />
-					</span>
-				</button>
-			</Tooltip>
+						<span
+							className={authStyles.authAvatar}
+							style={{
+								backgroundImage: `url(${avatarUrl || ''})`,
+							}}
+						>
+							<span className={authStyles.authBadge} />
+						</span>
+					</button>
+				</Tooltip>
+			)}
 			{showOpPicker ? (
 				<Dropdown
 					popoverProps={{ placement: 'top-end' }}
