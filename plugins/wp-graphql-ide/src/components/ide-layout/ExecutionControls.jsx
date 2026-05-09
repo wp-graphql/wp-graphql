@@ -7,6 +7,7 @@ import {
 	NavigableMenu,
 	Tooltip,
 } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
 import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../../wordpress-hooks';
@@ -32,16 +33,44 @@ const PLAY_MILESTONES = {
 };
 
 // Empty-query execute: server would return "Syntax Error: Unexpected EOF"
-// for an empty body — replace that with something kinder, plus a tip
-// to point the user at something useful. Cycle through the quips in
-// order so a user testing this twice in a row still gets variety.
+// for an empty body — replace that with something kinder. Each quip
+// pairs a one-line nudge with an *insertable* snippet that becomes a
+// clickable action button in the snackbar; clicking inserts the
+// snippet (we know the editor is empty, so `setQuery` replace is the
+// right semantic). Cycle in order so a user testing repeatedly still
+// sees variety. All firings share one stable id so the snackbar is
+// replaced in place instead of stacking.
+const EMPTY_QUERY_NOTICE_ID = 'wpgraphql-ide-empty-query-quip';
 const EMPTY_QUERY_QUIPS = [
-	'Profound. Also empty. Tip: try `{ __typename }` for the smallest valid query.',
-	'Quiet contemplation. The server expects fields, though. Tip: open the Docs panel (sidebar) to browse types.',
-	"You can't query nothing. Or can you? Tip: `{ __schema { types { name } } }` lists every type the server exposes.",
-	'The empty query: simple, elegant, useless. Tip: drafts auto-save as you type — start typing to see fields.',
+	{
+		content: 'An empty query. Try the smallest valid one:',
+		insert: '{\n  __typename\n}\n',
+	},
+	{
+		content: 'Nothing? List every type the server exposes:',
+		insert: '{\n  __schema {\n    types {\n      name\n    }\n  }\n}\n',
+	},
+	{
+		content: 'WPGraphQL has more to offer — try a posts query:',
+		insert: '{\n  posts {\n    nodes {\n      id\n      title\n    }\n  }\n}\n',
+	},
+	{
+		content: 'Inspect the schema\u2019s queryType:',
+		insert: '{\n  __schema {\n    queryType {\n      name\n      fields {\n        name\n      }\n    }\n  }\n}\n',
+	},
 ];
 let emptyQueryQuipIndex = 0;
+
+/**
+ * Replace the editor query with `snippet`. Used by the empty-query
+ * easter egg's "insert" action — only fires when the editor is empty,
+ * so the full replace is the right semantic.
+ *
+ * @param {string} snippet GraphQL query text to insert.
+ */
+function insertSnippetIntoEditor(snippet) {
+	dispatch('wpgraphql-ide/app').setQuery(snippet);
+}
 
 /**
  * Renders a select-style menu (single-choice). Auto-focuses the
@@ -167,15 +196,40 @@ export function ExecutionControls({
 	const handleExecute = useCallback(
 		(opName) => {
 			// Empty-query easter egg: short-circuit before the request
-			// fires so the user gets a friendly snackbar instead of a
-			// "Syntax Error: Unexpected EOF" from the server.
+			// fires so the user gets a friendly snackbar with an
+			// inline "Insert" button instead of a server-side
+			// "Syntax Error: Unexpected EOF". Stable notice id means
+			// repeated mashing replaces the snackbar in place —
+			// useNotices dedupes by id rather than stacking — so the
+			// screen stays calm even on a 10-click rampage. Click
+			// "Insert" → snippet drops into the editor → snackbar
+			// dismisses (no point lingering once acted on).
 			if (!query || !query.trim()) {
 				const quip =
 					EMPTY_QUERY_QUIPS[
 						emptyQueryQuipIndex % EMPTY_QUERY_QUIPS.length
 					];
 				emptyQueryQuipIndex += 1;
-				hooks.doAction('wpgraphql-ide.notice', quip, 'default');
+				hooks.doAction(
+					'wpgraphql-ide.notice',
+					{
+						id: EMPTY_QUERY_NOTICE_ID,
+						content: quip.content,
+						actions: [
+							{
+								label: 'Insert',
+								onClick: () => {
+									insertSnippetIntoEditor(quip.insert);
+									hooks.doAction(
+										'wpgraphql-ide.notice.dismiss',
+										EMPTY_QUERY_NOTICE_ID
+									);
+								},
+							},
+						],
+					},
+					'default'
+				);
 				return;
 			}
 
