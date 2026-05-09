@@ -27,6 +27,8 @@ import { DebugExtensionTab } from '../components/response-extensions/DebugExtens
 import { QueryAnalyzerExtensionTab } from '../components/response-extensions/QueryAnalyzerExtensionTab';
 import { TracingExtensionTab } from '../components/response-extensions/TracingExtensionTab';
 import { QueryLogExtensionTab } from '../components/response-extensions/QueryLogExtensionTab';
+import { ErrorsExtensionTab } from '../components/response-extensions/ErrorsExtensionTab';
+import { HeadersExtensionTab } from '../components/response-extensions/HeadersExtensionTab';
 
 export const initializeRegistry = () => {
 	registerEditorToolbarButtons();
@@ -62,8 +64,33 @@ export const initializeRegistry = () => {
 		30
 	);
 
-	// Built-in response extension tabs for extensions shipped with WPGraphQL core.
-	// Other extensions (e.g. wp-graphql-smart-cache) register their own tabs.
+	// Built-in response-extension tabs. Errors / Headers describe the
+	// response envelope itself (not response.extensions), so they flag
+	// alwaysShow and pull from the synthetic slots in ResponseContent.
+	// Order: Errors (5) → Tracing (7) → other extension tabs → Headers
+	// (80) — matches the user's most-likely consultation order:
+	//   - errors when a query fails
+	//   - tracing when it succeeded but felt slow
+	//   - headers (auth/CORS) is a rarer destination
+	registerResponseExtensionTab(
+		'errors',
+		{
+			title: ({ data }) => `Errors (${data?.length || 0})`,
+			content: ErrorsExtensionTab,
+			alwaysShow: true,
+		},
+		5
+	);
+
+	registerResponseExtensionTab(
+		'tracing',
+		{
+			title: 'Tracing',
+			content: TracingExtensionTab,
+		},
+		7
+	);
+
 	registerResponseExtensionTab(
 		'debug',
 		{
@@ -83,21 +110,22 @@ export const initializeRegistry = () => {
 	);
 
 	registerResponseExtensionTab(
-		'tracing',
-		{
-			title: 'Tracing',
-			content: TracingExtensionTab,
-		},
-		30
-	);
-
-	registerResponseExtensionTab(
 		'queryLog',
 		{
 			title: 'Query Log',
 			content: QueryLogExtensionTab,
 		},
 		40
+	);
+
+	registerResponseExtensionTab(
+		'headers',
+		{
+			title: ({ data }) => `Headers (${Object.keys(data || {}).length})`,
+			content: HeadersExtensionTab,
+			alwaysShow: true,
+		},
+		80
 	);
 
 	// Built-in "Settings" workspace tab — opened from the topbar settings

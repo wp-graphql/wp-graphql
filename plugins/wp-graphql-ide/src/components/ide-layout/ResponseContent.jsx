@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { ResizableBox } from '@wordpress/components';
 import { ResponseViewer } from '../editors/ResponseViewer';
-import { ErrorsPanel } from '../ErrorsPanel';
-import { HeadersPanel } from '../HeadersPanel';
 import { ResponseTableView } from '../ResponseTableView';
 import { useResizeReporter } from '../ResizeOverlay';
 import { OverflowTabs } from '../OverflowTabs';
@@ -49,49 +47,35 @@ export function ResponseContent({
 	const errors = parsed?.errors || [];
 	const extensions = parsed?.extensions || {};
 
+	// Synthetic data slots — Errors and Headers describe the response
+	// envelope itself, not response.extensions, so they don't have a
+	// matching extensions[name] entry. We surface them under their tab
+	// `name` so a single map can resolve every registered tab's data.
+	const slotData = { ...extensions, errors, headers: responseHeaders };
+
 	const activeExtTabs = extensionTabs.filter(
-		(tab) => extensions[tab.name] !== undefined
+		(tab) => tab.alwaysShow || extensions[tab.name] !== undefined
 	);
 
-	const headersCount =
-		responseHeaders && typeof responseHeaders === 'object'
-			? Object.keys(responseHeaders).length
-			: 0;
-
-	// Each registered extension that has data in the response gets its
-	// own top-level tab (Debug, Tracing, Query Analyzer, etc.) instead
-	// of being nested under a generic "Extensions" wrapper. The wrapper
-	// added a click for every visit to a tracing or debug payload —
-	// flattening pulls those one level closer to the user.
-	//
 	// The synthetic "Extensions" tab still appears when the response
 	// includes extension data that no plugin has registered a renderer
 	// for — useful as a "you have data here but nothing's reading it"
-	// signal. It hides itself as soon as that data is registered or
-	// the response stops emitting it.
+	// signal. It hides itself as soon as that data is registered or the
+	// response stops emitting it.
 	const unregisteredExtensionKeys = Object.keys(extensions).filter(
 		(key) => !extensionTabs.some((t) => t.name === key)
 	);
 	const showUnregisteredFallback = unregisteredExtensionKeys.length > 0;
 
-	// Order by frequency-of-consultation: when a response succeeds the
-	// user almost always wants to know "how fast / are there N+1s"
-	// (Tracing); when it fails they want Errors. Headers is auth/CORS
-	// debugging — useful but rare. Extensions fallback stays last as
-	// a "you have unhandled keys" signal, not a routine destination.
-	const trailingExtTabs = activeExtTabs.filter((t) => t.name !== 'tracing');
-	const tracingTab = activeExtTabs.find((t) => t.name === 'tracing');
-
 	const bottomTabs = [
-		{ name: 'errors', title: `Errors (${errors.length})` },
-		...(tracingTab
-			? [{ name: 'ext:tracing', title: tracingTab.title || 'Tracing' }]
-			: []),
-		...trailingExtTabs.map((t) => ({
-			name: `ext:${t.name}`,
-			title: t.title || t.name,
-		})),
-		{ name: 'headers', title: `Headers (${headersCount})` },
+		...activeExtTabs.map((t) => {
+			const data = slotData[t.name];
+			const title =
+				typeof t.title === 'function'
+					? t.title({ data, response, errors, responseHeaders })
+					: t.title || t.name;
+			return { name: `ext:${t.name}`, title };
+		}),
 		...(showUnregisteredFallback
 			? [{ name: 'extensions:unregistered', title: 'Extensions' }]
 			: []),
@@ -177,16 +161,10 @@ export function ResponseContent({
 					tabs={bottomTabs}
 					initialTabName={
 						tabRequest?.name ||
-						(errors.length > 0 ? 'errors' : 'ext:tracing')
+						(errors.length > 0 ? 'ext:errors' : 'ext:tracing')
 					}
 				>
 					{(tab) => {
-						if (tab.name === 'headers') {
-							return <HeadersPanel headers={responseHeaders} />;
-						}
-						if (tab.name === 'errors') {
-							return <ErrorsPanel errors={errors} />;
-						}
 						if (tab.name.startsWith('ext:')) {
 							const extName = tab.name.slice(4);
 							const ext = activeExtTabs.find(
@@ -195,7 +173,7 @@ export function ResponseContent({
 							const ExtContent = ext?.content;
 							return ExtContent ? (
 								<ExtContent
-									data={extensions[extName]}
+									data={slotData[extName]}
 									response={response}
 								/>
 							) : null;

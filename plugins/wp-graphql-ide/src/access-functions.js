@@ -67,16 +67,28 @@ export function registerActivityBarPanel(name, config, priority = 10) {
 /**
  * Register a tab in the response extensions panel.
  *
- * The `name` must match the top-level key in the GraphQL response
- * `extensions` object that this tab owns. The tab is only shown when the
- * latest response contains that key; the `content` callback receives the
- * value at that key as `data`.
+ * Most tabs map 1:1 onto a key in the GraphQL response `extensions` object
+ * — Tracing reads `extensions.tracing`, Debug reads `extensions.debug`, etc.
+ * The tab is only shown when the latest response contains that key; the
+ * `content` component receives the value at that key as its `data` prop.
  *
- * @param {string}   name           Extension key (e.g. "debug", "graphqlSmartCache").
- * @param {Object}   config         Tab configuration.
- * @param {string}   config.title   Human-readable tab title.
- * @param {Function} config.content Component receiving `{ data, response }`.
- * @param {number}   [priority=10]  Lower values render first.
+ * The built-in `errors` and `headers` tabs use the same registry but flag
+ * themselves with `alwaysShow: true` (they describe the response itself,
+ * not response.extensions, so their data is sourced from synthetic slots
+ * — see slotData in ResponseContent.jsx).
+ *
+ * @param {string}          name                      Extension key (e.g. "debug", "graphqlSmartCache").
+ * @param {Object}          config                    Tab configuration.
+ * @param {string|Function} config.title              Human-readable tab title. Pass a
+ *                                                    function `({data, response}) =>
+ *                                                    string` to surface a count or
+ *                                                    other state (e.g. "Errors (3)").
+ * @param {Function}        config.content            Component receiving `{ data, response }`.
+ * @param {boolean}         [config.alwaysShow=false] When true, the tab is shown
+ *                                                    even if there's no matching key in
+ *                                                    response.extensions. Used by the
+ *                                                    built-in errors / headers tabs.
+ * @param {number}          [priority=10]             Lower values render first.
  *
  * @return {void}
  */
