@@ -101,14 +101,14 @@ export default function HomepageFeatures() {
     <>
       <Feature
         eyebrow="Efficient Data Fetching"
-        title="Query what you need. Get exactly that."
+        title={<>Query what you need. <span className="text-primary">Get exactly that.</span></>}
         body="With GraphQL, the client makes declarative queries, asking for the exact data needed, and exactly what was asked for is given in response — nothing more. Clients have control over their application, and the GraphQL server only fetches what was requested."
         query={exactFieldsQuery}
         response={exactFieldsResponse}
       />
       <Feature
         eyebrow="Nested Resources"
-        title="Fetch many resources in a single request"
+        title={<>Fetch many resources in a <span className="text-primary">single request</span></>}
         body="GraphQL queries access multiple root resources and smoothly follow references between connected ones. While a typical REST API would require round-trip requests to many endpoints, GraphQL can return everything your app needs in one round-trip — quick even on slow mobile connections."
         query={nestedQuery}
         response={nestedResponse}
