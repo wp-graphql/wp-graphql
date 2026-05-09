@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { detectNPlusOne } from './detect-n-plus-one';
+import { resolvePathToOffset } from './resolve-path-to-offset';
 
 // WPGraphQL's tracing emits durations as microseconds by convention; format
 // as ms when large enough to be meaningful, otherwise keep as μs.
@@ -24,6 +26,25 @@ const SORT_OPTIONS = [
 
 export const TracingExtensionTab = ({ data }) => {
 	const [sortBy, setSortBy] = useState('duration');
+
+	const query = useSelect(
+		(select) => select('wpgraphql-ide/app').getQuery() || '',
+		[]
+	);
+	const { setEditorJumpRequest } = useDispatch('wpgraphql-ide/app');
+
+	// Click a path → resolve to its offset in the current query and
+	// move the editor cursor there. Silently no-ops if the path can't
+	// be resolved (unparseable query, fragment expansion needed).
+	const jumpToPath = useCallback(
+		(path) => {
+			const offset = resolvePathToOffset(query, path);
+			if (typeof offset === 'number') {
+				setEditorJumpRequest(offset);
+			}
+		},
+		[query, setEditorJumpRequest]
+	);
 
 	const hasData = data && typeof data === 'object';
 	// Hooks must run unconditionally — derive a stable resolver list
@@ -106,22 +127,51 @@ export const TracingExtensionTab = ({ data }) => {
 							</tr>
 						</thead>
 						<tbody>
-							{nPlusOnePatterns.map((p) => (
-								<tr key={p.pattern}>
-									<td>
-										<code className="wpgraphql-ide-tracing-path">
-											{p.pattern}
-										</code>
-									</td>
-									<td className="is-numeric">{p.count}</td>
-									<td className="is-numeric">
-										{formatDuration(p.totalDuration)}
-									</td>
-									<td className="is-numeric">
-										{formatDuration(p.avgDuration)}
-									</td>
-								</tr>
-							))}
+							{nPlusOnePatterns.map((p) => {
+								// Convert pattern back into a path the
+								// resolver can walk — `*` segments stand
+								// for indices, which the resolver filters
+								// out anyway.
+								const examplePath = p.pattern
+									.split('.')
+									.map((seg) => (seg === '*' ? 0 : seg));
+								const onActivate = () =>
+									jumpToPath(examplePath);
+								return (
+									<tr
+										key={p.pattern}
+										className="wpgraphql-ide-tracing-row is-clickable"
+										tabIndex={0}
+										role="button"
+										aria-label={`Jump to ${p.pattern} in the editor`}
+										onClick={onActivate}
+										onKeyDown={(e) => {
+											if (
+												e.key === 'Enter' ||
+												e.key === ' '
+											) {
+												e.preventDefault();
+												onActivate();
+											}
+										}}
+									>
+										<td>
+											<code className="wpgraphql-ide-tracing-path">
+												{p.pattern}
+											</code>
+										</td>
+										<td className="is-numeric">
+											{p.count}
+										</td>
+										<td className="is-numeric">
+											{formatDuration(p.totalDuration)}
+										</td>
+										<td className="is-numeric">
+											{formatDuration(p.avgDuration)}
+										</td>
+									</tr>
+								);
+							})}
 						</tbody>
 					</table>
 				</section>
@@ -156,7 +206,23 @@ export const TracingExtensionTab = ({ data }) => {
 						</thead>
 						<tbody>
 							{sortedResolvers.map((r, i) => (
-								<tr key={`${formatPath(r.path)}-${i}`}>
+								<tr
+									key={`${formatPath(r.path)}-${i}`}
+									className="wpgraphql-ide-tracing-row is-clickable"
+									tabIndex={0}
+									role="button"
+									aria-label={`Jump to ${formatPath(r.path)} in the editor`}
+									onClick={() => jumpToPath(r.path)}
+									onKeyDown={(e) => {
+										if (
+											e.key === 'Enter' ||
+											e.key === ' '
+										) {
+											e.preventDefault();
+											jumpToPath(r.path);
+										}
+									}}
+								>
 									<td>
 										<code className="wpgraphql-ide-tracing-path">
 											{formatPath(r.path)}

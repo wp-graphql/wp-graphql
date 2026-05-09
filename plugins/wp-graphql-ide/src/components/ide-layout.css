@@ -2500,6 +2500,28 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 2px 6px;
 }
 
+/* Whole-row click target so users don't have to aim at the path
+   string. Hover surfaces the affordance; focus-visible draws a
+   keyboard outline. */
+.wpgraphql-ide-tracing-row.is-clickable {
+	cursor: pointer;
+}
+
+.wpgraphql-ide-tracing-row.is-clickable:hover {
+	background: #f0f6fc;
+}
+
+.wpgraphql-ide-tracing-row.is-clickable:hover .wpgraphql-ide-tracing-path {
+	color: #2271b1;
+	text-decoration: underline;
+}
+
+.wpgraphql-ide-tracing-row.is-clickable:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+	background: #f0f6fc;
+}
+
 .wpgraphql-ide-tracing-n1 {
 	margin: 12px 0;
 	padding: 12px 14px;

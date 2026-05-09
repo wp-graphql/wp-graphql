@@ -58,6 +58,9 @@ const selectors = {
 	getCursorOffset: (state) => {
 		return state.cursorOffset;
 	},
+	getEditorJumpRequest: (state) => {
+		return state.editorJumpRequest;
+	},
 	getCollections: (state) => {
 		return state.collections;
 	},

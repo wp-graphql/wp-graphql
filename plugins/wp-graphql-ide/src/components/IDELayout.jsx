@@ -155,6 +155,10 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/app').getPersonalCollections(),
 		[]
 	);
+	const editorJumpRequest = useSelect(
+		(select) => select('wpgraphql-ide/app').getEditorJumpRequest(),
+		[]
+	);
 
 	const {
 		setQuery,
@@ -168,6 +172,7 @@ export function IDELayout({ fetcher, onClose }) {
 		addHistoryEntry,
 		setDocsNavTarget,
 		setCursorOffset,
+		setEditorJumpRequest,
 		loadCollections,
 		togglePersonalCollectionMembership,
 	} = useDispatch('wpgraphql-ide/app');
@@ -989,6 +994,10 @@ export function IDELayout({ fetcher, onClose }) {
 										editorKeyBindings={editorKeyBindings}
 										onShowInDocs={handleShowInDocs}
 										onCursorChange={setCursorOffset}
+										jumpRequest={editorJumpRequest}
+										onJumpApplied={() =>
+											setEditorJumpRequest(null)
+										}
 										ComposerContent={ComposerContent}
 										showQueryComposer={showQueryComposer}
 										toggleQueryComposer={

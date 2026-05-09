@@ -68,6 +68,8 @@ export function EditorPane({
 	editorKeyBindings,
 	onShowInDocs,
 	onCursorChange,
+	jumpRequest,
+	onJumpApplied,
 	// Left panel: Composer / Settings
 	ComposerContent,
 	showQueryComposer,
@@ -305,6 +307,8 @@ export function EditorPane({
 						extraKeys={editorKeyBindings.current}
 						onShowInDocs={onShowInDocs}
 						onCursorChange={onCursorChange}
+						jumpRequest={jumpRequest}
+						onJumpApplied={onJumpApplied}
 					/>
 					<ExecutionControls
 						httpMethod={httpMethod}

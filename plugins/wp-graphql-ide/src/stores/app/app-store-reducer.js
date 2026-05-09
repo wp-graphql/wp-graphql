@@ -28,6 +28,11 @@ const initialState = {
 	// query-composer expansion (sync the open operation with where the user
 	// is typing). null = no cursor reported yet.
 	cursorOffset: null,
+	// One-shot cursor-jump request: a character offset the editor should
+	// move its cursor to, then scroll into view. Set by callers like the
+	// Tracing tab's click-to-jump; cleared back to null after the editor
+	// applies it. null = no pending jump.
+	editorJumpRequest: null,
 	collections: [],
 	activeCollection: null,
 	// Per-collection sort mode applied to the saved-queries panel. Keyed
@@ -157,6 +162,12 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				cursorOffset:
+					typeof action.offset === 'number' ? action.offset : null,
+			};
+		case 'SET_EDITOR_JUMP_REQUEST':
+			return {
+				...state,
+				editorJumpRequest:
 					typeof action.offset === 'number' ? action.offset : null,
 			};
 		case 'SET_HISTORY':

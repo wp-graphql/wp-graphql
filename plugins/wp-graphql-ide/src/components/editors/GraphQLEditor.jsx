@@ -263,20 +263,27 @@ const buildHoverTooltip = (schemaRef) =>
 /**
  * CodeMirror 6 GraphQL editor with schema-driven autocomplete, linting, and syntax highlighting.
  *
- * @param {Object}   props
- * @param {string}   props.value            - Current editor content.
- * @param {Function} props.onChange         - Called with new content string on edit.
- * @param {Object}   [props.schema]         - GraphQL schema for autocomplete/linting.
- * @param {boolean}  [props.readOnly]       - If true, editor is not editable.
- * @param {string}   [props.placeholder]    - Placeholder text when empty.
- * @param {Array}    [props.extraKeys]      - Additional keybindings ({ key, run } objects).
- * @param {string}   [props.className]      - Additional CSS class for the wrapper.
- * @param {Function} [props.onShowInDocs]   - Called with `(field, type, parentType)` when
- *                                          the user cmd/ctrl-clicks an identifier so the
- *                                          parent can navigate the Docs panel.
- * @param {Function} [props.onCursorChange] - Called with the cursor offset whenever
- *                                          the selection or doc changes; consumers can
- *                                          sync UI (e.g. Query Composer expansion).
+ * @param {Object}      props
+ * @param {string}      props.value            - Current editor content.
+ * @param {Function}    props.onChange         - Called with new content string on edit.
+ * @param {Object}      [props.schema]         - GraphQL schema for autocomplete/linting.
+ * @param {boolean}     [props.readOnly]       - If true, editor is not editable.
+ * @param {string}      [props.placeholder]    - Placeholder text when empty.
+ * @param {Array}       [props.extraKeys]      - Additional keybindings ({ key, run } objects).
+ * @param {string}      [props.className]      - Additional CSS class for the wrapper.
+ * @param {Function}    [props.onShowInDocs]   - Called with `(field, type, parentType)` when
+ *                                             the user cmd/ctrl-clicks an identifier so the
+ *                                             parent can navigate the Docs panel.
+ * @param {Function}    [props.onCursorChange] - Called with the cursor offset whenever
+ *                                             the selection or doc changes; consumers can
+ *                                             sync UI (e.g. Query Composer expansion).
+ * @param {number|null} [props.jumpRequest]    - One-shot cursor-jump request (character
+ *                                             offset). When this changes to a number,
+ *                                             the editor moves its cursor and scrolls
+ *                                             the line into view.
+ * @param {Function}    [props.onJumpApplied]  - Called after the editor handles a
+ *                                             `jumpRequest`, so the parent can clear
+ *                                             its own state back to null.
  */
 export function GraphQLEditor({
 	value = '',
@@ -288,6 +295,8 @@ export function GraphQLEditor({
 	className = '',
 	onShowInDocs,
 	onCursorChange,
+	jumpRequest = null,
+	onJumpApplied,
 }) {
 	const containerRef = useRef(null);
 	const viewRef = useRef(null);
@@ -314,6 +323,28 @@ export function GraphQLEditor({
 	useEffect(() => {
 		onShowInDocsRef.current = onShowInDocs;
 	}, [onShowInDocs]);
+
+	// Programmatic cursor-jump: parent passes a character offset via
+	// `jumpRequest`; we move the selection there and scroll into view,
+	// then notify so the parent clears its own state. Clamped to the
+	// current document length to survive races where the request was
+	// computed against a stale doc.
+	useEffect(() => {
+		if (typeof jumpRequest !== 'number' || !viewRef.current) {
+			return;
+		}
+		const view = viewRef.current;
+		const docLen = view.state.doc.length;
+		const safe = Math.max(0, Math.min(jumpRequest, docLen));
+		view.dispatch({
+			selection: { anchor: safe, head: safe },
+			scrollIntoView: true,
+		});
+		view.focus();
+		if (onJumpApplied) {
+			onJumpApplied();
+		}
+	}, [jumpRequest, onJumpApplied]);
 
 	useEffect(() => {
 		onCursorChangeRef.current = onCursorChange;

@@ -183,6 +183,22 @@ const actions = {
 	},
 
 	/**
+	 * Request the main query editor to move its cursor to a character
+	 * offset and scroll the line into view. Consume-and-clear pattern:
+	 * the editor reads the value, dispatches it, then clears it back
+	 * to null. Used by the Tracing tab's click-to-jump from a path
+	 * row to the matching field in the editor.
+	 *
+	 * @param {number|null} offset Zero-based character offset, or null to clear.
+	 */
+	setEditorJumpRequest: (offset) => {
+		return {
+			type: 'SET_EDITOR_JUMP_REQUEST',
+			offset,
+		};
+	},
+
+	/**
 	 * Load global execution history from the server.
 	 */
 	loadHistory:
