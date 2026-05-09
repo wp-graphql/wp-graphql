@@ -51,12 +51,39 @@ export function useExecution(fetcher, options = {}) {
 			abortControllerRef.current = controller;
 
 			// Short-circuit when the document has no operation to run.
-			// The welcome boilerplate is comments-only; an unedited
-			// query field is empty. Without this guard the request
-			// fires anyway and the server returns a 500 for an empty
-			// body, which is a confusing first-run experience.
+			// Three cases need the same friendly response:
+			//   1. Empty editor.
+			//   2. Comments-only doc (the welcome boilerplate is the
+			//      common one) — the GraphQL parser throws
+			//      `Unexpected <EOF>` here because it expected at least
+			//      one definition, so this case has to be detected
+			//      *before* calling parse.
+			//   3. Parses but contains zero OperationDefinition nodes
+			//      (e.g. fragment-only).
+			// Without the guard, the request fires and the server
+			// returns 500 for an empty body — confusing first-run UX.
+			const stripped = String(query || '')
+				.replace(/^\s*#.*$/gm, '')
+				.trim();
+			if (stripped === '') {
+				setResponse(
+					JSON.stringify(
+						{
+							errors: [
+								{
+									message:
+										'No operation to execute. Type a GraphQL query, mutation, or subscription and run again.',
+								},
+							],
+						},
+						null,
+						2
+					)
+				);
+				return;
+			}
 			try {
-				const ast = parseGraphQL(query || '');
+				const ast = parseGraphQL(query);
 				const ops = ast.definitions.filter(
 					(d) => d.kind === 'OperationDefinition'
 				);
