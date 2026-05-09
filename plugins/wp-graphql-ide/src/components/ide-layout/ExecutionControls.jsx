@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
 	Button,
 	Dropdown,
@@ -9,6 +9,65 @@ import {
 } from '@wordpress/components';
 import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
+
+/**
+ * Renders a select-style menu (single-choice). Auto-focuses the
+ * selected option on mount so the focus-visible ring lands on the
+ * same item as the leading check, matching the WP-core dropdown
+ * pattern (block style switcher, settings menus). Without this,
+ * NavigableMenu focuses position 0 and the focus ring can outweigh
+ * the check on the actually-selected option.
+ *
+ * @param {Object}        props
+ * @param {string}        props.label         - Group label shown above the options.
+ * @param {Array<Object>} props.options       - `{ value, label }` entries.
+ * @param {*}             props.selectedValue - Currently active value.
+ * @param {Function}      props.onChange      - Called with the new value when an option is picked.
+ * @param {Function}      props.onClose       - Closes the dropdown.
+ */
+function SelectMenuContent({
+	label,
+	options,
+	selectedValue,
+	onChange,
+	onClose,
+}) {
+	const selectedRef = useRef(null);
+	// Dropdown's popover focuses its first focusable element on mount
+	// (`focusOnMount: 'firstElement'`), which lands on position 0 even
+	// when a later option is selected. Defer to the next frame so our
+	// focus on the selected item runs after the popover's, overriding it.
+	useEffect(() => {
+		const id = window.requestAnimationFrame(() => {
+			selectedRef.current?.focus();
+		});
+		return () => window.cancelAnimationFrame(id);
+	}, []);
+	return (
+		<NavigableMenu>
+			<MenuGroup label={label}>
+				{options.map((opt) => {
+					const isSelected = opt.value === selectedValue;
+					return (
+						<MenuItem
+							key={opt.value}
+							ref={isSelected ? selectedRef : null}
+							isSelected={isSelected}
+							icon={isSelected ? check : null}
+							iconPosition="left"
+							onClick={() => {
+								onChange(opt.value);
+								onClose();
+							}}
+						>
+							{opt.label}
+						</MenuItem>
+					);
+				})}
+			</MenuGroup>
+		</NavigableMenu>
+	);
+}
 
 const PlayIcon = (
 	<svg
@@ -87,24 +146,16 @@ export function ExecutionControls({
 					</Tooltip>
 				)}
 				renderContent={({ onClose: closeMenu }) => (
-					<NavigableMenu>
-						<MenuGroup label="HTTP method">
-							{HTTP_METHODS.map((m) => (
-								<MenuItem
-									key={m}
-									isSelected={httpMethod === m}
-									icon={httpMethod === m ? check : null}
-									iconPosition="left"
-									onClick={() => {
-										onSetHttpMethod(m);
-										closeMenu();
-									}}
-								>
-									{m}
-								</MenuItem>
-							))}
-						</MenuGroup>
-					</NavigableMenu>
+					<SelectMenuContent
+						label="HTTP method"
+						options={HTTP_METHODS.map((m) => ({
+							value: m,
+							label: m,
+						}))}
+						selectedValue={httpMethod}
+						onChange={onSetHttpMethod}
+						onClose={closeMenu}
+					/>
 				)}
 			/>
 			{canSwitchAuth && (
@@ -133,41 +184,30 @@ export function ExecutionControls({
 								>
 									<span className={authStyles.authBadge} />
 								</span>
-								<Icon icon={chevronDown} size={14} />
 							</Button>
 						</Tooltip>
 					)}
 					renderContent={({ onClose: closeMenu }) => (
-						<NavigableMenu>
-							<MenuGroup label="Send as">
-								<MenuItem
-									isSelected={isAuthenticated}
-									icon={isAuthenticated ? check : null}
-									iconPosition="left"
-									onClick={() => {
-										if (!isAuthenticated) {
-											onToggleAuth();
-										}
-										closeMenu();
-									}}
-								>
-									Authenticated user
-								</MenuItem>
-								<MenuItem
-									isSelected={!isAuthenticated}
-									icon={!isAuthenticated ? check : null}
-									iconPosition="left"
-									onClick={() => {
-										if (isAuthenticated) {
-											onToggleAuth();
-										}
-										closeMenu();
-									}}
-								>
-									Public visitor
-								</MenuItem>
-							</MenuGroup>
-						</NavigableMenu>
+						<SelectMenuContent
+							label="Send as"
+							options={[
+								{
+									value: 'authenticated',
+									label: 'Authenticated user',
+								},
+								{ value: 'public', label: 'Public visitor' },
+							]}
+							selectedValue={
+								isAuthenticated ? 'authenticated' : 'public'
+							}
+							onChange={(next) => {
+								const wantsAuth = next === 'authenticated';
+								if (wantsAuth !== isAuthenticated) {
+									onToggleAuth();
+								}
+							}}
+							onClose={closeMenu}
+						/>
 					)}
 				/>
 			)}

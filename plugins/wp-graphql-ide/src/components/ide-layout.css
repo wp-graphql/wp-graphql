@@ -817,17 +817,22 @@ input.wpgraphql-ide-tab-input:focus {
 	box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
 }
 
+/* Auth-mode dropdown toggle. Icon-only, so it's a circle to match the
+   send button's silhouette — text controls (the method button) get
+   pill corners; icon controls get full-round. The badge + grayscale
+   carry the auth state; aria-haspopup + hover-bg signal interactivity
+   without competing with the badge for visual real estate. */
 .wpgraphql-ide-auth-avatar {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 1px;
+	width: 32px;
 	height: 32px;
-	padding: 0 4px 0 3px;
+	padding: 0;
 	border: none;
 	background: transparent;
 	cursor: pointer;
-	border-radius: 16px;
+	border-radius: 50%;
 	transition: background-color 0.15s ease;
 }
 
@@ -847,6 +852,12 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-auth-avatar:hover {
 	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-auth-avatar:focus-visible {
+	box-shadow: 0 0 0 1.5px
+		var(--wp-components-color-accent, var(--wp-admin-theme-color, #2271b1));
+	outline: none;
 }
 
 /* Floating execution pill — bottom-right of query editor.
@@ -871,13 +882,15 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 /* Hairline divider separating the configure cluster (method + auth)
-   from the primary action (send). Stretches to the full inner height
-   so the break reads as a real boundary, not a gap. */
+   from the primary action (send). Sized to ~60% of the inner height
+   so it reads as a separator, not a fence — equal-weighting it with
+   the buttons would cordon the play button off rather than gracefully
+   breaking the rhythm. */
 .wpgraphql-ide-execution-pill-divider {
 	display: block;
 	width: 1px;
-	align-self: stretch;
-	margin: 4px 6px 4px 4px;
+	height: 20px;
+	margin: 0 6px 0 4px;
 	background: var(--wp-components-color-gray-300, #dcdcde);
 }
 
