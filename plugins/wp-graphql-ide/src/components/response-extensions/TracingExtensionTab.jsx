@@ -3,16 +3,18 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { detectNPlusOne } from './detect-n-plus-one';
 import { resolvePathToOffset } from './resolve-path-to-offset';
 
-// WPGraphQL's tracing emits durations as microseconds by convention; format
-// as ms when large enough to be meaningful, otherwise keep as μs.
+// Tracing emits microseconds. Format ms when ≥ 1ms, s when ≥ 1s.
 const formatDuration = (value) => {
 	if (typeof value !== 'number' || !isFinite(value)) {
 		return '—';
 	}
+	if (value >= 1_000_000) {
+		return `${(value / 1_000_000).toFixed(2)} s`;
+	}
 	if (value >= 1000) {
 		return `${(value / 1000).toFixed(2)} ms`;
 	}
-	return `${value} μs`;
+	return `${value} µs`;
 };
 
 const formatPath = (path) =>
@@ -24,8 +26,41 @@ const SORT_OPTIONS = [
 	{ value: 'path', label: 'Path (alphabetical)' },
 ];
 
+// Per-resolver tier is for the bar color in each row.
+const TIER_FAST_MAX_US = 1000; // < 1 ms
+const TIER_OK_MAX_US = 10_000; // 1–10 ms
+
+const tierForDuration = (us) => {
+	if (us < TIER_FAST_MAX_US) {
+		return 'fast';
+	}
+	if (us < TIER_OK_MAX_US) {
+		return 'ok';
+	}
+	return 'slow';
+};
+
+// Trivial threshold: noise rows like pageInfo subfields that resolve in
+// 0–1 µs aren't actionable; hidden by default.
+const TRIVIAL_MAX_US = 1;
+
+// Total-duration tiers drive the verdict copy at the top.
+const verdictForTotal = (totalUs) => {
+	if (typeof totalUs !== 'number') {
+		return { tier: 'unknown', label: 'No timing data' };
+	}
+	if (totalUs < 100_000) {
+		return { tier: 'fast', label: 'Fast' };
+	}
+	if (totalUs < 500_000) {
+		return { tier: 'ok', label: 'OK' };
+	}
+	return { tier: 'slow', label: 'Slow' };
+};
+
 export const TracingExtensionTab = ({ data }) => {
 	const [sortBy, setSortBy] = useState('duration');
+	const [hideTrivial, setHideTrivial] = useState(true);
 
 	const query = useSelect(
 		(select) => select('wpgraphql-ide/app').getQuery() || '',
@@ -33,9 +68,6 @@ export const TracingExtensionTab = ({ data }) => {
 	);
 	const { setEditorJumpRequest } = useDispatch('wpgraphql-ide/app');
 
-	// Click a path → resolve to its offset in the current query and
-	// move the editor cursor there. Silently no-ops if the path can't
-	// be resolved (unparseable query, fragment expansion needed).
 	const jumpToPath = useCallback(
 		(path) => {
 			const offset = resolvePathToOffset(query, path);
@@ -47,9 +79,6 @@ export const TracingExtensionTab = ({ data }) => {
 	);
 
 	const hasData = data && typeof data === 'object';
-	// Hooks must run unconditionally — derive a stable resolver list
-	// regardless of `data` validity, then short-circuit the render
-	// after the hooks have all been called.
 	const resolvers = useMemo(() => {
 		if (!hasData) {
 			return [];
@@ -64,6 +93,27 @@ export const TracingExtensionTab = ({ data }) => {
 		[resolvers]
 	);
 
+	const slowest = useMemo(() => {
+		if (resolvers.length === 0) {
+			return null;
+		}
+		return resolvers.reduce(
+			(max, r) => ((r.duration || 0) > (max.duration || 0) ? r : max),
+			resolvers[0]
+		);
+	}, [resolvers]);
+
+	const resolverTotal = useMemo(
+		() => resolvers.reduce((sum, r) => sum + (r.duration || 0), 0),
+		[resolvers]
+	);
+
+	const trivialCount = useMemo(
+		() =>
+			resolvers.filter((r) => (r.duration || 0) <= TRIVIAL_MAX_US).length,
+		[resolvers]
+	);
+
 	if (!hasData) {
 		return (
 			<p className="wpgraphql-ide-extensions-empty">
@@ -73,7 +123,18 @@ export const TracingExtensionTab = ({ data }) => {
 		);
 	}
 
-	const sortedResolvers = [...resolvers].sort((a, b) => {
+	const verdict = verdictForTotal(data.duration);
+	const slowestPct =
+		slowest && resolverTotal > 0
+			? Math.round(((slowest.duration || 0) / resolverTotal) * 100)
+			: 0;
+	const slowestMax = slowest ? slowest.duration || 0 : 0;
+
+	const filteredResolvers = hideTrivial
+		? resolvers.filter((r) => (r.duration || 0) > TRIVIAL_MAX_US)
+		: resolvers;
+
+	const sortedResolvers = [...filteredResolvers].sort((a, b) => {
 		if (sortBy === 'duration') {
 			return (b.duration || 0) - (a.duration || 0);
 		}
@@ -85,24 +146,48 @@ export const TracingExtensionTab = ({ data }) => {
 
 	return (
 		<div className="wpgraphql-ide-tracing-panel">
-			<div className="wpgraphql-ide-tracing-summary">
-				<div>
-					<span className="wpgraphql-ide-tracing-label">
-						Total duration
+			<header
+				className="wpgraphql-ide-tracing-verdict"
+				data-tier={verdict.tier}
+			>
+				<div className="wpgraphql-ide-tracing-verdict-headline">
+					<span
+						className="wpgraphql-ide-tracing-verdict-dot"
+						aria-hidden="true"
+					/>
+					<span className="wpgraphql-ide-tracing-verdict-label">
+						{verdict.label}
 					</span>
-					<span className="wpgraphql-ide-tracing-value">
-						{formatDuration(data.duration)}
+					<span className="wpgraphql-ide-tracing-verdict-summary">
+						{formatDuration(data.duration)} total ·{' '}
+						{resolvers.length}{' '}
+						{resolvers.length === 1 ? 'resolver' : 'resolvers'}
 					</span>
 				</div>
-				<div>
-					<span className="wpgraphql-ide-tracing-label">
-						Resolvers
-					</span>
-					<span className="wpgraphql-ide-tracing-value">
-						{resolvers.length}
-					</span>
-				</div>
-			</div>
+				{slowest && (
+					<p className="wpgraphql-ide-tracing-verdict-detail">
+						Slowest field:{' '}
+						<button
+							type="button"
+							className="wpgraphql-ide-tracing-link"
+							onClick={() => jumpToPath(slowest.path)}
+						>
+							<code>{formatPath(slowest.path)}</code>
+						</button>{' '}
+						— {formatDuration(slowest.duration)}
+						{slowestPct > 0 && resolvers.length > 1
+							? ` (${slowestPct}% of resolver time)`
+							: ''}
+					</p>
+				)}
+				{nPlusOnePatterns.length > 0 && (
+					<p className="wpgraphql-ide-tracing-verdict-detail">
+						{nPlusOnePatterns.length} likely N+1{' '}
+						{nPlusOnePatterns.length === 1 ? 'pattern' : 'patterns'}{' '}
+						detected — see below.
+					</p>
+				)}
+			</header>
 
 			{nPlusOnePatterns.length > 0 && (
 				<section
@@ -128,10 +213,6 @@ export const TracingExtensionTab = ({ data }) => {
 						</thead>
 						<tbody>
 							{nPlusOnePatterns.map((p) => {
-								// Convert pattern back into a path the
-								// resolver can walk — `*` segments stand
-								// for indices, which the resolver filters
-								// out anyway.
 								const examplePath = p.pattern
 									.split('.')
 									.map((seg) => (seg === '*' ? 0 : seg));
@@ -182,18 +263,37 @@ export const TracingExtensionTab = ({ data }) => {
 					<div className="wpgraphql-ide-tracing-controls">
 						<label htmlFor="wpgraphql-ide-tracing-sort">
 							<span>Sort by</span>
+							<select
+								id="wpgraphql-ide-tracing-sort"
+								value={sortBy}
+								onChange={(e) => setSortBy(e.target.value)}
+							>
+								{SORT_OPTIONS.map((opt) => (
+									<option key={opt.value} value={opt.value}>
+										{opt.label}
+									</option>
+								))}
+							</select>
 						</label>
-						<select
-							id="wpgraphql-ide-tracing-sort"
-							value={sortBy}
-							onChange={(e) => setSortBy(e.target.value)}
-						>
-							{SORT_OPTIONS.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-						</select>
+						{trivialCount > 0 && (
+							<label
+								className="wpgraphql-ide-tracing-trivial-toggle"
+								htmlFor="wpgraphql-ide-tracing-hide-trivial"
+							>
+								<input
+									id="wpgraphql-ide-tracing-hide-trivial"
+									type="checkbox"
+									checked={hideTrivial}
+									onChange={(e) =>
+										setHideTrivial(e.target.checked)
+									}
+								/>
+								<span>
+									Hide trivial fields (under 1 µs) ·{' '}
+									{trivialCount} hidden
+								</span>
+							</label>
+						)}
 					</div>
 
 					<table className="wpgraphql-ide-tracing-table">
@@ -201,44 +301,66 @@ export const TracingExtensionTab = ({ data }) => {
 							<tr>
 								<th>Path</th>
 								<th>Return Type</th>
-								<th className="is-numeric">Duration</th>
+								<th className="is-numeric is-bar-col">
+									Duration
+								</th>
 							</tr>
 						</thead>
 						<tbody>
-							{sortedResolvers.map((r, i) => (
-								<tr
-									key={`${formatPath(r.path)}-${i}`}
-									className="wpgraphql-ide-tracing-row is-clickable"
-									tabIndex={0}
-									role="button"
-									aria-label={`Jump to ${formatPath(r.path)} in the editor`}
-									onClick={() => jumpToPath(r.path)}
-									onKeyDown={(e) => {
-										if (
-											e.key === 'Enter' ||
-											e.key === ' '
-										) {
-											e.preventDefault();
-											jumpToPath(r.path);
-										}
-									}}
-								>
-									<td>
-										<code className="wpgraphql-ide-tracing-path">
-											{formatPath(r.path)}
-										</code>
-										<span className="wpgraphql-ide-tracing-parent">
-											{r.parentType}
-										</span>
-									</td>
-									<td>
-										<code>{r.returnType}</code>
-									</td>
-									<td className="is-numeric">
-										{formatDuration(r.duration)}
-									</td>
-								</tr>
-							))}
+							{sortedResolvers.map((r, i) => {
+								const dur = r.duration || 0;
+								const pct =
+									slowestMax > 0
+										? Math.max(
+												2,
+												Math.round(
+													(dur / slowestMax) * 100
+												)
+											)
+										: 0;
+								const tier = tierForDuration(dur);
+								return (
+									<tr
+										key={`${formatPath(r.path)}-${i}`}
+										className="wpgraphql-ide-tracing-row is-clickable"
+										tabIndex={0}
+										role="button"
+										aria-label={`Jump to ${formatPath(r.path)} in the editor`}
+										onClick={() => jumpToPath(r.path)}
+										onKeyDown={(e) => {
+											if (
+												e.key === 'Enter' ||
+												e.key === ' '
+											) {
+												e.preventDefault();
+												jumpToPath(r.path);
+											}
+										}}
+									>
+										<td>
+											<code className="wpgraphql-ide-tracing-path">
+												{formatPath(r.path)}
+											</code>
+											<span className="wpgraphql-ide-tracing-parent">
+												{r.parentType}
+											</span>
+										</td>
+										<td>
+											<code>{r.returnType}</code>
+										</td>
+										<td
+											className="is-numeric is-bar-col"
+											data-tier={tier}
+											style={{ '--bar-pct': `${pct}%` }}
+										>
+											<span className="wpgraphql-ide-tracing-bar-track" />
+											<span className="wpgraphql-ide-tracing-bar-value">
+												{formatDuration(dur)}
+											</span>
+										</td>
+									</tr>
+								);
+							})}
 						</tbody>
 					</table>
 				</>

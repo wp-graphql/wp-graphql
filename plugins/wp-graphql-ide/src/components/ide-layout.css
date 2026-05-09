@@ -2509,15 +2509,32 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* ---------------------------------------------------------------------------
    Tracing extension tab
+
+   Scoped CSS custom properties drive the verdict + per-row bar colors so
+   they can be themed without hunting for selectors. WP admin's theme color
+   provides the accent fallback; the success/warning/error tokens follow
+   the WordPress admin palette. The bar in each duration cell is a
+   horizontal background fill whose width is set inline via `--bar-pct`.
    --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-tracing-panel {
+	--wpgraphql-ide-tracing-fast: #00a32a;
+	--wpgraphql-ide-tracing-ok: #dba617;
+	--wpgraphql-ide-tracing-slow: #d63638;
+	--wpgraphql-ide-tracing-muted: #50575e;
+	--wpgraphql-ide-tracing-faint: #a7aaad;
+	--wpgraphql-ide-tracing-text: #1e1e1e;
+	--wpgraphql-ide-tracing-bg: #f6f7f7;
+	--wpgraphql-ide-tracing-rule: #dcdcde;
+	--wpgraphql-ide-tracing-row-rule: #f0f0f1;
+	--wpgraphql-ide-tracing-accent: var(--wp-admin-theme-color, #2271b1);
+	--wpgraphql-ide-tracing-accent-soft: rgba(34, 113, 177, 0.08);
+
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.wpgraphql-ide-tracing-summary,
 .wpgraphql-ide-querylog-summary {
 	display: flex;
 	gap: 24px;
@@ -2526,37 +2543,109 @@ input.wpgraphql-ide-tab-input:focus {
 	border-radius: 2px;
 }
 
-.wpgraphql-ide-tracing-summary > div,
 .wpgraphql-ide-querylog-summary > div {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.wpgraphql-ide-tracing-label {
-	font-size: 10px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #646970;
-	font-weight: 600;
+.wpgraphql-ide-tracing-verdict {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 14px;
+	background: var(--wpgraphql-ide-tracing-bg);
+	border-radius: 4px;
+	border-left: 3px solid var(--wpgraphql-ide-tracing-fast);
 }
 
-.wpgraphql-ide-tracing-value {
+.wpgraphql-ide-tracing-verdict[data-tier="ok"] {
+	border-left-color: var(--wpgraphql-ide-tracing-ok);
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="slow"] {
+	border-left-color: var(--wpgraphql-ide-tracing-slow);
+}
+
+.wpgraphql-ide-tracing-verdict-headline {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-tracing-verdict-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--wpgraphql-ide-tracing-fast);
+	flex-shrink: 0;
+	align-self: center;
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="ok"] .wpgraphql-ide-tracing-verdict-dot {
+	background: var(--wpgraphql-ide-tracing-ok);
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="slow"] .wpgraphql-ide-tracing-verdict-dot {
+	background: var(--wpgraphql-ide-tracing-slow);
+}
+
+.wpgraphql-ide-tracing-verdict-label {
 	font-size: 13px;
-	color: #2c3338;
 	font-weight: 600;
+	color: var(--wpgraphql-ide-tracing-text);
+}
+
+.wpgraphql-ide-tracing-verdict-summary {
+	font-size: 12px;
+	color: var(--wpgraphql-ide-tracing-muted);
+}
+
+.wpgraphql-ide-tracing-verdict-detail {
+	margin: 0;
+	font-size: 12px;
+	color: var(--wpgraphql-ide-tracing-muted);
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-tracing-verdict-detail code {
 	font-family: Menlo, Consolas, Monaco, monospace;
+	color: var(--wpgraphql-ide-tracing-text);
+}
+
+.wpgraphql-ide-tracing-link {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	color: var(--wpgraphql-ide-tracing-accent);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-tracing-link:hover code,
+.wpgraphql-ide-tracing-link:focus-visible code {
+	text-decoration: underline;
+	color: var(--wpgraphql-ide-tracing-accent);
+}
+
+.wpgraphql-ide-tracing-link:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-tracing-accent);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 
 .wpgraphql-ide-tracing-controls {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	font-size: 11px;
-	color: #646970;
+	gap: 16px;
+	flex-wrap: wrap;
+	font-size: 12px;
+	color: var(--wpgraphql-ide-tracing-muted);
 }
 
-.wpgraphql-ide-tracing-controls label {
+.wpgraphql-ide-tracing-controls > label {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -2567,6 +2656,14 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 2px 6px;
 }
 
+.wpgraphql-ide-tracing-trivial-toggle {
+	cursor: pointer;
+}
+
+.wpgraphql-ide-tracing-trivial-toggle input {
+	margin: 0;
+}
+
 /* Whole-row click target so users don't have to aim at the path
    string. Hover surfaces the affordance; focus-visible draws a
    keyboard outline. */
@@ -2575,24 +2672,24 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-tracing-row.is-clickable:hover {
-	background: #f0f6fc;
+	background: var(--wpgraphql-ide-tracing-accent-soft);
 }
 
 .wpgraphql-ide-tracing-row.is-clickable:hover .wpgraphql-ide-tracing-path {
-	color: #2271b1;
+	color: var(--wpgraphql-ide-tracing-accent);
 	text-decoration: underline;
 }
 
 .wpgraphql-ide-tracing-row.is-clickable:focus-visible {
-	outline: 2px solid #2271b1;
+	outline: 2px solid var(--wpgraphql-ide-tracing-accent);
 	outline-offset: -2px;
-	background: #f0f6fc;
+	background: var(--wpgraphql-ide-tracing-accent-soft);
 }
 
 .wpgraphql-ide-tracing-n1 {
-	margin: 12px 0;
+	margin: 4px 0;
 	padding: 12px 14px;
-	border-left: 3px solid #d63638;
+	border-left: 3px solid var(--wpgraphql-ide-tracing-slow);
 	background: #fcf0f1;
 	border-radius: 2px;
 }
@@ -2601,13 +2698,13 @@ input.wpgraphql-ide-tab-input:focus {
 	margin: 0 0 4px;
 	font-size: 13px;
 	font-weight: 600;
-	color: #1e1e1e;
+	color: var(--wpgraphql-ide-tracing-text);
 }
 
 .wpgraphql-ide-tracing-n1-description {
 	margin: 0 0 10px;
 	font-size: 12px;
-	color: #50575e;
+	color: var(--wpgraphql-ide-tracing-muted);
 	line-height: 1.4;
 }
 
@@ -2622,6 +2719,7 @@ input.wpgraphql-ide-tab-input:focus {
 	width: 100%;
 	border-collapse: collapse;
 	font-size: 12px;
+	table-layout: fixed;
 }
 
 .wpgraphql-ide-tracing-table th {
@@ -2630,10 +2728,10 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: 11px;
 	text-transform: uppercase;
 	letter-spacing: 0.4px;
-	color: #646970;
+	color: var(--wpgraphql-ide-tracing-muted);
 	padding: 4px 8px;
-	border-bottom: 1px solid #dcdcde;
-	background: #f6f7f7;
+	border-bottom: 1px solid var(--wpgraphql-ide-tracing-rule);
+	background: var(--wpgraphql-ide-tracing-bg);
 	position: sticky;
 	top: 0;
 }
@@ -2645,23 +2743,76 @@ input.wpgraphql-ide-tab-input:focus {
 	font-family: Menlo, Consolas, Monaco, monospace;
 }
 
+.wpgraphql-ide-tracing-table th.is-bar-col {
+	width: 180px;
+}
+
 .wpgraphql-ide-tracing-table td {
 	padding: 6px 8px;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--wpgraphql-ide-tracing-row-rule);
 	vertical-align: top;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col {
+	position: relative;
+	vertical-align: middle;
+	padding: 4px 8px;
+}
+
+.wpgraphql-ide-tracing-bar-track {
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	height: 100%;
+	pointer-events: none;
+}
+
+.wpgraphql-ide-tracing-bar-track::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: var(--bar-pct, 0%);
+	height: 18px;
+	background: var(--wpgraphql-ide-tracing-fast);
+	opacity: 0.18;
+	border-radius: 2px;
+	transition: width 200ms ease;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col[data-tier="ok"] .wpgraphql-ide-tracing-bar-track::before {
+	background: var(--wpgraphql-ide-tracing-ok);
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col[data-tier="slow"] .wpgraphql-ide-tracing-bar-track::before {
+	background: var(--wpgraphql-ide-tracing-slow);
+	opacity: 0.22;
+}
+
+.wpgraphql-ide-tracing-bar-value {
+	position: relative;
+	z-index: 1;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col[data-tier="slow"] .wpgraphql-ide-tracing-bar-value {
+	color: var(--wpgraphql-ide-tracing-slow);
+	font-weight: 600;
 }
 
 .wpgraphql-ide-tracing-path {
 	display: block;
 	font-family: Menlo, Consolas, Monaco, monospace;
-	color: #2c3338;
+	color: var(--wpgraphql-ide-tracing-text);
 	word-break: break-all;
 }
 
 .wpgraphql-ide-tracing-parent {
 	display: block;
 	font-size: 10px;
-	color: #a7aaad;
+	color: var(--wpgraphql-ide-tracing-faint);
 	margin-top: 2px;
 }
 
