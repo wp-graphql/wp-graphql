@@ -1,6 +1,36 @@
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import MockIDE, { Tok } from "@/components/MockIDE"
+
+const heroQuery = (
+  <>
+    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="key">title</Tok>{"\n"}
+    {"      "}<Tok kind="key">date</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
+
+const heroResponse = (
+  <>
+    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="str">{"\"posts\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"date\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"2025-12-08\""}</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="punc">]</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
 
 export default function HomepageHero() {
   return (
@@ -38,25 +68,7 @@ export default function HomepageHero() {
           </div>
 
           <div className="relative">
-            <div className="overflow-hidden rounded-xl border border-border bg-card shadow-elev-lg">
-              <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2.5">
-                <div className="flex gap-1.5">
-                  <span className="size-2.5 rounded-full bg-[#FF5F57]" />
-                  <span className="size-2.5 rounded-full bg-[#FEBC2E]" />
-                  <span className="size-2.5 rounded-full bg-[#28C840]" />
-                </div>
-                <span className="font-mono text-[0.7rem] uppercase tracking-widest text-muted-foreground">
-                  GraphiQL
-                </span>
-              </div>
-              <Image
-                src="/images/query-posts.png"
-                alt="GraphiQL query posts example"
-                width={1024}
-                height={620}
-                className="block h-auto w-full"
-              />
-            </div>
+            <MockIDE query={heroQuery} response={heroResponse} />
             <div
               aria-hidden="true"
               className="pointer-events-none absolute right-0 top-0 -z-10 h-[55vh] w-[55vh] -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/15 blur-3xl"
