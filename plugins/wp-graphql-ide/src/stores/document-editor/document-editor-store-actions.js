@@ -13,6 +13,7 @@ import {
 	removeUnsavedTab,
 } from './unsaved-tabs-storage';
 import { isTempId } from '../../utils/document-id';
+import { WELCOME_QUERY } from './welcome-query';
 
 export { isTempId };
 
@@ -218,18 +219,21 @@ const actions = {
 	 * persists when the user explicitly saves (via saveTab).
 	 *
 	 * @param {string} title Tab title.
+	 * @param {string} query Initial query content. Defaults to the welcome
+	 *                       boilerplate; pass an explicit string (including
+	 *                       `''`) to skip the welcome.
 	 */
 	createTab:
-		(title = '') =>
+		(title = '', query = WELCOME_QUERY) =>
 		({ dispatch }) => {
 			const tempId = `temp-${Date.now()}`;
-			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId });
+			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId, query });
 			// Seed localStorage so the tab survives a refresh even
 			// before the user types anything into it.
 			saveUnsavedTab({
 				id: tempId,
 				title,
-				query: '',
+				query,
 				variables: '',
 				headers: '',
 			});

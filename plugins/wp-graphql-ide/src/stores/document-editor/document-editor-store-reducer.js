@@ -66,12 +66,20 @@ const reducer = (state = initialState, action) => {
 		}
 
 		case 'CREATE_IN_MEMORY_TAB': {
+			const seededQuery = action.query ?? '';
 			const tempDoc = {
 				id: action.tempId,
 				title: action.title,
-				query: '',
+				query: seededQuery,
 				variables: '',
 				headers: '',
+				// Seeded boilerplate (welcome content, duplicate-as-draft
+				// snapshot) is the no-changes baseline for this temp doc,
+				// so the dirty-flag and close-tab "discard changes?" prompt
+				// only fire after the user actually edits.
+				lastSavedQuery: seededQuery,
+				lastSavedVariables: '',
+				lastSavedHeaders: '',
 			};
 			return {
 				...state,

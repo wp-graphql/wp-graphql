@@ -571,15 +571,13 @@ export function IDELayout({ fetcher, onClose }) {
 		if (!activeDocument) {
 			return;
 		}
-		await createTab(`${displayDocTitle(activeDocument)} (copy)`);
-		setQuery(query);
+		await createTab(`${displayDocTitle(activeDocument)} (copy)`, query);
 		setVariables(variables);
 		setHeaders(headers);
 		addNotice('Draft copy created');
 	}, [
 		activeDocument,
 		createTab,
-		setQuery,
 		setVariables,
 		setHeaders,
 		query,

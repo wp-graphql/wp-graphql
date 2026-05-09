@@ -59,9 +59,9 @@ export function useDocumentDirty({
 				: doc.headers || '';
 			if (String(doc.id).startsWith('temp-')) {
 				return (
-					currentQuery.trim() !== '' ||
-					currentVars.trim() !== '' ||
-					currentHeaders.trim() !== ''
+					currentQuery !== (doc.lastSavedQuery || '') ||
+					currentVars !== (doc.lastSavedVariables || '') ||
+					currentHeaders !== (doc.lastSavedHeaders || '')
 				);
 			}
 			if (
