@@ -97,25 +97,12 @@ export function ResponseContent({
 			<div className="wpgraphql-ide-response-body wpgraphql-ide-response-body--empty">
 				<div className="wpgraphql-ide-response-empty">
 					<div className="wpgraphql-ide-response-empty-hint">
-						<span
-							className="wpgraphql-ide-response-empty-glyph"
-							aria-hidden="true"
-						>
-							<svg
-								width="20"
-								height="20"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M6 4.5v11l9-5.5-9-5.5z"
-									fill="currentColor"
-								/>
-							</svg>
-						</span>
-						<span className="wpgraphql-ide-response-empty-text">
-							Run the query to see the response
-						</span>
+						<h3 className="wpgraphql-ide-response-empty-title">
+							No response yet
+						</h3>
+						<p className="wpgraphql-ide-response-empty-description">
+							Run a query to see results here.
+						</p>
 					</div>
 				</div>
 			</div>

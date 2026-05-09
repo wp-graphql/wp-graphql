@@ -2131,24 +2131,24 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 8px;
-	color: #757575;
-	font-size: 13px;
+	text-align: center;
 	user-select: none;
+	max-width: 320px;
+	padding: 0 16px;
 }
 
-.wpgraphql-ide-response-empty-glyph {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	background: #e0e0e0;
-	color: #8c8f94;
+.wpgraphql-ide-response-empty-title {
+	margin: 0 0 4px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #1e1e1e;
+	letter-spacing: 0.01em;
 }
 
-.wpgraphql-ide-response-empty-text {
+.wpgraphql-ide-response-empty-description {
+	margin: 0;
+	font-size: 13px;
+	color: #757575;
 	letter-spacing: 0.01em;
 }
 
