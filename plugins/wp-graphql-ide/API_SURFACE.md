@@ -19,11 +19,8 @@ Server-injected at script-enqueue time (`wpgraphql-ide.php::enqueue_react_app_wi
 | `graphqlEndpoint` | string | every render | GraphQL POST endpoint URL. |
 | `rootElementId` | string | every render | DOM id the React root mounts to. |
 | `context` | object | every render | App context — see below. |
-| `context.currentUserId` | int | every render | `0` for anonymous, post id otherwise. localStorage buckets (unsaved tabs, etc.) scope by this. |
+| `context.currentUserId` | int | every render | `0` for anonymous, post id otherwise. localStorage buckets (unsaved tabs, prefs, etc.) scope by this. |
 | `isDedicatedIdePage` | bool | every render | Truthy on `/wp-admin/admin.php?page=graphql-ide`. |
-| `panelOrder` | string[] | every render | Per-user activity-bar order. |
-| `leftPanel` | `'composer'` \| `'settings'` \| `''` | every render | Per-user persisted left-panel choice. |
-| `responseViewMode` | `'formatted'` \| `'table'` | every render | Per-user persisted response view mode. |
 | `documentSettings` | object | every render | Registered Document Settings field descriptors. |
 | `endpointMode` | bool | public endpoint render only | Truthy on `/?graphql`. Hides Save / Saved Queries / History / Document Settings / Share / topbar actions / (when anonymous) the auth toggle. |
 | `renderStandalone` | bool | public endpoint render only | Render full-page (no slide-up drawer). Also true on the dedicated admin page via `isDedicatedIdePage`. |

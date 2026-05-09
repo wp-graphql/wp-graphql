@@ -42,7 +42,10 @@ const SCOPES = Object.freeze({
 	// User-scoped, identity-bound. Logged-in only.
 	personal_collections: 'user',
 	collection_sort_modes: 'user',
+	collection_order: 'user',
 	seen_shared_collections: 'user',
+	collapsed_notices: 'user',
+	section_states: 'user',
 });
 
 /**

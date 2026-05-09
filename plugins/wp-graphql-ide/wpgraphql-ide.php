@@ -385,73 +385,6 @@ function register_ide_user_meta() {
 
 	register_meta(
 		'user',
-		'wpgraphql_ide_active_tab',
-		[
-			'type'          => 'string',
-			'single'        => true,
-			'show_in_rest'  => true,
-			'default'       => '',
-			'auth_callback' => $auth_callback,
-		]
-	);
-
-	// Which inline document panel (Composer / Settings) is open. Empty
-	// string means no panel is open. Persists per-user so the user's
-	// last choice rides across browsers, not just localStorage.
-	register_meta(
-		'user',
-		'wpgraphql_ide_left_panel',
-		[
-			'type'              => 'string',
-			'single'            => true,
-			'show_in_rest'      => true,
-			'default'           => '',
-			'auth_callback'     => $auth_callback,
-			'sanitize_callback' => static function ( $value ) {
-				return in_array( $value, [ '', 'composer', 'settings' ], true ) ? $value : '';
-			},
-		]
-	);
-
-	// JSON vs Table view mode for the response pane. Per-user so the
-	// preference rides across browsers (matches the design rule for
-	// settings; pane-size ergonomics stay in localStorage).
-	register_meta(
-		'user',
-		'wpgraphql_ide_response_view_mode',
-		[
-			'type'              => 'string',
-			'single'            => true,
-			'show_in_rest'      => true,
-			'default'           => 'formatted',
-			'auth_callback'     => $auth_callback,
-			'sanitize_callback' => static function ( $value ) {
-				return in_array( $value, [ 'formatted', 'table' ], true ) ? $value : 'formatted';
-			},
-		]
-	);
-
-	register_meta(
-		'user',
-		'wpgraphql_ide_panel_order',
-		[
-			'type'          => 'array',
-			'single'        => true,
-			'show_in_rest'  => [
-				'schema' => [
-					'type'  => 'array',
-					'items' => [
-						'type' => 'string',
-					],
-				],
-			],
-			'default'       => [],
-			'auth_callback' => $auth_callback,
-		]
-	);
-
-	register_meta(
-		'user',
 		'wpgraphql_ide_collection_order',
 		[
 			'type'          => 'array',
@@ -485,25 +418,6 @@ function register_ide_user_meta() {
 				],
 			],
 			'default'       => new \stdClass(),
-			'auth_callback' => $auth_callback,
-		]
-	);
-
-	register_meta(
-		'user',
-		'wpgraphql_ide_open_tabs',
-		[
-			'type'          => 'array',
-			'single'        => true,
-			'show_in_rest'  => [
-				'schema' => [
-					'type'  => 'array',
-					'items' => [
-						'type' => 'string',
-					],
-				],
-			],
-			'default'       => [],
 			'auth_callback' => $auth_callback,
 		]
 	);
@@ -1914,12 +1828,9 @@ function enqueue_react_app_with_styles( bool $bypass_dedicated_page_gate = false
 	);
 
 	$user_id                 = get_current_user_id();
-	$panel_order             = get_user_meta( $user_id, 'wpgraphql_ide_panel_order', true );
 	$collapsed_notices       = get_user_meta( $user_id, 'wpgraphql_ide_collapsed_notices', true );
 	$personal_collections    = get_user_meta( $user_id, 'wpgraphql_ide_personal_collections', true );
 	$seen_shared_collections = get_user_meta( $user_id, 'wpgraphql_ide_seen_shared_collections', true );
-	$left_panel              = get_user_meta( $user_id, 'wpgraphql_ide_left_panel', true );
-	$response_view_mode      = get_user_meta( $user_id, 'wpgraphql_ide_response_view_mode', true );
 	$shared_collections      = aggregate_shared_collections();
 
 	// Decode the JSON-string blob into an array for the bootstrap so
@@ -1942,9 +1853,6 @@ function enqueue_react_app_with_styles( bool $bypass_dedicated_page_gate = false
 		'context'               => $app_context,
 		'isDedicatedIdePage'    => current_screen_is_dedicated_ide_page(),
 		'dedicatedIdeBaseUrl'   => get_dedicated_ide_base_url(),
-		'panelOrder'            => is_array( $panel_order ) ? $panel_order : [],
-		'leftPanel'             => in_array( $left_panel, [ 'composer', 'settings' ], true ) ? $left_panel : '',
-		'responseViewMode'      => in_array( $response_view_mode, [ 'formatted', 'table' ], true ) ? $response_view_mode : 'formatted',
 		'collapsedNotices'      => is_array( $collapsed_notices ) ? $collapsed_notices : [],
 		'personalCollections'   => is_array( $personal_collections ) ? $personal_collections : [],
 		'sharedCollections'     => $shared_collections,
