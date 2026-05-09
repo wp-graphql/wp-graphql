@@ -3,17 +3,17 @@
     "short_name": "WPGraphQL",
     "icons": [
         {
-            "src": "/icons/android-chrome-192x192.png",
+            "src": "/favicons/android-chrome-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/icons/android-chrome-512x512.png",
+            "src": "/favicons/android-chrome-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
     ],
-    "theme_color": "#f3931c",
-    "background_color": "#172A53",
+    "theme_color": "#FF8C1A",
+    "background_color": "#0A0F1E",
     "display": "browser"
 }
