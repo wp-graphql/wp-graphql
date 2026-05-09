@@ -39,7 +39,7 @@ const initialState = {
 	// `collections` taxonomy. Each entry: { id, name, document_ids: [],
 	// shared_with: [] }. Seeded synchronously from
 	// WPGRAPHQL_IDE_DATA.personalCollections at boot; mutations write the
-	// full updated array back via savePreference.
+	// full updated array back via setPreference.
 	personalCollections: Array.isArray(
 		typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.personalCollections

@@ -27,7 +27,7 @@ import { useLeftPanel } from '../hooks/useLeftPanel';
 import { useParsedQuery } from '../hooks/useParsedQuery';
 import { usePanelOrder } from '../hooks/usePanelOrder';
 import { usePersistedSize } from '../hooks/usePersistedSize';
-import { savePreference } from '../api/preferences';
+import { readDevicePreference, setPreference } from '../api/preferences';
 import { endpointMode, isUserLoggedIn, loginUrl } from '../bootstrap';
 import { getWorkspacePersistence } from './workspace-persistence';
 import { displayDocTitle } from '../utils/derive-doc-title';
@@ -268,6 +268,10 @@ export function IDELayout({ fetcher, onClose }) {
 	// last time during the migration window so users coming from the
 	// previous build don't lose their selection.
 	const [responseViewMode, setResponseViewModeState] = useState(() => {
+		const fromDevice = readDevicePreference('response_view_mode');
+		if (fromDevice === 'formatted' || fromDevice === 'table') {
+			return fromDevice;
+		}
 		const fromBootstrap = window.WPGRAPHQL_IDE_DATA?.responseViewMode;
 		if (fromBootstrap === 'formatted' || fromBootstrap === 'table') {
 			return fromBootstrap;
@@ -278,7 +282,7 @@ export function IDELayout({ fetcher, onClose }) {
 			);
 			if (legacy === 'formatted' || legacy === 'table') {
 				window.localStorage.removeItem('wpgraphql_ide_response_mode');
-				savePreference('response_view_mode', legacy).catch(() => {});
+				setPreference('response_view_mode', legacy).catch(() => {});
 				return legacy;
 			}
 		} catch {
@@ -288,7 +292,7 @@ export function IDELayout({ fetcher, onClose }) {
 	});
 	const setResponseViewMode = useCallback((next) => {
 		setResponseViewModeState(next);
-		savePreference('response_view_mode', next).catch(() => {});
+		setPreference('response_view_mode', next).catch(() => {});
 	}, []);
 	const { notices, addNotice, removeNotice } = useNotices();
 
@@ -368,7 +372,7 @@ export function IDELayout({ fetcher, onClose }) {
 		// if a collection is later unshared and then reshared, it'll
 		// notify again. Fire-and-forget; failure just means we'll
 		// re-notify next load, which is acceptable.
-		savePreference(
+		setPreference(
 			'seen_shared_collections',
 			shared.map((sc) => String(sc.id))
 		).catch(() => {});

@@ -13,7 +13,7 @@ import {
 	deleteCollection as removeCollection,
 	reorderCollections as persistCollectionOrder,
 } from '../../api/documents';
-import { getPreferences, savePreference } from '../../api/preferences';
+import { getPreferences, setPreference } from '../../api/preferences';
 
 const VALID_SORT_MODES = ['manual', 'title_asc', 'modified_desc', 'status'];
 
@@ -398,7 +398,7 @@ const actions = {
 				updated[normalizedKey] = next;
 			}
 			try {
-				await savePreference('collection_sort_modes', updated);
+				await setPreference('collection_sort_modes', updated);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to persist collection sort mode:', error);
@@ -427,7 +427,7 @@ const actions = {
 			];
 			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
 			try {
-				await savePreference('personal_collections', next);
+				await setPreference('personal_collections', next);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -450,7 +450,7 @@ const actions = {
 				.map((c) => (c.id === id ? { ...c, name: trimmed } : c));
 			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
 			try {
-				await savePreference('personal_collections', next);
+				await setPreference('personal_collections', next);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -468,7 +468,7 @@ const actions = {
 				.filter((c) => c.id !== id);
 			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
 			try {
-				await savePreference('personal_collections', next);
+				await setPreference('personal_collections', next);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -493,7 +493,7 @@ const actions = {
 				);
 			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
 			try {
-				await savePreference('personal_collections', next);
+				await setPreference('personal_collections', next);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -527,7 +527,7 @@ const actions = {
 			});
 			dispatch({ type: 'SET_PERSONAL_COLLECTIONS', collections: next });
 			try {
-				await savePreference('personal_collections', next);
+				await setPreference('personal_collections', next);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -541,7 +541,7 @@ const actions = {
 	 * Persist an IDE-scoped user preference. Thin wrapper around the REST
 	 * helper that exists so consumers (DocumentNotices, SavedQueriesPanel,
 	 * third-party panels) write through the public store API instead of
-	 * importing `savePreference` directly.
+	 * importing `setPreference` directly.
 	 *
 	 * Preferences are best-effort: a failure logs to the console and
 	 * shows a non-blocking snackbar via `core/notices` so the user knows
@@ -559,7 +559,7 @@ const actions = {
 		(key, value) =>
 		async ({ registry }) => {
 			try {
-				await savePreference(key, value);
+				await setPreference(key, value);
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error(`Failed to persist preference "${key}":`, error);

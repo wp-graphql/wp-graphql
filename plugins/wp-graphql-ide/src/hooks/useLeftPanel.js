@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { savePreference } from '../api/preferences';
+import { readDevicePreference, setPreference } from '../api/preferences';
 
 const LEGACY_LOCAL_KEY = 'wpgraphql_ide_left_panel';
 const LEGACY_FLAG_KEY = 'wpgraphql_ide_show_query_composer';
@@ -7,26 +7,29 @@ const LEGACY_FLAG_KEY = 'wpgraphql_ide_show_query_composer';
 /**
  * Read the initial panel choice. Resolution order:
  *
- *   1. Server-injected user meta (`WPGRAPHQL_IDE_DATA.leftPanel`) wins
- *      if set — that's the durable, per-user, cross-browser value.
- *   2. Otherwise, accept the older `wpgraphql_ide_left_panel`
- *      localStorage value and, on the same load, promote it to user
- *      meta so future paints read directly from the bootstrap.
- *   3. Otherwise, fall back to the even-older `show_query_composer`
- *      flag (also localStorage) and promote it the same way.
- *   4. Otherwise, in endpoint mode, default to opening the Query
- *      Composer — schema browsing is the primary use case for the
- *      public-endpoint render. The dedicated admin page keeps `null`
- *      so existing users don't see the composer pop open on next visit.
- *
- * Both legacy localStorage keys are deleted on first read so they
- * can't silently override a future close. The user-meta write is
- * fire-and-forget; failure leaves the localStorage hint in place,
- * which means the migration retries on the next page load.
+ *   1. New device-scope preference bucket — the canonical location
+ *      since `left_panel` is now device-scoped.
+ *   2. Server-injected `WPGRAPHQL_IDE_DATA.leftPanel` — kept as a
+ *      transitional fallback while the bootstrap field still ships;
+ *      removed when the server stops injecting it.
+ *   3. Single-key legacy localStorage entries (`wpgraphql_ide_left_panel`
+ *      and the older `show_query_composer` flag) — read once and
+ *      cleared so they can't silently override a future close.
+ *   4. In endpoint mode, default to opening the Query Composer —
+ *      schema browsing is the primary use case for the public-endpoint
+ *      render. The dedicated admin page keeps `null`.
  *
  * @param {boolean} [endpointMode]
  */
 function readInitialPanel(endpointMode = false) {
+	const fromDevice = readDevicePreference('left_panel');
+	if (fromDevice === 'composer' || fromDevice === 'settings') {
+		return fromDevice;
+	}
+	if (fromDevice === '') {
+		return null;
+	}
+
 	const fromBootstrap =
 		typeof window !== 'undefined' && window.WPGRAPHQL_IDE_DATA?.leftPanel;
 	if (fromBootstrap === 'composer' || fromBootstrap === 'settings') {
@@ -49,10 +52,10 @@ function readInitialPanel(endpointMode = false) {
 			window.localStorage.removeItem(LEGACY_FLAG_KEY);
 		}
 		if (migrated) {
-			savePreference('left_panel', migrated).catch(() => {
-				// Best-effort. If the write fails the migration retries
-				// next load (legacy keys are already cleared, so it'll
-				// quietly fall through to the endpoint-mode default).
+			setPreference('left_panel', migrated).catch(() => {
+				// Best-effort. Device writes don't actually fail in a way
+				// that returns a Promise rejection, but keep the catch
+				// in case scopeOf flips back to user later.
 			});
 			return migrated;
 		}
@@ -117,10 +120,9 @@ export function useLeftPanel({ endpointMode = false } = {}) {
 
 	const setLeftPanel = useCallback((next) => {
 		setLeftPanelState(next);
-		// Persist per-user via REST. Fire-and-forget; failures fall back
-		// to the in-memory state for the rest of the session and
-		// re-attempt next time the user toggles.
-		savePreference('left_panel', next === null ? '' : next).catch(() => {
+		// Device-scoped — adapter writes to localStorage. Fire-and-forget
+		// to keep the toggle synchronous for the user.
+		setPreference('left_panel', next === null ? '' : next).catch(() => {
 			// ignore
 		});
 	}, []);

@@ -1,21 +1,37 @@
+import { readDevicePreference, setPreference } from '../../api/preferences';
+
 /**
  * The initial state of the activity bar.
  * @type {Object}
  */
-// Restore last open panel from localStorage, defaulting to docs-explorer.
-let savedPanel = null;
-try {
-	const stored = window.localStorage.getItem('wpgraphql_ide_visible_panel');
-	if (stored !== null) {
-		savedPanel = stored || null;
+const initialPanel = (() => {
+	const fromDevice = readDevicePreference('visible_panel');
+	if (typeof fromDevice === 'string' && fromDevice !== '') {
+		return fromDevice;
 	}
-} catch {
-	// localStorage unavailable
-}
+	// Migrate the older single-key entry one time. The key was the
+	// previous storage location before everything moved into the
+	// scope-aware bucket.
+	try {
+		if (typeof window !== 'undefined') {
+			const legacy = window.localStorage.getItem(
+				'wpgraphql_ide_visible_panel'
+			);
+			if (legacy) {
+				window.localStorage.removeItem('wpgraphql_ide_visible_panel');
+				setPreference('visible_panel', legacy).catch(() => {});
+				return legacy;
+			}
+		}
+	} catch {
+		// localStorage unavailable
+	}
+	return null;
+})();
 
 const initialState = {
 	activityPanels: {},
-	visiblePanel: savedPanel,
+	visiblePanel: initialPanel,
 };
 
 /**
@@ -78,34 +94,14 @@ const reducer = (state = initialState, action) => {
 		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY': {
 			const nextPanel =
 				state.visiblePanel === action.panel ? null : action.panel;
-			try {
-				if (nextPanel) {
-					window.localStorage.setItem(
-						'wpgraphql_ide_visible_panel',
-						nextPanel
-					);
-				} else {
-					window.localStorage.removeItem(
-						'wpgraphql_ide_visible_panel'
-					);
-				}
-			} catch {
-				// localStorage unavailable
-			}
+			setPreference('visible_panel', nextPanel || '').catch(() => {});
 			return {
 				...state,
 				visiblePanel: nextPanel,
 			};
 		}
 		case 'SET_VISIBLE_PANEL': {
-			try {
-				window.localStorage.setItem(
-					'wpgraphql_ide_visible_panel',
-					action.panel
-				);
-			} catch {
-				// localStorage unavailable
-			}
+			setPreference('visible_panel', action.panel || '').catch(() => {});
 			return { ...state, visiblePanel: action.panel };
 		}
 		default:

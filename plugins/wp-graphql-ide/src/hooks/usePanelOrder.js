@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { readDevicePreference, setPreference } from '../api/preferences';
 
 /**
- * Activity-bar panel ordering with drag-to-reorder and per-user
- * persistence. The initial order comes from the bootstrap's
- * `WPGRAPHQL_IDE_DATA.panelOrder`; subsequent reorders are saved via
- * `savePreference('panel_order', …)`.
+ * Activity-bar panel ordering with drag-to-reorder and per-device
+ * persistence. The initial order comes from the device pref bucket
+ * (or the bootstrap's `WPGRAPHQL_IDE_DATA.panelOrder` as a fallback
+ * while the server still injects it); subsequent reorders are saved
+ * via `setPreference('panel_order', …)`.
  *
  * Returns the input panels reordered to match the user's saved order,
  * with any panels missing from that order appended at the end so a
@@ -29,11 +31,16 @@ export function usePanelOrder(panels) {
 	const dragSrcPanel = useRef(null);
 
 	useEffect(() => {
-		const saved =
+		const fromDevice = readDevicePreference('panel_order');
+		if (Array.isArray(fromDevice) && fromDevice.length > 0) {
+			setPanelOrder(fromDevice);
+			return;
+		}
+		const fromBootstrap =
 			typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.panelOrder;
-		if (Array.isArray(saved) && saved.length > 0) {
-			setPanelOrder(saved);
+		if (Array.isArray(fromBootstrap) && fromBootstrap.length > 0) {
+			setPanelOrder(fromBootstrap);
 		}
 	}, []);
 
@@ -82,9 +89,7 @@ export function usePanelOrder(panels) {
 			setPanelOrder(names);
 			setDragOverPanel(null);
 
-			import('../api/preferences').then(({ savePreference }) => {
-				savePreference('panel_order', names);
-			});
+			setPreference('panel_order', names);
 		},
 		[navPanels]
 	);

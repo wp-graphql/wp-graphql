@@ -6,7 +6,7 @@ import {
 	publishDocument,
 	reorderDocuments,
 } from '../../api/documents';
-import { getPreferences, savePreference } from '../../api/preferences';
+import { getPreferences, setPreference } from '../../api/preferences';
 import {
 	getUnsavedTabs,
 	saveUnsavedTab,
@@ -540,8 +540,8 @@ const actions = {
 
 			try {
 				await Promise.all([
-					savePreference('open_tabs', openTabs),
-					savePreference('active_tab', activeTab || ''),
+					setPreference('open_tabs', openTabs),
+					setPreference('active_tab', activeTab || ''),
 				]);
 			} catch (error) {
 				// eslint-disable-next-line no-console
