@@ -2103,7 +2103,11 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	min-width: 300px;
+	/* 440 is the floor at which the bottom tab strip + verdict block +
+	   table all stay legible. Anything tighter and even the overflow `+N`
+	   button starts getting clipped, so we'd rather have the workspace
+	   scroll horizontally below this width than mangle the response UI. */
+	min-width: 440px;
 	position: relative;
 	background: #fff;
 	overflow: hidden;
