@@ -159,7 +159,7 @@ export const TracingExtensionTab = ({ data }) => {
 						{verdict.label}
 					</span>
 					<span className="wpgraphql-ide-tracing-verdict-summary">
-						{formatDuration(data.duration)} in resolvers ·{' '}
+						{formatDuration(data.duration)} across{' '}
 						{resolvers.length}{' '}
 						{resolvers.length === 1 ? 'resolver' : 'resolvers'}
 					</span>
