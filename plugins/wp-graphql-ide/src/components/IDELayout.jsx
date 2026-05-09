@@ -848,6 +848,11 @@ export function IDELayout({ fetcher, onClose }) {
 					}
 				}}
 				topbarActions={endpointMode ? [] : topbarActions}
+				signInUrl={
+					endpointMode && !window.WPGRAPHQL_IDE_DATA?.isUserLoggedIn
+						? window.WPGRAPHQL_IDE_DATA?.loginUrl
+						: undefined
+				}
 				onClose={onClose}
 			/>
 

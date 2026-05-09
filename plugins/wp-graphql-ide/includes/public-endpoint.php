@@ -254,6 +254,11 @@ function inject_endpoint_mode_flag( array $data ): array {
 	}
 	$data['endpointMode']   = true;
 	$data['isUserLoggedIn'] = is_user_logged_in();
+	// Sign-in URL with a redirect back to the current page so the user
+	// lands on the same IDE shell after login (now in full-IDE mode if
+	// they have `manage_graphql_ide`).
+	$current_url        = ( is_ssl() ? 'https://' : 'http://' ) . ( $_SERVER['HTTP_HOST'] ?? '' ) . ( $_SERVER['REQUEST_URI'] ?? '' );
+	$data['loginUrl']   = wp_login_url( $current_url );
 	return $data;
 }
 
@@ -281,3 +286,55 @@ function register_public_endpoint_setting(): void {
 	);
 }
 add_action( 'graphql_register_settings', __NAMESPACE__ . '\\register_public_endpoint_setting' );
+
+/**
+ * Show an admin notice on the WPGraphQL settings page when the public
+ * IDE endpoint is enabled but public introspection isn't, since the
+ * Docs Explorer will be silently empty for anonymous visitors in
+ * that combination.
+ *
+ * Soft notice — not a hard requirement; admins might have legitimate
+ * reasons to keep introspection gated. Just makes the silent gap
+ * loud.
+ */
+function maybe_render_introspection_notice(): void {
+	if ( ! function_exists( 'get_current_screen' ) ) {
+		return;
+	}
+	$screen = get_current_screen();
+	if ( ! $screen || false === strpos( (string) $screen->id, 'graphql' ) ) {
+		return;
+	}
+	if ( ! public_endpoint_is_enabled() ) {
+		return;
+	}
+
+	// `public_introspection_enabled` lives on `graphql_general_settings`.
+	// Same string-coercion gotcha as `graphql_ide_public_endpoint` —
+	// compare against `"on"` explicitly. Debug mode also enables
+	// introspection regardless of the toggle.
+	$introspection_on =
+		( class_exists( '\\WPGraphQL' ) && \WPGraphQL::debug() )
+		|| 'on' === get_graphql_setting( 'public_introspection_enabled', 'off' );
+
+	if ( $introspection_on ) {
+		return;
+	}
+
+	?>
+	<div class="notice notice-warning">
+		<p>
+			<strong><?php esc_html_e( 'WPGraphQL IDE — public endpoint enabled', 'wpgraphql-ide' ); ?></strong>
+		</p>
+		<p>
+			<?php
+			esc_html_e(
+				'You\'ve enabled the public IDE at the GraphQL endpoint URL, but public schema introspection is disabled. Anonymous visitors will see an empty Docs Explorer and won\'t be able to discover what queries your schema accepts. Enable "Public Introspection Enabled" under General Settings if you want the IDE to be useful for unauthenticated visitors.',
+				'wpgraphql-ide'
+			);
+			?>
+		</p>
+	</div>
+	<?php
+}
+add_action( 'admin_notices', __NAMESPACE__ . '\\maybe_render_introspection_notice' );
