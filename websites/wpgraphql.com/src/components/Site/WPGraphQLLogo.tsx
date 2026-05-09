@@ -65,7 +65,7 @@ export function WPGraphQLLogo({
   showWordmark = true,
   size = 32,
   variant = "default",
-  subLabel = "for WordPress",
+  subLabel,
   className,
   markClassName,
   wordmarkClassName,
