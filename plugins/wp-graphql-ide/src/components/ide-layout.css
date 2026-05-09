@@ -2347,19 +2347,35 @@ input.wpgraphql-ide-tab-input:focus {
 	white-space: nowrap;
 }
 
-.wpgraphql-ide-tabs-overflow.components-button {
-	font-size: 12px;
+/* Style the overflow button to integrate with the tab strip — same
+   height/padding/typography as `.components-tab-panel__tabs-item`, no
+   boxed outline (the wp-components Button default would otherwise sit
+   above the tab baseline as a chip). */
+.wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button {
+	font-size: 13px;
+	padding: 8px 12px;
+	height: auto;
 	color: var(--wp-components-color-gray-700, #50575e);
-	padding: 4px 10px;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
 	min-width: auto;
 	flex-shrink: 0;
 	white-space: nowrap;
-	margin-left: 4px;
-	align-self: center;
+	align-self: stretch;
+	box-shadow: none;
 }
 
-.wpgraphql-ide-tabs-overflow.components-button:hover {
+.wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button:hover {
 	color: var(--wp-components-color-foreground, #1e1e1e);
+	background: transparent;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button:focus-visible {
+	box-shadow: inset 0 0 0 1.5px
+		var(--wp-components-color-accent, var(--wp-admin-theme-color, #2271b1));
+	outline: none;
 }
 
 /* Red error indicator on the Errors tab when errors > 0 */

@@ -29,6 +29,11 @@ export function OverflowTabs({
 }) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
+	// Per-tab measured widths persist across renders. Without this, tabs
+	// that fold into the overflow dropdown unmount, lose their refs, and
+	// can't be re-measured when the panel grows back — which made the
+	// strip flicker as the cutoff bounced on continuous resize.
+	const widthCacheRef = useRef({});
 	const [cutoff, setCutoff] = useState(tabs.length);
 	const [activeName, setActiveName] = useState(
 		initialTabName || tabs[0]?.name
@@ -41,27 +46,31 @@ export function OverflowTabs({
 		}
 		const available = container.clientWidth;
 
-		// First pass — do all tabs fit at full width with no overflow button?
-		let sum = 0;
-		for (const tab of tabs) {
-			const el = tabRefs.current[tab.name];
-			sum += el ? el.offsetWidth : 100;
+		// Refresh the cache for any tabs that are currently in the DOM.
+		// Overflowed tabs aren't mounted, so we keep the last value we
+		// saw for them.
+		for (const name in tabRefs.current) {
+			const el = tabRefs.current[name];
+			if (el) {
+				widthCacheRef.current[name] = el.offsetWidth;
+			}
 		}
-		if (sum <= available) {
+
+		const widths = tabs.map((t) => widthCacheRef.current[t.name] || 100);
+		const total = widths.reduce((a, b) => a + b, 0);
+
+		if (total <= available) {
 			setCutoff(tabs.length);
 			return;
 		}
 
-		// Second pass — reserve space for the "+N" button.
-		sum = OVERFLOW_BTN_W;
+		let sum = OVERFLOW_BTN_W;
 		let count = 0;
-		for (const tab of tabs) {
-			const el = tabRefs.current[tab.name];
-			const w = el ? el.offsetWidth : 100;
-			if (sum + w > available) {
+		for (let i = 0; i < tabs.length; i++) {
+			if (sum + widths[i] > available) {
 				break;
 			}
-			sum += w;
+			sum += widths[i];
 			count++;
 		}
 		setCutoff(Math.max(1, count));
