@@ -32,6 +32,14 @@
 	max-width: 480px;
 }
 
+/* Every IDE dialog renders an explicit Cancel button in its action row,
+   which makes WP Modal's default "X" close button redundant. Hide it
+   visually but keep escape-key + overlay-click dismissal intact (those
+   don't depend on this button's presence). */
+.wpgraphql-ide-dialog .components-modal__header .components-button[aria-label="Close"] {
+	display: none;
+}
+
 .wpgraphql-ide-dialog-message {
 	margin: 0 0 16px;
 	font-size: 13px;
@@ -1347,11 +1355,17 @@ input.wpgraphql-ide-tab-input:focus {
 	width: 24px;
 	height: 24px;
 	min-width: 24px;
+	min-height: 24px;
 	padding: 0;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	color: #646970;
+}
+
+.wpgraphql-ide-panel-kebab.components-button svg {
+	width: 18px;
+	height: 18px;
 }
 
 .wpgraphql-ide-panel-kebab.components-button:hover {

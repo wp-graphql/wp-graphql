@@ -104,7 +104,14 @@ export function ResponsePane({
 		<div className="wpgraphql-ide-response-pane">
 			<div className="wpgraphql-ide-response-header">
 				<span className="wpgraphql-ide-response-label">Response</span>
-				<DropdownMenu icon={moreVertical} label="Response options">
+				<DropdownMenu
+					icon={moreVertical}
+					label="Response options"
+					toggleProps={{
+						size: 'small',
+						className: 'wpgraphql-ide-panel-kebab',
+					}}
+				>
 					{({ onClose: closeMenu }) => (
 						<MenuGroup>
 							<MenuItem

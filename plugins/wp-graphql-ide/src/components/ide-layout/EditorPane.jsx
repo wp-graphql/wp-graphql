@@ -173,7 +173,14 @@ export function EditorPane({
 					</Tooltip>
 				)}
 				<span className="wpgraphql-ide-editor-label">Query</span>
-				<DropdownMenu icon={moreVertical} label="Editor actions">
+				<DropdownMenu
+					icon={moreVertical}
+					label="Editor actions"
+					toggleProps={{
+						size: 'small',
+						className: 'wpgraphql-ide-panel-kebab',
+					}}
+				>
 					{({ onClose: closeMenu }) => (
 						<>
 							<MenuGroup>
