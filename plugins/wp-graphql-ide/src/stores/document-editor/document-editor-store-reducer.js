@@ -5,6 +5,10 @@ const initialState = {
 	// order by the JS engine, which clobbers insertion order. Track
 	// document order separately so reorder actions actually stick.
 	documentIds: [],
+	// Per-document last-execution response string, separate from the
+	// document map so writing a response after a query run doesn't
+	// invalidate selectors that read the document list.
+	documentResponses: {},
 	openTabs: [],
 	activeTab: null,
 	tabTypes: {},
@@ -157,17 +161,16 @@ const reducer = (state = initialState, action) => {
 		}
 
 		case 'SET_DOCUMENT_RESPONSE':
-			if (!state.documents[String(action.id)]) {
-				return state;
-			}
+			// Keep response data in its own slice so writing one doesn't
+			// invalidate `state.documents` (and the `getDocuments`
+			// selector that depends on it). Without this split, every
+			// query execution triggered a useSelect "non-equal value"
+			// warning across consumers reading the document list.
 			return {
 				...state,
-				documents: {
-					...state.documents,
-					[String(action.id)]: {
-						...state.documents[String(action.id)],
-						lastResponse: action.response,
-					},
+				documentResponses: {
+					...state.documentResponses,
+					[String(action.id)]: action.response,
 				},
 			};
 

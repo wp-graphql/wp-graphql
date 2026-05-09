@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import { SnackbarList } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
 import { ShareDialog } from './dialogs/ShareDialog';
 import { SaveDialog } from './dialogs/SaveDialog';
 import { DocumentTabs } from './DocumentTabs';
@@ -404,7 +404,14 @@ export function IDELayout({ fetcher, onClose }) {
 		setQuery(activeDocument.query || '');
 		setVariables(activeDocument.variables || '');
 		setHeaders(activeDocument.headers || '');
-		setResponse(activeDocument.lastResponse || '');
+		// `lastResponse` is now in its own slice; read once on tab
+		// switch via the registry rather than threading another
+		// useSelect dep through this effect.
+		setResponse(
+			wpSelect('wpgraphql-ide/document-editor').getDocumentResponse(
+				activeDocument.id
+			)
+		);
 		setDocSettingsValues(
 			activeDocument.documentSettings &&
 				typeof activeDocument.documentSettings === 'object'

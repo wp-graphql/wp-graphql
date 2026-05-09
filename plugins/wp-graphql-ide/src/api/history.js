@@ -34,6 +34,14 @@ export async function getHistory() {
  * @return {Promise<Object>} Created history entry.
  */
 export async function createHistoryEntry(entry) {
+	// `_graphql_ide_document_id` is registered as type integer on the
+	// CPT meta. Callers can hand us a temp-ID string (`temp-…`), an
+	// undefined, or any other non-numeric — coerce to a positive
+	// integer or fall back to 0 so the REST validator doesn't 400 on
+	// "not of type integer".
+	const docIdNum = Number(entry.document_id);
+	const docId = Number.isFinite(docIdNum) && docIdNum > 0 ? docIdNum : 0;
+
 	const post = await apiFetch({
 		path: ENDPOINT,
 		method: 'POST',
@@ -45,7 +53,7 @@ export async function createHistoryEntry(entry) {
 				_graphql_ide_headers: entry.headers ?? '',
 				_graphql_ide_duration_ms: entry.duration_ms ?? 0,
 				_graphql_ide_status: entry.status ?? '',
-				_graphql_ide_document_id: entry.document_id ?? 0,
+				_graphql_ide_document_id: docId,
 				_graphql_ide_is_authenticated: entry.is_authenticated ?? true,
 				_graphql_ide_http_method: entry.http_method ?? 'POST',
 			},

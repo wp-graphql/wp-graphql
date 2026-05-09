@@ -24,6 +24,13 @@ const selectors = {
 		(state) => [state.documents, state.documentIds]
 	),
 
+	getDocumentResponse: (state, id) => {
+		if (id === null || id === undefined) {
+			return '';
+		}
+		return state.documentResponses?.[String(id)] || '';
+	},
+
 	// Memoized: returns the same array reference when `state.openTabs`
 	// is unchanged. Without this, `useSelect` consumers see a fresh
 	// `.map(...)` array on every dispatch and trigger a wp-data
