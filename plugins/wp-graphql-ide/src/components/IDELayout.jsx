@@ -865,19 +865,21 @@ export function IDELayout({ fetcher, onClose }) {
 			<IDETopbar
 				visiblePanel={visiblePanel}
 				onSidebarToggle={handleSidebarToggle}
-				isSchemaLoading={isSchemaLoading}
-				onRefetchSchema={async () => {
-					const result = await refetch();
-					if (result?.ok) {
-						addNotice('Schema refreshed');
-					} else {
-						addNotice(
-							`Failed to refresh schema: ${
-								result?.error?.message ?? 'Unknown error'
-							}`,
-							'error'
-						);
-					}
+				topbarCtx={{
+					isSchemaLoading,
+					refetchSchema: async () => {
+						const result = await refetch();
+						if (result?.ok) {
+							addNotice('Schema refreshed');
+						} else {
+							addNotice(
+								`Failed to refresh schema: ${
+									result?.error?.message ?? 'Unknown error'
+								}`,
+								'error'
+							);
+						}
+					},
 				}}
 				topbarActions={endpointMode ? [] : topbarActions}
 				signInUrl={

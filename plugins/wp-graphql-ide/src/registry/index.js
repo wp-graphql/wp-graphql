@@ -7,7 +7,7 @@ import {
 	registerTopbarAction,
 	registerWorkspaceTabType,
 } from '../access-functions';
-import { Icon, cog } from '@wordpress/icons';
+import { Icon, cog, update } from '@wordpress/icons';
 import { SettingsWorkspaceTab } from '../components/settings/SettingsWorkspaceTab';
 import {
 	SETTINGS_TAB_ID,
@@ -201,6 +201,21 @@ export const initializeRegistry = () => {
 		save: saveAllSettings,
 		discard: clearPendingSettings,
 	});
+
+	// Built-in topbar actions — refresh-schema lives in the same
+	// registry as Settings so plugins can drop in alongside them.
+	registerTopbarAction(
+		'refresh-schema',
+		{
+			title: 'Re-fetch schema',
+			icon: () => <Icon icon={update} />,
+			onClick: ({ refetchSchema }) => refetchSchema?.(),
+			isDisabled: ({ isSchemaLoading }) => !!isSchemaLoading,
+			className: ({ isSchemaLoading }) =>
+				isSchemaLoading ? 'is-loading' : '',
+		},
+		5
+	);
 
 	// Register the settings topbar action if the user can manage settings.
 	const canManageSettings =

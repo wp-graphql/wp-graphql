@@ -1,27 +1,26 @@
 import React from 'react';
 import { Button, Tooltip } from '@wordpress/components';
-import { Icon, close, edit, sidebar, update } from '@wordpress/icons';
+import { Icon, close, edit, sidebar } from '@wordpress/icons';
 
 /**
- * Global top bar — sidebar toggle, schema refetch, registered topbar
- * actions, and an optional close button when the IDE is mounted in
- * drawer mode.
+ * Global top bar — sidebar toggle, registered topbar actions, and an
+ * optional close button when the IDE is mounted in drawer mode. The
+ * schema-refetch button is registered through the same `registerTopbarAction`
+ * registry as Settings; renders alongside any other extension actions.
  *
  * @param {Object}      props
  * @param {Object|null} props.visiblePanel    - Currently visible activity panel descriptor (or null).
  * @param {Function}    props.onSidebarToggle - Click handler for the sidebar toggle.
- * @param {boolean}     props.isSchemaLoading - Whether a schema fetch is in flight.
- * @param {Function}    props.onRefetchSchema - Async handler called when the user clicks the refresh button.
- * @param {Array}       props.topbarActions   - Extension-registered topbar action descriptors.
+ * @param {Array}       props.topbarActions   - Topbar action descriptors (built-ins + extensions).
+ * @param {Object}      props.topbarCtx       - Context passed to action callables (refetchSchema, isSchemaLoading, etc.).
  * @param {string}      [props.signInUrl]     - When set, renders a "Sign in" link at the right of the topbar (used by the public-endpoint render for anonymous visitors).
  * @param {Function}    [props.onClose]       - Close handler for drawer mode (omitted on the dedicated page).
  */
 export function IDETopbar({
 	visiblePanel,
 	onSidebarToggle,
-	isSchemaLoading,
-	onRefetchSchema,
 	topbarActions,
+	topbarCtx,
 	signInUrl,
 	onClose,
 }) {
@@ -48,46 +47,43 @@ export function IDETopbar({
 				<span className="wpgraphql-ide-topbar-title">WPGraphQL</span>
 			</div>
 			<div className="wpgraphql-ide-topbar-right">
-				<Tooltip text="Re-fetch schema">
-					<Button
-						onClick={onRefetchSchema}
-						disabled={isSchemaLoading}
-						aria-label="Re-fetch schema"
-						size="compact"
-						className={`wpgraphql-ide-topbar-btn${isSchemaLoading ? ' is-loading' : ''}`}
-					>
-						<Icon icon={update} />
-					</Button>
-				</Tooltip>
-				{topbarActions.length > 0 && (
-					<>
-						<div className="wpgraphql-ide-topbar-sep" />
-						{topbarActions.map((action) => (
-							<Tooltip key={action.name} text={action.title}>
-								<Button
-									onClick={() =>
-										window.WPGraphQLIDE?.openWorkspaceTab(
-											action.tabType,
-											{
-												id: action.tabId,
-												title: action.title,
-											}
-										)
+				{topbarActions.map((action) => {
+					const handler = action.onClick
+						? () => action.onClick(topbarCtx)
+						: () =>
+								window.WPGraphQLIDE?.openWorkspaceTab(
+									action.tabType,
+									{
+										id: action.tabId,
+										title: action.title,
 									}
-									aria-label={action.title}
-									size="compact"
-									className="wpgraphql-ide-topbar-btn"
-								>
-									{action.icon ? (
-										<action.icon />
-									) : (
-										<Icon icon={edit} />
-									)}
-								</Button>
-							</Tooltip>
-						))}
-					</>
-				)}
+								);
+					const disabled =
+						typeof action.isDisabled === 'function'
+							? action.isDisabled(topbarCtx)
+							: false;
+					const extraClass =
+						typeof action.className === 'function'
+							? action.className(topbarCtx)
+							: '';
+					return (
+						<Tooltip key={action.name} text={action.title}>
+							<Button
+								onClick={handler}
+								disabled={disabled}
+								aria-label={action.title}
+								size="compact"
+								className={`wpgraphql-ide-topbar-btn${extraClass ? ` ${extraClass}` : ''}`}
+							>
+								{action.icon ? (
+									<action.icon />
+								) : (
+									<Icon icon={edit} />
+								)}
+							</Button>
+						</Tooltip>
+					);
+				})}
 				{signInUrl && (
 					<>
 						<div className="wpgraphql-ide-topbar-sep" />

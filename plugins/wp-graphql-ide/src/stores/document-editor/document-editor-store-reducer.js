@@ -236,6 +236,13 @@ const reducer = (state = initialState, action) => {
 						icon: action.config.icon,
 						tabType: action.config.tabType,
 						tabId: action.config.tabId || action.config.tabType,
+						// Optional callable shape — actions that don't open
+						// a workspace tab (e.g. the schema refresh button)
+						// register `onClick(ctx)` + optional state
+						// predicates instead. ctx is provided by IDETopbar.
+						onClick: action.config.onClick,
+						isDisabled: action.config.isDisabled,
+						className: action.config.className,
 						priority: action.priority || 10,
 					},
 				},
