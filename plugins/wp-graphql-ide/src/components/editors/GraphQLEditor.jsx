@@ -8,6 +8,41 @@ import {
 } from '@codemirror/view';
 import { Compartment, EditorState, Prec } from '@codemirror/state';
 import { indentWithTab } from '@codemirror/commands';
+
+const INDENT = '  ';
+
+/**
+ * Enter pressed inside an empty `{|}` (or `[|]` / `(|)`) splits the pair
+ * across three lines, indenting the body and aligning the closer to the
+ * opener. cm6-graphql doesn't register indent rules, so the default
+ * `closeBrackets` Enter handler leaves the closer on the same column as
+ * the opener but doesn't add the indented body line.
+ */
+const splitBracketsOnEnter = {
+	key: 'Enter',
+	run(view) {
+		const { state } = view;
+		const { from, to } = state.selection.main;
+		if (from !== to) {
+			return false;
+		}
+		const before = state.sliceDoc(from - 1, from);
+		const after = state.sliceDoc(from, from + 1);
+		const pairs = { '{': '}', '[': ']', '(': ')' };
+		if (pairs[before] !== after) {
+			return false;
+		}
+		const line = state.doc.lineAt(from);
+		const baseIndent = /^\s*/.exec(line.text)[0];
+		const insert = `\n${baseIndent}${INDENT}\n${baseIndent}`;
+		view.dispatch({
+			changes: { from, to, insert },
+			selection: { anchor: from + 1 + baseIndent.length + INDENT.length },
+			userEvent: 'input',
+		});
+		return true;
+	},
+};
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { graphql, jump, updateSchema, offsetToPos } from 'cm6-graphql';
@@ -374,11 +409,13 @@ export function GraphQLEditor({
 					onChangeRef.current(update.state.doc.toString());
 				}
 				// Activate graphql extension once the user types something.
+				// Read through the ref — closure `schema` is stale and
+				// would clobber whatever updateSchema() installed later.
 				const doc = update.state.doc.toString();
 				if (doc.trim().length > 0 && graphqlCompartment.current) {
 					update.view.dispatch({
 						effects: graphqlCompartment.current.reconfigure(
-							graphql(schema || undefined, graphqlOpts)
+							graphql(schemaRef.current || undefined, graphqlOpts)
 						),
 					});
 				}
@@ -410,6 +447,7 @@ export function GraphQLEditor({
 			// to indent / Shift-Tab to outdent. Esc-then-Tab still
 			// escapes focus for keyboard users, which is the WAI-ARIA
 			// recommended way to keep the editor accessible.
+			Prec.high(keymap.of([splitBracketsOnEnter])),
 			keymap.of([indentWithTab]),
 			graphqlCompartment.current.of(
 				graphql(
