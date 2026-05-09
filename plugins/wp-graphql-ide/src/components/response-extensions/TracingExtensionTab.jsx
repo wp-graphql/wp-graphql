@@ -166,15 +166,8 @@ export const TracingExtensionTab = ({ data }) => {
 				</div>
 				{slowest && (
 					<p className="wpgraphql-ide-tracing-verdict-detail">
-						Slowest field:{' '}
-						<button
-							type="button"
-							className="wpgraphql-ide-tracing-link"
-							onClick={() => jumpToPath(slowest.path)}
-						>
-							<code>{formatPath(slowest.path)}</code>
-						</button>{' '}
-						— {formatDuration(slowest.duration)}
+						Slowest field: <code>{formatPath(slowest.path)}</code> —{' '}
+						{formatDuration(slowest.duration)}
 						{slowestPct > 0 && resolvers.length > 1
 							? ` (${slowestPct}% of resolver time)`
 							: ''}
