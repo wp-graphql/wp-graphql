@@ -47,6 +47,12 @@ function public_endpoint_render_is_active( ?bool $set = null ): bool {
  * Whether the public-endpoint IDE setting is enabled. Cached statically
  * within a request because both the route check and the bootstrap
  * injection consult it.
+ *
+ * WPGraphQL stores checkbox fields as the string `"on"` (checked) or
+ * `"off"` (unchecked). PHP's `(bool) "off"` evaluates to *true* —
+ * non-empty strings are truthy — so a `(bool)` cast here would treat
+ * "unchecked" as "enabled" and the toggle would never disable anything.
+ * Compare against `"on"` explicitly.
  */
 function public_endpoint_is_enabled(): bool {
 	static $enabled = null;
@@ -57,9 +63,9 @@ function public_endpoint_is_enabled(): bool {
 		$enabled = false;
 		return false;
 	}
-	$enabled = (bool) get_graphql_setting(
+	$enabled = 'on' === get_graphql_setting(
 		'graphql_ide_public_endpoint',
-		false,
+		'off',
 		'graphql_ide_settings'
 	);
 	return $enabled;
