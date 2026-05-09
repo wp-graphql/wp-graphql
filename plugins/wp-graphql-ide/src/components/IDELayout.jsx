@@ -188,6 +188,12 @@ export function IDELayout({ fetcher, onClose }) {
 	const activeDocRef = useRef(null);
 	activeDocRef.current = activeDocument;
 
+	// Mirror of openTabs for after-async checks. The mount effect's
+	// hydrate-then-spawn-fresh logic needs to read post-hydration tab
+	// count without re-subscribing the effect to `openTabs` changes.
+	const openTabsRef = useRef(openTabs);
+	openTabsRef.current = openTabs;
+
 	// Capture the document ID and query when execution starts, so the
 	// result goes to the correct document even if the user switches tabs.
 	const executingDocIdRef = useRef(null);
@@ -308,14 +314,29 @@ export function IDELayout({ fetcher, onClose }) {
 		// Endpoint mode (anonymous / non-IDE-capable visitors via the
 		// public endpoint) skips per-user fetches — they'd 401 anyway
 		// since the routes require manage_graphql_ide. Spawn a fresh
-		// temp tab so the editor surface is mounted and ready.
-		if (endpointMode) {
-			createTab('');
-			return;
-		}
-		loadDocuments();
-		loadHistory();
-		loadCollections();
+		// `loadDocuments` is resilient to REST 401s — REST and
+		// localStorage are tried independently inside it, so anonymous
+		// endpoint-mode visitors still get their unsaved drafts
+		// hydrated from per-user-scoped localStorage. If hydration
+		// produces no open tabs, spawn a fresh one so the editor
+		// surface is mounted and ready.
+		const hydrate = async () => {
+			await loadDocuments();
+			if (endpointMode) {
+				return;
+			}
+			loadHistory();
+			loadCollections();
+		};
+		hydrate().then(() => {
+			if (
+				endpointMode &&
+				openTabsRef.current &&
+				openTabsRef.current.length === 0
+			) {
+				createTab('');
+			}
+		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

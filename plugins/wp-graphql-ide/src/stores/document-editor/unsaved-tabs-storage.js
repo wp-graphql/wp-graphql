@@ -11,15 +11,28 @@
 import { getStorageJSON, setStorageJSON } from '../../utils/storage';
 import { isTempId } from '../../utils/document-id';
 
-const STORAGE_KEY = 'wpgraphql-ide:unsaved-tabs:v1';
+/**
+ * Per-user storage key. The same browser can hold an admin session in
+ * one tab and an anonymous endpoint-mode session in another (or
+ * sequentially via login/logout). Without scoping by user id, draft
+ * tabs from one context leak into the other on hydration. Anonymous
+ * = `:user-0`; logged-in = `:user-{ID}`.
+ */
+function storageKey() {
+	const id =
+		(typeof window !== 'undefined' &&
+			Number(window.WPGRAPHQL_IDE_DATA?.context?.currentUserId)) ||
+		0;
+	return `wpgraphql-ide:unsaved-tabs:v1:user-${id}`;
+}
 
 function readAll() {
-	const data = getStorageJSON(STORAGE_KEY, []);
+	const data = getStorageJSON(storageKey(), []);
 	return Array.isArray(data) ? data : [];
 }
 
 function writeAll(tabs) {
-	setStorageJSON(STORAGE_KEY, tabs);
+	setStorageJSON(storageKey(), tabs);
 }
 
 /**

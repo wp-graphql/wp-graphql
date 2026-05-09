@@ -2089,6 +2089,10 @@ function get_app_context(): array {
 		'externalFragments' => get_external_fragments(),
 		'avatarUrl'         => $avatar_url,
 		'drawerButtonLabel' => __( 'GraphQL IDE', 'wpgraphql-ide' ),
+		// 0 for anonymous, post id otherwise. localStorage buckets
+		// (unsaved tabs, etc) scope by this so signed-in and anonymous
+		// state on the same browser don't pollute each other.
+		'currentUserId'     => (int) $current_user->ID,
 	];
 
 	return apply_filters( 'wpgraphql_ide_context', $app_context );

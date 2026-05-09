@@ -106,12 +106,24 @@ const actions = {
 	loadDocuments:
 		() =>
 		async ({ dispatch }) => {
+			// REST and localStorage are independent sources. A 401 on
+			// the REST routes (anonymous visitor on the public endpoint)
+			// must NOT prevent localStorage tab hydration — anonymous
+			// users still have unsaved drafts that need to survive
+			// refresh. Try REST in its own try/catch; localStorage
+			// always runs.
+			let docs = [];
+			let prefs = {};
 			try {
-				const [docs, prefs] = await Promise.all([
+				[docs, prefs] = await Promise.all([
 					getDocuments(),
 					getPreferences(),
 				]);
-
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.warn('Failed to load IDE documents from REST:', error);
+			}
+			try {
 				// Hydrate any unsaved drafts the user had open before
 				// the page reloaded. They live alongside saved docs in
 				// the documents store but keep their `temp-*` IDs.

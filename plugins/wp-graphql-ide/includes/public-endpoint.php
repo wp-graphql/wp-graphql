@@ -197,14 +197,17 @@ function render_public_ide_shell(): void {
  * Build the bootstrap-data delta for the public-endpoint render.
  * Filtered into `WPGRAPHQL_IDE_DATA` via `wpgraphql_ide_localized_data`.
  *
- * Always sets:
- *   - `renderStandalone`: true. Signed-in or not, the public-endpoint
- *     surface is full-page (no slide-up drawer).
+ * The public endpoint is treated as one surface regardless of who's
+ * visiting:
+ *   - `renderStandalone`: full-page, no slide-up drawer
+ *   - `endpointMode`: feature trim (no save, no saved queries, no
+ *     history, no document settings, no share, no topbar actions)
+ *   - `isUserLoggedIn`: lets the auth toggle flow correctly when a
+ *     signed-in visitor wants to send their nonce
  *
- * IDE-capable visitors (`manage_graphql_ide`) get the full IDE — only
- * the `isUserLoggedIn` flag is added for them. Everyone else gets
- * endpoint mode + the sign-in URL with a redirect-back so they can
- * sign in and re-land on the same shell as a full-IDE user.
+ * Anonymous visitors also get `loginUrl` so the topbar can render a
+ * sign-in affordance pointing back at this URL. Authenticated users
+ * who want the full IDE use the dedicated admin page or the drawer.
  *
  * @param array<string,mixed> $data
  *
@@ -212,15 +215,11 @@ function render_public_ide_shell(): void {
  */
 function inject_public_endpoint_data( array $data ): array {
 	$data['renderStandalone'] = true;
-
-	if ( current_user_can( 'manage_graphql_ide' ) ) {
-		$data['isUserLoggedIn'] = true;
-		return $data;
+	$data['endpointMode']     = true;
+	$data['isUserLoggedIn']   = is_user_logged_in();
+	if ( ! is_user_logged_in() ) {
+		$data['loginUrl'] = wp_login_url( current_request_url() );
 	}
-
-	$data['endpointMode']   = true;
-	$data['isUserLoggedIn'] = is_user_logged_in();
-	$data['loginUrl']       = wp_login_url( current_request_url() );
 	return $data;
 }
 
