@@ -7,6 +7,16 @@ on:
       - edited
       - synchronize
 
+# `amannn/action-semantic-pull-request` posts a commit status to report
+# the PR-title check result. That requires `statuses: write`, which the
+# default `GITHUB_TOKEN` doesn't have on `pull_request_target` — the
+# action then fails with "Resource not accessible by integration" even
+# when the title itself is valid. Granting just the two permissions the
+# action needs (and nothing else) keeps the token narrowly scoped.
+permissions:
+  pull-requests: read
+  statuses: write
+
 jobs:
   main:
     name: Validate Pull Request Title
