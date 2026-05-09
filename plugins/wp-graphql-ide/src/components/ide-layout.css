@@ -2481,6 +2481,35 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 2px 6px;
 }
 
+.wpgraphql-ide-tracing-n1 {
+	margin: 12px 0;
+	padding: 12px 14px;
+	border-left: 3px solid #d63638;
+	background: #fcf0f1;
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-tracing-n1-title {
+	margin: 0 0 4px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-tracing-n1-description {
+	margin: 0 0 10px;
+	font-size: 12px;
+	color: #50575e;
+	line-height: 1.4;
+}
+
+.wpgraphql-ide-tracing-n1-table {
+	background: #fff;
+	border: 1px solid #f0d4d5;
+	border-radius: 2px;
+	margin: 0;
+}
+
 .wpgraphql-ide-tracing-table {
 	width: 100%;
 	border-collapse: collapse;

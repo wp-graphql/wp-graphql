@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { detectNPlusOne } from './detect-n-plus-one';
 
 // WPGraphQL's tracing emits durations as microseconds by convention; format
 // as ms when large enough to be meaningful, otherwise keep as μs.
@@ -24,7 +25,25 @@ const SORT_OPTIONS = [
 export const TracingExtensionTab = ({ data }) => {
 	const [sortBy, setSortBy] = useState('duration');
 
-	if (!data || typeof data !== 'object') {
+	const hasData = data && typeof data === 'object';
+	// Hooks must run unconditionally — derive a stable resolver list
+	// regardless of `data` validity, then short-circuit the render
+	// after the hooks have all been called.
+	const resolvers = useMemo(() => {
+		if (!hasData) {
+			return [];
+		}
+		return Array.isArray(data.execution?.resolvers)
+			? data.execution.resolvers
+			: [];
+	}, [hasData, data]);
+
+	const nPlusOnePatterns = useMemo(
+		() => detectNPlusOne(resolvers),
+		[resolvers]
+	);
+
+	if (!hasData) {
 		return (
 			<p className="wpgraphql-ide-extensions-empty">
 				No tracing data in the last response. Enable GraphQL Tracing in
@@ -32,10 +51,6 @@ export const TracingExtensionTab = ({ data }) => {
 			</p>
 		);
 	}
-
-	const resolvers = Array.isArray(data.execution?.resolvers)
-		? data.execution.resolvers
-		: [];
 
 	const sortedResolvers = [...resolvers].sort((a, b) => {
 		if (sortBy === 'duration') {
@@ -67,6 +82,50 @@ export const TracingExtensionTab = ({ data }) => {
 					</span>
 				</div>
 			</div>
+
+			{nPlusOnePatterns.length > 0 && (
+				<section
+					className="wpgraphql-ide-tracing-n1"
+					aria-label="Possible N+1 patterns"
+				>
+					<h4 className="wpgraphql-ide-tracing-n1-title">
+						Possible N+1 patterns
+					</h4>
+					<p className="wpgraphql-ide-tracing-n1-description">
+						These fields were resolved repeatedly in series — one
+						call per parent item. A DataLoader could batch them into
+						a single call.
+					</p>
+					<table className="wpgraphql-ide-tracing-table wpgraphql-ide-tracing-n1-table">
+						<thead>
+							<tr>
+								<th>Path pattern</th>
+								<th className="is-numeric">Calls</th>
+								<th className="is-numeric">Total</th>
+								<th className="is-numeric">Avg / call</th>
+							</tr>
+						</thead>
+						<tbody>
+							{nPlusOnePatterns.map((p) => (
+								<tr key={p.pattern}>
+									<td>
+										<code className="wpgraphql-ide-tracing-path">
+											{p.pattern}
+										</code>
+									</td>
+									<td className="is-numeric">{p.count}</td>
+									<td className="is-numeric">
+										{formatDuration(p.totalDuration)}
+									</td>
+									<td className="is-numeric">
+										{formatDuration(p.avgDuration)}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</section>
+			)}
 
 			{resolvers.length > 0 && (
 				<>
