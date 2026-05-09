@@ -926,26 +926,18 @@ export function IDELayout({ fetcher, onClose }) {
 										.map((doc) => ({
 											id: doc.id,
 											title: displayDocTitle(doc),
-											// In admin, temp docs render dirty
-											// even when content matches the
-											// seeded baseline so the "unsaved
-											// draft" affordance reads from the
-											// moment the tab is created — Save
-											// is the user's escape hatch from
-											// "this only exists locally." In
-											// endpoint mode there's no Save
-											// affordance, so the bullet would
-											// just be noise; gate on actual
-											// content changes via isDocDirty.
-											// Close-confirmation always uses
-											// isDocDirty regardless of surface.
-											dirty: endpointMode
-												? isDocDirty(doc)
-												: isDocDirty(doc) ||
-													(!doc.tabType &&
-														String(
-															doc.id
-														).startsWith('temp-')),
+											// Bullet means "you have unsaved
+											// changes" plus, on admin only,
+											// "this is a temp draft" — that
+											// fallback is gated to surfaces
+											// where Save is reachable.
+											dirty:
+												isDocDirty(doc) ||
+												(!endpointMode &&
+													!doc.tabType &&
+													String(doc.id).startsWith(
+														'temp-'
+													)),
 										}))}
 									activeId={activeDocument?.id}
 									onSwitch={(id) => switchTab(id)}
