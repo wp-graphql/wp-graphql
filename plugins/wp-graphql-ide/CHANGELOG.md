@@ -24,6 +24,16 @@
   the Sharing affordance hidden instead of opening onto a permission-denied
   dead end.
 
+## [4.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.0...wp-graphql-ide/v4.4.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump dotenv from 16.6.1 to 17.4.1 ([#3807](https://github.com/wp-graphql/wp-graphql/issues/3807)) ([90f7ef8](https://github.com/wp-graphql/wp-graphql/commit/90f7ef8dc38200c0fa52a2f1b2619d39528a991b))
+* **deps-dev:** bump phpstan/phpstan from 2.1.47 to 2.1.50 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3790](https://github.com/wp-graphql/wp-graphql/issues/3790)) ([4e9cb0d](https://github.com/wp-graphql/wp-graphql/commit/4e9cb0d84cdc9143c554fb7025798a7bf2e3d544))
+* **deps-dev:** bump phpstan/phpstan from 2.1.50 to 2.1.51 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3803](https://github.com/wp-graphql/wp-graphql/issues/3803)) ([ecc4c7e](https://github.com/wp-graphql/wp-graphql/commit/ecc4c7e7e3c7d93043101c9a17e72b92d0b62fe8))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 6 updates ([#3799](https://github.com/wp-graphql/wp-graphql/issues/3799)) ([5e01960](https://github.com/wp-graphql/wp-graphql/commit/5e0196088e807cabeb502b3e868685c8d6878863))
+
 ## [4.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.3.0...wp-graphql-ide/v4.4.0) (2026-04-22)
 
 

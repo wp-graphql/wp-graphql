@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 import ExtensionPreview, {
   ExtensionFragment,
@@ -64,37 +64,18 @@ export default function Archive({ data }) {
   )
 }
 
-Archive.variables = ({ uri }) => {
-  return {
-    uri,
-  }
-}
-
-Archive.query = gql`
-  query GetContentType($uri: String!) {
-      archive: nodeByUri(uri: $uri) {
-        __typename
-        id
-        uri
-        ... on ContentType {
-          name
-          description
-          label
-          contentNodes(first: 100) {
-            nodes {
-              __typename
-              ...ExtensionPreview
-              ...RecipePreview
-              ...FilterPreview
-              ...FunctionPreview
-              ...ActionPreview
-            }
-          }
-        }
-        ... on TermNode {
-          name
-          description
-          ... on CodeSnippetTag {
+Archive.queries = {
+  archive: {
+    query: gql`
+      query Archive_Node($uri: String!) {
+        archive: nodeByUri(uri: $uri) {
+          __typename
+          id
+          uri
+          ... on ContentType {
+            name
+            description
+            label
             contentNodes(first: 100) {
               nodes {
                 __typename
@@ -106,14 +87,30 @@ Archive.query = gql`
               }
             }
           }
+          ... on TermNode {
+            name
+            description
+            ... on CodeSnippetTag {
+              contentNodes(first: 100) {
+                nodes {
+                  __typename
+                  ...ExtensionPreview
+                  ...RecipePreview
+                  ...FilterPreview
+                  ...FunctionPreview
+                  ...ActionPreview
+                }
+              }
+            }
+          }
         }
       }
-      ...NavMenu
-  }
-  ${NavMenuFragment}
-  ${ExtensionFragment}
-  ${RecipePreviewFragment}
-  ${FilterPreviewFragment}
-  ${FunctionPreviewFragment}
-  ${ActionPreviewFragment}
-`
+      ${ExtensionFragment}
+      ${RecipePreviewFragment}
+      ${FilterPreviewFragment}
+      ${FunctionPreviewFragment}
+      ${ActionPreviewFragment}
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
+}

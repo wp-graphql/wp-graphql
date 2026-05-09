@@ -72,7 +72,7 @@ export function SearchProvider({ children }) {
 
 function Hit({ hit, children }) {
   return (
-    <Link href={hit.url}>
+    <Link href={hit.url} legacyBehavior>
       <a
         className={clsx({
           'DocSearch-Hit--Result': hit.__is_result?.(),

@@ -1,12 +1,11 @@
 import { Temporal } from "@js-temporal/polyfill"
 
-import { gql } from "@apollo/client"
 import { Feed } from "feed"
 import type { Category } from "feed/lib/typings"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
 
-export const FEED_QUERY = gql`
+export const FEED_QUERY = /* GraphQL */ `
   query BlogFeedQuery {
     generalSettings {
       title
@@ -51,7 +50,7 @@ export const FEED_QUERY = gql`
       }
     }
   }
-`
+`.trim()
 
 export function createFeed({ feed_data, last_modified }) {
   const feed = new Feed({
