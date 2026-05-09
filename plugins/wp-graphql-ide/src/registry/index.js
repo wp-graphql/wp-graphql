@@ -3,6 +3,7 @@ import {
 	registerActivityBarPanel,
 	registerEditorBottomTab,
 	registerResponseExtensionTab,
+	registerStatusBarItem,
 	registerTopbarAction,
 	registerWorkspaceTabType,
 } from '../access-functions';
@@ -32,6 +33,13 @@ import { ErrorsExtensionTab } from '../components/response-extensions/ErrorsExte
 import { HeadersExtensionTab } from '../components/response-extensions/HeadersExtensionTab';
 import { VariablesEditorTab } from '../components/editor-bottom-tabs/VariablesEditorTab';
 import { HeadersEditorTab } from '../components/editor-bottom-tabs/HeadersEditorTab';
+import {
+	StatusCodeItem,
+	DurationItem,
+	SizeItem,
+	ResolverCountItem,
+	NPlusOneItem,
+} from '../components/status-bar-items/built-in-items';
 
 export const initializeRegistry = () => {
 	registerEditorToolbarButtons();
@@ -150,6 +158,37 @@ export const initializeRegistry = () => {
 			content: HeadersEditorTab,
 		},
 		20
+	);
+
+	// Built-in response status-bar items. Render in priority order
+	// (left-to-right): status code → duration → size → resolver count
+	// → N+1 warning. Each render fn returns null to hide itself when
+	// its data isn't relevant to the current response (no tracing →
+	// no resolver / N+1 badge).
+	registerStatusBarItem(
+		'status-code',
+		{ render: (ctx) => <StatusCodeItem {...ctx} /> },
+		10
+	);
+	registerStatusBarItem(
+		'duration',
+		{ render: (ctx) => <DurationItem {...ctx} /> },
+		20
+	);
+	registerStatusBarItem(
+		'size',
+		{ render: (ctx) => <SizeItem {...ctx} /> },
+		30
+	);
+	registerStatusBarItem(
+		'resolver-count',
+		{ render: (ctx) => <ResolverCountItem {...ctx} /> },
+		40
+	);
+	registerStatusBarItem(
+		'n-plus-one',
+		{ render: (ctx) => <NPlusOneItem {...ctx} /> },
+		50
 	);
 
 	// Built-in "Settings" workspace tab — opened from the topbar settings

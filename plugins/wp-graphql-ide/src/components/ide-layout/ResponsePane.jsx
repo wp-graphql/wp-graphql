@@ -5,28 +5,14 @@ import {
 	MenuItem,
 	Spinner,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { moreVertical } from '@wordpress/icons';
 import { ResponseContent } from './ResponseContent';
-import { detectNPlusOne } from '../response-extensions/detect-n-plus-one';
 
 const VIEW_MODES = [
 	{ value: 'formatted', label: 'JSON' },
 	{ value: 'table', label: 'Table' },
 ];
-
-function formatDuration(ms) {
-	if (ms === null) {
-		return null;
-	}
-	return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms}ms`;
-}
-
-function formatSize(bytes) {
-	if (bytes === null) {
-		return null;
-	}
-	return bytes >= 1024 ? `${(bytes / 1024).toFixed(1)}KB` : `${bytes}B`;
-}
 
 /**
  * Right side of the editor split: response header (data-scope kebab,
@@ -71,34 +57,34 @@ export function ResponsePane({
 	// second click would be a no-op.
 	const [tabRequest, setTabRequest] = useState(null);
 
-	// Surface tracing headlines in the always-visible status bar so
-	// "this query has 11 resolvers and 1 likely N+1" is information
-	// the user gets *before* clicking into the Tracing tab.
-	const tracingSummary = useMemo(() => {
+	const statusBarItems = useSelect(
+		(s) => s('wpgraphql-ide/status-bar-items').statusBarItems(),
+		[]
+	);
+
+	const parsedResponse = useMemo(() => {
 		if (!response) {
 			return null;
 		}
 		try {
-			const parsed = JSON.parse(response);
-			const tracing = parsed?.extensions?.tracing;
-			if (!tracing || typeof tracing !== 'object') {
-				return null;
-			}
-			const resolvers = Array.isArray(tracing.execution?.resolvers)
-				? tracing.execution.resolvers
-				: [];
-			const nPlusOne = detectNPlusOne(resolvers);
-			return {
-				resolverCount: resolvers.length,
-				nPlusOneCount: nPlusOne.length,
-			};
+			return JSON.parse(response);
 		} catch {
 			return null;
 		}
 	}, [response]);
 
-	const focusTracing = () =>
-		setTabRequest({ name: 'ext:tracing', token: Date.now() });
+	const focusResponseTab = (name) =>
+		setTabRequest({ name, token: Date.now() });
+
+	const statusBarCtx = {
+		response,
+		parsedResponse,
+		responseStatus,
+		responseDuration,
+		responseSize,
+		isFetching,
+		focusResponseTab,
+	};
 
 	return (
 		<div className="wpgraphql-ide-response-pane">
@@ -139,46 +125,17 @@ export function ResponsePane({
 				{isFetching && <Spinner />}
 				{!isFetching && responseStatus !== null && (
 					<span className="wpgraphql-ide-response-meta">
-						<span
-							className={`wpgraphql-ide-response-status wpgraphql-ide-response-status--${responseStatus >= 200 && responseStatus < 300 ? 'success' : 'error'}`}
-						>
-							{responseStatus}
-						</span>
-						{responseDuration !== null && (
-							<span className="wpgraphql-ide-response-duration">
-								{formatDuration(responseDuration)}
-							</span>
-						)}
-						{responseSize !== null && (
-							<span className="wpgraphql-ide-response-size">
-								{formatSize(responseSize)}
-							</span>
-						)}
-						{tracingSummary && (
-							<>
-								<button
-									type="button"
-									className="wpgraphql-ide-response-trace-badge"
-									onClick={focusTracing}
-									title="Open the Tracing tab"
-								>
-									{tracingSummary.resolverCount} resolver
-									{tracingSummary.resolverCount === 1
-										? ''
-										: 's'}
-								</button>
-								{tracingSummary.nPlusOneCount > 0 && (
-									<button
-										type="button"
-										className="wpgraphql-ide-response-trace-badge wpgraphql-ide-response-trace-badge--warning"
-										onClick={focusTracing}
-										title="Open the Tracing tab to see the N+1 patterns"
-									>
-										⚠ {tracingSummary.nPlusOneCount} N+1
-									</button>
-								)}
-							</>
-						)}
+						{statusBarItems.map((item) => {
+							const node = item.render(statusBarCtx);
+							if (node === null || node === undefined) {
+								return null;
+							}
+							return (
+								<React.Fragment key={item.name}>
+									{node}
+								</React.Fragment>
+							);
+						})}
 					</span>
 				)}
 				<div

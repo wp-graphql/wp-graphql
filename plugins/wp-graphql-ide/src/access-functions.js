@@ -166,6 +166,50 @@ export function registerEditorBottomTab(name, config, priority = 10) {
 }
 
 /**
+ * Register an item in the response toolbar's status row (where the HTTP
+ * status code, duration, size, and resolver-count badges live). Useful
+ * for surfacing live response signals next to the existing meta — cache
+ * hit/miss, schema warnings, custom badges, etc.
+ *
+ * The `render` callback receives:
+ *   { response, parsedResponse, responseStatus, responseDuration,
+ *     responseSize, isFetching, focusResponseTab(name) }
+ * It should return a ReactNode (rendered inline in the meta row) or
+ * null to hide the item for the current response.
+ *
+ * @param {string}   name          Unique item identifier.
+ * @param {Object}   config        Item configuration.
+ * @param {Function} config.render Render callback returning a ReactNode or null.
+ * @param {number}   [priority=10] Lower values render first (left-to-right).
+ *
+ * @return {void}
+ */
+export function registerStatusBarItem(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/status-bar-items').registerStatusBarItem(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterStatusBarItem',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register status bar item: ${name}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerStatusBarItemError',
+			name,
+			config,
+			priority,
+			error
+		);
+	}
+}
+
+/**
  * Register a workspace tab type with a content renderer.
  *
  * Once registered, the tab type can be opened with `openWorkspaceTab`.
