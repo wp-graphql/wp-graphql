@@ -248,6 +248,13 @@ function enqueue_for_public_endpoint(): void {
  * @return array<string,mixed>
  */
 function inject_endpoint_mode_flag( array $data ): array {
+	// Always render full-page (no slide-up drawer) on the public
+	// endpoint render — both anonymous visitors and signed-in admins
+	// land here from the same URL and should see the same shell shape.
+	// The IDE distinguishes "what features to show" via `endpointMode`,
+	// not "what shape to render" — that's `renderStandalone`.
+	$data['renderStandalone'] = true;
+
 	if ( current_user_can( 'manage_graphql_ide' ) ) {
 		$data['isUserLoggedIn'] = true;
 		return $data;

@@ -12,6 +12,7 @@ import { DialogProvider } from './dialogs/DialogProvider';
 const {
 	isDedicatedIdePage,
 	endpointMode,
+	renderStandalone,
 	isUserLoggedIn,
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
@@ -34,10 +35,13 @@ const setInitialState = (dispatch) => {
 		toggleAuthentication,
 	} = dispatch;
 
-	// Standalone mode: full-page render with no drawer-close button.
-	// Dedicated admin page and the public-endpoint render both want
-	// this — they're full-page surfaces, not slide-up drawers.
-	if (isDedicatedIdePage || endpointMode) {
+	// Standalone mode: full-page render with no slide-up drawer.
+	// Dedicated admin page sets `isDedicatedIdePage`; the public
+	// `?graphql` endpoint sets `renderStandalone` (for both anonymous
+	// and signed-in admins, since both land at the same URL and
+	// should see the same shell shape — only the feature set
+	// differs, via `endpointMode`).
+	if (isDedicatedIdePage || renderStandalone) {
 		setShouldRenderStandalone(true);
 	}
 
