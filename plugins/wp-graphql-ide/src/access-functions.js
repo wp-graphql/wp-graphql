@@ -253,6 +253,56 @@ export function registerResponseViewMode(value, config, priority = 10) {
 }
 
 /**
+ * Register an item in the response toolbar's kebab dropdown ("Response
+ * options" — currently houses the data-scope toggle). Useful for
+ * "Copy as cURL", "Export to Postman", etc.
+ *
+ * Items with the same `group` string render under a `<MenuGroup
+ * label={group}>` (Gutenberg post-editor pattern). Omit `group` to
+ * land in the unlabelled top group.
+ *
+ * The action callbacks receive a ctx object:
+ *   { dataScope, setDataScope, response, parsedResponse, closeMenu }
+ *
+ * @param {string}          name                   Unique action identifier.
+ * @param {Object}          config                 Action configuration.
+ * @param {string|Function} config.label           Item label (or fn(ctx) => string).
+ * @param {Function}        config.onClick         Click handler `(ctx) => void`.
+ * @param {Function}        [config.isSelected]    Returns true to render a checkmark.
+ * @param {Function}        [config.isDisabled]    Returns true to disable the item.
+ * @param {boolean}         [config.isDestructive] Renders the item with the destructive style.
+ * @param {string}          [config.group]         Group label (drives MenuGroup).
+ * @param {Function}        [config.predicate]     Hide when this returns false.
+ * @param {number}          [priority=10]          Sort order within group.
+ *
+ * @return {void}
+ */
+export function registerResponseAction(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/response-actions').registerResponseAction(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterResponseAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register response action: ${name}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerResponseActionError',
+			name,
+			config,
+			priority,
+			error
+		);
+	}
+}
+
+/**
  * Register a workspace tab type with a content renderer.
  *
  * Once registered, the tab type can be opened with `openWorkspaceTab`.

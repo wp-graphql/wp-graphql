@@ -60,6 +60,10 @@ export function ResponsePane({
 		(s) => s('wpgraphql-ide/response-view-modes').responseViewModes(),
 		[]
 	);
+	const responseActions = useSelect(
+		(s) => s('wpgraphql-ide/response-actions').responseActions(),
+		[]
+	);
 
 	const parsedResponse = useMemo(() => {
 		if (!response) {
@@ -97,28 +101,73 @@ export function ResponsePane({
 						className: 'wpgraphql-ide-panel-kebab',
 					}}
 				>
-					{({ onClose: closeMenu }) => (
-						<MenuGroup>
-							<MenuItem
-								onClick={() => {
-									onSetDataScope('data');
-									closeMenu();
-								}}
-								isSelected={responseDataScope === 'data'}
-							>
-								Show data only
-							</MenuItem>
-							<MenuItem
-								onClick={() => {
-									onSetDataScope('full');
-									closeMenu();
-								}}
-								isSelected={responseDataScope === 'full'}
-							>
-								Show full response
-							</MenuItem>
-						</MenuGroup>
-					)}
+					{({ onClose: closeMenu }) => {
+						const ctx = {
+							dataScope: responseDataScope,
+							setDataScope: onSetDataScope,
+							response,
+							parsedResponse,
+							closeMenu,
+						};
+						const visible = responseActions.filter((a) =>
+							a.predicate ? a.predicate(ctx) : true
+						);
+						const groups = [];
+						const groupIndex = new Map();
+						for (const a of visible) {
+							const key = a.group || '';
+							if (!groupIndex.has(key)) {
+								groupIndex.set(key, groups.length);
+								groups.push({ label: key, items: [] });
+							}
+							groups[groupIndex.get(key)].items.push(a);
+						}
+						return (
+							<>
+								{groups.map((g, i) => (
+									<MenuGroup
+										key={g.label || `group-${i}`}
+										label={g.label || undefined}
+									>
+										{g.items.map((item) => {
+											const handleClick = () => {
+												item.onClick(ctx);
+											};
+											const labelText =
+												typeof item.label === 'function'
+													? item.label(ctx)
+													: item.label;
+											return (
+												<MenuItem
+													key={item.name}
+													onClick={handleClick}
+													isSelected={
+														item.isSelected
+															? item.isSelected(
+																	ctx
+																)
+															: undefined
+													}
+													isDestructive={
+														!!item.isDestructive
+													}
+													disabled={
+														item.isDisabled
+															? !!item.isDisabled(
+																	ctx
+																)
+															: false
+													}
+												>
+													{labelText}
+												</MenuItem>
+											);
+										})}
+									</MenuGroup>
+								))}
+							</>
+						);
+					}}
 				</DropdownMenu>
 				<div className="wpgraphql-ide-editor-toolbar-spacer" />
 				{isFetching && <Spinner />}

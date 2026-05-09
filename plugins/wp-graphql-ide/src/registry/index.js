@@ -2,6 +2,7 @@ import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import {
 	registerActivityBarPanel,
 	registerEditorBottomTab,
+	registerResponseAction,
 	registerResponseExtensionTab,
 	registerResponseViewMode,
 	registerStatusBarItem,
@@ -211,6 +212,36 @@ export const initializeRegistry = () => {
 		{
 			label: 'Table',
 			render: (ctx) => <TableViewMode {...ctx} />,
+		},
+		20
+	);
+
+	// Built-in response-toolbar kebab actions. Same registry plugins use
+	// for "Copy as cURL", "Export to Postman", etc. The `group` field
+	// drives a labelled <MenuGroup> in Gutenberg's post-editor style.
+	registerResponseAction(
+		'show-data-only',
+		{
+			label: 'Show data only',
+			group: 'View',
+			onClick: ({ setDataScope, closeMenu }) => {
+				setDataScope('data');
+				closeMenu();
+			},
+			isSelected: ({ dataScope }) => dataScope === 'data',
+		},
+		10
+	);
+	registerResponseAction(
+		'show-full-response',
+		{
+			label: 'Show full response',
+			group: 'View',
+			onClick: ({ setDataScope, closeMenu }) => {
+				setDataScope('full');
+				closeMenu();
+			},
+			isSelected: ({ dataScope }) => dataScope === 'full',
 		},
 		20
 	);
