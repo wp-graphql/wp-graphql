@@ -15,26 +15,31 @@ import hooks from '../../wordpress-hooks';
 // All easter-egg snackbars fire through the IDE's `wpgraphql-ide.notice`
 // hook bus — the same channel `useNotices` listens on for SnackbarList.
 //
+// Each message ends with a small productivity tip. The joke is the hook
+// (gets attention), the tip is the payoff (justifies the interruption).
+// Without the tip these are just noise; with it the user closes the
+// snackbar with one new keyboard shortcut or workflow nudge.
+//
 // Mash detection: count consecutive play-button presses with < 1.5s
 // between them; pause longer than that → counter resets.
 const PLAY_RAPID_WINDOW_MS = 1500;
 const PLAY_MILESTONES = {
-	5: 'Whoa there, speedy.',
-	10: 'GraphQL fan club, party of one.',
-	15: 'Achievement unlocked: Excessive Curiosity.',
-	20: "OK now you're just showing off.",
-	30: 'Have you tried Cmd+Enter? Just saying.',
+	5: 'Whoa there, speedy. Tip: Cmd+Enter runs the query, no clicking required.',
+	10: 'GraphQL fan club, party of one. Tip: variables live in the Variables tab below the editor.',
+	15: 'Achievement unlocked: Excessive Curiosity. Tip: name your operations (`query GetPosts { ... }`) so the picker shows them.',
+	20: "OK now you're just showing off. Tip: switch HTTP method to GET on read-only queries so CDNs can cache them.",
+	30: 'Have you tried Cmd+Enter? Just saying. (Also: drafts auto-save as you type — no Cmd+S needed.)',
 };
 
-// Empty-query execute: server returns "Syntax Error: Unexpected EOF"
-// for an empty body — replace that with something kinder. Cycle through
-// the quips in order so a user testing this twice in a row still gets
-// variety.
+// Empty-query execute: server would return "Syntax Error: Unexpected EOF"
+// for an empty body — replace that with something kinder, plus a tip
+// to point the user at something useful. Cycle through the quips in
+// order so a user testing this twice in a row still gets variety.
 const EMPTY_QUERY_QUIPS = [
-	'Profound. Also empty.',
-	'Quiet contemplation. The server expects fields, though.',
-	"You can't query nothing. Or can you?",
-	'The empty query: simple, elegant, useless.',
+	'Profound. Also empty. Tip: try `{ __typename }` for the smallest valid query.',
+	'Quiet contemplation. The server expects fields, though. Tip: open the Docs panel (sidebar) to browse types.',
+	"You can't query nothing. Or can you? Tip: `{ __schema { types { name } } }` lists every type the server exposes.",
+	'The empty query: simple, elegant, useless. Tip: drafts auto-save as you type — start typing to see fields.',
 ];
 let emptyQueryQuipIndex = 0;
 

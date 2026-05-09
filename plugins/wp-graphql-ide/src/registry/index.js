@@ -360,11 +360,15 @@ export const initializeRegistry = () => {
 	let schemaRefreshCount = 0;
 	let lastSchemaRefreshAt = 0;
 	const SCHEMA_REFRESH_RAPID_MS = 1500;
+	// Each milestone ends with a tip — the joke earns the interruption,
+	// the tip justifies it. A user who mashes refresh five times in a
+	// row probably doesn't know the schema is cached client-side; tell
+	// them.
 	const SCHEMA_REFRESH_MILESTONES = {
-		3: "Refreshing again? It hasn't changed since 0.5s ago.",
-		5: 'Trust the cache.',
-		8: 'The schema is doing its best.',
-		12: 'Your schema is fine, I promise.',
+		3: "Refreshing again? It hasn't changed since 0.5s ago. The schema is cached client-side — no network round-trip until you hit this button.",
+		5: 'Trust the cache. Refresh only after you change types or fields on the server.',
+		8: 'The schema is doing its best. Tip: the Docs panel always reflects the schema currently loaded in the IDE.',
+		12: 'Your schema is fine, I promise. Tip: enable GRAPHQL_DEBUG on the server for richer schema-introspection output.',
 	};
 	registerTopbarAction(
 		'refresh-schema',
