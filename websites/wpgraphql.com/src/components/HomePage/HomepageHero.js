@@ -1,45 +1,81 @@
-import Image from "next/image"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import MockIDE, { Tok } from "@/components/MockIDE"
+
+const heroQuery = (
+  <>
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetPosts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="key">title</Tok>{"\n"}
+    {"      "}<Tok kind="key">date</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
+
+const heroResponse = (
+  <>
+    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="str">{"\"posts\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"date\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"2025-12-08\""}</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="punc">]</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
 
 export default function HomepageHero() {
   return (
-    <div className="bg-white dark:bg-navy">
-      <div className="max-w-8xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <div className="dark:bg-slate-900 bg-slate-100 rounded-lg shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
-          <div className="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
-            <div className="lg:self-center">
-              <h2 className="text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">
-                <span className="block">GraphQL API for WordPress</span>
-              </h2>
-              <p className="mt-4 text-lg leading-6 text-navy dark:text-slate-100">
-                WPGraphQL is a free, open-source WordPress plugin that provides
-                an extendable GraphQL schema and API for any WordPress site.
-              </p>
-              <Link href="/docs/introduction" legacyBehavior>
-                <a className="btn-secondary">
-                  Get Started
+    <section className="relative overflow-hidden">
+      <div className="mx-auto max-w-8xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div className="lg:max-w-xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 font-mono text-xs text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-primary animate-glow-pulse" />
+              Free · Open Source · GPL-3
+            </span>
+            <h1 className="mt-6 text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
+              GraphQL API for{" "}
+              <span className="text-primary">every WordPress site</span>
+            </h1>
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+              WPGraphQL is a free, open-source WordPress plugin that
+              provides an extendable GraphQL schema and API for any
+              WordPress site.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Button asChild size="lg">
+                <a
+                  href="https://wordpress.org/plugins/wp-graphql"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Download the Plugin
                 </a>
-              </Link>
-              <a
-                href="https://wordpress.org/plugins/wp-graphql"
-                rel="noreferrer"
-                target="_blank"
-                className="btn-primary"
-              >
-                Download the Plugin
-              </a>
+              </Button>
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/docs/introduction">Read the Docs</Link>
+              </Button>
             </div>
           </div>
-          <div className="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1">
-            <Image
-              className="transform translate-x-6 translate-y-6 rounded-md object-cover object-left-top sm:translate-x-16 lg:translate-y-20"
-              src="/images/query-posts.png"
-              alt="App screenshot"
-              layout="fill"
+
+          <div className="relative">
+            <MockIDE query={heroQuery} response={heroResponse} />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute right-0 top-0 -z-10 h-[55vh] w-[55vh] -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/15 blur-3xl"
             />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

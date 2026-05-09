@@ -1,5 +1,5 @@
 import Link from "next/link"
-import clsx from "clsx"
+import { cn } from "@/lib/utils"
 
 function Heading({ as, id, children, ...rest }) {
   const Tag = as ?? "h2"
@@ -16,20 +16,21 @@ function LinkedHeading({ id, as, children, className }) {
       <Heading
         as={as}
         id={id}
-        className={clsx("group flex whitespace-pre-wrap pr-4", className, {
-          "mb-2 text-xxl leading-6 text-navy font-semibold tracking-normal dark:text-slate-200":
-            as === "h2",
-        })}
+        className={cn(
+          "group flex whitespace-pre-wrap pr-4",
+          as === "h2" &&
+            "mb-2 text-2xl leading-tight font-semibold tracking-tight text-foreground",
+          className
+        )}
       >
         <span>{children}</span>
         <Link href={`#${id}`} legacyBehavior>
           <a
-            className="flex items-center ml-4 hover:bg-slate-500 "
+            className="ml-3 flex items-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
             aria-label="Anchor"
             href={`#${id}`}
           >
-            &#8203;
-            <div className="w-6 h-6 text-slate-500 border-1 ring-slate-900/10 rounded-md shadow-lg flex items-center justify-center hover:ring-slate-900/10 hover:shadow hover:bg-slate-400 hover:text-color-700 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-muted text-primary">
               <svg width="12" height="12" fill="none" aria-hidden="true">
                 <path
                   d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10"
@@ -38,7 +39,7 @@ function LinkedHeading({ id, as, children, className }) {
                   strokeLinecap="round"
                 />
               </svg>
-            </div>
+            </span>
           </a>
         </Link>
       </Heading>

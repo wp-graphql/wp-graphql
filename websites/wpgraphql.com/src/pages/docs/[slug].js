@@ -14,7 +14,7 @@ export default function Doc({ source, toc, docsNavData, layoutData }) {
       <DocsLayout toc={toc} docsNavData={docsNavData}>
         <div
           id="content-wrapper"
-          className="relative z-20 prose mt-8 prose dark:prose-dark"
+          className="relative z-20 mt-8 prose"
         >
           {source?.frontmatter?.title && (
             <header className="relative z-20 -mt-8">
