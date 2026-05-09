@@ -231,11 +231,21 @@ function enqueue_for_public_endpoint(): void {
  * anonymous visitors don't start with the toggle in the "send my
  * nonce" position.
  *
+ * IDE-capable admins (`manage_graphql_ide`) hitting the public endpoint
+ * URL get the full IDE — endpoint mode is not flagged. They're already
+ * authenticated via cookies, so the same REST routes the dedicated
+ * page uses succeed for them here too. Anyone without that capability
+ * (including logged-in non-admins) gets endpoint mode.
+ *
  * @param array<string,mixed> $data
  *
  * @return array<string,mixed>
  */
 function inject_endpoint_mode_flag( array $data ): array {
+	if ( current_user_can( 'manage_graphql_ide' ) ) {
+		$data['isUserLoggedIn'] = true;
+		return $data;
+	}
 	$data['endpointMode']   = true;
 	$data['isUserLoggedIn'] = is_user_logged_in();
 	return $data;

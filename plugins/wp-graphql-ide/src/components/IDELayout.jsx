@@ -914,7 +914,7 @@ export function IDELayout({ fetcher, onClose }) {
 		setComposerWidth,
 		docSettingsPanelWidth,
 		setDocSettingsPanelWidth,
-	} = useLeftPanel();
+	} = useLeftPanel({ endpointMode });
 
 	// Remember the last open panel so the sidebar toggle can restore it.
 	const lastPanelRef = useRef(null);

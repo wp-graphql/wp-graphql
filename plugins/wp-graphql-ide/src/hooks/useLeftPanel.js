@@ -13,8 +13,16 @@ const LEGACY_KEY = 'wpgraphql_ide_show_query_composer';
  * we delete it on first read regardless of value, then promote a
  * truthy legacy value into a Composer-open default only if the unified
  * key is empty.
+ *
+ * In endpoint mode, when no preference has been recorded, default to
+ * opening the Query Composer — schema browsing is the primary use case
+ * for the public-endpoint render. The dedicated admin page keeps the
+ * `null` default so existing users don't suddenly see the composer pop
+ * open on next visit.
+ *
+ * @param {boolean} [endpointMode]
  */
-function readInitialPanel() {
+function readInitialPanel(endpointMode = false) {
 	try {
 		const legacy = window.localStorage.getItem(LEGACY_KEY);
 		if (legacy !== null) {
@@ -33,7 +41,7 @@ function readInitialPanel() {
 	} catch {
 		// ignore
 	}
-	return null;
+	return endpointMode ? 'composer' : null;
 }
 
 function readPersistedWidth(key, fallback) {
@@ -66,6 +74,11 @@ function usePersistedWidth(key, fallback) {
  * or the Document Settings panel. Persists the choice + each panel's
  * resizable width to localStorage.
  *
+ * @param {Object}  [opts]
+ * @param {boolean} [opts.endpointMode] When true and no preference is
+ *                                      stored, default to the Query
+ *                                      Composer being open.
+ *
  * @return {{
  *   leftPanel: 'composer' | 'settings' | null,
  *   setLeftPanel: Function,
@@ -79,8 +92,10 @@ function usePersistedWidth(key, fallback) {
  *   setDocSettingsPanelWidth: Function,
  * }}
  */
-export function useLeftPanel() {
-	const [leftPanel, setLeftPanelState] = useState(readInitialPanel);
+export function useLeftPanel({ endpointMode = false } = {}) {
+	const [leftPanel, setLeftPanelState] = useState(() =>
+		readInitialPanel(endpointMode)
+	);
 
 	const setLeftPanel = useCallback((next) => {
 		setLeftPanelState(next);
