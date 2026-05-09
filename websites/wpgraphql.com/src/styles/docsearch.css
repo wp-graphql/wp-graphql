@@ -94,7 +94,10 @@
   display: block;
   padding: 1rem 1.5rem;
   font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  text-decoration: none;
   border-bottom: 1px solid hsl(var(--border));
+  transition: background-color .12s ease, color .12s ease;
 }
 
 .DocSearch-Hit--Result {
@@ -107,10 +110,26 @@
 
 .DocSearch-Hit + .DocSearch-Hit .DocSearch-Hit--Result { margin-top: 0.5rem; }
 
-.DocSearch-Hit[aria-selected='true'] > a { background: hsl(var(--muted)); }
+/*
+   Active / hovered state — applied uniformly to every hit type
+   (Page / Result / RecentItem). Earlier the "selected" state mixed an
+   orange .DocSearch-Hit--Result background with --primary-foreground
+   (navy-950) text, which only works for actual --Result hits. For Page
+   and recent-history hits there is no orange surface, so the dark text
+   ended up on the bg-muted surface → invisible.
+
+   Switch to a consistent subtle treatment: muted bg + foreground text +
+   primary left accent. Works for every hit type, both light and dark.
+*/
+.DocSearch-Hit[aria-selected='true'] > a {
+  background: hsl(var(--accent));
+  color: hsl(var(--foreground));
+  box-shadow: inset 3px 0 0 hsl(var(--primary));
+}
 .DocSearch-Hit[aria-selected='true'] .DocSearch-Hit--Result {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: hsl(var(--accent));
+  color: hsl(var(--foreground));
+  box-shadow: inset 3px 0 0 hsl(var(--primary));
 }
 
 .DocSearch-MagnifierLabel {
@@ -214,20 +233,20 @@
 }
 
 .DocSearch-Hit[aria-selected='true'] .DocSearch-Hit-icon {
-  background-color: transparent;
-  border-color: hsl(var(--primary-foreground) / 0.3);
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  border-color: hsl(var(--primary) / 0.5);
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10' stroke='%23FF8C1A' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 .DocSearch-Hit-title {
   color: hsl(var(--foreground));
   line-height: 1.5;
-  truncate: true;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
-.DocSearch-Hit[aria-selected='true'] .DocSearch-Hit-title { color: hsl(var(--primary-foreground)); }
+/* Title stays at --foreground in active state — the accent shows via the
+   left bar + bg, not via flipping the text colour. */
+.DocSearch-Hit[aria-selected='true'] .DocSearch-Hit-title { color: hsl(var(--foreground)); }
 
 .DocSearch-Hit-title + .DocSearch-Hit-path { margin-bottom: 0.25rem; }
 
@@ -241,7 +260,7 @@
 .DocSearch-Hit-action-button { display: flex; }
 .DocSearch-Hit-action svg    { display: none; }
 .DocSearch-Hit-action path   { stroke-width: 2px; stroke: hsl(var(--muted-foreground)); }
-.DocSearch-Hit[aria-selected='true'] .DocSearch-Hit-action path { stroke: hsl(var(--primary-foreground)); }
+.DocSearch-Hit[aria-selected='true'] .DocSearch-Hit-action path { stroke: hsl(var(--primary)); }
 
 .DocSearch-Hit          { position: relative; }
 .DocSearch-Hit:first-child > a { border-top: 1px solid hsl(var(--border)); }
