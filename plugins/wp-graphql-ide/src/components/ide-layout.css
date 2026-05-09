@@ -1035,6 +1035,20 @@ input.wpgraphql-ide-tab-input:focus {
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 12px;
 	word-break: break-all;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-smart-cache-key {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wpgraphql-ide-smart-cache-copy.components-button {
+	flex: 0 0 auto;
+	font-family: inherit;
 }
 
 .wpgraphql-ide-smart-cache-hint {
@@ -1042,6 +1056,19 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wp-components-color-gray-700, #50575e);
 	font-size: 12px;
 	line-height: 1.5;
+}
+
+/* Smart Cache HIT/MISS badge in the response status row. Mirrors the
+   tracing-badge pattern; HIT picks up the same green palette as the
+   in-tab status pill so both surfaces read as one signal. */
+.wpgraphql-ide-smart-cache-badge.is-hit {
+	color: #2d8a3e;
+	font-weight: 500;
+}
+
+.wpgraphql-ide-smart-cache-badge.is-hit:hover,
+.wpgraphql-ide-smart-cache-badge.is-hit:focus {
+	color: #1f6f2e;
 }
 
 /* Snackbar — absolute to IDE container, bottom-left.

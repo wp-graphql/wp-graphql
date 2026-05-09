@@ -1,4 +1,6 @@
-import React from 'react';
+/* global navigator */
+import React, { useState } from 'react';
+import { Button } from '@wordpress/components';
 
 /**
  * Renders the `graphqlSmartCache` response extension. The plugin lives
@@ -21,11 +23,27 @@ import React from 'react';
  * @param {Object} props
  * @param {Object} [props.data] Parsed `response.extensions.graphqlSmartCache`.
  *
- * @return {JSX.Element}
+ * @return {JSX.Element} The Smart Cache extension renderer.
  */
 export function SmartCachePanel({ data }) {
 	const objectCache = data?.graphqlObjectCache;
 	const isHit = !!objectCache?.cacheKey;
+	const [copied, setCopied] = useState(false);
+
+	const copyKey = async () => {
+		if (!objectCache?.cacheKey) {
+			return;
+		}
+		try {
+			await navigator.clipboard.writeText(objectCache.cacheKey);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+		} catch (err) {
+			// Clipboard API blocked (insecure context, permissions, etc).
+			// Fall back to selecting the text so the user can copy manually.
+			setCopied(false);
+		}
+	};
 
 	return (
 		<div className="wpgraphql-ide-smart-cache">
@@ -50,7 +68,18 @@ export function SmartCachePanel({ data }) {
 				<dl className="wpgraphql-ide-smart-cache-meta">
 					<dt>Cache key</dt>
 					<dd>
-						<code>{objectCache.cacheKey}</code>
+						<code className="wpgraphql-ide-smart-cache-key">
+							{objectCache.cacheKey}
+						</code>
+						<Button
+							variant="tertiary"
+							size="small"
+							className="wpgraphql-ide-smart-cache-copy"
+							onClick={copyKey}
+							aria-label="Copy cache key to clipboard"
+						>
+							{copied ? 'Copied' : 'Copy'}
+						</Button>
 					</dd>
 					{objectCache?.message && (
 						<>
@@ -64,8 +93,8 @@ export function SmartCachePanel({ data }) {
 			{!isHit && (
 				<p className="wpgraphql-ide-smart-cache-hint">
 					Re-run the same query to populate the Object Cache, then
-					query again — the second response should land here as a
-					HIT with a stable cache key.
+					query again — the second response should land here as a HIT
+					with a stable cache key.
 				</p>
 			)}
 		</div>
