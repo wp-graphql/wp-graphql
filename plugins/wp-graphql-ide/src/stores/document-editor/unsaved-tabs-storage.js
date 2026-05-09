@@ -12,18 +12,22 @@ import { getStorageJSON, setStorageJSON } from '../../utils/storage';
 import { isTempId } from '../../utils/document-id';
 
 /**
- * Per-user storage key. The same browser can hold an admin session in
- * one tab and an anonymous endpoint-mode session in another (or
- * sequentially via login/logout). Without scoping by user id, draft
- * tabs from one context leak into the other on hydration. Anonymous
- * = `:user-0`; logged-in = `:user-{ID}`.
+ * Per-user, per-context storage key. The same browser can hold an
+ * admin session in one tab and the public endpoint in another (the
+ * endpoint may also be hit while logged in — `endpointMode` is set
+ * by the render path, not by auth state). Scoping by user id alone
+ * still leaks admin drafts into the endpoint surface because both
+ * read `currentUserId`. Splitting by context as well gives each
+ * surface its own draft bucket. Anonymous endpoint = `:user-0`,
+ * logged-in admin = `:user-{ID}`, logged-in endpoint render =
+ * `:user-{ID}:ctx-endpoint` (etc.).
  */
 function storageKey() {
-	const id =
-		(typeof window !== 'undefined' &&
-			Number(window.WPGRAPHQL_IDE_DATA?.context?.currentUserId)) ||
-		0;
-	return `wpgraphql-ide:unsaved-tabs:v1:user-${id}`;
+	const data =
+		typeof window !== 'undefined' ? window.WPGRAPHQL_IDE_DATA : null;
+	const id = (data && Number(data?.context?.currentUserId)) || 0;
+	const ctx = data?.endpointMode ? 'endpoint' : 'admin';
+	return `wpgraphql-ide:unsaved-tabs:v1:user-${id}:ctx-${ctx}`;
 }
 
 function readAll() {
