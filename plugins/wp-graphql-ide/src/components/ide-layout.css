@@ -2632,7 +2632,7 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	gap: 24px;
 	padding: 8px 10px;
-	background: #f6f7f7;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
 	border-radius: 2px;
 }
 
@@ -2640,6 +2640,21 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
+}
+
+.wpgraphql-ide-querylog-label {
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--wp-components-color-gray-600, #646970);
+	font-weight: 600;
+}
+
+.wpgraphql-ide-querylog-value {
+	font-size: 13px;
+	color: var(--wp-components-color-gray-800, #2c3338);
+	font-weight: 600;
+	font-family: Menlo, Consolas, Monaco, monospace;
 }
 
 .wpgraphql-ide-tracing-verdict {

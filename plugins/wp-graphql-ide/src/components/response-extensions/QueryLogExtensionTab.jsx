@@ -71,16 +71,18 @@ export const QueryLogExtensionTab = ({ data }) => {
 		<div className="wpgraphql-ide-querylog-panel">
 			<div className="wpgraphql-ide-querylog-summary">
 				<div>
-					<span className="wpgraphql-ide-tracing-label">Queries</span>
-					<span className="wpgraphql-ide-tracing-value">
+					<span className="wpgraphql-ide-querylog-label">
+						Queries
+					</span>
+					<span className="wpgraphql-ide-querylog-value">
 						{data.queryCount ?? queries.length}
 					</span>
 				</div>
 				<div>
-					<span className="wpgraphql-ide-tracing-label">
+					<span className="wpgraphql-ide-querylog-label">
 						Total time
 					</span>
-					<span className="wpgraphql-ide-tracing-value">
+					<span className="wpgraphql-ide-querylog-value">
 						{formatMs(data.totalTime)}
 					</span>
 				</div>
