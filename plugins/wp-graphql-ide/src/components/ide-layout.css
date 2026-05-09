@@ -2530,9 +2530,23 @@ input.wpgraphql-ide-tab-input:focus {
 	--wpgraphql-ide-tracing-accent: var(--wp-admin-theme-color, #2271b1);
 	--wpgraphql-ide-tracing-accent-soft: rgba(34, 113, 177, 0.08);
 
+	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+}
+
+/* Reset code-element styling inherited from wp-admin / wp-components so
+   identifiers in the table read as inline text, not chips with grey
+   backgrounds (which start to dominate the layout once columns are
+   narrow). */
+.wpgraphql-ide-tracing-table code,
+.wpgraphql-ide-tracing-verdict code {
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	font-size: inherit;
+	color: inherit;
 }
 
 .wpgraphql-ide-querylog-summary {
@@ -2806,7 +2820,13 @@ input.wpgraphql-ide-tab-input:focus {
 	display: block;
 	font-family: Menlo, Consolas, Monaco, monospace;
 	color: var(--wpgraphql-ide-tracing-text);
-	word-break: break-all;
+	/* `anywhere` lets the path break at any character when it has to,
+	   but the browser still prefers natural break points (like `.`)
+	   over splitting words mid-token — `break-all` had no such
+	   preference and produced ragged `posts.edg / es.0.nod / e.link`
+	   stacks. */
+	overflow-wrap: anywhere;
+	word-break: normal;
 }
 
 .wpgraphql-ide-tracing-parent {
@@ -2814,6 +2834,31 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: 10px;
 	color: var(--wpgraphql-ide-tracing-faint);
 	margin-top: 2px;
+}
+
+/* The `→ ReturnType` suffix renders inline with the parent type only
+   in narrow layouts (see container query below). Hidden by default
+   because the wide layout has its own dedicated column. */
+.wpgraphql-ide-tracing-return-inline {
+	display: none;
+}
+
+@container (max-width: 560px) {
+	.wpgraphql-ide-tracing-table .wpgraphql-ide-tracing-return-cell {
+		display: none;
+	}
+
+	.wpgraphql-ide-tracing-return-inline {
+		display: inline;
+	}
+
+	.wpgraphql-ide-tracing-table th.is-bar-col {
+		width: auto;
+	}
+
+	.wpgraphql-ide-tracing-verdict-headline {
+		gap: 6px;
+	}
 }
 
 /* ---------------------------------------------------------------------------

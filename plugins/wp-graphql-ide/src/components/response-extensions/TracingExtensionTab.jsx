@@ -300,7 +300,9 @@ export const TracingExtensionTab = ({ data }) => {
 						<thead>
 							<tr>
 								<th>Path</th>
-								<th>Return Type</th>
+								<th className="wpgraphql-ide-tracing-return-cell">
+									Return Type
+								</th>
 								<th className="is-numeric is-bar-col">
 									Duration
 								</th>
@@ -343,9 +345,13 @@ export const TracingExtensionTab = ({ data }) => {
 											</code>
 											<span className="wpgraphql-ide-tracing-parent">
 												{r.parentType}
+												<span className="wpgraphql-ide-tracing-return-inline">
+													{' → '}
+													<code>{r.returnType}</code>
+												</span>
 											</span>
 										</td>
-										<td>
+										<td className="wpgraphql-ide-tracing-return-cell">
 											<code>{r.returnType}</code>
 										</td>
 										<td
