@@ -303,6 +303,59 @@ export function registerResponseAction(name, config, priority = 10) {
 }
 
 /**
+ * Register an item in the editor toolbar's kebab dropdown — sits below
+ * the registered editor toolbar buttons (Prettify, etc.) and above the
+ * Save / Publish buttons. Used by the built-in Share / Rename /
+ * Duplicate-as-draft items; ideal for plugins that want to add
+ * "Open in Studio", "Copy operation", "Run on staging", etc.
+ *
+ * Same shape as registerResponseAction (label / onClick / isSelected /
+ * isDisabled / isDestructive / group / predicate / priority).
+ *
+ * The action callbacks receive a ctx object:
+ *   { query, activeDocument, isPublished, isTempId, endpointMode,
+ *     openShareDialog, openRenameDialog, duplicateAsDraft, addNotice,
+ *     closeMenu }
+ *
+ * @param {string}          name                   Unique action identifier.
+ * @param {Object}          config                 Action configuration.
+ * @param {string|Function} config.label           Item label (or fn(ctx) => string).
+ * @param {Function}        config.onClick         Click handler `(ctx) => void`.
+ * @param {Function}        [config.isSelected]    Returns true to render a checkmark.
+ * @param {Function}        [config.isDisabled]    Returns true to disable.
+ * @param {boolean}         [config.isDestructive] Renders destructive style.
+ * @param {string}          [config.group]         Group label (drives MenuGroup).
+ * @param {Function}        [config.predicate]     Hide when this returns false.
+ * @param {number}          [priority=10]          Sort order within group.
+ *
+ * @return {void}
+ */
+export function registerEditorAction(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/editor-actions').registerEditorAction(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterEditorAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register editor action: ${name}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerEditorActionError',
+			name,
+			config,
+			priority,
+			error
+		);
+	}
+}
+
+/**
  * Register a workspace tab type with a content renderer.
  *
  * Once registered, the tab type can be opened with `openWorkspaceTab`.

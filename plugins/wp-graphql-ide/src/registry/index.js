@@ -1,6 +1,7 @@
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import {
 	registerActivityBarPanel,
+	registerEditorAction,
 	registerEditorBottomTab,
 	registerResponseAction,
 	registerResponseExtensionTab,
@@ -244,6 +245,52 @@ export const initializeRegistry = () => {
 			isSelected: ({ dataScope }) => dataScope === 'full',
 		},
 		20
+	);
+
+	// Built-in editor toolbar kebab actions. The leading "registered
+	// toolbar buttons" group (Prettify, etc.) still renders separately
+	// from EditorToolbar — these are the document-scoped actions that
+	// follow it.
+	registerEditorAction(
+		'share-link',
+		{
+			label: 'Share link…',
+			onClick: ({ closeMenu, openShareDialog }) => {
+				closeMenu();
+				openShareDialog();
+			},
+			isDisabled: ({ query }) => !query?.trim(),
+			predicate: ({ endpointMode }) => !endpointMode,
+		},
+		10
+	);
+	registerEditorAction(
+		'rename-query',
+		{
+			label: 'Rename query',
+			onClick: ({ closeMenu, openRenameDialog }) => {
+				closeMenu();
+				openRenameDialog();
+			},
+			predicate: ({ endpointMode, activeDocument, isTempId }) =>
+				!endpointMode &&
+				!!activeDocument?.id &&
+				!isTempId(activeDocument.id),
+		},
+		20
+	);
+	registerEditorAction(
+		'duplicate-as-draft',
+		{
+			label: 'Duplicate as draft',
+			onClick: ({ closeMenu, duplicateAsDraft }) => {
+				closeMenu();
+				duplicateAsDraft();
+			},
+			predicate: ({ endpointMode, isPublished }) =>
+				!endpointMode && isPublished,
+		},
+		30
 	);
 
 	// Built-in "Settings" workspace tab — opened from the topbar settings

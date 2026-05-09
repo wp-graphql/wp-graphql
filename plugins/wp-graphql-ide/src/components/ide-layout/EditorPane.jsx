@@ -8,6 +8,7 @@ import {
 	TabPanel,
 	Tooltip,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { Icon, cog, listView, moreVertical } from '@wordpress/icons';
 import { GraphQLEditor } from '../editors/GraphQLEditor';
 import { DocumentNotices } from '../DocumentNotices';
@@ -111,6 +112,11 @@ export function EditorPane({
 	const editorAreaReporter = useResizeReporter('Editor');
 	const bottomToolsReporter = useResizeReporter('Variables / Headers');
 
+	const editorActions = useSelect(
+		(s) => s('wpgraphql-ide/editor-actions').editorActions(),
+		[]
+	);
+
 	return (
 		<ResizableBox
 			size={{ width: queryPaneWidth, height: 'auto' }}
@@ -180,56 +186,85 @@ export function EditorPane({
 						className: 'wpgraphql-ide-panel-kebab',
 					}}
 				>
-					{({ onClose: closeMenu }) => (
-						<>
-							<MenuGroup>
-								<EditorToolbar
-									onClose={closeMenu}
-									onNotice={addNotice}
-									hideMutating={isPublished}
-								/>
-							</MenuGroup>
-							{!endpointMode && (
+					{({ onClose: closeMenu }) => {
+						const ctx = {
+							query,
+							activeDocument,
+							isPublished,
+							isTempId,
+							endpointMode,
+							openShareDialog: onOpenShareDialog,
+							openRenameDialog: onOpenRenameDialog,
+							duplicateAsDraft: onDuplicateAsDraft,
+							addNotice,
+							closeMenu,
+						};
+						const visible = editorActions.filter((a) =>
+							a.predicate ? a.predicate(ctx) : true
+						);
+						const groups = [];
+						const groupIndex = new Map();
+						for (const a of visible) {
+							const key = a.group || '';
+							if (!groupIndex.has(key)) {
+								groupIndex.set(key, groups.length);
+								groups.push({ label: key, items: [] });
+							}
+							groups[groupIndex.get(key)].items.push(a);
+						}
+						return (
+							<>
 								<MenuGroup>
-									<MenuItem
-										onClick={() => {
-											closeMenu();
-											onOpenShareDialog();
-										}}
-										disabled={!query?.trim()}
-									>
-										Share link…
-									</MenuItem>
+									<EditorToolbar
+										onClose={closeMenu}
+										onNotice={addNotice}
+										hideMutating={isPublished}
+									/>
 								</MenuGroup>
-							)}
-							{!endpointMode &&
-								!!activeDocument?.id &&
-								!isTempId(activeDocument.id) && (
-									<MenuGroup>
-										<MenuItem
-											onClick={() => {
-												closeMenu();
-												onOpenRenameDialog();
-											}}
-										>
-											Rename query
-										</MenuItem>
+								{groups.map((g, i) => (
+									<MenuGroup
+										key={g.label || `group-${i}`}
+										label={g.label || undefined}
+									>
+										{g.items.map((item) => {
+											const handleClick = () => {
+												item.onClick(ctx);
+											};
+											const labelText =
+												typeof item.label === 'function'
+													? item.label(ctx)
+													: item.label;
+											return (
+												<MenuItem
+													key={item.name}
+													onClick={handleClick}
+													isSelected={
+														item.isSelected
+															? item.isSelected(
+																	ctx
+																)
+															: undefined
+													}
+													isDestructive={
+														!!item.isDestructive
+													}
+													disabled={
+														item.isDisabled
+															? !!item.isDisabled(
+																	ctx
+																)
+															: false
+													}
+												>
+													{labelText}
+												</MenuItem>
+											);
+										})}
 									</MenuGroup>
-								)}
-							{!endpointMode && isPublished && (
-								<MenuGroup>
-									<MenuItem
-										onClick={() => {
-											closeMenu();
-											onDuplicateAsDraft();
-										}}
-									>
-										Duplicate as draft
-									</MenuItem>
-								</MenuGroup>
-							)}
-						</>
-					)}
+								))}
+							</>
+						);
+					}}
 				</DropdownMenu>
 				<div className="wpgraphql-ide-editor-toolbar-spacer" />
 				{!endpointMode && !isPublished && (
