@@ -82,13 +82,19 @@ test.describe('Dedicated IDE page', () => {
 		).toContainText('posts', { timeout: 5000 });
 	});
 
-	test('a temp tab shows the unsaved-dirty indicator', async ({ page }) => {
+	test('a temp tab is marked is-temp (italic title, no dirty bullet)', async ({
+		page,
+	}) => {
 		await page.click(selectors.addTab);
 
-		await expect(
-			page
-				.locator(`${selectors.tab}.is-active`)
-				.locator('.wpgraphql-ide-tab-dirty')
-		).toBeVisible();
+		// Temp drafts are autopersisted to localStorage on every keystroke,
+		// so we don't show the dirty bullet on them — it would always be
+		// on, which makes it useless. Italic title (driven by `is-temp`)
+		// signals "this hasn't been saved as a real draft yet" instead.
+		const activeTab = page.locator(`${selectors.tab}.is-active`);
+		await expect(activeTab).toHaveClass(/is-temp/);
+		await expect(activeTab.locator('.wpgraphql-ide-tab-dirty')).toHaveCount(
+			0
+		);
 	});
 });
