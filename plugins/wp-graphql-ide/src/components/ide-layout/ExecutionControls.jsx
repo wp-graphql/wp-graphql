@@ -12,8 +12,8 @@ import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 const PlayIcon = (
 	<svg
 		viewBox="0 0 24 24"
-		width="16"
-		height="16"
+		width="20"
+		height="20"
 		fill="currentColor"
 		aria-hidden="true"
 	>
@@ -24,8 +24,8 @@ const PlayIcon = (
 const StopIcon = (
 	<svg
 		viewBox="0 0 24 24"
-		width="16"
-		height="16"
+		width="20"
+		height="20"
 		fill="currentColor"
 		aria-hidden="true"
 	>

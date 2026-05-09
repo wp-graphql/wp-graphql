@@ -922,9 +922,13 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
-	width: 32px;
-	min-width: 32px;
-	height: 32px;
+	/* 44×44 hits the WCAG 2.5.5 AAA touch-target minimum and is well
+	   above the 32px we shipped first — that surface area was tight
+	   even with a mouse, particularly for new visitors expecting the
+	   primary CTA to read as primary. */
+	width: 44px;
+	min-width: 44px;
+	height: 44px;
 	padding: 0;
 	justify-content: center;
 	border-radius: 50%;
