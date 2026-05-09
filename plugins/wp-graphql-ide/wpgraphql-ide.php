@@ -32,6 +32,36 @@ define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_FILE', __FILE__ );
 
+/**
+ * Manual PSR-4 autoloader for the `WPGraphQLIDE\` namespace.
+ *
+ * Composer's autoloader does the same thing once `composer install` has
+ * been run — but cross-plugin CI jobs only run composer install in their
+ * own plugin's directory, so when wp-env loads the IDE alongside (e.g.)
+ * smart-cache integration tests, the IDE's `vendor/` doesn't exist and
+ * every classed-out `\WPGraphQLIDE\Foo::method()` call fatals before
+ * the request can render. Same risk for Bedrock-style installs that
+ * skip per-plugin composer.
+ *
+ * Registering this fallback is harmless when Composer's autoloader has
+ * already loaded — the SPL chain just falls through to it for any
+ * non-IDE class.
+ */
+spl_autoload_register(
+	static function ( $class ) {
+		$prefix = 'WPGraphQLIDE\\';
+		$len    = strlen( $prefix );
+		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+			return;
+		}
+		$relative = substr( $class, $len );
+		$file     = WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
+		if ( file_exists( $file ) ) {
+			require_once $file;
+		}
+	}
+);
+
 // Modular feature includes — kept out of this main plugin file to avoid
 // further bloat. Each include hooks into WordPress on its own.
 require_once __DIR__ . '/includes/settings.php';
