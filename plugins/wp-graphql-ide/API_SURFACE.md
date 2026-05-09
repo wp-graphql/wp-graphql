@@ -10,7 +10,7 @@ Source files:
 
 ## Bootstrap data (`window.WPGRAPHQL_IDE_DATA`)
 
-Server-injected at script-enqueue time (`wpgraphql-ide.php::enqueue_react_app_with_styles()`). The public-endpoint render adds five extra fields via the `wpgraphql_ide_localized_data` filter (`includes/public-endpoint.php::inject_public_endpoint_data()`).
+Server-injected at script-enqueue time (`includes/AssetEnqueue.php::enqueue()`). The public-endpoint render adds five extra fields via the `wpgraphql_ide_localized_data` filter (`includes/public-endpoint.php::inject_public_endpoint_data()`).
 
 | Field | Type | Where set | Purpose |
 | --- | --- | --- | --- |

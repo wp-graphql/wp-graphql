@@ -13,7 +13,7 @@
  * inline at their consumers.
  *
  * Server-side fields are documented in
- * `wpgraphql-ide.php::enqueue_react_app_with_styles()` and
+ * `includes/AssetEnqueue.php::enqueue()` and
  * `includes/public-endpoint.php::inject_public_endpoint_data()`.
  */
 
