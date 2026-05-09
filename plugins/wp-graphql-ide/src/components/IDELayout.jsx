@@ -6,7 +6,6 @@ import React, {
 	useRef,
 } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
-import { collectVariables } from 'graphql-language-service';
 import { SnackbarList } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { ShareDialog } from './dialogs/ShareDialog';
@@ -21,17 +20,15 @@ import { ResponsePane } from './ide-layout/ResponsePane';
 import { WorkspaceEmpty } from './ide-layout/WorkspaceEmpty';
 import { useSchema } from '../hooks/useSchema';
 import { useExecution } from '../hooks/useExecution';
-import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import { useAutoSave } from '../hooks/useAutoSave';
+import { useDocumentDirty } from '../hooks/useDocumentDirty';
 import { useNotices } from '../hooks/useNotices';
 import { useLeftPanel } from '../hooks/useLeftPanel';
+import { useParsedQuery } from '../hooks/useParsedQuery';
 import { usePanelOrder } from '../hooks/usePanelOrder';
 import { usePersistedSize } from '../hooks/usePersistedSize';
 import { getWorkspacePersistence } from './workspace-persistence';
-import {
-	displayDocTitle,
-	deriveStableDocTitle,
-	isAutoTitle,
-} from '../utils/derive-doc-title';
+import { displayDocTitle } from '../utils/derive-doc-title';
 
 /**
  * Main IDE layout component.
@@ -351,79 +348,20 @@ export function IDELayout({ fetcher, onClose }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeDocument?.id]);
 
-	// Auto-save drafts after 2 seconds of inactivity.
-	const [debouncedSave, cancelAutoSave] = useDebouncedCallback(
-		(docId, payload) => {
-			saveDocument(docId, payload);
-		},
-		2000
-	);
-
-	const scheduleAutoSave = useCallback(
-		(field, value) => {
-			if (!activeDocument) {
-				return;
-			}
-			// Sticky-title persist: when the active doc's title is still in
-			// the auto state and the query has a clearly-complete op name
-			// (followed by `{` or `(`), freeze that name as the title. Once
-			// persisted, the title stops following the query — even if the
-			// user later edits or removes the op name. Mirrors WP's "slug
-			// freezes after first publish" behavior.
-			const payload = { [field]: value };
-			if (field === 'query' && isAutoTitle(activeDocument.title)) {
-				const stable = deriveStableDocTitle(value);
-				if (stable) {
-					payload.title = stable;
-				}
-			}
-			// Temp drafts only live client-side, so just push edits
-			// straight to the doc store + localStorage. No debounce —
-			// `saveDocument` for a temp ID is a synchronous local
-			// update and skips the network entirely.
-			if (String(activeDocument.id).startsWith('temp-')) {
-				saveDocument(activeDocument.id, payload);
-				return;
-			}
-			debouncedSave(activeDocument.id, payload);
-		},
-		[activeDocument, saveDocument, debouncedSave]
-	);
-
-	const handleQueryChange = useCallback(
-		(value) => {
-			setQuery(value);
-			scheduleAutoSave('query', value);
-		},
-		[setQuery, scheduleAutoSave]
-	);
-
-	const handleVariablesChange = useCallback(
-		(value) => {
-			setVariables(value);
-			scheduleAutoSave('variables', value);
-		},
-		[setVariables, scheduleAutoSave]
-	);
-
-	const handleHeadersChange = useCallback(
-		(value) => {
-			setHeaders(value);
-			scheduleAutoSave('headers', value);
-		},
-		[setHeaders, scheduleAutoSave]
-	);
-
-	const handleDocumentSettingChange = useCallback(
-		(name, value) => {
-			setDocSettingsValues((prev) => {
-				const next = { ...prev, [name]: value };
-				scheduleAutoSave('documentSettings', next);
-				return next;
-			});
-		},
-		[scheduleAutoSave]
-	);
+	const {
+		cancelAutoSave,
+		handleQueryChange,
+		handleVariablesChange,
+		handleHeadersChange,
+		handleDocumentSettingChange,
+	} = useAutoSave({
+		activeDocument,
+		saveDocument,
+		setQuery,
+		setVariables,
+		setHeaders,
+		setDocSettingsValues,
+	});
 
 	// Explicit save — Cmd+S / Save button. For a brand-new draft (temp
 	// id), open the SaveDialog so the user can name it and pick a
@@ -597,78 +535,14 @@ export function IDELayout({ fetcher, onClose }) {
 	const isSavedDraft =
 		activeDocument && !isTempDoc && activeDocument.status !== 'publish';
 
-	// Derive whether a document has unsaved changes vs. its last server-saved
-	// snapshot. Workspace tabs (Settings, etc.) carry their own `dirty` flag
-	// since they don't have query/variables/headers. Temp drafts are dirty
-	// when they hold any non-whitespace content (an empty New Tab isn't
-	// worth a "save before closing?" prompt). For the active doc, compare
-	// against the live editor state since pending edits haven't reached
-	// the store yet between keystroke and autosave.
-	const isDocDirty = useCallback(
-		(doc) => {
-			if (!doc) {
-				return false;
-			}
-			if (doc.tabType) {
-				return !!doc.dirty;
-			}
-			const isActive = String(doc.id) === String(activeDocument?.id);
-			// Trust the live editor state only when it's already been
-			// synced to this doc — otherwise we're on the in-between frame
-			// after a tab switch where `query`/etc still hold the previous
-			// tab's content. Falling back to `doc.*` keeps the dirty flag
-			// stable across the swap so the dot/italic don't flicker.
-			const liveStateMatches =
-				isActive && String(editorSyncedDocId) === String(doc.id);
-			const currentQuery = liveStateMatches ? query : doc.query || '';
-			const currentVars = liveStateMatches
-				? variables
-				: doc.variables || '';
-			const currentHeaders = liveStateMatches
-				? headers
-				: doc.headers || '';
-			if (String(doc.id).startsWith('temp-')) {
-				return (
-					currentQuery.trim() !== '' ||
-					currentVars.trim() !== '' ||
-					currentHeaders.trim() !== ''
-				);
-			}
-			if (
-				currentQuery !== (doc.lastSavedQuery || '') ||
-				currentVars !== (doc.lastSavedVariables || '') ||
-				currentHeaders !== (doc.lastSavedHeaders || '')
-			) {
-				return true;
-			}
-			if (liveStateMatches) {
-				const savedSettings =
-					(doc.documentSettings &&
-						typeof doc.documentSettings === 'object' &&
-						doc.documentSettings) ||
-					{};
-				try {
-					return (
-						JSON.stringify(docSettingsValues) !==
-						JSON.stringify(savedSettings)
-					);
-				} catch {
-					return false;
-				}
-			}
-			return false;
-		},
-		[
-			activeDocument?.id,
-			editorSyncedDocId,
-			query,
-			variables,
-			headers,
-			docSettingsValues,
-		]
-	);
-
-	const activeDocDirty = isDocDirty(activeDocument);
+	const { isDocDirty, activeDocDirty } = useDocumentDirty({
+		activeDocument,
+		editorSyncedDocId,
+		query,
+		variables,
+		headers,
+		docSettingsValues,
+	});
 
 	// Close tab with a 3-way prompt for dirty documents:
 	//   Save and close (primary)  → persist, then close
@@ -754,52 +628,10 @@ export function IDELayout({ fetcher, onClose }) {
 		]
 	);
 
-	// Parse the current query once; reused for op-picker, Publish guard, and
-	// Composer state. parseable=false means the editor content is unparseable
-	// GraphQL (or empty).
-	const parsedQuery = useMemo(() => {
-		if (!query || !query.trim()) {
-			return { ast: null, parseable: false, empty: true };
-		}
-		try {
-			return { ast: parseGraphQL(query), parseable: true, empty: false };
-		} catch {
-			return { ast: null, parseable: false, empty: false };
-		}
-	}, [query]);
-
-	// Operation names declared in the current document. The Execute button
-	// turns into an op-picker dropdown when there's more than one — graphql-php
-	// returns an error if multiple operations are sent without a target.
-	const operationNames = useMemo(() => {
-		if (!parsedQuery.ast) {
-			return [];
-		}
-		return parsedQuery.ast.definitions
-			.filter(
-				(d) =>
-					d.kind === 'OperationDefinition' && d.name && d.name.value
-			)
-			.map((d) => d.name.value);
-	}, [parsedQuery]);
-
-	// Map of declared variable name → GraphQLInputType, derived from the
-	// parsed operation. The Variables JSON editor uses this to lint the
-	// JSON document against the operation's expected types so users get
-	// inline feedback when a value's shape (number vs string, missing
-	// required input field, etc.) doesn't match. Null when the schema
-	// hasn't loaded or the document doesn't parse — the JSON editor's
-	// linter falls back to syntax-only checking in that case.
-	const variableToType = useMemo(() => {
-		if (!schema || !parsedQuery.ast) {
-			return null;
-		}
-		try {
-			return collectVariables(schema, parsedQuery.ast);
-		} catch {
-			return null;
-		}
-	}, [schema, parsedQuery]);
+	const { parsedQuery, operationNames, variableToType } = useParsedQuery(
+		query,
+		schema
+	);
 
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
