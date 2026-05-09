@@ -32,10 +32,14 @@ const nestedQuery = (
     {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"      "}<Tok kind="key">title</Tok>{"\n"}
     {"      "}<Tok kind="key">author</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"        "}<Tok kind="key">node</Tok> <Tok kind="punc">{"{ "}</Tok><Tok kind="key">name</Tok><Tok kind="punc">{" }"}</Tok>{"\n"}
+    {"        "}<Tok kind="key">node</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="key">name</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     {"      "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     {"      "}<Tok kind="key">categories</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"        "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{ "}</Tok><Tok kind="key">name</Tok><Tok kind="punc">{" }"}</Tok>{"\n"}
+    {"        "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="key">name</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     {"      "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
@@ -47,15 +51,23 @@ const nestedResponse = (
     <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
     {"    "}<Tok kind="str">{"\"posts\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [{"{"}</Tok>{"\n"}
-    {"        "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
-    {"        "}<Tok kind="str">{"\"author\""}</Tok><Tok kind="punc">: {"{ "}</Tok><Tok kind="str">{"\"node\""}</Tok><Tok kind="punc">: {"{ "}</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Jane\""}</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"} }"}</Tok><Tok kind="punc">,</Tok>{"\n"}
-    {"        "}<Tok kind="str">{"\"categories\""}</Tok><Tok kind="punc">: {"{ "}</Tok><Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [{"{ "}</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"News\""}</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"} ] }"}</Tok>{"\n"}
-    {"      "}<Tok kind="punc">{"}]"}</Tok>{"\n"}
+    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"author\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"            "}<Tok kind="str">{"\"node\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"              "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Jane\""}</Tok>{"\n"}
+    {"            "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"          "}<Tok kind="punc">{"}"}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"categories\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"            "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
+    {"              "}<Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"                "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"News\""}</Tok>{"\n"}
+    {"              "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"            "}<Tok kind="punc">{"]"}</Tok>{"\n"}
+    {"          "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="punc">{"]"}</Tok>{"\n"}
     {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
     <Tok kind="punc">{"}"}</Tok>
