@@ -24,6 +24,20 @@ const selectors = {
 		(state) => [state.documents, state.documentIds]
 	),
 
+	// Documents minus workspace tabs (Settings, etc. — they live in
+	// the same store so the tab strip can render their titles, but
+	// they're not query documents). Memoized so consumers
+	// (SavedQueriesPanel) don't trigger wp-data's "non-equal value"
+	// warning by .filter()ing a stable array into a fresh reference
+	// on every render.
+	getQueryDocuments: createSelector(
+		(state) =>
+			(state.documentIds || [])
+				.map((id) => state.documents[id])
+				.filter((doc) => doc && !doc.tabType),
+		(state) => [state.documents, state.documentIds]
+	),
+
 	getDocumentResponse: (state, id) => {
 		if (id === null || id === undefined) {
 			return '';
