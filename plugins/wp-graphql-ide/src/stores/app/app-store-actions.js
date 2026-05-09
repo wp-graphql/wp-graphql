@@ -14,6 +14,7 @@ import {
 	reorderCollections as persistCollectionOrder,
 } from '../../api/documents';
 import { getPreferences, setPreference } from '../../api/preferences';
+import { endpointMode } from '../../bootstrap';
 
 const VALID_SORT_MODES = ['manual', 'title_asc', 'modified_desc', 'status'];
 
@@ -205,6 +206,13 @@ const actions = {
 	addHistoryEntry:
 		(entry) =>
 		async ({ dispatch, select: sel }) => {
+			// Endpoint mode hides the History panel entirely and the
+			// graphql-ide-history REST route requires manage_graphql_ide,
+			// so persisting an entry would always 403. Skip the call
+			// and the corresponding console error.
+			if (endpointMode) {
+				return;
+			}
 			try {
 				const current = sel.getHistory();
 				const oldestId =

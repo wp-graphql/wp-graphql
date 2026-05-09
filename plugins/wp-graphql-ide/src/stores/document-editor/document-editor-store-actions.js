@@ -14,6 +14,7 @@ import {
 } from './unsaved-tabs-storage';
 import { isTempId } from '../../utils/document-id';
 import { WELCOME_QUERY } from './welcome-query';
+import { endpointMode } from '../../bootstrap';
 
 export { isTempId };
 
@@ -115,14 +116,23 @@ const actions = {
 			// always runs.
 			let docs = [];
 			let prefs = {};
-			try {
-				[docs, prefs] = await Promise.all([
-					getDocuments(),
-					getPreferences(),
-				]);
-			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.warn('Failed to load IDE documents from REST:', error);
+			// Endpoint mode skips the REST round-trip entirely. The
+			// public surface doesn't render a saved-queries UI, and
+			// anonymous callers would just get a 403 + 401 pair —
+			// pure console noise with no user-visible payoff.
+			if (!endpointMode) {
+				try {
+					[docs, prefs] = await Promise.all([
+						getDocuments(),
+						getPreferences(),
+					]);
+				} catch (error) {
+					// eslint-disable-next-line no-console
+					console.warn(
+						'Failed to load IDE documents from REST:',
+						error
+					);
+				}
 			}
 			try {
 				// Hydrate any unsaved drafts the user had open before

@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { parse as parseGraphQL } from 'graphql';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
@@ -48,6 +49,50 @@ export function useExecution(fetcher, options = {}) {
 			}
 			const controller = new AbortController();
 			abortControllerRef.current = controller;
+
+			// Short-circuit when the document has no operation to run.
+			// The welcome boilerplate is comments-only; an unedited
+			// query field is empty. Without this guard the request
+			// fires anyway and the server returns a 500 for an empty
+			// body, which is a confusing first-run experience.
+			try {
+				const ast = parseGraphQL(query || '');
+				const ops = ast.definitions.filter(
+					(d) => d.kind === 'OperationDefinition'
+				);
+				if (ops.length === 0) {
+					setResponse(
+						JSON.stringify(
+							{
+								errors: [
+									{
+										message:
+											'No operation to execute. Type a GraphQL query, mutation, or subscription and run again.',
+									},
+								],
+							},
+							null,
+							2
+						)
+					);
+					return;
+				}
+			} catch (error) {
+				setResponse(
+					JSON.stringify(
+						{
+							errors: [
+								{
+									message: `Query parse error: ${error.message}`,
+								},
+							],
+						},
+						null,
+						2
+					)
+				);
+				return;
+			}
 
 			let parsedVariables;
 			try {
