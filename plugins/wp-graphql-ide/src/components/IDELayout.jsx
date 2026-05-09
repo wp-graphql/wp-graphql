@@ -1,10 +1,4 @@
-import React, {
-	useState,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import { SnackbarList } from '@wordpress/components';
 import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
@@ -142,6 +136,10 @@ export function IDELayout({ fetcher, onClose }) {
 	);
 	const extensionTabs = useSelect(
 		(select) => select('wpgraphql-ide/response-extensions').extensionTabs(),
+		[]
+	);
+	const editorBottomTabs = useSelect(
+		(select) => select('wpgraphql-ide/editor-bottom-tabs').bottomTabs(),
 		[]
 	);
 	const httpMethod = useSelect(
@@ -565,21 +563,6 @@ export function IDELayout({ fetcher, onClose }) {
 
 	// Whether the active document is published (immutable query).
 	const isPublished = activeDocument?.status === 'publish';
-
-	// Whether the variables/headers JSON strings carry any meaningful
-	// Variables + Headers belong to the *request*, not the immutable
-	// document. A published doc's query body is locked, but the
-	// variables and HTTP headers can change per request (auth tokens,
-	// pagination cursors, etc.) so the panel stays editable on every
-	// doc. Both tabs are always rendered so users can add content even
-	// when the persisted doc shipped without it.
-	const editorBottomTabs = useMemo(
-		() => [
-			{ name: 'variables', title: 'Variables' },
-			{ name: 'headers', title: 'Headers' },
-		],
-		[]
-	);
 
 	// Spawn a fresh draft tab seeded with the current doc's query, variables,
 	// and headers. Used by the "Duplicate as draft" kebab item and the

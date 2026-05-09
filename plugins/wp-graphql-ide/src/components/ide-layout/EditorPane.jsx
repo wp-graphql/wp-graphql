@@ -10,7 +10,6 @@ import {
 } from '@wordpress/components';
 import { Icon, cog, listView, moreVertical } from '@wordpress/icons';
 import { GraphQLEditor } from '../editors/GraphQLEditor';
-import { JSONEditor } from '../editors/JSONEditor';
 import { DocumentNotices } from '../DocumentNotices';
 import { DocumentSettingsDrawer } from '../document-settings/DocumentSettingsDrawer';
 import { EditorToolbar } from '../EditorToolbar';
@@ -364,26 +363,41 @@ export function EditorPane({
 				{bottomToolsReporter.indicator}
 				<TabPanel
 					className="wpgraphql-ide-editor-tools"
-					tabs={editorBottomTabs}
+					tabs={editorBottomTabs.map((t) => ({
+						name: t.name,
+						title:
+							typeof t.title === 'function'
+								? t.title({
+										query,
+										variables,
+										headers,
+										activeDocument,
+										variableToType,
+									})
+								: t.title || t.name,
+					}))}
 				>
-					{(tab) =>
-						tab.name === 'variables' ? (
-							<JSONEditor
-								key="variables"
-								value={variables}
-								onChange={onVariablesChange}
-								placeholder="Variables (JSON)"
+					{(tab) => {
+						const ext = editorBottomTabs.find(
+							(t) => t.name === tab.name
+						);
+						const ExtContent = ext?.content;
+						if (!ExtContent) {
+							return null;
+						}
+						return (
+							<ExtContent
+								key={tab.name}
+								query={query}
+								variables={variables}
+								onVariablesChange={onVariablesChange}
 								variableToType={variableToType}
+								headers={headers}
+								onHeadersChange={onHeadersChange}
+								activeDocument={activeDocument}
 							/>
-						) : (
-							<JSONEditor
-								key="headers"
-								value={headers}
-								onChange={onHeadersChange}
-								placeholder="Headers (JSON)"
-							/>
-						)
-					}
+						);
+					}}
 				</TabPanel>
 			</div>
 		</ResizableBox>

@@ -121,6 +121,51 @@ export function registerResponseExtensionTab(name, config, priority = 10) {
 }
 
 /**
+ * Register a tab in the editor's bottom tools area (where Variables and
+ * Headers live). The tab is rendered by EditorPane via OverflowTabs and
+ * sits beneath the query editor.
+ *
+ * The `content` component receives the editor context as props:
+ *   { query, variables, onVariablesChange, variableToType,
+ *     headers, onHeadersChange, response, activeDocument }
+ * Built-in tabs use what they need; plugins can pull from props or read
+ * the stores directly via useSelect.
+ *
+ * @param {string}          name           Unique tab identifier.
+ * @param {Object}          config         Tab configuration.
+ * @param {string|Function} config.title   Human-readable tab title (or
+ *                                         function for dynamic titles).
+ * @param {Function}        config.content Component receiving editor-context props.
+ * @param {number}          [priority=10]  Lower values render first.
+ *
+ * @return {void}
+ */
+export function registerEditorBottomTab(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/editor-bottom-tabs').registerEditorBottomTab(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterEditorBottomTab',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register editor bottom tab: ${name}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerEditorBottomTabError',
+			name,
+			config,
+			priority,
+			error
+		);
+	}
+}
+
+/**
  * Register a workspace tab type with a content renderer.
  *
  * Once registered, the tab type can be opened with `openWorkspaceTab`.

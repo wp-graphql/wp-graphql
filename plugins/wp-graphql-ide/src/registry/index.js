@@ -1,6 +1,7 @@
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import {
 	registerActivityBarPanel,
+	registerEditorBottomTab,
 	registerResponseExtensionTab,
 	registerTopbarAction,
 	registerWorkspaceTabType,
@@ -29,6 +30,8 @@ import { TracingExtensionTab } from '../components/response-extensions/TracingEx
 import { QueryLogExtensionTab } from '../components/response-extensions/QueryLogExtensionTab';
 import { ErrorsExtensionTab } from '../components/response-extensions/ErrorsExtensionTab';
 import { HeadersExtensionTab } from '../components/response-extensions/HeadersExtensionTab';
+import { VariablesEditorTab } from '../components/editor-bottom-tabs/VariablesEditorTab';
+import { HeadersEditorTab } from '../components/editor-bottom-tabs/HeadersEditorTab';
 
 export const initializeRegistry = () => {
 	registerEditorToolbarButtons();
@@ -126,6 +129,27 @@ export const initializeRegistry = () => {
 			alwaysShow: true,
 		},
 		80
+	);
+
+	// Built-in editor-bottom tabs (Variables / Headers). Both belong to
+	// the request, not the document — published docs lock query content
+	// but variables and headers stay editable per-execution.
+	registerEditorBottomTab(
+		'variables',
+		{
+			title: 'Variables',
+			content: VariablesEditorTab,
+		},
+		10
+	);
+
+	registerEditorBottomTab(
+		'headers',
+		{
+			title: 'Headers',
+			content: HeadersEditorTab,
+		},
+		20
 	);
 
 	// Built-in "Settings" workspace tab — opened from the topbar settings
