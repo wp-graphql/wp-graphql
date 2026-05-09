@@ -128,7 +128,7 @@ export function SavedQueriesPanelHeaderAction() {
 								hooks.doAction(PANEL_ACTION_HOOK, 'import');
 							}}
 						>
-							Import documents…
+							Import queries…
 						</MenuItem>
 						<MenuItem
 							disabled={collectionCount === 0}
@@ -137,7 +137,7 @@ export function SavedQueriesPanelHeaderAction() {
 								hooks.doAction(PANEL_ACTION_HOOK, 'export');
 							}}
 						>
-							Export documents…
+							Export queries…
 						</MenuItem>
 					</MenuGroup>
 				</>
@@ -246,7 +246,7 @@ function CollectionSection({
 	sortMode,
 	onSortModeChange,
 	onDeleteAll,
-	deleteAllLabel = 'Delete all documents',
+	deleteAllLabel = 'Delete all queries',
 	onShare,
 	children,
 }) {
@@ -792,7 +792,9 @@ export function SavedQueriesPanel() {
 			await loadCollections();
 			reloadDocs();
 			notify(
-				`Imported ${result.created || 0} documents${
+				`Imported ${result.created || 0} ${
+					result.created === 1 ? 'query' : 'queries'
+				}${
 					result.skipped
 						? ` (${result.skipped} skipped as duplicates)`
 						: ''

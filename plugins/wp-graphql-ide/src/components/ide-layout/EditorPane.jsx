@@ -194,7 +194,7 @@ export function EditorPane({
 												onOpenRenameDialog();
 											}}
 										>
-											Rename document
+											Rename query
 										</MenuItem>
 									</MenuGroup>
 								)}

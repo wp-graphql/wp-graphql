@@ -5,8 +5,12 @@ import { Button } from '@wordpress/components';
  * Empty-state surface shown in the editor area when no tabs are open.
  * Clicking the button asks the parent to spawn a new untitled draft.
  *
+ * Copy follows WordPress's "Add New {Type}" convention and uses
+ * "query" — the term every other IDE surface (Saved Queries panel,
+ * the IdeQuery CPT, the composer's `Add new ▾ Query` selector) uses.
+ *
  * @param {Object}   props
- * @param {Function} props.onCreate - Click handler for the "New Document" button.
+ * @param {Function} props.onCreate - Click handler for the Add New Query button.
  */
 export function WorkspaceEmpty({ onCreate }) {
 	return (
@@ -22,13 +26,12 @@ export function WorkspaceEmpty({ onCreate }) {
 					fill="currentColor"
 				/>
 			</svg>
-			<h3 className="wpgraphql-ide-empty-title">No open documents</h3>
+			<h3 className="wpgraphql-ide-empty-title">No queries open</h3>
 			<p className="wpgraphql-ide-empty-description">
-				Create a new document to start writing GraphQL queries, or open
-				one from the sidebar.
+				Start a new query, or open one from Saved Queries.
 			</p>
 			<Button variant="primary" onClick={onCreate}>
-				New Document
+				Add New Query
 			</Button>
 		</div>
 	);
