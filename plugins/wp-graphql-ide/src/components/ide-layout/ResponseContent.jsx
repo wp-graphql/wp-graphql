@@ -21,6 +21,7 @@ import { ResponseTableView } from '../ResponseTableView';
  * @param {Array}               props.extensionTabs          - Extension tab descriptors registered via the response-extensions store.
  * @param {string|number}       props.responseViewerHeight   - Height of the top pane (px or '%').
  * @param {Function}            props.onResponseViewerResize - Called with the new px height on resize stop.
+ * @param {string|null}         props.requestedTab           - Programmatic tab navigation request from the parent (e.g. status-bar badge). The TabPanel re-keys when this changes.
  */
 export function ResponseContent({
 	response,
@@ -30,6 +31,7 @@ export function ResponseContent({
 	extensionTabs,
 	responseViewerHeight,
 	onResponseViewerResize,
+	requestedTab,
 }) {
 	const parsed = useMemo(() => {
 		if (!response) {
@@ -70,13 +72,24 @@ export function ResponseContent({
 	);
 	const showUnregisteredFallback = unregisteredExtensionKeys.length > 0;
 
+	// Order by frequency-of-consultation: when a response succeeds the
+	// user almost always wants to know "how fast / are there N+1s"
+	// (Tracing); when it fails they want Errors. Headers is auth/CORS
+	// debugging — useful but rare. Extensions fallback stays last as
+	// a "you have unhandled keys" signal, not a routine destination.
+	const trailingExtTabs = activeExtTabs.filter((t) => t.name !== 'tracing');
+	const tracingTab = activeExtTabs.find((t) => t.name === 'tracing');
+
 	const bottomTabs = [
-		{ name: 'headers', title: `Headers (${headersCount})` },
 		{ name: 'errors', title: `Errors (${errors.length})` },
-		...activeExtTabs.map((t) => ({
+		...(tracingTab
+			? [{ name: 'ext:tracing', title: tracingTab.title || 'Tracing' }]
+			: []),
+		...trailingExtTabs.map((t) => ({
 			name: `ext:${t.name}`,
 			title: t.title || t.name,
 		})),
+		{ name: 'headers', title: `Headers (${headersCount})` },
 		...(showUnregisteredFallback
 			? [{ name: 'extensions:unregistered', title: 'Extensions' }]
 			: []),
@@ -142,10 +155,16 @@ export function ResponseContent({
 				{renderViewer()}
 			</ResizableBox>
 			<TabPanel
-				key={errors.length > 0 ? 'has-errors' : 'no-errors'}
+				// Re-key on `requestedTab` so the TabPanel honors any new
+				// programmatic navigation (e.g. clicking a status-bar
+				// badge) by remounting with the new initialTabName.
+				key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${requestedTab || ''}`}
 				className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
 				tabs={bottomTabs}
-				initialTabName={errors.length > 0 ? 'errors' : 'headers'}
+				initialTabName={
+					requestedTab ||
+					(errors.length > 0 ? 'errors' : 'ext:tracing')
+				}
 			>
 				{(tab) => {
 					if (tab.name === 'headers') {

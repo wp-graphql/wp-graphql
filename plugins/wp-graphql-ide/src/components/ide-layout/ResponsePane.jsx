@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -7,6 +7,7 @@ import {
 } from '@wordpress/components';
 import { moreVertical } from '@wordpress/icons';
 import { ResponseContent } from './ResponseContent';
+import { detectNPlusOne } from '../response-extensions/detect-n-plus-one';
 
 const VIEW_MODES = [
 	{ value: 'formatted', label: 'JSON' },
@@ -62,6 +63,40 @@ export function ResponsePane({
 	responseViewerHeight,
 	onResponseViewerResize,
 }) {
+	// Programmatic tab navigation: status-bar badges set this, which
+	// remounts the response TabPanel via `key` to honor the new
+	// `initialTabName`. Cleared after the parent restream by passing
+	// down the same value (idempotent).
+	const [requestedTab, setRequestedTab] = useState(null);
+
+	// Surface tracing headlines in the always-visible status bar so
+	// "this query has 11 resolvers and 1 likely N+1" is information
+	// the user gets *before* clicking into the Tracing tab.
+	const tracingSummary = useMemo(() => {
+		if (!response) {
+			return null;
+		}
+		try {
+			const parsed = JSON.parse(response);
+			const tracing = parsed?.extensions?.tracing;
+			if (!tracing || typeof tracing !== 'object') {
+				return null;
+			}
+			const resolvers = Array.isArray(tracing.execution?.resolvers)
+				? tracing.execution.resolvers
+				: [];
+			const nPlusOne = detectNPlusOne(resolvers);
+			return {
+				resolverCount: resolvers.length,
+				nPlusOneCount: nPlusOne.length,
+			};
+		} catch {
+			return null;
+		}
+	}, [response]);
+
+	const focusTracing = () => setRequestedTab('ext:tracing');
+
 	return (
 		<div className="wpgraphql-ide-response-pane">
 			<div className="wpgraphql-ide-response-header">
@@ -109,6 +144,31 @@ export function ResponsePane({
 								{formatSize(responseSize)}
 							</span>
 						)}
+						{tracingSummary && (
+							<>
+								<button
+									type="button"
+									className="wpgraphql-ide-response-trace-badge"
+									onClick={focusTracing}
+									title="Open the Tracing tab"
+								>
+									{tracingSummary.resolverCount} resolver
+									{tracingSummary.resolverCount === 1
+										? ''
+										: 's'}
+								</button>
+								{tracingSummary.nPlusOneCount > 0 && (
+									<button
+										type="button"
+										className="wpgraphql-ide-response-trace-badge wpgraphql-ide-response-trace-badge--warning"
+										onClick={focusTracing}
+										title="Open the Tracing tab to see the N+1 patterns"
+									>
+										⚠ {tracingSummary.nPlusOneCount} N+1
+									</button>
+								)}
+							</>
+						)}
 					</span>
 				)}
 				<div
@@ -137,6 +197,7 @@ export function ResponsePane({
 				extensionTabs={extensionTabs}
 				responseViewerHeight={responseViewerHeight}
 				onResponseViewerResize={onResponseViewerResize}
+				requestedTab={requestedTab}
 			/>
 		</div>
 	);

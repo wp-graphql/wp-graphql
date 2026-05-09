@@ -2158,6 +2158,38 @@ input.wpgraphql-ide-tab-input:focus {
 	color: #646970;
 }
 
+/* Tracing summary badges in the response status row. Click switches
+   the response tab to Tracing — visible discoverable surface for the
+   data that's otherwise buried two clicks deep. */
+.wpgraphql-ide-response-trace-badge {
+	font-size: 11px;
+	color: #646970;
+	background: transparent;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.wpgraphql-ide-response-trace-badge:hover,
+.wpgraphql-ide-response-trace-badge:focus {
+	color: #1e1e1e;
+	text-decoration: underline;
+	outline: none;
+}
+
+.wpgraphql-ide-response-trace-badge--warning {
+	color: #d63638;
+	font-weight: 500;
+}
+
+.wpgraphql-ide-response-trace-badge--warning:hover,
+.wpgraphql-ide-response-trace-badge--warning:focus {
+	color: #b32d2e;
+	text-decoration: underline;
+}
+
 /* View mode toggle (JSON | Table) */
 .wpgraphql-ide-response-mode-toggle {
 	display: flex;
