@@ -143,15 +143,15 @@ function render_public_ide_shell(): void {
 	// also try to mount its own IDE instance into a sibling div.
 	add_filter( 'show_admin_bar', '__return_false' );
 
-	// Reuse the dedicated-page enqueue function so script handles,
-	// dependency graph, and `WPGRAPHQL_IDE_DATA` bootstrap are
-	// identical. The `bypass_dedicated_page_gate` argument tells it to
-	// skip the capability + admin-bar checks that protect every other
-	// call site.
+	// Reuse the dedicated-page enqueue path so script handles, dependency
+	// graph, and `WPGRAPHQL_IDE_DATA` bootstrap are identical. The
+	// `bypass_dedicated_page_gate` argument tells AssetEnqueue::enqueue
+	// to skip the capability + admin-bar checks that protect every
+	// other call site — anonymous visitors at /?graphql are intended.
 	add_action(
 		'wp_enqueue_scripts',
 		static function () {
-			enqueue_react_app_with_styles( true );
+			AssetEnqueue::enqueue( true );
 		}
 	);
 
