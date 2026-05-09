@@ -80,14 +80,14 @@ function initialize_plugin() {
 	add_action( 'admin_enqueue_scripts', [ \WPGraphQLIDE\AssetEnqueue::class, 'enqueue' ] );
 	add_action( 'wp_enqueue_scripts', [ \WPGraphQLIDE\AssetEnqueue::class, 'enqueue' ] );
 
-	add_action( 'graphql_register_settings', __NAMESPACE__ . '\\register_ide_settings' );
+	add_action( 'graphql_register_settings', [ \WPGraphQLIDE\SettingsPage::class, 'register' ] );
 	add_action( 'graphql_admin_notices_render_notices', __NAMESPACE__ . '\\graphql_admin_notices_render_notices', 10, 1 );
 	add_action( 'graphql_admin_notices_render_notice', __NAMESPACE__ . '\\graphql_admin_notices_render_notice', 10, 4 );
 
 	add_filter( 'graphql_admin_notices_is_allowed_admin_page', __NAMESPACE__ . '\\graphql_admin_notices_is_allowed_admin_page', 10, 3 );
 	add_filter( 'script_loader_tag', [ \WPGraphQLIDE\AssetEnqueue::class, 'defer_script_attribute' ], 10, 2 );
-	add_filter( 'graphql_setting_field_config', __NAMESPACE__ . '\\update_graphiql_link_field_config', 10, 3 );
-	add_filter( 'graphql_get_setting_section_field_value', __NAMESPACE__ . '\\ensure_graphiql_link_is_unchecked', 10, 5 );
+	add_filter( 'graphql_setting_field_config', [ \WPGraphQLIDE\SettingsPage::class, 'rewrite_legacy_graphiql_link' ], 10, 3 );
+	add_filter( 'graphql_get_setting_section_field_value', [ \WPGraphQLIDE\SettingsPage::class, 'force_legacy_graphiql_off' ], 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), __NAMESPACE__ . '\\add_settings_link' );
 
 	// Scope REST queries to the current user's own documents/history.
@@ -540,118 +540,6 @@ function graphql_admin_notices_is_allowed_admin_page( bool $is_plugin_scoped_pag
 	}
 
 	return $is_plugin_scoped_page;
-}
-
-/**
- * Update the existing GraphiQL link field configuration to say "Legacy".
- *
- * @param array<string, mixed> $field_config The field configuration array.
- * @param string               $field_name The name of the field.
- * @param string               $section The section the field belongs to.
- * @return array<string, mixed> The modified field configuration array.
- */
-function update_graphiql_link_field_config( array $field_config, string $field_name, string $section ): array {
-	if ( 'show_graphiql_link_in_admin_bar' === $field_name && 'graphql_general_settings' === $section ) {
-		$field_config['desc'] = sprintf(
-			'%1$s<br><p class="description">%2$s</p>',
-			__( 'Show the GraphiQL IDE link in the WordPress Admin Bar.', 'wpgraphql-ide' ),
-			sprintf(
-				/* translators: %s: Strong opening tag */
-				__( '%1$sNote:%2$s This setting has been disabled by the new WPGraphQL IDE. Related settings are now available under the "IDE Settings" tab.', 'wpgraphql-ide' ),
-				'<strong>',
-				'</strong>'
-			)
-		);
-		$field_config['disabled'] = true;
-		$field_config['value']    = 'off';
-	}
-	return $field_config;
-}
-
-/**
- * Ensure the `show_graphiql_link_in_admin_bar` setting is always unchecked.
- *
- * @param mixed                $value The value of the field.
- * @param mixed                $default_value The default value if there is no value set.
- * @param string               $option_name The name of the option.
- * @param array<string, mixed> $section_fields The setting values within the section.
- * @param string               $section_name The name of the section the setting belongs to.
- * @return mixed The modified value of the field.
- */
-function ensure_graphiql_link_is_unchecked( $value, $default_value, $option_name, $section_fields, $section_name ) {
-	if ( 'show_graphiql_link_in_admin_bar' === $option_name && 'graphql_general_settings' === $section_name ) {
-		return 'off';
-	}
-	return $value;
-}
-
-/**
- * Registers custom GraphQL settings.
- */
-function register_ide_settings(): void {
-	// Add a tab section to the GraphQL admin settings page.
-	if ( function_exists( 'register_graphql_settings_section' ) ) {
-		register_graphql_settings_section(
-			'graphql_ide_settings',
-			[
-				'title' => __( 'IDE Settings', 'wpgraphql-ide' ),
-				'desc'  => __( 'Customize your WPGraphQL IDE experience sitewide. Individual users can override these settings in their user profile.', 'wpgraphql-ide' ),
-			]
-		);
-	}
-
-	if ( function_exists( 'register_graphql_settings_field' ) ) {
-		register_graphql_settings_field(
-			'graphql_ide_settings',
-			[
-				'name'              => 'graphql_ide_link_behavior',
-				'label'             => __( 'Admin Bar Link Behavior', 'wpgraphql-ide' ),
-				'desc'              => __( 'How would you like to access the GraphQL IDE from the admin bar?', 'wpgraphql-ide' ),
-				'type'              => 'radio',
-				'options'           => [
-					'drawer'         => __( 'Drawer (recommended) — open the IDE in a slide up drawer from any page', 'wpgraphql-ide' ),
-					'dedicated_page' => sprintf(
-						wp_kses_post(
-							sprintf(
-								/* translators: %s: URL to the GraphQL IDE page */
-								__( 'Dedicated Page — direct link to <a href="%1$s">%1$s</a>', 'wpgraphql-ide' ),
-								esc_url( admin_url( 'admin.php?page=graphql-ide' ) )
-							)
-						)
-					),
-					'disabled'       => __( 'Disabled — remove the IDE link from the admin bar', 'wpgraphql-ide' ),
-				],
-				'default'           => 'drawer',
-				'sanitize_callback' => __NAMESPACE__ . '\\sanitize_custom_graphql_ide_link_behavior',
-			]
-		);
-
-		register_graphql_settings_field(
-			'graphql_ide_settings',
-			[
-				'name'  => 'graphql_ide_show_legacy_editor',
-				'label' => __( 'Show Legacy Editor', 'wpgraphql-ide' ),
-				'desc'  => __( 'Show the legacy editor', 'wpgraphql-ide' ),
-				'type'  => 'checkbox',
-			]
-		);
-	}
-}
-
-/**
- * Sanitize the input value for the custom GraphQL IDE link behavior setting.
- *
- * @param string $value The input value.
- * @return string The sanitized value.
- */
-function sanitize_custom_graphql_ide_link_behavior( string $value ): string {
-	$valid_values = [ 'drawer', 'dedicated_page', 'disabled' ];
-
-	if ( in_array( $value, $valid_values, true ) ) {
-		return $value;
-	}
-
-	return 'drawer';
 }
 
 /**
