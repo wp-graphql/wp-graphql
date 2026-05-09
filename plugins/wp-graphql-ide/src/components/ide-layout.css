@@ -821,63 +821,75 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 28px;
+	width: 32px;
+	height: 32px;
 	padding: 0;
 	border: none;
 	background: transparent;
 	cursor: pointer;
 	border-radius: 50%;
-	transition: opacity 0.15s;
+	transition: background-color 0.15s ease;
 }
 
 /* Force avatar image to fit the button */
 .wpgraphql-ide-auth-avatar > span {
-	width: 24px !important;
-	height: 24px !important;
+	width: 26px !important;
+	height: 26px !important;
 }
 
 /* Shrink the auth status badge so the avatar reads clearly inside the pill.
    The module-CSS hash prevents a direct class selector, so target by structure. */
 .wpgraphql-ide-auth-avatar > span > span {
-	width: 7px !important;
-	height: 7px !important;
+	width: 8px !important;
+	height: 8px !important;
 	border-width: 1.5px !important;
 }
 
 .wpgraphql-ide-auth-avatar:hover {
-	opacity: 0.75;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
 }
 
 /* Floating execution pill — bottom-right of query editor.
    Border-radius is half the content height (4px padding + 40px send
-   button = 48px → 24px radius) so the pill stays a true capsule when
-   the play button anchors the right end. */
+   button = 48px → 24px radius) so the pill stays a true capsule.
+   Padding is symmetric so the secondary controls and the play button
+   read as part of the same rhythm; the inner gap between secondaries
+   and the play button is doubled to separate "configure" from "execute". */
 .wpgraphql-ide-execution-pill {
 	position: absolute;
 	bottom: 12px;
 	right: 12px;
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	padding: 4px 4px 4px 8px;
-	background: rgba(255, 255, 255, 0.92);
+	gap: 2px;
+	padding: 4px;
+	background: rgba(255, 255, 255, 0.96);
 	border: 1px solid #dcdcde;
 	border-radius: 24px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	z-index: 5;
 }
 
+/* Visual breath between the secondary controls (method, auth) and the
+   primary action (send). Margin on the send button rather than a flex
+   gap so the secondaries stay tight as a group. */
+.wpgraphql-ide-execution-pill > .wpgraphql-ide-send-button {
+	margin-left: 6px;
+}
+
 /* HTTP-method dropdown toggle inside the execution pill — text label
-   with a small caret so it reads as a real menu, not as plain text. */
+   with a small caret so it reads as a real menu, not as plain text.
+   Sized to 32px so the secondary controls hold visual weight against
+   the 40px play button (0.8 ratio) instead of feeling like a footnote. */
 .wpgraphql-ide-execution-method-btn.components-button {
 	font-size: 12px;
 	font-weight: 500;
-	height: 28px;
-	padding: 0 6px 0 10px;
+	height: 32px;
+	padding: 0 4px 0 12px;
 	color: var(--wp-components-color-gray-700, #50575e);
 	background: transparent;
 	border: 0;
+	border-radius: 16px;
 	box-shadow: none;
 	gap: 2px;
 }
