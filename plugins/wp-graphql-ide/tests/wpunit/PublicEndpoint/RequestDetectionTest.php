@@ -124,6 +124,72 @@ class RequestDetectionTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( WPGraphQLIDE\is_browser_html_request_to_endpoint() );
 	}
 
+	public function test_operation_name_param_does_not_match(): void {
+		// Spec GraphQL-over-HTTP GET param.
+		$this->set_request(
+			'GET',
+			'text/html,application/xhtml+xml',
+			[
+				'operationName' => 'GetPosts',
+			]
+		);
+		$this->assertFalse( WPGraphQLIDE\is_browser_html_request_to_endpoint() );
+	}
+
+	public function test_extensions_param_does_not_match(): void {
+		// Apollo Persisted Queries / APQ stuff the persistence hash here.
+		$this->set_request(
+			'GET',
+			'text/html,application/xhtml+xml',
+			[
+				'extensions' => '{"persistedQuery":{"version":1,"sha256Hash":"abc"}}',
+			]
+		);
+		$this->assertFalse( WPGraphQLIDE\is_browser_html_request_to_endpoint() );
+	}
+
+	public function test_query_id_param_does_not_match(): void {
+		// WPGraphQL Smart Cache's persisted-query convention. Without
+		// this guard, a Smart Cache user's persisted query GET with a
+		// browser-shaped Accept header would render the IDE instead of
+		// returning the persisted-query response.
+		$this->set_request(
+			'GET',
+			'text/html,application/xhtml+xml',
+			[
+				'queryId' => 'abc123',
+			]
+		);
+		$this->assertFalse( WPGraphQLIDE\is_browser_html_request_to_endpoint() );
+	}
+
+	public function test_filter_can_add_custom_api_params(): void {
+		// Extensions that introduce new GET params can hook the filter
+		// to keep their requests on the JSON path.
+		add_filter(
+			'wpgraphql_ide_endpoint_api_params',
+			static function ( array $params ): array {
+				$params[] = 'customExtensionParam';
+				return $params;
+			}
+		);
+
+		try {
+			$this->set_request(
+				'GET',
+				'text/html,application/xhtml+xml',
+				[
+					'customExtensionParam' => '1',
+				]
+			);
+			$this->assertFalse(
+				WPGraphQLIDE\is_browser_html_request_to_endpoint()
+			);
+		} finally {
+			remove_all_filters( 'wpgraphql_ide_endpoint_api_params' );
+		}
+	}
+
 	public function test_html_accept_with_charset_param_matches(): void {
 		// Some browsers include charset; the substring match should
 		// still find `text/html`.
