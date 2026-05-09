@@ -4,7 +4,7 @@ import MockIDE, { Tok } from "@/components/MockIDE"
 
 const heroQuery = (
   <>
-    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetPosts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"      "}<Tok kind="key">title</Tok>{"\n"}

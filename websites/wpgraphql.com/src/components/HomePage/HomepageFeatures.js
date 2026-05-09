@@ -1,9 +1,10 @@
 import MockIDE, { Tok } from "@/components/MockIDE"
+import ColocationDemo from "@/components/ColocationDemo"
 
 // ─── "Query what you need" — pick exactly which fields come back ───────────
 const exactFieldsQuery = (
   <>
-    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetUser</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"  "}<Tok kind="key">user</Tok><Tok kind="punc">(</Tok><Tok kind="key">id</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"dXNlcjox\""}</Tok><Tok kind="punc">) {"{"}</Tok>{"\n"}
     {"    "}<Tok kind="key">name</Tok>{"\n"}
     {"    "}<Tok kind="key">email</Tok>{"\n"}
@@ -27,7 +28,7 @@ const exactFieldsResponse = (
 // ─── "Nested resources" — follow connections in a single request ────────────
 const nestedQuery = (
   <>
-    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetPostsWithAuthor</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
     {"      "}<Tok kind="key">title</Tok>{"\n"}
@@ -112,6 +113,24 @@ export default function HomepageFeatures() {
         query={nestedQuery}
         response={nestedResponse}
       />
+      <section className="py-20 sm:py-28">
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:max-w-7xl lg:px-8">
+          <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
+            Data Colocation
+          </p>
+          <h2 className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+            Define data needs <span className="text-primary">next to your components</span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-prose text-base text-muted-foreground sm:text-lg">
+            GraphQL fragments let each component declare the fields it needs.
+            Compose those fragments into one query at the page level — the
+            data graph stays in sync with the UI tree, automatically.
+          </p>
+          <div className="mx-auto mt-12 max-w-4xl">
+            <ColocationDemo />
+          </div>
+        </div>
+      </section>
     </>
   )
 }
