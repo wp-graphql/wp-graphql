@@ -7,7 +7,7 @@ import {
 	NavigableMenu,
 	Tooltip,
 } from '@wordpress/components';
-import { Icon, chevronDown } from '@wordpress/icons';
+import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 
 const PlayIcon = (
@@ -93,6 +93,8 @@ export function ExecutionControls({
 								<MenuItem
 									key={m}
 									isSelected={httpMethod === m}
+									icon={httpMethod === m ? check : null}
+									iconPosition="left"
 									onClick={() => {
 										onSetHttpMethod(m);
 										closeMenu();
@@ -131,6 +133,7 @@ export function ExecutionControls({
 								>
 									<span className={authStyles.authBadge} />
 								</span>
+								<Icon icon={chevronDown} size={14} />
 							</Button>
 						</Tooltip>
 					)}
@@ -139,6 +142,8 @@ export function ExecutionControls({
 							<MenuGroup label="Send as">
 								<MenuItem
 									isSelected={isAuthenticated}
+									icon={isAuthenticated ? check : null}
+									iconPosition="left"
 									onClick={() => {
 										if (!isAuthenticated) {
 											onToggleAuth();
@@ -150,6 +155,8 @@ export function ExecutionControls({
 								</MenuItem>
 								<MenuItem
 									isSelected={!isAuthenticated}
+									icon={!isAuthenticated ? check : null}
+									iconPosition="left"
 									onClick={() => {
 										if (isAuthenticated) {
 											onToggleAuth();
@@ -164,6 +171,10 @@ export function ExecutionControls({
 					)}
 				/>
 			)}
+			<span
+				className="wpgraphql-ide-execution-pill-divider"
+				aria-hidden="true"
+			/>
 			{showOpPicker ? (
 				<Dropdown
 					popoverProps={{ placement: 'top-end' }}

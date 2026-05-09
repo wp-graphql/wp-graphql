@@ -821,13 +821,13 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
+	gap: 1px;
 	height: 32px;
-	padding: 0;
+	padding: 0 4px 0 3px;
 	border: none;
 	background: transparent;
 	cursor: pointer;
-	border-radius: 50%;
+	border-radius: 16px;
 	transition: background-color 0.15s ease;
 }
 
@@ -870,11 +870,15 @@ input.wpgraphql-ide-tab-input:focus {
 	z-index: 5;
 }
 
-/* Visual breath between the secondary controls (method, auth) and the
-   primary action (send). Margin on the send button rather than a flex
-   gap so the secondaries stay tight as a group. */
-.wpgraphql-ide-execution-pill > .wpgraphql-ide-send-button {
-	margin-left: 6px;
+/* Hairline divider separating the configure cluster (method + auth)
+   from the primary action (send). Stretches to the full inner height
+   so the break reads as a real boundary, not a gap. */
+.wpgraphql-ide-execution-pill-divider {
+	display: block;
+	width: 1px;
+	align-self: stretch;
+	margin: 4px 6px 4px 4px;
+	background: var(--wp-components-color-gray-300, #dcdcde);
 }
 
 /* HTTP-method dropdown toggle inside the execution pill — text label
