@@ -66,13 +66,18 @@ function public_endpoint_is_enabled(): bool {
 }
 
 /**
- * Detect a browser GET request to the GraphQL endpoint URL. Returns
+ * Detect a *browser* GET request to the GraphQL endpoint URL. Returns
  * false for POST requests, JSON-Accept clients, or query-param API
  * calls — those keep the existing JSON handling.
  *
- * Intentionally tolerant of the Accept header: many browsers send
- * `text/html,application/xhtml+xml,...` so we look for `text/html`
- * anywhere rather than requiring it to be the only / first entry.
+ * Browser address-bar visits send `Accept: text/html,application/xhtml+xml,...`.
+ * GraphQL clients (Apollo, urql, fetch with `Content-Type: application/json`,
+ * curl with explicit headers, etc.) send `Accept: application/json`. We
+ * positively match the first and negatively exclude the second so a
+ * client that sends `application/json, text/html` (rare but possible)
+ * still gets JSON, not HTML — silently swapping a JSON response for a
+ * 100KB IDE payload would be a much worse failure mode than the
+ * occasional "this URL needs to be visited in a browser" edge case.
  */
 function is_browser_html_request_to_endpoint(): bool {
 	if ( 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
@@ -82,14 +87,22 @@ function is_browser_html_request_to_endpoint(): bool {
 		return false;
 	}
 
-	$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-	if ( false === strpos( $accept, 'text/html' ) ) {
-		return false;
-	}
-
 	// `?query=...` or `?variables=...` is an API call; let WPGraphQL handle it.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['query'] ) || isset( $_GET['variables'] ) ) {
+		return false;
+	}
+
+	$accept = (string) ( $_SERVER['HTTP_ACCEPT'] ?? '' );
+
+	// Any GraphQL client that explicitly asks for JSON — even alongside
+	// other types — wants JSON. Don't intercept.
+	if ( false !== stripos( $accept, 'application/json' ) ) {
+		return false;
+	}
+
+	// Browser GET — must positively prefer HTML.
+	if ( false === stripos( $accept, 'text/html' ) ) {
 		return false;
 	}
 
@@ -243,7 +256,7 @@ function register_public_endpoint_setting(): void {
 			'name'    => 'graphql_ide_public_endpoint',
 			'label'   => __( 'Public IDE at GraphQL endpoint', 'wpgraphql-ide' ),
 			'desc'    => __(
-				'When enabled, visiting the GraphQL endpoint URL in a browser renders the IDE in read-only "lite" mode (no save, no saved queries, no history). Anonymous visitors see only what your public schema exposes; logged-in users get authenticated access via their session. Combine with WPGraphQL\'s existing introspection controls — and consider rate-limiting at the web-server / CDN layer — before enabling on a public site.',
+				'When enabled, visiting the GraphQL endpoint URL in a browser renders the IDE in read-only "endpoint" mode (no save, no saved queries, no history, no document settings). Anonymous visitors see only what your public schema exposes; logged-in users get authenticated access via their session. Requires public introspection to be enabled in WPGraphQL settings — without it, the Docs Explorer will be empty for anonymous visitors. Consider rate-limiting at the web-server / CDN layer before enabling on a public site.',
 				'wpgraphql-ide'
 			),
 			'type'    => 'checkbox',
