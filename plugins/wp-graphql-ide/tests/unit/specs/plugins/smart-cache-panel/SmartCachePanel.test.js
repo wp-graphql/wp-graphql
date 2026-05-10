@@ -15,10 +15,12 @@ function renderView({
 	cacheControl,
 	docSettings,
 	globalGrantMode = 'public',
+	diagnostics,
 } = {}) {
+	const fullData = diagnostics ? { ...data, diagnostics } : data;
 	return render(
 		<SmartCachePanelView
-			data={data}
+			data={fullData}
 			isAuthenticated={isAuthenticated}
 			isMutation={isMutation}
 			cacheControl={cacheControl}
@@ -217,6 +219,95 @@ describe('SmartCachePanelView', () => {
 			const { container } = renderView();
 			expect(
 				container.querySelector('.wpgraphql-ide-smart-cache-network')
+			).toBeNull();
+		});
+	});
+
+	describe('TTL card', () => {
+		it('shows time remaining and age on a HIT with transient diagnostics', () => {
+			const { container } = renderView({
+				data: {
+					graphqlObjectCache: { cacheKey: 'k' },
+				},
+				diagnostics: {
+					expiresIn: 480,
+					cachedAt: Math.floor(Date.now() / 1000) - 120,
+					globalTtl: 600,
+					storage: 'transient',
+				},
+			});
+			const ttl = container.querySelector(
+				'.wpgraphql-ide-smart-cache-ttl'
+			);
+			expect(ttl).toBeInTheDocument();
+			expect(ttl).toHaveTextContent(/8m\s+remaining/);
+			expect(ttl).toHaveTextContent(/cached 2m ago/);
+		});
+
+		it('explains object_cache backend without a countdown', () => {
+			const { container } = renderView({
+				data: { graphqlObjectCache: { cacheKey: 'k' } },
+				diagnostics: { storage: 'object_cache' },
+			});
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-ttl')
+			).toHaveTextContent(/Object cache backend/);
+		});
+
+		it('shows the global TTL on a MISS', () => {
+			const { container } = renderView({
+				diagnostics: { globalTtl: 600 },
+			});
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-ttl')
+			).toHaveTextContent(/Global default:\s*10m/);
+		});
+
+		it('omits the card when no diagnostics are provided', () => {
+			const { container } = renderView();
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-ttl')
+			).toBeNull();
+		});
+	});
+
+	describe('purge map card', () => {
+		it('lists tracked nodes and list types', () => {
+			const { container } = renderView({
+				diagnostics: {
+					purgeMap: {
+						nodes: ['post:5', 'post:7'],
+						lists: ['Post', 'User'],
+					},
+				},
+			});
+			const map = container.querySelector(
+				'.wpgraphql-ide-smart-cache-purge-map'
+			);
+			expect(map).toBeInTheDocument();
+			expect(map).toHaveTextContent('post:5');
+			expect(map).toHaveTextContent('post:7');
+			expect(map).toHaveTextContent('Post');
+			expect(map).toHaveTextContent('User');
+			expect(map).toHaveTextContent(/Nodes \(2\)/);
+			expect(map).toHaveTextContent(/List types \(2\)/);
+		});
+
+		it('shows an explanatory empty state when no nodes or lists are tracked', () => {
+			const { container } = renderView({
+				diagnostics: { purgeMap: { nodes: [], lists: [] } },
+			});
+			expect(
+				container.querySelector(
+					'.wpgraphql-ide-smart-cache-purge-map-empty'
+				)
+			).toHaveTextContent(/won.t be auto-purged/);
+		});
+
+		it('omits the card when no purgeMap is provided', () => {
+			const { container } = renderView();
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-purge-map')
 			).toBeNull();
 		});
 	});

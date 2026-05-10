@@ -118,6 +118,7 @@ export function SmartCachePanelView({
 	globalGrantMode,
 }) {
 	const objectCache = data?.graphqlObjectCache;
+	const diagnostics = data?.diagnostics;
 	const isHit = !!objectCache?.cacheKey;
 	const [copied, setCopied] = useState(false);
 
@@ -185,12 +186,16 @@ export function SmartCachePanelView({
 				</dl>
 			)}
 
+			<TtlCard isHit={isHit} diagnostics={diagnostics} />
+
 			<DocumentPolicyCard
 				docSettings={docSettings}
 				globalGrantMode={globalGrantMode}
 			/>
 
 			<NetworkCacheCard cacheControl={cacheControl} />
+
+			<PurgeMapCard diagnostics={diagnostics} />
 
 			{!isHit && (
 				<PrerequisiteChecklist
@@ -264,6 +269,154 @@ function SessionCounter({ stats }) {
 				({ratio}% hit rate)
 			</span>
 		</div>
+	);
+}
+
+function TtlCard({ isHit, diagnostics }) {
+	if (!diagnostics) {
+		return null;
+	}
+
+	const expiresIn = diagnostics.expiresIn;
+	const cachedAt = diagnostics.cachedAt;
+	const globalTtl = diagnostics.globalTtl;
+	const storage = diagnostics.storage;
+
+	// Object cache backend (Redis/Memcache) — the backend enforces TTL
+	// but doesn't expose a countdown to PHP.
+	if (isHit && storage === 'object_cache') {
+		return (
+			<dl className="wpgraphql-ide-smart-cache-ttl">
+				<dt>TTL</dt>
+				<dd>
+					Object cache backend (Redis/Memcache) — TTL enforced by the
+					backend but not introspectable.
+				</dd>
+			</dl>
+		);
+	}
+
+	// HIT with transient timeout — show countdown.
+	if (isHit && typeof expiresIn === 'number') {
+		const age = typeof cachedAt === 'number' ? cachedAt : null;
+		const ageSec = age
+			? Math.max(0, Math.floor(Date.now() / 1000) - age)
+			: null;
+		return (
+			<dl className="wpgraphql-ide-smart-cache-ttl">
+				<dt>TTL</dt>
+				<dd>
+					<div>
+						<strong>{formatDuration(expiresIn)}</strong> remaining
+						{ageSec !== null && (
+							<>
+								{' '}
+								<span className="wpgraphql-ide-smart-cache-ttl-muted">
+									(cached {formatDuration(ageSec)} ago
+									{globalTtl ? ` of ${globalTtl}s TTL` : ''})
+								</span>
+							</>
+						)}
+					</div>
+				</dd>
+			</dl>
+		);
+	}
+
+	// MISS — surface the global TTL so the user knows what to expect.
+	if (!isHit && typeof globalTtl === 'number' && globalTtl > 0) {
+		return (
+			<dl className="wpgraphql-ide-smart-cache-ttl">
+				<dt>TTL</dt>
+				<dd>
+					Global default: <strong>{formatDuration(globalTtl)}</strong>{' '}
+					<span className="wpgraphql-ide-smart-cache-ttl-muted">
+						(once cached, entries expire after this duration unless
+						purged earlier by a data mutation)
+					</span>
+				</dd>
+			</dl>
+		);
+	}
+
+	return null;
+}
+
+function formatDuration(seconds) {
+	const s = Math.max(0, Math.floor(seconds));
+	if (s < 60) {
+		return `${s}s`;
+	}
+	const m = Math.floor(s / 60);
+	const r = s % 60;
+	if (m < 60) {
+		return r ? `${m}m ${r}s` : `${m}m`;
+	}
+	const h = Math.floor(m / 60);
+	const rm = m % 60;
+	return rm ? `${h}h ${rm}m` : `${h}h`;
+}
+
+function PurgeMapCard({ diagnostics }) {
+	const purgeMap = diagnostics?.purgeMap;
+	if (!purgeMap) {
+		return null;
+	}
+
+	const nodes = Array.isArray(purgeMap.nodes) ? purgeMap.nodes : [];
+	const lists = Array.isArray(purgeMap.lists) ? purgeMap.lists : [];
+
+	if (nodes.length === 0 && lists.length === 0) {
+		return (
+			<dl className="wpgraphql-ide-smart-cache-purge-map">
+				<dt>Purge map</dt>
+				<dd className="wpgraphql-ide-smart-cache-purge-map-empty">
+					No tracked nodes or list types — Query Analyzer didn&apos;t
+					match this query to invalidatable resources, so it
+					won&apos;t be auto-purged on data changes.
+				</dd>
+			</dl>
+		);
+	}
+
+	return (
+		<dl className="wpgraphql-ide-smart-cache-purge-map">
+			<dt>Purge map</dt>
+			<dd>
+				<div className="wpgraphql-ide-smart-cache-purge-map-explainer">
+					Smart Cache will invalidate this entry when any of these
+					change:
+				</div>
+				{nodes.length > 0 && (
+					<div className="wpgraphql-ide-smart-cache-purge-map-group">
+						<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+							Nodes ({nodes.length})
+						</div>
+						<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+							{nodes.map((id) => (
+								<li key={`node:${id}`}>
+									<code>{id}</code>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+				{lists.length > 0 && (
+					<div className="wpgraphql-ide-smart-cache-purge-map-group">
+						<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+							List types ({lists.length})
+						</div>
+						<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+							{lists.map((name) => (
+								<li key={`list:${name}`}>
+									<code>{name}</code>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+			</dd>
+		</dl>
 	);
 }
 

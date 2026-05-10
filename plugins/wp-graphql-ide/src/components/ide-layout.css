@@ -1155,6 +1155,103 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wp-components-color-gray-700, #50575e);
 }
 
+/* TTL countdown card. Reuses the policy/network grid layout. */
+.wpgraphql-ide-smart-cache-ttl {
+	margin: 16px 0 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 8px;
+}
+
+.wpgraphql-ide-smart-cache-ttl dt {
+	font-weight: 600;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wpgraphql-ide-smart-cache-ttl dd {
+	margin: 0;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-smart-cache-ttl-muted {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* Purge map — list of nodes + list types that invalidate this cache
+   entry. Read from the same Query Analyzer data smart-cache uses for
+   purging, so this is a faithful preview of what will trigger a purge. */
+.wpgraphql-ide-smart-cache-purge-map {
+	margin: 16px 0 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 8px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map dt {
+	font-weight: 600;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wpgraphql-ide-smart-cache-purge-map dd {
+	margin: 0;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-group {
+	margin-top: 8px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-group:first-child {
+	margin-top: 0;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-group-label {
+	font-weight: 600;
+	font-size: 11px;
+	color: var(--wp-components-color-gray-700, #50575e);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-list code {
+	display: inline-block;
+	padding: 2px 6px;
+	background: rgba(0, 0, 0, 0.05);
+	border-radius: 3px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 11px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-empty {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-style: italic;
+}
+
 /* Prerequisite checklist — shown on a MISS when the server includes a
    cacheStatus diagnostic block. Tells the user which of {settings on,
    anonymous, query, stored} are in place and which are blocking. */

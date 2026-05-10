@@ -46,3 +46,126 @@ function enqueue_assets(): void {
 	);
 }
 add_action( 'wpgraphql_ide_enqueue_script', __NAMESPACE__ . '\enqueue_assets' );
+
+/**
+ * Augments `extensions.graphqlSmartCache` with diagnostic data the
+ * smart-cache plugin doesn't surface itself: a purge map (which nodes
+ * and list types invalidate this cache entry) and a TTL countdown
+ * (when the response was cached, when it expires).
+ *
+ * Lives in the IDE plugin so we can ship cache-debugging UX without
+ * coupling to wp-graphql-smart-cache. Reads are non-destructive — pulls
+ * directly from the request's Query Analyzer (the same source smart-cache
+ * uses internally) and from WordPress' transient timeout option.
+ *
+ * Bails when the smart-cache extension isn't already populated, so this
+ * filter is a no-op on installs without smart-cache.
+ *
+ * Runs at priority 11 so smart-cache (priority 10) has already populated
+ * `graphqlObjectCache`. Hooked off `do_graphql_request` to register the
+ * filter only inside a GraphQL request lifecycle.
+ *
+ * @return void
+ */
+function register_diagnostics_filter(): void {
+	add_filter(
+		'graphql_request_results',
+		__NAMESPACE__ . '\augment_smart_cache_diagnostics',
+		11,
+		7
+	);
+}
+add_action( 'do_graphql_request', __NAMESPACE__ . '\register_diagnostics_filter' );
+
+/**
+ * @param mixed                                $response
+ * @param mixed                                $schema
+ * @param string|null                          $operation_name
+ * @param string|null                          $query_string
+ * @param array|null                           $variables
+ * @param \WPGraphQL\Request|null              $request
+ * @param string|null                          $query_id
+ *
+ * @return mixed The response, with `extensions.graphqlSmartCache.diagnostics` added.
+ */
+function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $query_string, $variables, $request, $query_id ) {
+	// Pull current extension data — array vs object response shapes
+	// both happen depending on graphql-php internals.
+	$existing = null;
+	if ( is_array( $response ) && isset( $response['extensions']['graphqlSmartCache'] ) ) {
+		$existing = $response['extensions']['graphqlSmartCache'];
+	} elseif ( is_object( $response ) && property_exists( $response, 'extensions' ) && isset( $response->extensions['graphqlSmartCache'] ) ) {
+		$existing = $response->extensions['graphqlSmartCache'];
+	}
+
+	if ( null === $existing ) {
+		return $response;
+	}
+
+	$diagnostics = [];
+
+	// Purge map: nodes + list types associated with this query, derived
+	// from the Query Analyzer (same source smart-cache uses for purging).
+	if ( $request && method_exists( $request, 'get_query_analyzer' ) ) {
+		$analyzer = $request->get_query_analyzer();
+		if ( $analyzer ) {
+			$nodes = method_exists( $analyzer, 'get_runtime_nodes' )
+				? ( $analyzer->get_runtime_nodes() ?: [] )
+				: [];
+			$lists = method_exists( $analyzer, 'get_list_types' )
+				? ( $analyzer->get_list_types() ?: [] )
+				: [];
+
+			$diagnostics['purgeMap'] = [
+				'nodes' => array_values( array_map( 'strval', $nodes ) ),
+				'lists' => array_values( array_map( 'strval', $lists ) ),
+			];
+		}
+	}
+
+	// Default TTL from smart-cache settings (the same constant the
+	// plugin would use when storing). Surfaced even on misses so the
+	// panel can show "would expire in 600s" once cached.
+	if ( function_exists( 'get_graphql_setting' ) ) {
+		$global_ttl = (int) \get_graphql_setting( 'global_ttl', 600, 'graphql_cache_section' );
+		$diagnostics['globalTtl'] = $global_ttl;
+	}
+
+	// On a HIT, look up the transient timeout to derive expiresAt /
+	// expiresIn / cachedAt. Smart-cache stores entries under the prefix
+	// `gql_cache_<sha256>` via WP transients. External object caches
+	// (Redis/Memcache) don't expose timeouts the same way, so we skip
+	// when smart-cache routed through wp_cache_*.
+	$cache_key = isset( $existing['graphqlObjectCache']['cacheKey'] )
+		? (string) $existing['graphqlObjectCache']['cacheKey']
+		: '';
+
+	if ( '' !== $cache_key && ! wp_using_ext_object_cache() ) {
+		$timeout_option = '_transient_timeout_gql_cache_' . $cache_key;
+		$expires_at     = (int) get_option( $timeout_option, 0 );
+		if ( $expires_at > 0 ) {
+			$now                         = time();
+			$diagnostics['expiresAt']    = $expires_at;
+			$diagnostics['expiresIn']    = max( 0, $expires_at - $now );
+			$diagnostics['cachedAt']     = $expires_at - ( $diagnostics['globalTtl'] ?? 0 );
+			$diagnostics['storage']      = 'transient';
+		}
+	} elseif ( '' !== $cache_key && wp_using_ext_object_cache() ) {
+		// External object cache — TTL is enforced by the backend but
+		// not introspectable from PHP. Surface backend type so the
+		// panel can explain why no countdown is shown.
+		$diagnostics['storage'] = 'object_cache';
+	}
+
+	if ( empty( $diagnostics ) ) {
+		return $response;
+	}
+
+	if ( is_array( $response ) ) {
+		$response['extensions']['graphqlSmartCache']['diagnostics'] = $diagnostics;
+	} elseif ( is_object( $response ) && property_exists( $response, 'extensions' ) ) {
+		$response->extensions['graphqlSmartCache']['diagnostics'] = $diagnostics;
+	}
+
+	return $response;
+}
