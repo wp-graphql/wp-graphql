@@ -26,6 +26,15 @@ function subscribeSessionStats(fn) {
 function getSessionStats() {
 	return sessionStats;
 }
+// Test-only hatches — let specs simulate a fresh page load and a
+// recorded response without going through the IDE-coupled wrapper.
+export function _resetSessionStatsForTests() {
+	sessionStats = { hit: 0, miss: 0 };
+	sessionSubscribers.forEach((fn) => fn());
+}
+export function _recordResultForTests(isHit) {
+	recordResult(isHit);
+}
 
 /**
  * IDE-coupled wrapper. Reads auth, query, response headers, and the
@@ -34,11 +43,16 @@ function getSessionStats() {
  * wrapper if porting to wp-graphql-smart-cache.
  *
  * @param {Object} props
- * @param {Object} [props.data] `response.extensions.graphqlSmartCache`.
+ * @param {Object} [props.data]     `response.extensions.graphqlSmartCache`.
+ * @param {Object} [props.response] Full parsed response. The framework
+ *                                  passes a fresh reference each request,
+ *                                  so we use it as the session-counter
+ *                                  dedupe key — `data` may be
+ *                                  reference-equal between identical HITs.
  *
  * @return {JSX.Element} Smart Cache extension renderer.
  */
-export function SmartCachePanel({ data }) {
+export function SmartCachePanel({ data, response }) {
 	const isAuthenticated = useSelect(
 		(s) => s('wpgraphql-ide/app').isAuthenticated(),
 		[]
@@ -56,6 +70,21 @@ export function SmartCachePanel({ data }) {
 		(typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.documentSettings?.globalGrantMode) ||
 		'public';
+
+	// Increment the session counter once per fresh response. `response`
+	// reference changes on every request; `data` doesn't (the framework
+	// reuses the slot object when the extension payload hasn't changed
+	// shape, e.g. two consecutive identical HITs).
+	const lastSeenResponseRef = useRef(null);
+	useEffect(() => {
+		if (response && response !== lastSeenResponseRef.current) {
+			lastSeenResponseRef.current = response;
+			const isHit =
+				!!response?.extensions?.graphqlSmartCache?.graphqlObjectCache
+					?.cacheKey;
+			recordResult(isHit);
+		}
+	}, [response]);
 
 	return (
 		<SmartCachePanelView
@@ -94,15 +123,8 @@ export function SmartCachePanelView({
 	const isHit = !!objectCache?.cacheKey;
 	const [copied, setCopied] = useState(false);
 
-	// Increment session counter when a new response arrives. Guarded by
-	// the data reference so re-renders don't double-count.
-	const lastSeenRef = useRef(null);
-	useEffect(() => {
-		if (data && data !== lastSeenRef.current) {
-			lastSeenRef.current = data;
-			recordResult(!!data?.graphqlObjectCache?.cacheKey);
-		}
-	}, [data]);
+	// The wrapper component records HIT/MISS once per response; the view
+	// just subscribes to the running totals.
 	const stats = useSyncExternalStore(subscribeSessionStats, getSessionStats);
 
 	const copyKey = async () => {

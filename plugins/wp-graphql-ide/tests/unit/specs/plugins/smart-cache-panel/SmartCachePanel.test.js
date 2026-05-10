@@ -2,7 +2,11 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SmartCachePanelView } from '../../../../../plugins/smart-cache-panel/src/components/SmartCachePanel';
+import {
+	SmartCachePanelView,
+	_resetSessionStatsForTests,
+	_recordResultForTests,
+} from '../../../../../plugins/smart-cache-panel/src/components/SmartCachePanel';
 
 function renderView({
 	data = { graphqlObjectCache: {} },
@@ -218,36 +222,29 @@ describe('SmartCachePanelView', () => {
 	});
 
 	describe('session counter', () => {
-		it('renders nothing on first paint with no recorded responses', () => {
-			// Stats accumulate across tests since they're module-scoped;
-			// confirm only the structural test (the counter is opt-in
-			// rendering — it stays hidden until at least one response).
-			const { container } = renderView({
-				data: undefined,
-			});
-			// Even when later tests have populated stats, this one is
-			// resilient: we just assert the counter element doesn't crash.
-			const counter = container.querySelector(
-				'.wpgraphql-ide-smart-cache-session'
-			);
-			// May be present from prior tests' module state. Either way,
-			// no exception thrown.
-			expect(counter === null || counter !== null).toBe(true);
+		beforeEach(() => {
+			_resetSessionStatsForTests();
 		});
 
-		it('increments on a new response and renders both stats', () => {
-			const { container, rerender } = render(
-				<SmartCachePanelView
-					data={{ graphqlObjectCache: { cacheKey: 'aaa' } }}
-				/>
-			);
-			rerender(<SmartCachePanelView data={{ graphqlObjectCache: {} }} />);
+		it('hides the chip until at least one response is recorded', () => {
+			const { container } = renderView();
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-session')
+			).toBeNull();
+		});
+
+		it('renders HIT/MISS counts and hit-rate after results are recorded', () => {
+			_recordResultForTests(true);
+			_recordResultForTests(true);
+			_recordResultForTests(false);
+			const { container } = renderView();
 			const counter = container.querySelector(
 				'.wpgraphql-ide-smart-cache-session'
 			);
 			expect(counter).toBeInTheDocument();
-			expect(counter).toHaveTextContent(/HIT/);
-			expect(counter).toHaveTextContent(/MISS/);
+			expect(counter).toHaveTextContent('2 HIT');
+			expect(counter).toHaveTextContent('1 MISS');
+			expect(counter).toHaveTextContent(/67% hit rate/);
 		});
 	});
 });
