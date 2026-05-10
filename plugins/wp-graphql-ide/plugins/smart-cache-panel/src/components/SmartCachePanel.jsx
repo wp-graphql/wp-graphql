@@ -166,10 +166,15 @@ export function SmartCachePanelView({
 
 			<SessionCounter stats={stats} />
 
+			<TtlCard isHit={isHit} diagnostics={diagnostics} />
+
 			{isHit && objectCache?.cacheKey && (
-				<dl className="wpgraphql-ide-smart-cache-meta">
-					<dt>Cache key</dt>
-					<dd>
+				<DetailsSection
+					summaryLabel="Cache key"
+					className="wpgraphql-ide-smart-cache-cache-key-details"
+					defaultOpen
+				>
+					<div className="wpgraphql-ide-smart-cache-key-row">
 						<code className="wpgraphql-ide-smart-cache-key">
 							{objectCache.cacheKey}
 						</code>
@@ -182,35 +187,64 @@ export function SmartCachePanelView({
 						>
 							{copied ? 'Copied' : 'Copy'}
 						</Button>
-					</dd>
-					{objectCache?.message && (
-						<>
-							<dt>Message</dt>
-							<dd>{objectCache.message}</dd>
-						</>
-					)}
-				</dl>
+					</div>
+				</DetailsSection>
 			)}
 
-			<TtlCard isHit={isHit} diagnostics={diagnostics} />
+			<PurgeMapSection diagnostics={diagnostics} defaultOpen={isHit} />
 
-			<DocumentPolicyCard
+			<DocumentPolicySection
 				docSettings={docSettings}
 				globalGrantMode={globalGrantMode}
 			/>
 
-			<NetworkCacheCard cacheControl={cacheControl} />
-
-			<PurgeMapCard diagnostics={diagnostics} />
+			<NetworkCacheSection cacheControl={cacheControl} />
 
 			{!isHit && (
-				<PrerequisiteChecklist
-					isAuthenticated={isAuthenticated}
-					isMutation={isMutation}
-					cached={isHit}
-				/>
+				<DetailsSection
+					summaryLabel="Why this missed"
+					summaryAside={prereqAside({ isAuthenticated, isMutation })}
+					className="wpgraphql-ide-smart-cache-prereqs-details"
+					defaultOpen
+				>
+					<PrerequisiteChecklist
+						isAuthenticated={isAuthenticated}
+						isMutation={isMutation}
+						cached={isHit}
+					/>
+				</DetailsSection>
 			)}
 		</div>
+	);
+}
+
+function DetailsSection({
+	summaryLabel,
+	summaryAside,
+	className,
+	defaultOpen,
+	children,
+}) {
+	const classes = ['wpgraphql-ide-smart-cache-details', className]
+		.filter(Boolean)
+		.join(' ');
+	const detailsProps = defaultOpen ? { open: true } : {};
+	return (
+		<details className={classes} {...detailsProps}>
+			<summary className="wpgraphql-ide-smart-cache-details-summary">
+				<span className="wpgraphql-ide-smart-cache-details-label">
+					{summaryLabel}
+				</span>
+				{summaryAside && (
+					<span className="wpgraphql-ide-smart-cache-details-aside">
+						{summaryAside}
+					</span>
+				)}
+			</summary>
+			<div className="wpgraphql-ide-smart-cache-details-body">
+				{children}
+			</div>
+		</details>
 	);
 }
 
@@ -344,11 +378,7 @@ function TtlCard({ isHit, diagnostics }) {
 							<>
 								{' '}
 								<span className="wpgraphql-ide-smart-cache-ttl-muted">
-									(cached {formatDuration(ageSec)} ago
-									{globalTtl
-										? ` of ${formatDuration(globalTtl)} TTL`
-										: ''}
-									)
+									(cached {formatDuration(ageSec)} ago)
 								</span>
 							</>
 						)}
@@ -374,11 +404,7 @@ function TtlCard({ isHit, diagnostics }) {
 			<dl className="wpgraphql-ide-smart-cache-ttl">
 				<dt>TTL</dt>
 				<dd>
-					Global default: <strong>{formatDuration(globalTtl)}</strong>{' '}
-					<span className="wpgraphql-ide-smart-cache-ttl-muted">
-						(once cached, entries expire after this duration unless
-						purged earlier by a data mutation)
-					</span>
+					Global default: <strong>{formatDuration(globalTtl)}</strong>
 				</dd>
 			</dl>
 		);
@@ -402,7 +428,7 @@ function formatDuration(seconds) {
 	return rm ? `${h}h ${rm}m` : `${h}h`;
 }
 
-function PurgeMapCard({ diagnostics }) {
+function PurgeMapSection({ diagnostics, defaultOpen }) {
 	const purgeMap = diagnostics?.purgeMap;
 	if (!purgeMap) {
 		return null;
@@ -410,62 +436,74 @@ function PurgeMapCard({ diagnostics }) {
 
 	const nodes = Array.isArray(purgeMap.nodes) ? purgeMap.nodes : [];
 	const lists = Array.isArray(purgeMap.lists) ? purgeMap.lists : [];
+	const total = nodes.length + lists.length;
+	const aside =
+		total === 0 ? (
+			<span>untracked</span>
+		) : (
+			<span>
+				{nodes.length > 0 &&
+					`${nodes.length} node${nodes.length === 1 ? '' : 's'}`}
+				{nodes.length > 0 && lists.length > 0 && ', '}
+				{lists.length > 0 &&
+					`${lists.length} list type${lists.length === 1 ? '' : 's'}`}
+			</span>
+		);
 
-	if (nodes.length === 0 && lists.length === 0) {
-		return (
-			<dl className="wpgraphql-ide-smart-cache-purge-map">
-				<dt>Purge map</dt>
-				<dd className="wpgraphql-ide-smart-cache-purge-map-empty">
+	return (
+		<DetailsSection
+			summaryLabel="Purge map"
+			summaryAside={aside}
+			className="wpgraphql-ide-smart-cache-purge-map"
+			defaultOpen={defaultOpen}
+		>
+			{nodes.length === 0 && lists.length === 0 ? (
+				<div className="wpgraphql-ide-smart-cache-purge-map-empty">
 					No tracked nodes or list types — Query Analyzer didn&apos;t
 					match this query to invalidatable resources, so it
 					won&apos;t be auto-purged on data changes.
-				</dd>
-			</dl>
-		);
-	}
-
-	return (
-		<dl className="wpgraphql-ide-smart-cache-purge-map">
-			<dt>Purge map</dt>
-			<dd>
-				<div className="wpgraphql-ide-smart-cache-purge-map-explainer">
-					Smart Cache will invalidate this entry when any of these
-					change:
 				</div>
-				{nodes.length > 0 && (
-					<div className="wpgraphql-ide-smart-cache-purge-map-group">
-						<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
-							Nodes ({nodes.length})
-						</div>
-						<ul className="wpgraphql-ide-smart-cache-purge-map-list">
-							{nodes.map((id) => (
-								<li key={`node:${id}`}>
-									<code>{id}</code>
-								</li>
-							))}
-						</ul>
+			) : (
+				<>
+					<div className="wpgraphql-ide-smart-cache-purge-map-explainer">
+						Smart Cache will invalidate this entry when any of these
+						change:
 					</div>
-				)}
-				{lists.length > 0 && (
-					<div className="wpgraphql-ide-smart-cache-purge-map-group">
-						<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
-							List types ({lists.length})
+					{nodes.length > 0 && (
+						<div className="wpgraphql-ide-smart-cache-purge-map-group">
+							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+								Nodes ({nodes.length})
+							</div>
+							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+								{nodes.map((id) => (
+									<li key={`node:${id}`}>
+										<code>{id}</code>
+									</li>
+								))}
+							</ul>
 						</div>
-						<ul className="wpgraphql-ide-smart-cache-purge-map-list">
-							{lists.map((name) => (
-								<li key={`list:${name}`}>
-									<code>{name}</code>
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
-			</dd>
-		</dl>
+					)}
+					{lists.length > 0 && (
+						<div className="wpgraphql-ide-smart-cache-purge-map-group">
+							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+								List types ({lists.length})
+							</div>
+							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+								{lists.map((name) => (
+									<li key={`list:${name}`}>
+										<code>{name}</code>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
+				</>
+			)}
+		</DetailsSection>
 	);
 }
 
-function DocumentPolicyCard({ docSettings, globalGrantMode }) {
+function DocumentPolicySection({ docSettings, globalGrantMode }) {
 	const maxAge = docSettings?.maxAgeHeader;
 	const grant = docSettings?.grant;
 
@@ -479,36 +517,39 @@ function DocumentPolicyCard({ docSettings, globalGrantMode }) {
 			: 'Global default';
 	const grantText = grant ? labelForGrant(grant) : 'Global default';
 
+	const summaryAside =
+		maxAge || grant ? <span>customized</span> : <span>defaults</span>;
+
 	return (
-		<dl className="wpgraphql-ide-smart-cache-policy">
-			<dt>Configured for this document</dt>
-			<dd>
-				<div className="wpgraphql-ide-smart-cache-policy-row">
-					<span className="wpgraphql-ide-smart-cache-policy-label">
-						Max-age:
-					</span>
-					<span>{maxAgeText}</span>
-				</div>
-				<div className="wpgraphql-ide-smart-cache-policy-row">
-					<span className="wpgraphql-ide-smart-cache-policy-label">
-						Access:
-					</span>
-					<span>
-						{grantText}
-						{!grant && (
-							<>
-								{' '}
-								<span className="wpgraphql-ide-smart-cache-policy-muted">
-									(currently:{' '}
-									{labelForGrant(globalGrantMode || 'public')}
-									)
-								</span>
-							</>
-						)}
-					</span>
-				</div>
-			</dd>
-		</dl>
+		<DetailsSection
+			summaryLabel="Document settings"
+			summaryAside={summaryAside}
+			className="wpgraphql-ide-smart-cache-policy"
+		>
+			<div className="wpgraphql-ide-smart-cache-policy-row">
+				<span className="wpgraphql-ide-smart-cache-policy-label">
+					Max-age:
+				</span>
+				<span>{maxAgeText}</span>
+			</div>
+			<div className="wpgraphql-ide-smart-cache-policy-row">
+				<span className="wpgraphql-ide-smart-cache-policy-label">
+					Access:
+				</span>
+				<span>
+					{grantText}
+					{!grant && (
+						<>
+							{' '}
+							<span className="wpgraphql-ide-smart-cache-policy-muted">
+								(currently:{' '}
+								{labelForGrant(globalGrantMode || 'public')})
+							</span>
+						</>
+					)}
+				</span>
+			</div>
+		</DetailsSection>
 	);
 }
 
@@ -522,7 +563,7 @@ function labelForGrant(grant) {
 	return grant;
 }
 
-function NetworkCacheCard({ cacheControl }) {
+function NetworkCacheSection({ cacheControl }) {
 	if (!cacheControl) {
 		return null;
 	}
@@ -530,17 +571,17 @@ function NetworkCacheCard({ cacheControl }) {
 	const interpretation = interpretCacheControl(cacheControl);
 
 	return (
-		<dl className="wpgraphql-ide-smart-cache-network">
-			<dt>Network cache (Cache-Control)</dt>
-			<dd>
-				<code>{cacheControl}</code>
-				{interpretation && (
-					<div className="wpgraphql-ide-smart-cache-network-explainer">
-						{interpretation}
-					</div>
-				)}
-			</dd>
-		</dl>
+		<DetailsSection
+			summaryLabel="Network cache"
+			summaryAside={<code>{cacheControl}</code>}
+			className="wpgraphql-ide-smart-cache-network"
+		>
+			{interpretation && (
+				<div className="wpgraphql-ide-smart-cache-network-explainer">
+					{interpretation}
+				</div>
+			)}
+		</DetailsSection>
 	);
 }
 
@@ -617,15 +658,8 @@ function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 		},
 	];
 
-	const someBlocking = items.some((i) => i.state === 'blocking');
-
 	return (
 		<div className="wpgraphql-ide-smart-cache-checklist">
-			<div className="wpgraphql-ide-smart-cache-checklist-heading">
-				{someBlocking
-					? 'Prerequisites for a Cache HIT'
-					: 'No blockers detected — re-run the query.'}
-			</div>
 			<ul className="wpgraphql-ide-smart-cache-checklist-list">
 				{items.map((item) => (
 					<li
@@ -652,6 +686,22 @@ function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 				))}
 			</ul>
 		</div>
+	);
+}
+
+function prereqAside({ isAuthenticated, isMutation }) {
+	let blockers = 1; // 'enabled' is always 'unknown' (counts as a question, not a fail)
+	if (isAuthenticated) {
+		blockers += 1;
+	}
+	if (isMutation) {
+		blockers += 1;
+	}
+	blockers += 1; // 'cached' is blocking on a MISS
+	return (
+		<span>
+			{blockers} thing{blockers === 1 ? '' : 's'} to check
+		</span>
 	);
 }
 

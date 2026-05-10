@@ -1023,7 +1023,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-smart-cache-meta {
-	margin: 16px 0 0;
+	margin: 0;
 	display: grid;
 	grid-template-columns: max-content 1fr;
 	column-gap: 16px;
@@ -1031,11 +1031,9 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-smart-cache-meta dt {
-	font-weight: 600;
+	font-weight: 500;
 	color: var(--wp-components-color-gray-700, #50575e);
 	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 }
 
 .wpgraphql-ide-smart-cache-meta dd {
@@ -1047,6 +1045,15 @@ input.wpgraphql-ide-tab-input:focus {
 	align-items: center;
 	gap: 8px;
 	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-smart-cache-key-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	word-break: break-all;
 }
 
 .wpgraphql-ide-smart-cache-key {
@@ -1111,31 +1118,99 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wp-components-color-gray-700, #50575e);
 }
 
-/* Document policy + network cache cards reuse the meta dl/dt/dd layout
-   but override word-break since these are short readable values, not
-   sha256 hashes. */
-.wpgraphql-ide-smart-cache-policy,
-.wpgraphql-ide-smart-cache-network {
-	margin: 16px 0 0;
-	display: grid;
-	grid-template-columns: max-content 1fr;
-	column-gap: 16px;
-	row-gap: 8px;
+/* Disclosure rows — DevTools-style accordions. Each section is a
+   <details> element; the section-root class (e.g. .wpgraphql-ide-smart
+   -cache-policy) is co-applied for selector compatibility. */
+.wpgraphql-ide-smart-cache-details {
+	border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 }
 
-.wpgraphql-ide-smart-cache-policy dt,
-.wpgraphql-ide-smart-cache-network dt {
-	font-weight: 600;
+.wpgraphql-ide-smart-cache-details:last-of-type {
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+}
+
+.wpgraphql-ide-smart-cache-details-summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 4px;
+	cursor: pointer;
+	list-style: none;
+	user-select: none;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: 12px;
+}
+
+.wpgraphql-ide-smart-cache-details-summary::-webkit-details-marker {
+	display: none;
+}
+
+/* Custom chevron — rotates when the section is open. */
+.wpgraphql-ide-smart-cache-details-summary::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-right: 1.5px solid var(--wp-components-color-gray-700, #50575e);
+	border-bottom: 1.5px solid var(--wp-components-color-gray-700, #50575e);
+	transform: rotate(-45deg);
+	margin-right: 4px;
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-smart-cache-details[open] > .wpgraphql-ide-smart-cache-details-summary::before {
+	transform: rotate(45deg);
+}
+
+.wpgraphql-ide-smart-cache-details-summary:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-details-summary:focus-visible {
+	outline: 2px solid var(
+		--wp-admin-theme-color,
+		var(--wp-components-color-accent, #2271b1)
+	);
+	outline-offset: -2px;
+}
+
+.wpgraphql-ide-smart-cache-details-label {
+	font-weight: 500;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-smart-cache-details-aside {
+	margin-left: auto;
 	color: var(--wp-components-color-gray-700, #50575e);
-	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	font-size: 11px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
 }
 
-.wpgraphql-ide-smart-cache-policy dd,
-.wpgraphql-ide-smart-cache-network dd {
-	margin: 0;
+.wpgraphql-ide-smart-cache-details-aside code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 11px;
+	background: rgba(0, 0, 0, 0.04);
+	padding: 1px 6px;
+	border-radius: 3px;
+	color: var(--wp-components-color-gray-700, #50575e);
+	max-width: 220px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-smart-cache-details-body {
+	padding: 4px 4px 12px 22px;
 	font-size: 12px;
+	line-height: 1.5;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+/* Section-specific body adjustments — flex column for stacked rows. */
+.wpgraphql-ide-smart-cache-policy .wpgraphql-ide-smart-cache-details-body,
+.wpgraphql-ide-smart-cache-network .wpgraphql-ide-smart-cache-details-body {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -1156,7 +1231,8 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wp-components-color-gray-700, #50575e);
 }
 
-.wpgraphql-ide-smart-cache-network dd code {
+.wpgraphql-ide-smart-cache-network .wpgraphql-ide-smart-cache-details-body
+	> code {
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 12px;
 	background: rgba(0, 0, 0, 0.05);
@@ -1245,35 +1321,13 @@ input.wpgraphql-ide-tab-input:focus {
 /* Purge map — list of nodes + list types that invalidate this cache
    entry. Read from the same Query Analyzer data smart-cache uses for
    purging, so this is a faithful preview of what will trigger a purge. */
-.wpgraphql-ide-smart-cache-purge-map {
-	margin: 16px 0 0;
-	display: grid;
-	grid-template-columns: max-content 1fr;
-	column-gap: 16px;
-	row-gap: 8px;
-}
-
-.wpgraphql-ide-smart-cache-purge-map dt {
-	font-weight: 600;
-	color: var(--wp-components-color-gray-700, #50575e);
-	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-}
-
-.wpgraphql-ide-smart-cache-purge-map dd {
-	margin: 0;
-	font-size: 12px;
-	line-height: 1.5;
-}
-
 .wpgraphql-ide-smart-cache-purge-map-explainer {
 	color: var(--wp-components-color-gray-700, #50575e);
 	margin-bottom: 8px;
 }
 
 .wpgraphql-ide-smart-cache-purge-map-group {
-	margin-top: 8px;
+	margin-top: 10px;
 }
 
 .wpgraphql-ide-smart-cache-purge-map-group:first-child {
@@ -1281,11 +1335,9 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-smart-cache-purge-map-group-label {
-	font-weight: 600;
+	font-weight: 500;
 	font-size: 11px;
 	color: var(--wp-components-color-gray-700, #50575e);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 	margin-bottom: 4px;
 }
 
@@ -1316,18 +1368,8 @@ input.wpgraphql-ide-tab-input:focus {
    cacheStatus diagnostic block. Tells the user which of {settings on,
    anonymous, query, stored} are in place and which are blocking. */
 .wpgraphql-ide-smart-cache-checklist {
-	margin: 16px 0 0;
 	font-size: 12px;
 	line-height: 1.5;
-}
-
-.wpgraphql-ide-smart-cache-checklist-heading {
-	font-weight: 600;
-	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: var(--wp-components-color-gray-700, #50575e);
-	margin-bottom: 8px;
 }
 
 .wpgraphql-ide-smart-cache-checklist-list {
@@ -1343,20 +1385,9 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	padding: 8px 10px;
-	border-radius: 4px;
-	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
-	background: var(--wp-components-color-gray-100, #f0f0f1);
-}
-
-.wpgraphql-ide-smart-cache-checklist-item.is-ok {
-	background: #edf7ed;
-	border-color: #c8e6c9;
-}
-
-.wpgraphql-ide-smart-cache-checklist-item.is-blocking {
-	background: #fdf2f2;
-	border-color: #f1c0c0;
+	padding: 0;
+	background: transparent;
+	border: 0;
 }
 
 .wpgraphql-ide-smart-cache-checklist-icon {

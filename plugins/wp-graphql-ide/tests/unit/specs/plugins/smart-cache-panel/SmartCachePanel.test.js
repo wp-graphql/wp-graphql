@@ -47,12 +47,11 @@ describe('SmartCachePanelView', () => {
 			).toHaveClass('is-hit');
 		});
 
-		it('renders the cache key and message', () => {
+		it('renders the cache key', () => {
 			renderView({ data: hitData });
 			expect(
 				screen.getByText('abc123sha256deadbeef')
 			).toBeInTheDocument();
-			expect(screen.getByText('Returned from cache')).toBeInTheDocument();
 		});
 
 		it('copies the cache key to clipboard and flips the button label', async () => {
