@@ -2,9 +2,23 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SmartCachePanel } from '../../../../../plugins/smart-cache-panel/src/components/SmartCachePanel';
+import { SmartCachePanelView } from '../../../../../plugins/smart-cache-panel/src/components/SmartCachePanel';
 
-describe('SmartCachePanel', () => {
+function renderView({
+	data = { graphqlObjectCache: {} },
+	isAuthenticated = false,
+	isMutation = false,
+} = {}) {
+	return render(
+		<SmartCachePanelView
+			data={data}
+			isAuthenticated={isAuthenticated}
+			isMutation={isMutation}
+		/>
+	);
+}
+
+describe('SmartCachePanelView', () => {
 	describe('cache HIT', () => {
 		const hitData = {
 			graphqlObjectCache: {
@@ -14,7 +28,7 @@ describe('SmartCachePanel', () => {
 		};
 
 		it('renders the HIT pill with the green is-hit modifier', () => {
-			const { container } = render(<SmartCachePanel data={hitData} />);
+			const { container } = renderView({ data: hitData });
 			expect(screen.getByText('Cache HIT')).toBeInTheDocument();
 			expect(
 				container.querySelector('.wpgraphql-ide-smart-cache-status')
@@ -22,7 +36,7 @@ describe('SmartCachePanel', () => {
 		});
 
 		it('renders the cache key and message', () => {
-			render(<SmartCachePanel data={hitData} />);
+			renderView({ data: hitData });
 			expect(
 				screen.getByText('abc123sha256deadbeef')
 			).toBeInTheDocument();
@@ -32,7 +46,7 @@ describe('SmartCachePanel', () => {
 		it('copies the cache key to clipboard and flips the button label', async () => {
 			const writeText = jest.fn().mockResolvedValue(undefined);
 			Object.assign(navigator, { clipboard: { writeText } });
-			render(<SmartCachePanel data={hitData} />);
+			renderView({ data: hitData });
 			fireEvent.click(
 				screen.getByRole('button', {
 					name: /copy cache key to clipboard/i,
@@ -43,13 +57,18 @@ describe('SmartCachePanel', () => {
 				expect(screen.getByText('Copied')).toBeInTheDocument()
 			);
 		});
+
+		it('does not render the prerequisite checklist on a HIT', () => {
+			const { container } = renderView({ data: hitData });
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-checklist')
+			).toBeNull();
+		});
 	});
 
 	describe('cache MISS', () => {
 		it('renders the MISS pill when graphqlObjectCache is empty', () => {
-			const { container } = render(
-				<SmartCachePanel data={{ graphqlObjectCache: {} }} />
-			);
+			const { container } = renderView();
 			expect(screen.getByText('Cache MISS')).toBeInTheDocument();
 			expect(
 				container.querySelector('.wpgraphql-ide-smart-cache-status')
@@ -57,20 +76,61 @@ describe('SmartCachePanel', () => {
 		});
 
 		it('renders the MISS pill when data is undefined', () => {
-			render(<SmartCachePanel />);
+			renderView({ data: undefined });
 			expect(screen.getByText('Cache MISS')).toBeInTheDocument();
 		});
+	});
 
-		it('shows the re-run hint and no cache key meta', () => {
-			render(<SmartCachePanel data={{ graphqlObjectCache: {} }} />);
+	describe('prerequisite checklist', () => {
+		it('renders four rows; the settings row is always informational', () => {
+			const { container } = renderView();
+			const items = container.querySelectorAll(
+				'.wpgraphql-ide-smart-cache-checklist-item'
+			);
+			expect(items).toHaveLength(4);
+			expect(items[0]).toHaveClass('is-unknown');
+		});
+
+		it('flags the auth row as blocking when authenticated', () => {
+			const { container } = renderView({ isAuthenticated: true });
+			const items = container.querySelectorAll(
+				'.wpgraphql-ide-smart-cache-checklist-item'
+			);
+			expect(items[1]).toHaveClass('is-blocking');
+		});
+
+		it('marks the auth row OK when anonymous', () => {
+			const { container } = renderView({ isAuthenticated: false });
+			const items = container.querySelectorAll(
+				'.wpgraphql-ide-smart-cache-checklist-item'
+			);
+			expect(items[1]).toHaveClass('is-ok');
+		});
+
+		it('flags the mutation row as blocking when isMutation is true', () => {
+			const { container } = renderView({ isMutation: true });
+			const items = container.querySelectorAll(
+				'.wpgraphql-ide-smart-cache-checklist-item'
+			);
+			expect(items[2]).toHaveClass('is-blocking');
+		});
+
+		it('headlines the MISS with the mutation reason when applicable', () => {
+			const { container } = renderView({ isMutation: true });
 			expect(
-				screen.getByText(/re-run the same query/i)
-			).toBeInTheDocument();
+				container.querySelector(
+					'.wpgraphql-ide-smart-cache-status-explainer'
+				)
+			).toHaveTextContent(/mutations are never cached/i);
+		});
+
+		it('headlines the MISS with the auth reason when authenticated', () => {
+			const { container } = renderView({ isAuthenticated: true });
 			expect(
-				screen.queryByRole('button', {
-					name: /copy cache key to clipboard/i,
-				})
-			).not.toBeInTheDocument();
+				container.querySelector(
+					'.wpgraphql-ide-smart-cache-status-explainer'
+				)
+			).toHaveTextContent(/authenticated request/i);
 		});
 	});
 });

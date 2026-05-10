@@ -1059,6 +1059,100 @@ input.wpgraphql-ide-tab-input:focus {
 	line-height: 1.5;
 }
 
+/* Prerequisite checklist — shown on a MISS when the server includes a
+   cacheStatus diagnostic block. Tells the user which of {settings on,
+   anonymous, query, stored} are in place and which are blocking. */
+.wpgraphql-ide-smart-cache-checklist {
+	margin: 16px 0 0;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.wpgraphql-ide-smart-cache-checklist-heading {
+	font-weight: 600;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-smart-cache-checklist-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.wpgraphql-ide-smart-cache-checklist-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 10px;
+	border-radius: 4px;
+	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-checklist-item.is-ok {
+	background: #edf7ed;
+	border-color: #c8e6c9;
+}
+
+.wpgraphql-ide-smart-cache-checklist-item.is-blocking {
+	background: #fdf2f2;
+	border-color: #f1c0c0;
+}
+
+.wpgraphql-ide-smart-cache-checklist-icon {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 11px;
+	line-height: 1;
+	color: #fff;
+	background: var(--wp-components-color-gray-500, #9ca3af);
+}
+
+.wpgraphql-ide-smart-cache-checklist-item.is-ok
+	.wpgraphql-ide-smart-cache-checklist-icon {
+	background: #2d8a3e;
+}
+
+.wpgraphql-ide-smart-cache-checklist-item.is-blocking
+	.wpgraphql-ide-smart-cache-checklist-icon {
+	background: #d63638;
+}
+
+.wpgraphql-ide-smart-cache-checklist-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-smart-cache-checklist-label {
+	font-weight: 600;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-smart-cache-checklist-hint {
+	margin-top: 4px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-checklist-hint code {
+	font-size: 11px;
+	padding: 1px 4px;
+	border-radius: 3px;
+	background: rgba(0, 0, 0, 0.05);
+}
+
 /* Smart Cache HIT/MISS badge in the response status row. Mirrors the
    tracing-badge pattern; HIT picks up the same green palette as the
    in-tab status pill so both surfaces read as one signal. */
