@@ -1087,9 +1087,8 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-smart-cache-session-label {
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	font-weight: 600;
+	font-weight: 500;
+	color: var(--wp-components-color-gray-700, #50575e);
 }
 
 .wpgraphql-ide-smart-cache-session-stat {

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { Icon, check, cancelCircleFilled, help } from '@wordpress/icons';
+import { Icon, check, cancelCircleFilled, help, info } from '@wordpress/icons';
 
 // Module-scoped session counter so HIT/MISS totals survive Smart Cache
 // panel remounts (switching to Tracing and back). Cleared on page reload.
@@ -152,7 +152,7 @@ export function SmartCachePanelView({
 					className="wpgraphql-ide-smart-cache-status-icon"
 					aria-hidden="true"
 				>
-					<Icon icon={isHit ? check : cancelCircleFilled} size={20} />
+					<Icon icon={isHit ? check : info} size={20} />
 				</span>
 				<span className="wpgraphql-ide-smart-cache-status-label">
 					{isHit ? 'Cache HIT' : 'Cache MISS'}
