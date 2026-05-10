@@ -311,12 +311,8 @@ export function EditorPane({
 					</>
 				)}
 			</div>
-			{/* The side panel (Composer / Document Settings) is lifted out of
-			    the editor's height-resizable so it spans the full vertical
-			    extent of the query side — covering both the editor and the
-			    Variables/Headers strip. The flex-column on the right keeps
-			    the editor↔bottom split intact (editor-resizable controls
-			    the editor's height, editor-bottom flex:1 fills the rest). */}
+			{/* The side panel sits outside the editor's height-resizable so
+			    it spans both the editor and the Variables/Headers strip. */}
 			<div
 				className={`wpgraphql-ide-editor-with-side${hasLeftPanel ? ' has-left-panel' : ''}`}
 			>
@@ -398,9 +394,8 @@ export function EditorPane({
 								isFetching={isFetching}
 								isSchemaLoading={isSchemaLoading}
 								onExecute={onExecute}
-								// Public-endpoint render for an anonymous visitor:
-								// no nonce to send, no toggle to show. Authed
-								// visitors at the same URL still get the toggle.
+								// Hide the toggle for anonymous visitors on the
+								// public endpoint — no nonce to switch off.
 								canSwitchAuth={!endpointMode || isAuthenticated}
 							/>
 						</div>

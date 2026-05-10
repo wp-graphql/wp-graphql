@@ -84,14 +84,10 @@ export const initializeRegistry = () => {
 		30
 	);
 
-	// Built-in response-extension tabs. Errors / Headers describe the
-	// response envelope itself (not response.extensions), so they flag
-	// alwaysShow and pull from the synthetic slots in ResponseContent.
-	// Order: Errors (5) → Tracing (7) → other extension tabs → Headers
-	// (80) — matches the user's most-likely consultation order:
-	//   - errors when a query fails
-	//   - tracing when it succeeded but felt slow
-	//   - headers (auth/CORS) is a rarer destination
+	// Built-in extension tabs. Errors / Headers describe the response
+	// envelope (not response.extensions) so they set alwaysShow and pull
+	// from synthetic slots in ResponseContent. Priority order matches the
+	// usual consultation order: Errors (5) → Tracing (7) → others → Headers (80).
 	registerResponseExtensionTab(
 		'errors',
 		{
@@ -347,26 +343,14 @@ export const initializeRegistry = () => {
 		discard: clearPendingSettings,
 	});
 
-	// Built-in topbar actions — refresh-schema lives in the same
-	// registry as Settings so plugins can drop in alongside them.
-	//
-	// Notice strategy: a single click fires the baseline "Schema
-	// refreshed" success notice. Mashing (gap < 1.5s) suppresses the
-	// baseline so the easter-egg milestones aren't drowned out by a
-	// stack of identical "Schema refreshed" snackbars; between
-	// milestones, the user just sees nothing — they're mash-clicking,
-	// and silence reads as "the system heard you, no further commentary
-	// needed." Errors always surface, regardless of mash state.
+	// Refresh-schema action. Single click fires the baseline notice;
+	// mashing (gap < 1.5s) suppresses the baseline so milestones aren't
+	// drowned out by repeated "Schema refreshed" toasts. One stable id
+	// lets milestones replace in place. Errors always surface.
 	let schemaRefreshCount = 0;
 	let lastSchemaRefreshAt = 0;
 	const SCHEMA_REFRESH_RAPID_MS = 1500;
-	// Stable id so milestones replace the prior snackbar in place rather
-	// than stacking four toasts when a user mashes refresh past 12.
 	const SCHEMA_REFRESH_NOTICE_ID = 'wpgraphql-ide-schema-refresh-mash';
-	// Each milestone ends with a tip — the joke earns the interruption,
-	// the tip justifies it. A user who mashes refresh five times in a
-	// row probably doesn't know the schema is cached client-side; tell
-	// them.
 	const SCHEMA_REFRESH_MILESTONES = {
 		3: "Refreshing again? It hasn't changed since 0.5s ago. The schema is cached client-side — no network round-trip until you hit this button.",
 		5: 'Trust the cache. Refresh only after you change types or fields on the server.',

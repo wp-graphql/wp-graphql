@@ -4,23 +4,14 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 
 /**
- * IDE-coupled wrapper that pulls the auth pill state and the active
- * query from the wpgraphql-ide app store, then delegates rendering to
- * the pure {@link SmartCachePanelView}. When this plugin moves to
- * wp-graphql-smart-cache, delete this wrapper and pass props in from
- * whatever data layer that environment exposes — the inner renderer
- * has no other IDE coupling.
- *
- * Extension shape (from wp-graphql-smart-cache `Cache\Results`):
- *
- *     {
- *       graphqlObjectCache: { message, cacheKey } | {},
- *     }
+ * IDE-coupled wrapper. Reads auth + active query from the IDE store
+ * and delegates to the pure {@link SmartCachePanelView}. To port this
+ * plugin to wp-graphql-smart-cache, delete this wrapper.
  *
  * @param {Object} props
- * @param {Object} [props.data] Parsed `response.extensions.graphqlSmartCache`.
+ * @param {Object} [props.data] `response.extensions.graphqlSmartCache`.
  *
- * @return {JSX.Element} The Smart Cache extension renderer.
+ * @return {JSX.Element} Smart Cache extension renderer.
  */
 export function SmartCachePanel({ data }) {
 	const isAuthenticated = useSelect(
@@ -39,9 +30,7 @@ export function SmartCachePanel({ data }) {
 }
 
 /**
- * Pure renderer — receives everything as props and depends on no IDE
- * stores. This is the function unit tests target and the function
- * that would lift cleanly into wp-graphql-smart-cache.
+ * Pure renderer — props in, JSX out. The unit-tested entry point.
  *
  * @param {Object}  props
  * @param {Object}  [props.data]
@@ -124,16 +113,8 @@ export function SmartCachePanelView({ data, isAuthenticated, isMutation }) {
 	);
 }
 
-/**
- * Cheap mutation detector — looks for a top-level `mutation` keyword in
- * the operation. Misses fancy edge cases (operations defined by name
- * with leading whitespace before a comment, etc.) but covers the
- * common case the badge needs to flag.
- *
- * @param {string} [query]
- *
- * @return {boolean} True if the query string declares a mutation.
- */
+// Strips comments and string literals before testing for a top-level
+// `mutation` keyword — avoids false positives from `# mutation foo`.
 function detectMutation(query) {
 	if (!query || typeof query !== 'string') {
 		return false;
@@ -145,18 +126,6 @@ function detectMutation(query) {
 	return /(^|\s)mutation\b/.test(stripped);
 }
 
-/**
- * Headline copy for the MISS pill — picks the most-likely blocker
- * based on what the IDE can observe (auth pill state, mutation
- * keyword). The settings toggle is the one prerequisite the IDE
- * can't introspect, so we never blame it from the headline.
- *
- * @param {Object}  ctx
- * @param {boolean} ctx.isAuthenticated
- * @param {boolean} ctx.isMutation
- *
- * @return {string} Headline text for the MISS pill explainer span.
- */
 function missHeadline({ isAuthenticated, isMutation }) {
 	if (isMutation) {
 		return 'Mutations are never cached — resolvers ran.';
@@ -167,19 +136,6 @@ function missHeadline({ isAuthenticated, isMutation }) {
 	return 'Resolvers ran for this request.';
 }
 
-/**
- * Renders the prerequisites Smart Cache requires for a HIT. The IDE
- * can definitively answer auth + mutation + cached; the
- * settings-toggle row is informational with a link target since the
- * IDE has no client-side view of the WP option.
- *
- * @param {Object}  props
- * @param {boolean} props.isAuthenticated
- * @param {boolean} props.isMutation
- * @param {boolean} props.cached
- *
- * @return {JSX.Element} Checklist UI listing the cache prerequisites.
- */
 function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 	const items = [
 		{
@@ -275,11 +231,6 @@ function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 	);
 }
 
-/**
- * @param {string} state
- *
- * @return {string} Glyph for the row icon (✓ ok, ? unknown, ✗ blocking).
- */
 function checklistGlyph(state) {
 	if (state === 'ok') {
 		return '✓';

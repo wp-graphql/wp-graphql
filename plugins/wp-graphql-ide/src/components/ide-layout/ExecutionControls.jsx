@@ -12,19 +12,9 @@ import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../../wordpress-hooks';
 
-// --- Play-button easter eggs --------------------------------------------
-// All easter-egg snackbars fire through the IDE's `wpgraphql-ide.notice`
-// hook bus — the same channel `useNotices` listens on for SnackbarList.
-//
-// Each message ends with a small productivity tip. The joke is the hook
-// (gets attention), the tip is the payoff (justifies the interruption).
-// Without the tip these are just noise; with it the user closes the
-// snackbar with one new keyboard shortcut or workflow nudge.
-//
-// Mash detection: count consecutive play-button presses with < 1.5s
-// between them; pause longer than that → counter resets. All milestones
-// share one stable notice id so a sustained mash replaces the snackbar
-// in place rather than piling four stacked toasts down the screen.
+// Play-button easter eggs: count rapid presses (< 1.5s apart) and fire a
+// milestone snackbar via `wpgraphql-ide.notice`. One stable id so the
+// snackbar replaces in place rather than stacking.
 const PLAY_RAPID_WINDOW_MS = 1500;
 const PLAY_NOTICE_ID = 'wpgraphql-ide-play-mash';
 const PLAY_MILESTONES = {
@@ -35,14 +25,8 @@ const PLAY_MILESTONES = {
 	30: 'Have you tried Cmd+Enter? Just saying. (Also: drafts auto-save as you type — no Cmd+S needed.)',
 };
 
-// Empty-query execute: server would return "Syntax Error: Unexpected EOF"
-// for an empty body — replace that with something kinder. Each quip
-// pairs a one-line nudge with an *insertable* snippet that becomes a
-// clickable action button in the snackbar; clicking inserts the
-// snippet (we know the editor is empty, so `setQuery` replace is the
-// right semantic). Cycle in order so a user testing repeatedly still
-// sees variety. All firings share one stable id so the snackbar is
-// replaced in place instead of stacking.
+// Empty-query execute: replaces the server's "Unexpected EOF" with a
+// quip + insertable snippet. Cycles so repeat-testing sees variety.
 const EMPTY_QUERY_NOTICE_ID = 'wpgraphql-ide-empty-query-quip';
 const EMPTY_QUERY_QUIPS = [
 	{
@@ -64,24 +48,14 @@ const EMPTY_QUERY_QUIPS = [
 ];
 let emptyQueryQuipIndex = 0;
 
-/**
- * Replace the editor query with `snippet`. Used by the empty-query
- * easter egg's "insert" action — only fires when the editor is empty,
- * so the full replace is the right semantic.
- *
- * @param {string} snippet GraphQL query text to insert.
- */
 function insertSnippetIntoEditor(snippet) {
 	dispatch('wpgraphql-ide/app').setQuery(snippet);
 }
 
 /**
- * Renders a select-style menu (single-choice). Auto-focuses the
- * selected option on mount so the focus-visible ring lands on the
- * same item as the leading check, matching the WP-core dropdown
- * pattern (block style switcher, settings menus). Without this,
- * NavigableMenu focuses position 0 and the focus ring can outweigh
- * the check on the actually-selected option.
+ * Single-choice menu. Auto-focuses the selected option on mount so the
+ * focus-visible ring lands on the same row as the check (matching the
+ * WP-core dropdown pattern); otherwise NavigableMenu focuses index 0.
  *
  * @param {Object}        props
  * @param {string}        props.label         - Group label shown above the options.
@@ -160,24 +134,11 @@ const StopIcon = (
 
 const HTTP_METHODS = ['GET', 'POST'];
 
+/* eslint-disable jsdoc/require-param, jsdoc/require-param-type, jsdoc/require-param-description */
 /**
- * Controls anchored to the GraphQL editor's bottom-right corner:
- * HTTP method dropdown, authentication-mode dropdown, and the execute
- * button — promoted to a dropdown of operation names when the document
- * declares more than one named operation.
- *
- * @param {Object}        props
- * @param {string}        [props.query]         - Current query text. Used for the empty-query easter egg; not required for execution itself.
- * @param {'GET'|'POST'}  props.httpMethod      - Active HTTP method.
- * @param {Function}      props.onSetHttpMethod - Setter for `httpMethod`.
- * @param {boolean}       props.isAuthenticated - Whether requests carry the user's nonce.
- * @param {Function}      props.onToggleAuth    - Toggles auth on/off.
- * @param {string}        [props.avatarUrl]     - User avatar image URL (when authenticated).
- * @param {Array<string>} props.operationNames  - Named operation list parsed from the doc.
- * @param {boolean}       props.isFetching      - Whether a request is in flight (Stop icon).
- * @param {boolean}       props.isSchemaLoading - Disables the Execute button while the schema fetches.
- * @param {Function}      props.onExecute       - Called with an optional operation name; no-arg defaults to the first.
- * @param {boolean}       [props.canSwitchAuth] - Whether the auth dropdown should render. False on the public endpoint for anonymous visitors (nothing to switch).
+ * Editor's bottom-right execute pill: method picker, auth toggle,
+ * execute button (promoted to an operation dropdown when the doc
+ * declares more than one named operation).
  */
 export function ExecutionControls({
 	query,
@@ -198,15 +159,9 @@ export function ExecutionControls({
 	const lastPlayAtRef = useRef(0);
 	const handleExecute = useCallback(
 		(opName) => {
-			// Empty-query easter egg: short-circuit before the request
-			// fires so the user gets a friendly snackbar with an
-			// inline "Insert" button instead of a server-side
-			// "Syntax Error: Unexpected EOF". Stable notice id means
-			// repeated mashing replaces the snackbar in place —
-			// useNotices dedupes by id rather than stacking — so the
-			// screen stays calm even on a 10-click rampage. Click
-			// "Insert" → snippet drops into the editor → snackbar
-			// dismisses (no point lingering once acted on).
+			// Empty-query easter egg: short-circuit before sending so
+			// the user gets an "Insert" snackbar instead of the server's
+			// "Unexpected EOF" syntax error.
 			if (!query || !query.trim()) {
 				const quip =
 					EMPTY_QUERY_QUIPS[
@@ -297,12 +252,9 @@ export function ExecutionControls({
 							: 'Sending as public visitor — click to authenticate'
 					}
 				>
-					{/* `aria-pressed` would semantically fit a toggle, but
-					    @wordpress/components/Button uses it as the trigger
-					    for its built-in "pressed" black fill — which fights
-					    the badge + grayscale we already use to convey state.
-					    `aria-label` carries the same info to assistive tech
-					    without dragging the dark visual treatment in. */}
+					{/* No `aria-pressed`: @wordpress/components/Button paints
+					    a pressed-state black fill from it, which fights the
+					    badge/grayscale we use to convey state. */}
 					<Button
 						onClick={onToggleAuth}
 						className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
