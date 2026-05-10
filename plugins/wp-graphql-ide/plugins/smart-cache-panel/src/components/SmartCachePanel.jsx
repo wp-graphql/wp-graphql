@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { Icon, check, cancelCircleFilled, help } from '@wordpress/icons';
 
 // Module-scoped session counter so HIT/MISS totals survive Smart Cache
 // panel remounts (switching to Tracing and back). Cleared on page reload.
@@ -147,7 +148,12 @@ export function SmartCachePanelView({
 				}`}
 				role="status"
 			>
-				<span className="wpgraphql-ide-smart-cache-status-dot" />
+				<span
+					className="wpgraphql-ide-smart-cache-status-icon"
+					aria-hidden="true"
+				>
+					<Icon icon={isHit ? check : cancelCircleFilled} size={20} />
+				</span>
 				<span className="wpgraphql-ide-smart-cache-status-label">
 					{isHit ? 'Cache HIT' : 'Cache MISS'}
 				</span>
@@ -302,6 +308,8 @@ function TtlCard({ isHit, diagnostics }) {
 		const ageSec = age
 			? Math.max(0, Math.floor(Date.now() / 1000) - age)
 			: null;
+		const totalTtl = globalTtl || (ageSec || 0) + expiresIn;
+		const elapsed = totalTtl > 0 ? Math.min(totalTtl, ageSec || 0) : 0;
 		return (
 			<dl className="wpgraphql-ide-smart-cache-ttl">
 				<dt>TTL</dt>
@@ -313,11 +321,22 @@ function TtlCard({ isHit, diagnostics }) {
 								{' '}
 								<span className="wpgraphql-ide-smart-cache-ttl-muted">
 									(cached {formatDuration(ageSec)} ago
-									{globalTtl ? ` of ${globalTtl}s TTL` : ''})
+									{globalTtl
+										? ` of ${formatDuration(globalTtl)} TTL`
+										: ''}
+									)
 								</span>
 							</>
 						)}
 					</div>
+					{totalTtl > 0 && (
+						<progress
+							className="wpgraphql-ide-smart-cache-ttl-progress"
+							value={elapsed}
+							max={totalTtl}
+							aria-label={`Cache age: ${formatDuration(elapsed)} of ${formatDuration(totalTtl)}`}
+						/>
+					)}
 				</dd>
 			</dl>
 		);
@@ -612,10 +631,10 @@ function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 
 function checklistGlyph(state) {
 	if (state === 'ok') {
-		return '✓';
+		return <Icon icon={check} size={16} />;
 	}
 	if (state === 'unknown') {
-		return '?';
+		return <Icon icon={help} size={16} />;
 	}
-	return '✗';
+	return <Icon icon={cancelCircleFilled} size={16} />;
 }

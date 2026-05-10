@@ -996,6 +996,20 @@ input.wpgraphql-ide-tab-input:focus {
 	background: #2d8a3e;
 }
 
+/* Status pill icon — replaces the colored dot with a WP icon. Color
+   reuses the success/info palette already in this file. */
+.wpgraphql-ide-smart-cache-status-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-status.is-hit .wpgraphql-ide-smart-cache-status-icon {
+	color: #2d8a3e;
+}
+
 .wpgraphql-ide-smart-cache-status-label {
 	font-weight: 600;
 	font-size: 12px;
@@ -1182,6 +1196,43 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wp-components-color-gray-700, #50575e);
 }
 
+/* Native <progress> styled to match Gutenberg's accent color so the
+   bar reads as part of the WP admin without a custom component. */
+.wpgraphql-ide-smart-cache-ttl-progress {
+	display: block;
+	width: 100%;
+	height: 4px;
+	margin-top: 8px;
+	-webkit-appearance: none;
+	appearance: none;
+	border: 0;
+	border-radius: 2px;
+	overflow: hidden;
+	background: var(--wp-components-color-gray-200, #e0e0e0);
+}
+
+.wpgraphql-ide-smart-cache-ttl-progress::-webkit-progress-bar {
+	background: var(--wp-components-color-gray-200, #e0e0e0);
+	border-radius: 2px;
+}
+
+.wpgraphql-ide-smart-cache-ttl-progress::-webkit-progress-value {
+	background: var(
+		--wp-admin-theme-color,
+		var(--wp-components-color-accent, #2271b1)
+	);
+	border-radius: 2px;
+	transition: width 0.2s ease;
+}
+
+.wpgraphql-ide-smart-cache-ttl-progress::-moz-progress-bar {
+	background: var(
+		--wp-admin-theme-color,
+		var(--wp-components-color-accent, #2271b1)
+	);
+	border-radius: 2px;
+}
+
 /* Purge map — list of nodes + list types that invalidate this cache
    entry. Read from the same Query Analyzer data smart-cache uses for
    purging, so this is a faithful preview of what will trigger a purge. */
@@ -1303,25 +1354,20 @@ input.wpgraphql-ide-tab-input:focus {
 	flex: 0 0 auto;
 	width: 18px;
 	height: 18px;
-	border-radius: 50%;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	font-weight: 700;
-	font-size: 11px;
-	line-height: 1;
-	color: #fff;
-	background: var(--wp-components-color-gray-500, #9ca3af);
+	color: var(--wp-components-color-gray-700, #50575e);
 }
 
 .wpgraphql-ide-smart-cache-checklist-item.is-ok
 	.wpgraphql-ide-smart-cache-checklist-icon {
-	background: #2d8a3e;
+	color: #2d8a3e;
 }
 
 .wpgraphql-ide-smart-cache-checklist-item.is-blocking
 	.wpgraphql-ide-smart-cache-checklist-icon {
-	background: #d63638;
+	color: #d63638;
 }
 
 .wpgraphql-ide-smart-cache-checklist-body {
