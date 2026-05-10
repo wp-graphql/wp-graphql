@@ -290,57 +290,33 @@ export function ExecutionControls({
 				)}
 			/>
 			{canSwitchAuth && (
-				<Dropdown
-					popoverProps={{ placement: 'top-end' }}
-					renderToggle={({ isOpen, onToggle }) => (
-						<Tooltip
-							text={
-								isAuthenticated
-									? 'Sending as authenticated user'
-									: 'Sending as public visitor'
-							}
-						>
-							<Button
-								onClick={onToggle}
-								aria-expanded={isOpen}
-								aria-haspopup="menu"
-								className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-								aria-label="Authentication mode"
-							>
-								<span
-									className={authStyles.authAvatar}
-									style={{
-										backgroundImage: `url(${avatarUrl || ''})`,
-									}}
-								>
-									<span className={authStyles.authBadge} />
-								</span>
-							</Button>
-						</Tooltip>
-					)}
-					renderContent={({ onClose: closeMenu }) => (
-						<SelectMenuContent
-							label="Send as"
-							options={[
-								{
-									value: 'authenticated',
-									label: 'Authenticated user',
-								},
-								{ value: 'public', label: 'Public visitor' },
-							]}
-							selectedValue={
-								isAuthenticated ? 'authenticated' : 'public'
-							}
-							onChange={(next) => {
-								const wantsAuth = next === 'authenticated';
-								if (wantsAuth !== isAuthenticated) {
-									onToggleAuth();
-								}
+				<Tooltip
+					text={
+						isAuthenticated
+							? 'Sending as authenticated user — click to send anonymously'
+							: 'Sending as public visitor — click to authenticate'
+					}
+				>
+					<Button
+						onClick={onToggleAuth}
+						aria-pressed={isAuthenticated}
+						className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
+						aria-label={
+							isAuthenticated
+								? 'Send as authenticated user (click to switch to public)'
+								: 'Send as public visitor (click to switch to authenticated)'
+						}
+					>
+						<span
+							className={authStyles.authAvatar}
+							style={{
+								backgroundImage: `url(${avatarUrl || ''})`,
 							}}
-							onClose={closeMenu}
-						/>
-					)}
-				/>
+						>
+							<span className={authStyles.authBadge} />
+						</span>
+					</Button>
+				</Tooltip>
 			)}
 			<span
 				className="wpgraphql-ide-execution-pill-divider"
