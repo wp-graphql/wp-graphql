@@ -1052,6 +1052,109 @@ input.wpgraphql-ide-tab-input:focus {
 	line-height: 1.5;
 }
 
+/* Session counter — small chip strip showing HIT/MISS totals for the
+   current page-load. Persists across panel remounts via module-scoped
+   state. */
+.wpgraphql-ide-smart-cache-session {
+	margin: 12px 0 0;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	font-size: 11px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-session-label {
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-weight: 600;
+}
+
+.wpgraphql-ide-smart-cache-session-stat {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-weight: 500;
+	font-size: 11px;
+	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-session-stat.is-hit {
+	background: #edf7ed;
+	border-color: #c8e6c9;
+	color: #1f6f2e;
+}
+
+.wpgraphql-ide-smart-cache-session-stat.is-miss {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-session-ratio {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* Document policy + network cache cards reuse the meta dl/dt/dd layout
+   but override word-break since these are short readable values, not
+   sha256 hashes. */
+.wpgraphql-ide-smart-cache-policy,
+.wpgraphql-ide-smart-cache-network {
+	margin: 16px 0 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 8px;
+}
+
+.wpgraphql-ide-smart-cache-policy dt,
+.wpgraphql-ide-smart-cache-network dt {
+	font-weight: 600;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wpgraphql-ide-smart-cache-policy dd,
+.wpgraphql-ide-smart-cache-network dd {
+	margin: 0;
+	font-size: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wpgraphql-ide-smart-cache-policy-row {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.wpgraphql-ide-smart-cache-policy-label {
+	color: var(--wp-components-color-gray-700, #50575e);
+	min-width: 70px;
+}
+
+.wpgraphql-ide-smart-cache-policy-muted {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-network dd code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 12px;
+	background: rgba(0, 0, 0, 0.05);
+	padding: 2px 6px;
+	border-radius: 3px;
+	align-self: flex-start;
+}
+
+.wpgraphql-ide-smart-cache-network-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
 /* Prerequisite checklist — shown on a MISS when the server includes a
    cacheStatus diagnostic block. Tells the user which of {settings on,
    anonymous, query, stored} are in place and which are blocking. */
