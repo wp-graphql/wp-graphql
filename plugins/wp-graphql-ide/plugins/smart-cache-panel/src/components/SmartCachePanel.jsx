@@ -279,14 +279,31 @@ function SessionCounter({ stats }) {
 }
 
 function TtlCard({ isHit, diagnostics }) {
+	const expiresAt = diagnostics?.expiresAt;
+	const cachedAt = diagnostics?.cachedAt;
+	const globalTtl = diagnostics?.globalTtl;
+	const storage = diagnostics?.storage;
+
+	// Tick once per second so the countdown / progress bar update live
+	// for the duration the user has the panel open. Cleared on unmount;
+	// the timer is gated on having a transient HIT to count down against
+	// so we don't spin pointlessly on misses or object-cache backends.
+	const shouldTick =
+		isHit && storage !== 'object_cache' && typeof expiresAt === 'number';
+	const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+	useEffect(() => {
+		if (!shouldTick) {
+			return undefined;
+		}
+		const id = setInterval(() => {
+			setNow(Math.floor(Date.now() / 1000));
+		}, 1000);
+		return () => clearInterval(id);
+	}, [shouldTick]);
+
 	if (!diagnostics) {
 		return null;
 	}
-
-	const expiresIn = diagnostics.expiresIn;
-	const cachedAt = diagnostics.cachedAt;
-	const globalTtl = diagnostics.globalTtl;
-	const storage = diagnostics.storage;
 
 	// Object cache backend (Redis/Memcache) — the backend enforces TTL
 	// but doesn't expose a countdown to PHP.
@@ -302,20 +319,27 @@ function TtlCard({ isHit, diagnostics }) {
 		);
 	}
 
-	// HIT with transient timeout — show countdown.
-	if (isHit && typeof expiresIn === 'number') {
-		const age = typeof cachedAt === 'number' ? cachedAt : null;
-		const ageSec = age
-			? Math.max(0, Math.floor(Date.now() / 1000) - age)
-			: null;
-		const totalTtl = globalTtl || (ageSec || 0) + expiresIn;
+	// HIT with transient timeout — show live countdown driven by `now`.
+	if (isHit && typeof expiresAt === 'number') {
+		const remaining = Math.max(0, expiresAt - now);
+		const ageSec =
+			typeof cachedAt === 'number' ? Math.max(0, now - cachedAt) : null;
+		const totalTtl = globalTtl || (ageSec || 0) + remaining;
 		const elapsed = totalTtl > 0 ? Math.min(totalTtl, ageSec || 0) : 0;
+		const isExpired = remaining === 0;
 		return (
 			<dl className="wpgraphql-ide-smart-cache-ttl">
 				<dt>TTL</dt>
 				<dd>
 					<div>
-						<strong>{formatDuration(expiresIn)}</strong> remaining
+						{isExpired ? (
+							<strong>Expired</strong>
+						) : (
+							<>
+								<strong>{formatDuration(remaining)}</strong>{' '}
+								remaining
+							</>
+						)}
 						{ageSec !== null && (
 							<>
 								{' '}
@@ -331,7 +355,9 @@ function TtlCard({ isHit, diagnostics }) {
 					</div>
 					{totalTtl > 0 && (
 						<progress
-							className="wpgraphql-ide-smart-cache-ttl-progress"
+							className={`wpgraphql-ide-smart-cache-ttl-progress${
+								isExpired ? ' is-expired' : ''
+							}`}
 							value={elapsed}
 							max={totalTtl}
 							aria-label={`Cache age: ${formatDuration(elapsed)} of ${formatDuration(totalTtl)}`}

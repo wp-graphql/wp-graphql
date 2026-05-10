@@ -1233,6 +1233,15 @@ input.wpgraphql-ide-tab-input:focus {
 	border-radius: 2px;
 }
 
+/* Expired state — the bar is fully filled at this point; switch the
+   accent to muted gray so it reads as "stale, no longer fresh". */
+.wpgraphql-ide-smart-cache-ttl-progress.is-expired::-webkit-progress-value {
+	background: var(--wp-components-color-gray-500, #9ca3af);
+}
+.wpgraphql-ide-smart-cache-ttl-progress.is-expired::-moz-progress-bar {
+	background: var(--wp-components-color-gray-500, #9ca3af);
+}
+
 /* Purge map — list of nodes + list types that invalidate this cache
    entry. Read from the same Query Analyzer data smart-cache uses for
    purging, so this is a faithful preview of what will trigger a purge. */

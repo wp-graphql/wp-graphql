@@ -225,13 +225,14 @@ describe('SmartCachePanelView', () => {
 
 	describe('TTL card', () => {
 		it('shows time remaining and age on a HIT with transient diagnostics', () => {
+			const nowSec = Math.floor(Date.now() / 1000);
 			const { container } = renderView({
 				data: {
 					graphqlObjectCache: { cacheKey: 'k' },
 				},
 				diagnostics: {
-					expiresIn: 480,
-					cachedAt: Math.floor(Date.now() / 1000) - 120,
+					expiresAt: nowSec + 480,
+					cachedAt: nowSec - 120,
 					globalTtl: 600,
 					storage: 'transient',
 				},
