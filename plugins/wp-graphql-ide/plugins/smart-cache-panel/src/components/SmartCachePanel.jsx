@@ -43,16 +43,11 @@ export function _recordResultForTests(isHit) {
  * wrapper if porting to wp-graphql-smart-cache.
  *
  * @param {Object} props
- * @param {Object} [props.data]     `response.extensions.graphqlSmartCache`.
- * @param {Object} [props.response] Full parsed response. The framework
- *                                  passes a fresh reference each request,
- *                                  so we use it as the session-counter
- *                                  dedupe key — `data` may be
- *                                  reference-equal between identical HITs.
+ * @param {Object} [props.data] `response.extensions.graphqlSmartCache`.
  *
  * @return {JSX.Element} Smart Cache extension renderer.
  */
-export function SmartCachePanel({ data, response }) {
+export function SmartCachePanel({ data }) {
 	const isAuthenticated = useSelect(
 		(s) => s('wpgraphql-ide/app').isAuthenticated(),
 		[]
@@ -66,25 +61,28 @@ export function SmartCachePanel({ data, response }) {
 		(s) => s('wpgraphql-ide/document-editor').getActiveDocument(),
 		[]
 	);
+	const isFetching = useSelect(
+		(s) => s('wpgraphql-ide/app').isFetching(),
+		[]
+	);
 	const globalGrantMode =
 		(typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.documentSettings?.globalGrantMode) ||
 		'public';
 
-	// Increment the session counter once per fresh response. `response`
-	// reference changes on every request; `data` doesn't (the framework
-	// reuses the slot object when the extension payload hasn't changed
-	// shape, e.g. two consecutive identical HITs).
-	const lastSeenResponseRef = useRef(null);
+	// Increment the session counter on the trailing edge of `isFetching`
+	// (true → false = request just finished). Reference checks on `data`
+	// or the parsed `response` don't work because two consecutive
+	// identical HITs serialize to the same JSON string and the IDE's
+	// `useMemo(JSON.parse, [response])` returns the same reference, so
+	// nothing downstream looks "new".
+	const wasFetchingRef = useRef(false);
 	useEffect(() => {
-		if (response && response !== lastSeenResponseRef.current) {
-			lastSeenResponseRef.current = response;
-			const isHit =
-				!!response?.extensions?.graphqlSmartCache?.graphqlObjectCache
-					?.cacheKey;
-			recordResult(isHit);
+		if (wasFetchingRef.current && !isFetching) {
+			recordResult(!!data?.graphqlObjectCache?.cacheKey);
 		}
-	}, [response]);
+		wasFetchingRef.current = isFetching;
+	}, [isFetching, data]);
 
 	return (
 		<SmartCachePanelView
