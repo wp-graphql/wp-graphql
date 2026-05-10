@@ -311,130 +311,142 @@ export function EditorPane({
 					</>
 				)}
 			</div>
-			<ResizableBox
-				size={{ width: '100%', height: editorHeight }}
-				minHeight={MIN_EDITOR_HEIGHT_PX}
-				enable={{ bottom: true }}
-				onResizeStart={editorAreaReporter.reportStart}
-				onResize={editorAreaReporter.reportResize}
-				onResizeStop={(e, d, elt) => {
-					editorAreaReporter.reportStop();
-					onSetEditorHeight(elt.offsetHeight);
-				}}
-				className={`wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split${hasLeftPanel ? ' has-left-panel' : ''}`}
+			{/* The side panel (Composer / Document Settings) is lifted out of
+			    the editor's height-resizable so it spans the full vertical
+			    extent of the query side — covering both the editor and the
+			    Variables/Headers strip. The flex-column on the right keeps
+			    the editor↔bottom split intact (editor-resizable controls
+			    the editor's height, editor-bottom flex:1 fills the rest). */}
+			<div
+				className={`wpgraphql-ide-editor-with-side${hasLeftPanel ? ' has-left-panel' : ''}`}
 			>
-				{editorAreaReporter.indicator}
-				{/* Mounted inside the ResizableBox so its height is borrowed
-				    from the editor area, not added above it — keeps the bottom
-				    Variables/Headers panel anchored to the same position
-				    whether or not the notice is showing. */}
-				<DocumentNotices
-					isPublished={isPublished}
-					onDuplicate={onDuplicateAsDraft}
-				/>
-				<div className="wpgraphql-ide-editor-resizable-body">
-					{hasComposer && showQueryComposer && (
-						<LeftPanel
-							title="Query Composer"
-							className="wpgraphql-ide-query-composer-inline"
-							width={composerWidth}
-							onResize={onSetComposerWidth}
-							minWidth={200}
-							onClose={onCloseLeftPanel}
-							closeLabel="Close Query Composer panel"
-						>
-							<ComposerContent />
-						</LeftPanel>
-					)}
-					{showDocSettingsPanel && docSettingsFields.length > 0 && (
-						<LeftPanel
-							title="Document Settings"
-							className="wpgraphql-ide-doc-settings-inline"
-							width={docSettingsPanelWidth}
-							onResize={onSetDocSettingsPanelWidth}
-							minWidth={240}
-							onClose={onCloseLeftPanel}
-							closeLabel="Close Document Settings panel"
-						>
-							<DocumentSettingsDrawer
-								fields={docSettingsFields}
-								values={docSettingsValues}
-								onChange={onDocSettingChange}
-								globalGrantMode={docSettingsGlobalGrant}
+				{hasComposer && showQueryComposer && (
+					<LeftPanel
+						title="Query Composer"
+						className="wpgraphql-ide-query-composer-inline"
+						width={composerWidth}
+						onResize={onSetComposerWidth}
+						minWidth={200}
+						onClose={onCloseLeftPanel}
+						closeLabel="Close Query Composer panel"
+					>
+						<ComposerContent />
+					</LeftPanel>
+				)}
+				{showDocSettingsPanel && docSettingsFields.length > 0 && (
+					<LeftPanel
+						title="Document Settings"
+						className="wpgraphql-ide-doc-settings-inline"
+						width={docSettingsPanelWidth}
+						onResize={onSetDocSettingsPanelWidth}
+						minWidth={240}
+						onClose={onCloseLeftPanel}
+						closeLabel="Close Document Settings panel"
+					>
+						<DocumentSettingsDrawer
+							fields={docSettingsFields}
+							values={docSettingsValues}
+							onChange={onDocSettingChange}
+							globalGrantMode={docSettingsGlobalGrant}
+						/>
+					</LeftPanel>
+				)}
+				<div className="wpgraphql-ide-editor-stack">
+					<ResizableBox
+						size={{ width: '100%', height: editorHeight }}
+						minHeight={MIN_EDITOR_HEIGHT_PX}
+						enable={{ bottom: true }}
+						onResizeStart={editorAreaReporter.reportStart}
+						onResize={editorAreaReporter.reportResize}
+						onResizeStop={(e, d, elt) => {
+							editorAreaReporter.reportStop();
+							onSetEditorHeight(elt.offsetHeight);
+						}}
+						className="wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split"
+					>
+						{editorAreaReporter.indicator}
+						{/* Mounted inside the ResizableBox so its height is borrowed
+						    from the editor area, not added above it — keeps the bottom
+						    Variables/Headers panel anchored to the same position
+						    whether or not the notice is showing. */}
+						<DocumentNotices
+							isPublished={isPublished}
+							onDuplicate={onDuplicateAsDraft}
+						/>
+						<div className="wpgraphql-ide-editor-resizable-body">
+							<GraphQLEditor
+								key={activeDocument?.id || 'empty'}
+								className={isPublished ? 'is-readonly' : ''}
+								value={query}
+								onChange={onQueryChange}
+								schema={schema}
+								readOnly={isPublished}
+								extraKeys={editorKeyBindings.current}
+								onShowInDocs={onShowInDocs}
+								onCursorChange={onCursorChange}
+								jumpRequest={jumpRequest}
+								onJumpApplied={onJumpApplied}
 							/>
-						</LeftPanel>
-					)}
-					<GraphQLEditor
-						key={activeDocument?.id || 'empty'}
-						className={isPublished ? 'is-readonly' : ''}
-						value={query}
-						onChange={onQueryChange}
-						schema={schema}
-						readOnly={isPublished}
-						extraKeys={editorKeyBindings.current}
-						onShowInDocs={onShowInDocs}
-						onCursorChange={onCursorChange}
-						jumpRequest={jumpRequest}
-						onJumpApplied={onJumpApplied}
-					/>
-					<ExecutionControls
-						query={query}
-						httpMethod={httpMethod}
-						onSetHttpMethod={onSetHttpMethod}
-						isAuthenticated={isAuthenticated}
-						onToggleAuth={onToggleAuth}
-						avatarUrl={avatarUrl}
-						operationNames={operationNames}
-						isFetching={isFetching}
-						isSchemaLoading={isSchemaLoading}
-						onExecute={onExecute}
-						// Public-endpoint render for an anonymous visitor:
-						// no nonce to send, no toggle to show. Authed
-						// visitors at the same URL still get the toggle.
-						canSwitchAuth={!endpointMode || isAuthenticated}
-					/>
-				</div>
-			</ResizableBox>
-			<div className="wpgraphql-ide-editor-bottom">
-				{bottomToolsReporter.indicator}
-				<TabPanel
-					className="wpgraphql-ide-editor-tools"
-					tabs={editorBottomTabs.map((t) => ({
-						name: t.name,
-						title:
-							typeof t.title === 'function'
-								? t.title({
-										query,
-										variables,
-										headers,
-										activeDocument,
-										variableToType,
-									})
-								: t.title || t.name,
-					}))}
-				>
-					{(tab) => {
-						const ext = editorBottomTabs.find(
-							(t) => t.name === tab.name
-						);
-						const ExtContent = ext?.content;
-						if (!ExtContent) {
-							return null;
-						}
-						return (
-							<ExtContent
-								key={tab.name}
+							<ExecutionControls
 								query={query}
-								variables={variables}
-								onVariablesChange={onVariablesChange}
-								variableToType={variableToType}
-								headers={headers}
-								onHeadersChange={onHeadersChange}
-								activeDocument={activeDocument}
+								httpMethod={httpMethod}
+								onSetHttpMethod={onSetHttpMethod}
+								isAuthenticated={isAuthenticated}
+								onToggleAuth={onToggleAuth}
+								avatarUrl={avatarUrl}
+								operationNames={operationNames}
+								isFetching={isFetching}
+								isSchemaLoading={isSchemaLoading}
+								onExecute={onExecute}
+								// Public-endpoint render for an anonymous visitor:
+								// no nonce to send, no toggle to show. Authed
+								// visitors at the same URL still get the toggle.
+								canSwitchAuth={!endpointMode || isAuthenticated}
 							/>
-						);
-					}}
-				</TabPanel>
+						</div>
+					</ResizableBox>
+					<div className="wpgraphql-ide-editor-bottom">
+						{bottomToolsReporter.indicator}
+						<TabPanel
+							className="wpgraphql-ide-editor-tools"
+							tabs={editorBottomTabs.map((t) => ({
+								name: t.name,
+								title:
+									typeof t.title === 'function'
+										? t.title({
+												query,
+												variables,
+												headers,
+												activeDocument,
+												variableToType,
+											})
+										: t.title || t.name,
+							}))}
+						>
+							{(tab) => {
+								const ext = editorBottomTabs.find(
+									(t) => t.name === tab.name
+								);
+								const ExtContent = ext?.content;
+								if (!ExtContent) {
+									return null;
+								}
+								return (
+									<ExtContent
+										key={tab.name}
+										query={query}
+										variables={variables}
+										onVariablesChange={onVariablesChange}
+										variableToType={variableToType}
+										headers={headers}
+										onHeadersChange={onHeadersChange}
+										activeDocument={activeDocument}
+									/>
+								);
+							}}
+						</TabPanel>
+					</div>
+				</div>
 			</div>
 		</ResizableBox>
 	);

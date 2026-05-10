@@ -1264,21 +1264,27 @@ input.wpgraphql-ide-tab-input:focus {
 	overflow: hidden;
 }
 
-.wpgraphql-ide-editor-resizable.has-left-panel
-	> .wpgraphql-ide-editor-resizable-body {
+/* Side-panel wrapper — flex row that contains the LeftPanel (Composer
+   or Document Settings, full vertical extent) and the editor stack
+   (editor + Variables/Headers below it). The LeftPanel was previously
+   stacked inside the editor's height-resizable, which capped it to the
+   editor area only — leaving the Variables/Headers strip exposed below.
+   Lifting it out lets the panel cover both halves, the way Gutenberg's
+   document settings drawer covers the entire post-editor body. */
+.wpgraphql-ide-editor-with-side {
+	flex: 1;
+	min-height: 0;
+	display: flex;
 	flex-direction: row;
+	overflow: hidden;
 }
 
-.wpgraphql-ide-editor-resizable.has-left-panel
-	> .wpgraphql-ide-editor-resizable-body
-	> .wpgraphql-ide-editor {
+.wpgraphql-ide-editor-stack {
 	flex: 1;
-	/* Keep the editor wider than the floating execution pill (GET/POST + auth + run). */
-	min-width: 280px;
-	/* Without these, CodeMirror's content can push this flex child taller
-	   than the resizable area, making the editor overflow and the bottom
-	   tabs (Variables/Headers) drift away with a white gap. */
+	min-width: 0;
 	min-height: 0;
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
 }
 
