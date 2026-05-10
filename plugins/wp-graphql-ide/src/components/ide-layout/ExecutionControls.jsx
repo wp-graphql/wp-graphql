@@ -297,9 +297,14 @@ export function ExecutionControls({
 							: 'Sending as public visitor — click to authenticate'
 					}
 				>
+					{/* `aria-pressed` would semantically fit a toggle, but
+					    @wordpress/components/Button uses it as the trigger
+					    for its built-in "pressed" black fill — which fights
+					    the badge + grayscale we already use to convey state.
+					    `aria-label` carries the same info to assistive tech
+					    without dragging the dark visual treatment in. */}
 					<Button
 						onClick={onToggleAuth}
-						aria-pressed={isAuthenticated}
 						className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
 						aria-label={
 							isAuthenticated
