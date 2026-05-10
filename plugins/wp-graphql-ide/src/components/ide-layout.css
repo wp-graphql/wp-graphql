@@ -970,8 +970,9 @@ input.wpgraphql-ide-tab-input:focus {
    tabs share the response-extensions container; can move to the plugin
    bundle when we lift this into wp-graphql-smart-cache. */
 .wpgraphql-ide-smart-cache {
-	padding: 16px;
-	font-size: 13px;
+	/* Tab content already pads via `.wpgraphql-ide-response-tabs
+	   .components-tab-panel__tab-content` — adding our own padding
+	   would double up and visibly mis-align with Tracing/Debug. */
 	color: var(--wp-components-color-foreground, #1e1e1e);
 }
 
