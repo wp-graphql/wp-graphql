@@ -159,6 +159,7 @@ function initialize_plugin() {
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/query-composer-panel/query-composer-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/help-panel/help-panel.php';
 	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/smart-cache-panel/smart-cache-panel.php';
+	require_once WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'plugins/cache-inspector/cache-inspector.php';
 }
 add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
 

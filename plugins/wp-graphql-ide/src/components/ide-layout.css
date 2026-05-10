@@ -5149,3 +5149,98 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	font-size: 13px;
 	cursor: pointer;
 }
+
+/* Cache Inspector — cache-wide workspace tab listing every Smart Cache
+   entry by size, age, and TTL. Lives in the IDE for now; the renderer
+   talks only to the cache-inspector REST routes registered by the sub-
+   plugin, so lifting it into wp-graphql-smart-cache later is mostly
+   namespace bookkeeping. */
+.wpgraphql-ide-cache-inspector {
+	padding: 16px 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: 13px;
+}
+
+.wpgraphql-ide-cache-inspector--loading {
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-cache-inspector-header-summary {
+	font-size: 13px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-header-summary strong {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-weight: 600;
+}
+
+.wpgraphql-ide-cache-inspector-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wpgraphql-ide-cache-inspector-empty {
+	text-align: center;
+	padding: 48px 16px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-empty-hint {
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+.wpgraphql-ide-cache-inspector-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.wpgraphql-ide-cache-inspector-table th,
+.wpgraphql-ide-cache-inspector-table td {
+	padding: 8px 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+}
+
+.wpgraphql-ide-cache-inspector-table th {
+	font-weight: 600;
+	color: var(--wp-components-color-gray-700, #50575e);
+	border-bottom-color: var(--wp-components-color-gray-300, #c3c4c7);
+}
+
+.wpgraphql-ide-cache-inspector-table th.is-numeric,
+.wpgraphql-ide-cache-inspector-table td.is-numeric {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.wpgraphql-ide-cache-inspector-table th.is-actions,
+.wpgraphql-ide-cache-inspector-table td.is-actions {
+	text-align: right;
+	width: 100px;
+}
+
+.wpgraphql-ide-cache-inspector-key {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 12px;
+	background: rgba(0, 0, 0, 0.04);
+	padding: 1px 6px;
+	border-radius: 3px;
+}
