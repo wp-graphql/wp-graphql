@@ -27,12 +27,6 @@
 	min-height: 0;
 }
 
-/* Scroll container spans the panel width with no padding so operation
-   rows can extend edge-to-edge like Saved Queries' collection sections.
-   The first/last spacing that used to come from explicit `margin-top` /
-   `margin-bottom` is gone with the cards — the title-bar's 36px height
-   provides enough breathing room, and the section separators read
-   cleanly without surrounding gutters. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operations {
 	flex: 1;
 	min-height: 0;
@@ -41,11 +35,7 @@
 	padding: 0;
 }
 
-/* Operation block (query/mutation/fragment). Mirrors the Saved Queries
-   panel's `.wpgraphql-ide-collection-section` pattern: no card chrome,
-   just a hairline `border-bottom` separating consecutive operations.
-   Sticky title-bar stays scoped to the operation so content can't bleed
-   past the next operation's header during scroll. */
+/* Each operation forms its own containing block so the sticky title-bar can't bleed past the next operation. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-operation {
 	border-bottom: 1px solid #e0e0e0;
 	background: transparent;
@@ -55,12 +45,6 @@
 	border-bottom: 0;
 }
 
-/* Sticky title bar — flat, no fill, matching the Saved Queries
-   collection header. Background stays transparent at rest; hover paints
-   `#f6f7f7` only when the row is interactive (collapsible). The single
-   border-bottom on the parent operation provides the inter-row rule, so
-   the title-bar doesn't need its own border. Height matches Saved
-   Queries' 36px collection header for a uniform vertical rhythm. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-title-bar {
 	position: sticky;
 	top: 0;
@@ -74,9 +58,6 @@
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* Operation body — indented under the chevron toggle so the field tree
-   hangs from the operation header the same way Saved Queries' items
-   hang from their collection title. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-operation-body {
 	padding: 4px 8px 8px 24px;
 	background: transparent;
@@ -528,10 +509,6 @@
 	min-width: 0;
 }
 
-/* Bottom "Add new" actions form — pinned to the bottom of the composer.
-   Flat surface with a single hairline rule matching the Saved Queries
-   collection-section separators; the gray fill from the old design read
-   as a heavy footer that fought the new card-less rhythm. */
 #wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-actions {
 	flex-shrink: 0;
 	padding: 8px 12px;
