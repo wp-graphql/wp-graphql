@@ -10,15 +10,32 @@ import { useSelect } from '@wordpress/data';
 import { Icon, check, cancelCircleFilled, help, info } from '@wordpress/icons';
 
 // Module-scoped session counter so HIT/MISS totals survive Smart Cache
-// panel remounts (switching to Tracing and back). Cleared on page reload.
-let sessionStats = { hit: 0, miss: 0 };
+// panel remounts (switching to Tracing and back). The counter is scoped
+// to the *active document* — `query`-keyed — so editing the query in
+// the active tab (or switching tabs to a different query) invalidates
+// the running totals. Stats for the previous document are dropped on
+// purpose; tracking historical hit rates across documents is out of
+// scope here. Cleared on page reload.
+let sessionStats = { hit: 0, miss: 0, query: null };
 const sessionSubscribers = new Set();
+function notifyStats() {
+	sessionSubscribers.forEach((fn) => fn());
+}
 function recordResult(isHit) {
 	sessionStats = {
+		...sessionStats,
 		hit: sessionStats.hit + (isHit ? 1 : 0),
 		miss: sessionStats.miss + (isHit ? 0 : 1),
 	};
-	sessionSubscribers.forEach((fn) => fn());
+	notifyStats();
+}
+function setActiveDocument(query) {
+	const next = typeof query === 'string' ? query : '';
+	if (sessionStats.query === next) {
+		return;
+	}
+	sessionStats = { hit: 0, miss: 0, query: next };
+	notifyStats();
 }
 function subscribeSessionStats(fn) {
 	sessionSubscribers.add(fn);
@@ -30,11 +47,14 @@ function getSessionStats() {
 // Test-only hatches — let specs simulate a fresh page load and a
 // recorded response without going through the IDE-coupled wrapper.
 export function _resetSessionStatsForTests() {
-	sessionStats = { hit: 0, miss: 0 };
-	sessionSubscribers.forEach((fn) => fn());
+	sessionStats = { hit: 0, miss: 0, query: null };
+	notifyStats();
 }
 export function _recordResultForTests(isHit) {
 	recordResult(isHit);
+}
+export function _setActiveDocumentForTests(query) {
+	setActiveDocument(query);
 }
 
 /**
@@ -70,6 +90,14 @@ export function SmartCachePanel({ data }) {
 		(typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.documentSettings?.globalGrantMode) ||
 		'public';
+
+	// Scope the session counter to the active document. Editing the query
+	// (or switching tabs to a different one) zeroes the totals so the
+	// hit-rate display tracks only the live document, not stale history
+	// from a query that's been edited away.
+	useEffect(() => {
+		setActiveDocument(query);
+	}, [query]);
 
 	// Increment the session counter on the trailing edge of `isFetching`
 	// (true → false = request just finished). Reference checks on `data`

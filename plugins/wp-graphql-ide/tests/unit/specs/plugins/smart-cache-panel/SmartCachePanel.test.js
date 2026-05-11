@@ -6,6 +6,7 @@ import {
 	SmartCachePanelView,
 	_resetSessionStatsForTests,
 	_recordResultForTests,
+	_setActiveDocumentForTests,
 } from '../../../../../plugins/smart-cache-panel/src/components/SmartCachePanel';
 
 function renderView({
@@ -434,6 +435,35 @@ describe('SmartCachePanelView', () => {
 			expect(counter).toHaveTextContent('2 HIT');
 			expect(counter).toHaveTextContent('1 MISS');
 			expect(counter).toHaveTextContent(/67% hit rate/);
+		});
+
+		it('resets to zero when the active document changes (different query)', () => {
+			_setActiveDocumentForTests('{ posts { nodes { id } } }');
+			_recordResultForTests(true);
+			_recordResultForTests(true);
+			// User edits the query in the active tab → new document.
+			_setActiveDocumentForTests('{ pages { nodes { id } } }');
+			const { container } = renderView();
+			// No executions have happened against the new document yet;
+			// SessionCounter hides itself when both counts are 0.
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-session')
+			).toBeNull();
+		});
+
+		it('does not reset when the same document string is set again', () => {
+			const q = '{ posts { nodes { id } } }';
+			_setActiveDocumentForTests(q);
+			_recordResultForTests(true);
+			_recordResultForTests(false);
+			_setActiveDocumentForTests(q); // re-render with same query
+			const { container } = renderView();
+			const counter = container.querySelector(
+				'.wpgraphql-ide-smart-cache-session'
+			);
+			expect(counter).toBeInTheDocument();
+			expect(counter).toHaveTextContent('1 HIT');
+			expect(counter).toHaveTextContent('1 MISS');
 		});
 	});
 });
