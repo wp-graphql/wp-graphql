@@ -531,6 +531,61 @@ describe('CacheInspector', () => {
 		);
 	});
 
+	it('expands a tracker row to fetch and render its dependent responses', async () => {
+		const dependent = 'a'.repeat(64);
+		const orphan = 'b'.repeat(64);
+		global.fetch = mockFetch([
+			[
+				{ method: 'GET', path: '/entries' },
+				() =>
+					jsonResponse({
+						storage: 'transient',
+						entries: [
+							buildEntry({ cacheKey: dependent }),
+							buildEntry({
+								cacheKey: 'list:post',
+								type: 'tracker',
+							}),
+						],
+						count: 2,
+						truncated: false,
+						totalSize: 2048,
+					}),
+			],
+			[
+				{ method: 'GET', path: '/entry?cacheKey=list%3Apost' },
+				() =>
+					jsonResponse({
+						cacheKey: 'list:post',
+						type: 'tracker',
+						members: [dependent, orphan],
+						count: 2,
+					}),
+			],
+		]);
+
+		render(<CacheInspector />);
+		await waitFor(() =>
+			expect(screen.getByRole('table')).toBeInTheDocument()
+		);
+
+		// Tracker row has an expand button; click it.
+		const expandButton = screen.getByRole('button', {
+			name: /Expand list:post/i,
+		});
+		fireEvent.click(expandButton);
+
+		// Loading indicator → then the members render with their
+		// live/gone status against the current inventory. The count
+		// label crosses element boundaries (<strong>2</strong> responses),
+		// so assert via textContent rather than a single-node matcher.
+		await waitFor(() =>
+			expect(document.body.textContent).toMatch(/2 responses/i)
+		);
+		expect(screen.getByText('cached')).toBeInTheDocument();
+		expect(screen.getByText('not cached')).toBeInTheDocument();
+	});
+
 	it('bulk-selects rows and posts /purge-bulk with the right body', async () => {
 		const entries = [
 			buildEntry({ cacheKey: 'a'.repeat(64) }),

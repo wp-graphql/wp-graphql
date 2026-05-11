@@ -47,6 +47,12 @@ export function CacheInspector() {
 	const [sort, setSort] = useState(DEFAULT_SORT);
 	const [selected, setSelected] = useState(() => new Set());
 	const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+	// Tracker-expansion state: which trackers are expanded, plus the
+	// fetched member-keys per tracker. Loaded on demand from /entry so
+	// the inventory query doesn't have to ship every tracker payload
+	// just in case the user clicks one.
+	const [expandedTrackers, setExpandedTrackers] = useState(() => new Set());
+	const [trackerMembers, setTrackerMembers] = useState(() => new Map());
 
 	// Live-tick once per second so "Expires in" countdowns update while the
 	// inspector is open. Gated on having data to avoid the timer spinning
@@ -84,6 +90,64 @@ export function CacheInspector() {
 	useEffect(() => {
 		fetchEntries();
 	}, [fetchEntries]);
+
+	const fetchTrackerMembers = useCallback(async (cacheKey) => {
+		setTrackerMembers((m) => {
+			const next = new Map(m);
+			next.set(cacheKey, { loading: true });
+			return next;
+		});
+		try {
+			const res = await fetch(
+				`${getRestConfig().restUrl}/entry?cacheKey=${encodeURIComponent(
+					cacheKey
+				)}`,
+				{
+					headers: { 'X-WP-Nonce': getRestConfig().restNonce },
+					credentials: 'same-origin',
+				}
+			);
+			if (!res.ok) {
+				throw new Error(`Lookup failed (${res.status})`);
+			}
+			const data = await res.json();
+			setTrackerMembers((m) => {
+				const next = new Map(m);
+				next.set(cacheKey, {
+					loading: false,
+					members: Array.isArray(data.members) ? data.members : [],
+				});
+				return next;
+			});
+		} catch (err) {
+			setTrackerMembers((m) => {
+				const next = new Map(m);
+				next.set(cacheKey, { loading: false, error: err.message });
+				return next;
+			});
+		}
+	}, []);
+
+	const toggleTrackerExpand = useCallback(
+		(cacheKey) => {
+			setExpandedTrackers((s) => {
+				const next = new Set(s);
+				if (next.has(cacheKey)) {
+					next.delete(cacheKey);
+				} else {
+					next.add(cacheKey);
+				}
+				return next;
+			});
+			// Fetch on first expand. Subsequent expands reuse the cached
+			// payload from `trackerMembers` so we don't hammer the REST
+			// route as the user toggles the row.
+			if (!trackerMembers.has(cacheKey)) {
+				fetchTrackerMembers(cacheKey);
+			}
+		},
+		[trackerMembers, fetchTrackerMembers]
+	);
 
 	const purgeOne = useCallback(async (cacheKey) => {
 		setPurging((p) => new Set(p).add(cacheKey));
@@ -284,6 +348,9 @@ export function CacheInspector() {
 						setTypeFilter('all');
 					}}
 					now={now}
+					expandedTrackers={expandedTrackers}
+					trackerMembers={trackerMembers}
+					onToggleTrackerExpand={toggleTrackerExpand}
 				/>
 			)}
 
@@ -605,7 +672,17 @@ function EntriesView({
 	onSort,
 	onClearFilters,
 	now,
+	expandedTrackers,
+	trackerMembers,
+	onToggleTrackerExpand,
 }) {
+	// Set of cache keys currently in the table so the tracker-expansion
+	// row can tell users whether a dependent response is still cached
+	// or has already aged out / been purged.
+	const liveKeys = useMemo(
+		() => new Set(entries.map((e) => e.cacheKey)),
+		[entries]
+	);
 	const filtered = useMemo(() => {
 		const q = search.trim().toLowerCase();
 		return entries.filter((e) => {
@@ -718,18 +795,34 @@ function EntriesView({
 				</tr>
 			</thead>
 			<tbody>
-				{sorted.map((entry) => (
-					<EntryRow
-						key={entry.cacheKey}
-						entry={entry}
-						isPurging={purging.has(entry.cacheKey)}
-						isSelected={selected.has(entry.cacheKey)}
-						onToggleSelect={toggleSelect}
-						onPurge={onPurge}
-						maxSize={maxSize}
-						now={now}
-					/>
-				))}
+				{sorted.map((entry) => {
+					const isExpanded =
+						entry.type === 'tracker' &&
+						expandedTrackers.has(entry.cacheKey);
+					return (
+						<React.Fragment key={entry.cacheKey}>
+							<EntryRow
+								entry={entry}
+								isPurging={purging.has(entry.cacheKey)}
+								isSelected={selected.has(entry.cacheKey)}
+								onToggleSelect={toggleSelect}
+								onPurge={onPurge}
+								maxSize={maxSize}
+								now={now}
+								isExpanded={isExpanded}
+								onToggleExpand={onToggleTrackerExpand}
+							/>
+							{isExpanded && (
+								<TrackerExpandRow
+									payload={trackerMembers.get(entry.cacheKey)}
+									liveKeys={liveKeys}
+									onPurge={onPurge}
+									purging={purging}
+								/>
+							)}
+						</React.Fragment>
+					);
+				})}
 			</tbody>
 		</table>
 	);
@@ -796,12 +889,15 @@ function EntryRow({
 	onPurge,
 	maxSize,
 	now,
+	isExpanded,
+	onToggleExpand,
 }) {
 	const liveExpiresIn =
 		typeof entry.expiresAt === 'number'
 			? Math.max(0, entry.expiresAt - now)
 			: entry.expiresIn;
 	const sizePct = maxSize > 0 ? (entry.sizeBytes / maxSize) * 100 : 0;
+	const isTracker = entry.type === 'tracker';
 
 	return (
 		<tr className={isSelected ? 'is-selected' : undefined}>
@@ -815,6 +911,29 @@ function EntryRow({
 			</td>
 			<td>
 				<div className="wpgraphql-ide-cache-inspector-key-cell">
+					{isTracker ? (
+						<button
+							type="button"
+							className="wpgraphql-ide-cache-inspector-expand"
+							onClick={() => onToggleExpand(entry.cacheKey)}
+							aria-expanded={isExpanded}
+							aria-label={
+								isExpanded
+									? `Collapse ${entry.cacheKey}`
+									: `Expand ${entry.cacheKey} to see dependent responses`
+							}
+						>
+							<Icon
+								icon={isExpanded ? chevronUp : chevronDown}
+								size={18}
+							/>
+						</button>
+					) : (
+						<span
+							aria-hidden="true"
+							className="wpgraphql-ide-cache-inspector-expand-spacer"
+						/>
+					)}
 					<TypeBadge type={entry.type} />
 					<code
 						className="wpgraphql-ide-cache-inspector-key"
@@ -856,6 +975,85 @@ function EntryRow({
 				>
 					{isPurging ? 'Purging…' : 'Purge'}
 				</Button>
+			</td>
+		</tr>
+	);
+}
+
+// Expanded under a tracker row: shows the request_keys the tracker
+// would purge when its underlying node/list changes. Members are
+// classified against `liveKeys` so users can tell which dependent
+// responses are still in the cache vs. already gone.
+function TrackerExpandRow({ payload, liveKeys, onPurge, purging }) {
+	let body;
+	if (!payload || payload.loading) {
+		body = (
+			<div className="wpgraphql-ide-cache-inspector-tracker-loading">
+				<Spinner />
+				<span>Loading dependent responses…</span>
+			</div>
+		);
+	} else if (payload.error) {
+		body = (
+			<Notice status="error" isDismissible={false}>
+				{payload.error}
+			</Notice>
+		);
+	} else if (!payload.members || payload.members.length === 0) {
+		body = (
+			<p className="wpgraphql-ide-cache-inspector-tracker-empty">
+				This tracker has no dependent responses recorded.
+			</p>
+		);
+	} else {
+		body = (
+			<>
+				<p className="wpgraphql-ide-cache-inspector-tracker-summary">
+					When this tracker fires, Smart Cache purges the following{' '}
+					<strong>{payload.members.length}</strong>{' '}
+					{payload.members.length === 1 ? 'response' : 'responses'}:
+				</p>
+				<ul className="wpgraphql-ide-cache-inspector-tracker-members">
+					{payload.members.map((member) => {
+						const isLive = liveKeys.has(member);
+						return (
+							<li key={member}>
+								<code title={member}>
+									{truncateMiddle(member, 24)}
+								</code>
+								<span
+									className={`wpgraphql-ide-cache-inspector-tracker-status is-${
+										isLive ? 'live' : 'gone'
+									}`}
+								>
+									{isLive ? 'cached' : 'not cached'}
+								</span>
+								{isLive && (
+									<Button
+										variant="link"
+										size="small"
+										isDestructive
+										isBusy={purging.has(member)}
+										disabled={purging.has(member)}
+										onClick={() => onPurge(member)}
+									>
+										Purge
+									</Button>
+								)}
+							</li>
+						);
+					})}
+				</ul>
+			</>
+		);
+	}
+
+	return (
+		<tr className="wpgraphql-ide-cache-inspector-tracker-row">
+			<td colSpan={5}>
+				<div className="wpgraphql-ide-cache-inspector-tracker-body">
+					{body}
+				</div>
 			</td>
 		</tr>
 	);

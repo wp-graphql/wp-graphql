@@ -102,6 +102,24 @@ function register_rest_routes(): void {
 
 	register_rest_route(
 		REST_NAMESPACE,
+		'/entry',
+		[
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\rest_get_entry',
+			'permission_callback' => __NAMESPACE__ . '\rest_permission_check',
+			'args'                => [
+				'cacheKey' => [
+					'type'              => 'string',
+					'required'          => true,
+					'sanitize_callback' => 'sanitize_text_field',
+					'pattern'           => CACHE_KEY_PATTERN,
+				],
+			],
+		]
+	);
+
+	register_rest_route(
+		REST_NAMESPACE,
 		'/purge',
 		[
 			'methods'             => 'POST',
@@ -264,6 +282,74 @@ function rest_list_entries() {
 			'count'     => $true_count,
 			'truncated' => $truncated,
 			'totalSize' => $true_total,
+		]
+	);
+}
+
+/**
+ * GET /entry — returns the stored payload for a single cache entry.
+ *
+ * Used by the UI to surface tracker → response fan-out: a tracker
+ * stores an `array` of request_keys (the SHA-256 hashes of response
+ * entries that depend on it). For response entries we don't return the
+ * payload (it can be enormous and the inspector doesn't render it);
+ * the row already shows the relevant metadata.
+ *
+ * @param \WP_REST_Request $request Incoming request with a `cacheKey` query param.
+ *
+ * @return \WP_REST_Response
+ */
+function rest_get_entry( $request ) {
+	$cache_key = (string) $request->get_param( 'cacheKey' );
+	if ( '' === $cache_key || ! preg_match( '#' . CACHE_KEY_PATTERN . '#', $cache_key ) ) {
+		return new \WP_Error(
+			'wpgraphql_ide_cache_inspector_invalid_key',
+			'Invalid cache key.',
+			[ 'status' => 400 ]
+		);
+	}
+
+	$type    = classify_cache_key( $cache_key );
+	$payload = get_transient( transient_prefix() . $cache_key );
+
+	if ( false === $payload ) {
+		return new \WP_Error(
+			'wpgraphql_ide_cache_inspector_not_found',
+			'Cache entry not found or expired.',
+			[ 'status' => 404 ]
+		);
+	}
+
+	if ( 'tracker' === $type ) {
+		// `store_content()` in Collection.php writes a numerically
+		// indexed array of request keys. Filter to strings and
+		// re-index so the wire shape is predictable.
+		$members = is_array( $payload )
+			? array_values(
+				array_filter(
+					array_map( 'strval', $payload ),
+					static function ( $member ) {
+						return '' !== $member;
+					}
+				)
+			)
+			: [];
+
+		return rest_ensure_response(
+			[
+				'cacheKey' => $cache_key,
+				'type'     => 'tracker',
+				'members'  => $members,
+				'count'    => count( $members ),
+			]
+		);
+	}
+
+	// Responses: don't ship the full payload, just confirm it exists.
+	return rest_ensure_response(
+		[
+			'cacheKey' => $cache_key,
+			'type'     => 'response',
 		]
 	);
 }
