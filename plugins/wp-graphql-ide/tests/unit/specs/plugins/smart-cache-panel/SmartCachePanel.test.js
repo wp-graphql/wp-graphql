@@ -365,12 +365,7 @@ describe('SmartCachePanelView', () => {
 			// The 64-char hex is the Query ID (X-GraphQL-Query-ID), not the
 			// transient cache key — those hash different inputs.
 			expect(map).toHaveTextContent(/Query ID \(1\)/);
-			// Query ID chip is middle-truncated for display (head…tail),
-			// with the full hash on the `title` attribute. Assert the
-			// truncated visible form rather than the full string.
-			expect(map).toHaveTextContent(/aaaaaaaa\u2026aaaaaaa/);
-			const queryIdEl = map.querySelector('li code[title]');
-			expect(queryIdEl).toHaveAttribute('title', sha);
+			expect(map).toHaveTextContent(sha);
 			expect(map).toHaveTextContent(/Root types \(1\)/);
 			expect(map).toHaveTextContent('graphql:Query');
 			expect(map).toHaveTextContent(/Operations \(1\)/);

@@ -491,25 +491,6 @@ function formatDuration(seconds) {
 }
 
 /**
- * Middle-truncate a long string for display, keeping `head` chars from
- * the start and `tail` chars from the end joined by an ellipsis. Used
- * on the Query ID chip so its 64-char hex doesn't read as a duplicate
- * of the (also 64-char hex) Cache key shown above the Purge map.
- *
- * @param {string} value
- * @param {number} head
- * @param {number} tail
- *
- * @return {string} Truncated string, or the original when it already fits.
- */
-function truncateMiddle(value, head, tail) {
-	if (typeof value !== 'string' || value.length <= head + tail + 1) {
-		return value;
-	}
-	return `${value.slice(0, head)}\u2026${value.slice(-tail)}`;
-}
-
-/**
  * Bucket each X-GraphQL-Keys entry by its prefix. The categories are
  * how Smart Cache (and downstream CDN) addresses tags for invalidation:
  *
@@ -627,11 +608,7 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 								<ul className="wpgraphql-ide-smart-cache-purge-map-list">
 									{g.items.map((item) => (
 										<li key={`${g.key}:${item}`}>
-											<code title={item}>
-												{g.key === 'queryId'
-													? truncateMiddle(item, 8, 7)
-													: item}
-											</code>
+											<code>{item}</code>
 										</li>
 									))}
 								</ul>
