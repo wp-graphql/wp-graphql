@@ -6,7 +6,7 @@ import {
 	SmartCachePanelView,
 	_resetSessionStatsForTests,
 	_recordResultForTests,
-	_setActiveDocumentForTests,
+	_setActiveCacheKeyForTests,
 } from '../../../../../plugins/smart-cache-panel/src/components/SmartCachePanel';
 
 function renderView({
@@ -437,26 +437,51 @@ describe('SmartCachePanelView', () => {
 			expect(counter).toHaveTextContent(/67% hit rate/);
 		});
 
-		it('resets to zero when the active document changes (different query)', () => {
-			_setActiveDocumentForTests('{ posts { nodes { id } } }');
+		it('resets to zero when the query changes', () => {
+			_setActiveCacheKeyForTests('{ posts { nodes { id } } }', '', false);
 			_recordResultForTests(true);
 			_recordResultForTests(true);
-			// User edits the query in the active tab → new document.
-			_setActiveDocumentForTests('{ pages { nodes { id } } }');
+			// User edits the query in the active tab → new cache-key bucket.
+			_setActiveCacheKeyForTests('{ pages { nodes { id } } }', '', false);
 			const { container } = renderView();
-			// No executions have happened against the new document yet;
-			// SessionCounter hides itself when both counts are 0.
 			expect(
 				container.querySelector('.wpgraphql-ide-smart-cache-session')
 			).toBeNull();
 		});
 
-		it('does not reset when the same document string is set again', () => {
+		it('resets to zero when variables change (different cache key)', () => {
+			const q =
+				'query GetPosts($n: Int) { posts(first: $n) { nodes { id } } }';
+			_setActiveCacheKeyForTests(q, '{"n": 5}', false);
+			_recordResultForTests(true);
+			_recordResultForTests(true);
+			// Same query, different variables → different cache key.
+			_setActiveCacheKeyForTests(q, '{"n": 10}', false);
+			const { container } = renderView();
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-session')
+			).toBeNull();
+		});
+
+		it('resets to zero when auth state changes (different cache key)', () => {
 			const q = '{ posts { nodes { id } } }';
-			_setActiveDocumentForTests(q);
+			_setActiveCacheKeyForTests(q, '', false);
+			_recordResultForTests(true);
+			_recordResultForTests(true);
+			// Toggling auth flips user_id in the cache-key inputs.
+			_setActiveCacheKeyForTests(q, '', true);
+			const { container } = renderView();
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-session')
+			).toBeNull();
+		});
+
+		it('does not reset when the same signature is set again', () => {
+			const q = '{ posts { nodes { id } } }';
+			_setActiveCacheKeyForTests(q, '', false);
 			_recordResultForTests(true);
 			_recordResultForTests(false);
-			_setActiveDocumentForTests(q); // re-render with same query
+			_setActiveCacheKeyForTests(q, '', false); // identical re-render
 			const { container } = renderView();
 			const counter = container.querySelector(
 				'.wpgraphql-ide-smart-cache-session'

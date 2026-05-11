@@ -11,12 +11,12 @@ import { Icon, check, cancelCircleFilled, help, info } from '@wordpress/icons';
 
 // Module-scoped session counter so HIT/MISS totals survive Smart Cache
 // panel remounts (switching to Tracing and back). The counter is scoped
-// to the *active document* — `query`-keyed — so editing the query in
-// the active tab (or switching tabs to a different query) invalidates
-// the running totals. Stats for the previous document are dropped on
-// purpose; tracking historical hit rates across documents is out of
-// scope here. Cleared on page reload.
-let sessionStats = { hit: 0, miss: 0, query: null };
+// to the *exact set of inputs the server hashes for its cache key* —
+// query + variables + auth state — so any change that would produce a
+// different cache key zeroes the running totals. Stats for the previous
+// cache-key bucket are dropped on purpose; tracking historical hit
+// rates across documents is out of scope here. Cleared on page reload.
+let sessionStats = { hit: 0, miss: 0, key: null };
 const sessionSubscribers = new Set();
 function notifyStats() {
 	sessionSubscribers.forEach((fn) => fn());
@@ -29,12 +29,30 @@ function recordResult(isHit) {
 	};
 	notifyStats();
 }
-function setActiveDocument(query) {
-	const next = typeof query === 'string' ? query : '';
-	if (sessionStats.query === next) {
+/**
+ * Compose the cache-key signature from the inputs the server hashes
+ * (query + variables + auth). Pipe-separator is fine — these strings
+ * don't contain `|` in any cache-relevant way, and a collision between
+ * (`a`, `b|c`) and (`a|b`, `c`) would only manifest as the counter
+ * NOT resetting when it should, which is harmless.
+ *
+ * @param {string|null|undefined} query
+ * @param {string|null|undefined} variables
+ * @param {boolean}               isAuthenticated
+ *
+ * @return {string} Stable signature for the current cache-key inputs.
+ */
+function composeCacheKeySignature(query, variables, isAuthenticated) {
+	const q = typeof query === 'string' ? query : '';
+	const v = typeof variables === 'string' ? variables : '';
+	return `${q}|${v}|${isAuthenticated ? '1' : '0'}`;
+}
+function setActiveCacheKey(signature) {
+	const next = typeof signature === 'string' ? signature : '';
+	if (sessionStats.key === next) {
 		return;
 	}
-	sessionStats = { hit: 0, miss: 0, query: next };
+	sessionStats = { hit: 0, miss: 0, key: next };
 	notifyStats();
 }
 function subscribeSessionStats(fn) {
@@ -47,14 +65,16 @@ function getSessionStats() {
 // Test-only hatches — let specs simulate a fresh page load and a
 // recorded response without going through the IDE-coupled wrapper.
 export function _resetSessionStatsForTests() {
-	sessionStats = { hit: 0, miss: 0, query: null };
+	sessionStats = { hit: 0, miss: 0, key: null };
 	notifyStats();
 }
 export function _recordResultForTests(isHit) {
 	recordResult(isHit);
 }
-export function _setActiveDocumentForTests(query) {
-	setActiveDocument(query);
+export function _setActiveCacheKeyForTests(query, variables, isAuthenticated) {
+	setActiveCacheKey(
+		composeCacheKeySignature(query, variables, isAuthenticated)
+	);
 }
 
 /**
@@ -74,6 +94,10 @@ export function SmartCachePanel({ data }) {
 		[]
 	);
 	const query = useSelect((s) => s('wpgraphql-ide/app').getQuery(), []);
+	const variables = useSelect(
+		(s) => s('wpgraphql-ide/app').getVariables(),
+		[]
+	);
 	const responseHeaders = useSelect(
 		(s) => s('wpgraphql-ide/app').getResponseHeaders(),
 		[]
@@ -91,13 +115,20 @@ export function SmartCachePanel({ data }) {
 			window.WPGRAPHQL_IDE_DATA?.documentSettings?.globalGrantMode) ||
 		'public';
 
-	// Scope the session counter to the active document. Editing the query
-	// (or switching tabs to a different one) zeroes the totals so the
-	// hit-rate display tracks only the live document, not stale history
-	// from a query that's been edited away.
+	// Scope the session counter to the active cache-key signature.
+	// Smart Cache hashes (query + variables + operation + user_id) for
+	// its transient key, so a change in any of those produces a fresh
+	// cache bucket — the running HIT/MISS totals should follow. We mirror
+	// query + variables + auth here; operation name is part of the query
+	// string so it rides along with query edits.
+	const cacheKeySignature = composeCacheKeySignature(
+		query,
+		variables,
+		isAuthenticated
+	);
 	useEffect(() => {
-		setActiveDocument(query);
-	}, [query]);
+		setActiveCacheKey(cacheKeySignature);
+	}, [cacheKeySignature]);
 
 	// Increment the session counter on the trailing edge of `isFetching`
 	// (true → false = request just finished). Reference checks on `data`
