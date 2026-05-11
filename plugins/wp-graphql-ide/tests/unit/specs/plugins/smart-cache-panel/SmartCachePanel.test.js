@@ -310,6 +310,86 @@ describe('SmartCachePanelView', () => {
 				container.querySelector('.wpgraphql-ide-smart-cache-purge-map')
 			).toBeNull();
 		});
+
+		it('renders the queryTypes group absorbed from Query Analyzer', () => {
+			const { container } = renderView({
+				diagnostics: {
+					purgeMap: {
+						nodes: [],
+						lists: [],
+						queryTypes: ['graphql:Query'],
+					},
+				},
+			});
+			const map = container.querySelector(
+				'.wpgraphql-ide-smart-cache-purge-map'
+			);
+			expect(map).toHaveTextContent('graphql:Query');
+			expect(map).toHaveTextContent(/Root types \(1\)/);
+		});
+
+		it('renders the keys-count / keys-length meta footer when provided', () => {
+			const { container } = renderView({
+				diagnostics: {
+					purgeMap: {
+						nodes: ['post:5'],
+						lists: [],
+						keysCount: 4,
+						keysLength: 101,
+					},
+				},
+			});
+			const meta = container.querySelector(
+				'.wpgraphql-ide-smart-cache-purge-map-meta'
+			);
+			expect(meta).toBeInTheDocument();
+			expect(meta).toHaveTextContent('4');
+			expect(meta).toHaveTextContent('101');
+			expect(meta).toHaveTextContent(/X-GraphQL-Keys/);
+		});
+	});
+
+	describe('skipped keys card', () => {
+		it('renders when the analyzer dropped entries from X-GraphQL-Keys', () => {
+			const { container } = renderView({
+				diagnostics: {
+					skipped: {
+						keys: ['post:99', 'post:100'],
+						types: ['skipped:Post'],
+						count: 2,
+						size: 18,
+					},
+				},
+			});
+			const card = container.querySelector(
+				'.wpgraphql-ide-smart-cache-skipped'
+			);
+			expect(card).toBeInTheDocument();
+			expect(card).toHaveTextContent(/Cache integrity warning/);
+			expect(card).toHaveTextContent('post:99');
+			expect(card).toHaveTextContent('skipped:Post');
+			expect(card).toHaveTextContent(
+				/graphql_query_analyzer_header_length_limit/
+			);
+		});
+
+		it('omits the card when no entries were skipped', () => {
+			const { container } = renderView({
+				diagnostics: { skipped: { keys: [], types: [], count: 0 } },
+			});
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-skipped')
+			).toBeNull();
+		});
+
+		it('omits the card when no skipped block is present', () => {
+			const { container } = renderView({
+				diagnostics: { purgeMap: { nodes: [], lists: [] } },
+			});
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-skipped')
+			).toBeNull();
+		});
 	});
 
 	describe('session counter', () => {

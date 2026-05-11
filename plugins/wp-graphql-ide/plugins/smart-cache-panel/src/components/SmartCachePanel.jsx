@@ -583,7 +583,9 @@ function SkippedKeysSection({ diagnostics }) {
 				The Query Analyzer hit its header-length budget and dropped the
 				entries below from <code>X-GraphQL-Keys</code>. Smart Cache
 				won&apos;t invalidate this entry when these change — the cache
-				may serve stale data for affected resources.
+				may serve stale data for affected resources. Raise the limit via
+				the <code>graphql_query_analyzer_header_length_limit</code>{' '}
+				filter (default 8000) to fit more keys.
 			</div>
 			{types.length > 0 && (
 				<div className="wpgraphql-ide-smart-cache-purge-map-group">

@@ -5463,7 +5463,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
    stale data for the skipped resources), so the section opens by
    default and uses a warning-tinted accent. */
 .wpgraphql-ide-smart-cache-skipped .wpgraphql-ide-smart-cache-details-summary {
-	color: #b32d2e;
+	color: #d63638;
 }
 
 .wpgraphql-ide-smart-cache-skipped-explainer {
