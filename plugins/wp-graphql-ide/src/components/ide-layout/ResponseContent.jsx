@@ -3,6 +3,7 @@ import { ResizableBox } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useResizeReporter } from '../ResizeOverlay';
 import { OverflowTabs } from '../OverflowTabs';
+import { useResponseTabOrder } from '../../hooks/useResponseTabOrder';
 
 /**
  * Body of the response pane: the JSON / table viewer up top with a
@@ -92,6 +93,12 @@ export function ResponseContent({
 			: []),
 	];
 
+	// User-defined drag-to-reorder over the bottom tabs. Newly registered
+	// extensions append at the end of the saved order so they never
+	// disappear from view. Mirrors the activity-bar `usePanelOrder` story.
+	const reorder = useResponseTabOrder(bottomTabs);
+	const orderedBottomTabs = reorder.orderedTabs;
+
 	const viewerContent = useMemo(() => {
 		if (!response) {
 			return '';
@@ -174,7 +181,8 @@ export function ResponseContent({
 					// active is a no-op state change.
 					key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${tabRequest?.token || ''}`}
 					className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
-					tabs={bottomTabs}
+					tabs={orderedBottomTabs}
+					reorder={reorder}
 					initialTabName={
 						tabRequest?.name ||
 						(errors.length > 0 ? 'ext:errors' : 'ext:tracing')

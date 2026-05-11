@@ -33,6 +33,7 @@ const STORAGE_VERSION = 'v1';
 const SCOPES = Object.freeze({
 	// Device-scoped UI chrome.
 	response_view_mode: 'device',
+	response_tab_order: 'device',
 	panel_order: 'device',
 	left_panel: 'device',
 	open_tabs: 'device',

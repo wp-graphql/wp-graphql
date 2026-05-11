@@ -5478,3 +5478,26 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 11px;
 }
+
+/* Response tab strip drag-to-reorder indicators. Mirrors the activity
+   bar's `is-drag-before` / `is-drag-after` pattern (usePanelOrder) but
+   uses left/right edge accents because the tab strip is horizontal. */
+.components-tab-panel__tabs-item.is-drag-left {
+	box-shadow: inset 2px 0 0 0
+		var(--wp-admin-theme-color, #3858e9);
+}
+
+.components-tab-panel__tabs-item.is-drag-right {
+	box-shadow: inset -2px 0 0 0
+		var(--wp-admin-theme-color, #3858e9);
+}
+
+/* A subtle grab cursor on the response tabs so the affordance is
+   discoverable without forcing a visual handle into the tab face. */
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item[draggable='true'] {
+	cursor: grab;
+}
+
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item[draggable='true']:active {
+	cursor: grabbing;
+}

@@ -14,14 +14,35 @@ const OVERFLOW_BTN_W = 40;
  * <OverflowTabs>) keeps the parent's content area from re-rendering every
  * time ResizeObserver fires during a drag — only the strip rebuilds.
  *
- * @param {Object}   props
- * @param {Array}    props.tabs       `{ name, title }` descriptors.
- * @param {string}   props.activeName Currently selected tab name.
- * @param {Function} props.onSelect   Called with a tab name on click.
+ * Reorder D&D handlers are optional; when omitted, the strip renders the
+ * tabs as plain non-draggable buttons. When present they wire native
+ * HTML5 drag-and-drop on each tab so the user can sort the strip; the
+ * surrounding hook persists the order.
+ *
+ * @param {Object}      props
+ * @param {Array}       props.tabs          `{ name, title }` descriptors.
+ * @param {string}      props.activeName    Currently selected tab name.
+ * @param {Function}    props.onSelect      Called with a tab name on click.
+ * @param {Object|null} [props.dragOverTab] `{ name, pos }` when dragging.
+ * @param {Function}    [props.onDragStart] Factory `(name) => (e) => void`.
+ * @param {Function}    [props.onDragOver]  Factory `(name) => (e) => void`.
+ * @param {Function}    [props.onDragLeave] `() => void`.
+ * @param {Function}    [props.onDrop]      Factory `(name) => (e) => void`.
+ * @param {Function}    [props.onDragEnd]   `() => void`.
  *
  * @return {JSX.Element}
  */
-function TabStrip({ tabs, activeName, onSelect }) {
+function TabStrip({
+	tabs,
+	activeName,
+	onSelect,
+	dragOverTab = null,
+	onDragStart,
+	onDragOver,
+	onDragLeave,
+	onDrop,
+	onDragEnd,
+}) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
 	// Per-tab measured widths persist across renders. Without this, tabs
@@ -118,6 +139,11 @@ function TabStrip({ tabs, activeName, onSelect }) {
 		>
 			{visible.map((tab) => {
 				const isActive = tab.name === activeName;
+				const dragClass =
+					dragOverTab?.name === tab.name
+						? ` is-drag-${dragOverTab.pos}`
+						: '';
+				const reorderable = typeof onDragStart === 'function';
 				return (
 					<button
 						key={tab.name}
@@ -130,8 +156,18 @@ function TabStrip({ tabs, activeName, onSelect }) {
 						role="tab"
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
-						className={`components-tab-panel__tabs-item${isActive ? ' is-active' : ''}`}
+						className={`components-tab-panel__tabs-item${isActive ? ' is-active' : ''}${dragClass}`}
 						onClick={() => onSelect(tab.name)}
+						draggable={reorderable || undefined}
+						onDragStart={
+							reorderable ? onDragStart(tab.name) : undefined
+						}
+						onDragOver={
+							reorderable ? onDragOver(tab.name) : undefined
+						}
+						onDragLeave={reorderable ? onDragLeave : undefined}
+						onDrop={reorderable ? onDrop(tab.name) : undefined}
+						onDragEnd={reorderable ? onDragEnd : undefined}
 					>
 						{tab.title}
 					</button>
@@ -178,10 +214,15 @@ function TabStrip({ tabs, activeName, onSelect }) {
  * Re-mount via React `key` to re-apply `initialTabName` (matches how the
  * surrounding response pane already drives programmatic tab navigation).
  *
+ * Pass `reorder` (the return value from `useResponseTabOrder` or a
+ * shape-compatible object) to enable drag-to-reorder on the strip. Omit
+ * it to keep tabs static.
+ *
  * @param {Object}   props
  * @param {Array}    props.tabs           `{ name, title }` descriptors, ordered.
  * @param {string}   props.initialTabName Tab that should be active on mount.
  * @param {string}   props.className      Class added next to `.components-tab-panel`.
+ * @param {Object}   [props.reorder]      `{ dragOverTab, onDragStart, … }` D&D bundle.
  * @param {Function} props.children       Render-prop receiving the active tab.
  *
  * @return {JSX.Element|null}
@@ -190,6 +231,7 @@ export function OverflowTabs({
 	tabs,
 	initialTabName,
 	className = '',
+	reorder,
 	children,
 }) {
 	const [activeName, setActiveName] = useState(
@@ -210,6 +252,12 @@ export function OverflowTabs({
 				tabs={tabs}
 				activeName={effectiveActive}
 				onSelect={setActiveName}
+				dragOverTab={reorder?.dragOverTab}
+				onDragStart={reorder?.onDragStart}
+				onDragOver={reorder?.onDragOver}
+				onDragLeave={reorder?.onDragLeave}
+				onDrop={reorder?.onDrop}
+				onDragEnd={reorder?.onDragEnd}
 			/>
 			<div className="components-tab-panel__tab-content">
 				{activeTab && children(activeTab)}
