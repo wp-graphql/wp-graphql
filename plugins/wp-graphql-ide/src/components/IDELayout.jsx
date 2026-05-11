@@ -29,7 +29,11 @@ import {
 	allowEndpointSignIn,
 } from '../bootstrap';
 import { getWorkspacePersistence } from './workspace-persistence';
-import { displayDocTitle } from '../utils/derive-doc-title';
+import {
+	deriveDocTitle,
+	displayDocTitle,
+	isAutoTitle,
+} from '../utils/derive-doc-title';
 import { WELCOME_QUERY } from '../stores/document-editor/welcome-query';
 
 /**
@@ -428,6 +432,7 @@ export function IDELayout({ fetcher, onClose }) {
 
 	const {
 		cancelAutoSave,
+		scheduleAutoSave,
 		handleQueryChange,
 		handleVariablesChange,
 		handleHeadersChange,
@@ -440,6 +445,30 @@ export function IDELayout({ fetcher, onClose }) {
 		setHeaders,
 		setDocSettingsValues,
 	});
+
+	// Reactive auto-save trigger for the live query state. Any caller
+	// that updates the app store's `query` — the editor's onChange, the
+	// Query Composer's onEdit, the History panel's restore, prettify /
+	// merge actions — flows through here, so the doc's persisted query
+	// (and sticky title derivation) stays in sync regardless of source.
+	//
+	// Before this effect, only the editor's `handleQueryChange` called
+	// scheduleAutoSave explicitly; Query Composer edits dispatched
+	// `setQuery` directly and never reached the save / title-derivation
+	// pipeline, leaving the tab title stuck on the old derived name.
+	//
+	// Guard against the tab-switch sync that also writes via setQuery:
+	// when the new query value equals what the active doc already has
+	// persisted, there's no real change to save.
+	useEffect(() => {
+		if (!activeDocument) {
+			return;
+		}
+		if (query === (activeDocument.query || '')) {
+			return;
+		}
+		scheduleAutoSave('query', query);
+	}, [query, activeDocument, scheduleAutoSave]);
 
 	// Explicit save — Cmd+S / Save button. For a brand-new draft (temp
 	// id), open the SaveDialog so the user can name it and pick a
@@ -913,7 +942,21 @@ export function IDELayout({ fetcher, onClose }) {
 								.filter(Boolean)
 								.map((doc) => ({
 									id: doc.id,
-									title: displayDocTitle(doc),
+									// Active doc with an auto-title derives from
+									// the LIVE query (app store) so the tab name
+									// tracks every keystroke / composer toggle in
+									// real time. Inactive docs / sticky titles
+									// fall back to the persisted snapshot —
+									// `doc.title` once it's been frozen, or
+									// `doc.query` for an auto-titled inactive
+									// tab. Without the active-doc carve-out, the
+									// title only updates after the 2s autosave
+									// debounce rewrites `doc.query`.
+									title:
+										doc.id === activeDocument?.id &&
+										isAutoTitle(doc.title)
+											? deriveDocTitle(query)
+											: displayDocTitle(doc),
 									dirty: isDocDirty(doc),
 									// Italic title mirrors the saved-queries
 									// "Unsaved" group — temp drafts aren't

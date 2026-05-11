@@ -75,10 +75,16 @@ export function useAutoSave({
 
 	const handleQueryChange = useCallback(
 		(value) => {
+			// Just set the live state — the IDELayout effect watching
+			// `query` runs `scheduleAutoSave('query', ...)` on every
+			// real change, regardless of source (editor / composer /
+			// restore / prettify / merge). Keeping that schedule call
+			// here too would double-fire the save for editor typing,
+			// which for temp drafts means a duplicate UPDATE_DOCUMENT
+			// dispatch and localStorage write per keystroke.
 			setQuery(value);
-			scheduleAutoSave('query', value);
 		},
-		[setQuery, scheduleAutoSave]
+		[setQuery]
 	);
 
 	const handleVariablesChange = useCallback(
