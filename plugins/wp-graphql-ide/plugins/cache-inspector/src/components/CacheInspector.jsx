@@ -1,5 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Modal, Notice, Spinner } from '@wordpress/components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	Button,
+	CheckboxControl,
+	Modal,
+	Notice,
+	SearchControl,
+	Spinner,
+} from '@wordpress/components';
 import { Icon, update, trash } from '@wordpress/icons';
 
 // Resolved per-call rather than captured at module load — wp_localize_script
@@ -13,10 +20,14 @@ function getRestConfig() {
 	return { restUrl: '', restNonce: '' };
 }
 
+const DEFAULT_SORT = { column: 'size', direction: 'desc' };
+const TICK_INTERVAL_MS = 1000;
+
 /**
  * Cache Inspector workspace tab. Cache-wide view of every Smart Cache
  * entry in the WordPress object cache (transient backend); supports
- * per-entry and bulk purge.
+ * sortable columns, type and substring filters, per-entry purge, and
+ * bulk purge.
  *
  * @return {JSX.Element} Inspector UI.
  */
@@ -26,9 +37,30 @@ export function CacheInspector() {
 		error: null,
 		data: null,
 	});
-	const [purging, setPurging] = useState(new Set());
+	const [purging, setPurging] = useState(() => new Set());
 	const [bulkPurging, setBulkPurging] = useState(false);
 	const [purgeAllOpen, setPurgeAllOpen] = useState(false);
+	const [purgeSelectedOpen, setPurgeSelectedOpen] = useState(false);
+	const [search, setSearch] = useState('');
+	const [typeFilter, setTypeFilter] = useState('all');
+	const [sort, setSort] = useState(DEFAULT_SORT);
+	const [selected, setSelected] = useState(() => new Set());
+	const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+
+	// Live-tick once per second so "Expires in" countdowns update while the
+	// inspector is open. Gated on having data to avoid the timer spinning
+	// during loading / error states.
+	const hasData = !!state.data && !state.loading;
+	useEffect(() => {
+		if (!hasData) {
+			return undefined;
+		}
+		const id = setInterval(
+			() => setNow(Math.floor(Date.now() / 1000)),
+			TICK_INTERVAL_MS
+		);
+		return () => clearInterval(id);
+	}, [hasData]);
 
 	const fetchEntries = useCallback(async () => {
 		setState((s) => ({ ...s, loading: true, error: null }));
@@ -42,6 +74,7 @@ export function CacheInspector() {
 			}
 			const data = await res.json();
 			setState({ loading: false, error: null, data });
+			setSelected(new Set());
 		} catch (err) {
 			setState({ loading: false, error: err.message, data: null });
 		}
@@ -82,6 +115,14 @@ export function CacheInspector() {
 					},
 				};
 			});
+			setSelected((sel) => {
+				if (!sel.has(cacheKey)) {
+					return sel;
+				}
+				const next = new Set(sel);
+				next.delete(cacheKey);
+				return next;
+			});
 		} catch (err) {
 			setState((s) => ({ ...s, error: err.message }));
 		} finally {
@@ -112,6 +153,34 @@ export function CacheInspector() {
 			setBulkPurging(false);
 		}
 	}, [fetchEntries]);
+
+	const purgeSelected = useCallback(async () => {
+		const cacheKeys = Array.from(selected);
+		if (cacheKeys.length === 0) {
+			return;
+		}
+		setBulkPurging(true);
+		try {
+			const res = await fetch(`${getRestConfig().restUrl}/purge-bulk`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': getRestConfig().restNonce,
+				},
+				credentials: 'same-origin',
+				body: JSON.stringify({ cacheKeys }),
+			});
+			if (!res.ok) {
+				throw new Error(`Bulk purge failed (${res.status})`);
+			}
+			setPurgeSelectedOpen(false);
+			await fetchEntries();
+		} catch (err) {
+			setState((s) => ({ ...s, error: err.message }));
+		} finally {
+			setBulkPurging(false);
+		}
+	}, [selected, fetchEntries]);
 
 	if (state.loading) {
 		return (
@@ -153,59 +222,156 @@ export function CacheInspector() {
 		);
 	}
 
+	const allEntries = data.entries || [];
+	const totalCount = data.count || 0;
+	const totalSize = data.totalSize || 0;
+
 	return (
 		<div className="wpgraphql-ide-cache-inspector">
-			<Header
+			<StatStrip
+				totalCount={totalCount}
+				totalSize={totalSize}
+				selectedCount={selected.size}
+				onClearSelection={() => setSelected(new Set())}
 				onRefresh={fetchEntries}
 				onPurgeAllRequest={() => setPurgeAllOpen(true)}
-				count={data.count || 0}
-				totalSize={data.totalSize || 0}
+				onPurgeSelectedRequest={() => setPurgeSelectedOpen(true)}
+			/>
+
+			<FilterBar
+				search={search}
+				onSearch={setSearch}
+				typeFilter={typeFilter}
+				onTypeFilter={setTypeFilter}
 			/>
 
 			{data.truncated && (
 				<Notice status="warning" isDismissible={false}>
-					Showing the {data.entries.length} largest entries of{' '}
-					{data.count} total. Purge from this list to surface the next
+					Showing the {allEntries.length} largest entries of{' '}
+					{totalCount} total. Purge from this list to surface the next
 					batch.
 				</Notice>
 			)}
 
-			{data.entries.length === 0 ? (
+			{allEntries.length === 0 ? (
 				<EmptyState />
 			) : (
-				<EntriesTable
-					entries={data.entries}
+				<EntriesView
+					entries={allEntries}
 					purging={purging}
+					selected={selected}
+					setSelected={setSelected}
 					onPurge={purgeOne}
+					search={search}
+					typeFilter={typeFilter}
+					sort={sort}
+					onSort={setSort}
+					onClearFilters={() => {
+						setSearch('');
+						setTypeFilter('all');
+					}}
+					now={now}
 				/>
 			)}
 
 			{purgeAllOpen && (
-				<PurgeAllDialog
-					count={data.count || 0}
-					totalSize={data.totalSize || 0}
+				<PurgeConfirmDialog
+					title="Purge all Smart Cache entries?"
+					message={
+						<>
+							This will delete <strong>{totalCount}</strong>{' '}
+							{totalCount === 1 ? 'entry' : 'entries'}
+							{totalSize > 0 && (
+								<>
+									{' '}
+									(<strong>{formatBytes(totalSize)}</strong>)
+								</>
+							)}{' '}
+							from the WordPress object cache. The next request
+							that matches each query will re-populate the cache.
+							This cannot be undone.
+						</>
+					}
+					confirmLabel="Purge all"
 					submitting={bulkPurging}
 					onConfirm={purgeAll}
 					onClose={() => setPurgeAllOpen(false)}
+				/>
+			)}
+
+			{purgeSelectedOpen && (
+				<PurgeConfirmDialog
+					title={`Purge ${selected.size} selected ${
+						selected.size === 1 ? 'entry' : 'entries'
+					}?`}
+					message={
+						<>
+							This will delete <strong>{selected.size}</strong>{' '}
+							{selected.size === 1 ? 'entry' : 'entries'} from the
+							WordPress object cache. The next request that
+							matches each query will re-populate the cache. This
+							cannot be undone.
+						</>
+					}
+					confirmLabel={`Purge ${selected.size}`}
+					submitting={bulkPurging}
+					onConfirm={purgeSelected}
+					onClose={() => setPurgeSelectedOpen(false)}
 				/>
 			)}
 		</div>
 	);
 }
 
-function Header({ onRefresh, onPurgeAllRequest, count = 0, totalSize = 0 }) {
-	return (
-		<div className="wpgraphql-ide-cache-inspector-header">
-			<div className="wpgraphql-ide-cache-inspector-header-summary">
-				<strong>{count}</strong> {count === 1 ? 'entry' : 'entries'}
-				{totalSize > 0 && (
-					<>
-						{' · '}
-						<strong>{formatBytes(totalSize)}</strong> total
-					</>
-				)}
+function StatStrip({
+	totalCount,
+	totalSize,
+	selectedCount,
+	onClearSelection,
+	onRefresh,
+	onPurgeAllRequest,
+	onPurgeSelectedRequest,
+}) {
+	if (selectedCount > 0) {
+		return (
+			<div className="wpgraphql-ide-cache-inspector-stat-strip is-selection">
+				<div className="wpgraphql-ide-cache-inspector-stat-primary">
+					<strong>{selectedCount}</strong>{' '}
+					{selectedCount === 1 ? 'entry' : 'entries'} selected
+					<Button
+						variant="tertiary"
+						size="small"
+						onClick={onClearSelection}
+					>
+						Clear
+					</Button>
+				</div>
+				<div className="wpgraphql-ide-cache-inspector-stat-actions">
+					<Button
+						variant="secondary"
+						isDestructive
+						onClick={onPurgeSelectedRequest}
+						icon={() => <Icon icon={trash} size={16} />}
+					>
+						Purge selected ({selectedCount})
+					</Button>
+				</div>
 			</div>
-			<div className="wpgraphql-ide-cache-inspector-header-actions">
+		);
+	}
+
+	return (
+		<div className="wpgraphql-ide-cache-inspector-stat-strip">
+			<div className="wpgraphql-ide-cache-inspector-stat-primary">
+				<div className="wpgraphql-ide-cache-inspector-stat-value">
+					{formatBytes(totalSize)}
+				</div>
+				<div className="wpgraphql-ide-cache-inspector-stat-label">
+					total cache size · {totalCount}{' '}
+					{totalCount === 1 ? 'entry' : 'entries'}
+				</div>
+			</div>
+			<div className="wpgraphql-ide-cache-inspector-stat-actions">
 				<Button
 					variant="tertiary"
 					onClick={onRefresh}
@@ -216,7 +382,7 @@ function Header({ onRefresh, onPurgeAllRequest, count = 0, totalSize = 0 }) {
 				<Button
 					variant="secondary"
 					isDestructive
-					disabled={count === 0}
+					disabled={totalCount === 0}
 					onClick={onPurgeAllRequest}
 					icon={() => <Icon icon={trash} size={16} />}
 				>
@@ -227,25 +393,63 @@ function Header({ onRefresh, onPurgeAllRequest, count = 0, totalSize = 0 }) {
 	);
 }
 
-function PurgeAllDialog({ count, totalSize, submitting, onConfirm, onClose }) {
+const TYPE_FILTERS = [
+	{ value: 'all', label: 'All' },
+	{ value: 'response', label: 'Responses' },
+	{ value: 'tracker', label: 'Trackers' },
+];
+
+function FilterBar({ search, onSearch, typeFilter, onTypeFilter }) {
+	return (
+		<div className="wpgraphql-ide-cache-inspector-filters">
+			<div className="wpgraphql-ide-cache-inspector-filter-search">
+				<SearchControl
+					value={search}
+					onChange={onSearch}
+					placeholder="Search cache keys…"
+					__nextHasNoMarginBottom
+					size="compact"
+				/>
+			</div>
+			<div
+				className="wpgraphql-ide-cache-inspector-filter-type"
+				role="radiogroup"
+				aria-label="Entry type filter"
+			>
+				{TYPE_FILTERS.map((option) => (
+					<button
+						key={option.value}
+						type="button"
+						role="radio"
+						aria-checked={typeFilter === option.value}
+						className={`wpgraphql-ide-cache-inspector-filter-type-option${
+							typeFilter === option.value ? ' is-active' : ''
+						}`}
+						onClick={() => onTypeFilter(option.value)}
+					>
+						{option.label}
+					</button>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function PurgeConfirmDialog({
+	title,
+	message,
+	confirmLabel,
+	submitting,
+	onConfirm,
+	onClose,
+}) {
 	return (
 		<Modal
-			title="Purge all Smart Cache entries?"
+			title={title}
 			onRequestClose={() => (submitting ? null : onClose())}
-			className="wpgraphql-ide-dialog wpgraphql-ide-cache-inspector-purge-all-dialog"
+			className="wpgraphql-ide-dialog wpgraphql-ide-cache-inspector-purge-dialog"
 		>
-			<p className="wpgraphql-ide-dialog-message">
-				This will delete <strong>{count}</strong>{' '}
-				{count === 1 ? 'entry' : 'entries'}
-				{totalSize > 0 && (
-					<>
-						{' '}
-						(<strong>{formatBytes(totalSize)}</strong>)
-					</>
-				)}{' '}
-				from the WordPress object cache. The next request that matches
-				each query will re-populate the cache. This cannot be undone.
-			</p>
+			<p className="wpgraphql-ide-dialog-message">{message}</p>
 			<div className="wpgraphql-ide-dialog-actions">
 				<Button
 					variant="tertiary"
@@ -261,7 +465,7 @@ function PurgeAllDialog({ count, totalSize, submitting, onConfirm, onClose }) {
 					isBusy={submitting}
 					disabled={submitting}
 				>
-					{submitting ? 'Purging…' : 'Purge all'}
+					{submitting ? 'Purging…' : confirmLabel}
 				</Button>
 			</div>
 		</Modal>
@@ -280,18 +484,136 @@ function EmptyState() {
 	);
 }
 
-function EntriesTable({ entries, purging, onPurge }) {
+function FilterEmptyState({ onClearFilters }) {
+	return (
+		<div className="wpgraphql-ide-cache-inspector-empty">
+			<p>No entries match the current filters.</p>
+			<p className="wpgraphql-ide-cache-inspector-empty-hint">
+				<Button variant="link" onClick={onClearFilters}>
+					Clear filters
+				</Button>
+			</p>
+		</div>
+	);
+}
+
+function EntriesView({
+	entries,
+	purging,
+	selected,
+	setSelected,
+	onPurge,
+	search,
+	typeFilter,
+	sort,
+	onSort,
+	onClearFilters,
+	now,
+}) {
+	const filtered = useMemo(() => {
+		const q = search.trim().toLowerCase();
+		return entries.filter((e) => {
+			if (typeFilter !== 'all' && e.type !== typeFilter) {
+				return false;
+			}
+			if (q && !e.cacheKey.toLowerCase().includes(q)) {
+				return false;
+			}
+			return true;
+		});
+	}, [entries, search, typeFilter]);
+
+	const sorted = useMemo(() => sortEntries(filtered, sort), [filtered, sort]);
+
+	// Max size is computed from the *unfiltered* set so the bar lengths are
+	// stable while the user is searching/filtering — comparing rows to the
+	// global maximum is what makes "this is the bloated one" obvious.
+	const maxSize = useMemo(
+		() =>
+			entries.reduce(
+				(max, e) => (e.sizeBytes > max ? e.sizeBytes : max),
+				0
+			),
+		[entries]
+	);
+
+	const visibleKeys = useMemo(() => sorted.map((e) => e.cacheKey), [sorted]);
+	const allSelected =
+		visibleKeys.length > 0 && visibleKeys.every((k) => selected.has(k));
+	const someSelected =
+		!allSelected && visibleKeys.some((k) => selected.has(k));
+
+	const toggleSelectAll = useCallback(() => {
+		setSelected((sel) => {
+			const next = new Set(sel);
+			if (allSelected) {
+				visibleKeys.forEach((k) => next.delete(k));
+			} else {
+				visibleKeys.forEach((k) => next.add(k));
+			}
+			return next;
+		});
+	}, [allSelected, visibleKeys, setSelected]);
+
+	const toggleSelect = useCallback(
+		(cacheKey) => {
+			setSelected((sel) => {
+				const next = new Set(sel);
+				if (next.has(cacheKey)) {
+					next.delete(cacheKey);
+				} else {
+					next.add(cacheKey);
+				}
+				return next;
+			});
+		},
+		[setSelected]
+	);
+
+	if (sorted.length === 0) {
+		return <FilterEmptyState onClearFilters={onClearFilters} />;
+	}
+
 	return (
 		<table className="wpgraphql-ide-cache-inspector-table">
 			<thead>
 				<tr>
-					<th scope="col">Cache key</th>
-					<th scope="col" className="is-numeric">
-						Size
+					<th
+						scope="col"
+						className="wpgraphql-ide-cache-inspector-col-checkbox"
+					>
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							checked={allSelected}
+							indeterminate={someSelected}
+							onChange={toggleSelectAll}
+							aria-label={
+								allSelected
+									? 'Deselect all visible entries'
+									: 'Select all visible entries'
+							}
+						/>
 					</th>
-					<th scope="col" className="is-numeric">
-						Expires in
-					</th>
+					<SortableHeader
+						column="cacheKey"
+						label="Cache key"
+						sort={sort}
+						onSort={onSort}
+					/>
+					<SortableHeader
+						column="size"
+						label="Size"
+						className="is-numeric"
+						sort={sort}
+						onSort={onSort}
+					/>
+					<SortableHeader
+						column="expiresIn"
+						label="Expires in"
+						className="is-numeric"
+						sort={sort}
+						onSort={onSort}
+					/>
 					<th
 						scope="col"
 						className="is-actions"
@@ -300,12 +622,16 @@ function EntriesTable({ entries, purging, onPurge }) {
 				</tr>
 			</thead>
 			<tbody>
-				{entries.map((entry) => (
+				{sorted.map((entry) => (
 					<EntryRow
 						key={entry.cacheKey}
 						entry={entry}
 						isPurging={purging.has(entry.cacheKey)}
+						isSelected={selected.has(entry.cacheKey)}
+						onToggleSelect={toggleSelect}
 						onPurge={onPurge}
+						maxSize={maxSize}
+						now={now}
 					/>
 				))}
 			</tbody>
@@ -313,22 +639,115 @@ function EntriesTable({ entries, purging, onPurge }) {
 	);
 }
 
-function EntryRow({ entry, isPurging, onPurge }) {
+function SortableHeader({ column, label, className, sort, onSort }) {
+	const isSorted = sort.column === column;
+	const direction = isSorted ? sort.direction : null;
+	const ariaSort = sortStateToAria(isSorted, direction);
+
+	const handleClick = () => {
+		if (isSorted) {
+			onSort({
+				column,
+				direction: direction === 'asc' ? 'desc' : 'asc',
+			});
+			return;
+		}
+		// Numeric columns are most useful starting desc (biggest / soonest
+		// first); strings start asc.
+		onSort({
+			column,
+			direction: column === 'cacheKey' ? 'asc' : 'desc',
+		});
+	};
+
+	const indicator = sortIndicator(isSorted, direction);
+
 	return (
-		<tr>
-			<td>
-				<code
-					className="wpgraphql-ide-cache-inspector-key"
-					title={entry.cacheKey}
-				>
-					{truncateMiddle(entry.cacheKey, 20)}
-				</code>
+		<th scope="col" className={className} aria-sort={ariaSort}>
+			<button
+				type="button"
+				onClick={handleClick}
+				className="wpgraphql-ide-cache-inspector-sort"
+			>
+				<span>{label}</span>
+				<span className="wpgraphql-ide-cache-inspector-sort-indicator">
+					{indicator}
+				</span>
+			</button>
+		</th>
+	);
+}
+
+function sortStateToAria(isSorted, direction) {
+	if (!isSorted) {
+		return 'none';
+	}
+	return direction === 'asc' ? 'ascending' : 'descending';
+}
+
+function sortIndicator(isSorted, direction) {
+	if (!isSorted) {
+		return '';
+	}
+	return direction === 'asc' ? '↑' : '↓';
+}
+
+function EntryRow({
+	entry,
+	isPurging,
+	isSelected,
+	onToggleSelect,
+	onPurge,
+	maxSize,
+	now,
+}) {
+	const liveExpiresIn =
+		typeof entry.expiresAt === 'number'
+			? Math.max(0, entry.expiresAt - now)
+			: entry.expiresIn;
+	const sizePct = maxSize > 0 ? (entry.sizeBytes / maxSize) * 100 : 0;
+
+	return (
+		<tr className={isSelected ? 'is-selected' : undefined}>
+			<td className="wpgraphql-ide-cache-inspector-col-checkbox">
+				<CheckboxControl
+					__nextHasNoMarginBottom
+					checked={isSelected}
+					onChange={() => onToggleSelect(entry.cacheKey)}
+					aria-label={`Select ${entry.cacheKey}`}
+				/>
 			</td>
-			<td className="is-numeric">{formatBytes(entry.sizeBytes)}</td>
+			<td>
+				<div className="wpgraphql-ide-cache-inspector-key-cell">
+					<TypeBadge type={entry.type} />
+					<code
+						className="wpgraphql-ide-cache-inspector-key"
+						title={entry.cacheKey}
+					>
+						{truncateMiddle(entry.cacheKey, 20)}
+					</code>
+				</div>
+			</td>
 			<td className="is-numeric">
-				{entry.expiresIn === null
-					? '—'
-					: formatDuration(entry.expiresIn)}
+				<div className="wpgraphql-ide-cache-inspector-size-cell">
+					<span>{formatBytes(entry.sizeBytes)}</span>
+					<div
+						className="wpgraphql-ide-cache-inspector-size-bar"
+						role="progressbar"
+						aria-valuenow={Math.round(sizePct)}
+						aria-valuemin={0}
+						aria-valuemax={100}
+						aria-label={`Size: ${sizePct.toFixed(1)}% of largest entry`}
+					>
+						<span
+							className="wpgraphql-ide-cache-inspector-size-bar-fill"
+							style={{ width: `${sizePct}%` }}
+						/>
+					</div>
+				</div>
+			</td>
+			<td className="is-numeric">
+				<ExpiresInCell value={liveExpiresIn} />
 			</td>
 			<td className="is-actions">
 				<Button
@@ -344,6 +763,60 @@ function EntryRow({ entry, isPurging, onPurge }) {
 			</td>
 		</tr>
 	);
+}
+
+function ExpiresInCell({ value }) {
+	if (value === null) {
+		return '—';
+	}
+	if (value === 0) {
+		return (
+			<span className="wpgraphql-ide-cache-inspector-expired">
+				Expired
+			</span>
+		);
+	}
+	return formatDuration(value);
+}
+
+function TypeBadge({ type }) {
+	const label = type === 'response' ? 'Response' : 'Tracker';
+	return (
+		<span
+			className={`wpgraphql-ide-cache-inspector-type wpgraphql-ide-cache-inspector-type--${type}`}
+		>
+			{label}
+		</span>
+	);
+}
+
+function sortEntries(entries, { column, direction }) {
+	const dir = direction === 'asc' ? 1 : -1;
+	const compare = (a, b) => {
+		if (column === 'cacheKey') {
+			return a.cacheKey.localeCompare(b.cacheKey) * dir;
+		}
+		if (column === 'expiresIn') {
+			// Null expirations sort to the end regardless of direction —
+			// they represent "no countdown known" and shouldn't intrude on
+			// either the soonest- or the latest-expiring view.
+			const aNull = a.expiresIn === null;
+			const bNull = b.expiresIn === null;
+			if (aNull && bNull) {
+				return 0;
+			}
+			if (aNull) {
+				return 1;
+			}
+			if (bNull) {
+				return -1;
+			}
+			return (a.expiresIn - b.expiresIn) * dir;
+		}
+		// Default: numeric `size`.
+		return (a.sizeBytes - b.sizeBytes) * dir;
+	};
+	return entries.slice().sort(compare);
 }
 
 function truncateMiddle(str, maxLen) {

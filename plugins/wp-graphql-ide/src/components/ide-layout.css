@@ -1474,6 +1474,22 @@ input.wpgraphql-ide-tab-input:focus {
 	color: #fff;
 }
 
+/* Two-line snackbar content (the easter-egg milestone format: comical
+   quip, then an actionable "Tip: …"). The default snackbar lays its
+   content out inline; we promote both halves to block-level so the
+   tip drops to its own line with a comfortable gap. Bumping the
+   max-width gives long tips room to breathe instead of wrapping to a
+   third line. */
+.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip-quip,
+.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip {
+	display: block;
+}
+
+.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip {
+	margin-top: 6px;
+	opacity: 0.85;
+}
+
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
 	/* 40×40 circle — primary CTA. Same height as the secondary
@@ -5243,4 +5259,257 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	background: rgba(0, 0, 0, 0.04);
 	padding: 1px 6px;
 	border-radius: 3px;
+}
+
+/* Cache Inspector — design pass additions: stat strip, filter bar,
+   sortable headers, inline size bars, type badges, bulk select. */
+.wpgraphql-ide-cache-inspector-stat-strip {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-cache-inspector-stat-primary {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.wpgraphql-ide-cache-inspector-stat-strip.is-selection
+	.wpgraphql-ide-cache-inspector-stat-primary {
+	flex-direction: row;
+	align-items: center;
+	gap: 12px;
+}
+
+.wpgraphql-ide-cache-inspector-stat-value {
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.1;
+	font-variant-numeric: tabular-nums;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-stat-label {
+	font-size: 12px;
+	line-height: 1.3;
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-top: 2px;
+}
+
+.wpgraphql-ide-cache-inspector-stat-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+/* Filter bar — SearchControl on the left, type toggle group on the
+   right. Stacks below the stat strip with breathing room. */
+.wpgraphql-ide-cache-inspector-filters {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-cache-inspector-filter-search {
+	flex: 1 1 240px;
+	min-width: 180px;
+}
+
+.wpgraphql-ide-cache-inspector-filter-type {
+	flex: 0 0 auto;
+	min-width: 280px;
+}
+
+/* Sortable column headers — mirror the ResponseTableView pattern but
+   scoped to the cache inspector so the two surfaces stay decoupled. */
+.wpgraphql-ide-cache-inspector-sort {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	font: inherit;
+	color: inherit;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 600;
+}
+
+.wpgraphql-ide-cache-inspector-table th.is-numeric
+	.wpgraphql-ide-cache-inspector-sort {
+	flex-direction: row-reverse; /* indicator on the left of the label when right-aligned */
+}
+
+.wpgraphql-ide-cache-inspector-sort:hover,
+.wpgraphql-ide-cache-inspector-sort:focus-visible {
+	color: var(
+		--wp-admin-theme-color,
+		var(--wp-components-color-accent, #2271b1)
+	);
+}
+
+.wpgraphql-ide-cache-inspector-sort-indicator {
+	font-size: 11px;
+	min-width: 8px;
+	display: inline-block;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-table th[aria-sort='ascending']
+	.wpgraphql-ide-cache-inspector-sort-indicator,
+.wpgraphql-ide-cache-inspector-table th[aria-sort='descending']
+	.wpgraphql-ide-cache-inspector-sort-indicator {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+/* Row hover + selection + tabular numerics. */
+.wpgraphql-ide-cache-inspector-table tbody tr:hover {
+	background: #f6f7f7;
+}
+
+.wpgraphql-ide-cache-inspector-table tbody tr.is-selected {
+	background: rgba(56, 88, 233, 0.06);
+}
+
+.wpgraphql-ide-cache-inspector-table td.is-numeric {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Cache key cell: type badge + truncated key, aligned on a single
+   baseline. */
+.wpgraphql-ide-cache-inspector-key-cell {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wpgraphql-ide-cache-inspector-type {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 1px 6px;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-cache-inspector-type--response {
+	color: var(--wp-admin-theme-color, #3858e9);
+	border: 1px solid currentColor;
+	background: transparent;
+}
+
+.wpgraphql-ide-cache-inspector-type--tracker {
+	color: var(--wp-components-color-gray-700, #50575e);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+}
+
+/* Size cell with inline progress bar showing % of the largest entry —
+   the headline visualization for spotting overstuffing at a glance. */
+.wpgraphql-ide-cache-inspector-size-cell {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+}
+
+/* Custom div-based bar (replaces native <progress>) so the value
+   pseudo can take a `min-width` and tiny entries register visually
+   instead of vanishing. The inner fill is positioned by inline
+   `width: N%` style; min-width keeps it visible even at sub-1%. */
+.wpgraphql-ide-cache-inspector-size-bar {
+	position: relative;
+	width: 80px;
+	height: 4px;
+	border-radius: 2px;
+	overflow: hidden;
+	background: var(--wp-components-color-gray-300, #c3c4c7);
+	display: block;
+}
+
+.wpgraphql-ide-cache-inspector-size-bar-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	min-width: 2px;
+	border-radius: 2px;
+	background: var(
+		--wp-admin-theme-color,
+		var(--wp-components-color-accent, #3858e9)
+	);
+}
+
+/* "Expired" label — replaces "0s" for stale entries so the state is
+   discoverable at a glance instead of looking like a live countdown. */
+.wpgraphql-ide-cache-inspector-expired {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-style: italic;
+}
+
+/* Bulk-select checkbox column — narrow, vertically centered, no
+   left-padding so the checkbox aligns with the table edge. */
+.wpgraphql-ide-cache-inspector-table th.wpgraphql-ide-cache-inspector-col-checkbox,
+.wpgraphql-ide-cache-inspector-table td.wpgraphql-ide-cache-inspector-col-checkbox {
+	width: 32px;
+	padding-right: 0;
+}
+
+.wpgraphql-ide-cache-inspector-col-checkbox .components-checkbox-control {
+	margin: 0;
+}
+
+/* Type filter — three-button segmented control (replacement for the
+   unavailable __experimentalToggleGroupControl). Behaves like a radio
+   group: one button active at a time, theme-color active state. */
+.wpgraphql-ide-cache-inspector-filter-type {
+	display: inline-flex;
+	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-cache-inspector-filter-type-option {
+	background: transparent;
+	border: 0;
+	padding: 6px 12px;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--wp-components-color-gray-700, #50575e);
+	cursor: pointer;
+	border-right: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	line-height: 1;
+}
+
+.wpgraphql-ide-cache-inspector-filter-type-option:last-child {
+	border-right: 0;
+}
+
+.wpgraphql-ide-cache-inspector-filter-type-option:hover {
+	background: rgba(0, 0, 0, 0.04);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-filter-type-option.is-active {
+	background: var(
+		--wp-admin-theme-color,
+		var(--wp-components-color-accent, #3858e9)
+	);
+	color: #fff;
+}
+
+.wpgraphql-ide-cache-inspector-filter-type-option:focus-visible {
+	outline: 2px solid
+		var(--wp-admin-theme-color, var(--wp-components-color-accent, #3858e9));
+	outline-offset: -2px;
 }
