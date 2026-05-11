@@ -208,6 +208,24 @@ export function SettingsField({ field, value, onChange }) {
 				</div>
 			);
 
+		case 'custom':
+			// `custom`-type fields aren't inputs — they're inline section
+			// dividers/notices whose markup the PHP side captured by
+			// invoking the registered callback under output buffering.
+			// Render the sanitized HTML straight through so the IDE
+			// shows the same sub-section headings as the classic
+			// wp-admin settings screen (Smart Cache uses these to break
+			// the Cache tab into Network / Object / Debugging groups).
+			if (!field.html) {
+				return null;
+			}
+			return (
+				<div
+					className="wpgraphql-ide-setting wpgraphql-ide-setting--divider"
+					dangerouslySetInnerHTML={{ __html: field.html }}
+				/>
+			);
+
 		case 'color':
 		case 'user_role_select':
 			return (

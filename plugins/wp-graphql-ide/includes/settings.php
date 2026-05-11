@@ -305,6 +305,40 @@ function localize_settings_data( array $data ): array {
 			$default          = $field['default'] ?? '';
 			$current_override = $field['value'] ?? null;
 
+			// `type=custom` fields aren't editable values — they're
+			// section dividers / inline notices that hand-render HTML
+			// via a callback (smart-cache uses these for the
+			// Network/Object/Debugging sub-headings under Cache).
+			// Capture the callback output here so the IDE can render
+			// the same divider; without this, the React field switch
+			// has no value-bearing input to map to and falls back to
+			// an empty text box.
+			if ( 'custom' === $type ) {
+				$html = '';
+				if ( isset( $field['callback'] ) && is_callable( $field['callback'] ) ) {
+					ob_start();
+					call_user_func( $field['callback'], $field );
+					$html = (string) ob_get_clean();
+				}
+
+				$fields[] = [
+					'name'    => $name,
+					'type'    => 'custom',
+					'label'   => isset( $field['label'] ) ? (string) $field['label'] : '',
+					'desc'    => isset( $field['desc'] ) ? wp_kses_post( (string) $field['desc'] ) : '',
+					// `wp_kses_post` is the same sanitizer
+					// `post_content` flows through, so the allowed tag
+					// set (h2, p, hr, strong, code, a…) covers every
+					// divider the in-tree callbacks produce while
+					// blocking arbitrary script-bearing markup from
+					// third-party callbacks.
+					'html'    => wp_kses_post( $html ),
+					'default' => '',
+					'value'   => null,
+				];
+				continue;
+			}
+
 			// Mirror the precedence used by get_graphql_setting().
 			if ( null !== $current_override ) {
 				$current = $current_override;

@@ -4915,6 +4915,51 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	gap: 4px;
 }
 
+/* `custom`-typed fields are sub-section dividers — Smart Cache uses
+   three of them on the Cache tab (Network / Object / Debugging). The
+   PHP side runs the registered callback under output buffering and
+   ships the sanitized HTML; we render it as a flush-left heading +
+   intro paragraph block, with a subtle top rule that mirrors the `<hr>`
+   the in-tree callbacks already emit for the second-and-later
+   dividers. */
+.wpgraphql-ide-setting--divider {
+	margin-top: 8px;
+	padding-top: 16px;
+	border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+}
+
+/* First divider in a section doesn't need a top rule — the pane header
+   already separates it from the section title. */
+.wpgraphql-ide-settings-field:first-child .wpgraphql-ide-setting--divider {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.wpgraphql-ide-setting--divider h2 {
+	margin: 0 0 6px 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-setting--divider p {
+	margin: 0 0 6px 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-setting--divider p:last-child {
+	margin-bottom: 0;
+}
+
+/* `<hr>` inside the captured HTML is redundant with the divider's own
+   top rule. Hide it so we don't get a double line. */
+.wpgraphql-ide-setting--divider hr {
+	display: none;
+}
+
 /* Individual field controls */
 .wpgraphql-ide-setting {
 	display: flex;
