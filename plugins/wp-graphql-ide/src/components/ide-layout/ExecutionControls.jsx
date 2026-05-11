@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Button,
 	Dropdown,
@@ -12,6 +12,7 @@ import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../../wordpress-hooks';
 import { tipify } from '../../utils/tipify';
+import { SignInPromptDialog } from '../dialogs/SignInPromptDialog';
 
 // Play-button easter eggs: count rapid presses (< 1.5s apart) and fire a
 // milestone snackbar via `wpgraphql-ide.notice`. One stable id so the
@@ -152,8 +153,36 @@ export function ExecutionControls({
 	isFetching,
 	isSchemaLoading,
 	onExecute,
-	canSwitchAuth = true,
+	signInUrl,
+	showAuthControl = true,
 }) {
+	// `signInUrl` set means the visitor is anonymous on the public-endpoint
+	// render: WordPress has no current user, so there is no auth to toggle.
+	// Clicking the avatar opens a confirm modal that explains the handoff
+	// before navigating to wp_login — gentler than yanking them out of the
+	// IDE on the first click.
+	const isSignInMode = !!signInUrl;
+	const isPublicMode = isSignInMode || !isAuthenticated;
+	const [signInPromptOpen, setSignInPromptOpen] = useState(false);
+
+	let authTooltip;
+	let authAriaLabel;
+	if (isSignInMode) {
+		authTooltip =
+			'Sending as public visitor — sign in for authenticated requests';
+		authAriaLabel =
+			'Sending as public visitor (sign in to send authenticated requests)';
+	} else if (isAuthenticated) {
+		authTooltip =
+			'Sending as authenticated user — click to send anonymously';
+		authAriaLabel =
+			'Send as authenticated user (click to switch to public)';
+	} else {
+		authTooltip = 'Sending as public visitor — click to authenticate';
+		authAriaLabel =
+			'Send as public visitor (click to switch to authenticated)';
+	}
+
 	const showOpPicker = !isFetching && operationNames.length > 1;
 
 	const playCountRef = useRef(0);
@@ -174,6 +203,10 @@ export function ExecutionControls({
 					{
 						id: EMPTY_QUERY_NOTICE_ID,
 						content: quip.content,
+						// Snackbar auto-dismisses after ~10s; the user needs
+						// time to read the quip, parse the offered snippet,
+						// and click Insert. Sticky until ✕.
+						explicitDismiss: true,
 						actions: [
 							{
 								label: 'Insert',
@@ -245,24 +278,18 @@ export function ExecutionControls({
 					/>
 				)}
 			/>
-			{canSwitchAuth && (
-				<Tooltip
-					text={
-						isAuthenticated
-							? 'Sending as authenticated user — click to send anonymously'
-							: 'Sending as public visitor — click to authenticate'
-					}
-				>
+			{showAuthControl && (
+				<Tooltip text={authTooltip}>
 					{/* No `aria-pressed`: @wordpress/components/Button paints
 					    a pressed-state black fill from it, which fights the
 					    badge/grayscale we use to convey state. */}
 					<Button
-						onClick={onToggleAuth}
-						className={`wpgraphql-ide-auth-avatar ${!isAuthenticated ? authStyles.authAvatarPublic : ''}`}
-						aria-label={
-							isAuthenticated
-								? 'Send as authenticated user (click to switch to public)'
-								: 'Send as public visitor (click to switch to authenticated)'
+						className={`wpgraphql-ide-auth-avatar ${isPublicMode ? authStyles.authAvatarPublic : ''}`}
+						aria-label={authAriaLabel}
+						onClick={
+							isSignInMode
+								? () => setSignInPromptOpen(true)
+								: onToggleAuth
 						}
 					>
 						<span
@@ -271,10 +298,18 @@ export function ExecutionControls({
 								backgroundImage: `url(${avatarUrl || ''})`,
 							}}
 						>
-							<span className={authStyles.authBadge} />
+							{!isSignInMode && (
+								<span className={authStyles.authBadge} />
+							)}
 						</span>
 					</Button>
 				</Tooltip>
+			)}
+			{showAuthControl && signInPromptOpen && (
+				<SignInPromptDialog
+					signInUrl={signInUrl}
+					onClose={() => setSignInPromptOpen(false)}
+				/>
 			)}
 			<span
 				className="wpgraphql-ide-execution-pill-divider"

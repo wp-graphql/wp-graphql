@@ -23,9 +23,10 @@
 
 namespace WPGraphQLIDE;
 
-const SETTINGS_SECTION = 'graphql_ide_settings';
-const SETTING_NAME     = 'graphql_ide_public_endpoint';
-const BODY_CLASS       = 'wpgraphql-ide-public-endpoint';
+const SETTINGS_SECTION       = 'graphql_ide_settings';
+const SETTING_NAME           = 'graphql_ide_public_endpoint';
+const SETTING_ALLOW_SIGN_IN  = 'graphql_ide_public_endpoint_allow_sign_in';
+const BODY_CLASS             = 'wpgraphql-ide-public-endpoint';
 
 /**
  * Whether a `graphql_ide_settings` checkbox is checked.
@@ -55,6 +56,21 @@ function public_endpoint_is_enabled(): bool {
 	static $enabled = null;
 	if ( null === $enabled ) {
 		$enabled = ide_setting_is_on( SETTING_NAME );
+	}
+	return $enabled;
+}
+
+/**
+ * Whether the public-endpoint IDE invites visitors to sign in to unlock
+ * authenticated features (auth-toggle handoff, Saved Queries panel,
+ * History panel). Default off: a site owner who exposes a read-only
+ * schema browser at `/?graphql` doesn't necessarily want to advertise a
+ * login surface to anonymous traffic — they opt in deliberately.
+ */
+function public_endpoint_allow_sign_in(): bool {
+	static $enabled = null;
+	if ( null === $enabled ) {
+		$enabled = ide_setting_is_on( SETTING_ALLOW_SIGN_IN );
 	}
 	return $enabled;
 }
@@ -215,9 +231,17 @@ function render_public_ide_shell(): void {
  */
 function inject_public_endpoint_data( array $data ): array {
 	$data['renderStandalone'] = true;
-	$data['endpointMode']     = true;
-	$data['isUserLoggedIn']   = is_user_logged_in();
-	if ( ! is_user_logged_in() ) {
+	// `endpointMode` means *trimmed* (no Save / Document Settings / Share /
+	// topbar actions / persistent docs + history). Capable visitors at this
+	// URL get the full IDE — same surface as the dedicated admin page — so
+	// only flip the flag on for visitors who can't manage IDE assets anyway.
+	$data['endpointMode']        = ! current_user_can( 'manage_graphql_ide' );
+	$data['isUserLoggedIn']      = is_user_logged_in();
+	// Gates the sign-in handoff on the endpoint IDE. When off, the auth
+	// avatar acts as a static public-state indicator and the Saved Queries
+	// / History panels are hidden from anonymous visitors entirely.
+	$data['allowEndpointSignIn'] = public_endpoint_allow_sign_in();
+	if ( ! is_user_logged_in() && public_endpoint_allow_sign_in() ) {
 		$data['loginUrl'] = wp_login_url( current_request_url() );
 	}
 	return $data;
@@ -251,6 +275,20 @@ function register_public_endpoint_setting(): void {
 			'label'   => __( 'Public IDE at GraphQL endpoint', 'wpgraphql-ide' ),
 			'desc'    => __(
 				'When enabled, visiting the GraphQL endpoint URL in a browser renders the IDE in read-only "endpoint" mode (no save, no saved queries, no history, no document settings). Anonymous visitors see only what your public schema exposes; logged-in users get authenticated access via their session. Requires public introspection to be enabled in WPGraphQL settings — without it, the Docs Explorer will be empty for anonymous visitors. Consider rate-limiting at the web-server / CDN layer before enabling on a public site.',
+				'wpgraphql-ide'
+			),
+			'type'    => 'checkbox',
+			'default' => false,
+		]
+	);
+
+	register_graphql_settings_field(
+		SETTINGS_SECTION,
+		[
+			'name'    => SETTING_ALLOW_SIGN_IN,
+			'label'   => __( 'Allow sign-in on the public IDE', 'wpgraphql-ide' ),
+			'desc'    => __(
+				'When enabled, anonymous visitors at the public IDE can follow a sign-in prompt to unlock authenticated requests, saved queries, and history. Off by default so the public endpoint stays a strictly read-only schema browser unless you explicitly invite users to log in.',
 				'wpgraphql-ide'
 			),
 			'type'    => 'checkbox',

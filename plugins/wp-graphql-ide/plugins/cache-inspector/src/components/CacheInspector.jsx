@@ -6,6 +6,7 @@ import {
 	Notice,
 	SearchControl,
 	Spinner,
+	TabPanel,
 } from '@wordpress/components';
 import { Icon, update, trash } from '@wordpress/icons';
 
@@ -225,6 +226,10 @@ export function CacheInspector() {
 	const allEntries = data.entries || [];
 	const totalCount = data.count || 0;
 	const totalSize = data.totalSize || 0;
+	const responseCount = allEntries.filter(
+		(e) => e.type === 'response'
+	).length;
+	const trackerCount = allEntries.filter((e) => e.type === 'tracker').length;
 
 	return (
 		<div className="wpgraphql-ide-cache-inspector">
@@ -243,6 +248,9 @@ export function CacheInspector() {
 				onSearch={setSearch}
 				typeFilter={typeFilter}
 				onTypeFilter={setTypeFilter}
+				allCount={allEntries.length}
+				responseCount={responseCount}
+				trackerCount={trackerCount}
 			/>
 
 			{data.truncated && (
@@ -393,13 +401,15 @@ function StatStrip({
 	);
 }
 
-const TYPE_FILTERS = [
-	{ value: 'all', label: 'All' },
-	{ value: 'response', label: 'Responses' },
-	{ value: 'tracker', label: 'Trackers' },
-];
-
-function FilterBar({ search, onSearch, typeFilter, onTypeFilter }) {
+function FilterBar({
+	search,
+	onSearch,
+	typeFilter,
+	onTypeFilter,
+	allCount,
+	responseCount,
+	trackerCount,
+}) {
 	return (
 		<div className="wpgraphql-ide-cache-inspector-filters">
 			<div className="wpgraphql-ide-cache-inspector-filter-search">
@@ -411,26 +421,26 @@ function FilterBar({ search, onSearch, typeFilter, onTypeFilter }) {
 					size="compact"
 				/>
 			</div>
-			<div
-				className="wpgraphql-ide-cache-inspector-filter-type"
-				role="radiogroup"
-				aria-label="Entry type filter"
+			{/* Mirrors the Documents-panel filter tabs (`SavedQueriesPanel`).
+			    Underlined active indicator + counts in the title — the WP
+			    Core / Gutenberg native pattern for "filter by category with
+			    counts". The empty render-prop child is intentional: tabs
+			    here drive a sibling list, not their own content panel. */}
+			<TabPanel
+				className="wpgraphql-ide-cache-inspector-filter"
+				tabs={[
+					{ name: 'all', title: `All (${allCount})` },
+					{
+						name: 'response',
+						title: `Responses (${responseCount})`,
+					},
+					{ name: 'tracker', title: `Trackers (${trackerCount})` },
+				]}
+				initialTabName={typeFilter}
+				onSelect={onTypeFilter}
 			>
-				{TYPE_FILTERS.map((option) => (
-					<button
-						key={option.value}
-						type="button"
-						role="radio"
-						aria-checked={typeFilter === option.value}
-						className={`wpgraphql-ide-cache-inspector-filter-type-option${
-							typeFilter === option.value ? ' is-active' : ''
-						}`}
-						onClick={() => onTypeFilter(option.value)}
-					>
-						{option.label}
-					</button>
-				))}
-			</div>
+				{() => null}
+			</TabPanel>
 		</div>
 	);
 }

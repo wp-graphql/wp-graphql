@@ -13,7 +13,6 @@ import { Icon, close, edit, sidebar } from '@wordpress/icons';
  * @param {Function}    props.onSidebarToggle - Click handler for the sidebar toggle.
  * @param {Array}       props.topbarActions   - Topbar action descriptors (built-ins + extensions).
  * @param {Object}      props.topbarCtx       - Context passed to action callables (refetchSchema, isSchemaLoading, etc.).
- * @param {string}      [props.signInUrl]     - When set, renders a "Sign in" link at the right of the topbar (used by the public-endpoint render for anonymous visitors).
  * @param {Function}    [props.onClose]       - Close handler for drawer mode (omitted on the dedicated page).
  */
 export function IDETopbar({
@@ -21,7 +20,6 @@ export function IDETopbar({
 	onSidebarToggle,
 	topbarActions,
 	topbarCtx,
-	signInUrl,
 	onClose,
 }) {
 	return (
@@ -84,21 +82,6 @@ export function IDETopbar({
 						</Tooltip>
 					);
 				})}
-				{signInUrl && (
-					<>
-						<div className="wpgraphql-ide-topbar-sep" />
-						<Tooltip text="Sign in to your WordPress account for the full IDE">
-							<Button
-								variant="primary"
-								size="compact"
-								href={signInUrl}
-								className="wpgraphql-ide-topbar-signin"
-							>
-								Sign in
-							</Button>
-						</Tooltip>
-					</>
-				)}
 				{onClose && (
 					<>
 						<div className="wpgraphql-ide-topbar-sep" />

@@ -430,44 +430,88 @@ function formatDuration(seconds) {
 	return rm ? `${h}h ${rm}m` : `${h}h`;
 }
 
+/**
+ * Bucket each X-GraphQL-Keys entry by its prefix. The categories are
+ * how Smart Cache (and downstream CDN) addresses tags for invalidation:
+ *
+ *   - Query ID (64-char hex) — the X-GraphQL-Query-ID header value;
+ *     a hash of the normalized query document, identifies the query
+ *     *shape* regardless of variables/auth. **Not** the same as the
+ *     Smart Cache transient key shown in the top "Cache key" section
+ *     (that one hashes query + variables + operation + user_id).
+ *   - Root types (`graphql:*`) — schema root type tags
+ *   - Operations (`operation:*`) — the named operation that produced this response
+ *   - List types (`list:*`) — the list/connection types touched
+ *   - Nodes — everything else, almost always base64 Relay IDs
+ *
+ * Falls back to `purgeMap.nodes` / `purgeMap.lists` (the legacy
+ * structured fields) when `purgeMap.keys` isn't populated — keeps
+ * older cached entries rendering correctly until they refresh.
+ *
+ * @param {Array<string>} keys X-GraphQL-Keys entries to bucket.
+ *
+ * @return {{ queryId: Array, root: Array, operations: Array, lists: Array, nodes: Array }} Keys grouped by category.
+ */
+function categorizeKeys(keys) {
+	const cats = {
+		queryId: [],
+		root: [],
+		operations: [],
+		lists: [],
+		nodes: [],
+	};
+	for (const k of keys) {
+		if (/^[a-f0-9]{64}$/.test(k)) {
+			cats.queryId.push(k);
+		} else if (k.startsWith('list:')) {
+			cats.lists.push(k);
+		} else if (k.startsWith('operation:')) {
+			cats.operations.push(k);
+		} else if (k.startsWith('graphql:')) {
+			cats.root.push(k);
+		} else {
+			cats.nodes.push(k);
+		}
+	}
+	return cats;
+}
+
 function PurgeMapSection({ diagnostics, defaultOpen }) {
 	const purgeMap = diagnostics?.purgeMap;
 	if (!purgeMap) {
 		return null;
 	}
 
-	const nodes = Array.isArray(purgeMap.nodes) ? purgeMap.nodes : [];
-	const lists = Array.isArray(purgeMap.lists) ? purgeMap.lists : [];
-	const queryTypes = Array.isArray(purgeMap.queryTypes)
-		? purgeMap.queryTypes
-		: [];
-	const total = nodes.length + lists.length + queryTypes.length;
-	const keysCount =
-		typeof purgeMap.keysCount === 'number' ? purgeMap.keysCount : null;
-	const keysLength =
-		typeof purgeMap.keysLength === 'number' ? purgeMap.keysLength : null;
+	const keys = Array.isArray(purgeMap.keys) ? purgeMap.keys : [];
+	const cats = categorizeKeys(keys);
+	// Back-compat: if the response was cached before `keys` started
+	// flowing through, fall back to the legacy structured fields.
+	if (keys.length === 0) {
+		cats.lists = Array.isArray(purgeMap.lists) ? purgeMap.lists : [];
+		cats.nodes = Array.isArray(purgeMap.nodes) ? purgeMap.nodes : [];
+	}
+	const total =
+		cats.queryId.length +
+		cats.root.length +
+		cats.operations.length +
+		cats.lists.length +
+		cats.nodes.length;
 
-	const summaryParts = [];
-	if (nodes.length > 0) {
-		summaryParts.push(
-			`${nodes.length} node${nodes.length === 1 ? '' : 's'}`
-		);
-	}
-	if (lists.length > 0) {
-		summaryParts.push(
-			`${lists.length} list type${lists.length === 1 ? '' : 's'}`
-		);
-	}
-	if (queryTypes.length > 0) {
-		summaryParts.push(
-			`${queryTypes.length} root type${queryTypes.length === 1 ? '' : 's'}`
-		);
-	}
+	const groups = [
+		{ key: 'queryId', label: 'Query ID', items: cats.queryId },
+		{ key: 'root', label: 'Root types', items: cats.root },
+		{ key: 'operations', label: 'Operations', items: cats.operations },
+		{ key: 'lists', label: 'List types', items: cats.lists },
+		{ key: 'nodes', label: 'Nodes', items: cats.nodes },
+	];
+
 	const aside =
 		total === 0 ? (
 			<span>untracked</span>
 		) : (
-			<span>{summaryParts.join(', ')}</span>
+			<span>
+				{total} {total === 1 ? 'tag' : 'tags'}
+			</span>
 		);
 
 	return (
@@ -479,78 +523,37 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 		>
 			{total === 0 ? (
 				<div className="wpgraphql-ide-smart-cache-purge-map-empty">
-					No tracked nodes or list types — Query Analyzer didn&apos;t
-					match this query to invalidatable resources, so it
-					won&apos;t be auto-purged on data changes.
+					No tags emitted — Query Analyzer didn&apos;t match this
+					query to invalidatable resources, so it won&apos;t be
+					auto-purged on data changes.
 				</div>
 			) : (
 				<>
 					<div className="wpgraphql-ide-smart-cache-purge-map-explainer">
-						Smart Cache will invalidate this entry when any of these
-						change:
+						Tags emitted on this response. Smart Cache invalidates
+						this entry when any matching list type or node changes;
+						downstream caches (CDN, proxy) can purge by any of these
+						tags.
 					</div>
-					{queryTypes.length > 0 && (
-						<div className="wpgraphql-ide-smart-cache-purge-map-group">
-							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
-								Root types ({queryTypes.length})
+					{groups
+						.filter((g) => g.items.length > 0)
+						.map((g) => (
+							<div
+								key={g.key}
+								className="wpgraphql-ide-smart-cache-purge-map-group"
+							>
+								<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+									{g.label} ({g.items.length})
+								</div>
+								<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+									{g.items.map((item) => (
+										<li key={`${g.key}:${item}`}>
+											<code>{item}</code>
+										</li>
+									))}
+								</ul>
 							</div>
-							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
-								{queryTypes.map((name) => (
-									<li key={`root:${name}`}>
-										<code>{name}</code>
-									</li>
-								))}
-							</ul>
-						</div>
-					)}
-					{lists.length > 0 && (
-						<div className="wpgraphql-ide-smart-cache-purge-map-group">
-							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
-								List types ({lists.length})
-							</div>
-							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
-								{lists.map((name) => (
-									<li key={`list:${name}`}>
-										<code>{name}</code>
-									</li>
-								))}
-							</ul>
-						</div>
-					)}
-					{nodes.length > 0 && (
-						<div className="wpgraphql-ide-smart-cache-purge-map-group">
-							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
-								Nodes ({nodes.length})
-							</div>
-							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
-								{nodes.map((id) => (
-									<li key={`node:${id}`}>
-										<code>{id}</code>
-									</li>
-								))}
-							</ul>
-						</div>
-					)}
-					{(keysCount !== null || keysLength !== null) && (
-						<div className="wpgraphql-ide-smart-cache-purge-map-meta">
-							{keysCount !== null && (
-								<span>
-									<strong>{keysCount}</strong>{' '}
-									{keysCount === 1 ? 'key' : 'keys'}
-								</span>
-							)}
-							{keysCount !== null && keysLength !== null && (
-								<span aria-hidden="true"> · </span>
-							)}
-							{keysLength !== null && (
-								<span>
-									<strong>{keysLength}</strong>{' '}
-									{keysLength === 1 ? 'char' : 'chars'} in
-									X-GraphQL-Keys
-								</span>
-							)}
-						</div>
-					)}
+						))}
 				</>
 			)}
 		</DetailsSection>

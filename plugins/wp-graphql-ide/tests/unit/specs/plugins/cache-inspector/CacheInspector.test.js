@@ -393,7 +393,7 @@ describe('CacheInspector', () => {
 		expect(screen.getByText('Tracker')).toBeInTheDocument();
 	});
 
-	it('filters by entry type when a Trackers / Responses toggle is selected', async () => {
+	it('filters by entry type when the Trackers tab is selected', async () => {
 		global.fetch = mockFetch([
 			[
 				{ method: 'GET', path: '/entries' },
@@ -422,10 +422,19 @@ describe('CacheInspector', () => {
 			expect(screen.getByRole('table')).toBeInTheDocument()
 		);
 
-		// Two rows visible by default.
+		// Two rows visible by default; tabs include their unfiltered counts.
 		expect(screen.getAllByRole('row')).toHaveLength(3); // header + 2
+		expect(
+			screen.getByRole('tab', { name: /All \(2\)/ })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole('tab', { name: /Responses \(1\)/ })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole('tab', { name: /Trackers \(1\)/ })
+		).toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole('radio', { name: /Trackers/i }));
+		fireEvent.click(screen.getByRole('tab', { name: /Trackers/i }));
 		await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2)); // header + 1
 		expect(screen.queryByText('Response')).toBeNull();
 	});

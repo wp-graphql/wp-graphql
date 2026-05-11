@@ -273,8 +273,15 @@ class AssetEnqueue {
 	public static function app_context(): array {
 		$current_user = wp_get_current_user();
 
-		// Get the avatar URL for the current user. Returns an empty string if no user is logged in.
-		$avatar_url = $current_user->exists() ? ( get_avatar_url( $current_user->ID ) ?: '' ) : '';
+		// Avatar URL for the auth-toggle in the execution pill. Logged-in
+		// users get their gravatar; anonymous visitors get the site's
+		// default avatar (Settings → Discussion → Default Avatar — the
+		// classic "Mystery Person" silhouette unless overridden). This
+		// keeps the pill avatar consistent across logged-in / logged-out
+		// states; the public-mode state is conveyed by grayscale + the
+		// missing online-badge in the JS, not by a different glyph.
+		$avatar_user_id = $current_user->exists() ? $current_user->ID : 0;
+		$avatar_url     = get_avatar_url( $avatar_user_id ) ?: '';
 
 		$app_context = [
 			'pluginVersion'     => self::plugin_header( 'Version' ),

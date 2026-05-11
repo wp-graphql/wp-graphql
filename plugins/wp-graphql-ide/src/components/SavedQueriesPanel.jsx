@@ -38,6 +38,8 @@ import {
 } from '../api/documents';
 import { displayDocTitle } from '../utils/derive-doc-title';
 import { isTempId } from '../utils/document-id';
+import { isUserLoggedIn } from '../bootstrap';
+import { InlineSignInPrompt } from './InlineSignInPrompt';
 
 /**
  * Hydrate the `collapsedSections` map from the bootstrap-localized
@@ -599,6 +601,12 @@ export function SavedQueriesPanel() {
 	const [exportOpen, setExportOpen] = useState(false);
 
 	useEffect(() => {
+		// Anonymous visitors can't load server-side collections — the REST
+		// route requires `manage_graphql_ide` and would 403. Skip the call
+		// so we don't spend a request on a guaranteed failure.
+		if (!isUserLoggedIn) {
+			return;
+		}
 		loadCollections();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -1107,259 +1115,295 @@ export function SavedQueriesPanel() {
 
 	return (
 		<div className="wpgraphql-ide-saved-queries-panel">
-			<div className="wpgraphql-ide-saved-queries-search">
-				<SearchControl
-					value={search}
-					onChange={setSearch}
-					placeholder="Search..."
-					__nextHasNoMarginBottom
-					size="compact"
-				/>
-				<input
-					ref={importInputRef}
-					type="file"
-					accept="application/json,.json"
-					onChange={handleImportFile}
-					style={{ display: 'none' }}
-				/>
-			</div>
+			{/* Search and filter tabs only make sense once there are
+			    server-side collections to filter against. Anonymous
+			    visitors see the InlineSignInPrompt in place of that
+			    list — and the Unsaved section, which is local-only,
+			    still renders below. */}
+			{isUserLoggedIn && (
+				<div className="wpgraphql-ide-saved-queries-search">
+					<SearchControl
+						value={search}
+						onChange={setSearch}
+						placeholder="Search..."
+						__nextHasNoMarginBottom
+						size="compact"
+					/>
+					<input
+						ref={importInputRef}
+						type="file"
+						accept="application/json,.json"
+						onChange={handleImportFile}
+						style={{ display: 'none' }}
+					/>
+				</div>
+			)}
 
-			<TabPanel
-				className="wpgraphql-ide-saved-queries-filter"
-				tabs={[
-					{ name: 'all', title: `All (${allCount})` },
-					{ name: 'sitewide', title: `Sitewide (${sitewideCount})` },
-					{ name: 'mine', title: `Mine (${mineCount})` },
-				]}
-				initialTabName={filter}
-				onSelect={(name) => setFilter(name)}
-			>
-				{() => null}
-			</TabPanel>
+			{isUserLoggedIn && (
+				<TabPanel
+					className="wpgraphql-ide-saved-queries-filter"
+					tabs={[
+						{ name: 'all', title: `All (${allCount})` },
+						{
+							name: 'sitewide',
+							title: `Sitewide (${sitewideCount})`,
+						},
+						{ name: 'mine', title: `Mine (${mineCount})` },
+					]}
+					initialTabName={filter}
+					onSelect={(name) => setFilter(name)}
+				>
+					{() => null}
+				</TabPanel>
+			)}
 
-			<div className="wpgraphql-ide-collections-list">
-				{/* "Documents" — uncategorized author-scoped docs. Pinned
+			{!isUserLoggedIn && (
+				<InlineSignInPrompt
+					title="Sign in to see your queries"
+					description="Saved queries and collections are scoped to your account. Unsaved tabs stay here until you save them."
+				/>
+			)}
+
+			{isUserLoggedIn && (
+				<div className="wpgraphql-ide-collections-list">
+					{/* "Documents" — uncategorized author-scoped docs. Pinned
 				    above the curated collections per the inbox-at-top
 				    pattern (Gmail, Linear, VS Code Source Control): the
 				    user's default working bucket goes first, organized
 				    layers below. Renders under "All" and "Mine" since
 				    these are effectively private until assigned to a
 				    sitewide collection. */}
-				{showUncategorized && (
-					<CollectionSection
-						title="Documents"
-						count={uncategorized.length}
-						collapsed={!!collapsedSections._documents}
-						onToggle={() => toggleSection('_documents')}
-						onDrop={(docId) => handleDropToCollection(docId, null)}
-						dropTargetId="collection-documents"
-						dragOverId={dragOverId}
-						setDragOver={setDragOverId}
-						sortMode={sortModeFor('_documents')}
-						onSortModeChange={(mode) =>
-							setCollectionSortMode('_documents', mode)
-						}
-						onDeleteAll={
-							uncategorized.length > 0
-								? handleDeleteAllUncategorized
-								: undefined
-						}
-					>
-						{uncategorized.length > 0 ? (
-							<ul className="wpgraphql-ide-documents-list">
-								{uncategorized.map(renderDoc)}
-							</ul>
-						) : (
-							<p className="wpgraphql-ide-collection-empty">
-								No documents
-							</p>
-						)}
-					</CollectionSection>
-				)}
+					{showUncategorized && (
+						<CollectionSection
+							title="Documents"
+							count={uncategorized.length}
+							collapsed={!!collapsedSections._documents}
+							onToggle={() => toggleSection('_documents')}
+							onDrop={(docId) =>
+								handleDropToCollection(docId, null)
+							}
+							dropTargetId="collection-documents"
+							dragOverId={dragOverId}
+							setDragOver={setDragOverId}
+							sortMode={sortModeFor('_documents')}
+							onSortModeChange={(mode) =>
+								setCollectionSortMode('_documents', mode)
+							}
+							onDeleteAll={
+								uncategorized.length > 0
+									? handleDeleteAllUncategorized
+									: undefined
+							}
+						>
+							{uncategorized.length > 0 ? (
+								<ul className="wpgraphql-ide-documents-list">
+									{uncategorized.map(renderDoc)}
+								</ul>
+							) : (
+								<p className="wpgraphql-ide-collection-empty">
+									No documents
+								</p>
+							)}
+						</CollectionSection>
+					)}
 
-				{showSitewide &&
-					collections.map((c) => {
-						const docs = grouped[c.id] || [];
-						return (
-							<CollectionSection
-								key={c.id}
-								title={c.name}
-								count={docs.length}
-								collapsed={
-									c.id in collapsedSections
-										? collapsedSections[c.id]
-										: docs.length === 0
-								}
-								onToggle={() => toggleSection(c.id)}
-								onDelete={() =>
-									setDeleteTarget({ id: c.id, name: c.name })
-								}
-								onRename={(newName) =>
-									renameCollection(c.id, newName)
-								}
-								onDrop={(docId) =>
-									handleDropToCollection(docId, c.id)
-								}
-								dropTargetId={`collection-${c.id}`}
-								dragOverId={dragOverId}
-								setDragOver={setDragOverId}
-								collectionId={c.id}
-								onCollectionDragStart={(id) => {
-									dragCollectionRef.current = id;
-									dragDocRef.current = null;
-								}}
-								onCollectionDragOver={(id, position) => {
-									if (!dragCollectionRef.current) {
-										return;
+					{showSitewide &&
+						collections.map((c) => {
+							const docs = grouped[c.id] || [];
+							return (
+								<CollectionSection
+									key={c.id}
+									title={c.name}
+									count={docs.length}
+									collapsed={
+										c.id in collapsedSections
+											? collapsedSections[c.id]
+											: docs.length === 0
 									}
-									if (dragCollectionRef.current === id) {
-										return;
+									onToggle={() => toggleSection(c.id)}
+									onDelete={() =>
+										setDeleteTarget({
+											id: c.id,
+											name: c.name,
+										})
 									}
-									setDropIndicator({
-										kind: 'collection',
-										id,
-										position,
-									});
-								}}
-								onCollectionDrop={(targetId) => {
-									const sourceId = dragCollectionRef.current;
-									if (!sourceId || sourceId === targetId) {
-										return;
+									onRename={(newName) =>
+										renameCollection(c.id, newName)
 									}
-									const ids = collections.map(
-										(col) => col.id
-									);
-									const fromIdx = ids.indexOf(sourceId);
-									if (fromIdx === -1) {
-										return;
+									onDrop={(docId) =>
+										handleDropToCollection(docId, c.id)
 									}
-									ids.splice(fromIdx, 1);
-									let toIdx = ids.indexOf(targetId);
-									if (toIdx === -1) {
-										return;
+									dropTargetId={`collection-${c.id}`}
+									dragOverId={dragOverId}
+									setDragOver={setDragOverId}
+									collectionId={c.id}
+									onCollectionDragStart={(id) => {
+										dragCollectionRef.current = id;
+										dragDocRef.current = null;
+									}}
+									onCollectionDragOver={(id, position) => {
+										if (!dragCollectionRef.current) {
+											return;
+										}
+										if (dragCollectionRef.current === id) {
+											return;
+										}
+										setDropIndicator({
+											kind: 'collection',
+											id,
+											position,
+										});
+									}}
+									onCollectionDrop={(targetId) => {
+										const sourceId =
+											dragCollectionRef.current;
+										if (
+											!sourceId ||
+											sourceId === targetId
+										) {
+											return;
+										}
+										const ids = collections.map(
+											(col) => col.id
+										);
+										const fromIdx = ids.indexOf(sourceId);
+										if (fromIdx === -1) {
+											return;
+										}
+										ids.splice(fromIdx, 1);
+										let toIdx = ids.indexOf(targetId);
+										if (toIdx === -1) {
+											return;
+										}
+										if (
+											dropIndicator?.position === 'after'
+										) {
+											toIdx += 1;
+										}
+										ids.splice(toIdx, 0, sourceId);
+										reorderCollections(ids);
+										setDropIndicator(null);
+										dragCollectionRef.current = null;
+									}}
+									collectionDropPos={
+										dropIndicator?.kind === 'collection' &&
+										dropIndicator.id === c.id
+											? dropIndicator.position
+											: null
 									}
-									if (dropIndicator?.position === 'after') {
-										toIdx += 1;
+									onCollectionDragEnd={() => {
+										dragCollectionRef.current = null;
+										setDropIndicator(null);
+									}}
+									sortMode={sortModeFor(c.id)}
+									onSortModeChange={(mode) =>
+										setCollectionSortMode(c.id, mode)
 									}
-									ids.splice(toIdx, 0, sourceId);
-									reorderCollections(ids);
-									setDropIndicator(null);
-									dragCollectionRef.current = null;
-								}}
-								collectionDropPos={
-									dropIndicator?.kind === 'collection' &&
-									dropIndicator.id === c.id
-										? dropIndicator.position
-										: null
-								}
-								onCollectionDragEnd={() => {
-									dragCollectionRef.current = null;
-									setDropIndicator(null);
-								}}
-								sortMode={sortModeFor(c.id)}
-								onSortModeChange={(mode) =>
-									setCollectionSortMode(c.id, mode)
-								}
-							>
-								{renderDocList(docs)}
-							</CollectionSection>
-						);
-					})}
+								>
+									{renderDocList(docs)}
+								</CollectionSection>
+							);
+						})}
 
-				{/* Shared with me — read-only personal collections owned by
+					{/* Shared with me — read-only personal collections owned by
 				    other users that have been shared with the current user. */}
-				{showShared &&
-					sharedCollections.map((sc) => {
-						const sectionKey = `shared-${sc.id}`;
-						const sortedDocs = sortDocuments(
-							Array.isArray(sc.documents) ? sc.documents : [],
-							sortModeFor(sectionKey)
-						);
-						return (
-							<CollectionSection
-								key={sectionKey}
-								title={`${sc.name} — shared by ${sc.owner?.display_name || 'another user'}`}
-								count={sortedDocs.length}
-								collapsed={
-									sectionKey in collapsedSections
-										? collapsedSections[sectionKey]
-										: sortedDocs.length === 0
-								}
-								onToggle={() => toggleSection(sectionKey)}
-								sortMode={sortModeFor(sectionKey)}
-								onSortModeChange={(mode) =>
-									setCollectionSortMode(sectionKey, mode)
-								}
-							>
-								{sortedDocs.length > 0 ? (
-									<ul className="wpgraphql-ide-documents-list">
-										{sortedDocs.map((doc) => (
-											<li
-												key={doc.id}
-												className="wpgraphql-ide-document-item"
-											>
-												<button
-													type="button"
-													className="wpgraphql-ide-document-button"
-													onClick={() =>
-														switchTab(doc.id)
-													}
+					{showShared &&
+						sharedCollections.map((sc) => {
+							const sectionKey = `shared-${sc.id}`;
+							const sortedDocs = sortDocuments(
+								Array.isArray(sc.documents) ? sc.documents : [],
+								sortModeFor(sectionKey)
+							);
+							return (
+								<CollectionSection
+									key={sectionKey}
+									title={`${sc.name} — shared by ${sc.owner?.display_name || 'another user'}`}
+									count={sortedDocs.length}
+									collapsed={
+										sectionKey in collapsedSections
+											? collapsedSections[sectionKey]
+											: sortedDocs.length === 0
+									}
+									onToggle={() => toggleSection(sectionKey)}
+									sortMode={sortModeFor(sectionKey)}
+									onSortModeChange={(mode) =>
+										setCollectionSortMode(sectionKey, mode)
+									}
+								>
+									{sortedDocs.length > 0 ? (
+										<ul className="wpgraphql-ide-documents-list">
+											{sortedDocs.map((doc) => (
+												<li
+													key={doc.id}
+													className="wpgraphql-ide-document-item"
 												>
-													<span className="wpgraphql-ide-document-title-text">
-														{doc.title ||
-															'Untitled'}
-													</span>
-												</button>
-											</li>
-										))}
-									</ul>
-								) : (
-									<p className="wpgraphql-ide-collection-empty">
-										No documents
-									</p>
-								)}
-							</CollectionSection>
-						);
-					})}
+													<button
+														type="button"
+														className="wpgraphql-ide-document-button"
+														onClick={() =>
+															switchTab(doc.id)
+														}
+													>
+														<span className="wpgraphql-ide-document-title-text">
+															{doc.title ||
+																'Untitled'}
+														</span>
+													</button>
+												</li>
+											))}
+										</ul>
+									) : (
+										<p className="wpgraphql-ide-collection-empty">
+											No documents
+										</p>
+									)}
+								</CollectionSection>
+							);
+						})}
 
-				{/* Personal collections — per-user, with sharing ACL. */}
-				{showPersonal &&
-					personalCollections.map((pc) => {
-						const docs = personalGrouped[pc.id] || [];
-						return (
-							<CollectionSection
-								key={`pc-${pc.id}`}
-								title={pc.name}
-								count={docs.length}
-								collapsed={
-									pc.id in collapsedSections
-										? collapsedSections[pc.id]
-										: docs.length === 0
-								}
-								onToggle={() => toggleSection(pc.id)}
-								onDelete={() => removePersonalCollection(pc.id)}
-								onRename={(newName) =>
-									renamePersonalCollection(pc.id, newName)
-								}
-								onShare={
-									canListUsers
-										? () => setShareTarget(pc)
-										: undefined
-								}
-								sortMode={sortModeFor(pc.id)}
-								onSortModeChange={(mode) =>
-									setCollectionSortMode(pc.id, mode)
-								}
-							>
-								{renderDocList(docs)}
-							</CollectionSection>
-						);
-					})}
-			</div>
+					{/* Personal collections — per-user, with sharing ACL. */}
+					{showPersonal &&
+						personalCollections.map((pc) => {
+							const docs = personalGrouped[pc.id] || [];
+							return (
+								<CollectionSection
+									key={`pc-${pc.id}`}
+									title={pc.name}
+									count={docs.length}
+									collapsed={
+										pc.id in collapsedSections
+											? collapsedSections[pc.id]
+											: docs.length === 0
+									}
+									onToggle={() => toggleSection(pc.id)}
+									onDelete={() =>
+										removePersonalCollection(pc.id)
+									}
+									onRename={(newName) =>
+										renamePersonalCollection(pc.id, newName)
+									}
+									onShare={
+										canListUsers
+											? () => setShareTarget(pc)
+											: undefined
+									}
+									sortMode={sortModeFor(pc.id)}
+									onSortModeChange={(mode) =>
+										setCollectionSortMode(pc.id, mode)
+									}
+								>
+									{renderDocList(docs)}
+								</CollectionSection>
+							);
+						})}
+				</div>
+			)}
 
 			{/* Unsaved tabs — orthogonal to the visibility filter (they
 			    aren't on the server yet), so render them outside the
-			    filtered list so they're always visible when present. */}
+			    filtered list so they're always visible when present.
+			    Anonymous visitors still see them since they live entirely
+			    in local state. */}
 			{unsavedDocs.length > 0 && (
 				<div className="wpgraphql-ide-collections-list wpgraphql-ide-collections-list--unsaved">
 					<CollectionSection

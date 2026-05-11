@@ -311,41 +311,59 @@ describe('SmartCachePanelView', () => {
 			).toBeNull();
 		});
 
-		it('renders the queryTypes group absorbed from Query Analyzer', () => {
+		it('falls back to legacy nodes/lists when keys is absent (back-compat for older cached entries)', () => {
 			const { container } = renderView({
 				diagnostics: {
 					purgeMap: {
-						nodes: [],
-						lists: [],
-						queryTypes: ['graphql:Query'],
+						nodes: ['cG9zdDox'],
+						lists: ['list:post'],
 					},
 				},
 			});
 			const map = container.querySelector(
 				'.wpgraphql-ide-smart-cache-purge-map'
 			);
-			expect(map).toHaveTextContent('graphql:Query');
-			expect(map).toHaveTextContent(/Root types \(1\)/);
+			expect(map).toBeInTheDocument();
+			expect(map).toHaveTextContent(/List types \(1\)/);
+			expect(map).toHaveTextContent(/Nodes \(1\)/);
+			expect(map).toHaveTextContent('cG9zdDox');
+			expect(map).toHaveTextContent('list:post');
 		});
 
-		it('renders the keys-count / keys-length meta footer when provided', () => {
+		it('categorizes every X-GraphQL-Keys entry into its purge-map group', () => {
+			const sha = 'a'.repeat(64);
 			const { container } = renderView({
 				diagnostics: {
 					purgeMap: {
-						nodes: ['post:5'],
-						lists: [],
-						keysCount: 4,
-						keysLength: 101,
+						keys: [
+							sha,
+							'graphql:Query',
+							'operation:GetPosts',
+							'list:post',
+							'cG9zdDo1MA==',
+						],
 					},
 				},
 			});
-			const meta = container.querySelector(
-				'.wpgraphql-ide-smart-cache-purge-map-meta'
+			const map = container.querySelector(
+				'.wpgraphql-ide-smart-cache-purge-map'
 			);
-			expect(meta).toBeInTheDocument();
-			expect(meta).toHaveTextContent('4');
-			expect(meta).toHaveTextContent('101');
-			expect(meta).toHaveTextContent(/X-GraphQL-Keys/);
+			expect(map).toBeInTheDocument();
+			// Aside total includes every category.
+			expect(map).toHaveTextContent(/5 tags/);
+			// Each category renders its own group with the right chip.
+			// The 64-char hex is the Query ID (X-GraphQL-Query-ID), not the
+			// transient cache key — those hash different inputs.
+			expect(map).toHaveTextContent(/Query ID \(1\)/);
+			expect(map).toHaveTextContent(sha);
+			expect(map).toHaveTextContent(/Root types \(1\)/);
+			expect(map).toHaveTextContent('graphql:Query');
+			expect(map).toHaveTextContent(/Operations \(1\)/);
+			expect(map).toHaveTextContent('operation:GetPosts');
+			expect(map).toHaveTextContent(/List types \(1\)/);
+			expect(map).toHaveTextContent('list:post');
+			expect(map).toHaveTextContent(/Nodes \(1\)/);
+			expect(map).toHaveTextContent('cG9zdDo1MA==');
 		});
 	});
 

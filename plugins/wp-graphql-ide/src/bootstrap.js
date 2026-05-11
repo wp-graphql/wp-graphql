@@ -41,6 +41,18 @@ export const endpointMode = !!data.endpointMode;
 export const isUserLoggedIn = !!data.isUserLoggedIn;
 
 /**
+ * Whether the public-endpoint IDE invites anonymous visitors to sign
+ * in. Driven by the `Allow sign-in on the public IDE` setting. When
+ * false, the auth-toggle avatar is a static public-state indicator and
+ * the Saved Queries / History panels are hidden for anonymous visitors.
+ * Always true on the dedicated admin page (only meaningful on endpoint
+ * renders, where the setting actually applies).
+ */
+export const allowEndpointSignIn = endpointMode
+	? !!data.allowEndpointSignIn
+	: true;
+
+/**
  * Sign-in URL with `redirect_to` set to the current page, or empty
  * when no sign-in affordance should render (visitor is already
  * logged in, or the field wasn't injected).

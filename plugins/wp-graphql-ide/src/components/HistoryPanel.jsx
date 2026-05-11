@@ -5,6 +5,8 @@ import { Icon, backup } from '@wordpress/icons';
 import hooks from '../wordpress-hooks';
 import { useDialog } from './dialogs/DialogProvider';
 import { deriveDocTitle } from '../utils/derive-doc-title';
+import { isUserLoggedIn } from '../bootstrap';
+import { InlineSignInPrompt } from './InlineSignInPrompt';
 
 const HISTORY_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
 	month: 'short',
@@ -39,6 +41,26 @@ function queryPreview(query) {
  * query, variables, and headers into the current active tab.
  */
 export function HistoryPanel() {
+	// History is persisted to a per-user CPT (`graphql-ide-history`). For
+	// anonymous visitors there is no user to scope to and the REST route
+	// would 403 anyway — surface the gate inline instead of letting the
+	// fetch fail silently into an empty list. Gate sits *outside* the
+	// hook-using implementation so the inner component never mounts for
+	// anon visitors.
+	if (!isUserLoggedIn) {
+		return (
+			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
+				<InlineSignInPrompt
+					title="Sign in to see your history"
+					description="Executed queries are saved per user — sign in to keep a record of your requests and restore them in a click."
+				/>
+			</div>
+		);
+	}
+	return <HistoryPanelContent />;
+}
+
+function HistoryPanelContent() {
 	const { confirm } = useDialog();
 	const history = useSelect(
 		(select) => select('wpgraphql-ide/app').getHistory(),

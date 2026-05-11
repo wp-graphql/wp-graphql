@@ -103,6 +103,8 @@ export function EditorPane({
 	isFetching,
 	isSchemaLoading,
 	onExecute,
+	signInUrl,
+	showAuthControl,
 }) {
 	const hasComposer = !!ComposerContent && !isPublished;
 	const hasLeftPanel =
@@ -394,9 +396,12 @@ export function EditorPane({
 								isFetching={isFetching}
 								isSchemaLoading={isSchemaLoading}
 								onExecute={onExecute}
-								// Hide the toggle for anonymous visitors on the
-								// public endpoint — no nonce to switch off.
-								canSwitchAuth={!endpointMode || isAuthenticated}
+								// Anonymous visitors on the public endpoint
+								// have no auth session to toggle — the avatar
+								// becomes a sign-in link to wp_login instead
+								// of an in-app toggle.
+								signInUrl={signInUrl}
+								showAuthControl={showAuthControl}
 							/>
 						</div>
 					</ResizableBox>

@@ -277,7 +277,11 @@ function rest_list_entries() {
  */
 function rest_purge_entry( $request ) {
 	$cache_key = (string) $request->get_param( 'cacheKey' );
-	if ( '' === $cache_key || ! preg_match( '/' . CACHE_KEY_PATTERN . '/', $cache_key ) ) {
+	// `#` delimiter: CACHE_KEY_PATTERN contains a literal `/` inside its
+	// tracker-key character class (covers base64 keys), so a `/`-delimited
+	// preg_match silently malforms and returns false — making every purge
+	// look like an invalid key.
+	if ( '' === $cache_key || ! preg_match( '#' . CACHE_KEY_PATTERN . '#', $cache_key ) ) {
 		return new \WP_Error(
 			'wpgraphql_ide_cache_inspector_invalid_key',
 			'Invalid cache key.',
@@ -383,7 +387,9 @@ function rest_purge_bulk( $request ) {
 	$deleted  = 0;
 	$failures = [];
 	foreach ( $keys as $cache_key ) {
-		if ( ! preg_match( '/' . CACHE_KEY_PATTERN . '/', $cache_key ) ) {
+		// See note in `rest_purge_entry` on the `#` delimiter — the pattern
+		// contains a literal `/` and would otherwise malform.
+		if ( ! preg_match( '#' . CACHE_KEY_PATTERN . '#', $cache_key ) ) {
 			$failures[] = $cache_key;
 			continue;
 		}

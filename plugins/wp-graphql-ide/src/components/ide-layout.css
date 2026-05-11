@@ -1319,7 +1319,8 @@ input.wpgraphql-ide-tab-input:focus {
 /* Purge map — list of nodes + list types that invalidate this cache
    entry. Read from the same Query Analyzer data smart-cache uses for
    purging, so this is a faithful preview of what will trigger a purge. */
-.wpgraphql-ide-smart-cache-purge-map-explainer {
+.wpgraphql-ide-smart-cache-purge-map-explainer,
+.wpgraphql-ide-smart-cache-header-keys-explainer {
 	color: var(--wp-components-color-gray-700, #50575e);
 	margin-bottom: 8px;
 }
@@ -3304,8 +3305,10 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-tracing-n1 {
 	margin: 4px 0;
 	padding: 12px 14px;
-	border-left: 3px solid var(--wpgraphql-ide-tracing-slow);
-	background: #fcf0f1;
+	/* Warning, not error — N+1 patterns aren't failures, they're
+	   resolver-shape hints. Yellow/amber treatment instead of red. */
+	border-left: 3px solid var(--wpgraphql-ide-tracing-ok);
+	background: #fcf9e8;
 	border-radius: 2px;
 }
 
@@ -3325,7 +3328,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-tracing-n1-table {
 	background: #fff;
-	border: 1px solid #f0d4d5;
+	border: 1px solid #f0e2b6;
 	border-radius: 2px;
 	margin: 0;
 }
@@ -4609,6 +4612,41 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	max-width: 280px;
 }
 
+/* Auth-gated panel prompt — Saved Queries / History when anonymous on
+   the public endpoint. Centered lock-icon header + heading + body +
+   primary "Sign in" button, mirroring the history empty-state rhythm
+   so adjacent panel content reads as one design system. */
+.wpgraphql-ide-inline-signin {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 32px 24px;
+	text-align: center;
+	color: #50575e;
+	font-size: 13px;
+	max-width: 320px;
+	margin: 0 auto;
+}
+
+.wpgraphql-ide-inline-signin-icon {
+	color: #a7aaad;
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-inline-signin-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+	color: #1e1e1e;
+}
+
+.wpgraphql-ide-inline-signin-description {
+	margin: 0 0 8px;
+	color: #646970;
+	line-height: 1.5;
+}
+
 .wpgraphql-ide-history-empty-icon {
 	color: #a7aaad;
 	margin-bottom: 4px;
@@ -5239,23 +5277,18 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	flex-shrink: 0;
 }
 
-/* Filter bar — SearchControl on the left, type toggle group on the
-   right. Stacks below the stat strip with breathing room. */
+/* Filter bar — SearchControl on its own row above the TabPanel filter
+   strip. Matches `SavedQueriesPanel`'s vertical stack (search, then
+   tabs), which is the WP-native rhythm for "filter a list by category +
+   substring". */
 .wpgraphql-ide-cache-inspector-filters {
 	display: flex;
-	align-items: center;
-	gap: 12px;
-	flex-wrap: wrap;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .wpgraphql-ide-cache-inspector-filter-search {
-	flex: 1 1 240px;
-	min-width: 180px;
-}
-
-.wpgraphql-ide-cache-inspector-filter-type {
-	flex: 0 0 auto;
-	min-width: 280px;
+	width: 100%;
 }
 
 /* Sortable column headers — mirror the ResponseTableView pattern but
@@ -5400,50 +5433,44 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	margin: 0;
 }
 
-/* Type filter — three-button segmented control (replacement for the
-   unavailable __experimentalToggleGroupControl). Behaves like a radio
-   group: one button active at a time, theme-color active state. */
-.wpgraphql-ide-cache-inspector-filter-type {
-	display: inline-flex;
-	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
-	border-radius: 4px;
-	overflow: hidden;
-	background: var(--wp-components-color-gray-100, #f0f0f1);
+/* Type filter — Gutenberg <TabPanel> with the underline-active-tab
+   treatment that matches `SavedQueriesPanel`'s Documents filter. Rules
+   are duplicated rather than aliased so changes to either filter strip
+   don't accidentally bleed into the other.
+
+   Font weight is held constant across active/inactive states so the
+   underline animation isn't accompanied by a glyph-width jiggle. */
+.wpgraphql-ide-cache-inspector-filter {
+	flex-shrink: 0;
+	border-bottom: 1px solid #e0e0e0;
 }
 
-.wpgraphql-ide-cache-inspector-filter-type-option {
-	background: transparent;
-	border: 0;
-	padding: 6px 12px;
-	font-size: 12px;
+.wpgraphql-ide-cache-inspector-filter .components-tab-panel__tabs {
+	padding: 0 8px;
+}
+
+.wpgraphql-ide-cache-inspector-filter .components-tab-panel__tabs-item {
+	font-size: 13px;
 	font-weight: 500;
-	color: var(--wp-components-color-gray-700, #50575e);
-	cursor: pointer;
-	border-right: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
-	line-height: 1;
+	padding: 8px 12px;
+	color: #50575e;
 }
 
-.wpgraphql-ide-cache-inspector-filter-type-option:last-child {
-	border-right: 0;
+.wpgraphql-ide-cache-inspector-filter
+	.components-tab-panel__tabs-item.is-active {
+	font-weight: 500;
+	color: #1e1e1e;
 }
 
-.wpgraphql-ide-cache-inspector-filter-type-option:hover {
-	background: rgba(0, 0, 0, 0.04);
-	color: var(--wp-components-color-foreground, #1e1e1e);
+.wpgraphql-ide-cache-inspector-filter
+	.components-tab-panel__tabs-item:hover:not(.is-active) {
+	color: #1e1e1e;
 }
 
-.wpgraphql-ide-cache-inspector-filter-type-option.is-active {
-	background: var(
-		--wp-admin-theme-color,
-		var(--wp-components-color-accent, #3858e9)
-	);
-	color: #fff;
-}
-
-.wpgraphql-ide-cache-inspector-filter-type-option:focus-visible {
-	outline: 2px solid
-		var(--wp-admin-theme-color, var(--wp-components-color-accent, #3858e9));
-	outline-offset: -2px;
+/* Tabs drive a sibling list; the panel's own content slot stays empty,
+   so hide it to keep the strip flush against the next row. */
+.wpgraphql-ide-cache-inspector-filter .components-tab-panel__tab-content {
+	display: none;
 }
 
 /* Purge map: footer-style meta line showing keys count + char length

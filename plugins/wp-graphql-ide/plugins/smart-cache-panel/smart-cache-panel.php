@@ -124,6 +124,21 @@ function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $
 				? ( $analyzer->get_query_types() ?: [] )
 				: [];
 
+			// On a cache HIT, smart-cache's `pre_graphql_execute_request`
+			// short-circuits resolution — so the analyzer's runtime nodes
+			// is empty even when the cached entry was originally written
+			// with nodes tracked. The cached response payload still has
+			// the diagnostics we recorded at write time though, so fall
+			// back to that so the panel reflects the nodes Smart Cache
+			// actually keys this entry on for invalidation.
+			$cached_purge_map = isset( $existing['diagnostics']['purgeMap'] )
+				&& is_array( $existing['diagnostics']['purgeMap'] )
+					? $existing['diagnostics']['purgeMap']
+					: [];
+			if ( empty( $nodes ) && ! empty( $cached_purge_map['nodes'] ) ) {
+				$nodes = $cached_purge_map['nodes'];
+			}
+
 			$purge_map = [
 				'nodes'      => array_values( array_map( 'strval', $nodes ) ),
 				'lists'      => array_values( array_map( 'strval', $lists ) ),
@@ -139,6 +154,35 @@ function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $
 				if ( is_array( $keys_data ) ) {
 					$purge_map['keysCount']  = isset( $keys_data['keysCount'] ) ? (int) $keys_data['keysCount'] : 0;
 					$purge_map['keysLength'] = isset( $keys_data['keysLength'] ) ? (int) $keys_data['keysLength'] : 0;
+					// The full X-GraphQL-Keys header content (cache-key
+					// hash + `graphql:Query` + list-types + node IDs,
+					// space-separated). The structured `nodes` / `lists`
+					// breakdown above only covers what Smart Cache writes
+					// in-WP trackers for; this is the full set CDNs see.
+					// Pulled as an array so the panel can render each key
+					// as its own chip without re-splitting in JS.
+					$keys_raw = isset( $keys_data['keys'] ) ? (string) $keys_data['keys'] : '';
+					$purge_map['keys'] = '' !== $keys_raw
+						? array_values( array_filter( explode( ' ', $keys_raw ) ) )
+						: [];
+
+					// Same `cache HIT loses runtime context` situation as
+					// the `nodes` fallback above: on HIT, resolution is
+					// short-circuited and `get_graphql_keys()` returns a
+					// truncated set (cache-key hash + `graphql:Query` +
+					// list types, but no node IDs). The cached diagnostics
+					// were written when resolvers DID run, so prefer them
+					// whenever they cover more keys than the live response
+					// — emphasis on `more`, so a fresh re-run after a purge
+					// still reflects the new resolver state.
+					$cached_keys = isset( $cached_purge_map['keys'] ) && is_array( $cached_purge_map['keys'] )
+						? $cached_purge_map['keys']
+						: [];
+					if ( count( $cached_keys ) > count( $purge_map['keys'] ) ) {
+						$purge_map['keys']       = $cached_keys;
+						$purge_map['keysCount']  = isset( $cached_purge_map['keysCount'] ) ? (int) $cached_purge_map['keysCount'] : count( $cached_keys );
+						$purge_map['keysLength'] = isset( $cached_purge_map['keysLength'] ) ? (int) $cached_purge_map['keysLength'] : $purge_map['keysLength'];
+					}
 
 					$skipped_count = isset( $keys_data['skippedKeysCount'] ) ? (int) $keys_data['skippedKeysCount'] : 0;
 					if ( $skipped_count > 0 ) {

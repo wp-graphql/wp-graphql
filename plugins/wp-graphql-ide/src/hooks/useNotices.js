@@ -7,10 +7,12 @@ import hooks from '../wordpress-hooks';
  * `addNotice` everywhere.
  *
  * The first argument can be a plain string (back-compat — most callers)
- * or a structured payload `{ content, actions }` where `actions` is the
- * SnackbarList shape from `@wordpress/components`: `[{ label, onClick }]`.
- * Actions render as link-style buttons inside the snackbar, perfect for
- * "insert this snippet" or "open the Docs panel" affordances.
+ * or a structured payload `{ content, actions, explicitDismiss, icon }`.
+ * `actions` is the SnackbarList shape from `@wordpress/components`:
+ * `[{ label, onClick }]` (link-style buttons inside the snackbar).
+ * `explicitDismiss: true` disables the auto-timeout so the snackbar stays
+ * until the user clicks ✕ — pair it with `actions` so users get time to
+ * act on the offer (e.g. "Insert" snippet).
  *
  * The optional `type` arg lets callers raise `error` / `warning` notices
  * that get a styling hook in the renderer; default passes through.
@@ -25,6 +27,8 @@ export function useNotices() {
 			payload && typeof payload === 'object' && !Array.isArray(payload);
 		const content = isObject ? payload.content : payload;
 		const actions = isObject ? payload.actions : undefined;
+		const explicitDismiss = isObject ? payload.explicitDismiss : undefined;
+		const icon = isObject ? payload.icon : undefined;
 		const id =
 			(isObject && payload.id) ||
 			`notice-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
@@ -33,7 +37,10 @@ export function useNotices() {
 		// duplicates. Implicit ids are unique per call so back-compat holds.
 		setNotices((prev) => {
 			const next = prev.filter((n) => n.id !== id);
-			return [...next, { id, content, type, actions }];
+			return [
+				...next,
+				{ id, content, type, actions, explicitDismiss, icon },
+			];
 		});
 	}, []);
 

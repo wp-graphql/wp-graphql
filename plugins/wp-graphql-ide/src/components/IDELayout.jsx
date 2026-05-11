@@ -22,7 +22,12 @@ import { useParsedQuery } from '../hooks/useParsedQuery';
 import { usePanelOrder } from '../hooks/usePanelOrder';
 import { usePersistedSize } from '../hooks/usePersistedSize';
 import { readDevicePreference, setPreference } from '../api/preferences';
-import { endpointMode, isUserLoggedIn, loginUrl } from '../bootstrap';
+import {
+	endpointMode,
+	isUserLoggedIn,
+	loginUrl,
+	allowEndpointSignIn,
+} from '../bootstrap';
 import { getWorkspacePersistence } from './workspace-persistence';
 import { displayDocTitle } from '../utils/derive-doc-title';
 import { WELCOME_QUERY } from '../stores/document-editor/welcome-query';
@@ -747,15 +752,17 @@ export function IDELayout({ fetcher, onClose }) {
 
 	// Global panels for the activity bar — exclude document-scoped panels.
 	// Query composer is per-document (rendered inline in the editor area).
-	// Documents panel is accessed via tabs, not the activity bar.
-	// Endpoint mode also drops the per-user panels — those routes require
-	// `manage_graphql_ide` and would 401 anyway.
-	const endpointPanelDenylist = new Set(['saved-queries', 'history']);
+	// Saved Queries and History require authentication; when sign-in is
+	// disabled on the public IDE there's nothing meaningful behind their
+	// icons, so hide them rather than parade a locked door. Logged-in
+	// visitors and the dedicated admin page always see all panels.
+	const hideAuthGatedPanels = !isUserLoggedIn && !allowEndpointSignIn;
+	const authGatedPanelNames = new Set(['saved-queries', 'history']);
 	const unfilteredNavPanels = panels.filter((p) => {
 		if (p.name === 'query-composer') {
 			return false;
 		}
-		if (endpointMode && endpointPanelDenylist.has(p.name)) {
+		if (hideAuthGatedPanels && authGatedPanelNames.has(p.name)) {
 			return false;
 		}
 		return true;
@@ -771,18 +778,17 @@ export function IDELayout({ fetcher, onClose }) {
 		onDragEnd: onPanelDragEnd,
 	} = usePanelOrder(unfilteredNavPanels);
 
-	// Activity-bar `visiblePanel` is store-backed and survives across
-	// renders independently of `navPanels`. In endpoint mode the
-	// denylisted panels are filtered out of the bar's icon list, but
-	// nothing closes a panel that was already visible from a prior
-	// session. Result: orphan rendering — the panel shows with no
-	// button to dismiss it. Force-close on mount when the visible
-	// panel name lands on the denylist.
+	// Activity-bar `visiblePanel` is store-backed and persists across
+	// sessions. When the public-IDE sign-in setting flips off (or the
+	// previously-logged-in user signs out), a saved-queries / history
+	// panel that's still open from a prior session would render with
+	// no close button in the bar. Force-close it on mount when the
+	// visible panel sits on the auth-gated list and shouldn't be shown.
 	useEffect(() => {
 		if (
-			endpointMode &&
+			hideAuthGatedPanels &&
 			visiblePanel &&
-			endpointPanelDenylist.has(visiblePanel.name)
+			authGatedPanelNames.has(visiblePanel.name)
 		) {
 			setVisiblePanel(null);
 		}
@@ -876,9 +882,6 @@ export function IDELayout({ fetcher, onClose }) {
 					refetchSchema: () => refetch(),
 				}}
 				topbarActions={endpointMode ? [] : topbarActions}
-				signInUrl={
-					endpointMode && !isUserLoggedIn ? loginUrl : undefined
-				}
 				onClose={onClose}
 			/>
 
@@ -1027,6 +1030,17 @@ export function IDELayout({ fetcher, onClose }) {
 										isFetching={isFetching}
 										isSchemaLoading={isSchemaLoading}
 										onExecute={executeQuery}
+										signInUrl={
+											endpointMode &&
+											!isUserLoggedIn &&
+											allowEndpointSignIn
+												? loginUrl
+												: undefined
+										}
+										showAuthControl={
+											isUserLoggedIn ||
+											allowEndpointSignIn
+										}
 									/>
 									<ResponsePane
 										response={response}
