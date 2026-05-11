@@ -8,17 +8,20 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
 export default function Sitemap() {}
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  // collect all the docs
-  const docUris = await getAllDocUri()
+  // Fetching the doc list hits GitHub's contents API and can fail at
+  // runtime (rate-limit, revoked token, network error). Don't let that
+  // tank the response — log the error and emit an empty <urlset>, which
+  // sitemap consumers handle gracefully.
+  let docUris: string[] = []
+  try {
+    docUris = await getAllDocUri()
+  } catch (err) {
+    console.error("[docs-sitemap] failed to fetch doc URIs:", err)
+  }
 
-  // create
-  const allDocsSitemap = docUris.map((docUri) => {
-    return {
-      loc: `${SITE_URL}${docUri}`,
-    }
-  })
-
-  //  fetch all the post and pass into getServerSideSitemap. but make sure your allPasts in array.
+  const allDocsSitemap = docUris.map((docUri) => ({
+    loc: `${SITE_URL}${docUri}`,
+  }))
 
   return await getServerSideSitemap(ctx, allDocsSitemap)
 }
