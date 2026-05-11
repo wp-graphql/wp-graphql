@@ -18,9 +18,14 @@ import rehypePrism from "rehype-prism-plus"
 import rehypeExternalLinks from "rehype-external-links"
 import rehypeUrlInspector from "@jsdevtools/rehype-url-inspector"
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-})
+// Only pass `auth` when the token is a non-empty string. Passing a missing
+// or revoked token causes GitHub to 401 ("Bad credentials") on every request;
+// without auth we still get 60 unauth req/hr, which is plenty for the docs
+// sitemap and dev-time doc fetches.
+const githubToken = process.env.GITHUB_TOKEN?.trim()
+const octokit = new Octokit(
+  githubToken ? { auth: githubToken } : {}
+)
 
 const DOCS_REPO = "wp-graphql"
 const DOCS_OWNER = "wp-graphql"
