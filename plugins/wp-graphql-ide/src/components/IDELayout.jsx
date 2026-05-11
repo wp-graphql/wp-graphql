@@ -446,24 +446,11 @@ export function IDELayout({ fetcher, onClose }) {
 		setDocSettingsValues,
 	});
 
-	// Reactive auto-save trigger for the live query state. Any caller
-	// that updates the app store's `query` — the editor's onChange, the
-	// Query Composer's onEdit, the History panel's restore, prettify /
-	// merge actions — flows through here, so the doc's persisted query
-	// (and sticky title derivation) stays in sync regardless of source.
-	//
-	// Before this effect, only the editor's `handleQueryChange` called
-	// scheduleAutoSave explicitly; Query Composer edits dispatched
-	// `setQuery` directly and never reached the save / title-derivation
-	// pipeline, leaving the tab title stuck on the old derived name.
-	//
-	// Guard against the tab-switch sync that also writes via setQuery:
-	// when the new query value equals what the active doc already has
-	// persisted, there's no real change to save.
 	useEffect(() => {
 		if (!activeDocument) {
 			return;
 		}
+		// Skip the tab-switch sync that re-sets `query` to the doc's persisted value.
 		if (query === (activeDocument.query || '')) {
 			return;
 		}
@@ -942,16 +929,7 @@ export function IDELayout({ fetcher, onClose }) {
 								.filter(Boolean)
 								.map((doc) => ({
 									id: doc.id,
-									// Active doc with an auto-title derives from
-									// the LIVE query (app store) so the tab name
-									// tracks every keystroke / composer toggle in
-									// real time. Inactive docs / sticky titles
-									// fall back to the persisted snapshot —
-									// `doc.title` once it's been frozen, or
-									// `doc.query` for an auto-titled inactive
-									// tab. Without the active-doc carve-out, the
-									// title only updates after the 2s autosave
-									// debounce rewrites `doc.query`.
+									// Active doc derives from live `query` so the tab name doesn't lag the autosave debounce.
 									title:
 										doc.id === activeDocument?.id &&
 										isAutoTitle(doc.title)
