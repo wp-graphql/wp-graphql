@@ -120,6 +120,13 @@ class AssetEnqueue {
 			'context'               => $app_context,
 			'isDedicatedIdePage'    => current_screen_is_dedicated_ide_page(),
 			'dedicatedIdeBaseUrl'   => self::dedicated_ide_base_url(),
+			// Surface the auth state for the wp-admin enqueue path so
+			// the JS bootstrap's `isUserLoggedIn` flag is true in here
+			// too. Only the public-endpoint path used to set this, so
+			// inside wp-admin the JS saw `undefined` and gated
+			// Saved Queries / History behind a sign-in prompt for an
+			// already-authenticated user.
+			'isUserLoggedIn'        => is_user_logged_in(),
 			'collapsedNotices'      => is_array( $collapsed_notices ) ? $collapsed_notices : [],
 			'personalCollections'   => is_array( $personal_collections ) ? $personal_collections : [],
 			'sharedCollections'     => $shared_collections,
