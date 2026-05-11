@@ -23,10 +23,15 @@ export function tipify(content) {
 	}
 	const quip = content.slice(0, idx + 1); // include the trailing period
 	const tip = content.slice(idx + 1).trim(); // "Tip: ..."
+	// Wrap in a single flex container — Gutenberg's `.components-snackbar__
+	// content` is itself `display: flex`, so a sibling-pair would be laid
+	// out as two flex items side-by-side. Putting them inside one child
+	// means the snackbar sees a single flex item and our wrapper controls
+	// the vertical stack.
 	return (
-		<>
+		<div className="wpgraphql-ide-snackbar-tip-wrap">
 			<span className="wpgraphql-ide-snackbar-tip-quip">{quip}</span>
 			<span className="wpgraphql-ide-snackbar-tip">{tip}</span>
-		</>
+		</div>
 	);
 }

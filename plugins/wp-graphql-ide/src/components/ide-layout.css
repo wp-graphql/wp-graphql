@@ -1474,19 +1474,20 @@ input.wpgraphql-ide-tab-input:focus {
 	color: #fff;
 }
 
-/* Two-line snackbar content (the easter-egg milestone format: comical
-   quip, then an actionable "Tip: …"). The default snackbar lays its
-   content out inline; we promote both halves to block-level so the
-   tip drops to its own line with a comfortable gap. Bumping the
-   max-width gives long tips room to breathe instead of wrapping to a
-   third line. */
-.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip-quip,
-.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip {
-	display: block;
+/* Two-line snackbar content for the easter-egg milestones (comical
+   quip → actionable "Tip: …"). Gutenberg's `.components-snackbar__
+   content` is itself `display: flex; flex-direction: row` so a pair
+   of sibling spans would render side-by-side. Wrapping them in one
+   flex-column div means the snackbar sees a single flex item and
+   our wrapper owns the vertical stack. */
+.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	width: 100%;
 }
 
 .wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip {
-	margin-top: 6px;
 	opacity: 0.85;
 }
 
