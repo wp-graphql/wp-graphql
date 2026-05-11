@@ -1,4 +1,4 @@
-import { Icon, stack } from '@wordpress/icons';
+import { Icon, archive } from '@wordpress/icons';
 import { CacheInspector } from './components/CacheInspector';
 
 const TAB_ID = 'cache-inspector';
@@ -25,7 +25,7 @@ window.addEventListener('WPGraphQLIDE_Window_Ready', () => {
 			'cache-inspector',
 			{
 				title: 'Cache Inspector',
-				icon: () => <Icon icon={stack} />,
+				icon: () => <Icon icon={archive} />,
 				tabType: TAB_ID,
 				tabId: TAB_ID,
 			},

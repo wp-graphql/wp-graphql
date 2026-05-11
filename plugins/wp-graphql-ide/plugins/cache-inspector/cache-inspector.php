@@ -17,8 +17,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 const REST_NAMESPACE = 'wpgraphql-cache-inspector/v1';
-const TRANSIENT_PREFIX = 'gql_cache_';
+const DEFAULT_TRANSIENT_PREFIX = 'gql_cache_';
 const ENTRY_LIMIT = 500;
+
+/**
+ * Returns the transient prefix Smart Cache writes under. Filterable so
+ * downstream (or a future wp-graphql-smart-cache home) can rename
+ * without forking this file.
+ *
+ * @return string
+ */
+function transient_prefix(): string {
+	/**
+	 * Filters the prefix used to identify Smart Cache transients.
+	 *
+	 * @param string $prefix Default `gql_cache_`.
+	 */
+	$prefix = apply_filters( 'wpgraphql_ide_cache_inspector_prefix', DEFAULT_TRANSIENT_PREFIX );
+	return is_string( $prefix ) && '' !== $prefix ? $prefix : DEFAULT_TRANSIENT_PREFIX;
+}
 
 define( 'WPGRAPHQL_IDE_CACHE_INSPECTOR_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_CACHE_INSPECTOR_URL', plugin_dir_url( __FILE__ ) );
@@ -87,6 +104,7 @@ function register_rest_routes(): void {
 					'type'              => 'string',
 					'required'          => true,
 					'sanitize_callback' => 'sanitize_text_field',
+					'pattern'           => '^[a-f0-9]{1,64}$',
 				],
 			],
 		]
@@ -127,9 +145,9 @@ function rest_list_entries() {
 	if ( wp_using_ext_object_cache() ) {
 		return rest_ensure_response(
 			[
-				'storage'  => 'object_cache',
-				'entries'  => [],
-				'count'    => 0,
+				'storage'   => 'object_cache',
+				'entries'   => [],
+				'count'     => 0,
 				'truncated' => false,
 				'totalSize' => 0,
 			]
@@ -141,8 +159,8 @@ function rest_list_entries() {
 	// One query: data row + matching timeout row, sorted by size desc.
 	// `LENGTH(option_value)` returns bytes for UTF-8 in MySQL — same
 	// thing the storage engine actually consumes.
-	$prefix = '_transient_' . TRANSIENT_PREFIX;
-	$timeout_prefix = '_transient_timeout_' . TRANSIENT_PREFIX;
+	$prefix         = '_transient_' . transient_prefix();
+	$timeout_prefix = '_transient_timeout_' . transient_prefix();
 
 	$rows = $wpdb->get_results(
 		$wpdb->prepare(
@@ -174,13 +192,13 @@ function rest_list_entries() {
 		$rows = array_slice( $rows, 0, ENTRY_LIMIT );
 	}
 
-	$now        = time();
-	$total_size = 0;
-	$entries    = array_map(
-		static function ( $row ) use ( $now, &$total_size ) {
-			$size      = (int) $row['size_bytes'];
-			$total_size += $size;
-			$expires_at = isset( $row['expires_at'] ) ? (int) $row['expires_at'] : 0;
+	$now            = time();
+	$displayed_size = 0;
+	$entries        = array_map(
+		static function ( $row ) use ( $now, &$displayed_size ) {
+			$size            = (int) $row['size_bytes'];
+			$displayed_size += $size;
+			$expires_at      = isset( $row['expires_at'] ) ? (int) $row['expires_at'] : 0;
 			return [
 				'cacheKey'  => (string) $row['cache_key'],
 				'sizeBytes' => $size,
@@ -191,21 +209,23 @@ function rest_list_entries() {
 		$rows
 	);
 
-	// If we truncated, total_size only covers the displayed slice. Run
-	// a separate aggregate so the UI can show the true total.
-	$true_total = (int) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT SUM(LENGTH(option_value)) FROM {$wpdb->options} WHERE option_name LIKE %s",
-			$wpdb->esc_like( $prefix ) . '%'
-		)
-	);
-
-	$true_count = (int) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s",
-			$wpdb->esc_like( $prefix ) . '%'
-		)
-	);
+	// When we didn't truncate, the displayed rows ARE the full set, so
+	// no extra aggregate scan is needed. Only re-query the totals when
+	// the slice misses entries the user can't see.
+	if ( $truncated ) {
+		$totals = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT COUNT(*) AS row_count, SUM(LENGTH(option_value)) AS total_size FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$wpdb->esc_like( $prefix ) . '%'
+			),
+			ARRAY_A
+		);
+		$true_count = isset( $totals['row_count'] ) ? (int) $totals['row_count'] : count( $entries );
+		$true_total = isset( $totals['total_size'] ) ? (int) $totals['total_size'] : $displayed_size;
+	} else {
+		$true_count = count( $entries );
+		$true_total = $displayed_size;
+	}
 
 	return rest_ensure_response(
 		[
@@ -235,7 +255,7 @@ function rest_purge_entry( $request ) {
 		);
 	}
 
-	$deleted = delete_transient( TRANSIENT_PREFIX . $cache_key );
+	$deleted = delete_transient( transient_prefix() . $cache_key );
 
 	return rest_ensure_response(
 		[
@@ -260,15 +280,22 @@ function rest_purge_all() {
 	}
 
 	global $wpdb;
-	$prefix = '_transient_' . TRANSIENT_PREFIX;
+	$prefix         = '_transient_' . transient_prefix();
+	$timeout_prefix = '_transient_timeout_' . transient_prefix();
 
 	$deleted = (int) $wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
 			$wpdb->esc_like( $prefix ) . '%',
-			$wpdb->esc_like( '_transient_timeout_' . TRANSIENT_PREFIX ) . '%'
+			$wpdb->esc_like( $timeout_prefix ) . '%'
 		)
 	);
+
+	// Raw DELETE bypasses `delete_transient()`/`delete_option()`, so the
+	// options layer doesn't invalidate its own caches. Flush so the next
+	// `get_option()` doesn't return stale rows.
+	wp_cache_delete( 'alloptions', 'options' );
+	wp_cache_delete( 'notoptions', 'options' );
 
 	return rest_ensure_response(
 		[

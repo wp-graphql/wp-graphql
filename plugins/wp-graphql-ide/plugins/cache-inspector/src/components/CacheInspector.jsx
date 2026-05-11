@@ -1,12 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Notice, Spinner } from '@wordpress/components';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Modal, Notice, Spinner } from '@wordpress/components';
 import { Icon, update, trash } from '@wordpress/icons';
 
-const REST_CONFIG = (typeof window !== 'undefined' &&
-	window.WPGRAPHQL_IDE_CACHE_INSPECTOR) || {
-	restUrl: '',
-	restNonce: '',
-};
+// Resolved per-call rather than captured at module load — wp_localize_script
+// is guaranteed to have populated `window.WPGRAPHQL_IDE_CACHE_INSPECTOR`
+// before this module executes, but late reads make the helper trivially
+// mockable in unit tests.
+function getRestConfig() {
+	if (typeof window !== 'undefined' && window.WPGRAPHQL_IDE_CACHE_INSPECTOR) {
+		return window.WPGRAPHQL_IDE_CACHE_INSPECTOR;
+	}
+	return { restUrl: '', restNonce: '' };
+}
 
 /**
  * Cache Inspector workspace tab. Cache-wide view of every Smart Cache
@@ -23,12 +28,13 @@ export function CacheInspector() {
 	});
 	const [purging, setPurging] = useState(new Set());
 	const [bulkPurging, setBulkPurging] = useState(false);
+	const [purgeAllOpen, setPurgeAllOpen] = useState(false);
 
 	const fetchEntries = useCallback(async () => {
 		setState((s) => ({ ...s, loading: true, error: null }));
 		try {
-			const res = await fetch(`${REST_CONFIG.restUrl}/entries`, {
-				headers: { 'X-WP-Nonce': REST_CONFIG.restNonce },
+			const res = await fetch(`${getRestConfig().restUrl}/entries`, {
+				headers: { 'X-WP-Nonce': getRestConfig().restNonce },
 				credentials: 'same-origin',
 			});
 			if (!res.ok) {
@@ -48,11 +54,11 @@ export function CacheInspector() {
 	const purgeOne = useCallback(async (cacheKey) => {
 		setPurging((p) => new Set(p).add(cacheKey));
 		try {
-			const res = await fetch(`${REST_CONFIG.restUrl}/purge`, {
+			const res = await fetch(`${getRestConfig().restUrl}/purge`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-WP-Nonce': REST_CONFIG.restNonce,
+					'X-WP-Nonce': getRestConfig().restNonce,
 				},
 				credentials: 'same-origin',
 				body: JSON.stringify({ cacheKey }),
@@ -88,23 +94,17 @@ export function CacheInspector() {
 	}, []);
 
 	const purgeAll = useCallback(async () => {
-		// eslint-disable-next-line no-alert
-		const ok = window.confirm(
-			'Purge every Smart Cache entry? This cannot be undone.'
-		);
-		if (!ok) {
-			return;
-		}
 		setBulkPurging(true);
 		try {
-			const res = await fetch(`${REST_CONFIG.restUrl}/purge-all`, {
+			const res = await fetch(`${getRestConfig().restUrl}/purge-all`, {
 				method: 'POST',
-				headers: { 'X-WP-Nonce': REST_CONFIG.restNonce },
+				headers: { 'X-WP-Nonce': getRestConfig().restNonce },
 				credentials: 'same-origin',
 			});
 			if (!res.ok) {
 				throw new Error(`Bulk purge failed (${res.status})`);
 			}
+			setPurgeAllOpen(false);
 			await fetchEntries();
 		} catch (err) {
 			setState((s) => ({ ...s, error: err.message }));
@@ -140,7 +140,6 @@ export function CacheInspector() {
 	if (data.storage === 'object_cache') {
 		return (
 			<div className="wpgraphql-ide-cache-inspector">
-				<Header onRefresh={fetchEntries} />
 				<Notice status="info" isDismissible={false}>
 					This site uses an external object cache (Redis or Memcache).
 					Smart Cache entries are stored there and can&apos;t be
@@ -158,8 +157,7 @@ export function CacheInspector() {
 		<div className="wpgraphql-ide-cache-inspector">
 			<Header
 				onRefresh={fetchEntries}
-				onPurgeAll={purgeAll}
-				bulkPurging={bulkPurging}
+				onPurgeAllRequest={() => setPurgeAllOpen(true)}
 				count={data.count || 0}
 				totalSize={data.totalSize || 0}
 			/>
@@ -167,8 +165,8 @@ export function CacheInspector() {
 			{data.truncated && (
 				<Notice status="warning" isDismissible={false}>
 					Showing the {data.entries.length} largest entries of{' '}
-					{data.count} total. Purge or sort by another column once
-					per-column sorting ships.
+					{data.count} total. Purge from this list to surface the next
+					batch.
 				</Notice>
 			)}
 
@@ -181,17 +179,21 @@ export function CacheInspector() {
 					onPurge={purgeOne}
 				/>
 			)}
+
+			{purgeAllOpen && (
+				<PurgeAllDialog
+					count={data.count || 0}
+					totalSize={data.totalSize || 0}
+					submitting={bulkPurging}
+					onConfirm={purgeAll}
+					onClose={() => setPurgeAllOpen(false)}
+				/>
+			)}
 		</div>
 	);
 }
 
-function Header({
-	onRefresh,
-	onPurgeAll,
-	bulkPurging,
-	count = 0,
-	totalSize = 0,
-}) {
+function Header({ onRefresh, onPurgeAllRequest, count = 0, totalSize = 0 }) {
 	return (
 		<div className="wpgraphql-ide-cache-inspector-header">
 			<div className="wpgraphql-ide-cache-inspector-header-summary">
@@ -211,20 +213,58 @@ function Header({
 				>
 					Refresh
 				</Button>
-				{onPurgeAll && (
-					<Button
-						variant="secondary"
-						isDestructive
-						isBusy={bulkPurging}
-						disabled={bulkPurging || count === 0}
-						onClick={onPurgeAll}
-						icon={() => <Icon icon={trash} size={16} />}
-					>
-						{bulkPurging ? 'Purging…' : 'Purge all'}
-					</Button>
-				)}
+				<Button
+					variant="secondary"
+					isDestructive
+					disabled={count === 0}
+					onClick={onPurgeAllRequest}
+					icon={() => <Icon icon={trash} size={16} />}
+				>
+					Purge all
+				</Button>
 			</div>
 		</div>
+	);
+}
+
+function PurgeAllDialog({ count, totalSize, submitting, onConfirm, onClose }) {
+	return (
+		<Modal
+			title="Purge all Smart Cache entries?"
+			onRequestClose={() => (submitting ? null : onClose())}
+			className="wpgraphql-ide-dialog wpgraphql-ide-cache-inspector-purge-all-dialog"
+		>
+			<p className="wpgraphql-ide-dialog-message">
+				This will delete <strong>{count}</strong>{' '}
+				{count === 1 ? 'entry' : 'entries'}
+				{totalSize > 0 && (
+					<>
+						{' '}
+						(<strong>{formatBytes(totalSize)}</strong>)
+					</>
+				)}{' '}
+				from the WordPress object cache. The next request that matches
+				each query will re-populate the cache. This cannot be undone.
+			</p>
+			<div className="wpgraphql-ide-dialog-actions">
+				<Button
+					variant="tertiary"
+					onClick={onClose}
+					disabled={submitting}
+				>
+					Cancel
+				</Button>
+				<Button
+					variant="primary"
+					isDestructive
+					onClick={onConfirm}
+					isBusy={submitting}
+					disabled={submitting}
+				>
+					{submitting ? 'Purging…' : 'Purge all'}
+				</Button>
+			</div>
+		</Modal>
 	);
 }
 
@@ -241,11 +281,6 @@ function EmptyState() {
 }
 
 function EntriesTable({ entries, purging, onPurge }) {
-	const sorted = useMemo(
-		() => entries.slice().sort((a, b) => b.sizeBytes - a.sizeBytes),
-		[entries]
-	);
-
 	return (
 		<table className="wpgraphql-ide-cache-inspector-table">
 			<thead>
@@ -265,7 +300,7 @@ function EntriesTable({ entries, purging, onPurge }) {
 				</tr>
 			</thead>
 			<tbody>
-				{sorted.map((entry) => (
+				{entries.map((entry) => (
 					<EntryRow
 						key={entry.cacheKey}
 						entry={entry}
