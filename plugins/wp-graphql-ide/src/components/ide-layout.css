@@ -5234,6 +5234,75 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border-radius: 3px;
 }
 
+/* "About this cache" — collapsible explainer at the top of the
+   inspector. The scope clarification (object cache vs. CDN) is the
+   load-bearing copy here, so the toggle stays prominent (button-style
+   row with a chevron) but the body is closed by default. */
+.wpgraphql-ide-cache-inspector-help {
+	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-radius: 4px;
+	background: var(--wp-components-color-gray-100, #f6f7f7);
+}
+
+.wpgraphql-ide-cache-inspector-help-toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: transparent;
+	border: 0;
+	padding: 8px 12px;
+	cursor: pointer;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	text-align: left;
+}
+
+.wpgraphql-ide-cache-inspector-help-toggle:hover,
+.wpgraphql-ide-cache-inspector-help-toggle:focus-visible {
+	color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.wpgraphql-ide-cache-inspector-help-body {
+	padding: 0 16px 12px 16px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-help-body p {
+	margin: 0 0 10px 0;
+}
+
+.wpgraphql-ide-cache-inspector-help-body strong {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-help-body code {
+	font-size: 12px;
+	background: rgba(0, 0, 0, 0.06);
+	padding: 1px 5px;
+	border-radius: 3px;
+}
+
+.wpgraphql-ide-cache-inspector-help-glossary {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 8px 12px;
+	margin: 0 0 10px 0;
+}
+
+.wpgraphql-ide-cache-inspector-help-glossary dt {
+	margin: 0;
+	padding-top: 1px;
+}
+
+.wpgraphql-ide-cache-inspector-help-glossary dd {
+	margin: 0;
+}
+
 /* Cache Inspector — design pass additions: stat strip, filter bar,
    sortable headers, inline size bars, type badges, bulk select. */
 .wpgraphql-ide-cache-inspector-stat-strip {

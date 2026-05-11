@@ -8,7 +8,7 @@ import {
 	Spinner,
 	TabPanel,
 } from '@wordpress/components';
-import { Icon, update, trash } from '@wordpress/icons';
+import { Icon, update, trash, chevronDown, chevronUp } from '@wordpress/icons';
 
 // Resolved per-call rather than captured at module load — wp_localize_script
 // is guaranteed to have populated `window.WPGRAPHQL_IDE_CACHE_INSPECTOR`
@@ -210,14 +210,17 @@ export function CacheInspector() {
 	if (data.storage === 'object_cache') {
 		return (
 			<div className="wpgraphql-ide-cache-inspector">
+				<HelpPanel />
 				<Notice status="info" isDismissible={false}>
-					This site uses an external object cache (Redis or Memcache).
-					Smart Cache entries are stored there and can&apos;t be
-					enumerated from PHP. Use your backend tools (e.g.{' '}
+					This site uses an external object cache (Redis, Memcache, or
+					similar). Smart Cache writes there instead of{' '}
+					<code>wp_options</code>, and PHP can&apos;t enumerate keys
+					through the object-cache API — use your backend tools (e.g.{' '}
 					<code>
 						redis-cli --scan --pattern &apos;gql_cache_*&apos;
 					</code>
-					) to inspect or purge.
+					) to inspect or purge. Invalidation still works normally;
+					this view just can&apos;t render an inventory.
 				</Notice>
 			</div>
 		);
@@ -233,6 +236,8 @@ export function CacheInspector() {
 
 	return (
 		<div className="wpgraphql-ide-cache-inspector">
+			<HelpPanel />
+
 			<StatStrip
 				totalCount={totalCount}
 				totalSize={totalSize}
@@ -326,6 +331,87 @@ export function CacheInspector() {
 					onConfirm={purgeSelected}
 					onClose={() => setPurgeSelectedOpen(false)}
 				/>
+			)}
+		</div>
+	);
+}
+
+// Collapsible "About this cache" explainer. Closed by default so it
+// doesn't dominate the viewport on every visit, but the toggle is the
+// first thing in the panel so newcomers can find it. The scope copy
+// matters: this inspector reads the WordPress object cache only —
+// users mistake it for a network/CDN inventory until told otherwise.
+function HelpPanel() {
+	const [open, setOpen] = useState(false);
+	return (
+		<div className="wpgraphql-ide-cache-inspector-help">
+			<button
+				type="button"
+				className="wpgraphql-ide-cache-inspector-help-toggle"
+				onClick={() => setOpen((v) => !v)}
+				aria-expanded={open}
+				aria-controls="wpgraphql-ide-cache-inspector-help-body"
+			>
+				<Icon icon={open ? chevronUp : chevronDown} size={20} />
+				<span>About this cache</span>
+			</button>
+			{open && (
+				<div
+					id="wpgraphql-ide-cache-inspector-help-body"
+					className="wpgraphql-ide-cache-inspector-help-body"
+				>
+					<p>
+						<strong>What this is:</strong> the WordPress{' '}
+						<em>object cache</em> layer for GraphQL responses —
+						transients in <code>wp_options</code> by default, or
+						your external object cache (Redis, Memcache) if one is
+						configured. This is the same cache{' '}
+						<code>wp-graphql-smart-cache</code> reads from on the
+						next matching request.
+					</p>
+					<p>
+						<strong>What this isn&apos;t:</strong> Varnish,
+						Cloudflare, Fastly, or any other CDN/edge cache. Those
+						live outside WordPress and have their own inventories.
+						Smart Cache emits <code>X-GraphQL-Keys</code> headers so
+						network caches can invalidate in lockstep, but their
+						stored entries aren&apos;t visible here — purging on
+						this screen does not clear your CDN.
+					</p>
+					<dl className="wpgraphql-ide-cache-inspector-help-glossary">
+						<dt>
+							<span className="wpgraphql-ide-cache-inspector-type wpgraphql-ide-cache-inspector-type--response">
+								Response
+							</span>
+						</dt>
+						<dd>
+							A cached GraphQL response. The 64-char key is a
+							SHA-256 of the query + variables + auth context.
+							One entry per cached operation.
+						</dd>
+						<dt>
+							<span className="wpgraphql-ide-cache-inspector-type wpgraphql-ide-cache-inspector-type--tracker">
+								Tracker
+							</span>
+						</dt>
+						<dd>
+							Bookkeeping. Maps a node (e.g.{' '}
+							<code>cG9zdDoxMA==</code>, base64 for{' '}
+							<code>post:10</code>) or a list type (e.g.{' '}
+							<code>list:post</code>) to every response cache
+							key that depends on it. When that node changes,
+							Smart Cache walks the tracker and purges those
+							responses.
+						</dd>
+					</dl>
+					<p>
+						<strong>Why so many &quot;Expired&quot; rows?</strong>{' '}
+						WordPress doesn&apos;t sweep expired transients on a
+						schedule — they sit in <code>wp_options</code> until
+						something tries to read them. Use Purge to remove them
+						eagerly.
+					</p>
+				</div>
 			)}
 		</div>
 	);

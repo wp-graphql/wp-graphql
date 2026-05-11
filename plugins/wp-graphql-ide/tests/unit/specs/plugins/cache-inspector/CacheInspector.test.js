@@ -138,6 +138,43 @@ describe('CacheInspector', () => {
 		expect(screen.queryByRole('table')).toBeNull();
 	});
 
+	it('toggles the About-this-cache help panel, scoping the inspector to the object cache', async () => {
+		global.fetch = mockFetch([
+			[
+				{ method: 'GET', path: '/entries' },
+				() =>
+					jsonResponse({
+						storage: 'transient',
+						entries: [],
+						count: 0,
+						truncated: false,
+						totalSize: 0,
+					}),
+			],
+		]);
+
+		render(<CacheInspector />);
+
+		const toggle = await screen.findByRole('button', {
+			name: /About this cache/i,
+		});
+		// Closed by default — body content isn't in the DOM until opened.
+		expect(toggle).toHaveAttribute('aria-expanded', 'false');
+		expect(
+			screen.queryByText(/Varnish, Cloudflare, Fastly/i)
+		).not.toBeInTheDocument();
+
+		fireEvent.click(toggle);
+		expect(toggle).toHaveAttribute('aria-expanded', 'true');
+		// Scope clarification copy — object cache vs. network cache.
+		expect(
+			screen.getByText(/Varnish, Cloudflare, Fastly/i)
+		).toBeInTheDocument();
+		expect(
+			screen.getByText(/purging on this screen does not clear your CDN/i)
+		).toBeInTheDocument();
+	});
+
 	it('renders the external-object-cache notice with no Header chrome', async () => {
 		global.fetch = mockFetch([
 			[
