@@ -36,7 +36,7 @@ function TabStrip({
 	tabs,
 	activeName,
 	onSelect,
-	dragOverTab = null,
+	dragOverTab,
 	onDragStart,
 	onDragOver,
 	onDragLeave,
@@ -45,6 +45,8 @@ function TabStrip({
 }) {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
+	const [draggingName, setDraggingName] = useState(null);
+	const reorderable = typeof onDragStart === 'function';
 	// Per-tab measured widths persist across renders. Without this, tabs
 	// that fold into the overflow dropdown unmount, lose their refs, and
 	// can't be re-measured when the panel grows back — which would make the
@@ -139,11 +141,37 @@ function TabStrip({
 		>
 			{visible.map((tab) => {
 				const isActive = tab.name === activeName;
-				const dragClass =
-					dragOverTab?.name === tab.name
-						? ` is-drag-${dragOverTab.pos}`
-						: '';
-				const reorderable = typeof onDragStart === 'function';
+				const isDragOver = dragOverTab?.name === tab.name;
+				const isDragging = draggingName === tab.name;
+				const classes = [
+					'components-tab-panel__tabs-item',
+					isActive && 'is-active',
+					isDragOver && `is-drag-${dragOverTab.pos}`,
+					isDragging && 'is-dragging',
+				]
+					.filter(Boolean)
+					.join(' ');
+				if (!reorderable) {
+					return (
+						<button
+							key={tab.name}
+							ref={(el) => {
+								if (el) {
+									tabRefs.current[tab.name] = el;
+								}
+							}}
+							type="button"
+							role="tab"
+							aria-selected={isActive}
+							tabIndex={isActive ? 0 : -1}
+							className={classes}
+							onClick={() => onSelect(tab.name)}
+						>
+							{tab.title}
+						</button>
+					);
+				}
+				const startDrag = onDragStart(tab.name);
 				return (
 					<button
 						key={tab.name}
@@ -156,18 +184,39 @@ function TabStrip({
 						role="tab"
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
-						className={`components-tab-panel__tabs-item${isActive ? ' is-active' : ''}${dragClass}`}
+						className={classes}
 						onClick={() => onSelect(tab.name)}
-						draggable={reorderable || undefined}
-						onDragStart={
-							reorderable ? onDragStart(tab.name) : undefined
-						}
-						onDragOver={
-							reorderable ? onDragOver(tab.name) : undefined
-						}
-						onDragLeave={reorderable ? onDragLeave : undefined}
-						onDrop={reorderable ? onDrop(tab.name) : undefined}
-						onDragEnd={reorderable ? onDragEnd : undefined}
+						draggable
+						onDragStart={(e) => {
+							// `setData` keeps Firefox and Safari from
+							// cancelling the drag — some engines treat a
+							// dragstart that never calls setData as a
+							// signal to abort. `text/plain` is the
+							// universally-accepted mime; the value is
+							// informational for any drop target that
+							// might want to read it.
+							if (e.dataTransfer) {
+								try {
+									e.dataTransfer.setData(
+										'text/plain',
+										tab.name
+									);
+								} catch {
+									// Some test environments reject
+									// setData on synthetic events; the
+									// drag still works.
+								}
+							}
+							setDraggingName(tab.name);
+							startDrag(e);
+						}}
+						onDragOver={onDragOver(tab.name)}
+						onDragLeave={onDragLeave}
+						onDrop={onDrop(tab.name)}
+						onDragEnd={(e) => {
+							setDraggingName(null);
+							onDragEnd(e);
+						}}
 					>
 						{tab.title}
 					</button>

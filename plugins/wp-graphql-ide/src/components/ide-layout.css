@@ -5501,3 +5501,11 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-response-tabs .components-tab-panel__tabs-item[draggable='true']:active {
 	cursor: grabbing;
 }
+
+/* Source-tab indicator: a small opacity dip while a tab is being
+   dragged. The browser owns the ghost image; this dips the in-place
+   button so the user can tell which tab is the source even if the
+   ghost lands far from the strip. */
+.components-tab-panel__tabs-item.is-dragging {
+	opacity: 0.4;
+}
