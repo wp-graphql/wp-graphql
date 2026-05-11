@@ -41,14 +41,10 @@ describe('SettingsField', () => {
 			name: /Network Cache Settings/,
 		});
 		expect(heading).toBeInTheDocument();
-		expect(
-			screen.getByText(/Below are settings/)
-		).toBeInTheDocument();
+		expect(screen.getByText(/Below are settings/)).toBeInTheDocument();
 		// The phantom-input regression: no text input should be rendered
 		// for this field.
-		expect(
-			document.querySelector('input[type="text"]')
-		).toBeNull();
+		expect(document.querySelector('input[type="text"]')).toBeNull();
 	});
 
 	it('renders nothing when a custom field has no captured HTML', () => {

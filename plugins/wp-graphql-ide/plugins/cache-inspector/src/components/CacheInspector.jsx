@@ -453,8 +453,8 @@ function HelpPanel() {
 						</dt>
 						<dd>
 							A cached GraphQL response. The 64-char key is a
-							SHA-256 of the query + variables + auth context.
-							One entry per cached operation.
+							SHA-256 of the query + variables + auth context. One
+							entry per cached operation.
 						</dd>
 						<dt>
 							<span className="wpgraphql-ide-cache-inspector-type wpgraphql-ide-cache-inspector-type--tracker">
@@ -465,10 +465,9 @@ function HelpPanel() {
 							Bookkeeping. Maps a node (e.g.{' '}
 							<code>cG9zdDoxMA==</code>, base64 for{' '}
 							<code>post:10</code>) or a list type (e.g.{' '}
-							<code>list:post</code>) to every response cache
-							key that depends on it. When that node changes,
-							Smart Cache walks the tracker and purges those
-							responses.
+							<code>list:post</code>) to every response cache key
+							that depends on it. When that node changes, Smart
+							Cache walks the tracker and purges those responses.
 						</dd>
 					</dl>
 					<p>
