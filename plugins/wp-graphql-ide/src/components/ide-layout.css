@@ -1489,6 +1489,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip {
 	opacity: 0.85;
+	font-style: italic;
 }
 
 .wpgraphql-ide-send-button.components-button {

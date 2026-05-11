@@ -23,7 +23,7 @@ const PLAY_MILESTONES = {
 	10: 'GraphQL fan club, party of one. Tip: variables live in the Variables tab below the editor.',
 	15: 'Achievement unlocked: Excessive Curiosity. Tip: name your operations (`query GetPosts { ... }`) so the picker shows them.',
 	20: "OK now you're just showing off. Tip: switch HTTP method to GET on read-only queries so CDNs can cache them.",
-	30: 'Have you tried Cmd+Enter? Just saying. (Also: drafts auto-save as you type — no Cmd+S needed.)',
+	30: 'Have you tried Cmd+Enter? Just saying. Tip: drafts auto-save as you type — no Cmd+S needed.',
 };
 
 // Empty-query execute: replaces the server's "Unexpected EOF" with a
