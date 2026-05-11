@@ -556,7 +556,7 @@ class ExplorerView extends React.PureComponent {
 								definition={operation}
 								isCollapsed={isCollapsed}
 								onToggleCollapsed={onToggleCollapsed}
-								canCollapse={relevantOperations.length > 1}
+								canCollapse={true}
 								onOperationRename={onOperationRename}
 								onOperationDestroy={onOperationDestroy}
 								onOperationClone={onOperationClone}
