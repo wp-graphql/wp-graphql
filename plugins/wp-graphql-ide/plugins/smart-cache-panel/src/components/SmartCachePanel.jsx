@@ -193,6 +193,8 @@ export function SmartCachePanelView({
 
 			<PurgeMapSection diagnostics={diagnostics} defaultOpen={isHit} />
 
+			<SkippedKeysSection diagnostics={diagnostics} />
+
 			<DocumentPolicySection
 				docSettings={docSettings}
 				globalGrantMode={globalGrantMode}
@@ -436,18 +438,36 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 
 	const nodes = Array.isArray(purgeMap.nodes) ? purgeMap.nodes : [];
 	const lists = Array.isArray(purgeMap.lists) ? purgeMap.lists : [];
-	const total = nodes.length + lists.length;
+	const queryTypes = Array.isArray(purgeMap.queryTypes)
+		? purgeMap.queryTypes
+		: [];
+	const total = nodes.length + lists.length + queryTypes.length;
+	const keysCount =
+		typeof purgeMap.keysCount === 'number' ? purgeMap.keysCount : null;
+	const keysLength =
+		typeof purgeMap.keysLength === 'number' ? purgeMap.keysLength : null;
+
+	const summaryParts = [];
+	if (nodes.length > 0) {
+		summaryParts.push(
+			`${nodes.length} node${nodes.length === 1 ? '' : 's'}`
+		);
+	}
+	if (lists.length > 0) {
+		summaryParts.push(
+			`${lists.length} list type${lists.length === 1 ? '' : 's'}`
+		);
+	}
+	if (queryTypes.length > 0) {
+		summaryParts.push(
+			`${queryTypes.length} root type${queryTypes.length === 1 ? '' : 's'}`
+		);
+	}
 	const aside =
 		total === 0 ? (
 			<span>untracked</span>
 		) : (
-			<span>
-				{nodes.length > 0 &&
-					`${nodes.length} node${nodes.length === 1 ? '' : 's'}`}
-				{nodes.length > 0 && lists.length > 0 && ', '}
-				{lists.length > 0 &&
-					`${lists.length} list type${lists.length === 1 ? '' : 's'}`}
-			</span>
+			<span>{summaryParts.join(', ')}</span>
 		);
 
 	return (
@@ -457,7 +477,7 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 			className="wpgraphql-ide-smart-cache-purge-map"
 			defaultOpen={defaultOpen}
 		>
-			{nodes.length === 0 && lists.length === 0 ? (
+			{total === 0 ? (
 				<div className="wpgraphql-ide-smart-cache-purge-map-empty">
 					No tracked nodes or list types — Query Analyzer didn&apos;t
 					match this query to invalidatable resources, so it
@@ -469,15 +489,15 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 						Smart Cache will invalidate this entry when any of these
 						change:
 					</div>
-					{nodes.length > 0 && (
+					{queryTypes.length > 0 && (
 						<div className="wpgraphql-ide-smart-cache-purge-map-group">
 							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
-								Nodes ({nodes.length})
+								Root types ({queryTypes.length})
 							</div>
 							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
-								{nodes.map((id) => (
-									<li key={`node:${id}`}>
-										<code>{id}</code>
+								{queryTypes.map((name) => (
+									<li key={`root:${name}`}>
+										<code>{name}</code>
 									</li>
 								))}
 							</ul>
@@ -497,7 +517,101 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 							</ul>
 						</div>
 					)}
+					{nodes.length > 0 && (
+						<div className="wpgraphql-ide-smart-cache-purge-map-group">
+							<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+								Nodes ({nodes.length})
+							</div>
+							<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+								{nodes.map((id) => (
+									<li key={`node:${id}`}>
+										<code>{id}</code>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
+					{(keysCount !== null || keysLength !== null) && (
+						<div className="wpgraphql-ide-smart-cache-purge-map-meta">
+							{keysCount !== null && (
+								<span>
+									<strong>{keysCount}</strong>{' '}
+									{keysCount === 1 ? 'key' : 'keys'}
+								</span>
+							)}
+							{keysCount !== null && keysLength !== null && (
+								<span aria-hidden="true"> · </span>
+							)}
+							{keysLength !== null && (
+								<span>
+									<strong>{keysLength}</strong>{' '}
+									{keysLength === 1 ? 'char' : 'chars'} in
+									X-GraphQL-Keys
+								</span>
+							)}
+						</div>
+					)}
 				</>
+			)}
+		</DetailsSection>
+	);
+}
+
+function SkippedKeysSection({ diagnostics }) {
+	const skipped = diagnostics?.skipped;
+	if (!skipped || typeof skipped !== 'object' || (skipped.count || 0) === 0) {
+		return null;
+	}
+
+	const keys = Array.isArray(skipped.keys) ? skipped.keys : [];
+	const types = Array.isArray(skipped.types) ? skipped.types : [];
+	const count = skipped.count || keys.length;
+	const size = skipped.size || 0;
+
+	return (
+		<DetailsSection
+			summaryLabel="Cache integrity warning"
+			summaryAside={
+				<span>
+					{count} skipped{size > 0 ? ` · ${size} chars` : ''}
+				</span>
+			}
+			className="wpgraphql-ide-smart-cache-skipped"
+			defaultOpen
+		>
+			<div className="wpgraphql-ide-smart-cache-skipped-explainer">
+				The Query Analyzer hit its header-length budget and dropped the
+				entries below from <code>X-GraphQL-Keys</code>. Smart Cache
+				won&apos;t invalidate this entry when these change — the cache
+				may serve stale data for affected resources.
+			</div>
+			{types.length > 0 && (
+				<div className="wpgraphql-ide-smart-cache-purge-map-group">
+					<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+						Skipped types ({types.length})
+					</div>
+					<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+						{types.map((name) => (
+							<li key={`skipped-type:${name}`}>
+								<code>{name}</code>
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+			{keys.length > 0 && (
+				<div className="wpgraphql-ide-smart-cache-purge-map-group">
+					<div className="wpgraphql-ide-smart-cache-purge-map-group-label">
+						Skipped keys ({keys.length})
+					</div>
+					<ul className="wpgraphql-ide-smart-cache-purge-map-list">
+						{keys.map((id) => (
+							<li key={`skipped-key:${id}`}>
+								<code>{id}</code>
+							</li>
+						))}
+					</ul>
+				</div>
 			)}
 		</DetailsSection>
 	);

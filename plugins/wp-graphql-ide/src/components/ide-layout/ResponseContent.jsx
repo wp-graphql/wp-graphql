@@ -61,9 +61,21 @@ export function ResponseContent({
 	// for — useful as a "you have data here but nothing's reading it"
 	// signal. It hides itself as soon as that data is registered or the
 	// response stops emitting it.
-	const unregisteredExtensionKeys = Object.keys(extensions).filter(
-		(key) => !extensionTabs.some((t) => t.name === key)
-	);
+	//
+	// `queryAnalyzer` is *consumed* by the Smart Cache panel (which
+	// reads nodes / list types / root types / keys count / skipped
+	// diagnostics from it). When Smart Cache is rendering, we hide the
+	// raw queryAnalyzer payload from the unregistered fallback so it
+	// doesn't show as both an Extensions tab AND inside Smart Cache.
+	// When Smart Cache isn't present (e.g. wp-graphql-smart-cache not
+	// installed) the fallback still shows it so the data isn't lost.
+	const smartCacheConsumed = extensions.graphqlSmartCache !== undefined;
+	const unregisteredExtensionKeys = Object.keys(extensions).filter((key) => {
+		if (smartCacheConsumed && key === 'queryAnalyzer') {
+			return false;
+		}
+		return !extensionTabs.some((t) => t.name === key);
+	});
 	const showUnregisteredFallback = unregisteredExtensionKeys.length > 0;
 
 	const bottomTabs = [

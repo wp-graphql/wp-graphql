@@ -104,8 +104,13 @@ function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $
 
 	$diagnostics = [];
 
-	// Purge map: nodes + list types associated with this query, derived
-	// from the Query Analyzer (same source smart-cache uses for purging).
+	// Purge map: nodes + list types + root types associated with this
+	// query, derived from the Query Analyzer (same source smart-cache
+	// uses for purging). We also fold in the keys-count / keys-length
+	// metrics and the skipped-keys diagnostics (entries the analyzer
+	// dropped due to its header-length budget) — both used to live in
+	// the standalone "Query Analyzer" response tab; consolidating them
+	// here keeps the caching story in one place.
 	if ( $request && method_exists( $request, 'get_query_analyzer' ) ) {
 		$analyzer = $request->get_query_analyzer();
 		if ( $analyzer ) {
@@ -115,11 +120,47 @@ function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $
 			$lists = method_exists( $analyzer, 'get_list_types' )
 				? ( $analyzer->get_list_types() ?: [] )
 				: [];
+			$query_types = method_exists( $analyzer, 'get_query_types' )
+				? ( $analyzer->get_query_types() ?: [] )
+				: [];
 
-			$diagnostics['purgeMap'] = [
-				'nodes' => array_values( array_map( 'strval', $nodes ) ),
-				'lists' => array_values( array_map( 'strval', $lists ) ),
+			$purge_map = [
+				'nodes'      => array_values( array_map( 'strval', $nodes ) ),
+				'lists'      => array_values( array_map( 'strval', $lists ) ),
+				'queryTypes' => array_values( array_map( 'strval', $query_types ) ),
 			];
+
+			// The "skipped" surface only appears when the analyzer's
+			// budget dropped entries from the X-GraphQL-Keys header —
+			// noise on every response otherwise.
+			$skipped = null;
+			if ( method_exists( $analyzer, 'get_graphql_keys' ) ) {
+				$keys_data = $analyzer->get_graphql_keys();
+				if ( is_array( $keys_data ) ) {
+					$purge_map['keysCount']  = isset( $keys_data['keysCount'] ) ? (int) $keys_data['keysCount'] : 0;
+					$purge_map['keysLength'] = isset( $keys_data['keysLength'] ) ? (int) $keys_data['keysLength'] : 0;
+
+					$skipped_count = isset( $keys_data['skippedKeysCount'] ) ? (int) $keys_data['skippedKeysCount'] : 0;
+					if ( $skipped_count > 0 ) {
+						$skipped_keys_raw   = isset( $keys_data['skippedKeys'] ) ? (string) $keys_data['skippedKeys'] : '';
+						$skipped_keys_array = '' !== $skipped_keys_raw ? array_values( array_filter( explode( ' ', $skipped_keys_raw ) ) ) : [];
+						$skipped_types      = isset( $keys_data['skippedTypes'] ) && is_array( $keys_data['skippedTypes'] )
+							? array_values( array_map( 'strval', $keys_data['skippedTypes'] ) )
+							: [];
+						$skipped = [
+							'keys'  => $skipped_keys_array,
+							'types' => $skipped_types,
+							'count' => $skipped_count,
+							'size'  => isset( $keys_data['skippedKeysSize'] ) ? (int) $keys_data['skippedKeysSize'] : 0,
+						];
+					}
+				}
+			}
+
+			$diagnostics['purgeMap'] = $purge_map;
+			if ( null !== $skipped ) {
+				$diagnostics['skipped'] = $skipped;
+			}
 		}
 	}
 

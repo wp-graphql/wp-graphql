@@ -32,7 +32,6 @@ import {
 } from '../components/DocsExplorerPanel';
 import { HistoryPanel, HistoryIcon } from '../components/HistoryPanel';
 import { DebugExtensionTab } from '../components/response-extensions/DebugExtensionTab';
-import { QueryAnalyzerExtensionTab } from '../components/response-extensions/QueryAnalyzerExtensionTab';
 import { TracingExtensionTab } from '../components/response-extensions/TracingExtensionTab';
 import { QueryLogExtensionTab } from '../components/response-extensions/QueryLogExtensionTab';
 import { ErrorsExtensionTab } from '../components/response-extensions/ErrorsExtensionTab';
@@ -115,15 +114,6 @@ export const initializeRegistry = () => {
 			content: DebugExtensionTab,
 		},
 		10
-	);
-
-	registerResponseExtensionTab(
-		'queryAnalyzer',
-		{
-			title: 'Query Analyzer',
-			content: QueryAnalyzerExtensionTab,
-		},
-		20
 	);
 
 	registerResponseExtensionTab(
