@@ -47,10 +47,6 @@ export function CacheInspector() {
 	const [sort, setSort] = useState(DEFAULT_SORT);
 	const [selected, setSelected] = useState(() => new Set());
 	const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
-	// Tracker-expansion state: which trackers are expanded, plus the
-	// fetched member-keys per tracker. Loaded on demand from /entry so
-	// the inventory query doesn't have to ship every tracker payload
-	// just in case the user clicks one.
 	const [expandedTrackers, setExpandedTrackers] = useState(() => new Set());
 	const [trackerMembers, setTrackerMembers] = useState(() => new Map());
 
@@ -139,9 +135,6 @@ export function CacheInspector() {
 				}
 				return next;
 			});
-			// Fetch on first expand. Subsequent expands reuse the cached
-			// payload from `trackerMembers` so we don't hammer the REST
-			// route as the user toggles the row.
 			if (!trackerMembers.has(cacheKey)) {
 				fetchTrackerMembers(cacheKey);
 			}
@@ -403,11 +396,6 @@ export function CacheInspector() {
 	);
 }
 
-// Collapsible "About this cache" explainer. Closed by default so it
-// doesn't dominate the viewport on every visit, but the toggle is the
-// first thing in the panel so newcomers can find it. The scope copy
-// matters: this inspector reads the WordPress object cache only —
-// users mistake it for a network/CDN inventory until told otherwise.
 function HelpPanel() {
 	const [open, setOpen] = useState(false);
 	return (
@@ -675,9 +663,6 @@ function EntriesView({
 	trackerMembers,
 	onToggleTrackerExpand,
 }) {
-	// Set of cache keys currently in the table so the tracker-expansion
-	// row can tell users whether a dependent response is still cached
-	// or has already aged out / been purged.
 	const liveKeys = useMemo(
 		() => new Set(entries.map((e) => e.cacheKey)),
 		[entries]
@@ -979,10 +964,6 @@ function EntryRow({
 	);
 }
 
-// Expanded under a tracker row: shows the request_keys the tracker
-// would purge when its underlying node/list changes. Members are
-// classified against `liveKeys` so users can tell which dependent
-// responses are still in the cache vs. already gone.
 function TrackerExpandRow({ payload, liveKeys, onPurge, purging }) {
 	let body;
 	if (!payload || payload.loading) {

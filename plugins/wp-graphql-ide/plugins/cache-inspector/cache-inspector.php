@@ -289,12 +289,6 @@ function rest_list_entries() {
 /**
  * GET /entry — returns the stored payload for a single cache entry.
  *
- * Used by the UI to surface tracker → response fan-out: a tracker
- * stores an `array` of request_keys (the SHA-256 hashes of response
- * entries that depend on it). For response entries we don't return the
- * payload (it can be enormous and the inspector doesn't render it);
- * the row already shows the relevant metadata.
- *
  * @param \WP_REST_Request $request Incoming request with a `cacheKey` query param.
  *
  * @return \WP_REST_Response
@@ -321,9 +315,7 @@ function rest_get_entry( $request ) {
 	}
 
 	if ( 'tracker' === $type ) {
-		// `store_content()` in Collection.php writes a numerically
-		// indexed array of request keys. Filter to strings and
-		// re-index so the wire shape is predictable.
+		// Normalize the numerically-indexed array Collection::store_content writes.
 		$members = is_array( $payload )
 			? array_values(
 				array_filter(

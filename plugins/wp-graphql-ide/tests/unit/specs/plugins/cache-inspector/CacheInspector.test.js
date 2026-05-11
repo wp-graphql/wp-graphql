@@ -158,7 +158,6 @@ describe('CacheInspector', () => {
 		const toggle = await screen.findByRole('button', {
 			name: /About this cache/i,
 		});
-		// Closed by default — body content isn't in the DOM until opened.
 		expect(toggle).toHaveAttribute('aria-expanded', 'false');
 		expect(
 			screen.queryByText(/Varnish, Cloudflare, Fastly/i)
@@ -166,7 +165,6 @@ describe('CacheInspector', () => {
 
 		fireEvent.click(toggle);
 		expect(toggle).toHaveAttribute('aria-expanded', 'true');
-		// Scope clarification copy — object cache vs. network cache.
 		expect(
 			screen.getByText(/Varnish, Cloudflare, Fastly/i)
 		).toBeInTheDocument();
@@ -569,16 +567,12 @@ describe('CacheInspector', () => {
 			expect(screen.getByRole('table')).toBeInTheDocument()
 		);
 
-		// Tracker row has an expand button; click it.
 		const expandButton = screen.getByRole('button', {
 			name: /Expand list:post/i,
 		});
 		fireEvent.click(expandButton);
 
-		// Loading indicator → then the members render with their
-		// live/gone status against the current inventory. The count
-		// label crosses element boundaries (<strong>2</strong> responses),
-		// so assert via textContent rather than a single-node matcher.
+		// Count label crosses element boundaries (<strong>2</strong> responses).
 		await waitFor(() =>
 			expect(document.body.textContent).toMatch(/2 responses/i)
 		);

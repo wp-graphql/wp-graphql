@@ -4915,21 +4915,13 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	gap: 4px;
 }
 
-/* `custom`-typed fields are sub-section dividers — Smart Cache uses
-   three of them on the Cache tab (Network / Object / Debugging). The
-   PHP side runs the registered callback under output buffering and
-   ships the sanitized HTML; we render it as a flush-left heading +
-   intro paragraph block, with a subtle top rule that mirrors the `<hr>`
-   the in-tree callbacks already emit for the second-and-later
-   dividers. */
 .wpgraphql-ide-setting--divider {
 	margin-top: 8px;
 	padding-top: 16px;
 	border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 }
 
-/* First divider in a section doesn't need a top rule — the pane header
-   already separates it from the section title. */
+/* First divider sits under the pane header, which already separates it. */
 .wpgraphql-ide-settings-field:first-child .wpgraphql-ide-setting--divider {
 	margin-top: 0;
 	padding-top: 0;
@@ -4954,8 +4946,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	margin-bottom: 0;
 }
 
-/* `<hr>` inside the captured HTML is redundant with the divider's own
-   top rule. Hide it so we don't get a double line. */
+/* Captured `<hr>` would double up with the divider's own top rule. */
 .wpgraphql-ide-setting--divider hr {
 	display: none;
 }
@@ -5279,10 +5270,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border-radius: 3px;
 }
 
-/* "About this cache" — collapsible explainer at the top of the
-   inspector. The scope clarification (object cache vs. CDN) is the
-   load-bearing copy here, so the toggle stays prominent (button-style
-   row with a chevron) but the body is closed by default. */
 .wpgraphql-ide-cache-inspector-help {
 	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 	border-radius: 4px;
@@ -5495,8 +5482,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 }
 
-/* Expand chevron for tracker rows. Spacer keeps response/tracker
-   key-cells aligned on the same x-axis even when there's no chevron. */
+/* Spacer keeps non-tracker key-cells aligned where the chevron would sit. */
 .wpgraphql-ide-cache-inspector-expand {
 	display: inline-flex;
 	align-items: center;
@@ -5523,10 +5509,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	height: 20px;
 }
 
-/* Tracker expand row: indented body with the list of dependent
-   response keys, each tagged "cached" vs "not cached" against the
-   currently visible inventory. Background tint sets it apart from
-   regular data rows so the parent/child relationship is obvious. */
 .wpgraphql-ide-cache-inspector-tracker-row > td {
 	padding: 0;
 	background: var(--wp-components-color-gray-100, #f6f7f7);
@@ -5534,9 +5516,8 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-cache-inspector-tracker-body {
+	/* Indent aligns the body under the cache-key cell (chevron + spacer + cell padding). */
 	padding: 10px 16px 12px calc(12px + 24px + 12px);
-	/* Aligns the body roughly under the cache-key cell — chevron (20px)
-	   + spacer (8px) + cell left-padding (12px) = ~40px indent. */
 	font-size: 12px;
 	line-height: 1.5;
 	color: var(--wp-components-color-gray-700, #50575e);
