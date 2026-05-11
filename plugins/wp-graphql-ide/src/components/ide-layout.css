@@ -840,35 +840,38 @@ input.wpgraphql-ide-tab-input:focus {
    size, matching the WP-core / Gutenberg convention for primary
    actions in a toolbar. */
 
-/* Auth-mode dropdown toggle. Icon-only — circle. The badge +
-   grayscale-when-public carry the auth state; aria-haspopup +
-   hover-bg signal interactivity without competing with the badge. */
+/* Auth-mode dropdown toggle. Icon-only — circle. Sized smaller than
+   the 40px play button so it reads as a passive state indicator and
+   doesn't compete with the primary execute action. The badge +
+   grayscale-when-public carry the auth state; the touch target stays
+   reachable (28×28 with the parent flex container's 40px rhythm). */
 .wpgraphql-ide-auth-avatar {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
+	width: 28px;
+	height: 28px;
 	padding: 0;
 	border: none;
 	background: transparent;
 	cursor: pointer;
 	border-radius: 50%;
 	transition: background-color 0.15s ease;
+	margin: 0 4px;
 }
 
-/* Force avatar image to fit the button (≈80% of the touch target,
-   leaving a small visual margin so the badge doesn't crowd the edge). */
+/* Force avatar image to fit the smaller button (~85% of the touch
+   target). */
 .wpgraphql-ide-auth-avatar > span {
-	width: 32px !important;
-	height: 32px !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 /* Auth status badge sized to read clearly inside the pill.
    The module-CSS hash prevents a direct class selector, so target by structure. */
 .wpgraphql-ide-auth-avatar > span > span {
-	width: 10px !important;
-	height: 10px !important;
+	width: 8px !important;
+	height: 8px !important;
 	border-width: 1.5px !important;
 }
 

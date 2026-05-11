@@ -156,11 +156,17 @@ describe('SmartCachePanelView', () => {
 			).toHaveTextContent(/300s \(set on this document\)/);
 		});
 
-		it('falls back to "Global default" when max-age is unset', () => {
-			const { container } = renderView({ docSettings: {} });
-			expect(
-				container.querySelector('.wpgraphql-ide-smart-cache-policy')
-			).toHaveTextContent(/Max-age:[\s\S]*Global default/);
+		it('shows the global-default max-age value with a source parenthetical when unset', () => {
+			const { container } = renderView({
+				docSettings: {},
+				diagnostics: { globalTtl: 600 },
+			});
+			const policy = container.querySelector(
+				'.wpgraphql-ide-smart-cache-policy'
+			);
+			// Value first ("10m"), source second ("(global default)").
+			expect(policy).toHaveTextContent(/Max-age:[\s\S]*10m/);
+			expect(policy).toHaveTextContent(/\(global default\)/);
 		});
 
 		it('labels grant=allow as Allowed', () => {
@@ -177,9 +183,12 @@ describe('SmartCachePanelView', () => {
 				docSettings: {},
 				globalGrantMode: 'deny',
 			});
-			expect(
-				container.querySelector('.wpgraphql-ide-smart-cache-policy')
-			).toHaveTextContent(/currently:\s*Denied/);
+			const policy = container.querySelector(
+				'.wpgraphql-ide-smart-cache-policy'
+			);
+			// Value first ("Denied"), source second ("(global default)").
+			expect(policy).toHaveTextContent(/Access:[\s\S]*Denied/);
+			expect(policy).toHaveTextContent(/\(global default\)/);
 		});
 	});
 
@@ -356,7 +365,12 @@ describe('SmartCachePanelView', () => {
 			// The 64-char hex is the Query ID (X-GraphQL-Query-ID), not the
 			// transient cache key — those hash different inputs.
 			expect(map).toHaveTextContent(/Query ID \(1\)/);
-			expect(map).toHaveTextContent(sha);
+			// Query ID chip is middle-truncated for display (head…tail),
+			// with the full hash on the `title` attribute. Assert the
+			// truncated visible form rather than the full string.
+			expect(map).toHaveTextContent(/aaaaaaaa\u2026aaaaaaa/);
+			const queryIdEl = map.querySelector('li code[title]');
+			expect(queryIdEl).toHaveAttribute('title', sha);
 			expect(map).toHaveTextContent(/Root types \(1\)/);
 			expect(map).toHaveTextContent('graphql:Query');
 			expect(map).toHaveTextContent(/Operations \(1\)/);

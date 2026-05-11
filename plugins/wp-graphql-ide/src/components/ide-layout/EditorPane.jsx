@@ -441,6 +441,7 @@ export function EditorPane({
 										headers={headers}
 										onHeadersChange={onHeadersChange}
 										activeDocument={activeDocument}
+										editorKeyBindings={editorKeyBindings}
 									/>
 								);
 							}}

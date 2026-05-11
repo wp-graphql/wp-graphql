@@ -8,15 +8,21 @@ import { JSONEditor } from '../editors/JSONEditor';
  * @param {Object}   props
  * @param {string}   props.headers
  * @param {Function} props.onHeadersChange
+ * @param {Object}   [props.editorKeyBindings] - Shared CM keymap ref (Cmd+Enter etc.).
  *
  * @return {JSX.Element}
  */
-export function HeadersEditorTab({ headers, onHeadersChange }) {
+export function HeadersEditorTab({
+	headers,
+	onHeadersChange,
+	editorKeyBindings,
+}) {
 	return (
 		<JSONEditor
 			value={headers}
 			onChange={onHeadersChange}
 			placeholder="Headers (JSON)"
+			extraKeys={editorKeyBindings?.current}
 		/>
 	);
 }

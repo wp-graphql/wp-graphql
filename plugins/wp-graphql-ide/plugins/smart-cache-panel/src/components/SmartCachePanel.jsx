@@ -257,6 +257,7 @@ export function SmartCachePanelView({
 			<DocumentPolicySection
 				docSettings={docSettings}
 				globalGrantMode={globalGrantMode}
+				globalTtl={diagnostics?.globalTtl}
 			/>
 
 			<NetworkCacheSection cacheControl={cacheControl} />
@@ -490,6 +491,25 @@ function formatDuration(seconds) {
 }
 
 /**
+ * Middle-truncate a long string for display, keeping `head` chars from
+ * the start and `tail` chars from the end joined by an ellipsis. Used
+ * on the Query ID chip so its 64-char hex doesn't read as a duplicate
+ * of the (also 64-char hex) Cache key shown above the Purge map.
+ *
+ * @param {string} value
+ * @param {number} head
+ * @param {number} tail
+ *
+ * @return {string} Truncated string, or the original when it already fits.
+ */
+function truncateMiddle(value, head, tail) {
+	if (typeof value !== 'string' || value.length <= head + tail + 1) {
+		return value;
+	}
+	return `${value.slice(0, head)}\u2026${value.slice(-tail)}`;
+}
+
+/**
  * Bucket each X-GraphQL-Keys entry by its prefix. The categories are
  * how Smart Cache (and downstream CDN) addresses tags for invalidation:
  *
@@ -607,7 +627,11 @@ function PurgeMapSection({ diagnostics, defaultOpen }) {
 								<ul className="wpgraphql-ide-smart-cache-purge-map-list">
 									{g.items.map((item) => (
 										<li key={`${g.key}:${item}`}>
-											<code>{item}</code>
+											<code title={item}>
+												{g.key === 'queryId'
+													? truncateMiddle(item, 8, 7)
+													: item}
+											</code>
 										</li>
 									))}
 								</ul>
@@ -681,7 +705,7 @@ function SkippedKeysSection({ diagnostics }) {
 	);
 }
 
-function DocumentPolicySection({ docSettings, globalGrantMode }) {
+function DocumentPolicySection({ docSettings, globalGrantMode, globalTtl }) {
 	const maxAge = docSettings?.maxAgeHeader;
 	const grant = docSettings?.grant;
 
@@ -689,14 +713,36 @@ function DocumentPolicySection({ docSettings, globalGrantMode }) {
 		return null;
 	}
 
-	const maxAgeText =
-		maxAge !== undefined && maxAge !== null && maxAge !== ''
-			? `${maxAge}s (set on this document)`
-			: 'Global default';
-	const grantText = grant ? labelForGrant(grant) : 'Global default';
+	// Value-first / source-second so each row reads as a single fact
+	// instead of "default — actually <value>" doubled-up phrasing.
+	const maxAgeIsCustom =
+		maxAge !== undefined && maxAge !== null && maxAge !== '';
+	let maxAgeValue;
+	if (maxAgeIsCustom) {
+		maxAgeValue = `${maxAge}s`;
+	} else if (globalTtl) {
+		maxAgeValue = formatDuration(globalTtl);
+	} else {
+		maxAgeValue = null;
+	}
+	const maxAgeSource = maxAgeIsCustom
+		? 'set on this document'
+		: 'global default';
+
+	const grantIsCustom = !!grant;
+	const grantValue = labelForGrant(
+		grantIsCustom ? grant : globalGrantMode || 'public'
+	);
+	const grantSource = grantIsCustom
+		? 'set on this document'
+		: 'global default';
 
 	const summaryAside =
-		maxAge || grant ? <span>customized</span> : <span>defaults</span>;
+		maxAgeIsCustom || grantIsCustom ? (
+			<span>customized</span>
+		) : (
+			<span>defaults</span>
+		);
 
 	return (
 		<DetailsSection
@@ -708,23 +754,22 @@ function DocumentPolicySection({ docSettings, globalGrantMode }) {
 				<span className="wpgraphql-ide-smart-cache-policy-label">
 					Max-age:
 				</span>
-				<span>{maxAgeText}</span>
+				<span>
+					{maxAgeValue || 'Global default'}{' '}
+					<span className="wpgraphql-ide-smart-cache-policy-muted">
+						({maxAgeSource})
+					</span>
+				</span>
 			</div>
 			<div className="wpgraphql-ide-smart-cache-policy-row">
 				<span className="wpgraphql-ide-smart-cache-policy-label">
 					Access:
 				</span>
 				<span>
-					{grantText}
-					{!grant && (
-						<>
-							{' '}
-							<span className="wpgraphql-ide-smart-cache-policy-muted">
-								(currently:{' '}
-								{labelForGrant(globalGrantMode || 'public')})
-							</span>
-						</>
-					)}
+					{grantValue}{' '}
+					<span className="wpgraphql-ide-smart-cache-policy-muted">
+						({grantSource})
+					</span>
 				</span>
 			</div>
 		</DetailsSection>

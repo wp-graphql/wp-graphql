@@ -10,6 +10,7 @@ import { JSONEditor } from '../editors/JSONEditor';
  * @param {string}   props.variables
  * @param {Function} props.onVariablesChange
  * @param {Object}   props.variableToType
+ * @param {Object}   [props.editorKeyBindings] - Shared CM keymap ref (Cmd+Enter etc.).
  *
  * @return {JSX.Element}
  */
@@ -17,6 +18,7 @@ export function VariablesEditorTab({
 	variables,
 	onVariablesChange,
 	variableToType,
+	editorKeyBindings,
 }) {
 	return (
 		<JSONEditor
@@ -24,6 +26,7 @@ export function VariablesEditorTab({
 			onChange={onVariablesChange}
 			placeholder="Variables (JSON)"
 			variableToType={variableToType}
+			extraKeys={editorKeyBindings?.current}
 		/>
 	);
 }

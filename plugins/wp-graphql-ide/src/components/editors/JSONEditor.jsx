@@ -4,7 +4,7 @@ import {
 	keymap,
 	placeholder as cmPlaceholder,
 } from '@codemirror/view';
-import { Compartment, EditorState } from '@codemirror/state';
+import { Compartment, EditorState, Prec } from '@codemirror/state';
 import { indentWithTab } from '@codemirror/commands';
 import { json, jsonLanguage, jsonParseLinter } from '@codemirror/lang-json';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -44,6 +44,10 @@ const jsonHighlightStyle = HighlightStyle.define([
  * @param {Object}   [props.variableToType] - GraphQL variable name → InputType map.
  *                                          When provided, the editor lints values
  *                                          against the operation's declared types.
+ * @param {Array}    [props.extraKeys]      - Caller-supplied CodeMirror keymap entries
+ *                                          (e.g. `[{ key: 'Mod-Enter', run: ... }]`).
+ *                                          Registered at highest precedence so they
+ *                                          win over basicSetup's defaults.
  */
 export function JSONEditor({
 	value = '',
@@ -53,6 +57,7 @@ export function JSONEditor({
 	isHidden = false,
 	className = '',
 	variableToType,
+	extraKeys,
 }) {
 	const containerRef = useRef(null);
 	const viewRef = useRef(null);
@@ -123,6 +128,14 @@ export function JSONEditor({
 
 		if (placeholder) {
 			extensions.push(cmPlaceholder(placeholder));
+		}
+
+		// Caller-supplied bindings (Cmd/Ctrl+Enter to run the query, etc.)
+		// at highest precedence so they win over basicSetup's defaults —
+		// otherwise CodeMirror's built-in Enter handler inserts a newline
+		// before our run command sees the event.
+		if (Array.isArray(extraKeys) && extraKeys.length > 0) {
+			extensions.push(Prec.highest(keymap.of(extraKeys)));
 		}
 
 		const state = EditorState.create({
