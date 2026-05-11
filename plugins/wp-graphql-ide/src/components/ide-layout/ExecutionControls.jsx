@@ -11,6 +11,7 @@ import { dispatch } from '@wordpress/data';
 import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../../wordpress-hooks';
+import { tipify } from '../../utils/tipify';
 
 // Play-button easter eggs: count rapid presses (< 1.5s apart) and fire a
 // milestone snackbar via `wpgraphql-ide.notice`. One stable id so the
@@ -203,7 +204,7 @@ export function ExecutionControls({
 			if (message) {
 				hooks.doAction(
 					'wpgraphql-ide.notice',
-					{ id: PLAY_NOTICE_ID, content: message },
+					{ id: PLAY_NOTICE_ID, content: tipify(message) },
 					'default'
 				);
 			}

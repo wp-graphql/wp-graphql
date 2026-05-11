@@ -1,5 +1,6 @@
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import hooks from '../wordpress-hooks';
+import { tipify } from '../utils/tipify';
 import {
 	registerActivityBarPanel,
 	registerDocumentTabAction,
@@ -376,7 +377,7 @@ export const initializeRegistry = () => {
 						'wpgraphql-ide.notice',
 						{
 							id: SCHEMA_REFRESH_NOTICE_ID,
-							content: milestone,
+							content: tipify(milestone),
 						},
 						'default'
 					);
