@@ -2648,13 +2648,18 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 /* Editor / response-viewer wrapper used when the bottom strip is
-   collapsed. ResizableBox is skipped, so this plain div flex-fills the
-   parent column. Doubled-class selector on the response side beats the
-   later `.wpgraphql-ide-response-viewer { flex: none }` declaration. */
-.wpgraphql-ide-editor-resizable--filling,
+   collapsed. ResizableBox is skipped, so this plain div flex-fills
+   the parent column. Doubled-class selectors beat the single-class
+   defaults — `.wpgraphql-ide-editor-resizable` reserves 120px for
+   the bottom strip via `max-height: calc(100% - 120px)`, which we
+   must release since the collapsed strip only needs ~36 px.
+   `.wpgraphql-ide-response-viewer` defaults to `flex: none`, same
+   problem on the response side. */
+.wpgraphql-ide-editor-resizable.wpgraphql-ide-editor-resizable--filling,
 .wpgraphql-ide-response-viewer.wpgraphql-ide-response-viewer--filling {
 	flex: 1;
 	min-height: 0;
+	max-height: 100%;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
