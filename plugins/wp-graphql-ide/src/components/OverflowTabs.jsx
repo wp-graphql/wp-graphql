@@ -334,23 +334,20 @@ export function OverflowTabs({
 		setActive(name);
 	};
 
-	// Clicking the strip background (the empty area to the right of
-	// the tabs, before the chevron) also collapses. The chevron and
-	// each tab button bubble their click here too, so we only act
-	// when the event landed on the strip wrapper or the tablist
-	// container itself.
+	// Clicking the strip background (the empty area between the tabs
+	// and the chevron) also collapses. Tabs and the chevron own their
+	// own click handlers — we skip when the click landed on or inside
+	// any button, regardless of which container element the event
+	// actually fired on. Avoids depending on WP-components internal
+	// class names like `components-tab-panel__tabs`.
 	const handleStripBackgroundClick = (event) => {
 		if (typeof onCollapse !== 'function') {
 			return;
 		}
-		const target = event.target;
-		const isStripBg =
-			target === event.currentTarget ||
-			(target.classList &&
-				target.classList.contains('components-tab-panel__tabs'));
-		if (isStripBg) {
-			onCollapse();
+		if (event.target.closest('button')) {
+			return;
 		}
+		onCollapse();
 	};
 
 	const effectiveActive =
