@@ -10,12 +10,12 @@ import { useSelect } from '@wordpress/data';
 import { Icon, check, cancelCircleFilled, help, info } from '@wordpress/icons';
 
 // Module-scoped session counter so HIT/MISS totals survive Smart Cache
-// panel remounts (switching to Tracing and back). The counter is scoped
-// to the *exact set of inputs the server hashes for its cache key* —
-// query + variables + auth state — so any change that would produce a
-// different cache key zeroes the running totals. Stats for the previous
-// cache-key bucket are dropped on purpose; tracking historical hit
-// rates across documents is out of scope here. Cleared on page reload.
+// panel remounts (switching to Tracing and back). Scoped to the inputs
+// the server hashes for its cache key — query + variables + auth +
+// operation name — so any change that would produce a different bucket
+// zeroes the running totals. Stats for the previous bucket are dropped
+// on purpose; tracking historical hit rates across ops is out of scope.
+// Cleared on page reload.
 let sessionStats = { hit: 0, miss: 0, key: null };
 const sessionSubscribers = new Set();
 function notifyStats() {
@@ -31,21 +31,27 @@ function recordResult(isHit) {
 }
 /**
  * Compose the cache-key signature from the inputs the server hashes
- * (query + variables + auth). Pipe-separator is fine — these strings
- * don't contain `|` in any cache-relevant way, and a collision between
- * (`a`, `b|c`) and (`a|b`, `c`) would only manifest as the counter
- * NOT resetting when it should, which is harmless.
+ * (query + variables + auth + operation). Pipe-separator collisions
+ * would only mean the counter doesn't reset when it should, which is
+ * harmless.
  *
  * @param {string|null|undefined} query
  * @param {string|null|undefined} variables
  * @param {boolean}               isAuthenticated
+ * @param {string|null|undefined} operationName
  *
  * @return {string} Stable signature for the current cache-key inputs.
  */
-function composeCacheKeySignature(query, variables, isAuthenticated) {
+function composeCacheKeySignature(
+	query,
+	variables,
+	isAuthenticated,
+	operationName
+) {
 	const q = typeof query === 'string' ? query : '';
 	const v = typeof variables === 'string' ? variables : '';
-	return `${q}|${v}|${isAuthenticated ? '1' : '0'}`;
+	const o = typeof operationName === 'string' ? operationName : '';
+	return `${q}|${v}|${isAuthenticated ? '1' : '0'}|${o}`;
 }
 function setActiveCacheKey(signature) {
 	const next = typeof signature === 'string' ? signature : '';
@@ -71,9 +77,19 @@ export function _resetSessionStatsForTests() {
 export function _recordResultForTests(isHit) {
 	recordResult(isHit);
 }
-export function _setActiveCacheKeyForTests(query, variables, isAuthenticated) {
+export function _setActiveCacheKeyForTests(
+	query,
+	variables,
+	isAuthenticated,
+	operationName
+) {
 	setActiveCacheKey(
-		composeCacheKeySignature(query, variables, isAuthenticated)
+		composeCacheKeySignature(
+			query,
+			variables,
+			isAuthenticated,
+			operationName
+		)
 	);
 }
 
@@ -110,21 +126,23 @@ export function SmartCachePanel({ data }) {
 		(s) => s('wpgraphql-ide/app').isFetching(),
 		[]
 	);
+	const lastExecutedOperation = useSelect(
+		(s) => s('wpgraphql-ide/app').getLastExecutedOperation(),
+		[]
+	);
 	const globalGrantMode =
 		(typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.documentSettings?.globalGrantMode) ||
 		'public';
 
-	// Scope the session counter to the active cache-key signature.
-	// Smart Cache hashes (query + variables + operation + user_id) for
-	// its transient key, so a change in any of those produces a fresh
-	// cache bucket — the running HIT/MISS totals should follow. We mirror
-	// query + variables + auth here; operation name is part of the query
-	// string so it rides along with query edits.
+	// Mirror the server's cache-key inputs (query + variables + auth +
+	// operation) so switching to a different op in a multi-op doc resets
+	// the counter — those are separate cache buckets server-side.
 	const cacheKeySignature = composeCacheKeySignature(
 		query,
 		variables,
-		isAuthenticated
+		isAuthenticated,
+		lastExecutedOperation
 	);
 	useEffect(() => {
 		setActiveCacheKey(cacheKeySignature);

@@ -94,12 +94,12 @@ describe('SmartCachePanelView', () => {
 	});
 
 	describe('prerequisite checklist', () => {
-		it('renders four rows; the settings row is always informational', () => {
+		it('renders five rows; the settings row is always informational', () => {
 			const { container } = renderView();
 			const items = container.querySelectorAll(
 				'.wpgraphql-ide-smart-cache-checklist-item'
 			);
-			expect(items).toHaveLength(4);
+			expect(items).toHaveLength(5);
 			expect(items[0]).toHaveClass('is-unknown');
 		});
 
@@ -124,7 +124,8 @@ describe('SmartCachePanelView', () => {
 			const items = container.querySelectorAll(
 				'.wpgraphql-ide-smart-cache-checklist-item'
 			);
-			expect(items[2]).toHaveClass('is-blocking');
+			// settings, auth, introspection, mutation, cached → mutation at [3].
+			expect(items[3]).toHaveClass('is-blocking');
 		});
 
 		it('headlines the MISS with the mutation reason when applicable', () => {
@@ -466,6 +467,21 @@ describe('SmartCachePanelView', () => {
 			_recordResultForTests(true);
 			// Same query, different variables → different cache key.
 			_setActiveCacheKeyForTests(q, '{"n": 10}', false);
+			const { container } = renderView();
+			expect(
+				container.querySelector('.wpgraphql-ide-smart-cache-session')
+			).toBeNull();
+		});
+
+		it('resets to zero when the executed operation changes (different cache key)', () => {
+			const q =
+				'query A { posts { nodes { id } } } query B { pages { nodes { id } } }';
+			_setActiveCacheKeyForTests(q, '', false, 'A');
+			_recordResultForTests(true);
+			_recordResultForTests(true);
+			// Same doc, ran a different named operation — server hashes the
+			// op name into the cache key, so this is a fresh bucket.
+			_setActiveCacheKeyForTests(q, '', false, 'B');
 			const { container } = renderView();
 			expect(
 				container.querySelector('.wpgraphql-ide-smart-cache-session')
