@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback } from 'react';
 import {
 	EditorView,
 	hoverTooltip,
@@ -303,31 +303,32 @@ const buildHoverTooltip = (schemaRef) =>
  * CodeMirror 6 GraphQL editor with schema-driven autocomplete, linting, and syntax highlighting.
  *
  * @param {Object}      props
- * @param {string}      props.value            - Current editor content.
- * @param {Function}    props.onChange         - Called with new content string on edit.
- * @param {Object}      [props.schema]         - GraphQL schema for autocomplete/linting.
- * @param {boolean}     [props.readOnly]       - If true, editor is not editable.
- * @param {string}      [props.placeholder]    - Placeholder text when empty.
- * @param {Array}       [props.extraKeys]      - Additional keybindings ({ key, run } objects).
- * @param {string}      [props.className]      - Additional CSS class for the wrapper.
- * @param {Function}    [props.onShowInDocs]   - Called with `(field, type, parentType)` when
- *                                             the user cmd/ctrl-clicks an identifier so the
- *                                             parent can navigate the Docs panel.
- * @param {Function}    [props.onCursorChange] - Called with the cursor offset whenever
- *                                             the selection or doc changes; consumers can
- *                                             sync UI (e.g. Query Composer expansion).
- * @param {number|null} [props.jumpRequest]    - One-shot cursor-jump request (character
- *                                             offset). When this changes to a number,
- *                                             the editor moves its cursor and scrolls
- *                                             the line into view.
- * @param {Function}    [props.onJumpApplied]  - Called after the editor handles a
- *                                             `jumpRequest`, so the parent can clear
- *                                             its own state back to null.
- * @param {Array}       [props.operations]     - `{ name, from }` array of named
- *                                             OperationDefinitions for the inline
- *                                             per-operation run buttons.
- * @param {Function}    [props.onRunOperation] - Called with the operation name when
- *                                             the user clicks an inline run button.
+ * @param {string}      props.value             - Current editor content.
+ * @param {Function}    props.onChange          - Called with new content string on edit.
+ * @param {Object}      [props.schema]          - GraphQL schema for autocomplete/linting.
+ * @param {boolean}     [props.readOnly]        - If true, editor is not editable.
+ * @param {string}      [props.placeholder]     - Placeholder text when empty.
+ * @param {Array}       [props.extraKeys]       - Additional keybindings ({ key, run } objects).
+ * @param {string}      [props.className]       - Additional CSS class for the wrapper.
+ * @param {Function}    [props.onShowInDocs]    - Called with `(field, type, parentType)` when
+ *                                              the user cmd/ctrl-clicks an identifier so the
+ *                                              parent can navigate the Docs panel.
+ * @param {Function}    [props.onCursorChange]  - Called with the cursor offset whenever
+ *                                              the selection or doc changes; consumers can
+ *                                              sync UI (e.g. Query Composer expansion).
+ * @param {number|null} [props.jumpRequest]     - One-shot cursor-jump request (character
+ *                                              offset). When this changes to a number,
+ *                                              the editor moves its cursor and scrolls
+ *                                              the line into view.
+ * @param {Function}    [props.onJumpApplied]   - Called after the editor handles a
+ *                                              `jumpRequest`, so the parent can clear
+ *                                              its own state back to null.
+ * @param {Array}       [props.operations]      - `{ name, from }` for each named operation; drives inline run pills.
+ * @param {Function}    [props.onRunOperation]  - Called with the operation name on inline pill play/stop click.
+ * @param {string}      [props.avatarUrl]       - Current user avatar URL forwarded to inline pills.
+ * @param {string}      [props.signInUrl]       - When set, inline pill avatars open a sign-in prompt instead of toggling auth.
+ * @param {boolean}     [props.showAuthControl] - Whether inline pills render the auth avatar.
+ * @param {boolean}     [props.isSchemaLoading] - Disables the inline pill play button while the schema loads.
  */
 export function GraphQLEditor({
 	value = '',
@@ -341,12 +342,12 @@ export function GraphQLEditor({
 	onCursorChange,
 	jumpRequest = null,
 	onJumpApplied,
-	// Inline per-operation run widgets. `operations` is an array of
-	// `{ name, from }` derived from the parsed AST in the parent;
-	// `onRunOperation(name)` runs the named op. Empty array (or no
-	// callback) disables the inline buttons entirely.
 	operations = [],
 	onRunOperation,
+	avatarUrl,
+	signInUrl,
+	showAuthControl = true,
+	isSchemaLoading = false,
 }) {
 	const containerRef = useRef(null);
 	const viewRef = useRef(null);
@@ -356,10 +357,7 @@ export function GraphQLEditor({
 	const schemaRef = useRef(schema);
 	const onShowInDocsRef = useRef(onShowInDocs);
 	const onCursorChangeRef = useRef(onCursorChange);
-	// Latest run-op callback in a ref so we don't have to re-dispatch
-	// the StateEffect every time the parent re-renders with a new
-	// function identity — only operation-list changes flush the
-	// widgets.
+	// Ref so a new `onRunOperation` identity doesn't force a widget rebuild.
 	const onRunOperationRef = useRef(onRunOperation);
 
 	// Keep callback ref current without recreating the editor.
@@ -576,34 +574,44 @@ export function GraphQLEditor({
 		});
 	}, [readOnly]);
 
-	// Keep the run-op callback ref current so the widgets always call
-	// the latest function identity without forcing a decoration
-	// rebuild on every parent re-render.
 	useEffect(() => {
 		onRunOperationRef.current = onRunOperation;
 	}, [onRunOperation]);
 
-	// Re-dispatch the inline run widgets whenever the operation list
-	// changes. Bound to a stable trampoline so the WidgetType doesn't
-	// capture a stale callback closure between re-renders.
+	// Stable ctx so widgets only churn when something material changes
+	// (op list, sign-in availability, schema readiness); the trampoline
+	// reads the latest run callback via ref.
+	const pillCtx = useMemo(
+		() => ({
+			onRun: (name) => {
+				const fn = onRunOperationRef.current;
+				if (typeof fn === 'function') {
+					fn(name);
+				}
+			},
+			avatarUrl,
+			signInUrl,
+			showAuthControl,
+			isSchemaLoading,
+		}),
+		[avatarUrl, signInUrl, showAuthControl, isSchemaLoading]
+	);
+
+	// Re-dispatch widgets when ops or ctx change. Widget `eq()` is an
+	// identity check on ctx, so the useMemo above preserves widgets
+	// across no-op renders.
 	useEffect(() => {
 		const view = viewRef.current;
 		if (!view) {
 			return;
 		}
-		const trampoline = (name) => {
-			const fn = onRunOperationRef.current;
-			if (typeof fn === 'function') {
-				fn(name);
-			}
-		};
 		view.dispatch({
 			effects: setRunOperationsEffect.of({
 				operations,
-				onRun: trampoline,
+				ctx: pillCtx,
 			}),
 		});
-	}, [operations]);
+	}, [operations, pillCtx]);
 
 	const setRef = useCallback((el) => {
 		containerRef.current = el;

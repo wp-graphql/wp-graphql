@@ -17,6 +17,9 @@ const initialState = {
 	responseDuration: null,
 	responseSize: null,
 	isFetching: false,
+	// Drives the "Response · OpName" label. Null when no op has run or
+	// the document had no named operation.
+	lastExecutedOperation: null,
 	history: [],
 	httpMethod: 'POST',
 	// One-shot docs-nav request: { typeName, fieldName } | null. Set when
@@ -152,6 +155,14 @@ const reducer = (state = initialState, action) => {
 			return {
 				...state,
 				isFetching: action.isFetching,
+			};
+		case 'SET_LAST_EXECUTED_OPERATION':
+			return {
+				...state,
+				lastExecutedOperation:
+					typeof action.name === 'string' && action.name
+						? action.name
+						: null,
 			};
 		case 'SET_DOCS_NAV_TARGET':
 			return {

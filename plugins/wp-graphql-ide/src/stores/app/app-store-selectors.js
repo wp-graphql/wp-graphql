@@ -49,6 +49,9 @@ const selectors = {
 	isFetching: (state) => {
 		return state.isFetching;
 	},
+	getLastExecutedOperation: (state) => {
+		return state.lastExecutedOperation || null;
+	},
 	getHistory: (state) => {
 		return state.history;
 	},

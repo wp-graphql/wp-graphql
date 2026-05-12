@@ -390,25 +390,32 @@ export function EditorPane({
 								onJumpApplied={onJumpApplied}
 								operations={inlineRunOperations}
 								onRunOperation={onExecute}
-							/>
-							<ExecutionControls
-								query={query}
-								httpMethod={httpMethod}
-								onSetHttpMethod={onSetHttpMethod}
-								isAuthenticated={isAuthenticated}
-								onToggleAuth={onToggleAuth}
 								avatarUrl={avatarUrl}
-								operationNames={operationNames}
-								isFetching={isFetching}
-								isSchemaLoading={isSchemaLoading}
-								onExecute={onExecute}
-								// Anonymous visitors on the public endpoint
-								// have no auth session to toggle — the avatar
-								// becomes a sign-in link to wp_login instead
-								// of an in-app toggle.
 								signInUrl={signInUrl}
 								showAuthControl={showAuthControl}
+								isSchemaLoading={isSchemaLoading}
 							/>
+							{/* Inline per-op pills replace the floating pill in multi-op docs. */}
+							{inlineRunOperations.length === 0 && (
+								<ExecutionControls
+									query={query}
+									httpMethod={httpMethod}
+									onSetHttpMethod={onSetHttpMethod}
+									isAuthenticated={isAuthenticated}
+									onToggleAuth={onToggleAuth}
+									avatarUrl={avatarUrl}
+									operationNames={operationNames}
+									isFetching={isFetching}
+									isSchemaLoading={isSchemaLoading}
+									onExecute={onExecute}
+									// Anonymous visitors on the public endpoint
+									// have no auth session to toggle — the avatar
+									// becomes a sign-in link to wp_login instead
+									// of an in-app toggle.
+									signInUrl={signInUrl}
+									showAuthControl={showAuthControl}
+								/>
+							)}
 						</div>
 					</ResizableBox>
 					<div className="wpgraphql-ide-editor-bottom">

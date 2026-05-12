@@ -1,70 +1,65 @@
 /**
- * Inline run-operation widgets.
- *
- * For each top-level operation in the GraphQL document the editor
- * paints a tiny play button on the line where that operation
- * declares itself (`query Foo { … }` / `mutation Bar { … }` etc.).
- * Clicking it runs *that* operation directly, eliminating the
- * floating pill's "click play → pick operation" two-step on multi-
- * operation documents.
- *
- * Implementation:
- *
- *   - A StateField holds the current decoration set.
- *   - A StateEffect updates the field when operations / callback
- *     change. The owning editor dispatches the effect from a
- *     `useEffect` so the widgets track parsed-AST updates without
- *     re-creating the entire CM6 view.
- *   - Each operation gets a `Decoration.widget` placed at its
- *     start position with `side: -1` so the button renders inline
- *     *before* the `query` keyword. CSS handles spacing.
+ * Inline per-operation execution pill widgets. A StateField holds the
+ * decoration set; the owning editor dispatches setRunOperationsEffect
+ * from a `useEffect` so widgets track parsed-AST updates without
+ * recreating the CM6 view. IDELayout filters to empty for single-op
+ * docs so the floating pill isn't duplicated.
  */
 
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { Decoration, EditorView, WidgetType } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
+import { InlineExecutionPill } from './InlineExecutionPill';
 
-const PLAY_GLYPH =
-	'<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
-
-class RunOperationWidget extends WidgetType {
-	constructor(name, onRun) {
+class InlineExecutionPillWidget extends WidgetType {
+	constructor(name, ctx) {
 		super();
 		this.name = name;
-		this.onRun = onRun;
+		this.ctx = ctx;
 	}
 
-	// Decoration set rebuilds wholesale when operations change, but
-	// equality lets CM6 reuse the same DOM node when the name (and
-	// thus what running it does) hasn't moved.
+	// Identity-compare ctx so callers must `useMemo` it; otherwise every
+	// re-render tears down and remounts the React tree.
 	eq(other) {
-		return other.name === this.name;
+		return other.name === this.name && other.ctx === this.ctx;
 	}
 
 	toDOM() {
-		const btn = document.createElement('button');
-		btn.type = 'button';
-		btn.className = 'wpgraphql-ide-inline-run-btn';
-		btn.title = `Run ${this.name}`;
-		btn.setAttribute('aria-label', `Run ${this.name}`);
-		btn.innerHTML = PLAY_GLYPH;
-		btn.addEventListener('mousedown', (event) => {
-			// CM6 captures mousedown on widgets to manage selection;
-			// preventing the default keeps the click from also moving
-			// the caret into the operation header.
-			event.preventDefault();
-		});
-		btn.addEventListener('click', (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-			if (typeof this.onRun === 'function') {
-				this.onRun(this.name);
-			}
-		});
-		return btn;
+		const host = document.createElement('span');
+		host.className = 'wpgraphql-ide-inline-pill-host';
+		host.setAttribute('contenteditable', 'false');
+
+		const root = createRoot(host);
+		root.render(
+			<InlineExecutionPill
+				operationName={this.name}
+				onRun={(opName) => {
+					if (typeof this.ctx?.onRun === 'function') {
+						this.ctx.onRun(opName);
+					}
+				}}
+				avatarUrl={this.ctx?.avatarUrl}
+				signInUrl={this.ctx?.signInUrl}
+				showAuthControl={this.ctx?.showAuthControl !== false}
+				isSchemaLoading={!!this.ctx?.isSchemaLoading}
+			/>
+		);
+		host.__wpgraphqlIdeRoot = root;
+		return host;
 	}
 
-	// We handle our own events — let them through rather than letting
-	// CM6 swallow them as selection updates.
+	destroy(dom) {
+		const root = dom?.__wpgraphqlIdeRoot;
+		if (root) {
+			// Defer unmount so React isn't asked to unmount mid-render
+			// from inside CM6's update transaction.
+			Promise.resolve().then(() => root.unmount());
+			delete dom.__wpgraphqlIdeRoot;
+		}
+	}
+
+	// React owns the subtree — let click/focus events through.
 	ignoreEvent() {
 		return false;
 	}
@@ -77,15 +72,12 @@ export const runOperationsField = StateField.define({
 		return Decoration.none;
 	},
 	update(deco, tr) {
-		// Map existing decorations through the change set so they
-		// follow edits until the next setRunOperationsEffect arrives.
-		// (Operation positions get recomputed from the parsed AST in
-		// the React layer; this just keeps things stable between
-		// re-parses.)
+		// Map through edits so widgets stay anchored between re-parses;
+		// authoritative positions arrive via setRunOperationsEffect.
 		let next = deco.map(tr.changes);
 		for (const effect of tr.effects) {
 			if (effect.is(setRunOperationsEffect)) {
-				const { operations, onRun } = effect.value;
+				const { operations, ctx } = effect.value;
 				const ranges = [];
 				for (const op of operations) {
 					if (
@@ -94,8 +86,11 @@ export const runOperationsField = StateField.define({
 					) {
 						ranges.push(
 							Decoration.widget({
-								widget: new RunOperationWidget(op.name, onRun),
-								side: -1,
+								widget: new InlineExecutionPillWidget(
+									op.name,
+									ctx
+								),
+								side: 1,
 							}).range(op.from)
 						);
 					}

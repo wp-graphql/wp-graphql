@@ -182,6 +182,7 @@ export function IDELayout({ fetcher, onClose }) {
 		setResponseHeaders,
 		toggleAuthentication,
 		setHttpMethod,
+		setLastExecutedOperation,
 		loadHistory,
 		addHistoryEntry,
 		setDocsNavTarget,
@@ -716,13 +717,10 @@ export function IDELayout({ fetcher, onClose }) {
 		schema
 	);
 
-	// Extract `{ name, from }` for each named OperationDefinition so
-	// GraphQLEditor can paint an inline run button anchored to its
-	// header. `from` points to the position immediately after the
-	// opening `{` of the operation's selection set — placing the
-	// widget there (rather than before the `query` keyword) keeps it
-	// clear of the fold-toggle chevron column and reads as part of
-	// the operation header rather than competing with the gutter.
+	// `from` is the position just after the operation's opening `{`, so
+	// CM6 anchors the inline pill at the trailing edge of the header
+	// line. Only emitted for 2+ named ops; single-op docs use the
+	// floating pill instead.
 	const inlineRunOperations = useMemo(() => {
 		const ast = parsedQuery?.ast;
 		if (!ast || !Array.isArray(ast.definitions)) {
@@ -743,8 +741,14 @@ export function IDELayout({ fetcher, onClose }) {
 			}
 			ops.push({ name: def.name.value, from: braceStart + 1 });
 		}
-		return ops;
+		return ops.length > 1 ? ops : [];
 	}, [parsedQuery]);
+
+	// AST exposed to the keybinding closure via ref so Mod-Enter
+	// always sees the latest parsed document without re-creating the
+	// keymap.
+	const parsedQueryRef = useRef(parsedQuery);
+	parsedQueryRef.current = parsedQuery;
 
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
@@ -767,6 +771,10 @@ export function IDELayout({ fetcher, onClose }) {
 			if (!target && operationNames.length > 1) {
 				target = operationNames[0];
 			}
+			// Falls back to the sole op name for single-op docs; null for
+			// anonymous shorthand.
+			const resolvedOp = target || operationNames[0] || null;
+			setLastExecutedOperation(resolvedOp);
 			run(target);
 		}
 	};
@@ -776,13 +784,27 @@ export function IDELayout({ fetcher, onClose }) {
 
 	// Cmd/Ctrl+Enter to run the query is the universal convention for
 	// GraphQL clients (GraphiQL, Postman, Insomnia, Apollo Sandbox).
-	// Keeping this single custom binding; everything else (undo/redo,
-	// search, indent, comment, history) comes for free from CodeMirror.
+	// Resolves the operation under the cursor so multi-op docs run
+	// *this* op, not always the first.
 	const editorKeyBindings = useRef([
 		{
 			key: 'Mod-Enter',
-			run: () => {
-				executeQueryRef.current();
+			run: (view) => {
+				const ast = parsedQueryRef.current?.ast;
+				let opName;
+				if (view && ast && Array.isArray(ast.definitions)) {
+					const cursor = view.state.selection.main.head;
+					const def = ast.definitions.find(
+						(d) =>
+							d.kind === 'OperationDefinition' &&
+							d.name?.value &&
+							d.loc &&
+							cursor >= d.loc.start &&
+							cursor <= d.loc.end
+					);
+					opName = def?.name?.value;
+				}
+				executeQueryRef.current(opName);
 				return true;
 			},
 		},

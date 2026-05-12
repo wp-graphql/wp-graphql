@@ -155,6 +155,12 @@ const actions = {
 			isFetching,
 		};
 	},
+	setLastExecutedOperation: (name) => {
+		return {
+			type: 'SET_LAST_EXECUTED_OPERATION',
+			name,
+		};
+	},
 
 	/**
 	 * Request the Docs Explorer panel to navigate to a type/field. Pass null
