@@ -154,6 +154,13 @@ export function useExecution(fetcher, options = {}) {
 			abortControllerRef.current = controller;
 
 			setIsFetching(true);
+			// Clear the prior response's status / duration / size so the
+			// header doesn't display stale meta while the next request is
+			// in flight (the spinner replaces these visually, but if the
+			// new run is empty-query short-circuited or aborts, the old
+			// numbers would otherwise linger).
+			setResponseHeaders(null);
+			setResponseMeta({});
 			const startTime = Date.now();
 			let status = 'success';
 			try {
