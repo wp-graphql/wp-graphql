@@ -2538,8 +2538,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-editor-tools {
 	flex: 1;
 	min-height: 0;
-	overflow-y: auto;
-	overflow-x: hidden;
+	overflow: hidden;
 	border-top: 1px solid #dcdcde;
 	display: flex;
 	flex-direction: column;
@@ -2556,6 +2555,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-editor-tools .components-tab-panel__tab-content {
 	flex: 1;
 	min-height: 0;
+	overflow: auto;
 	display: flex;
 	flex-direction: column;
 }
@@ -2666,20 +2666,16 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 /* Tab-strip row hosts the strip and the trailing collapse chevron.
-   Sticky so it stays anchored at the top of the response-tabs scroll
-   container — without this, scrolling the Smart Cache content slides
-   it up *behind* the strip and the tab labels visually merge with
-   the status banner. `cursor: pointer` on the row signals that the
-   empty space between the tabs and the chevron is also a collapse
-   hit target; tabs / chevron buttons override the cursor themselves. */
+   The scroll lives in the content area below (see the per-consumer
+   rules), so the strip is just a normal flex row — no sticky
+   acrobatics, no z-index stacking against scrolled content.
+   `cursor: pointer` signals that the empty space between the tabs
+   and the chevron is also a collapse hit target. */
 .wpgraphql-ide-tab-strip-row {
-	position: sticky;
-	top: 0;
-	z-index: 2;
-	background: #fff;
+	flex: 0 0 auto;
 	display: flex;
 	align-items: stretch;
-	min-height: 0;
+	background: #fff;
 	cursor: pointer;
 }
 .wpgraphql-ide-tab-strip-row > .components-tab-panel__tabs {
@@ -3061,7 +3057,9 @@ input.wpgraphql-ide-tab-input:focus {
 	border-top: 1px solid #e0e0e0;
 	flex: 1;
 	min-height: 0;
-	overflow-y: auto;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
 .wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs {
@@ -3139,6 +3137,9 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-response-tabs .components-tab-panel__tab-content {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
 	padding: 8px 12px;
 	font-size: 13px;
 }
