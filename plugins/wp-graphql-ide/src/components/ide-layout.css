@@ -1522,6 +1522,62 @@ input.wpgraphql-ide-tab-input:focus {
 	background: var(--wp-admin-theme-color-darker-20, #183ad6);
 }
 
+/* ---------- Inline per-operation run buttons (experimental) ----- */
+/*
+ * Replicates the floating execute pill's play button inline at each
+ * top-level operation in multi-op documents. The CM6 widget is
+ * placed at the operation's start position with `side: -1`, so it
+ * renders immediately before the `query` / `mutation` keyword. The
+ * inline-flex layout + right margin gives the button visual
+ * separation from the operation header without bumping the line
+ * height. Sized smaller than the floating pill's 48 px primary
+ * (this is per-op, not the document's primary action) but matches
+ * its accent fill so the relationship reads.
+ */
+.wpgraphql-ide-inline-run-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	margin: 0 8px 0 0;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: var(--wp-admin-theme-color, #3858e9);
+	color: #fff;
+	cursor: pointer;
+	vertical-align: -3px;
+	transition:
+		background-color 0.15s ease,
+		transform 0.1s ease,
+		box-shadow 0.15s ease;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.wpgraphql-ide-inline-run-btn:hover {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+	box-shadow: 0 2px 6px rgba(56, 88, 233, 0.4);
+}
+
+.wpgraphql-ide-inline-run-btn:active {
+	background: var(--wp-admin-theme-color-darker-20, #183ad6);
+	transform: scale(0.94);
+}
+
+.wpgraphql-ide-inline-run-btn:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px #fff,
+		0 0 0 4px var(--wp-admin-theme-color, #3858e9);
+}
+
+.wpgraphql-ide-inline-run-btn svg {
+	/* Optical centring — the play triangle's visual mass sits a hair
+	   right of geometric centre because of its asymmetric shape. */
+	margin-left: 1px;
+}
+
 @keyframes wpgraphql-ide-spin {
 	from {
 		transform: rotate(0deg);

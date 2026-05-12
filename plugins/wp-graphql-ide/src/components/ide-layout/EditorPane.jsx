@@ -100,6 +100,10 @@ export function EditorPane({
 	onToggleAuth,
 	avatarUrl,
 	operationNames,
+	// Inline per-operation run widgets (experimental). Array of
+	// `{ name, from }` derived from the parsed AST in IDELayout —
+	// passed straight to GraphQLEditor for in-document placement.
+	inlineRunOperations = [],
 	isFetching,
 	isSchemaLoading,
 	onExecute,
@@ -384,6 +388,8 @@ export function EditorPane({
 								onCursorChange={onCursorChange}
 								jumpRequest={jumpRequest}
 								onJumpApplied={onJumpApplied}
+								operations={inlineRunOperations}
+								onRunOperation={onExecute}
 							/>
 							<ExecutionControls
 								query={query}

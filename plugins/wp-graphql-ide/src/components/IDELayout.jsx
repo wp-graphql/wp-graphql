@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, {
+	useState,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import { SnackbarList } from '@wordpress/components';
 import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
@@ -710,6 +716,31 @@ export function IDELayout({ fetcher, onClose }) {
 		schema
 	);
 
+	// Extract `{ name, from }` for each named OperationDefinition so
+	// GraphQLEditor can paint an inline run button before each one.
+	// Replaces the floating pill's "click play → pick operation"
+	// two-step on multi-op documents — each operation gets its own
+	// direct trigger anchored to its header line.
+	const inlineRunOperations = useMemo(() => {
+		const ast = parsedQuery?.ast;
+		if (!ast || !Array.isArray(ast.definitions)) {
+			return [];
+		}
+		const ops = [];
+		for (const def of ast.definitions) {
+			if (
+				def.kind === 'OperationDefinition' &&
+				def.name &&
+				typeof def.name.value === 'string' &&
+				def.loc &&
+				typeof def.loc.start === 'number'
+			) {
+				ops.push({ name: def.name.value, from: def.loc.start });
+			}
+		}
+		return ops;
+	}, [parsedQuery]);
+
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
 		if (isFetching) {
@@ -1048,6 +1079,9 @@ export function IDELayout({ fetcher, onClose }) {
 												?.avatarUrl
 										}
 										operationNames={operationNames}
+										inlineRunOperations={
+											inlineRunOperations
+										}
 										isFetching={isFetching}
 										isSchemaLoading={isSchemaLoading}
 										onExecute={executeQuery}

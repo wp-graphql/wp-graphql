@@ -46,6 +46,10 @@ const splitBracketsOnEnter = {
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { graphql, jump, updateSchema, offsetToPos } from 'cm6-graphql';
+import {
+	runOperationsField,
+	setRunOperationsEffect,
+} from './run-operation-widget';
 import { getHoverInformation } from 'graphql-language-service';
 import { basicSetup } from 'codemirror';
 
@@ -319,6 +323,11 @@ const buildHoverTooltip = (schemaRef) =>
  * @param {Function}    [props.onJumpApplied]  - Called after the editor handles a
  *                                             `jumpRequest`, so the parent can clear
  *                                             its own state back to null.
+ * @param {Array}       [props.operations]     - `{ name, from }` array of named
+ *                                             OperationDefinitions for the inline
+ *                                             per-operation run buttons.
+ * @param {Function}    [props.onRunOperation] - Called with the operation name when
+ *                                             the user clicks an inline run button.
  */
 export function GraphQLEditor({
 	value = '',
@@ -332,6 +341,12 @@ export function GraphQLEditor({
 	onCursorChange,
 	jumpRequest = null,
 	onJumpApplied,
+	// Inline per-operation run widgets. `operations` is an array of
+	// `{ name, from }` derived from the parsed AST in the parent;
+	// `onRunOperation(name)` runs the named op. Empty array (or no
+	// callback) disables the inline buttons entirely.
+	operations = [],
+	onRunOperation,
 }) {
 	const containerRef = useRef(null);
 	const viewRef = useRef(null);
@@ -341,6 +356,11 @@ export function GraphQLEditor({
 	const schemaRef = useRef(schema);
 	const onShowInDocsRef = useRef(onShowInDocs);
 	const onCursorChangeRef = useRef(onCursorChange);
+	// Latest run-op callback in a ref so we don't have to re-dispatch
+	// the StateEffect every time the parent re-renders with a new
+	// function identity — only operation-list changes flush the
+	// widgets.
+	const onRunOperationRef = useRef(onRunOperation);
 
 	// Keep callback ref current without recreating the editor.
 	useEffect(() => {
@@ -472,6 +492,10 @@ export function GraphQLEditor({
 				EditorView.editable.of(true),
 				EditorState.readOnly.of(readOnly),
 			]),
+			// Inline run-operation widgets — empty until the parent
+			// dispatches the first setRunOperationsEffect from the
+			// parsed-AST effect below.
+			runOperationsField,
 		];
 
 		if (placeholder) {
@@ -551,6 +575,35 @@ export function GraphQLEditor({
 			]),
 		});
 	}, [readOnly]);
+
+	// Keep the run-op callback ref current so the widgets always call
+	// the latest function identity without forcing a decoration
+	// rebuild on every parent re-render.
+	useEffect(() => {
+		onRunOperationRef.current = onRunOperation;
+	}, [onRunOperation]);
+
+	// Re-dispatch the inline run widgets whenever the operation list
+	// changes. Bound to a stable trampoline so the WidgetType doesn't
+	// capture a stale callback closure between re-renders.
+	useEffect(() => {
+		const view = viewRef.current;
+		if (!view) {
+			return;
+		}
+		const trampoline = (name) => {
+			const fn = onRunOperationRef.current;
+			if (typeof fn === 'function') {
+				fn(name);
+			}
+		};
+		view.dispatch({
+			effects: setRunOperationsEffect.of({
+				operations,
+				onRun: trampoline,
+			}),
+		});
+	}, [operations]);
 
 	const setRef = useCallback((el) => {
 		containerRef.current = el;
