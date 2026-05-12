@@ -323,14 +323,9 @@ export function OverflowTabs({
 			}
 			return;
 		}
-		// Expanded: clicking the *already-active* tab collapses the
-		// panel — the accordion pattern. Saves the user from having
-		// to mouse over to the trailing chevron just to fold the
-		// panel back up. Clicks on inactive tabs still switch.
-		if (name === effectiveActive && typeof onCollapse === 'function') {
-			onCollapse();
-			return;
-		}
+		// Expanded: just switch active. Collapse fires only from the
+		// bar background or the trailing chevron — tabs always do
+		// tab things.
 		setActive(name);
 	};
 
@@ -367,11 +362,26 @@ export function OverflowTabs({
 				onExpand(name);
 			}
 		};
+		// Clicking the empty area between the labels and the chevron
+		// should also expand — mirrors the click-anywhere-to-collapse
+		// affordance on the expanded bar. Skip when the click landed
+		// on or inside a button so each tab still routes through its
+		// own handler (and switches active tab on the way back up).
+		const handleBgExpand = (event) => {
+			if (event.target.closest('button')) {
+				return;
+			}
+			handleExpandTo(effectiveActive);
+		};
 		return (
 			<div
 				className={`components-tab-panel ${className} is-collapsed`.trim()}
 			>
-				<div className="wpgraphql-ide-tab-collapsed-handle">
+				{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+				<div
+					className="wpgraphql-ide-tab-collapsed-handle"
+					onClick={handleBgExpand}
+				>
 					{tabs.map((tab) => {
 						const isActive = tab.name === effectiveActive;
 						return (
