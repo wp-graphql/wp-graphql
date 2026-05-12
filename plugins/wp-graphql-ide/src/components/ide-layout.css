@@ -1524,15 +1524,13 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* ---------- Inline per-operation run buttons (experimental) ----- */
 /*
- * Replicates the floating execute pill's play button inline at each
- * top-level operation in multi-op documents. The CM6 widget is
- * placed at the operation's start position with `side: -1`, so it
- * renders immediately before the `query` / `mutation` keyword. The
- * inline-flex layout + right margin gives the button visual
- * separation from the operation header without bumping the line
- * height. Sized smaller than the floating pill's 48 px primary
- * (this is per-op, not the document's primary action) but matches
- * its accent fill so the relationship reads.
+ * Mirrors the floating execute pill's play button at each named
+ * top-level operation. The CM6 widget anchors to the position
+ * immediately after each operation's opening `{`, which keeps it
+ * clear of the fold-toggle chevron column on the left and reads as
+ * part of the operation header. Sized smaller than the floating
+ * pill's 48 px primary (this is per-op, not the document's primary
+ * action) but matches its accent fill so the relationship reads.
  */
 .wpgraphql-ide-inline-run-btn {
 	display: inline-flex;
@@ -1540,7 +1538,9 @@ input.wpgraphql-ide-tab-input:focus {
 	justify-content: center;
 	width: 20px;
 	height: 20px;
-	margin: 0 8px 0 0;
+	/* Breathing room on the left (after the `{`); right side has the
+	 * line break so no margin needed there. */
+	margin: 0 0 0 8px;
 	padding: 0;
 	border: 0;
 	border-radius: 50%;

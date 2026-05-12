@@ -183,7 +183,14 @@ export function ExecutionControls({
 			'Send as public visitor (click to switch to authenticated)';
 	}
 
-	const showOpPicker = !isFetching && operationNames.length > 1;
+	// The floating pill no longer promotes its play button to an
+	// operation picker on multi-op documents — the inline per-
+	// operation run widgets in the editor cover that interaction
+	// (see `editors/run-operation-widget.js`). The pill's play
+	// button now always runs the first operation (or the only one);
+	// users picking a specific op among many click its inline button
+	// in the editor itself.
+	const showOpPicker = false;
 
 	const playCountRef = useRef(0);
 	const lastPlayAtRef = useRef(0);

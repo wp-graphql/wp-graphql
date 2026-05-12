@@ -717,10 +717,12 @@ export function IDELayout({ fetcher, onClose }) {
 	);
 
 	// Extract `{ name, from }` for each named OperationDefinition so
-	// GraphQLEditor can paint an inline run button before each one.
-	// Replaces the floating pill's "click play → pick operation"
-	// two-step on multi-op documents — each operation gets its own
-	// direct trigger anchored to its header line.
+	// GraphQLEditor can paint an inline run button anchored to its
+	// header. `from` points to the position immediately after the
+	// opening `{` of the operation's selection set — placing the
+	// widget there (rather than before the `query` keyword) keeps it
+	// clear of the fold-toggle chevron column and reads as part of
+	// the operation header rather than competing with the gutter.
 	const inlineRunOperations = useMemo(() => {
 		const ast = parsedQuery?.ast;
 		if (!ast || !Array.isArray(ast.definitions)) {
@@ -729,14 +731,17 @@ export function IDELayout({ fetcher, onClose }) {
 		const ops = [];
 		for (const def of ast.definitions) {
 			if (
-				def.kind === 'OperationDefinition' &&
-				def.name &&
-				typeof def.name.value === 'string' &&
-				def.loc &&
-				typeof def.loc.start === 'number'
+				def.kind !== 'OperationDefinition' ||
+				!def.name ||
+				typeof def.name.value !== 'string'
 			) {
-				ops.push({ name: def.name.value, from: def.loc.start });
+				continue;
 			}
+			const braceStart = def.selectionSet?.loc?.start;
+			if (typeof braceStart !== 'number') {
+				continue;
+			}
+			ops.push({ name: def.name.value, from: braceStart + 1 });
 		}
 		return ops;
 	}, [parsedQuery]);
