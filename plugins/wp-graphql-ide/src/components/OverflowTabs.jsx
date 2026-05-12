@@ -315,34 +315,26 @@ export function OverflowTabs({
 	};
 
 	const handleSelect = (name) => {
-		// Collapsed: clicking any tab is "expand + switch".
-		if (collapsed) {
-			setActive(name);
-			if (typeof onExpand === 'function') {
-				onExpand(name);
-			}
-			return;
-		}
-		// Expanded: just switch active. Collapse fires only from the
-		// bar background or the trailing chevron — tabs always do
-		// tab things.
 		setActive(name);
+		// Collapsed: also fire the expand callback so the panel opens
+		// with the clicked tab active. Expanded: tabs only switch —
+		// collapse fires from bar background or the trailing chevron.
+		if (collapsed && typeof onExpand === 'function') {
+			onExpand(name);
+		}
 	};
 
-	// Clicking the strip background (the empty area between the tabs
-	// and the chevron) also collapses. Tabs and the chevron own their
-	// own click handlers — we skip when the click landed on or inside
-	// any button, regardless of which container element the event
-	// actually fired on. Avoids depending on WP-components internal
-	// class names like `components-tab-panel__tabs`.
-	const handleStripBackgroundClick = (event) => {
-		if (typeof onCollapse !== 'function') {
-			return;
-		}
+	// Bar-background click delegation: clicks on the empty area
+	// between the tabs and the chevron fire `cb`; clicks on (or
+	// inside) any button bubble through untouched so each button's
+	// own onClick stays authoritative. Avoids depending on WP-
+	// components internal class names like
+	// `components-tab-panel__tabs`.
+	const onBarBackground = (cb) => (event) => {
 		if (event.target.closest('button')) {
 			return;
 		}
-		onCollapse();
+		cb();
 	};
 
 	const effectiveActive =
@@ -352,27 +344,11 @@ export function OverflowTabs({
 	const showChevron = typeof onCollapse === 'function';
 
 	// Collapsed state mirrors the tab strip but with no content area —
-	// all tab labels are visible, the active one prominent, the rest
-	// subdued. Clicking any tab expands AND switches to it; clicking
-	// the trailing chevron expands with the previously-active tab
-	// restored.
+	// all tab labels visible, active one prominent, the rest subdued.
+	// Clicking any tab expands AND switches to it; clicking the
+	// trailing chevron or the bar background expands with the
+	// previously-active tab restored.
 	if (collapsed) {
-		const handleExpandTo = (name) => {
-			if (typeof onExpand === 'function') {
-				onExpand(name);
-			}
-		};
-		// Clicking the empty area between the labels and the chevron
-		// should also expand — mirrors the click-anywhere-to-collapse
-		// affordance on the expanded bar. Skip when the click landed
-		// on or inside a button so each tab still routes through its
-		// own handler (and switches active tab on the way back up).
-		const handleBgExpand = (event) => {
-			if (event.target.closest('button')) {
-				return;
-			}
-			handleExpandTo(effectiveActive);
-		};
 		return (
 			<div
 				className={`components-tab-panel ${className} is-collapsed`.trim()}
@@ -380,7 +356,7 @@ export function OverflowTabs({
 				{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
 				<div
 					className="wpgraphql-ide-tab-collapsed-handle"
-					onClick={handleBgExpand}
+					onClick={onBarBackground(() => onExpand?.(effectiveActive))}
 				>
 					{tabs.map((tab) => {
 						const isActive = tab.name === effectiveActive;
@@ -390,7 +366,7 @@ export function OverflowTabs({
 								type="button"
 								className={`wpgraphql-ide-tab-collapsed-tab${isActive ? ' is-active' : ''}`}
 								aria-pressed={isActive}
-								onClick={() => handleExpandTo(tab.name)}
+								onClick={() => onExpand?.(tab.name)}
 							>
 								{tab.title}
 							</button>
@@ -401,7 +377,7 @@ export function OverflowTabs({
 						className="wpgraphql-ide-tab-collapsed-chevron"
 						aria-label={`Expand ${activeTab?.title || 'panel'}`}
 						aria-expanded={false}
-						onClick={() => handleExpandTo(effectiveActive)}
+						onClick={() => onExpand?.(effectiveActive)}
 					>
 						<Icon icon={chevronUp} size={18} />
 					</button>
@@ -415,7 +391,7 @@ export function OverflowTabs({
 			{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
 			<div
 				className="wpgraphql-ide-tab-strip-row"
-				onClick={handleStripBackgroundClick}
+				onClick={onCollapse ? onBarBackground(onCollapse) : undefined}
 			>
 				<TabStrip
 					tabs={tabs}
