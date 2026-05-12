@@ -2705,39 +2705,68 @@ input.wpgraphql-ide-tab-input:focus {
 	outline-offset: -2px;
 }
 
-/* Collapsed handle: full-width clickable toolbar with the active
-   tab's label on the left (Altair-style) and the chevron at the
-   right. Replaces the tab strip while collapsed so the viewport
-   bottom edge reads as a single docked control. */
+/* Collapsed handle row: all tab labels visible, active one prominent,
+   the rest subdued — preserves the discoverability of multiple tabs
+   while keeping the docked-control reading. */
 .wpgraphql-ide-tab-collapsed-handle {
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	align-items: stretch;
 	width: 100%;
 	height: 36px;
-	padding: 0 12px;
-	border: 0;
 	border-top: 1px solid #dcdcde;
 	background: #f6f7f7;
-	color: #50575e;
+}
+
+.wpgraphql-ide-tab-collapsed-tab {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	padding: 0 12px;
+	border: 0;
+	background: transparent;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #757575;
 	cursor: pointer;
-	font: inherit;
-	text-align: left;
+	transition:
+		color 0.12s ease,
+		background-color 0.12s ease;
 }
-.wpgraphql-ide-tab-collapsed-handle:hover {
-	background: #f0f0f1;
+.wpgraphql-ide-tab-collapsed-tab:hover {
 	color: #1e1e1e;
+	background: rgba(0, 0, 0, 0.04);
 }
-.wpgraphql-ide-tab-collapsed-handle:focus-visible {
+.wpgraphql-ide-tab-collapsed-tab.is-active {
+	color: #1e1e1e;
+	font-weight: 600;
+}
+.wpgraphql-ide-tab-collapsed-tab:focus-visible {
 	outline: 1.5px solid var(--wp-admin-theme-color, #3858e9);
 	outline-offset: -2px;
 }
-.wpgraphql-ide-tab-collapsed-handle-label {
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
+
+.wpgraphql-ide-tab-collapsed-chevron {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	margin-left: auto;
+	border: 0;
+	background: transparent;
+	color: #50575e;
+	cursor: pointer;
+	padding: 0;
+}
+.wpgraphql-ide-tab-collapsed-chevron:hover {
 	color: #1e1e1e;
+	background: rgba(0, 0, 0, 0.04);
+}
+.wpgraphql-ide-tab-collapsed-chevron:focus-visible {
+	outline: 1.5px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: -2px;
 }
 
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,

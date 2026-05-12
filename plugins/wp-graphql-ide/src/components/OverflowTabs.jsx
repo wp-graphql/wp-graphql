@@ -330,31 +330,46 @@ export function OverflowTabs({
 
 	const showChevron = typeof onCollapse === 'function';
 
-	// Collapsed state is one click-target bar: the active tab's title
-	// on the left (Altair-style), chevron on the right. No tab strip
-	// or content — clicking anywhere re-expands with the previously-
-	// active tab restored.
+	// Collapsed state mirrors the tab strip but with no content area —
+	// all tab labels are visible, the active one prominent, the rest
+	// subdued. Clicking any tab expands AND switches to it; clicking
+	// the trailing chevron expands with the previously-active tab
+	// restored.
 	if (collapsed) {
+		const handleExpandTo = (name) => {
+			if (typeof onExpand === 'function') {
+				onExpand(name);
+			}
+		};
 		return (
 			<div
 				className={`components-tab-panel ${className} is-collapsed`.trim()}
 			>
-				<button
-					type="button"
-					className="wpgraphql-ide-tab-collapsed-handle"
-					aria-label={`Expand ${activeTab?.title || 'panel'}`}
-					aria-expanded={false}
-					onClick={() => {
-						if (typeof onExpand === 'function') {
-							onExpand(effectiveActive);
-						}
-					}}
-				>
-					<span className="wpgraphql-ide-tab-collapsed-handle-label">
-						{activeTab?.title}
-					</span>
-					<Icon icon={chevronUp} size={18} />
-				</button>
+				<div className="wpgraphql-ide-tab-collapsed-handle">
+					{tabs.map((tab) => {
+						const isActive = tab.name === effectiveActive;
+						return (
+							<button
+								key={tab.name}
+								type="button"
+								className={`wpgraphql-ide-tab-collapsed-tab${isActive ? ' is-active' : ''}`}
+								aria-pressed={isActive}
+								onClick={() => handleExpandTo(tab.name)}
+							>
+								{tab.title}
+							</button>
+						);
+					})}
+					<button
+						type="button"
+						className="wpgraphql-ide-tab-collapsed-chevron"
+						aria-label={`Expand ${activeTab?.title || 'panel'}`}
+						aria-expanded={false}
+						onClick={() => handleExpandTo(effectiveActive)}
+					>
+						<Icon icon={chevronUp} size={18} />
+					</button>
+				</div>
 			</div>
 		);
 	}
