@@ -329,20 +329,34 @@ export function OverflowTabs({
 	const activeTab = tabs.find((t) => t.name === effectiveActive);
 
 	const showChevron = typeof onCollapse === 'function';
-	const handleChevron = () => {
-		if (collapsed) {
-			if (typeof onExpand === 'function') {
-				onExpand(effectiveActive);
-			}
-		} else {
-			onCollapse();
-		}
-	};
+
+	// Collapsed state is just a handle bar — no tab labels, no content.
+	// The whole bar is one click target that re-expands the panel with
+	// the previously-active tab restored.
+	if (collapsed) {
+		return (
+			<div
+				className={`components-tab-panel ${className} is-collapsed`.trim()}
+			>
+				<button
+					type="button"
+					className="wpgraphql-ide-tab-collapsed-handle"
+					aria-label="Expand panel"
+					aria-expanded={false}
+					onClick={() => {
+						if (typeof onExpand === 'function') {
+							onExpand(effectiveActive);
+						}
+					}}
+				>
+					<Icon icon={chevronUp} size={18} />
+				</button>
+			</div>
+		);
+	}
 
 	return (
-		<div
-			className={`components-tab-panel ${className}${collapsed ? ' is-collapsed' : ''}`.trim()}
-		>
+		<div className={`components-tab-panel ${className}`.trim()}>
 			<div className="wpgraphql-ide-tab-strip-row">
 				<TabStrip
 					tabs={tabs}
@@ -359,24 +373,17 @@ export function OverflowTabs({
 					<button
 						type="button"
 						className="wpgraphql-ide-tab-collapse-btn"
-						aria-label={
-							collapsed ? 'Expand panel' : 'Collapse panel'
-						}
-						aria-expanded={!collapsed}
-						onClick={handleChevron}
+						aria-label="Collapse panel"
+						aria-expanded
+						onClick={onCollapse}
 					>
-						<Icon
-							icon={collapsed ? chevronUp : chevronDown}
-							size={18}
-						/>
+						<Icon icon={chevronDown} size={18} />
 					</button>
 				)}
 			</div>
-			{!collapsed && (
-				<div className="components-tab-panel__tab-content">
-					{activeTab && children(activeTab)}
-				</div>
-			)}
+			<div className="components-tab-panel__tab-content">
+				{activeTab && children(activeTab)}
+			</div>
 		</div>
 	);
 }
