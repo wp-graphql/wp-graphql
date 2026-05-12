@@ -2660,8 +2660,16 @@ input.wpgraphql-ide-tab-input:focus {
 	overflow: hidden;
 }
 
-/* Tab-strip row hosts the strip and the trailing collapse chevron. */
+/* Tab-strip row hosts the strip and the trailing collapse chevron.
+   Sticky so it stays anchored at the top of the response-tabs scroll
+   container — without this, scrolling the Smart Cache content slides
+   it up *behind* the strip and the tab labels visually merge with
+   the status banner. */
 .wpgraphql-ide-tab-strip-row {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: #fff;
 	display: flex;
 	align-items: stretch;
 	min-height: 0;
