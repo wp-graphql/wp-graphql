@@ -315,12 +315,41 @@ export function OverflowTabs({
 	};
 
 	const handleSelect = (name) => {
+		// Collapsed: clicking any tab is "expand + switch".
+		if (collapsed) {
+			setActive(name);
+			if (typeof onExpand === 'function') {
+				onExpand(name);
+			}
+			return;
+		}
+		// Expanded: clicking the *already-active* tab collapses the
+		// panel — the accordion pattern. Saves the user from having
+		// to mouse over to the trailing chevron just to fold the
+		// panel back up. Clicks on inactive tabs still switch.
+		if (name === effectiveActive && typeof onCollapse === 'function') {
+			onCollapse();
+			return;
+		}
 		setActive(name);
-		// Clicking a tab in collapsed mode is "expand + switch". The
-		// chevron alone isn't enough — users hitting a tab label expect
-		// it to do something visible.
-		if (collapsed && typeof onExpand === 'function') {
-			onExpand(name);
+	};
+
+	// Clicking the strip background (the empty area to the right of
+	// the tabs, before the chevron) also collapses. The chevron and
+	// each tab button bubble their click here too, so we only act
+	// when the event landed on the strip wrapper or the tablist
+	// container itself.
+	const handleStripBackgroundClick = (event) => {
+		if (typeof onCollapse !== 'function') {
+			return;
+		}
+		const target = event.target;
+		const isStripBg =
+			target === event.currentTarget ||
+			(target.classList &&
+				target.classList.contains('components-tab-panel__tabs'));
+		if (isStripBg) {
+			onCollapse();
 		}
 	};
 
@@ -376,7 +405,11 @@ export function OverflowTabs({
 
 	return (
 		<div className={`components-tab-panel ${className}`.trim()}>
-			<div className="wpgraphql-ide-tab-strip-row">
+			{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+			<div
+				className="wpgraphql-ide-tab-strip-row"
+				onClick={handleStripBackgroundClick}
+			>
 				<TabStrip
 					tabs={tabs}
 					activeName={effectiveActive}

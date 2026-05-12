@@ -2669,7 +2669,9 @@ input.wpgraphql-ide-tab-input:focus {
    Sticky so it stays anchored at the top of the response-tabs scroll
    container — without this, scrolling the Smart Cache content slides
    it up *behind* the strip and the tab labels visually merge with
-   the status banner. */
+   the status banner. `cursor: pointer` on the row signals that the
+   empty space between the tabs and the chevron is also a collapse
+   hit target; tabs / chevron buttons override the cursor themselves. */
 .wpgraphql-ide-tab-strip-row {
 	position: sticky;
 	top: 0;
@@ -2678,6 +2680,7 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	align-items: stretch;
 	min-height: 0;
+	cursor: pointer;
 }
 .wpgraphql-ide-tab-strip-row > .components-tab-panel__tabs {
 	flex: 1;
