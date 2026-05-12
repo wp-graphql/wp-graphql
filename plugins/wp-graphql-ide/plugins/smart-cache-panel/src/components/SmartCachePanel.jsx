@@ -149,6 +149,7 @@ export function SmartCachePanel({ data }) {
 			data={data}
 			isAuthenticated={isAuthenticated}
 			isMutation={detectMutation(query)}
+			isIntrospection={detectIntrospection(query)}
 			cacheControl={pickCacheControl(responseHeaders)}
 			docSettings={activeDoc?.documentSettings}
 			globalGrantMode={globalGrantMode}
@@ -163,6 +164,7 @@ export function SmartCachePanel({ data }) {
  * @param {Object}  [props.data]
  * @param {boolean} props.isAuthenticated
  * @param {boolean} props.isMutation
+ * @param {boolean} props.isIntrospection
  * @param {string}  [props.cacheControl]
  * @param {Object}  [props.docSettings]
  * @param {string}  [props.globalGrantMode]
@@ -173,6 +175,7 @@ export function SmartCachePanelView({
 	data,
 	isAuthenticated,
 	isMutation,
+	isIntrospection,
 	cacheControl,
 	docSettings,
 	globalGrantMode,
@@ -219,7 +222,11 @@ export function SmartCachePanelView({
 				<span className="wpgraphql-ide-smart-cache-status-explainer">
 					{isHit
 						? 'Returned from the GraphQL Object Cache — no resolvers ran.'
-						: missHeadline({ isAuthenticated, isMutation })}
+						: missHeadline({
+							isAuthenticated,
+							isMutation,
+							isIntrospection,
+						})}
 				</span>
 			</div>
 
@@ -265,13 +272,18 @@ export function SmartCachePanelView({
 			{!isHit && (
 				<DetailsSection
 					summaryLabel="Why this missed"
-					summaryAside={prereqAside({ isAuthenticated, isMutation })}
+					summaryAside={prereqAside({
+						isAuthenticated,
+						isMutation,
+						isIntrospection,
+					})}
 					className="wpgraphql-ide-smart-cache-prereqs-details"
 					defaultOpen
 				>
 					<PrerequisiteChecklist
 						isAuthenticated={isAuthenticated}
 						isMutation={isMutation}
+						isIntrospection={isIntrospection}
 						cached={isHit}
 					/>
 				</DetailsSection>
@@ -316,16 +328,36 @@ function detectMutation(query) {
 	if (!query || typeof query !== 'string') {
 		return false;
 	}
-	const stripped = query
-		.replace(/#.*$/gm, '')
-		.replace(/"""[\s\S]*?"""/g, '')
-		.replace(/"(?:\\.|[^"\\])*"/g, '');
+	const stripped = stripCommentsAndStrings(query);
 	return /(^|\s)mutation\b/.test(stripped);
 }
 
-function missHeadline({ isAuthenticated, isMutation }) {
+// Same comment / string scrubbing, then look for `__schema` or `__type`
+// — the two introspection root fields. Selecting either of those is
+// what causes the IDE's fetcher (App.jsx) to force credentials + nonce
+// on the request, regardless of the auth toggle state. That in turn
+// means the server sees a viewer and Smart Cache stays disabled.
+function detectIntrospection(query) {
+	if (!query || typeof query !== 'string') {
+		return false;
+	}
+	const stripped = stripCommentsAndStrings(query);
+	return /\b(__schema|__type)\b/.test(stripped);
+}
+
+function stripCommentsAndStrings(query) {
+	return query
+		.replace(/#.*$/gm, '')
+		.replace(/"""[\s\S]*?"""/g, '')
+		.replace(/"(?:\\.|[^"\\])*"/g, '');
+}
+
+function missHeadline({ isAuthenticated, isMutation, isIntrospection }) {
 	if (isMutation) {
 		return 'Mutations are never cached — resolvers ran.';
+	}
+	if (isIntrospection) {
+		return 'Introspection always authenticates — resolvers ran.';
 	}
 	if (isAuthenticated) {
 		return 'Authenticated request — resolvers ran.';
@@ -801,7 +833,12 @@ function interpretCacheControl(value) {
 	return null;
 }
 
-function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
+function PrerequisiteChecklist({
+	isAuthenticated,
+	isMutation,
+	isIntrospection,
+	cached,
+}) {
 	const items = [
 		{
 			key: 'enabled',
@@ -822,12 +859,28 @@ function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 			state: isAuthenticated ? 'blocking' : 'ok',
 			fixHint: (
 				<>
-					Smart Cache currently skips authenticated requests. Even
-					with the IDE&apos;s auth pill off, your{' '}
-					<code>wordpress_logged_in_*</code> cookie travels on every
-					same-origin request — open the IDE in an{' '}
-					<strong>incognito window</strong> or call the GraphQL
-					endpoint with <code>curl</code>/Postman to test caching.
+					Smart Cache currently skips authenticated requests. Flip
+					the IDE&apos;s auth toggle off — the fetcher will drop the
+					session cookie + nonce on the way out, so the server sees
+					an anonymous viewer. (Schema introspection still forces
+					auth; see the next item.)
+				</>
+			),
+		},
+		{
+			key: 'isIntrospection',
+			label: 'Not an introspection query',
+			state: isIntrospection ? 'blocking' : 'ok',
+			fixHint: (
+				<>
+					Selecting <code>__schema</code> or <code>__type</code> makes
+					the IDE&apos;s fetcher force credentials + nonce on the
+					request — schema discovery relies on the viewer&apos;s
+					permissions, so it has to authenticate even when the auth
+					toggle is off. Cache won&apos;t apply. Run a non-
+					introspection query (e.g.{' '}
+					<code>{'{ posts { nodes { id } } }'}</code>) to test the
+					cache.
 				</>
 			),
 		},
@@ -889,9 +942,12 @@ function PrerequisiteChecklist({ isAuthenticated, isMutation, cached }) {
 	);
 }
 
-function prereqAside({ isAuthenticated, isMutation }) {
+function prereqAside({ isAuthenticated, isMutation, isIntrospection }) {
 	let blockers = 1; // 'enabled' is always 'unknown' (counts as a question, not a fail)
 	if (isAuthenticated) {
+		blockers += 1;
+	}
+	if (isIntrospection) {
 		blockers += 1;
 	}
 	if (isMutation) {

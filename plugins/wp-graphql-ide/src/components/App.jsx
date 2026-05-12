@@ -46,6 +46,16 @@ export function App() {
 				...(options.headers || {}),
 			};
 
+			// Introspection (`__schema` / `__type`) always rides
+			// authenticated — schema visibility is gated by viewer
+			// permissions, so dropping the cookie + nonce here would
+			// return a sanitised / empty schema. Side effect: Smart
+			// Cache disables itself for authenticated requests, so
+			// the Object Cache will never hit on an introspection
+			// query regardless of the auth-toggle state. The Smart
+			// Cache panel's prerequisite checklist surfaces this so
+			// users running `{ __schema { … } }` see why the cache
+			// stays empty.
 			if (nonce && (isIntrospectionQuery || isAuthenticated)) {
 				headers['X-WP-Nonce'] = nonce;
 			}
