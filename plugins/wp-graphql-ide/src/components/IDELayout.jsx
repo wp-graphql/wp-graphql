@@ -752,21 +752,16 @@ export function IDELayout({ fetcher, onClose }) {
 			executingHeadersRef.current = headers;
 			executingAuthRef.current = isAuthenticated;
 			executingMethodRef.current = httpMethod;
-			// Caller may pass an explicit op (e.g. from a saved keybind
-			// that picks one). Otherwise resolve from the editor cursor
-			// so mouse + keyboard share semantics. Falls back to the
-			// first op when the cursor sits between ops or the AST is
-			// missing.
+			// Caller is responsible for resolving multi-op ambiguity —
+			// the floating pill's picker dropdown forces an explicit
+			// pick, and the Cmd+Enter keybind resolves the cursor. The
+			// only no-op-name path that reaches here is single-op /
+			// anonymous shorthand, where there's nothing to pick.
 			let target = operationName;
-			if (!target) {
-				target = resolveOpAtOffset(
-					wpSelect('wpgraphql-ide/app').getCursorOffset()
-				);
-			}
-			if (!target && operationNames.length > 1) {
+			if (!target && operationNames.length === 1) {
 				target = operationNames[0];
 			}
-			setLastExecutedOperation(target || operationNames[0] || null);
+			setLastExecutedOperation(target || null);
 			run(target);
 		}
 	};
@@ -774,16 +769,27 @@ export function IDELayout({ fetcher, onClose }) {
 	const executeQuery = (operationName) =>
 		executeQueryRef.current(operationName);
 
-	// Cmd/Ctrl+Enter — universal "run query" chord. View-based cursor
-	// read avoids a microtask of staleness vs. the store-based fallback
-	// inside executeQueryRef.
+	// Cmd/Ctrl+Enter — universal "run query" chord. Resolves the op
+	// under the cursor so multi-op docs run *this* op instead of
+	// opening the picker dropdown. Cursor between ops or AST missing
+	// → fall back to the first named op so the request stays spec-
+	// compliant (GraphQL §6.1 requires `operationName` when the doc
+	// has multiple operations).
 	const editorKeyBindings = useRef([
 		{
 			key: 'Mod-Enter',
 			run: (view) => {
-				const opName = view
-					? resolveOpAtOffset(view.state.selection.main.head)
-					: undefined;
+				let opName;
+				if (view) {
+					opName = resolveOpAtOffset(view.state.selection.main.head);
+				}
+				if (!opName) {
+					const ast = parsedQueryRef.current?.ast;
+					const firstNamed = ast?.definitions?.find(
+						(d) => d.kind === 'OperationDefinition' && d.name?.value
+					);
+					opName = firstNamed?.name?.value;
+				}
 				executeQueryRef.current(opName);
 				return true;
 			},

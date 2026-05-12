@@ -183,14 +183,14 @@ export function ExecutionControls({
 			'Send as public visitor (click to switch to authenticated)';
 	}
 
-	// The floating pill no longer promotes its play button to an
-	// operation picker on multi-op documents — the inline per-
-	// operation run widgets in the editor cover that interaction
-	// (see `editors/run-operation-widget.js`). The pill's play
-	// button now always runs the first operation (or the only one);
-	// users picking a specific op among many click its inline button
-	// in the editor itself.
-	const showOpPicker = false;
+	// Multi-op documents promote the play button to an operation
+	// picker — GraphQL spec §6.1 requires the client to specify
+	// `operationName` when the document has more than one operation,
+	// so we force an explicit pick instead of silently defaulting to
+	// the first definition. Cmd/Ctrl+Enter takes a different route:
+	// it resolves the op under the cursor and runs that one without
+	// opening the menu.
+	const showOpPicker = !isFetching && operationNames.length > 1;
 
 	const playCountRef = useRef(0);
 	const lastPlayAtRef = useRef(0);
