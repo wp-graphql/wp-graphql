@@ -5,7 +5,6 @@ import {
 	MenuGroup,
 	MenuItem,
 	ResizableBox,
-	TabPanel,
 	Tooltip,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -16,6 +15,7 @@ import { DocumentSettingsDrawer } from '../document-settings/DocumentSettingsDra
 import { EditorToolbar } from '../EditorToolbar';
 import { ExecutionControls } from './ExecutionControls';
 import { LeftPanel } from './LeftPanel';
+import { OverflowTabs } from '../OverflowTabs';
 import { useResizeReporter } from '../ResizeOverlay';
 
 /**
@@ -105,6 +105,12 @@ export function EditorPane({
 	onExecute,
 	signInUrl,
 	showAuthControl,
+	// Bottom strip collapse + active-tab state (controlled by IDELayout
+	// so they persist alongside other UI-chrome device prefs).
+	bottomCollapsed = false,
+	onSetBottomCollapsed,
+	bottomActiveTab,
+	onSetBottomActiveTab,
 }) {
 	const hasComposer = !!ComposerContent && !isPublished;
 	const hasLeftPanel =
@@ -350,64 +356,86 @@ export function EditorPane({
 					</LeftPanel>
 				)}
 				<div className="wpgraphql-ide-editor-stack">
-					<ResizableBox
-						size={{ width: '100%', height: editorHeight }}
-						minHeight={MIN_EDITOR_HEIGHT_PX}
-						enable={{ bottom: true }}
-						onResizeStart={editorAreaReporter.reportStart}
-						onResize={editorAreaReporter.reportResize}
-						onResizeStop={(e, d, elt) => {
-							editorAreaReporter.reportStop();
-							onSetEditorHeight(elt.offsetHeight);
-						}}
-						className="wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split"
+					{(() => {
+						const editorBody = (
+							<>
+								{editorAreaReporter.indicator}
+								{/* Notice rides inside the editor's height
+								    so the bottom strip stays anchored
+								    whether or not it's showing. */}
+								<DocumentNotices
+									isPublished={isPublished}
+									onDuplicate={onDuplicateAsDraft}
+								/>
+								<div className="wpgraphql-ide-editor-resizable-body">
+									<GraphQLEditor
+										key={activeDocument?.id || 'empty'}
+										className={
+											isPublished ? 'is-readonly' : ''
+										}
+										value={query}
+										onChange={onQueryChange}
+										schema={schema}
+										readOnly={isPublished}
+										extraKeys={editorKeyBindings.current}
+										onShowInDocs={onShowInDocs}
+										onCursorChange={onCursorChange}
+										jumpRequest={jumpRequest}
+										onJumpApplied={onJumpApplied}
+									/>
+									<ExecutionControls
+										query={query}
+										httpMethod={httpMethod}
+										onSetHttpMethod={onSetHttpMethod}
+										isAuthenticated={isAuthenticated}
+										onToggleAuth={onToggleAuth}
+										avatarUrl={avatarUrl}
+										operationNames={operationNames}
+										isFetching={isFetching}
+										isSchemaLoading={isSchemaLoading}
+										onExecute={onExecute}
+										// Anonymous visitors on the public
+										// endpoint have no auth session to
+										// toggle — the avatar becomes a
+										// sign-in link to wp_login instead.
+										signInUrl={signInUrl}
+										showAuthControl={showAuthControl}
+									/>
+								</div>
+							</>
+						);
+						// With the bottom strip collapsed there's nothing to
+						// resize against, so drop the ResizableBox and let
+						// the editor fill the remaining flex column.
+						return bottomCollapsed ? (
+							<div className="wpgraphql-ide-editor-resizable wpgraphql-ide-editor-resizable--filling">
+								{editorBody}
+							</div>
+						) : (
+							<ResizableBox
+								size={{
+									width: '100%',
+									height: editorHeight,
+								}}
+								minHeight={MIN_EDITOR_HEIGHT_PX}
+								enable={{ bottom: true }}
+								onResizeStart={editorAreaReporter.reportStart}
+								onResize={editorAreaReporter.reportResize}
+								onResizeStop={(e, d, elt) => {
+									editorAreaReporter.reportStop();
+									onSetEditorHeight(elt.offsetHeight);
+								}}
+								className="wpgraphql-ide-editor-resizable wpgraphql-ide-resizable-split"
+							>
+								{editorBody}
+							</ResizableBox>
+						);
+					})()}
+					<div
+						className={`wpgraphql-ide-editor-bottom${bottomCollapsed ? ' is-collapsed' : ''}`}
 					>
-						{editorAreaReporter.indicator}
-						{/* Mounted inside the ResizableBox so its height is borrowed
-						    from the editor area, not added above it — keeps the bottom
-						    Variables/Headers panel anchored to the same position
-						    whether or not the notice is showing. */}
-						<DocumentNotices
-							isPublished={isPublished}
-							onDuplicate={onDuplicateAsDraft}
-						/>
-						<div className="wpgraphql-ide-editor-resizable-body">
-							<GraphQLEditor
-								key={activeDocument?.id || 'empty'}
-								className={isPublished ? 'is-readonly' : ''}
-								value={query}
-								onChange={onQueryChange}
-								schema={schema}
-								readOnly={isPublished}
-								extraKeys={editorKeyBindings.current}
-								onShowInDocs={onShowInDocs}
-								onCursorChange={onCursorChange}
-								jumpRequest={jumpRequest}
-								onJumpApplied={onJumpApplied}
-							/>
-							<ExecutionControls
-								query={query}
-								httpMethod={httpMethod}
-								onSetHttpMethod={onSetHttpMethod}
-								isAuthenticated={isAuthenticated}
-								onToggleAuth={onToggleAuth}
-								avatarUrl={avatarUrl}
-								operationNames={operationNames}
-								isFetching={isFetching}
-								isSchemaLoading={isSchemaLoading}
-								onExecute={onExecute}
-								// Anonymous visitors on the public endpoint have
-								// no auth session to toggle — the avatar becomes
-								// a sign-in link to wp_login instead of an in-app
-								// toggle.
-								signInUrl={signInUrl}
-								showAuthControl={showAuthControl}
-							/>
-						</div>
-					</ResizableBox>
-					<div className="wpgraphql-ide-editor-bottom">
 						{bottomToolsReporter.indicator}
-						<TabPanel
+						<OverflowTabs
 							className="wpgraphql-ide-editor-tools"
 							tabs={editorBottomTabs.map((t) => ({
 								name: t.name,
@@ -422,6 +450,23 @@ export function EditorPane({
 											})
 										: t.title || t.name,
 							}))}
+							initialTabName={
+								bottomActiveTab || editorBottomTabs[0]?.name
+							}
+							activeTabName={bottomActiveTab || undefined}
+							onActiveTabChange={onSetBottomActiveTab}
+							collapsed={bottomCollapsed}
+							onCollapse={() => onSetBottomCollapsed(true)}
+							onExpand={(name) => {
+								onSetBottomCollapsed(false);
+								if (
+									name &&
+									(!bottomActiveTab ||
+										bottomActiveTab !== name)
+								) {
+									onSetBottomActiveTab(name);
+								}
+							}}
 						>
 							{(tab) => {
 								const ext = editorBottomTabs.find(
@@ -445,7 +490,7 @@ export function EditorPane({
 									/>
 								);
 							}}
-						</TabPanel>
+						</OverflowTabs>
 					</div>
 				</div>
 			</div>

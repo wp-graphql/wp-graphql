@@ -6,6 +6,7 @@ import React, {
 	useEffect,
 } from 'react';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 
 const OVERFLOW_BTN_W = 40;
 
@@ -268,11 +269,16 @@ function TabStrip({
  * it to keep tabs static.
  *
  * @param {Object}   props
- * @param {Array}    props.tabs           `{ name, title }` descriptors, ordered.
- * @param {string}   props.initialTabName Tab that should be active on mount.
- * @param {string}   props.className      Class added next to `.components-tab-panel`.
- * @param {Object}   [props.reorder]      `{ dragOverTab, onDragStart, … }` D&D bundle.
- * @param {Function} props.children       Render-prop receiving the active tab.
+ * @param {Array}    props.tabs                `{ name, title }` descriptors, ordered.
+ * @param {string}   props.initialTabName      Tab that should be active on mount. Ignored when `activeTabName` is controlled.
+ * @param {string}   props.className           Class added next to `.components-tab-panel`.
+ * @param {Object}   [props.reorder]           `{ dragOverTab, onDragStart, … }` D&D bundle.
+ * @param {boolean}  [props.collapsed]         Render only the tab bar; content area is hidden.
+ * @param {Function} [props.onCollapse]        Click handler for the trailing chevron when expanded.
+ * @param {Function} [props.onExpand]          Called with the clicked tab name when user clicks a tab while collapsed (or hits the chevron).
+ * @param {string}   [props.activeTabName]     Controlled active tab — pair with `onActiveTabChange` to hoist state.
+ * @param {Function} [props.onActiveTabChange] Called with the new active tab name.
+ * @param {Function} props.children            Render-prop receiving the active tab.
  *
  * @return {JSX.Element|null}
  */
@@ -282,8 +288,13 @@ export function OverflowTabs({
 	className = '',
 	reorder,
 	children,
+	collapsed = false,
+	onCollapse,
+	onExpand,
+	activeTabName,
+	onActiveTabChange,
 }) {
-	const [activeName, setActiveName] = useState(
+	const [internalActive, setInternalActive] = useState(
 		initialTabName || tabs[0]?.name
 	);
 
@@ -291,26 +302,81 @@ export function OverflowTabs({
 		return null;
 	}
 
+	const isControlled = typeof activeTabName === 'string';
+	const currentActive = isControlled ? activeTabName : internalActive;
+
+	const setActive = (name) => {
+		if (!isControlled) {
+			setInternalActive(name);
+		}
+		if (typeof onActiveTabChange === 'function') {
+			onActiveTabChange(name);
+		}
+	};
+
+	const handleSelect = (name) => {
+		setActive(name);
+		// Clicking a tab in collapsed mode is "expand + switch". The
+		// chevron alone isn't enough — users hitting a tab label expect
+		// it to do something visible.
+		if (collapsed && typeof onExpand === 'function') {
+			onExpand(name);
+		}
+	};
+
 	const effectiveActive =
-		tabs.find((t) => t.name === activeName)?.name || tabs[0].name;
+		tabs.find((t) => t.name === currentActive)?.name || tabs[0].name;
 	const activeTab = tabs.find((t) => t.name === effectiveActive);
 
+	const showChevron = typeof onCollapse === 'function';
+	const handleChevron = () => {
+		if (collapsed) {
+			if (typeof onExpand === 'function') {
+				onExpand(effectiveActive);
+			}
+		} else {
+			onCollapse();
+		}
+	};
+
 	return (
-		<div className={`components-tab-panel ${className}`.trim()}>
-			<TabStrip
-				tabs={tabs}
-				activeName={effectiveActive}
-				onSelect={setActiveName}
-				dragOverTab={reorder?.dragOverTab}
-				onDragStart={reorder?.onDragStart}
-				onDragOver={reorder?.onDragOver}
-				onDragLeave={reorder?.onDragLeave}
-				onDrop={reorder?.onDrop}
-				onDragEnd={reorder?.onDragEnd}
-			/>
-			<div className="components-tab-panel__tab-content">
-				{activeTab && children(activeTab)}
+		<div
+			className={`components-tab-panel ${className}${collapsed ? ' is-collapsed' : ''}`.trim()}
+		>
+			<div className="wpgraphql-ide-tab-strip-row">
+				<TabStrip
+					tabs={tabs}
+					activeName={effectiveActive}
+					onSelect={handleSelect}
+					dragOverTab={reorder?.dragOverTab}
+					onDragStart={reorder?.onDragStart}
+					onDragOver={reorder?.onDragOver}
+					onDragLeave={reorder?.onDragLeave}
+					onDrop={reorder?.onDrop}
+					onDragEnd={reorder?.onDragEnd}
+				/>
+				{showChevron && (
+					<button
+						type="button"
+						className="wpgraphql-ide-tab-collapse-btn"
+						aria-label={
+							collapsed ? 'Expand panel' : 'Collapse panel'
+						}
+						aria-expanded={!collapsed}
+						onClick={handleChevron}
+					>
+						<Icon
+							icon={collapsed ? chevronUp : chevronDown}
+							size={18}
+						/>
+					</button>
+				)}
 			</div>
+			{!collapsed && (
+				<div className="components-tab-panel__tab-content">
+					{activeTab && children(activeTab)}
+				</div>
+			)}
 		</div>
 	);
 }

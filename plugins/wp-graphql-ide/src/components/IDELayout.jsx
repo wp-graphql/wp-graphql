@@ -308,6 +308,39 @@ export function IDELayout({ fetcher, onClose }) {
 		setResponseViewModeState(next);
 		setPreference('response_view_mode', next).catch(() => {});
 	}, []);
+
+	// Collapse state for the editor's bottom Variables/Headers strip and
+	// the response pane's bottom Smart Cache / Errors / Debug / Headers /
+	// Tracing strip. Both default to expanded so existing users see no
+	// change; both persist per-device alongside the other UI-chrome prefs.
+	const [editorBottomCollapsed, setEditorBottomCollapsedState] = useState(
+		() => readDevicePreference('editor_bottom_collapsed') === true
+	);
+	const setEditorBottomCollapsed = useCallback((next) => {
+		setEditorBottomCollapsedState(next);
+		setPreference('editor_bottom_collapsed', next).catch(() => {});
+	}, []);
+	const [editorBottomActiveTab, setEditorBottomActiveTabState] = useState(
+		() => readDevicePreference('editor_bottom_active_tab') || null
+	);
+	const setEditorBottomActiveTab = useCallback((next) => {
+		setEditorBottomActiveTabState(next);
+		setPreference('editor_bottom_active_tab', next).catch(() => {});
+	}, []);
+	const [responseBottomCollapsed, setResponseBottomCollapsedState] = useState(
+		() => readDevicePreference('response_bottom_collapsed') === true
+	);
+	const setResponseBottomCollapsed = useCallback((next) => {
+		setResponseBottomCollapsedState(next);
+		setPreference('response_bottom_collapsed', next).catch(() => {});
+	}, []);
+	const [responseBottomActiveTab, setResponseBottomActiveTabState] = useState(
+		() => readDevicePreference('response_bottom_active_tab') || null
+	);
+	const setResponseBottomActiveTab = useCallback((next) => {
+		setResponseBottomActiveTabState(next);
+		setPreference('response_bottom_active_tab', next).catch(() => {});
+	}, []);
 	const { notices, addNotice, removeNotice } = useNotices();
 
 	// ESC key closes the drawer when in drawer mode.
@@ -1106,6 +1139,14 @@ export function IDELayout({ fetcher, onClose }) {
 											isUserLoggedIn ||
 											allowEndpointSignIn
 										}
+										bottomCollapsed={editorBottomCollapsed}
+										onSetBottomCollapsed={
+											setEditorBottomCollapsed
+										}
+										bottomActiveTab={editorBottomActiveTab}
+										onSetBottomActiveTab={
+											setEditorBottomActiveTab
+										}
 									/>
 									<ResponsePane
 										response={response}
@@ -1124,6 +1165,18 @@ export function IDELayout({ fetcher, onClose }) {
 										}
 										onResponseViewerResize={
 											setResponseViewerHeight
+										}
+										bottomCollapsed={
+											responseBottomCollapsed
+										}
+										onSetBottomCollapsed={
+											setResponseBottomCollapsed
+										}
+										bottomActiveTab={
+											responseBottomActiveTab
+										}
+										onSetBottomActiveTab={
+											setResponseBottomActiveTab
 										}
 									/>
 								</div>

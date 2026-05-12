@@ -28,6 +28,10 @@ import { ResponseContent } from './ResponseContent';
  * @param {boolean}             props.isFetching             - Whether a request is in flight.
  * @param {string|number}       props.responseViewerHeight   - Top pane height (px or '%').
  * @param {Function}            props.onResponseViewerResize - Called with the new px height on resize stop.
+ * @param {boolean}             [props.bottomCollapsed]      - Whether the bottom tabs strip is collapsed.
+ * @param {Function}            [props.onSetBottomCollapsed] - Setter for `bottomCollapsed`.
+ * @param {string|null}         [props.bottomActiveTab]      - Last-active bottom tab name.
+ * @param {Function}            [props.onSetBottomActiveTab] - Setter for `bottomActiveTab`.
  */
 export function ResponsePane({
 	response,
@@ -43,6 +47,10 @@ export function ResponsePane({
 	isFetching,
 	responseViewerHeight,
 	onResponseViewerResize,
+	bottomCollapsed = false,
+	onSetBottomCollapsed,
+	bottomActiveTab,
+	onSetBottomActiveTab,
 }) {
 	// Programmatic tab navigation: status-bar badges set this, which
 	// remounts the response TabPanel via `key` to honor the new
@@ -213,6 +221,10 @@ export function ResponsePane({
 				responseViewerHeight={responseViewerHeight}
 				onResponseViewerResize={onResponseViewerResize}
 				tabRequest={tabRequest}
+				bottomCollapsed={bottomCollapsed}
+				onSetBottomCollapsed={onSetBottomCollapsed}
+				bottomActiveTab={bottomActiveTab}
+				onSetBottomActiveTab={onSetBottomActiveTab}
 			/>
 		</div>
 	);

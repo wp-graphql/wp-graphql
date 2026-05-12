@@ -22,6 +22,10 @@ import { useResponseTabOrder } from '../../hooks/useResponseTabOrder';
  * @param {string|number}                      props.responseViewerHeight   - Height of the top pane (px or '%').
  * @param {Function}                           props.onResponseViewerResize - Called with the new px height on resize stop.
  * @param {{name: string, token: number}|null} props.tabRequest             - Programmatic tab navigation request from the parent (e.g. status-bar badge). `name` is the tab to focus; `token` is bumped on every click so re-clicking the same tab still re-keys the TabPanel and re-applies focus.
+ * @param {boolean}                            [props.bottomCollapsed]      - Whether the bottom tabs strip is collapsed.
+ * @param {Function}                           [props.onSetBottomCollapsed] - Setter for `bottomCollapsed`.
+ * @param {string|null}                        [props.bottomActiveTab]      - Last-active bottom tab name.
+ * @param {Function}                           [props.onSetBottomActiveTab] - Setter for `bottomActiveTab`.
  */
 export function ResponseContent({
 	response,
@@ -32,6 +36,10 @@ export function ResponseContent({
 	responseViewerHeight,
 	onResponseViewerResize,
 	tabRequest,
+	bottomCollapsed = false,
+	onSetBottomCollapsed,
+	bottomActiveTab,
+	onSetBottomActiveTab,
 }) {
 	const parsed = useMemo(() => {
 		if (!response) {
@@ -156,22 +164,32 @@ export function ResponseContent({
 
 	return (
 		<div className="wpgraphql-ide-response-body">
-			<ResizableBox
-				size={{ width: '100%', height: responseViewerHeight }}
-				minHeight={50}
-				enable={{ bottom: true }}
-				onResizeStart={reporter.reportStart}
-				onResize={reporter.reportResize}
-				onResizeStop={(e, d, elt) => {
-					reporter.reportStop();
-					onResponseViewerResize(elt.offsetHeight);
-				}}
-				className="wpgraphql-ide-response-viewer wpgraphql-ide-resizable-split"
+			{bottomCollapsed ? (
+				// Collapsed bottom = no split, viewer fills the column.
+				<div className="wpgraphql-ide-response-viewer wpgraphql-ide-response-viewer--filling">
+					{reporter.indicator}
+					{renderViewer()}
+				</div>
+			) : (
+				<ResizableBox
+					size={{ width: '100%', height: responseViewerHeight }}
+					minHeight={50}
+					enable={{ bottom: true }}
+					onResizeStart={reporter.reportStart}
+					onResize={reporter.reportResize}
+					onResizeStop={(e, d, elt) => {
+						reporter.reportStop();
+						onResponseViewerResize(elt.offsetHeight);
+					}}
+					className="wpgraphql-ide-response-viewer wpgraphql-ide-resizable-split"
+				>
+					{reporter.indicator}
+					{renderViewer()}
+				</ResizableBox>
+			)}
+			<div
+				className={`wpgraphql-ide-response-tabs-wrap${bottomCollapsed ? ' is-collapsed' : ''}`}
 			>
-				{reporter.indicator}
-				{renderViewer()}
-			</ResizableBox>
-			<div className="wpgraphql-ide-response-tabs-wrap">
 				{tabsReporter.indicator}
 				<OverflowTabs
 					// Re-key on the request token so every status-bar click
@@ -185,7 +203,32 @@ export function ResponseContent({
 					reorder={reorder}
 					initialTabName={
 						tabRequest?.name ||
+						bottomActiveTab ||
 						(errors.length > 0 ? 'ext:errors' : 'ext:tracing')
+					}
+					activeTabName={
+						tabRequest?.name || bottomActiveTab || undefined
+					}
+					onActiveTabChange={onSetBottomActiveTab}
+					collapsed={bottomCollapsed}
+					onCollapse={
+						onSetBottomCollapsed
+							? () => onSetBottomCollapsed(true)
+							: undefined
+					}
+					onExpand={
+						onSetBottomCollapsed
+							? (name) => {
+									onSetBottomCollapsed(false);
+									if (
+										name &&
+										(!bottomActiveTab ||
+											bottomActiveTab !== name)
+									) {
+										onSetBottomActiveTab?.(name);
+									}
+								}
+							: undefined
 					}
 				>
 					{(tab) => {

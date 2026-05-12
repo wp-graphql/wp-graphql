@@ -2634,6 +2634,65 @@ input.wpgraphql-ide-tab-input:focus {
 	flex-direction: column;
 }
 
+/* Collapsed bottom strip — only the tab bar + chevron is visible. The
+   editor / response viewer above grows into the freed space because
+   EditorPane / ResponseContent skip their ResizableBox wrapper in this
+   mode and let the surrounding flex column fill it. */
+.wpgraphql-ide-response-tabs-wrap.is-collapsed,
+.wpgraphql-ide-editor-bottom.is-collapsed {
+	flex: 0 0 auto;
+}
+.wpgraphql-ide-response-tabs-wrap.is-collapsed > .components-tab-panel,
+.wpgraphql-ide-editor-bottom.is-collapsed > .components-tab-panel {
+	flex: 0 0 auto;
+}
+
+/* The editor / response-viewer wrapper used when the bottom strip is
+   collapsed. ResizableBox is skipped in that case so this plain div
+   flex-fills the parent column. */
+.wpgraphql-ide-editor-resizable--filling,
+.wpgraphql-ide-response-viewer--filling {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Tab-strip row hosts the strip and the trailing collapse chevron on
+   the same line. Without a wrapper the chevron would land below the
+   tabs because OverflowTabs renders the strip in a flex column. */
+.wpgraphql-ide-tab-strip-row {
+	display: flex;
+	align-items: stretch;
+	min-height: 0;
+}
+.wpgraphql-ide-tab-strip-row > .components-tab-panel__tabs {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-tab-collapse-btn {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	border: 0;
+	background: transparent;
+	color: #50575e;
+	cursor: pointer;
+	padding: 0;
+}
+.wpgraphql-ide-tab-collapse-btn:hover {
+	color: #1e1e1e;
+	background: rgba(0, 0, 0, 0.04);
+}
+.wpgraphql-ide-tab-collapse-btn:focus-visible {
+	outline: 1.5px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: -2px;
+}
+
 .wpgraphql-ide-query-pane > .components-resizable-box__handle,
 .wpgraphql-ide-editor-resizable > .components-resizable-box__handle,
 .wpgraphql-ide-activity-panel > .components-resizable-box__handle {

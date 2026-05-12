@@ -39,6 +39,10 @@ const SCOPES = Object.freeze({
 	open_tabs: 'device',
 	active_tab: 'device',
 	visible_panel: 'device',
+	editor_bottom_collapsed: 'device',
+	editor_bottom_active_tab: 'device',
+	response_bottom_collapsed: 'device',
+	response_bottom_active_tab: 'device',
 
 	// User-scoped, identity-bound. Logged-in only.
 	personal_collections: 'user',
