@@ -898,12 +898,16 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* HTTP-method dropdown toggle. Text + caret — pill corners. The
    `9999px` radius keeps the focus ring (box-shadow outside the
-   element) a perfect pill instead of a rounded rectangle. */
+   element) a perfect pill instead of a rounded rectangle. Height
+   tracks the primary execute button (48 px) so the pill reads as a
+   single visual rhythm — the configure cluster keeps the smaller
+   font + transparent fill to stay secondary inside the larger
+   bezel. */
 .wpgraphql-ide-execution-method-btn.components-button {
 	font-size: 12px;
 	font-weight: 500;
-	height: 40px;
-	padding: 0 6px 0 14px;
+	height: 48px;
+	padding: 0 8px 0 16px;
 	color: var(--wp-components-color-gray-700, #50575e);
 	background: transparent;
 	border: 0;
@@ -1497,11 +1501,14 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-send-button.components-button {
 	color: #fff !important;
-	/* 40×40 circle — primary CTA. Same height as the secondary
-	   controls; hierarchy reads from the solid accent fill, not size. */
-	width: 40px;
-	min-width: 40px;
-	height: 40px;
+	/* 48×48 circle — primary CTA. Sized larger than the secondary
+	   controls (method picker 40, auth avatar 28) so the visual
+	   weight tracks the action's importance, not just its colour.
+	   The pill grows to fit via flex; the divider gap keeps the
+	   configure cluster visually separate. */
+	width: 48px;
+	min-width: 48px;
+	height: 48px;
 	padding: 0;
 	justify-content: center;
 	border-radius: 50%;
