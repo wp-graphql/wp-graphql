@@ -223,10 +223,10 @@ export function SmartCachePanelView({
 					{isHit
 						? 'Returned from the GraphQL Object Cache — no resolvers ran.'
 						: missHeadline({
-							isAuthenticated,
-							isMutation,
-							isIntrospection,
-						})}
+								isAuthenticated,
+								isMutation,
+								isIntrospection,
+							})}
 				</span>
 			</div>
 
@@ -859,11 +859,11 @@ function PrerequisiteChecklist({
 			state: isAuthenticated ? 'blocking' : 'ok',
 			fixHint: (
 				<>
-					Smart Cache currently skips authenticated requests. Flip
-					the IDE&apos;s auth toggle off — the fetcher will drop the
-					session cookie + nonce on the way out, so the server sees
-					an anonymous viewer. (Schema introspection still forces
-					auth; see the next item.)
+					Smart Cache currently skips authenticated requests. Flip the
+					IDE&apos;s auth toggle off — the fetcher will drop the
+					session cookie + nonce on the way out, so the server sees an
+					anonymous viewer. (Schema introspection still forces auth;
+					see the next item.)
 				</>
 			),
 		},
