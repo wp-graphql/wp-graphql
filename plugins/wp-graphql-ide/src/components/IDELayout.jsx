@@ -1,10 +1,4 @@
-import React, {
-	useState,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import { SnackbarList } from '@wordpress/components';
 import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
@@ -717,64 +711,62 @@ export function IDELayout({ fetcher, onClose }) {
 		schema
 	);
 
-	// `from` is the position just after the operation's opening `{`, so
-	// CM6 anchors the inline pill at the trailing edge of the header
-	// line. Only emitted for 2+ named ops; single-op docs use the
-	// floating pill instead.
-	const inlineRunOperations = useMemo(() => {
-		const ast = parsedQuery?.ast;
-		if (!ast || !Array.isArray(ast.definitions)) {
-			return [];
-		}
-		const ops = [];
-		for (const def of ast.definitions) {
-			if (
-				def.kind !== 'OperationDefinition' ||
-				!def.name ||
-				typeof def.name.value !== 'string'
-			) {
-				continue;
-			}
-			const braceStart = def.selectionSet?.loc?.start;
-			if (typeof braceStart !== 'number') {
-				continue;
-			}
-			ops.push({ name: def.name.value, from: braceStart + 1 });
-		}
-		return ops.length > 1 ? ops : [];
-	}, [parsedQuery]);
-
-	// AST exposed to the keybinding closure via ref so Mod-Enter
-	// always sees the latest parsed document without re-creating the
-	// keymap.
+	// Exposed via ref so closures (keybinding, run-button click) always
+	// see the latest parsed AST without re-creating the keymap.
 	const parsedQueryRef = useRef(parsedQuery);
 	parsedQueryRef.current = parsedQuery;
+
+	// Resolve which named operation a character offset falls inside.
+	// Returns undefined when there's no AST, no cursor, or the offset
+	// sits between operations — callers fall back to the first op.
+	const resolveOpAtOffset = (offset) => {
+		const ast = parsedQueryRef.current?.ast;
+		if (
+			typeof offset !== 'number' ||
+			!ast ||
+			!Array.isArray(ast.definitions)
+		) {
+			return undefined;
+		}
+		const def = ast.definitions.find(
+			(d) =>
+				d.kind === 'OperationDefinition' &&
+				d.name?.value &&
+				d.loc &&
+				offset >= d.loc.start &&
+				offset <= d.loc.end
+		);
+		return def?.name?.value;
+	};
 
 	const executeQueryRef = useRef(null);
 	executeQueryRef.current = (operationName) => {
 		if (isFetching) {
 			stop();
 		} else {
-			// Load schema on first execution if not loaded yet.
 			if (!schema) {
 				refetch();
 			}
-			// Capture execution context for the correct document.
 			executingDocIdRef.current = activeDocument?.id || null;
 			executingQueryRef.current = query;
 			executingHeadersRef.current = headers;
 			executingAuthRef.current = isAuthenticated;
 			executingMethodRef.current = httpMethod;
-			// When the doc has multiple named operations and the caller didn't
-			// pick one (e.g. keyboard shortcut), default to the first.
+			// Caller may pass an explicit op (e.g. from a saved keybind
+			// that picks one). Otherwise resolve from the editor cursor
+			// so mouse + keyboard share semantics. Falls back to the
+			// first op when the cursor sits between ops or the AST is
+			// missing.
 			let target = operationName;
+			if (!target) {
+				target = resolveOpAtOffset(
+					wpSelect('wpgraphql-ide/app').getCursorOffset()
+				);
+			}
 			if (!target && operationNames.length > 1) {
 				target = operationNames[0];
 			}
-			// Falls back to the sole op name for single-op docs; null for
-			// anonymous shorthand.
-			const resolvedOp = target || operationNames[0] || null;
-			setLastExecutedOperation(resolvedOp);
+			setLastExecutedOperation(target || operationNames[0] || null);
 			run(target);
 		}
 	};
@@ -782,28 +774,16 @@ export function IDELayout({ fetcher, onClose }) {
 	const executeQuery = (operationName) =>
 		executeQueryRef.current(operationName);
 
-	// Cmd/Ctrl+Enter to run the query is the universal convention for
-	// GraphQL clients (GraphiQL, Postman, Insomnia, Apollo Sandbox).
-	// Resolves the operation under the cursor so multi-op docs run
-	// *this* op, not always the first.
+	// Cmd/Ctrl+Enter — universal "run query" chord. View-based cursor
+	// read avoids a microtask of staleness vs. the store-based fallback
+	// inside executeQueryRef.
 	const editorKeyBindings = useRef([
 		{
 			key: 'Mod-Enter',
 			run: (view) => {
-				const ast = parsedQueryRef.current?.ast;
-				let opName;
-				if (view && ast && Array.isArray(ast.definitions)) {
-					const cursor = view.state.selection.main.head;
-					const def = ast.definitions.find(
-						(d) =>
-							d.kind === 'OperationDefinition' &&
-							d.name?.value &&
-							d.loc &&
-							cursor >= d.loc.start &&
-							cursor <= d.loc.end
-					);
-					opName = def?.name?.value;
-				}
+				const opName = view
+					? resolveOpAtOffset(view.state.selection.main.head)
+					: undefined;
 				executeQueryRef.current(opName);
 				return true;
 			},
@@ -1106,9 +1086,6 @@ export function IDELayout({ fetcher, onClose }) {
 												?.avatarUrl
 										}
 										operationNames={operationNames}
-										inlineRunOperations={
-											inlineRunOperations
-										}
 										isFetching={isFetching}
 										isSchemaLoading={isSchemaLoading}
 										onExecute={executeQuery}

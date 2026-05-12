@@ -100,10 +100,6 @@ export function EditorPane({
 	onToggleAuth,
 	avatarUrl,
 	operationNames,
-	// Inline per-operation run widgets (experimental). Array of
-	// `{ name, from }` derived from the parsed AST in IDELayout —
-	// passed straight to GraphQLEditor for in-document placement.
-	inlineRunOperations = [],
 	isFetching,
 	isSchemaLoading,
 	onExecute,
@@ -388,34 +384,25 @@ export function EditorPane({
 								onCursorChange={onCursorChange}
 								jumpRequest={jumpRequest}
 								onJumpApplied={onJumpApplied}
-								operations={inlineRunOperations}
-								onRunOperation={onExecute}
+							/>
+							<ExecutionControls
+								query={query}
+								httpMethod={httpMethod}
+								onSetHttpMethod={onSetHttpMethod}
+								isAuthenticated={isAuthenticated}
+								onToggleAuth={onToggleAuth}
 								avatarUrl={avatarUrl}
+								operationNames={operationNames}
+								isFetching={isFetching}
+								isSchemaLoading={isSchemaLoading}
+								onExecute={onExecute}
+								// Anonymous visitors on the public endpoint have
+								// no auth session to toggle — the avatar becomes
+								// a sign-in link to wp_login instead of an in-app
+								// toggle.
 								signInUrl={signInUrl}
 								showAuthControl={showAuthControl}
-								isSchemaLoading={isSchemaLoading}
 							/>
-							{/* Inline per-op pills replace the floating pill in multi-op docs. */}
-							{inlineRunOperations.length === 0 && (
-								<ExecutionControls
-									query={query}
-									httpMethod={httpMethod}
-									onSetHttpMethod={onSetHttpMethod}
-									isAuthenticated={isAuthenticated}
-									onToggleAuth={onToggleAuth}
-									avatarUrl={avatarUrl}
-									operationNames={operationNames}
-									isFetching={isFetching}
-									isSchemaLoading={isSchemaLoading}
-									onExecute={onExecute}
-									// Anonymous visitors on the public endpoint
-									// have no auth session to toggle — the avatar
-									// becomes a sign-in link to wp_login instead
-									// of an in-app toggle.
-									signInUrl={signInUrl}
-									showAuthControl={showAuthControl}
-								/>
-							)}
 						</div>
 					</ResizableBox>
 					<div className="wpgraphql-ide-editor-bottom">
