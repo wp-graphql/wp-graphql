@@ -330,9 +330,10 @@ export function OverflowTabs({
 
 	const showChevron = typeof onCollapse === 'function';
 
-	// Collapsed state is just a handle bar — no tab labels, no content.
-	// The whole bar is one click target that re-expands the panel with
-	// the previously-active tab restored.
+	// Collapsed state is one click-target bar: the active tab's title
+	// on the left (Altair-style), chevron on the right. No tab strip
+	// or content — clicking anywhere re-expands with the previously-
+	// active tab restored.
 	if (collapsed) {
 		return (
 			<div
@@ -341,7 +342,7 @@ export function OverflowTabs({
 				<button
 					type="button"
 					className="wpgraphql-ide-tab-collapsed-handle"
-					aria-label="Expand panel"
+					aria-label={`Expand ${activeTab?.title || 'panel'}`}
 					aria-expanded={false}
 					onClick={() => {
 						if (typeof onExpand === 'function') {
@@ -349,6 +350,9 @@ export function OverflowTabs({
 						}
 					}}
 				>
+					<span className="wpgraphql-ide-tab-collapsed-handle-label">
+						{activeTab?.title}
+					</span>
 					<Icon icon={chevronUp} size={18} />
 				</button>
 			</div>
