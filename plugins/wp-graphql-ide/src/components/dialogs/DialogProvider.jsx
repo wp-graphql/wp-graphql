@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button, Modal, TextControl } from '@wordpress/components';
 
 /**
@@ -121,7 +122,12 @@ function DialogHost({ kind, opts, onClose }) {
 }
 
 function ChooseDialog({ opts, onClose }) {
-	const { title, message, actions = [], cancelLabel = 'Cancel' } = opts;
+	const {
+		title,
+		message,
+		actions = [],
+		cancelLabel = __('Cancel', 'wpgraphql-ide'),
+	} = opts;
 	return (
 		<Modal
 			title={title}
@@ -154,8 +160,8 @@ function ConfirmDialog({ opts, onClose }) {
 	const {
 		title,
 		message,
-		confirmLabel = 'Confirm',
-		cancelLabel = 'Cancel',
+		confirmLabel = __('Confirm', 'wpgraphql-ide'),
+		cancelLabel = __('Cancel', 'wpgraphql-ide'),
 		isDestructive = false,
 	} = opts;
 
@@ -190,8 +196,8 @@ function PromptDialog({ opts, onClose }) {
 		message,
 		defaultValue = '',
 		placeholder = '',
-		confirmLabel = 'Save',
-		cancelLabel = 'Cancel',
+		confirmLabel = __('Save', 'wpgraphql-ide'),
+		cancelLabel = __('Cancel', 'wpgraphql-ide'),
 		inputLabel = '',
 	} = opts;
 

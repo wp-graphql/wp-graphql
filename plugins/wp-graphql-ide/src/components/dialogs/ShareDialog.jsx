@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	CheckboxControl,
@@ -81,16 +82,19 @@ export function ShareDialog({ onClose, onCopy }) {
 
 	return (
 		<Modal
-			title="Shareable link settings"
+			title={__('Shareable link settings', 'wpgraphql-ide')}
 			onRequestClose={onClose}
 			className="wpgraphql-ide-dialog wpgraphql-ide-share-dialog"
 		>
 			<p className="wpgraphql-ide-dialog-message">
-				Pick what to include in the link generated for this document.
+				{__(
+					'Pick what to include in the link generated for this document.',
+					'wpgraphql-ide'
+				)}
 			</p>
 			<div className="wpgraphql-ide-share-toggles">
 				<ToggleControl
-					label="Include variables"
+					label={__('Include variables', 'wpgraphql-ide')}
 					checked={prefs.includeVariables}
 					onChange={(includeVariables) =>
 						setPrefs((p) => ({ ...p, includeVariables }))
@@ -98,8 +102,11 @@ export function ShareDialog({ onClose, onCopy }) {
 					__nextHasNoMarginBottom
 				/>
 				<ToggleControl
-					label="Include headers"
-					help="Headers may contain auth tokens — only include them when sharing with someone you trust."
+					label={__('Include headers', 'wpgraphql-ide')}
+					help={__(
+						'Headers may contain auth tokens — only include them when sharing with someone you trust.',
+						'wpgraphql-ide'
+					)}
 					checked={prefs.includeHeaders}
 					onChange={(includeHeaders) =>
 						setPrefs((p) => ({ ...p, includeHeaders }))
@@ -109,17 +116,17 @@ export function ShareDialog({ onClose, onCopy }) {
 			</div>
 			<div className="wpgraphql-ide-share-footer">
 				<CheckboxControl
-					label="Remember this preference"
+					label={__('Remember this preference', 'wpgraphql-ide')}
 					checked={remember}
 					onChange={setRemember}
 					__nextHasNoMarginBottom
 				/>
 				<div className="wpgraphql-ide-dialog-actions">
 					<Button variant="tertiary" onClick={onClose}>
-						Cancel
+						{__('Cancel', 'wpgraphql-ide')}
 					</Button>
 					<Button variant="primary" onClick={handleCopy}>
-						Copy link
+						{__('Copy link', 'wpgraphql-ide')}
 					</Button>
 				</div>
 			</div>

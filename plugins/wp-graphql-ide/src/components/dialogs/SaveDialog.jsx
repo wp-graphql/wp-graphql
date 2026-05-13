@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	CheckboxControl,
@@ -8,18 +9,19 @@ import {
 import { Icon, lock } from '@wordpress/icons';
 import { useToggleSet } from '../../hooks/useToggleSet';
 
-const MODE_LABELS = {
+// Mode labels are built lazily so __() runs after wp.i18n is available.
+const getModeLabels = () => ({
 	save: {
-		title: 'Save document',
-		submit: 'Save',
-		submitting: 'Saving',
+		title: __('Save document', 'wpgraphql-ide'),
+		submit: __('Save', 'wpgraphql-ide'),
+		submitting: __('Saving', 'wpgraphql-ide'),
 	},
 	rename: {
-		title: 'Rename document',
-		submit: 'Rename',
-		submitting: 'Renaming',
+		title: __('Rename document', 'wpgraphql-ide'),
+		submit: __('Rename', 'wpgraphql-ide'),
+		submitting: __('Renaming', 'wpgraphql-ide'),
 	},
-};
+});
 
 // Document details dialog — shared between the "Save" flow (promoting a
 // temp draft to a real document) and the "Rename" flow (editing an
@@ -61,7 +63,8 @@ export function SaveDialog({
 	onClose,
 }) {
 	const submitHandler = onSubmit || onSave;
-	const labels = MODE_LABELS[mode] || MODE_LABELS.save;
+	const modeLabels = getModeLabels();
+	const labels = modeLabels[mode] || modeLabels.save;
 
 	const seedSitewide = (() => {
 		if (
@@ -124,10 +127,13 @@ export function SaveDialog({
 		>
 			<div className="wpgraphql-ide-dialog-stack">
 				<TextControl
-					label="Document name"
+					label={__('Document name', 'wpgraphql-ide')}
 					value={title}
 					onChange={setTitle}
-					placeholder="e.g. Recent Posts by Author"
+					placeholder={__(
+						'e.g. Recent Posts by Author',
+						'wpgraphql-ide'
+					)}
 					// eslint-disable-next-line jsx-a11y/no-autofocus
 					autoFocus
 					__nextHasNoMarginBottom
@@ -142,17 +148,19 @@ export function SaveDialog({
 
 				{!hasAnyCollections ? (
 					<p className="wpgraphql-ide-save-dialog-empty">
-						No collections yet — create one from the saved queries
-						panel.
+						{__(
+							'No collections yet — create one from the saved queries panel.',
+							'wpgraphql-ide'
+						)}
 					</p>
 				) : (
 					<div
 						className="wpgraphql-ide-save-dialog-section"
 						role="group"
-						aria-label="Add to collections"
+						aria-label={__('Add to collections', 'wpgraphql-ide')}
 					>
 						<span className="wpgraphql-ide-save-dialog-section-label">
-							Add to collections
+							{__('Add to collections', 'wpgraphql-ide')}
 						</span>
 						<ul className="wpgraphql-ide-save-dialog-list">
 							{collections.map((c) => (
@@ -190,14 +198,20 @@ export function SaveDialog({
 												{pc.name}
 												<span
 													className="wpgraphql-ide-save-dialog-row-scope"
-													aria-label="Personal collection"
+													aria-label={__(
+														'Personal collection',
+														'wpgraphql-ide'
+													)}
 												>
 													<Icon
 														icon={lock}
 														size={12}
 														aria-hidden="true"
 													/>
-													Personal
+													{__(
+														'Personal',
+														'wpgraphql-ide'
+													)}
 												</span>
 											</span>
 										}
@@ -216,7 +230,7 @@ export function SaveDialog({
 					onClick={onClose}
 					disabled={submitting}
 				>
-					Cancel
+					{__('Cancel', 'wpgraphql-ide')}
 				</Button>
 				<Button
 					variant="primary"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	Button,
 	Modal,
@@ -71,9 +72,15 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 
 	const messageForError = useCallback((e) => {
 		if (e && (e.status === 401 || e.status === 403)) {
-			return 'You don\u2019t have permission to look up users on this site.';
+			return __(
+				'You don\u2019t have permission to look up users on this site.',
+				'wpgraphql-ide'
+			);
 		}
-		return 'Couldn\u2019t load users. Check your connection and try again.';
+		return __(
+			'Couldn\u2019t load users. Check your connection and try again.',
+			'wpgraphql-ide'
+		);
 	}, []);
 
 	// Hydrate display names for already-shared users so the chip list reads
@@ -181,14 +188,20 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 
 	return (
 		<Modal
-			title={`Share "${collection?.name || 'Collection'}"`}
+			title={sprintf(
+				/* translators: %s: name of the personal collection being shared */
+				__('Share "%s"', 'wpgraphql-ide'),
+				collection?.name || __('Collection', 'wpgraphql-ide')
+			)}
 			onRequestClose={() => (submitting ? null : onClose())}
 			className="wpgraphql-ide-dialog wpgraphql-ide-share-collection-dialog"
 		>
 			<div className="wpgraphql-ide-dialog-stack">
 				<p className="wpgraphql-ide-dialog-message">
-					Add users who should see this collection. They get read-only
-					access — you remain the only person who can edit it.
+					{__(
+						'Add users who should see this collection. They get read-only access — you remain the only person who can edit it.',
+						'wpgraphql-ide'
+					)}
 				</p>
 				{/* Form wrapper lets Enter submit, which we hijack to add the
 				    first visible search result. Keyboard-only users can find
@@ -202,16 +215,19 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 					}}
 				>
 					<SearchControl
-						label="Add user"
+						label={__('Add user', 'wpgraphql-ide')}
 						value={search}
 						onChange={setSearch}
-						placeholder="Search by name or username…"
+						placeholder={__(
+							'Search by name or username…',
+							'wpgraphql-ide'
+						)}
 						__nextHasNoMarginBottom
 					/>
 				</form>
 				{searching && (
 					<div className="wpgraphql-ide-share-collection-status">
-						<Spinner /> Searching…
+						<Spinner /> {__('Searching…', 'wpgraphql-ide')}
 					</div>
 				)}
 				{error && !searching && (
@@ -259,19 +275,27 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 				<div className="wpgraphql-ide-share-collection-shared">
 					{shared.length === 0 ? (
 						<p className="wpgraphql-ide-share-collection-empty">
-							Not shared with anyone yet.
+							{__('Not shared with anyone yet.', 'wpgraphql-ide')}
 						</p>
 					) : (
 						<>
 							<div className="wpgraphql-ide-share-collection-shared-label">
-								Shared with ({shared.length})
+								{sprintf(
+									/* translators: %d: number of users the collection is shared with */
+									__('Shared with (%d)', 'wpgraphql-ide'),
+									shared.length
+								)}
 							</div>
 							<ul className="wpgraphql-ide-share-collection-chips">
 								{shared.map((id) => {
 									const user = usersById[id];
 									const label = user
 										? user.name
-										: `User #${id}`;
+										: sprintf(
+												/* translators: %d: numeric WordPress user ID, shown when the display name hasn't loaded yet */
+												__('User #%d', 'wpgraphql-ide'),
+												id
+											);
 									return (
 										<li
 											key={id}
@@ -281,7 +305,14 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 											<button
 												type="button"
 												className="wpgraphql-ide-share-collection-chip-remove"
-												aria-label={`Remove ${label}`}
+												aria-label={sprintf(
+													/* translators: %s: display name (or fallback) of the user being removed from the share list */
+													__(
+														'Remove %s',
+														'wpgraphql-ide'
+													),
+													label
+												)}
 												onClick={() => removeUser(id)}
 											>
 												<Icon icon={close} size={14} />
@@ -300,7 +331,7 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 					onClick={onClose}
 					disabled={submitting}
 				>
-					Cancel
+					{__('Cancel', 'wpgraphql-ide')}
 				</Button>
 				<Button
 					variant="primary"
@@ -308,7 +339,7 @@ export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
 					disabled={submitting}
 					isBusy={submitting}
 				>
-					Save
+					{__('Save', 'wpgraphql-ide')}
 				</Button>
 			</div>
 		</Modal>

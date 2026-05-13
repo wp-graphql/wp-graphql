@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
 
 /**
@@ -17,21 +18,22 @@ import { Button, Modal } from '@wordpress/components';
 export function SignInPromptDialog({ signInUrl, onClose }) {
 	return (
 		<Modal
-			title="Sign in?"
+			title={__('Sign in?', 'wpgraphql-ide')}
 			onRequestClose={onClose}
 			className="wpgraphql-ide-dialog wpgraphql-ide-sign-in-prompt"
 		>
 			<p className="wpgraphql-ide-dialog-message">
-				You&rsquo;ll be sent to the sign-in page and returned to the IDE
-				signed in — able to send queries as your user and resolve fields
-				that require authentication.
+				{__(
+					'You’ll be sent to the sign-in page and returned to the IDE signed in — able to send queries as your user and resolve fields that require authentication.',
+					'wpgraphql-ide'
+				)}
 			</p>
 			<div className="wpgraphql-ide-dialog-actions">
 				<Button variant="tertiary" onClick={onClose}>
-					Not now
+					{__('Not now', 'wpgraphql-ide')}
 				</Button>
 				<Button variant="primary" href={signInUrl}>
-					Sign in
+					{__('Sign in', 'wpgraphql-ide')}
 				</Button>
 			</div>
 		</Modal>

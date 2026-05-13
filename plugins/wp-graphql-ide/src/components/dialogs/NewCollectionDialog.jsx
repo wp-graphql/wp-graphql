@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	Modal,
@@ -46,16 +47,16 @@ export function NewCollectionDialog({
 
 	return (
 		<Modal
-			title="New collection"
+			title={__('New collection', 'wpgraphql-ide')}
 			onRequestClose={() => (submitting ? null : onClose())}
 			className="wpgraphql-ide-dialog wpgraphql-ide-new-collection-dialog"
 		>
 			<div className="wpgraphql-ide-dialog-stack">
 				<TextControl
-					label="Name"
+					label={__('Name', 'wpgraphql-ide')}
 					value={name}
 					onChange={setName}
-					placeholder="e.g. Reporting queries"
+					placeholder={__('e.g. Reporting queries', 'wpgraphql-ide')}
 					// eslint-disable-next-line jsx-a11y/no-autofocus
 					autoFocus
 					__nextHasNoMarginBottom
@@ -68,16 +69,22 @@ export function NewCollectionDialog({
 					}}
 				/>
 				<RadioControl
-					label="Visibility"
+					label={__('Visibility', 'wpgraphql-ide')}
 					selected={visibility}
 					onChange={setVisibility}
 					options={[
 						{
-							label: 'Sitewide — visible to anyone with IDE access',
+							label: __(
+								'Sitewide — visible to anyone with IDE access',
+								'wpgraphql-ide'
+							),
 							value: 'sitewide',
 						},
 						{
-							label: 'Personal — only visible to you',
+							label: __(
+								'Personal — only visible to you',
+								'wpgraphql-ide'
+							),
 							value: 'personal',
 						},
 					]}
@@ -89,7 +96,7 @@ export function NewCollectionDialog({
 					onClick={onClose}
 					disabled={submitting}
 				>
-					Cancel
+					{__('Cancel', 'wpgraphql-ide')}
 				</Button>
 				<Button
 					variant="primary"
@@ -97,7 +104,7 @@ export function NewCollectionDialog({
 					disabled={!name.trim() || submitting}
 					isBusy={submitting}
 				>
-					Create
+					{__('Create', 'wpgraphql-ide')}
 				</Button>
 			</div>
 		</Modal>

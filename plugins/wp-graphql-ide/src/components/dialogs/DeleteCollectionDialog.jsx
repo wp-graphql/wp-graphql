@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, CheckboxControl, Modal } from '@wordpress/components';
 
 // Confirmation dialog for deleting a collection. Defaults to keeping
@@ -25,18 +26,40 @@ export function DeleteCollectionDialog({ name, onConfirm, onClose }) {
 
 	return (
 		<Modal
-			title="Delete collection"
+			title={__('Delete collection', 'wpgraphql-ide')}
 			onRequestClose={() => (submitting ? null : onClose())}
 			className="wpgraphql-ide-dialog wpgraphql-ide-delete-collection-dialog"
 		>
 			<p className="wpgraphql-ide-dialog-message">
-				Delete <strong>&ldquo;{name}&rdquo;</strong>? Documents in this
-				collection will move to &ldquo;Documents&rdquo; unless you also
-				choose to delete them.
+				{
+					// Sentence is split around <strong>{name}</strong> so the name
+					// keeps its visual emphasis; the surrounding phrase carries the
+					// %s placeholder for translation.
+				}
+				{(() => {
+					const parts = sprintf(
+						/* translators: %s: %NAME% sentinel for the collection name */
+						__(
+							'Delete %s? Documents in this collection will move to "Documents" unless you also choose to delete them.',
+							'wpgraphql-ide'
+						),
+						'%NAME%'
+					).split('%NAME%');
+					return (
+						<>
+							{parts[0]}
+							<strong>{`"${name}"`}</strong>
+							{parts[1] ?? ''}
+						</>
+					);
+				})()}
 			</p>
 			<CheckboxControl
-				label="Also delete documents in this collection"
-				help="This cannot be undone."
+				label={__(
+					'Also delete documents in this collection',
+					'wpgraphql-ide'
+				)}
+				help={__('This cannot be undone.', 'wpgraphql-ide')}
 				checked={deleteContents}
 				onChange={setDeleteContents}
 				__nextHasNoMarginBottom
@@ -47,7 +70,7 @@ export function DeleteCollectionDialog({ name, onConfirm, onClose }) {
 					onClick={onClose}
 					disabled={submitting}
 				>
-					Cancel
+					{__('Cancel', 'wpgraphql-ide')}
 				</Button>
 				<Button
 					variant="primary"
@@ -57,8 +80,8 @@ export function DeleteCollectionDialog({ name, onConfirm, onClose }) {
 					disabled={submitting}
 				>
 					{deleteContents
-						? 'Delete collection and documents'
-						: 'Delete collection'}
+						? __('Delete collection and documents', 'wpgraphql-ide')
+						: __('Delete collection', 'wpgraphql-ide')}
 				</Button>
 			</div>
 		</Modal>

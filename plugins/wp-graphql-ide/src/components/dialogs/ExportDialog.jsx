@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, CheckboxControl, Modal } from '@wordpress/components';
 
 /**
@@ -84,22 +85,29 @@ export function ExportDialog({ fetchPayload, collections = [], onClose }) {
 
 	return (
 		<Modal
-			title="Export documents"
+			title={__('Export documents', 'wpgraphql-ide')}
 			onRequestClose={onClose}
 			className="wpgraphql-ide-dialog wpgraphql-ide-export-dialog"
 		>
 			<p className="wpgraphql-ide-dialog-message">
-				Pick which collections to include in the exported file.
+				{__(
+					'Pick which collections to include in the exported file.',
+					'wpgraphql-ide'
+				)}
 			</p>
 			<div className="wpgraphql-ide-export-list">
 				{collections.length === 0 ? (
 					<p className="wpgraphql-ide-export-empty">
-						No collections to export.
+						{__('No collections to export.', 'wpgraphql-ide')}
 					</p>
 				) : (
 					<>
 						<CheckboxControl
-							label={`All collections (${collections.length})`}
+							label={sprintf(
+								/* translators: %d: total number of collections available to export */
+								__('All collections (%d)', 'wpgraphql-ide'),
+								collections.length
+							)}
 							checked={allChecked}
 							indeterminate={!allChecked && someChecked}
 							onChange={toggleAll}
@@ -125,7 +133,7 @@ export function ExportDialog({ fetchPayload, collections = [], onClose }) {
 			</div>
 			<div className="wpgraphql-ide-dialog-actions wpgraphql-ide-export-footer">
 				<Button variant="tertiary" onClick={onClose} disabled={loading}>
-					Cancel
+					{__('Cancel', 'wpgraphql-ide')}
 				</Button>
 				<Button
 					variant="primary"
@@ -134,12 +142,17 @@ export function ExportDialog({ fetchPayload, collections = [], onClose }) {
 					isBusy={loading}
 				>
 					{selectedCount === collections.length
-						? 'Export all'
-						: `Export ${selectedCount} ${
-								selectedCount === 1
-									? 'collection'
-									: 'collections'
-							}`}
+						? __('Export all', 'wpgraphql-ide')
+						: sprintf(
+								/* translators: %d: number of collections selected for export */
+								_n(
+									'Export %d collection',
+									'Export %d collections',
+									selectedCount,
+									'wpgraphql-ide'
+								),
+								selectedCount
+							)}
 				</Button>
 			</div>
 		</Modal>
