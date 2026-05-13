@@ -1,18 +1,41 @@
 import React from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { detectNPlusOne } from '../response-extensions/detect-n-plus-one';
 
 function formatDuration(ms) {
 	if (ms === null) {
 		return null;
 	}
-	return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms}ms`;
+	if (ms >= 1000) {
+		return sprintf(
+			/* translators: %s: pre-formatted seconds value, e.g. "1.2" */
+			__('%ss', 'wpgraphql-ide'),
+			(ms / 1000).toFixed(1)
+		);
+	}
+	return sprintf(
+		/* translators: %d: milliseconds value */
+		__('%dms', 'wpgraphql-ide'),
+		ms
+	);
 }
 
 function formatSize(bytes) {
 	if (bytes === null) {
 		return null;
 	}
-	return bytes >= 1024 ? `${(bytes / 1024).toFixed(1)}KB` : `${bytes}B`;
+	if (bytes >= 1024) {
+		return sprintf(
+			/* translators: %s: pre-formatted kilobyte value, e.g. "1.2" */
+			__('%sKB', 'wpgraphql-ide'),
+			(bytes / 1024).toFixed(1)
+		);
+	}
+	return sprintf(
+		/* translators: %d: response size in bytes */
+		__('%dB', 'wpgraphql-ide'),
+		bytes
+	);
 }
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-param-type, jsdoc/require-param-description, jsdoc/check-param-names */
@@ -80,9 +103,18 @@ export function ResolverCountItem({ parsedResponse, focusResponseTab }) {
 			type="button"
 			className="wpgraphql-ide-response-trace-badge"
 			onClick={() => focusResponseTab('ext:tracing')}
-			title="Open the Tracing tab"
+			title={__('Open the Tracing tab', 'wpgraphql-ide')}
 		>
-			{resolvers.length} resolver{resolvers.length === 1 ? '' : 's'}
+			{sprintf(
+				/* translators: %d: number of GraphQL resolvers that ran for this response */
+				_n(
+					'%d resolver',
+					'%d resolvers',
+					resolvers.length,
+					'wpgraphql-ide'
+				),
+				resolvers.length
+			)}
 		</button>
 	);
 }
@@ -108,9 +140,16 @@ export function NPlusOneItem({ parsedResponse, focusResponseTab }) {
 			type="button"
 			className="wpgraphql-ide-response-trace-badge wpgraphql-ide-response-trace-badge--warning"
 			onClick={() => focusResponseTab('ext:tracing')}
-			title="Open the Tracing tab to see the N+1 patterns"
+			title={__(
+				'Open the Tracing tab to see the N+1 patterns',
+				'wpgraphql-ide'
+			)}
 		>
-			⚠ {patterns.length} N+1
+			{sprintf(
+				/* translators: %d: number of likely N+1 query patterns detected */
+				__('⚠ %d N+1', 'wpgraphql-ide'),
+				patterns.length
+			)}
 		</button>
 	);
 }

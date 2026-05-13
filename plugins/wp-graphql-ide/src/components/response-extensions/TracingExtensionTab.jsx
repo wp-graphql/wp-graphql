@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { detectNPlusOne } from './detect-n-plus-one';
 import { resolvePathToOffset } from './resolve-path-to-offset';
@@ -9,21 +10,40 @@ const formatDuration = (value) => {
 		return '—';
 	}
 	if (value >= 1_000_000) {
-		return `${(value / 1_000_000).toFixed(2)} s`;
+		return sprintf(
+			/* translators: %s: pre-formatted seconds value, e.g. "1.23" */
+			__('%s s', 'wpgraphql-ide'),
+			(value / 1_000_000).toFixed(2)
+		);
 	}
 	if (value >= 1000) {
-		return `${(value / 1000).toFixed(2)} ms`;
+		return sprintf(
+			/* translators: %s: pre-formatted millisecond value, e.g. "12.34" */
+			__('%s ms', 'wpgraphql-ide'),
+			(value / 1000).toFixed(2)
+		);
 	}
-	return `${value} µs`;
+	return sprintf(
+		/* translators: %s: pre-formatted microsecond value */
+		__('%s µs', 'wpgraphql-ide'),
+		value
+	);
 };
 
 const formatPath = (path) =>
 	Array.isArray(path) ? path.join('.') : String(path ?? '');
 
-const SORT_OPTIONS = [
-	{ value: 'duration', label: 'Duration (slowest first)' },
-	{ value: 'offset', label: 'Start offset (execution order)' },
-	{ value: 'path', label: 'Path (alphabetical)' },
+// Built lazily so __() resolves after wp.i18n is available.
+const getSortOptions = () => [
+	{
+		value: 'duration',
+		label: __('Duration (slowest first)', 'wpgraphql-ide'),
+	},
+	{
+		value: 'offset',
+		label: __('Start offset (execution order)', 'wpgraphql-ide'),
+	},
+	{ value: 'path', label: __('Path (alphabetical)', 'wpgraphql-ide') },
 ];
 
 // Per-resolver tier is for the bar color in each row.
@@ -44,18 +64,22 @@ const tierForDuration = (us) => {
 // 0–1 µs aren't actionable; hidden by default.
 const TRIVIAL_MAX_US = 1;
 
-// Total-duration tiers drive the verdict copy at the top.
+// Total-duration tiers drive the verdict copy at the top. Computed lazily so
+// __() resolves after wp.i18n is loaded.
 const verdictForTotal = (totalUs) => {
 	if (typeof totalUs !== 'number') {
-		return { tier: 'unknown', label: 'No timing data' };
+		return {
+			tier: 'unknown',
+			label: __('No timing data', 'wpgraphql-ide'),
+		};
 	}
 	if (totalUs < 100_000) {
-		return { tier: 'fast', label: 'Fast' };
+		return { tier: 'fast', label: __('Fast', 'wpgraphql-ide') };
 	}
 	if (totalUs < 500_000) {
-		return { tier: 'ok', label: 'OK' };
+		return { tier: 'ok', label: __('OK', 'wpgraphql-ide') };
 	}
-	return { tier: 'slow', label: 'Slow' };
+	return { tier: 'slow', label: __('Slow', 'wpgraphql-ide') };
 };
 
 export const TracingExtensionTab = ({ data }) => {
@@ -117,8 +141,10 @@ export const TracingExtensionTab = ({ data }) => {
 	if (!hasData) {
 		return (
 			<p className="wpgraphql-ide-extensions-empty">
-				No tracing data in the last response. Enable GraphQL Tracing in
-				WPGraphQL settings to see field-level timing here.
+				{__(
+					'No tracing data in the last response. Enable GraphQL Tracing in WPGraphQL settings to see field-level timing here.',
+					'wpgraphql-ide'
+				)}
 			</p>
 		);
 	}
@@ -159,25 +185,51 @@ export const TracingExtensionTab = ({ data }) => {
 						{verdict.label}
 					</span>
 					<span className="wpgraphql-ide-tracing-verdict-summary">
-						{formatDuration(data.duration)} across{' '}
-						{resolvers.length}{' '}
-						{resolvers.length === 1 ? 'resolver' : 'resolvers'}
+						{sprintf(
+							/* translators: 1: formatted duration with unit (e.g. "12.34 ms"); 2: number of GraphQL resolvers */
+							_n(
+								'%1$s across %2$d resolver',
+								'%1$s across %2$d resolvers',
+								resolvers.length,
+								'wpgraphql-ide'
+							),
+							formatDuration(data.duration),
+							resolvers.length
+						)}
 					</span>
 				</div>
 				{slowest && (
 					<p className="wpgraphql-ide-tracing-verdict-detail">
-						Slowest field: <code>{formatPath(slowest.path)}</code> —{' '}
-						{formatDuration(slowest.duration)}
+						{sprintf(
+							/* translators: 1: GraphQL path of the slowest resolver; 2: formatted duration of that resolver */
+							__('Slowest field: %1$s — %2$s', 'wpgraphql-ide'),
+							formatPath(slowest.path),
+							formatDuration(slowest.duration)
+						)}
 						{slowestPct > 0 && resolvers.length > 1
-							? ` (${slowestPct}% of resolver time)`
+							? sprintf(
+									/* translators: %s: pre-formatted percentage string (already includes %), e.g. "42%" */
+									__(
+										' (%s of resolver time)',
+										'wpgraphql-ide'
+									),
+									`${slowestPct}%`
+								)
 							: ''}
 					</p>
 				)}
 				{nPlusOnePatterns.length > 0 && (
 					<p className="wpgraphql-ide-tracing-verdict-detail">
-						{nPlusOnePatterns.length} likely N+1{' '}
-						{nPlusOnePatterns.length === 1 ? 'pattern' : 'patterns'}{' '}
-						detected — see below.
+						{sprintf(
+							/* translators: %d: number of likely N+1 query patterns detected */
+							_n(
+								'%d likely N+1 pattern detected — see below.',
+								'%d likely N+1 patterns detected — see below.',
+								nPlusOnePatterns.length,
+								'wpgraphql-ide'
+							),
+							nPlusOnePatterns.length
+						)}
 					</p>
 				)}
 			</header>
@@ -185,23 +237,30 @@ export const TracingExtensionTab = ({ data }) => {
 			{nPlusOnePatterns.length > 0 && (
 				<section
 					className="wpgraphql-ide-tracing-n1"
-					aria-label="Possible N+1 patterns"
+					aria-label={__('Possible N+1 patterns', 'wpgraphql-ide')}
 				>
 					<h4 className="wpgraphql-ide-tracing-n1-title">
-						Possible N+1 patterns
+						{__('Possible N+1 patterns', 'wpgraphql-ide')}
 					</h4>
 					<p className="wpgraphql-ide-tracing-n1-description">
-						These fields were resolved repeatedly in series — one
-						call per parent item. A DataLoader could batch them into
-						a single call.
+						{__(
+							'These fields were resolved repeatedly in series — one call per parent item. A DataLoader could batch them into a single call.',
+							'wpgraphql-ide'
+						)}
 					</p>
 					<table className="wpgraphql-ide-tracing-table wpgraphql-ide-tracing-n1-table">
 						<thead>
 							<tr>
-								<th>Path pattern</th>
-								<th className="is-numeric">Calls</th>
-								<th className="is-numeric">Total</th>
-								<th className="is-numeric">Avg / call</th>
+								<th>{__('Path pattern', 'wpgraphql-ide')}</th>
+								<th className="is-numeric">
+									{__('Calls', 'wpgraphql-ide')}
+								</th>
+								<th className="is-numeric">
+									{__('Total', 'wpgraphql-ide')}
+								</th>
+								<th className="is-numeric">
+									{__('Avg / call', 'wpgraphql-ide')}
+								</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -217,7 +276,14 @@ export const TracingExtensionTab = ({ data }) => {
 										className="wpgraphql-ide-tracing-row is-clickable"
 										tabIndex={0}
 										role="button"
-										aria-label={`Jump to ${p.pattern} in the editor`}
+										aria-label={sprintf(
+											/* translators: %s: GraphQL path pattern to jump to in the editor */
+											__(
+												'Jump to %s in the editor',
+												'wpgraphql-ide'
+											),
+											p.pattern
+										)}
 										onClick={onActivate}
 										onKeyDown={(e) => {
 											if (
@@ -255,13 +321,13 @@ export const TracingExtensionTab = ({ data }) => {
 				<>
 					<div className="wpgraphql-ide-tracing-controls">
 						<label htmlFor="wpgraphql-ide-tracing-sort">
-							<span>Sort by</span>
+							<span>{__('Sort by', 'wpgraphql-ide')}</span>
 							<select
 								id="wpgraphql-ide-tracing-sort"
 								value={sortBy}
 								onChange={(e) => setSortBy(e.target.value)}
 							>
-								{SORT_OPTIONS.map((opt) => (
+								{getSortOptions().map((opt) => (
 									<option key={opt.value} value={opt.value}>
 										{opt.label}
 									</option>
@@ -282,8 +348,14 @@ export const TracingExtensionTab = ({ data }) => {
 									}
 								/>
 								<span>
-									Hide trivial fields (under 1 µs) ·{' '}
-									{trivialCount} hidden
+									{sprintf(
+										/* translators: %d: number of trivial resolver fields hidden */
+										__(
+											'Hide trivial fields (under 1 µs) · %d hidden',
+											'wpgraphql-ide'
+										),
+										trivialCount
+									)}
 								</span>
 							</label>
 						)}
@@ -292,12 +364,12 @@ export const TracingExtensionTab = ({ data }) => {
 					<table className="wpgraphql-ide-tracing-table">
 						<thead>
 							<tr>
-								<th>Path</th>
+								<th>{__('Path', 'wpgraphql-ide')}</th>
 								<th className="wpgraphql-ide-tracing-return-cell">
-									Return Type
+									{__('Return Type', 'wpgraphql-ide')}
 								</th>
 								<th className="is-numeric is-bar-col">
-									Duration
+									{__('Duration', 'wpgraphql-ide')}
 								</th>
 							</tr>
 						</thead>
@@ -320,7 +392,14 @@ export const TracingExtensionTab = ({ data }) => {
 										className="wpgraphql-ide-tracing-row is-clickable"
 										tabIndex={0}
 										role="button"
-										aria-label={`Jump to ${formatPath(r.path)} in the editor`}
+										aria-label={sprintf(
+											/* translators: %s: resolved field path to jump to in the editor */
+											__(
+												'Jump to %s in the editor',
+												'wpgraphql-ide'
+											),
+											formatPath(r.path)
+										)}
 										onClick={() => jumpToPath(r.path)}
 										onKeyDown={(e) => {
 											if (

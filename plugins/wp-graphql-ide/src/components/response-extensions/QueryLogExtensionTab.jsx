@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 const formatMs = (seconds) => {
 	if (typeof seconds !== 'number' || !isFinite(seconds)) {
 		return '—';
 	}
-	return `${(seconds * 1000).toFixed(2)} ms`;
+	return sprintf(
+		/* translators: %s: pre-formatted millisecond value, e.g. "12.34" */
+		__('%s ms', 'wpgraphql-ide'),
+		(seconds * 1000).toFixed(2)
+	);
 };
 
 const QueryEntry = ({ entry }) => {
@@ -37,8 +42,17 @@ const QueryEntry = ({ entry }) => {
 						>
 							›
 						</span>
-						{showStack ? 'Hide' : 'Show'} stack (
-						{stackFrames.length})
+						{showStack
+							? sprintf(
+									/* translators: %d: number of stack frames being hidden */
+									__('Hide stack (%d)', 'wpgraphql-ide'),
+									stackFrames.length
+								)
+							: sprintf(
+									/* translators: %d: number of stack frames available */
+									__('Show stack (%d)', 'wpgraphql-ide'),
+									stackFrames.length
+								)}
 					</button>
 					{showStack && (
 						<ol className="wpgraphql-ide-querylog-stack">
@@ -59,8 +73,10 @@ export const QueryLogExtensionTab = ({ data }) => {
 	if (!data || typeof data !== 'object') {
 		return (
 			<p className="wpgraphql-ide-extensions-empty">
-				No query log data in the last response. Enable the Query Monitor
-				integration and Query Logs in WPGraphQL settings.
+				{__(
+					'No query log data in the last response. Enable the Query Monitor integration and Query Logs in WPGraphQL settings.',
+					'wpgraphql-ide'
+				)}
 			</p>
 		);
 	}
@@ -72,7 +88,7 @@ export const QueryLogExtensionTab = ({ data }) => {
 			<div className="wpgraphql-ide-querylog-summary">
 				<div>
 					<span className="wpgraphql-ide-querylog-label">
-						Queries
+						{__('Queries', 'wpgraphql-ide')}
 					</span>
 					<span className="wpgraphql-ide-querylog-value">
 						{data.queryCount ?? queries.length}
@@ -80,7 +96,7 @@ export const QueryLogExtensionTab = ({ data }) => {
 				</div>
 				<div>
 					<span className="wpgraphql-ide-querylog-label">
-						Total time
+						{__('Total time', 'wpgraphql-ide')}
 					</span>
 					<span className="wpgraphql-ide-querylog-value">
 						{formatMs(data.totalTime)}
@@ -90,7 +106,10 @@ export const QueryLogExtensionTab = ({ data }) => {
 
 			{queries.length === 0 ? (
 				<p className="wpgraphql-ide-extensions-empty">
-					No SQL queries were recorded for this request.
+					{__(
+						'No SQL queries were recorded for this request.',
+						'wpgraphql-ide'
+					)}
 				</p>
 			) : (
 				<ul className="wpgraphql-ide-querylog-list">

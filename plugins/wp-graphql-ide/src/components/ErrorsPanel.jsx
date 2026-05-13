@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 const ErrorCard = ({ error }) => {
 	const [showDetails, setShowDetails] = useState(false);
@@ -12,7 +13,7 @@ const ErrorCard = ({ error }) => {
 	return (
 		<li className="wpgraphql-ide-error-card">
 			<div className="wpgraphql-ide-error-message">
-				{error.message || '(no message)'}
+				{error.message || __('(no message)', 'wpgraphql-ide')}
 			</div>
 			{(locations.length > 0 || path.length > 0) && (
 				<div className="wpgraphql-ide-error-meta">
@@ -21,7 +22,12 @@ const ErrorCard = ({ error }) => {
 							key={`loc-${i}`}
 							className="wpgraphql-ide-error-location"
 						>
-							line {loc.line}:{loc.column}
+							{sprintf(
+								/* translators: 1: line number, 2: column number in the GraphQL document */
+								__('line %1$d:%2$d', 'wpgraphql-ide'),
+								loc.line,
+								loc.column
+							)}
 						</span>
 					))}
 					{path.length > 0 && (
@@ -44,7 +50,9 @@ const ErrorCard = ({ error }) => {
 						>
 							›
 						</span>
-						{showDetails ? 'Hide' : 'Show'} details
+						{showDetails
+							? __('Hide details', 'wpgraphql-ide')
+							: __('Show details', 'wpgraphql-ide')}
 					</button>
 					{showDetails && (
 						<pre className="wpgraphql-ide-error-details">
@@ -62,7 +70,7 @@ export const ErrorsPanel = ({ errors }) => {
 		return (
 			<div className="wpgraphql-ide-errors-panel">
 				<p className="wpgraphql-ide-extensions-empty">
-					No errors in the last response.
+					{__('No errors in the last response.', 'wpgraphql-ide')}
 				</p>
 			</div>
 		);

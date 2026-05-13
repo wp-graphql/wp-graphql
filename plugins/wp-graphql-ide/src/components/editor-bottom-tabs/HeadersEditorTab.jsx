@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import { JSONEditor } from '../editors/JSONEditor';
 
 /**
@@ -21,7 +22,7 @@ export function HeadersEditorTab({
 		<JSONEditor
 			value={headers}
 			onChange={onHeadersChange}
-			placeholder="Headers (JSON)"
+			placeholder={__('Headers (JSON)', 'wpgraphql-ide')}
 			extraKeys={editorKeyBindings?.current}
 		/>
 	);

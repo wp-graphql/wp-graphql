@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 
 export const HeadersPanel = ({ headers }) => {
 	const entries =
@@ -8,7 +9,7 @@ export const HeadersPanel = ({ headers }) => {
 		return (
 			<div className="wpgraphql-ide-headers-panel">
 				<p className="wpgraphql-ide-extensions-empty">
-					No headers yet.
+					{__('No headers yet.', 'wpgraphql-ide')}
 				</p>
 			</div>
 		);

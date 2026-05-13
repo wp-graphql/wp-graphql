@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import { JSONEditor } from '../editors/JSONEditor';
 
 /**
@@ -24,7 +25,7 @@ export function VariablesEditorTab({
 		<JSONEditor
 			value={variables}
 			onChange={onVariablesChange}
-			placeholder="Variables (JSON)"
+			placeholder={__('Variables (JSON)', 'wpgraphql-ide')}
 			variableToType={variableToType}
 			extraKeys={editorKeyBindings?.current}
 		/>
