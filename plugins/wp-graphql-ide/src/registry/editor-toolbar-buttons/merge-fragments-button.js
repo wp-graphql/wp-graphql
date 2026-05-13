@@ -1,9 +1,10 @@
+import { __ } from '@wordpress/i18n';
 import { select, dispatch } from '@wordpress/data';
 
 export const mergeFragmentsButton = () => {
 	return {
-		label: 'Merge fragments into query',
-		children: 'Merge',
+		label: __('Merge fragments into query', 'wpgraphql-ide'),
+		children: __('Merge', 'wpgraphql-ide'),
 		mutates: true,
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();

@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import hooks from '../wordpress-hooks';
 import { tipify } from '../utils/tipify';
@@ -56,7 +57,7 @@ export const initializeRegistry = () => {
 	registerActivityBarPanel(
 		'saved-queries',
 		{
-			title: 'Saved Queries',
+			title: __('Saved Queries', 'wpgraphql-ide'),
 			icon: SavedQueriesIcon,
 			content: SavedQueriesPanel,
 			headerAction: SavedQueriesPanelHeaderAction,
@@ -67,7 +68,7 @@ export const initializeRegistry = () => {
 	registerActivityBarPanel(
 		'docs-explorer',
 		{
-			title: 'Docs',
+			title: __('Docs', 'wpgraphql-ide'),
 			icon: DocsExplorerIcon,
 			content: DocsExplorerPanel,
 		},
@@ -77,7 +78,7 @@ export const initializeRegistry = () => {
 	registerActivityBarPanel(
 		'history',
 		{
-			title: 'History',
+			title: __('History', 'wpgraphql-ide'),
 			icon: HistoryIcon,
 			content: HistoryPanel,
 		},
@@ -91,7 +92,12 @@ export const initializeRegistry = () => {
 	registerResponseExtensionTab(
 		'errors',
 		{
-			title: ({ data }) => `Errors (${data?.length || 0})`,
+			title: ({ data }) =>
+				sprintf(
+					/* translators: %d: number of errors in the response */
+					__('Errors (%d)', 'wpgraphql-ide'),
+					data?.length || 0
+				),
 			content: ErrorsExtensionTab,
 			alwaysShow: true,
 		},
@@ -101,7 +107,7 @@ export const initializeRegistry = () => {
 	registerResponseExtensionTab(
 		'tracing',
 		{
-			title: 'Tracing',
+			title: __('Tracing', 'wpgraphql-ide'),
 			content: TracingExtensionTab,
 		},
 		7
@@ -110,7 +116,7 @@ export const initializeRegistry = () => {
 	registerResponseExtensionTab(
 		'debug',
 		{
-			title: 'Debug',
+			title: __('Debug', 'wpgraphql-ide'),
 			content: DebugExtensionTab,
 		},
 		10
@@ -119,7 +125,7 @@ export const initializeRegistry = () => {
 	registerResponseExtensionTab(
 		'queryLog',
 		{
-			title: 'Query Log',
+			title: __('Query Log', 'wpgraphql-ide'),
 			content: QueryLogExtensionTab,
 		},
 		40
@@ -128,7 +134,12 @@ export const initializeRegistry = () => {
 	registerResponseExtensionTab(
 		'headers',
 		{
-			title: ({ data }) => `Headers (${Object.keys(data || {}).length})`,
+			title: ({ data }) =>
+				sprintf(
+					/* translators: %d: number of response headers */
+					__('Headers (%d)', 'wpgraphql-ide'),
+					Object.keys(data || {}).length
+				),
 			content: HeadersExtensionTab,
 			alwaysShow: true,
 		},
@@ -141,7 +152,7 @@ export const initializeRegistry = () => {
 	registerEditorBottomTab(
 		'variables',
 		{
-			title: 'Variables',
+			title: __('Variables', 'wpgraphql-ide'),
 			content: VariablesEditorTab,
 		},
 		10
@@ -150,7 +161,7 @@ export const initializeRegistry = () => {
 	registerEditorBottomTab(
 		'headers',
 		{
-			title: 'Headers',
+			title: __('Headers', 'wpgraphql-ide'),
 			content: HeadersEditorTab,
 		},
 		20
@@ -192,7 +203,7 @@ export const initializeRegistry = () => {
 	registerResponseViewMode(
 		'formatted',
 		{
-			label: 'JSON',
+			label: __('JSON', 'wpgraphql-ide'),
 			render: (ctx) => <FormattedViewMode {...ctx} />,
 		},
 		10
@@ -200,7 +211,7 @@ export const initializeRegistry = () => {
 	registerResponseViewMode(
 		'table',
 		{
-			label: 'Table',
+			label: __('Table', 'wpgraphql-ide'),
 			render: (ctx) => <TableViewMode {...ctx} />,
 		},
 		20
@@ -209,11 +220,12 @@ export const initializeRegistry = () => {
 	// Built-in response-toolbar kebab actions. Same registry plugins use
 	// for "Copy as cURL", "Export to Postman", etc. The `group` field
 	// drives a labelled <MenuGroup> in Gutenberg's post-editor style.
+	const responseViewGroup = __('View', 'wpgraphql-ide');
 	registerResponseAction(
 		'show-data-only',
 		{
-			label: 'Show data only',
-			group: 'View',
+			label: __('Show data only', 'wpgraphql-ide'),
+			group: responseViewGroup,
 			onClick: ({ setDataScope, closeMenu }) => {
 				setDataScope('data');
 				closeMenu();
@@ -225,8 +237,8 @@ export const initializeRegistry = () => {
 	registerResponseAction(
 		'show-full-response',
 		{
-			label: 'Show full response',
-			group: 'View',
+			label: __('Show full response', 'wpgraphql-ide'),
+			group: responseViewGroup,
 			onClick: ({ setDataScope, closeMenu }) => {
 				setDataScope('full');
 				closeMenu();
@@ -243,7 +255,7 @@ export const initializeRegistry = () => {
 	registerEditorAction(
 		'share-link',
 		{
-			label: 'Share link…',
+			label: __('Share link…', 'wpgraphql-ide'),
 			onClick: ({ closeMenu, openShareDialog }) => {
 				closeMenu();
 				openShareDialog();
@@ -256,7 +268,7 @@ export const initializeRegistry = () => {
 	registerEditorAction(
 		'rename-query',
 		{
-			label: 'Rename query',
+			label: __('Rename query', 'wpgraphql-ide'),
 			onClick: ({ closeMenu, openRenameDialog }) => {
 				closeMenu();
 				openRenameDialog();
@@ -271,7 +283,7 @@ export const initializeRegistry = () => {
 	registerEditorAction(
 		'duplicate-as-draft',
 		{
-			label: 'Duplicate as draft',
+			label: __('Duplicate as draft', 'wpgraphql-ide'),
 			onClick: ({ closeMenu, duplicateAsDraft }) => {
 				closeMenu();
 				duplicateAsDraft();
@@ -287,7 +299,7 @@ export const initializeRegistry = () => {
 	registerDocumentTabAction(
 		'close-active',
 		{
-			label: 'Close active tab',
+			label: __('Close active tab', 'wpgraphql-ide'),
 			onClick: ({ activeId, onClose, closeMenu }) => {
 				if (activeId) {
 					onClose(String(activeId));
@@ -301,7 +313,7 @@ export const initializeRegistry = () => {
 	registerDocumentTabAction(
 		'close-inactive',
 		{
-			label: 'Close inactive tabs',
+			label: __('Close inactive tabs', 'wpgraphql-ide'),
 			onClick: ({ activeId, onCloseOthers, closeMenu }) => {
 				onCloseOthers(activeId);
 				closeMenu();
@@ -313,7 +325,7 @@ export const initializeRegistry = () => {
 	registerDocumentTabAction(
 		'close-all',
 		{
-			label: 'Close all tabs',
+			label: __('Close all tabs', 'wpgraphql-ide'),
 			onClick: ({ onCloseAll, closeMenu }) => {
 				onCloseAll();
 				closeMenu();
@@ -326,7 +338,7 @@ export const initializeRegistry = () => {
 	// Built-in "Settings" workspace tab — opened from the topbar settings
 	// button when the current user can manage WPGraphQL settings.
 	registerWorkspaceTabType(SETTINGS_TAB_ID, {
-		title: 'Settings',
+		title: __('Settings', 'wpgraphql-ide'),
 		content: SettingsWorkspaceTab,
 	});
 	registerWorkspacePersistence(SETTINGS_TAB_ID, {
@@ -343,15 +355,27 @@ export const initializeRegistry = () => {
 	const SCHEMA_REFRESH_RAPID_MS = 1500;
 	const SCHEMA_REFRESH_NOTICE_ID = 'wpgraphql-ide-schema-refresh-mash';
 	const SCHEMA_REFRESH_MILESTONES = {
-		3: "Refreshing again? It hasn't changed since 0.5s ago. The schema is cached client-side — no network round-trip until you hit this button.",
-		5: 'Trust the cache. Refresh only after you change types or fields on the server.',
-		8: 'The schema is doing its best. Tip: the Docs panel always reflects the schema currently loaded in the IDE.',
-		12: 'Your schema is fine, I promise. Tip: enable GRAPHQL_DEBUG on the server for richer schema-introspection output.',
+		3: __(
+			"Refreshing again? It hasn't changed since 0.5s ago. The schema is cached client-side — no network round-trip until you hit this button.",
+			'wpgraphql-ide'
+		),
+		5: __(
+			'Trust the cache. Refresh only after you change types or fields on the server.',
+			'wpgraphql-ide'
+		),
+		8: __(
+			'The schema is doing its best. Tip: the Docs panel always reflects the schema currently loaded in the IDE.',
+			'wpgraphql-ide'
+		),
+		12: __(
+			'Your schema is fine, I promise. Tip: enable GRAPHQL_DEBUG on the server for richer schema-introspection output.',
+			'wpgraphql-ide'
+		),
 	};
 	registerTopbarAction(
 		'refresh-schema',
 		{
-			title: 'Re-fetch schema',
+			title: __('Re-fetch schema', 'wpgraphql-ide'),
 			icon: () => <Icon icon={update} />,
 			onClick: async ({ refetchSchema }) => {
 				const now = Date.now();
@@ -378,15 +402,18 @@ export const initializeRegistry = () => {
 				if (result && !result.ok) {
 					hooks.doAction(
 						'wpgraphql-ide.notice',
-						`Failed to refresh schema: ${
-							result?.error?.message ?? 'Unknown error'
-						}`,
+						sprintf(
+							/* translators: %s: error message from the GraphQL schema refresh attempt */
+							__('Failed to refresh schema: %s', 'wpgraphql-ide'),
+							result?.error?.message ??
+								__('Unknown error', 'wpgraphql-ide')
+						),
 						'error'
 					);
 				} else if (schemaRefreshCount === 1) {
 					hooks.doAction(
 						'wpgraphql-ide.notice',
-						'Schema refreshed',
+						__('Schema refreshed', 'wpgraphql-ide'),
 						'default'
 					);
 				}
@@ -407,7 +434,7 @@ export const initializeRegistry = () => {
 		registerTopbarAction(
 			'graphql-settings',
 			{
-				title: 'WPGraphQL Settings',
+				title: __('WPGraphQL Settings', 'wpgraphql-ide'),
 				icon: () => <Icon icon={cog} />,
 				tabType: 'graphql-settings',
 				tabId: 'graphql-settings',

@@ -67,6 +67,7 @@
 		"@wordpress/data": "^9.22.0",
 		"@wordpress/element": "^5.23.0",
 		"@wordpress/hooks": "^3.49.0",
+		"@wordpress/i18n": "^4.49.0",
 		"@wordpress/icons": "^9.43.0",
 		"@wpgraphql-ide/cache-inspector": "file:plugins/cache-inspector",
 		"@wpgraphql-ide/help-panel": "file:plugins/help-panel",
