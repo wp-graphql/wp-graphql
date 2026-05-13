@@ -1,10 +1,12 @@
 import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
-const GRANT_MODE_LABELS = {
-	public: 'Allowed',
-	only_allowed: 'Deny',
-	some_denied: 'Allowed',
-};
+// Built lazily so __() runs after wp.i18n is available.
+const getGrantModeLabels = () => ({
+	public: __('Allowed', 'wpgraphql-ide'),
+	only_allowed: __('Deny', 'wpgraphql-ide'),
+	some_denied: __('Allowed', 'wpgraphql-ide'),
+});
 
 /**
  * Three-state radio group whose "default" option's label dynamically reflects
@@ -29,7 +31,9 @@ export function RadioWithDefaultField({
 }) {
 	const groupName = `wpgraphql-ide-doc-setting-${field.name}`;
 	const options = Array.isArray(field.options) ? field.options : [];
-	const effectiveLabel = GRANT_MODE_LABELS[globalDefault] || 'Allowed';
+	const grantModeLabels = getGrantModeLabels();
+	const effectiveLabel =
+		grantModeLabels[globalDefault] || __('Allowed', 'wpgraphql-ide');
 
 	return (
 		<div className="wpgraphql-ide-doc-setting wpgraphql-ide-doc-setting--radio">
@@ -41,7 +45,12 @@ export function RadioWithDefaultField({
 					const radioId = `${groupName}-${opt.value || 'default'}`;
 					const label =
 						opt.value === ''
-							? `${opt.label} (${effectiveLabel})`
+							? sprintf(
+									/* translators: 1: base option label (e.g. "Use global default"); 2: resolved effective label (e.g. "Allowed") */
+									__('%1$s (%2$s)', 'wpgraphql-ide'),
+									opt.label,
+									effectiveLabel
+								)
 							: opt.label;
 					return (
 						<label

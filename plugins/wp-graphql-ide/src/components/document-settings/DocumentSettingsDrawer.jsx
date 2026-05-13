@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import { TagListField } from './fields/TagListField';
 import { RadioWithDefaultField } from './fields/RadioWithDefaultField';
 
@@ -29,7 +30,7 @@ export function DocumentSettingsDrawer({
 		<div
 			className="wpgraphql-ide-doc-settings-panel"
 			role="region"
-			aria-label="Document settings"
+			aria-label={__('Document settings', 'wpgraphql-ide')}
 		>
 			{(fields || []).map((field) => (
 				<DocumentSettingFieldRenderer

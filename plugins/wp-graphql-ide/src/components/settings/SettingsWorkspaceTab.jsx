@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { SettingsField } from './SettingsField';
@@ -98,8 +99,10 @@ export function SettingsWorkspaceTab() {
 		return (
 			<div className="wpgraphql-ide-settings-empty">
 				<p>
-					No WPGraphQL settings are registered, or you do not have
-					permission to manage them.
+					{__(
+						'No WPGraphQL settings are registered, or you do not have permission to manage them.',
+						'wpgraphql-ide'
+					)}
 				</p>
 			</div>
 		);
@@ -109,7 +112,7 @@ export function SettingsWorkspaceTab() {
 		<div className="wpgraphql-ide-settings-tab">
 			<nav
 				className="wpgraphql-ide-settings-nav"
-				aria-label="Settings sections"
+				aria-label={__('Settings sections', 'wpgraphql-ide')}
 			>
 				<ul>
 					{sections.map((section) => (
@@ -153,7 +156,7 @@ export function SettingsWorkspaceTab() {
 									onClick={handleSave}
 									disabled={!isDirty || isSaving}
 								>
-									Save changes
+									{__('Save changes', 'wpgraphql-ide')}
 								</Button>
 							</div>
 						</header>

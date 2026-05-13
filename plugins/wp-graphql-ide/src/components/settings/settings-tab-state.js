@@ -1,4 +1,5 @@
 import { dispatch } from '@wordpress/data';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import hooks from '../../wordpress-hooks';
 
 // Module-level state for the Settings workspace tab. The component unmounts
@@ -116,8 +117,18 @@ export function diffAgainstBaseline(values) {
 function buildVariantPayload(fieldConfig, value) {
 	const variant = FIELD_TYPE_TO_VARIANT[fieldConfig.type];
 	if (!variant) {
+		// Developer-facing error — thrown during save when an unsupported
+		// field type is encountered. Translated because it surfaces as a
+		// notice via the failure path below.
 		throw new Error(
-			`Field type "${fieldConfig.type}" is not editable through the IDE.`
+			sprintf(
+				/* translators: %s: WPGraphQL settings field type that the IDE doesn't know how to edit (e.g. "color", "user_role_select") */
+				__(
+					'Field type "%s" is not editable through the IDE.',
+					'wpgraphql-ide'
+				),
+				fieldConfig.type
+			)
 		);
 	}
 
@@ -204,7 +215,10 @@ async function callMutation(fieldConfig, sectionSlug, value) {
 	const json = await response.json();
 
 	if (json.errors && json.errors.length > 0) {
-		throw new Error(json.errors[0].message || 'Failed to save setting.');
+		throw new Error(
+			json.errors[0].message ||
+				__('Failed to save setting.', 'wpgraphql-ide')
+		);
 	}
 
 	return json.data?.updateGraphqlSetting || null;
@@ -241,7 +255,11 @@ export async function saveAllSettings() {
 			const result = await callMutation(field, sectionSlug, value);
 			if (!result || !result.success) {
 				throw new Error(
-					result?.message || 'The mutation did not report success.'
+					result?.message ||
+						__(
+							'The mutation did not report success.',
+							'wpgraphql-ide'
+						)
 				);
 			}
 			const saved = readSavedValue(field, result.value);
@@ -266,12 +284,25 @@ export async function saveAllSettings() {
 	notifySaved(savedValues);
 
 	if (failures.length === 0) {
-		hooks.doAction('wpgraphql-ide.notice', 'Settings saved');
+		hooks.doAction(
+			'wpgraphql-ide.notice',
+			__('Settings saved', 'wpgraphql-ide')
+		);
 	} else {
 		const first = failures[0];
 		hooks.doAction(
 			'wpgraphql-ide.notice',
-			`${failures.length} setting${failures.length > 1 ? 's' : ''} failed to save: ${first.error.message}`,
+			sprintf(
+				/* translators: 1: number of WPGraphQL settings that failed to save; 2: error message from the first failure */
+				_n(
+					'%1$d setting failed to save: %2$s',
+					'%1$d settings failed to save: %2$s',
+					failures.length,
+					'wpgraphql-ide'
+				),
+				failures.length,
+				first.error.message
+			),
 			'error'
 		);
 	}

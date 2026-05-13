@@ -1,4 +1,5 @@
 import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Render a single registered WPGraphQL settings field.
@@ -225,8 +226,14 @@ export function SettingsField({ field, value, onChange }) {
 				<div className="wpgraphql-ide-setting wpgraphql-ide-setting--unsupported">
 					{labelEl}
 					<p className="wpgraphql-ide-setting-unsupported">
-						This field type ({field.type}) is not yet editable in
-						the IDE. Use the WPGraphQL admin settings page.
+						{sprintf(
+							/* translators: %s: registered WPGraphQL settings field type slug (e.g. "color", "user_role_select") */
+							__(
+								'This field type (%s) is not yet editable in the IDE. Use the WPGraphQL admin settings page.',
+								'wpgraphql-ide'
+							),
+							field.type
+						)}
 					</p>
 					{desc}
 				</div>

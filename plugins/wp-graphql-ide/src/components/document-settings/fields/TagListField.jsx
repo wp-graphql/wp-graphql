@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Free-form multi-tag input for fields like alias names.
@@ -81,7 +82,11 @@ export function TagListField({ field, value, onChange, disabled = false }) {
 						{tag}
 						<button
 							type="button"
-							aria-label={`Remove ${tag}`}
+							aria-label={sprintf(
+								/* translators: %s: tag value being removed (e.g. an alias name) */
+								__('Remove %s', 'wpgraphql-ide'),
+								tag
+							)}
 							className="wpgraphql-ide-doc-setting-tag-remove"
 							onClick={() => removeAt(idx)}
 							disabled={disabled}
@@ -96,7 +101,11 @@ export function TagListField({ field, value, onChange, disabled = false }) {
 					className="wpgraphql-ide-doc-setting-tag-input"
 					value={input}
 					disabled={disabled}
-					placeholder={tags.length === 0 ? 'Add an alias…' : ''}
+					placeholder={
+						tags.length === 0
+							? __('Add an alias…', 'wpgraphql-ide')
+							: ''
+					}
 					onChange={(e) => setInput(e.target.value)}
 					onKeyDown={handleKeyDown}
 					onBlur={() => commit(input)}
