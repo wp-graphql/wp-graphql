@@ -149,6 +149,17 @@ Registered in `includes/UserMeta.php`. All keys are `show_in_rest` with an `auth
 | `enforce_ide_rest_permissions` | `rest_pre_dispatch` |
 | `restrict_document_to_author` | `rest_prepare_graphql_ide_query`, `rest_prepare_graphql_ide_history` |
 
+## Capability helpers (PHP)
+
+Two global-namespace helpers wrap the `wpgraphql_ide_capability_required` filter. Use them in extension code instead of hardcoding capability literals.
+
+| Symbol | Source | Purpose |
+| --- | --- | --- |
+| `wpgraphql_ide_get_capability(): string` | `includes/access-functions.php` | Returns the filtered cap string (default `'manage_graphql_ide'`). Use at registration time — `register_post_type` capability maps, `add_submenu_page` cap arg, `get_users(['capability' => ...])`, etc. Falls back to default if the filter returns a non-string or empty value. |
+| `wpgraphql_ide_user_can(): bool` | `includes/access-functions.php` | Equivalent to `current_user_can( wpgraphql_ide_get_capability() )`. Use at runtime — REST `permission_callback`, meta `auth_callback`, gate checks, etc. |
+
+The namespaced wrapper `\WPGraphQLIDE\user_has_graphql_ide_capability()` is preserved for back-compat and now delegates to `wpgraphql_ide_user_can()`. New code should call the global-namespace helper.
+
 ## Document Settings module
 
 The IDE's per-document Settings drawer (description, alias names, max-age, allow/deny) is built on an extensible field registry. Plugins register additional fields with `register_graphql_document_setting_field()` and the drawer renders them automatically; values are persisted via the existing `/wp/v2/graphql-ide-queries` REST endpoints.

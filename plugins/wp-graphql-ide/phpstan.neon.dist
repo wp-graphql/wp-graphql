@@ -29,6 +29,10 @@ parameters:
     # plugin's composer.json, so they're installed by the lint job.
     scanFiles:
         - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
+        # Global-namespace access functions — procedurally loaded, not
+        # autoloaded, so PHPStan needs them in scanFiles to resolve
+        # symbols from callers in wpgraphql-ide.php and elsewhere.
+        - includes/access-functions.php
     paths:
         - wpgraphql-ide.php
     excludePaths:

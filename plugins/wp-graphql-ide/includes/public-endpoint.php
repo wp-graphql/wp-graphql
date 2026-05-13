@@ -235,7 +235,7 @@ function inject_public_endpoint_data( array $data ): array {
 	// topbar actions / persistent docs + history). Capable visitors at this
 	// URL get the full IDE — same surface as the dedicated admin page — so
 	// only flip the flag on for visitors who can't manage IDE assets anyway.
-	$data['endpointMode']        = ! current_user_can( 'manage_graphql_ide' );
+	$data['endpointMode']        = ! wpgraphql_ide_user_can();
 	$data['isUserLoggedIn']      = is_user_logged_in();
 	// Gates the sign-in handoff on the endpoint IDE. When off, the auth
 	// avatar acts as a static public-state indicator and the Saved Queries

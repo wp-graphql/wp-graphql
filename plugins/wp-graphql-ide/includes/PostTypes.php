@@ -49,7 +49,7 @@ class PostTypes {
 		);
 
 		$post_meta_auth = static function () {
-			return current_user_can( 'manage_graphql_ide' );
+			return wpgraphql_ide_user_can();
 		};
 
 		$sanitize_json = static function ( $value ) {
@@ -222,12 +222,10 @@ class PostTypes {
 				'hierarchical'        => true,
 				'show_ui'             => false,
 				'show_admin_column'   => false,
-				'capabilities'        => [
-					'manage_terms' => 'manage_graphql_ide',
-					'edit_terms'   => 'manage_graphql_ide',
-					'delete_terms' => 'manage_graphql_ide',
-					'assign_terms' => 'manage_graphql_ide',
-				],
+				'capabilities'        => array_fill_keys(
+					[ 'manage_terms', 'edit_terms', 'delete_terms', 'assign_terms' ],
+					wpgraphql_ide_get_capability()
+				),
 			]
 		);
 	}

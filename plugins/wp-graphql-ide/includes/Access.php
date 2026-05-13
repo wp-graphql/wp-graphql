@@ -147,7 +147,7 @@ class Access {
 			return $result;
 		}
 
-		if ( ! current_user_can( 'manage_graphql_ide' ) ) {
+		if ( ! wpgraphql_ide_user_can() ) {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to access IDE queries.', 'wpgraphql-ide' ),
@@ -181,7 +181,7 @@ class Access {
 		// the list route still scopes to the viewer's own docs.
 		if (
 			'graphql_ide_query' === $post->post_type
-			&& current_user_can( 'manage_graphql_ide' )
+			&& wpgraphql_ide_user_can()
 			&& self::is_shared_with_current_user( (int) $post->ID )
 		) {
 			return $response;

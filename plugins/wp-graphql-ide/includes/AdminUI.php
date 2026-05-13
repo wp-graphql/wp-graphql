@@ -73,7 +73,7 @@ class AdminUI {
 			'graphiql-ide',
 			esc_html__( 'GraphQL IDE', 'wpgraphql-ide' ),
 			esc_html__( 'GraphQL IDE', 'wpgraphql-ide' ),
-			'manage_graphql_ide',
+			wpgraphql_ide_get_capability(),
 			'graphql-ide',
 			[ self::class, 'render_dedicated_ide_page' ]
 		);

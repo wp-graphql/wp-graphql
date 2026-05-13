@@ -15,12 +15,10 @@ namespace WPGraphQLIDE\DocumentSettings;
 add_action( 'init', __NAMESPACE__ . '\\register_taxonomies', 10 );
 
 function register_taxonomies(): void {
-	$capabilities = [
-		'manage_terms' => 'manage_graphql_ide',
-		'edit_terms'   => 'manage_graphql_ide',
-		'delete_terms' => 'manage_graphql_ide',
-		'assign_terms' => 'manage_graphql_ide',
-	];
+	$capabilities = array_fill_keys(
+		[ 'manage_terms', 'edit_terms', 'delete_terms', 'assign_terms' ],
+		wpgraphql_ide_get_capability()
+	);
 
 	register_taxonomy(
 		'graphql_ide_query_alias',

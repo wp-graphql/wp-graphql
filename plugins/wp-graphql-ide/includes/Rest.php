@@ -27,9 +27,7 @@ class Rest {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'publish_document' ],
-				'permission_callback' => static function () {
-					return current_user_can( 'manage_graphql_ide' );
-				},
+				'permission_callback' => 'wpgraphql_ide_user_can',
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -47,9 +45,7 @@ class Rest {
 			[
 				'methods'             => 'DELETE',
 				'callback'            => [ self::class, 'delete_collection_cascade' ],
-				'permission_callback' => static function () {
-					return current_user_can( 'manage_graphql_ide' );
-				},
+				'permission_callback' => 'wpgraphql_ide_user_can',
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -67,9 +63,7 @@ class Rest {
 			[
 				'methods'             => 'GET',
 				'callback'            => [ self::class, 'export_documents' ],
-				'permission_callback' => static function () {
-					return current_user_can( 'manage_graphql_ide' );
-				},
+				'permission_callback' => 'wpgraphql_ide_user_can',
 			]
 		);
 
@@ -79,9 +73,7 @@ class Rest {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'import_documents' ],
-				'permission_callback' => static function () {
-					return current_user_can( 'manage_graphql_ide' );
-				},
+				'permission_callback' => 'wpgraphql_ide_user_can',
 			]
 		);
 
@@ -91,9 +83,7 @@ class Rest {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'reorder_documents' ],
-				'permission_callback' => static function () {
-					return current_user_can( 'manage_graphql_ide' );
-				},
+				'permission_callback' => 'wpgraphql_ide_user_can',
 			]
 		);
 
@@ -103,9 +93,7 @@ class Rest {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'reorder_collections' ],
-				'permission_callback' => static function () {
-					return current_user_can( 'manage_graphql_ide' );
-				},
+				'permission_callback' => 'wpgraphql_ide_user_can',
 			]
 		);
 	}

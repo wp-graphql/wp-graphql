@@ -65,6 +65,7 @@ spl_autoload_register(
 
 // Modular feature includes — kept out of this main plugin file to avoid
 // further bloat. Each include hooks into WordPress on its own.
+require_once __DIR__ . '/includes/access-functions.php';
 require_once __DIR__ . '/includes/settings.php';
 require_once __DIR__ . '/includes/document-settings.php';
 require_once __DIR__ . '/includes/public-endpoint.php';
@@ -279,12 +280,14 @@ function save_capabilities_hash( $current_hash ): void {
 /**
  * Checks if the current user has the capability required to load scripts and styles for the GraphQL IDE.
  *
+ * Back-compat wrapper around {@see wpgraphql_ide_user_can()} — the global-
+ * namespace helper is the single source of truth and is what new code
+ * should call directly.
+ *
  * @return bool Whether the user has the required capability.
  */
 function user_has_graphql_ide_capability(): bool {
-	$capability_required = apply_filters( 'wpgraphql_ide_capability_required', 'manage_graphql_ide' );
-
-	return current_user_can( $capability_required );
+	return wpgraphql_ide_user_can();
 }
 
 /**

@@ -24,7 +24,7 @@ class UserMeta {
 	 */
 	public static function register(): void {
 		$auth_callback = static function () {
-			return current_user_can( 'manage_graphql_ide' );
+			return wpgraphql_ide_user_can();
 		};
 
 		register_meta(
@@ -277,7 +277,7 @@ class UserMeta {
 						// Owner doesn't share with themselves; that's implicit.
 						continue;
 					}
-					if ( ! user_can( $uid, 'manage_graphql_ide' ) ) {
+					if ( ! user_can( $uid, wpgraphql_ide_get_capability() ) ) {
 						// Can't share with someone who can't use the IDE.
 						continue;
 					}
@@ -319,7 +319,7 @@ class UserMeta {
 
 		$users = get_users(
 			[
-				'capability' => 'manage_graphql_ide',
+				'capability' => wpgraphql_ide_get_capability(),
 				'exclude'    => [ $current_id ],
 				'fields'     => [ 'ID', 'display_name' ],
 			]

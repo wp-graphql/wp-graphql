@@ -28,7 +28,17 @@ add_action( 'wpgraphql_ide_register_document_settings', function () {
 
 ### `wpgraphql_ide_capability_required`
 
-Override the capability required to view the IDE. Default: `manage_graphql_ide`.
+Override the capability required to use the IDE. Default: `manage_graphql_ide`.
+
+Consulted by `wpgraphql_ide_get_capability()` and `wpgraphql_ide_user_can()`, which back every IDE permission check — REST permission callbacks, post-type / taxonomy capability maps, post-meta and user-meta auth callbacks, the admin submenu, the public-endpoint trimming flag, and cross-user checks. Filter returns must be a non-empty string; non-string or empty values silently fall back to the default so a misconfigured filter never opens the gate to everyone.
+
+```php
+add_filter( 'wpgraphql_ide_capability_required', function () {
+	return 'edit_others_posts';
+} );
+```
+
+Hosts changing this filter should also grant the new capability to the roles that need it — the IDE's activation flow only adds `manage_graphql_ide` to `administrator`. Changing the filter without granting the new cap to anyone results in a fully gated IDE.
 
 ### `wpgraphql_ide_context`
 

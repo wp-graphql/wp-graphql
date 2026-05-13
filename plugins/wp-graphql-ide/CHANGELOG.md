@@ -23,6 +23,23 @@
   in addition to `manage_graphql_ide`. IDE users without `list_users` will see
   the Sharing affordance hidden instead of opening onto a permission-denied
   dead end.
+- **Capability filter integrity:** the `wpgraphql_ide_capability_required`
+  filter is now consulted at every IDE permission check — REST permission
+  callbacks, post-type / taxonomy capability maps, post-meta and user-meta
+  auth callbacks, the admin submenu cap, the public-endpoint trimming flag,
+  user-can checks against other users, and `get_users()` queries.
+  Previously the filter was consulted in exactly one place (the admin menu
+  render gate) and bypassed everywhere else, so a host filtering the cap
+  to a different value would see the admin link but be 403'd at every
+  actual operation. Hosts already relying on the filter to gate IDE
+  visibility will now find their override is honored end-to-end —
+  intended, but a behavior change.
+  Two new global-namespace access functions are introduced:
+  `wpgraphql_ide_get_capability()` (returns the filtered cap string) and
+  `wpgraphql_ide_user_can()` (`current_user_can()` against it). New code
+  should call these directly; the existing namespaced
+  `\WPGraphQLIDE\user_has_graphql_ide_capability()` is preserved as a
+  back-compat wrapper.
 
 ## [4.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.0...wp-graphql-ide/v4.4.1) (2026-05-08)
 
