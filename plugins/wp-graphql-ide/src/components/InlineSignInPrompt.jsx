@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { Icon, lockOutline } from '@wordpress/icons';
 import { loginUrl } from '../bootstrap';
@@ -32,7 +33,7 @@ export function InlineSignInPrompt({ title, description }) {
 				{description}
 			</p>
 			<Button variant="primary" onClick={() => setOpen(true)}>
-				Sign in
+				{__('Sign in', 'wpgraphql-ide')}
 			</Button>
 			{open && (
 				<SignInPromptDialog

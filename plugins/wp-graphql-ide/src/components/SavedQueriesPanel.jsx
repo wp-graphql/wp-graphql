@@ -5,6 +5,7 @@ import React, {
 	useCallback,
 	useRef,
 } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -101,7 +102,7 @@ export function SavedQueriesPanelHeaderAction() {
 	return (
 		<DropdownMenu
 			icon={moreVertical}
-			label="Saved queries actions"
+			label={__('Saved queries actions', 'wpgraphql-ide')}
 			toggleProps={{
 				size: 'small',
 				className: 'wpgraphql-ide-panel-kebab',
@@ -120,7 +121,7 @@ export function SavedQueriesPanelHeaderAction() {
 								);
 							}}
 						>
-							New collection
+							{__('New collection', 'wpgraphql-ide')}
 						</MenuItem>
 					</MenuGroup>
 					<MenuGroup>
@@ -130,7 +131,7 @@ export function SavedQueriesPanelHeaderAction() {
 								hooks.doAction(PANEL_ACTION_HOOK, 'import');
 							}}
 						>
-							Import queries…
+							{__('Import queries…', 'wpgraphql-ide')}
 						</MenuItem>
 						<MenuItem
 							disabled={collectionCount === 0}
@@ -139,7 +140,7 @@ export function SavedQueriesPanelHeaderAction() {
 								hooks.doAction(PANEL_ACTION_HOOK, 'export');
 							}}
 						>
-							Export queries…
+							{__('Export queries…', 'wpgraphql-ide')}
 						</MenuItem>
 					</MenuGroup>
 				</>
@@ -148,11 +149,17 @@ export function SavedQueriesPanelHeaderAction() {
 	);
 }
 
-const SORT_OPTIONS = [
-	{ value: 'manual', label: 'Manual' },
-	{ value: 'title_asc', label: 'Alphabetical' },
-	{ value: 'modified_desc', label: 'Recently modified' },
-	{ value: 'status', label: 'Status' },
+// SORT_OPTIONS is computed lazily inside the component so __() runs
+// after wp.i18n is available and so the labels stay reactive to
+// locale-switching extensions if any are ever introduced.
+const getSortOptions = () => [
+	{ value: 'manual', label: __('Manual', 'wpgraphql-ide') },
+	{ value: 'title_asc', label: __('Alphabetical', 'wpgraphql-ide') },
+	{
+		value: 'modified_desc',
+		label: __('Recently modified', 'wpgraphql-ide'),
+	},
+	{ value: 'status', label: __('Status', 'wpgraphql-ide') },
 ];
 
 /**
@@ -248,10 +255,12 @@ function CollectionSection({
 	sortMode,
 	onSortModeChange,
 	onDeleteAll,
-	deleteAllLabel = 'Delete all queries',
+	deleteAllLabel,
 	onShare,
 	children,
 }) {
+	const resolvedDeleteAllLabel =
+		deleteAllLabel || __('Delete all queries', 'wpgraphql-ide');
 	const isOver = !!dropTargetId && dragOverId === dropTargetId;
 	const [editing, setEditing] = useState(false);
 	const [editValue, setEditValue] = useState(title);
@@ -272,7 +281,19 @@ function CollectionSection({
 				role="button"
 				tabIndex={editing ? -1 : 0}
 				aria-expanded={!collapsed}
-				aria-label={`${title}: ${collapsed ? 'expand' : 'collapse'} section`}
+				aria-label={
+					collapsed
+						? sprintf(
+								/* translators: %s: name of the collapsible section being expanded */
+								__('%s: expand section', 'wpgraphql-ide'),
+								title
+							)
+						: sprintf(
+								/* translators: %s: name of the collapsible section being collapsed */
+								__('%s: collapse section', 'wpgraphql-ide'),
+								title
+							)
+				}
 				onClick={() => {
 					// Don't toggle when the user is mid-rename or interacting
 					// with a control inside the row (kebab, rename input).
@@ -368,7 +389,7 @@ function CollectionSection({
 				{editing ? (
 					<RenameInput
 						className="wpgraphql-ide-collection-rename-input"
-						ariaLabel="Rename collection"
+						ariaLabel={__('Rename collection', 'wpgraphql-ide')}
 						value={editValue}
 						onChange={setEditValue}
 						onCommit={(trimmed) => {
@@ -401,7 +422,7 @@ function CollectionSection({
 					>
 						<DropdownMenu
 							icon={moreVertical}
-							label="Collection actions"
+							label={__('Collection actions', 'wpgraphql-ide')}
 							toggleProps={{
 								size: 'small',
 								className: 'wpgraphql-ide-collection-kebab',
@@ -425,13 +446,18 @@ function CollectionSection({
 													closeMenu();
 												}}
 											>
-												Sharing
+												{__('Sharing', 'wpgraphql-ide')}
 											</MenuItem>
 										</MenuGroup>
 									)}
 									{typeof onSortModeChange === 'function' && (
-										<MenuGroup label="Sort by">
-											{SORT_OPTIONS.map((opt) => (
+										<MenuGroup
+											label={__(
+												'Sort by',
+												'wpgraphql-ide'
+											)}
+										>
+											{getSortOptions().map((opt) => (
 												<MenuItem
 													key={opt.value}
 													icon={
@@ -462,7 +488,7 @@ function CollectionSection({
 													closeMenu();
 												}}
 											>
-												Rename
+												{__('Rename', 'wpgraphql-ide')}
 											</MenuItem>
 										</MenuGroup>
 									)}
@@ -475,7 +501,10 @@ function CollectionSection({
 													closeMenu();
 												}}
 											>
-												Delete collection
+												{__(
+													'Delete collection',
+													'wpgraphql-ide'
+												)}
 											</MenuItem>
 										</MenuGroup>
 									)}
@@ -488,7 +517,7 @@ function CollectionSection({
 													onDeleteAll();
 												}}
 											>
-												{deleteAllLabel}
+												{resolvedDeleteAllLabel}
 											</MenuItem>
 										</MenuGroup>
 									)}
@@ -794,24 +823,52 @@ export function SavedQueriesPanel() {
 			const payload = JSON.parse(text);
 			const result = await importDocuments(payload);
 			if (result?.error) {
-				notify(`Import failed: ${result.error}`, 'error');
+				notify(
+					sprintf(
+						/* translators: %s: error message returned by the import endpoint */
+						__('Import failed: %s', 'wpgraphql-ide'),
+						result.error
+					),
+					'error'
+				);
 				return;
 			}
 			await loadCollections();
 			reloadDocs();
-			notify(
-				`Imported ${result.created || 0} ${
-					result.created === 1 ? 'query' : 'queries'
-				}${
-					result.skipped
-						? ` (${result.skipped} skipped as duplicates)`
-						: ''
-				}.`
+			const created = result.created || 0;
+			const skipped = result.skipped || 0;
+			const createdMsg = sprintf(
+				/* translators: %d: number of queries imported */
+				_n(
+					'Imported %d query.',
+					'Imported %d queries.',
+					created,
+					'wpgraphql-ide'
+				),
+				created
 			);
+			const message = skipped
+				? sprintf(
+						/* translators: 1: created-count sentence, 2: number of duplicate queries skipped */
+						__(
+							'%1$s (%2$d skipped as duplicates)',
+							'wpgraphql-ide'
+						),
+						createdMsg.replace(/\.$/, ''),
+						skipped
+					) + '.'
+				: createdMsg;
+			notify(message);
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.error('Import failed:', err);
-			notify('Import failed. Make sure the file is valid JSON.', 'error');
+			notify(
+				__(
+					'Import failed. Make sure the file is valid JSON.',
+					'wpgraphql-ide'
+				),
+				'error'
+			);
 		}
 	};
 
@@ -848,11 +905,18 @@ export function SavedQueriesPanel() {
 			return;
 		}
 		const ok = await confirm({
-			title: 'Delete all documents',
-			message: `Delete all ${targets.length} document${
-				targets.length === 1 ? '' : 's'
-			} in "Documents"? This cannot be undone.`,
-			confirmLabel: 'Delete all',
+			title: __('Delete all documents', 'wpgraphql-ide'),
+			message: sprintf(
+				/* translators: %d: number of documents to be deleted */
+				_n(
+					'Delete %d document in "Documents"? This cannot be undone.',
+					'Delete all %d documents in "Documents"? This cannot be undone.',
+					targets.length,
+					'wpgraphql-ide'
+				),
+				targets.length
+			),
+			confirmLabel: __('Delete all', 'wpgraphql-ide'),
 			isDestructive: true,
 		});
 		if (!ok) {
@@ -867,11 +931,18 @@ export function SavedQueriesPanel() {
 			return;
 		}
 		const ok = await confirm({
-			title: 'Discard unsaved tabs',
-			message: `Discard all ${targets.length} unsaved tab${
-				targets.length === 1 ? '' : 's'
-			}? Their contents will be lost.`,
-			confirmLabel: 'Discard all',
+			title: __('Discard unsaved tabs', 'wpgraphql-ide'),
+			message: sprintf(
+				/* translators: %d: number of unsaved tabs to be discarded */
+				_n(
+					'Discard %d unsaved tab? Its contents will be lost.',
+					'Discard all %d unsaved tabs? Their contents will be lost.',
+					targets.length,
+					'wpgraphql-ide'
+				),
+				targets.length
+			),
+			confirmLabel: __('Discard all', 'wpgraphql-ide'),
 			isDestructive: true,
 		});
 		if (!ok) {
@@ -983,7 +1054,7 @@ export function SavedQueriesPanel() {
 						{isDraft && (
 							<span className="wpgraphql-ide-document-badge">
 								{' '}
-								— Draft
+								{__('— Draft', 'wpgraphql-ide')}
 							</span>
 						)}
 					</span>
@@ -991,7 +1062,7 @@ export function SavedQueriesPanel() {
 				{!isUnsaved && (
 					<DropdownMenu
 						icon={moreVertical}
-						label="Document actions"
+						label={__('Document actions', 'wpgraphql-ide')}
 						popoverProps={{ placement: 'bottom-start' }}
 						toggleProps={{
 							size: 'small',
@@ -1007,7 +1078,7 @@ export function SavedQueriesPanel() {
 											setRenameTarget(doc);
 										}}
 									>
-										Rename
+										{__('Rename', 'wpgraphql-ide')}
 									</MenuItem>
 								</MenuGroup>
 								{(() => {
@@ -1019,7 +1090,12 @@ export function SavedQueriesPanel() {
 									return (
 										<>
 											{available.length > 0 && (
-												<MenuGroup label="Move to">
+												<MenuGroup
+													label={__(
+														'Move to',
+														'wpgraphql-ide'
+													)}
+												>
 													{available.map((c) => (
 														<MenuItem
 															key={c.id}
@@ -1059,8 +1135,14 @@ export function SavedQueriesPanel() {
 																	closeMenu();
 																}}
 															>
-																Remove from{' '}
-																{col.name}
+																{sprintf(
+																	/* translators: %s: name of the collection the document is being removed from */
+																	__(
+																		'Remove from %s',
+																		'wpgraphql-ide'
+																	),
+																	col.name
+																)}
 															</MenuItem>
 														);
 													})}
@@ -1075,9 +1157,22 @@ export function SavedQueriesPanel() {
 										onClick={async () => {
 											closeMenu();
 											const ok = await confirm({
-												title: 'Delete document',
-												message: `Delete "${displayDocTitle(doc)}"? This cannot be undone.`,
-												confirmLabel: 'Delete',
+												title: __(
+													'Delete document',
+													'wpgraphql-ide'
+												),
+												message: sprintf(
+													/* translators: %s: title of the document being deleted */
+													__(
+														'Delete "%s"? This cannot be undone.',
+														'wpgraphql-ide'
+													),
+													displayDocTitle(doc)
+												),
+												confirmLabel: __(
+													'Delete',
+													'wpgraphql-ide'
+												),
 												isDestructive: true,
 											});
 											if (ok) {
@@ -1085,7 +1180,7 @@ export function SavedQueriesPanel() {
 											}
 										}}
 									>
-										Delete
+										{__('Delete', 'wpgraphql-ide')}
 									</MenuItem>
 								</MenuGroup>
 							</>
@@ -1096,7 +1191,8 @@ export function SavedQueriesPanel() {
 		);
 	};
 
-	const emptyMessage = () => 'No documents in this collection';
+	const emptyMessage = () =>
+		__('No documents in this collection', 'wpgraphql-ide');
 
 	const renderDocList = (docs) => {
 		if (docs.length === 0) {
@@ -1125,7 +1221,7 @@ export function SavedQueriesPanel() {
 					<SearchControl
 						value={search}
 						onChange={setSearch}
-						placeholder="Search..."
+						placeholder={__('Search…', 'wpgraphql-ide')}
 						__nextHasNoMarginBottom
 						size="compact"
 					/>
@@ -1143,12 +1239,30 @@ export function SavedQueriesPanel() {
 				<TabPanel
 					className="wpgraphql-ide-saved-queries-filter"
 					tabs={[
-						{ name: 'all', title: `All (${allCount})` },
+						{
+							name: 'all',
+							title: sprintf(
+								/* translators: %d: total number of queries visible across all collections */
+								__('All (%d)', 'wpgraphql-ide'),
+								allCount
+							),
+						},
 						{
 							name: 'sitewide',
-							title: `Sitewide (${sitewideCount})`,
+							title: sprintf(
+								/* translators: %d: number of queries in sitewide collections */
+								__('Sitewide (%d)', 'wpgraphql-ide'),
+								sitewideCount
+							),
 						},
-						{ name: 'mine', title: `Mine (${mineCount})` },
+						{
+							name: 'mine',
+							title: sprintf(
+								/* translators: %d: number of queries in the user's personal collections */
+								__('Mine (%d)', 'wpgraphql-ide'),
+								mineCount
+							),
+						},
 					]}
 					initialTabName={filter}
 					onSelect={(name) => setFilter(name)}
@@ -1159,8 +1273,11 @@ export function SavedQueriesPanel() {
 
 			{!isUserLoggedIn && (
 				<InlineSignInPrompt
-					title="Sign in to see your queries"
-					description="Saved queries and collections are scoped to your account. Unsaved tabs stay here until you save them."
+					title={__('Sign in to see your queries', 'wpgraphql-ide')}
+					description={__(
+						'Saved queries and collections are scoped to your account. Unsaved tabs stay here until you save them.',
+						'wpgraphql-ide'
+					)}
 				/>
 			)}
 
@@ -1175,7 +1292,7 @@ export function SavedQueriesPanel() {
 				    sitewide collection. */}
 					{showUncategorized && (
 						<CollectionSection
-							title="Documents"
+							title={__('Documents', 'wpgraphql-ide')}
 							count={uncategorized.length}
 							collapsed={!!collapsedSections._documents}
 							onToggle={() => toggleSection('_documents')}
@@ -1201,7 +1318,7 @@ export function SavedQueriesPanel() {
 								</ul>
 							) : (
 								<p className="wpgraphql-ide-collection-empty">
-									No documents
+									{__('No documents', 'wpgraphql-ide')}
 								</p>
 							)}
 						</CollectionSection>
@@ -1317,7 +1434,16 @@ export function SavedQueriesPanel() {
 							return (
 								<CollectionSection
 									key={sectionKey}
-									title={`${sc.name} — shared by ${sc.owner?.display_name || 'another user'}`}
+									title={sprintf(
+										/* translators: 1: name of the shared collection, 2: display name of the user who shared it */
+										__(
+											'%1$s — shared by %2$s',
+											'wpgraphql-ide'
+										),
+										sc.name,
+										sc.owner?.display_name ||
+											__('another user', 'wpgraphql-ide')
+									)}
 									count={sortedDocs.length}
 									collapsed={
 										sectionKey in collapsedSections
@@ -1346,7 +1472,10 @@ export function SavedQueriesPanel() {
 													>
 														<span className="wpgraphql-ide-document-title-text">
 															{doc.title ||
-																'Untitled'}
+																__(
+																	'Untitled',
+																	'wpgraphql-ide'
+																)}
 														</span>
 													</button>
 												</li>
@@ -1407,7 +1536,7 @@ export function SavedQueriesPanel() {
 			{unsavedDocs.length > 0 && (
 				<div className="wpgraphql-ide-collections-list wpgraphql-ide-collections-list--unsaved">
 					<CollectionSection
-						title="Unsaved"
+						title={__('Unsaved', 'wpgraphql-ide')}
 						count={unsavedDocs.length}
 						collapsed={!!collapsedSections._unsaved}
 						onToggle={() => toggleSection('_unsaved')}
@@ -1415,7 +1544,10 @@ export function SavedQueriesPanel() {
 						dragOverId={dragOverId}
 						setDragOver={setDragOverId}
 						onDeleteAll={handleDiscardAllUnsaved}
-						deleteAllLabel="Discard all unsaved"
+						deleteAllLabel={__(
+							'Discard all unsaved',
+							'wpgraphql-ide'
+						)}
 					>
 						<ul className="wpgraphql-ide-documents-list">
 							{unsavedDocs.map(renderDoc)}

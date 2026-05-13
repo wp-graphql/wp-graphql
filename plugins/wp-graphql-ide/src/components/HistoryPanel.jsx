@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Icon, backup } from '@wordpress/icons';
@@ -51,8 +52,11 @@ export function HistoryPanel() {
 		return (
 			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
 				<InlineSignInPrompt
-					title="Sign in to see your history"
-					description="Executed queries are saved per user — sign in to keep a record of your requests and restore them in a click."
+					title={__('Sign in to see your history', 'wpgraphql-ide')}
+					description={__(
+						'Executed queries are saved per user — sign in to keep a record of your requests and restore them in a click.',
+						'wpgraphql-ide'
+					)}
 				/>
 			</div>
 		);
@@ -92,12 +96,13 @@ function HistoryPanelContent() {
 						className="wpgraphql-ide-history-empty-icon"
 					/>
 					<h3 className="wpgraphql-ide-history-empty-title">
-						No executions yet
+						{__('No executions yet', 'wpgraphql-ide')}
 					</h3>
 					<p className="wpgraphql-ide-history-empty-description">
-						Run a query and the request will appear here. Click any
-						entry to restore its query, variables, and headers into
-						a new tab.
+						{__(
+							'Run a query and the request will appear here. Click any entry to restore its query, variables, and headers into a new tab.',
+							'wpgraphql-ide'
+						)}
 					</p>
 				</div>
 			</div>
@@ -109,6 +114,9 @@ function HistoryPanelContent() {
 			<ul className="wpgraphql-ide-history-list">
 				{history.map((entry) => {
 					const derived = deriveDocTitle(entry.query);
+					// `deriveDocTitle` returns the literal 'Untitled' fallback;
+					// matching the literal here is the contract — translation
+					// happens at display time below.
 					const label = derived === 'Untitled' ? null : derived;
 
 					return (
@@ -127,8 +135,14 @@ function HistoryPanelContent() {
 											src={avatarUrl}
 											alt={
 												entry.is_authenticated !== false
-													? 'Authenticated'
-													: 'Public'
+													? __(
+															'Authenticated',
+															'wpgraphql-ide'
+														)
+													: __(
+															'Public',
+															'wpgraphql-ide'
+														)
 											}
 											className={`wpgraphql-ide-history-avatar${entry.is_authenticated === false ? ' is-public' : ''}`}
 										/>
@@ -140,8 +154,8 @@ function HistoryPanelContent() {
 										className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
 									>
 										{entry.status === 'success'
-											? 'OK'
-											: 'ERR'}
+											? __('OK', 'wpgraphql-ide')
+											: __('ERR', 'wpgraphql-ide')}
 									</span>
 									<span className="wpgraphql-ide-history-duration">
 										{entry.duration_ms}ms
@@ -157,7 +171,11 @@ function HistoryPanelContent() {
 								</div>
 								<div className="wpgraphql-ide-history-entry-detail">
 									<span className="wpgraphql-ide-history-entry-label">
-										{label || 'Anonymous query'}
+										{label ||
+											__(
+												'Anonymous query',
+												'wpgraphql-ide'
+											)}
 									</span>
 									{entry.query && (
 										<span className="wpgraphql-ide-history-entry-preview">
@@ -176,23 +194,25 @@ function HistoryPanelContent() {
 					isDestructive
 					onClick={async () => {
 						const ok = await confirm({
-							title: 'Clear all history',
-							message:
+							title: __('Clear all history', 'wpgraphql-ide'),
+							message: __(
 								'This will remove every entry in your execution history. This cannot be undone.',
-							confirmLabel: 'Clear all',
+								'wpgraphql-ide'
+							),
+							confirmLabel: __('Clear all', 'wpgraphql-ide'),
 							isDestructive: true,
 						});
 						if (ok) {
 							clearAllHistory();
 							hooks.doAction(
 								'wpgraphql-ide.notice',
-								'History cleared'
+								__('History cleared', 'wpgraphql-ide')
 							);
 						}
 					}}
 					size="small"
 				>
-					Clear all
+					{__('Clear all', 'wpgraphql-ide')}
 				</Button>
 			</div>
 		</div>

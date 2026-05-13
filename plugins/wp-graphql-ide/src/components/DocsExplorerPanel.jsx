@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { Icon, arrowLeft, search } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -150,7 +151,10 @@ export function DocsExplorerPanel() {
 		return (
 			<div className="wpgraphql-ide-docs-panel">
 				<p className="wpgraphql-ide-docs-empty">
-					Schema not loaded. Click the refresh button to load it.
+					{__(
+						'Schema not loaded. Click the refresh button to load it.',
+						'wpgraphql-ide'
+					)}
 				</p>
 			</div>
 		);
@@ -176,7 +180,13 @@ export function DocsExplorerPanel() {
 		return (
 			<div className="wpgraphql-ide-docs-panel">
 				<BackButton onClick={goBack} />
-				<p>Type &quot;{current.name}&quot; not found.</p>
+				<p>
+					{sprintf(
+						/* translators: %s: name of the missing GraphQL type */
+						__('Type "%s" not found.', 'wpgraphql-ide'),
+						current.name
+					)}
+				</p>
 			</div>
 		);
 	}
@@ -205,7 +215,7 @@ function BackButton({ onClick }) {
 			size="small"
 		>
 			<Icon icon={arrowLeft} size={16} />
-			Back
+			{__('Back', 'wpgraphql-ide')}
 		</Button>
 	);
 }
@@ -275,7 +285,7 @@ function RootView({ schema, onSelectType, onSelectField }) {
 		<div className="wpgraphql-ide-docs-panel">
 			<div className="wpgraphql-ide-docs-section">
 				<div className="wpgraphql-ide-docs-section-title">
-					Root Types
+					{__('Root Types', 'wpgraphql-ide')}
 				</div>
 				{queryType && (
 					<TypeLink
@@ -300,20 +310,28 @@ function RootView({ schema, onSelectType, onSelectField }) {
 				)}
 			</div>
 			<div className="wpgraphql-ide-docs-section">
-				<div className="wpgraphql-ide-docs-section-title">Search</div>
+				<div className="wpgraphql-ide-docs-section-title">
+					{__('Search', 'wpgraphql-ide')}
+				</div>
 				<input
 					type="text"
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
-					placeholder="Search types and fields..."
-					aria-label="Search GraphQL schema types and fields"
+					placeholder={__(
+						'Search types and fields…',
+						'wpgraphql-ide'
+					)}
+					aria-label={__(
+						'Search GraphQL schema types and fields',
+						'wpgraphql-ide'
+					)}
 					className="wpgraphql-ide-docs-search"
 				/>
 
 				{trimmed && typeMatches.length > 0 && (
 					<div className="wpgraphql-ide-docs-search-group">
 						<div className="wpgraphql-ide-docs-search-group-title">
-							Types
+							{__('Types', 'wpgraphql-ide')}
 						</div>
 						{typeMatches.map((type) => (
 							<TypeLink
@@ -329,7 +347,7 @@ function RootView({ schema, onSelectType, onSelectField }) {
 				{trimmed && fieldMatches.length > 0 && (
 					<div className="wpgraphql-ide-docs-search-group">
 						<div className="wpgraphql-ide-docs-search-group-title">
-							Fields
+							{__('Fields', 'wpgraphql-ide')}
 						</div>
 						{fieldMatches.map(({ type, field }) => (
 							<button
@@ -362,7 +380,9 @@ function RootView({ schema, onSelectType, onSelectField }) {
 				{trimmed &&
 					typeMatches.length === 0 &&
 					fieldMatches.length === 0 && (
-						<p className="wpgraphql-ide-docs-empty">No results.</p>
+						<p className="wpgraphql-ide-docs-empty">
+							{__('No results.', 'wpgraphql-ide')}
+						</p>
 					)}
 			</div>
 		</div>
@@ -408,7 +428,7 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
 			{isEnumType(type) && (
 				<div className="wpgraphql-ide-docs-section">
 					<div className="wpgraphql-ide-docs-section-title">
-						Values
+						{__('Values', 'wpgraphql-ide')}
 					</div>
 					{type.getValues().map((val) => (
 						<div
@@ -429,7 +449,7 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
 			{isUnionType(type) && (
 				<div className="wpgraphql-ide-docs-section">
 					<div className="wpgraphql-ide-docs-section-title">
-						Possible Types
+						{__('Possible Types', 'wpgraphql-ide')}
 					</div>
 					{type.getTypes().map((t) => (
 						<TypeLink
@@ -455,7 +475,9 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
 function FieldsList({ fields, focusField, onSelectType }) {
 	return (
 		<div className="wpgraphql-ide-docs-section">
-			<div className="wpgraphql-ide-docs-section-title">Fields</div>
+			<div className="wpgraphql-ide-docs-section-title">
+				{__('Fields', 'wpgraphql-ide')}
+			</div>
 			{fields.map((field) => (
 				<FieldItem
 					key={field.name}
@@ -533,8 +555,16 @@ function FieldItem({ field, isFocused, onSelectType }) {
 					>
 						&#9656;
 					</span>
-					{field.args.length} argument
-					{field.args.length !== 1 ? 's' : ''}
+					{sprintf(
+						/* translators: %d: number of arguments for a GraphQL field */
+						_n(
+							'%d argument',
+							'%d arguments',
+							field.args.length,
+							'wpgraphql-ide'
+						),
+						field.args.length
+					)}
 				</button>
 			)}
 			{hasArgs && argsOpen && (
