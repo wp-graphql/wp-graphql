@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	Dropdown,
@@ -19,32 +20,57 @@ import { SignInPromptDialog } from '../dialogs/SignInPromptDialog';
 // snackbar replaces in place rather than stacking.
 const PLAY_RAPID_WINDOW_MS = 1500;
 const PLAY_NOTICE_ID = 'wpgraphql-ide-play-mash';
-const PLAY_MILESTONES = {
-	5: 'Whoa there, speedy. Tip: Cmd+Enter runs the query, no clicking required.',
-	10: 'GraphQL fan club, party of one. Tip: variables live in the Variables tab below the editor.',
-	15: 'Achievement unlocked: Excessive Curiosity. Tip: name your operations (`query GetPosts { ... }`) so the picker shows them.',
-	20: "OK now you're just showing off. Tip: switch HTTP method to GET on read-only queries so CDNs can cache them.",
-	30: 'Have you tried Cmd+Enter? Just saying. Tip: drafts auto-save as you type — no Cmd+S needed.',
-};
+// Built lazily so __() runs after wp.i18n is loaded.
+const getPlayMilestones = () => ({
+	5: __(
+		'Whoa there, speedy. Tip: Cmd+Enter runs the query, no clicking required.',
+		'wpgraphql-ide'
+	),
+	10: __(
+		'GraphQL fan club, party of one. Tip: variables live in the Variables tab below the editor.',
+		'wpgraphql-ide'
+	),
+	15: __(
+		'Achievement unlocked: Excessive Curiosity. Tip: name your operations (`query GetPosts { … }`) so the picker shows them.',
+		'wpgraphql-ide'
+	),
+	20: __(
+		"OK now you're just showing off. Tip: switch HTTP method to GET on read-only queries so CDNs can cache them.",
+		'wpgraphql-ide'
+	),
+	30: __(
+		'Have you tried Cmd+Enter? Just saying. Tip: drafts auto-save as you type — no Cmd+S needed.',
+		'wpgraphql-ide'
+	),
+});
 
 // Empty-query execute: replaces the server's "Unexpected EOF" with a
 // quip + insertable snippet. Cycles so repeat-testing sees variety.
 const EMPTY_QUERY_NOTICE_ID = 'wpgraphql-ide-empty-query-quip';
-const EMPTY_QUERY_QUIPS = [
+const getEmptyQueryQuips = () => [
 	{
-		content: 'An empty query. Try the smallest valid one:',
+		content: __(
+			'An empty query. Try the smallest valid one:',
+			'wpgraphql-ide'
+		),
 		insert: '{\n  __typename\n}\n',
 	},
 	{
-		content: 'Nothing? List every type the server exposes:',
+		content: __(
+			'Nothing? List every type the server exposes:',
+			'wpgraphql-ide'
+		),
 		insert: '{\n  __schema {\n    types {\n      name\n    }\n  }\n}\n',
 	},
 	{
-		content: 'WPGraphQL has more to offer — try a posts query:',
+		content: __(
+			'WPGraphQL has more to offer — try a posts query:',
+			'wpgraphql-ide'
+		),
 		insert: '{\n  posts {\n    nodes {\n      id\n      title\n    }\n  }\n}\n',
 	},
 	{
-		content: 'Inspect the schema\u2019s queryType:',
+		content: __('Inspect the schema\u2019s queryType:', 'wpgraphql-ide'),
 		insert: '{\n  __schema {\n    queryType {\n      name\n      fields {\n        name\n      }\n    }\n  }\n}\n',
 	},
 ];
@@ -168,19 +194,32 @@ export function ExecutionControls({
 	let authTooltip;
 	let authAriaLabel;
 	if (isSignInMode) {
-		authTooltip =
-			'Sending as public visitor — sign in for authenticated requests';
-		authAriaLabel =
-			'Sending as public visitor (sign in to send authenticated requests)';
+		authTooltip = __(
+			'Sending as public visitor — sign in for authenticated requests',
+			'wpgraphql-ide'
+		);
+		authAriaLabel = __(
+			'Sending as public visitor (sign in to send authenticated requests)',
+			'wpgraphql-ide'
+		);
 	} else if (isAuthenticated) {
-		authTooltip =
-			'Sending as authenticated user — click to send anonymously';
-		authAriaLabel =
-			'Send as authenticated user (click to switch to public)';
+		authTooltip = __(
+			'Sending as authenticated user — click to send anonymously',
+			'wpgraphql-ide'
+		);
+		authAriaLabel = __(
+			'Send as authenticated user (click to switch to public)',
+			'wpgraphql-ide'
+		);
 	} else {
-		authTooltip = 'Sending as public visitor — click to authenticate';
-		authAriaLabel =
-			'Send as public visitor (click to switch to authenticated)';
+		authTooltip = __(
+			'Sending as public visitor — click to authenticate',
+			'wpgraphql-ide'
+		);
+		authAriaLabel = __(
+			'Send as public visitor (click to switch to authenticated)',
+			'wpgraphql-ide'
+		);
 	}
 
 	// Multi-op documents promote the play button to an operation
@@ -200,10 +239,8 @@ export function ExecutionControls({
 			// the user gets an "Insert" snackbar instead of the server's
 			// "Unexpected EOF" syntax error.
 			if (!query || !query.trim()) {
-				const quip =
-					EMPTY_QUERY_QUIPS[
-						emptyQueryQuipIndex % EMPTY_QUERY_QUIPS.length
-					];
+				const quips = getEmptyQueryQuips();
+				const quip = quips[emptyQueryQuipIndex % quips.length];
 				emptyQueryQuipIndex += 1;
 				hooks.doAction(
 					'wpgraphql-ide.notice',
@@ -216,7 +253,7 @@ export function ExecutionControls({
 						explicitDismiss: true,
 						actions: [
 							{
-								label: 'Insert',
+								label: __('Insert', 'wpgraphql-ide'),
 								onClick: () => {
 									insertSnippetIntoEditor(quip.insert);
 									hooks.doAction(
@@ -240,7 +277,7 @@ export function ExecutionControls({
 			}
 			lastPlayAtRef.current = now;
 
-			const message = PLAY_MILESTONES[playCountRef.current];
+			const message = getPlayMilestones()[playCountRef.current];
 			if (message) {
 				hooks.doAction(
 					'wpgraphql-ide.notice',
@@ -259,7 +296,7 @@ export function ExecutionControls({
 			<Dropdown
 				popoverProps={{ placement: 'top-end' }}
 				renderToggle={({ isOpen, onToggle }) => (
-					<Tooltip text="HTTP method">
+					<Tooltip text={__('HTTP method', 'wpgraphql-ide')}>
 						<Button
 							onClick={onToggle}
 							aria-expanded={isOpen}
@@ -274,7 +311,7 @@ export function ExecutionControls({
 				)}
 				renderContent={({ onClose: closeMenu }) => (
 					<SelectMenuContent
-						label="HTTP method"
+						label={__('HTTP method', 'wpgraphql-ide')}
 						options={HTTP_METHODS.map((m) => ({
 							value: m,
 							label: m,
@@ -326,7 +363,12 @@ export function ExecutionControls({
 				<Dropdown
 					popoverProps={{ placement: 'top-end' }}
 					renderToggle={({ isOpen, onToggle }) => (
-						<Tooltip text="Execute (pick operation)">
+						<Tooltip
+							text={__(
+								'Execute (pick operation)',
+								'wpgraphql-ide'
+							)}
+						>
 							<Button
 								variant="primary"
 								onClick={onToggle}
@@ -334,7 +376,10 @@ export function ExecutionControls({
 								disabled={isSchemaLoading}
 								className="wpgraphql-ide-send-button"
 								size="compact"
-								aria-label="Execute query"
+								aria-label={__(
+									'Execute query',
+									'wpgraphql-ide'
+								)}
 							>
 								{PlayIcon}
 							</Button>
@@ -342,7 +387,9 @@ export function ExecutionControls({
 					)}
 					renderContent={({ onClose: closeMenu }) => (
 						<NavigableMenu>
-							<MenuGroup label="Run operation">
+							<MenuGroup
+								label={__('Run operation', 'wpgraphql-ide')}
+							>
 								{operationNames.map((name) => (
 									<MenuItem
 										key={name}
@@ -361,7 +408,9 @@ export function ExecutionControls({
 			) : (
 				<Tooltip
 					text={
-						isFetching ? 'Stop (Cmd+Enter)' : 'Execute (Cmd+Enter)'
+						isFetching
+							? __('Stop (Cmd+Enter)', 'wpgraphql-ide')
+							: __('Execute (Cmd+Enter)', 'wpgraphql-ide')
 					}
 				>
 					<Button
@@ -371,7 +420,9 @@ export function ExecutionControls({
 						className="wpgraphql-ide-send-button"
 						size="compact"
 						aria-label={
-							isFetching ? 'Stop execution' : 'Execute query'
+							isFetching
+								? __('Stop execution', 'wpgraphql-ide')
+								: __('Execute query', 'wpgraphql-ide')
 						}
 					>
 						{isFetching ? StopIcon : PlayIcon}

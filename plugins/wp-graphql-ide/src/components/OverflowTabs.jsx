@@ -5,6 +5,7 @@ import React, {
 	useCallback,
 	useEffect,
 } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 
@@ -227,9 +228,13 @@ function TabStrip({
 			{overflow.length > 0 && (
 				<DropdownMenu
 					icon={null}
-					label="More tabs"
+					label={__('More tabs', 'wpgraphql-ide')}
 					toggleProps={{
-						children: `+${overflow.length}`,
+						children: sprintf(
+							/* translators: %d: number of additional tabs hidden in the overflow menu */
+							__('+%d', 'wpgraphql-ide'),
+							overflow.length
+						),
 						className: 'wpgraphql-ide-tabs-overflow',
 					}}
 				>
@@ -375,7 +380,11 @@ export function OverflowTabs({
 					<button
 						type="button"
 						className="wpgraphql-ide-tab-collapsed-chevron"
-						aria-label={`Expand ${activeTab?.title || 'panel'}`}
+						aria-label={sprintf(
+							/* translators: %s: title of the currently active tab, or the fallback word "panel" when none is set */
+							__('Expand %s', 'wpgraphql-ide'),
+							activeTab?.title || __('panel', 'wpgraphql-ide')
+						)}
 						aria-expanded={false}
 						onClick={() => onExpand?.(effectiveActive)}
 					>
@@ -408,7 +417,7 @@ export function OverflowTabs({
 					<button
 						type="button"
 						className="wpgraphql-ide-tab-collapse-btn"
-						aria-label="Collapse panel"
+						aria-label={__('Collapse panel', 'wpgraphql-ide')}
 						aria-expanded
 						onClick={onCollapse}
 					>

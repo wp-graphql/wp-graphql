@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	DropdownMenu,
@@ -116,9 +117,13 @@ export function EditorPane({
 	const hasLeftPanel =
 		(hasComposer && showQueryComposer) || showDocSettingsPanel;
 
-	const queryPaneReporter = useResizeReporter('Query pane');
-	const editorAreaReporter = useResizeReporter('Editor');
-	const bottomToolsReporter = useResizeReporter('Variables / Headers');
+	const queryPaneReporter = useResizeReporter(
+		__('Query pane', 'wpgraphql-ide')
+	);
+	const editorAreaReporter = useResizeReporter(__('Editor', 'wpgraphql-ide'));
+	const bottomToolsReporter = useResizeReporter(
+		__('Variables / Headers', 'wpgraphql-ide')
+	);
 
 	const editorActions = useSelect(
 		(s) => s('wpgraphql-ide/editor-actions').editorActions(),
@@ -143,16 +148,16 @@ export function EditorPane({
 					<Tooltip
 						text={
 							showQueryComposer
-								? 'Hide Query Composer'
-								: 'Show Query Composer'
+								? __('Hide Query Composer', 'wpgraphql-ide')
+								: __('Show Query Composer', 'wpgraphql-ide')
 						}
 					>
 						<Button
 							onClick={toggleQueryComposer}
 							aria-label={
 								showQueryComposer
-									? 'Hide Query Composer'
-									: 'Show Query Composer'
+									? __('Hide Query Composer', 'wpgraphql-ide')
+									: __('Show Query Composer', 'wpgraphql-ide')
 							}
 							aria-pressed={showQueryComposer}
 							size="compact"
@@ -166,16 +171,22 @@ export function EditorPane({
 					<Tooltip
 						text={
 							showDocSettingsPanel
-								? 'Hide Document Settings'
-								: 'Show Document Settings'
+								? __('Hide Document Settings', 'wpgraphql-ide')
+								: __('Show Document Settings', 'wpgraphql-ide')
 						}
 					>
 						<Button
 							onClick={toggleDocSettingsPanel}
 							aria-label={
 								showDocSettingsPanel
-									? 'Hide Document Settings'
-									: 'Show Document Settings'
+									? __(
+											'Hide Document Settings',
+											'wpgraphql-ide'
+										)
+									: __(
+											'Show Document Settings',
+											'wpgraphql-ide'
+										)
 							}
 							aria-pressed={showDocSettingsPanel}
 							size="compact"
@@ -185,10 +196,12 @@ export function EditorPane({
 						</Button>
 					</Tooltip>
 				)}
-				<span className="wpgraphql-ide-editor-label">Query</span>
+				<span className="wpgraphql-ide-editor-label">
+					{__('Query', 'wpgraphql-ide')}
+				</span>
 				<DropdownMenu
 					icon={moreVertical}
-					label="Editor actions"
+					label={__('Editor actions', 'wpgraphql-ide')}
 					toggleProps={{
 						size: 'small',
 						className: 'wpgraphql-ide-panel-kebab',
@@ -293,7 +306,7 @@ export function EditorPane({
 									size="compact"
 									className={`wpgraphql-ide-save-button${canSave ? ' is-dirty' : ''}`}
 								>
-									Save draft
+									{__('Save draft', 'wpgraphql-ide')}
 								</Button>
 							);
 						})()}
@@ -301,7 +314,10 @@ export function EditorPane({
 							<Tooltip
 								text={
 									!parsedQuery.parseable
-										? 'Fix the syntax error to publish'
+										? __(
+												'Fix the syntax error to publish',
+												'wpgraphql-ide'
+											)
 										: ''
 								}
 							>
@@ -312,7 +328,7 @@ export function EditorPane({
 									variant="primary"
 									className="wpgraphql-ide-publish-button"
 								>
-									Publish
+									{__('Publish', 'wpgraphql-ide')}
 								</Button>
 							</Tooltip>
 						)}
@@ -326,26 +342,32 @@ export function EditorPane({
 			>
 				{hasComposer && showQueryComposer && (
 					<LeftPanel
-						title="Query Composer"
+						title={__('Query Composer', 'wpgraphql-ide')}
 						className="wpgraphql-ide-query-composer-inline"
 						width={composerWidth}
 						onResize={onSetComposerWidth}
 						minWidth={200}
 						onClose={onCloseLeftPanel}
-						closeLabel="Close Query Composer panel"
+						closeLabel={__(
+							'Close Query Composer panel',
+							'wpgraphql-ide'
+						)}
 					>
 						<ComposerContent />
 					</LeftPanel>
 				)}
 				{showDocSettingsPanel && docSettingsFields.length > 0 && (
 					<LeftPanel
-						title="Document Settings"
+						title={__('Document Settings', 'wpgraphql-ide')}
 						className="wpgraphql-ide-doc-settings-inline"
 						width={docSettingsPanelWidth}
 						onResize={onSetDocSettingsPanelWidth}
 						minWidth={240}
 						onClose={onCloseLeftPanel}
-						closeLabel="Close Document Settings panel"
+						closeLabel={__(
+							'Close Document Settings panel',
+							'wpgraphql-ide'
+						)}
 					>
 						<DocumentSettingsDrawer
 							fields={docSettingsFields}

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 const isPlainObject = (v) =>
 	v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -82,8 +83,22 @@ const TableCell = ({ value, onDrill }) => {
 				type="button"
 				onClick={onDrill}
 				className="wpgraphql-ide-table-cell-drill"
-				title={`Array[${value.length}] — click to narrow to this path`}
-				aria-label={`Array[${value.length}] — click to narrow to this path`}
+				title={sprintf(
+					/* translators: %d: length of the JSON array — clicking drills into it */
+					__(
+						'Array[%d] — click to narrow to this path',
+						'wpgraphql-ide'
+					),
+					value.length
+				)}
+				aria-label={sprintf(
+					/* translators: %d: length of the JSON array — clicking drills into it */
+					__(
+						'Array[%d] — click to narrow to this path',
+						'wpgraphql-ide'
+					),
+					value.length
+				)}
 			>
 				[{value.length}]
 			</button>
@@ -94,8 +109,11 @@ const TableCell = ({ value, onDrill }) => {
 			type="button"
 			onClick={onDrill}
 			className="wpgraphql-ide-table-cell-drill"
-			title="Object — click to narrow to this path"
-			aria-label="Object — click to narrow to this path"
+			title={__('Object — click to narrow to this path', 'wpgraphql-ide')}
+			aria-label={__(
+				'Object — click to narrow to this path',
+				'wpgraphql-ide'
+			)}
 		>
 			{'{'}
 			{Object.keys(value).length}
@@ -105,13 +123,16 @@ const TableCell = ({ value, onDrill }) => {
 };
 
 const Breadcrumb = ({ path, onNavigate }) => (
-	<nav className="wpgraphql-ide-table-breadcrumb" aria-label="Response path">
+	<nav
+		className="wpgraphql-ide-table-breadcrumb"
+		aria-label={__('Response path', 'wpgraphql-ide')}
+	>
 		<button
 			type="button"
 			className={`wpgraphql-ide-table-crumb${path.length === 0 ? ' is-current' : ''}`}
 			onClick={() => onNavigate([])}
 		>
-			Root
+			{__('Root', 'wpgraphql-ide')}
 		</button>
 		{path.map((seg, i) => {
 			const isLast = i === path.length - 1;
@@ -322,8 +343,14 @@ const TreeView = ({ value, path, onNavigate }) => {
 							type="button"
 							className="wpgraphql-ide-tree-section-header"
 							onClick={() => onNavigate([...path, key])}
-							title="Click to narrow to this path"
-							aria-label="Click to narrow to this path"
+							title={__(
+								'Click to narrow to this path',
+								'wpgraphql-ide'
+							)}
+							aria-label={__(
+								'Click to narrow to this path',
+								'wpgraphql-ide'
+							)}
 						>
 							{key}
 						</button>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/components';
 import { Icon, close, edit, sidebar } from '@wordpress/icons';
 
@@ -27,12 +28,18 @@ export function IDETopbar({
 			<div className="wpgraphql-ide-topbar-left">
 				<Tooltip
 					placement="right"
-					text={visiblePanel ? 'Collapse sidebar' : 'Expand sidebar'}
+					text={
+						visiblePanel
+							? __('Collapse sidebar', 'wpgraphql-ide')
+							: __('Expand sidebar', 'wpgraphql-ide')
+					}
 				>
 					<Button
 						onClick={onSidebarToggle}
 						aria-label={
-							visiblePanel ? 'Collapse sidebar' : 'Expand sidebar'
+							visiblePanel
+								? __('Collapse sidebar', 'wpgraphql-ide')
+								: __('Expand sidebar', 'wpgraphql-ide')
 						}
 						size="compact"
 						className={`wpgraphql-ide-topbar-btn${visiblePanel ? ' is-active' : ''}`}
@@ -42,6 +49,9 @@ export function IDETopbar({
 				</Tooltip>
 			</div>
 			<div className="wpgraphql-ide-topbar-center">
+				{/* WPGraphQL is a proper noun / product name; intentionally not
+				    translated so screenshots and docs stay consistent across
+				    locales. */}
 				<span className="wpgraphql-ide-topbar-title">WPGraphQL</span>
 			</div>
 			<div className="wpgraphql-ide-topbar-right">
@@ -85,10 +95,10 @@ export function IDETopbar({
 				{onClose && (
 					<>
 						<div className="wpgraphql-ide-topbar-sep" />
-						<Tooltip text="Close">
+						<Tooltip text={__('Close', 'wpgraphql-ide')}>
 							<Button
 								onClick={onClose}
-								aria-label="Close"
+								aria-label={__('Close', 'wpgraphql-ide')}
 								size="compact"
 								className="wpgraphql-ide-topbar-btn"
 							>

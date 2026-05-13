@@ -1,4 +1,5 @@
 import React, { useRef, useState, useLayoutEffect, useCallback } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -267,7 +268,10 @@ export function DocumentTabs({
 							{tab.dirty && (
 								<span
 									className="wpgraphql-ide-tab-dirty"
-									aria-label="Unsaved changes"
+									aria-label={__(
+										'Unsaved changes',
+										'wpgraphql-ide'
+									)}
 									role="img"
 								/>
 							)}
@@ -284,12 +288,16 @@ export function DocumentTabs({
 								>
 									{editingId === tab.id
 										? editValue || ' '
-										: tab.title || 'Untitled'}
+										: tab.title ||
+											__('Untitled', 'wpgraphql-ide')}
 								</span>
 								{editingId === tab.id && (
 									<RenameInput
 										className="wpgraphql-ide-tab-input"
-										ariaLabel="Rename document"
+										ariaLabel={__(
+											'Rename document',
+											'wpgraphql-ide'
+										)}
 										value={editValue}
 										onChange={setEditValue}
 										onCommit={(trimmed) => {
@@ -332,7 +340,12 @@ export function DocumentTabs({
 											onClose(String(tab.id));
 										}
 									}}
-									aria-label={`Close ${tab.title || 'Untitled'}`}
+									aria-label={sprintf(
+										/* translators: %s: document title (or "Untitled" fallback) */
+										__('Close %s', 'wpgraphql-ide'),
+										tab.title ||
+											__('Untitled', 'wpgraphql-ide')
+									)}
 								>
 									&times;
 								</span>
@@ -345,9 +358,13 @@ export function DocumentTabs({
 			{overflowTabs.length > 0 && (
 				<DropdownMenu
 					icon={null}
-					label="More tabs"
+					label={__('More tabs', 'wpgraphql-ide')}
 					toggleProps={{
-						children: `+${overflowTabs.length}`,
+						children: sprintf(
+							/* translators: %d: number of additional document tabs hidden in the overflow menu */
+							__('+%d', 'wpgraphql-ide'),
+							overflowTabs.length
+						),
 						className: 'wpgraphql-ide-tab-overflow',
 						size: 'compact',
 					}}
@@ -369,14 +386,23 @@ export function DocumentTabs({
 												onClose(String(tab.id));
 												closeMenu();
 											}}
-											aria-label={`Close ${tab.title || 'Untitled'}`}
+											aria-label={sprintf(
+												/* translators: %s: document title (or "Untitled" fallback) */
+												__('Close %s', 'wpgraphql-ide'),
+												tab.title ||
+													__(
+														'Untitled',
+														'wpgraphql-ide'
+													)
+											)}
 											className="wpgraphql-ide-overflow-close"
 										>
 											&times;
 										</Button>
 									}
 								>
-									{tab.title || 'Untitled'}
+									{tab.title ||
+										__('Untitled', 'wpgraphql-ide')}
 								</MenuItem>
 							))}
 						</MenuGroup>
@@ -384,11 +410,11 @@ export function DocumentTabs({
 				</DropdownMenu>
 			)}
 
-			<Tooltip text="New document">
+			<Tooltip text={__('New document', 'wpgraphql-ide')}>
 				<Button
 					className="wpgraphql-ide-tab-add"
 					onClick={onCreate}
-					aria-label="New document"
+					aria-label={__('New document', 'wpgraphql-ide')}
 					size="compact"
 				>
 					<Icon icon={plus} size={16} />
@@ -398,7 +424,7 @@ export function DocumentTabs({
 			{tabs.length > 0 && (
 				<DropdownMenu
 					icon={moreVertical}
-					label="Tab actions"
+					label={__('Tab actions', 'wpgraphql-ide')}
 					toggleProps={{
 						className: 'wpgraphql-ide-tab-kebab',
 						size: 'compact',

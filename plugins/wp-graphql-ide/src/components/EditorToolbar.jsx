@@ -1,12 +1,16 @@
 import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { MenuItem } from '@wordpress/components';
 
-const BUTTON_NOTICES = {
-	prettify: 'Query prettified',
-	share: 'Shareable link copied to clipboard',
-	'merge-fragments': 'Fragments merged',
-	'copy-query': 'Query copied to clipboard',
-};
+// Built lazily so __() runs after wp.i18n is loaded. Notice strings
+// are keyed by built-in button name; extension buttons can supply
+// their own notice via the onClick handler.
+const getButtonNotices = () => ({
+	prettify: __('Query prettified', 'wpgraphql-ide'),
+	share: __('Shareable link copied to clipboard', 'wpgraphql-ide'),
+	'merge-fragments': __('Fragments merged', 'wpgraphql-ide'),
+	'copy-query': __('Query copied to clipboard', 'wpgraphql-ide'),
+});
 
 export const EditorToolbar = ({ onClose, onNotice, hideMutating = false }) => {
 	const buttons = useSelect((select) =>
@@ -38,8 +42,9 @@ export const EditorToolbar = ({ onClose, onNotice, hideMutating = false }) => {
 								onClose();
 							}
 							props.onClick();
-							if (onNotice && BUTTON_NOTICES[buttonName]) {
-								onNotice(BUTTON_NOTICES[buttonName]);
+							const notices = getButtonNotices();
+							if (onNotice && notices[buttonName]) {
+								onNotice(notices[buttonName]);
 							}
 						}}
 						aria-label={props.label}

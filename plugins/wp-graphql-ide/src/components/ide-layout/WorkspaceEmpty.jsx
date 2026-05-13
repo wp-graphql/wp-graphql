@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Empty-state surface shown in the editor area when no tabs are open.
@@ -22,10 +23,14 @@ export function WorkspaceEmpty() {
 					fill="currentColor"
 				/>
 			</svg>
-			<h3 className="wpgraphql-ide-empty-title">No queries open</h3>
+			<h3 className="wpgraphql-ide-empty-title">
+				{__('No queries open', 'wpgraphql-ide')}
+			</h3>
 			<p className="wpgraphql-ide-empty-description">
-				Click the + button to start a new query, or open one from Saved
-				Queries.
+				{__(
+					'Click the + button to start a new query, or open one from Saved Queries.',
+					'wpgraphql-ide'
+				)}
 			</p>
 		</div>
 	);

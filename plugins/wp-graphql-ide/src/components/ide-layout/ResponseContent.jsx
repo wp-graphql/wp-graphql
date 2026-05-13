@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { __ } from '@wordpress/i18n';
 import { ResizableBox } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useResizeReporter } from '../ResizeOverlay';
@@ -97,7 +98,12 @@ export function ResponseContent({
 			return { name: `ext:${t.name}`, title };
 		}),
 		...(showUnregisteredFallback
-			? [{ name: 'extensions:unregistered', title: 'Extensions' }]
+			? [
+					{
+						name: 'extensions:unregistered',
+						title: __('Extensions', 'wpgraphql-ide'),
+					},
+				]
 			: []),
 	];
 
@@ -120,8 +126,10 @@ export function ResponseContent({
 		return response;
 	}, [response, responseDataScope, parsed]);
 
-	const reporter = useResizeReporter('Response viewer');
-	const tabsReporter = useResizeReporter('Response tabs');
+	const reporter = useResizeReporter(__('Response viewer', 'wpgraphql-ide'));
+	const tabsReporter = useResizeReporter(
+		__('Response tabs', 'wpgraphql-ide')
+	);
 
 	const viewModes = useSelect(
 		(s) => s('wpgraphql-ide/response-view-modes').responseViewModes(),
@@ -151,10 +159,13 @@ export function ResponseContent({
 				<div className="wpgraphql-ide-response-empty">
 					<div className="wpgraphql-ide-response-empty-hint">
 						<h3 className="wpgraphql-ide-response-empty-title">
-							No response yet
+							{__('No response yet', 'wpgraphql-ide')}
 						</h3>
 						<p className="wpgraphql-ide-response-empty-description">
-							Run a query to see results here.
+							{__(
+								'Run a query to see results here.',
+								'wpgraphql-ide'
+							)}
 						</p>
 					</div>
 				</div>

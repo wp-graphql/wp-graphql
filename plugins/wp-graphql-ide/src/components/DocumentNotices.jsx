@@ -1,4 +1,6 @@
 import React, { useState, useCallback } from 'react';
+import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
 import { Button, Notice } from '@wordpress/components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { useDispatch } from '@wordpress/data';
@@ -98,8 +100,14 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 					aria-controls="wpgraphql-ide-document-notice-detail"
 					aria-label={
 						collapsed
-							? 'Show details about read-only queries'
-							: 'Hide details about read-only queries'
+							? __(
+									'Show details about read-only queries',
+									'wpgraphql-ide'
+								)
+							: __(
+									'Hide details about read-only queries',
+									'wpgraphql-ide'
+								)
 					}
 					onClick={toggle}
 					onKeyDown={(e) => {
@@ -110,7 +118,10 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 					}}
 				>
 					<span className="wpgraphql-ide-document-notice-summary">
-						This query is published and read-only.
+						{__(
+							'This query is published and read-only.',
+							'wpgraphql-ide'
+						)}
 						{onDuplicate && (
 							<>
 								{' '}
@@ -122,9 +133,9 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 									}}
 									className="wpgraphql-ide-document-notice-link"
 								>
-									Duplicate as draft
+									{__('Duplicate as draft', 'wpgraphql-ide')}
 								</Button>{' '}
-								to keep iterating.
+								{__('to keep iterating.', 'wpgraphql-ide')}
 							</>
 						)}
 					</span>
@@ -141,16 +152,19 @@ export function DocumentNotices({ isPublished, onDuplicate }) {
 						className="wpgraphql-ide-document-notice-detail"
 					>
 						<p>
-							Other apps — mobile clients, persisted-query caches,
-							automation — reference this query by its stable ID.
-							Editing it would change the ID and silently break
-							them.
+							{__(
+								'Other apps — mobile clients, persisted-query caches, automation — reference this query by its stable ID. Editing it would change the ID and silently break them.',
+								'wpgraphql-ide'
+							)}
 						</p>
 						<p>
-							<strong>Duplicate as draft</strong> creates an
-							editable copy. Publishing the copy produces a new,
-							separate ID, so consumers can adopt it on their own
-							schedule.
+							{createInterpolateElement(
+								__(
+									'<strong>Duplicate as draft</strong> creates an editable copy. Publishing the copy produces a new, separate ID, so consumers can adopt it on their own schedule.',
+									'wpgraphql-ide'
+								),
+								{ strong: <strong /> }
+							)}
 						</p>
 					</div>
 				)}

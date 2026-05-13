@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -100,10 +101,12 @@ export function ResponsePane({
 	return (
 		<div className="wpgraphql-ide-response-pane">
 			<div className="wpgraphql-ide-response-header">
-				<span className="wpgraphql-ide-response-label">Response</span>
+				<span className="wpgraphql-ide-response-label">
+					{__('Response', 'wpgraphql-ide')}
+				</span>
 				<DropdownMenu
 					icon={moreVertical}
-					label="Response options"
+					label={__('Response options', 'wpgraphql-ide')}
 					toggleProps={{
 						size: 'small',
 						className: 'wpgraphql-ide-panel-kebab',
@@ -197,7 +200,7 @@ export function ResponsePane({
 				<div
 					className="wpgraphql-ide-response-mode-toggle"
 					role="group"
-					aria-label="View format"
+					aria-label={__('View format', 'wpgraphql-ide')}
 				>
 					{viewModes.map((mode) => (
 						<button
