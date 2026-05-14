@@ -30,7 +30,10 @@ const META_PREFIX = 'wpgraphql_ide_';
 const USER_ENDPOINT = '/wp/v2/users/me';
 const STORAGE_VERSION = 'v1';
 
-const SCOPES = Object.freeze({
+// Built-in preference scope map. Plugins extend this at runtime via
+// `registerPreference`. Frozen so direct mutation of the seed map is
+// rejected; the live registry below is a Map so it stays mutable.
+const BUILT_IN_SCOPES = Object.freeze({
 	// Device-scoped UI chrome.
 	response_view_mode: 'device',
 	response_tab_order: 'device',
@@ -54,11 +57,112 @@ const SCOPES = Object.freeze({
 });
 
 /**
+ * Public constants for the built-in preference keys. Use these instead
+ * of bare string literals at callsites — typos become compile-time
+ * errors, autocomplete works, and a future rename is a single edit
+ * here rather than a grep-and-pray sweep.
+ *
+ * Plugins registering their own prefs add to the `WPGraphQLIDE.PreferenceKeys`
+ * surface at runtime via `registerPreference`; this constant only covers
+ * the built-ins.
+ */
+export const PREFERENCE_KEYS = Object.freeze({
+	// Device-scoped UI chrome.
+	RESPONSE_VIEW_MODE: 'response_view_mode',
+	RESPONSE_TAB_ORDER: 'response_tab_order',
+	PANEL_ORDER: 'panel_order',
+	LEFT_PANEL: 'left_panel',
+	OPEN_TABS: 'open_tabs',
+	ACTIVE_TAB: 'active_tab',
+	VISIBLE_PANEL: 'visible_panel',
+	EDITOR_BOTTOM_COLLAPSED: 'editor_bottom_collapsed',
+	EDITOR_BOTTOM_ACTIVE_TAB: 'editor_bottom_active_tab',
+	RESPONSE_BOTTOM_COLLAPSED: 'response_bottom_collapsed',
+	RESPONSE_BOTTOM_ACTIVE_TAB: 'response_bottom_active_tab',
+
+	// User-scoped, identity-bound.
+	PERSONAL_COLLECTIONS: 'personal_collections',
+	COLLECTION_SORT_MODES: 'collection_sort_modes',
+	COLLECTION_ORDER: 'collection_order',
+	SEEN_SHARED_COLLECTIONS: 'seen_shared_collections',
+	COLLAPSED_NOTICES: 'collapsed_notices',
+	SECTION_STATES: 'section_states',
+});
+
+// Mutable runtime registry — seeded with the built-ins, extended by
+// plugins. Using a Map so iteration order is insertion order and
+// `Object.freeze` semantics on `BUILT_IN_SCOPES` stay intact.
+const scopeRegistry = new Map(Object.entries(BUILT_IN_SCOPES));
+
+/**
+ * Register a preference key so {@link setPreference}, {@link getPreference},
+ * and {@link readDevicePreference} know where it lives. Safe to call any
+ * time; re-registering the same key with a different scope overwrites the
+ * previous mapping (intended — lets a host change its mind without a
+ * page reload).
+ *
+ * @since x-release-please-version
+ *
+ * **Key format.** `device`-scope keys can be any non-empty string —
+ * they live in localStorage and aren't constrained. `user`-scope keys
+ * are serialized into WordPress user-meta and must match the WP meta
+ * key format: start with `[A-Za-z_]` and contain only `[A-Za-z0-9_]`.
+ * Recommended convention for both is `my_plugin_setting_name` so a
+ * pref can move between scopes without renaming.
+ *
+ * @param {string}            key          Preference key. Plugins should
+ *                                         prefix with a short plugin
+ *                                         identifier (`my_plugin_*`) to
+ *                                         avoid colliding with built-ins
+ *                                         or other extensions.
+ * @param {Object}            config       Registration config.
+ * @param {'device' | 'user'} config.scope
+ *                                         `'device'` — localStorage on this browser/render-context. Cheap,
+ *                                         works for anonymous endpoint visitors. Good for UI chrome.
+ *                                         `'user'` — server user-meta via REST. Logged-in only, cross-device.
+ *                                         Reserved for identity-bound data.
+ *
+ * @return {void}
+ */
+export function registerPreference(key, config) {
+	if (typeof key !== 'string' || key === '') {
+		// eslint-disable-next-line no-console
+		console.error(
+			'registerPreference: a non-empty string key is required.'
+		);
+		return;
+	}
+	const scope = config?.scope;
+	if (scope !== 'device' && scope !== 'user') {
+		// eslint-disable-next-line no-console
+		console.error(
+			`registerPreference: "${key}" requires { scope: 'device' | 'user' }; got ${JSON.stringify(scope)}.`
+		);
+		return;
+	}
+	scopeRegistry.set(key, scope);
+}
+
+/**
  * @param {string} key
  * @return {'device' | 'user'}
  */
 export function scopeOf(key) {
-	return SCOPES[key] || 'user';
+	return scopeRegistry.get(key) || 'user';
+}
+
+/**
+ * Whether a key has been explicitly registered (via the built-in seed
+ * or {@link registerPreference}). Useful for "did I typo this?" checks
+ * in dev builds. Unregistered keys still work — they fall through to
+ * the `'user'` default in {@link scopeOf} — but production code should
+ * register every key it uses.
+ *
+ * @param {string} key
+ * @return {boolean}
+ */
+export function isPreferenceRegistered(key) {
+	return scopeRegistry.has(key);
 }
 
 function deviceStorageKey() {

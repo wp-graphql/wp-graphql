@@ -4,6 +4,9 @@ import {
 	getPreference,
 	setPreference,
 	getPreferences,
+	registerPreference,
+	isPreferenceRegistered,
+	PREFERENCE_KEYS,
 } from '../../../../src/api/preferences';
 
 jest.mock('@wordpress/api-fetch');
@@ -188,6 +191,123 @@ describe('preferences adapter', () => {
 				'not-json'
 			);
 			expect(readDevicePreference('left_panel')).toBeUndefined();
+		});
+	});
+
+	describe('registerPreference / extension surface', () => {
+		// The runtime scope registry is module-level state — tests below
+		// register namespaced plugin keys that won't collide with built-ins
+		// or each other. (The registry is monotonic: once a key is
+		// registered for a scope it stays in the map for the rest of the
+		// test process. Tests assert behavior, not identity.)
+
+		it('exposes PREFERENCE_KEYS constants for every built-in', () => {
+			// Sanity: the constants object covers the 17 built-in keys
+			// that drive UI chrome + user-meta state. If a built-in is
+			// renamed, this test reminds us to update the constant.
+			expect(PREFERENCE_KEYS.RESPONSE_VIEW_MODE).toBe(
+				'response_view_mode'
+			);
+			expect(PREFERENCE_KEYS.PERSONAL_COLLECTIONS).toBe(
+				'personal_collections'
+			);
+			expect(PREFERENCE_KEYS.OPEN_TABS).toBe('open_tabs');
+			expect(Object.isFrozen(PREFERENCE_KEYS)).toBe(true);
+		});
+
+		it('treats built-ins as registered', () => {
+			expect(isPreferenceRegistered('response_view_mode')).toBe(true);
+			expect(isPreferenceRegistered('personal_collections')).toBe(true);
+		});
+
+		it('treats unknown keys as unregistered', () => {
+			expect(isPreferenceRegistered('totally-not-a-real-key')).toBe(
+				false
+			);
+		});
+
+		it('lets plugins register a device-scoped key', () => {
+			registerPreference('test-plugin/device-key', {
+				scope: 'device',
+			});
+			expect(scopeOf('test-plugin/device-key')).toBe('device');
+			expect(isPreferenceRegistered('test-plugin/device-key')).toBe(true);
+		});
+
+		it('lets plugins register a user-scoped key', () => {
+			registerPreference('test-plugin/user-key', { scope: 'user' });
+			expect(scopeOf('test-plugin/user-key')).toBe('user');
+		});
+
+		it('routes a registered device pref to localStorage', async () => {
+			registerPreference('test-plugin/device-routed', {
+				scope: 'device',
+			});
+
+			await setPreference('test-plugin/device-routed', 42);
+
+			// Server adapter should not be called for device-scoped keys.
+			expect(apiFetch).not.toHaveBeenCalled();
+			expect(readDevicePreference('test-plugin/device-routed')).toBe(42);
+		});
+
+		it('routes a registered user pref to the server', async () => {
+			// User-scope keys hit WP user-meta, which has a tighter
+			// key format than localStorage. Stick to [a-z0-9_] for
+			// the bare key portion — see the registerPreference docblock.
+			registerPreference('test_plugin_user_routed', {
+				scope: 'user',
+			});
+			apiFetch.mockResolvedValueOnce({});
+
+			await setPreference('test_plugin_user_routed', 'hello');
+
+			expect(apiFetch).toHaveBeenCalledWith(
+				expect.objectContaining({
+					path: '/wp/v2/users/me',
+					method: 'POST',
+					data: {
+						meta: {
+							wpgraphql_ide_test_plugin_user_routed: 'hello',
+						},
+					},
+				})
+			);
+		});
+
+		it('lets a host re-register an existing key with a new scope', () => {
+			registerPreference('test-plugin/mutable', { scope: 'device' });
+			expect(scopeOf('test-plugin/mutable')).toBe('device');
+
+			registerPreference('test-plugin/mutable', { scope: 'user' });
+			expect(scopeOf('test-plugin/mutable')).toBe('user');
+		});
+
+		it('logs and ignores invalid scope values', () => {
+			const errorSpy = jest
+				.spyOn(console, 'error')
+				.mockImplementation(() => {});
+
+			registerPreference('test-plugin/bad-scope', {
+				scope: 'cloud',
+			});
+
+			expect(errorSpy).toHaveBeenCalled();
+			expect(isPreferenceRegistered('test-plugin/bad-scope')).toBe(false);
+			errorSpy.mockRestore();
+		});
+
+		it('logs and ignores empty / non-string keys', () => {
+			const errorSpy = jest
+				.spyOn(console, 'error')
+				.mockImplementation(() => {});
+
+			registerPreference('', { scope: 'device' });
+			registerPreference(null, { scope: 'device' });
+			registerPreference(42, { scope: 'device' });
+
+			expect(errorSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
+			errorSpy.mockRestore();
 		});
 	});
 });

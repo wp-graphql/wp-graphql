@@ -107,6 +107,7 @@ Each access function in `ACCESS_FUNCTIONS.md` fires one of these hooks on succes
 | `registerDocumentTabAction` | `wpgraphql-ide.afterRegisterDocumentTabAction` | `wpgraphql-ide.registerDocumentTabActionError` | `name, config, priority [, error]` |
 | `registerWorkspaceTabType` | `wpgraphql-ide.afterRegisterWorkspaceTabType` | _(no paired error hook — failures log to `console.error` only)_ | `name, config` |
 | `registerTopbarAction` | `wpgraphql-ide.afterRegisterTopbarAction` | _(no paired error hook — failures log to `console.error` only)_ | `name, config, priority` |
+| `registerPreference` | `wpgraphql-ide.afterRegisterPreference` | `wpgraphql-ide.registerPreferenceError` | `key, config [, error]` |
 
 ### Notices
 

@@ -1,5 +1,93 @@
 import hooks from './wordpress-hooks';
 import { dispatch, select } from '@wordpress/data';
+import {
+	registerPreference as registerPreferenceImpl,
+	setPreference as setPreferenceImpl,
+	getPreference as getPreferenceImpl,
+	readDevicePreference as readDevicePreferenceImpl,
+	PREFERENCE_KEYS,
+} from './api/preferences';
+
+export { PREFERENCE_KEYS };
+
+/**
+ * Register a preference key so the IDE knows where to persist it.
+ *
+ * Plugins use this to declare their own prefs and pick whether each
+ * lives in localStorage (`scope: 'device'` — cheap, anon-friendly) or
+ * server user-meta (`scope: 'user'` — cross-device, logged-in only).
+ * Once registered, the same `setPreference` / `getPreference` calls
+ * the IDE uses for its built-ins do the right thing for your key.
+ *
+ * Plugins should prefix their keys with a short plugin identifier
+ * (`'my_plugin_sidebar_width'`, not `'sidebar_width'`) to avoid
+ * collision with built-ins or other extensions. `user`-scope keys
+ * must match the WP user-meta format (`[A-Za-z_][A-Za-z0-9_]*`);
+ * `device`-scope keys can be any string but the same convention is
+ * recommended so a pref can move between scopes without renaming.
+ *
+ * Hooks fired:
+ *
+ * - `wpgraphql-ide.afterRegisterPreference` on success
+ * - `wpgraphql-ide.registerPreferenceError` on failure
+ *
+ * @param {string}            key
+ * @param {Object}            config
+ * @param {'device' | 'user'} config.scope
+ *
+ * @return {void}
+ */
+export function registerPreference(key, config) {
+	try {
+		registerPreferenceImpl(key, config);
+		hooks.doAction('wpgraphql-ide.afterRegisterPreference', key, config);
+	} catch (error) {
+		console.error(`Failed to register preference: ${key}`, error);
+		hooks.doAction(
+			'wpgraphql-ide.registerPreferenceError',
+			key,
+			config,
+			error
+		);
+	}
+}
+
+/**
+ * Read a single preference value. Routes by registered scope.
+ *
+ * Returns a Promise — `user`-scoped reads round-trip through REST.
+ * For sync-only paths (lazy useState init, etc.) use
+ * {@link readDevicePreference} which is sync but only returns
+ * `device`-scope values.
+ *
+ * @param {string} key
+ * @return {Promise<*>}
+ */
+export function getPreference(key) {
+	return getPreferenceImpl(key);
+}
+
+/**
+ * Synchronous read for `device`-scope preferences. Returns `undefined`
+ * for `user`-scope keys (those require a server round-trip).
+ *
+ * @param {string} key
+ * @return {*}
+ */
+export function readDevicePreference(key) {
+	return readDevicePreferenceImpl(key);
+}
+
+/**
+ * Write a single preference value. Routes by registered scope.
+ *
+ * @param {string} key
+ * @param {*}      value
+ * @return {Promise<*>}
+ */
+export function setPreference(key, value) {
+	return setPreferenceImpl(key, value);
+}
 
 /**
  * Public function to register a new editor toolbar button.

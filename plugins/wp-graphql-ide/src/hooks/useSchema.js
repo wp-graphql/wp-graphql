@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 
@@ -42,12 +43,19 @@ export function useSchema(fetcher) {
 			const result = hasEnvelope ? fetcherReturn.result : fetcherReturn;
 
 			if (result?.errors?.length) {
+				// Errors surface to the user via the Refresh Schema notice
+				// (see registry/index.js), so they need translation. Server
+				// error messages pass through verbatim — they're a transport
+				// detail not under our control.
 				throw new Error(
-					result.errors[0].message || 'Introspection returned errors.'
+					result.errors[0].message ||
+						__('Introspection returned errors.', 'wpgraphql-ide')
 				);
 			}
 			if (!result?.data) {
-				throw new Error('Introspection returned no data.');
+				throw new Error(
+					__('Introspection returned no data.', 'wpgraphql-ide')
+				);
 			}
 
 			setSchema(buildClientSchema(result.data));

@@ -6,6 +6,69 @@ All access functions are available on `window.WPGraphQLIDE` after the `WPGraphQL
 
 > **Backward compatibility.** Each access function below is part of the IDE's public API. Signatures and config shapes will only change with a major version bump (and a corresponding entry in `CHANGELOG.md`).
 
+## registerPreference
+
+Declare a preference key so the IDE knows where to persist it. Plugins use this to add their own settings to the same scope-aware persistence the IDE's built-in prefs use — no separate REST endpoint or localStorage scheme required.
+
+Two scopes:
+
+- `'device'` — localStorage on the current browser / render context. Cheap, anonymous-friendly, lost on cache clear. Right for UI chrome (panel widths, last-open tab, view modes, etc.).
+- `'user'` — server user-meta via `/wp/v2/users/me`. Cross-device for the logged-in user; doesn't work for anonymous endpoint visitors. Right for identity-bound data.
+
+Once registered, the same `setPreference(key, value)` / `getPreference(key)` / `readDevicePreference(key)` calls the IDE uses for its own prefs route to the right backing store automatically.
+
+**Parameters:**
+
+- `key` (string): Preference key. Plugins should prefix with a short plugin identifier (`'my_plugin_sidebar_width'`, not `'sidebar_width'`).
+- `config` (Object):
+  - `scope` (`'device' | 'user'`): Where to persist.
+
+**Key format:**
+
+- `device`-scope keys can be any non-empty string.
+- `user`-scope keys are serialized into WP user-meta and must match `[A-Za-z_][A-Za-z0-9_]*`. Recommended convention: stick to `[a-z0-9_]` for both scopes so a pref can move between them without renaming.
+
+**Hooks fired:**
+
+- `wpgraphql-ide.afterRegisterPreference` on success. Args: `key, config`.
+- `wpgraphql-ide.registerPreferenceError` on failure. Args: `key, config, error`.
+
+**Example:**
+
+```js
+const { registerPreference, setPreference, getPreference } = window.WPGraphQLIDE;
+
+// Device-scope: instant, anonymous-friendly.
+registerPreference('my_plugin_sidebar_width', { scope: 'device' });
+await setPreference('my_plugin_sidebar_width', 240);
+
+// User-scope: server-persisted, cross-device.
+registerPreference('my_plugin_default_view', { scope: 'user' });
+await setPreference('my_plugin_default_view', 'compact');
+const view = await getPreference('my_plugin_default_view');
+```
+
+### Constants: `PREFERENCE_KEYS`
+
+The built-in preference keys are also exported as a frozen constants object on `window.WPGraphQLIDE.PREFERENCE_KEYS` — use these instead of bare string literals at callsites so typos become obvious and a future rename is a single edit.
+
+```js
+const { PREFERENCE_KEYS, setPreference } = window.WPGraphQLIDE;
+await setPreference(PREFERENCE_KEYS.RESPONSE_VIEW_MODE, 'formatted');
+```
+
+Available constants: `RESPONSE_VIEW_MODE`, `RESPONSE_TAB_ORDER`, `PANEL_ORDER`, `LEFT_PANEL`, `OPEN_TABS`, `ACTIVE_TAB`, `VISIBLE_PANEL`, `EDITOR_BOTTOM_COLLAPSED`, `EDITOR_BOTTOM_ACTIVE_TAB`, `RESPONSE_BOTTOM_COLLAPSED`, `RESPONSE_BOTTOM_ACTIVE_TAB`, `PERSONAL_COLLECTIONS`, `COLLECTION_SORT_MODES`, `COLLECTION_ORDER`, `SEEN_SHARED_COLLECTIONS`, `COLLAPSED_NOTICES`, `SECTION_STATES`.
+
+## setPreference / getPreference / readDevicePreference
+
+Read and write preference values. Route by registered scope automatically.
+
+- `setPreference(key, value): Promise<*>` — Write. Device writes resolve immediately; user writes round-trip through REST.
+- `getPreference(key): Promise<*>` — Read. Async because user-scope reads round-trip through REST.
+- `readDevicePreference(key): *` — **Sync** read for `device`-scope only. Returns `undefined` for `user`-scope keys. Use in `useState(() => readDevicePreference(...))` lazy initializers and other paths that can't `await`.
+
+All three accept a key registered via `registerPreference` (or one of the built-ins). Unregistered keys default to `user` scope.
+
 ## registerDocumentEditorToolbarButton
 
 Registers a new toolbar button in the query editor toolbar.
