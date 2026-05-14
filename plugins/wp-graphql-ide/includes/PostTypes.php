@@ -1,6 +1,10 @@
 <?php
 /**
- * IDE custom post types, post meta, and collections taxonomy.
+ * IDE custom post type and meta — execution history.
+ *
+ * Saved-query documents live in WPGraphQL Smart Cache's `graphql_document`
+ * post type when Smart Cache is active. This file only registers the
+ * IDE-specific execution-history post type — Smart Cache has no equivalent.
  *
  * @package WPGraphQLIDE
  */
@@ -10,44 +14,24 @@ declare(strict_types = 1);
 namespace WPGraphQLIDE;
 
 /**
- * Registers the IDE's custom post types, post meta, and the
- * collections taxonomy.
+ * Registers the IDE's execution-history CPT and its post meta.
+ *
+ * The IDE used to also register `graphql_ide_query` (saved queries) and
+ * `graphql_ide_collection` (collections taxonomy). Those have been removed
+ * in 5.0 — they duplicated Smart Cache's `graphql_document` and
+ * `graphql_document_group`. See `CHANGELOG.md` Unreleased.
  */
 class PostTypes {
 
 	/**
-	 * Register the IDE query and history CPTs, their post meta, and the
-	 * collections taxonomy.
+	 * Register the IDE history CPT and its post meta.
 	 *
-	 * Each query document stores a GraphQL query, its variables, and
-	 * headers. History entries are global execution log records, not
-	 * scoped to a document. Both expose to GraphQL behind per-user
-	 * scoping filters wired from the entry file.
+	 * History entries are global execution-log records — one row per query
+	 * the user runs. The `_graphql_ide_document_id` meta optionally points
+	 * at a Smart Cache `graphql_document` post when the run was triggered
+	 * from a saved query; for ad-hoc executions the field is 0.
 	 */
 	public static function register(): void {
-		register_post_type(
-			'graphql_ide_query',
-			[
-				'label'               => __( 'IDE Queries', 'wpgraphql-ide' ),
-				'description'         => __( 'Saved GraphQL IDE query documents.', 'wpgraphql-ide' ),
-				'public'              => false,
-				'show_ui'             => false,
-				'show_in_rest'        => true,
-				'rest_base'           => 'graphql-ide-queries',
-				// Expose to WPGraphQL so the IDE (and integrations that
-				// follow) can read saved queries through the GraphQL
-				// surface instead of REST. A scoping filter on
-				// `graphql_connection_query_args` enforces per-user
-				// ownership so this isn't a leak of other users' data.
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'IdeQuery',
-				'graphql_plural_name' => 'IdeQueries',
-				'capability_type'     => 'post',
-				'map_meta_cap'        => true,
-				'supports'            => [ 'title', 'editor', 'excerpt', 'author', 'custom-fields', 'page-attributes' ],
-			]
-		);
-
 		$post_meta_auth = static function () {
 			return wpgraphql_ide_user_can();
 		};
@@ -60,32 +44,6 @@ class PostTypes {
 			json_decode( $value );
 			return json_last_error() === JSON_ERROR_NONE ? $value : '';
 		};
-
-		register_post_meta(
-			'graphql_ide_query',
-			'_graphql_ide_variables',
-			[
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'default'           => '',
-				'auth_callback'     => $post_meta_auth,
-				'sanitize_callback' => $sanitize_json,
-			]
-		);
-
-		register_post_meta(
-			'graphql_ide_query',
-			'_graphql_ide_headers',
-			[
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'default'           => '',
-				'auth_callback'     => $post_meta_auth,
-				'sanitize_callback' => $sanitize_json,
-			]
-		);
 
 		// History CPT — global execution history, not scoped to a document.
 		register_post_type(
@@ -201,31 +159,6 @@ class PostTypes {
 				'show_in_rest'  => true,
 				'default'       => 'POST',
 				'auth_callback' => $post_meta_auth,
-			]
-		);
-
-		// Collections taxonomy for grouping saved queries.
-		register_taxonomy(
-			'graphql_ide_collection',
-			'graphql_ide_query',
-			[
-				'labels'              => [
-					'name'          => __( 'Collections', 'wpgraphql-ide' ),
-					'singular_name' => __( 'Collection', 'wpgraphql-ide' ),
-				],
-				'public'              => false,
-				'show_in_rest'        => true,
-				'rest_base'           => 'graphql-ide-collections',
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'IdeCollection',
-				'graphql_plural_name' => 'IdeCollections',
-				'hierarchical'        => true,
-				'show_ui'             => false,
-				'show_admin_column'   => false,
-				'capabilities'        => array_fill_keys(
-					[ 'manage_terms', 'edit_terms', 'delete_terms', 'assign_terms' ],
-					wpgraphql_ide_get_capability()
-				),
 			]
 		);
 	}

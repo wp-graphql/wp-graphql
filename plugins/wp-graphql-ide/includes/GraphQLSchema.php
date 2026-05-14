@@ -10,9 +10,14 @@ declare(strict_types = 1);
 namespace WPGraphQLIDE;
 
 /**
- * Exposes the IDE's post-meta fields on the WPGraphQL schema. Field
+ * Exposes IDE-specific post-meta fields on the WPGraphQL schema. Field
  * names strip the internal `_graphql_ide_` prefix and switch to camelCase
  * to match the rest of the WPGraphQL schema.
+ *
+ * As of 5.0, the IDE no longer registers fields on its own document type
+ * (the `graphql_ide_query` post type has been removed in favor of Smart
+ * Cache's `graphql_document`). Only `IdeHistoryEntry` fields are
+ * registered here; saved-document fields are owned by Smart Cache.
  */
 class GraphQLSchema {
 
@@ -26,54 +31,12 @@ class GraphQLSchema {
 	 * underlying post meta; the meta keys themselves are unchanged so
 	 * existing REST and direct DB access keep working.
 	 *
-	 * The query body itself lives in `post_content` (so the editor's
-	 * autosave + revision history work), but consumers expect a clearly
-	 * named field — we expose `queryString` as a thin alias that returns
-	 * `post_content` so neither audience has to know about the storage
-	 * detail.
-	 *
 	 * @since x-release-please-version
 	 */
 	public static function register(): void {
 		if ( ! function_exists( 'register_graphql_field' ) ) {
 			return;
 		}
-
-		register_graphql_field(
-			'IdeQuery',
-			'queryString',
-			[
-				'type'        => 'String',
-				'description' => __( 'The GraphQL document body for this saved query.', 'wpgraphql-ide' ),
-				'resolve'     => static function ( $post ) {
-					return get_post_field( 'post_content', $post->databaseId );
-				},
-			]
-		);
-
-		register_graphql_field(
-			'IdeQuery',
-			'variables',
-			[
-				'type'        => 'String',
-				'description' => __( 'JSON-encoded variables for this saved query.', 'wpgraphql-ide' ),
-				'resolve'     => static function ( $post ) {
-					return (string) get_post_meta( $post->databaseId, '_graphql_ide_variables', true );
-				},
-			]
-		);
-
-		register_graphql_field(
-			'IdeQuery',
-			'headers',
-			[
-				'type'        => 'String',
-				'description' => __( 'JSON-encoded HTTP headers stored with this saved query.', 'wpgraphql-ide' ),
-				'resolve'     => static function ( $post ) {
-					return (string) get_post_meta( $post->databaseId, '_graphql_ide_headers', true );
-				},
-			]
-		);
 
 		$history_meta_fields = [
 			'queryString'     => [
@@ -104,7 +67,7 @@ class GraphQLSchema {
 			'documentId'      => [
 				'meta'        => '_graphql_ide_document_id',
 				'type'        => 'Int',
-				'description' => __( 'Database ID of the saved IdeQuery this entry was executed against, if any.', 'wpgraphql-ide' ),
+				'description' => __( 'Database ID of the saved GraphqlDocument (Smart Cache post type) this entry was executed against, if any. 0 for ad-hoc executions.', 'wpgraphql-ide' ),
 			],
 			'isAuthenticated' => [
 				'meta'        => '_graphql_ide_is_authenticated',

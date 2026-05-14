@@ -15,7 +15,9 @@ namespace WPGraphQLIDE\DocumentSettings;
 require_once __DIR__ . '/document-settings/registry.php';
 require_once __DIR__ . '/document-settings/access-functions.php';
 require_once __DIR__ . '/document-settings/storage.php';
-require_once __DIR__ . '/document-settings/taxonomies.php';
+// The IDE's internal alias/maxage/grant taxonomies were removed in 5.0.
+// The built-in fields now bind to Smart Cache's existing taxonomies.
+// See includes/document-settings/built-in-fields.php.
 require_once __DIR__ . '/document-settings/built-in-fields.php';
 require_once __DIR__ . '/document-settings/rest.php';
 require_once __DIR__ . '/document-settings/localization.php';
