@@ -1,6 +1,10 @@
 # IDE API Surface
 
-Inventory of which IDE surfaces use WPGraphQL and which use REST, plus the server-side registries (Document Settings, user-preference meta, WPGraphQL admin settings) that the IDE owns. Update on every PR that adds, moves, or removes a server endpoint or registered surface.
+Inventory of which IDE surfaces use WPGraphQL and which use REST, plus the server-side registries (user-preference meta, WPGraphQL admin settings) that the IDE owns. Update on every PR that adds, moves, or removes a server endpoint or registered surface.
+
+> **5.0 alignment in progress.** The IDE is shifting to **progressive enhancement** on top of WPGraphQL Smart Cache: Smart Cache owns the saved-document primitive (`graphql_document` post type + `graphql_query_alias` / `graphql_document_grant` / `graphql_document_http_maxage` / `graphql_document_group` taxonomies); the IDE owns history, per-user preferences, personal collections, and the workspace UI. When Smart Cache isn't active, the IDE works standalone with local-only unsaved tabs (same model as GraphiQL).
+>
+> Some sections below reference the pre-5.0 `graphql_ide_query` post type, the `IdeQuery` / `IdeCollection` GraphQL types, and related REST routes. **Those are being removed.** This doc updates incrementally as the implementation lands; the table of contents below marks each section's status. The earlier Track A commits that documented `IdeQuery` / `IdeCollection` as public are being walked back — see `CHANGELOG.md` Unreleased for the breaking-change note.
 
 Source files:
 
@@ -38,32 +42,30 @@ Server-injected at script-enqueue time (`includes/AssetEnqueue.php::enqueue()`).
 
 ### Types
 
-| Type | Source |
-| --- | --- |
-| `IdeQuery` / `IdeQueries` | `register_post_type('graphql_ide_query', show_in_graphql=true)` |
-| `IdeHistoryEntry` / `IdeHistoryEntries` | `register_post_type('graphql_ide_history', show_in_graphql=true)` |
-| `IdeCollection` / `IdeCollections` | `register_taxonomy('graphql_ide_collection', show_in_graphql=true)` |
-| `UpdateGraphqlSettingValueInput` | OneOf input — variant per WPGraphQL setting field type (`text`, `number`, `checkbox`, `select`, `radio`, `user_role_select`, `password`). See `includes/settings.php`. |
-| `UpdateGraphqlSettingValue` | Output object — same variant shape as the input. |
-| `UpdateGraphqlSettingPayload` | Mutation output. |
+| Type | Source | Status |
+| --- | --- | --- |
+| `IdeHistoryEntry` / `IdeHistoryEntries` | `register_post_type('graphql_ide_history', show_in_graphql=true)` | **Public, stable.** IDE-owned execution history. |
+| `UpdateGraphqlSettingValueInput` | OneOf input — variant per WPGraphQL setting field type (`text`, `number`, `checkbox`, `select`, `radio`, `user_role_select`, `password`). See `includes/settings.php`. | Public. |
+| `UpdateGraphqlSettingValue` | Output object — same variant shape as the input. | Public. |
+| `UpdateGraphqlSettingPayload` | Mutation output. | Public. |
+| ~~`IdeQuery` / `IdeQueries`~~ | ~~`register_post_type('graphql_ide_query', show_in_graphql=true)`~~ | **Removed in 5.0.** Consumers query Smart Cache's `graphqlDocument` directly. |
+| ~~`IdeCollection` / `IdeCollections`~~ | ~~`register_taxonomy('graphql_ide_collection', show_in_graphql=true)`~~ | **Removed in 5.0.** Consumers query Smart Cache's `graphqlDocumentGroup` directly. |
 
 ### Custom fields
 
-Registered in `register_ide_graphql_fields()`.
+Registered in `GraphQLSchema::register()`.
 
-| Type | Field | Backed by |
-| --- | --- | --- |
-| `IdeQuery` | `queryString: String` | `post_content` |
-| `IdeQuery` | `variables: String` | `_graphql_ide_variables` |
-| `IdeQuery` | `headers: String` | `_graphql_ide_headers` |
-| `IdeHistoryEntry` | `queryString: String` | `_graphql_ide_query` |
-| `IdeHistoryEntry` | `variables: String` | `_graphql_ide_variables` |
-| `IdeHistoryEntry` | `headers: String` | `_graphql_ide_headers` |
-| `IdeHistoryEntry` | `durationMs: Int` | `_graphql_ide_duration_ms` |
-| `IdeHistoryEntry` | `executionStatus: String` | `_graphql_ide_status` |
-| `IdeHistoryEntry` | `documentId: Int` | `_graphql_ide_document_id` |
-| `IdeHistoryEntry` | `isAuthenticated: Boolean` | `_graphql_ide_is_authenticated` |
-| `IdeHistoryEntry` | `httpMethod: String` | `_graphql_ide_http_method` |
+| Type | Field | Backed by | Status |
+| --- | --- | --- | --- |
+| `IdeHistoryEntry` | `queryString: String` | `_graphql_ide_query` | Public. |
+| `IdeHistoryEntry` | `variables: String` | `_graphql_ide_variables` | Public. |
+| `IdeHistoryEntry` | `headers: String` | `_graphql_ide_headers` | Public. |
+| `IdeHistoryEntry` | `durationMs: Int` | `_graphql_ide_duration_ms` | Public. |
+| `IdeHistoryEntry` | `executionStatus: String` | `_graphql_ide_status` | Public. |
+| `IdeHistoryEntry` | `documentId: Int` | `_graphql_ide_document_id` | Public. **In 5.0** this references a `graphqlDocument` (Smart Cache) database ID, not the legacy `IdeQuery` ID. |
+| `IdeHistoryEntry` | `isAuthenticated: Boolean` | `_graphql_ide_is_authenticated` | Public. |
+| `IdeHistoryEntry` | `httpMethod: String` | `_graphql_ide_http_method` | Public. |
+| ~~`IdeQuery`~~ fields | ~~queryString / variables / headers~~ | — | **Removed in 5.0** along with the `IdeQuery` type. |
 
 ### Mutations
 
@@ -75,8 +77,8 @@ Registered in `register_ide_graphql_fields()`.
 
 | Filter | Hook | Purpose |
 | --- | --- | --- |
-| `scope_ide_graphql_connections_to_current_user` | `graphql_connection_query_args` | Adds `author = current_user_id()` to `IdeQuery` and `IdeHistoryEntry` connections. |
-| `restrict_ide_post_visibility_to_author` | `graphql_data_is_private` | Marks an IDE post private when the current user isn't the author. Gates `node(id)` and `ideQuery(id)`. |
+| `scope_ide_graphql_connections_to_current_user` | `graphql_connection_query_args` | Adds `author = current_user_id()` to `IdeHistoryEntry` connections (and, in 5.0, to `graphqlDocument` connections when the request originates from the IDE). |
+| `restrict_ide_post_visibility_to_author` | `graphql_data_is_private` | Marks an IDE history post private when the current user isn't the author. Gates `node(id)` and `ideHistoryEntry(id)`. |
 
 ### Client callsites
 
@@ -87,44 +89,49 @@ Registered in `register_ide_graphql_fields()`.
 
 ## REST
 
-### CPT routes (`/wp/v2/...`)
+### IDE-owned CPT routes (`/wp/v2/...`)
 
-| Method | Path | Client function |
-| --- | --- | --- |
-| `GET` | `/wp/v2/graphql-ide-queries` | `getDocuments()` |
-| `POST` | `/wp/v2/graphql-ide-queries` | `createDocument()` |
-| `POST` | `/wp/v2/graphql-ide-queries/{id}` | `updateDocument()` |
-| `DELETE` | `/wp/v2/graphql-ide-queries/{id}` | `deleteDocument()` |
-| `GET` | `/wp/v2/graphql-ide-collections` | `getCollections()` |
-| `POST` | `/wp/v2/graphql-ide-collections` | `createCollection()` |
-| `POST` | `/wp/v2/graphql-ide-collections/{id}` | `updateCollection()` |
-| `DELETE` | `/wp/v2/graphql-ide-collections/{id}` | `deleteCollection()` |
-| `GET` | `/wp/v2/graphql-ide-history` | `getHistory()` |
-| `POST` | `/wp/v2/graphql-ide-history` | `createHistoryEntry()` |
-| `DELETE` | `/wp/v2/graphql-ide-history/{id}` | `deleteHistoryEntry()` |
-| `GET` | `/wp/v2/users/me?_fields=meta` | `getPreferences()` |
-| `POST` | `/wp/v2/users/me` | `savePreference()` |
+| Method | Path | Client function | Status |
+| --- | --- | --- | --- |
+| `GET` | `/wp/v2/graphql-ide-history` | `getHistory()` | Public. |
+| `POST` | `/wp/v2/graphql-ide-history` | `createHistoryEntry()` | Public. |
+| `DELETE` | `/wp/v2/graphql-ide-history/{id}` | `deleteHistoryEntry()` | Public. |
+| `GET` | `/wp/v2/users/me?_fields=meta` | `getPreferences()` | Public. |
+| `POST` | `/wp/v2/users/me` | `savePreference()` | Public. |
+| ~~`/wp/v2/graphql-ide-queries[/{id}]`~~ | ~~`getDocuments` / `createDocument` / `updateDocument` / `deleteDocument`~~ | **Removed in 5.0.** Clients use the `graphql_document` REST surface owned by Smart Cache (or fall back to no document persistence when Smart Cache isn't active). |
+| ~~`/wp/v2/graphql-ide-collections[/{id}]`~~ | ~~`getCollections` / `createCollection` / ...~~ | **Removed in 5.0.** Clients use Smart Cache's `graphql_document_group` taxonomy REST surface. |
+
+### Smart Cache integration (`graphql_document` post type)
+
+When Smart Cache is active, the IDE reads and writes saved queries via Smart Cache's primitives:
+
+| Concept | Smart Cache surface |
+| --- | --- |
+| Saved query document | `graphql_document` post type — `post_content` carries the query body (AST-validated, normalized, slug = SHA-256 hash) |
+| Alias / queryId | `graphql_query_alias` taxonomy (one term per alias, plus the hash itself as a term) |
+| Allow / deny | `graphql_document_grant` taxonomy (`allow` / `deny` / `''`) |
+| Cache-Control max-age | `graphql_document_http_maxage` taxonomy (term name = seconds as string) |
+| Collection / group | `graphql_document_group` taxonomy |
+| Description | `post_excerpt` (Smart Cache's existing convention) |
+
+Concrete REST exposure of these primitives is owned by Smart Cache. As of Smart Cache 0.x, `graphql_document` is registered with `show_in_rest=true`; collection / alias / grant / maxage taxonomies are not all REST-exposed today, which is a follow-up in Smart Cache itself.
 
 ### Custom routes (`/wpgraphql-ide/v1/...`)
 
-Registered in `register_ide_rest_routes()`.
+Registered in `Rest::register()`. **All routes that operated on `graphql_ide_query` are being reworked in 5.0** to operate on `graphql_document` instead — or removed where Smart Cache already provides equivalent functionality.
 
-| Method | Path | Client function |
+| Method | Path | Status |
 | --- | --- | --- |
-| `POST` | `/documents/{id}/publish` | `publishDocument()` |
-| `DELETE` | `/collections/{id}/cascade` | `deleteCollectionWithContents()` |
-| `GET` | `/documents/export` | `exportDocuments()` |
-| `POST` | `/documents/import` | `importDocuments()` |
-| `POST` | `/documents/reorder` | `reorderDocuments()` |
-| `POST` | `/collections/reorder` | `reorderCollections()` |
+| ~~`POST /documents/{id}/publish`~~ | **Removed in 5.0.** Smart Cache's `Document::save()` already validates + normalizes + hashes on every save; no separate "publish" step is needed. |
+| ~~`DELETE /collections/{id}/cascade`~~ | **Removed in 5.0.** Operated on the `graphql_ide_collection` taxonomy, which doesn't exist anymore. Equivalent against `graphql_document_group` may return in a later release if there's demand. |
+| `GET /documents/export` | **Being rewritten in 5.0** to export `graphql_document` posts the current user can access. |
+| `POST /documents/import` | **Being rewritten in 5.0** to import into `graphql_document`. |
+| `POST /documents/reorder` | **Being rewritten in 5.0** to set `menu_order` on `graphql_document` posts. |
+| ~~`POST /collections/reorder`~~ | **Removed in 5.0.** Reorder UX moves to per-user `graphql_document_group` ordering in user-meta. |
 
 ### Per-document settings REST field
 
-Registered in `includes/document-settings/rest.php` and exposed via the CPT REST resource. See **Document Settings module** below for the registry that backs it.
-
-| REST resource | Field | Shape |
-| --- | --- | --- |
-| `/wp/v2/graphql-ide-queries[/{id}]` | `documentSettings` | `object` — keyed by registered field name (e.g. `description`, `aliases`, `maxAgeHeader`, `grant`). Read returns a key/value map of every field the current user can read. Update accepts the same shape and dispatches each value through the storage adapter; unknown keys are silently ignored for forward compatibility. |
+**Being reworked in 5.0.** The Document Settings module previously surfaced a `documentSettings` REST field on `/wp/v2/graphql-ide-queries[/{id}]` that read/wrote `description` / `aliases` / `maxAgeHeader` / `grant`. With the post type removed and the underlying taxonomies now owned by Smart Cache, the field re-emerges on `/wp/v2/graphql-document[/{id}]` (when Smart Cache exposes it) with the same shape but new storage targets. Field registration via `register_graphql_document_setting_field()` continues to work for plugins that want to add additional fields beyond Smart Cache's built-ins.
 
 ### User-preference meta (via `/wp/v2/users/me`)
 
@@ -143,11 +150,11 @@ Registered in `includes/UserMeta.php`. All keys are `show_in_rest` with an `auth
 
 ### Authorization
 
-| Filter | Hook |
-| --- | --- |
-| `scope_ide_queries_to_current_user` | `rest_graphql_ide_query_query`, `rest_graphql_ide_history_query` |
-| `enforce_ide_rest_permissions` | `rest_pre_dispatch` |
-| `restrict_document_to_author` | `rest_prepare_graphql_ide_query`, `rest_prepare_graphql_ide_history` |
+| Filter | Hook | Notes |
+| --- | --- | --- |
+| `scope_ide_queries_to_current_user` | `rest_graphql_ide_history_query` (and, in 5.0, `rest_graphql_document_query` when filtering on behalf of the IDE) | Per-user scoping. |
+| `enforce_ide_rest_permissions` | `rest_pre_dispatch` | Cap gate. |
+| `restrict_document_to_author` | `rest_prepare_graphql_ide_history` (and, in 5.0, conditional behaviour on `rest_prepare_graphql_document`) | Per-post author check. |
 
 ## Capability helpers (PHP)
 
@@ -162,20 +169,16 @@ The namespaced wrapper `\WPGraphQLIDE\user_has_graphql_ide_capability()` is pres
 
 ## Document Settings module
 
-The IDE's per-document Settings drawer (description, alias names, max-age, allow/deny) is built on an extensible field registry. Plugins register additional fields with `register_graphql_document_setting_field()` and the drawer renders them automatically; values are persisted via the existing `/wp/v2/graphql-ide-queries` REST endpoints.
+> **Being simplified in 5.0.** The previous design registered three internal IDE taxonomies (`graphql_ide_query_alias` / `graphql_ide_query_maxage` / `graphql_ide_query_grant`) to back the drawer's built-in fields. Those taxonomies are removed in 5.0 because they duplicate Smart Cache's existing `graphql_query_alias` / `graphql_document_http_maxage` / `graphql_document_grant`. The IDE's built-in fields now bind to Smart Cache's taxonomies directly.
 
-### Registration flow
+The `register_graphql_document_setting_field()` access function stays — it's still useful for plugins that want to add **additional** fields to the IDE's per-document Settings drawer beyond Smart Cache's built-ins (e.g. team-specific tags, deprecation flags, custom directives metadata, etc.).
 
-1. `includes/document-settings.php` fires `do_action( 'wpgraphql_ide_register_document_settings' )` on `init` (priority 11), after taxonomies are registered and after WPGraphQL has finished its own registrations.
-2. Callbacks call `register_graphql_document_setting_field( $name, $config )` to contribute fields. Built-in fields (`description`, `aliases`, `maxAgeHeader`, `grant`) register through this same path — see `includes/document-settings/built-in-fields.php`.
-3. `Registry::instance()` holds the field descriptors. Other modules read from it to drive REST exposure, JS localization, and storage dispatch.
-
-### Public PHP API
+### What's still public
 
 | Symbol | Source | Purpose |
 | --- | --- | --- |
-| Action `wpgraphql_ide_register_document_settings` | `includes/document-settings.php:34` | Single registration entry point — fires once on `init` priority 11. |
-| `register_graphql_document_setting_field( string $name, array $config ): void` | `includes/document-settings/access-functions.php` | Register a field. See config shape below. |
+| Action `wpgraphql_ide_register_document_settings` | `includes/document-settings.php` | Single registration entry point — fires once on `init` priority 11. |
+| `register_graphql_document_setting_field( string $name, array $config ): void` | `includes/document-settings/access-functions.php` | Register an additional field. |
 
 ### Field config shape
 
@@ -197,30 +200,16 @@ register_graphql_document_setting_field( 'my_field', [
 ] );
 ```
 
-### Built-in fields
+### Built-in fields (post-5.0 storage targets)
 
-| Field | Type | Storage | Purpose |
+| Field | Type | Storage | Owned by |
 | --- | --- | --- | --- |
-| `description` | textarea | `post_field` → `post_excerpt` | Free-form description of the query. |
-| `aliases` | tag_list | `taxonomy` → `graphql_ide_query_alias` (multi, unique) | Alternate names that can execute this query in place of its hash. |
-| `maxAgeHeader` | number | `taxonomy` → `graphql_ide_query_maxage` | `Cache-Control: max-age` value (seconds) sent with responses for this query. |
-| `grant` | radio_with_default | `taxonomy` → `graphql_ide_query_grant` | Override the global default for whether this query may execute. Options: `allow`, `deny`, `''` (use global). |
+| `description` | textarea | `post_field` → `post_excerpt` | Smart Cache (its own existing convention). |
+| `aliases` | tag_list | `taxonomy` → `graphql_query_alias` (multi, unique) | Smart Cache. |
+| `maxAgeHeader` | number | `taxonomy` → `graphql_document_http_maxage` | Smart Cache. |
+| `grant` | radio_with_default | `taxonomy` → `graphql_document_grant` | Smart Cache. |
 
-### Internal taxonomies
-
-Backing storage for the three taxonomy-kind built-in fields. All three are private (`show_in_rest=false`, `show_in_graphql=false`, `show_ui=false`) and attached only to `graphql_ide_query`. Term capabilities all require `manage_graphql_ide`.
-
-| Taxonomy | Cardinality | Term shape |
-| --- | --- | --- |
-| `graphql_ide_query_alias` | multi | Term name is an alias string; cross-document unique. |
-| `graphql_ide_query_maxage` | single | Term name is a non-negative integer string. |
-| `graphql_ide_query_grant` | single | Term name is one of `allow`, `deny`, or `''`. |
-
-> **Stability note:** These taxonomy slugs are part of the on-disk schema. Plugins targeting them directly (e.g. via `wp_get_object_terms`) can rely on them — renaming would be a breaking change.
-
-### REST exposure
-
-Surfaced as the `documentSettings` object field on `/wp/v2/graphql-ide-queries[/{id}]`. See **REST → Per-document settings REST field** above.
+The IDE's built-in field registrations become **bridge code** that maps the drawer UI to Smart Cache's storage. When Smart Cache isn't active the drawer is hidden entirely (no documents to attach settings to).
 
 ### JS bootstrap surface
 
@@ -265,7 +254,7 @@ The IDE registers an **IDE Settings** tab on the WPGraphQL admin settings page (
 
 | # | Gap | Blocks |
 | --- | --- | --- |
-| A | Meta inputs (`variables`, `headers`, `queryString`) missing on auto-generated `createIdeQuery` / `updateIdeQuery` / `createIdeHistoryEntry`. | All document/history write paths. |
-| B | No GraphQL mutations for the six custom REST routes (`publish`, `cascade`, `export`, `import`, `reorder` × 2). | Publish, cascade-delete, bulk import/export, reorder. |
+| A | Meta inputs (`variables`, `headers`, `queryString`) missing on auto-generated `createIdeHistoryEntry`. | History write paths. |
+| B | No GraphQL mutations for the IDE's surviving custom REST routes (`export` / `import` / `reorder`). | Bulk import/export and reorder via GraphQL. |
 | C | Eight `wpgraphql_ide_*` user-preference metas are not on the GraphQL schema (REST only). | Any GraphQL-only client reading or writing preferences. |
-| D | No GraphQL mutation for the `documentSettings` REST field on `IdeQuery`. | Per-document settings can only be written via REST. |
+| D | Smart Cache doesn't yet expose `graphql_query_alias` / `graphql_document_grant` / `graphql_document_http_maxage` / `graphql_document_group` via REST. | The IDE's Document Settings drawer can't write these fields until either Smart Cache adds REST exposure or the IDE adds REST routes that operate on Smart Cache's taxonomies. Tracked as a Smart Cache upstream PR. |

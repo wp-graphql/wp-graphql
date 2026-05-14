@@ -14,11 +14,29 @@
   `post_status`) and silently resolved to the post status instead of the meta
   value. Any consumer reading `status` for the meta value (success/error/etc.)
   must update to `executionStatus`.
-- **Schema:** Three new public types — `IdeQuery`, `IdeHistoryEntry`,
-  `IdeCollection` — and three new root connections — `ideQuery(ies)`,
-  `ideHistoryEntry(ies)`, `ideCollection(s)` — are now part of the public
-  WPGraphQL schema. Renaming or removing them in a future release would be a
-  breaking change for any external consumer that adopts them.
+- **Document storage:** the IDE no longer owns a "saved query" primitive of
+  its own. The 4.x `graphql_ide_query` post type, the `graphql_ide_collection`
+  taxonomy, and the three Document Settings taxonomies
+  (`graphql_ide_query_alias`, `graphql_ide_query_maxage`,
+  `graphql_ide_query_grant`) are all removed. They duplicated WPGraphQL
+  Smart Cache's existing `graphql_document` post type + `graphql_query_alias`
+  / `graphql_document_grant` / `graphql_document_http_maxage` /
+  `graphql_document_group` taxonomies, which are the canonical owners of the
+  GraphQL-document primitive in this ecosystem.
+
+  5.0 IDE now treats saved-document support as **progressive enhancement**:
+  the IDE works standalone with local-only unsaved tabs (same model as
+  GraphiQL), and lights up the full Saved Queries / Collections / Document
+  Settings surface when Smart Cache is also active. No migration is provided
+  for existing 4.x installs that have stored queries under `graphql_ide_query`;
+  that data was developer-preview only and is considered lost on upgrade.
+- **Schema:** the `IdeQuery` / `IdeQueries` GraphQL types and the
+  `IdeCollection` / `IdeCollections` GraphQL types are removed (consequence
+  of the post-type / taxonomy removals above). Consumers query
+  `graphqlDocument` and `graphqlDocumentGroup` directly via Smart Cache's
+  schema. `IdeHistoryEntry` / `IdeHistoryEntries` remains as the IDE's
+  execution-history surface; its `documentId` field now references a
+  `graphqlDocument` ID instead of an `IdeQuery` ID.
 - **REST capability:** the share-collection dialog now requires `list_users`
   in addition to `manage_graphql_ide`. IDE users without `list_users` will see
   the Sharing affordance hidden instead of opening onto a permission-denied
