@@ -135,6 +135,18 @@ class AssetEnqueue {
 			'capabilities'          => [
 				'listUsers' => current_user_can( 'list_users' ),
 			],
+			// Smart Cache presence — drives whether the IDE shows
+			// saved-document features (Saved Queries panel, save/publish
+			// buttons, Document Settings drawer, share dialog, personal
+			// collections). Without Smart Cache the IDE works standalone
+			// with local-only unsaved tabs — same model as GraphiQL — plus
+			// the IDE-owned history panel and the workspace UI. JS reads
+			// this and gates registration in src/registry/index.js. Class
+			// presence is the canonical check; the post type itself
+			// registers later on `init`, so testing `post_type_exists()`
+			// here (which runs on enqueue, also on `init` priority 10 in
+			// admin) is unreliable.
+			'hasSmartCache'         => class_exists( '\\WPGraphQL\\SmartCache\\Document' ),
 		];
 
 		/**
