@@ -155,7 +155,7 @@ class Storage {
 
 			$other_posts = get_posts(
 				[
-					'post_type'      => 'graphql_ide_query',
+					'post_type'      => 'graphql_document',
 					'post_status'    => 'any',
 					'posts_per_page' => 1,
 					'fields'         => 'ids',

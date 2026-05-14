@@ -102,9 +102,9 @@ class ImportExport {
 				continue;
 			}
 
-			$term = term_exists( $name, 'graphql_ide_collection' );
+			$term = term_exists( $name, 'graphql_document_group' );
 			if ( ! $term ) {
-				$term = wp_insert_term( $name, 'graphql_ide_collection' );
+				$term = wp_insert_term( $name, 'graphql_document_group' );
 			}
 			if ( is_wp_error( $term ) || empty( $term['term_id'] ) ) {
 				continue;
@@ -162,7 +162,7 @@ class ImportExport {
 
 			$existing = get_posts(
 				[
-					'post_type'      => 'graphql_ide_query',
+					'post_type'      => 'graphql_document',
 					'post_status'    => 'publish',
 					'name'           => $slug,
 					'posts_per_page' => 1,
@@ -170,13 +170,13 @@ class ImportExport {
 				]
 			);
 			if ( ! empty( $existing ) ) {
-				wp_set_object_terms( (int) $existing[0], [ $term_id ], 'graphql_ide_collection', true );
+				wp_set_object_terms( (int) $existing[0], [ $term_id ], 'graphql_document_group', true );
 				return 'skipped';
 			}
 		}
 
 		$postarr = [
-			'post_type'    => 'graphql_ide_query',
+			'post_type'    => 'graphql_document',
 			'post_status'  => $status,
 			'post_author'  => $author_id,
 			'post_title'   => $title,
@@ -191,7 +191,7 @@ class ImportExport {
 			return 'error';
 		}
 
-		wp_set_object_terms( $post_id, [ $term_id ], 'graphql_ide_collection' );
+		wp_set_object_terms( $post_id, [ $term_id ], 'graphql_document_group' );
 
 		if ( ! empty( $doc['variables'] ) ) {
 			update_post_meta( $post_id, '_graphql_ide_variables', (string) $doc['variables'] );
@@ -214,7 +214,7 @@ class ImportExport {
 	public static function export( int $author_id ): array {
 		$terms = get_terms(
 			[
-				'taxonomy'   => 'graphql_ide_collection',
+				'taxonomy'   => 'graphql_document_group',
 				'hide_empty' => false,
 				'orderby'    => 'name',
 				'order'      => 'ASC',
@@ -233,12 +233,12 @@ class ImportExport {
 		foreach ( $terms as $term ) {
 			$post_ids = get_posts(
 				[
-					'post_type'      => 'graphql_ide_query',
+					'post_type'      => 'graphql_document',
 					'post_status'    => [ 'draft', 'publish' ],
 					'author'         => $author_id,
 					'tax_query'      => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 						[
-							'taxonomy' => 'graphql_ide_collection',
+							'taxonomy' => 'graphql_document_group',
 							'field'    => 'term_id',
 							'terms'    => $term->term_id,
 						],

@@ -16,8 +16,9 @@ if ( ! function_exists( 'register_graphql_document_setting_field' ) ) {
 	/**
 	 * Register a field that will appear in the IDE's per-document Settings drawer.
 	 *
-	 * Fields are persisted alongside the saved query via the existing
-	 * `/wp/v2/graphql-ide-queries` REST endpoints.
+	 * Fields are persisted alongside the saved query via the Smart Cache
+	 * `/wp/v2/graphql-document` REST endpoints (Smart Cache owns the
+	 * saved-document primitive as of IDE 5.0).
 	 *
 	 * @param string              $field_name Unique field identifier.
 	 * @param array<string,mixed> $config     {

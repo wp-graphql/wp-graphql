@@ -18,7 +18,7 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\register_rest_field', 20 );
 
 function register_rest_field(): void {
 	\register_rest_field(
-		'graphql_ide_query',
+		'graphql_document',
 		'documentSettings',
 		[
 			'get_callback'    => __NAMESPACE__ . '\\rest_read',

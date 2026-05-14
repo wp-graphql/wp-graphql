@@ -258,7 +258,7 @@ class UserMeta {
 						continue;
 					}
 					$post = get_post( $doc_id );
-					if ( ! $post || 'graphql_ide_query' !== $post->post_type ) {
+					if ( ! $post || 'graphql_document' !== $post->post_type ) {
 						continue;
 					}
 					if ( ! wpgraphql_ide_user_owns_document( $post ) ) {
@@ -350,7 +350,7 @@ class UserMeta {
 				$documents = [];
 				foreach ( $doc_ids as $doc_id ) {
 					$post = get_post( $doc_id );
-					if ( ! $post || 'graphql_ide_query' !== $post->post_type ) {
+					if ( ! $post || 'graphql_document' !== $post->post_type ) {
 						continue;
 					}
 					$documents[] = [
@@ -385,7 +385,7 @@ class UserMeta {
 	 * @param \WP_Post $post    Post object.
 	 */
 	public static function purge_document_from_personal_collections( int $post_id, $post ): void {
-		if ( ! ( $post instanceof \WP_Post ) || 'graphql_ide_query' !== $post->post_type ) {
+		if ( ! ( $post instanceof \WP_Post ) || 'graphql_document' !== $post->post_type ) {
 			return;
 		}
 

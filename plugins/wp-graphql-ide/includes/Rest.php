@@ -153,7 +153,7 @@ class Rest {
 			$post_id = (int) $post_id;
 			$post    = get_post( $post_id );
 			// Only touch posts the user owns and that match our CPT.
-			if ( ! $post || 'graphql_ide_query' !== $post->post_type || ! wpgraphql_ide_user_owns_document( $post ) ) {
+			if ( ! $post || 'graphql_document' !== $post->post_type || ! wpgraphql_ide_user_owns_document( $post ) ) {
 				continue;
 			}
 			wp_update_post(

@@ -123,14 +123,16 @@ function initialize_plugin() {
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ \WPGraphQLIDE\AdminUI::class, 'add_settings_link' ] );
 
 	// Scope REST queries to the current user's own documents/history.
-	add_filter( 'rest_graphql_ide_query_query', [ \WPGraphQLIDE\Access::class, 'scope_rest_queries' ] );
+	// `graphql_document` is Smart Cache's saved-document post type — the
+	// filter no-ops when SC isn't installed (the hook simply never fires).
+	add_filter( 'rest_graphql_document_query', [ \WPGraphQLIDE\Access::class, 'scope_rest_queries' ] );
 	add_filter( 'rest_graphql_ide_history_query', [ \WPGraphQLIDE\Access::class, 'scope_rest_queries' ] );
 
 	// Enforce manage_graphql_ide capability on all IDE REST routes.
 	add_filter( 'rest_pre_dispatch', [ \WPGraphQLIDE\Access::class, 'enforce_rest_permissions' ], 10, 3 );
 
 	// Prevent access to documents/history owned by other users on single routes.
-	add_filter( 'rest_prepare_graphql_ide_query', [ \WPGraphQLIDE\Access::class, 'restrict_document_response' ], 10, 3 );
+	add_filter( 'rest_prepare_graphql_document', [ \WPGraphQLIDE\Access::class, 'restrict_document_response' ], 10, 3 );
 	add_filter( 'rest_prepare_graphql_ide_history', [ \WPGraphQLIDE\Access::class, 'restrict_document_response' ], 10, 3 );
 
 	// Cap document title length on every write path so a long POST body
@@ -193,13 +195,19 @@ function wpgraphql_ide_activate(): void {
 		$administrator->add_cap( 'manage_graphql_ide' );
 	}
 
-	// Post types/taxonomies registered on `init` aren't available during
-	// activation, so register them ad-hoc before seeding.
-	if ( ! post_type_exists( 'graphql_ide_query' ) ) {
-		\WPGraphQLIDE\PostTypes::register();
+	// Seeding now requires Smart Cache, since the IDE no longer owns the
+	// document post type. If Smart Cache isn't active at activation time,
+	// skip the seed silently — users who install Smart Cache later don't
+	// get auto-seeded; that's an acceptable trade-off given seed content
+	// is purely a discoverability nicety, not core functionality.
+	if ( class_exists( '\\WPGraphQL\\SmartCache\\Document' ) ) {
+		// Post types registered on `init` aren't available during
+		// activation, so register Smart Cache's first if it isn't already.
+		if ( ! post_type_exists( 'graphql_document' ) ) {
+			( new \WPGraphQL\SmartCache\Document() )->init();
+		}
+		\WPGraphQLIDE\ImportExport::seed();
 	}
-
-	\WPGraphQLIDE\ImportExport::seed();
 }
 register_activation_hook( __FILE__, __NAMESPACE__ . '\\wpgraphql_ide_activate' );
 
