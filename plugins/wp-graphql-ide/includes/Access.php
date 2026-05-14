@@ -170,8 +170,7 @@ class Access {
 	public static function restrict_document_response( $response, $post, $request ) {
 		unset( $request );
 
-		$current_id = get_current_user_id();
-		if ( (int) $post->post_author === $current_id ) {
+		if ( wpgraphql_ide_user_owns_document( $post ) ) {
 			return $response;
 		}
 

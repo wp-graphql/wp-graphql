@@ -261,7 +261,7 @@ class UserMeta {
 					if ( ! $post || 'graphql_ide_query' !== $post->post_type ) {
 						continue;
 					}
-					if ( (int) $post->post_author !== $user_id ) {
+					if ( ! wpgraphql_ide_user_owns_document( $post ) ) {
 						continue;
 					}
 					$ids[] = $doc_id;

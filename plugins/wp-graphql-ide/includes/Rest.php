@@ -149,12 +149,11 @@ class Rest {
 				[ 'status' => 400 ]
 			);
 		}
-		$author_id = get_current_user_id();
 		foreach ( $order as $position => $post_id ) {
 			$post_id = (int) $post_id;
 			$post    = get_post( $post_id );
 			// Only touch posts the user owns and that match our CPT.
-			if ( ! $post || 'graphql_ide_query' !== $post->post_type || (int) $post->post_author !== $author_id ) {
+			if ( ! $post || 'graphql_ide_query' !== $post->post_type || ! wpgraphql_ide_user_owns_document( $post ) ) {
 				continue;
 			}
 			wp_update_post(
@@ -273,7 +272,7 @@ class Rest {
 		}
 
 		// Ensure the current user owns this document.
-		if ( get_current_user_id() !== (int) $post->post_author ) {
+		if ( ! wpgraphql_ide_user_owns_document( $post ) ) {
 			return new \WP_Error(
 				'forbidden',
 				__( 'You do not have permission to publish this document.', 'wpgraphql-ide' ),
