@@ -150,4 +150,98 @@ hooks.doAction( 'wpgraphql-ide.notice.dismiss', 'my-plugin/offer' );
 
 ## JavaScript Filters
 
-None currently. The hook instance supports `applyFilters` for future use.
+### `wpgraphql-ide.executeRequest`
+
+Filter the outbound GraphQL request payload just before the fetcher runs. Plugins use this to inject auth tokens, transform variables, rewrite headers, switch the HTTP method per query, and similar request-side concerns.
+
+**Args:**
+
+- `request` (Object): `{ query, variables, operationName, headers, httpMethod }`. `headers` and `variables` are the parsed object forms (already JSON.parse'd from the editor strings). Mutate-and-return is fine; you can also return a brand new object as long as the shape matches.
+
+Consumers that only want to observe should return the input untouched. Returning `undefined` or `null` falls back to the input object so a broken filter never wedges execution.
+
+```js
+const { hooks } = window.WPGraphQLIDE;
+
+hooks.addFilter(
+	'wpgraphql-ide.executeRequest',
+	'my-plugin/inject-trace-header',
+	(request) => ({
+		...request,
+		headers: {
+			...request.headers,
+			'X-Trace-Id': crypto.randomUUID(),
+		},
+	})
+);
+```
+
+### `wpgraphql-ide.executeResponse`
+
+Filter the parsed response object before it lands in the store / status bar / extension tabs. Plugins use this to normalize error shapes, inject synthetic `extensions` for downstream extension tabs to render, redact sensitive fields, or pass-through observe with no mutation.
+
+**Args:**
+
+- `response` (Object): Parsed GraphQL response (`{ data, errors, extensions }`).
+- `request` (Object): The (filtered) request that produced this response — same shape `executeRequest` sees. Use it to branch on operation name, query content, etc.
+
+Fires on both success and transport failure (the failure path passes `{ errors: [{ message }] }` through the filter so observers see errors through the same channel as successes). Returning `undefined` or `null` falls back to the input.
+
+```js
+hooks.addFilter(
+	'wpgraphql-ide.executeResponse',
+	'my-plugin/mark-cache-hit',
+	(response, request) => {
+		if (response?.extensions?.graphqlSmartCache?.cacheStatus === 'HIT') {
+			return {
+				...response,
+				extensions: {
+					...response.extensions,
+					myPluginCacheBadge: { hit: true, op: request.operationName },
+				},
+			};
+		}
+		return response;
+	}
+);
+```
+
+## Execute lifecycle
+
+In addition to the two filters above, the execute flow fires one action for observability:
+
+### `wpgraphql-ide.afterExecute`
+
+Fire-and-forget action with the full request + response envelope. Fires on both success and transport failure. Used by analytics, query-log, and telemetry plugins.
+
+**Args (single payload object):**
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `request` | Object | The (filtered) outbound payload — `{ query, variables, operationName, headers, httpMethod }`. |
+| `result` | Object | The (filtered) parsed response. On failure: `{ errors: [{ message }] }`. |
+| `responseHeaders` | Object\|null | Response headers map (success only). |
+| `httpStatus` | number\|null | HTTP status code (success only). |
+| `responseSize` | number\|null | Response body size in bytes (success only). |
+| `duration` | number | Wall-clock time in milliseconds. |
+| `status` | `'success' \| 'error'` | Operation outcome — `'error'` if the response carries `errors` *or* the transport failed. |
+| `ok` | boolean | `true` on transport success; `false` on transport failure. |
+| `error` | Error | Transport-level error object (failure path only). |
+
+```js
+hooks.addAction(
+	'wpgraphql-ide.afterExecute',
+	'my-plugin/analytics',
+	({ request, result, duration, status }) => {
+		// Don't await — observer must not block the response render.
+		void fetch('/my-analytics', {
+			method: 'POST',
+			body: JSON.stringify({
+				op: request.operationName,
+				ms: duration,
+				ok: status === 'success',
+			}),
+		});
+	}
+);
+```

@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { parse as parseGraphQL } from 'graphql';
 import { useDispatch, useSelect } from '@wordpress/data';
+import hooks from '../wordpress-hooks';
 
 const NO_OPERATION_MESSAGE =
 	'No operation to execute. Type a GraphQL query, mutation, or subscription and run again.';
@@ -163,13 +164,37 @@ export function useExecution(fetcher, options = {}) {
 			setResponseMeta({});
 			const startTime = Date.now();
 			let status = 'success';
+
+			// Pre-execute filter — let plugins mutate the outbound payload
+			// (inject auth tokens, transform variables, rewrite headers,
+			// switch HTTP method per query, etc.). Filter consumers must
+			// return the same shape; falling through with the input
+			// untouched is the observation-only pattern. Defaults guard
+			// against a misbehaving filter returning undefined.
+			const baseRequest = {
+				query,
+				variables: parsedVariables,
+				operationName,
+				headers: parsedHeaders,
+				httpMethod,
+			};
+			const filteredRequest =
+				hooks.applyFilters(
+					'wpgraphql-ide.executeRequest',
+					baseRequest
+				) || baseRequest;
+
 			try {
 				const fetcherReturn = await fetcher(
-					{ query, variables: parsedVariables, operationName },
 					{
-						headers: parsedHeaders,
+						query: filteredRequest.query,
+						variables: filteredRequest.variables,
+						operationName: filteredRequest.operationName,
+					},
+					{
+						headers: filteredRequest.headers,
 						signal: controller.signal,
-						method: httpMethod,
+						method: filteredRequest.httpMethod,
 					}
 				);
 				// Support both new envelope shape and legacy fetchers that
@@ -179,7 +204,7 @@ export function useExecution(fetcher, options = {}) {
 					typeof fetcherReturn === 'object' &&
 					'result' in fetcherReturn &&
 					'headers' in fetcherReturn;
-				const result = hasEnvelope
+				const rawResult = hasEnvelope
 					? fetcherReturn.result
 					: fetcherReturn;
 				const responseHeaders = hasEnvelope
@@ -193,6 +218,20 @@ export function useExecution(fetcher, options = {}) {
 					: null;
 				const duration = Date.now() - startTime;
 
+				// Post-execute filter — let plugins mutate the parsed
+				// response before it lands in the store / status bar /
+				// extension tabs. Use cases: normalize error shapes,
+				// inject synthetic extensions (e.g. cache-hit marker),
+				// redact fields the IDE shouldn't render. Receives the
+				// parsed result and the request context so a plugin can
+				// branch on the operation. Must return a result shape.
+				const result =
+					hooks.applyFilters(
+						'wpgraphql-ide.executeResponse',
+						rawResult,
+						filteredRequest
+					) || rawResult;
+
 				setResponse(JSON.stringify(result, null, 2));
 				setResponseHeaders(responseHeaders);
 				setResponseMeta({
@@ -204,6 +243,21 @@ export function useExecution(fetcher, options = {}) {
 				if (result?.errors) {
 					status = 'error';
 				}
+
+				// Fire-and-forget observability hook for analytics /
+				// query-log plugins. Carries the full request + response
+				// envelope so a single subscriber can derive whatever it
+				// needs. Action, not filter — return values are ignored.
+				hooks.doAction('wpgraphql-ide.afterExecute', {
+					request: filteredRequest,
+					result,
+					responseHeaders,
+					httpStatus,
+					responseSize,
+					duration,
+					status,
+					ok: true,
+				});
 
 				if (options.onComplete) {
 					options.onComplete({
@@ -224,7 +278,18 @@ export function useExecution(fetcher, options = {}) {
 					errors: [{ message: error.message }],
 				};
 				const duration = Date.now() - startTime;
-				setResponse(JSON.stringify(errorResponse, null, 2));
+				// Run the response filter even on transport failures so a
+				// plugin observing errors sees them through the same
+				// channel as successful responses (analytics that only
+				// fire on success undercounts failures and obscures
+				// outages).
+				const filteredErrorResponse =
+					hooks.applyFilters(
+						'wpgraphql-ide.executeResponse',
+						errorResponse,
+						filteredRequest
+					) || errorResponse;
+				setResponse(JSON.stringify(filteredErrorResponse, null, 2));
 				setResponseHeaders(null);
 				setResponseMeta({
 					status: null,
@@ -232,9 +297,21 @@ export function useExecution(fetcher, options = {}) {
 					size: null,
 				});
 
+				hooks.doAction('wpgraphql-ide.afterExecute', {
+					request: filteredRequest,
+					result: filteredErrorResponse,
+					responseHeaders: null,
+					httpStatus: null,
+					responseSize: null,
+					duration,
+					status: 'error',
+					ok: false,
+					error,
+				});
+
 				if (options.onComplete) {
 					options.onComplete({
-						result: errorResponse,
+						result: filteredErrorResponse,
 						duration_ms: duration,
 						status: 'error',
 						variables: variables || '',
