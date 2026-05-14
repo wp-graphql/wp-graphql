@@ -40,8 +40,11 @@ function register_built_in_fields(): void {
 			'default'           => [],
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_alias_list',
 			'storage'           => [
+				// Smart Cache's existing alias taxonomy — registered in
+				// WPGraphQL\SmartCache\Document with TAXONOMY_NAME =
+				// graphql_query_alias. The IDE binds to it directly.
 				'kind'   => 'taxonomy',
-				'key'    => 'graphql_ide_query_alias',
+				'key'    => 'graphql_query_alias',
 				'multi'  => true,
 				'unique' => true,
 			],
@@ -57,8 +60,10 @@ function register_built_in_fields(): void {
 			'default'           => '',
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_max_age',
 			'storage'           => [
+				// Smart Cache's existing max-age taxonomy — see
+				// WPGraphQL\SmartCache\Document\MaxAge::TAXONOMY_NAME.
 				'kind' => 'taxonomy',
-				'key'  => 'graphql_ide_query_maxage',
+				'key'  => 'graphql_document_http_maxage',
 			],
 		]
 	);
@@ -86,8 +91,12 @@ function register_built_in_fields(): void {
 			],
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_grant',
 			'storage'           => [
+				// Smart Cache's existing grant taxonomy — see
+				// WPGraphQL\SmartCache\Document\Grant::TAXONOMY_NAME.
+				// Term values match Smart Cache's: allow / deny / ''
+				// (use global). Sanitizer below enforces.
 				'kind' => 'taxonomy',
-				'key'  => 'graphql_ide_query_grant',
+				'key'  => 'graphql_document_grant',
 			],
 		]
 	);
