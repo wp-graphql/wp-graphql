@@ -50,20 +50,28 @@ import {
 	FormattedViewMode,
 	TableViewMode,
 } from '../components/response-view-modes/built-in-modes';
+import { hasSmartCache } from '../bootstrap';
 
 export const initializeRegistry = () => {
 	registerEditorToolbarButtons();
 
-	registerActivityBarPanel(
-		'saved-queries',
-		{
-			title: __('Saved Queries', 'wpgraphql-ide'),
-			icon: SavedQueriesIcon,
-			content: SavedQueriesPanel,
-			headerAction: SavedQueriesPanelHeaderAction,
-		},
-		1
-	);
+	// The Saved Queries panel exclusively persists through Smart Cache's
+	// graphql_document post type + graphql_document_group taxonomy. With
+	// Smart Cache inactive the REST routes the panel calls don't exist,
+	// so don't register the panel at all rather than render a broken
+	// empty state.
+	if (hasSmartCache) {
+		registerActivityBarPanel(
+			'saved-queries',
+			{
+				title: __('Saved Queries', 'wpgraphql-ide'),
+				icon: SavedQueriesIcon,
+				content: SavedQueriesPanel,
+				headerAction: SavedQueriesPanelHeaderAction,
+			},
+			1
+		);
+	}
 
 	registerActivityBarPanel(
 		'docs-explorer',
@@ -252,47 +260,54 @@ export const initializeRegistry = () => {
 	// toolbar buttons" group (Prettify, etc.) still renders separately
 	// from EditorToolbar — these are the document-scoped actions that
 	// follow it.
-	registerEditorAction(
-		'share-link',
-		{
-			label: __('Share link…', 'wpgraphql-ide'),
-			onClick: ({ closeMenu, openShareDialog }) => {
-				closeMenu();
-				openShareDialog();
+	//
+	// All three of these operate on a saved-document concept (share
+	// links resolve a sha256-named graphql_document, rename targets the
+	// post title, duplicate spawns a new draft from a published doc),
+	// so they only register when Smart Cache is available.
+	if (hasSmartCache) {
+		registerEditorAction(
+			'share-link',
+			{
+				label: __('Share link…', 'wpgraphql-ide'),
+				onClick: ({ closeMenu, openShareDialog }) => {
+					closeMenu();
+					openShareDialog();
+				},
+				isDisabled: ({ query }) => !query?.trim(),
+				predicate: ({ endpointMode }) => !endpointMode,
 			},
-			isDisabled: ({ query }) => !query?.trim(),
-			predicate: ({ endpointMode }) => !endpointMode,
-		},
-		10
-	);
-	registerEditorAction(
-		'rename-query',
-		{
-			label: __('Rename query', 'wpgraphql-ide'),
-			onClick: ({ closeMenu, openRenameDialog }) => {
-				closeMenu();
-				openRenameDialog();
+			10
+		);
+		registerEditorAction(
+			'rename-query',
+			{
+				label: __('Rename query', 'wpgraphql-ide'),
+				onClick: ({ closeMenu, openRenameDialog }) => {
+					closeMenu();
+					openRenameDialog();
+				},
+				predicate: ({ endpointMode, activeDocument, isTempId }) =>
+					!endpointMode &&
+					!!activeDocument?.id &&
+					!isTempId(activeDocument.id),
 			},
-			predicate: ({ endpointMode, activeDocument, isTempId }) =>
-				!endpointMode &&
-				!!activeDocument?.id &&
-				!isTempId(activeDocument.id),
-		},
-		20
-	);
-	registerEditorAction(
-		'duplicate-as-draft',
-		{
-			label: __('Duplicate as draft', 'wpgraphql-ide'),
-			onClick: ({ closeMenu, duplicateAsDraft }) => {
-				closeMenu();
-				duplicateAsDraft();
+			20
+		);
+		registerEditorAction(
+			'duplicate-as-draft',
+			{
+				label: __('Duplicate as draft', 'wpgraphql-ide'),
+				onClick: ({ closeMenu, duplicateAsDraft }) => {
+					closeMenu();
+					duplicateAsDraft();
+				},
+				predicate: ({ endpointMode, isPublished }) =>
+					!endpointMode && isPublished,
 			},
-			predicate: ({ endpointMode, isPublished }) =>
-				!endpointMode && isPublished,
-		},
-		30
-	);
+			30
+		);
+	}
 
 	// Built-in document-tab kebab actions. Plugins can add "Pin tab",
 	// "Lock tab", "Move all to collection", etc. through this registry.

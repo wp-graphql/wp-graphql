@@ -58,3 +58,25 @@ export const allowEndpointSignIn = endpointMode
  * logged in, or the field wasn't injected).
  */
 export const loginUrl = typeof data.loginUrl === 'string' ? data.loginUrl : '';
+
+/**
+ * Whether WPGraphQL Smart Cache is active on the site.
+ *
+ * The IDE depends on Smart Cache for everything saved-document related —
+ * the graphql_document post type, the graphql_document_group taxonomy
+ * (collections), and the validate-and-hash-on-save machinery all live in
+ * Smart Cache. When the flag is false:
+ *
+ *   - Saved Queries activity panel is hidden
+ *   - Save / Save As / Publish / Share editor actions don't register
+ *   - Document Settings drawer / Share dialog don't surface
+ *   - Personal Collections fall through (no UI to manage them)
+ *   - Import / Export route to a no-op affordance
+ *
+ * History, preferences, schema introspection, and request execution
+ * keep working — the IDE is still a functional GraphQL client without
+ * Smart Cache. Server-side this is set in
+ * `includes/AssetEnqueue.php::enqueue()` via
+ * `class_exists('\\WPGraphQL\\SmartCache\\Document')`.
+ */
+export const hasSmartCache = !!data.hasSmartCache;

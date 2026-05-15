@@ -18,6 +18,7 @@ import { ExecutionControls } from './ExecutionControls';
 import { LeftPanel } from './LeftPanel';
 import { OverflowTabs } from '../OverflowTabs';
 import { useResizeReporter } from '../ResizeOverlay';
+import { hasSmartCache } from '../../bootstrap';
 
 /**
  * Minimum px height we'll allow the editor to be persisted at. Recovers
@@ -167,17 +168,11 @@ export function EditorPane({
 						</Button>
 					</Tooltip>
 				)}
-				{!endpointMode && docSettingsFields.length > 0 && (
-					<Tooltip
-						text={
-							showDocSettingsPanel
-								? __('Hide Document Settings', 'wpgraphql-ide')
-								: __('Show Document Settings', 'wpgraphql-ide')
-						}
-					>
-						<Button
-							onClick={toggleDocSettingsPanel}
-							aria-label={
+				{hasSmartCache &&
+					!endpointMode &&
+					docSettingsFields.length > 0 && (
+						<Tooltip
+							text={
 								showDocSettingsPanel
 									? __(
 											'Hide Document Settings',
@@ -188,14 +183,28 @@ export function EditorPane({
 											'wpgraphql-ide'
 										)
 							}
-							aria-pressed={showDocSettingsPanel}
-							size="compact"
-							className={`wpgraphql-ide-toolbar-doc-settings-btn${showDocSettingsPanel ? ' is-active' : ''}`}
 						>
-							<Icon icon={cog} />
-						</Button>
-					</Tooltip>
-				)}
+							<Button
+								onClick={toggleDocSettingsPanel}
+								aria-label={
+									showDocSettingsPanel
+										? __(
+												'Hide Document Settings',
+												'wpgraphql-ide'
+											)
+										: __(
+												'Show Document Settings',
+												'wpgraphql-ide'
+											)
+								}
+								aria-pressed={showDocSettingsPanel}
+								size="compact"
+								className={`wpgraphql-ide-toolbar-doc-settings-btn${showDocSettingsPanel ? ' is-active' : ''}`}
+							>
+								<Icon icon={cog} />
+							</Button>
+						</Tooltip>
+					)}
 				<span className="wpgraphql-ide-editor-label">
 					{__('Query', 'wpgraphql-ide')}
 				</span>
@@ -288,7 +297,7 @@ export function EditorPane({
 					}}
 				</DropdownMenu>
 				<div className="wpgraphql-ide-editor-toolbar-spacer" />
-				{!endpointMode && !isPublished && (
+				{hasSmartCache && !endpointMode && !isPublished && (
 					<>
 						{(() => {
 							// Temp drafts have never been saved to the
