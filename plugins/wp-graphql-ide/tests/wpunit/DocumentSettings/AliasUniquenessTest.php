@@ -2,8 +2,8 @@
 /**
  * Cross-document alias uniqueness.
  *
- * Aliases on a graphql_ide_query document must not collide across documents
- * (alias names are how persisted-query clients address a query, so collisions
+ * Aliases on a graphql_document must not collide across documents (alias
+ * names are how persisted-query clients address a query, so collisions
  * silently route to the wrong query). The REST update should reject the
  * conflicting payload with a 400.
  *
@@ -46,11 +46,18 @@ class AliasUniquenessTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	private function create_doc(): int {
+		// Each fixture gets a unique GraphQL body so Smart Cache's
+		// validate_and_pre_save_cb (which hashes content and rejects
+		// normalized duplicates) doesn't intercept the alias-conflict
+		// path under test.
+		static $counter = 0;
+		$counter++;
+
 		return $this->factory()->post->create( [
-			'post_type'    => 'graphql_ide_query',
+			'post_type'    => 'graphql_document',
 			'post_status'  => 'publish',
 			'post_author'  => $this->admin,
-			'post_content' => 'query { posts { nodes { id } } }',
+			'post_content' => sprintf( 'query Doc%d { posts { nodes { id } } }', $counter ),
 		] );
 	}
 
@@ -60,14 +67,14 @@ class AliasUniquenessTest extends \Codeception\TestCase\WPTestCase {
 
 		$ok = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$first}",
+			"/wp/v2/graphql_document/{$first}",
 			[ 'documentSettings' => [ 'aliases' => [ 'home-feed' ] ] ]
 		);
 		$this->assertSame( 200, $ok->get_status() );
 
 		$conflict = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$second}",
+			"/wp/v2/graphql_document/{$second}",
 			[ 'documentSettings' => [ 'aliases' => [ 'home-feed' ] ] ]
 		);
 		$this->assertSame( 400, $conflict->get_status() );
@@ -79,14 +86,14 @@ class AliasUniquenessTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[ 'documentSettings' => [ 'aliases' => [ 'home-feed' ] ] ]
 		);
 
 		// Submitting the same alias on the same document is a no-op, not a conflict.
 		$rewrite = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[ 'documentSettings' => [ 'aliases' => [ 'home-feed', 'homepage' ] ] ]
 		);
 

@@ -3,8 +3,9 @@
  * Tests for the wpgraphql_ide_user_owns_document() access function.
  *
  * The helper is post-type agnostic by design — callers filter by post
- * type before asking. These tests therefore use the IDE's own
- * `graphql_ide_query` CPT but the behaviour is the same for any post.
+ * type before asking. These tests use Smart Cache's `graphql_document`
+ * CPT (the canonical saved-document owner as of 5.0) but the behaviour
+ * is the same for any post.
  *
  * @package WPGraphQLIDE
  */
@@ -23,12 +24,15 @@ class DocumentOwnershipTest extends \Codeception\TestCase\WPTestCase {
 		$this->author_a = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->author_b = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 
+		// Empty post_content keeps Smart Cache's validate_and_pre_save_cb
+		// from running AST validation — drafts can save empty bodies.
+		// Author ownership is what these tests exercise, not query parsing.
 		$this->post_by_a = $this->factory()->post->create(
 			[
-				'post_type'    => 'graphql_ide_query',
+				'post_type'    => 'graphql_document',
 				'post_status'  => 'draft',
 				'post_author'  => $this->author_a,
-				'post_content' => '{ posts { nodes { id } } }',
+				'post_content' => '',
 			]
 		);
 	}
@@ -96,7 +100,7 @@ class DocumentOwnershipTest extends \Codeception\TestCase\WPTestCase {
 		// This is exactly the guard `current_user_id > 0` in the helper.
 		$orphan = $this->factory()->post->create(
 			[
-				'post_type'   => 'graphql_ide_query',
+				'post_type'   => 'graphql_document',
 				'post_status' => 'draft',
 				'post_author' => 0,
 			]

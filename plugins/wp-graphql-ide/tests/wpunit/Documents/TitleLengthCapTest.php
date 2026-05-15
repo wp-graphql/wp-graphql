@@ -1,11 +1,17 @@
 <?php
 /**
- * Tests for the document title-length cap on `graphql_ide_query` writes.
+ * Tests for the document title-length cap on `graphql_document` writes.
  *
  * Without the cap, a long POST body lands a multi-kilobyte title in the
  * `post_title` TEXT column — bloating the DB and breaking admin UIs
  * (post lists, the IDE tab strip) that can't reasonably display past
  * ~200 chars.
+ *
+ * These tests use empty `post_content` so Smart Cache's
+ * `validate_and_pre_save_cb` short-circuits before AST-parsing and
+ * hash-deduping the document. The behaviour under test is the title
+ * filter, not the GraphQL parser; an empty draft is a valid Smart Cache
+ * document state.
  */
 
 namespace Tests\WPGraphQLIDE\Documents;
@@ -17,10 +23,10 @@ class TitleLengthCapTest extends \Codeception\TestCase\WPTestCase {
 
 		$id = wp_insert_post(
 			[
-				'post_type'    => 'graphql_ide_query',
+				'post_type'    => 'graphql_document',
 				'post_status'  => 'draft',
 				'post_title'   => $long_title,
-				'post_content' => '{ posts { nodes { id } } }',
+				'post_content' => '',
 			],
 			true
 		);
@@ -36,10 +42,10 @@ class TitleLengthCapTest extends \Codeception\TestCase\WPTestCase {
 	public function test_long_title_is_truncated_on_update(): void {
 		$id = wp_insert_post(
 			[
-				'post_type'    => 'graphql_ide_query',
+				'post_type'    => 'graphql_document',
 				'post_status'  => 'draft',
 				'post_title'   => 'Short title',
-				'post_content' => '{ posts { nodes { id } } }',
+				'post_content' => '',
 			],
 			true
 		);
@@ -61,10 +67,10 @@ class TitleLengthCapTest extends \Codeception\TestCase\WPTestCase {
 	public function test_short_title_passes_through_unchanged(): void {
 		$id = wp_insert_post(
 			[
-				'post_type'    => 'graphql_ide_query',
+				'post_type'    => 'graphql_document',
 				'post_status'  => 'draft',
 				'post_title'   => 'My nice query',
-				'post_content' => '{ posts { nodes { id } } }',
+				'post_content' => '',
 			],
 			true
 		);
@@ -80,10 +86,10 @@ class TitleLengthCapTest extends \Codeception\TestCase\WPTestCase {
 
 		$id = wp_insert_post(
 			[
-				'post_type'    => 'graphql_ide_query',
+				'post_type'    => 'graphql_document',
 				'post_status'  => 'draft',
 				'post_title'   => $emoji_title,
-				'post_content' => '{ posts { nodes { id } } }',
+				'post_content' => '',
 			],
 			true
 		);
@@ -94,7 +100,7 @@ class TitleLengthCapTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function test_other_post_types_are_not_truncated(): void {
-		// Filter must scope to graphql_ide_query — generic posts shouldn't
+		// Filter must scope to graphql_document — generic posts shouldn't
 		// get clipped.
 		$id = wp_insert_post(
 			[

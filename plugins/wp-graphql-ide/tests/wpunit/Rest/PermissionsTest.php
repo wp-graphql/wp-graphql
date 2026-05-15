@@ -3,8 +3,11 @@
  * Tests for the IDE's REST permission and authorization layer.
  *
  * Three guards in front of every IDE REST request:
- *   - manage_graphql_ide on every /wpgraphql-ide/v1/* and /wp/v2/graphql-ide-* route
- *   - per-user authorship on /wp/v2/graphql-ide-{queries,history}/{id}
+ *   - manage_graphql_ide on every /wpgraphql-ide/v1/* and /wp/v2/graphql_document
+ *     (Smart Cache's saved-document post type, as of 5.0) and
+ *     /wp/v2/graphql-ide-history route
+ *   - per-user authorship on /wp/v2/graphql_document/{id} and
+ *     /wp/v2/graphql-ide-history/{id}
  *   - per-user filtering of list queries
  *
  * If any of these go red, an attacker (or just a curious authenticated
@@ -73,22 +76,31 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 		return $result;
 	}
 
+	/**
+	 * Create a graphql_document under a specific author. Each doc gets
+	 * a unique GraphQL body so Smart Cache's `validate_and_pre_save_cb`
+	 * (which hashes content and rejects normalized duplicates) doesn't
+	 * trip up tests creating multiple fixtures.
+	 */
 	private function create_doc( int $author ): int {
+		static $counter = 0;
+		$counter++;
+
 		return $this->factory()->post->create( [
-			'post_type'    => 'graphql_ide_query',
+			'post_type'    => 'graphql_document',
 			'post_status'  => 'publish',
 			'post_author'  => $author,
-			'post_content' => 'query { posts { nodes { id } } }',
+			'post_content' => sprintf( 'query Doc%d { posts { nodes { id } } }', $counter ),
 		] );
 	}
 
 	// ---------------------------------------------------------------
-	// Capability gate (enforce_ide_rest_permissions)
+	// Capability gate (enforce_rest_permissions)
 	// ---------------------------------------------------------------
 
 	public function test_subscriber_cannot_list_documents() {
 		wp_set_current_user( $this->subscriber );
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-queries' );
+		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document' );
 		$this->assertSame( 403, $response->get_status() );
 	}
 
@@ -99,9 +111,10 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function test_anonymous_cannot_call_custom_routes() {
-		// Sample three of the six custom routes — they share the same
-		// permission_callback shape, so coverage of all six is overkill
-		// against a one-line gate.
+		// Sample the four remaining custom routes — they share the same
+		// permission_callback shape (wpgraphql_ide_user_can). The publish
+		// and cascade-collection routes were removed in 5.0; they no
+		// longer have anything to test here.
 		wp_set_current_user( 0 );
 		$this->assertSame( 401, $this->dispatch( 'GET', '/wpgraphql-ide/v1/documents/export' )->get_status() );
 		$this->assertSame( 401, $this->dispatch( 'POST', '/wpgraphql-ide/v1/documents/reorder', [ 'order' => [] ] )->get_status() );
@@ -114,7 +127,7 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	// ---------------------------------------------------------------
-	// Per-user list scoping (scope_ide_queries_to_current_user)
+	// Per-user list scoping (scope_rest_queries)
 	// ---------------------------------------------------------------
 
 	public function test_admin_only_sees_own_documents_in_list() {
@@ -122,7 +135,7 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 		$theirs = $this->create_doc( $this->admin_b );
 
 		wp_set_current_user( $this->admin_a );
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-queries' );
+		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document' );
 
 		$this->assertSame( 200, $response->get_status() );
 		$ids = array_column( $response->get_data(), 'id' );
@@ -131,16 +144,16 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	// ---------------------------------------------------------------
-	// Per-document author check (restrict_document_to_author)
+	// Per-document author check (restrict_document_response)
 	// ---------------------------------------------------------------
 
 	public function test_admin_cannot_read_other_admins_document_by_id() {
 		$theirs = $this->create_doc( $this->admin_b );
 
 		wp_set_current_user( $this->admin_a );
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-queries/' . $theirs );
+		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document/' . $theirs );
 
-		// rest_prepare filter returns WP_Error('rest_forbidden', ..., 403)
+		// restrict_document_response returns WP_Error('rest_forbidden', ..., 403)
 		// when the requester isn't the author. Empty body / 403.
 		$this->assertSame( 403, $response->get_status() );
 	}
@@ -149,38 +162,10 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 		$mine = $this->create_doc( $this->admin_a );
 
 		wp_set_current_user( $this->admin_a );
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-queries/' . $mine );
+		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document/' . $mine );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertEquals( $mine, $response->get_data()['id'] );
-	}
-
-	// ---------------------------------------------------------------
-	// Custom workflow routes — own-data check
-	// ---------------------------------------------------------------
-
-	public function test_publish_route_rejects_other_users_document() {
-		$theirs = $this->create_doc( $this->admin_b );
-		wp_update_post( [ 'ID' => $theirs, 'post_status' => 'draft' ] );
-
-		wp_set_current_user( $this->admin_a );
-		$response = $this->dispatch( 'POST', '/wpgraphql-ide/v1/documents/' . $theirs . '/publish' );
-
-		$this->assertContains( $response->get_status(), [ 403, 404 ] );
-	}
-
-	public function test_publish_route_rejects_empty_query() {
-		$post_id = $this->factory()->post->create( [
-			'post_type'    => 'graphql_ide_query',
-			'post_status'  => 'draft',
-			'post_author'  => $this->admin_a,
-			'post_content' => '   ',
-		] );
-
-		wp_set_current_user( $this->admin_a );
-		$response = $this->dispatch( 'POST', '/wpgraphql-ide/v1/documents/' . $post_id . '/publish' );
-
-		$this->assertSame( 400, $response->get_status() );
 	}
 
 	// ---------------------------------------------------------------
@@ -220,8 +205,10 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function test_reorder_collections_persists_per_user_order() {
-		$term_a = wp_insert_term( 'col-a', 'graphql_ide_collection' )['term_id'];
-		$term_b = wp_insert_term( 'col-b', 'graphql_ide_collection' )['term_id'];
+		// Collections are Smart Cache's `graphql_document_group` taxonomy
+		// terms as of 5.0.
+		$term_a = wp_insert_term( 'col-a', 'graphql_document_group' )['term_id'];
+		$term_b = wp_insert_term( 'col-b', 'graphql_document_group' )['term_id'];
 
 		wp_set_current_user( $this->admin_a );
 		$response = $this->dispatch( 'POST', '/wpgraphql-ide/v1/collections/reorder', [
@@ -233,26 +220,6 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 			[ $term_b, $term_a ],
 			get_user_meta( $this->admin_a, 'wpgraphql_ide_collection_order', true )
 		);
-	}
-
-	// ---------------------------------------------------------------
-	// Cascade delete — only deletes own docs
-	// ---------------------------------------------------------------
-
-	public function test_cascade_delete_only_removes_own_docs() {
-		$term_id = wp_insert_term( 'shared-collection', 'graphql_ide_collection' )['term_id'];
-		$mine    = $this->create_doc( $this->admin_a );
-		$theirs  = $this->create_doc( $this->admin_b );
-
-		wp_set_object_terms( $mine,   [ $term_id ], 'graphql_ide_collection' );
-		wp_set_object_terms( $theirs, [ $term_id ], 'graphql_ide_collection' );
-
-		wp_set_current_user( $this->admin_a );
-		$response = $this->dispatch( 'DELETE', '/wpgraphql-ide/v1/collections/' . $term_id . '/cascade' );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertNull( get_post( $mine ),   'My doc should be deleted' );
-		$this->assertNotNull( get_post( $theirs ), 'Other admin\'s doc must survive' );
 	}
 
 	// ---------------------------------------------------------------

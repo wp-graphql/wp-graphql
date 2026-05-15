@@ -48,11 +48,19 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 		// Explicit empty post_excerpt — the factory otherwise seeds a
 		// "Post excerpt N" string, which would conflict with our assertion
 		// that description defaults to empty for a brand-new doc.
+		//
+		// Each fixture gets a unique GraphQL body so Smart Cache's
+		// validate_and_pre_save_cb (which hashes content and rejects
+		// normalized duplicates) doesn't reject a second doc with the
+		// same content as the first.
+		static $counter = 0;
+		$counter++;
+
 		return $this->factory()->post->create( [
-			'post_type'    => 'graphql_ide_query',
+			'post_type'    => 'graphql_document',
 			'post_status'  => 'publish',
 			'post_author'  => $author,
-			'post_content' => 'query { posts { nodes { id } } }',
+			'post_content' => sprintf( 'query Doc%d { posts { nodes { id } } }', $counter ),
 			'post_excerpt' => '',
 		] );
 	}
@@ -60,7 +68,7 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 	public function test_get_returns_default_values_for_new_document() {
 		wp_set_current_user( $this->admin_a );
 		$id       = $this->create_doc( $this->admin_a );
-		$response = $this->dispatch( 'GET', "/wp/v2/graphql-ide-queries/{$id}" );
+		$response = $this->dispatch( 'GET', "/wp/v2/graphql_document/{$id}" );
 
 		$this->assertSame( 200, $response->get_status() );
 
@@ -78,7 +86,7 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		$response = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[
 				'documentSettings' => [
 					'description' => 'Used by the homepage',
@@ -94,7 +102,7 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		// Round-trip via a fresh GET to confirm persistence (not just the
 		// response object's view).
-		$reread = $this->dispatch( 'GET', "/wp/v2/graphql-ide-queries/{$id}" )->get_data();
+		$reread = $this->dispatch( 'GET', "/wp/v2/graphql_document/{$id}" )->get_data();
 		$this->assertSame( 'Used by the homepage', $reread['documentSettings']['description'] );
 		$this->assertSame( 'allow', $reread['documentSettings']['grant'] );
 	}
@@ -105,7 +113,7 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		$response = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[
 				'documentSettings' => [
 					'aliases' => [ 'home-feed', 'homepage' ],
@@ -127,7 +135,7 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		$response = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[
 				'documentSettings' => [ 'maxAgeHeader' => 3600 ],
 			]
@@ -144,11 +152,11 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[ 'documentSettings' => [ 'maxAgeHeader' => -10 ] ]
 		);
 
-		$reread = $this->dispatch( 'GET', "/wp/v2/graphql-ide-queries/{$id}" )->get_data();
+		$reread = $this->dispatch( 'GET', "/wp/v2/graphql_document/{$id}" )->get_data();
 		$this->assertSame( '', $reread['documentSettings']['maxAgeHeader'] );
 	}
 
@@ -158,11 +166,11 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[ 'documentSettings' => [ 'grant' => 'banana' ] ]
 		);
 
-		$reread = $this->dispatch( 'GET', "/wp/v2/graphql-ide-queries/{$id}" )->get_data();
+		$reread = $this->dispatch( 'GET', "/wp/v2/graphql_document/{$id}" )->get_data();
 		$this->assertSame( '', $reread['documentSettings']['grant'] );
 	}
 
@@ -172,7 +180,7 @@ class RestTest extends \Codeception\TestCase\WPTestCase {
 
 		$response = $this->dispatch(
 			'POST',
-			"/wp/v2/graphql-ide-queries/{$id}",
+			"/wp/v2/graphql_document/{$id}",
 			[ 'documentSettings' => [ 'description' => 'Sneaky edit' ] ]
 		);
 

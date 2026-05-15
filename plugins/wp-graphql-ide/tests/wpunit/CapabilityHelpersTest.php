@@ -165,11 +165,11 @@ class CapabilityHelpersTest extends \Codeception\TestCase\WPTestCase {
 		);
 		wp_set_current_user( $this->custom_cap_user );
 
-		// /wp/v2/graphql-ide-queries — the Access::enforce_rest_permissions
+		// /wp/v2/graphql_document — the Access::enforce_rest_permissions
 		// gate. Should NOT be 403 once the filter propagates. (We allow any
 		// 2xx; the list may be empty for this user, which is fine.)
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-queries' );
-		$this->assertNotSame( 403, $response->get_status(), '/wp/v2/graphql-ide-queries was 403 — the cap filter did not reach Access::enforce_rest_permissions.' );
+		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document' );
+		$this->assertNotSame( 403, $response->get_status(), '/wp/v2/graphql_document was 403 — the cap filter did not reach Access::enforce_rest_permissions.' );
 
 		// /wpgraphql-ide/v1/documents/export — the Rest::register
 		// permission_callback gate. Same expectation.
@@ -189,7 +189,7 @@ class CapabilityHelpersTest extends \Codeception\TestCase\WPTestCase {
 		);
 		wp_set_current_user( $this->custom_cap_user );
 
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-queries' );
+		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document' );
 		$this->assertSame( 403, $response->get_status() );
 
 		$response = $this->dispatch( 'GET', '/wpgraphql-ide/v1/documents/export' );
