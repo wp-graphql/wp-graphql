@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
+import { __, sprintf } from '@wordpress/i18n';
 import { SnackbarList } from '@wordpress/components';
 import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
 import { ShareDialog } from './dialogs/ShareDialog';
@@ -555,7 +556,11 @@ export function IDELayout({ fetcher, onClose }) {
 			}
 		}
 
-		// Save first to ensure content is persisted.
+		// Save first to ensure content is persisted, then flip status to
+		// publish. Smart Cache's save_document_cb hashes the normalized
+		// query into post_name on the way through; if a duplicate exists,
+		// WP's wp_unique_post_slug suffixes the slug so the two docs
+		// coexist (5.0 dropped the old `already_exists` collision dialog).
 		try {
 			await saveTab(activeDocument.id, {
 				query,
@@ -563,42 +568,20 @@ export function IDELayout({ fetcher, onClose }) {
 				headers,
 				documentSettings: docSettingsValues,
 			});
-			const result = await publishTab(activeDocument.id);
-			if (result?.already_exists && result?.id) {
-				// Server detected an identical published document. Don't
-				// silently swap tabs — the draft tab would be left
-				// orphaned. Ask the user how to resolve.
-				const draftId = activeDocument.id;
-				const existingId = String(result.id);
-				const choice = await choose({
-					title: 'This query is already published',
-					message:
-						'An existing published document has the same content. Open it, or keep editing this draft to make it different.',
-					actions: [
-						{
-							key: 'open',
-							label: 'Open existing',
-							variant: 'primary',
-						},
-						{ key: 'keep', label: 'Keep editing' },
-					],
-				});
-				if (choice === 'open') {
-					// Switch first so closing the draft doesn't trigger
-					// the active-tab fallback inside closeTab; then both
-					// persistTabState writes land in deterministic order.
-					await switchTab(existingId);
-					await closeTab(String(draftId));
-				}
-				// 'keep' or null: stay on the draft, no tab change.
-			} else {
-				addNotice('Document published');
-			}
+			await publishTab(activeDocument.id);
+			addNotice(__('Document published', 'wpgraphql-ide'));
 		} catch (error) {
 			const message =
 				error?.message && typeof error.message === 'string'
-					? `Failed to publish document: ${error.message}`
-					: 'Failed to publish document';
+					? sprintf(
+							/* translators: %s: error message returned by the publish request */
+							__(
+								'Failed to publish document: %s',
+								'wpgraphql-ide'
+							),
+							error.message
+						)
+					: __('Failed to publish document', 'wpgraphql-ide');
 			addNotice(message, 'error');
 		}
 	}, [
@@ -610,9 +593,6 @@ export function IDELayout({ fetcher, onClose }) {
 		schema,
 		saveTab,
 		publishTab,
-		switchTab,
-		closeTab,
-		choose,
 		addNotice,
 	]);
 
