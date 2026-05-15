@@ -11,9 +11,10 @@ namespace WPGraphQLIDE;
 
 /**
  * Per-user scoping and visibility filters that gate every read path
- * touching `graphql_ide_query` / `graphql_ide_history` — REST list
- * queries, REST single fetches, GraphQL connections, GraphQL node-by-id
- * resolution, plus the title-length cap on writes.
+ * touching Smart Cache's `graphql_document` / the IDE's
+ * `graphql_ide_history` — REST list queries, REST single fetches,
+ * GraphQL connections, GraphQL node-by-id resolution, plus the
+ * title-length cap on writes.
  */
 class Access {
 
@@ -217,7 +218,7 @@ class Access {
 	}
 
 	/**
-	 * Truncate `post_title` to 200 chars on `graphql_ide_query` writes.
+	 * Truncate `post_title` to 200 chars on `graphql_document` writes.
 	 *
 	 * The `post_title` column is TEXT in MySQL with no hard cap, so a
 	 * long POST body could bloat the database or break admin UIs (post

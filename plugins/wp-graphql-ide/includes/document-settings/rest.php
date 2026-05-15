@@ -2,7 +2,7 @@
 /**
  * REST exposure for Document Settings fields.
  *
- * Adds a single `documentSettings` field to the `graphql_ide_query` REST
+ * Adds a single `documentSettings` field to the `graphql_document` REST
  * resource. Reads return a key/value map of all registered fields. Updates
  * accept the same shape and dispatch each value through the storage adapter.
  *

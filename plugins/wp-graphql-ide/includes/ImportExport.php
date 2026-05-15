@@ -37,8 +37,8 @@ class ImportExport {
 	 * Seed example collections and documents for the activating user.
 	 * Idempotent via `wpgraphql_ide_seed_version`.
 	 *
-	 * Documents are seeded as published with SHA-256 content-addressed
-	 * slugs (same algorithm as `handle_publish_document`), so the
+	 * Documents are seeded as published; Smart Cache's `save_document_cb`
+	 * hashes the content and writes the SHA-256 into `post_name` so the
 	 * activated install matches the canonical example dataset exactly.
 	 */
 	public static function seed(): void {

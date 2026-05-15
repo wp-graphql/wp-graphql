@@ -2,7 +2,7 @@
 /**
  * Storage adapter for Document Settings fields.
  *
- * Reads and writes a field's value for a given graphql_ide_query post,
+ * Reads and writes a field's value for a given graphql_document post,
  * dispatching on the field's `storage.kind` (post_field | post_meta | taxonomy).
  * Centralizes the taxonomy term <-> value mapping (single, multi, integer
  * normalization) so REST callbacks stay thin.

@@ -62,7 +62,7 @@ if ( ! function_exists( 'wpgraphql_ide_user_owns_document' ) ) {
 	 * Whether the current user is the author of the given post.
 	 *
 	 * "Document" is the IDE's vocabulary for saved queries
-	 * (`graphql_ide_query` posts), but the helper itself is post-type
+	 * (Smart Cache's `graphql_document` posts), but the helper itself is post-type
 	 * agnostic — callers are responsible for filtering by post type
 	 * before asking. Returns `false` for anonymous visitors (user id 0)
 	 * even when the post's `post_author` is also 0, so a system-authored
