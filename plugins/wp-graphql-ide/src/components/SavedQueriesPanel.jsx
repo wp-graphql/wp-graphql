@@ -33,7 +33,6 @@ import { RenameInput } from './RenameInput';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import {
 	updateDocument,
-	deleteCollectionWithContents,
 	exportDocuments,
 	importDocuments,
 } from '../api/documents';
@@ -796,7 +795,23 @@ export function SavedQueriesPanel() {
 		}
 		const { id } = deleteTarget;
 		if (deleteContents) {
-			await deleteCollectionWithContents(id);
+			// In 5.0 the server-side cascade endpoint
+			// (`/documents/collections/:id`) was removed in favor of
+			// Smart Cache's stock taxonomy DELETE. So we cascade client-
+			// side: find every saved document tagged with this term and
+			// remove each (which fires the document-editor store's
+			// own delete path — closes the tab if open, then DELETEs
+			// the post), then drop the term itself.
+			const inCollection = documents.filter(
+				(d) =>
+					!isTempId(d.id) &&
+					Array.isArray(d.collections) &&
+					d.collections.includes(id)
+			);
+			for (const d of inCollection) {
+				await removeDocument(d.id);
+			}
+			await removeCollection(id);
 			await loadCollections();
 		} else {
 			await removeCollection(id);

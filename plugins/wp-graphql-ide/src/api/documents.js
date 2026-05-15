@@ -1,23 +1,60 @@
 import apiFetch from '@wordpress/api-fetch';
 
-const ENDPOINT = '/wp/v2/graphql-ide-queries';
-const COLLECTIONS_ENDPOINT = '/wp/v2/graphql-ide-collections';
+// As of IDE 5.0 the IDE no longer owns its own document post type —
+// Smart Cache's `graphql_document` is the canonical owner. The IDE's
+// SmartCacheBridge (PHP) filters Smart Cache's registrations to add
+// `show_in_rest` so the WP REST API serves the post type and its
+// taxonomies under these default routes.
+//
+// Without Smart Cache active, these routes don't exist and every call
+// here will 404. The JS layer gates document features on the
+// `hasSmartCache` bootstrap flag (see src/registry/index.js) so these
+// functions only get invoked when the routes are real.
+const ENDPOINT = '/wp/v2/graphql_document';
+const COLLECTIONS_ENDPOINT = '/wp/v2/graphql_document_group';
+
+// Default taxonomy field name in the WP REST post response. WP REST
+// auto-includes a field per registered taxonomy on the post type;
+// since `graphql_document_group` is registered without a `rest_base`,
+// the field name on the post object matches the taxonomy slug.
+const COLLECTIONS_FIELD = 'graphql_document_group';
 
 /**
- * Fetch all IDE query documents for the current user.
+ * Fetch all saved-query documents visible to the current user.
+ *
+ * Per-user scoping is enforced on the server side by Access.php's
+ * `scope_rest_queries` filter — this client doesn't pass an author
+ * arg explicitly.
  *
  * @return {Promise<Array>} Array of document objects.
  */
 export async function getDocuments() {
+	const fields = [
+		'id',
+		'title',
+		'content',
+		'status',
+		'meta',
+		'menu_order',
+		'modified',
+		COLLECTIONS_FIELD,
+		'documentSettings',
+	].join(',');
+
 	const posts = await apiFetch({
-		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&orderby=menu_order&order=asc&_fields=id,title,content,status,meta,menu_order,modified,graphql-ide-collections,documentSettings`,
+		path: `${ENDPOINT}?per_page=100&status=publish,draft&context=edit&orderby=menu_order&order=asc&_fields=${fields}`,
 	});
 
 	return posts.map(normalizeDocument);
 }
 
 /**
- * Create a new IDE query document.
+ * Create a new saved-query document.
+ *
+ * Smart Cache's `validate_and_pre_save_cb` runs on every non-admin
+ * insert and AST-validates the content. Non-empty content that isn't
+ * valid GraphQL will be rejected by the server with a `RequestError`.
+ * Empty content is allowed (drafts).
  *
  * @param {Object} doc             Document data.
  * @param {string} doc.title       Tab/operation name.
@@ -38,7 +75,7 @@ export async function createDocument(doc) {
 		},
 	};
 	if (doc.collections) {
-		data['graphql-ide-collections'] = doc.collections;
+		data[COLLECTIONS_FIELD] = doc.collections;
 	}
 	if (doc.documentSettings && typeof doc.documentSettings === 'object') {
 		data.documentSettings = doc.documentSettings;
@@ -54,7 +91,7 @@ export async function createDocument(doc) {
 }
 
 /**
- * Update an existing IDE query document.
+ * Update an existing saved-query document.
  *
  * @param {number} id  Post ID.
  * @param {Object} doc Fields to update.
@@ -82,7 +119,7 @@ export async function updateDocument(id, doc) {
 		}
 	}
 	if (doc.collections !== undefined) {
-		data['graphql-ide-collections'] = doc.collections;
+		data[COLLECTIONS_FIELD] = doc.collections;
 	}
 	if (doc.documentSettings && typeof doc.documentSettings === 'object') {
 		data.documentSettings = doc.documentSettings;
@@ -98,24 +135,7 @@ export async function updateDocument(id, doc) {
 }
 
 /**
- * Publish a draft document.
- *
- * The server computes the SHA-256 hash of the AST-normalized query,
- * sets it as the post slug (queryId), and changes status to publish.
- * If the query is already published, returns the existing document.
- *
- * @param {number} id Post ID.
- * @return {Promise<Object>} Publish result with id, status, query_hash.
- */
-export async function publishDocument(id) {
-	return apiFetch({
-		path: `/wpgraphql-ide/v1/documents/${id}/publish`,
-		method: 'POST',
-	});
-}
-
-/**
- * Delete an IDE query document.
+ * Delete a saved-query document.
  *
  * @param {number}  id    Post ID.
  * @param {boolean} force Whether to bypass trash (default false).
@@ -142,7 +162,7 @@ function normalizeDocument(post) {
 		variables: post.meta?._graphql_ide_variables ?? '',
 		headers: post.meta?._graphql_ide_headers ?? '',
 		status: post.status ?? 'draft',
-		collections: post['graphql-ide-collections'] ?? [],
+		collections: post[COLLECTIONS_FIELD] ?? [],
 		documentSettings:
 			post.documentSettings && typeof post.documentSettings === 'object'
 				? post.documentSettings
@@ -152,7 +172,7 @@ function normalizeDocument(post) {
 }
 
 /**
- * Fetch all collections (taxonomy terms).
+ * Fetch all collections (Smart Cache's `graphql_document_group` taxonomy terms).
  *
  * @return {Promise<Array>} Array of { id, name, count } objects.
  */
@@ -197,26 +217,17 @@ export async function renameCollection(id, name) {
 /**
  * Delete a collection.
  *
+ * Documents previously assigned to the term lose their assignment;
+ * they aren't deleted. The old cascade-delete REST route was removed
+ * in 5.0 — callers that want to delete documents along with the
+ * collection do it explicitly.
+ *
  * @param {number} id Term ID.
  * @return {Promise<Object>} Deletion response.
  */
 export async function deleteCollection(id) {
 	return apiFetch({
 		path: `${COLLECTIONS_ENDPOINT}/${id}?force=true`,
-		method: 'DELETE',
-	});
-}
-
-/**
- * Delete a collection and every document in it owned by the current
- * user. Documents owned by other users are left intact.
- *
- * @param {number} id Term ID.
- * @return {Promise<Object>} Cascade response with deleted post IDs.
- */
-export async function deleteCollectionWithContents(id) {
-	return apiFetch({
-		path: `/wpgraphql-ide/v1/collections/${id}/cascade`,
 		method: 'DELETE',
 	});
 }
@@ -247,8 +258,7 @@ export async function importDocuments(payload) {
 }
 
 /**
- * Persist a new menu_order for the given document IDs (server stores
- * the position as `menu_order`; the documents endpoint sorts by it).
+ * Persist a new menu_order for the given document IDs.
  *
  * @param {Array<number>} ids Document IDs in their new order.
  */

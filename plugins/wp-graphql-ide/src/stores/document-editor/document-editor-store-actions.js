@@ -3,7 +3,6 @@ import {
 	createDocument,
 	updateDocument,
 	deleteDocument,
-	publishDocument,
 	reorderDocuments,
 } from '../../api/documents';
 import { getPreferences, setPreference } from '../../api/preferences';
@@ -339,21 +338,16 @@ const actions = {
 		},
 
 	/**
-	 * Publish a saved document (change status from draft to publish).
+	 * Publish a saved draft document.
 	 *
-	 * @param {string|number} id Document ID.
-	 * @return {Promise<Object|null>} Published document or null on error.
-	 */
-	/**
-	 * Publish a draft document via the server-side hash endpoint.
-	 *
-	 * The server normalizes the query, computes its SHA-256 hash,
-	 * sets it as the slug (queryId), and changes status to publish.
-	 * If the query already exists as a published document, the
-	 * server returns the existing document.
+	 * As of 5.0 there's no separate publish-with-hash REST endpoint —
+	 * Smart Cache validates, normalizes, and hashes (sets post_name to
+	 * the sha256) on every save via its `save_document_cb` hook. We
+	 * just flip status to `publish` through the standard update path
+	 * and read the resulting slug back off the post.
 	 *
 	 * @param {string|number} id Document ID (must be a saved draft).
-	 * @return {Promise<Object|null>} Publish result or null.
+	 * @return {Promise<Object|null>} Updated document or null.
 	 */
 	publishTab:
 		(id) =>
@@ -362,16 +356,24 @@ const actions = {
 				return null;
 			}
 			try {
-				const result = await publishDocument(id);
+				const updated = await updateDocument(id, { status: 'publish' });
 				dispatch({
 					type: 'UPDATE_DOCUMENT',
 					document: {
-						id: result.id,
+						id: updated.id,
 						status: 'publish',
-						queryHash: result.query_hash,
+						// Slug = sha256 hash, set by Smart Cache's
+						// save_document_cb. The REST `_fields` request
+						// in getDocuments doesn't include slug today —
+						// downstream consumers that need the queryHash
+						// can read it from the document's `slug` field
+						// via a follow-up fetch. For now we don't
+						// surface a queryHash on the dispatched payload;
+						// existing callsites that read it gracefully
+						// degrade to undefined.
 					},
 				});
-				return result;
+				return updated;
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to publish document:', error);
