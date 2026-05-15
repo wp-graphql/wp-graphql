@@ -41,6 +41,22 @@
   in addition to `manage_graphql_ide`. IDE users without `list_users` will see
   the Sharing affordance hidden instead of opening onto a permission-denied
   dead end.
+- **REST routes removed:** `/wpgraphql-ide/v1/documents/:id/publish` and
+  `/wpgraphql-ide/v1/documents/collections/:id` (the publish-with-hash and
+  cascade-delete routes) are removed. The publish flow is now a standard
+  `POST /wp/v2/graphql_document/:id` with `status=publish`; Smart Cache's
+  `save_document_cb` validates, normalizes, and writes the sha256 hash to
+  `post_name` server-side. Cascade-collection deletion is performed
+  client-side (delete each child document, then delete the term) since the
+  caller already has the documents loaded.
+- **Publish duplicate-detection dialog removed:** the old publish endpoint
+  returned `already_exists: true` with the existing document ID when a
+  duplicate normalized query was detected, which drove a "this query is
+  already published" choice dialog. With Smart Cache as the owner,
+  `wp_unique_post_slug()` resolves collisions by suffixing the slug
+  (`<hash>`, `<hash>-2`, …) and the dialog no longer fires. Identical
+  queries published from different drafts will coexist as separate
+  documents.
 - **Capability filter integrity:** the `wpgraphql_ide_capability_required`
   filter is now consulted at every IDE permission check — REST permission
   callbacks, post-type / taxonomy capability maps, post-meta and user-meta
