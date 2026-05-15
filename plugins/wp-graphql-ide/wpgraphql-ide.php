@@ -104,6 +104,12 @@ function initialize_plugin() {
 	// removes our half of the race.
 	add_action( 'init', [ \WPGraphQLIDE\PostTypes::class, 'register' ] );
 	add_action( 'init', [ \WPGraphQLIDE\UserMeta::class, 'register' ] );
+
+	// Bridge Smart Cache's primitives (graphql_document + 4 taxonomies)
+	// into REST exposure the IDE's JS client needs. No-op without Smart
+	// Cache. Wire the filters now — before Smart Cache's `init` priority
+	// 10 fires register_post_type / register_taxonomy.
+	\WPGraphQLIDE\SmartCacheBridge::register();
 	add_action( 'admin_menu', [ \WPGraphQLIDE\AdminUI::class, 'register_dedicated_ide_menu' ] );
 	add_action( 'admin_bar_menu', [ \WPGraphQLIDE\AdminUI::class, 'register_wpadminbar_menus' ], 999 );
 	add_action( 'admin_enqueue_scripts', [ \WPGraphQLIDE\AdminUI::class, 'enqueue_graphql_ide_menu_icon_css' ] );
