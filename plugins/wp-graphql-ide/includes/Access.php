@@ -153,11 +153,18 @@ class Access {
 
 		$route = $request->get_route();
 
-		// graphql_document's default REST base is 'graphql-document' (Smart
-		// Cache registers the post type without an explicit rest_base);
-		// graphql-ide-history is the IDE's own history route.
-		$is_ide_route = strpos( $route, '/wp/v2/graphql-document' ) === 0
-			|| strpos( $route, '/wp/v2/graphql-ide-history' ) === 0;
+		// Smart Cache registers `graphql_document` without an explicit
+		// rest_base, so WP REST uses the post type slug verbatim
+		// (underscores preserved). graphql-ide-history is the IDE's own
+		// history route. We also gate the four document taxonomies the
+		// SmartCacheBridge exposes to REST so that listing terms /
+		// reading term metadata is cap-gated through the same filter.
+		$is_ide_route = strpos( $route, '/wp/v2/graphql_document' ) === 0
+			|| strpos( $route, '/wp/v2/graphql-ide-history' ) === 0
+			|| strpos( $route, '/wp/v2/graphql_document_group' ) === 0
+			|| strpos( $route, '/wp/v2/graphql_query_alias' ) === 0
+			|| strpos( $route, '/wp/v2/graphql_document_grant' ) === 0
+			|| strpos( $route, '/wp/v2/graphql_document_http_maxage' ) === 0;
 
 		if ( ! $is_ide_route ) {
 			return $result;
