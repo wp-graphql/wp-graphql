@@ -58,7 +58,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.1",
-    "remark-rehype": "^10.1.0",
+    "remark-rehype": "^11.1.2",
     "remark-smartypants": "^2.0.0",
     "slugger": "^1.0.1",
     "tailwind-merge": "^3.6.0",
