@@ -187,8 +187,14 @@ class MediaItemCreate {
 			// Check that the filetype is allowed
 			$check_file = wp_check_filetype( $sanitized_file_path );
 
+			// wp_http_validate_url() rejects 127/10/0/172.16-31/192.168 but not
+			// RFC 3927 link-local (169.254/16), which exposes cloud instance
+			// metadata (169.254.169.254). Reject those explicitly.
+			$host          = wp_parse_url( $uploaded_file_url, PHP_URL_HOST );
+			$is_link_local = is_string( $host ) && 0 === strpos( $host, '169.254.' );
+
 			// if the file doesn't pass the check, throw an error
-			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) ) {
+			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) || $is_link_local ) {
 				// translators: %s is the file path.
 				throw new UserError( esc_html( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) ) );
 			}
