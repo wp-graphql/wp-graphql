@@ -196,7 +196,7 @@ class MediaItemCreate {
 			$protocol = wp_parse_url( $input['filePath'], PHP_URL_SCHEME );
 
 			// prevent the filePath from being submitted with a non-allowed protocols
-			$allowed_protocols = [ 'https', 'http', 'file' ];
+			$allowed_protocols = [ 'https', 'http' ];
 
 			/**
 			 * Filter the allowed protocols for the mutation
@@ -227,16 +227,6 @@ class MediaItemCreate {
 			 * download_url and wp_handle_sideload methods.
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
-
-			$file_contents = file_get_contents( $input['filePath'] );
-
-			/**
-			 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
-			 */
-			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) && ! empty( $file_contents ) ) {
-				$uploaded_file     = wp_upload_bits( $file_name, null, $file_contents );
-				$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
-			}
 
 			/**
 			 * Ensure we have a valid URL before attempting download
