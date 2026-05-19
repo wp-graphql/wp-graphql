@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.13.0\n"
+"Project-Id-Version: WPGraphQL 2.14.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-08T17:24:16+00:00\n"
+"POT-Creation-Date: 2026-05-19T18:27:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1328,27 +1328,27 @@ msgstr ""
 msgid "Invalid protocol. \"%1$s\". Only \"%2$s\" allowed."
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:245
+#: src/Mutation/MediaItemCreate.php:235
 msgid "Sorry, the file could not be uploaded"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:260
+#: src/Mutation/MediaItemCreate.php:250
 msgid "Sorry, the URL for this file is invalid, it must be a valid URL"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:292
+#: src/Mutation/MediaItemCreate.php:282
 msgid "Sorry, the URL for this file is invalid, it must be a path to the mediaItem file"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:314
+#: src/Mutation/MediaItemCreate.php:304
 msgid "The parent of the Media Item is of an invalid type"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:318
+#: src/Mutation/MediaItemCreate.php:308
 msgid "Sorry, you are not allowed to upload mediaItems assigned to this parent node"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:340
+#: src/Mutation/MediaItemCreate.php:330
 msgid "The media item failed to create but no error was provided"
 msgstr ""
 

@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.13.0
+Stable tag: 2.14.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -300,6 +300,21 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.14.0 =
+
+**New Features**
+
+* **deps:** bump sanitize-html from 2.17.3 to 2.17.4 ([#3831](https://github.com/wp-graphql/wp-graphql/issues/3831))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 4 updates ([#3826](https://github.com/wp-graphql/wp-graphql/issues/3826))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#3820](https://github.com/wp-graphql/wp-graphql/issues/3820))
+
+**Bug Fixes**
+
+* **deps-dev:** bump composer/composer from 2.2.27 to 2.2.28 in /plugins/wp-graphql ([#3832](https://github.com/wp-graphql/wp-graphql/issues/3832))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3827](https://github.com/wp-graphql/wp-graphql/issues/3827))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group across 1 directory with 2 updates ([#3829](https://github.com/wp-graphql/wp-graphql/issues/3829))
+* **security:** drop file:// support from createMediaItem mutation ([#3834](https://github.com/wp-graphql/wp-graphql/issues/3834))
 
 = 2.13.0 =
 
