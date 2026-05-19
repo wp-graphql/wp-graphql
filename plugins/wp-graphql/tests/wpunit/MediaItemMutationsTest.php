@@ -1335,4 +1335,30 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 		$this->assertQueryError( $actual, $expected );
 	}
+
+	/**
+	 * Asserts that a filePath using the file:// protocol is rejected and no
+	 * media item is created. Regression test for the local file inclusion
+	 * vector previously enabled by including 'file' in the default
+	 * $allowed_protocols list.
+	 */
+	public function testFileProtocolIsRejected() {
+		wp_set_current_user( $this->admin );
+
+		$result = graphql(
+			[
+				'query'     => 'mutation($i:CreateMediaItemInput!){createMediaItem(input:$i){mediaItem{sourceUrl}}}',
+				'variables' => [
+					'i' => [
+						'filePath' => 'file:///etc/hostname#.jpg',
+						'title'    => 'LFI',
+						'fileType' => 'IMAGE_JPG',
+					],
+				],
+			]
+		);
+
+		$this->assertNotEmpty( $result['errors'] ?? [] );
+		$this->assertStringNotContainsString( 'wp-content/uploads', wp_json_encode( $result ) );
+	}
 }
