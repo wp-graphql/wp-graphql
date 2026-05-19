@@ -1532,6 +1532,66 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * REST parity: createMediaItem must reject `attachment` post type as
+	 * parent. Mirrors WP_REST_Attachments_Controller::create_item(), which
+	 * rejects revision/attachment parents to prevent invalid nesting.
+	 */
+	public function testCannotUseAttachmentAsParent() {
+		wp_set_current_user( $this->admin );
+
+		// Use the existing attachment created in setUp() as the parent.
+		$this->create_variables['input']['parentId'] = $this->attachment_id;
+
+		$actual = $this->createMediaItemMutation();
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['createMediaItem']['mediaItem'] ?? null );
+	}
+
+	/**
+	 * REST parity: createMediaItem must reject `revision` post type as
+	 * parent.
+	 */
+	public function testCannotUseRevisionAsParent() {
+		wp_set_current_user( $this->admin );
+
+		// Create a post and then a revision of it; the revision's ID is the
+		// parent we'll try to use.
+		$post_id     = $this->factory()->post->create( [ 'post_author' => $this->admin ] );
+		$revision_id = wp_save_post_revision( $post_id );
+		$this->assertIsInt( $revision_id, 'Revision factory should yield an integer ID for the test setup.' );
+
+		$this->create_variables['input']['parentId'] = $revision_id;
+
+		$actual = $this->createMediaItemMutation();
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['createMediaItem']['mediaItem'] ?? null );
+	}
+
+	/**
+	 * REST parity: createMediaItem must reject image types the server
+	 * cannot generate sub-sizes for. We disable the image editor entirely
+	 * via the wp_image_editors filter so wp_image_editor_supports() returns
+	 * false for any MIME — proving the new guard fires when triggered.
+	 */
+	public function testRejectsImageTypesTheServerCannotResize() {
+		wp_set_current_user( $this->admin );
+
+		$disable_editors = static function () {
+			return [];
+		};
+		add_filter( 'wp_image_editors', $disable_editors );
+
+		$actual = $this->createMediaItemMutation();
+
+		remove_filter( 'wp_image_editors', $disable_editors );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['createMediaItem']['mediaItem'] ?? null );
+	}
+
+	/**
 	 * Exercises the wp_handle_sideload error branch in MediaItemCreate.
 	 * The URL passes wp_check_filetype (.jpg extension) and
 	 * wp_http_validate_url (public IP), download_url succeeds, but the
