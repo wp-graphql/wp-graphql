@@ -45,7 +45,7 @@
     "next-mdx-remote": "^4.1.0",
     "next-sitemap": "3.1.3",
     "next-themes": "^0.4.6",
-    "octokit": "^3.1.2",
+    "octokit": "^5.0.5",
     "postinstall-postinstall": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
