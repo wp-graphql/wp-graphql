@@ -41,9 +41,26 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public $attachment_id;
 	public $media_item_id;
 
+	/**
+	 * URLs intercepted by preHttpRequestMock() during the current test, in
+	 * the order they reached the HTTP layer. Asserting against this is how
+	 * SSRF tests prove that wp_http_validate_url() rejected the URL before
+	 * any HTTP call was attempted.
+	 *
+	 * @var string[]
+	 */
+	public $intercepted_urls = [];
+
+	/**
+	 * Test fixture setup. Creates users, populates input variables, and
+	 * registers the pre_http_request mock that handles outbound HTTP for
+	 * every test in this class.
+	 */
 	public function setUp(): void {
 		// before
 		parent::setUp();
+
+		$this->intercepted_urls = [];
 
 		// We don't want this funking with our tests
 		remove_image_size( 'twentyseventeen-thumbnail-avatar' );
@@ -163,13 +180,70 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 				'forceDelete' => true,
 			],
 		];
+
+		add_filter( 'pre_http_request', [ $this, 'preHttpRequestMock' ], 10, 3 );
 	}
 
+	/**
+	 * Test fixture teardown. Removes the pre_http_request mock registered
+	 * in setUp().
+	 */
 	public function tearDown(): void {
-		// your tear down methods here
+		remove_filter( 'pre_http_request', [ $this, 'preHttpRequestMock' ], 10 );
 
 		// then
 		parent::tearDown();
+	}
+
+	/**
+	 * Short-circuits download_url() for the GitHub raw fixture URL used by
+	 * setUp() and blocks all other outbound HTTP so tests never depend on
+	 * real network access.
+	 *
+	 * Two responsibilities:
+	 *   1. The canonical fixture URL receives a synthetic 200 response and
+	 *      the local test-mgc.gif fixture is copied into download_url()'s
+	 *      streamed temp file. This is what makes the happy-path tests
+	 *      deterministic.
+	 *   2. Every URL that reaches this filter is recorded in
+	 *      $this->intercepted_urls. SSRF tests assert that their target
+	 *      URL is NOT present in that list — proving wp_http_validate_url()
+	 *      rejected the URL before any HTTP attempt.
+	 *   3. Any non-fixture URL is short-circuited with a WP_Error so a
+	 *      validation gap can never silently turn into a real network call.
+	 *
+	 * @param false|array<string,mixed>|\WP_Error $preempt Whether to preempt the request.
+	 * @param array<string,mixed>                 $args    HTTP request arguments.
+	 * @param string                              $url     The request URL.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function preHttpRequestMock( $preempt, $args, $url ) {
+		$this->intercepted_urls[] = $url;
+
+		$fixture_marker = 'raw.githubusercontent.com/wp-graphql/wp-graphql';
+		$fixture_path   = __DIR__ . '/../_data/images/test-mgc.gif';
+
+		if ( false !== strpos( $url, $fixture_marker ) && is_readable( $fixture_path ) ) {
+			if ( ! empty( $args['filename'] ) ) {
+				copy( $fixture_path, $args['filename'] );
+			}
+
+			return [
+				'headers'  => [],
+				'body'     => '',
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+				'cookies'  => [],
+				'filename' => $args['filename'] ?? null,
+			];
+		}
+
+		return new \WP_Error(
+			'test_http_blocked',
+			'pre_http_request: external URLs are blocked in tests: ' . $url
+		);
 	}
 
 	/**
@@ -1360,5 +1434,154 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 		$this->assertNotEmpty( $result['errors'] ?? [] );
 		$this->assertStringNotContainsString( 'wp-content/uploads', wp_json_encode( $result ) );
+	}
+
+	/**
+	 * Shared assertion for SSRF regression tests. Sends the createMediaItem
+	 * mutation as an admin with the given filePath and asserts:
+	 *   1. The mutation returns errors.
+	 *   2. No media item was created.
+	 *   3. The URL never reached the pre_http_request layer — proving
+	 *      wp_http_validate_url() or the plugin's own validation rejected
+	 *      the URL before any HTTP attempt was made.
+	 *
+	 * @param string $url   The filePath to submit.
+	 * @param string $label Short label for failure messages.
+	 */
+	protected function assertSsrfTargetRejected( $url, $label ) {
+		wp_set_current_user( $this->admin );
+		$this->create_variables['input']['filePath'] = $url;
+
+		$actual = $this->createMediaItemMutation();
+
+		$this->assertArrayHasKey( 'errors', $actual, "$label should produce errors" );
+		$this->assertNull(
+			$actual['data']['createMediaItem']['mediaItem'] ?? null,
+			"$label should not create a media item"
+		);
+
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+		$this->assertStringNotContainsString(
+			(string) $host,
+			implode( "\n", $this->intercepted_urls ),
+			"$label ({$url}) reached the HTTP layer; validation should reject it earlier"
+		);
+	}
+
+	/**
+	 * AWS/GCP/Azure cloud instance metadata is exposed at 169.254.169.254
+	 * (RFC 3927 link-local). An authenticated upload_files user must not be
+	 * able to coerce the server into requesting it.
+	 */
+	public function testCannotInputCloudMetadataIp() {
+		$this->assertSsrfTargetRejected(
+			'http://169.254.169.254/latest/meta-data/instance-id.jpg',
+			'Cloud metadata IP (169.254.169.254)'
+		);
+	}
+
+	/**
+	 * RFC1918 10.0.0.0/8 — private network. Must not be reachable from
+	 * the createMediaItem mutation.
+	 */
+	public function testCannotInputPrivateIpv4Class10() {
+		$this->assertSsrfTargetRejected(
+			'http://10.0.0.1/test.jpg',
+			'RFC1918 10/8 private range'
+		);
+	}
+
+	/**
+	 * RFC1918 172.16.0.0/12 — private network.
+	 */
+	public function testCannotInputPrivateIpv4Class172() {
+		$this->assertSsrfTargetRejected(
+			'http://172.16.0.1/test.jpg',
+			'RFC1918 172.16/12 private range'
+		);
+	}
+
+	/**
+	 * RFC1918 192.168.0.0/16 — private network.
+	 */
+	public function testCannotInputPrivateIpv4Class192() {
+		$this->assertSsrfTargetRejected(
+			'http://192.168.1.1/test.jpg',
+			'RFC1918 192.168/16 private range'
+		);
+	}
+
+	/**
+	 * IPv6 loopback [::1] must be rejected.
+	 */
+	public function testCannotInputIpv6Loopback() {
+		$this->assertSsrfTargetRejected(
+			'http://[::1]/test.jpg',
+			'IPv6 loopback [::1]'
+		);
+	}
+
+	/**
+	 * IPv6 link-local [fe80::*] must be rejected.
+	 */
+	public function testCannotInputIpv6LinkLocal() {
+		$this->assertSsrfTargetRejected(
+			'http://[fe80::1]/test.jpg',
+			'IPv6 link-local [fe80::1]'
+		);
+	}
+
+	/**
+	 * Exercises the wp_handle_sideload error branch in MediaItemCreate.
+	 * The URL passes wp_check_filetype (.jpg extension) and
+	 * wp_http_validate_url (public IP), download_url succeeds, but the
+	 * downloaded content is plaintext — so wp_handle_sideload's filetype
+	 * check rejects it. The mutation must surface the error and create no
+	 * attachment.
+	 *
+	 * Uses RFC 5737 documentation IP 203.0.113.42 to avoid any chance of
+	 * real network traffic; a higher-priority pre_http_request filter
+	 * fires before the setUp mock and serves the bad bytes.
+	 */
+	public function testCreateMediaItemSideloadFailureIsSurfaced() {
+		wp_set_current_user( $this->admin );
+
+		$bad_url   = 'http://203.0.113.42/looks-like-jpeg-but-is-text.jpg';
+		$delivered = false;
+
+		$bad_bytes_filter = static function ( $preempt, $args, $url ) use ( $bad_url, &$delivered ) {
+			if ( $url !== $bad_url ) {
+				return $preempt;
+			}
+			if ( ! empty( $args['filename'] ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- $args['filename'] is wp_tempnam() output in /tmp.
+				file_put_contents( $args['filename'], 'this is plaintext, not an image' );
+			}
+			$delivered = true;
+			return [
+				'headers'  => [],
+				'body'     => '',
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+				'cookies'  => [],
+				'filename' => $args['filename'] ?? null,
+			];
+		};
+		add_filter( 'pre_http_request', $bad_bytes_filter, 5, 3 );
+
+		$this->create_variables['input']['filePath'] = $bad_url;
+
+		$actual = $this->createMediaItemMutation();
+
+		remove_filter( 'pre_http_request', $bad_bytes_filter, 5 );
+
+		$this->assertTrue(
+			$delivered,
+			'Bad-bytes filter never fired; URL was rejected before reaching HTTP, so the wp_handle_sideload branch was not exercised'
+		);
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['createMediaItem']['mediaItem'] ?? null );
 	}
 }
