@@ -196,7 +196,7 @@ class MediaItemCreate {
 			$protocol = wp_parse_url( $input['filePath'], PHP_URL_SCHEME );
 
 			// prevent the filePath from being submitted with a non-allowed protocols
-			$allowed_protocols = [ 'https', 'http', 'file' ];
+			$allowed_protocols = [ 'https', 'http' ];
 
 			/**
 			 * Filter the allowed protocols for the mutation
