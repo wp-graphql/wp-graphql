@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next"
-import { getServerSideSitemap } from "next-sitemap"
+import { getServerSideSitemapLegacy } from "next-sitemap"
 
 import { request } from "lib/wpgraphql-client"
 
@@ -61,5 +61,5 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return acc
   }, [])
 
-  return await getServerSideSitemap(ctx, allRoutes)
+  return await getServerSideSitemapLegacy(ctx, allRoutes)
 }
