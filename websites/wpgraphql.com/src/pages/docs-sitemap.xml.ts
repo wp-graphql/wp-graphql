@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next"
-import { getServerSideSitemap } from "next-sitemap"
+import { getServerSideSitemapLegacy } from "next-sitemap"
 import { getAllDocUri } from "lib/parse-mdx-docs"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
@@ -23,5 +23,5 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     loc: `${SITE_URL}${docUri}`,
   }))
 
-  return await getServerSideSitemap(ctx, allDocsSitemap)
+  return await getServerSideSitemapLegacy(ctx, allDocsSitemap)
 }
