@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.0...wp-graphql-acf/v2.6.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.27 to 2.2.28 in /plugins/wp-graphql-acf ([#3833](https://github.com/wp-graphql/wp-graphql/issues/3833)) ([b3c1e4b](https://github.com/wp-graphql/wp-graphql/commit/b3c1e4bda2afac9e1b78e56599475b35bca3a4d8))
+
 ## [2.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.2...wp-graphql-acf/v2.6.0) (2026-04-23)
 
 
