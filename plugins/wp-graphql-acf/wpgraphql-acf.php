@@ -12,7 +12,7 @@
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Requires Plugins: wp-graphql
- * Requires WPGraphQL: 1.29
+ * Requires WPGraphQL: 2.14.1
  * WPGraphQL tested up to: 2.0.0
  *
  * @package  WPGraphQL\ACF
@@ -38,7 +38,7 @@ if ( ! defined( 'WPGRAPHQL_FOR_ACF_VERSION' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_FOR_ACF_VERSION_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
-	define( 'WPGRAPHQL_FOR_ACF_VERSION_WPGRAPHQL_REQUIRED_MIN_VERSION', '1.14.4' );
+	define( 'WPGRAPHQL_FOR_ACF_VERSION_WPGRAPHQL_REQUIRED_MIN_VERSION', '2.14.1' );
 }
 
 if ( ! defined( 'WPGRAPHQL_FOR_ACF_VERSION_PLUGIN_DIR' ) ) {
