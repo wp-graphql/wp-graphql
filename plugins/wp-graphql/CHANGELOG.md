@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.14.0...wp-graphql/v2.14.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* Allow compatible interface field override with `register_graphql_field()` ([#3539](https://github.com/wp-graphql/wp-graphql/issues/3539)) ([0cf2b22](https://github.com/wp-graphql/wp-graphql/commit/0cf2b22ab9a9faef4607b62f42cb228542ce5b87))
+
 ## [2.14.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.13.0...wp-graphql/v2.14.0) (2026-05-19)
 
 
