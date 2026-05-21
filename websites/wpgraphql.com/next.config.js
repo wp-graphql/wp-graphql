@@ -2,12 +2,16 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 })
 
-function getWpHostname() {
+function getWpRemotePattern() {
   const url = process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://wp.wpgraphql.com"
   try {
-    return new URL(url).hostname
+    const parsed = new URL(url)
+    return {
+      protocol: parsed.protocol.replace(":", ""),
+      hostname: parsed.hostname,
+    }
   } catch {
-    return "wp.wpgraphql.com"
+    return { protocol: "https", hostname: "wp.wpgraphql.com" }
   }
 }
 
@@ -29,10 +33,10 @@ const getHeaders = async () => {
 const nextConfig = withBundleAnalyzer({
   pageExtensions: ["ts", "tsx", "js", "jsx"],
   images: {
-    domains: [
-      "secure.gravatar.com",
-      "raw.githubusercontent.com",
-      getWpHostname(),
+    remotePatterns: [
+      { protocol: "https", hostname: "secure.gravatar.com" },
+      { protocol: "https", hostname: "raw.githubusercontent.com" },
+      getWpRemotePattern(),
     ],
     disableStaticImages: true,
   },
