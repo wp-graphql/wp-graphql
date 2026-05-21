@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import SiteLayout from "components/Site/SiteLayout"
 
 export default function SingleDeveloperReference({ data }) {
   const { post } = data
@@ -16,7 +16,7 @@ export default function SingleDeveloperReference({ data }) {
             <article className="relative pt-10 max-w-3xl mx-auto">
               <header>
                 <div className="space-y-6">
-                  <h1 className="col-span-full break-words text-3xl sm:text-4xl text-center xl:mb-5 font-extrabold tracking-tight text-slate-900 dark:text-slate-200">
+                  <h1 className="col-span-full break-words text-center text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
                     {post.title}
                   </h1>
                 </div>
@@ -24,7 +24,7 @@ export default function SingleDeveloperReference({ data }) {
               <div className="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-12">
                 <div
                   id="content"
-                  className="prose dark:prose-dark"
+                  className="prose"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
               </div>
@@ -36,21 +36,18 @@ export default function SingleDeveloperReference({ data }) {
   )
 }
 
-SingleDeveloperReference.variables = ({ uri }) => {
-  return {
-    uri,
-  }
+SingleDeveloperReference.queries = {
+  post: {
+    query: gql`
+      query SingleDeveloperReference_Post($uri: ID!) {
+        post(id: $uri, idType: URI) {
+          id
+          title
+          uri
+          content
+        }
+      }
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
 }
-
-SingleDeveloperReference.query = gql`
-  query GetSingularNode($uri: ID!) {
-    post(id: $uri, idType: URI) {
-      id
-      title
-      uri
-      content
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`

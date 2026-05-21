@@ -1,56 +1,683 @@
-@import "docsearch.css";
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./docsearch.css";
 
-@tailwind base;
+@plugin "@tailwindcss/typography";
 
-html {
-  scroll-behavior: smooth;
+@source "../../src/**/*.{js,jsx,ts,tsx,mdx}";
+
+/* Class-based dark mode (works with next-themes attribute="class") */
+@custom-variant dark (&:is(.dark *), &.dark);
+
+/* ============================================================
+   THEME TOKENS — exposed as Tailwind utilities
+   ============================================================ */
+@theme {
+  /* ── Navy scale ── */
+  --color-navy-50:  hsl(220 35% 95%);
+  --color-navy-100: hsl(219 30% 86%);
+  --color-navy-200: hsl(219 23% 73%);
+  --color-navy-300: hsl(219 26% 57%);
+  --color-navy-400: hsl(220 31% 42%);
+  --color-navy-500: hsl(226 40% 31%);
+  --color-navy-600: hsl(225 42% 26%);
+  --color-navy-700: hsl(224 43% 21%);
+  --color-navy-800: hsl(222 42% 15%);
+  --color-navy-900: hsl(222 45% 10%);
+  --color-navy-950: hsl(222 47% 8%);
+
+  /* ── Orange (WPG accent) — prefixed to avoid colliding with Tailwind's built-in orange ── */
+  --color-orange-wpg-50:  hsl(35 100% 93%);
+  --color-orange-wpg-100: hsl(33 100% 80%);
+  --color-orange-wpg-200: hsl(31 100% 65%);
+  --color-orange-wpg-300: hsl(30 100% 55%);   /* PRIMARY ACCENT — #FF8C1A */
+  --color-orange-wpg-400: hsl(28 100% 47%);
+  --color-orange-wpg-500: hsl(27 100% 44%);
+  --color-orange-wpg-600: hsl(26 100% 38%);
+
+  /* ── Typography — fonts ──
+     `--font-bricolage` and `--font-dm-mono` are injected onto <html> by next/font/google
+     in src/lib/fonts.js. We provide system fallbacks here. */
+  --font-sans:    var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-mono:    var(--font-dm-mono), "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+
+  /* ── Typography — display sizes ── */
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.04em;
+  --text-display-xl--font-weight: 800;
+
+  --text-display-lg: 3.75rem;
+  --text-display-lg--line-height: 1.02;
+  --text-display-lg--letter-spacing: -0.035em;
+  --text-display-lg--font-weight: 800;
+
+  --text-display-md: 3rem;
+  --text-display-md--line-height: 1.05;
+  --text-display-md--letter-spacing: -0.03em;
+  --text-display-md--font-weight: 700;
+
+  --text-display-sm: 2.25rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-sm--letter-spacing: -0.025em;
+  --text-display-sm--font-weight: 700;
+
+  --text-headline: 1.875rem;
+  --text-headline--line-height: 1.15;
+  --text-headline--letter-spacing: -0.02em;
+  --text-headline--font-weight: 600;
+
+  /* ── Shadows — orange glow + navy elevation ── */
+  --shadow-glow-sm: 0 0 12px -2px hsl(30 100% 55% / 0.25);
+  --shadow-glow-md: 0 0 24px -4px hsl(30 100% 55% / 0.30);
+  --shadow-glow-lg: 0 0 40px -8px hsl(30 100% 55% / 0.35);
+  --shadow-elev-sm: 0 1px 3px 0 hsl(222 47% 4% / 0.4), 0 1px 2px -1px hsl(222 47% 4% / 0.4);
+  --shadow-elev-md: 0 4px 12px -2px hsl(222 47% 4% / 0.5), 0 2px 4px -2px hsl(222 47% 4% / 0.3);
+  --shadow-elev-lg: 0 12px 32px -4px hsl(222 47% 4% / 0.6), 0 4px 8px -4px hsl(222 47% 4% / 0.3);
+
+  /* ── Spacing extensions ── */
+  --spacing-18: 4.5rem;
+
+  /* ── Layout ── */
+  --container-8xl: 90rem;
+
+  /* ── Breakpoints (preserve existing custom values) ── */
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1800px;
+
+  /* ── Radius extras ── */
+  --radius-pill: 9999px;
+
+  /* ── Animations ── */
+  --animate-fade-in:        fade-in 0.2s ease-out;
+  --animate-fade-out:       fade-out 0.15s ease-in;
+  --animate-slide-in-right: slide-in-right 0.25s ease-out;
+  --animate-glow-pulse:     glow-pulse 2.5s ease-in-out infinite;
 }
 
-@tailwind components;
-@tailwind utilities;
-
-@font-face {
-  font-family: 'Lora';
-  src: url('/fonts/lora/Lora-VariableFont_wght.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(4px); }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px -2px hsl(30 100% 55% / 0.2); }
+  50%      { box-shadow: 0 0 24px -2px hsl(30 100% 55% / 0.5); }
 }
 
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter/InterVariable.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+/* ============================================================
+   SEMANTIC TOKENS — runtime swap between dark (default) and light
+   ============================================================ */
+@theme inline {
+  --color-background:        hsl(var(--background));
+  --color-foreground:        hsl(var(--foreground));
+  --color-card:              hsl(var(--card));
+  --color-card-foreground:   hsl(var(--card-foreground));
+  --color-popover:           hsl(var(--popover));
+  --color-popover-foreground:hsl(var(--popover-foreground));
+  --color-primary:           hsl(var(--primary));
+  --color-primary-foreground:hsl(var(--primary-foreground));
+  --color-secondary:         hsl(var(--secondary));
+  --color-secondary-foreground:hsl(var(--secondary-foreground));
+  --color-muted:             hsl(var(--muted));
+  --color-muted-foreground:  hsl(var(--muted-foreground));
+  --color-accent:            hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive:       hsl(var(--destructive));
+  --color-destructive-foreground:hsl(var(--destructive-foreground));
+  --color-border:            hsl(var(--border));
+  --color-input:             hsl(var(--input));
+  --color-ring:              hsl(var(--ring));
+
+  --radius-lg:  var(--radius);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-xl:  calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
-h1, h2 {
-  font-family: 'Lora', serif;
+:root {
+  /* DARK is the default — applied at :root so body/html use it before next-themes hydrates */
+  --background:             222 47% 8%;
+  --foreground:             220 60% 97%;
+
+  --card:                   222 45% 10%;
+  --card-foreground:        220 60% 97%;
+
+  --popover:                222 45% 10%;
+  --popover-foreground:     220 60% 97%;
+
+  --primary:                30 100% 55%;
+  --primary-foreground:     222 47% 8%;
+
+  --secondary:              224 43% 21%;
+  --secondary-foreground:   220 60% 97%;
+
+  --muted:                  222 42% 15%;
+  --muted-foreground:       219 26% 57%;
+
+  --accent:                 224 43% 21%;
+  --accent-foreground:      220 60% 97%;
+
+  --destructive:            0 84% 60%;
+  --destructive-foreground: 220 60% 97%;
+
+  --border:                 224 43% 21%;
+  --input:                  224 43% 21%;
+  --ring:                   30 100% 55%;
+
+  /* Body-text tier — softer than --foreground for long-form copy.
+     navy-200 (#A3B4CC) on dark bg = brand "text-secondary". */
+  --body-text:              219 23% 73%;
+
+  --radius: 0.5rem;
+
+  /* Scroll margin used by docs anchor links (was inline on <Html> previously) */
+  --scroll-mt: 9.875rem;
 }
 
-
-/* Regular buttons */
-.btn-primary {
-  @apply mt-8 bg-blue text-white border border-transparent rounded-full shadow px-5 py-3 inline-flex items-center text-base font-medium hover:bg-blue-500 hover:shadow-lg transition-all duration-300;
+@media (min-width: 1024px) {
+  :root {
+    --scroll-mt: 6.3125rem;
+  }
 }
 
-.btn-secondary {
-  @apply mt-8 border-2 dark:text-white dark:border-white border-navy text-navy bg-transparent rounded-full shadow px-5 py-3 inline-flex items-center text-base font-medium hover:bg-navy hover:text-white hover:shadow-lg dark:hover:bg-white dark:hover:text-navy duration-300;
+.light {
+  --background:             220 35% 95%;
+  --foreground:             222 47% 8%;
+
+  --card:                   220 60% 99%;
+  --card-foreground:        222 47% 8%;
+
+  --popover:                220 60% 99%;
+  --popover-foreground:     222 47% 8%;
+
+  --primary:                28 100% 47%;
+  --primary-foreground:     220 60% 99%;
+
+  --secondary:              219 30% 86%;
+  --secondary-foreground:   222 42% 15%;
+
+  --muted:                  219 30% 86%;
+  --muted-foreground:       220 31% 42%;
+
+  --accent:                 219 30% 86%;
+  --accent-foreground:      222 42% 15%;
+
+  --destructive:            0 72% 51%;
+  --destructive-foreground: 220 60% 99%;
+
+  --border:                 219 23% 73%;
+  --input:                  219 23% 73%;
+  --ring:                   28 100% 47%;
+
+  /* Body-text tier in light mode — navy-700 (#1E2D50). Dark enough to
+     read against the navy-50 background but softer than --foreground. */
+  --body-text:              224 43% 21%;
 }
 
-/* Small buttons */
-.btn-primary-sm {
-  @apply mt-8 bg-blue text-white border border-transparent rounded-full shadow px-3 py-2 inline-flex items-center text-sm font-medium hover:bg-blue-600 hover:shadow-lg transition-all duration-300;
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  *, ::before, ::after {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    font-feature-settings: "cv01", "cv02", "cv03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, kbd, pre, samp, .font-mono {
+    font-family: var(--font-mono);
+  }
 }
 
-.btn-secondary-sm {
-  @apply mt-8 border-2 border-navy text-navy bg-transparent rounded-full shadow px-3 py-2 inline-flex items-center text-sm font-medium hover:bg-navy hover:text-white hover:shadow-lg transition-all duration-300;
+/* ============================================================
+   COMPONENTS — restyled legacy button utilities so existing usages auto-rebrand
+   ============================================================ */
+@layer components {
+  .btn-primary {
+    @apply mt-8 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-base font-semibold text-primary-foreground shadow-glow-sm transition-all duration-200;
+  }
+  .btn-primary:hover {
+    background-color: hsl(31 100% 65%); /* orange-wpg-200 */
+    box-shadow: var(--shadow-glow-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary-sm {
+    @apply mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-glow-sm transition-all duration-200;
+  }
+  .btn-primary-sm:hover {
+    background-color: hsl(31 100% 65%);
+    box-shadow: var(--shadow-glow-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    @apply mt-8 inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-3 text-base font-semibold text-secondary-foreground transition-colors duration-200;
+  }
+  .btn-secondary:hover {
+    background-color: hsl(225 42% 26%); /* navy-600 */
+    border-color: hsl(226 40% 31%); /* navy-500 */
+  }
+
+  .btn-secondary-sm {
+    @apply mt-8 inline-flex items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-sm font-semibold text-secondary-foreground transition-colors duration-200;
+  }
+  .btn-secondary-sm:hover {
+    background-color: hsl(225 42% 26%);
+    border-color: hsl(226 40% 31%);
+  }
+
+  .subtitle {
+    @apply font-mono text-xs font-medium uppercase tracking-widest text-muted-foreground;
+  }
+
+  /* Adjacent buttons spacing — preserved from legacy */
+  [class*='btn-'] + [class*='btn-'] {
+    @apply ml-4;
+  }
 }
 
-.subtitle {
-  @apply text-base font-semibold tracking-wider text-purple-600 dark:text-purple-400 uppercase;
+/* ============================================================
+   PROSE — typography customization for MDX/docs content
+
+   Strategy: override the @tailwindcss/typography plugin's CSS variables
+   (--tw-prose-*) so the plugin's default rules use our brand colors,
+   instead of fighting selector specificity. Add a few extras on top
+   for things the plugin doesn't cover (custom bullet, mono <small>).
+   ============================================================ */
+/* Outside @layer so we win the cascade against the @tailwindcss/typography
+   plugin's own defaults on `.prose` (which set --tw-prose-body to slate-700
+   by default). Spec: same selector + later rule wins, and the plugin's
+   rules register at @layer base. */
+/*
+   Brand has three text tiers:
+     foreground (~white #F0F4FF)  — headings, strong, emphasis
+     navy-200   (#A3B4CC)         — body copy ("text-secondary" in brand HTML)
+     muted-foreground (navy-300)  — captions, leads, helpers
+   Pure foreground for all body copy reads as too bright on the dark
+   background; navy-200 matches the brand HTML's `--text-sec`.
+*/
+.prose,
+.prose.prose {
+  --tw-prose-body:          hsl(var(--body-text));
+  --tw-prose-headings:      hsl(var(--foreground));
+  --tw-prose-lead:          hsl(var(--muted-foreground));
+  --tw-prose-links:         hsl(var(--primary));
+  --tw-prose-bold:          hsl(var(--foreground));
+  --tw-prose-counters:      hsl(var(--muted-foreground));
+  --tw-prose-bullets:       hsl(var(--muted-foreground));
+  --tw-prose-hr:            hsl(var(--border));
+  --tw-prose-quotes:        hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--primary));
+  --tw-prose-captions:      hsl(var(--muted-foreground));
+  --tw-prose-code:          hsl(var(--primary));
+  --tw-prose-pre-code:      hsl(var(--card-foreground));
+  --tw-prose-pre-bg:        hsl(var(--card));
+  --tw-prose-th-borders:    hsl(var(--border));
+  --tw-prose-td-borders:    hsl(var(--border));
+  --tw-prose-invert-body:          hsl(var(--body-text));
+  --tw-prose-invert-headings:      hsl(var(--foreground));
+  --tw-prose-invert-lead:          hsl(var(--muted-foreground));
+  --tw-prose-invert-links:         hsl(var(--primary));
+  --tw-prose-invert-bold:          hsl(var(--foreground));
+  --tw-prose-invert-counters:      hsl(var(--muted-foreground));
+  --tw-prose-invert-bullets:       hsl(var(--muted-foreground));
+  --tw-prose-invert-hr:            hsl(var(--border));
+  --tw-prose-invert-quotes:        hsl(var(--foreground));
+  --tw-prose-invert-quote-borders: hsl(var(--primary));
+  --tw-prose-invert-captions:      hsl(var(--muted-foreground));
+  --tw-prose-invert-code:          hsl(var(--primary));
+  --tw-prose-invert-pre-code:      hsl(var(--card-foreground));
+  --tw-prose-invert-pre-bg:        hsl(var(--card));
+  --tw-prose-invert-th-borders:    hsl(var(--border));
+  --tw-prose-invert-td-borders:    hsl(var(--border));
+  color: hsl(var(--body-text));
+  max-width: none;
 }
 
-/* Apply margin left to all adjacent "buttons", excluding the first button */
-[class*='btn-'] + [class*='btn-'] {
-  @apply ml-4;
+/* Backstop: paragraph / list / dl text gets navy-200 even if the
+   typography plugin's selector loses to inline color from WP-rendered HTML. */
+.prose :where(p, li, dt, dd):not(:where([class~="not-prose"] *)) {
+  color: hsl(var(--body-text));
 }
+
+@layer base {
+  /* Headings: brand display font + tracking, anchor scroll margin */
+  .prose :where(h1, h2, h3, h4, h5):not(:where([class~="not-prose"] *)) {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    scroll-margin-top: var(--scroll-mt);
+  }
+
+  /* Mono <small> tags inside headings (used in API reference) */
+  .prose :where(h2 small, h3 small, h4 small):not(:where([class~="not-prose"] *)) {
+    font-family: var(--font-mono);
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  /* Links: subtler underline (not the plugin's default thick one),
+     orange on hover, no underline when wrapping a code/heading element */
+  .prose :where(a):not(:where([class~="not-prose"] *)) {
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--primary) / 0.4);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color .15s ease, text-decoration-color .15s ease;
+  }
+  .prose :where(a:hover):not(:where([class~="not-prose"] *)) {
+    color: hsl(31 100% 65%); /* orange-wpg-200 */
+    text-decoration-color: currentColor;
+  }
+  .prose :where(a code):not(:where([class~="not-prose"] *)) {
+    color: inherit;
+    font-weight: inherit;
+  }
+  .prose :where(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a):not(:where([class~="not-prose"] *)) {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Inline code: orange on muted bg pill */
+  .prose :where(code):not(:where([class~="not-prose"] *)) {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-variant-ligatures: none;
+    background: hsl(var(--muted));
+    padding: 0.15em 0.4em;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+  .prose :where(code)::before,
+  .prose :where(code)::after {
+    content: none; /* drop the plugin's "" quote characters */
+  }
+
+  /* Code blocks: brand card surface */
+  .prose :where(pre):not(:where([class~="not-prose"] *)) {
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-top: 1.5em;
+    margin-bottom: 2em;
+  }
+  .prose :where(pre code):not(:where([class~="not-prose"] *)) {
+    background: transparent;
+    padding: 0;
+    font-weight: 400;
+  }
+
+  /* Lists use the typography plugin's default disc/decimal markers,
+     coloured by --tw-prose-bullets / --tw-prose-counters (set above to
+     muted-foreground). The previous custom horizontal-dash ::before
+     marker collided with the plugin's bullets — both rendered, and the
+     dash got mis-positioned in nested lists. */
+
+  .prose :where(iframe):not(:where([class~="not-prose"] *)) {
+    max-width: 100%;
+  }
+}
+
+/* ============================================================
+   CODE BLOCK WINDOW — applied by EnhanceCodeBlocks to every <pre>
+   inside .prose. Adds a top header bar with mac-style traffic-light
+   dots, a language label, and a Copy button.
+   ============================================================ */
+.code-block-wrap {
+  margin: 1.5em 0 2em;
+  /* Dark by default. Light-mode override below swaps to a light surface
+     plus a GitHub-light Prism theme. */
+  background: hsl(222 45% 10%); /* navy-900 */
+  color: hsl(220 60% 97%);
+  border: 1px solid hsl(224 43% 21%); /* navy-700 */
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-elev-sm);
+}
+
+/* ── Light mode: light code surface ───────────────────────────────── */
+.light .code-block-wrap {
+  background: hsl(220 35% 98%);                /* near-white, a hair off navy-50 */
+  color: hsl(222 47% 8%);                       /* navy-950 */
+  border-color: hsl(219 23% 80%);
+  box-shadow:
+    0 8px 20px -10px hsl(222 47% 4% / 0.10),
+    0 2px 6px -2px hsl(222 47% 4% / 0.06);
+}
+
+.light .code-block-wrap .code-block-header {
+  background: hsl(220 30% 94%);
+  border-bottom-color: hsl(219 23% 85%);
+}
+
+.light .code-block-wrap .code-block-lang,
+.light .code-block-wrap .code-block-copy {
+  color: hsl(220 31% 42%); /* navy-400 */
+  border-color: hsl(219 23% 80%);
+}
+.light .code-block-wrap .code-block-copy:hover {
+  color: hsl(28 100% 47%); /* primary, light mode */
+  border-color: hsl(28 100% 47%);
+  background: hsl(220 35% 98%);
+}
+
+/* GitHub-light–inspired Prism colours, scoped to .light .code-block-wrap so
+   they only fire when the surrounding wrapper is light. The dark Night Owl
+   theme in docs.css continues to apply when the wrapper is dark. */
+
+/* Override the Night Owl base color (#d6deeb is set on every
+   code[class*="language-"] / pre[class*="language-"] in docs.css). Without
+   this, GraphQL scalars / type-names / directives that we don't explicitly
+   theme inherit Night Owl's near-white text onto the light surface. */
+.light .code-block-wrap pre[class*="language-"],
+.light .code-block-wrap code[class*="language-"] {
+  color: hsl(222 47% 8%); /* navy-950 */
+}
+
+/* Fallback: any token we haven't explicitly themed inherits the wrapper's
+   navy-950 foreground from the rule above. Specific overrides below win
+   on higher specificity. */
+.light .code-block-wrap .token {
+  color: inherit;
+}
+
+.light .code-block-wrap .token.comment,
+.light .code-block-wrap .token.prolog,
+.light .code-block-wrap .token.doctype,
+.light .code-block-wrap .token.cdata        { color: #6a737d; }
+.light .code-block-wrap .token.punctuation  { color: #24292e; }
+.light .code-block-wrap .token.property,
+.light .code-block-wrap .token.tag,
+.light .code-block-wrap .token.boolean,
+.light .code-block-wrap .token.number,
+.light .code-block-wrap .token.constant,
+.light .code-block-wrap .token.symbol,
+.light .code-block-wrap .token.deleted      { color: #005cc5; }
+.light .code-block-wrap .token.selector,
+.light .code-block-wrap .token.attr-name,
+.light .code-block-wrap .token.string,
+.light .code-block-wrap .token.char,
+.light .code-block-wrap .token.builtin,
+.light .code-block-wrap .token.inserted     { color: #032f62; }
+.light .code-block-wrap .token.operator,
+.light .code-block-wrap .token.entity,
+.light .code-block-wrap .token.url,
+.light .code-block-wrap .language-css .token.string,
+.light .code-block-wrap .style .token.string{ color: #d73a49; }
+.light .code-block-wrap .token.atrule,
+.light .code-block-wrap .token.attr-value,
+.light .code-block-wrap .token.keyword      { color: #d73a49; }
+.light .code-block-wrap .token.function,
+.light .code-block-wrap .token.class-name   { color: #6f42c1; }
+.light .code-block-wrap .token.regex,
+.light .code-block-wrap .token.important,
+.light .code-block-wrap .token.variable     { color: #e36209; }
+
+.code-block-wrap pre {
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 1rem 1.25rem !important;
+  overflow-x: auto;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: hsl(222 42% 15%); /* navy-800 */
+  border-bottom: 1px solid hsl(224 43% 21%); /* navy-700 */
+}
+
+.code-block-dots {
+  display: inline-flex;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.code-block-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.code-block-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-left: auto;
+}
+
+.code-block-lang {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(219 26% 57%); /* navy-300 */
+}
+
+.code-block-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid hsl(224 43% 21%); /* navy-700 */
+  border-radius: 0.3rem;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  color: hsl(219 26% 57%); /* navy-300 */
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.code-block-copy:hover {
+  color: hsl(220 60% 97%);
+  border-color: hsl(30 100% 55%); /* primary */
+  background: hsl(222 47% 8%); /* navy-950 */
+}
+
+.code-block-copy:focus-visible {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.3);
+}
+
+.code-block-copy.is-copied {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.code-block-copy.is-error {
+  color: hsl(var(--destructive));
+  border-color: hsl(var(--destructive) / 0.5);
+}
+
+.code-block-copy-label {
+  display: inline-block;
+}
+
+@media (max-width: 600px) {
+  .code-block-copy-label {
+    display: none;
+  }
+  .code-block-copy {
+    padding: 0.25rem 0.4rem;
+  }
+}
+
+/* ============================================================
+   MOCK IDE — homepage demo component (MockIDE.js). Theme-aware:
+   dark surface in dark mode, light surface in light mode, with
+   syntax token colours per mode.
+   ============================================================ */
+:root {
+  --ide-bg:            222 45% 10%; /* navy-900 */
+  --ide-header-bg:     222 42% 15%; /* navy-800 */
+  --ide-pane-bg:       222 47% 9%;  /* navy-950-ish */
+  --ide-border:        224 43% 21%; /* navy-700 */
+  --ide-text:          220 60% 97%;
+  --ide-muted:         219 26% 57%; /* navy-300 */
+  --ide-tok-key:       216 100% 75%; /* #82AAFF light blue */
+  --ide-tok-str:       35 70% 73%;   /* #ECC48D warm tan */
+  --ide-tok-num:       18 90% 70%;
+  --ide-tok-kw:        271 65% 75%;  /* purple */
+  --ide-tok-punc:      215 16% 47%;  /* muted slate */
+}
+
+.light {
+  --ide-bg:            220 35% 98%;
+  --ide-header-bg:     220 30% 94%;
+  --ide-pane-bg:       220 30% 97%;
+  --ide-border:        219 23% 82%;
+  --ide-text:          222 47% 8%;
+  --ide-muted:         220 31% 42%;
+  --ide-tok-key:       212 100% 35%; /* GitHub blue */
+  --ide-tok-str:       222 90% 25%;  /* GitHub deep blue (strings) */
+  --ide-tok-num:       19 90% 35%;
+  --ide-tok-kw:        271 65% 35%;
+  --ide-tok-punc:      215 16% 35%;
+}
+
+.ide-bg            { background-color: hsl(var(--ide-bg)); }
+.ide-header-bg     { background-color: hsl(var(--ide-header-bg)); }
+.ide-pane-bg       { background-color: hsl(var(--ide-pane-bg)); }
+.ide-border        { border-color: hsl(var(--ide-border)); }
+.ide-divide > * + * { border-color: hsl(var(--ide-border)); }
+.ide-text          { color: hsl(var(--ide-text)); }
+.ide-muted         { color: hsl(var(--ide-muted)); }
+.ide-tok-key       { color: hsl(var(--ide-tok-key)); }
+.ide-tok-str       { color: hsl(var(--ide-tok-str)); }
+.ide-tok-num       { color: hsl(var(--ide-tok-num)); }
+.ide-tok-kw        { color: hsl(var(--ide-tok-kw)); }
+.ide-tok-punc      { color: hsl(var(--ide-tok-punc)); }
+.ide-tok-cmt       { color: hsl(var(--ide-muted)); font-style: italic; }

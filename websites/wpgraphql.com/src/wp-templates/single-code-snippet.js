@@ -1,5 +1,5 @@
-import { gql } from "@apollo/client"
-import SiteLayout, { NavMenuFragment } from "components/Site/SiteLayout"
+import gql from "graphql-tag"
+import SiteLayout from "components/Site/SiteLayout"
 import Link from "next/link"
 
 export default function SingleRecipe({ data }) {
@@ -17,14 +17,14 @@ export default function SingleRecipe({ data }) {
               <header>
                 <div className="space-y-6">
                   {node.title ? (
-                    <h1 className="col-span-full break-words text-3xl sm:text-4xl text-center xl:mb-5 font-extrabold tracking-tight text-slate-900 dark:text-slate-200">
+                    <h1 className="col-span-full break-words text-center text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
                       {node.title}
                     </h1>
                   ) : null}
                   <div className="flex flex-wrap justify-center">
                     {node?.recipeTags?.nodes?.map((tag, i) => (
-                      <Link key={i} href={tag.uri}>
-                        <a className="mr-3 text-sm font-medium uppercase text-sky-500 dark:text-sky-300 hover:text-primary-600 dark:hover:text-sky-400">
+                      <Link key={i} href={tag.uri} legacyBehavior>
+                        <a className="mr-3 font-mono text-xs font-medium uppercase tracking-widest text-primary hover:text-orange-wpg-200">
                           {tag.name}
                         </a>
                       </Link>
@@ -36,7 +36,7 @@ export default function SingleRecipe({ data }) {
                 {node.content ? (
                   <div
                     id="content"
-                    className="prose dark:prose-dark"
+                    className="prose"
                     dangerouslySetInnerHTML={{ __html: node.content }}
                   />
                 ) : null}
@@ -49,34 +49,31 @@ export default function SingleRecipe({ data }) {
   )
 }
 
-SingleRecipe.query = gql`
-  query GetRecipe($uri: ID!) {
-    node: contentNode(id: $uri, idType: URI) {
-      id
-      ... on NodeWithTitle {
-        title
-      }
-      uri
-      ... on NodeWithContentEditor {
-        content
-      }
-      ... on CodeSnippet {
-        recipeTags: codeSnippetTags {
-          nodes {
-            id
-            name
-            uri
+SingleRecipe.queries = {
+  node: {
+    query: gql`
+      query SingleCodeSnippet_Node($uri: ID!) {
+        node: contentNode(id: $uri, idType: URI) {
+          id
+          ... on NodeWithTitle {
+            title
+          }
+          uri
+          ... on NodeWithContentEditor {
+            content
+          }
+          ... on CodeSnippet {
+            recipeTags: codeSnippetTags {
+              nodes {
+                id
+                name
+                uri
+              }
+            }
           }
         }
       }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
-
-SingleRecipe.variables = ({ uri }) => {
-  return {
-    uri,
-  }
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
 }

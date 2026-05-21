@@ -1,88 +1,50 @@
 import Image from "next/image"
 
-/* This example requires Tailwind CSS v2.0+ */
+const frameworks = [
+  { name: "Gatsby", src: "/logos/logo-gatsby.png" },
+  { name: "Next.js", src: "/logos/logo-nextjs.png" },
+  { name: "Vue",    src: "/logos/logo-vue.png" },
+  { name: "Svelte", src: "/logos/logo-svelte.png" },
+]
+
 export default function HomepageFrameworks() {
   return (
-    <div className="bg-blue-100 dark:bg-blue pt-12 sm:pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">
-            Build rich JavaScript applications <br /> with WordPress and GraphQL
+    <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
+            Framework Agnostic
+          </p>
+          <h2 className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+            Build rich JavaScript applications with{" "}
+            <span className="text-primary">WordPress &amp; GraphQL</span>
           </h2>
-          <p className="mt-3 text-xl text-navy dark:text-gray-200 sm:mt-4">
-            WPGraphQL allows you to separate your CMS from your presentation
-            layer. Content creators can use the CMS they know, while developers
-            can use the frameworks and tools they love.
+          <p className="mx-auto mt-5 max-w-prose text-base text-muted-foreground sm:text-lg">
+            WPGraphQL separates your CMS from your presentation layer. Content
+            creators use the CMS they know; developers use the frameworks and
+            tools they love.
           </p>
         </div>
-      </div>
-      <div className="mt-10 pb-12 bg-white dark:bg-navy sm:pb-16">
-        <div className="relative">
-          <div className="absolute inset-0 h-1/2 bg-blue-100 dark:bg-blue" />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <dl className="rounded-lg bg-white dark:bg-slate-900 shadow-lg sm:grid sm:grid-cols-4">
-                <div className="flex flex-col border-t border-b border-gray-100 dark:border-0 p-6 text-center sm:border-0 sm:border-l sm:border-r">
-                  <dt className="order-2 mt-2 text-lg leading-6 font-medium text-gray-500 dark:text-gray-200">
-                    Gatsby
-                  </dt>
-                  <dd className="order-1 text-5xl text-center font-extrabold text-indigo-600">
-                    <Image
-                      className="max-h-12"
-                      src="/logos/logo-gatsby.png"
-                      alt="Gatsby"
-                      height={75}
-                      width={75}
-                    />
-                  </dd>
-                </div>
-                <div className="flex flex-col border-t border-b border-gray-100 dark:border-slate-600 p-6 text-center sm:border-0 sm:border-l sm:border-r">
-                  <dt className="order-2 mt-2 text-lg leading-6 font-medium text-gray-500 dark:text-gray-200">
-                    NextJS
-                  </dt>
-                  <dd className="order-1 text-5xl font-extrabold text-indigo-600">
-                    <Image
-                      className="max-h-12"
-                      src="/logos/logo-nextjs.png"
-                      alt="NextJS"
-                      height={75}
-                      width={75}
-                    />
-                  </dd>
-                </div>
-                <div className="flex flex-col border-t border-b border-gray-100 dark:border-slate-600 p-6 text-center sm:border-0 sm:border-l sm:border-r">
-                  <dt className="order-2 mt-2 text-lg leading-6 font-medium text-gray-500 dark:text-gray-200">
-                    Vue
-                  </dt>
-                  <dd className="order-1 text-5xl font-extrabold text-indigo-600">
-                    <Image
-                      className="max-h-12"
-                      src="/logos/logo-vue.png"
-                      alt="Vue"
-                      height={75}
-                      width={75}
-                    />
-                  </dd>
-                </div>
-                <div className="flex flex-col border-t border-b border-gray-100 dark:border-0 p-6 text-center sm:border-0 sm:border-l sm:border-r">
-                  <dt className="order-2 mt-2 text-lg leading-6 font-medium text-gray-500 dark:text-gray-200">
-                    Svelte
-                  </dt>
-                  <dd className="order-1 text-5xl font-extrabold text-indigo-600">
-                    <Image
-                      className="max-h-12"
-                      src="/logos/logo-svelte.png"
-                      alt="Svelte"
-                      height={75}
-                      width={75}
-                    />
-                  </dd>
-                </div>
-              </dl>
+        <div className="mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4">
+          {frameworks.map((fw) => (
+            <div
+              key={fw.name}
+              className="group flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow-sm"
+            >
+              <Image
+                src={fw.src}
+                alt={fw.name}
+                height={56}
+                width={56}
+                className="h-14 w-auto"
+              />
+              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-foreground">
+                {fw.name}
+              </span>
             </div>
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }

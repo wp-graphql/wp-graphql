@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import Link from "next/link"
 
 export const PostPreviewCategoryLinkFragment = gql`
@@ -11,8 +11,8 @@ export const PostPreviewCategoryLinkFragment = gql`
 
 export default function PostPreviewCategoryLink({ category }) {
   return (
-    <Link href={category.uri}>
-      <a className="mr-3 text-sm font-medium uppercase text-sky-500 dark:text-sky-300 hover:text-primary-600 dark:hover:text-sky-400">
+    <Link href={category.uri} legacyBehavior>
+      <a className="mr-3 font-mono text-xs font-medium uppercase tracking-widest text-primary hover:text-orange-wpg-200">
         {category.name}
       </a>
     </Link>

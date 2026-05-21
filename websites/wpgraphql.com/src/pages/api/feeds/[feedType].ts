@@ -1,14 +1,12 @@
 import { createHash } from "crypto"
 import { Temporal } from "@js-temporal/polyfill"
 
-import { getApolloClient } from "@faustwp/core/dist/mjs/client"
+import { request } from "lib/wpgraphql-client"
 import { StatusCodes, getReasonPhrase } from "http-status-codes"
 
 import { FEED_QUERY, createFeed } from "../../../lib/feed"
 
 import type { NextApiRequest, NextApiResponse } from "next"
-
-const client = getApolloClient()
 
 type ResponseData = {
   content_type: string
@@ -19,6 +17,7 @@ export default async function HandleFeeds(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log(`[feeds] handler invoked: feedType=${String(req.query.feedType)} url=${req.url}`)
   try {
     // Get needed Reqest info
     const if_modified_since: string = req.headers["if-modified-since"]
@@ -26,9 +25,28 @@ export default async function HandleFeeds(
     const { feedType } = req.query
 
     //Fetch content from WP
-    const { data: feed_data } = await client.query({
-      query: FEED_QUERY,
-    })
+    console.log("[feeds] running BlogFeedQuery against", process.env.NEXT_PUBLIC_WPGRAPHQL_URL || process.env.WPGRAPHQL_URL)
+    const result = await request({ query: FEED_QUERY })
+    console.log("[feeds] result keys:", Object.keys((result as any) ?? {}))
+    if ((result as any)?.errors?.length) {
+      console.error("[feeds] GraphQL errors:", JSON.stringify((result as any).errors, null, 2))
+      throw new Error("GraphQL errors fetching feed data")
+    }
+    const feed_data = (result as any)?.data ?? {}
+    console.log(
+      "[feeds] data shape:",
+      Object.keys(feed_data),
+      "posts.nodes:", feed_data?.posts?.nodes?.length,
+      "last_modified.nodes:", feed_data?.last_modified?.nodes?.length
+    )
+
+    if (!feed_data?.last_modified?.nodes?.[0]?.modifiedGmt) {
+      console.error("[feeds] feed query returned no posts; result:", JSON.stringify(result, null, 2))
+      throw {
+        status: StatusCodes.NOT_FOUND,
+        body: getReasonPhrase(StatusCodes.NOT_FOUND),
+      }
+    }
 
     const last_modified = Temporal.PlainDateTime.from(
       feed_data.last_modified.nodes[0].modifiedGmt,
@@ -101,6 +119,7 @@ export default async function HandleFeeds(
       res.status(e.status)
       res.send(e.body)
     } else {
+      console.error("[feeds] handler error:", e)
       res.status(StatusCodes.INTERNAL_SERVER_ERROR)
       res.send(getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR))
     }
