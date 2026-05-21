@@ -185,4 +185,36 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['generalSettings']['url'] );
 	}
+
+	/**
+	 * Ensure RootQuery does not expose allSettings when no settings are available.
+	 *
+	 * @return void
+	 */
+	public function testAllSettingsFieldIsHiddenWhenNoSettingsAreExposed() {
+		$filter = static function () {
+			return [];
+		};
+
+		add_filter( 'graphql_allowed_setting_groups', $filter, 99 );
+		$this->clearSchema();
+
+		$query  = '
+			query {
+				__type(name: "RootQuery") {
+					fields {
+						name
+					}
+				}
+			}
+		';
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_allowed_setting_groups', $filter, 99 );
+		$this->clearSchema();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		$this->assertNotContains( 'allSettings', $field_names, 'Expected RootQuery.allSettings to be hidden when no settings are exposed' );
+	}
 }

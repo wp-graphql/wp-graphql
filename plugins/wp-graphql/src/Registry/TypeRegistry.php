@@ -208,6 +208,13 @@ class TypeRegistry {
 	protected $excluded_connections = null;
 
 	/**
+	 * Flag to prevent infinite recursion when checking field type compatibility during interface field overrides.
+	 *
+	 * @var bool
+	 */
+	protected $checking_compatibility = false;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
@@ -1236,7 +1243,7 @@ class TypeRegistry {
 	public function register_field( string $type_name, string $field_name, array $config ): void {
 		add_filter(
 			'graphql_' . $type_name . '_fields',
-			function ( $fields ) use ( $type_name, $field_name, $config ) {
+			function ( $fields, $wp_type = null ) use ( $type_name, $field_name, $config ) {
 
 				// Whether the field should be allowed to have underscores in the field name
 				$allow_field_underscores = isset( $config['allowFieldUnderscores'] ) && true === $config['allowFieldUnderscores'];
@@ -1262,6 +1269,17 @@ class TypeRegistry {
 
 				// if a field has already been registered with the same name output a debug message
 				if ( isset( $fields[ $field_name ] ) ) {
+					// If we're already inside a compatibility check (an outer call to
+					// is_compatible_interface_field_override resolved a type via get_type
+					// and re-entered this filter chain), the outer pass has already decided
+					// the override outcome. Re-running the check here cannot reach a different
+					// answer, so silently no-op to avoid spurious DUPLICATE_FIELD debug noise.
+					if ( $this->checking_compatibility ) {
+						return $fields;
+					}
+
+					$existing_field_type = $fields[ $field_name ]['type'] ?? null;
+					$new_field_type      = $config['type'] ?? null;
 
 					// if the existing field is a connection type
 					// and the new field is also a connection type
@@ -1279,6 +1297,19 @@ class TypeRegistry {
 						$fields[ $field_name ]['toType'] === $config['toType'] &&
 						$fields[ $field_name ]['connectionTypeName'] === $config['connectionTypeName']
 					) {
+						return $fields;
+					}
+
+					// Check if this is an interface field override scenario and if the new type is compatible.
+					$is_compatible_override = $this->is_compatible_interface_field_override( $existing_field_type, $new_field_type, $type_name, $field_name, $wp_type );
+
+					// If the override is compatible, allow it by returning early
+					if ( $is_compatible_override ) {
+						// Prepare and add the new field, overriding the interface field
+						$field = $this->prepare_field( $field_name, $config, $type_name );
+						if ( ! empty( $field ) ) {
+							$fields[ $field_name ] = $field;
+						}
 						return $fields;
 					}
 
@@ -1312,8 +1343,307 @@ class TypeRegistry {
 				return $fields;
 			},
 			10,
-			1
+			2
 		);
+	}
+
+	/**
+	 * Determines if a duplicate field is a compatible interface-field override.
+	 *
+	 * Two paths are checked:
+	 *  1. The existing field's declared type is (or wraps) an interface, and the
+	 *     override's type implements that interface.
+	 *  2. The existing field was inherited from one of the type's implemented
+	 *     interfaces, and the override's type is structurally compatible with the
+	 *     interface's declared field type (same wrappers, same base type, or base
+	 *     implementing the interface field's base when that base is an interface).
+	 *
+	 * @param mixed                                    $existing_field_type Existing field type definition.
+	 * @param mixed                                    $new_field_type      New field type definition.
+	 * @param string                                   $type_name           Name of the type the field belongs to.
+	 * @param string                                   $field_name          Name of the field being registered (used for Path 2).
+	 * @param \GraphQL\Type\Definition\ObjectType|null $wp_type             The implementing object type instance (used for Path 2).
+	 */
+	private function is_compatible_interface_field_override( $existing_field_type, $new_field_type, string $type_name, string $field_name = '', $wp_type = null ): bool {
+		if ( ! ( is_callable( $existing_field_type ) || is_string( $existing_field_type ) || is_array( $existing_field_type ) ) ) {
+			return false;
+		}
+
+		if ( ! ( is_string( $new_field_type ) || ( is_array( $new_field_type ) && ! empty( $new_field_type ) ) ) ) {
+			return false;
+		}
+
+		$unmodified_new_type_name = is_string( $new_field_type ) ? $new_field_type : $this->get_unmodified_type_name( $new_field_type );
+		if ( empty( $unmodified_new_type_name ) || $this->checking_compatibility ) {
+			return false;
+		}
+
+		$current_type_key       = $this->format_key( $type_name );
+		$new_type_key           = $this->format_key( $unmodified_new_type_name );
+		$is_same_type           = $new_type_key === $current_type_key;
+		$current_type_is_loaded = isset( $this->types[ $current_type_key ] );
+		$new_type_is_loaded     = isset( $this->types[ $new_type_key ] );
+		$new_type_is_registered = $new_type_is_loaded || isset( $this->type_loaders[ $new_type_key ] );
+
+		// For a different type we need a resolvable type.
+		if ( ! $is_same_type && ! $new_type_is_registered ) {
+			return false;
+		}
+
+		$this->checking_compatibility = true;
+
+		try {
+			// Path 1: the existing field's TYPE is (or wraps) an interface.
+			$interface_name = $this->resolve_interface_name_from_existing_field_type( $existing_field_type, $current_type_key );
+			if ( ! empty( $interface_name ) ) {
+				// Same-type overrides can happen while the object is still being constructed.
+				// If we positively identified an interface source, allow to avoid recursive loads.
+				if ( $is_same_type && ! $current_type_is_loaded ) {
+					return true;
+				}
+
+				return $this->type_implements_interface( $unmodified_new_type_name, $interface_name );
+			}
+
+			// Path 2: the field was inherited from one of the type's implemented interfaces.
+			// This covers scenarios where the field's *type* is a concrete/scalar (e.g. inheriting
+			// `tag: String` or `related: Post`) but the field itself came from an interface contract.
+			if ( $wp_type instanceof \GraphQL\Type\Definition\ObjectType && '' !== $field_name ) {
+				$interface_field_type = $this->find_inherited_interface_field_type( $wp_type, $field_name );
+				if ( null !== $interface_field_type ) {
+					return $this->is_override_compatible_with_interface_field_type( $new_field_type, $interface_field_type );
+				}
+			}
+
+			return false;
+		} catch ( \Throwable $e ) {
+			unset( $e );
+			return false;
+		} finally {
+			$this->checking_compatibility = false;
+		}
+	}
+
+	/**
+	 * Walk the type's implemented interfaces and return the interface's declared field
+	 * type for the first interface that declares a field with the given name. Returns
+	 * null if no interface declares the field.
+	 *
+	 * @param \GraphQL\Type\Definition\ObjectType $wp_type    The implementing object type.
+	 * @param string                              $field_name The field name to look up.
+	 */
+	private function find_inherited_interface_field_type( \GraphQL\Type\Definition\ObjectType $wp_type, string $field_name ): ?\GraphQL\Type\Definition\Type {
+		foreach ( $wp_type->getInterfaces() as $interface ) {
+			if ( ! $interface instanceof \GraphQL\Type\Definition\InterfaceType ) {
+				continue;
+			}
+
+			try {
+				if ( ! $interface->hasField( $field_name ) ) {
+					continue;
+				}
+
+				return $interface->getField( $field_name )->getType();
+			} catch ( \Throwable $e ) {
+				unset( $e );
+				continue;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Compare an override field type (config-array syntax) with an interface's declared
+	 * field type (live Type instance) for structural compatibility.
+	 *
+	 * Wrapping (list_of, non_null) must match exactly. The base type must either be the
+	 * same named type, or — when the interface's base is itself an interface — be a
+	 * concrete type that implements that interface.
+	 *
+	 * @param mixed                         $override_type        Override field type in config-array syntax.
+	 * @param \GraphQL\Type\Definition\Type $interface_field_type Interface's declared field type as a live Type instance.
+	 */
+	private function is_override_compatible_with_interface_field_type( $override_type, \GraphQL\Type\Definition\Type $interface_field_type ): bool {
+		$override = $this->unwrap_field_type_config( $override_type );
+		if ( null === $override ) {
+			return false;
+		}
+
+		$interface = $this->unwrap_field_type_instance( $interface_field_type );
+
+		if ( $override['wrappers'] !== $interface['wrappers'] ) {
+			return false;
+		}
+
+		$interface_base = $interface['base'];
+
+		// After unwrapping all WrappingType layers, the base should be a NamedType, but
+		// guard explicitly so static analysis can narrow the type before reading ->name.
+		if ( ! $interface_base instanceof \GraphQL\Type\Definition\NamedType ) {
+			return false;
+		}
+
+		if ( strtolower( $override['base'] ) === strtolower( $interface_base->name ) ) {
+			return true;
+		}
+
+		if ( $interface_base instanceof \GraphQL\Type\Definition\InterfaceType ) {
+			return $this->type_implements_interface( $override['base'], $interface_base->name );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Normalize a field-type definition in config-array syntax to `{wrappers, base}`.
+	 *
+	 * Wrappers are returned outer-to-inner (e.g. `['non_null','list_of']`). Returns null
+	 * for malformed input.
+	 *
+	 * @param mixed $type Field type in WPGraphQL config syntax (string, or nested array
+	 *                    using 'non_null'/'list_of' keys).
+	 *
+	 * @return array{wrappers:string[],base:string}|null
+	 */
+	private function unwrap_field_type_config( $type ): ?array {
+		$wrappers = [];
+
+		while ( is_array( $type ) ) {
+			if ( isset( $type['non_null'] ) ) {
+				$wrappers[] = 'non_null';
+				$type       = $type['non_null'];
+				continue;
+			}
+
+			if ( isset( $type['list_of'] ) ) {
+				$wrappers[] = 'list_of';
+				$type       = $type['list_of'];
+				continue;
+			}
+
+			return null;
+		}
+
+		if ( ! is_string( $type ) || '' === $type ) {
+			return null;
+		}
+
+		return [
+			'wrappers' => $wrappers,
+			'base'     => $type,
+		];
+	}
+
+	/**
+	 * Normalize a live Type instance to `{wrappers, base}`.
+	 *
+	 * @param \GraphQL\Type\Definition\Type $type Live Type instance, possibly wrapped.
+	 *
+	 * @return array{wrappers:string[],base:\GraphQL\Type\Definition\Type}
+	 */
+	private function unwrap_field_type_instance( \GraphQL\Type\Definition\Type $type ): array {
+		$wrappers = [];
+
+		while ( $type instanceof \GraphQL\Type\Definition\WrappingType ) {
+			if ( $type instanceof \GraphQL\Type\Definition\NonNull ) {
+				$wrappers[] = 'non_null';
+			} elseif ( $type instanceof \GraphQL\Type\Definition\ListOfType ) {
+				$wrappers[] = 'list_of';
+			}
+
+			$type = $type->getWrappedType();
+		}
+
+		return [
+			'wrappers' => $wrappers,
+			'base'     => $type,
+		];
+	}
+
+	/**
+	 * Resolve the interface name from an existing field type definition.
+	 *
+	 * @param mixed  $existing_field_type Existing field type definition.
+	 * @param string $current_type_key    Type key currently being resolved.
+	 */
+	private function resolve_interface_name_from_existing_field_type( $existing_field_type, string $current_type_key ): ?string {
+		if ( is_callable( $existing_field_type ) ) {
+			$resolved_existing_type = $existing_field_type();
+
+			while ( $resolved_existing_type instanceof \GraphQL\Type\Definition\WrappingType ) {
+				$resolved_existing_type = $resolved_existing_type->getWrappedType();
+			}
+
+			if ( $resolved_existing_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+				return $resolved_existing_type->name;
+			}
+		}
+
+		if ( is_string( $existing_field_type ) || is_array( $existing_field_type ) ) {
+			$existing_type_name = $this->get_unmodified_type_name( $existing_field_type );
+			return $this->resolve_interface_name_from_type_name( $existing_type_name, $current_type_key );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Resolves a type name to an interface name when possible.
+	 *
+	 * @param string $type_name        Type name to resolve.
+	 * @param string $current_type_key Type key currently being resolved.
+	 */
+	private function resolve_interface_name_from_type_name( string $type_name, string $current_type_key ): ?string {
+		if ( empty( $type_name ) ) {
+			return null;
+		}
+
+		$type_key = $this->format_key( $type_name );
+
+		if ( isset( $this->types[ $type_key ] ) ) {
+			$loaded_type = $this->types[ $type_key ];
+			if ( $loaded_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+				return $loaded_type->name;
+			}
+
+			return null;
+		}
+
+		// Avoid recursively resolving the type currently being constructed.
+		if ( $type_key === $current_type_key || ! isset( $this->type_loaders[ $type_key ] ) ) {
+			return null;
+		}
+
+		$maybe_interface = $this->get_type( $type_name );
+		if ( $maybe_interface instanceof \GraphQL\Type\Definition\InterfaceType ) {
+			return $maybe_interface->name;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Determines if a type implements a given interface.
+	 *
+	 * @param string $type_name      Type name to inspect.
+	 * @param string $interface_name Interface name to verify.
+	 */
+	private function type_implements_interface( string $type_name, string $interface_name ): bool {
+		$type_key = $this->format_key( $type_name );
+		$type     = $this->types[ $type_key ] ?? $this->get_type( $type_name );
+
+		if ( ! $type instanceof \GraphQL\Type\Definition\ObjectType ) {
+			return false;
+		}
+
+		foreach ( $type->getInterfaces() as $interface ) {
+			if ( $interface->name === $interface_name ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
