@@ -1011,6 +1011,277 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that overriding an inherited interface field with a `list_of` scalar wrapper is allowed
+	 * when the override wrappers match the interface's declared wrappers.
+	 *
+	 * Exercises Path 2 (inherited-field compatibility) where the existing field's type is a
+	 * non-interface scalar wrapped by `list_of`. This drives unwrap_field_type_config and
+	 * unwrap_field_type_instance through the list_of branch, plus the same-base-name match.
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleInterfaceFieldOverrideWithListOfScalar() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestStringListInterface',
+					[
+						'fields' => [
+							'stringTags' => [
+								'type'        => [ 'list_of' => 'String' ],
+								'description' => '[Interface] Tag list',
+								'resolve'     => static fn () => [ 'interface-tag' ],
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestStringListInterface', [ 'ContentNode' ] );
+
+				register_graphql_field(
+					'Post',
+					'stringTags',
+					[
+						'type'        => [ 'list_of' => 'String' ],
+						'description' => '[Override] Post tag list',
+						'resolve'     => static fn () => [ 'post-tag-a', 'post-tag-b' ],
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create( [ 'post_title' => 'Test Post' ] );
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						stringTags
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'list_of scalar override matching interface wrappers should be allowed' );
+		$this->assertEquals( [ 'post-tag-a', 'post-tag-b' ], $response['data']['posts']['nodes'][0]['stringTags'] );
+	}
+
+	/**
+	 * Test that overriding an inherited interface field with a `non_null` scalar wrapper is allowed
+	 * when the override wrappers match.
+	 *
+	 * Drives unwrap_field_type_config and unwrap_field_type_instance through the non_null branch.
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleInterfaceFieldOverrideWithNonNullScalar() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestNonNullStringInterface',
+					[
+						'fields' => [
+							'nonNullLabel' => [
+								'type'        => [ 'non_null' => 'String' ],
+								'description' => '[Interface] Required label',
+								'resolve'     => static fn () => 'interface-label',
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestNonNullStringInterface', [ 'ContentNode' ] );
+
+				register_graphql_field(
+					'Post',
+					'nonNullLabel',
+					[
+						'type'        => [ 'non_null' => 'String' ],
+						'description' => '[Override] Required Post label',
+						'resolve'     => static fn () => 'post-label',
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create( [ 'post_title' => 'Test Post' ] );
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						nonNullLabel
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'non_null scalar override matching interface wrappers should be allowed' );
+		$this->assertEquals( 'post-label', $response['data']['posts']['nodes'][0]['nonNullLabel'] );
+	}
+
+	/**
+	 * Test that overriding an inherited interface field with mismatched wrappers is rejected.
+	 *
+	 * Covers the wrapper-mismatch branch in is_override_compatible_with_interface_field_type
+	 * (the interface declares `list_of String`; the override declares `non_null String`).
+	 *
+	 * @throws \Exception
+	 */
+	public function testIncompatibleInterfaceFieldOverrideWithMismatchedWrappersStillErrors() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestMismatchedWrappersInterface',
+					[
+						'fields' => [
+							'mismatchedField' => [
+								'type'        => [ 'list_of' => 'String' ],
+								'description' => '[Interface] List of strings',
+								'resolve'     => static fn () => [ 'interface-value' ],
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestMismatchedWrappersInterface', [ 'ContentNode' ] );
+
+				// Override with non_null instead of list_of — wrappers do not match.
+				register_graphql_field(
+					'Post',
+					'mismatchedField',
+					[
+						'type'        => [ 'non_null' => 'String' ],
+						'description' => '[Override] Incompatible wrapper',
+						'resolve'     => static fn () => 'post-value',
+					]
+				);
+			}
+		);
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Override with mismatched wrappers should be rejected as DUPLICATE_FIELD' );
+	}
+
+	/**
+	 * Test that overriding an inherited interface field is allowed when the interface's declared
+	 * field type is itself an interface, and the override is a concrete type implementing it.
+	 *
+	 * Covers the L1492 branch in is_override_compatible_with_interface_field_type (interface base
+	 * is itself an InterfaceType, so we delegate to type_implements_interface).
+	 *
+	 * Path 2 (inherited-field compatibility) fires here because the merged existing field's
+	 * declared type is an unloaded type-loader entry that cannot resolve to an InterfaceType
+	 * during Path 1.
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleInterfaceFieldOverrideWhereInheritedFieldTypeIsInterface() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestSeoInterface',
+					[
+						'fields' => [
+							'text' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_object_type(
+					'TestPostSeoData',
+					[
+						'interfaces' => [ 'TestSeoInterface' ],
+						'fields'     => [
+							'text' => [
+								'type' => 'String',
+							],
+						],
+					]
+				);
+
+				register_graphql_interface_type(
+					'TestNodeWithSeo',
+					[
+						'interfaces' => [ 'Node' ],
+						'fields'     => [
+							'seoData' => [
+								'type'        => 'TestSeoInterface',
+								'description' => '[Interface] SEO data via interface',
+								'resolve'     => static fn ( $source ) => [ 'text' => 'interface-seo' ],
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestNodeWithSeo', [ 'ContentNode' ] );
+
+				// Override Post.seoData with a concrete type implementing TestSeoInterface.
+				register_graphql_field(
+					'Post',
+					'seoData',
+					[
+						'type'        => 'TestPostSeoData',
+						'description' => '[Override] Post-specific SEO',
+						'resolve'     => static fn () => [ 'text' => 'post-seo' ],
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create( [ 'post_title' => 'Test Post' ] );
+
+		$query = '
+			query {
+				posts {
+					nodes {
+						seoData {
+							__typename
+							... on TestPostSeoData {
+								text
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains( 'DUPLICATE_FIELD', $debug_types, 'Override of interface-typed inherited field with implementing concrete type should be allowed' );
+		$this->assertEquals( 'TestPostSeoData', $response['data']['posts']['nodes'][0]['seoData']['__typename'] );
+		$this->assertEquals( 'post-seo', $response['data']['posts']['nodes'][0]['seoData']['text'] );
+	}
+
+	/**
 	 * Test that overriding interface fields works with multiple interfaces.
 	 *
 	 * This tests the scenario where a type implements multiple interfaces and
