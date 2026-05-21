@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.14.0\n"
+"Project-Id-Version: WPGraphQL 2.14.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-19T18:27:31+00:00\n"
+"POT-Creation-Date: 2026-05-21T22:52:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1316,40 +1316,64 @@ msgstr ""
 msgid "Sorry, you are not allowed to create mediaItems as this user"
 msgstr ""
 
+#: src/Mutation/MediaItemCreate.php:188
+msgid "Invalid parent type."
+msgstr ""
+
 #. translators: %s is the file path.
-#: src/Mutation/MediaItemCreate.php:193
+#: src/Mutation/MediaItemCreate.php:213
 #, php-format
 msgid "Invalid filePath \"%s\""
 msgstr ""
 
 #. translators: %1$s is the protocol, %2$s is the list of allowed protocols.
-#: src/Mutation/MediaItemCreate.php:217
+#: src/Mutation/MediaItemCreate.php:237
 #, php-format
 msgid "Invalid protocol. \"%1$s\". Only \"%2$s\" allowed."
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:235
+#: src/Mutation/MediaItemCreate.php:255
 msgid "Sorry, the file could not be uploaded"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:250
+#: src/Mutation/MediaItemCreate.php:270
 msgid "Sorry, the URL for this file is invalid, it must be a valid URL"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:282
+#: src/Mutation/MediaItemCreate.php:310
 msgid "Sorry, the URL for this file is invalid, it must be a path to the mediaItem file"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:304
+#: src/Mutation/MediaItemCreate.php:328
+msgid "The web server cannot generate responsive image sizes for this image. Convert it to JPEG or PNG before uploading."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:350
 msgid "The parent of the Media Item is of an invalid type"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:308
+#: src/Mutation/MediaItemCreate.php:354
 msgid "Sorry, you are not allowed to upload mediaItems assigned to this parent node"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:330
+#: src/Mutation/MediaItemCreate.php:376
 msgid "The media item failed to create but no error was provided"
+msgstr ""
+
+#. translators: %s is the required disk space in kilobytes.
+#: src/Mutation/MediaItemCreate.php:426
+#, php-format
+msgid "Not enough space to upload. %s KB needed."
+msgstr ""
+
+#. translators: %s is the maximum allowed file size in kilobytes.
+#: src/Mutation/MediaItemCreate.php:435
+#, php-format
+msgid "This file is too big. Files must be less than %s KB in size."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:442
+msgid "You have used your space quota. Please delete files before uploading."
 msgstr ""
 
 #: src/Mutation/MediaItemDelete.php:39
@@ -1938,105 +1962,105 @@ msgid "The user failed to update"
 msgstr ""
 
 #. translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
-#: src/Registry/TypeRegistry.php:462
+#: src/Registry/TypeRegistry.php:469
 #, php-format
 msgid "List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
-#: src/Registry/TypeRegistry.php:473
+#: src/Registry/TypeRegistry.php:480
 #, php-format
 msgid "The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:484
+#: src/Registry/TypeRegistry.php:491
 #, php-format
 msgid "The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:494
+#: src/Registry/TypeRegistry.php:501
 #, php-format
 msgid "The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:504
+#: src/Registry/TypeRegistry.php:511
 #, php-format
 msgid "The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:519
+#: src/Registry/TypeRegistry.php:526
 #, php-format
 msgid "Set relationships between the %1$s to %2$s"
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:530
+#: src/Registry/TypeRegistry.php:537
 #, php-format
 msgid "If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:541
+#: src/Registry/TypeRegistry.php:548
 msgid "The input list of items to set."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:587
+#: src/Registry/TypeRegistry.php:594
 msgid "Site URL."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:610
+#: src/Registry/TypeRegistry.php:617
 msgid "Site icon URL configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:616
+#: src/Registry/TypeRegistry.php:623
 msgid "Size of the site icon in pixels. Defaults to 512. Max 512."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:646
+#: src/Registry/TypeRegistry.php:653
 msgid "The media item representing the site icon configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
 #. translators: %s is the GraphQL name of the settings group.
-#: src/Registry/TypeRegistry.php:680
+#: src/Registry/TypeRegistry.php:687
 #, php-format
 msgid "Fields of the '%s' settings group"
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:775
+#: src/Registry/TypeRegistry.php:782
 #, php-format
 msgid "The Type name '%1$s' is invalid and has not been added to the GraphQL Schema."
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:793
+#: src/Registry/TypeRegistry.php:800
 #, php-format
 msgid "You cannot register duplicate Types to the Schema. The Type '%1$s' already exists in the Schema. Make sure to give new Types a unique name."
 msgstr ""
 
 #. translators: %s is the Field name.
-#: src/Registry/TypeRegistry.php:1091
+#: src/Registry/TypeRegistry.php:1098
 #, php-format
 msgid "The registered field '%s' does not have a Type defined. Make sure to define a type for all fields."
 msgstr ""
 
 #. translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
-#: src/Registry/TypeRegistry.php:1120
+#: src/Registry/TypeRegistry.php:1127
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is configured to return '%3$s' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with '%3$s', or it needs to be registered to the Schema."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1250
+#: src/Registry/TypeRegistry.php:1257
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is invalid. Field names cannot start with a number."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1288
+#: src/Registry/TypeRegistry.php:1319
 #, php-format
 msgid "You cannot register duplicate fields on the same Type. The field '%1$s' already exists on the type '%2$s'. Make sure to give the field a unique name."
 msgstr ""
@@ -4628,7 +4652,7 @@ msgstr ""
 #: src/Type/ObjectType/RootQuery.php:471
 #: src/Type/ObjectType/RootQuery.php:512
 #: src/Type/ObjectType/RootQuery.php:608
-#: src/Type/ObjectType/RootQuery.php:929
+#: src/Type/ObjectType/RootQuery.php:936
 msgid "The ID input is invalid"
 msgstr ""
 
@@ -4649,12 +4673,12 @@ msgid "The content type the node is used for. Required when idType is set to \"n
 msgstr ""
 
 #: src/Type/ObjectType/RootQuery.php:245
-#: src/Type/ObjectType/RootQuery.php:785
+#: src/Type/ObjectType/RootQuery.php:792
 msgid "Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn't have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the \"asPreview\" argument is not explicitly provided as an argument."
 msgstr ""
 
 #: src/Type/ObjectType/RootQuery.php:267
-#: src/Type/ObjectType/RootQuery.php:828
+#: src/Type/ObjectType/RootQuery.php:835
 msgid "The ID input is invalid. Make sure you set the proper idType for your input."
 msgstr ""
 
@@ -4795,23 +4819,23 @@ msgid "Returns the current user"
 msgstr ""
 
 #. translators: %1$s is the post type GraphQL name, %2$s is the post type description
-#: src/Type/ObjectType/RootQuery.php:762
+#: src/Type/ObjectType/RootQuery.php:769
 #, php-format
 msgid "An object of the %1$s Type. %2$s"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:773
-#: src/Type/ObjectType/RootQuery.php:893
+#: src/Type/ObjectType/RootQuery.php:780
+#: src/Type/ObjectType/RootQuery.php:900
 msgid "The globally unique identifier of the object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:779
-#: src/Type/ObjectType/RootQuery.php:899
+#: src/Type/ObjectType/RootQuery.php:786
+#: src/Type/ObjectType/RootQuery.php:906
 msgid "Type of unique identifier to fetch by. Default is Global ID"
 msgstr ""
 
 #. translators: %s is the taxonomys' GraphQL name.
-#: src/Type/ObjectType/RootQuery.php:883
+#: src/Type/ObjectType/RootQuery.php:890
 msgid "A % object"
 msgstr ""
 
@@ -5213,13 +5237,13 @@ msgid "\"%1$s\" is not a valid Interface Type and cannot be implemented as an In
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Type/WPInterfaceTrait.php:262
+#: src/Type/WPInterfaceTrait.php:286
 #, php-format
 msgid "Invalid Interface field %1$s registered to the \"%2$s\" Type. Fields must be registered a valid GraphQL `type`."
 msgstr ""
 
 #. translators: 1: Object type name, 2: Field name, 3: Argument name, 4: Expected argument type, 5: Actual argument type.
-#: src/Type/WPInterfaceTrait.php:317
+#: src/Type/WPInterfaceTrait.php:342
 #, php-format
 msgid "Interface field argument \"%1$s.%2$s(%3$s:)\" expected to be of type \"%4$s\" but got \"%5$s\". Please ensure the field arguments match the interface field arguments or rename the argument."
 msgstr ""
