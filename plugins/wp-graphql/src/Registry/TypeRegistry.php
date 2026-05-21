@@ -1358,11 +1358,11 @@ class TypeRegistry {
 	 *     interface's declared field type (same wrappers, same base type, or base
 	 *     implementing the interface field's base when that base is an interface).
 	 *
-	 * @param mixed                                          $existing_field_type Existing field type definition.
-	 * @param mixed                                          $new_field_type      New field type definition.
-	 * @param string                                         $type_name           Name of the type the field belongs to.
-	 * @param string                                         $field_name          Name of the field being registered (used for Path 2).
-	 * @param \GraphQL\Type\Definition\ObjectType|null       $wp_type             The implementing object type instance (used for Path 2).
+	 * @param mixed                                    $existing_field_type Existing field type definition.
+	 * @param mixed                                    $new_field_type      New field type definition.
+	 * @param string                                   $type_name           Name of the type the field belongs to.
+	 * @param string                                   $field_name          Name of the field being registered (used for Path 2).
+	 * @param \GraphQL\Type\Definition\ObjectType|null $wp_type             The implementing object type instance (used for Path 2).
 	 */
 	private function is_compatible_interface_field_override( $existing_field_type, $new_field_type, string $type_name, string $field_name = '', $wp_type = null ): bool {
 		if ( ! ( is_callable( $existing_field_type ) || is_string( $existing_field_type ) || is_array( $existing_field_type ) ) ) {
@@ -1461,8 +1461,8 @@ class TypeRegistry {
 	 * same named type, or — when the interface's base is itself an interface — be a
 	 * concrete type that implements that interface.
 	 *
-	 * @param mixed                          $override_type        Override field type in config-array syntax.
-	 * @param \GraphQL\Type\Definition\Type  $interface_field_type Interface's declared field type as a live Type instance.
+	 * @param mixed                         $override_type        Override field type in config-array syntax.
+	 * @param \GraphQL\Type\Definition\Type $interface_field_type Interface's declared field type as a live Type instance.
 	 */
 	private function is_override_compatible_with_interface_field_type( $override_type, \GraphQL\Type\Definition\Type $interface_field_type ): bool {
 		$override = $this->unwrap_field_type_config( $override_type );
