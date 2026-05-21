@@ -2721,4 +2721,230 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
 		$this->assertContains( 'DUPLICATE_FIELD', $debug_types, 'Should show DUPLICATE_FIELD error when override is incompatible' );
 	}
+
+	/**
+	 * Reproduces the recursion-induced DUPLICATE_FIELD debug noise that surfaces
+	 * when multiple compatible interface-field overrides are registered on the
+	 * same type. The compatibility check resolves the override's target type via
+	 * `get_type`, which fires `graphql_get_type` → `InstrumentSchema` →
+	 * `getFields` on the implementing type, re-entering the `graphql_{Type}_fields`
+	 * filter chain. Without the re-entry guard, each filter callback in the
+	 * re-entered chain emits a spurious DUPLICATE_FIELD entry even though the
+	 * outer pass has already accepted the override.
+	 *
+	 * @throws \Exception
+	 */
+	public function testCompatibleOverridesDoNotEmitDuplicateFieldDebugNoise() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestNoiseInterfaceA',
+					[
+						'fields' => [
+							'noisyA' => [ 'type' => 'String' ],
+						],
+					]
+				);
+
+				register_graphql_interface_type(
+					'TestNoiseInterfaceB',
+					[
+						'fields' => [
+							'noisyB' => [ 'type' => 'String' ],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types(
+					[ 'TestNoiseInterfaceA', 'TestNoiseInterfaceB' ],
+					[ 'Post' ]
+				);
+
+				register_graphql_field(
+					'Post',
+					'noisyA',
+					[
+						'type'    => 'String',
+						'resolve' => static fn () => 'override A',
+					]
+				);
+
+				register_graphql_field(
+					'Post',
+					'noisyB',
+					[
+						'type'    => 'String',
+						'resolve' => static fn () => 'override B',
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create( [ 'post_title' => 'Noise Test' ] );
+
+		$response = $this->graphql(
+			[
+				'query' => '{ posts { nodes { noisyA noisyB } } }',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains(
+			'DUPLICATE_FIELD',
+			$debug_types,
+			'Multiple compatible overrides on the same type must not emit DUPLICATE_FIELD'
+		);
+
+		$node = $response['data']['posts']['nodes'][0];
+		$this->assertSame( 'override A', $node['noisyA'] );
+		$this->assertSame( 'override B', $node['noisyB'] );
+	}
+
+	/**
+	 * A field inherited from an interface whose declared type is a concrete object
+	 * (not an interface) should be overridable with the same concrete type when
+	 * the caller wants a custom resolver or description. The compat check's
+	 * inherited-interface-field path identifies the interface that contributes
+	 * the field and accepts the override when the types match structurally.
+	 *
+	 * @throws \Exception
+	 */
+	public function testSameTypeOverrideOfInheritedInterfaceFieldIsAllowed() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestHasSelfRefInterface',
+					[
+						'fields' => [
+							'selfRelated' => [
+								'type'        => 'Post',
+								'description' => '[Interface] default related',
+								'resolve'     => static fn () => null,
+							],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestHasSelfRefInterface', [ 'Post' ] );
+
+				register_graphql_field(
+					'Post',
+					'selfRelated',
+					[
+						'type'        => 'Post',
+						'description' => '[Override] same-type override of inherited field',
+						'resolve'     => static fn ( $source ) => $source,
+					]
+				);
+			}
+		);
+
+		$post_id = $this->factory()->post->create( [ 'post_title' => 'Self-ref Test' ] );
+
+		$response = $this->graphql(
+			[
+				'query'     => 'query ($id: ID!) { post(id: $id, idType: DATABASE_ID) { id selfRelated { id } } }',
+				'variables' => [ 'id' => (string) $post_id ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertNotContains(
+			'DUPLICATE_FIELD',
+			$debug_types,
+			'Same-type override of an interface-inherited field must be allowed without DUPLICATE_FIELD'
+		);
+
+		$this->assertNotNull( $response['data']['post']['selfRelated'] );
+		$this->assertSame(
+			$response['data']['post']['id'],
+			$response['data']['post']['selfRelated']['id'],
+			'Override resolver must apply (selfRelated resolves to the same post)'
+		);
+
+		$introspect = $this->graphql(
+			[
+				'query' => '{ __type(name: "Post") { fields(includeDeprecated: false) { name description } } }',
+			]
+		);
+
+		$related = null;
+		foreach ( $introspect['data']['__type']['fields'] as $field ) {
+			if ( 'selfRelated' === $field['name'] ) {
+				$related = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $related, 'Post.selfRelated should be present in the schema' );
+		$this->assertStringContainsString(
+			'[Override]',
+			$related['description'],
+			'Description should reflect the override, not the interface default'
+		);
+	}
+
+	/**
+	 * The inherited-interface-field compat path must reject overrides whose
+	 * concrete type is structurally incompatible with the interface's declared
+	 * field type. An interface contributing `tag: String` cannot be overridden
+	 * on Post with an unrelated object type — DUPLICATE_FIELD must still fire.
+	 *
+	 * @throws \Exception
+	 */
+	public function testIncompatibleOverrideOfInheritedScalarFieldStillErrors() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestTaggableInterface',
+					[
+						'fields' => [
+							'incompatTag' => [ 'type' => 'String' ],
+						],
+					]
+				);
+
+				register_graphql_object_type(
+					'TestUnrelatedTagType',
+					[
+						'fields' => [
+							'somethingElse' => [ 'type' => 'String' ],
+						],
+					]
+				);
+
+				register_graphql_interfaces_to_types( 'TestTaggableInterface', [ 'Post' ] );
+
+				register_graphql_field(
+					'Post',
+					'incompatTag',
+					[
+						'type' => 'TestUnrelatedTagType',
+					]
+				);
+			}
+		);
+
+		$this->factory()->post->create( [ 'post_title' => 'Incompat Tag Test' ] );
+
+		$response = $this->graphql(
+			[
+				'query' => '{ posts { nodes { incompatTag } } }',
+			]
+		);
+
+		$debug_types = wp_list_pluck( $response['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains(
+			'DUPLICATE_FIELD',
+			$debug_types,
+			'Override with an unrelated concrete type for an interface-inherited scalar field must emit DUPLICATE_FIELD'
+		);
+	}
 }
