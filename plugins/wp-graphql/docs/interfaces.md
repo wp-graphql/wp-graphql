@@ -129,6 +129,62 @@ add_action( 'graphql_register_types', function() {
 } );
 ```
 
+### Compatible Override Rules
+
+WPGraphQL allows an inherited interface field to be overridden when the override is **structurally compatible** with the interface's declared field type. If the override is not compatible, WPGraphQL leaves the inherited field in place and emits a `DUPLICATE_FIELD` debug message (visible in the response's `extensions.debug` when `GRAPHQL_DEBUG` is enabled).
+
+An override is compatible when **both** of the following are true:
+
+1. **Wrappers match exactly.** If the interface's field is declared as `[ list_of => 'ContentNode' ]`, the override must also be `list_of` wrapping its base type — same for `non_null` and any nested combination of the two.
+2. **The base type is compatible.** Either the override's base type has the same name as the interface's base type, **or** the interface's base type is itself an interface and the override's base type implements that interface.
+
+If either rule is violated, the override is rejected with a `DUPLICATE_FIELD` debug message and the original interface field is preserved on the type.
+
+### Narrowing Wrapped Interface Field Types
+
+Wrappers (`list_of`, `non_null`) must match exactly between the interface declaration and the override. You can narrow the inner type, but you can't change the wrappers themselves.
+
+```php
+// Interface declares a list of an interface type
+register_graphql_interface_type( 'NodeWithChoices', [
+  'fields' => [
+    'choices' => [
+      'type' => [ 'list_of' => 'ChoiceInterface' ],
+    ],
+  ],
+] );
+
+// Override on Post narrows the inner type to a concrete implementing type.
+// Same `list_of` wrapper, narrower base. Allowed.
+register_graphql_field( 'Post', 'choices', [
+  'type' => [ 'list_of' => 'RadioChoice' ], // RadioChoice implements ChoiceInterface
+] );
+
+// This override would be rejected (DUPLICATE_FIELD) because the wrappers
+// don't match: the interface declares `list_of` but the override drops it.
+register_graphql_field( 'Post', 'choices', [
+  'type' => 'RadioChoice',
+] );
+```
+
+### Same-Type Overrides
+
+Overriding a field whose type is the same type being registered is supported and recursion-safe. For example, narrowing a `ContentNode`-typed field on `Post` to type `Post` works without triggering infinite recursion during schema construction.
+
+```php
+register_graphql_field( 'Post', 'related', [
+  'type' => 'Post', // Safe even though Post is still being constructed
+] );
+```
+
+This was previously a source of infinite-loop errors; see [issue #3540](https://github.com/wp-graphql/wp-graphql/issues/3540) for background.
+
+### Behavioral Change Note
+
+Prior to WPGraphQL `@since x-release-please-version`, some duplicate-field overrides were permitted inconsistently based on type-loading order. Overrides are now consistently accepted only when verifiably compatible by the rules above; otherwise `DUPLICATE_FIELD` is emitted. Extensions that relied on the older permissive behavior may need to adjust to declare wrappers and base types that match the inherited interface field.
+
+This is documented as a correctness fix rather than a breaking change, because the new behavior aligns with valid GraphQL schema rules.
+
 ## Interface Field Argument Merging
 
 When interfaces implement other interfaces, or when object types implement interfaces, field arguments are automatically merged. This allows you to build up arguments across an inheritance chain.
