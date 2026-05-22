@@ -386,6 +386,113 @@ class CloneFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 	}
 
 	/**
+	 * Value resolution for `display=seamless` + `prefix_name=1` clones.
+	 *
+	 * The schema-side fix (`Issue269FlexFlexibleSomeLayoutLayout.yo: ...LayoutYo`)
+	 * is necessary but not sufficient: ACF stores prefixed-seamless clone values
+	 * under per-source-field meta keys (`yo_title`), not under a single `yo`
+	 * object, so `get_field('yo', $post_id)` returns null. CloneField::resolve
+	 * synthesizes a wrapper object so the inner sub-field resolvers find their
+	 * values.
+	 *
+	 * This test reuses the same field-group shape as the #269 schema test, then
+	 * writes prefixed values for two flex rows and queries through GraphQL to
+	 * confirm `yo { title }` returns the stored values.
+	 */
+	public function testIssue269_prefixedCloneValueResolution(): void {
+		$this->skip_if_not_acf_pro();
+
+		$this->register_acf_field_group([
+			'key'                => 'group_issue269v_source',
+			'title'              => 'Source',
+			'graphql_field_name' => 'issue269vSource',
+			'show_in_graphql'    => 1,
+			'active'             => true,
+			'location'           => [ [ [ 'param' => 'post_type', 'operator' => '==', 'value' => 'page' ] ] ],
+			'fields'             => [
+				[
+					'key'                => 'field_issue269v_title',
+					'label'              => 'Title',
+					'name'               => 'title',
+					'type'               => 'text',
+					'show_in_graphql'    => 1,
+					'graphql_field_name' => 'title',
+				],
+			],
+		]);
+
+		$this->register_acf_field_group([
+			'key'                => 'group_issue269v_parent',
+			'title'              => 'Parent',
+			'graphql_field_name' => 'issue269vParent',
+			'show_in_graphql'    => 1,
+			'active'             => true,
+			'location'           => [ [ [ 'param' => 'post_type', 'operator' => '==', 'value' => 'post' ] ] ],
+			'fields'             => [
+				[
+					'key'                => 'field_issue269v_flex',
+					'label'              => 'Flexible',
+					'name'               => 'flexible',
+					'type'               => 'flexible_content',
+					'show_in_graphql'    => 1,
+					'graphql_field_name' => 'flexible',
+					'layouts'            => [
+						'layout_issue269v_some' => [
+							'key'        => 'layout_issue269v_some',
+							'name'       => 'some_layout',
+							'label'      => 'Some Layout',
+							'display'    => 'block',
+							'sub_fields' => [
+								[
+									'key'                => 'field_issue269v_inner_clone',
+									'label'              => 'Yo',
+									'name'               => 'yo',
+									'type'               => 'clone',
+									'show_in_graphql'    => 1,
+									'graphql_field_name' => 'yo',
+									'clone'              => [ 'group_issue269v_source' ],
+									'display'            => 'seamless',
+									'prefix_label'       => 0,
+									'prefix_name'        => 1,
+								],
+							],
+						],
+					],
+				],
+			],
+		]);
+
+		// Two-row flex content with prefixed values for each row, mirroring how
+		// ACF stores values when the user saves through the admin UI.
+		update_post_meta( $this->published_post->ID, 'flexible', [ 'some_layout', 'some_layout' ] );
+		update_post_meta( $this->published_post->ID, 'flexible_0_yo_title', 'title one' );
+		update_post_meta( $this->published_post->ID, 'flexible_1_yo_title', 'title two' );
+
+		$query = '
+		query Q($id: ID!) {
+			post(id: $id, idType: DATABASE_ID) {
+				issue269vParent {
+					flexible {
+						... on Issue269vParentFlexibleSomeLayoutLayout {
+							yo { title }
+						}
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [ 'id' => $this->published_post->ID ],
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'post.issue269vParent.flexible.0.yo.title', 'title one' ),
+			$this->expectedField( 'post.issue269vParent.flexible.1.yo.title', 'title two' ),
+		]);
+	}
+
+	/**
 	 * Wrapped-type override compatibility — exercises the new
 	 * TypeRegistry::is_compatible_interface_field_override() path directly:
 	 *
