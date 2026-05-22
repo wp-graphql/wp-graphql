@@ -324,22 +324,48 @@ class Registry {
 		$clone_field_interfaces = [];
 		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field ) {
-				// if the field is a clone field, track it
-				if ( ! empty( $field['clone'] ) && is_array( $field['clone'] ) ) {
-					foreach ( $field['clone'] as $clone_field ) {
-						$cloned_group = acf_get_field_group( $clone_field );
+				// Only whole-group seamless clones WITHOUT a prefix flatten the
+				// source group's fields onto the parent type. For those, we
+				// attach the source group's `_Fields` interface here so the
+				// parent type inherits the source fields.
+				//
+				// Skip the interface attachment when:
+				//  - prefix_name=1: the source fields live under the clone's
+				//    prefixed wrapper type, not flat on the parent. Attaching
+				//    the interface here would "spill" the source fields onto
+				//    the parent in addition to their prefixed location.
+				//  - display=group: the source fields live inside a wrapper
+				//    object named after the clone field; same reason.
+				//  - clone[] is not a field-group key: cherry-picked clones
+				//    have no source group to attach an interface for.
+				//
+				// @see https://github.com/wp-graphql/wpgraphql-acf/issues/269
+				if ( empty( $field['clone'] ) || ! is_array( $field['clone'] ) ) {
+					continue;
+				}
 
-						if ( ! $cloned_group ) {
-							continue;
-						}
+				if ( ! empty( $field['prefix_name'] ) ) {
+					continue;
+				}
 
-						if ( ! $this->should_field_group_show_in_graphql( $cloned_group ) ) {
-							continue;
-						}
+				$display = $field['display'] ?? 'seamless';
+				if ( 'seamless' !== $display ) {
+					continue;
+				}
 
-						$cloned_type_name         = $this->get_field_group_graphql_type_name( $cloned_group );
-						$clone_field_interfaces[] = $cloned_type_name . '_Fields';
+				foreach ( $field['clone'] as $clone_field ) {
+					$cloned_group = acf_get_field_group( $clone_field );
+
+					if ( ! $cloned_group ) {
+						continue;
 					}
+
+					if ( ! $this->should_field_group_show_in_graphql( $cloned_group ) ) {
+						continue;
+					}
+
+					$cloned_type_name         = $this->get_field_group_graphql_type_name( $cloned_group );
+					$clone_field_interfaces[] = $cloned_type_name . '_Fields';
 				}
 			}
 		}

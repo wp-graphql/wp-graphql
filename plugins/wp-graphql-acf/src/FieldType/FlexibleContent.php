@@ -52,35 +52,49 @@ class FlexibleContent {
 
 					// If there are no layouts, return a NULL type
 					if ( ! empty( $acf_field['layouts'] ) ) {
-						// Pull the un-spliced layout sub-fields from ACF's local store.
+						// Pull the un-spliced layout sub-fields directly from ACF's storage
+						// without going through the `acf/get_fields` filter chain, which
+						// ACF Pro's clone field hooks at priority 5 to splice seamless
+						// clones into their parent. We need the splice NOT to happen so
+						// `CloneField::register_field_type` can register the prefixed
+						// object type and `Registry::expand_cherry_picked_clone_fields`
+						// can do its own scoped splicing.
 						//
-						// ACF Pro stores flex layout sub-fields under the FLEX field's key
+						// ACF stores flex layout sub-fields under the FLEX field's key/ID
 						// (with `parent_layout` pointing at the individual layout), not
-						// under the layout key itself. We can recover them by querying
-						// `acf_get_local_fields($flex_field_key)` and filtering by
-						// `parent_layout`.
+						// under the layout key itself, so we read by the flex field and
+						// filter by `parent_layout` per layout below.
 						//
-						// This avoids two pre-existing problems with reading
-						// `$acf_field['layouts'][$key]['sub_fields']` directly:
+						// Two storage paths to cover:
 						//
-						//  1. ACF Pro's flex `prepare_field_for_import` rewrites a clone
-						//     sub-field into its pre-spliced source fields (eg. a clone
-						//     `yo` with `prefix_name=1` becomes `yo_title` carrying the
-						//     source field's `graphql_field_name='title'`). The original
-						//     clone field is lost from `$layout['sub_fields']` but is
-						//     preserved in the local store.
-						//  2. `acf_get_fields($layout_key)` (used previously) triggers the
-						//     `acf/get_fields` filter which ACF Pro's clone field hooks
-						//     at priority 5 to splice seamless clones into their parent.
-						//     For prefixed seamless clones we need the splice NOT to
-						//     happen so CloneField::register_field_type can build the
-						//     prefixed object type.
+						//  - **Local field groups** (registered in PHP via
+						//    `acf_add_local_field_group()`): the sub-fields live in the
+						//    local store keyed by the flex field's `key`. We probe with
+						//    `acf_have_local_fields($flex_field_key)` so we only use this
+						//    path when ACF's local store actually has them.
+						//
+						//  - **DB-imported field groups** (created via WP admin or via
+						//    `acf_import_field_group()`): each sub-field is a stored
+						//    `acf-field` post whose `parent` is the flex field's post ID.
+						//    `acf_get_raw_fields($flex_field_id)` returns them without
+						//    triggering any filters.
+						//
+						// Without the DB-storage path, prefixed seamless clones inside a
+						// flex layout — when imported through the admin Tools UI — would
+						// end up with no sub-fields registered on the layout type and
+						// only the cloned source group's `_Fields` interface attached
+						// (so the clone field's wrapper name was missing entirely).
 						//
 						// @see https://github.com/wp-graphql/wpgraphql-acf/issues/269
 						$flex_field_key = $acf_field['key'] ?? '';
-						$all_flex_subs  = $flex_field_key && function_exists( 'acf_get_local_fields' )
-							? acf_get_local_fields( $flex_field_key )
-							: [];
+						$flex_field_id  = isset( $acf_field['ID'] ) ? (int) $acf_field['ID'] : 0;
+						$all_flex_subs  = [];
+
+						if ( $flex_field_key && function_exists( 'acf_have_local_fields' ) && acf_have_local_fields( $flex_field_key ) ) {
+							$all_flex_subs = acf_get_local_fields( $flex_field_key );
+						} elseif ( $flex_field_id > 0 && function_exists( 'acf_get_raw_fields' ) ) {
+							$all_flex_subs = acf_get_raw_fields( $flex_field_id );
+						}
 
 						foreach ( $acf_field['layouts'] as $layout ) {
 							$layout_type_name              = Utils::format_type_name( $layout_interface_prefix . ' ' . $field_config->get_registry()->get_field_group_graphql_type_name( $layout ) ) . 'Layout';
