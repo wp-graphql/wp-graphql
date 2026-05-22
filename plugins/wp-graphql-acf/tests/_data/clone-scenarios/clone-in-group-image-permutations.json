@@ -1,0 +1,190 @@
+[
+    {
+        "key": "group_media_component",
+        "title": "Media Component (cloned)",
+        "fields": [
+            {
+                "key": "field_media_component_caption",
+                "label": "Caption",
+                "name": "caption",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "caption"
+            },
+            {
+                "key": "field_media_component_image",
+                "label": "Image",
+                "name": "image",
+                "type": "image",
+                "show_in_graphql": 1,
+                "graphql_field_name": "image",
+                "return_format": "array",
+                "preview_size": "medium",
+                "library": "all",
+                "min_width": "",
+                "min_height": "",
+                "min_size": "",
+                "max_width": "",
+                "max_height": "",
+                "max_size": "",
+                "mime_types": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Source group with caption + image. Cloned into four group sub-fields of `media-hero` to exercise all display/prefix combinations.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "mediaComponent",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_media_hero",
+        "title": "Media Hero",
+        "fields": [
+            {
+                "key": "field_media_hero_all_seamless",
+                "label": "All fields, seamless",
+                "name": "media_all_fields_seamless",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "mediaAllFieldsSeamless",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_media_hero_all_seamless_clone",
+                        "label": "Clone (all, seamless)",
+                        "name": "media_all_fields_seamless_clone",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "mediaAllFieldsSeamlessClone",
+                        "clone": [
+                            "group_media_component"
+                        ],
+                        "display": "seamless",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 0
+                    }
+                ]
+            },
+            {
+                "key": "field_media_hero_individual_seamless",
+                "label": "Cherry-picked fields, seamless",
+                "name": "media_individual_fields_seamless",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "mediaIndividualFieldsSeamless",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_media_hero_individual_seamless_clone",
+                        "label": "Clone (cherry-picked, seamless)",
+                        "name": "media_individual_fields_seamless_clone",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "mediaIndividualFieldsSeamlessClone",
+                        "clone": [
+                            "field_media_component_caption",
+                            "field_media_component_image"
+                        ],
+                        "display": "seamless",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 0
+                    }
+                ]
+            },
+            {
+                "key": "field_media_hero_all_group",
+                "label": "All fields, group display",
+                "name": "media_all_fields_group",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "mediaAllFieldsGroup",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_media_hero_all_group_clone",
+                        "label": "Clone (all, group)",
+                        "name": "media_all_fields_group_clone",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "mediaAllFieldsGroupClone",
+                        "clone": [
+                            "group_media_component"
+                        ],
+                        "display": "group",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 1
+                    }
+                ]
+            },
+            {
+                "key": "field_media_hero_individual_group",
+                "label": "Cherry-picked fields, group display",
+                "name": "media_individual_fields_group",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "mediaIndividualFieldsGroup",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_media_hero_individual_group_clone",
+                        "label": "Clone (cherry-picked, group)",
+                        "name": "media_individual_fields_group_clone",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "mediaIndividualFieldsGroupClone",
+                        "clone": [
+                            "field_media_component_caption",
+                            "field_media_component_image"
+                        ],
+                        "display": "group",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 1
+                    }
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Four parent group sub-fields, each containing one clone of `mediaComponent` with a different display/prefix permutation. Fill the page in admin then query to see which combinations resolve caption + image values correctly.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "mediaHero",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

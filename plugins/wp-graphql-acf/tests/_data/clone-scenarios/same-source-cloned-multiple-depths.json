@@ -1,0 +1,148 @@
+[
+    {
+        "key": "group_multi_depth_source",
+        "title": "Multi-Depth Source",
+        "fields": [
+            {
+                "key": "field_multi_depth_source_label",
+                "label": "Label",
+                "name": "label",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "label"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Single-field source cloned in three positions of `multiDepthParent` (top-level + inside a repeater + inside a flex layout).",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "multiDepthSource",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_multi_depth_parent",
+        "title": "Multi-Depth Parent",
+        "fields": [
+            {
+                "key": "field_multi_depth_top_clone",
+                "label": "Top-level clone of source",
+                "name": "top_clone",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "topClone",
+                "clone": [
+                    "group_multi_depth_source"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            },
+            {
+                "key": "field_multi_depth_repeater",
+                "label": "Repeater containing a clone of source",
+                "name": "items",
+                "type": "repeater",
+                "show_in_graphql": 1,
+                "graphql_field_name": "items",
+                "layout": "table",
+                "min": 0,
+                "max": 0,
+                "button_label": "Add item",
+                "sub_fields": [
+                    {
+                        "key": "field_multi_depth_repeater_clone",
+                        "label": "Repeater clone of source",
+                        "name": "repeater_clone",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "repeaterClone",
+                        "clone": [
+                            "group_multi_depth_source"
+                        ],
+                        "display": "group",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 1
+                    }
+                ]
+            },
+            {
+                "key": "field_multi_depth_flex",
+                "label": "Flex content containing a clone of source",
+                "name": "flex",
+                "type": "flexible_content",
+                "show_in_graphql": 1,
+                "graphql_field_name": "flex",
+                "layouts": {
+                    "layout_multi_depth_one": {
+                        "key": "layout_multi_depth_one",
+                        "name": "one",
+                        "label": "One",
+                        "display": "block",
+                        "sub_fields": [
+                            {
+                                "key": "field_multi_depth_flex_clone",
+                                "label": "Flex clone of source",
+                                "name": "flex_clone",
+                                "type": "clone",
+                                "show_in_graphql": 1,
+                                "graphql_field_name": "flexClone",
+                                "clone": [
+                                    "group_multi_depth_source"
+                                ],
+                                "display": "group",
+                                "layout": "block",
+                                "prefix_label": 0,
+                                "prefix_name": 1
+                            }
+                        ],
+                        "min": "",
+                        "max": ""
+                    }
+                },
+                "button_label": "Add Row",
+                "min": "",
+                "max": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Three positions cloning the same source group: top-level (seamless), inside a repeater (prefixed), inside a flex layout (prefixed). Guards against duplicate-interface registration and verifies type-name disambiguation across depths.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "multiDepthParent",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

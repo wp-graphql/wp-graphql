@@ -1,0 +1,105 @@
+[
+    {
+        "key": "group_wrapped_source",
+        "title": "Wrapped Source (list + non-null)",
+        "fields": [
+            {
+                "key": "field_wrapped_source_tags",
+                "label": "Tags (list-typed repeater)",
+                "name": "tags",
+                "type": "repeater",
+                "show_in_graphql": 1,
+                "graphql_field_name": "tags",
+                "layout": "table",
+                "min": 0,
+                "max": 0,
+                "button_label": "Add tag",
+                "sub_fields": [
+                    {
+                        "key": "field_wrapped_source_tag_value",
+                        "label": "Value",
+                        "name": "value",
+                        "type": "text",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "value"
+                    }
+                ]
+            },
+            {
+                "key": "field_wrapped_source_required_label",
+                "label": "Required label (non-null)",
+                "name": "required_label",
+                "type": "text",
+                "required": 1,
+                "show_in_graphql": 1,
+                "graphql_field_name": "requiredLabel",
+                "graphql_non_null": 1
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Source with one list-typed field (repeater) and one non-null field. Cloned into `wrappedParent` to verify TypeRegistry compatible-override Path 2 accepts wrapped types.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "wrappedSource",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_wrapped_parent",
+        "title": "Wrapped Parent",
+        "fields": [
+            {
+                "key": "field_wrapped_parent_clone",
+                "label": "Cloned source",
+                "name": "cloned_source",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "clonedSource",
+                "clone": [
+                    "group_wrapped_source"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Parent implementing the source's `_Fields` interface via whole-group seamless clone. Schema must accept both the list-typed `tags` field and the non-null `requiredLabel`.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "wrappedParent",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

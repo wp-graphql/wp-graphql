@@ -1,0 +1,138 @@
+[
+    {
+        "key": "group_clone_matrix_source",
+        "title": "Clone Matrix Source",
+        "fields": [
+            {
+                "key": "field_clone_matrix_title",
+                "label": "Section Title",
+                "name": "section_title",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "show_in_graphql": 1,
+                "graphql_field_name": "sectionTitle"
+            },
+            {
+                "key": "field_clone_matrix_links",
+                "label": "Section Links",
+                "name": "section_links",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "show_in_graphql": 1,
+                "graphql_field_name": "sectionLinks"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Source group cloned by `clone-matrix-parent`. Inactive so it does not attach to any admin screen on its own.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "cloneMatrixSource",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_clone_matrix_parent",
+        "title": "Clone Matrix Parent",
+        "fields": [
+            {
+                "key": "field_clone_matrix_whole_seamless",
+                "label": "Whole group, seamless, no prefix",
+                "name": "whole_group_seamless",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "wholeGroupSeamless",
+                "clone": [
+                    "group_clone_matrix_source"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            },
+            {
+                "key": "field_clone_matrix_whole_group",
+                "label": "Whole group, group display, prefixed",
+                "name": "whole_group_group",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "wholeGroupGroup",
+                "clone": [
+                    "group_clone_matrix_source"
+                ],
+                "display": "group",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 1
+            },
+            {
+                "key": "field_clone_matrix_cherry_seamless",
+                "label": "Cherry-picked field (sectionLinks), seamless, no prefix",
+                "name": "cherry_picked_seamless",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "cherryPickedSeamless",
+                "clone": [
+                    "field_clone_matrix_links"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            },
+            {
+                "key": "field_clone_matrix_cherry_group",
+                "label": "Cherry-picked field (sectionLinks), group display, prefixed",
+                "name": "cherry_picked_group",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "cherryPickedGroup",
+                "clone": [
+                    "field_clone_matrix_links"
+                ],
+                "display": "group",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 1
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Four clone permutations of CloneMatrixSource. Use to verify schema registration of all clone display/prefix combinations.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "cloneMatrixParent",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

@@ -1,0 +1,137 @@
+[
+    {
+        "key": "group_top_vs_nested_source",
+        "title": "Top vs Nested Source",
+        "fields": [
+            {
+                "key": "field_top_vs_nested_source_title",
+                "label": "Title",
+                "name": "title",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "title"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Single-field source group cloned in four positions on `topVsNestedPage`.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "topVsNestedSource",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_top_vs_nested_page",
+        "title": "Top vs Nested Page",
+        "fields": [
+            {
+                "key": "field_top_vs_nested_top_seamless",
+                "label": "Top-level clone, seamless",
+                "name": "top_level_clone_seamless",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "topLevelCloneSeamless",
+                "clone": [
+                    "group_top_vs_nested_source"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            },
+            {
+                "key": "field_top_vs_nested_top_group",
+                "label": "Top-level clone, group display",
+                "name": "top_level_clone_group",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "topLevelCloneGroup",
+                "clone": [
+                    "group_top_vs_nested_source"
+                ],
+                "display": "group",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 1
+            },
+            {
+                "key": "field_top_vs_nested_wrapper",
+                "label": "Group wrapper for nested clones",
+                "name": "group_wrapper",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "groupWrapper",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_top_vs_nested_nested_seamless",
+                        "label": "Nested clone, seamless",
+                        "name": "nested_clone_seamless",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "nestedCloneSeamless",
+                        "clone": [
+                            "group_top_vs_nested_source"
+                        ],
+                        "display": "seamless",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 0
+                    },
+                    {
+                        "key": "field_top_vs_nested_nested_group",
+                        "label": "Nested clone, group display",
+                        "name": "nested_clone_group",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "nestedCloneGroup",
+                        "clone": [
+                            "group_top_vs_nested_source"
+                        ],
+                        "display": "group",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 1
+                    }
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Four clone positions: top-level seamless / top-level group / nested seamless / nested group. Confirms each shape registers in the schema as expected.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "topVsNestedPage",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

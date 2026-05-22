@@ -1,0 +1,166 @@
+[
+    {
+        "key": "group_nested_clone_c",
+        "title": "Nested Clone Group C",
+        "fields": [
+            {
+                "key": "field_nested_clone_c_text",
+                "label": "Text Field",
+                "name": "text_field",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "textField"
+            },
+            {
+                "key": "field_nested_clone_c_group",
+                "label": "Group Field",
+                "name": "group_field",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "groupField",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_nested_clone_c_group_inner",
+                        "label": "Inner",
+                        "name": "inner",
+                        "type": "text",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "inner"
+                    }
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Innermost group: text + nested group sub-field. Cloned into Group B as `layout`.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "nestedCloneGroupC",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_nested_clone_b",
+        "title": "Nested Clone Group B",
+        "fields": [
+            {
+                "key": "field_nested_clone_b_clone",
+                "label": "Layout",
+                "name": "layout",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "layout",
+                "clone": [
+                    "group_nested_clone_c"
+                ],
+                "display": "group",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 1
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Middle group cloning Group C. Cloned into Group A's flex layout.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "nestedCloneGroupB",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_nested_clone_a",
+        "title": "Nested Clone Group A",
+        "fields": [
+            {
+                "key": "field_nested_clone_a_flex",
+                "label": "Flexible Content",
+                "name": "flexible_content",
+                "type": "flexible_content",
+                "show_in_graphql": 1,
+                "graphql_field_name": "flexibleContent",
+                "layouts": {
+                    "layout_nested_clone_a_one": {
+                        "key": "layout_nested_clone_a_one",
+                        "name": "layout_one",
+                        "label": "Layout One",
+                        "display": "block",
+                        "sub_fields": [
+                            {
+                                "key": "field_nested_clone_a_clone",
+                                "label": "Cloned Field Group",
+                                "name": "cloned_field_group",
+                                "type": "clone",
+                                "show_in_graphql": 1,
+                                "graphql_field_name": "clonedFieldGroup",
+                                "clone": [
+                                    "group_nested_clone_b"
+                                ],
+                                "display": "group",
+                                "layout": "block",
+                                "prefix_label": 0,
+                                "prefix_name": 1
+                            }
+                        ],
+                        "min": "",
+                        "max": ""
+                    }
+                },
+                "button_label": "Add Row",
+                "min": "",
+                "max": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Top group: flex layout cloning Group B (which clones Group C with a group sub-field). Pre-fix this produced: \"Interface field NestedCloneGroupB_Fields.layout expects type NestedCloneGroupCLayout but ...layout is type NestedCloneGroupBLayout\".",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "nestedCloneGroupA",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

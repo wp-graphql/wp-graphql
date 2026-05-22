@@ -1,0 +1,104 @@
+[
+    {
+        "key": "group_prefixed_flex_source",
+        "title": "Prefixed Flex Source",
+        "fields": [
+            {
+                "key": "field_prefixed_flex_title",
+                "label": "Title",
+                "name": "title",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "title"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Source group cloned by the layout sub-field in `prefixed-flex-parent`. Lives on pages so it shows up directly in admin too.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "prefixedFlexSource",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_prefixed_flex_parent",
+        "title": "Prefixed Flex Parent",
+        "fields": [
+            {
+                "key": "field_prefixed_flex_field",
+                "label": "Flexible",
+                "name": "flexible",
+                "type": "flexible_content",
+                "show_in_graphql": 1,
+                "graphql_field_name": "flexible",
+                "layouts": {
+                    "layout_prefixed_flex_some": {
+                        "key": "layout_prefixed_flex_some",
+                        "name": "some_layout",
+                        "label": "Some Layout",
+                        "display": "block",
+                        "sub_fields": [
+                            {
+                                "key": "field_prefixed_flex_clone",
+                                "label": "Prefixed clone (yo)",
+                                "name": "yo",
+                                "type": "clone",
+                                "show_in_graphql": 1,
+                                "graphql_field_name": "yo",
+                                "clone": [
+                                    "group_prefixed_flex_source"
+                                ],
+                                "display": "seamless",
+                                "layout": "block",
+                                "prefix_label": 0,
+                                "prefix_name": 1
+                            }
+                        ],
+                        "min": "",
+                        "max": ""
+                    }
+                },
+                "button_label": "Add Row",
+                "min": "",
+                "max": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Flex layout with a prefixed seamless clone sub-field. Verify `yo { title }` appears (not bare `title` on the layout).",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "prefixedFlexParent",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

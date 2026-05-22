@@ -1,0 +1,104 @@
+[
+    {
+        "key": "group_cyclical_a",
+        "title": "Cyclical Clone A",
+        "fields": [
+            {
+                "key": "field_cyclical_a_text",
+                "label": "A text",
+                "name": "a_text",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "aText"
+            },
+            {
+                "key": "field_cyclical_a_clones_b",
+                "label": "Clones B",
+                "name": "clones_b",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "clonesB",
+                "clone": [
+                    "group_cyclical_b"
+                ],
+                "display": "group",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 1
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Cyclical pair: A clones B, B clones A. Importing should not OOM. Schema build must terminate. See https://github.com/wp-graphql/wpgraphql-acf/issues/140",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "cyclicalCloneA",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_cyclical_b",
+        "title": "Cyclical Clone B",
+        "fields": [
+            {
+                "key": "field_cyclical_b_text",
+                "label": "B text",
+                "name": "b_text",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "bText"
+            },
+            {
+                "key": "field_cyclical_b_clones_a",
+                "label": "Clones A",
+                "name": "clones_a",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "clonesA",
+                "clone": [
+                    "group_cyclical_a"
+                ],
+                "display": "group",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 1
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "page"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Cyclical pair partner. ACF Pro already guards against infinite recursion via `$this->cloning[$field['key']]`, but the schema-build side should also terminate.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "cyclicalCloneB",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]
