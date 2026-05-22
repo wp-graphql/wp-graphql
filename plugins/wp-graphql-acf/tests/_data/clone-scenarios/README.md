@@ -32,6 +32,7 @@ $schema->assertValid();
 | File | Issue | Bound to | What it isolates |
 |---|---|---|---|
 | `cherry-picked-vs-whole-group-matrix.json` | [#258](https://github.com/wp-graphql/wpgraphql-acf/issues/258) | post | All 4 clone permutations: whole-group × seamless, whole-group × group, cherry-picked × seamless, cherry-picked × group |
+| `issue-258-exact-repro.json` | [#258](https://github.com/wp-graphql/wpgraphql-acf/issues/258) | post | Strict-shape repro of the reporter's structure: TWO separate source groups, whole-group seamless clone of one, cherry-picked seamless clone of one field from the other, plus a plain text field and the reporter's group-wrapping workaround |
 | `prefixed-clone-in-flex-layout.json` | [#269](https://github.com/wp-graphql/wpgraphql-acf/issues/269) | post (+ source on page) | Prefixed seamless clone inside a flex layout |
 | `nested-clone-with-group-subfield.json` | [#201](https://github.com/wp-graphql/wpgraphql-acf/issues/201) | post | A → flex → clones B → clones C (with group sub-field) — the wrapped-type interface override case |
 | `clone-in-group-image-permutations.json` | [#250](https://github.com/wp-graphql/wpgraphql-acf/issues/250) | page | Hero pattern with 4 group sub-fields, each containing one clone of a (caption + image) source in a different display/prefix permutation |
@@ -100,6 +101,56 @@ query {
 ```
 
 **Pre-fix symptom (#258)**: `sectionLinks` did not appear from the cherry-picked seamless clone — the clone field was silently dropped and (in cherry-pick mode) there's no source group to provide an `_Fields` interface either.
+
+---
+
+### `issue-258-exact-repro.json` (covers #258, strict-shape variant)
+
+Mirrors the exact structure described in the bug report rather than the synthetic matrix:
+
+- `middleLevelGroup` (Source A, inactive): one field, `sectionTitle`.
+- `bottomLevelGroup` (Source B, inactive): two fields — `sectionLinks` (cherry-picked) and `sectionSummary` (a sibling that must NOT leak).
+- `topLevelGroup` (active, on `post`):
+  - `textField` — a plain text field, untouched by clone behavior.
+  - `wholeMiddleClone` — whole-group seamless clone of `middleLevelGroup`.
+  - `cherryBottomClone` — cherry-picked seamless clone of `bottomLevelGroup.sectionLinks` ← THE bug case.
+  - `groupWorkaround` — a group field containing another cherry-pick (the workaround the reporter discovered).
+
+**Sample query**
+```graphql
+query Issue258Repro($id: ID!) {
+  post(id: $id, idType: DATABASE_ID) {
+    topLevelGroup {
+      __typename
+      textField
+      sectionTitle  # via MiddleLevelGroup_Fields interface (whole-group seamless)
+      sectionLinks  # via cherry-pick splice (THE #258 bug case)
+      groupWorkaround {
+        sectionLinks
+      }
+    }
+  }
+}
+```
+
+**Verify interfaces directly**
+```graphql
+query {
+  __type(name: "TopLevelGroup") {
+    interfaces { name }   # should include MiddleLevelGroup_Fields; should NOT include BottomLevelGroup_Fields
+    fields { name type { kind name } }   # should NOT include sectionSummary
+  }
+}
+```
+
+**Expected post-fix**
+- `TopLevelGroup` implements `MiddleLevelGroup_Fields` (whole-group seamless).
+- `TopLevelGroup` does NOT implement `BottomLevelGroup_Fields` (cherry-pick correctly doesn't pull in the source's interface).
+- `sectionTitle`, `sectionLinks`, and `textField` all appear as flat fields on `TopLevelGroup`.
+- `sectionSummary` does NOT appear on `TopLevelGroup` (proves the cherry-pick is precisely scoped — only `sectionLinks` was cherry-picked).
+- The `groupWorkaround` sub-field also exposes `sectionLinks` — the reporter's workaround still works.
+
+This artifact is what conclusively demonstrates #258 is closed: `cherry-picked-vs-whole-group-matrix.json` could be argued to mask the bug because the whole-group interface from the same source provides `sectionLinks`; here the cherry-pick is the only path that can register `sectionLinks` on the parent.
 
 ---
 

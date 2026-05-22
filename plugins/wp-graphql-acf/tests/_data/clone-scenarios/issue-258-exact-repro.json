@@ -1,0 +1,174 @@
+[
+    {
+        "key": "group_258_middle",
+        "title": "Middle Level Group",
+        "fields": [
+            {
+                "key": "field_258_middle_section_title",
+                "label": "Section Title",
+                "name": "section_title",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "sectionTitle"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Source A: cloned as a WHOLE group from topLevelGroup. Inactive on its own — only appears via clone.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "middleLevelGroup",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_258_bottom",
+        "title": "Bottom Level Group",
+        "fields": [
+            {
+                "key": "field_258_bottom_section_links",
+                "label": "Section Links",
+                "name": "section_links",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "sectionLinks"
+            },
+            {
+                "key": "field_258_bottom_section_summary",
+                "label": "Section Summary",
+                "name": "section_summary",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "sectionSummary"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": false,
+        "description": "Source B: only `sectionLinks` is cherry-picked by topLevelGroup (and by groupWorkaround). `sectionSummary` is intentionally NOT cherry-picked — it must NOT leak onto topLevelGroup.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "bottomLevelGroup",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    },
+    {
+        "key": "group_258_top",
+        "title": "Top Level Group (issue-258 exact repro)",
+        "fields": [
+            {
+                "key": "field_258_top_text",
+                "label": "Plain text",
+                "name": "text_field",
+                "type": "text",
+                "show_in_graphql": 1,
+                "graphql_field_name": "textField"
+            },
+            {
+                "key": "field_258_top_whole_middle",
+                "label": "Whole-group clone of Middle (all fields, seamless, no prefix)",
+                "name": "whole_middle_clone",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "wholeMiddleClone",
+                "clone": [
+                    "group_258_middle"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            },
+            {
+                "key": "field_258_top_cherry_bottom",
+                "label": "Cherry-picked sectionLinks from Bottom (seamless, no prefix)",
+                "name": "cherry_bottom_clone",
+                "type": "clone",
+                "show_in_graphql": 1,
+                "graphql_field_name": "cherryBottomClone",
+                "clone": [
+                    "field_258_bottom_section_links"
+                ],
+                "display": "seamless",
+                "layout": "block",
+                "prefix_label": 0,
+                "prefix_name": 0
+            },
+            {
+                "key": "field_258_top_group_workaround",
+                "label": "Group containing another cherry-pick (reporter's workaround)",
+                "name": "group_workaround",
+                "type": "group",
+                "show_in_graphql": 1,
+                "graphql_field_name": "groupWorkaround",
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_258_top_workaround_clone",
+                        "label": "Same cherry-pick, but inside a group",
+                        "name": "nested_cherry_clone",
+                        "type": "clone",
+                        "show_in_graphql": 1,
+                        "graphql_field_name": "nestedCherryClone",
+                        "clone": [
+                            "field_258_bottom_section_links"
+                        ],
+                        "display": "seamless",
+                        "layout": "block",
+                        "prefix_label": 0,
+                        "prefix_name": 0
+                    }
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "Exact-shape reproduction of https://github.com/wp-graphql/wpgraphql-acf/issues/258 — top-level group with a plain text field, a whole-group seamless clone of one source group, and a cherry-picked seamless clone of a different source group's field. The reporter found the cherry-picked clone disappeared from the schema unless wrapped in a group field; the group-wrapped variant is included here so we can verify both shapes work post-fix.",
+        "show_in_rest": 0,
+        "show_in_graphql": 1,
+        "graphql_field_name": "topLevelGroup",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": ""
+    }
+]

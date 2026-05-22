@@ -154,6 +154,58 @@ class CloneScenarioArtifactsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAc
 		$this->assertContains( 'WrappedSource_Fields', $interfaces, 'Whole-group seamless clone should apply source _Fields interface.' );
 	}
 
+	/**
+	 * Mirrors the exact field-group shape described in
+	 * https://github.com/wp-graphql/wpgraphql-acf/issues/258:
+	 *
+	 *   topLevelGroup (active, on post)
+	 *     ├─ textField (plain text)
+	 *     ├─ wholeMiddleClone — whole-group seamless clone of middleLevelGroup
+	 *     ├─ cherryBottomClone — cherry-picked seamless clone of bottomLevelGroup.sectionLinks (THE bug)
+	 *     └─ groupWorkaround (group)
+	 *           └─ nestedCherryClone — same cherry-pick, wrapped in a group (the reporter's workaround)
+	 *
+	 * Post-fix expectations on TopLevelGroup:
+	 *  - textField, sectionTitle, sectionLinks all present as flat fields
+	 *  - MiddleLevelGroup_Fields interface implemented (whole-group seamless)
+	 *  - BottomLevelGroup_Fields interface NOT implemented (cherry-pick has no source-group interface)
+	 *  - sectionSummary (a sibling field of sectionLinks in BottomLevelGroup that was NOT cherry-picked) must NOT leak
+	 *  - groupWorkaround.sectionLinks resolves (workaround still works)
+	 */
+	public function testIssue258ExactRepro(): void {
+		$this->skip_if_not_acf_pro();
+		$this->load_artifact( 'issue-258-exact-repro.json' );
+		$this->assertSchemaIsValid();
+
+		$top = $this->introspect_type( 'TopLevelGroup' );
+		$this->assertNotNull( $top, 'TopLevelGroup should exist' );
+
+		$fields     = array_map( static fn( $f ) => $f['name'], $top['fields'] ?? [] );
+		$interfaces = array_map( static fn( $i ) => $i['name'], $top['interfaces'] ?? [] );
+
+		// Plain field, untouched by clone behavior.
+		$this->assertContains( 'textField', $fields, 'Plain text field should remain on TopLevelGroup.' );
+
+		// Whole-group seamless clone exposes its source's fields via interface inheritance.
+		$this->assertContains( 'MiddleLevelGroup_Fields', $interfaces, 'TopLevelGroup should implement MiddleLevelGroup_Fields from the whole-group seamless clone.' );
+		$this->assertContains( 'sectionTitle', $fields, 'sectionTitle should appear on TopLevelGroup via the MiddleLevelGroup_Fields interface.' );
+
+		// THE #258 bug case: cherry-picked seamless splice should expose sectionLinks directly.
+		$this->assertContains( 'sectionLinks', $fields, '#258: cherry-picked sectionLinks must appear as a flat field on TopLevelGroup.' );
+
+		// Negative assertions — confirms the cherry-pick is precisely scoped:
+		// - the source group's _Fields interface is NOT applied (no whole-group cloning of bottomLevelGroup)
+		// - sectionSummary (a sibling of sectionLinks in bottomLevelGroup that we did NOT cherry-pick) must NOT leak
+		$this->assertNotContains( 'BottomLevelGroup_Fields', $interfaces, 'Cherry-pick must not pull in the source group\'s _Fields interface.' );
+		$this->assertNotContains( 'sectionSummary', $fields, 'Only the cherry-picked field (sectionLinks) should appear — sectionSummary must not leak.' );
+
+		// The reporter's workaround (wrap the broken clone in a group field) should also still work.
+		$workaround = $this->introspect_type( 'TopLevelGroupGroupWorkaround' );
+		$this->assertNotNull( $workaround, 'TopLevelGroupGroupWorkaround (the group sub-field) should exist.' );
+		$workaround_fields = array_map( static fn( $f ) => $f['name'], $workaround['fields'] ?? [] );
+		$this->assertContains( 'sectionLinks', $workaround_fields, 'Cherry-picked sectionLinks inside the group sub-field should also be exposed (workaround path).' );
+	}
+
 	public function testSameSourceClonedMultipleDepths(): void {
 		$this->skip_if_not_acf_pro();
 		$this->load_artifact( 'same-source-cloned-multiple-depths.json' );
