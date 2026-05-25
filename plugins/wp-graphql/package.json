@@ -83,7 +83,7 @@
 		"@wordpress/scripts": "^27.9.0",
 		"babel-jest": "^30.4.1",
 		"babel-plugin-inline-json-import": "^0.3.2",
-		"eslint-plugin-jest": "^27.9.0",
+		"eslint-plugin-jest": "^29.15.2",
 		"lint-staged": "^16.4.0",
 		"sort-package-json": "^3.6.1",
 		"webpack-remove-empty-scripts": "^1.1.1"
