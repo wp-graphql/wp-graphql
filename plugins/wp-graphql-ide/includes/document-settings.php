@@ -22,16 +22,9 @@ require_once __DIR__ . '/document-settings/built-in-fields.php';
 require_once __DIR__ . '/document-settings/rest.php';
 require_once __DIR__ . '/document-settings/localization.php';
 
-// Fire the registration action after taxonomies are registered (init @ 10) and
-// after WPGraphQL itself has finished its own registrations. Priority 11 keeps
-// us comfortably after `register_taxonomies()` in this module.
-add_action( 'init', __NAMESPACE__ . '\\dispatch_register_action', 11 );
-
-function dispatch_register_action(): void {
-	/**
-	 * Register fields for the IDE's per-document Settings drawer.
-	 *
-	 * Use {@see register_graphql_document_setting_field()} inside the callback.
-	 */
-	do_action( 'wpgraphql_ide_register_document_settings' );
-}
+// Each sub-module wires its own `init` registration at priority 11, after
+// taxonomies and WPGraphQL itself are registered. There used to be a
+// `wpgraphql_ide_register_document_settings` action dispatched here, but
+// the indirection had no external consumers and the Document Settings
+// surface is moving into Smart Cache anyway (see 5.0 architecture notes),
+// so callers register directly now.

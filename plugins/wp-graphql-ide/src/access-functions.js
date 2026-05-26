@@ -29,7 +29,6 @@ export { PREFERENCE_KEYS };
  * Hooks fired:
  *
  * - `wpgraphql-ide.afterRegisterPreference` on success
- * - `wpgraphql-ide.registerPreferenceError` on failure
  *
  * @param {string}            key
  * @param {Object}            config
@@ -43,12 +42,6 @@ export function registerPreference(key, config) {
 		hooks.doAction('wpgraphql-ide.afterRegisterPreference', key, config);
 	} catch (error) {
 		console.error(`Failed to register preference: ${key}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerPreferenceError',
-			key,
-			config,
-			error
-		);
 	}
 }
 
@@ -117,13 +110,6 @@ export function registerDocumentEditorToolbarButton(
 		);
 	} catch (error) {
 		console.error(`Failed to register button: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerToolbarButtonError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -142,13 +128,6 @@ export function registerActivityBarPanel(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register activity bar panel: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerActivityBarPanelError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -198,13 +177,6 @@ export function registerResponseExtensionTab(name, config, priority = 10) {
 			`Failed to register response extension tab: ${name}`,
 			error
 		);
-		hooks.doAction(
-			'wpgraphql-ide.registerResponseExtensionTabError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -243,13 +215,6 @@ export function registerEditorBottomTab(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register editor bottom tab: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerEditorBottomTabError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -287,13 +252,6 @@ export function registerStatusBarItem(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register status bar item: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerStatusBarItemError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -330,13 +288,6 @@ export function registerResponseViewMode(value, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register response view mode: ${value}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerResponseViewModeError',
-			value,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -380,13 +331,6 @@ export function registerResponseAction(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register response action: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerResponseActionError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -433,13 +377,6 @@ export function registerEditorAction(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register editor action: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerEditorActionError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -478,13 +415,6 @@ export function registerDocumentTabAction(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register document tab action: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerDocumentTabActionError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 

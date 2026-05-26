@@ -163,33 +163,6 @@ class RequestDetectionTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( WPGraphQLIDE\is_browser_html_request_to_endpoint() );
 	}
 
-	public function test_filter_can_add_custom_api_params(): void {
-		// Extensions that introduce new GET params can hook the filter
-		// to keep their requests on the JSON path.
-		add_filter(
-			'wpgraphql_ide_endpoint_api_params',
-			static function ( array $params ): array {
-				$params[] = 'customExtensionParam';
-				return $params;
-			}
-		);
-
-		try {
-			$this->set_request(
-				'GET',
-				'text/html,application/xhtml+xml',
-				[
-					'customExtensionParam' => '1',
-				]
-			);
-			$this->assertFalse(
-				WPGraphQLIDE\is_browser_html_request_to_endpoint()
-			);
-		} finally {
-			remove_all_filters( 'wpgraphql_ide_endpoint_api_params' );
-		}
-	}
-
 	public function test_html_accept_with_charset_param_matches(): void {
 		// Some browsers include charset; the substring match should
 		// still find `text/html`.

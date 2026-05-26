@@ -236,22 +236,15 @@ class AssetEnqueue {
 	}
 
 	/**
-	 * Retrieves and sanitizes external fragments.
+	 * Returns the list of external GraphQL fragments to ship in the IDE
+	 * bootstrap. Always empty in 5.0 — the previous `wpgraphql_ide_external_fragments`
+	 * filter was removed since no consumers were found and the use case
+	 * (inject ad-hoc fragments into the IDE) didn't survive the rebuild.
 	 *
-	 * @return array<string> The sanitized array of external fragments.
+	 * @return array<string>
 	 */
 	public static function external_fragments(): array {
-		// Retrieve external fragments using the filter.
-		$external_fragments = apply_filters( 'wpgraphql_ide_external_fragments', [] );
-
-		// Loop through each fragment, sanitize, and ensure it's a valid GraphQL fragment.
-		return array_filter(
-			array_map( 'sanitize_text_field', $external_fragments ),
-			static function ( string $fragment ): bool {
-				// Check if the fragment starts with "fragment" and contains "on" (basic GraphQL fragment validation).
-				return preg_match( '/^fragment\s+\w+\s+on\s+\w+\s*{/', trim( $fragment ) ) === 1;
-			}
-		);
+		return [];
 	}
 
 	/**

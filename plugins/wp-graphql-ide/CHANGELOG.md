@@ -74,6 +74,56 @@
   should call these directly; the existing namespaced
   `\WPGraphQLIDE\user_has_graphql_ide_capability()` is preserved as a
   back-compat wrapper.
+- **Extension hooks pruned.** Major-version surface cleanup: hooks with zero
+  external consumers (verified by `gh search code`) and no internal
+  callers are removed rather than carried forward as speculative extension
+  points. The hooks the IDE *does* still expose
+  (`wpgraphql_ide_init`, `wpgraphql_ide_enqueue_script`,
+  `wpgraphql_ide_capability_required`, `wpgraphql_ide_context`,
+  `wpgraphql_ide_localized_data`, `wpgraphql-ide.init`,
+  `wpgraphql-ide.rendered`, `wpgraphql-ide.destroyed`, and the
+  per-registry `afterRegister*` JS actions) are unchanged.
+
+  **Removed PHP hooks** (0 external consumers, 0 internal callers):
+    - `wpgraphql_ide_external_fragments` filter — the IDE never had a real
+      ad-hoc-fragment-injection use case post-rebuild; `external_fragments()`
+      now returns `[]` unconditionally.
+    - `wpgraphql_ide_endpoint_api_params` filter — the public-endpoint
+      GET-param allow-list is now a literal in `public-endpoint.php`.
+    - `wpgraphql_ide_register_document_settings` action — the built-in
+      Document Settings fields registered through it now `add_action('init',
+      ..., 11)` directly. The Document Settings surface is migrating into
+      WPGraphQL Smart Cache, so extending fields from outside the IDE is
+      a Smart-Cache-side concern.
+
+  **Removed JS actions** (10 paired `register*Error` actions, hypervigilant
+  failure-notification surface that no consumer could productively hook):
+    - `wpgraphql-ide.registerPreferenceError`
+    - `wpgraphql-ide.registerToolbarButtonError`
+    - `wpgraphql-ide.registerActivityBarPanelError`
+    - `wpgraphql-ide.registerResponseExtensionTabError`
+    - `wpgraphql-ide.registerEditorBottomTabError`
+    - `wpgraphql-ide.registerStatusBarItemError`
+    - `wpgraphql-ide.registerResponseViewModeError`
+    - `wpgraphql-ide.registerResponseActionError`
+    - `wpgraphql-ide.registerEditorActionError`
+    - `wpgraphql-ide.registerDocumentTabActionError`
+
+    Registration failures still log to `console.error` — that's the
+    actionable signal. The matching `wpgraphql-ide.afterRegister*` success
+    actions are unchanged.
+
+  **Legacy `graphiql_*` hooks** (already not fired in 5.0; documented here
+  for upgrade clarity since the 4.x docs referenced them):
+    - `graphiql_external_fragments` — was an alias for the removed
+      `wpgraphql_ide_external_fragments`.
+    - `enqueue_graphiql_extension` — was an alias for
+      `wpgraphql_ide_enqueue_script`. Hook the canonical name.
+    - `graphiql_rendered` — was an alias for the `wpgraphql-ide.rendered`
+      JS action. Hook the canonical name via `wp.hooks.addAction`.
+    - `graphiql_toolbar_before_buttons` / `graphiql_toolbar_after_buttons` —
+      no longer fired; the modern way to add toolbar items is
+      `registerDocumentEditorToolbarButton()`.
 
 ## [4.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.0...wp-graphql-ide/v4.4.1) (2026-05-08)
 

@@ -1,19 +1,17 @@
 <?php
 /**
  * Register the four built-in Document Settings fields by calling the
- * public registration API. Doing this through the same access function that
- * extensions will use keeps a single integration path.
+ * public registration API.
  *
- * Fires on `wpgraphql_ide_register_document_settings`, an action dispatched
- * from the main plugin loader after `init` so taxonomies and the post type
- * are guaranteed to be registered before fields reference them.
+ * Hooked at `init` priority 11 so the post type + taxonomies (registered at
+ * priority 10) are already in place when these fields reference them.
  *
  * @package WPGraphQLIDE\DocumentSettings
  */
 
 namespace WPGraphQLIDE\DocumentSettings;
 
-add_action( 'wpgraphql_ide_register_document_settings', __NAMESPACE__ . '\\register_built_in_fields' );
+add_action( 'init', __NAMESPACE__ . '\\register_built_in_fields', 11 );
 
 function register_built_in_fields(): void {
 	register_graphql_document_setting_field(

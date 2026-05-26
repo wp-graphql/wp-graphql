@@ -100,13 +100,8 @@ function is_browser_html_request_to_endpoint(): bool {
 	// Any GraphQL-over-HTTP GET param signals an API call — even with
 	// browser Accept headers. Covers the spec set (`query`, `variables`,
 	// `operationName`, `extensions`) plus WPGraphQL Smart Cache's
-	// persisted-query convention (`queryId`). A future Smart Cache or
-	// extension that introduces new GET params can hook
-	// `wpgraphql_ide_endpoint_api_params` to extend this list.
-	$api_params = apply_filters(
-		'wpgraphql_ide_endpoint_api_params',
-		[ 'query', 'variables', 'operationName', 'extensions', 'queryId' ]
-	);
+	// persisted-query convention (`queryId`).
+	$api_params = [ 'query', 'variables', 'operationName', 'extensions', 'queryId' ];
 	foreach ( $api_params as $param ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET[ $param ] ) ) {
