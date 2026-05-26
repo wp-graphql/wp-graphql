@@ -71,7 +71,7 @@
 	"devDependencies": {
 		"@babel/preset-env": "^7.29.5",
 		"@babel/preset-react": "^7.28.5",
-		"@playwright/test": "^1.59.1",
+		"@playwright/test": "^1.60.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^15.0.7",
 		"@types/node": "^22.19.17",
@@ -79,7 +79,7 @@
 		"@typescript-eslint/parser": "^6.21.0",
 		"@wordpress/babel-preset-default": "^7.42.0",
 		"@wordpress/env": "^10.39.0",
-		"@wordpress/jest-preset-default": "^12.45.0",
+		"@wordpress/jest-preset-default": "^12.46.0",
 		"@wordpress/scripts": "^27.9.0",
 		"babel-jest": "^30.4.1",
 		"babel-plugin-inline-json-import": "^0.3.2",
