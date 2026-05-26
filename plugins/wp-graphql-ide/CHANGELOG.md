@@ -125,6 +125,44 @@
       no longer fired; the modern way to add toolbar items is
       `registerDocumentEditorToolbarButton()`.
 
+### Schema additions
+
+- **`GraphqlDocument.variables`** and **`GraphqlDocument.headers`** —
+  new String fields on Smart Cache's `GraphqlDocument` GraphQL type,
+  exposing the IDE's per-document execution context. Same fields are
+  added as inputs on `CreateGraphqlDocumentInput` and
+  `UpdateGraphqlDocumentInput`. Backed by the existing
+  `_graphql_ide_variables` / `_graphql_ide_headers` post meta (the
+  SmartCacheBridge already registers the keys), so REST and GraphQL
+  reads/writes round-trip against the same storage. Lets downstream
+  GraphQL consumers (codegen, third-party tooling, the IDE itself)
+  read and write execution context without falling back to REST.
+
+### Internal: REST → GraphQL migration for the IDE client
+
+Document, collection, and execution-history CRUD inside the IDE now
+runs through GraphQL via `src/api/graphql-client.js` instead of
+`apiFetch` against the WP REST API. The migration is internal —
+consumer-facing return shapes from `src/api/documents.js` and
+`src/api/history.js` are unchanged.
+
+The same `_graphql_ide_*` post meta keys still back the storage and
+the SmartCacheBridge keeps the REST routes exposed, so third-party
+consumers of the REST surface are unaffected.
+
+Stays REST in this release (no GraphQL equivalent, or one that doesn't
+fit a single mutation):
+
+- User preferences. `updateUser` doesn't accept arbitrary user meta.
+- The aggregated `documentSettings` REST readback field.
+- `/wpgraphql-ide/v1/documents/import|export|reorder` and
+  `/collections/reorder` — bulk / non-CRUD orchestration.
+
+`gql()` also gained a one-shot nonce-refresh-and-retry on 401/403
+responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
+sessions that outlive the bootstrap nonce don't start silently
+failing.
+
 ## [4.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.0...wp-graphql-ide/v4.4.1) (2026-05-08)
 
 

@@ -7,6 +7,8 @@
  * @since x-release-please-version
  */
 
+import apiFetch from '@wordpress/api-fetch';
+
 /**
  * GraphQL transport / protocol error.
  *
@@ -29,6 +31,36 @@ export class GraphQLClientError extends Error {
 
 function isAuthError(status) {
 	return status === 401 || status === 403;
+}
+
+/**
+ * One-shot refresh of the WP nonce + retry. The IDE bootstrap caches a
+ * nonce at page load; long sessions (autocomplete tooltip, schema poll,
+ * autosave) outlive its lifetime. `@wordpress/api-fetch` ships its own
+ * middleware that transparently swaps the nonce header on each request
+ * once `createNonceMiddleware(nonce)` is registered, so we piggyback on
+ * its `Refresh-Nonce` response header by issuing a no-op REST request,
+ * then re-issue the original fetch with the freshened nonce.
+ *
+ * Returns the new nonce string when refresh succeeded, or null when it
+ * couldn't be re-obtained (e.g. session itself is gone) — callers should
+ * surface the original auth error in that case.
+ *
+ * @return {Promise<string|null>}
+ */
+async function refreshNonce() {
+	try {
+		// `/wp/v2/users/me?_fields=id` is a tiny authenticated request
+		// that returns a `Refresh-Nonce` header when the nonce should
+		// rotate. api-fetch's nonce middleware captures the header and
+		// updates its internal state; we read it back from
+		// window.WPGRAPHQL_IDE_DATA.nonce after the round trip.
+		await apiFetch({ path: '/wp/v2/users/me?_fields=id' });
+		const data = window.WPGRAPHQL_IDE_DATA || {};
+		return data.nonce || null;
+	} catch (e) {
+		return null;
+	}
 }
 
 /**
@@ -62,17 +94,35 @@ export async function gql(query, variables = {}, options = {}) {
 		throw new GraphQLClientError('GraphQL endpoint is not configured.');
 	}
 
-	const response = await fetch(endpoint, {
-		method: 'POST',
-		credentials: 'include',
-		signal: options.signal,
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-			...(data.nonce ? { 'X-WP-Nonce': data.nonce } : {}),
-		},
-		body: JSON.stringify({ query, variables }),
-	});
+	const send = (nonce) =>
+		fetch(endpoint, {
+			method: 'POST',
+			credentials: 'include',
+			signal: options.signal,
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+				...(nonce ? { 'X-WP-Nonce': nonce } : {}),
+			},
+			body: JSON.stringify({ query, variables }),
+		});
+
+	let response = await send(data.nonce);
+
+	// On auth failure, try a one-shot nonce refresh + retry. The IDE
+	// bootstrap caches the nonce at page load; long-running sessions
+	// (an editor left open for hours, autosave, schema polling) outlive
+	// the WP heartbeat-rotated nonce and silently start 401'ing. REST's
+	// apiFetch middleware handles this transparently — mirror the
+	// behavior here so the migration to GraphQL doesn't regress
+	// long-session UX. Only one retry: if the refresh itself fails
+	// (session truly gone), surface the original auth error.
+	if (isAuthError(response.status) && !options._nonceRetried) {
+		const refreshed = await refreshNonce();
+		if (refreshed) {
+			response = await send(refreshed);
+		}
+	}
 
 	if (!response.ok) {
 		// Surface auth failures distinctly so callers can show "Sign in
