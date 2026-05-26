@@ -4147,7 +4147,14 @@ input.wpgraphql-ide-tab-input:focus {
    the dedicated IDE page nothing competes; in drawer mode, the drawer
    overlay would otherwise paint on top and hide every autocomplete /
    hover popup. 1000000 matches the bump already applied to
-   .components-popover et al. for the same reason. */
+   .components-popover et al. for the same reason.
+
+   `!important` is required: @codemirror/view injects its own
+   `.cm-tooltip { z-index: 500 }` rule via runtime stylesheet
+   construction, AFTER this stylesheet loads, so a plain rule of equal
+   specificity loses the cascade. The same pattern (`!important` on
+   `.components-popover` / `[data-radix-popper-content-wrapper]`) is
+   already in styles/wpgraphql-ide.css for the same reason. */
 .cm-tooltip {
 	max-width: 460px;
 	background: #fff;
@@ -4159,7 +4166,7 @@ input.wpgraphql-ide-tab-input:focus {
 	line-height: 1.5;
 	white-space: normal;
 	overflow-wrap: anywhere;
-	z-index: 1000000;
+	z-index: 1000000 !important;
 }
 
 /* Pad the inner section that CM6 renders for hover/info tooltips. The

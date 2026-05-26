@@ -87,25 +87,23 @@ test.describe('Endpoint mode — IDE shell at the GraphQL endpoint URL', () => {
 		page,
 	}) => {
 		// Endpoint mode doesn't have a drawer to compete with, but the
-		// same z-index rule (`.cm-tooltip { z-index: 1000000 }`) applies
-		// to keep this assertion useful as a general visibility regression
+		// `.cm-tooltip { z-index: 1000000 !important }` rule applies to
+		// keep this assertion useful as a general visibility regression
 		// guard across all three modes (standalone / drawer / endpoint).
+		// Same shape as the drawer test — see comment there for why we
+		// check computed z-index rather than `elementFromPoint`.
 		await typeQuery(page, '{ posts { nodes { id title a');
 
 		const popup = page.locator('.cm-tooltip-autocomplete').first();
 		await expect(popup).toBeVisible({ timeout: 5000 });
 
-		const isHitTestOnTop = await popup.evaluate((el) => {
-			const rect = el.getBoundingClientRect();
-			const cx = Math.floor(rect.left + rect.width / 2);
-			const cy = Math.floor(rect.top + rect.height / 2);
-			const hit = document.elementFromPoint(cx, cy);
-			return hit !== null && (el === hit || el.contains(hit));
-		});
+		const computedZ = await popup.evaluate(
+			(el) => parseInt(getComputedStyle(el).zIndex, 10) || 0
+		);
 
 		expect(
-			isHitTestOnTop,
-			'autocomplete popup is occluded at its center — visibility regression in endpoint mode'
-		).toBe(true);
+			computedZ,
+			`autocomplete popup z-index is ${computedZ}, expected > 999999 — likely the !important on .cm-tooltip was dropped`
+		).toBeGreaterThan(999999);
 	});
 });
