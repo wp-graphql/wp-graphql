@@ -45,14 +45,15 @@ class SettingsPage {
 					'type'              => 'radio',
 					'options'           => [
 						'drawer'         => __( 'Drawer (recommended) — open the IDE in a slide up drawer from any page', 'wpgraphql-ide' ),
+						// Plain text — option labels render through the IDE's own
+						// React Settings tab as text nodes (no innerHTML), so any
+						// inline anchor would surface as literal markup. The bare
+						// URL is self-evident in both the WP admin page and the
+						// IDE Settings workspace.
 						'dedicated_page' => sprintf(
-							wp_kses_post(
-								sprintf(
-									/* translators: %s: URL to the GraphQL IDE page */
-									__( 'Dedicated Page — direct link to <a href="%1$s">%1$s</a>', 'wpgraphql-ide' ),
-									esc_url( admin_url( 'admin.php?page=graphql-ide' ) )
-								)
-							)
+							/* translators: %s: URL to the dedicated GraphQL IDE admin page */
+							__( 'Dedicated Page — direct link to %s', 'wpgraphql-ide' ),
+							esc_url( admin_url( 'admin.php?page=graphql-ide' ) )
 						),
 						'disabled'       => __( 'Disabled — remove the IDE link from the admin bar', 'wpgraphql-ide' ),
 					],
