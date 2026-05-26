@@ -1,10 +1,10 @@
 import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
-import { getLayoutData, LayoutProvider, request } from "lib/wpgraphql-client"
+import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
-import { getParsedDoc, getDocsNav } from "lib/parse-mdx-docs"
+import { getAllDocUri, getDocsNav, getParsedDoc } from "lib/parse-mdx-docs"
 
 import components from "components/Docs/MdxComponents"
 
@@ -46,46 +46,30 @@ export async function getStaticProps({ params }) {
   } catch (e) {
     if (e.notFound) {
       console.error(params, e)
-      return e
+      // Include revalidate so a transient build-time fetch failure can't
+      // permanently cache a 404 — without this, ISR never retries the page
+      // even after the underlying .md file becomes reachable again.
+      return { notFound: true, revalidate: 30 }
     }
 
     throw e
   }
 }
 
-const PREBUILD_DOCS_QUERY = /* GraphQL */ `
-  query PrebuildDocsQuery {
-    menu(id: "Primary Nav", idType: NAME) {
-      menuItems {
-        nodes {
-          parentDatabaseId
-          uri
-        }
-      }
-    }
-  }
-`
-
 export async function getStaticPaths() {
-  const result = await request({ query: PREBUILD_DOCS_QUERY })
-  const data = result?.data ?? {}
-
-  const docs_menu_paths = data?.menu?.menuItems?.nodes?.reduce(
-    (acc, menu_item) => {
-      if (
-        menu_item.parentDatabaseId != 0 &&
-        menu_item.uri.startsWith("/docs")
-      ) {
-        acc.push(menu_item.uri)
-      }
-
-      return acc
-    },
-    []
-  )
+  // Pre-render paths sourced from the actual .md files in the docs folder,
+  // not from the WordPress Primary Nav menu. The menu only references ~4 docs
+  // out of ~50, and any drift between menu URIs and real files produced
+  // permanent static 404s for the menu-linked docs.
+  let paths = []
+  try {
+    paths = await getAllDocUri()
+  } catch (e) {
+    console.error("getStaticPaths: failed to enumerate docs from GitHub", e)
+  }
 
   return {
-    paths: docs_menu_paths ?? [],
+    paths,
     fallback: "blocking",
   }
 }

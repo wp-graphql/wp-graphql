@@ -17,6 +17,9 @@
         "WP_DEBUG_LOG": "/var/www/html/wp-content/plugins/wp-graphql/tests/_output/debug.log",
         "WP_DEBUG_DISPLAY": false,
         "WP_DEVELOPMENT_MODE": "plugin"
+      },
+      "mappings": {
+        "/wp-content/phpcs": "./phpcs"
       }
     },
     "tests": {
@@ -38,6 +41,7 @@
         "/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache",
         "/wp-content/plugins/wp-graphql-ide": "./plugins/wp-graphql-ide",
         "/wp-content/plugins/wp-graphql-acf": "./plugins/wp-graphql-acf",
+        "/wp-content/phpcs": "./phpcs",
         "/var/www/html/tests": "./tests"
       }
     }

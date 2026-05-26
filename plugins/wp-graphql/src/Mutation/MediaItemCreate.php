@@ -176,6 +176,20 @@ class MediaItemCreate {
 				}
 			}
 
+			// REST parity: reject `revision` and `attachment` as parent types.
+			// WP_REST_Attachments_Controller::create_item() rejects these at the
+			// top of the handler. Mirroring that here so the failure happens
+			// before any file is downloaded.
+			if ( ! empty( $input['parentId'] ) ) {
+				$parent_database_id = Utils::get_database_id_from_id( $input['parentId'] );
+				if ( $parent_database_id ) {
+					$parent_post_type = get_post_type( (int) $parent_database_id );
+					if ( in_array( $parent_post_type, [ 'revision', 'attachment' ], true ) ) {
+						throw new UserError( esc_html__( 'Invalid parent type.', 'wp-graphql' ) );
+					}
+				}
+			}
+
 			/**
 			 * Set the file name, whether it's a local file or from a URL.
 			 * Then set the url for the uploaded file
@@ -187,8 +201,14 @@ class MediaItemCreate {
 			// Check that the filetype is allowed
 			$check_file = wp_check_filetype( $sanitized_file_path );
 
+			// wp_http_validate_url() rejects 127/10/0/172.16-31/192.168 but not
+			// RFC 3927 link-local (169.254/16), which exposes cloud instance
+			// metadata (169.254.169.254). Reject those explicitly.
+			$host          = wp_parse_url( $uploaded_file_url, PHP_URL_HOST );
+			$is_link_local = is_string( $host ) && 0 === strpos( $host, '169.254.' );
+
 			// if the file doesn't pass the check, throw an error
-			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) ) {
+			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) || $is_link_local ) {
 				// translators: %s is the file path.
 				throw new UserError( esc_html( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) ) );
 			}
@@ -196,7 +216,7 @@ class MediaItemCreate {
 			$protocol = wp_parse_url( $input['filePath'], PHP_URL_SCHEME );
 
 			// prevent the filePath from being submitted with a non-allowed protocols
-			$allowed_protocols = [ 'https', 'http', 'file' ];
+			$allowed_protocols = [ 'https', 'http' ];
 
 			/**
 			 * Filter the allowed protocols for the mutation
@@ -228,16 +248,6 @@ class MediaItemCreate {
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
-			$file_contents = file_get_contents( $input['filePath'] );
-
-			/**
-			 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
-			 */
-			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) && ! empty( $file_contents ) ) {
-				$uploaded_file     = wp_upload_bits( $file_name, null, $file_contents );
-				$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
-			}
-
 			/**
 			 * Ensure we have a valid URL before attempting download
 			 */
@@ -258,6 +268,14 @@ class MediaItemCreate {
 			 */
 			if ( is_wp_error( $temp_file ) ) {
 				throw new UserError( esc_html__( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
+			}
+
+			// REST parity: enforce multisite file-size and quota limits.
+			// Mirrors WP_REST_Attachments_Controller::check_upload_size().
+			$size_error = self::check_multisite_upload_size( $temp_file );
+			if ( null !== $size_error ) {
+				wp_delete_file( $temp_file );
+				throw new UserError( esc_html( $size_error ) );
 			}
 
 			/**
@@ -290,6 +308,24 @@ class MediaItemCreate {
 			 */
 			if ( ! empty( $file['error'] ) ) {
 				throw new UserError( esc_html__( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
+			}
+
+			// REST parity: reject image types the server cannot generate
+			// sub-sizes for. Mirrors the wp_image_editor_supports() check in
+			// WP_REST_Attachments_Controller::create_item_permissions_check()
+			// (added in WP 6.8). The wp_prevent_unsupported_mime_type_uploads
+			// filter mirrors core, so site owners can opt out the same way.
+			$detected_type = isset( $file['type'] ) && is_string( $file['type'] ) ? $file['type'] : '';
+			if (
+				apply_filters( 'wp_prevent_unsupported_mime_type_uploads', true, $detected_type )
+				&& 0 === strpos( $detected_type, 'image/' )
+				&& 'image/svg+xml' !== $detected_type
+				&& ! wp_image_editor_supports( [ 'mime_type' => $detected_type ] )
+			) {
+				if ( ! empty( $file['file'] ) ) {
+					wp_delete_file( $file['file'] );
+				}
+				throw new UserError( esc_html__( 'The web server cannot generate responsive image sizes for this image. Convert it to JPEG or PNG before uploading.', 'wp-graphql' ) );
 			}
 
 			/**
@@ -362,5 +398,50 @@ class MediaItemCreate {
 				'postObjectId' => $attachment_id,
 			];
 		};
+	}
+
+	/**
+	 * Mirrors WP_REST_Attachments_Controller::check_upload_size() for the
+	 * multisite quota and per-file size limit checks. Returns null when the
+	 * file is within all limits, or a translated error message string when
+	 * one of the limits is exceeded.
+	 *
+	 * No-ops on single-site installs, where these site-option-driven limits
+	 * do not apply.
+	 *
+	 * @param string $file_path Path to the downloaded temp file.
+	 * @return string|null Error message if size exceeds limits, null otherwise.
+	 */
+	private static function check_multisite_upload_size( $file_path ) {
+		if ( ! is_multisite() || get_site_option( 'upload_space_check_disabled' ) ) {
+			return null;
+		}
+
+		$file_size  = (int) filesize( $file_path );
+		$space_left = (int) get_upload_space_available();
+
+		if ( $space_left < $file_size ) {
+			return sprintf(
+				// translators: %s is the required disk space in kilobytes.
+				__( 'Not enough space to upload. %s KB needed.', 'wp-graphql' ),
+				number_format( ( $file_size - $space_left ) / KB_IN_BYTES )
+			);
+		}
+
+		$max_kb = (int) get_site_option( 'fileupload_maxk', 1500 );
+		if ( $file_size > KB_IN_BYTES * $max_kb ) {
+			return sprintf(
+				// translators: %s is the maximum allowed file size in kilobytes.
+				__( 'This file is too big. Files must be less than %s KB in size.', 'wp-graphql' ),
+				$max_kb
+			);
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/ms.php';
+		if ( upload_is_user_over_quota( false ) ) {
+			return __( 'You have used your space quota. Please delete files before uploading.', 'wp-graphql' );
+		}
+
+		return null;
 	}
 }
