@@ -4140,7 +4140,14 @@ input.wpgraphql-ide-tab-input:focus {
    a max-width they previously stretched end-to-end across the viewport.
    Keep this rule narrow: don't touch padding, display, or other layout
    properties that the graphql/autocomplete extensions rely on internally.
-   Colors / borders / shadows tuned to match WP admin's elevation tokens. */
+   Colors / borders / shadows tuned to match WP admin's elevation tokens.
+
+   z-index must clear the IDE's drawer (z-index: 999999 in
+   styles/wpgraphql-ide.css). Tooltips portal to document.body, so on
+   the dedicated IDE page nothing competes; in drawer mode, the drawer
+   overlay would otherwise paint on top and hide every autocomplete /
+   hover popup. 1000000 matches the bump already applied to
+   .components-popover et al. for the same reason. */
 .cm-tooltip {
 	max-width: 460px;
 	background: #fff;
@@ -4152,7 +4159,7 @@ input.wpgraphql-ide-tab-input:focus {
 	line-height: 1.5;
 	white-space: normal;
 	overflow-wrap: anywhere;
-	z-index: 100000;
+	z-index: 1000000;
 }
 
 /* Pad the inner section that CM6 renders for hover/info tooltips. The
