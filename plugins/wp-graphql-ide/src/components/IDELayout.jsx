@@ -119,37 +119,8 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/document-editor').getTabTypes(),
 		[]
 	);
-	const topbarActions = useSelect(
-		(select) => select('wpgraphql-ide/document-editor').getTopbarActions(),
-		[]
-	);
-
 	const isAuthenticated = useSelect(
 		(select) => select('wpgraphql-ide/app').isAuthenticated(),
-		[]
-	);
-	const responseHeaders = useSelect(
-		(select) => select('wpgraphql-ide/app').getResponseHeaders(),
-		[]
-	);
-	const responseStatus = useSelect(
-		(select) => select('wpgraphql-ide/app').getResponseStatus(),
-		[]
-	);
-	const responseDuration = useSelect(
-		(select) => select('wpgraphql-ide/app').getResponseDuration(),
-		[]
-	);
-	const responseSize = useSelect(
-		(select) => select('wpgraphql-ide/app').getResponseSize(),
-		[]
-	);
-	const extensionTabs = useSelect(
-		(select) => select('wpgraphql-ide/response-extensions').extensionTabs(),
-		[]
-	);
-	const editorBottomTabs = useSelect(
-		(select) => select('wpgraphql-ide/editor-bottom-tabs').bottomTabs(),
 		[]
 	);
 	const httpMethod = useSelect(
@@ -164,11 +135,6 @@ export function IDELayout({ fetcher, onClose }) {
 		(select) => select('wpgraphql-ide/app').getPersonalCollections(),
 		[]
 	);
-	const editorJumpRequest = useSelect(
-		(select) => select('wpgraphql-ide/app').getEditorJumpRequest(),
-		[]
-	);
-
 	const {
 		setQuery,
 		setVariables,
@@ -954,7 +920,6 @@ export function IDELayout({ fetcher, onClose }) {
 					// callback having to know about the easter-egg counter.
 					refetchSchema: () => refetch(),
 				}}
-				topbarActions={endpointMode ? [] : topbarActions}
 				onClose={onClose}
 			/>
 
@@ -1054,7 +1019,6 @@ export function IDELayout({ fetcher, onClose }) {
 										editorKeyBindings={editorKeyBindings}
 										onShowInDocs={handleShowInDocs}
 										onCursorChange={setCursorOffset}
-										jumpRequest={editorJumpRequest}
 										onJumpApplied={() =>
 											setEditorJumpRequest(null)
 										}
@@ -1088,7 +1052,6 @@ export function IDELayout({ fetcher, onClose }) {
 										onSetDocSettingsPanelWidth={
 											setDocSettingsPanelWidth
 										}
-										editorBottomTabs={editorBottomTabs}
 										variables={variables}
 										onVariablesChange={
 											handleVariablesChange
@@ -1134,11 +1097,6 @@ export function IDELayout({ fetcher, onClose }) {
 										onSetDataScope={setResponseDataScope}
 										responseViewMode={responseViewMode}
 										onSetViewMode={setResponseViewMode}
-										responseStatus={responseStatus}
-										responseDuration={responseDuration}
-										responseSize={responseSize}
-										responseHeaders={responseHeaders}
-										extensionTabs={extensionTabs}
 										isFetching={isFetching}
 										responseViewerHeight={
 											responseViewerHeight

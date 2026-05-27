@@ -10,21 +10,25 @@ Fires when WPGraphQL is available. Sub-plugins and third-party code should use t
 
 Fires just before the IDE render script is enqueued. Use this to enqueue extension scripts that depend on `wpgraphql-ide`. Receives the `$app_context` array.
 
-### `wpgraphql_ide_register_document_settings`
+## PHP Filters
 
-Fires on `init` (priority 11), after `graphql_ide_query` and its taxonomies are registered. Use this inside a callback to call `register_graphql_document_setting_field()` and contribute fields to the per-document Settings drawer. Receives no args. See `API_SURFACE.md` for the field registration API.
+### `wpgraphql_ide_external_fragments`
+
+Return an array of GraphQL fragment SDL strings to make available to every query in the IDE. The IDE parses each outgoing query, finds unresolved fragment spreads, and prepends only the referenced fragment definitions before sending. Transitive references between external fragments are resolved (a fragment that spreads another fragment will pull both in). Unreferenced fragments are not sent over the wire.
+
+A fragment with the same name as one defined in the user's query is skipped — the user's definition wins.
 
 ```php
-add_action( 'wpgraphql_ide_register_document_settings', function () {
-	register_graphql_document_setting_field( 'tags', [
-		'label'   => __( 'Tags', 'my-plugin' ),
-		'type'    => 'tag_list',
-		'storage' => [ 'kind' => 'taxonomy', 'key' => 'my_query_tag' ],
-	] );
+add_filter( 'wpgraphql_ide_external_fragments', function ( array $fragments ): array {
+	$fragments[] = 'fragment PostFields on Post { id databaseId title slug }';
+	$fragments[] = 'fragment UserFields on User { id databaseId name avatar { url } }';
+	return $fragments;
 } );
 ```
 
-## PHP Filters
+After registering, any query that references `...PostFields` or `...UserFields` will have the matching definitions auto-injected. A query that references neither sends as-is.
+
+
 
 ### `wpgraphql_ide_capability_required`
 
@@ -55,26 +59,6 @@ add_filter( 'wpgraphql_ide_localized_data', function ( array $data, array $app_c
 }, 10, 2 );
 ```
 
-### `wpgraphql_ide_external_fragments`
-
-Add external GraphQL fragments (strings) that are auto-merged into every query.
-
-### `wpgraphql_ide_endpoint_api_params`
-
-When the public IDE at the GraphQL endpoint URL is enabled, browser GETs that include any of these query-string params are treated as API calls and pass through to WPGraphQL's JSON handler instead of rendering the IDE shell. Default list:
-
-- `query`, `variables`, `operationName`, `extensions` (GraphQL-over-HTTP spec)
-- `queryId` (WPGraphQL Smart Cache persisted-query convention)
-
-Extensions that introduce additional GET params (custom persisted-query layers, etc.) should hook this filter to keep their requests on the JSON path.
-
-```php
-add_filter( 'wpgraphql_ide_endpoint_api_params', function ( array $params ) {
-	$params[] = 'myCustomParam';
-	return $params;
-} );
-```
-
 ## JavaScript Actions
 
 All JavaScript hooks use a private `@wordpress/hooks` instance exposed on `window.WPGraphQLIDE.hooks`. Use `wp.hooks` functions against it:
@@ -92,22 +76,22 @@ hooks.addAction( 'wpgraphql-ide.init', 'my-plugin/boot', () => { /* … */ } );
 
 ### Registration
 
-Each access function in `ACCESS_FUNCTIONS.md` fires one of these hooks on success and (where present) a paired error hook on failure. Args are listed for the success hook; the error hook adds a trailing `error` argument.
+Each access function in `ACCESS_FUNCTIONS.md` fires one of these actions after a successful registration. Registration failures log to `console.error` and do not fire a paired action — see the [Migration from 4.x](#migration-from-4x) section if you previously relied on `register*Error` hooks.
 
-| Registry function | Success hook | Error hook | Args |
-| --- | --- | --- | --- |
-| `registerDocumentEditorToolbarButton` | `wpgraphql-ide.afterRegisterToolbarButton` | `wpgraphql-ide.registerToolbarButtonError` | `name, config, priority [, error]` |
-| `registerActivityBarPanel` | `wpgraphql-ide.afterRegisterActivityBarPanel` | `wpgraphql-ide.registerActivityBarPanelError` | `name, config, priority [, error]` |
-| `registerResponseExtensionTab` | `wpgraphql-ide.afterRegisterResponseExtensionTab` | `wpgraphql-ide.registerResponseExtensionTabError` | `name, config, priority [, error]` |
-| `registerEditorBottomTab` | `wpgraphql-ide.afterRegisterEditorBottomTab` | `wpgraphql-ide.registerEditorBottomTabError` | `name, config, priority [, error]` |
-| `registerStatusBarItem` | `wpgraphql-ide.afterRegisterStatusBarItem` | `wpgraphql-ide.registerStatusBarItemError` | `name, config, priority [, error]` |
-| `registerResponseViewMode` | `wpgraphql-ide.afterRegisterResponseViewMode` | `wpgraphql-ide.registerResponseViewModeError` | `value, config, priority [, error]` |
-| `registerResponseAction` | `wpgraphql-ide.afterRegisterResponseAction` | `wpgraphql-ide.registerResponseActionError` | `name, config, priority [, error]` |
-| `registerEditorAction` | `wpgraphql-ide.afterRegisterEditorAction` | `wpgraphql-ide.registerEditorActionError` | `name, config, priority [, error]` |
-| `registerDocumentTabAction` | `wpgraphql-ide.afterRegisterDocumentTabAction` | `wpgraphql-ide.registerDocumentTabActionError` | `name, config, priority [, error]` |
-| `registerWorkspaceTabType` | `wpgraphql-ide.afterRegisterWorkspaceTabType` | _(no paired error hook — failures log to `console.error` only)_ | `name, config` |
-| `registerTopbarAction` | `wpgraphql-ide.afterRegisterTopbarAction` | _(no paired error hook — failures log to `console.error` only)_ | `name, config, priority` |
-| `registerPreference` | `wpgraphql-ide.afterRegisterPreference` | `wpgraphql-ide.registerPreferenceError` | `key, config [, error]` |
+| Registry function | Success action | Args |
+| --- | --- | --- |
+| `registerDocumentEditorToolbarButton` | `wpgraphql-ide.afterRegisterToolbarButton` | `name, config, priority` |
+| `registerActivityBarPanel` | `wpgraphql-ide.afterRegisterActivityBarPanel` | `name, config, priority` |
+| `registerResponseExtensionTab` | `wpgraphql-ide.afterRegisterResponseExtensionTab` | `name, config, priority` |
+| `registerEditorBottomTab` | `wpgraphql-ide.afterRegisterEditorBottomTab` | `name, config, priority` |
+| `registerStatusBarItem` | `wpgraphql-ide.afterRegisterStatusBarItem` | `name, config, priority` |
+| `registerResponseViewMode` | `wpgraphql-ide.afterRegisterResponseViewMode` | `value, config, priority` |
+| `registerResponseAction` | `wpgraphql-ide.afterRegisterResponseAction` | `name, config, priority` |
+| `registerEditorAction` | `wpgraphql-ide.afterRegisterEditorAction` | `name, config, priority` |
+| `registerDocumentTabAction` | `wpgraphql-ide.afterRegisterDocumentTabAction` | `name, config, priority` |
+| `registerWorkspaceTabType` | `wpgraphql-ide.afterRegisterWorkspaceTabType` | `name, config` |
+| `registerTopbarAction` | `wpgraphql-ide.afterRegisterTopbarAction` | `name, config, priority` |
+| `registerPreference` | `wpgraphql-ide.afterRegisterPreference` | `key, config` |
 
 ### Notices
 
@@ -245,3 +229,49 @@ hooks.addAction(
 	}
 );
 ```
+
+## Migration from 4.x
+
+A quick lookup for extension authors upgrading from 4.x. Hooks not listed below are unchanged.
+
+### PHP
+
+| 4.x hook | Status in 5.0 | What to do |
+| --- | --- | --- |
+| `wpgraphql_ide_external_fragments` (filter) | **Behavior change** | Still supported. 5.0 smart-merges instead of always-prepending: only fragments referenced by an outgoing query (transitively) are injected, and a fragment defined in the user's query wins over an external definition with the same name. See the [filter docs above](#wpgraphql_ide_external_fragments) for the current contract. |
+| `wpgraphql_ide_endpoint_api_params` (filter) | **Removed** | The public-endpoint GET-param allow-list is now a literal in `public-endpoint.php`. If you need to extend it for a custom persisted-query layer, open an issue — this hook had no external consumers, so the contract is open to re-introduction if there's a real use case. |
+| `wpgraphql_ide_register_document_settings` (action) | **Removed** | The built-in Document Settings fields are registered via `add_action('init', ..., 11)` directly. The Document Settings surface is migrating into WPGraphQL Smart Cache, so extending fields from outside the IDE is now a Smart-Cache-side concern. |
+| `graphiql_external_fragments` (legacy alias) | **Removed** | Was an alias for the removed `wpgraphql_ide_external_fragments`. See above. |
+| `enqueue_graphiql_extension` (legacy alias) | **Removed** | Hook `wpgraphql_ide_enqueue_script` directly. |
+| `graphiql_rendered` (legacy alias) | **Removed** | Use the JS action `wpgraphql-ide.rendered` via `wp.hooks.addAction`. |
+| `graphiql_toolbar_before_buttons` / `graphiql_toolbar_after_buttons` | **Removed** | Register toolbar items via the JS API: `registerDocumentEditorToolbarButton()`. See `ACCESS_FUNCTIONS.md`. |
+| `wpgraphql_ide_capability_required` (filter) | **Behavior change** | The filter is now honored at every IDE permission check (REST, post-type/taxonomy caps, post-meta, user-meta, admin menu, public-endpoint trim). In 4.x it was consulted only at the admin-menu gate. Hosts already relying on it will find their override actually works end-to-end. |
+
+### JavaScript
+
+The ten `register*Error` actions are all removed. Registration failures still log to `console.error`, which is the actionable signal — there was never a productive consumer pattern for the error actions.
+
+| 4.x action | Status in 5.0 | What to do |
+| --- | --- | --- |
+| `wpgraphql-ide.registerPreferenceError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerToolbarButtonError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerActivityBarPanelError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerResponseExtensionTabError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerEditorBottomTabError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerStatusBarItemError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerResponseViewModeError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerResponseActionError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerEditorActionError` | **Removed** | Failures log to `console.error`. |
+| `wpgraphql-ide.registerDocumentTabActionError` | **Removed** | Failures log to `console.error`. |
+
+The matching `wpgraphql-ide.afterRegister*` success actions are unchanged.
+
+### New in 5.0
+
+If you were extending the 4.x IDE, these new surfaces are worth knowing about:
+
+- **Notices** — `wpgraphql-ide.notice` / `wpgraphql-ide.notice.dismiss` JS actions for publishing toasts without coupling to the notice store.
+- **Execute lifecycle** — `wpgraphql-ide.executeRequest` (filter) and `wpgraphql-ide.executeResponse` (filter) hook the request and response on every execution, plus `wpgraphql-ide.afterExecute` (action) for analytics/observability.
+- **Localized data** — `wpgraphql_ide_localized_data` (PHP filter) is the canonical way to inject keys into `window.WPGRAPHQL_IDE_DATA`. Both the public-endpoint mode and the Document Settings module use it.
+- **Registry APIs** — twelve `register*` functions for panels, toolbar buttons, status-bar items, response-view modes, response/editor/document-tab actions, workspace tab types, topbar actions, and preferences. See `ACCESS_FUNCTIONS.md`.
+

@@ -15,9 +15,13 @@ import apiFetch from '@wordpress/api-fetch';
 describe('preferences adapter', () => {
 	beforeEach(() => {
 		window.localStorage.clear();
+		// Default to a logged-in admin so the server-backed paths are
+		// exercised. Tests covering anonymous / public-endpoint behavior
+		// override `isUserLoggedIn` inside their own describe block.
 		window.WPGRAPHQL_IDE_DATA = {
 			context: { currentUserId: 0 },
 			endpointMode: false,
+			isUserLoggedIn: true,
 		};
 		apiFetch.mockReset();
 	});
@@ -177,10 +181,20 @@ describe('preferences adapter', () => {
 		});
 
 		it('survives a server fetch failure by returning the device bucket alone', async () => {
+			const warnSpy = jest
+				.spyOn(console, 'warn')
+				.mockImplementation(() => {});
 			await setPreference('left_panel', 'composer');
 			apiFetch.mockRejectedValueOnce(new Error('401'));
 			const merged = await getPreferences();
 			expect(merged.left_panel).toBe('composer');
+			// The failure path warns rather than silently swallowing —
+			// callers (and devs) shouldn't hunt for "where did my pref go".
+			expect(warnSpy).toHaveBeenCalledWith(
+				'Failed to read IDE preferences from server:',
+				expect.any(Error)
+			);
+			warnSpy.mockRestore();
 		});
 	});
 
@@ -308,6 +322,60 @@ describe('preferences adapter', () => {
 
 			expect(errorSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
 			errorSpy.mockRestore();
+		});
+	});
+
+	describe('anonymous visitor (public endpoint, not logged in)', () => {
+		beforeEach(() => {
+			window.WPGRAPHQL_IDE_DATA = {
+				context: { currentUserId: 0 },
+				endpointMode: true,
+				isUserLoggedIn: false,
+			};
+		});
+
+		it('readServerPrefs short-circuits without an apiFetch call', async () => {
+			const merged = await getPreferences();
+			expect(merged).toEqual({});
+			expect(apiFetch).not.toHaveBeenCalled();
+		});
+
+		it('still merges the device bucket when server reads are skipped', async () => {
+			await setPreference('open_tabs', ['temp-1']);
+			const merged = await getPreferences();
+			expect(merged.open_tabs).toEqual(['temp-1']);
+			expect(apiFetch).not.toHaveBeenCalled();
+		});
+
+		it('device-scope writes work without a server round-trip', async () => {
+			await setPreference('left_panel', 'composer');
+			expect(readDevicePreference('left_panel')).toBe('composer');
+			expect(apiFetch).not.toHaveBeenCalled();
+		});
+
+		it('user-scope writes throw with a clear, actionable message', async () => {
+			// Built-in `personal_collections` is user-scope.
+			await expect(
+				setPreference('personal_collections', [{ id: 'pc_1' }])
+			).rejects.toThrow(/no logged-in user/);
+			await expect(
+				setPreference('personal_collections', [])
+			).rejects.toThrow(/scope: 'device'/);
+			expect(apiFetch).not.toHaveBeenCalled();
+		});
+
+		it('unknown keys default to user-scope and therefore fast-fail', async () => {
+			await expect(
+				setPreference('plugin_unregistered_key', 'x')
+			).rejects.toThrow(/no logged-in user/);
+			expect(apiFetch).not.toHaveBeenCalled();
+		});
+
+		it('user-scope reads return undefined silently without a server hit', async () => {
+			await expect(
+				getPreference('personal_collections')
+			).resolves.toBeUndefined();
+			expect(apiFetch).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -1,111 +1,102 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code working in this plugin. The repo-root `CLAUDE.md` covers the monorepo; this file covers wp-graphql-ide specifics.
 
 ## Common Development Commands
 
 ### Setup and Development
 ```bash
-npm install                  # Install dependencies
-npm run wp-env start        # Start WordPress environment (requires Docker)
-npm start                   # Start development server with hot reload
-npm run clean               # Remove all node_modules and build directories
-npm run check-engines       # Verify Node/npm version compatibility
+npm install                              # From monorepo root
+npm run wp-env start                     # From monorepo root (Docker required)
+npm run -w @wpgraphql/wp-graphql-ide start    # Dev server with hot reload
+npm run -w @wpgraphql/wp-graphql-ide clean    # Remove node_modules + build dirs
 ```
 
 ### Building
 ```bash
-npm run build              # Production build (creates build/ directory and zip file)
-npm run build:main         # Build using wp-scripts
-npm run build:zip          # Create plugin zip file for distribution
+npm run -w @wpgraphql/wp-graphql-ide build         # Production build
+npm run -w @wpgraphql/wp-graphql-ide build:main    # Main app only (wp-scripts)
+npm run -w @wpgraphql/wp-graphql-ide build:zip     # Distribution zip
 ```
 
 ### Testing
 ```bash
-npm run test:unit          # Run Jest unit tests
-npm run test:e2e           # Run Playwright E2E tests (requires wp-env running)
-npm run test:e2e:ui        # Run E2E tests with UI
+npm run -w @wpgraphql/wp-graphql-ide test:unit     # Jest
+npm run -w @wpgraphql/wp-graphql-ide test:e2e      # Playwright (needs wp-env)
+npm run -w @wpgraphql/wp-graphql-ide test:e2e:ui   # Playwright UI mode
+
+# Codeception WPUnit (PHP integration)
+npm run -w @wpgraphql/wp-graphql-ide test:codecept:wpunit
 ```
 
 ### Code Quality
 ```bash
-npm run lint:js            # Check JavaScript/React code
-npm run lint:js:fix        # Auto-fix JavaScript issues
-npm run format             # Format code
-composer check-cs          # Check PHP coding standards (uses phpcs.xml.dist)
-composer fix-cs            # Fix PHP coding standards
-composer phpstan           # Run PHP static analysis (level 8 - strict)
+npm run -w @wpgraphql/wp-graphql-ide lint:js
+npm run -w @wpgraphql/wp-graphql-ide lint:js:fix
+npm run -w @wpgraphql/wp-graphql-ide wp-env:cli -- composer run check-cs
+npm run -w @wpgraphql/wp-graphql-ide wp-env:cli -- composer run fix-cs
+npm run -w @wpgraphql/wp-graphql-ide wp-env:cli -- composer run phpstan -- --memory-limit=2G
 ```
 
-### Version Management
-```bash
-# Version management is handled automatically by release-please in the monorepo
-# See docs/CONTRIBUTING.md for release process details
-```
+### Versioning
+Handled by release-please. Use `@since x-release-please-version` placeholders in new PHP docblocks; the `update-release-pr.yml` workflow rewrites them on release-PR creation. The plugin header `Version:` and `readme.txt` `Stable tag:` are bumped automatically — do not hand-edit.
 
 ## Architecture Overview
 
-### Plugin System
-WPGraphQL IDE is a WordPress plugin that provides a modern GraphQL query editor. It consists of:
+WPGraphQL IDE provides a modern GraphQL query editor for WordPress, built on `@wordpress/components` with a registry-based extension API. It depends on the WPGraphQL core plugin and optionally integrates with WPGraphQL Smart Cache for persisted documents.
 
-1. **Main Application** (`/src/`)
-   - React-based IDE built on GraphiQL 3.0
-   - Redux stores for state management (@wordpress/data)
-   - Extensible via registry system for panels and toolbar buttons
+### Access Modes
+- **Drawer**: slide-up overlay from any admin page (admin bar trigger)
+- **Dedicated page**: `/wp-admin/admin.php?page=graphql-ide`
+- **Public endpoint** (optional): unauthenticated `/graphql` IDE for headless devs; saves are gated to logged-in users
 
-2. **Plugin Architecture** (`/plugins/`)
-   - Modular plugins that extend the IDE
-   - Each plugin has its own build entry point
-   - Current plugins: help-panel, query-composer-panel, ai-assistant-panel
+Custom capability: `manage_graphql_ide` (assigned to administrators by default; overridable via the `wpgraphql_ide_capability_required` filter).
 
-3. **WordPress Integration**
-   - Deep integration with WordPress admin
-   - Two access modes: drawer (slide-up from any admin page) and dedicated page
-   - Admin bar integration for quick access
-   - Requires WPGraphQL plugin to be installed and active
-   - Custom capability: `manage_graphql_ide` (assigned to administrators)
+### Main Application (`src/`)
 
-### Key Architectural Patterns
+- **`api/`** — data layer (WPGraphQL client + REST fallback): `graphql-client.js`, `documents.js`, `history.js`, `preferences.js`
+- **`stores/`** — `@wordpress/data` stores. The store names are public API and must remain backward-compatible:
+  - `wpgraphql-ide/app` — query, variables, headers, response, schema
+  - `wpgraphql-ide/document-editor` — open tabs, active document, drafts, dirty state
+  - `wpgraphql-ide/activity-bar` — left sidebar panels and visibility
+  - `wpgraphql-ide/document-tab-actions`, `editor-actions`, `editor-bottom-tabs`, `response-actions`, `response-extensions`, `response-view-modes`, `status-bar-items` — extension registries
+- **`components/`** — React UI. `IDELayout.jsx` is the top-level layout; `ide-layout/` contains the major panes; `document-settings/`, `dialogs/`, `editors/`, `editor-bottom-tabs/`, `response-extensions/`, `response-view-modes/`, `settings/`, `status-bar-items/` host feature-specific UIs.
+- **`hooks/`** — composable behavior: `useSchema`, `useExecution`, `useAutoSave`, `useDocumentDirty`, `useNotices`, `useLeftPanel`, `useParsedQuery`, `usePanelOrder`, `usePersistedSize`, `useResponseTabOrder`, `useToggleSet`, `useDebouncedCallback`
+- **`access-functions.js`** — public JS API: `registerPreference`, `registerDocumentEditorToolbarButton`, `registerActivityBarPanel`, `registerResponseExtensionTab`, `registerEditorBottomTab`, `registerStatusBarItem`, `registerResponseViewMode`, `registerResponseAction`, `registerEditorAction`, `registerDocumentTabAction`, `registerWorkspaceTabType`, `registerTopbarAction`. Surfaced on `window.WPGraphQLIDE`.
+- **`bootstrap.js`** — single source of truth for `endpointMode`, `isUserLoggedIn`, `loginUrl`, `allowEndpointSignIn` derived from `window.WPGRAPHQL_IDE_DATA`.
 
-1. **Registry System** (`/src/registry/`)
-   - Allows extensions to register panels and toolbar buttons
-   - Uses WordPress-style hooks and filters
-   - See ACCESS_FUNCTIONS.md for public API functions
+### PHP Integration (`includes/`)
 
-2. **Redux Stores** (`/src/stores/`)
-   - `app` - Main application state
-   - `activity-bar` - Manages sidebar panels
-   - `document-editor` - Editor state and documents
-   - `primary-sidebar` - Sidebar UI state
-   - All stores are part of the public API and must maintain backward compatibility
+PSR-4 autoloaded under namespace `WPGraphQLIDE\`. Key classes:
+- `Access.php` — capability checks, per-user post-visibility filters
+- `AdminUI.php` — admin pages, drawer trigger, admin bar
+- `AssetEnqueue.php` — script/style enqueue with auto-detected asset hashes
+- `GraphQLSchema.php` — exposes IDE data (history, preferences) to the GraphQL schema
+- `PostTypes.php`, `SmartCacheBridge.php` — saved documents live in Smart Cache's `graphql_document` CPT; history lives in `graphql_ide_history` CPT
+- `Rest.php`, `ImportExport.php` — REST endpoints for preferences, history, document import/export
+- `UserMeta.php` — owns `wpgraphql_ide_*` user-meta keys (theme, persist_headers, collection_order)
+- `settings.php`, `SettingsPage.php`, `document-settings/` — admin settings + per-document settings drawer
+- `public-endpoint.php` — opt-in unauthenticated IDE
+- `Telemetry.php` — opt-in usage reporting
 
-3. **Build System**
-   - Multiple entry points for main app and plugins
-   - WordPress Scripts for build configuration
-   - Webpack with externalized React, ReactDOM, and GraphQL
-   - Build outputs: Main app → `/build/`, Plugins → `/plugins/[name]/build/`
+Public PHP API: `access-functions.php`. Hooks documented in `ACTIONS_AND_FILTERS.md`.
 
-### Development Environment
+### Bundled Extension Plugins (`plugins/`)
 
-- **WordPress Environment** (monorepo .wp-env.json)
-  - Port: 8888
-  - Includes WPGraphQL core plugin and IDE plugin from monorepo
-  - WP_DEBUG enabled
-  - Docker required
-  - Run from monorepo root: `npm run wp-env start`
+Each has its own webpack entry and PHP shell. They use the same public APIs that third-party extensions would:
+- `cache-inspector` — Smart Cache observability panel
+- `help-panel` — documentation/help sidebar
+- `query-composer-panel` — GraphiQL-style query explorer
+- `smart-cache-panel` — Smart Cache document management
 
-- **Requirements**
-  - PHP 7.4+ (composer.json requires 8.0+)
-  - WordPress 5.0+ (tested up to 6.8)
-  - Node.js and npm (check versions with `npm run check-engines`)
+### Build System
+Multi-entry webpack via `@wordpress/scripts`. React, ReactDOM, and GraphQL are WordPress externals. Build outputs: main app → `build/`, each bundled extension → `plugins/<name>/build/`. `.distignore` controls what ships to wp.org.
 
-### Development Notes
+## Development Notes
 
-- The IDE can be accessed at `/wp-admin/admin.php?page=graphql-ide` or via the admin bar
-- Hot reload works in development mode (`npm start`)
-- E2E tests require wp-env to be running
-- The project follows WordPress coding standards for PHP and uses @wordpress/scripts for JavaScript
-- When modifying Redux stores, ensure backward compatibility as they are part of the public API
-- Breaking changes policy: No breaking changes to access functions or public Redux stores (see README.md)
-- Custom hooks and filters are documented in ACTIONS_AND_FILTERS.md
-- Text domain for i18n: `wpgraphql-ide`
+- **State persistence**: device-scoped preferences live in localStorage under the key `wpgraphql-ide:prefs:v1:user-{userId}:ctx-{context}`; user-scoped preferences live in user meta. Open tabs are device-scoped; query history is server-side (CPT). See `src/api/preferences.js` and `src/api/history.js`.
+- **Public API surface**: store names, access functions, PHP hooks, and registered preference keys are public. Breaking changes require a major version bump.
+- **i18n**: text domain `wpgraphql-ide`. Use `@wordpress/i18n` in JS, `__()`/`_x()` in PHP.
+- **Smart Cache dependency**: saved-document features degrade gracefully when Smart Cache is not installed (`hasSmartCache` flag in bootstrap data).
+- **Requirements**: PHP 7.4+, WordPress 5.7+, WPGraphQL active.
+- **Reference docs**: `ACCESS_FUNCTIONS.md` (JS API), `ACTIONS_AND_FILTERS.md` (PHP hooks), `API_SURFACE.md` (full surface inventory).

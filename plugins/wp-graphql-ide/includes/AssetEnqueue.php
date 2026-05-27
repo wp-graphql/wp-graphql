@@ -237,14 +237,50 @@ class AssetEnqueue {
 
 	/**
 	 * Returns the list of external GraphQL fragments to ship in the IDE
-	 * bootstrap. Always empty in 5.0 — the previous `wpgraphql_ide_external_fragments`
-	 * filter was removed since no consumers were found and the use case
-	 * (inject ad-hoc fragments into the IDE) didn't survive the rebuild.
+	 * bootstrap. Fragments are SDL strings (one definition per entry); the
+	 * IDE's executeRequest pipeline parses each outgoing query, finds
+	 * unresolved fragment spreads, and prepends only the matching
+	 * definitions before sending. Unreferenced fragments are not sent.
+	 *
+	 * Returned values are coerced to strings and empty entries dropped so
+	 * a misbehaving filter can't break the bootstrap shape.
+	 *
+	 * @since x-release-please-version
 	 *
 	 * @return array<string>
 	 */
 	public static function external_fragments(): array {
-		return [];
+		/**
+		 * Filter the external GraphQL fragments shipped with the IDE.
+		 *
+		 * Each entry is a fragment SDL string (e.g. `fragment PostFields on Post { id title }`).
+		 * Fragments are made available to every editor and auto-injected
+		 * into outgoing queries that reference them by name. Fragments not
+		 * referenced by a given query are omitted from that request.
+		 *
+		 * @since x-release-please-version
+		 *
+		 * @param array<string> $fragments List of fragment SDL strings.
+		 */
+		$fragments = apply_filters( 'wpgraphql_ide_external_fragments', [] );
+
+		if ( ! is_array( $fragments ) ) {
+			return [];
+		}
+
+		$out = [];
+		foreach ( $fragments as $fragment ) {
+			if ( ! is_string( $fragment ) ) {
+				continue;
+			}
+			$trimmed = trim( $fragment );
+			if ( '' === $trimmed ) {
+				continue;
+			}
+			$out[] = $trimmed;
+		}
+
+		return $out;
 	}
 
 	/**

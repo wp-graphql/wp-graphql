@@ -232,6 +232,14 @@ export function useExecution(fetcher, options = {}) {
 						filteredRequest
 					) || rawResult;
 
+				// GraphQL errors are rendered as response data here, not
+				// thrown — the user expects to *see* their query errors in
+				// the response pane. This is the opposite of the contract
+				// in `src/api/graphql-client.js`'s `gql()`, which throws
+				// on `errors[]` because its callers (history, documents,
+				// preferences) treat GraphQL errors as exceptional. Both
+				// contracts are correct for their respective consumers;
+				// don't unify them.
 				setResponse(JSON.stringify(result, null, 2));
 				setResponseHeaders(responseHeaders);
 				setResponseMeta({

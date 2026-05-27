@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { registerEditorToolbarButtons } from './editor-toolbar-buttons';
 import hooks from '../wordpress-hooks';
 import { tipify } from '../utils/tipify';
+import { registerExternalFragmentInjector } from '../api/external-fragments';
 import {
 	registerActivityBarPanel,
 	registerDocumentTabAction,
@@ -53,6 +54,11 @@ import {
 import { hasSmartCache } from '../bootstrap';
 
 export const initializeRegistry = () => {
+	// Built-in executeRequest consumer: inject external fragments
+	// declared via the `wpgraphql_ide_external_fragments` PHP filter
+	// into any outgoing query that references them by name.
+	registerExternalFragmentInjector(hooks);
+
 	registerEditorToolbarButtons();
 
 	// The Saved Queries panel exclusively persists through Smart Cache's

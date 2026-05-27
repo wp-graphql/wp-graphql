@@ -1,7 +1,9 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { Icon, close, edit, sidebar } from '@wordpress/icons';
+import { endpointMode } from '../../bootstrap';
 
 /**
  * Global top bar — sidebar toggle, registered topbar actions, and an
@@ -9,20 +11,28 @@ import { Icon, close, edit, sidebar } from '@wordpress/icons';
  * schema-refetch button is registered through the same `registerTopbarAction`
  * registry as Settings; renders alongside any other extension actions.
  *
+ * Reads the registered topbar actions from the store directly and gates
+ * them on `endpointMode` (public-endpoint mode hides extension actions
+ * — the topbar there is a read-only surface). IDELayout doesn't need to
+ * forward either.
+ *
  * @param {Object}      props
  * @param {Object|null} props.visiblePanel    - Currently visible activity panel descriptor (or null).
  * @param {Function}    props.onSidebarToggle - Click handler for the sidebar toggle.
- * @param {Array}       props.topbarActions   - Topbar action descriptors (built-ins + extensions).
  * @param {Object}      props.topbarCtx       - Context passed to action callables (refetchSchema, isSchemaLoading, etc.).
  * @param {Function}    [props.onClose]       - Close handler for drawer mode (omitted on the dedicated page).
  */
 export function IDETopbar({
 	visiblePanel,
 	onSidebarToggle,
-	topbarActions,
 	topbarCtx,
 	onClose,
 }) {
+	const registeredActions = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getTopbarActions(),
+		[]
+	);
+	const topbarActions = endpointMode ? [] : registeredActions;
 	return (
 		<div className="wpgraphql-ide-topbar">
 			<div className="wpgraphql-ide-topbar-left">

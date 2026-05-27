@@ -173,6 +173,23 @@ function deviceStorageKey() {
 	return `wpgraphql-ide:prefs:${STORAGE_VERSION}:user-${id}:ctx-${ctx}`;
 }
 
+/**
+ * Whether the current visitor is logged in. `user`-scope preferences
+ * round-trip through `/wp/v2/users/me` to set user meta and require an
+ * authenticated request; this is the gate for those code paths. Read
+ * inline so a late `WPGRAPHQL_IDE_DATA` injection (auth state changing
+ * mid-session via the public-endpoint sign-in flow) is picked up
+ * without needing a module reload.
+ *
+ * @return {boolean}
+ */
+function isLoggedIn() {
+	return (
+		typeof window !== 'undefined' &&
+		!!window.WPGRAPHQL_IDE_DATA?.isUserLoggedIn
+	);
+}
+
 function readDeviceBucket() {
 	if (typeof window === 'undefined') {
 		return {};
@@ -206,6 +223,13 @@ function writeDeviceBucket(bucket) {
 }
 
 async function readServerPrefs() {
+	// Anonymous visitors have no user meta to read. Skip the round-trip
+	// so the public endpoint doesn't generate a 401/403 on every page
+	// load (was silently swallowed, but still showed in the browser's
+	// network panel and console for anyone with devtools open).
+	if (!isLoggedIn()) {
+		return {};
+	}
 	try {
 		const user = await apiFetch({
 			path: `${USER_ENDPOINT}?_fields=meta`,
@@ -218,12 +242,28 @@ async function readServerPrefs() {
 			}
 		}
 		return prefs;
-	} catch {
+	} catch (error) {
+		// Logged in but the read failed — likely a transient REST or
+		// network error. Warn rather than swallow so debugging a missing
+		// preference doesn't start with "where did my pref go?".
+		// eslint-disable-next-line no-console
+		console.warn('Failed to read IDE preferences from server:', error);
 		return {};
 	}
 }
 
 async function writeServerPref(key, value) {
+	if (!isLoggedIn()) {
+		// Fast-fail before the apiFetch round-trip with a message that
+		// explains the actual cause — a `user`-scope write on an
+		// anonymous visitor always 403s, and the previous behavior
+		// dumped the raw 403 to the console with no clue that the fix
+		// is `registerPreference(..., { scope: 'device' })`.
+		throw new Error(
+			`Cannot write user-scoped preference "${key}": no logged-in user. ` +
+				"Register the preference with { scope: 'device' } if it should persist for anonymous visitors."
+		);
+	}
 	return apiFetch({
 		path: USER_ENDPOINT,
 		method: 'POST',

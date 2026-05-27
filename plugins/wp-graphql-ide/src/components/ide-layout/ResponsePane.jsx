@@ -15,17 +15,20 @@ import { ResponseContent } from './ResponseContent';
  * status / duration / size meta, JSON/Table view toggle) plus the
  * `ResponseContent` body.
  *
+ * Reads its response data (body, status, duration, size, headers) and
+ * the registered extension-tab list directly from the relevant stores
+ * so IDELayout doesn't have to forward them through a wide prop pipe.
+ * Props are reserved for things IDELayout actually controls — layout
+ * state (`responseViewerHeight`), view-mode selection that needs to
+ * persist through the layout's preference adapter, and event callbacks
+ * that wire back into the layout's logic.
+ *
  * @param {Object}              props
  * @param {string}              props.response               - JSON-stringified body or empty string.
  * @param {'data'|'full'}       props.responseDataScope      - Which slice of the envelope to show.
  * @param {Function}            props.onSetDataScope         - Setter for `responseDataScope`.
  * @param {'formatted'|'table'} props.responseViewMode       - Top-pane render mode.
  * @param {Function}            props.onSetViewMode          - Setter for `responseViewMode` (also writes localStorage).
- * @param {number|null}         props.responseStatus         - HTTP status of the last response.
- * @param {number|null}         props.responseDuration       - Last response duration in ms.
- * @param {number|null}         props.responseSize           - Last response payload size in bytes.
- * @param {Object|null}         props.responseHeaders        - Header map for the Headers tab.
- * @param {Array}               props.extensionTabs          - Registered extension tab descriptors.
  * @param {boolean}             props.isFetching             - Whether a request is in flight.
  * @param {string|number}       props.responseViewerHeight   - Top pane height (px or '%').
  * @param {Function}            props.onResponseViewerResize - Called with the new px height on resize stop.
@@ -40,11 +43,6 @@ export function ResponsePane({
 	onSetDataScope,
 	responseViewMode,
 	onSetViewMode,
-	responseStatus,
-	responseDuration,
-	responseSize,
-	responseHeaders,
-	extensionTabs,
 	isFetching,
 	responseViewerHeight,
 	onResponseViewerResize,
@@ -53,6 +51,26 @@ export function ResponsePane({
 	bottomActiveTab,
 	onSetBottomActiveTab,
 }) {
+	const responseStatus = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseStatus(),
+		[]
+	);
+	const responseDuration = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseDuration(),
+		[]
+	);
+	const responseSize = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseSize(),
+		[]
+	);
+	const responseHeaders = useSelect(
+		(select) => select('wpgraphql-ide/app').getResponseHeaders(),
+		[]
+	);
+	const extensionTabs = useSelect(
+		(select) => select('wpgraphql-ide/response-extensions').extensionTabs(),
+		[]
+	);
 	// Programmatic tab navigation: status-bar badges set this, which
 	// remounts the response TabPanel via `key` to honor the new
 	// `initialTabName`. Each click increments `token` so re-clicking

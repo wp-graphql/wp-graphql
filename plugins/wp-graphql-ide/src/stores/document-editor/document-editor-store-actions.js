@@ -11,6 +11,7 @@ import {
 	saveUnsavedTab,
 	removeUnsavedTab,
 } from './unsaved-tabs-storage';
+import { migrateLegacyTabs } from './legacy-graphiql-tabs-migration';
 import { isTempId } from '../../utils/document-id';
 import { WELCOME_QUERY } from './welcome-query';
 import { endpointMode } from '../../bootstrap';
@@ -107,6 +108,13 @@ const actions = {
 	loadDocuments:
 		() =>
 		async ({ dispatch }) => {
+			// One-shot upgrade path from 4.x: if the previous IDE left
+			// `graphiql:tabState` in localStorage, migrate it into the
+			// new unsaved-tabs + open_tabs prefs model before reading
+			// anything else. No-op on second boot (migrator records its
+			// own flag) and on fresh installs (no legacy key present).
+			await migrateLegacyTabs();
+
 			// REST and localStorage are independent sources. A 401 on
 			// the REST routes (anonymous visitor on the public endpoint)
 			// must NOT prevent localStorage tab hydration — anonymous

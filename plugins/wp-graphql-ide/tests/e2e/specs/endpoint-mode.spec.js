@@ -53,7 +53,9 @@ test.describe('Endpoint mode — IDE shell at the GraphQL endpoint URL', () => {
 		await ensureDocumentOpen(page);
 	});
 
-	test('renders the IDE shell instead of returning JSON', async ({ page }) => {
+	test('renders the IDE shell instead of returning JSON', async ({
+		page,
+	}) => {
 		// IDE root present + WPGraphQL response shape absent in the DOM
 		// confirms `parse_request` correctly handed off to the IDE
 		// renderer (not the JSON resolver).

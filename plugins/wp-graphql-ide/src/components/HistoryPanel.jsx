@@ -5,17 +5,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { Icon, backup } from '@wordpress/icons';
 import hooks from '../wordpress-hooks';
 import { useDialog } from './dialogs/DialogProvider';
-import { deriveDocTitle } from '../utils/derive-doc-title';
-import { isUserLoggedIn } from '../bootstrap';
-import { InlineSignInPrompt } from './InlineSignInPrompt';
-
-const HISTORY_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
-	month: 'short',
-	day: 'numeric',
-	hour: 'numeric',
-	minute: '2-digit',
-	hour12: true,
-});
+import { HistoryEntry } from './HistoryEntry';
 
 /**
  * History panel icon for the activity bar.
@@ -23,48 +13,19 @@ const HISTORY_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
 export const HistoryIcon = () => <Icon icon={backup} />;
 
 /**
- * Extract a clean one-line preview from a GraphQL query string.
- *
- * @param {string} query Raw query string.
- * @return {string} Collapsed single-line preview.
- */
-function queryPreview(query) {
-	if (!query) {
-		return '';
-	}
-	return query.replace(/\s+/g, ' ').trim().slice(0, 100);
-}
-
-/**
  * History panel content.
  *
  * Displays global execution history. Clicking an entry restores its
  * query, variables, and headers into the current active tab.
+ *
+ * Backend is auth-aware (see `src/api/history.js`):
+ *   - Logged-in users → server `graphql_ide_history` CPT, per-user.
+ *   - Anonymous public-endpoint visitors → browser-local bucket
+ *     (same model GraphiQL itself uses).
+ *
+ * Same component, same data shape, regardless of which backend.
  */
 export function HistoryPanel() {
-	// History is persisted to a per-user CPT (`graphql-ide-history`). For
-	// anonymous visitors there is no user to scope to and the REST route
-	// would 403 anyway — surface the gate inline instead of letting the
-	// fetch fail silently into an empty list. Gate sits *outside* the
-	// hook-using implementation so the inner component never mounts for
-	// anon visitors.
-	if (!isUserLoggedIn) {
-		return (
-			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
-				<InlineSignInPrompt
-					title={__('Sign in to see your history', 'wpgraphql-ide')}
-					description={__(
-						'Executed queries are saved per user — sign in to keep a record of your requests and restore them in a click.',
-						'wpgraphql-ide'
-					)}
-				/>
-			</div>
-		);
-	}
-	return <HistoryPanelContent />;
-}
-
-function HistoryPanelContent() {
 	const { confirm } = useDialog();
 	const history = useSelect(
 		(select) => select('wpgraphql-ide/app').getHistory(),
@@ -112,81 +73,14 @@ function HistoryPanelContent() {
 	return (
 		<div className="wpgraphql-ide-history-panel">
 			<ul className="wpgraphql-ide-history-list">
-				{history.map((entry) => {
-					const derived = deriveDocTitle(entry.query);
-					// `deriveDocTitle` returns the literal 'Untitled' fallback;
-					// matching the literal here is the contract — translation
-					// happens at display time below.
-					const label = derived === 'Untitled' ? null : derived;
-
-					return (
-						<li
-							key={entry.id}
-							className="wpgraphql-ide-history-entry"
-						>
-							<button
-								type="button"
-								className="wpgraphql-ide-history-entry-button"
-								onClick={() => restoreEntry(entry)}
-							>
-								<div className="wpgraphql-ide-history-entry-header">
-									{avatarUrl && (
-										<img
-											src={avatarUrl}
-											alt={
-												entry.is_authenticated !== false
-													? __(
-															'Authenticated',
-															'wpgraphql-ide'
-														)
-													: __(
-															'Public',
-															'wpgraphql-ide'
-														)
-											}
-											className={`wpgraphql-ide-history-avatar${entry.is_authenticated === false ? ' is-public' : ''}`}
-										/>
-									)}
-									<span className="wpgraphql-ide-history-method">
-										{entry.http_method || 'POST'}
-									</span>
-									<span
-										className={`wpgraphql-ide-history-status wpgraphql-ide-history-status--${entry.status}`}
-									>
-										{entry.status === 'success'
-											? __('OK', 'wpgraphql-ide')
-											: __('ERR', 'wpgraphql-ide')}
-									</span>
-									<span className="wpgraphql-ide-history-duration">
-										{entry.duration_ms}ms
-									</span>
-									<span className="wpgraphql-ide-history-entry-time">
-										{HISTORY_TIME_FORMATTER.format(
-											new Date(entry.timestamp * 1000)
-										)}
-									</span>
-									<span className="wpgraphql-ide-history-entry-id">
-										#{entry.id}
-									</span>
-								</div>
-								<div className="wpgraphql-ide-history-entry-detail">
-									<span className="wpgraphql-ide-history-entry-label">
-										{label ||
-											__(
-												'Anonymous query',
-												'wpgraphql-ide'
-											)}
-									</span>
-									{entry.query && (
-										<span className="wpgraphql-ide-history-entry-preview">
-											{queryPreview(entry.query)}
-										</span>
-									)}
-								</div>
-							</button>
-						</li>
-					);
-				})}
+				{history.map((entry) => (
+					<HistoryEntry
+						key={entry.id}
+						entry={entry}
+						onRestore={restoreEntry}
+						avatarUrl={avatarUrl}
+					/>
+				))}
 			</ul>
 			<div className="wpgraphql-ide-history-footer">
 				<Button

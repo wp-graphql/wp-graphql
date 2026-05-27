@@ -85,9 +85,6 @@
   per-registry `afterRegister*` JS actions) are unchanged.
 
   **Removed PHP hooks** (0 external consumers, 0 internal callers):
-    - `wpgraphql_ide_external_fragments` filter — the IDE never had a real
-      ad-hoc-fragment-injection use case post-rebuild; `external_fragments()`
-      now returns `[]` unconditionally.
     - `wpgraphql_ide_endpoint_api_params` filter — the public-endpoint
       GET-param allow-list is now a literal in `public-endpoint.php`.
     - `wpgraphql_ide_register_document_settings` action — the built-in
@@ -115,8 +112,9 @@
 
   **Legacy `graphiql_*` hooks** (already not fired in 5.0; documented here
   for upgrade clarity since the 4.x docs referenced them):
-    - `graphiql_external_fragments` — was an alias for the removed
-      `wpgraphql_ide_external_fragments`.
+    - `graphiql_external_fragments` — was an alias for
+      `wpgraphql_ide_external_fragments`. Hook the canonical name; behavior
+      now smart-merges (see "New Features" below).
     - `enqueue_graphiql_extension` — was an alias for
       `wpgraphql_ide_enqueue_script`. Hook the canonical name.
     - `graphiql_rendered` — was an alias for the `wpgraphql-ide.rendered`
@@ -124,6 +122,21 @@
     - `graphiql_toolbar_before_buttons` / `graphiql_toolbar_after_buttons` —
       no longer fired; the modern way to add toolbar items is
       `registerDocumentEditorToolbarButton()`.
+
+### New Features
+
+- **`wpgraphql_ide_external_fragments` (restored).** The 4.x PHP filter is
+  back, with a behavior upgrade: 5.0 parses each outgoing query, finds
+  unresolved fragment spreads, and prepends only the matching fragment
+  definitions before sending. Transitive references between external
+  fragments are resolved, so a fragment that spreads another fragment
+  pulls both in. Unreferenced fragments never go over the wire, and a
+  fragment defined in the user's query wins over an external definition
+  with the same name. This was a real user-requested 4.x capability that
+  was inadvertently dropped during the rebuild; it now ships as a
+  declarative way to share canonical fragment shapes (`PostFields`,
+  `UserFields`, etc.) across every editor session. See
+  `ACTIONS_AND_FILTERS.md`.
 
 ### Schema additions
 

@@ -71,7 +71,6 @@ export function EditorPane({
 	editorKeyBindings,
 	onShowInDocs,
 	onCursorChange,
-	jumpRequest,
 	onJumpApplied,
 	// Left panel: Composer / Settings
 	ComposerContent,
@@ -89,7 +88,6 @@ export function EditorPane({
 	docSettingsPanelWidth,
 	onSetDocSettingsPanelWidth,
 	// Bottom Variables / Headers
-	editorBottomTabs,
 	variables,
 	onVariablesChange,
 	variableToType,
@@ -128,6 +126,14 @@ export function EditorPane({
 
 	const editorActions = useSelect(
 		(s) => s('wpgraphql-ide/editor-actions').editorActions(),
+		[]
+	);
+	const editorBottomTabs = useSelect(
+		(select) => select('wpgraphql-ide/editor-bottom-tabs').bottomTabs(),
+		[]
+	);
+	const jumpRequest = useSelect(
+		(select) => select('wpgraphql-ide/app').getEditorJumpRequest(),
 		[]
 	);
 
