@@ -84,7 +84,6 @@ Public PHP API: `access-functions.php`. Hooks documented in `ACTIONS_AND_FILTERS
 ### Bundled Extension Plugins (`plugins/`)
 
 Each has its own webpack entry and PHP shell. They use the same public APIs that third-party extensions would:
-- `cache-inspector` — Smart Cache observability panel
 - `help-panel` — documentation/help sidebar
 - `query-composer-panel` — GraphiQL-style query explorer
 - `smart-cache-panel` — Smart Cache document management

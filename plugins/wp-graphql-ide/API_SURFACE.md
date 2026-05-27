@@ -56,7 +56,7 @@ Server-injected at script-enqueue time (`includes/AssetEnqueue.php::enqueue()`).
 
 ### Custom fields
 
-Registered in `GraphQLSchema::register()`.
+Registered in `GraphQLSchema::register()` (`IdeHistoryEntry`) and `SmartCacheBridge::register_ide_graphql_fields_on_smart_cache_document()` (`GraphqlDocument`).
 
 | Type | Field | Backed by | Status |
 | --- | --- | --- | --- |
@@ -68,6 +68,8 @@ Registered in `GraphQLSchema::register()`.
 | `IdeHistoryEntry` | `documentId: Int` | `_graphql_ide_document_id` | Public. **In 5.0** this references a `graphqlDocument` (Smart Cache) database ID, not the legacy `IdeQuery` ID. |
 | `IdeHistoryEntry` | `isAuthenticated: Boolean` | `_graphql_ide_is_authenticated` | Public. |
 | `IdeHistoryEntry` | `httpMethod: String` | `_graphql_ide_http_method` | Public. |
+| `GraphqlDocument` | `variables: String` | `_graphql_ide_variables` (Smart Cache post meta via `SmartCacheBridge`) | Public. **Added in 5.0.** Also exposed as inputs on `CreateGraphqlDocumentInput` and `UpdateGraphqlDocumentInput`. |
+| `GraphqlDocument` | `headers: String` | `_graphql_ide_headers` (same bridge) | Public. **Added in 5.0.** Also exposed as Create/Update inputs. |
 | ~~`IdeQuery`~~ fields | ~~queryString / variables / headers~~ | — | **Removed in 5.0** along with the `IdeQuery` type. |
 
 ### Mutations
