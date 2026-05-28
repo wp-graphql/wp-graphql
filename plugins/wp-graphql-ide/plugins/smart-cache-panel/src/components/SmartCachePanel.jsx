@@ -1,12 +1,8 @@
 /* global navigator */
-import React, {
-	useEffect,
-	useRef,
-	useState,
-	useSyncExternalStore,
-} from 'react';
+import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { select, useSelect } from '@wordpress/data';
+import { addAction } from '@wordpress/hooks';
 import { Icon, check, cancelCircleFilled, help, info } from '@wordpress/icons';
 
 // Module-scoped session counter so HIT/MISS totals survive Smart Cache
@@ -93,6 +89,76 @@ export function _setActiveCacheKeyForTests(
 	);
 }
 
+// Variables ride the request envelope as a parsed object; normalize to a
+// string so they participate in the cache-key signature the same way the
+// editor's raw JSON would.
+function stringifyVariables(variables) {
+	if (variables === null || variables === undefined) {
+		return '';
+	}
+	if (typeof variables === 'string') {
+		return variables;
+	}
+	try {
+		return JSON.stringify(variables);
+	} catch (err) {
+		return '';
+	}
+}
+
+// Auth toggling flips user_id in the server's cache-key inputs, so it has
+// to feed the signature too. Read defensively — the store may not be
+// registered yet under test.
+function readIsAuthenticated() {
+	try {
+		const store = select('wpgraphql-ide/app');
+		return store ? !!store.isAuthenticated() : false;
+	} catch (err) {
+		return false;
+	}
+}
+
+let sessionTrackingStarted = false;
+
+/**
+ * Record HIT/MISS off the IDE's per-execution action rather than from
+ * inside the panel component. The panel only mounts while its response
+ * tab is active, so a component-local effect stops counting the moment
+ * the user switches to another tab. `wpgraphql-ide.afterExecute` fires
+ * once per completed execution regardless of which tab is mounted —
+ * aborted and short-circuited runs never fire it, so they correctly
+ * don't count. Idempotent; safe to call on every IDE-ready event.
+ *
+ * @return {void}
+ */
+export function initSmartCacheSessionTracking() {
+	if (sessionTrackingStarted) {
+		return;
+	}
+	sessionTrackingStarted = true;
+	addAction(
+		'wpgraphql-ide.afterExecute',
+		'wpgraphql-ide/smart-cache-session',
+		(envelope) => {
+			const request = envelope?.request || {};
+			// Sync the active bucket to the executed inputs first; a bucket
+			// change zeroes the running totals before this result lands.
+			setActiveCacheKey(
+				composeCacheKeySignature(
+					request.query,
+					stringifyVariables(request.variables),
+					readIsAuthenticated(),
+					request.operationName
+				)
+			);
+			recordResult(
+				!!envelope?.result?.extensions?.graphqlSmartCache
+					?.graphqlObjectCache?.cacheKey
+			);
+		}
+	);
+}
+
 /**
  * IDE-coupled wrapper. Reads auth, query, response headers, and the
  * active document's smart-cache settings from the IDE store, then
@@ -110,10 +176,6 @@ export function SmartCachePanel({ data }) {
 		[]
 	);
 	const query = useSelect((s) => s('wpgraphql-ide/app').getQuery(), []);
-	const variables = useSelect(
-		(s) => s('wpgraphql-ide/app').getVariables(),
-		[]
-	);
 	const responseHeaders = useSelect(
 		(s) => s('wpgraphql-ide/app').getResponseHeaders(),
 		[]
@@ -122,45 +184,14 @@ export function SmartCachePanel({ data }) {
 		(s) => s('wpgraphql-ide/document-editor').getActiveDocument(),
 		[]
 	);
-	const isFetching = useSelect(
-		(s) => s('wpgraphql-ide/app').isFetching(),
-		[]
-	);
-	const lastExecutedOperation = useSelect(
-		(s) => s('wpgraphql-ide/app').getLastExecutedOperation(),
-		[]
-	);
 	const globalGrantMode =
 		(typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.documentSettings?.globalGrantMode) ||
 		'public';
 
-	// Mirror the server's cache-key inputs (query + variables + auth +
-	// operation) so switching to a different op in a multi-op doc resets
-	// the counter — those are separate cache buckets server-side.
-	const cacheKeySignature = composeCacheKeySignature(
-		query,
-		variables,
-		isAuthenticated,
-		lastExecutedOperation
-	);
-	useEffect(() => {
-		setActiveCacheKey(cacheKeySignature);
-	}, [cacheKeySignature]);
-
-	// Increment the session counter on the trailing edge of `isFetching`
-	// (true → false = request just finished). Reference checks on `data`
-	// or the parsed `response` don't work because two consecutive
-	// identical HITs serialize to the same JSON string and the IDE's
-	// `useMemo(JSON.parse, [response])` returns the same reference, so
-	// nothing downstream looks "new".
-	const wasFetchingRef = useRef(false);
-	useEffect(() => {
-		if (wasFetchingRef.current && !isFetching) {
-			recordResult(!!data?.graphqlObjectCache?.cacheKey);
-		}
-		wasFetchingRef.current = isFetching;
-	}, [isFetching, data]);
+	// HIT/MISS recording lives in `initSmartCacheSessionTracking` (driven
+	// by `wpgraphql-ide.afterExecute`), not here — this panel unmounts when
+	// another response tab is active, and the counter must keep running.
 
 	return (
 		<SmartCachePanelView

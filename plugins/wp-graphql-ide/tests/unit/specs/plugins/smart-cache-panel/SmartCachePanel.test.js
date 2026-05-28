@@ -2,8 +2,10 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { doAction } from '@wordpress/hooks';
 import {
 	SmartCachePanelView,
+	initSmartCacheSessionTracking,
 	_resetSessionStatsForTests,
 	_recordResultForTests,
 	_setActiveCacheKeyForTests,
@@ -515,5 +517,76 @@ describe('SmartCachePanelView', () => {
 			expect(counter).toHaveTextContent('1 HIT');
 			expect(counter).toHaveTextContent('1 MISS');
 		});
+	});
+});
+
+describe('session tracking via wpgraphql-ide.afterExecute', () => {
+	beforeAll(() => {
+		initSmartCacheSessionTracking();
+	});
+	beforeEach(() => {
+		_resetSessionStatsForTests();
+	});
+
+	function execute({
+		query = '{ posts { nodes { id } } }',
+		variables,
+		operationName,
+		hit = false,
+	} = {}) {
+		doAction('wpgraphql-ide.afterExecute', {
+			request: { query, variables, operationName },
+			result: hit
+				? {
+						data: {},
+						extensions: {
+							graphqlSmartCache: {
+								graphqlObjectCache: { cacheKey: 'abc123' },
+							},
+						},
+					}
+				: { data: {} },
+		});
+	}
+
+	function renderCounter() {
+		const { container } = render(
+			<SmartCachePanelView
+				data={{ graphqlObjectCache: { cacheKey: 'abc123' } }}
+				isAuthenticated={false}
+				isMutation={false}
+				globalGrantMode="public"
+			/>
+		);
+		return container.querySelector('.wpgraphql-ide-smart-cache-session');
+	}
+
+	it('records a HIT when the response carries a smart-cache cacheKey', () => {
+		execute({ hit: true });
+		expect(renderCounter()).toHaveTextContent('1 HIT');
+	});
+
+	it('records a MISS when the response has no cacheKey', () => {
+		execute({ hit: false });
+		const counter = renderCounter();
+		expect(counter).toHaveTextContent('0 HIT');
+		expect(counter).toHaveTextContent('1 MISS');
+	});
+
+	it('keeps counting across executions while the Smart Cache tab is never mounted', () => {
+		// No panel render between executions — this is the bug: a panel-
+		// local effect would stop counting here.
+		execute({ hit: true });
+		execute({ hit: true });
+		execute({ hit: true });
+		expect(renderCounter()).toHaveTextContent('3 HIT');
+	});
+
+	it('zeroes the running totals when the executed query changes bucket', () => {
+		execute({ query: '{ posts { nodes { id } } }', hit: true });
+		execute({ query: '{ posts { nodes { id } } }', hit: true });
+		// Different query → different server cache bucket → reset.
+		execute({ query: '{ pages { nodes { id } } }', hit: true });
+		expect(renderCounter()).toHaveTextContent('1 HIT');
 	});
 });

@@ -230,6 +230,70 @@ hooks.addAction(
 );
 ```
 
+### Pattern: state that outlives a component
+
+Most extension surfaces mount **conditionally** — an activity-bar panel renders while its panel is selected; response panels, view modes, and status-bar items while their tab/mode is on screen; editor-bottom tabs while expanded; workspace tabs while open. When a surface isn't visible the IDE unmounts its component and discards its React state and effects.
+
+Response panels are where this bites most often, but the rule is general: any state that must accumulate *across* executions, or otherwise persist independently of what's on screen — a session HIT/MISS counter, a running request log, rolling latency averages, a computation cached and shared between surfaces — cannot live in a component-local `useState` / `useEffect`. It silently stops updating the moment the surface unmounts, then resets when it remounts.
+
+Keep that state outside the component tree and drive it from something that runs regardless of what's mounted:
+
+1. **Wire it up once at `WPGraphQLIDE_Window_Ready`.** That DOM event fires after `window.WPGraphQLIDE` (stores, registries, the `hooks` bus) is assembled. One-time setup belongs here — it runs exactly once per page and doesn't depend on any surface being mounted.
+2. **Update it from a hook or subscription that fires regardless of UI.** For per-execution data that's `wpgraphql-ide.afterExecute` (fires once per completed execution; never for aborted or short-circuited runs, so they don't miscount). Other sources work the same way — a `@wordpress/data` store subscription, an IDE lifecycle action, etc. The point is that the source isn't a component effect.
+3. **Hold the value in a module-scoped store** with a small subscribe API, and read it from any surface with React's `useSyncExternalStore`. Those surfaces become display-only — remounting one just re-subscribes to the already-current value, and several surfaces can read the same store at once.
+
+```js
+import { useSyncExternalStore } from 'react';
+
+window.addEventListener('WPGraphQLIDE_Window_Ready', () => {
+	const { hooks, registerResponseExtensionTab } = window.WPGraphQLIDE;
+
+	// Module-scoped — survives panel mount/unmount; cleared on page reload.
+	let stats = { count: 0, totalMs: 0 };
+	const subscribers = new Set();
+	const subscribe = (fn) => {
+		subscribers.add(fn);
+		return () => subscribers.delete(fn);
+	};
+	const getSnapshot = () => stats;
+
+	// Always fires, regardless of which response tab is mounted.
+	hooks.addAction(
+		'wpgraphql-ide.afterExecute',
+		'my-plugin/latency',
+		({ duration }) => {
+			stats = {
+				count: stats.count + 1,
+				totalMs: stats.totalMs + duration,
+			};
+			subscribers.forEach((fn) => fn());
+		}
+	);
+
+	// Display-only: it reads the running total, it never records it.
+	const AvgLatencyPanel = () => {
+		const s = useSyncExternalStore(subscribe, getSnapshot);
+		if (!s.count) {
+			return null;
+		}
+		return (
+			<p>
+				Avg {(s.totalMs / s.count).toFixed(0)} ms over {s.count} runs
+				this session
+			</p>
+		);
+	};
+
+	registerResponseExtensionTab(
+		'myLatency',
+		{ title: 'Latency', content: AvgLatencyPanel, alwaysShow: true },
+		60
+	);
+});
+```
+
+The IDE's built-in Smart Cache "this session" HIT/MISS counter works exactly this way: the panel renders the totals, but recording happens in an `afterExecute` listener registered at window-ready — so the count keeps climbing while you're looking at the Debug or Headers tab. The same shape applies to any surface — an activity-bar panel that tabulates results, a status-bar badge showing a session aggregate, or a service shared by several surfaces. Only the registration call and the always-firing source change; the module-scoped store and `useSyncExternalStore` read stay the same.
+
 ## Migration from 4.x
 
 A quick lookup for extension authors upgrading from 4.x. Hooks not listed below are unchanged.

@@ -4,6 +4,8 @@ Access Functions abstract several layers of complexity and provide simpler ways 
 
 All access functions are available on `window.WPGraphQLIDE` after the `WPGraphQLIDE_Window_Ready` event fires. Each `register*` function dispatches to one of the IDE's public Redux stores (see `src/stores/`); the same registration path is used by the IDE's own built-in features (`src/registry/index.js`) and by third-party extensions.
 
+Most surfaces registered here mount only while they're visible — the IDE unmounts the component (and its React state) when its panel/tab/mode isn't on screen. If your extension needs state that survives that, or that accumulates while the surface is hidden, set it up once at `WPGraphQLIDE_Window_Ready` and keep it outside the component tree. See [Pattern: state that outlives a component](ACTIONS_AND_FILTERS.md#pattern-state-that-outlives-a-component).
+
 > **Backward compatibility.** Each access function below is part of the IDE's public API. Signatures and config shapes will only change with a major version bump (and a corresponding entry in `CHANGELOG.md`).
 
 ## registerPreference
@@ -144,6 +146,8 @@ Most tabs map 1:1 onto a key in the GraphQL response `extensions` object — Tra
 
 The built-in `errors` and `headers` tabs use the same registry but flag themselves with `alwaysShow: true` (they describe the response itself, not response.extensions, so their data is sourced from synthetic slots — see `slotData` in `ResponseContent.jsx`).
 
+> **Panels mount only while their tab is active.** The `content` component is unmounted when the user switches to another response tab, which discards its React state and effects. A panel that just renders the current response is fine — it re-derives from `data`/`response` on remount. But state that must accumulate *across* executions (session counters, running logs) must live outside the component and be fed from `wpgraphql-ide.afterExecute`, not a panel effect. See [Pattern: state that outlives a component](ACTIONS_AND_FILTERS.md#pattern-state-that-outlives-a-component).
+
 **Parameters:**
 
 - `name` (string): Extension key in the response (e.g. `"debug"`, `"graphqlSmartCache"`).
@@ -206,6 +210,8 @@ registerEditorBottomTab('inspector', {
 ## registerStatusBarItem
 
 Registers an item in the response toolbar's status row — alongside the built-in HTTP status code, duration, size, resolver count, and N+1 warning badges. Useful for surfacing live response signals: cache hit/miss, schema warnings, custom counts, etc.
+
+> Status-bar items render only when a response is present and no request is in flight, and `render` re-runs from the current response each time. Don't accumulate cross-execution totals here — see [Pattern: state that outlives a component](ACTIONS_AND_FILTERS.md#pattern-state-that-outlives-a-component).
 
 **Parameters:**
 
