@@ -1,7 +1,5 @@
 import { useEffect } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { parse, print } from 'graphql';
-import LZString from 'lz-string';
 
 import hooks from '../wordpress-hooks';
 import { AppDrawer } from './AppDrawer';
@@ -21,19 +19,8 @@ const {
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
 
-// Safely get window.location - it should always exist, but be defensive
-const url =
-	typeof window !== 'undefined' && window.location
-		? new URL(window.location.href)
-		: null;
-const params = url ? url.searchParams : new URLSearchParams();
-
 const setInitialState = (dispatch) => {
 	const {
-		setDrawerOpen,
-		setQuery,
-		setVariables,
-		setHeaders,
 		setShouldRenderStandalone,
 		setInitialStateLoaded,
 		toggleAuthentication,
@@ -60,59 +47,11 @@ const setInitialState = (dispatch) => {
 		toggleAuthentication();
 	}
 
-	if (url && params.has('wpgraphql_ide')) {
-		const queryParam = params.get('wpgraphql_ide');
-		const queryParamShareObjectString =
-			LZString.decompressFromEncodedURIComponent(queryParam);
-		const queryParamShareObject = JSON.parse(queryParamShareObjectString);
-
-		const {
-			query,
-			variables: sharedVariables,
-			headers: sharedHeaders,
-		} = queryParamShareObject;
-
-		let parsedQuery;
-		let printedQuery = null;
-
-		// convert the query from a string to an AST
-		// console errors if there are any
-		try {
-			parsedQuery = parse(query);
-		} catch (error) {
-			// eslint-disable-next-line no-console
-			console.error(`Error parsing the query "${query}"`, error.message);
-			parsedQuery = null;
-		}
-
-		// Convert the AST back to a formatted printed document
-		// console errors if there are any
-		if (null !== parsedQuery) {
-			try {
-				printedQuery = print(parsedQuery);
-			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.error(
-					`Error printing the query "${query}"`,
-					error.message
-				);
-				printedQuery = null;
-			}
-		}
-
-		if (null !== printedQuery && url) {
-			setDrawerOpen(true);
-			setQuery(printedQuery);
-			if (typeof sharedVariables === 'string' && setVariables) {
-				setVariables(sharedVariables);
-			}
-			if (typeof sharedHeaders === 'string' && setHeaders) {
-				setHeaders(sharedHeaders);
-			}
-			params.delete('wpgraphql_ide');
-			window.history.pushState({}, '', url.toString());
-		}
-	}
+	// Deep-link share restore (`?wpgraphql_ide=`) is handled in the
+	// document-editor store's `loadDocuments` thunk, which opens the
+	// shared payload as a real tab. Doing it here against the app store
+	// doesn't work: the tab-switch sync in IDELayout re-seeds the live
+	// query from the active document right after this runs.
 
 	setInitialStateLoaded();
 };

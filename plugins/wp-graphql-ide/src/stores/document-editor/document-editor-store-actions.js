@@ -15,8 +15,75 @@ import { migrateLegacyTabs } from './legacy-graphiql-tabs-migration';
 import { isTempId } from '../../utils/document-id';
 import { WELCOME_QUERY } from './welcome-query';
 import { endpointMode } from '../../bootstrap';
+import LZString from 'lz-string';
+import { parse, print } from 'graphql';
 
 export { isTempId };
+
+/**
+ * Decode a `?wpgraphql_ide=` deep-link share payload from the current
+ * URL, if present. The Share dialog (`buildShareUrl` in ShareDialog.jsx)
+ * packs `{ query, variables?, headers? }` into an LZString-compressed,
+ * URI-encoded blob. Returns the decoded fields — query normalized via
+ * parse → print when it's valid GraphQL, raw otherwise — or null when
+ * the param is absent or undecodable.
+ *
+ * Always strips the param from the address bar so a reload, or a later
+ * `loadDocuments` refresh, doesn't re-open the shared tab.
+ *
+ * @return {{query: string, variables: string, headers: string}|null} Decoded payload, or null.
+ */
+function readSharedDocumentFromUrl() {
+	if (typeof window === 'undefined' || !window.location) {
+		return null;
+	}
+	let url;
+	try {
+		url = new URL(window.location.href);
+	} catch (e) {
+		return null;
+	}
+	const encoded = url.searchParams.get('wpgraphql_ide');
+	if (!encoded) {
+		return null;
+	}
+
+	// Strip the param up front so a decode failure can't leave a broken
+	// link that re-attempts hydration on every refresh.
+	url.searchParams.delete('wpgraphql_ide');
+	window.history.replaceState({}, '', url.toString());
+
+	let payload;
+	try {
+		payload = JSON.parse(
+			LZString.decompressFromEncodedURIComponent(encoded)
+		);
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.error('Failed to decode shared IDE document from URL', e);
+		return null;
+	}
+	if (!payload || typeof payload.query !== 'string') {
+		return null;
+	}
+
+	// Normalize the shared query for display. Fall back to the raw
+	// string when it doesn't parse so the recipient still sees what was
+	// shared (and can fix it) instead of an empty editor.
+	let query = payload.query;
+	try {
+		query = print(parse(payload.query));
+	} catch (e) {
+		// keep the raw query string
+	}
+
+	return {
+		query,
+		variables:
+			typeof payload.variables === 'string' ? payload.variables : '',
+		headers: typeof payload.headers === 'string' ? payload.headers : '',
+	};
+}
 
 const actions = {
 	registerButton: (name, config, priority) => ({
@@ -114,6 +181,12 @@ const actions = {
 			// anything else. No-op on second boot (migrator records its
 			// own flag) and on fresh installs (no legacy key present).
 			await migrateLegacyTabs();
+
+			// Deep-link share payload (`?wpgraphql_ide=`), if any. Read
+			// (and stripped from the URL) once up front so the branches
+			// below can decide whether to suppress the welcome tab, and
+			// so a `loadDocuments` re-run can't double-open it.
+			const shared = readSharedDocumentFromUrl();
 
 			// REST and localStorage are independent sources. A 401 on
 			// the REST routes (anonymous visitor on the public endpoint)
@@ -223,19 +296,35 @@ const actions = {
 						activeId = tabIds[0];
 					}
 					dispatch({ type: 'SET_ACTIVE_TAB', tabId: activeId });
-				} else {
+				} else if (!shared) {
 					// No remembered tabs and no orphaned drafts. Spawn a
 					// fresh welcome tab rather than auto-opening a saved
 					// doc — silently dropping the user into an existing
 					// published doc on every "I closed everything"
 					// refresh was confusing. createTab seeds the welcome
 					// boilerplate, persists the temp draft to localStorage,
-					// and sets it active.
+					// and sets it active. Skipped when a share link is
+					// present — the shared tab opened below is the landing
+					// content, so we don't want a stray empty welcome tab.
 					dispatch.createTab('', WELCOME_QUERY);
 				}
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to load IDE documents:', error);
+			}
+
+			// Deep-link: open a `?wpgraphql_ide=` shared document as a new
+			// active tab, layered on top of whatever was restored above.
+			// Done here, in the deterministic boot sequence — not from
+			// AppWrapper's app-store hydration, which the tab-switch sync
+			// in IDELayout would immediately clobber.
+			if (shared) {
+				dispatch.createTab(
+					'',
+					shared.query,
+					shared.variables,
+					shared.headers
+				);
 			}
 		},
 
@@ -247,22 +336,31 @@ const actions = {
 	 * `WELCOME_QUERY`) and reserved for the initial IDE-load-with-no-
 	 * tabs fallback — clicking `+` should give the user a clean slate.
 	 *
-	 * @param {string} title Tab title.
-	 * @param {string} query Initial query content. Defaults to empty.
+	 * @param {string} title     Tab title.
+	 * @param {string} query     Initial query content. Defaults to empty.
+	 * @param {string} variables Initial variables JSON. Defaults to empty.
+	 * @param {string} headers   Initial headers JSON. Defaults to empty.
 	 */
 	createTab:
-		(title = '', query = '') =>
+		(title = '', query = '', variables = '', headers = '') =>
 		({ dispatch }) => {
 			const tempId = `temp-${Date.now()}`;
-			dispatch({ type: 'CREATE_IN_MEMORY_TAB', title, tempId, query });
+			dispatch({
+				type: 'CREATE_IN_MEMORY_TAB',
+				title,
+				tempId,
+				query,
+				variables,
+				headers,
+			});
 			// Seed localStorage so the tab survives a refresh even
 			// before the user types anything into it.
 			saveUnsavedTab({
 				id: tempId,
 				title,
 				query,
-				variables: '',
-				headers: '',
+				variables,
+				headers,
 			});
 			return tempId;
 		},

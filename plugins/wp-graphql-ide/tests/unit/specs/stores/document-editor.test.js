@@ -59,6 +59,41 @@ describe('document-editor reducer', () => {
 			});
 			expect(state.activeTab).toBe('temp-1');
 		});
+
+		it('seeds query/variables/headers (and their saved baselines) from the action', () => {
+			const state = reducer(seed(), {
+				type: 'CREATE_IN_MEMORY_TAB',
+				tempId: 'temp-2',
+				title: 'Shared',
+				query: '{ posts { nodes { id } } }',
+				variables: '{"first":3}',
+				headers: '{"x-test":"1"}',
+			});
+
+			expect(state.documents['temp-2']).toEqual(
+				expect.objectContaining({
+					query: '{ posts { nodes { id } } }',
+					variables: '{"first":3}',
+					headers: '{"x-test":"1"}',
+					lastSavedQuery: '{ posts { nodes { id } } }',
+					lastSavedVariables: '{"first":3}',
+					lastSavedHeaders: '{"x-test":"1"}',
+				})
+			);
+		});
+
+		it('defaults variables/headers to empty strings when omitted', () => {
+			const state = reducer(seed(), {
+				type: 'CREATE_IN_MEMORY_TAB',
+				tempId: 'temp-3',
+				title: '',
+				query: 'x',
+			});
+
+			expect(state.documents['temp-3']).toEqual(
+				expect.objectContaining({ variables: '', headers: '' })
+			);
+		});
 	});
 
 	describe('UPDATE_DOCUMENT_ID', () => {

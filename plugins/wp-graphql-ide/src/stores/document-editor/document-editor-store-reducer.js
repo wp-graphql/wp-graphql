@@ -71,19 +71,22 @@ const reducer = (state = initialState, action) => {
 
 		case 'CREATE_IN_MEMORY_TAB': {
 			const seededQuery = action.query ?? '';
+			const seededVariables = action.variables ?? '';
+			const seededHeaders = action.headers ?? '';
 			const tempDoc = {
 				id: action.tempId,
 				title: action.title,
 				query: seededQuery,
-				variables: '',
-				headers: '',
-				// Seeded boilerplate (welcome content, duplicate-as-draft
-				// snapshot) is the no-changes baseline for this temp doc,
-				// so the dirty-flag and close-tab "discard changes?" prompt
-				// only fire after the user actually edits.
+				variables: seededVariables,
+				headers: seededHeaders,
+				// Seeded content (welcome boilerplate, duplicate-as-draft
+				// snapshot, or a `?wpgraphql_ide=` share link) is the
+				// no-changes baseline for this temp doc, so the dirty-flag
+				// and close-tab "discard changes?" prompt only fire after
+				// the user actually edits.
 				lastSavedQuery: seededQuery,
-				lastSavedVariables: '',
-				lastSavedHeaders: '',
+				lastSavedVariables: seededVariables,
+				lastSavedHeaders: seededHeaders,
 			};
 			return {
 				...state,
