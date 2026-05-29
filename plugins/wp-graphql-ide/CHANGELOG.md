@@ -136,7 +136,7 @@
   was inadvertently dropped during the rebuild; it now ships as a
   declarative way to share canonical fragment shapes (`PostFields`,
   `UserFields`, etc.) across every editor session. See
-  `ACTIONS_AND_FILTERS.md`.
+  `docs/actions-and-filters.md`.
 
 ### Schema additions
 

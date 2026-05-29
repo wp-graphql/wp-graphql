@@ -1,4 +1,7 @@
-# Actions & Filters
+---
+title: "Actions & Filters"
+description: "PHP and JavaScript hooks for extending the WPGraphQL IDE — lifecycle, notices, the execute request/response/afterExecute pipeline, and 4.x → 5.0 migration notes."
+---
 
 ## PHP Actions
 
@@ -76,7 +79,7 @@ hooks.addAction( 'wpgraphql-ide.init', 'my-plugin/boot', () => { /* … */ } );
 
 ### Registration
 
-Each access function in `ACCESS_FUNCTIONS.md` fires one of these actions after a successful registration. Registration failures log to `console.error` and do not fire a paired action — see the [Migration from 4.x](#migration-from-4x) section if you previously relied on `register*Error` hooks.
+Each access function in [`access-functions.md`](./access-functions.md) fires one of these actions after a successful registration. Registration failures log to `console.error` and do not fire a paired action — see the [Migration from 4.x](#migration-from-4x) section if you previously relied on `register*Error` hooks.
 
 | Registry function | Success action | Args |
 | --- | --- | --- |
@@ -230,69 +233,9 @@ hooks.addAction(
 );
 ```
 
-### Pattern: state that outlives a component
+### Tracking state across executions
 
-Most extension surfaces mount **conditionally** — an activity-bar panel renders while its panel is selected; response panels, view modes, and status-bar items while their tab/mode is on screen; editor-bottom tabs while expanded; workspace tabs while open. When a surface isn't visible the IDE unmounts its component and discards its React state and effects.
-
-Response panels are where this bites most often, but the rule is general: any state that must accumulate *across* executions, or otherwise persist independently of what's on screen — a session HIT/MISS counter, a running request log, rolling latency averages, a computation cached and shared between surfaces — cannot live in a component-local `useState` / `useEffect`. It silently stops updating the moment the surface unmounts, then resets when it remounts.
-
-Keep that state outside the component tree and drive it from something that runs regardless of what's mounted:
-
-1. **Wire it up once at `WPGraphQLIDE_Window_Ready`.** That DOM event fires after `window.WPGraphQLIDE` (stores, registries, the `hooks` bus) is assembled. One-time setup belongs here — it runs exactly once per page and doesn't depend on any surface being mounted.
-2. **Update it from a hook or subscription that fires regardless of UI.** For per-execution data that's `wpgraphql-ide.afterExecute` (fires once per completed execution; never for aborted or short-circuited runs, so they don't miscount). Other sources work the same way — a `@wordpress/data` store subscription, an IDE lifecycle action, etc. The point is that the source isn't a component effect.
-3. **Hold the value in a module-scoped store** with a small subscribe API, and read it from any surface with React's `useSyncExternalStore`. Those surfaces become display-only — remounting one just re-subscribes to the already-current value, and several surfaces can read the same store at once.
-
-```js
-import { useSyncExternalStore } from 'react';
-
-window.addEventListener('WPGraphQLIDE_Window_Ready', () => {
-	const { hooks, registerResponseExtensionTab } = window.WPGraphQLIDE;
-
-	// Module-scoped — survives panel mount/unmount; cleared on page reload.
-	let stats = { count: 0, totalMs: 0 };
-	const subscribers = new Set();
-	const subscribe = (fn) => {
-		subscribers.add(fn);
-		return () => subscribers.delete(fn);
-	};
-	const getSnapshot = () => stats;
-
-	// Always fires, regardless of which response tab is mounted.
-	hooks.addAction(
-		'wpgraphql-ide.afterExecute',
-		'my-plugin/latency',
-		({ duration }) => {
-			stats = {
-				count: stats.count + 1,
-				totalMs: stats.totalMs + duration,
-			};
-			subscribers.forEach((fn) => fn());
-		}
-	);
-
-	// Display-only: it reads the running total, it never records it.
-	const AvgLatencyPanel = () => {
-		const s = useSyncExternalStore(subscribe, getSnapshot);
-		if (!s.count) {
-			return null;
-		}
-		return (
-			<p>
-				Avg {(s.totalMs / s.count).toFixed(0)} ms over {s.count} runs
-				this session
-			</p>
-		);
-	};
-
-	registerResponseExtensionTab(
-		'myLatency',
-		{ title: 'Latency', content: AvgLatencyPanel, alwaysShow: true },
-		60
-	);
-});
-```
-
-The IDE's built-in Smart Cache "this session" HIT/MISS counter works exactly this way: the panel renders the totals, but recording happens in an `afterExecute` listener registered at window-ready — so the count keeps climbing while you're looking at the Debug or Headers tab. The same shape applies to any surface — an activity-bar panel that tabulates results, a status-bar badge showing a session aggregate, or a service shared by several surfaces. Only the registration call and the always-firing source change; the module-scoped store and `useSyncExternalStore` read stay the same.
+Need a session counter, a running log, or any state that accumulates *across* executions? Don't record it from a panel's React effect — response panels, status-bar items, and other surfaces unmount when they're not on screen, so a component-local effect stops counting the moment the user switches tabs. Initialize the state once at `WPGraphQLIDE_Window_Ready` and record it from `wpgraphql-ide.afterExecute`, which fires regardless of what's mounted. The full recipe, with a worked example, is in [Tracking state across executions](./tracking-state-across-executions.md).
 
 ## Migration from 4.x
 
@@ -308,7 +251,7 @@ A quick lookup for extension authors upgrading from 4.x. Hooks not listed below 
 | `graphiql_external_fragments` (legacy alias) | **Removed** | Was an alias for the removed `wpgraphql_ide_external_fragments`. See above. |
 | `enqueue_graphiql_extension` (legacy alias) | **Removed** | Hook `wpgraphql_ide_enqueue_script` directly. |
 | `graphiql_rendered` (legacy alias) | **Removed** | Use the JS action `wpgraphql-ide.rendered` via `wp.hooks.addAction`. |
-| `graphiql_toolbar_before_buttons` / `graphiql_toolbar_after_buttons` | **Removed** | Register toolbar items via the JS API: `registerDocumentEditorToolbarButton()`. See `ACCESS_FUNCTIONS.md`. |
+| `graphiql_toolbar_before_buttons` / `graphiql_toolbar_after_buttons` | **Removed** | Register toolbar items via the JS API: `registerDocumentEditorToolbarButton()`. See [`access-functions.md`](./access-functions.md). |
 | `wpgraphql_ide_capability_required` (filter) | **Behavior change** | The filter is now honored at every IDE permission check (REST, post-type/taxonomy caps, post-meta, user-meta, admin menu, public-endpoint trim). In 4.x it was consulted only at the admin-menu gate. Hosts already relying on it will find their override actually works end-to-end. |
 
 ### JavaScript
@@ -337,5 +280,5 @@ If you were extending the 4.x IDE, these new surfaces are worth knowing about:
 - **Notices** — `wpgraphql-ide.notice` / `wpgraphql-ide.notice.dismiss` JS actions for publishing toasts without coupling to the notice store.
 - **Execute lifecycle** — `wpgraphql-ide.executeRequest` (filter) and `wpgraphql-ide.executeResponse` (filter) hook the request and response on every execution, plus `wpgraphql-ide.afterExecute` (action) for analytics/observability.
 - **Localized data** — `wpgraphql_ide_localized_data` (PHP filter) is the canonical way to inject keys into `window.WPGRAPHQL_IDE_DATA`. Both the public-endpoint mode and the Document Settings module use it.
-- **Registry APIs** — twelve `register*` functions for panels, toolbar buttons, status-bar items, response-view modes, response/editor/document-tab actions, workspace tab types, topbar actions, and preferences. See `ACCESS_FUNCTIONS.md`.
+- **Registry APIs** — twelve `register*` functions for panels, toolbar buttons, status-bar items, response-view modes, response/editor/document-tab actions, workspace tab types, topbar actions, and preferences. See [`access-functions.md`](./access-functions.md).
 

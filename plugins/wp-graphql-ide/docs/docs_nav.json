@@ -1,0 +1,52 @@
+{
+	"Getting Started": [
+		{
+			"title": "Introduction",
+			"href": "./introduction.md"
+		},
+		{
+			"title": "Extending the IDE",
+			"href": "./extending-the-ide.md"
+		}
+	],
+	"Guides": [
+		{
+			"title": "Build Your First IDE Extension",
+			"href": "./build-your-first-ide-extension.md"
+		},
+		{
+			"title": "Adding a Response Panel",
+			"href": "./adding-a-response-panel.md"
+		},
+		{
+			"title": "Adding a Status Bar Item",
+			"href": "./adding-a-status-bar-item.md"
+		},
+		{
+			"title": "Adding an Activity Bar Panel",
+			"href": "./adding-an-activity-bar-panel.md"
+		},
+		{
+			"title": "Hooking the Execute Lifecycle",
+			"href": "./hooking-the-execute-lifecycle.md"
+		},
+		{
+			"title": "Tracking State Across Executions",
+			"href": "./tracking-state-across-executions.md"
+		}
+	],
+	"Reference": [
+		{
+			"title": "Access Functions",
+			"href": "./access-functions.md"
+		},
+		{
+			"title": "Actions & Filters",
+			"href": "./actions-and-filters.md"
+		},
+		{
+			"title": "API Surface",
+			"href": "./api-surface.md"
+		}
+	]
+}

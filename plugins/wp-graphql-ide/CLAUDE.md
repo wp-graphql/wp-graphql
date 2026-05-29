@@ -79,7 +79,7 @@ PSR-4 autoloaded under namespace `WPGraphQLIDE\`. Key classes:
 - `public-endpoint.php` — opt-in unauthenticated IDE
 - `Telemetry.php` — opt-in usage reporting
 
-Public PHP API: `access-functions.php`. Hooks documented in `ACTIONS_AND_FILTERS.md`.
+Public PHP API: `access-functions.php`. Hooks documented in `docs/actions-and-filters.md`.
 
 ### Bundled Extension Plugins (`plugins/`)
 
@@ -98,4 +98,4 @@ Multi-entry webpack via `@wordpress/scripts`. React, ReactDOM, and GraphQL are W
 - **i18n**: text domain `wpgraphql-ide`. Use `@wordpress/i18n` in JS, `__()`/`_x()` in PHP.
 - **Smart Cache dependency**: saved-document features degrade gracefully when Smart Cache is not installed (`hasSmartCache` flag in bootstrap data).
 - **Requirements**: PHP 7.4+, WordPress 5.7+, WPGraphQL active.
-- **Reference docs**: `ACCESS_FUNCTIONS.md` (JS API), `ACTIONS_AND_FILTERS.md` (PHP hooks), `API_SURFACE.md` (full surface inventory).
+- **Docs**: live in `docs/` (mirrors core WPGraphQL's `docs/` + `docs_nav.json` layout). Reference: `docs/access-functions.md` (JS API), `docs/actions-and-filters.md` (PHP/JS hooks), `docs/api-surface.md` (surface inventory). Guides + index: `docs/README.md`. The `docs/` dir is excluded from the shipped zip via `.distignore`.

@@ -45,19 +45,13 @@ When this plugin is active, a new settings tab "IDE Settings" will appear in the
 
 ## Extending the IDE
 
-### Access Functions
+### Documentation
 
-Three public registration functions are available on `window.WPGraphQLIDE`:
+Full docs live in [`docs/`](docs/README.md). Start with **[Extending the IDE](docs/extending-the-ide.md)** for the extension model and a map of every surface, then the [Guides](docs/README.md#guides) for hands-on walkthroughs.
 
-- `registerDocumentEditorToolbarButton(name, config, priority)` — Add toolbar buttons
-- `registerActivityBarPanel(name, config, priority)` — Add activity bar panels
-- `registerResponseExtensionTab(name, config, priority)` — Add response extension tabs
-
-See [ACCESS_FUNCTIONS.md](ACCESS_FUNCTIONS.md) for full documentation and examples.
-
-### Custom Hooks
-
-See [ACTIONS_AND_FILTERS.md](ACTIONS_AND_FILTERS.md) for PHP actions/filters and JavaScript hooks.
+- [Access Functions](docs/access-functions.md) — the `register*` API on `window.WPGraphQLIDE`.
+- [Actions & Filters](docs/actions-and-filters.md) — PHP and JavaScript hooks, plus the execute lifecycle.
+- [API Surface](docs/api-surface.md) — server-side surface inventory.
 
 ### Extension Pattern
 

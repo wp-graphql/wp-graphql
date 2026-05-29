@@ -27,7 +27,7 @@ The migration is one-shot, tolerates partial failure, and is idempotent — repe
 
 ### Removed (no replacement) — silently drops; was already documented as "not ported" in 4.x
 
-- `graphiql_toolbar_before_buttons` PHP action — toolbar buttons are now added through the JS registry. Use [`registerDocumentEditorToolbarButton()`](./ACCESS_FUNCTIONS.md) instead.
+- `graphiql_toolbar_before_buttons` PHP action — toolbar buttons are now added through the JS registry. Use [`registerDocumentEditorToolbarButton()`](./docs/access-functions.md) instead.
 - `graphiql_toolbar_after_buttons` PHP action — same migration.
 
 ### Removed (legacy aliases dropped)
@@ -94,4 +94,4 @@ If you have data in those tables that you need to preserve, export it through 4.
 
 - **Bug reports / feature requests:** [github.com/wp-graphql/wp-graphql/issues](https://github.com/wp-graphql/wp-graphql/issues)
 - **Security:** see the project [security policy](https://github.com/wp-graphql/wp-graphql/security/policy)
-- **API reference:** [`API_SURFACE.md`](./API_SURFACE.md) (canonical surface inventory), [`ACTIONS_AND_FILTERS.md`](./ACTIONS_AND_FILTERS.md) (PHP/JS hooks), [`ACCESS_FUNCTIONS.md`](./ACCESS_FUNCTIONS.md) (JS extension API)
+- **API reference:** [`API Surface`](./docs/api-surface.md) (canonical surface inventory), [`Actions & Filters`](./docs/actions-and-filters.md) (PHP/JS hooks), [`Access Functions`](./docs/access-functions.md) (JS extension API). Full docs index: [`docs/`](./docs/README.md).

@@ -1,4 +1,7 @@
-# IDE API Surface
+---
+title: "IDE API Surface"
+description: "Maintainer reference: inventory of the IDE's server-side surfaces — bootstrap data, GraphQL types and mutations, REST routes, user-preference meta, and capability helpers."
+---
 
 Inventory of which IDE surfaces use WPGraphQL and which use REST, plus the server-side registries (user-preference meta, WPGraphQL admin settings) that the IDE owns. Update on every PR that adds, moves, or removes a server endpoint or registered surface.
 
