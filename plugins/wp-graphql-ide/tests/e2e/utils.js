@@ -218,13 +218,3 @@ export async function openSettingsTab(page) {
 	});
 }
 
-/**
- * Read the visible title text of the currently active document tab.
- * @param page
- */
-export async function getActiveTabName(page) {
-	return await page
-		.locator(`${SELECTORS.tab}.is-active .wpgraphql-ide-tab-text`)
-		.first()
-		.innerText();
-}

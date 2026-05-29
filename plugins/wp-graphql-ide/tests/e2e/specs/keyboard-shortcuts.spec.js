@@ -120,9 +120,7 @@ test.describe('Keyboard shortcuts', () => {
 		// Clear, then type a partial identifier that the schema can
 		// disambiguate (`posts`, `pages`, `postFormats`, etc. all start
 		// with `p`).
-		await page.keyboard.press(
-			process.platform === 'darwin' ? 'Meta+a' : 'Control+a'
-		);
+		await pressMod(page, 'a');
 		await page.keyboard.press('Backspace');
 		await page.keyboard.type('{ p');
 		await page.keyboard.press('Control+Space');
@@ -165,10 +163,14 @@ test.describe('Keyboard shortcuts', () => {
 	});
 
 	test('ArrowLeft / ArrowRight switch tabs', async ({ page }) => {
-		// Open a second tab; that one becomes active.
+		const tabs = page.locator(selectors.tab);
+
+		// Capture the starting tab count — prior tests or persisted
+		// drafts may already have tabs open, so the new tab's index is
+		// relative to whatever was there.
+		const before = await tabs.count();
 		await page.click(selectors.addTab);
-		const tabs = page.locator(`${selectors.tab}`);
-		await expect(tabs).toHaveCount(2);
+		await expect(tabs).toHaveCount(before + 1);
 
 		// Both blank tabs auto-title to "Untitled", so identify by index
 		// in the tab strip rather than by visible text.
@@ -180,16 +182,17 @@ test.describe('Keyboard shortcuts', () => {
 				);
 			}, selectors.tab);
 
-		const initialIndex = await activeIndex();
-		expect(initialIndex).toBe(1);
+		const newTabIndex = before;
+		const leftNeighborIndex = newTabIndex - 1;
+		expect(await activeIndex()).toBe(newTabIndex);
 
 		await page.locator(`${selectors.tab}.is-active`).first().focus();
 
 		await page.keyboard.press('ArrowLeft');
-		expect(await activeIndex()).toBe(0);
+		expect(await activeIndex()).toBe(leftNeighborIndex);
 
 		await page.keyboard.press('ArrowRight');
-		expect(await activeIndex()).toBe(1);
+		expect(await activeIndex()).toBe(newTabIndex);
 	});
 
 	test('Mod+S saves the Settings workspace tab', async ({ page }) => {
