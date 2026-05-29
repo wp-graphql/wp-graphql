@@ -952,8 +952,12 @@ export function IDELayout({ fetcher, onClose }) {
 								.map((doc) => ({
 									id: doc.id,
 									// Active doc derives from live `query` so the tab name doesn't lag the autosave debounce.
+									// Guard on `editorSyncedDocId` so the live `query` is only used once it actually
+									// reflects this doc — otherwise a fresh tab briefly inherits the previous tab's
+									// derived title before the sync useEffect runs.
 									title:
 										doc.id === activeDocument?.id &&
+										editorSyncedDocId === doc.id &&
 										isAutoTitle(doc.title)
 											? deriveDocTitle(query)
 											: displayDocTitle(doc),
