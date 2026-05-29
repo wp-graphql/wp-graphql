@@ -82,13 +82,16 @@ export async function visitDedicatedIde(page) {
 /**
  * Ensure there's at least one document tab open.
  *
- * On a fresh session the IDE may render the "No open documents"
- * empty state instead of the tab strip. Click the inline "New
- * Document" button when present so the editor surface is mounted
- * and selectors like `.wpgraphql-ide-tab-add` are available.
+ * On a fresh session the IDE renders the "No queries open" surface
+ * instead of an editor — the persistent tab strip still shows the `+`
+ * button, so we click that to mount a fresh tab.
  * @param page
  */
 export async function ensureDocumentOpen(page) {
+	await page.waitForSelector(SELECTORS.tabRow, {
+		state: 'visible',
+		timeout: 10000,
+	});
 	const empty = page.locator('.wpgraphql-ide-workspace-empty');
 	if (await empty.isVisible().catch(() => false)) {
 		// Bypass Playwright's actionability layer with a JS-side click.
@@ -96,14 +99,14 @@ export async function ensureDocumentOpen(page) {
 		// and retries on detach — which races the new DOM since the
 		// click itself causes the detach. `evaluate(el.click())` fires
 		// once and returns; we then wait for the new DOM state.
-		await empty
-			.getByRole('button', { name: 'New Document' })
+		await page
+			.locator(SELECTORS.addTab)
 			.evaluate((el) => el.click());
+		await page.waitForSelector(SELECTORS.graphqlEditor, {
+			state: 'visible',
+			timeout: 10000,
+		});
 	}
-	await page.waitForSelector(SELECTORS.tabRow, {
-		state: 'visible',
-		timeout: 10000,
-	});
 }
 
 /**
@@ -153,17 +156,31 @@ export async function readQuery(page) {
 }
 
 /**
+ * The Mod key, resolved to `Meta` on macOS and `Control` elsewhere — matches
+ * CodeMirror's `Mod-…` keymap convention so tests stay portable across
+ * dev and CI runners.
+ */
+export const MOD_KEY = process.platform === 'darwin' ? 'Meta' : 'Control';
+
+/**
+ * Press a Mod chord (e.g. `Enter`, `Shift+P`, `a`).
+ * @param page
+ * @param suffix
+ */
+export async function pressMod(page, suffix) {
+	await page.keyboard.press(`${MOD_KEY}+${suffix}`);
+}
+
+/**
  * Press Cmd/Ctrl+Enter to execute the query.
  * @param page
  */
 export async function runQuery(page) {
-	const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
-	await page.keyboard.press(`${modKey}+Enter`);
+	await pressMod(page, 'Enter');
 }
 
 async function selectAllAndDelete(page) {
-	const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
-	await page.keyboard.press(`${modKey}+a`);
+	await pressMod(page, 'a');
 	await page.keyboard.press('Backspace');
 }
 
@@ -178,4 +195,36 @@ export async function waitForGraphQLResponse(page) {
 			response.status() < 500,
 		{ timeout: 10000 }
 	);
+}
+
+/**
+ * Open the Settings workspace tab via the topbar action. Idempotent —
+ * a no-op when the Settings tab is already mounted.
+ * @param page
+ */
+export async function openSettingsTab(page) {
+	if (
+		await page
+			.locator('.wpgraphql-ide-settings-tab')
+			.isVisible()
+			.catch(() => false)
+	) {
+		return;
+	}
+	await page.getByRole('button', { name: 'WPGraphQL Settings' }).click();
+	await page.waitForSelector('.wpgraphql-ide-settings-tab', {
+		state: 'visible',
+		timeout: 10000,
+	});
+}
+
+/**
+ * Read the visible title text of the currently active document tab.
+ * @param page
+ */
+export async function getActiveTabName(page) {
+	return await page
+		.locator(`${SELECTORS.tab}.is-active .wpgraphql-ide-tab-text`)
+		.first()
+		.innerText();
 }
