@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	Button,
 	Dropdown,
@@ -13,6 +13,7 @@ import { Icon, chevronDown, check } from '@wordpress/icons';
 import authStyles from '../../../styles/ToggleAuthenticationButton.module.css';
 import hooks from '../../wordpress-hooks';
 import { tipify } from '../../utils/tipify';
+import { RUN_QUERY_LABEL, SAVE_LABEL } from '../../utils/shortcut-labels';
 import { SignInPromptDialog } from '../dialogs/SignInPromptDialog';
 
 // Play-button easter eggs: count rapid presses (< 1.5s apart) and fire a
@@ -22,9 +23,13 @@ const PLAY_RAPID_WINDOW_MS = 1500;
 const PLAY_NOTICE_ID = 'wpgraphql-ide-play-mash';
 // Built lazily so __() runs after wp.i18n is loaded.
 const getPlayMilestones = () => ({
-	5: __(
-		'Whoa there, speedy. Tip: Cmd+Enter runs the query, no clicking required.',
-		'wpgraphql-ide'
+	5: sprintf(
+		/* translators: %s is a keyboard shortcut, e.g. "Cmd+Enter" or "Ctrl+Enter". */
+		__(
+			'Whoa there, speedy. Tip: %s runs the query, no clicking required.',
+			'wpgraphql-ide'
+		),
+		RUN_QUERY_LABEL
 	),
 	10: __(
 		'GraphQL fan club, party of one. Tip: variables live in the Variables tab below the editor.',
@@ -38,9 +43,14 @@ const getPlayMilestones = () => ({
 		"OK now you're just showing off. Tip: switch HTTP method to GET on read-only queries so CDNs can cache them.",
 		'wpgraphql-ide'
 	),
-	30: __(
-		'Have you tried Cmd+Enter? Just saying. Tip: drafts auto-save as you type — no Cmd+S needed.',
-		'wpgraphql-ide'
+	30: sprintf(
+		/* translators: 1: run-query shortcut (e.g. "Cmd+Enter"), 2: save shortcut (e.g. "Cmd+S"). */
+		__(
+			'Have you tried %1$s? Just saying. Tip: drafts auto-save as you type — no %2$s needed.',
+			'wpgraphql-ide'
+		),
+		RUN_QUERY_LABEL,
+		SAVE_LABEL
 	),
 });
 
@@ -409,8 +419,16 @@ export function ExecutionControls({
 				<Tooltip
 					text={
 						isFetching
-							? __('Stop (Cmd+Enter)', 'wpgraphql-ide')
-							: __('Execute (Cmd+Enter)', 'wpgraphql-ide')
+							? sprintf(
+									/* translators: %s is a keyboard shortcut, e.g. "Cmd+Enter" or "Ctrl+Enter". */
+									__('Stop (%s)', 'wpgraphql-ide'),
+									RUN_QUERY_LABEL
+								)
+							: sprintf(
+									/* translators: %s is a keyboard shortcut, e.g. "Cmd+Enter" or "Ctrl+Enter". */
+									__('Execute (%s)', 'wpgraphql-ide'),
+									RUN_QUERY_LABEL
+								)
 					}
 				>
 					<Button

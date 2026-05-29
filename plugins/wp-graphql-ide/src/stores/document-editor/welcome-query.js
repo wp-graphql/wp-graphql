@@ -16,16 +16,10 @@
  * Universal bindings (undo/redo, find, comment) come from
  * `basicSetup` and are intentionally not advertised here.
  */
-const ua =
-	typeof window !== 'undefined' && window.navigator
-		? window.navigator.platform || window.navigator.userAgent || ''
-		: '';
-const isMac = /Mac|iPhone|iPad/.test(ua);
-
-const runKey = isMac ? 'Cmd+Enter' : 'Ctrl+Enter';
+import { RUN_QUERY_LABEL } from '../../utils/shortcut-labels';
 
 // Pad the key column so the description column lines up regardless
-// of which platform variant of `runKey` got rendered.
+// of which platform variant of the run-key label got rendered.
 const col = (key) => key.padEnd(12, ' ');
 
 export const WELCOME_QUERY = `# Welcome to the WPGraphQL IDE
@@ -45,7 +39,7 @@ export const WELCOME_QUERY = `# Welcome to the WPGraphQL IDE
 #
 # Shortcuts:
 #
-#   ${col(runKey)} Run query
+#   ${col(RUN_QUERY_LABEL)} Run query
 #   ${col('Ctrl+Space')} Autocomplete
 #   ${col('Tab')} Indent (Shift+Tab to outdent)
 `;
