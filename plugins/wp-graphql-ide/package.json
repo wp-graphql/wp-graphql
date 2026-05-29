@@ -66,7 +66,7 @@
 		"@wordpress/components": "^27.0.0",
 		"@wordpress/data": "^9.22.0",
 		"@wordpress/element": "^5.23.0",
-		"@wordpress/hooks": "^3.49.0",
+		"@wordpress/hooks": "^4.44.0",
 		"@wordpress/i18n": "^4.49.0",
 		"@wordpress/icons": "^9.43.0",
 		"@wpgraphql-ide/help-panel": "file:plugins/help-panel",
