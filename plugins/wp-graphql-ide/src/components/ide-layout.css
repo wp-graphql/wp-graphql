@@ -317,7 +317,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	align-items: center;
 	gap: 2px;
 	padding: 8px 4px;
-	background: #fff;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
 	border-right: 1px solid #dcdcde;
 	flex-shrink: 0;
 }
