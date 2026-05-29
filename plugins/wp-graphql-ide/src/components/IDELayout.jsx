@@ -2,7 +2,12 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { parse as parseGraphQL, validate as validateGraphQL } from 'graphql';
 import { __, sprintf } from '@wordpress/i18n';
 import { SnackbarList } from '@wordpress/components';
-import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
+import {
+	useDispatch,
+	useSelect,
+	select as wpSelect,
+	dispatch as wpDispatch,
+} from '@wordpress/data';
 import { ShareDialog } from './dialogs/ShareDialog';
 import { SaveDialog } from './dialogs/SaveDialog';
 import { DocumentTabs } from './DocumentTabs';
@@ -770,6 +775,25 @@ export function IDELayout({ fetcher, onClose }) {
 					opName = firstNamed?.name?.value;
 				}
 				executeQueryRef.current(opName);
+				return true;
+			},
+		},
+		// Prettify and merge mirror the prior GraphiQL bindings so muscle
+		// memory carries over. Both delegate to the same store actions
+		// the toolbar buttons dispatch, so behavior stays uniform.
+		{
+			key: 'Mod-Shift-p',
+			run: () => {
+				const q = wpSelect('wpgraphql-ide/app').getQuery();
+				wpDispatch('wpgraphql-ide/app').prettifyQuery(q);
+				return true;
+			},
+		},
+		{
+			key: 'Mod-Shift-m',
+			run: () => {
+				const q = wpSelect('wpgraphql-ide/app').getQuery();
+				wpDispatch('wpgraphql-ide/app').mergeQuery(q);
 				return true;
 			},
 		},

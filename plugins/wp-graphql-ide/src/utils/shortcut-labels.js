@@ -11,3 +11,5 @@ export const isMac = /Mac|iPhone|iPad/.test(ua);
 export const MOD_LABEL = isMac ? 'Cmd' : 'Ctrl';
 export const RUN_QUERY_LABEL = `${MOD_LABEL}+Enter`;
 export const SAVE_LABEL = `${MOD_LABEL}+S`;
+export const PRETTIFY_LABEL = `${MOD_LABEL}+Shift+P`;
+export const MERGE_LABEL = `${MOD_LABEL}+Shift+M`;

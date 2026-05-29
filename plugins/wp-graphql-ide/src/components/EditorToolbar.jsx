@@ -48,6 +48,7 @@ export const EditorToolbar = ({ onClose, onNotice, hideMutating = false }) => {
 							}
 						}}
 						aria-label={props.label}
+						shortcut={props.shortcut}
 					>
 						{props.children || props.label}
 					</MenuItem>
