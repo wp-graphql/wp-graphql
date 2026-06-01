@@ -69,12 +69,18 @@ export function IDETopbar({
 					const handler = action.onClick
 						? () => action.onClick(topbarCtx)
 						: () =>
+								// Don't forward `action.title` as the tab's
+								// title — that string labels the button
+								// (the `<Tooltip>` below) and is often more
+								// descriptive than what the tab itself
+								// should read (e.g. button: "WPGraphQL
+								// Settings", resulting tab: "IDE"). Letting
+								// `openWorkspaceTab` fall back to the
+								// registered tab type's title keeps the
+								// two strings independently controllable.
 								window.WPGraphQLIDE?.openWorkspaceTab(
 									action.tabType,
-									{
-										id: action.tabId,
-										title: action.title,
-									}
+									{ id: action.tabId }
 								);
 					const disabled =
 						typeof action.isDisabled === 'function'
