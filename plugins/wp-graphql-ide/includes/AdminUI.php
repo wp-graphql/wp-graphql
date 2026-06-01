@@ -159,12 +159,20 @@ class AdminUI {
 			return;
 		}
 
+		// Render the elephant as a CSS mask painted with `currentColor`
+		// instead of a `background-image`. The sidebar menu icon does the
+		// same thing via WP core, which is why it adapts to the active
+		// color scheme; the admin bar's `<span class="ab-icon">::before`
+		// uses a raw `background-image` by default, so a baked-in fill
+		// (white) renders as-is and disappears on Light scheme's white
+		// chrome. With `mask` + `currentColor`, the icon inherits the
+		// admin bar's text color and reads correctly in every scheme.
+		$svg_url    = 'url("data:image/svg+xml;base64,' . base64_encode( self::graphql_logo_svg() ) . '")';
 		$custom_css = '
 			#wp-admin-bar-wpgraphql-ide .ab-icon::before {
-				background-image: url("data:image/svg+xml;base64,' . base64_encode( self::graphql_logo_svg() ) . '");
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
+				-webkit-mask: ' . $svg_url . ' center / contain no-repeat;
+				mask: ' . $svg_url . ' center / contain no-repeat;
+				background-color: currentColor;
 				box-sizing: border-box;
 				content: "";
 				display: inline-block;
@@ -261,46 +269,37 @@ class AdminUI {
 	}
 
 	/**
-	 * Returns the WPGraphQL elephant mark, recolored to render white.
+	 * Returns the WPGraphQL elephant mark, used by the admin bar entry's
+	 * `:before` mask. The mask renders the SVG's alpha shape — fills are
+	 * ignored — so we can use core wp-graphql's `wpgraphql-elephant.svg`
+	 * verbatim without recoloring it.
 	 *
-	 * We read the canonical SVG from core wp-graphql
-	 * (`src/assets/wpgraphql-elephant.svg`) rather than maintaining our
-	 * own copy, so brand updates land here automatically. The core file
-	 * ships filled `rgb(51,51,51)` because WP's `add_menu_page()` masks
-	 * sidebar menu icons with the active scheme color — but the admin
-	 * bar's `<span class="ab-icon">::before` uses the SVG as a plain
-	 * background-image with no mask, so the fill is what renders.
-	 * Swap the gray for white so the glyph reads against the admin bar's
-	 * dark background in every WP color scheme.
+	 * Core doesn't expose a public getter for this asset, so we read the
+	 * file directly. If core ever ships one (e.g.
+	 * `\WPGraphQL\Admin\GraphiQL\GraphiQL::get_logo_svg()`), swap this
+	 * call for that.
 	 *
 	 * @return string The SVG logo markup, ready to base64-encode for a data URL.
 	 */
 	public static function graphql_logo_svg(): string {
-		$svg = '';
-
 		if ( defined( 'WPGRAPHQL_PLUGIN_DIR' ) ) {
 			$path = WPGRAPHQL_PLUGIN_DIR . 'src/assets/wpgraphql-elephant.svg';
 			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- local file under the sibling core plugin's path
 			$contents = is_readable( $path ) ? file_get_contents( $path ) : false;
 			if ( false !== $contents ) {
-				// Recolor the dark-gray fills to white. The source SVG uses
-				// `fill:rgb(51,51,51)` inside `style=""` attributes — pin
-				// the replacement to that exact pattern so we don't catch
-				// any other gray that core might add later.
-				$svg = str_replace( 'fill:rgb(51,51,51)', 'fill:#fff', $contents );
+				return (string) $contents;
 			}
 		}
 
 		// Defensive fallback for environments where the core file isn't
 		// reachable (stripped install, custom autoloader): a minimal
-		// white elephant glyph traced from the same source.
-		if ( '' === $svg ) {
-			$svg  = '<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-label="WPGraphQL">';
-			$svg .= '<g transform="matrix(1.93745,0,0,1.93745,-78.2284,-72.6723)" fill="#fff">';
-			$svg .= '<path d="M81.524,72.256C84.261,72.256 86.48,70.037 86.48,67.3C86.48,64.563 84.261,62.344 81.524,62.344C78.787,62.344 76.568,64.563 76.568,67.3C76.568,70.037 78.787,72.256 81.524,72.256Z"/>';
-			$svg .= '<path d="M118.588,90.488C116.007,90.05 113.769,92.012 113.736,94.502C113.711,96.529 112.592,98.429 110.696,99.148C107.17,100.49 103.825,97.905 103.825,94.555L103.825,67.593C103.825,56.199 95.375,46.392 84.052,45.14C71.89,43.794 61.393,52.301 59.526,63.674C59.526,63.682 59.518,63.691 59.51,63.691C49.446,65.888 42,74.837 42,85.47L42,103.665C42,105.933 43.838,107.77 46.105,107.77L55.372,107.77C57.635,107.77 59.353,105.92 59.345,103.657C59.332,100.213 62.851,97.574 66.481,99.152C68.231,99.916 69.264,101.716 69.256,103.624C69.247,105.912 71.102,107.766 73.385,107.766L82.495,107.766C84.762,107.766 86.6,105.928 86.6,103.661L86.6,85.495C86.6,84.83 86.472,84.161 86.162,83.575C85.378,82.076 83.854,81.229 82.251,81.316C82.016,81.328 81.772,81.337 81.529,81.337C73.798,81.337 67.496,75.047 67.488,67.316L67.488,67.3L67.55,66.466C68.058,59.536 73.468,53.846 80.397,53.3C88.648,52.648 95.574,59.181 95.574,67.296L95.574,94.341C95.574,100.663 100.666,106.779 106.926,107.638C114.954,108.741 121.863,102.575 121.999,94.787C122.036,92.714 120.641,90.831 118.596,90.484L118.588,90.488ZM78.337,89.72L78.337,99.098C78.337,99.325 78.151,99.511 77.924,99.511L77.143,99.511C76.97,99.511 76.817,99.399 76.759,99.234C74.942,94.105 70.04,90.426 64.3,90.426C58.56,90.426 53.658,94.11 51.841,99.234C51.783,99.399 51.63,99.511 51.453,99.511L50.672,99.511C50.445,99.511 50.259,99.325 50.259,99.098L50.259,85.47C50.259,79.482 54.005,74.341 59.328,72.33C59.559,72.243 59.811,72.384 59.869,72.623C61.987,81.233 69.128,87.898 77.99,89.315C78.188,89.348 78.337,89.517 78.337,89.72Z"/>';
-			$svg .= '</g></svg>';
-		}
+		// elephant glyph traced from the same source. Fill color is
+		// irrelevant — the mask treats this as an alpha shape.
+		$svg  = '<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-label="WPGraphQL">';
+		$svg .= '<g transform="matrix(1.93745,0,0,1.93745,-78.2284,-72.6723)" fill="#000">';
+		$svg .= '<path d="M81.524,72.256C84.261,72.256 86.48,70.037 86.48,67.3C86.48,64.563 84.261,62.344 81.524,62.344C78.787,62.344 76.568,64.563 76.568,67.3C76.568,70.037 78.787,72.256 81.524,72.256Z"/>';
+		$svg .= '<path d="M118.588,90.488C116.007,90.05 113.769,92.012 113.736,94.502C113.711,96.529 112.592,98.429 110.696,99.148C107.17,100.49 103.825,97.905 103.825,94.555L103.825,67.593C103.825,56.199 95.375,46.392 84.052,45.14C71.89,43.794 61.393,52.301 59.526,63.674C59.526,63.682 59.518,63.691 59.51,63.691C49.446,65.888 42,74.837 42,85.47L42,103.665C42,105.933 43.838,107.77 46.105,107.77L55.372,107.77C57.635,107.77 59.353,105.92 59.345,103.657C59.332,100.213 62.851,97.574 66.481,99.152C68.231,99.916 69.264,101.716 69.256,103.624C69.247,105.912 71.102,107.766 73.385,107.766L82.495,107.766C84.762,107.766 86.6,105.928 86.6,103.661L86.6,85.495C86.6,84.83 86.472,84.161 86.162,83.575C85.378,82.076 83.854,81.229 82.251,81.316C82.016,81.328 81.772,81.337 81.529,81.337C73.798,81.337 67.496,75.047 67.488,67.316L67.488,67.3L67.55,66.466C68.058,59.536 73.468,53.846 80.397,53.3C88.648,52.648 95.574,59.181 95.574,67.296L95.574,94.341C95.574,100.663 100.666,106.779 106.926,107.638C114.954,108.741 121.863,102.575 121.999,94.787C122.036,92.714 120.641,90.831 118.596,90.484L118.588,90.488ZM78.337,89.72L78.337,99.098C78.337,99.325 78.151,99.511 77.924,99.511L77.143,99.511C76.97,99.511 76.817,99.399 76.759,99.234C74.942,94.105 70.04,90.426 64.3,90.426C58.56,90.426 53.658,94.11 51.841,99.234C51.783,99.399 51.63,99.511 51.453,99.511L50.672,99.511C50.445,99.511 50.259,99.325 50.259,99.098L50.259,85.47C50.259,79.482 54.005,74.341 59.328,72.33C59.559,72.243 59.811,72.384 59.869,72.623C61.987,81.233 69.128,87.898 77.99,89.315C78.188,89.348 78.337,89.517 78.337,89.72Z"/>';
+		$svg .= '</g></svg>';
 
 		return $svg;
 	}
