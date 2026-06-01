@@ -32,10 +32,16 @@
    source of truth. Visually identical to the WP admin chrome they
    were originally lifted from. */
 :root {
-	--wpgraphql-ide-text-strong: var(--wpgraphql-ide-text-strong, #2c3338);     /* primary heading / strong body text on light surfaces */
-	--wpgraphql-ide-text-muted: var(--wpgraphql-ide-text-muted, #646970);      /* secondary text, default icon color */
-	--wpgraphql-ide-surface-soft: var(--wpgraphql-ide-surface-soft, #f6f7f7);    /* subtle hover / inset surface */
-	--wpgraphql-ide-border-subtle: var(--wpgraphql-ide-border-subtle, #e0e0e0);   /* light divider / thin rule */
+	--wpgraphql-ide-text-strong: #2c3338;     /* primary heading / strong body text on light surfaces */
+	--wpgraphql-ide-text-muted: #646970;      /* secondary text, default icon color */
+	--wpgraphql-ide-surface-soft: #f6f7f7;    /* subtle hover / inset surface */
+	--wpgraphql-ide-border-subtle: #e0e0e0;   /* light divider / thin rule */
+
+	/* Single accent alias — every "this is the active color" use in
+	   the IDE resolves through here. Chain mirrors Gutenberg's
+	   `--wp-components-color-accent` definition so theming the IDE
+	   means overriding one variable. */
+	--wpgraphql-ide-accent: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
 }
 
 /* Dialog Modal — confirm/prompt replacements for window.confirm/alert. */
@@ -347,45 +353,45 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-activity-btn.components-button:hover {
-	color: var(--wp-admin-theme-color, #3858e9) !important;
+	color: var(--wpgraphql-ide-accent) !important;
 	background: var(--wpgraphql-ide-surface-soft, #f6f7f7) !important;
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active:hover {
-	color: var(--wp-admin-theme-color, #3858e9) !important;
+	color: var(--wpgraphql-ide-accent) !important;
 	background: transparent !important;
 }
 
 .wpgraphql-ide-activity-btn.components-button:focus,
 .wpgraphql-ide-activity-btn.components-button:focus-visible,
 .wpgraphql-ide-activity-btn.components-button:focus:not(:disabled) {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	background: transparent;
 	border-radius: 0;
-	box-shadow: inset 0 0 0 1.5px var(--wp-admin-theme-color, #3858e9) !important;
+	box-shadow: inset 0 0 0 1.5px var(--wpgraphql-ide-accent) !important;
 	outline: none;
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	background: transparent;
 	border-radius: 0;
-	box-shadow: inset 3px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 3px 0 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-active:focus,
 .wpgraphql-ide-activity-btn.components-button.is-active:focus-visible,
 .wpgraphql-ide-activity-btn.components-button.is-active:focus:not(:disabled) {
-	box-shadow: inset 3px 0 0 0 var(--wp-admin-theme-color, #3858e9),
-		inset 0 0 0 1.5px var(--wp-admin-theme-color, #3858e9) !important;
+	box-shadow: inset 3px 0 0 0 var(--wpgraphql-ide-accent),
+		inset 0 0 0 1.5px var(--wpgraphql-ide-accent) !important;
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-drag-before {
-	box-shadow: inset 0 2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-activity-btn.components-button.is-drag-after {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-activity-btn.components-button svg {
@@ -492,7 +498,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-document-notice-header:focus-visible {
-	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline: 2px solid var(--wpgraphql-ide-accent);
 	outline-offset: 2px;
 	border-radius: 2px;
 }
@@ -570,7 +576,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 
 .wpgraphql-ide-tab.is-active {
 	color: var(--wpgraphql-ide-text-strong, #2c3338);
-	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+	border-bottom-color: var(--wpgraphql-ide-accent);
 }
 
 /* Drag-to-reorder feedback. The dragged tab dims so it visually
@@ -581,11 +587,11 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-tab.is-drop-before {
-	box-shadow: inset 2px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 2px 0 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-tab.is-drop-after {
-	box-shadow: inset -2px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset -2px 0 0 0 var(--wpgraphql-ide-accent);
 }
 
 /* The tab is a native `<button>`, so the browser draws its default focus
@@ -600,7 +606,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-tab:focus-visible {
-	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline: 2px solid var(--wpgraphql-ide-accent);
 	outline-offset: -2px;
 }
 
@@ -818,7 +824,7 @@ input.wpgraphql-ide-tab-input {
 
 input.wpgraphql-ide-tab-input:focus {
 	outline: none;
-	box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
+	box-shadow: 0 0 0 2px var(--wpgraphql-ide-accent);
 }
 
 /* Floating execution pill — bottom-right of query editor.
@@ -893,7 +899,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-auth-avatar:focus-visible {
 	box-shadow: 0 0 0 1.5px
-		var(--wp-components-color-accent, var(--wp-admin-theme-color, #2271b1));
+		var(--wpgraphql-ide-accent);
 	outline: none;
 }
 
@@ -935,7 +941,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-execution-method-btn.components-button:focus-visible {
 	box-shadow: 0 0 0 1.5px
-		var(--wp-components-color-accent, var(--wp-admin-theme-color, #2271b1));
+		var(--wpgraphql-ide-accent);
 	outline: none;
 }
 
@@ -960,7 +966,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-save-button.components-button.is-dirty:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 /* Publish button — Gutenberg-style white on accent */
@@ -1185,7 +1191,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-smart-cache-details-summary:focus-visible {
 	outline: 2px solid var(
 		--wp-admin-theme-color,
-		var(--wp-components-color-accent, #2271b1)
+		var(--wpgraphql-ide-accent)
 	);
 	outline-offset: -2px;
 }
@@ -1312,7 +1318,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-smart-cache-ttl-progress::-webkit-progress-value {
 	background: var(
 		--wp-admin-theme-color,
-		var(--wp-components-color-accent, #2271b1)
+		var(--wpgraphql-ide-accent)
 	);
 	border-radius: 2px;
 	transition: width 0.2s ease;
@@ -1321,7 +1327,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-smart-cache-ttl-progress::-moz-progress-bar {
 	background: var(
 		--wp-admin-theme-color,
-		var(--wp-components-color-accent, #2271b1)
+		var(--wpgraphql-ide-accent)
 	);
 	border-radius: 2px;
 }
@@ -1735,19 +1741,19 @@ input.wpgraphql-ide-tab-input:focus {
    of the hovered item while dragging a sibling for reorder. Used for
    both document items and collection sections. */
 .wpgraphql-ide-document-item.is-drop-above {
-	box-shadow: inset 0 2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-document-item.is-drop-below {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-collection-section.is-drop-above {
-	box-shadow: inset 0 2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-collection-section.is-drop-below {
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-collection-header.is-reorderable {
@@ -1760,7 +1766,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-document-item.is-active {
 	background: var(--wp-components-color-gray-100, #f0f0f1);
-	box-shadow: inset 3px 0 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 3px 0 0 0 var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-document-item:hover:not(.is-active) {
@@ -1971,7 +1977,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-panel-kebab.components-button:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	background: transparent;
 }
 
@@ -2007,7 +2013,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-collection-header.is-drag-over {
 	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
-	box-shadow: inset 0 -2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
 }
 
 /* Chevron toggle */
@@ -2052,7 +2058,7 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: 12px;
 	font-weight: 600;
 	padding: 1px 4px;
-	border: 1px solid var(--wp-admin-theme-color, #3858e9);
+	border: 1px solid var(--wpgraphql-ide-accent);
 	border-radius: 2px;
 	outline: none;
 }
@@ -2303,7 +2309,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-plugin input[type="text"]:focus,
 .wpgraphql-ide-plugin input[type="number"]:focus {
-	border-color: var(--wp-admin-theme-color, #3858e9);
+	border-color: var(--wpgraphql-ide-accent);
 	box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
 	outline: none;
 }
@@ -2321,7 +2327,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-plugin select:focus {
-	border-color: var(--wp-admin-theme-color, #3858e9);
+	border-color: var(--wpgraphql-ide-accent);
 	box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
 	outline: none;
 }
@@ -2351,7 +2357,7 @@ input.wpgraphql-ide-tab-input:focus {
 	margin: 0 4px 0 0;
 	flex-shrink: 0;
 	border-radius: 0;
-	accent-color: var(--wp-admin-theme-color, #3858e9);
+	accent-color: var(--wpgraphql-ide-accent);
 	cursor: pointer;
 }
 
@@ -2440,7 +2446,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-share-collection-result-add {
 	margin-left: auto;
-	fill: var(--wp-admin-theme-color, #2271b1);
+	fill: var(--wpgraphql-ide-accent);
 }
 
 /* Shared-with section — chips for users who currently have access. */
@@ -2712,7 +2718,7 @@ input.wpgraphql-ide-tab-input:focus {
 	background: rgba(0, 0, 0, 0.04);
 }
 .wpgraphql-ide-tab-collapse-btn:focus-visible {
-	outline: 1.5px solid var(--wp-admin-theme-color, #3858e9);
+	outline: 1.5px solid var(--wpgraphql-ide-accent);
 	outline-offset: -2px;
 }
 
@@ -2754,7 +2760,7 @@ input.wpgraphql-ide-tab-input:focus {
 	font-weight: 600;
 }
 .wpgraphql-ide-tab-collapsed-tab:focus-visible {
-	outline: 1.5px solid var(--wp-admin-theme-color, #3858e9);
+	outline: 1.5px solid var(--wpgraphql-ide-accent);
 	outline-offset: -2px;
 }
 
@@ -2776,7 +2782,7 @@ input.wpgraphql-ide-tab-input:focus {
 	background: rgba(0, 0, 0, 0.04);
 }
 .wpgraphql-ide-tab-collapsed-chevron:focus-visible {
-	outline: 1.5px solid var(--wp-admin-theme-color, #3858e9);
+	outline: 1.5px solid var(--wpgraphql-ide-accent);
 	outline-offset: -2px;
 }
 
@@ -3139,7 +3145,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button:focus-visible {
 	box-shadow: inset 0 0 0 1.5px
-		var(--wp-components-color-accent, var(--wp-admin-theme-color, #2271b1));
+		var(--wpgraphql-ide-accent);
 	outline: none;
 }
 
@@ -3214,7 +3220,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-debug-stack-toggle:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-debug-stack-chevron {
@@ -3273,7 +3279,7 @@ input.wpgraphql-ide-tab-input:focus {
 	--wpgraphql-ide-tracing-row-rule: var(--wp-components-color-gray-100, #f0f0f1);
 	--wpgraphql-ide-tracing-accent: var(
 		--wp-components-color-accent,
-		var(--wp-admin-theme-color, #2271b1)
+		var(--wpgraphql-ide-accent)
 	);
 	--wpgraphql-ide-tracing-accent-soft: color-mix(
 		in srgb,
@@ -3697,7 +3703,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-querylog-stack-toggle:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-querylog-stack-chevron {
@@ -3895,7 +3901,7 @@ input.wpgraphql-ide-tab-input:focus {
 	border: none;
 	background: none;
 	padding: 2px 4px;
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	cursor: pointer;
 	font-size: 12px;
 	border-radius: 2px;
@@ -3977,7 +3983,7 @@ input.wpgraphql-ide-tab-input:focus {
 	border-radius: 2px;
 	font-family: monospace;
 	font-size: 11px;
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	cursor: pointer;
 }
 
@@ -4278,7 +4284,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .cm-tooltip-autocomplete > ul > li[aria-selected] {
-	background: var(--wp-admin-theme-color, #3858e9);
+	background: var(--wpgraphql-ide-accent);
 	color: var(--wp-components-color-background, #fff);
 }
 
@@ -4397,7 +4403,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-help-card-link {
 	font-size: 12px;
 	font-weight: 500;
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	text-decoration: none;
 }
 
@@ -4433,7 +4439,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-docs-back.components-button:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 /* Sticky header for the type detail view — pins Back + name + description
@@ -4658,7 +4664,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
    user can find it inside a long fields list, plus a gentle pulse on entry. */
 .wpgraphql-ide-docs-field.is-focused {
 	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
-	box-shadow: inset 3px 0 0 var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 3px 0 0 var(--wpgraphql-ide-accent);
 	animation: wpgraphql-ide-docs-field-pulse 1.2s ease-out;
 }
 
@@ -4706,7 +4712,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-docs-args-toggle:hover {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-docs-args-chevron {
@@ -5028,7 +5034,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-settings-nav-item.is-active {
 	background: var(--wp-components-color-background, #fff);
-	border-left-color: var(--wp-admin-theme-color, #007cba);
+	border-left-color: var(--wpgraphql-ide-accent);
 	color: var(--wp-components-color-foreground, #1e1e1e);
 	font-weight: 600;
 }
@@ -5158,7 +5164,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-setting input[type='number']:focus,
 .wpgraphql-ide-setting select:focus,
 .wpgraphql-ide-setting textarea:focus {
-	outline: 2px solid var(--wp-admin-theme-color, #007cba);
+	outline: 2px solid var(--wpgraphql-ide-accent);
 	outline-offset: -1px;
 	border-color: transparent;
 }
@@ -5193,7 +5199,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-setting-desc a {
-	color: var(--wp-admin-theme-color, #007cba);
+	color: var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-setting-unsupported {
@@ -5466,7 +5472,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-cache-inspector-help-toggle:hover,
 .wpgraphql-ide-cache-inspector-help-toggle:focus-visible {
-	color: var(--wp-admin-theme-color, #2271b1);
+	color: var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-cache-inspector-help-body {
@@ -5592,7 +5598,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-sort:focus-visible {
 	color: var(
 		--wp-admin-theme-color,
-		var(--wp-components-color-accent, #2271b1)
+		var(--wpgraphql-ide-accent)
 	);
 }
 
@@ -5607,7 +5613,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	.wpgraphql-ide-cache-inspector-sort-indicator,
 .wpgraphql-ide-cache-inspector-table th[aria-sort='descending']
 	.wpgraphql-ide-cache-inspector-sort-indicator {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 /* Row hover + selection + tabular numerics. */
@@ -5643,7 +5649,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-cache-inspector-type--response {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 	border: 1px solid currentColor;
 	background: transparent;
 }
@@ -5671,7 +5677,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-cache-inspector-expand:hover,
 .wpgraphql-ide-cache-inspector-expand:focus-visible {
-	color: var(--wp-admin-theme-color, #2271b1);
+	color: var(--wpgraphql-ide-accent);
 	background: rgba(0, 0, 0, 0.04);
 }
 
@@ -5741,7 +5747,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-cache-inspector-tracker-status.is-live {
-	color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wpgraphql-ide-accent);
 }
 
 .wpgraphql-ide-cache-inspector-tracker-status.is-gone {
@@ -5781,7 +5787,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	border-radius: 2px;
 	background: var(
 		--wp-admin-theme-color,
-		var(--wp-components-color-accent, #3858e9)
+		var(--wpgraphql-ide-accent)
 	);
 }
 
@@ -5882,12 +5888,12 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
    uses left/right edge accents because the tab strip is horizontal. */
 .components-tab-panel__tabs-item.is-drag-left {
 	box-shadow: inset 2px 0 0 0
-		var(--wp-admin-theme-color, #3858e9);
+		var(--wpgraphql-ide-accent);
 }
 
 .components-tab-panel__tabs-item.is-drag-right {
 	box-shadow: inset -2px 0 0 0
-		var(--wp-admin-theme-color, #3858e9);
+		var(--wpgraphql-ide-accent);
 }
 
 /* A subtle grab cursor on the response tabs so the affordance is
