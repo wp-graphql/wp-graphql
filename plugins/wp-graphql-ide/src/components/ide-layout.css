@@ -739,7 +739,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	width: 6px;
 	height: 6px;
 	border-radius: var(--wpgraphql-ide-radius-full, 50%);
-	background: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wpgraphql-ide-accent);
 	flex-shrink: 0;
 }
 
