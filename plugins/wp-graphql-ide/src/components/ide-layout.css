@@ -65,6 +65,18 @@
 	--wpgraphql-ide-radius-full: 50%;
 }
 
+/* Spacing scale. Pixel-named for one-to-one mapping. Currently driving
+   the `gap` axis but intentionally property-neutral so future passes
+   can route padding / margin / inset through the same tokens. */
+:root {
+	--wpgraphql-ide-space-2: 2px;
+	--wpgraphql-ide-space-4: 4px;
+	--wpgraphql-ide-space-6: 6px;
+	--wpgraphql-ide-space-8: 8px;
+	--wpgraphql-ide-space-12: 12px;
+	--wpgraphql-ide-space-16: 16px;
+}
+
 /* Dialog Modal — confirm/prompt replacements for window.confirm/alert. */
 .wpgraphql-ide-dialog .components-modal__content {
 	min-width: 360px;
@@ -89,7 +101,7 @@
 .wpgraphql-ide-dialog-actions {
 	display: flex;
 	justify-content: flex-end;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	margin-top: 16px;
 }
 
@@ -104,7 +116,7 @@
 .wpgraphql-ide-save-dialog-fields {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 }
 
 /* SaveDialog collections picker. Sitewide and personal collections share
@@ -114,7 +126,7 @@
 .wpgraphql-ide-save-dialog-section {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-save-dialog-section-label {
@@ -152,13 +164,13 @@
 .wpgraphql-ide-save-dialog-row-label {
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-save-dialog-row-scope {
 	display: inline-flex;
 	align-items: center;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 	padding: 1px 6px;
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	font-weight: 500;
@@ -181,7 +193,7 @@
 .wpgraphql-ide-export-list {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	max-height: 50vh;
 	overflow-y: auto;
 	padding: 4px 0;
@@ -190,7 +202,7 @@
 .wpgraphql-ide-share-toggles {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: var(--wpgraphql-ide-space-12, 12px);
 	margin-bottom: 20px;
 }
 
@@ -198,7 +210,7 @@
 	display: flex;
 	align-items: flex-end;
 	justify-content: space-between;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 	margin-top: 8px;
 	padding-top: 12px;
 	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
@@ -287,7 +299,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-topbar-right {
 	display: flex;
 	align-items: center;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 }
 
 .wpgraphql-ide-topbar-center {
@@ -354,7 +366,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 	padding: 8px 4px;
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 	border-right: 1px solid var(--wp-components-color-gray-200, #dcdcde);
@@ -442,7 +454,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	height: 100%;
 	width: 100%;
 	text-align: center;
-	gap: 12px;
+	gap: var(--wpgraphql-ide-space-12, 12px);
 	padding: 32px;
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 }
@@ -514,7 +526,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-document-notice-header {
 	display: flex;
 	align-items: flex-start;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	cursor: pointer;
 }
 
@@ -575,7 +587,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-tab {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 8px 10px;
 	border: none;
 	border-bottom: 2px solid transparent;
@@ -682,7 +694,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 .wpgraphql-ide-tab-label {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -864,7 +876,7 @@ input.wpgraphql-ide-tab-input:focus {
 	right: 12px;
 	display: flex;
 	align-items: center;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 	padding: 4px;
 	background: rgba(255, 255, 255, 0.96);
 	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
@@ -952,7 +964,7 @@ input.wpgraphql-ide-tab-input:focus {
 	border: none;
 	border-radius: 9999px;
 	box-shadow: none;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 }
 
 .wpgraphql-ide-execution-method-btn.components-button:hover {
@@ -1017,7 +1029,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-smart-cache-status {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	padding: 10px 12px;
 	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
 	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
@@ -1071,8 +1083,8 @@ input.wpgraphql-ide-tab-input:focus {
 	margin: 0;
 	display: grid;
 	grid-template-columns: max-content 1fr;
-	column-gap: 16px;
-	row-gap: 8px;
+	column-gap: var(--wpgraphql-ide-space-16, 16px);
+	row-gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-smart-cache-meta dt {
@@ -1088,14 +1100,14 @@ input.wpgraphql-ide-tab-input:focus {
 	word-break: break-all;
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	flex-wrap: wrap;
 }
 
 .wpgraphql-ide-smart-cache-key-row {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	flex-wrap: wrap;
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	word-break: break-all;
@@ -1126,7 +1138,7 @@ input.wpgraphql-ide-tab-input:focus {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	color: var(--wp-components-color-gray-700, #50575e);
 }
@@ -1176,7 +1188,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-smart-cache-details-summary {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	padding: 10px 4px;
 	cursor: pointer;
 	list-style: none;
@@ -1228,7 +1240,7 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	min-width: 0;
 }
 
@@ -1257,13 +1269,13 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-smart-cache-network .wpgraphql-ide-smart-cache-details-body {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 .wpgraphql-ide-smart-cache-policy-row {
 	display: flex;
 	align-items: baseline;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-smart-cache-policy-label {
@@ -1294,8 +1306,8 @@ input.wpgraphql-ide-tab-input:focus {
 	margin: 16px 0 0;
 	display: grid;
 	grid-template-columns: max-content 1fr;
-	column-gap: 16px;
-	row-gap: 8px;
+	column-gap: var(--wpgraphql-ide-space-16, 16px);
+	row-gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-smart-cache-ttl dt {
@@ -1392,7 +1404,7 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 0;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 .wpgraphql-ide-smart-cache-purge-map-list code {
@@ -1423,7 +1435,7 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-smart-cache-checklist-item {
@@ -1529,7 +1541,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip-wrap {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	width: 100%;
 }
 
@@ -1968,7 +1980,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-saved-queries-search {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 6px 8px 6px 12px;
 	flex-shrink: 0;
 }
@@ -2069,7 +2081,7 @@ input.wpgraphql-ide-tab-input:focus {
 	white-space: nowrap;
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 /* Rename input */
@@ -2192,7 +2204,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-editor-toolbar {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 4px 8px 4px 12px;
 	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 	flex-shrink: 0;
@@ -2413,7 +2425,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-share-collection-status {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	color: var(--wp-components-color-gray-700, #50575e);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 }
@@ -2439,7 +2451,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-share-collection-result {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	width: 100%;
 	padding: 8px 12px;
 	background: transparent;
@@ -2493,13 +2505,13 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 0;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-share-collection-chip {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 2px 4px 2px 10px;
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 	border-radius: 12px;
@@ -2922,7 +2934,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-response-meta {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	margin-left: auto;
 }
 
@@ -3030,7 +3042,7 @@ input.wpgraphql-ide-tab-input:focus {
 /* View mode toggle (JSON | Table) */
 .wpgraphql-ide-response-mode-toggle {
 	display: flex;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 }
 
 .wpgraphql-ide-response-header .wpgraphql-ide-response-meta + .wpgraphql-ide-response-mode-toggle {
@@ -3204,7 +3216,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-debug-entry-header {
 	display: flex;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	align-items: baseline;
 }
 
@@ -3230,7 +3242,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-debug-stack-toggle {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	margin-top: 6px;
 	padding: 0;
 	border: none;
@@ -3311,7 +3323,7 @@ input.wpgraphql-ide-tab-input:focus {
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: var(--wpgraphql-ide-space-12, 12px);
 }
 
 /* Reset code-element styling inherited from wp-admin / wp-components so
@@ -3338,7 +3350,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-querylog-summary > div {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 }
 
 .wpgraphql-ide-querylog-label {
@@ -3359,7 +3371,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-tracing-verdict {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 12px 14px;
 	background: var(--wpgraphql-ide-tracing-bg);
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -3380,7 +3392,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-tracing-verdict-headline {
 	display: flex;
 	align-items: baseline;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	flex-wrap: wrap;
 }
 
@@ -3428,7 +3440,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-tracing-controls {
 	display: flex;
 	align-items: center;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 	flex-wrap: wrap;
 	font-size: var(--wpgraphql-ide-text-12, 12px);
 	color: var(--wpgraphql-ide-tracing-muted);
@@ -3437,7 +3449,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-tracing-controls > label {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-tracing-trivial-toggle {
@@ -3650,7 +3662,7 @@ input.wpgraphql-ide-tab-input:focus {
 	}
 
 	.wpgraphql-ide-tracing-verdict-headline {
-		gap: 6px;
+		gap: var(--wpgraphql-ide-space-6, 6px);
 	}
 }
 
@@ -3713,7 +3725,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-querylog-stack-toggle {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	margin-top: 6px;
 	padding: 0;
 	border: none;
@@ -3819,7 +3831,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-error-meta {
 	display: flex;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	margin-top: 4px;
 	flex-wrap: wrap;
 }
@@ -3840,7 +3852,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-error-details-toggle {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	margin-top: 6px;
 	padding: 0;
 	border: none;
@@ -3914,7 +3926,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-table-breadcrumb {
 	display: flex;
 	align-items: center;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 	font-size: var(--wpgraphql-ide-text-12, 12px);
 }
 
@@ -3964,7 +3976,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-data-table-sort {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	border: none;
 	background: none;
 	padding: 0;
@@ -4015,7 +4027,7 @@ input.wpgraphql-ide-tab-input:focus {
 /* Tree view (objects in table mode) */
 .wpgraphql-ide-tree-row {
 	display: flex;
-	gap: 12px;
+	gap: var(--wpgraphql-ide-space-12, 12px);
 	padding: 3px 0;
 	font-size: var(--wpgraphql-ide-text-12, 12px);
 }
@@ -4451,7 +4463,7 @@ input.wpgraphql-ide-tab-input:focus {
 /* Back button */
 .wpgraphql-ide-docs-back.components-button {
 	margin-bottom: 8px;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 	font-size: var(--wpgraphql-ide-text-12, 12px);
 	color: var(--wpgraphql-ide-text-muted, #646970);
 	padding: 0;
@@ -4556,7 +4568,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	align-items: baseline;
 	justify-content: space-between;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	width: 100%;
 	padding: 6px 8px;
 	border: none;
@@ -4603,7 +4615,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-docs-type-entry {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	padding: 8px;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
 	cursor: pointer;
@@ -4701,7 +4713,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-docs-field-header {
 	display: flex;
 	align-items: baseline;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	flex-wrap: wrap;
 }
 
@@ -4722,7 +4734,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-docs-args-toggle {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	margin-top: 4px;
 	padding: 0;
 	border: none;
@@ -4757,7 +4769,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-docs-arg {
 	display: flex;
 	align-items: baseline;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	padding: 2px 0;
 }
 
@@ -4806,7 +4818,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	padding: 24px 20px;
 	text-align: center;
 	color: var(--wp-components-color-gray-700, #50575e);
@@ -4822,7 +4834,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	padding: 32px 24px;
 	text-align: center;
 	color: var(--wp-components-color-gray-700, #50575e);
@@ -4905,7 +4917,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-history-entry-header {
 	display: flex;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	align-items: center;
 	flex-wrap: wrap;
 }
@@ -5071,7 +5083,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 	margin-bottom: 24px;
 }
 
@@ -5083,7 +5095,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-settings-pane-actions {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	flex-shrink: 0;
 }
 
@@ -5111,7 +5123,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-settings-field {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 .wpgraphql-ide-setting--divider {
@@ -5154,7 +5166,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-setting {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-setting-label {
@@ -5199,7 +5211,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-setting-radio {
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 	color: var(--wp-components-color-foreground, #1e1e1e);
 	cursor: pointer;
@@ -5209,7 +5221,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-setting-multicheck {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-setting-desc {
@@ -5274,7 +5286,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	width: 100%;
 	padding: 16px 20px;
 	box-sizing: border-box;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 }
 
 .wpgraphql-ide-doc-settings-empty {
@@ -5286,7 +5298,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-doc-setting {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 .wpgraphql-ide-doc-setting-label {
@@ -5314,7 +5326,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-doc-setting-tag-list {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 4px;
 	border: 1px solid #ccc;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -5329,7 +5341,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-doc-setting-tag {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	padding: 2px 6px;
 	background: #e5f1f8;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -5363,13 +5375,13 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-doc-setting-radio-group {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-doc-setting-radio-option {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 	cursor: pointer;
 }
@@ -5383,7 +5395,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	padding: 16px 24px;
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 	color: var(--wp-components-color-foreground, #1e1e1e);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 }
@@ -5391,7 +5403,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector--loading {
 	flex-direction: row;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	color: var(--wp-components-color-gray-700, #50575e);
 }
 
@@ -5399,7 +5411,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 	flex-wrap: wrap;
 }
 
@@ -5416,7 +5428,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-header-actions {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-cache-inspector-empty {
@@ -5479,7 +5491,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	width: 100%;
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 	background: transparent;
 	border: none;
 	padding: 8px 12px;
@@ -5540,14 +5552,14 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
+	gap: var(--wpgraphql-ide-space-16, 16px);
 	flex-wrap: wrap;
 }
 
 .wpgraphql-ide-cache-inspector-stat-primary {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
 	min-width: 0;
 }
 
@@ -5555,7 +5567,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	.wpgraphql-ide-cache-inspector-stat-primary {
 	flex-direction: row;
 	align-items: center;
-	gap: 12px;
+	gap: var(--wpgraphql-ide-space-12, 12px);
 }
 
 .wpgraphql-ide-cache-inspector-stat-value {
@@ -5576,7 +5588,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-stat-actions {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 	flex-shrink: 0;
 }
 
@@ -5587,7 +5599,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-filters {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-cache-inspector-filter-search {
@@ -5606,7 +5618,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	color: inherit;
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 	font-weight: 600;
 }
 
@@ -5655,7 +5667,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-key-cell {
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--wpgraphql-ide-space-8, 8px);
 }
 
 .wpgraphql-ide-cache-inspector-type {
@@ -5725,7 +5737,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-tracker-loading {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: var(--wpgraphql-ide-space-6, 6px);
 }
 
 .wpgraphql-ide-cache-inspector-tracker-empty,
@@ -5743,7 +5755,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	list-style: none;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 .wpgraphql-ide-cache-inspector-tracker-members li {
@@ -5782,7 +5794,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	gap: 4px;
+	gap: var(--wpgraphql-ide-space-4, 4px);
 }
 
 /* Custom div-based bar (replaces native <progress>) so the value
