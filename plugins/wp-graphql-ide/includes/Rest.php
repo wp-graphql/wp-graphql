@@ -68,27 +68,6 @@ class Rest {
 				'permission_callback' => 'wpgraphql_ide_user_can',
 			]
 		);
-
-		// Per-user admin color scheme write. Mirrors `user-edit.php`:
-		// writes the slug to `admin_color` user meta, which `get_user_option`
-		// reads on every admin pageload to enqueue the right colors.css.
-		// Used by the Color Theme section of the IDE Settings tab.
-		register_rest_route(
-			'wpgraphql-ide/v1',
-			'/admin-color',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ self::class, 'update_admin_color' ],
-				'permission_callback' => 'is_user_logged_in',
-				'args'                => [
-					'scheme' => [
-						'type'              => 'string',
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_key',
-					],
-				],
-			]
-		);
 	}
 
 	/**
@@ -181,47 +160,6 @@ class Rest {
 		$ids = array_values( array_filter( array_map( 'intval', $order ) ) );
 		update_user_meta( get_current_user_id(), 'wpgraphql_ide_collection_order', $ids );
 		return rest_ensure_response( [ 'ok' => true ] );
-	}
-
-	/**
-	 * Persist the current user's admin color scheme. The available schemes
-	 * are registered by core via `register_admin_color_schemes()`, which
-	 * hooks `admin_init` and therefore doesn't fire on REST requests; we
-	 * force-load `wp-admin/includes/misc.php` so the validation table is
-	 * populated. Mirrors what the user-profile picker writes.
-	 *
-	 * @param \WP_REST_Request $request REST request.
-	 * @return \WP_REST_Response|\WP_Error
-	 */
-	public static function update_admin_color( \WP_REST_Request $request ) {
-		$scheme = (string) $request->get_param( 'scheme' );
-
-		if ( '' === $scheme ) {
-			return new \WP_Error(
-				'invalid_payload',
-				__( 'A color scheme slug is required.', 'wpgraphql-ide' ),
-				[ 'status' => 400 ]
-			);
-		}
-
-		if ( ! function_exists( 'register_admin_color_schemes' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/misc.php';
-		}
-		if ( function_exists( 'register_admin_color_schemes' ) ) {
-			register_admin_color_schemes();
-		}
-
-		global $_wp_admin_css_colors;
-		if ( is_array( $_wp_admin_css_colors ) && ! isset( $_wp_admin_css_colors[ $scheme ] ) ) {
-			return new \WP_Error(
-				'unknown_scheme',
-				__( 'Unknown color scheme.', 'wpgraphql-ide' ),
-				[ 'status' => 400 ]
-			);
-		}
-
-		update_user_meta( get_current_user_id(), 'admin_color', $scheme );
-		return rest_ensure_response( [ 'scheme' => $scheme ] );
 	}
 
 }

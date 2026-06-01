@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { SettingsField } from './SettingsField';
-import { ColorThemeSection } from './ColorThemeSection';
 import {
 	PREFERENCE_KEYS,
 	readDevicePreference,
@@ -18,12 +17,6 @@ import {
 	saveAllSettings,
 	subscribeSettingsSaved,
 } from './settings-tab-state';
-
-// Slug of the PHP-registered section that hosts the IDE's own settings
-// — admin-bar link behavior, public endpoint toggle, legacy editor.
-// We append the per-user color-theme picker at the bottom of this
-// section so all IDE-specific knobs live in one place.
-const IDE_SETTINGS_SECTION = 'graphql_ide_settings';
 
 export function SettingsWorkspaceTab() {
 	const sections = useMemo(() => {
@@ -124,10 +117,6 @@ export function SettingsWorkspaceTab() {
 		() => sections.find((s) => s.slug === activeSlug) || sections[0],
 		[sections, activeSlug]
 	);
-	const showColorTheme =
-		activeSection?.slug === IDE_SETTINGS_SECTION &&
-		Object.keys(window.WPGRAPHQL_IDE_DATA?.adminColor?.schemes || {})
-			.length > 0;
 
 	if (sections.length === 0) {
 		return (
@@ -217,7 +206,6 @@ export function SettingsWorkspaceTab() {
 								);
 							})}
 						</div>
-						{showColorTheme && <ColorThemeSection />}
 					</>
 				)}
 			</div>
