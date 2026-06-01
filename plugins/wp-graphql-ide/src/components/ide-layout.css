@@ -280,7 +280,7 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 }
 
 .wpgraphql-ide-container *::-webkit-scrollbar-thumb:hover {
-	background: #a7aaad;
+	background: var(--wp-components-color-gray-400, #a7aaad);
 }
 
 .wpgraphql-ide-container * {
@@ -990,7 +990,7 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	height: 28px;
 	padding: 0 10px;
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	border: none;
 	background: none;
 }
@@ -1872,7 +1872,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-editor.is-readonly .cm-gutters {
 	background: var(--wp-components-color-gray-100, #f0f0f1);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 }
 
 .wpgraphql-ide-editor.is-readonly .cm-activeLine,
@@ -2140,7 +2140,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-collection-empty {
 	padding: 4px 0;
 	margin: 0;
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	font-size: var(--wpgraphql-ide-text-12, 12px);
 	font-style: italic;
 }
@@ -2171,7 +2171,7 @@ input.wpgraphql-ide-tab-input:focus {
 	justify-content: center;
 	padding: 32px 16px;
 	text-align: center;
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 }
 
@@ -3061,7 +3061,7 @@ input.wpgraphql-ide-tab-input:focus {
 	border: none;
 	background: none;
 	font-size: var(--wpgraphql-ide-text-11, 11px);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	cursor: pointer;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
 }
@@ -3954,7 +3954,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-table-crumb-sep {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 }
 
 .wpgraphql-ide-data-table {
@@ -3999,13 +3999,13 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-table-index-col,
 .wpgraphql-ide-table-index {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	width: 32px;
 }
 
 .wpgraphql-ide-table-cell-null {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 }
 
 .wpgraphql-ide-table-cell-bool {
@@ -4142,7 +4142,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-editor .cm-gutters {
 	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
 	border-right: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 }
 
 .wpgraphql-ide-editor .cm-activeLineGutter {
@@ -4187,7 +4187,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* Placeholder text */
 .wpgraphql-ide-editor .cm-placeholder {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	font-style: italic;
 }
 
@@ -4383,7 +4383,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* Fold markers */
 .wpgraphql-ide-editor .cm-foldGutter span {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 }
 
 .wpgraphql-ide-editor .cm-foldGutter span:hover {
@@ -4656,7 +4656,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-docs-type-kind {
 	margin-left: auto;
 	font-size: var(--wpgraphql-ide-text-11, 11px);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	text-transform: lowercase;
 }
 
@@ -4851,7 +4851,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-inline-signin-icon {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	margin-bottom: 4px;
 }
 
@@ -4869,7 +4869,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-history-empty-icon {
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	margin-bottom: 4px;
 }
 
@@ -4979,14 +4979,14 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-history-entry-time {
 	font-size: var(--wpgraphql-ide-text-11, 11px);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	white-space: nowrap;
 }
 
 .wpgraphql-ide-history-entry-id {
 	margin-left: auto;
 	font-size: var(--wpgraphql-ide-text-10, 10px);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	font-family: Menlo, Consolas, Monaco, monospace;
 	opacity: 0;
 	transition: opacity 0.15s;
@@ -5011,7 +5011,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-history-entry-preview {
 	font-size: var(--wpgraphql-ide-text-10, 10px);
-	color: #a7aaad;
+	color: var(--wp-components-color-gray-400, #a7aaad);
 	font-family: Menlo, Consolas, Monaco, monospace;
 	white-space: nowrap;
 	overflow: hidden;
