@@ -288,23 +288,13 @@ export async function saveAllSettings() {
 			'wpgraphql-ide.notice',
 			__('Settings saved', 'wpgraphql-ide')
 		);
-
-		// Some IDE settings live in WP chrome that's painted at request
-		// time (the legacy-editor submenu, the admin-bar IDE link), so
-		// the new value never lands until the next pageload. When any of
-		// those changed, reload after a beat so the user sees the saved
-		// notice first. The IDE auto-saves draft tabs, so reloading
-		// doesn't drop in-flight editor content.
-		const CHROME_FIELDS = new Set([
-			'graphql_ide_settings.graphql_ide_show_legacy_editor',
-			'graphql_ide_settings.graphql_ide_link_behavior',
-		]);
-		const chromeChanged = changes.some(({ sectionSlug, field }) =>
-			CHROME_FIELDS.has(`${sectionSlug}.${field.name}`)
-		);
-		if (chromeChanged) {
-			setTimeout(() => window.location.reload(), 600);
-		}
+		// Note: a couple of these fields (`graphql_ide_show_legacy_editor`,
+		// `graphql_ide_link_behavior`) drive WP admin chrome that's
+		// painted server-side at request time, so the visible change
+		// only lands on the next pageload. We don't auto-reload — the
+		// reload would drop the user onto whatever workspace tab loads
+		// first, not the IDE settings tab they were saving from, which
+		// is a worse UX than waiting for the next natural navigation.
 	} else {
 		const first = failures[0];
 		hooks.doAction(
