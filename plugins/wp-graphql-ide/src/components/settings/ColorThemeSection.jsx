@@ -65,24 +65,88 @@ export function ColorThemeSection() {
 		<div className="wpgraphql-ide-settings-fields">
 			<div className="wpgraphql-ide-settings-field">
 				<div className="wpgraphql-ide-setting">
-					<label
-						htmlFor="wpgraphql-ide-admin-color"
-						className="wpgraphql-ide-setting-label"
-					>
+					<span className="wpgraphql-ide-setting-label">
 						{__('Admin Color Scheme', 'wpgraphql-ide')}
-					</label>
-					<select
-						id="wpgraphql-ide-admin-color"
-						value={active}
-						disabled={busy}
-						onChange={(e) => apply(e.target.value)}
-					>
-						{schemes.map((scheme) => (
-							<option key={scheme.slug} value={scheme.slug}>
-								{scheme.name}
-							</option>
-						))}
-					</select>
+					</span>
+					{/*
+					 * `<fieldset class="color-options">` + `<div class="color-option">`
+					 * is the same DOM the WP user-profile picker uses, so the picker
+					 * inherits `wp-admin/css/common.css`'s color-option styling without
+					 * any sub-plugin styles of our own — palette swatches included.
+					 */}
+					<fieldset className="color-options">
+						<legend className="screen-reader-text">
+							{__('Admin Color Scheme', 'wpgraphql-ide')}
+						</legend>
+						{schemes.map((scheme) => {
+							const isActive = active === scheme.slug;
+							const inputId = `wpgraphql-ide-admin-color-${scheme.slug}`;
+							const handleSelect = () => {
+								if (busy) {
+									return;
+								}
+								apply(scheme.slug);
+							};
+							return (
+								// `wp-admin/js/user-profile.js` wires the same
+								// click-anywhere-on-card behavior on profile.php;
+								// mirror it here so the swatches and the radio
+								// share one hit box. Keyboard accessibility
+								// flows through the radio input below — Tab
+								// reaches it, Space toggles it, no extra ARIA
+								// machinery on the wrapper needed.
+								/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
+								<div
+									key={scheme.slug}
+									className={`color-option${
+										isActive ? ' selected' : ''
+									}`}
+									onClick={handleSelect}
+									style={{ cursor: 'pointer' }}
+								>
+									<input
+										name="wpgraphql-ide-admin-color"
+										id={inputId}
+										type="radio"
+										value={scheme.slug}
+										className="tog"
+										checked={isActive}
+										disabled={busy}
+										onChange={handleSelect}
+										onClick={(e) => e.stopPropagation()}
+									/>
+									{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
+									<label
+										htmlFor={inputId}
+										onClick={(e) => e.stopPropagation()}
+									>
+										{scheme.name}
+									</label>
+									<table className="color-palette">
+										<tbody>
+											<tr>
+												{(scheme.palette.length
+													? scheme.palette
+													: ['#1d2327']
+												).map((hex, idx) => (
+													<td
+														// eslint-disable-next-line react/no-array-index-key
+														key={idx}
+														style={{
+															backgroundColor:
+																hex,
+														}}
+													>
+														&nbsp;
+													</td>
+												))}
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							);
+						})}
+					</fieldset>
 					<p className="wpgraphql-ide-setting-desc">
 						{__(
 							'Preview the IDE in any registered WordPress admin color scheme. Saved to your user profile.',
