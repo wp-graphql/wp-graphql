@@ -45,10 +45,10 @@ export function ColorThemeSwitcher() {
 
 		// 1. Live preview — swap the colors stylesheet and the
 		//    `admin-color-<slug>` body class for any rules scoped to it.
-		const linkEl = document.getElementById('colors-css');
-		if (linkEl && scheme.url) {
-			linkEl.href = scheme.url;
-		}
+		//    Fresh has no separate `colors.css` (it IS the base styles),
+		//    so handle two edge cases: switching TO Fresh removes the
+		//    link, switching FROM Fresh has to create one.
+		applyColorsLink(scheme.url);
 		const body = document.body;
 		const colorClass = Array.from(body.classList).find((c) =>
 			c.startsWith('admin-color-')
@@ -72,9 +72,7 @@ export function ColorThemeSwitcher() {
 		} catch (err) {
 			// 3. Roll back to whatever was actually saved.
 			const previous = bootstrap.schemes?.[previousSlug];
-			if (linkEl && previous?.url) {
-				linkEl.href = previous.url;
-			}
+			applyColorsLink(previous?.url || '');
 			body.classList.remove(`admin-color-${slug}`);
 			body.classList.add(`admin-color-${previousSlug}`);
 			setActiveSlug(previousSlug);
@@ -196,6 +194,37 @@ export function ColorThemeSwitcher() {
 			</fieldset>
 		</div>
 	);
+}
+
+/**
+ * Update the active admin colors stylesheet to the given URL. Handles
+ * three transitions:
+ *
+ *   • scheme-with-url → scheme-with-url: swap the existing link's href.
+ *   • Fresh → scheme-with-url: Fresh ships no `colors.css`, so the
+ *     `<link id="colors-css">` element doesn't exist; create it.
+ *   • scheme-with-url → Fresh: Fresh has no URL, so remove the link
+ *     entirely and let the base wp-admin stylesheet take over.
+ *
+ * @param {string} url The new stylesheet URL, or an empty string for
+ *                     schemes (Fresh) that have no separate file.
+ */
+function applyColorsLink(url) {
+	let linkEl = document.getElementById('colors-css');
+
+	if (url) {
+		if (!linkEl) {
+			linkEl = document.createElement('link');
+			linkEl.id = 'colors-css';
+			linkEl.rel = 'stylesheet';
+			linkEl.type = 'text/css';
+			linkEl.media = 'all';
+			document.head.appendChild(linkEl);
+		}
+		linkEl.href = url;
+	} else if (linkEl && linkEl.parentNode) {
+		linkEl.parentNode.removeChild(linkEl);
+	}
 }
 
 /*
