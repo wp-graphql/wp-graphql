@@ -928,7 +928,7 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 0 8px 0 16px;
 	color: var(--wp-components-color-gray-700, #50575e);
 	background: transparent;
-	border: 0;
+	border: none;
 	border-radius: 9999px;
 	box-shadow: none;
 	gap: 2px;
@@ -999,7 +999,7 @@ input.wpgraphql-ide-tab-input:focus {
 	gap: 8px;
 	padding: 10px 12px;
 	border-radius: 4px;
-	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 }
 
@@ -1122,7 +1122,7 @@ input.wpgraphql-ide-tab-input:focus {
 	border-radius: 999px;
 	font-weight: 500;
 	font-size: 11px;
-	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 }
 
@@ -1145,11 +1145,11 @@ input.wpgraphql-ide-tab-input:focus {
    <details> element; the section-root class (e.g. .wpgraphql-ide-smart
    -cache-policy) is co-applied for selector compatibility. */
 .wpgraphql-ide-smart-cache-details {
-	border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 }
 
 .wpgraphql-ide-smart-cache-details:last-of-type {
-	border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 }
 
 .wpgraphql-ide-smart-cache-details-summary {
@@ -1304,14 +1304,14 @@ input.wpgraphql-ide-tab-input:focus {
 	margin-top: 8px;
 	-webkit-appearance: none;
 	appearance: none;
-	border: 0;
+	border: none;
 	border-radius: 2px;
 	overflow: hidden;
-	background: var(--wp-components-color-gray-200, #e0e0e0);
+	background: var(--wp-components-color-gray-200, #dcdcde);
 }
 
 .wpgraphql-ide-smart-cache-ttl-progress::-webkit-progress-bar {
-	background: var(--wp-components-color-gray-200, #e0e0e0);
+	background: var(--wp-components-color-gray-200, #dcdcde);
 	border-radius: 2px;
 }
 
@@ -1411,7 +1411,7 @@ input.wpgraphql-ide-tab-input:focus {
 	gap: 10px;
 	padding: 0;
 	background: transparent;
-	border: 0;
+	border: none;
 }
 
 .wpgraphql-ide-smart-cache-checklist-icon {
@@ -2707,7 +2707,7 @@ input.wpgraphql-ide-tab-input:focus {
 	align-items: center;
 	justify-content: center;
 	width: 32px;
-	border: 0;
+	border: none;
 	background: transparent;
 	color: var(--wp-components-color-gray-700, #50575e);
 	cursor: pointer;
@@ -2739,7 +2739,7 @@ input.wpgraphql-ide-tab-input:focus {
 	display: inline-flex;
 	align-items: center;
 	padding: 0 12px;
-	border: 0;
+	border: none;
 	background: transparent;
 	font-size: 11px;
 	font-weight: 500;
@@ -2771,7 +2771,7 @@ input.wpgraphql-ide-tab-input:focus {
 	justify-content: center;
 	width: 32px;
 	margin-left: auto;
-	border: 0;
+	border: none;
 	background: transparent;
 	color: var(--wp-components-color-gray-700, #50575e);
 	cursor: pointer;
@@ -2981,7 +2981,7 @@ input.wpgraphql-ide-tab-input:focus {
 	font-size: 11px;
 	color: var(--wpgraphql-ide-text-muted, #646970);
 	background: transparent;
-	border: 0;
+	border: none;
 	padding: 0;
 	margin: 0;
 	cursor: pointer;
@@ -3129,7 +3129,7 @@ input.wpgraphql-ide-tab-input:focus {
 	height: 100%;
 	color: var(--wp-components-color-gray-700, #50575e);
 	background: transparent;
-	border: 0;
+	border: none;
 	border-radius: 0;
 	min-width: auto;
 	flex-shrink: 0;
@@ -5016,7 +5016,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	display: block;
 	width: 100%;
 	padding: 8px 16px;
-	border: 0;
+	border: none;
 	background: transparent;
 	text-align: left;
 	font-size: 13px;
@@ -5096,7 +5096,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-setting--divider {
 	margin-top: 8px;
 	padding-top: 16px;
-	border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 }
 
 /* First divider sits under the pane header, which already separates it. */
@@ -5419,7 +5419,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-table td {
 	padding: 8px 12px;
 	text-align: left;
-	border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 }
 
 .wpgraphql-ide-cache-inspector-table th {
@@ -5449,7 +5449,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-cache-inspector-help {
-	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 	border-radius: 4px;
 	background: var(--wp-components-color-gray-100, #f6f7f7);
 }
@@ -5460,7 +5460,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	align-items: center;
 	gap: 6px;
 	background: transparent;
-	border: 0;
+	border: none;
 	padding: 8px 12px;
 	cursor: pointer;
 	font: inherit;
@@ -5577,7 +5577,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
    scoped to the cache inspector so the two surfaces stay decoupled. */
 .wpgraphql-ide-cache-inspector-sort {
 	background: transparent;
-	border: 0;
+	border: none;
 	padding: 0;
 	margin: 0;
 	cursor: pointer;
@@ -5657,7 +5657,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-type--tracker {
 	color: var(--wp-components-color-gray-700, #50575e);
 	background: var(--wp-components-color-gray-100, #f0f0f1);
-	border: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 }
 
 /* Spacer keeps non-tracker key-cells aligned where the chevron would sit. */
@@ -5669,7 +5669,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	height: 20px;
 	padding: 0;
 	background: transparent;
-	border: 0;
+	border: none;
 	cursor: pointer;
 	color: var(--wp-components-color-gray-700, #50575e);
 	border-radius: 2px;
@@ -5690,7 +5690,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-cache-inspector-tracker-row > td {
 	padding: 0;
 	background: var(--wp-components-color-gray-100, #f6f7f7);
-	border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 }
 
 .wpgraphql-ide-cache-inspector-tracker-body {
@@ -5856,7 +5856,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 .wpgraphql-ide-smart-cache-purge-map-meta {
 	margin-top: 12px;
 	padding-top: 8px;
-	border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 	font-size: 11px;
 	color: var(--wp-components-color-gray-700, #50575e);
 }
