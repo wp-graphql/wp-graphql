@@ -42,6 +42,14 @@
 	   `--wp-components-color-accent` definition so theming the IDE
 	   means overriding one variable. */
 	--wpgraphql-ide-accent: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+
+	/* Semantic state colors. WP admin uses these exact hues for
+	   notices, validation, and badges; the tracing panel reuses the
+	   same shades for its fast/ok/slow hue scale. Defined once here
+	   so any state-coded surface in the IDE picks them up. */
+	--wpgraphql-ide-color-success: var(--wpgraphql-ide-color-success, #00a32a);
+	--wpgraphql-ide-color-warning: var(--wpgraphql-ide-color-warning, #dba617);
+	--wpgraphql-ide-color-error: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 /* Typography scale. WP admin doesn't expose a typographic-token system
@@ -1471,7 +1479,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-smart-cache-checklist-item.is-blocking
 	.wpgraphql-ide-smart-cache-checklist-icon {
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-smart-cache-checklist-body {
@@ -1531,7 +1539,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-snackbar-list .components-snackbar.is-error {
-	background: #d63638;
+	background: var(--wpgraphql-ide-color-error, #d63638);
 	color: var(--wp-components-color-background, #fff);
 }
 
@@ -2954,12 +2962,12 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-response-status--success {
 	background: #edfaef;
-	color: #00a32a;
+	color: var(--wpgraphql-ide-color-success, #00a32a);
 }
 
 .wpgraphql-ide-response-status--error {
 	background: #fcf0f1;
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-response-duration {
@@ -3036,7 +3044,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-response-trace-badge--warning {
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 	font-weight: var(--wpgraphql-ide-weight-medium, 500);
 }
 
@@ -3191,7 +3199,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* Red error indicator on the Errors tab when errors > 0 */
 .wpgraphql-ide-response-tabs.has-errors .components-tab-panel__tabs-item:nth-child(2) {
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-response-tabs .components-tab-panel__tab-content {
@@ -3235,7 +3243,7 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 2px 6px;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
 	background: #fcf9e8;
-	color: #dba617;
+	color: var(--wpgraphql-ide-color-warning, #dba617);
 	text-transform: uppercase;
 }
 
@@ -3305,12 +3313,12 @@ input.wpgraphql-ide-tab-input:focus {
    and is easy to retheme. Each falls through `var()` to the WP design
    system token (matches the pattern wp-components itself uses), so the
    panel auto-adapts to admin color schemes / future WP token rollouts.
-   The status (fast/ok/slow) hues stay literal because WP doesn't expose
-   green/yellow/red tokens. */
+   Status (fast/ok/slow) hues alias the IDE's semantic state palette
+   so notices, validation, and timing all read from the same source. */
 .wpgraphql-ide-tracing-panel {
-	--wpgraphql-ide-tracing-fast: #00a32a;
-	--wpgraphql-ide-tracing-ok: #dba617;
-	--wpgraphql-ide-tracing-slow: #d63638;
+	--wpgraphql-ide-tracing-fast: var(--wpgraphql-ide-color-success, #00a32a);
+	--wpgraphql-ide-tracing-ok: var(--wpgraphql-ide-color-warning, #dba617);
+	--wpgraphql-ide-tracing-slow: var(--wpgraphql-ide-color-error, #d63638);
 	--wpgraphql-ide-tracing-muted: var(--wp-components-color-gray-700, #50575e);
 	--wpgraphql-ide-tracing-faint: var(--wp-components-color-gray-400, #a7aaad);
 	--wpgraphql-ide-tracing-text: var(--wp-components-color-foreground, #1e1e1e);
@@ -3833,7 +3841,7 @@ input.wpgraphql-ide-tab-input:focus {
 .wpgraphql-ide-error-message {
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 	font-weight: var(--wpgraphql-ide-weight-medium, 500);
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-error-meta {
@@ -4009,7 +4017,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-table-cell-bool {
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-table-cell-num {
@@ -4378,7 +4386,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .cm-diagnostic-error {
-	border-left: 3px solid #d63638;
+	border-left: 3px solid var(--wpgraphql-ide-color-error, #d63638);
 }
 
 /* Fold markers */
@@ -4962,12 +4970,12 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-history-status--success {
 	background: #edfaef;
-	color: #00a32a;
+	color: var(--wpgraphql-ide-color-success, #00a32a);
 }
 
 .wpgraphql-ide-history-status--error {
 	background: #fcf0f1;
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-history-duration {
@@ -5366,7 +5374,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-doc-setting-tag-remove:hover {
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-doc-setting-tag-input {
@@ -5907,7 +5915,7 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
    stale data for the skipped resources), so the section opens by
    default and uses a warning-tinted accent. */
 .wpgraphql-ide-smart-cache-skipped .wpgraphql-ide-smart-cache-details-summary {
-	color: #d63638;
+	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
 .wpgraphql-ide-smart-cache-skipped-explainer {
