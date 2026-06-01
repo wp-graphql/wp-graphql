@@ -29,7 +29,7 @@ class SettingsPage {
 			register_graphql_settings_section(
 				'graphql_ide_settings',
 				[
-					'title' => __( 'IDE Settings', 'wpgraphql-ide' ),
+					'title' => __( 'IDE', 'wpgraphql-ide' ),
 					'desc'  => __( 'Customize your WPGraphQL IDE experience sitewide. Individual users can override these settings in their user profile.', 'wpgraphql-ide' ),
 				]
 			);
