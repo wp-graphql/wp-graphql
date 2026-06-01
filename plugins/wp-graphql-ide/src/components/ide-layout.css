@@ -522,19 +522,21 @@ body.graphql_page_graphql-ide #wpgraphql-ide-app {
 	flex-shrink: 0;
 }
 
-/* Info-tinted background paired with the Notice's blue left border. Soft
-   enough not to fight the editor; tinted enough to read as a state chip
-   rather than a third grey tone. Mirrors WP admin info-notice palette. */
+/* Accent-tinted background. `color-mix` derives the soft tint from the
+   IDE accent so the notice adapts to the user's admin color scheme
+   (Sunrise → soft red, Ectoplasm → soft purple, etc.) without hard-
+   coding a per-scheme palette. */
 .wpgraphql-ide-document-notice.components-notice {
 	margin: 0;
 	border-radius: 0;
-	background: #e7f0fa;
+	background: color-mix(in srgb, var(--wpgraphql-ide-accent) 8%, transparent);
 	color: var(--wp-components-color-foreground, #1e1e1e);
-	border-bottom: 1px solid #c3d4e7;
+	border-bottom: 1px solid
+		color-mix(in srgb, var(--wpgraphql-ide-accent) 24%, transparent);
 }
 
 .wpgraphql-ide-document-notice .wpgraphql-ide-document-notice-link.components-button {
-	color: #1e40af;
+	color: var(--wpgraphql-ide-accent);
 	text-decoration: underline;
 }
 
@@ -4021,7 +4023,7 @@ input.wpgraphql-ide-tab-input:focus {
 }
 
 .wpgraphql-ide-table-cell-num {
-	color: #2271b1;
+	color: var(--gql-color-number, #005cc5);
 }
 
 .wpgraphql-ide-table-cell-drill {
