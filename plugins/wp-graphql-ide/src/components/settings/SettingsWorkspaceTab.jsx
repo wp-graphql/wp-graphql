@@ -5,6 +5,11 @@ import { useDispatch } from '@wordpress/data';
 import { SettingsField } from './SettingsField';
 import { ColorThemeSection } from './ColorThemeSection';
 import {
+	PREFERENCE_KEYS,
+	readDevicePreference,
+	setPreference,
+} from '../../api/preferences';
+import {
 	SETTINGS_TAB_ID,
 	getOriginalValues,
 	getPendingValues,
@@ -26,9 +31,27 @@ export function SettingsWorkspaceTab() {
 		return Array.isArray(data.sections) ? data.sections : [];
 	}, []);
 
-	const [activeSlug, setActiveSlug] = useState(
-		() => sections[0]?.slug || null
-	);
+	// Remember the user's last-active section across tab close / page
+	// reload via a device-scoped preference. Fall back to the first
+	// registered section if nothing is persisted yet, or if the stored
+	// slug no longer corresponds to a registered section (plugin
+	// uninstalled, slug renamed, etc.).
+	const [activeSlug, setActiveSlugState] = useState(() => {
+		const stored = readDevicePreference(
+			PREFERENCE_KEYS.SETTINGS_ACTIVE_SECTION
+		);
+		if (stored && sections.some((s) => s.slug === stored)) {
+			return stored;
+		}
+		return sections[0]?.slug || null;
+	});
+
+	const setActiveSlug = useCallback((slug) => {
+		setActiveSlugState(slug);
+		if (slug) {
+			setPreference(PREFERENCE_KEYS.SETTINGS_ACTIVE_SECTION, slug);
+		}
+	}, []);
 
 	// Hydrate from the module-level cache so unsaved edits survive a tab
 	// switch and return. Falls back to the server-provided baseline.

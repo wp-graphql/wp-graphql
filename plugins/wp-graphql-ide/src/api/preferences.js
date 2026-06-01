@@ -46,6 +46,7 @@ const BUILT_IN_SCOPES = Object.freeze({
 	editor_bottom_active_tab: 'device',
 	response_bottom_collapsed: 'device',
 	response_bottom_active_tab: 'device',
+	settings_active_section: 'device',
 
 	// User-scoped, identity-bound. Logged-in only.
 	personal_collections: 'user',
@@ -79,6 +80,7 @@ export const PREFERENCE_KEYS = Object.freeze({
 	EDITOR_BOTTOM_ACTIVE_TAB: 'editor_bottom_active_tab',
 	RESPONSE_BOTTOM_COLLAPSED: 'response_bottom_collapsed',
 	RESPONSE_BOTTOM_ACTIVE_TAB: 'response_bottom_active_tab',
+	SETTINGS_ACTIVE_SECTION: 'settings_active_section',
 
 	// User-scoped, identity-bound.
 	PERSONAL_COLLECTIONS: 'personal_collections',
