@@ -51,6 +51,62 @@ function enqueue_assets(): void {
 add_action( 'wpgraphql_ide_enqueue_script', __NAMESPACE__ . '\\enqueue_assets' );
 
 /**
+ * Persist the user's chosen color scheme. Mirrors `user-edit.php`'s
+ * behaviour: it writes the slug straight to `admin_color` user meta,
+ * which is what `get_user_option( 'admin_color' )` reads on every
+ * subsequent admin pageload to enqueue the right colors stylesheet.
+ *
+ * @return void
+ */
+function register_rest_routes(): void {
+	register_rest_route(
+		'wpgraphql-ide/v1',
+		'/color-scheme',
+		[
+			'methods'             => \WP_REST_Server::EDITABLE,
+			'permission_callback' => __NAMESPACE__ . '\\rest_can_set_scheme',
+			'callback'            => __NAMESPACE__ . '\\rest_set_scheme',
+			'args'                => [
+				'scheme' => [
+					'type'              => 'string',
+					'required'          => true,
+					'sanitize_callback' => 'sanitize_key',
+				],
+			],
+		]
+	);
+}
+add_action( 'rest_api_init', __NAMESPACE__ . '\\register_rest_routes' );
+
+/**
+ * @return bool
+ */
+function rest_can_set_scheme(): bool {
+	return is_user_logged_in();
+}
+
+/**
+ * @param \WP_REST_Request $request
+ * @return \WP_REST_Response|\WP_Error
+ */
+function rest_set_scheme( \WP_REST_Request $request ) {
+	$scheme = (string) $request->get_param( 'scheme' );
+	$schemes = get_registered_schemes();
+
+	if ( ! isset( $schemes[ $scheme ] ) ) {
+		return new \WP_Error(
+			'wpgraphql_ide_invalid_scheme',
+			__( 'Unknown color scheme.', 'wpgraphql-ide' ),
+			[ 'status' => 400 ]
+		);
+	}
+
+	update_user_meta( get_current_user_id(), 'admin_color', $scheme );
+
+	return rest_ensure_response( [ 'scheme' => $scheme ] );
+}
+
+/**
  * Normalize WP's `$_wp_admin_css_colors` global into a JSON-safe shape
  * the React UI can consume directly.
  *

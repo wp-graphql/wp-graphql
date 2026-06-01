@@ -2,9 +2,10 @@ import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Icon } from '@wordpress/components';
 import { check } from '@wordpress/icons';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Proof-of-concept theme picker.
+ * Color theme picker.
  *
  * Reads the registered admin color schemes from the localized
  * `WPGraphQLIDEColorThemeSwitcher` global, renders each as a card
@@ -12,9 +13,10 @@ import { check } from '@wordpress/icons';
  * href when one is selected so the entire admin (and the IDE) re-themes
  * without a page reload.
  *
- * The selection is session-scoped — closing the tab or reloading
- * restores whatever scheme the WP user-profile setting points at.
- * Wiring this to persistent storage is a follow-up.
+ * The selection is also persisted to the user's `admin_color` user
+ * meta via REST — same field the user-profile color picker writes —
+ * so the chosen scheme survives reload and applies to every admin
+ * screen, not just the IDE.
  */
 export function ColorThemeSwitcher() {
 	const bootstrap = window.WPGraphQLIDEColorThemeSwitcher || {
@@ -28,12 +30,19 @@ export function ColorThemeSwitcher() {
 	);
 
 	const [activeSlug, setActiveSlug] = useState(bootstrap.current);
+	const [savingSlug, setSavingSlug] = useState(null);
+	const [errorSlug, setErrorSlug] = useState(null);
 
-	const applyScheme = (slug) => {
+	const applyScheme = async (slug) => {
 		const scheme = bootstrap.schemes?.[slug];
 		if (!scheme) {
 			return;
 		}
+
+		// Optimistic live-preview: swap stylesheet + body class first so
+		// the user sees the new scheme instantly. Persistence comes next
+		// and rolls back if it fails.
+		const previousSlug = activeSlug;
 
 		// WP enqueues the active scheme as `<link id="colors-css">`.
 		// Swapping its href is the cleanest way to live-preview — the
@@ -57,6 +66,34 @@ export function ColorThemeSwitcher() {
 		body.classList.add(`admin-color-${slug}`);
 
 		setActiveSlug(slug);
+		setSavingSlug(slug);
+		setErrorSlug(null);
+
+		try {
+			// Same field user-edit.php writes to. From this point the
+			// scheme is the user's WP-wide admin color until they pick
+			// something else, here or in their profile.
+			await apiFetch({
+				path: '/wpgraphql-ide/v1/color-scheme',
+				method: 'POST',
+				data: { scheme: slug },
+			});
+		} catch (err) {
+			// Persistence failed — restore the previous scheme so the
+			// UI and the saved state stay in sync.
+			const previous = bootstrap.schemes?.[previousSlug];
+			if (linkEl && previous?.url) {
+				linkEl.href = previous.url;
+			}
+			body.classList.remove(`admin-color-${slug}`);
+			body.classList.add(`admin-color-${previousSlug}`);
+			setActiveSlug(previousSlug);
+			setErrorSlug(slug);
+			// eslint-disable-next-line no-console
+			console.error('Failed to save admin color scheme', err);
+		} finally {
+			setSavingSlug(null);
+		}
 	};
 
 	if (schemes.length === 0) {
@@ -83,10 +120,18 @@ export function ColorThemeSwitcher() {
 				</h2>
 				<p style={styles.subheading}>
 					{__(
-						'Swap the WordPress admin color scheme to preview how the IDE adapts. Changes apply immediately for this session.',
+						'Pick a WordPress admin color scheme. Your choice is saved to your user profile and applies across the entire admin.',
 						'wpgraphql-ide'
 					)}
 				</p>
+				{errorSlug && (
+					<p style={styles.error} role="alert">
+						{__(
+							'Could not save your selection. The previous scheme has been restored.',
+							'wpgraphql-ide'
+						)}
+					</p>
+				)}
 			</header>
 			<ul style={styles.grid} role="list">
 				{schemes.map((scheme) => {
@@ -96,6 +141,7 @@ export function ColorThemeSwitcher() {
 							<Button
 								onClick={() => applyScheme(scheme.slug)}
 								aria-pressed={isActive}
+								disabled={savingSlug !== null}
 								aria-label={
 									isActive
 										? `${scheme.name} (${__(
@@ -166,6 +212,12 @@ const styles = {
 		margin: 0,
 		fontSize: 'var(--wpgraphql-ide-text-12, 12px)',
 		color: 'var(--wpgraphql-ide-text-muted, #646970)',
+		lineHeight: 'var(--wpgraphql-ide-leading-normal, 1.5)',
+	},
+	error: {
+		margin: 'var(--wpgraphql-ide-space-8, 8px) 0 0',
+		fontSize: 'var(--wpgraphql-ide-text-12, 12px)',
+		color: 'var(--wpgraphql-ide-color-error, #d63638)',
 		lineHeight: 'var(--wpgraphql-ide-leading-normal, 1.5)',
 	},
 	grid: {
