@@ -91,9 +91,32 @@ function rest_can_set_scheme(): bool {
  */
 function rest_set_scheme( \WP_REST_Request $request ) {
 	$scheme = (string) $request->get_param( 'scheme' );
+
+	if ( '' === $scheme ) {
+		return new \WP_Error(
+			'wpgraphql_ide_invalid_scheme',
+			__( 'A color scheme slug is required.', 'wpgraphql-ide' ),
+			[ 'status' => 400 ]
+		);
+	}
+
+	// `$_wp_admin_css_colors` is populated by `register_admin_color_schemes()`
+	// which hooks `admin_init` — a hook that does not fire on REST requests.
+	// Force-load the admin helpers so the global is populated and the same
+	// validation table the user-profile page sees is available here too.
+	if ( ! is_admin() && function_exists( 'register_admin_color_schemes' ) === false ) {
+		require_once ABSPATH . 'wp-admin/includes/misc.php';
+	}
+	if ( function_exists( 'register_admin_color_schemes' ) ) {
+		register_admin_color_schemes();
+	}
+
 	$schemes = get_registered_schemes();
 
-	if ( ! isset( $schemes[ $scheme ] ) ) {
+	// If somehow no schemes are registered (very stripped install), fall
+	// through and trust the sanitized slug — `get_user_option` already
+	// rejects unknown values at render time by falling back to `fresh`.
+	if ( ! empty( $schemes ) && ! isset( $schemes[ $scheme ] ) ) {
 		return new \WP_Error(
 			'wpgraphql_ide_invalid_scheme',
 			__( 'Unknown color scheme.', 'wpgraphql-ide' ),
