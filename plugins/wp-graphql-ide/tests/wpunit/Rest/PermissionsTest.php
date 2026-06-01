@@ -3,11 +3,10 @@
  * Tests for the IDE's REST permission and authorization layer.
  *
  * Three guards in front of every IDE REST request:
- *   - manage_graphql_ide on every /wpgraphql-ide/v1/* and /wp/v2/graphql_document
- *     (Smart Cache's saved-document post type, as of 5.0) and
- *     /wp/v2/graphql-ide-history route
- *   - per-user authorship on /wp/v2/graphql_document/{id} and
- *     /wp/v2/graphql-ide-history/{id}
+ *   - manage_graphql_ide on every /wpgraphql-ide/v1/* and on
+ *     /wp/v2/graphql_document (Smart Cache's saved-document post type,
+ *     as of 5.0)
+ *   - per-user authorship on /wp/v2/graphql_document/{id}
  *   - per-user filtering of list queries
  *
  * If any of these go red, an attacker (or just a curious authenticated
@@ -101,12 +100,6 @@ class PermissionsTest extends \Codeception\TestCase\WPTestCase {
 	public function test_subscriber_cannot_list_documents() {
 		wp_set_current_user( $this->subscriber );
 		$response = $this->dispatch( 'GET', '/wp/v2/graphql_document' );
-		$this->assertSame( 403, $response->get_status() );
-	}
-
-	public function test_subscriber_cannot_list_history() {
-		wp_set_current_user( $this->subscriber );
-		$response = $this->dispatch( 'GET', '/wp/v2/graphql-ide-history' );
 		$this->assertSame( 403, $response->get_status() );
 	}
 

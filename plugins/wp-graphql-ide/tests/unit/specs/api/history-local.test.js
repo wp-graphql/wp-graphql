@@ -5,26 +5,87 @@ import {
 	clearLocalHistory,
 } from '../../../../src/api/history-local';
 
-const STORAGE_KEY = 'wpgraphql-ide:local-history:v1';
+function keyFor(userId, ctx) {
+	return `wpgraphql-ide:local-history:v1:user-${userId}:ctx-${ctx}`;
+}
 
-function readBucket() {
-	const raw = window.localStorage.getItem(STORAGE_KEY);
+function setData({ currentUserId = 0, endpointMode = false } = {}) {
+	window.WPGRAPHQL_IDE_DATA = {
+		context: { currentUserId },
+		endpointMode,
+	};
+}
+
+function readBucket(userId = 0, ctx = 'endpoint') {
+	const raw = window.localStorage.getItem(keyFor(userId, ctx));
 	return raw ? JSON.parse(raw) : null;
 }
 
 describe('history-local', () => {
 	beforeEach(() => {
 		window.localStorage.clear();
+		delete window.WPGRAPHQL_IDE_DATA;
+	});
+
+	describe('storage key scoping', () => {
+		it('uses ctx=endpoint and user-0 for an anonymous endpoint visitor', async () => {
+			setData({ currentUserId: 0, endpointMode: true });
+			await createLocalHistoryEntry({ query: '{ a }' });
+			expect(readBucket(0, 'endpoint')).toHaveLength(1);
+			expect(readBucket(0, 'admin')).toBeNull();
+		});
+
+		it('uses ctx=admin and the WP user id for a signed-in admin', async () => {
+			setData({ currentUserId: 7, endpointMode: false });
+			await createLocalHistoryEntry({ query: '{ a }' });
+			expect(readBucket(7, 'admin')).toHaveLength(1);
+			expect(readBucket(0, 'admin')).toBeNull();
+		});
+
+		it('keeps two users on the same browser in separate buckets', async () => {
+			setData({ currentUserId: 7, endpointMode: false });
+			await createLocalHistoryEntry({ query: '{ user-7 }' });
+
+			setData({ currentUserId: 9, endpointMode: false });
+			await createLocalHistoryEntry({ query: '{ user-9 }' });
+
+			expect(readBucket(7, 'admin')).toHaveLength(1);
+			expect(readBucket(9, 'admin')).toHaveLength(1);
+			expect(readBucket(7, 'admin')[0].query).toBe('{ user-7 }');
+			expect(readBucket(9, 'admin')[0].query).toBe('{ user-9 }');
+		});
+
+		it('keeps the same user separate across admin and endpoint contexts', async () => {
+			setData({ currentUserId: 7, endpointMode: false });
+			await createLocalHistoryEntry({ query: '{ admin-side }' });
+
+			setData({ currentUserId: 7, endpointMode: true });
+			await createLocalHistoryEntry({ query: '{ endpoint-side }' });
+
+			expect(readBucket(7, 'admin')).toHaveLength(1);
+			expect(readBucket(7, 'endpoint')).toHaveLength(1);
+			expect(readBucket(7, 'admin')[0].query).toBe('{ admin-side }');
+			expect(readBucket(7, 'endpoint')[0].query).toBe(
+				'{ endpoint-side }'
+			);
+		});
+
+		it('falls back to user-0 ctx-admin when WPGRAPHQL_IDE_DATA is absent', async () => {
+			await createLocalHistoryEntry({ query: '{ a }' });
+			expect(readBucket(0, 'admin')).toHaveLength(1);
+		});
 	});
 
 	describe('getLocalHistory', () => {
+		beforeEach(() => setData({ currentUserId: 0, endpointMode: true }));
+
 		it('returns an empty array when nothing is stored', async () => {
 			await expect(getLocalHistory()).resolves.toEqual([]);
 		});
 
-		it('returns stored entries newest-first as written', async () => {
+		it('returns stored entries in the order they are written', async () => {
 			window.localStorage.setItem(
-				STORAGE_KEY,
+				keyFor(0, 'endpoint'),
 				JSON.stringify([
 					{ id: 'a', query: '{ a }' },
 					{ id: 'b', query: '{ b }' },
@@ -35,17 +96,22 @@ describe('history-local', () => {
 		});
 
 		it('treats malformed JSON as empty', async () => {
-			window.localStorage.setItem(STORAGE_KEY, 'not-json-{');
+			window.localStorage.setItem(keyFor(0, 'endpoint'), 'not-json-{');
 			await expect(getLocalHistory()).resolves.toEqual([]);
 		});
 
 		it('treats a non-array payload as empty', async () => {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: 1 }));
+			window.localStorage.setItem(
+				keyFor(0, 'endpoint'),
+				JSON.stringify({ x: 1 })
+			);
 			await expect(getLocalHistory()).resolves.toEqual([]);
 		});
 	});
 
 	describe('createLocalHistoryEntry', () => {
+		beforeEach(() => setData({ currentUserId: 0, endpointMode: true }));
+
 		it('prepends an entry and returns the adapted shape', async () => {
 			const adapted = await createLocalHistoryEntry({
 				query: '{ posts { id } }',
@@ -64,7 +130,7 @@ describe('history-local', () => {
 			expect(adapted.is_authenticated).toBe(false);
 			expect(typeof adapted.timestamp).toBe('number');
 
-			const bucket = readBucket();
+			const bucket = readBucket(0, 'endpoint');
 			expect(bucket).toHaveLength(1);
 			expect(bucket[0].id).toBe(adapted.id);
 		});
@@ -72,7 +138,7 @@ describe('history-local', () => {
 		it('puts the newest entry at the front', async () => {
 			const first = await createLocalHistoryEntry({ query: '{ a }' });
 			const second = await createLocalHistoryEntry({ query: '{ b }' });
-			const bucket = readBucket();
+			const bucket = readBucket(0, 'endpoint');
 			expect(bucket[0].id).toBe(second.id);
 			expect(bucket[1].id).toBe(first.id);
 		});
@@ -82,7 +148,7 @@ describe('history-local', () => {
 				// eslint-disable-next-line no-await-in-loop
 				await createLocalHistoryEntry({ query: `{ q${i} }` });
 			}
-			const bucket = readBucket();
+			const bucket = readBucket(0, 'endpoint');
 			expect(bucket).toHaveLength(50);
 			// Newest is q59, oldest kept is q10.
 			expect(bucket[0].query).toBe('{ q59 }');
@@ -109,10 +175,6 @@ describe('history-local', () => {
 		});
 
 		it('preserves is_authenticated when the caller passes true', async () => {
-			// Anonymous public-endpoint visitors are the typical case, but
-			// the server-mirroring shape lets a caller force-record auth
-			// state if needed (e.g. an extension that knows the visitor
-			// just signed in mid-session).
 			const adapted = await createLocalHistoryEntry({
 				query: '{ x }',
 				is_authenticated: true,
@@ -122,6 +184,8 @@ describe('history-local', () => {
 	});
 
 	describe('deleteLocalHistoryEntry', () => {
+		beforeEach(() => setData({ currentUserId: 0, endpointMode: true }));
+
 		it('removes the entry with the matching id and returns the deleted id', async () => {
 			const first = await createLocalHistoryEntry({ query: '{ a }' });
 			const second = await createLocalHistoryEntry({ query: '{ b }' });
@@ -129,7 +193,7 @@ describe('history-local', () => {
 			const result = await deleteLocalHistoryEntry(first.id);
 			expect(result).toEqual({ deletedId: first.id });
 
-			const bucket = readBucket();
+			const bucket = readBucket(0, 'endpoint');
 			expect(bucket).toHaveLength(1);
 			expect(bucket[0].id).toBe(second.id);
 		});
@@ -140,22 +204,36 @@ describe('history-local', () => {
 				'local-does-not-exist'
 			);
 			expect(result).toEqual({ deletedId: 'local-does-not-exist' });
-			expect(readBucket()).toHaveLength(1);
+			expect(readBucket(0, 'endpoint')).toHaveLength(1);
 		});
 	});
 
 	describe('clearLocalHistory', () => {
+		beforeEach(() => setData({ currentUserId: 0, endpointMode: true }));
+
 		it('wipes the bucket', async () => {
 			await createLocalHistoryEntry({ query: '{ a }' });
 			await createLocalHistoryEntry({ query: '{ b }' });
 			await clearLocalHistory();
-			expect(readBucket()).toEqual([]);
+			expect(readBucket(0, 'endpoint')).toEqual([]);
 		});
 
-		it('ignores the ids parameter (signature parity with the server backend)', async () => {
+		it('only wipes the current bucket, not other users', async () => {
+			setData({ currentUserId: 7, endpointMode: false });
+			await createLocalHistoryEntry({ query: '{ keep-me }' });
+
+			setData({ currentUserId: 0, endpointMode: true });
+			await createLocalHistoryEntry({ query: '{ clear-me }' });
+			await clearLocalHistory();
+
+			expect(readBucket(0, 'endpoint')).toEqual([]);
+			expect(readBucket(7, 'admin')).toHaveLength(1);
+		});
+
+		it('ignores the ids parameter (signature parity with older callers)', async () => {
 			await createLocalHistoryEntry({ query: '{ a }' });
 			await clearLocalHistory(['some', 'other', 'ids']);
-			expect(readBucket()).toEqual([]);
+			expect(readBucket(0, 'endpoint')).toEqual([]);
 		});
 	});
 });

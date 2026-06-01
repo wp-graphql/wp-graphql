@@ -71,9 +71,8 @@ PSR-4 autoloaded under namespace `WPGraphQLIDE\`. Key classes:
 - `Access.php` — capability checks, per-user post-visibility filters
 - `AdminUI.php` — admin pages, drawer trigger, admin bar
 - `AssetEnqueue.php` — script/style enqueue with auto-detected asset hashes
-- `GraphQLSchema.php` — exposes IDE data (history, preferences) to the GraphQL schema
-- `PostTypes.php`, `SmartCacheBridge.php` — saved documents live in Smart Cache's `graphql_document` CPT; history lives in `graphql_ide_history` CPT
-- `Rest.php`, `ImportExport.php` — REST endpoints for preferences, history, document import/export
+- `SmartCacheBridge.php` — saved documents live in Smart Cache's `graphql_document` CPT; execution history is browser-local, implemented in `src/api/history-local.js`
+- `Rest.php`, `ImportExport.php` — REST endpoints for document import/export
 - `UserMeta.php` — owns `wpgraphql_ide_*` user-meta keys (theme, persist_headers, collection_order)
 - `settings.php`, `SettingsPage.php`, `document-settings/` — admin settings + per-document settings drawer
 - `public-endpoint.php` — opt-in unauthenticated IDE
@@ -93,7 +92,7 @@ Multi-entry webpack via `@wordpress/scripts`. React, ReactDOM, and GraphQL are W
 
 ## Development Notes
 
-- **State persistence**: device-scoped preferences live in localStorage under the key `wpgraphql-ide:prefs:v1:user-{userId}:ctx-{context}`; user-scoped preferences live in user meta. Open tabs are device-scoped; query history is server-side (CPT). See `src/api/preferences.js` and `src/api/history.js`.
+- **State persistence**: device-scoped preferences and query history live in localStorage under the keys `wpgraphql-ide:prefs:v1:user-{userId}:ctx-{context}` and `wpgraphql-ide:local-history:v1:user-{userId}:ctx-{context}`; user-scoped preferences live in user meta. Open tabs are device-scoped. See `src/api/preferences.js` and `src/api/history-local.js`.
 - **Public API surface**: store names, access functions, PHP hooks, and registered preference keys are public. Breaking changes require a major version bump.
 - **i18n**: text domain `wpgraphql-ide`. Use `@wordpress/i18n` in JS, `__()`/`_x()` in PHP.
 - **Smart Cache dependency**: saved-document features degrade gracefully when Smart Cache is not installed (`hasSmartCache` flag in bootstrap data).

@@ -31,9 +31,10 @@ export const renderStandalone = !!data.renderStandalone;
 /**
  * Whether the IDE is in endpoint mode — rendered at the public
  * `/?graphql` URL for visitors who lack `manage_graphql_ide`. Hides
- * Save / Saved Queries / History / Document Settings / Share /
- * topbar actions / (when anonymous) the auth toggle. IDE-capable
- * admins at the same URL have this flag *false*.
+ * Save / Saved Queries / Document Settings / Share / topbar actions /
+ * (when anonymous) the auth toggle. History remains available — it
+ * lives in localStorage and works for anonymous visitors too.
+ * IDE-capable admins at the same URL have this flag *false*.
  */
 export const endpointMode = !!data.endpointMode;
 
@@ -44,9 +45,10 @@ export const isUserLoggedIn = !!data.isUserLoggedIn;
  * Whether the public-endpoint IDE invites anonymous visitors to sign
  * in. Driven by the `Allow sign-in on the public IDE` setting. When
  * false, the auth-toggle avatar is a static public-state indicator and
- * the Saved Queries / History panels are hidden for anonymous visitors.
- * Always true on the dedicated admin page (only meaningful on endpoint
- * renders, where the setting actually applies).
+ * the Saved Queries panel is hidden for anonymous visitors. History
+ * remains available regardless — it's localStorage-only. Always true
+ * on the dedicated admin page (only meaningful on endpoint renders,
+ * where the setting actually applies).
  */
 export const allowEndpointSignIn = endpointMode
 	? !!data.allowEndpointSignIn
@@ -73,9 +75,9 @@ export const loginUrl = typeof data.loginUrl === 'string' ? data.loginUrl : '';
  *   - Personal Collections fall through (no UI to manage them)
  *   - Import / Export route to a no-op affordance
  *
- * History, preferences, schema introspection, and request execution
- * keep working — the IDE is still a functional GraphQL client without
- * Smart Cache. Server-side this is set in
+ * History (localStorage-only), preferences, schema introspection, and
+ * request execution keep working — the IDE is still a functional
+ * GraphQL client without Smart Cache. Server-side this is set in
  * `includes/AssetEnqueue.php::enqueue()` via
  * `class_exists('\\WPGraphQL\\SmartCache\\Document')`.
  */

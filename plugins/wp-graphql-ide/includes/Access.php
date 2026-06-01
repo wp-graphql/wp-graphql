@@ -11,10 +11,9 @@ namespace WPGraphQLIDE;
 
 /**
  * Per-user scoping and visibility filters that gate every read path
- * touching Smart Cache's `graphql_document` / the IDE's
- * `graphql_ide_history` — REST list queries, REST single fetches,
- * GraphQL connections, GraphQL node-by-id resolution, plus the
- * title-length cap on writes.
+ * touching Smart Cache's `graphql_document` — REST list queries,
+ * REST single fetches, GraphQL connections, GraphQL node-by-id
+ * resolution, plus the title-length cap on writes.
  */
 class Access {
 
@@ -30,14 +29,13 @@ class Access {
 	}
 
 	/**
-	 * Scope GraphQL connections on IDE post types to the current user.
+	 * Scope GraphQL connections on Smart Cache's `graphql_document` to
+	 * the current user.
 	 *
-	 * The IDE exposes `IdeQuery` and `IdeHistoryEntry` to GraphQL so the
-	 * client (and integrations) can read saved queries and history without
-	 * REST. Without scoping, anyone holding `manage_graphql_ide` would see
-	 * every other IDE user's queries through `ideQueries` / `ideHistoryEntries`
-	 * — the GraphQL surface would be a wider read than the REST endpoints
-	 * already enforce. Mirror the REST behavior here so the per-user
+	 * Without scoping, anyone holding `manage_graphql_ide` would see
+	 * every other IDE user's saved documents through the
+	 * `graphqlDocuments` connection — wider than the REST endpoint
+	 * already enforces. Mirror the REST behavior here so the per-user
 	 * isolation is the same on both surfaces.
 	 *
 	 * @since x-release-please-version
@@ -52,18 +50,12 @@ class Access {
 		$post_type = isset( $query_args['post_type'] ) ? $query_args['post_type'] : null;
 
 		// `graphql_document` is Smart Cache's saved-document post type and
-		// only exists when Smart Cache is active. `graphql_ide_history` is
-		// the IDE's own execution-log post type and always exists. We
-		// scope both: Smart Cache documents to the current user (when the
-		// request is on behalf of the IDE), and history entries to the
-		// current user always.
-		$ide_post_types = [ 'graphql_document', 'graphql_ide_history' ];
-
+		// only exists when Smart Cache is active.
 		$matches_ide_pt = false;
 		if ( is_string( $post_type ) ) {
-			$matches_ide_pt = in_array( $post_type, $ide_post_types, true );
+			$matches_ide_pt = 'graphql_document' === $post_type;
 		} elseif ( is_array( $post_type ) ) {
-			$matches_ide_pt = (bool) array_intersect( $post_type, $ide_post_types );
+			$matches_ide_pt = in_array( 'graphql_document', $post_type, true );
 		}
 
 		if ( ! $matches_ide_pt ) {
@@ -76,13 +68,13 @@ class Access {
 	}
 
 	/**
-	 * Mark IDE post objects as private when the current user isn't the
-	 * author. The connection-level filter already scopes list queries,
-	 * but `node(id: "...")` resolves a model directly from the global ID
-	 * and bypasses connection args entirely. Without this filter, a user
-	 * holding `manage_graphql_ide` could read another user's saved Smart
-	 * Cache document or IdeHistoryEntry just by guessing or sharing its
-	 * global ID.
+	 * Mark Smart Cache `graphql_document` posts as private when the
+	 * current user isn't the author. The connection-level filter
+	 * already scopes list queries, but `node(id: "...")` resolves a
+	 * model directly from the global ID and bypasses connection args
+	 * entirely. Without this filter, a user holding `manage_graphql_ide`
+	 * could read another user's saved Smart Cache document just by
+	 * guessing or sharing its global ID.
 	 *
 	 * Visibility is decided in the WPGraphQL Model layer: returning true
 	 * here marks the data private so the model's restricted fields (id,
@@ -111,13 +103,8 @@ class Access {
 		}
 
 		// `graphql_document` is Smart Cache's saved-document post type and
-		// only exists when Smart Cache is active. `graphql_ide_history` is
-		// the IDE's own execution-log post type and always exists. We
-		// scope both: Smart Cache documents to the current user (when the
-		// request is on behalf of the IDE), and history entries to the
-		// current user always.
-		$ide_post_types = [ 'graphql_document', 'graphql_ide_history' ];
-		if ( ! in_array( $data->post_type, $ide_post_types, true ) ) {
+		// only exists when Smart Cache is active.
+		if ( 'graphql_document' !== $data->post_type ) {
 			return (bool) $is_private;
 		}
 
@@ -141,8 +128,8 @@ class Access {
 	 * Enforce manage_graphql_ide capability on IDE REST routes.
 	 *
 	 * Prevents users without `manage_graphql_ide` from hitting the
-	 * graphql-document (Smart Cache) / graphql-ide-history routes, even
-	 * if they have edit_posts from the CPT's capability_type.
+	 * graphql-document (Smart Cache) routes, even if they have
+	 * edit_posts from the CPT's capability_type.
 	 *
 	 * @param mixed            $result  Response to replace the requested version with.
 	 * @param \WP_REST_Server  $server  Server instance.
@@ -156,12 +143,11 @@ class Access {
 
 		// Smart Cache registers `graphql_document` without an explicit
 		// rest_base, so WP REST uses the post type slug verbatim
-		// (underscores preserved). graphql-ide-history is the IDE's own
-		// history route. We also gate the four document taxonomies the
-		// SmartCacheBridge exposes to REST so that listing terms /
-		// reading term metadata is cap-gated through the same filter.
+		// (underscores preserved). We also gate the four document
+		// taxonomies the SmartCacheBridge exposes to REST so that
+		// listing terms / reading term metadata is cap-gated through the
+		// same filter.
 		$is_ide_route = strpos( $route, '/wp/v2/graphql_document' ) === 0
-			|| strpos( $route, '/wp/v2/graphql-ide-history' ) === 0
 			|| strpos( $route, '/wp/v2/graphql_document_group' ) === 0
 			|| strpos( $route, '/wp/v2/graphql_query_alias' ) === 0
 			|| strpos( $route, '/wp/v2/graphql_document_grant' ) === 0

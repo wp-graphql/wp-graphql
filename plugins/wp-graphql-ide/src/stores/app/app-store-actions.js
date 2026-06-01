@@ -205,19 +205,15 @@ const actions = {
 	},
 
 	/**
-	 * Load global execution history from the server.
+	 * Load execution history for the current visitor.
 	 */
 	loadHistory:
 		() =>
 		async ({ dispatch }) => {
-			// One-shot upgrade path from 4.x: if the previous IDE left
-			// `graphiql:queries` in localStorage, hand each entry to
-			// `createHistoryEntry` before fetching. The api/history
-			// router picks the backend by auth state — server CPT for
-			// logged-in users, local bucket for anonymous visitors —
-			// so the same migrator works for both. No-op on second boot
-			// (migrator records its own flag). Awaited so the fetch
-			// below sees the migrated rows.
+			// One-shot 4.x → 5.x upgrade: replay `graphiql:queries`
+			// (the GraphiQL default localStorage key) into the local
+			// history bucket. No-op on second boot. Awaited so the
+			// fetch below sees the seeded rows.
 			await migrateLegacyHistory();
 
 			try {
@@ -230,38 +226,19 @@ const actions = {
 		},
 
 	/**
-	 * Add a new history entry. The `api/history` router decides where
-	 * it lands — server CPT for logged-in users, browser-local bucket
-	 * for anonymous public-endpoint visitors. Prunes the oldest entry
-	 * on the server path if the limit is exceeded; the local backend
-	 * prunes implicitly.
+	 * Add a new history entry to the local bucket. The 50-entry cap is
+	 * enforced inside `createHistoryEntry`; here we just mirror the
+	 * pruning into the in-memory selector so the panel updates without
+	 * a refetch.
 	 *
 	 * @param {Object} entry History entry data.
 	 */
 	addHistoryEntry:
 		(entry) =>
-		async ({ dispatch, select: sel }) => {
+		async ({ dispatch }) => {
 			try {
-				const current = sel.getHistory();
-				const oldestId =
-					current.length >= 50
-						? current[current.length - 1]?.id
-						: undefined;
-
-				const created = await postHistoryEntry({
-					...entry,
-					oldestId,
-				});
-
+				const created = await postHistoryEntry(entry);
 				dispatch({ type: 'ADD_HISTORY_ENTRY', entry: created });
-
-				// Remove the pruned entry from local state.
-				if (oldestId) {
-					const updated = sel
-						.getHistory()
-						.filter((e) => e.id !== oldestId);
-					dispatch({ type: 'SET_HISTORY', history: updated });
-				}
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to save history entry:', error);
@@ -273,11 +250,10 @@ const actions = {
 	 */
 	clearAllHistory:
 		() =>
-		async ({ dispatch, select: sel }) => {
+		async ({ dispatch }) => {
 			try {
-				const ids = sel.getHistory().map((e) => e.id);
 				dispatch({ type: 'CLEAR_HISTORY' });
-				await deleteAllHistory(ids);
+				await deleteAllHistory();
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.error('Failed to clear history:', error);

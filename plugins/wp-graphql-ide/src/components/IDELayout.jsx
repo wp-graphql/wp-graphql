@@ -198,7 +198,6 @@ export function IDELayout({ fetcher, onClose }) {
 			const docId = executingDocIdRef.current;
 			const responseStr = JSON.stringify(result, null, 2);
 
-			// Save to global history via CPT.
 			addHistoryEntry({
 				query: executingQueryRef.current || '',
 				variables: vars || '',

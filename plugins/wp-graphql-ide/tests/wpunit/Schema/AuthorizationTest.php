@@ -2,21 +2,20 @@
 /**
  * Tests for the IDE's GraphQL authorization filters.
  *
- * Two filters together enforce per-user isolation across the IDE's
- * GraphQL surface:
+ * Two filters together enforce per-user isolation on Smart Cache's
+ * `graphql_document` post type (the IDE's canonical document owner as
+ * of 5.0):
  *   - scope_graphql_connections (list-level — filters connection args)
  *   - restrict_post_visibility  (single-node level — marks foreign
  *     records private at the Model layer)
  *
- * The IDE applies both to two post types:
- *   - `graphql_document` (Smart Cache's saved-query post type, the IDE's
- *     canonical document owner as of 5.0)
- *   - `graphql_ide_history` (the IDE's execution-log post type)
- *
  * These tests are the load-bearing security guarantee. If any go red,
  * a user holding `manage_graphql_ide` can read another user's saved
- * documents or history through the GraphQL schema — which is exactly
- * the failure mode that motivated both filters in the first place.
+ * documents through the GraphQL schema — which is exactly the failure
+ * mode that motivated both filters in the first place.
+ *
+ * Execution history has no GraphQL surface as of 5.0 (localStorage
+ * only), so there's nothing to authorize on that side.
  */
 
 namespace Tests\WPGraphQLIDE\Schema;
@@ -63,14 +62,6 @@ class AuthorizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		] );
 	}
 
-	private function create_ide_history( int $author ): int {
-		return $this->factory()->post->create( [
-			'post_type'   => 'graphql_ide_history',
-			'post_status' => 'publish',
-			'post_author' => $author,
-		] );
-	}
-
 	// ---------------------------------------------------------------
 	// Connection scoping — scope_graphql_connections
 	// ---------------------------------------------------------------
@@ -98,18 +89,6 @@ class AuthorizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Anonymous → author = 0, which matches no posts.
 		$this->assertEmpty( $response['data']['graphqlDocuments']['nodes'] );
-	}
-
-	public function test_history_connection_is_also_scoped() {
-		$this->create_ide_history( $this->user_a );
-		$this->create_ide_history( $this->user_b );
-
-		wp_set_current_user( $this->user_a );
-		$response = $this->graphql( [ 'query' => '{ ideHistoryEntries { nodes { databaseId author { node { databaseId } } } } }' ] );
-
-		$nodes = $response['data']['ideHistoryEntries']['nodes'];
-		$this->assertCount( 1, $nodes );
-		$this->assertEquals( $this->user_a, $nodes[0]['author']['node']['databaseId'] );
 	}
 
 	// ---------------------------------------------------------------
@@ -153,18 +132,6 @@ class AuthorizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Visibility-marked-private resolves to null at the node field.
 		$this->assertNull( $response['data']['node'] );
-	}
-
-	public function test_history_entry_single_node_is_gated() {
-		$post_id = $this->create_ide_history( $this->user_a );
-
-		wp_set_current_user( $this->user_b );
-		$response = $this->graphql( [
-			'query'     => 'query($id: ID!) { ideHistoryEntry(id: $id, idType: DATABASE_ID) { databaseId } }',
-			'variables' => [ 'id' => (string) $post_id ],
-		] );
-
-		$this->assertNull( $response['data']['ideHistoryEntry'] );
 	}
 
 	public function test_anonymous_single_node_lookup_is_gated() {

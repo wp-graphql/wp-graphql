@@ -2,10 +2,7 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import {
-	HistoryEntry,
-	HISTORY_ENTRY_FRAGMENT,
-} from '../../../../src/components/HistoryEntry';
+import { HistoryEntry } from '../../../../src/components/HistoryEntry';
 
 const ENTRY = {
 	id: 42,
@@ -98,40 +95,5 @@ describe('HistoryEntry', () => {
 		expect(
 			document.querySelector('.wpgraphql-ide-history-entry-preview')
 		).toBeNull();
-	});
-});
-
-describe('HISTORY_ENTRY_FRAGMENT', () => {
-	it('declares an IdeHistoryEntry fragment named IdeHistoryEntryFields', () => {
-		// Operation documents in src/api/history.js spread the fragment by
-		// name (`...IdeHistoryEntryFields`); if this name changes, those
-		// queries break. Snapshot the contract here.
-		expect(HISTORY_ENTRY_FRAGMENT).toMatch(
-			/fragment\s+IdeHistoryEntryFields\s+on\s+IdeHistoryEntry/
-		);
-	});
-
-	it('selects every wire field the adapter maps into the component shape', () => {
-		// Mirrors `adaptHistoryEntry` in src/api/history.js. Drift between
-		// the two is the bug class this test exists to catch: render
-		// something the fragment doesn't fetch and the field comes back
-		// undefined.
-		for (const field of [
-			'id',
-			'databaseId',
-			'date',
-			'queryString',
-			'variables',
-			'headers',
-			'durationMs',
-			'executionStatus',
-			'documentId',
-			'isAuthenticated',
-			'httpMethod',
-		]) {
-			expect(HISTORY_ENTRY_FRAGMENT).toMatch(
-				new RegExp(`\\b${field}\\b`)
-			);
-		}
 	});
 });

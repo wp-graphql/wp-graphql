@@ -2,36 +2,6 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { deriveDocTitle } from '../utils/derive-doc-title';
 
-/**
- * GraphQL fragment for the IdeHistoryEntry fields this component (and its
- * parent's restore action) consumes. Exported so the data layer can compose
- * it into the outgoing operation document without re-declaring the field
- * selection in `src/api/history.js` — when this component starts rendering
- * a new field, the only place to update is this file.
- *
- * Wire shape (GraphQL field names). The adapter in `src/api/history.js`
- * maps these to the snake_case shape the component actually reads from
- * `props.entry` (`durationMs` → `duration_ms`, etc.). If you add a field
- * here you also need a line in `adaptHistoryEntry` until codegen lands.
- *
- * @since x-release-please-version
- */
-export const HISTORY_ENTRY_FRAGMENT = `
-	fragment IdeHistoryEntryFields on IdeHistoryEntry {
-		id
-		databaseId
-		date
-		queryString
-		variables
-		headers
-		durationMs
-		executionStatus
-		documentId
-		isAuthenticated
-		httpMethod
-	}
-`;
-
 const HISTORY_TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
 	month: 'short',
 	day: 'numeric',
@@ -58,11 +28,8 @@ function queryPreview(query) {
  * header above a query label and one-line preview. Clicking restores
  * the entry into a new tab; the parent owns the actual restore action.
  *
- * Pure presentational leaf so the data dependency (the exported
- * fragment above) and the rendering live in the same file.
- *
  * @param {Object}   props
- * @param {Object}   props.entry       - Adapted history entry. Shape matches `adaptHistoryEntry` in `src/api/history.js`.
+ * @param {Object}   props.entry       - Adapted history entry. Shape matches `createLocalHistoryEntry`'s return value.
  * @param {Function} props.onRestore   - Called with the entry when the row is clicked.
  * @param {string}   [props.avatarUrl] - Optional avatar to render in the row header.
  *

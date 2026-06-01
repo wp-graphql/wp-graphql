@@ -1,30 +1,48 @@
 /**
- * localStorage-backed execution history for anonymous visitors on the
- * public `/graphql` endpoint. Mirrors the function shape of
- * `./history.js` (server-backed, logged-in users) so the router in
- * that file can swap backends without touching callsites.
+ * localStorage-backed execution history. The sole backend for the
+ * IDE's History panel.
  *
- * Storage model: a single per-browser bucket capped at 50 entries,
- * newest first — same model GraphiQL itself uses. No per-user scoping
- * key (anonymous visitors have no user id; multiple anonymous users
- * sharing a browser will see each other's history, same as 4.x and
- * vanilla GraphiQL).
+ * Storage model: one bucket per (WordPress user, IDE context), capped
+ * at 50 entries, newest first. Scoping by user + context mirrors the
+ * device-preferences pattern in `./preferences.js` so admins sharing a
+ * browser don't see each other's history, and the admin IDE bucket
+ * stays distinct from the public-endpoint bucket on the same site.
+ * Anonymous public-endpoint visitors share a single `user-0:ctx-endpoint`
+ * bucket (same model GraphiQL itself uses).
+ *
+ * Key format: `wpgraphql-ide:local-history:v1:user-{userId}:ctx-{context}`.
+ * Computed at call time, not module load, so a late `WPGRAPHQL_IDE_DATA`
+ * injection or sign-in mid-session is picked up without a reload.
  *
  * @since x-release-please-version
  */
 
 import { getStorageJSON, setStorageJSON } from '../utils/storage';
 
-const STORAGE_KEY = 'wpgraphql-ide:local-history:v1';
+const STORAGE_VERSION = 'v1';
 const MAX_ENTRIES = 50;
 
+/**
+ * Compute the per-visitor storage key. Reads `WPGRAPHQL_IDE_DATA` each
+ * call so sign-in/sign-out mid-session lands in the right bucket.
+ *
+ * @return {string}
+ */
+function storageKey() {
+	const data =
+		typeof window !== 'undefined' ? window.WPGRAPHQL_IDE_DATA : null;
+	const id = (data && Number(data?.context?.currentUserId)) || 0;
+	const ctx = data?.endpointMode ? 'endpoint' : 'admin';
+	return `wpgraphql-ide:local-history:${STORAGE_VERSION}:user-${id}:ctx-${ctx}`;
+}
+
 function readAll() {
-	const data = getStorageJSON(STORAGE_KEY, []);
+	const data = getStorageJSON(storageKey(), []);
 	return Array.isArray(data) ? data : [];
 }
 
 function writeAll(entries) {
-	setStorageJSON(STORAGE_KEY, entries);
+	setStorageJSON(storageKey(), entries);
 }
 
 /**
@@ -51,15 +69,13 @@ export async function getLocalHistory() {
 }
 
 /**
- * Append a new local entry, pruning to the 50-entry cap. Returns the
- * adapted entry in the same shape the server backend returns so the
- * store reducer doesn't need to branch.
+ * Append a new local entry, pruning to the 50-entry cap.
  *
  * @param {Object} entry Snake_case shape: `{ query, variables, headers,
  *                       duration_ms, status, document_id, is_authenticated,
  *                       http_method }`. `oldestId` is accepted and ignored
- *                       for parity with the server backend; pruning here is
- *                       implicit since we own the bucket.
+ *                       for signature parity with older callers; pruning here
+ *                       is implicit since we own the bucket.
  * @return {Promise<Object>}
  */
 export async function createLocalHistoryEntry(entry) {
@@ -99,10 +115,9 @@ export async function deleteLocalHistoryEntry(id) {
 }
 
 /**
- * Wipe all local history. The router in `./history.js` calls this
- * with the same `ids` array the server backend needs for its per-entry
- * delete fan-out; we ignore it because we own the bucket and can drop
- * it wholesale.
+ * Wipe all local history for the current bucket. Accepts an `ids`
+ * argument for signature parity with older callers and ignores it —
+ * we own the bucket and can drop it wholesale.
  *
  * @return {Promise<void>}
  */

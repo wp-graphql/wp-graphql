@@ -16,10 +16,9 @@ describe('migrateLegacyHistory', () => {
 	});
 
 	it('runs for anonymous visitors too and hands entries to createHistoryEntry', async () => {
-		// The migrator no longer gates on endpointMode — the
-		// createHistoryEntry router decides the backend by auth state.
-		// What this test asserts is that anonymous visitors aren't
-		// short-circuited the way they were in the first cut.
+		// Asserts the migrator does not short-circuit on anonymous /
+		// endpoint-mode visitors — every visitor gets to keep their 4.x
+		// history when they upgrade.
 		window.localStorage.setItem(
 			LEGACY_KEY,
 			JSON.stringify([{ query: '{ posts { id } }' }])
@@ -32,10 +31,10 @@ describe('migrateLegacyHistory', () => {
 		expect(window.localStorage.getItem(FLAG_KEY)).toBe('1');
 	});
 
-	it('omits is_authenticated so each backend default applies', async () => {
-		// Server backend defaults to true (must be logged in to hit it);
-		// local backend defaults to false (must be anon to land there).
-		// Migrator stays neutral so the same call works for both.
+	it('omits is_authenticated so the local backend default applies', async () => {
+		// The local backend defaults `is_authenticated` to false; the
+		// migrator stays neutral so a signed-in admin who later runs a
+		// new query records the accurate auth state at that point.
 		window.localStorage.setItem(
 			LEGACY_KEY,
 			JSON.stringify([{ query: '{ posts { id } }' }])
@@ -106,7 +105,7 @@ describe('migrateLegacyHistory', () => {
 		expect(createHistoryEntry).not.toHaveBeenCalled();
 	});
 
-	it('migrates legacy entries to the server with snake_case shape', async () => {
+	it('migrates legacy entries into the local bucket with snake_case shape', async () => {
 		window.localStorage.setItem(
 			LEGACY_KEY,
 			JSON.stringify([

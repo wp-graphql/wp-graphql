@@ -28,7 +28,7 @@ WPGraphQL IDE is a next-generation query editor for WPGraphQL, built on WordPres
 * Response panes: JSON viewer, table view, status code / duration / size / resolver-count badges, request tracing, query log, N+1 detection
 * Variables and headers editors with their own autocomplete
 * Per-document settings (description, alias names, max-age cache hint, allow/deny)
-* Execution history (server-backed for signed-in users, browser-local on the public endpoint)
+* Execution history persisted to localStorage, scoped per WordPress user and IDE context — available to anonymous public-endpoint visitors too
 * Saved Queries panel with personal collections and share links (when WPGraphQL Smart Cache is also active)
 * Full keyboard support: Cmd+Enter to execute, Ctrl+Shift+P to prettify, arrow keys to switch tabs
 
@@ -37,7 +37,7 @@ WPGraphQL IDE is a next-generation query editor for WPGraphQL, built on WordPres
 * **Rebuilt UI** on `@wordpress/components` and `@wordpress/data`. The legacy GraphiQL wrapper is gone — see the Upgrade Notice if you have customizations.
 * **Smart Cache integration.** Saved documents now live in `wp-graphql-smart-cache`'s `graphql_document` post type — one canonical primitive for the WPGraphQL ecosystem. The IDE works standalone when Smart Cache isn't installed; Saved Queries / Document Settings / share links light up when it is.
 * **Three render modes** (above), each individually configurable.
-* **Schema-typed data layer.** Document, collection, and history operations run through WPGraphQL itself instead of the WordPress REST API.
+* **Schema-typed data layer.** Document and collection operations run through WPGraphQL itself instead of the WordPress REST API.
 * **Full internationalization.** Every UI string passes through `@wordpress/i18n` under the `wpgraphql-ide` text domain.
 * **Auto-upgrade from 4.x.** Open tabs and query history saved by the legacy GraphiQL UI migrate forward on first 5.0 load.
 
@@ -122,8 +122,7 @@ WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in 
 
 * IDE UI rebuilt on `@wordpress/components` + `@wordpress/data` + CodeMirror 6. Legacy GraphiQL wrapper removed.
 * Saved-document storage moved to WPGraphQL Smart Cache's `graphql_document` post type. The IDE-owned `graphql_ide_query` post type, `graphql_ide_collection` taxonomy, and Document-Settings taxonomies are removed. Saved Queries / Document Settings / share links require Smart Cache to be active.
-* GraphQL types `IdeQuery`, `IdeQueries`, `IdeCollection`, `IdeCollections` removed. Use `graphqlDocument` / `graphqlDocumentGroup` (from Smart Cache) instead. `IdeHistoryEntry` remains.
-* `IdeHistoryEntry.status` renamed to `IdeHistoryEntry.executionStatus` (the old name shadowed the inherited `Post.status` field).
+* GraphQL types `IdeQuery`, `IdeQueries`, `IdeCollection`, `IdeCollections` removed. Use `graphqlDocument` / `graphqlDocumentGroup` (from Smart Cache) instead.
 * REST routes removed: `/wpgraphql-ide/v1/documents/:id/publish` and `/wpgraphql-ide/v1/documents/collections/:id`. The publish flow is now a standard `POST /wp/v2/graphql_document/:id`; cascade-delete is client-side.
 * `wpgraphql_ide_capability_required` filter now consulted at every IDE permission check — REST callbacks, post-type / taxonomy capability maps, meta auth, admin menu, public-endpoint flag. Hosts overriding the cap to a different value will now find their override honored end-to-end (previously only the admin menu link was gated).
 * Legacy `graphiql_*` hook aliases dropped (`enqueue_graphiql_extension`, `graphiql_external_fragments`, `graphiql_rendered`, `graphiql_toolbar_before_buttons`, `graphiql_toolbar_after_buttons`). Use the canonical `wpgraphql_ide_*` / `wpgraphql-ide.*` names.

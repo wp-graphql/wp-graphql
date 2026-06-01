@@ -5,23 +5,16 @@
  * 4.x stored execution history under the GraphiQL default
  * `graphiql:queries` localStorage key (an array of `{ query,
  * variables, headers, operationName, favorite, label }` entries).
- * 5.0 persists history through the `createHistoryEntry` router in
- * `./history.js`, which dispatches to:
- *   - the per-user `graphql_ide_history` CPT for logged-in visitors,
- *   - the browser-local bucket for anonymous public-endpoint visitors.
+ * 5.0 persists history through `createHistoryEntry` in `./history.js`,
+ * which writes to the per-(user, context) localStorage bucket in
+ * `./history-local.js`.
  *
- * This migrator doesn't care which — it just hands each legacy entry
- * to `createHistoryEntry` and lets the router pick the backend. That
- * means an anonymous visitor who upgraded from 4.x sees their old
- * queries reappear in the local panel, and a logged-in admin who
- * upgraded sees them reappear in their account history. Symmetric.
- *
- * Migration semantics (independent of backend):
+ * Migration semantics:
  *   - One-shot. Records a flag so repeat boots are no-ops.
  *   - Reads the legacy key, hands each entry to `createHistoryEntry`,
  *     then clears the legacy key.
  *   - Marks itself complete *regardless of per-entry success* so a
- *     transient backend hiccup doesn't cause repeat boots to duplicate
+ *     transient hiccup doesn't cause repeat boots to duplicate
  *     the entries that did succeed. Worst-case impact of a failure is
  *     losing some legacy history — recoverable by re-running queries.
  *   - Caps at the same 50-entry limit the runtime enforces; older
@@ -77,10 +70,8 @@ function normalizeEntry(entry) {
 		variables: typeof entry.variables === 'string' ? entry.variables : '',
 		headers: typeof entry.headers === 'string' ? entry.headers : '',
 		// 4.x didn't track these — fill in safe defaults. `is_authenticated`
-		// is deliberately omitted so each backend's own default applies
-		// (server CPT defaults to true since you must be logged in to
-		// hit it; local bucket defaults to false since you must be
-		// anonymous to land there).
+		// is deliberately omitted so the local backend's default (false)
+		// applies; a sign-in mid-session is recorded on subsequent runs.
 		duration_ms: 0,
 		status: '',
 		document_id: 0,
@@ -89,10 +80,7 @@ function normalizeEntry(entry) {
 }
 
 /**
- * Run the history migration if it hasn't already run. The backend
- * (server CPT vs local bucket) is picked by `createHistoryEntry`'s
- * router based on the current auth state, so this function takes no
- * options.
+ * Run the history migration if it hasn't already run.
  *
  * @return {Promise<{ migrated: boolean, attempted?: number, succeeded?: number, skipped?: 'flag' | 'no-storage' | 'no-legacy-key' | 'empty' | 'parse-error' }>}
  */

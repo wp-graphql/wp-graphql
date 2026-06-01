@@ -9,11 +9,6 @@
 
 ### Breaking changes
 
-- **Schema:** `IdeHistoryEntry.status` renamed to `IdeHistoryEntry.executionStatus`.
-  The original name shadowed the inherited `Post.status` field (which returns
-  `post_status`) and silently resolved to the post status instead of the meta
-  value. Any consumer reading `status` for the meta value (success/error/etc.)
-  must update to `executionStatus`.
 - **Document storage:** the IDE no longer owns a "saved query" primitive of
   its own. The 4.x `graphql_ide_query` post type, the `graphql_ide_collection`
   taxonomy, and the three Document Settings taxonomies
@@ -34,9 +29,7 @@
   `IdeCollection` / `IdeCollections` GraphQL types are removed (consequence
   of the post-type / taxonomy removals above). Consumers query
   `graphqlDocument` and `graphqlDocumentGroup` directly via Smart Cache's
-  schema. `IdeHistoryEntry` / `IdeHistoryEntries` remains as the IDE's
-  execution-history surface; its `documentId` field now references a
-  `graphqlDocument` ID instead of an `IdeQuery` ID.
+  schema.
 - **REST capability:** the share-collection dialog now requires `list_users`
   in addition to `manage_graphql_ide`. IDE users without `list_users` will see
   the Sharing affordance hidden instead of opening onto a permission-denied

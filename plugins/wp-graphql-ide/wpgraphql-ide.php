@@ -102,7 +102,6 @@ function initialize_plugin() {
 	// fires `_doing_it_wrong` warnings whenever WP-CLI scans plugin
 	// metadata before `init`. Letting WP own the loading entirely
 	// removes our half of the race.
-	add_action( 'init', [ \WPGraphQLIDE\PostTypes::class, 'register' ] );
 	add_action( 'init', [ \WPGraphQLIDE\UserMeta::class, 'register' ] );
 
 	// Bridge Smart Cache's primitives (graphql_document + 4 taxonomies)
@@ -128,18 +127,16 @@ function initialize_plugin() {
 	add_filter( 'graphql_get_setting_section_field_value', [ \WPGraphQLIDE\SettingsPage::class, 'force_legacy_graphiql_off' ], 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ \WPGraphQLIDE\AdminUI::class, 'add_settings_link' ] );
 
-	// Scope REST queries to the current user's own documents/history.
+	// Scope REST queries to the current user's own documents.
 	// `graphql_document` is Smart Cache's saved-document post type — the
 	// filter no-ops when SC isn't installed (the hook simply never fires).
 	add_filter( 'rest_graphql_document_query', [ \WPGraphQLIDE\Access::class, 'scope_rest_queries' ] );
-	add_filter( 'rest_graphql_ide_history_query', [ \WPGraphQLIDE\Access::class, 'scope_rest_queries' ] );
 
 	// Enforce manage_graphql_ide capability on all IDE REST routes.
 	add_filter( 'rest_pre_dispatch', [ \WPGraphQLIDE\Access::class, 'enforce_rest_permissions' ], 10, 3 );
 
-	// Prevent access to documents/history owned by other users on single routes.
+	// Prevent access to documents owned by other users on single routes.
 	add_filter( 'rest_prepare_graphql_document', [ \WPGraphQLIDE\Access::class, 'restrict_document_response' ], 10, 3 );
-	add_filter( 'rest_prepare_graphql_ide_history', [ \WPGraphQLIDE\Access::class, 'restrict_document_response' ], 10, 3 );
 
 	// Cap document title length on every write path so a long POST body
 	// can't bloat the DB or break admin-UI layouts. Covers REST creates
@@ -150,14 +147,13 @@ function initialize_plugin() {
 	// Custom REST routes.
 	add_action( 'rest_api_init', [ \WPGraphQLIDE\Rest::class, 'register' ] );
 
-	// GraphQL: register IDE-specific fields (meta) on the exposed types
-	// and scope connections to the current user so the IDE's data is
-	// queryable from GraphQL but isolated per user — same contract as
-	// the REST endpoints. The `graphql_data_is_private` filter closes
-	// the single-node lookup hole left by the connection-only filter:
-	// without it, `node(id: "...")` could resolve another user's
-	// IdeQuery if the requester knew its global ID.
-	add_action( 'graphql_register_types', [ \WPGraphQLIDE\GraphQLSchema::class, 'register' ] );
+	// GraphQL: scope Smart Cache `graphqlDocument` connections to the
+	// current user so the IDE's data is queryable from GraphQL but
+	// isolated per user — same contract as the REST endpoints. The
+	// `graphql_data_is_private` filter closes the single-node lookup
+	// hole left by the connection-only filter: without it,
+	// `node(id: "...")` could resolve another user's document if the
+	// requester knew its global ID.
 	add_filter( 'graphql_connection_query_args', [ \WPGraphQLIDE\Access::class, 'scope_graphql_connections' ], 10, 2 );
 	add_filter( 'graphql_data_is_private', [ \WPGraphQLIDE\Access::class, 'restrict_post_visibility' ], 10, 6 );
 

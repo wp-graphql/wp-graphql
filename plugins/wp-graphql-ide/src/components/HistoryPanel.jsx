@@ -15,15 +15,14 @@ export const HistoryIcon = () => <Icon icon={backup} />;
 /**
  * History panel content.
  *
- * Displays global execution history. Clicking an entry restores its
- * query, variables, and headers into the current active tab.
+ * Displays execution history for the current visitor. Clicking an
+ * entry restores its query, variables, and headers into a new tab.
  *
- * Backend is auth-aware (see `src/api/history.js`):
- *   - Logged-in users → server `graphql_ide_history` CPT, per-user.
- *   - Anonymous public-endpoint visitors → browser-local bucket
- *     (same model GraphiQL itself uses).
- *
- * Same component, same data shape, regardless of which backend.
+ * Backed entirely by localStorage via `src/api/history.js` — buckets
+ * are scoped per (WordPress user, IDE context) so admins sharing a
+ * browser don't see each other's history and the admin-IDE bucket
+ * stays distinct from the public-endpoint bucket. Works identically
+ * for anonymous public-endpoint visitors and logged-in admins.
  */
 export function HistoryPanel() {
 	const { confirm } = useDialog();

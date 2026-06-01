@@ -19,7 +19,7 @@ If you registered custom toolbar buttons, sidebar panels, or hooked any IDE filt
 The 4.x GraphiQL UI persisted its working state in browser localStorage. On first 5.0 load, the IDE checks for those legacy keys and ports the data forward into 5.0's storage backends, then deletes the legacy keys so subsequent loads are no-ops.
 
 - **Open tabs** — `graphiql:tabState` is read, the open tabs are carried as drafts in the new preference store (`open_tabs` + `active_tab`), and the previously-active tab is restored as focused.
-- **Query history** — `graphiql:queries` is read and each entry is replayed through the new history backend. For logged-in users the entries land in the server-backed `graphql_ide_history` CPT; on the public-endpoint mode (anonymous), they land in a browser-local bucket.
+- **Query history** — `graphiql:queries` is read and each entry is replayed into the 5.0 history backend (`wpgraphql-ide:local-history:v1:user-{userId}:ctx-{context}` in localStorage, scoped per WordPress user and IDE context). The same model is used for both signed-in admins and anonymous public-endpoint visitors.
 
 The migration is one-shot, tolerates partial failure, and is idempotent — repeat loads are no-ops once the legacy keys are gone.
 
@@ -55,10 +55,6 @@ Ten paired `wpgraphql-ide.register*Error` actions were dropped — they were nev
 - `IdeQuery`, `IdeQueries` — replaced by `graphqlDocument` / `graphqlDocuments` (provided by WPGraphQL Smart Cache).
 - `IdeCollection`, `IdeCollections` — replaced by `graphqlDocumentGroup` / `graphqlDocumentGroups`.
 
-### Renamed fields
-
-- `IdeHistoryEntry.status` → `IdeHistoryEntry.executionStatus`. The old name shadowed the inherited `Post.status` field (which returned `post_status`) and silently resolved to the wrong value.
-
 ### New on `GraphqlDocument`
 
 `variables` and `headers` are now exposed as `String` fields on `GraphqlDocument`, with matching inputs on `CreateGraphqlDocumentInput` and `UpdateGraphqlDocumentInput`. These carry the IDE's per-document execution context (JSON-encoded variables and HTTP headers) so extensions can read and write the IDE's full saved-query state through the GraphQL schema instead of dropping to REST.
@@ -81,7 +77,7 @@ If you override this filter, **verify your custom capability has the permissions
 If you previously enabled the **Public IDE at GraphQL endpoint** setting in 4.x:
 
 - The setting carries over unchanged.
-- Anonymous visitors now get a browser-local history bucket (capped at 50 entries) instead of seeing a sign-in wall in the History panel.
+- Anonymous visitors get a browser-local history bucket (capped at 50 entries) — the same model signed-in admins use.
 - The IDE shell ships a feature-trimmed UI for anonymous visitors (no Save / saved queries / share / topbar actions). Toggle **Allow sign-in on the public IDE** to surface a sign-in prompt.
 
 ## What to do if your site stored saved queries in 4.x

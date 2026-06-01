@@ -14,7 +14,7 @@ It depends on the WPGraphQL core plugin and integrates with WPGraphQL Smart Cach
 - **Schema-aware** autocomplete and a docs explorer.
 - **Response viewer** with JSON, Table, and Raw modes.
 - **Response extension tabs** for Errors, Debug, Tracing, Query Log, and any plugin's `extensions` data.
-- **Execution history** persisted as a custom post type, scoped per user.
+- **Execution history** persisted to localStorage per (WordPress user, IDE context) — works for anonymous public-endpoint visitors too.
 - **Query composer** for visual query building.
 - **Extensible** through access functions, public `@wordpress/data` stores, and WordPress hooks.
 
@@ -23,7 +23,7 @@ It depends on the WPGraphQL core plugin and integrates with WPGraphQL Smart Cach
 - **State management** — `@wordpress/data` (Redux) stores. The store names are public API: `wpgraphql-ide/app`, `wpgraphql-ide/document-editor`, `wpgraphql-ide/activity-bar`, and the registry stores under `wpgraphql-ide/*`.
 - **Editors** — CodeMirror 6 (`cm6-graphql` for GraphQL, `@codemirror/lang-json` for JSON).
 - **UI** — `@wordpress/components`, following the Gutenberg post-editor layout: a global top bar, a left activity bar for global panels, and a document-scoped editor area with tabs.
-- **Persistence** — documents and history are WordPress custom post types accessed over the REST API; user preferences are user meta. See [API Surface](./api-surface.md).
+- **Persistence** — saved documents are Smart Cache's `graphql_document` custom post type, accessed over the REST API; user preferences are user meta; execution history is browser localStorage (per user + context). See [API Surface](./api-surface.md).
 
 ## Layout philosophy
 
