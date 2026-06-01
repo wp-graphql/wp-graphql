@@ -28,6 +28,7 @@ Docs for building on and extending the WPGraphQL IDE. The split mirrors core WPG
 - [Access Functions](./access-functions.md) — the `window.WPGraphQLIDE` registration API.
 - [Actions & Filters](./actions-and-filters.md) — PHP and JavaScript hooks, plus the execute pipeline.
 - [API Surface](./api-surface.md) — maintainer inventory of server-side surfaces (bootstrap data, GraphQL, REST, meta, caps).
+- [Internationalization](./internationalization.md) — textdomain, how WordPress 7.0 loads translations, and the gaps still to wire (`wp_set_script_translations` for the React app).
 
 ## Related
 

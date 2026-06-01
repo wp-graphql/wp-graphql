@@ -47,6 +47,10 @@
 		{
 			"title": "API Surface",
 			"href": "./api-surface.md"
+		},
+		{
+			"title": "Internationalization",
+			"href": "./internationalization.md"
 		}
 	]
 }

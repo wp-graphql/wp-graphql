@@ -9,6 +9,10 @@
 
 ### Breaking changes
 
+- **Minimum WordPress version:** raised from 6.1 to **7.0**. Aligns with the
+  modern i18n stack (performant `.l10n.php` translations from 6.5, just-in-
+  time textdomain loading from 6.7) and reflects the IDE's developer-tool
+  audience. See [`docs/internationalization.md`](docs/internationalization.md).
 - **Document storage:** the IDE no longer owns a "saved query" primitive of
   its own. The 4.x `graphql_ide_query` post type, the `graphql_ide_collection`
   taxonomy, and the three Document Settings taxonomies
