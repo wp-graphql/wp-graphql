@@ -14,21 +14,25 @@ import { basicSetup } from 'codemirror';
 import { validateVariableTypes } from './variableLinter';
 import { createVariableCompletionSource } from './variableCompletion';
 
-// Explicit highlight palette for JSON. basicSetup includes
-// `defaultHighlightStyle` as a fallback, but its colors are tuned for
-// dark themes and read as nearly-grey on the WP admin light surface —
-// users were getting an unstyled-looking editor for the Variables and
-// Headers tabs. The colors here mirror the reference (classic GraphiQL)
-// palette: green property names, red string values, blue numbers,
-// purple booleans/null. Token names come from `@lezer/json`'s
+// Explicit highlight palette for JSON. Colors route through the
+// `--json-color-*` CSS variables (declared on `#wpgraphql-ide-app` in
+// `ide-layout.css`) so IDE-themes can re-color the response viewer
+// without touching this file. basicSetup includes `defaultHighlightStyle`
+// as a fallback, but its colors are tuned for dark themes and read as
+// nearly-grey on the WP admin light surface — users were getting an
+// unstyled-looking editor for the Variables and Headers tabs without
+// this explicit palette. Token names come from `@lezer/json`'s
 // `jsonHighlighting`.
 const jsonHighlightStyle = HighlightStyle.define([
-	{ tag: t.propertyName, color: '#2e7d32' },
-	{ tag: t.string, color: '#a31515' },
-	{ tag: t.number, color: '#1751c1' },
-	{ tag: t.bool, color: '#7b1fa2' },
-	{ tag: t.null, color: '#7b1fa2' },
-	{ tag: [t.brace, t.squareBracket, t.separator], color: '#586069' },
+	{ tag: t.propertyName, color: 'var(--json-color-property)' },
+	{ tag: t.string, color: 'var(--json-color-string)' },
+	{ tag: t.number, color: 'var(--json-color-number)' },
+	{ tag: t.bool, color: 'var(--json-color-bool)' },
+	{ tag: t.null, color: 'var(--json-color-null)' },
+	{
+		tag: [t.brace, t.squareBracket, t.separator],
+		color: 'var(--json-color-punctuation)',
+	},
 ]);
 
 /**

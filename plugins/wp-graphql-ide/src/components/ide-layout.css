@@ -24,6 +24,17 @@
 	--gql-color-directive: #7a3e9d;        /* @include / @skip */
 	--gql-color-comment: #6a9955;
 	--gql-color-punctuation: var(--wp-components-color-gray-700, #50575e);      /* { } , : . */
+
+	/* JSON syntax palette — used by the Variables, Headers, and
+	   Response viewers. Separate from the GraphQL token set because
+	   the conventions differ (property names are colored, strings vs
+	   numbers vs literals have distinct meanings). */
+	--json-color-property: #2e7d32;
+	--json-color-string: #a31515;
+	--json-color-number: #1751c1;
+	--json-color-bool: #7b1fa2;
+	--json-color-null: #7b1fa2;
+	--json-color-punctuation: #586069;     /* braces, brackets, separators */
 }
 
 /* IDE chrome palette. These four shades sit between Gutenberg's
