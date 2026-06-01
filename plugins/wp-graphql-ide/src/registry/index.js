@@ -359,7 +359,7 @@ export const initializeRegistry = () => {
 	// Built-in "Settings" workspace tab — opened from the topbar settings
 	// button when the current user can manage WPGraphQL settings.
 	registerWorkspaceTabType(SETTINGS_TAB_ID, {
-		title: __('Settings', 'wpgraphql-ide'),
+		title: __('IDE', 'wpgraphql-ide'),
 		content: SettingsWorkspaceTab,
 	});
 	registerWorkspacePersistence(SETTINGS_TAB_ID, {

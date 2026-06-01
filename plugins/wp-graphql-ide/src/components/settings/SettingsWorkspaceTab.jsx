@@ -14,11 +14,11 @@ import {
 	subscribeSettingsSaved,
 } from './settings-tab-state';
 
-// Virtual section for the color-theme picker. Lives next to the
-// PHP-registered settings sections in the Settings tab nav but doesn't
-// participate in the `graphql_ide_settings` option's save flow — its
-// dropdown writes per-user `admin_color` user meta directly via REST.
-const COLOR_THEME_SLUG = '__color-theme__';
+// Slug of the PHP-registered section that hosts the IDE's own settings
+// — admin-bar link behavior, public endpoint toggle, legacy editor.
+// We append the per-user color-theme picker at the bottom of this
+// section so all IDE-specific knobs live in one place.
+const IDE_SETTINGS_SECTION = 'graphql_ide_settings';
 
 export function SettingsWorkspaceTab() {
 	const sections = useMemo(() => {
@@ -101,8 +101,8 @@ export function SettingsWorkspaceTab() {
 		() => sections.find((s) => s.slug === activeSlug) || sections[0],
 		[sections, activeSlug]
 	);
-	const isColorTheme = activeSlug === COLOR_THEME_SLUG;
-	const hasColorSchemes =
+	const showColorTheme =
+		activeSection?.slug === IDE_SETTINGS_SECTION &&
 		Object.keys(window.WPGRAPHQL_IDE_DATA?.adminColor?.schemes || {})
 			.length > 0;
 
@@ -131,7 +131,6 @@ export function SettingsWorkspaceTab() {
 							<button
 								type="button"
 								className={`wpgraphql-ide-settings-nav-item${
-									!isColorTheme &&
 									section.slug === activeSection?.slug
 										? ' is-active'
 										: ''
@@ -143,40 +142,10 @@ export function SettingsWorkspaceTab() {
 							</button>
 						</li>
 					))}
-					{hasColorSchemes && (
-						<li>
-							<button
-								type="button"
-								className={`wpgraphql-ide-settings-nav-item${
-									isColorTheme ? ' is-active' : ''
-								}`}
-								title={__('Color Theme', 'wpgraphql-ide')}
-								onClick={() => setActiveSlug(COLOR_THEME_SLUG)}
-							>
-								{__('Color Theme', 'wpgraphql-ide')}
-							</button>
-						</li>
-					)}
 				</ul>
 			</nav>
 			<div className="wpgraphql-ide-settings-pane">
-				{isColorTheme && (
-					<>
-						<header className="wpgraphql-ide-settings-pane-header">
-							<div className="wpgraphql-ide-settings-pane-heading">
-								<h2>{__('Color Theme', 'wpgraphql-ide')}</h2>
-								<p className="wpgraphql-ide-settings-pane-desc">
-									{__(
-										'Switch the WordPress admin color scheme for your user. Useful when previewing how the IDE adapts to different themes.',
-										'wpgraphql-ide'
-									)}
-								</p>
-							</div>
-						</header>
-						<ColorThemeSection />
-					</>
-				)}
-				{!isColorTheme && activeSection && (
+				{activeSection && (
 					<>
 						<header className="wpgraphql-ide-settings-pane-header">
 							<div className="wpgraphql-ide-settings-pane-heading">
@@ -225,6 +194,7 @@ export function SettingsWorkspaceTab() {
 								);
 							})}
 						</div>
+						{showColorTheme && <ColorThemeSection />}
 					</>
 				)}
 			</div>
