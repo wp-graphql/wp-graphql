@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { Icon, arrowLeft, search } from '@wordpress/icons';
@@ -97,6 +97,13 @@ export function DocsExplorerPanel() {
 	);
 
 	const [stack, setStack] = useState([]);
+	// Search lives at the panel level (not inside `RootView`) so it
+	// stays visible — and the input keeps focus + content — as the
+	// user navigates into specific types and back. Any non-empty
+	// search term takes over the body of the panel with results;
+	// clicking a result navigates AND clears the input so the user
+	// drops cleanly into the type they picked.
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const pushType = (type) => {
 		const named = getNamedType(type);
@@ -127,6 +134,18 @@ export function DocsExplorerPanel() {
 		});
 	};
 
+	// Navigation helpers that also clear the active search — so a search
+	// → click → type-view transition doesn't leave a stale term in the
+	// input. The user can refine the search by typing again at any time.
+	const selectType = (type) => {
+		pushType(type);
+		setSearchTerm('');
+	};
+	const selectField = (typeName, fieldName) => {
+		pushFrame(typeName, fieldName);
+		setSearchTerm('');
+	};
+
 	// One-shot navigation request from outside the panel (e.g. cmd-click in
 	// the editor). The app store holds it as a `{ typeName, fieldName }` pair;
 	// we read via useSelect, push onto the stack, and dispatch a clear so the
@@ -147,6 +166,51 @@ export function DocsExplorerPanel() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [docsNavTarget]);
 
+	// Categorized search results — types and fields are surfaced
+	// separately so users can pick the right kind of match. Both lists
+	// are capped to keep large schemas (the WPGraphQL schema has ~600
+	// types) responsive.
+	const trimmed = searchTerm.trim();
+	const { typeMatches, fieldMatches } = useMemo(() => {
+		if (!schema || !trimmed) {
+			return { typeMatches: [], fieldMatches: [] };
+		}
+		const q = trimmed.toLowerCase();
+		const types = [];
+		const fields = [];
+		for (const t of Object.values(schema.getTypeMap())) {
+			if (t.name.startsWith('__')) {
+				continue;
+			}
+			if (t.name.toLowerCase().includes(q)) {
+				types.push(t);
+			}
+			if (typeof t.getFields === 'function') {
+				let fieldMap;
+				try {
+					fieldMap = t.getFields();
+				} catch {
+					continue;
+				}
+				for (const f of Object.values(fieldMap)) {
+					if (f.name.toLowerCase().includes(q)) {
+						fields.push({ type: t, field: f });
+					}
+				}
+			}
+		}
+		types.sort((a, b) => a.name.localeCompare(b.name));
+		fields.sort((a, b) => {
+			const aKey = `${a.type.name}.${a.field.name}`;
+			const bKey = `${b.type.name}.${b.field.name}`;
+			return aKey.localeCompare(bKey);
+		});
+		return {
+			typeMatches: types.slice(0, 25),
+			fieldMatches: fields.slice(0, 50),
+		};
+	}, [schema, trimmed]);
+
 	if (!schema) {
 		return (
 			<div className="wpgraphql-ide-docs-panel">
@@ -160,25 +224,86 @@ export function DocsExplorerPanel() {
 		);
 	}
 
-	// Current view — either root or a specific type.
 	const current = stack.length > 0 ? stack[stack.length - 1] : null;
+	const type = current ? schema.getType(current.name) : null;
 
-	if (!current) {
+	return (
+		<div className="wpgraphql-ide-docs-panel">
+			<div className="wpgraphql-ide-docs-search-header">
+				<input
+					type="text"
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+					placeholder={__(
+						'Search types and fields…',
+						'wpgraphql-ide'
+					)}
+					aria-label={__(
+						'Search GraphQL schema types and fields',
+						'wpgraphql-ide'
+					)}
+					className="wpgraphql-ide-docs-search"
+				/>
+			</div>
+			<div className="wpgraphql-ide-docs-body">
+				{renderBody({
+					trimmed,
+					typeMatches,
+					fieldMatches,
+					schema,
+					current,
+					type,
+					selectType,
+					selectField,
+					goBack,
+				})}
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Pick the right body view for the docs panel. Lifted out so the
+ * panel render avoids nested ternaries.
+ *
+ * @param {Object}      ctx              Body-render context.
+ * @param {string}      ctx.trimmed      Active search term (already trimmed).
+ * @param {Array}       ctx.typeMatches  Capped type matches for the current search.
+ * @param {Array}       ctx.fieldMatches Capped `{type, field}` matches for the current search.
+ * @param {Object}      ctx.schema       Active GraphQL schema.
+ * @param {Object|null} ctx.current      Top frame on the navigation stack, if any.
+ * @param {Object|null} ctx.type         Resolved GraphQL type for `current`, if any.
+ * @param {Function}    ctx.selectType   Push a type onto the nav stack.
+ * @param {Function}    ctx.selectField  Push a type+field onto the nav stack.
+ * @param {Function}    ctx.goBack       Pop the top of the nav stack.
+ */
+function renderBody({
+	trimmed,
+	typeMatches,
+	fieldMatches,
+	schema,
+	current,
+	type,
+	selectType,
+	selectField,
+	goBack,
+}) {
+	if (trimmed) {
 		return (
-			<RootView
-				schema={schema}
-				onSelectType={pushType}
-				onSelectField={(typeName, fieldName) =>
-					pushFrame(typeName, fieldName)
-				}
+			<SearchResults
+				typeMatches={typeMatches}
+				fieldMatches={fieldMatches}
+				onSelectType={selectType}
+				onSelectField={selectField}
 			/>
 		);
 	}
-
-	const type = schema.getType(current.name);
+	if (!current) {
+		return <RootView schema={schema} onSelectType={selectType} />;
+	}
 	if (!type) {
 		return (
-			<div className="wpgraphql-ide-docs-panel">
+			<>
 				<BackButton onClick={goBack} />
 				<p>
 					{sprintf(
@@ -187,17 +312,93 @@ export function DocsExplorerPanel() {
 						current.name
 					)}
 				</p>
-			</div>
+			</>
 		);
 	}
-
 	return (
 		<TypeView
 			type={type}
 			focusField={current.focusField || null}
-			onSelectType={pushType}
+			onSelectType={selectType}
 			onBack={goBack}
 		/>
+	);
+}
+
+/**
+ * Search-result body — surfaces type hits and field hits in two
+ * groups. Rendered when the search input at the panel top has a
+ * non-empty term.
+ *
+ * @param {Object}   props
+ * @param {Array}    props.typeMatches   Capped list of matching types.
+ * @param {Array}    props.fieldMatches  Capped list of matching `{type, field}` pairs.
+ * @param {Function} props.onSelectType  Called with the type object when a type result is clicked.
+ * @param {Function} props.onSelectField Called with `(typeName, fieldName)` when a field result is clicked.
+ */
+function SearchResults({
+	typeMatches,
+	fieldMatches,
+	onSelectType,
+	onSelectField,
+}) {
+	if (typeMatches.length === 0 && fieldMatches.length === 0) {
+		return (
+			<div className="wpgraphql-ide-docs-section">
+				<p className="wpgraphql-ide-docs-empty">
+					{__('No results.', 'wpgraphql-ide')}
+				</p>
+			</div>
+		);
+	}
+	return (
+		<div className="wpgraphql-ide-docs-section">
+			{typeMatches.length > 0 && (
+				<div className="wpgraphql-ide-docs-search-group">
+					<div className="wpgraphql-ide-docs-search-group-title">
+						{__('Types', 'wpgraphql-ide')}
+					</div>
+					{typeMatches.map((type) => (
+						<TypeLink
+							key={type.name}
+							type={type}
+							kind={getTypeKind(type)}
+							onClick={() => onSelectType(type)}
+						/>
+					))}
+				</div>
+			)}
+			{fieldMatches.length > 0 && (
+				<div className="wpgraphql-ide-docs-search-group">
+					<div className="wpgraphql-ide-docs-search-group-title">
+						{__('Fields', 'wpgraphql-ide')}
+					</div>
+					{fieldMatches.map(({ type, field }) => (
+						<button
+							key={`${type.name}.${field.name}`}
+							type="button"
+							className="wpgraphql-ide-docs-field-link"
+							onClick={() => onSelectField(type.name, field.name)}
+						>
+							<span className="wpgraphql-ide-docs-field-link-path">
+								<span className="wpgraphql-ide-docs-field-link-type">
+									{type.name}
+								</span>
+								<span className="wpgraphql-ide-docs-field-link-dot">
+									.
+								</span>
+								<span className="wpgraphql-ide-docs-field-link-name">
+									{field.name}
+								</span>
+							</span>
+							<span className="wpgraphql-ide-docs-field-link-type-ref">
+								{formatType(field.type)}
+							</span>
+						</button>
+					))}
+				</div>
+			)}
+		</div>
 	);
 }
 
@@ -221,170 +422,45 @@ function BackButton({ onClick }) {
 }
 
 /**
- * Root schema view — shows Query, Mutation, Subscription entry points
- * and a list of all types.
+ * Root schema view — shows the Query / Mutation / Subscription entry
+ * points. The schema-wide search input now lives at the panel level
+ * (see `DocsExplorerPanel`), so this view is just the entry points.
  *
  * @param {Object}   props
- * @param {Object}   props.schema        GraphQL schema.
- * @param {Function} props.onSelectType  Called with a type object when a type is clicked.
- * @param {Function} props.onSelectField Called with `(typeName, fieldName)` when a
- *                                       field-search result is clicked.
+ * @param {Object}   props.schema       GraphQL schema.
+ * @param {Function} props.onSelectType Called with a type object when an entry point is clicked.
  */
-function RootView({ schema, onSelectType, onSelectField }) {
-	const [searchTerm, setSearchTerm] = useState('');
-
+function RootView({ schema, onSelectType }) {
 	const queryType = schema.getQueryType();
 	const mutationType = schema.getMutationType();
 	const subscriptionType = schema.getSubscriptionType();
 
-	// Categorized search results — types and fields are surfaced separately
-	// so users can pick the right kind of match. Both lists are capped to keep
-	// large schemas (the WPGraphQL schema has ~600 types) responsive.
-	const trimmed = searchTerm.trim();
-	const { typeMatches, fieldMatches } = React.useMemo(() => {
-		if (!trimmed) {
-			return { typeMatches: [], fieldMatches: [] };
-		}
-		const q = trimmed.toLowerCase();
-		const types = [];
-		const fields = [];
-		for (const type of Object.values(schema.getTypeMap())) {
-			if (type.name.startsWith('__')) {
-				continue;
-			}
-			if (type.name.toLowerCase().includes(q)) {
-				types.push(type);
-			}
-			if (typeof type.getFields === 'function') {
-				let fieldMap;
-				try {
-					fieldMap = type.getFields();
-				} catch {
-					continue;
-				}
-				for (const field of Object.values(fieldMap)) {
-					if (field.name.toLowerCase().includes(q)) {
-						fields.push({ type, field });
-					}
-				}
-			}
-		}
-		types.sort((a, b) => a.name.localeCompare(b.name));
-		fields.sort((a, b) => {
-			const aKey = `${a.type.name}.${a.field.name}`;
-			const bKey = `${b.type.name}.${b.field.name}`;
-			return aKey.localeCompare(bKey);
-		});
-		return {
-			typeMatches: types.slice(0, 25),
-			fieldMatches: fields.slice(0, 50),
-		};
-	}, [schema, trimmed]);
-
 	return (
-		<div className="wpgraphql-ide-docs-panel">
-			<div className="wpgraphql-ide-docs-section">
-				<div className="wpgraphql-ide-docs-section-title">
-					{__('Root Types', 'wpgraphql-ide')}
-				</div>
-				{queryType && (
-					<TypeLink
-						label="query"
-						type={queryType}
-						onClick={() => onSelectType(queryType)}
-					/>
-				)}
-				{mutationType && (
-					<TypeLink
-						label="mutation"
-						type={mutationType}
-						onClick={() => onSelectType(mutationType)}
-					/>
-				)}
-				{subscriptionType && (
-					<TypeLink
-						label="subscription"
-						type={subscriptionType}
-						onClick={() => onSelectType(subscriptionType)}
-					/>
-				)}
+		<div className="wpgraphql-ide-docs-section">
+			<div className="wpgraphql-ide-docs-section-title">
+				{__('Root Types', 'wpgraphql-ide')}
 			</div>
-			<div className="wpgraphql-ide-docs-section">
-				<div className="wpgraphql-ide-docs-section-title">
-					{__('Search', 'wpgraphql-ide')}
-				</div>
-				<input
-					type="text"
-					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
-					placeholder={__(
-						'Search types and fields…',
-						'wpgraphql-ide'
-					)}
-					aria-label={__(
-						'Search GraphQL schema types and fields',
-						'wpgraphql-ide'
-					)}
-					className="wpgraphql-ide-docs-search"
+			{queryType && (
+				<TypeLink
+					label="query"
+					type={queryType}
+					onClick={() => onSelectType(queryType)}
 				/>
-
-				{trimmed && typeMatches.length > 0 && (
-					<div className="wpgraphql-ide-docs-search-group">
-						<div className="wpgraphql-ide-docs-search-group-title">
-							{__('Types', 'wpgraphql-ide')}
-						</div>
-						{typeMatches.map((type) => (
-							<TypeLink
-								key={type.name}
-								type={type}
-								kind={getTypeKind(type)}
-								onClick={() => onSelectType(type)}
-							/>
-						))}
-					</div>
-				)}
-
-				{trimmed && fieldMatches.length > 0 && (
-					<div className="wpgraphql-ide-docs-search-group">
-						<div className="wpgraphql-ide-docs-search-group-title">
-							{__('Fields', 'wpgraphql-ide')}
-						</div>
-						{fieldMatches.map(({ type, field }) => (
-							<button
-								key={`${type.name}.${field.name}`}
-								type="button"
-								className="wpgraphql-ide-docs-field-link"
-								onClick={() =>
-									onSelectField(type.name, field.name)
-								}
-							>
-								<span className="wpgraphql-ide-docs-field-link-path">
-									<span className="wpgraphql-ide-docs-field-link-type">
-										{type.name}
-									</span>
-									<span className="wpgraphql-ide-docs-field-link-dot">
-										.
-									</span>
-									<span className="wpgraphql-ide-docs-field-link-name">
-										{field.name}
-									</span>
-								</span>
-								<span className="wpgraphql-ide-docs-field-link-type-ref">
-									{formatType(field.type)}
-								</span>
-							</button>
-						))}
-					</div>
-				)}
-
-				{trimmed &&
-					typeMatches.length === 0 &&
-					fieldMatches.length === 0 && (
-						<p className="wpgraphql-ide-docs-empty">
-							{__('No results.', 'wpgraphql-ide')}
-						</p>
-					)}
-			</div>
+			)}
+			{mutationType && (
+				<TypeLink
+					label="mutation"
+					type={mutationType}
+					onClick={() => onSelectType(mutationType)}
+				/>
+			)}
+			{subscriptionType && (
+				<TypeLink
+					label="subscription"
+					type={subscriptionType}
+					onClick={() => onSelectType(subscriptionType)}
+				/>
+			)}
 		</div>
 	);
 }

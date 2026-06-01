@@ -4490,8 +4490,26 @@ input.wpgraphql-ide-tab-input:focus {
    --------------------------------------------------------------------------- */
 
 .wpgraphql-ide-docs-panel {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 	line-height: var(--wpgraphql-ide-leading-tight, 1.4);
+}
+
+/* Search header — stays pinned at the top of the docs panel regardless
+   of which view (root, type detail, search results) is rendered below.
+   Wrapped so the body underneath can be the flex-1 scroll container. */
+.wpgraphql-ide-docs-search-header {
+	flex-shrink: 0;
+	padding-bottom: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-docs-body {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
 }
 
 .wpgraphql-ide-docs-empty {
