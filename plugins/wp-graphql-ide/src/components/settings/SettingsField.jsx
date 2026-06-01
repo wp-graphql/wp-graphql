@@ -8,13 +8,17 @@ import { __, sprintf } from '@wordpress/i18n';
  * deliberately controlled (value/onChange) so the parent owns autosave state.
  *
  * @param {Object}   props
- * @param {Object}   props.field    Field descriptor from the registry snapshot.
- * @param {*}        props.value    Current value.
- * @param {Function} props.onChange Receives the next value.
+ * @param {Object}   props.field        Field descriptor from the registry snapshot.
+ * @param {*}        props.value        Current (pending) value.
+ * @param {*}        [props.savedValue] Server-confirmed value. Used by side-
+ *                                      effect rendering (like the public-endpoint
+ *                                      live link) to distinguish "actually live"
+ *                                      from "will go live when you click Save".
+ * @param {Function} props.onChange     Receives the next value.
  *
  * @return {JSX.Element}
  */
-export function SettingsField({ field, value, onChange }) {
+export function SettingsField({ field, value, savedValue, onChange }) {
 	const inputId = `wpgraphql-ide-setting-${field.name}`;
 	const desc = field.desc ? (
 		<p
@@ -32,13 +36,58 @@ export function SettingsField({ field, value, onChange }) {
 	switch (field.type) {
 		case 'checkbox': {
 			const isChecked = value === 'on' || value === true;
-			// Surface a clickable "now live" link the moment the
-			// public-endpoint toggle goes on, so the admin can jump
-			// straight to it without hunting for the URL elsewhere.
-			const liveUrl =
-				isChecked && field.name === 'graphql_ide_public_endpoint'
-					? window.WPGRAPHQL_IDE_DATA?.graphqlEndpoint
-					: null;
+			// Special-case the public-endpoint toggle: reflect what's
+			// actually saved on the server, not the optimistic UI state,
+			// and prompt the user to click Save when their checkbox
+			// position differs from what's persisted. We only resolve
+			// `saved` to a boolean when `savedValue` is provided —
+			// callers that don't pass it (older renderers, tests) get
+			// the original "pending state wins" behavior.
+			let endpointBlock = null;
+			if (field.name === 'graphql_ide_public_endpoint') {
+				const liveUrl =
+					window.WPGRAPHQL_IDE_DATA?.graphqlEndpoint || '';
+				const savedOn =
+					savedValue === undefined
+						? isChecked
+						: savedValue === 'on' || savedValue === true;
+				if (savedOn && isChecked && liveUrl) {
+					endpointBlock = (
+						<p className="wpgraphql-ide-setting-live-link">
+							{__('Now live, visit', 'wpgraphql-ide')}{' '}
+							<a
+								href={liveUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{liveUrl}
+							</a>
+						</p>
+					);
+				} else if (!savedOn && isChecked && liveUrl) {
+					endpointBlock = (
+						<p className="wpgraphql-ide-setting-live-link">
+							{sprintf(
+								/* translators: %s is the GraphQL endpoint URL the IDE will go live at after saving. */
+								__(
+									'Click Save changes to take the public IDE live at %s.',
+									'wpgraphql-ide'
+								),
+								liveUrl
+							)}
+						</p>
+					);
+				} else if (savedOn && !isChecked) {
+					endpointBlock = (
+						<p className="wpgraphql-ide-setting-live-link">
+							{__(
+								'Click Save changes to take the public IDE offline.',
+								'wpgraphql-ide'
+							)}
+						</p>
+					);
+				}
+			}
 			return (
 				<div className="wpgraphql-ide-setting wpgraphql-ide-setting--checkbox">
 					<label
@@ -55,18 +104,7 @@ export function SettingsField({ field, value, onChange }) {
 						<span>{field.label}</span>
 					</label>
 					{desc}
-					{liveUrl && (
-						<p className="wpgraphql-ide-setting-live-link">
-							{__('Now live, visit', 'wpgraphql-ide')}{' '}
-							<a
-								href={liveUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{liveUrl}
-							</a>
-						</p>
-					)}
+					{endpointBlock}
 				</div>
 			);
 		}

@@ -194,6 +194,9 @@ export function SettingsWorkspaceTab() {
 										<SettingsField
 											field={field}
 											value={values[key]}
+											savedValue={
+												getOriginalValues()[key]
+											}
 											onChange={(next) =>
 												onFieldChange(
 													activeSection.slug,
