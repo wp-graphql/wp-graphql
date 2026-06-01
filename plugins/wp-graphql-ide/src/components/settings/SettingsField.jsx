@@ -30,7 +30,15 @@ export function SettingsField({ field, value, onChange }) {
 	) : null;
 
 	switch (field.type) {
-		case 'checkbox':
+		case 'checkbox': {
+			const isChecked = value === 'on' || value === true;
+			// Surface a clickable "now live" link the moment the
+			// public-endpoint toggle goes on, so the admin can jump
+			// straight to it without hunting for the URL elsewhere.
+			const liveUrl =
+				isChecked && field.name === 'graphql_ide_public_endpoint'
+					? window.WPGRAPHQL_IDE_DATA?.graphqlEndpoint
+					: null;
 			return (
 				<div className="wpgraphql-ide-setting wpgraphql-ide-setting--checkbox">
 					<label
@@ -40,15 +48,28 @@ export function SettingsField({ field, value, onChange }) {
 						<input
 							id={inputId}
 							type="checkbox"
-							checked={value === 'on' || value === true}
+							checked={isChecked}
 							disabled={field.disabled}
 							onChange={(e) => onChange(e.target.checked)}
 						/>
 						<span>{field.label}</span>
 					</label>
 					{desc}
+					{liveUrl && (
+						<p className="wpgraphql-ide-setting-live-link">
+							{__('Now live, visit', 'wpgraphql-ide')}{' '}
+							<a
+								href={liveUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{liveUrl}
+							</a>
+						</p>
+					)}
 				</div>
 			);
+		}
 
 		case 'number':
 			return (

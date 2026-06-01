@@ -99,9 +99,7 @@ export async function ensureDocumentOpen(page) {
 		// and retries on detach — which races the new DOM since the
 		// click itself causes the detach. `evaluate(el.click())` fires
 		// once and returns; we then wait for the new DOM state.
-		await page
-			.locator(SELECTORS.addTab)
-			.evaluate((el) => el.click());
+		await page.locator(SELECTORS.addTab).evaluate((el) => el.click());
 		await page.waitForSelector(SELECTORS.graphqlEditor, {
 			state: 'visible',
 			timeout: 10000,
@@ -217,4 +215,3 @@ export async function openSettingsTab(page) {
 		timeout: 10000,
 	});
 }
-
