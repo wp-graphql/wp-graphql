@@ -147,6 +147,12 @@ class AssetEnqueue {
 			// here (which runs on enqueue, also on `init` priority 10 in
 			// admin) is unreliable.
 			'hasSmartCache'         => class_exists( '\\WPGraphQL\\SmartCache\\Document' ),
+			// Admin color scheme — list of registered schemes and the
+			// current user's pick. Powers a small dropdown in the IDE
+			// Settings tab; selection writes back to `admin_color` user
+			// meta via the REST route below so the choice applies admin-
+			// wide, same as the user profile picker.
+			'adminColor'            => self::admin_color_data(),
 		];
 
 		/**
@@ -207,6 +213,38 @@ class AssetEnqueue {
 	 */
 	public static function dedicated_ide_base_url(): string {
 		return menu_page_url( 'graphql-ide', false );
+	}
+
+	/**
+	 * Build the admin-color-scheme bootstrap payload for the IDE Settings
+	 * tab. Reads WP's `$_wp_admin_css_colors` global directly (same source
+	 * the user-profile picker uses) so the IDE shows whatever schemes the
+	 * site has registered, including any added by other plugins.
+	 *
+	 * @return array{current:string, schemes: array<string, array<string,mixed>>}
+	 */
+	private static function admin_color_data(): array {
+		global $_wp_admin_css_colors;
+
+		$schemes = [];
+
+		if ( is_array( $_wp_admin_css_colors ) ) {
+			foreach ( $_wp_admin_css_colors as $slug => $scheme ) {
+				$schemes[ $slug ] = [
+					'slug'    => (string) $slug,
+					'name'    => isset( $scheme->name ) ? (string) $scheme->name : (string) $slug,
+					'url'     => isset( $scheme->url ) ? (string) $scheme->url : '',
+					'palette' => isset( $scheme->colors ) && is_array( $scheme->colors )
+						? array_values( $scheme->colors )
+						: [],
+				];
+			}
+		}
+
+		return [
+			'current' => get_user_option( 'admin_color' ) ?: 'fresh',
+			'schemes' => $schemes,
+		];
 	}
 
 	/**

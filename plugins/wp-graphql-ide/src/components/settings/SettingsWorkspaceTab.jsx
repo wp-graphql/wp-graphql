@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { SettingsField } from './SettingsField';
+import { ColorThemeSection } from './ColorThemeSection';
 import {
 	SETTINGS_TAB_ID,
 	getOriginalValues,
@@ -12,6 +13,12 @@ import {
 	saveAllSettings,
 	subscribeSettingsSaved,
 } from './settings-tab-state';
+
+// Virtual section for the color-theme picker. Lives next to the
+// PHP-registered settings sections in the Settings tab nav but doesn't
+// participate in the `graphql_ide_settings` option's save flow — its
+// dropdown writes per-user `admin_color` user meta directly via REST.
+const COLOR_THEME_SLUG = '__color-theme__';
 
 export function SettingsWorkspaceTab() {
 	const sections = useMemo(() => {
@@ -94,6 +101,10 @@ export function SettingsWorkspaceTab() {
 		() => sections.find((s) => s.slug === activeSlug) || sections[0],
 		[sections, activeSlug]
 	);
+	const isColorTheme = activeSlug === COLOR_THEME_SLUG;
+	const hasColorSchemes =
+		Object.keys(window.WPGRAPHQL_IDE_DATA?.adminColor?.schemes || {})
+			.length > 0;
 
 	if (sections.length === 0) {
 		return (
@@ -120,6 +131,7 @@ export function SettingsWorkspaceTab() {
 							<button
 								type="button"
 								className={`wpgraphql-ide-settings-nav-item${
+									!isColorTheme &&
 									section.slug === activeSection?.slug
 										? ' is-active'
 										: ''
@@ -131,10 +143,40 @@ export function SettingsWorkspaceTab() {
 							</button>
 						</li>
 					))}
+					{hasColorSchemes && (
+						<li>
+							<button
+								type="button"
+								className={`wpgraphql-ide-settings-nav-item${
+									isColorTheme ? ' is-active' : ''
+								}`}
+								title={__('Color Theme', 'wpgraphql-ide')}
+								onClick={() => setActiveSlug(COLOR_THEME_SLUG)}
+							>
+								{__('Color Theme', 'wpgraphql-ide')}
+							</button>
+						</li>
+					)}
 				</ul>
 			</nav>
 			<div className="wpgraphql-ide-settings-pane">
-				{activeSection && (
+				{isColorTheme && (
+					<>
+						<header className="wpgraphql-ide-settings-pane-header">
+							<div className="wpgraphql-ide-settings-pane-heading">
+								<h2>{__('Color Theme', 'wpgraphql-ide')}</h2>
+								<p className="wpgraphql-ide-settings-pane-desc">
+									{__(
+										'Switch the WordPress admin color scheme for your user. Useful when previewing how the IDE adapts to different themes.',
+										'wpgraphql-ide'
+									)}
+								</p>
+							</div>
+						</header>
+						<ColorThemeSection />
+					</>
+				)}
+				{!isColorTheme && activeSection && (
 					<>
 						<header className="wpgraphql-ide-settings-pane-header">
 							<div className="wpgraphql-ide-settings-pane-heading">
