@@ -133,12 +133,25 @@ export function ColorThemeSwitcher() {
 				{schemes.map((scheme) => {
 					const isActive = activeSlug === scheme.slug;
 					const inputId = `wpgraphql-ide-admin-color-${scheme.slug}`;
+					const handleSelect = () => {
+						if (savingSlug !== null) {
+							return;
+						}
+						applyScheme(scheme.slug);
+					};
 					return (
 						<div
 							key={scheme.slug}
 							className={`color-option${
 								isActive ? ' selected' : ''
 							}`}
+							// `wp-admin/js/user-profile.js` wires the same
+							// click-anywhere-on-card behavior on profile.php,
+							// but that script isn't loaded here. We mirror
+							// it in React so the swatches and the radio
+							// share one hit box.
+							onClick={handleSelect}
+							style={cardClickableStyle}
 						>
 							<input
 								name="admin_color"
@@ -148,9 +161,15 @@ export function ColorThemeSwitcher() {
 								className="tog"
 								checked={isActive}
 								disabled={savingSlug !== null}
-								onChange={() => applyScheme(scheme.slug)}
+								onChange={handleSelect}
+								onClick={(e) => e.stopPropagation()}
 							/>
-							<label htmlFor={inputId}>{scheme.name}</label>
+							<label
+								htmlFor={inputId}
+								onClick={(e) => e.stopPropagation()}
+							>
+								{scheme.name}
+							</label>
 							<table className="color-palette">
 								<tbody>
 									<tr>
@@ -208,4 +227,7 @@ const errorStyle = {
 	fontSize: 'var(--wpgraphql-ide-text-12, 12px)',
 	color: 'var(--wpgraphql-ide-color-error, #d63638)',
 	lineHeight: 'var(--wpgraphql-ide-leading-normal, 1.5)',
+};
+const cardClickableStyle = {
+	cursor: 'pointer',
 };
