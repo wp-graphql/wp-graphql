@@ -217,9 +217,7 @@ export function ResponseContent({
 						bottomActiveTab ||
 						(errors.length > 0 ? 'ext:errors' : 'ext:tracing')
 					}
-					activeTabName={
-						tabRequest?.name || bottomActiveTab || undefined
-					}
+					activeTabName={bottomActiveTab || undefined}
 					onActiveTabChange={onSetBottomActiveTab}
 					collapsed={bottomCollapsed}
 					onCollapse={

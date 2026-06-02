@@ -71,12 +71,13 @@ export function ResponsePane({
 		(select) => select('wpgraphql-ide/response-extensions').extensionTabs(),
 		[]
 	);
-	// Programmatic tab navigation: status-bar badges set this, which
-	// remounts the response TabPanel via `key` to honor the new
-	// `initialTabName`. Each click increments `token` so re-clicking
-	// the same badge while that tab is already active still produces
-	// a key change and re-applies focus — without the token, the
-	// second click would be a no-op.
+	// Programmatic tab navigation: status-bar badges set this so the
+	// response TabPanel remounts via `key` and re-applies the requested
+	// `initialTabName`. The new tab is also pushed to `bottomActiveTab`
+	// so the controlled strip lands there and the user can still click
+	// any other tab afterward. Each click bumps `token` so re-clicking
+	// the same badge re-keys the strip even when the target tab is
+	// already active.
 	const [tabRequest, setTabRequest] = useState(null);
 
 	const statusBarItems = useSelect(
@@ -103,8 +104,13 @@ export function ResponsePane({
 		}
 	}, [response]);
 
-	const focusResponseTab = (name) =>
+	const focusResponseTab = (name) => {
 		setTabRequest({ name, token: Date.now() });
+		if (bottomCollapsed && onSetBottomCollapsed) {
+			onSetBottomCollapsed(false);
+		}
+		onSetBottomActiveTab?.(name);
+	};
 
 	const statusBarCtx = {
 		response,
