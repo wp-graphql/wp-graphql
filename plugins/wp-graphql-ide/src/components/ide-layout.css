@@ -5069,6 +5069,52 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	text-overflow: ellipsis;
 }
 
+/* Operation-grouped activity-bar rows. Tighter typography than the
+   per-run Request-history rows: the activity bar is dense by nature,
+   and the dedup means each row stands on its own — no need for the
+   header pills (method / status / duration) the per-run variant uses. */
+.wpgraphql-ide-history-entry--operation .wpgraphql-ide-history-entry-button {
+	padding: 6px 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	line-height: 1.3;
+}
+
+.wpgraphql-ide-history-entry-name {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.wpgraphql-ide-history-entry-body {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Anonymous queries promote the body to the primary identity line —
+   bumped a hair larger and a touch darker than the muted secondary. */
+.wpgraphql-ide-history-entry-body--primary {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-history-entry-meta {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 2px;
+}
+
 /* ---------------------------------------------------------------------------
    Settings workspace tab — Cursor-style two-pane layout (nav + form).
    --------------------------------------------------------------------------- */

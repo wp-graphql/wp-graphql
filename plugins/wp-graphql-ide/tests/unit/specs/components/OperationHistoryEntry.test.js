@@ -6,7 +6,7 @@ import { OperationHistoryEntry } from '../../../../src/components/OperationHisto
 
 const NOW_SEC = Math.floor(Date.now() / 1000);
 
-const GROUP = {
+const NAMED = {
 	hash: 'a'.repeat(64),
 	runCount: 5,
 	latestRun: NOW_SEC - 30,
@@ -16,10 +16,41 @@ const GROUP = {
 	latestDocId: 9,
 };
 
+const ANONYMOUS = {
+	hash: 'b'.repeat(64),
+	runCount: 1,
+	latestRun: NOW_SEC - 5,
+	lastQuery: '{ yo: __typename }',
+	lastVariables: '',
+	lastHeaders: '',
+	latestDocId: 0,
+};
+
 describe('OperationHistoryEntry', () => {
-	it('renders the derived operation name, run count, and elapsed time', () => {
-		render(<OperationHistoryEntry group={GROUP} onRestore={() => {}} />);
+	it('uses the operation name as the primary line for named operations', () => {
+		render(<OperationHistoryEntry group={NAMED} onRestore={() => {}} />);
 		expect(screen.getByText('GetPosts')).toBeInTheDocument();
+		// Body still shows underneath as muted secondary.
+		expect(
+			screen.getByText('query GetPosts { posts { nodes { id title } } }')
+		).toBeInTheDocument();
+	});
+
+	it('promotes the query body to the primary line for anonymous queries', () => {
+		render(
+			<OperationHistoryEntry group={ANONYMOUS} onRestore={() => {}} />
+		);
+		// The body itself is the identity — `{ yo: __typename }` is what
+		// distinguishes this row from `{ typeShit: __typename }`, even
+		// though both resolve to the `__typename` field name.
+		expect(screen.getByText('{ yo: __typename }')).toBeInTheDocument();
+		// Nothing in the row should reduce three different anonymous
+		// queries to the same label.
+		expect(screen.queryByText('__typename')).toBeNull();
+	});
+
+	it('renders the run count and elapsed time on the meta line', () => {
+		render(<OperationHistoryEntry group={NAMED} onRestore={() => {}} />);
 		expect(
 			screen.getByText((content) => content.includes('5 runs'))
 		).toBeInTheDocument();
@@ -30,39 +61,28 @@ describe('OperationHistoryEntry', () => {
 
 	it('uses _n singular when the operation has run exactly once', () => {
 		render(
-			<OperationHistoryEntry
-				group={{ ...GROUP, runCount: 1 }}
-				onRestore={() => {}}
-			/>
+			<OperationHistoryEntry group={ANONYMOUS} onRestore={() => {}} />
 		);
 		expect(
 			screen.getByText((content) => content.includes('1 run'))
 		).toBeInTheDocument();
-		// Make sure we didn't accidentally hit the plural form.
 		expect(screen.queryByText(/1 runs/)).toBeNull();
 	});
 
-	it('falls back to "Anonymous query" when the query has no parseable shape', () => {
+	it('falls back to "Anonymous query" when the query is empty', () => {
 		render(
 			<OperationHistoryEntry
-				group={{ ...GROUP, lastQuery: 'not a parseable query' }}
+				group={{ ...ANONYMOUS, lastQuery: '' }}
 				onRestore={() => {}}
 			/>
 		);
 		expect(screen.getByText('Anonymous query')).toBeInTheDocument();
 	});
 
-	it('renders a truncated one-line preview of the latest query', () => {
-		render(<OperationHistoryEntry group={GROUP} onRestore={() => {}} />);
-		expect(
-			screen.getByText('query GetPosts { posts { nodes { id title } } }')
-		).toBeInTheDocument();
-	});
-
 	it('calls onRestore with the whole group when clicked', () => {
 		const onRestore = jest.fn();
-		render(<OperationHistoryEntry group={GROUP} onRestore={onRestore} />);
+		render(<OperationHistoryEntry group={NAMED} onRestore={onRestore} />);
 		fireEvent.click(screen.getByRole('button'));
-		expect(onRestore).toHaveBeenCalledWith(GROUP);
+		expect(onRestore).toHaveBeenCalledWith(NAMED);
 	});
 });

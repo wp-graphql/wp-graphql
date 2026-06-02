@@ -1,6 +1,6 @@
 import React from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { deriveDocTitle } from '../utils/derive-doc-title';
+import { deriveStableDocTitle } from '../utils/derive-doc-title';
 
 /**
  * Compact human-readable elapsed-time for the activity-bar panel ("3s ago",
@@ -53,19 +53,22 @@ function queryPreview(query) {
 	if (!query) {
 		return '';
 	}
-	return query.replace(/\s+/g, ' ').trim().slice(0, 100);
+	return query.replace(/\s+/g, ' ').trim().slice(0, 120);
 }
 
 /**
  * One row in the activity-bar History panel — represents a distinct
- * operation (deduped by content hash) across however many runs. The
- * subtitle surfaces the run count and how long ago the most-recent run
- * happened so the panel reads as "operations I've worked with" instead
- * of "raw event log".
+ * operation (deduped by content hash) across however many runs.
  *
- * Clicking dispatches the parent's `onRestore(group)` — the parent
- * decides whether to switch to an existing published copy or spawn a
- * new draft tab.
+ * Visual hierarchy:
+ * - Named operations get the operation name as the primary line and
+ *   the query body as a muted mono subtitle.
+ * - Anonymous shorthand queries (`{ posts { id } }`) put the body
+ *   *itself* on the primary line in mono — for these, the body is the
+ *   identity, so there's no point repeating it on a separate line.
+ *
+ * The bottom meta line is always the run count + relative time, in
+ * muted small text.
  *
  * @param {Object}   props
  * @param {Object}   props.group     Output of `getOperationHistory()`.
@@ -74,11 +77,8 @@ function queryPreview(query) {
  * @since x-release-please-version
  */
 export function OperationHistoryEntry({ group, onRestore }) {
-	const derived = deriveDocTitle(group.lastQuery);
-	const label =
-		derived === 'Untitled'
-			? __('Anonymous query', 'wpgraphql-ide')
-			: derived;
+	const operationName = deriveStableDocTitle(group.lastQuery);
+	const preview = queryPreview(group.lastQuery);
 
 	const runsLabel = sprintf(
 		/* translators: %d: number of times this operation has been executed */
@@ -95,20 +95,25 @@ export function OperationHistoryEntry({ group, onRestore }) {
 				type="button"
 				className="wpgraphql-ide-history-entry-button"
 				onClick={() => onRestore(group)}
+				title={preview || undefined}
 			>
-				<div className="wpgraphql-ide-history-entry-detail">
-					<span className="wpgraphql-ide-history-entry-label">
-						{label}
-					</span>
-					{group.lastQuery && (
-						<span className="wpgraphql-ide-history-entry-preview">
-							{queryPreview(group.lastQuery)}
+				{operationName ? (
+					<>
+						<span className="wpgraphql-ide-history-entry-name">
+							{operationName}
 						</span>
-					)}
-					<span className="wpgraphql-ide-history-entry-meta">
-						{meta}
+						{preview && (
+							<span className="wpgraphql-ide-history-entry-body">
+								{preview}
+							</span>
+						)}
+					</>
+				) : (
+					<span className="wpgraphql-ide-history-entry-body wpgraphql-ide-history-entry-body--primary">
+						{preview || __('Anonymous query', 'wpgraphql-ide')}
 					</span>
-				</div>
+				)}
+				<span className="wpgraphql-ide-history-entry-meta">{meta}</span>
 			</button>
 		</li>
 	);
