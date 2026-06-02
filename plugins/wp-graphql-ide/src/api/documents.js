@@ -91,6 +91,16 @@ function adaptDocument(node) {
 		return null;
 	}
 	const groupNodes = node.graphqlDocumentGroups?.nodes ?? [];
+	// Smart Cache stamps the sha256 of the normalized query as an internal
+	// alias term on every save (its content-addressed identity). That hash
+	// must NOT surface as a user-set alias — if the IDE round-tripped it
+	// back through `updateGraphqlDocument`, Smart Cache would reject the
+	// save as "alias already in use by another query" on any doc that
+	// shares the content. Strip 64-char hex entries here so the IDE only
+	// sees the user's own aliases.
+	const userAliases = Array.isArray(node.alias)
+		? node.alias.filter((a) => !/^[a-f0-9]{64}$/i.test(String(a)))
+		: [];
 	return {
 		id: node.databaseId,
 		// `id` is kept as the legacy database ID consumers expect. The
@@ -107,7 +117,7 @@ function adaptDocument(node) {
 		collections: groupNodes.map((n) => n.databaseId),
 		documentSettings: {
 			description: node.description || '',
-			aliases: node.alias || [],
+			aliases: userAliases,
 			// Schema types maxAgeHeader as Int; REST exposed it as a
 			// string for the same field. Coerce to string here so the
 			// consumer shape is unchanged.

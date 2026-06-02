@@ -130,3 +130,86 @@ describe('documents api — status casing on the wire', () => {
 		expect(lastSentInput().status).toBe('PUBLISH');
 	});
 });
+
+// Smart Cache stamps the sha256 of the normalized query as an alias
+// taxonomy term on every save (its content-addressed identity). If the
+// IDE round-trips that hash as a user alias on subsequent saves, the
+// server rejects with "alias already in use by another query" for any
+// other doc that shares the content. `adaptDocument` must strip the
+// auto-hash so docSettingsValues / mutation inputs only carry user-set
+// aliases.
+describe('documents api — alias surface filters Smart Cache auto-hash', () => {
+	const ENDPOINT = 'http://example.test/graphql';
+
+	beforeEach(() => {
+		window.WPGRAPHQL_IDE_DATA = {
+			graphqlEndpoint: ENDPOINT,
+			nonce: 'test-nonce',
+		};
+		global.fetch = jest.fn();
+	});
+
+	afterEach(() => {
+		delete global.fetch;
+		delete window.WPGRAPHQL_IDE_DATA;
+	});
+
+	function mockOk(json) {
+		global.fetch.mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve(json),
+		});
+	}
+
+	const SHA256 =
+		'dbf44d5f37b20ab4c605bf196d5e0c1116446506969d790f66bd1780d4ff8ae2';
+
+	it('strips a 64-char hex auto-hash from aliases on read', async () => {
+		mockOk({
+			data: {
+				createGraphqlDocument: {
+					graphqlDocument: {
+						id: 'g',
+						databaseId: 1,
+						alias: [SHA256, 'GetPosts'],
+					},
+				},
+			},
+		});
+		const doc = await createDocument({ title: 't', query: '{x}' });
+		expect(doc.documentSettings.aliases).toEqual(['GetPosts']);
+	});
+
+	it('leaves an empty array when only the auto-hash is present', async () => {
+		mockOk({
+			data: {
+				updateGraphqlDocument: {
+					graphqlDocument: {
+						id: 'g',
+						databaseId: 1,
+						alias: [SHA256],
+					},
+				},
+			},
+		});
+		const doc = await updateDocument(1, { title: 't' });
+		expect(doc.documentSettings.aliases).toEqual([]);
+	});
+
+	it('preserves user aliases that happen to share hex chars but are not 64 long', async () => {
+		mockOk({
+			data: {
+				updateGraphqlDocument: {
+					graphqlDocument: {
+						id: 'g',
+						databaseId: 1,
+						alias: ['abc123', 'deadbeef'],
+					},
+				},
+			},
+		});
+		const doc = await updateDocument(1, { title: 't' });
+		expect(doc.documentSettings.aliases).toEqual(['abc123', 'deadbeef']);
+	});
+});
