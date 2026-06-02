@@ -58,11 +58,15 @@ const encodeTermId = (id) => encodeGlobalId('term', id);
 // Document CRUD
 // ---------------------------------------------------------------------------
 
+// `content(format: RAW)` is critical — the default RENDERED runs through
+// `the_content`, including `wpautop`, which wraps the GraphQL query in
+// `<p>` and converts newlines to `<br />`. RAW returns the unfiltered
+// post_content the IDE actually saved.
 const DOCUMENT_FIELDS = `
 	id
 	databaseId
 	title
-	content
+	content(format: RAW)
 	status
 	slug
 	menuOrder
