@@ -148,16 +148,16 @@ describe('migrateLegacyHistory', () => {
 		expect(window.localStorage.getItem(FLAG_KEY)).toBe('1');
 	});
 
-	it('caps migration at 50 entries (silently drops older overflow)', async () => {
-		const fifty = Array.from({ length: 75 }, (_, i) => ({
+	it('caps migration at 100 entries (silently drops older overflow)', async () => {
+		const oversized = Array.from({ length: 150 }, (_, i) => ({
 			query: `{ q${i} }`,
 		}));
-		window.localStorage.setItem(LEGACY_KEY, JSON.stringify(fifty));
+		window.localStorage.setItem(LEGACY_KEY, JSON.stringify(oversized));
 
 		const result = await migrateLegacyHistory();
 		expect(result.migrated).toBe(true);
-		expect(result.attempted).toBe(50);
-		expect(createHistoryEntry).toHaveBeenCalledTimes(50);
+		expect(result.attempted).toBe(100);
+		expect(createHistoryEntry).toHaveBeenCalledTimes(100);
 	});
 
 	it('keeps going after per-entry failures and reports succeeded count', async () => {

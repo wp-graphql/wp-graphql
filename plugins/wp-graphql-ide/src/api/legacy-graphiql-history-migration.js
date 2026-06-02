@@ -17,7 +17,7 @@
  *     transient hiccup doesn't cause repeat boots to duplicate
  *     the entries that did succeed. Worst-case impact of a failure is
  *     losing some legacy history — recoverable by re-running queries.
- *   - Caps at the same 50-entry limit the runtime enforces; older
+ *   - Caps at the same 100-entry limit the runtime enforces; older
  *     entries beyond the cap are silently dropped.
  *
  * @since x-release-please-version
@@ -27,7 +27,7 @@ import { createHistoryEntry } from './history';
 
 const LEGACY_HISTORY_KEY = 'graphiql:queries';
 const MIGRATION_FLAG_KEY = 'wpgraphql-ide:graphiql-history-migrated:v1';
-const MAX_ENTRIES = 50;
+const MAX_ENTRIES = 100;
 
 function hasLocalStorage() {
 	return typeof window !== 'undefined' && !!window.localStorage;
@@ -121,9 +121,8 @@ export async function migrateLegacyHistory() {
 			return { migrated: false, skipped: 'empty' };
 		}
 
-		// Post sequentially rather than in parallel so we don't hammer
-		// the server with 50 simultaneous mutations on first boot, and
-		// so a queue stall on one entry doesn't break the whole batch.
+		// Post sequentially so the legacy ordering is preserved as each
+		// entry threads through `createHistoryEntry` (which prepends).
 		// Per-entry failures are swallowed — we mark complete regardless
 		// to prevent duplicate entries on retry. Failure surfaces only
 		// in `succeeded` so callers can log.

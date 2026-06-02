@@ -3,7 +3,7 @@
  * IDE's History panel.
  *
  * Storage model: one bucket per (WordPress user, IDE context), capped
- * at 50 entries, newest first. Scoping by user + context mirrors the
+ * at 100 entries, newest first. Scoping by user + context mirrors the
  * device-preferences pattern in `./preferences.js` so admins sharing a
  * browser don't see each other's history, and the admin IDE bucket
  * stays distinct from the public-endpoint bucket on the same site.
@@ -21,7 +21,7 @@ import { getStorageJSON, setStorageJSON } from '../utils/storage';
 
 const STORAGE_VERSION = 'v1';
 // Raised in 5.x as part of the operation-history rework: the activity-
-// bar panel deduplicates by operationHash, so a 50-entry log collapses
+// bar panel deduplicates by operationHash, so a small raw log collapses
 // quickly to a handful of distinct operations. 100 keeps the per-doc
 // Request-history tab populated without bloating localStorage.
 const MAX_ENTRIES = 100;
@@ -73,7 +73,7 @@ export async function getLocalHistory() {
 }
 
 /**
- * Append a new local entry, pruning to the 50-entry cap.
+ * Append a new local entry, pruning to the 100-entry cap.
  *
  * @param {Object} entry Snake_case shape: `{ query, variables, headers,
  *                       duration_ms, status, document_id, is_authenticated,

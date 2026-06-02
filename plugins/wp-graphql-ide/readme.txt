@@ -134,7 +134,7 @@ WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in 
 * **Schema-typed data layer.** Document and collection CRUD inside the IDE run through WPGraphQL via the bundled `gql()` client. REST remains for user preferences, the aggregated `documentSettings` readback field, and bulk import/export/reorder. Execution history is browser-local.
 * **Full internationalization.** Every UI string passes through `@wordpress/i18n` with the `wpgraphql-ide` text domain.
 * **Auto-upgrade from 4.x.** Open tabs (`graphiql:tabState`) and query history (`graphiql:queries`) saved by the legacy GraphiQL UI migrate forward on first 5.0 load; legacy localStorage keys are cleared.
-* **Anonymous history on the public endpoint.** Visitors without a logged-in session get a browser-local history bucket (capped at 50, newest first), mirroring the 4.x GraphiQL behavior.
+* **Anonymous history on the public endpoint.** Visitors without a logged-in session get a browser-local history bucket (capped at 100, newest first), mirroring the 4.x GraphiQL behavior.
 * **`wpgraphql_ide_external_fragments` filter** restored with smarter merge behavior — only fragments referenced by the outgoing query are prepended, with transitive resolution between external fragments.
 * New extension API: `registerPreference` (typed device/user prefs), `executeRequest` / `executeResponse` filters, `wpgraphql-ide.afterExecute` action.
 * New autocomplete + hover popups render reliably above the slide-up drawer overlay.

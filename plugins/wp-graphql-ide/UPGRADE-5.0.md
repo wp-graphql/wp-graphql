@@ -77,7 +77,7 @@ If you override this filter, **verify your custom capability has the permissions
 If you previously enabled the **Public IDE at GraphQL endpoint** setting in 4.x:
 
 - The setting carries over unchanged.
-- Anonymous visitors get a browser-local history bucket (capped at 50 entries) — the same model signed-in admins use.
+- Anonymous visitors get a browser-local history bucket (capped at 100 entries) — the same model signed-in admins use.
 - The IDE shell ships a feature-trimmed UI for anonymous visitors (no Save / saved queries / share / topbar actions). Toggle **Allow sign-in on the public IDE** to surface a sign-in prompt.
 
 ## What to do if your site stored saved queries in 4.x
