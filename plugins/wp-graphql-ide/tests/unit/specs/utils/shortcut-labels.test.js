@@ -4,6 +4,13 @@
 // each call by reading `navigator.platform`. We swap it per test and
 // re-import `shortcut-labels` inside `jest.isolateModules` so the
 // module-load-time constants reflect the platform under test.
+//
+// The `finally` restores the original descriptor unconditionally so
+// the file's tests are independent of one another. Jest worker
+// processes isolate files, so this pattern is safe at the file
+// boundary — but if you add new tests that touch `navigator.platform`
+// outside of `withPlatform`, you'll see leakage; route them through
+// the helper.
 function withPlatform(platform, fn) {
 	const original = Object.getOwnPropertyDescriptor(
 		window.navigator,

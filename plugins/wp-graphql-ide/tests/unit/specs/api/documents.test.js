@@ -165,6 +165,11 @@ describe('documents api — alias surface filters Smart Cache auto-hash', () => 
 		});
 	}
 
+	// A fixture-only 64-char hex value. The alias-stripping branch keys
+	// on the regex `/^[a-f0-9]{64}$/i` — the specific content of this
+	// string doesn't matter, just that it matches that shape. Don't
+	// replace this with a real sha256 expecting cross-checking; the
+	// hash algorithm isn't exercised here.
 	const SHA256 =
 		'dbf44d5f37b20ab4c605bf196d5e0c1116446506969d790f66bd1780d4ff8ae2';
 

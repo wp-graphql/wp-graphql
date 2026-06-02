@@ -183,6 +183,11 @@ describe('history-local', () => {
 		});
 
 		it('persists operationHash when the caller provides one', async () => {
+			// 64 'a's is a valid sha256 shape but not a real hash. The
+			// storage layer is opaque to the value — it round-trips
+			// whatever caller-provided string lands on the entry — so a
+			// synthetic constant is fine and avoids coupling the test to
+			// the hash algorithm in operation-hash.js.
 			const hash = 'a'.repeat(64);
 			const adapted = await createLocalHistoryEntry({
 				query: '{ x }',

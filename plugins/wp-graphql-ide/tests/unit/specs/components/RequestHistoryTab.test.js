@@ -54,6 +54,10 @@ const { __rht } = global;
 import { RequestHistoryTab } from '../../../../src/components/response-extensions/RequestHistoryTab';
 
 describe('RequestHistoryTab', () => {
+	// Resets every field on `__rht` between tests so a mutation in one
+	// case can't bleed into the next. If you add a new field to the
+	// store stub above, mirror it here — otherwise that field's state
+	// from the previous test leaks into the next.
 	beforeEach(() => {
 		__rht.history.length = 0;
 		__rht.activeDocument = null;
