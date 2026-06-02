@@ -62,9 +62,35 @@ export function ResponseContent({
 	// `name` so a single map can resolve every registered tab's data.
 	const slotData = { ...extensions, errors, headers: responseHeaders };
 
-	const activeExtTabs = extensionTabs.filter(
-		(tab) => tab.alwaysShow || extensions[tab.name] !== undefined
+	// `activeDocument` feeds the optional `predicate` on each tab so
+	// extensions can opt in/out per document (e.g. the built-in Request-
+	// history tab only renders for published documents). Read once here
+	// rather than per-tab to keep the filter cheap.
+	const activeDocument = useSelect(
+		(s) => s('wpgraphql-ide/document-editor').getActiveDocument(),
+		[]
 	);
+
+	const activeExtTabs = extensionTabs.filter((tab) => {
+		const visible = tab.alwaysShow || extensions[tab.name] !== undefined;
+		if (!visible) {
+			return false;
+		}
+		if (typeof tab.predicate === 'function') {
+			try {
+				return !!tab.predicate({
+					activeDocument,
+					response: parsed,
+					data: slotData[tab.name],
+				});
+			} catch {
+				// A throwing predicate hides the tab — better than crashing
+				// the whole response pane on a third-party extension bug.
+				return false;
+			}
+		}
+		return true;
+	});
 
 	// The synthetic "Extensions" tab still appears when the response
 	// includes extension data that no plugin has registered a renderer

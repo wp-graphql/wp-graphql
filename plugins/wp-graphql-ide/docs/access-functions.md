@@ -158,6 +158,7 @@ The built-in `errors` and `headers` tabs use the same registry but flag themselv
   - `title` (string|Function): Human-readable tab title. Pass a function `({ data, response }) => string` to surface a count or other state (e.g. `"Errors (3)"`).
   - `content` (Function): React component receiving `{ data, response }`.
   - `alwaysShow` (boolean, optional): When `true`, the tab renders even if there's no matching key in `response.extensions`. Used by the built-in `errors` / `headers` tabs. Default: `false`.
+  - `predicate` (Function, optional): Per-document gate `({ activeDocument, response, data }) => boolean`. Return falsy to hide the tab for the current document. Runs in addition to `alwaysShow` / `extensions[name]` presence — if the predicate returns false the tab is hidden regardless. Used by the built-in `requestHistory` tab to limit itself to published documents (where the Smart Cache slug gives a stable per-document identity to observe against).
 - `priority` (number, optional): Lower numbers render first. Default: `10`.
 
 **Hooks fired:**

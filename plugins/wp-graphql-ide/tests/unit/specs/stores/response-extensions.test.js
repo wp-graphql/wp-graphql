@@ -79,4 +79,26 @@ describe('response-extensions selectors', () => {
 			'a',
 		]);
 	});
+
+	it('preserves a registered `predicate` on the selector output', () => {
+		const predicate = ({ activeDocument }) =>
+			activeDocument?.status === 'publish';
+		const after = reducer(seed(), {
+			type: 'REGISTER_EXTENSION_TAB',
+			name: 'request-history',
+			config: {
+				title: 'Request history',
+				content: () => null,
+				predicate,
+			},
+		});
+		const [tab] = selectors.extensionTabs(after);
+		expect(tab.predicate).toBe(predicate);
+		expect(tab.predicate({ activeDocument: { status: 'publish' } })).toBe(
+			true
+		);
+		expect(tab.predicate({ activeDocument: { status: 'draft' } })).toBe(
+			false
+		);
+	});
 });

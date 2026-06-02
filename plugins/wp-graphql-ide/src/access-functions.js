@@ -155,6 +155,16 @@ export function registerActivityBarPanel(name, config, priority = 10) {
  *                                                    even if there's no matching key in
  *                                                    response.extensions. Used by the
  *                                                    built-in errors / headers tabs.
+ * @param {Function}        [config.predicate]        Optional per-document gate
+ *                                                    `({ activeDocument, response, data }) => boolean`.
+ *                                                    Return falsy to hide the tab for the
+ *                                                    current document (e.g. the built-in
+ *                                                    Request-history tab only shows when
+ *                                                    `activeDocument.status === 'publish'`).
+ *                                                    Runs in addition to `alwaysShow` /
+ *                                                    `extensions[name]` presence — if the
+ *                                                    predicate returns false the tab is
+ *                                                    hidden regardless.
  * @param {number}          [priority=10]             Lower values render first.
  *
  * @return {void}
