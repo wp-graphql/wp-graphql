@@ -134,6 +134,12 @@ class ImportExport {
 	 * Insert or attach a single document. Returns the action taken so the
 	 * importer can report counts back to the UI.
 	 *
+	 * Normalizes + hashes every document (not just publishes) and looks
+	 * the hash up against Smart Cache's `graphql_query_alias` taxonomy
+	 * (or post_name, when Smart Cache isn't loaded) so a content-duplicate
+	 * import attaches to the existing post instead of triggering Smart
+	 * Cache's collision-throw inside `save_post_graphql_document`.
+	 *
 	 * @param array<string,mixed> $doc       Document payload.
 	 * @param int                 $term_id   Collection term ID to attach.
 	 * @param int                 $author_id Owner.
@@ -148,31 +154,18 @@ class ImportExport {
 		$status = ( $doc['status'] ?? 'publish' ) === 'draft' ? 'draft' : 'publish';
 		$title  = isset( $doc['title'] ) && '' !== $doc['title'] ? (string) $doc['title'] : __( 'Untitled', 'wpgraphql-ide' );
 
-		$body = $query;
-		$slug = '';
+		try {
+			$ast  = \GraphQL\Language\Parser::parse( $query );
+			$body = \GraphQL\Language\Printer::doPrint( $ast );
+			$slug = hash( 'sha256', $body );
+		} catch ( \Throwable $e ) {
+			return 'error';
+		}
 
-		if ( 'publish' === $status ) {
-			try {
-				$ast  = \GraphQL\Language\Parser::parse( $query );
-				$body = \GraphQL\Language\Printer::doPrint( $ast );
-				$slug = hash( 'sha256', $body );
-			} catch ( \Throwable $e ) {
-				return 'error';
-			}
-
-			$existing = get_posts(
-				[
-					'post_type'      => 'graphql_document',
-					'post_status'    => 'publish',
-					'name'           => $slug,
-					'posts_per_page' => 1,
-					'fields'         => 'ids',
-				]
-			);
-			if ( ! empty( $existing ) ) {
-				wp_set_object_terms( (int) $existing[0], [ $term_id ], 'graphql_document_group', true );
-				return 'skipped';
-			}
+		$existing = self::find_existing_by_hash( $slug );
+		if ( $existing ) {
+			wp_set_object_terms( $existing, [ $term_id ], 'graphql_document_group', true );
+			return 'skipped';
 		}
 
 		$postarr = [
@@ -182,7 +175,10 @@ class ImportExport {
 			'post_title'   => $title,
 			'post_content' => $body,
 		];
-		if ( '' !== $slug ) {
+		// Publishes are content-addressed at the slug layer so direct
+		// REST reads / Smart Cache's get-by-queryId machinery resolve
+		// without a taxonomy lookup. Drafts keep WP's title-derived slug.
+		if ( 'publish' === $status ) {
 			$postarr['post_name'] = $slug;
 		}
 
@@ -201,6 +197,54 @@ class ImportExport {
 		}
 
 		return 'created';
+	}
+
+	/**
+	 * Resolve an existing `graphql_document` for the given content hash.
+	 *
+	 * Smart Cache stamps the sha256 of every saved doc's normalized
+	 * content onto the `graphql_query_alias` taxonomy term — that's
+	 * the authoritative cross-status identity. Fall back to post_name
+	 * for environments where Smart Cache isn't loaded; the IDE still
+	 * sets `post_name = $slug` on its own publishes, so the fallback
+	 * keeps publish-to-publish dedup honest.
+	 *
+	 * @param string $slug sha256 hash of the normalized query.
+	 * @return int|null Existing post ID, or null if no match.
+	 */
+	private static function find_existing_by_hash( string $slug ): ?int {
+		if ( taxonomy_exists( 'graphql_query_alias' ) ) {
+			$by_term = get_posts(
+				[
+					'post_type'      => 'graphql_document',
+					'post_status'    => [ 'publish', 'draft' ],
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					'tax_query'      => [
+						[
+							'taxonomy' => 'graphql_query_alias',
+							'field'    => 'name',
+							'terms'    => $slug,
+						],
+					],
+				]
+			);
+			if ( ! empty( $by_term ) ) {
+				return (int) $by_term[0];
+			}
+		}
+
+		$by_slug = get_posts(
+			[
+				'post_type'      => 'graphql_document',
+				'post_status'    => 'publish',
+				'name'           => $slug,
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			]
+		);
+		return ! empty( $by_slug ) ? (int) $by_slug[0] : null;
 	}
 
 	/**
