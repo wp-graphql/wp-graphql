@@ -167,6 +167,7 @@ function TabStrip({
 							aria-selected={isActive}
 							tabIndex={isActive ? 0 : -1}
 							className={classes}
+							data-tab-name={tab.name}
 							onClick={() => onSelect(tab.name)}
 						>
 							{tab.title}
@@ -187,6 +188,7 @@ function TabStrip({
 						aria-selected={isActive}
 						tabIndex={isActive ? 0 : -1}
 						className={classes}
+						data-tab-name={tab.name}
 						onClick={() => onSelect(tab.name)}
 						draggable
 						onDragStart={(e) => {
@@ -370,6 +372,7 @@ export function OverflowTabs({
 								key={tab.name}
 								type="button"
 								className={`wpgraphql-ide-tab-collapsed-tab${isActive ? ' is-active' : ''}`}
+								data-tab-name={tab.name}
 								aria-pressed={isActive}
 								onClick={() => onExpand?.(tab.name)}
 							>

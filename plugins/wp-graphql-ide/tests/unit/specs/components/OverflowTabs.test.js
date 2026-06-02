@@ -82,6 +82,21 @@ describe('OverflowTabs reorder wiring', () => {
 		});
 	});
 
+	it('exposes each tab name via `data-tab-name` so CSS can target by identity instead of position', () => {
+		// Users can drag-reorder the response strip, so a `:nth-child(N)`
+		// selector would highlight the wrong tab once that ordering
+		// changes. The Errors tab's red error indicator depends on this
+		// attribute — losing it would silently regress that affordance.
+		render(
+			<OverflowTabs tabs={TABS} initialTabName="errors">
+				{() => <div>content</div>}
+			</OverflowTabs>
+		);
+		const buttons = screen.getAllByRole('tab');
+		const names = buttons.map((b) => b.getAttribute('data-tab-name'));
+		expect(names).toEqual(expect.arrayContaining(TABS.map((t) => t.name)));
+	});
+
 	it('applies the is-drag-* class on the hovered tab from dragOverTab', () => {
 		render(
 			<OverflowTabs

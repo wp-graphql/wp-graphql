@@ -3222,8 +3222,14 @@ input.wpgraphql-ide-tab-input:focus {
 	outline: none;
 }
 
-/* Red error indicator on the Errors tab when errors > 0 */
-.wpgraphql-ide-response-tabs.has-errors .components-tab-panel__tabs-item:nth-child(2) {
+/* Red the Errors tab when errors > 0. Targets by `data-tab-name`
+   (set in OverflowTabs.jsx) rather than position — users can reorder
+   the response strip, so `:nth-child(N)` would highlight whichever tab
+   happened to sit in slot 2. */
+.wpgraphql-ide-response-tabs.has-errors
+	.components-tab-panel__tabs-item[data-tab-name='ext:errors'],
+.wpgraphql-ide-response-tabs.has-errors
+	.wpgraphql-ide-tab-collapsed-tab[data-tab-name='ext:errors'] {
 	color: var(--wpgraphql-ide-color-error, #d63638);
 }
 
