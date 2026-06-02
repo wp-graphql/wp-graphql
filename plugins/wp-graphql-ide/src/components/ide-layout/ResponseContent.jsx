@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { __ } from '@wordpress/i18n';
 import { ResizableBox } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -55,6 +55,27 @@ export function ResponseContent({
 
 	const errors = parsed?.errors || [];
 	const extensions = parsed?.extensions || {};
+
+	// Auto-focus the Errors tab on any response that contains errors.
+	// Without this, the red highlight on the tab is the only signal —
+	// and if the strip is collapsed (or the user's last-active tab was
+	// something else), the actual error message stays hidden. Only
+	// fires when the response itself changes, so a manual click to
+	// another tab after the run still sticks until the next execution.
+	useEffect(() => {
+		if (errors.length === 0) {
+			return;
+		}
+		if (bottomCollapsed && onSetBottomCollapsed) {
+			onSetBottomCollapsed(false);
+		}
+		onSetBottomActiveTab?.('ext:errors');
+		// `errors.length` is derived from `response`; depending on
+		// either is equivalent, and depending on the setters would
+		// re-fire every render because new function identities arrive
+		// each parent render.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [response]);
 
 	// Synthetic data slots — Errors and Headers describe the response
 	// envelope itself, not response.extensions, so they don't have a
