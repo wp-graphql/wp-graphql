@@ -45,7 +45,7 @@ import { WELCOME_QUERY } from '../stores/document-editor/welcome-query';
 /**
  * Main IDE layout component.
  *
- * Layout follows Jason's scoping principle:
+ * Scoping convention:
  * - Global controls (activity bar, sidebar panels) are on the left
  * - Document-scoped controls (tabs, auth toggle, query composer, send) are
  *   nested inside the editor area, visually tied to the active document

@@ -468,15 +468,6 @@ const actions = {
 					document: {
 						id: updated.id,
 						status: 'publish',
-						// Slug = sha256 hash, set by Smart Cache's
-						// save_document_cb. The REST `_fields` request
-						// in getDocuments doesn't include slug today —
-						// downstream consumers that need the queryHash
-						// can read it from the document's `slug` field
-						// via a follow-up fetch. For now we don't
-						// surface a queryHash on the dispatched payload;
-						// existing callsites that read it gracefully
-						// degrade to undefined.
 					},
 				});
 				return updated;

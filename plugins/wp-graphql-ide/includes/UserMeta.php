@@ -173,10 +173,11 @@ class UserMeta {
 		);
 
 		// Personal collections — per-user grouping of documents that lives
-		// in this user's row, separate from the sitewide `graphql_ide_collection`
-		// taxonomy. The owner can extend visibility to specific other users via
-		// the `shared_with` array; those users get a read-only "Shared with me"
-		// view assembled server-side from every IDE user's meta.
+		// in this user's row, separate from Smart Cache's sitewide
+		// `graphql_document_group` taxonomy. The owner can extend visibility
+		// to specific other users via the `shared_with` array; those users
+		// get a read-only "Shared with me" view assembled server-side from
+		// every IDE user's meta.
 		register_meta(
 			'user',
 			'wpgraphql_ide_personal_collections',

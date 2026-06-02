@@ -43,11 +43,11 @@ const initialState = {
 	// virtual section keys '_documents' / '_unsaved'. Each value is one
 	// of: 'manual' | 'title_asc' | 'modified_desc' | 'status'.
 	collectionSortModes: {},
-	// Personal collections — per-user grouping, separate from the sitewide
-	// `collections` taxonomy. Each entry: { id, name, document_ids: [],
-	// shared_with: [] }. Seeded synchronously from
-	// WPGRAPHQL_IDE_DATA.personalCollections at boot; mutations write the
-	// full updated array back via setPreference.
+	// Personal collections — per-user grouping, separate from Smart Cache's
+	// sitewide `graphql_document_group` taxonomy. Each entry:
+	// { id, name, document_ids: [], shared_with: [] }. Seeded synchronously
+	// from WPGRAPHQL_IDE_DATA.personalCollections at boot; mutations write
+	// the full updated array back via setPreference.
 	personalCollections: Array.isArray(
 		typeof window !== 'undefined' &&
 			window.WPGRAPHQL_IDE_DATA?.personalCollections
