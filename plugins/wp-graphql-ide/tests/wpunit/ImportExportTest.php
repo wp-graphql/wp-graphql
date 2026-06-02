@@ -322,4 +322,58 @@ class ImportExportTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 0, $result['skipped'] );
 		$this->assertSame( [], $result['collections'] );
 	}
+
+	public function test_two_collections_with_the_same_name_in_one_payload_are_merged_into_one_term() {
+		// `term_exists` short-circuits the second `wp_insert_term` call,
+		// so the two collection blocks resolve to the SAME term — their
+		// documents land in one collection rather than spawning two
+		// homonymous terms (which would surface as "Coll-merge (2)" in
+		// the UI thanks to `wp_unique_term_slug`).
+		$payload = [
+			'version'     => \WPGraphQLIDE\ImportExport::IMPORT_SCHEMA_VERSION,
+			'collections' => [
+				[
+					'name'      => 'Coll-merge',
+					'documents' => [
+						[
+							'title' => 'A',
+							'query' => 'query Qmerge1 { posts { nodes { id } } }',
+						],
+					],
+				],
+				[
+					'name'      => 'Coll-merge',
+					'documents' => [
+						[
+							'title' => 'B',
+							'query' => 'query Qmerge2 { posts { nodes { id } } }',
+						],
+					],
+				],
+			],
+		];
+
+		$result = \WPGraphQLIDE\ImportExport::import( $payload, $this->admin_a );
+
+		// Both documents created, both attached to the same term.
+		$this->assertSame( 2, $result['created'] );
+		$this->assertSame( 0, $result['skipped'] );
+
+		// `result['collections']` collects the term IDs returned per
+		// collection block; both entries here should be the same ID.
+		$this->assertCount( 2, $result['collections'] );
+		$this->assertSame(
+			$result['collections'][0],
+			$result['collections'][1],
+			'Same-named collection blocks must resolve to the same term ID.'
+		);
+
+		// Exactly one matching taxonomy term exists.
+		$terms = get_terms( [
+			'taxonomy'   => 'graphql_document_group',
+			'name'       => 'Coll-merge',
+			'hide_empty' => false,
+		] );
+		$this->assertCount( 1, $terms );
+	}
 }

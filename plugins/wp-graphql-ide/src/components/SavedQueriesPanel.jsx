@@ -38,6 +38,7 @@ import {
 } from '../api/documents';
 import { displayDocTitle } from '../utils/derive-doc-title';
 import { isTempId } from '../utils/document-id';
+import { importResultToNotice } from '../utils/import-result-notice';
 import { isUserLoggedIn } from '../bootstrap';
 import { InlineSignInPrompt } from './InlineSignInPrompt';
 
@@ -833,58 +834,23 @@ export function SavedQueriesPanel() {
 		if (!importedFile) {
 			return;
 		}
+		let result;
+		let error;
 		try {
 			const text = await importedFile.text();
 			const payload = JSON.parse(text);
-			const result = await importDocuments(payload);
-			if (result?.error) {
-				notify(
-					sprintf(
-						/* translators: %s: error message returned by the import endpoint */
-						__('Import failed: %s', 'wpgraphql-ide'),
-						result.error
-					),
-					'error'
-				);
-				return;
-			}
-			await loadCollections();
-			reloadDocs();
-			const created = result.created || 0;
-			const skipped = result.skipped || 0;
-			const createdMsg = sprintf(
-				/* translators: %d: number of queries imported */
-				_n(
-					'Imported %d query.',
-					'Imported %d queries.',
-					created,
-					'wpgraphql-ide'
-				),
-				created
-			);
-			const message = skipped
-				? sprintf(
-						/* translators: 1: created-count sentence, 2: number of duplicate queries skipped */
-						__(
-							'%1$s (%2$d skipped as duplicates)',
-							'wpgraphql-ide'
-						),
-						createdMsg.replace(/\.$/, ''),
-						skipped
-					) + '.'
-				: createdMsg;
-			notify(message);
+			result = await importDocuments(payload);
 		} catch (err) {
+			error = err;
 			// eslint-disable-next-line no-console
 			console.error('Import failed:', err);
-			notify(
-				__(
-					'Import failed. Make sure the file is valid JSON.',
-					'wpgraphql-ide'
-				),
-				'error'
-			);
 		}
+		if (!error && !result?.error) {
+			await loadCollections();
+			reloadDocs();
+		}
+		const notice = importResultToNotice({ result, error });
+		notify(notice.message, notice.type);
 	};
 
 	const reloadDocs = () => {
