@@ -134,7 +134,10 @@ function buildMutationInput(doc) {
 		input.content = doc.query;
 	}
 	if (doc.status !== undefined) {
-		input.status = doc.status;
+		// `PostStatusEnum` is uppercase (DRAFT / PUBLISH / …); the IDE
+		// stores the WordPress post_status string (lowercase) internally
+		// to match what the read side returns. Upcase here at the wire.
+		input.status = String(doc.status).toUpperCase();
 	}
 	if (doc.variables !== undefined) {
 		input.variables = doc.variables;
