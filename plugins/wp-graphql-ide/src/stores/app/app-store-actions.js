@@ -15,6 +15,7 @@ import {
 	reorderCollections as persistCollectionOrder,
 } from '../../api/documents';
 import { getPreferences, setPreference } from '../../api/preferences';
+import { computeOperationHash } from '../../utils/operation-hash';
 
 const VALID_SORT_MODES = ['manual', 'title_asc', 'modified_desc', 'status'];
 
@@ -226,10 +227,11 @@ const actions = {
 		},
 
 	/**
-	 * Add a new history entry to the local bucket. The 50-entry cap is
+	 * Add a new history entry to the local bucket. The 100-entry cap is
 	 * enforced inside `createHistoryEntry`; here we just mirror the
 	 * pruning into the in-memory selector so the panel updates without
-	 * a refetch.
+	 * a refetch. Computes the content-addressed operation hash up front
+	 * so the panel can dedupe runs by operation.
 	 *
 	 * @param {Object} entry History entry data.
 	 */
@@ -237,7 +239,13 @@ const actions = {
 		(entry) =>
 		async ({ dispatch }) => {
 			try {
-				const created = await postHistoryEntry(entry);
+				const operationHash = await computeOperationHash(
+					entry.query || ''
+				);
+				const created = await postHistoryEntry({
+					...entry,
+					operationHash,
+				});
 				dispatch({ type: 'ADD_HISTORY_ENTRY', entry: created });
 			} catch (error) {
 				// eslint-disable-next-line no-console

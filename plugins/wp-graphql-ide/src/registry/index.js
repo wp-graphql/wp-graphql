@@ -38,6 +38,7 @@ import { TracingExtensionTab } from '../components/response-extensions/TracingEx
 import { QueryLogExtensionTab } from '../components/response-extensions/QueryLogExtensionTab';
 import { ErrorsExtensionTab } from '../components/response-extensions/ErrorsExtensionTab';
 import { HeadersExtensionTab } from '../components/response-extensions/HeadersExtensionTab';
+import { RequestHistoryTab } from '../components/response-extensions/RequestHistoryTab';
 import { VariablesEditorTab } from '../components/editor-bottom-tabs/VariablesEditorTab';
 import { HeadersEditorTab } from '../components/editor-bottom-tabs/HeadersEditorTab';
 import {
@@ -143,6 +144,24 @@ export const initializeRegistry = () => {
 			content: QueryLogExtensionTab,
 		},
 		40
+	);
+
+	// Per-document execution log, gated to published documents — those
+	// have a stable Smart Cache slug to filter by. The `alwaysShow` flag
+	// is set so the tab appears even when the response has no matching
+	// `extensions.requestHistory` key (it doesn't — the tab pulls from
+	// the app store, not from response.extensions). The predicate hides
+	// it again for drafts so ephemeral content doesn't get a noisy tab.
+	registerResponseExtensionTab(
+		'requestHistory',
+		{
+			title: __('Request history', 'wpgraphql-ide'),
+			content: RequestHistoryTab,
+			alwaysShow: true,
+			predicate: ({ activeDocument }) =>
+				activeDocument?.status === 'publish',
+		},
+		50
 	);
 
 	registerResponseExtensionTab(

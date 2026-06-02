@@ -2,7 +2,7 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { HistoryEntry } from '../../../../src/components/HistoryEntry';
+import { RequestHistoryEntry } from '../../../../src/components/RequestHistoryEntry';
 
 const ENTRY = {
 	id: 42,
@@ -16,9 +16,9 @@ const ENTRY = {
 	timestamp: 1716800000,
 };
 
-describe('HistoryEntry', () => {
+describe('RequestHistoryEntry', () => {
 	it('renders the operation name as the label, method, status, and duration', () => {
-		render(<HistoryEntry entry={ENTRY} onRestore={() => {}} />);
+		render(<RequestHistoryEntry entry={ENTRY} onRestore={() => {}} />);
 		expect(screen.getByText('GetPosts')).toBeInTheDocument();
 		expect(screen.getByText('POST')).toBeInTheDocument();
 		expect(screen.getByText('OK')).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('HistoryEntry', () => {
 		// `deriveDocTitle('{ posts { id } }')` returns 'posts' (the first
 		// field), not 'Untitled' — so the label shows the field name.
 		render(
-			<HistoryEntry
+			<RequestHistoryEntry
 				entry={{ ...ENTRY, query: '{ posts { id } }' }}
 				onRestore={() => {}}
 			/>
@@ -41,7 +41,7 @@ describe('HistoryEntry', () => {
 	it('falls back to "Anonymous query" when deriveDocTitle returns Untitled', () => {
 		// Empty / unparseable queries are the cases that trip the fallback.
 		render(
-			<HistoryEntry
+			<RequestHistoryEntry
 				entry={{ ...ENTRY, query: 'not a parseable query' }}
 				onRestore={() => {}}
 			/>
@@ -51,7 +51,7 @@ describe('HistoryEntry', () => {
 
 	it('renders ERR for failed executions and applies the status class', () => {
 		render(
-			<HistoryEntry
+			<RequestHistoryEntry
 				entry={{ ...ENTRY, status: 'error' }}
 				onRestore={() => {}}
 			/>
@@ -63,14 +63,14 @@ describe('HistoryEntry', () => {
 
 	it('calls onRestore with the entry when the button is clicked', () => {
 		const onRestore = jest.fn();
-		render(<HistoryEntry entry={ENTRY} onRestore={onRestore} />);
+		render(<RequestHistoryEntry entry={ENTRY} onRestore={onRestore} />);
 		fireEvent.click(screen.getByRole('button'));
 		expect(onRestore).toHaveBeenCalledWith(ENTRY);
 	});
 
 	it('renders the avatar with the public class when is_authenticated is false', () => {
 		render(
-			<HistoryEntry
+			<RequestHistoryEntry
 				entry={{ ...ENTRY, is_authenticated: false }}
 				onRestore={() => {}}
 				avatarUrl="https://example.com/a.png"
@@ -81,13 +81,13 @@ describe('HistoryEntry', () => {
 	});
 
 	it('omits the avatar when no avatarUrl is provided', () => {
-		render(<HistoryEntry entry={ENTRY} onRestore={() => {}} />);
+		render(<RequestHistoryEntry entry={ENTRY} onRestore={() => {}} />);
 		expect(screen.queryByRole('img')).not.toBeInTheDocument();
 	});
 
 	it('skips the preview when the query is empty', () => {
 		render(
-			<HistoryEntry
+			<RequestHistoryEntry
 				entry={{ ...ENTRY, query: '' }}
 				onRestore={() => {}}
 			/>

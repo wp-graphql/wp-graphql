@@ -20,7 +20,11 @@
 import { getStorageJSON, setStorageJSON } from '../utils/storage';
 
 const STORAGE_VERSION = 'v1';
-const MAX_ENTRIES = 50;
+// Raised in 5.x as part of the operation-history rework: the activity-
+// bar panel deduplicates by operationHash, so a 50-entry log collapses
+// quickly to a handful of distinct operations. 100 keeps the per-doc
+// Request-history tab populated without bloating localStorage.
+const MAX_ENTRIES = 100;
 
 /**
  * Compute the per-visitor storage key. Reads `WPGRAPHQL_IDE_DATA` each
@@ -92,6 +96,16 @@ export async function createLocalHistoryEntry(entry) {
 			Number(entry.document_id) > 0 ? Number(entry.document_id) : 0,
 		is_authenticated: entry.is_authenticated ?? false,
 		http_method: entry.http_method ?? 'POST',
+		// Content-addressed identity for the operation. Matches Smart
+		// Cache's slug for any query that's been (or could be) published,
+		// so the response-pane Request-history tab can filter by
+		// `entry.operationHash === activeDocument.slug` and pick up runs
+		// made while the doc was still a draft. `null` for entries we
+		// couldn't normalize (invalid GraphQL) or legacy entries.
+		operationHash:
+			typeof entry.operationHash === 'string'
+				? entry.operationHash
+				: null,
 	};
 
 	const existing = readAll();

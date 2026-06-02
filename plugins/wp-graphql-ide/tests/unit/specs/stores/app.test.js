@@ -184,6 +184,7 @@ describe('app selectors (smoke)', () => {
 				'isAuthenticated',
 				'isInitialStateLoaded',
 				'getHistory',
+				'getOperationHistory',
 			])
 		);
 	});
@@ -194,5 +195,90 @@ describe('app selectors (smoke)', () => {
 
 	it('isDrawerOpen reflects state', () => {
 		expect(selectors.isDrawerOpen(seed({ isDrawerOpen: true }))).toBe(true);
+	});
+});
+
+describe('getOperationHistory', () => {
+	it('groups entries by operationHash and counts runs', () => {
+		const state = seed({
+			history: [
+				{
+					id: 3,
+					timestamp: 300,
+					operationHash: 'a'.repeat(64),
+					query: 'latest',
+					variables: 'vlatest',
+					headers: 'hlatest',
+					document_id: 9,
+				},
+				{
+					id: 2,
+					timestamp: 200,
+					operationHash: 'a'.repeat(64),
+					query: 'mid',
+					variables: 'vmid',
+					headers: 'hmid',
+					document_id: 9,
+				},
+				{
+					id: 1,
+					timestamp: 100,
+					operationHash: 'a'.repeat(64),
+					query: 'first',
+					variables: '',
+					headers: '',
+					document_id: 0,
+				},
+			],
+		});
+		const groups = selectors.getOperationHistory(state);
+		expect(groups).toHaveLength(1);
+		expect(groups[0].runCount).toBe(3);
+		expect(groups[0].latestRun).toBe(300);
+		expect(groups[0].lastQuery).toBe('latest');
+		expect(groups[0].lastVariables).toBe('vlatest');
+		expect(groups[0].lastHeaders).toBe('hlatest');
+		expect(groups[0].latestDocId).toBe(9);
+	});
+
+	it('sorts groups newest-first by latestRun', () => {
+		const state = seed({
+			history: [
+				{ id: 1, timestamp: 100, operationHash: 'a'.repeat(64) },
+				{ id: 2, timestamp: 300, operationHash: 'b'.repeat(64) },
+				{ id: 3, timestamp: 200, operationHash: 'c'.repeat(64) },
+			],
+		});
+		const groups = selectors.getOperationHistory(state);
+		expect(groups.map((g) => g.hash)).toEqual([
+			'b'.repeat(64),
+			'c'.repeat(64),
+			'a'.repeat(64),
+		]);
+	});
+
+	it('falls back to per-id grouping for legacy entries with no operationHash', () => {
+		const state = seed({
+			history: [
+				{ id: 'legacy-1', timestamp: 100, query: '{ a }' },
+				{ id: 'legacy-2', timestamp: 200, query: '{ a }' },
+			],
+		});
+		const groups = selectors.getOperationHistory(state);
+		// Two legacy entries with the same query but no hash stay
+		// separate — we can't safely dedupe without confirming the
+		// content normalized to the same identity.
+		expect(groups).toHaveLength(2);
+		expect(groups.every((g) => g.hash === null)).toBe(true);
+	});
+
+	it('returns the same array reference when history is unchanged (memoization)', () => {
+		const history = [
+			{ id: 1, timestamp: 100, operationHash: 'a'.repeat(64) },
+		];
+		const state = seed({ history });
+		const first = selectors.getOperationHistory(state);
+		const second = selectors.getOperationHistory(state);
+		expect(first).toBe(second);
 	});
 });

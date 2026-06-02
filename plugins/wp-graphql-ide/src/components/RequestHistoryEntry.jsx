@@ -24,9 +24,12 @@ function queryPreview(query) {
 }
 
 /**
- * One row in the history list — method / status / duration / time pill
- * header above a query label and one-line preview. Clicking restores
- * the entry into a new tab; the parent owns the actual restore action.
+ * One row representing a single execution — method / status / duration /
+ * time pill header above a query label and one-line preview. Lives in
+ * the Request-history response-pane tab for published documents (every
+ * row is one run of that document). Clicking re-applies the entry's
+ * variables and headers to the active document; the parent owns the
+ * actual restore action.
  *
  * @param {Object}   props
  * @param {Object}   props.entry       - Adapted history entry. Shape matches `createLocalHistoryEntry`'s return value.
@@ -35,7 +38,7 @@ function queryPreview(query) {
  *
  * @since x-release-please-version
  */
-export function HistoryEntry({ entry, onRestore, avatarUrl }) {
+export function RequestHistoryEntry({ entry, onRestore, avatarUrl }) {
 	const derived = deriveDocTitle(entry.query);
 	// `deriveDocTitle` returns the literal 'Untitled' fallback; matching
 	// the literal here is the contract — translation happens at display

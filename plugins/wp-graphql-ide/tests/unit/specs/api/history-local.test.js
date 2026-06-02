@@ -143,16 +143,16 @@ describe('history-local', () => {
 			expect(bucket[1].id).toBe(first.id);
 		});
 
-		it('caps the bucket at 50 entries (oldest fall off the tail)', async () => {
-			for (let i = 0; i < 60; i += 1) {
+		it('caps the bucket at 100 entries (oldest fall off the tail)', async () => {
+			for (let i = 0; i < 120; i += 1) {
 				// eslint-disable-next-line no-await-in-loop
 				await createLocalHistoryEntry({ query: `{ q${i} }` });
 			}
 			const bucket = readBucket(0, 'endpoint');
-			expect(bucket).toHaveLength(50);
-			// Newest is q59, oldest kept is q10.
-			expect(bucket[0].query).toBe('{ q59 }');
-			expect(bucket[49].query).toBe('{ q10 }');
+			expect(bucket).toHaveLength(100);
+			// Newest is q119, oldest kept is q20.
+			expect(bucket[0].query).toBe('{ q119 }');
+			expect(bucket[99].query).toBe('{ q20 }');
 		});
 
 		it('applies safe defaults for missing fields', async () => {
@@ -180,6 +180,22 @@ describe('history-local', () => {
 				is_authenticated: true,
 			});
 			expect(adapted.is_authenticated).toBe(true);
+		});
+
+		it('persists operationHash when the caller provides one', async () => {
+			const hash = 'a'.repeat(64);
+			const adapted = await createLocalHistoryEntry({
+				query: '{ x }',
+				operationHash: hash,
+			});
+			expect(adapted.operationHash).toBe(hash);
+			const bucket = readBucket(0, 'endpoint');
+			expect(bucket[0].operationHash).toBe(hash);
+		});
+
+		it('stores operationHash as null when omitted (back-compat for callers without it)', async () => {
+			const adapted = await createLocalHistoryEntry({ query: '{ x }' });
+			expect(adapted.operationHash).toBeNull();
 		});
 	});
 

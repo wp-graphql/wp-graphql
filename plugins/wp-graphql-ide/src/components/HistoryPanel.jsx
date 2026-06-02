@@ -5,7 +5,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { Icon, backup } from '@wordpress/icons';
 import hooks from '../wordpress-hooks';
 import { useDialog } from './dialogs/DialogProvider';
-import { HistoryEntry } from './HistoryEntry';
+import { OperationHistoryEntry } from './OperationHistoryEntry';
 
 /**
  * History panel icon for the activity bar.
@@ -13,40 +13,68 @@ import { HistoryEntry } from './HistoryEntry';
 export const HistoryIcon = () => <Icon icon={backup} />;
 
 /**
- * History panel content.
+ * Activity-bar History panel.
  *
- * Displays execution history for the current visitor. Clicking an
- * entry restores its query, variables, and headers into a new tab.
+ * Shows distinct **operations** rather than raw executions: running the
+ * same query ten times in a row collapses into one row labeled "10 runs"
+ * (GraphiQL / Apollo Studio / Altair style). Backed by the in-memory
+ * `getOperationHistory` selector, which dedupes the underlying flat
+ * localStorage log by content-addressed `operationHash`.
  *
- * Backed entirely by localStorage via `src/api/history.js` — buckets
- * are scoped per (WordPress user, IDE context) so admins sharing a
- * browser don't see each other's history and the admin-IDE bucket
- * stays distinct from the public-endpoint bucket. Works identically
- * for anonymous public-endpoint visitors and logged-in admins.
+ * Click behavior is "switch-or-spawn": if the operation's hash matches
+ * an existing published `graphql_document`'s slug (Smart Cache's
+ * content-addressed identity), we switch to that tab so the user keeps
+ * working with the saved doc. Otherwise we spawn a fresh draft tab
+ * pre-filled with the most-recent variables and headers used.
+ *
+ * Per-execution detail (timestamps, durations, statuses) lives in the
+ * Request-history tab in the response pane — only enabled for published
+ * documents, where per-run observability ties to a stable identity.
+ *
+ * Storage is browser-local, scoped per (WordPress user × IDE context),
+ * so admins sharing a browser don't see each other's history and the
+ * admin-IDE bucket stays distinct from the public-endpoint bucket.
  */
 export function HistoryPanel() {
 	const { confirm } = useDialog();
-	const history = useSelect(
-		(select) => select('wpgraphql-ide/app').getHistory(),
+	const operations = useSelect(
+		(select) => select('wpgraphql-ide/app').getOperationHistory(),
+		[]
+	);
+	const allDocuments = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getDocuments(),
 		[]
 	);
 
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
 
-	const { createTab } = useDispatch('wpgraphql-ide/document-editor');
+	const { createTab, switchTab } = useDispatch(
+		'wpgraphql-ide/document-editor'
+	);
 
-	const avatarUrl = window.WPGRAPHQL_IDE_DATA?.context?.avatarUrl || '';
-
-	const restoreEntry = async (entry) => {
-		// Tab title derives from the restored query; no need to compute a name.
+	const restoreOperation = async (group) => {
+		// Match against a published doc by Smart Cache slug. If we find
+		// one, switching is more useful than spawning a fresh draft —
+		// the user gets back to the saved doc they already had.
+		if (group.hash) {
+			const existing = allDocuments.find(
+				(d) => d.slug === group.hash && d.status === 'publish'
+			);
+			if (existing) {
+				switchTab(String(existing.id));
+				return;
+			}
+		}
+		// Fallback: open a new draft tab pre-filled with the most-recent
+		// captured context for this operation.
 		await createTab('');
-		setQuery(entry.query || '');
-		setVariables(entry.variables || '');
-		setHeaders(entry.headers || '');
+		setQuery(group.lastQuery || '');
+		setVariables(group.lastVariables || '');
+		setHeaders(group.lastHeaders || '');
 	};
 
-	if (history.length === 0) {
+	if (operations.length === 0) {
 		return (
 			<div className="wpgraphql-ide-history-panel wpgraphql-ide-history-panel--empty">
 				<div className="wpgraphql-ide-history-empty-state">
@@ -56,11 +84,11 @@ export function HistoryPanel() {
 						className="wpgraphql-ide-history-empty-icon"
 					/>
 					<h3 className="wpgraphql-ide-history-empty-title">
-						{__('No executions yet', 'wpgraphql-ide')}
+						{__('No operations yet', 'wpgraphql-ide')}
 					</h3>
 					<p className="wpgraphql-ide-history-empty-description">
 						{__(
-							'Run a query and the request will appear here. Click any entry to restore its query, variables, and headers into a new tab.',
+							'Run a query and the operation will appear here. Click any row to open it; published copies open in place, drafts open in a new tab.',
 							'wpgraphql-ide'
 						)}
 					</p>
@@ -72,12 +100,11 @@ export function HistoryPanel() {
 	return (
 		<div className="wpgraphql-ide-history-panel">
 			<ul className="wpgraphql-ide-history-list">
-				{history.map((entry) => (
-					<HistoryEntry
-						key={entry.id}
-						entry={entry}
-						onRestore={restoreEntry}
-						avatarUrl={avatarUrl}
+				{operations.map((group) => (
+					<OperationHistoryEntry
+						key={group.hash || `legacy-${group.latestRun}`}
+						group={group}
+						onRestore={restoreOperation}
 					/>
 				))}
 			</ul>
