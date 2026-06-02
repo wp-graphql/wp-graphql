@@ -1,15 +1,14 @@
-// Platform-aware labels for keyboard shortcuts shown in UI text
-// (tooltips, status tips, the welcome buffer). Resolved once at module
-// load — the platform doesn't change inside a session.
-const ua =
-	typeof window !== 'undefined' && window.navigator
-		? window.navigator.platform || window.navigator.userAgent || ''
-		: '';
+// Platform-aware keyboard-shortcut labels.
+//
+// `@wordpress/keycodes`'s `displayShortcut` is the same helper Gutenberg's
+// menus use, so menu items, tooltips, and the welcome buffer all render
+// the same conventions a WordPress admin already sees elsewhere:
+//
+//   Mac:    ⌘Enter / ⌘S / ⌘⇧P / ⌘⇧M
+//   Others: Ctrl+Enter / Ctrl+S / Ctrl+Shift+P / Ctrl+Shift+M
+import { displayShortcut } from '@wordpress/keycodes';
 
-export const isMac = /Mac|iPhone|iPad/.test(ua);
-
-export const MOD_LABEL = isMac ? 'Cmd' : 'Ctrl';
-export const RUN_QUERY_LABEL = `${MOD_LABEL}+Enter`;
-export const SAVE_LABEL = `${MOD_LABEL}+S`;
-export const PRETTIFY_LABEL = `${MOD_LABEL}+Shift+P`;
-export const MERGE_LABEL = `${MOD_LABEL}+Shift+M`;
+export const RUN_QUERY_LABEL = displayShortcut.primary('Enter');
+export const SAVE_LABEL = displayShortcut.primary('S');
+export const PRETTIFY_LABEL = displayShortcut.primaryShift('P');
+export const MERGE_LABEL = displayShortcut.primaryShift('M');
