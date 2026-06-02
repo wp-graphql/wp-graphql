@@ -33,4 +33,23 @@ describe('parseAliasInUseError', () => {
 			'Alias "not-a-hash" already in use by another query "fdsf"';
 		expect(parseAliasInUseError(message)).toBeNull();
 	});
+
+	it('parses the content-collision form thrown on save (no alias hash)', () => {
+		// Smart Cache's `valid_or_throw` fires this when a draft or
+		// publish would create a second doc with the same content hash.
+		const message =
+			'This query has already been associated with another query "fdsf"';
+		expect(parseAliasInUseError(message)).toEqual({
+			alias: null,
+			conflictTitle: 'fdsf',
+		});
+	});
+
+	it('handles a quoted title with spaces on the content-collision form', () => {
+		const message =
+			'This query has already been associated with another query "Recent Posts (v2)"';
+		expect(parseAliasInUseError(message)?.conflictTitle).toBe(
+			'Recent Posts (v2)'
+		);
+	});
 });

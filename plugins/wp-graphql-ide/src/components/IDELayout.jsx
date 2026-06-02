@@ -1248,23 +1248,79 @@ export function IDELayout({ fetcher, onClose }) {
 						// content-free means a draft with unsaved changes
 						// stays dirty after a rename, which matches user
 						// expectation.
-						const saved = isRename
-							? await saveTab(activeDocument.id, {
-									title,
-									collections: Array.isArray(collectionIds)
-										? collectionIds
-										: [],
-								})
-							: await saveTab(activeDocument.id, {
-									title,
-									query,
-									variables,
-									headers,
-									collections: Array.isArray(collectionIds)
-										? collectionIds
-										: [],
-									documentSettings: docSettingsValues,
-								});
+						let saved;
+						try {
+							saved = isRename
+								? await saveTab(activeDocument.id, {
+										title,
+										collections: Array.isArray(
+											collectionIds
+										)
+											? collectionIds
+											: [],
+									})
+								: await saveTab(activeDocument.id, {
+										title,
+										query,
+										variables,
+										headers,
+										collections: Array.isArray(
+											collectionIds
+										)
+											? collectionIds
+											: [],
+										documentSettings: docSettingsValues,
+									});
+						} catch (error) {
+							// Smart Cache rejects writes whose content hash
+							// collides with another doc (draft OR published).
+							// Surface that the same way the publish flow does
+							// — a clear notice with an "Open existing" action,
+							// then close the dialog so the user can act on it.
+							const collision = parseAliasInUseError(
+								error?.message
+							);
+							if (collision) {
+								const existing = allDocuments.find(
+									(d) =>
+										(collision.alias &&
+											d.slug === collision.alias) ||
+										d.title === collision.conflictTitle
+								);
+								addNotice(
+									{
+										content: sprintf(
+											/* translators: %s: title of the existing document that already owns this content */
+											__(
+												'An identical query is already saved as "%s". Open it instead, or change this query before saving.',
+												'wpgraphql-ide'
+											),
+											collision.conflictTitle
+										),
+										actions: existing
+											? [
+													{
+														label: __(
+															'Open existing',
+															'wpgraphql-ide'
+														),
+														onClick: () =>
+															switchTab(
+																String(
+																	existing.id
+																)
+															),
+													},
+												]
+											: undefined,
+										explicitDismiss: true,
+									},
+									'error'
+								);
+								return;
+							}
+							throw error;
+						}
 						const docId = saved?.id || activeDocument.id;
 						const desired = new Set(
 							Array.isArray(personalCollectionIds)
