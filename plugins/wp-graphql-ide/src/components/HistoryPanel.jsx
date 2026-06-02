@@ -6,6 +6,7 @@ import { Icon, backup } from '@wordpress/icons';
 import hooks from '../wordpress-hooks';
 import { useDialog } from './dialogs/DialogProvider';
 import { OperationHistoryEntry } from './OperationHistoryEntry';
+import { computeOperationHash } from '../utils/operation-hash';
 
 /**
  * History panel icon for the activity bar.
@@ -21,11 +22,15 @@ export const HistoryIcon = () => <Icon icon={backup} />;
  * `getOperationHistory` selector, which dedupes the underlying flat
  * localStorage log by content-addressed `operationHash`.
  *
- * Click behavior is "switch-or-spawn": if the operation's hash matches
- * an existing published `graphql_document`'s slug (Smart Cache's
- * content-addressed identity), we switch to that tab so the user keeps
- * working with the saved doc. Otherwise we spawn a fresh draft tab
- * pre-filled with the most-recent variables and headers used.
+ * Click resolution (in order):
+ * 1. **Any already-open tab whose current content matches** — preferred
+ *    so the user keeps their in-progress draft state intact. Published
+ *    tabs short-circuit on their Smart Cache slug; drafts compute the
+ *    hash on demand from the live query.
+ * 2. **A published `graphql_document` with a matching slug** that isn't
+ *    currently open — `switchTab` will open and activate it.
+ * 3. **Spawn a fresh draft** pre-filled with the most-recent captured
+ *    variables and headers when no existing tab or doc maps cleanly.
  *
  * Per-execution detail (timestamps, durations, statuses) lives in the
  * Request-history tab in the response pane — only enabled for published
@@ -45,6 +50,10 @@ export function HistoryPanel() {
 		(select) => select('wpgraphql-ide/document-editor').getDocuments(),
 		[]
 	);
+	const openTabs = useSelect(
+		(select) => select('wpgraphql-ide/document-editor').getOpenTabs(),
+		[]
+	);
 
 	const { setQuery, setVariables, setHeaders, clearAllHistory } =
 		useDispatch('wpgraphql-ide/app');
@@ -54,10 +63,31 @@ export function HistoryPanel() {
 	);
 
 	const restoreOperation = async (group) => {
-		// Match against a published doc by Smart Cache slug. If we find
-		// one, switching is more useful than spawning a fresh draft —
-		// the user gets back to the saved doc they already had.
 		if (group.hash) {
+			// First pass: any already-open tab whose current content
+			// matches? Published tabs short-circuit on their slug; draft
+			// tabs need a hash computed on demand (memoized in the util,
+			// so re-clicks are free). Switching to an existing tab keeps
+			// the user's in-progress state intact.
+			for (const tabId of openTabs) {
+				const doc = allDocuments.find(
+					(d) => String(d.id) === String(tabId)
+				);
+				if (!doc) {
+					continue;
+				}
+				const candidateHash =
+					doc.status === 'publish' && doc.slug
+						? doc.slug
+						: // eslint-disable-next-line no-await-in-loop
+							await computeOperationHash(doc.query || '');
+				if (candidateHash && candidateHash === group.hash) {
+					switchTab(String(doc.id));
+					return;
+				}
+			}
+			// Second pass: a published copy that isn't currently open.
+			// `switchTab` will open it before activating.
 			const existing = allDocuments.find(
 				(d) => d.slug === group.hash && d.status === 'publish'
 			);
@@ -66,8 +96,8 @@ export function HistoryPanel() {
 				return;
 			}
 		}
-		// Fallback: open a new draft tab pre-filled with the most-recent
-		// captured context for this operation.
+		// Fallback: spawn a fresh draft tab pre-filled with the most-
+		// recent captured context for this operation.
 		await createTab('');
 		setQuery(group.lastQuery || '');
 		setVariables(group.lastVariables || '');
