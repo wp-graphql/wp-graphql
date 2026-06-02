@@ -5987,16 +5987,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 		var(--wpgraphql-ide-accent);
 }
 
-/* A subtle grab cursor on the response tabs so the affordance is
-   discoverable without forcing a visual handle into the tab face. */
-.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item[draggable='true'] {
-	cursor: grab;
-}
-
-.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item[draggable='true']:active {
-	cursor: grabbing;
-}
-
 /* Source-tab indicator: a small opacity dip while a tab is being
    dragged. The browser owns the ghost image; this dips the in-place
    button so the user can tell which tab is the source even if the
