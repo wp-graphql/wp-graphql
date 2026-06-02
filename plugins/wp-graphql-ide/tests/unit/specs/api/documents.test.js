@@ -3,6 +3,9 @@ import {
 	getDocuments,
 	createDocument,
 	updateDocument,
+	exportDocuments,
+	importDocuments,
+	reorderDocuments,
 } from '../../../../src/api/documents';
 
 // Each function builds a GraphQL query that selects DOCUMENT_FIELDS on a
@@ -211,5 +214,65 @@ describe('documents api — alias surface filters Smart Cache auto-hash', () => 
 		});
 		const doc = await updateDocument(1, { title: 't' });
 		expect(doc.documentSettings.aliases).toEqual(['abc123', 'deadbeef']);
+	});
+});
+
+// The bulk-orchestration routes still go through REST (no good GraphQL
+// equivalent). These wrappers are thin `apiFetch` calls but they're the
+// only contract the import/export UI and the drag-reorder UI rely on,
+// so the request shape (path, method, body) is worth locking down.
+jest.mock('@wordpress/api-fetch');
+// eslint-disable-next-line import/first
+import apiFetch from '@wordpress/api-fetch';
+
+describe('documents api — REST orchestration wrappers', () => {
+	beforeEach(() => {
+		apiFetch.mockReset();
+	});
+
+	it('exportDocuments issues a GET to the export route and returns the payload', async () => {
+		const payload = { version: 1, collections: [] };
+		apiFetch.mockResolvedValueOnce(payload);
+		const result = await exportDocuments();
+		expect(apiFetch).toHaveBeenCalledWith({
+			path: '/wpgraphql-ide/v1/documents/export',
+		});
+		expect(result).toBe(payload);
+	});
+
+	it('importDocuments POSTs the payload body verbatim', async () => {
+		apiFetch.mockResolvedValueOnce({ created: 2, skipped: 0 });
+		const payload = {
+			version: 1,
+			collections: [
+				{ name: 'Examples', documents: [{ query: '{ x }' }] },
+			],
+		};
+		await importDocuments(payload);
+		expect(apiFetch).toHaveBeenCalledWith({
+			path: '/wpgraphql-ide/v1/documents/import',
+			method: 'POST',
+			data: payload,
+		});
+	});
+
+	it('reorderDocuments POSTs the new order as `{ order: [...] }`', async () => {
+		apiFetch.mockResolvedValueOnce({ ok: true });
+		await reorderDocuments([3, 1, 2]);
+		expect(apiFetch).toHaveBeenCalledWith({
+			path: '/wpgraphql-ide/v1/documents/reorder',
+			method: 'POST',
+			data: { order: [3, 1, 2] },
+		});
+	});
+
+	it('reorderDocuments handles an empty array (clears server-side order)', async () => {
+		apiFetch.mockResolvedValueOnce({ ok: true });
+		await reorderDocuments([]);
+		expect(apiFetch).toHaveBeenCalledWith({
+			path: '/wpgraphql-ide/v1/documents/reorder',
+			method: 'POST',
+			data: { order: [] },
+		});
 	});
 });
