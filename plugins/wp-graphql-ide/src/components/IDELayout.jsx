@@ -40,6 +40,7 @@ import {
 	displayDocTitle,
 	isAutoTitle,
 } from '../utils/derive-doc-title';
+import { parseAliasInUseError } from '../utils/parse-publish-error';
 import { WELCOME_QUERY } from '../stores/document-editor/welcome-query';
 
 /**
@@ -528,9 +529,10 @@ export function IDELayout({ fetcher, onClose }) {
 
 		// Save first to ensure content is persisted, then flip status to
 		// publish. Smart Cache's save_document_cb hashes the normalized
-		// query into post_name on the way through; if a duplicate exists,
-		// WP's wp_unique_post_slug suffixes the slug so the two docs
-		// coexist (5.0 dropped the old `already_exists` collision dialog).
+		// query into the `graphql_query_alias` taxonomy term; that term
+		// is unique per content, so publishing a second doc with the
+		// same content fails on the alias collision (drafts have no
+		// alias term, which is why duplicate drafts are allowed).
 		try {
 			await saveTab(activeDocument.id, {
 				query,
@@ -541,6 +543,39 @@ export function IDELayout({ fetcher, onClose }) {
 			await publishTab(activeDocument.id);
 			addNotice(__('Document published', 'wpgraphql-ide'));
 		} catch (error) {
+			const collision = parseAliasInUseError(error?.message);
+			if (collision) {
+				const existing = allDocuments.find(
+					(d) => d.slug === collision.alias
+				);
+				addNotice(
+					{
+						content: sprintf(
+							/* translators: %s: title of the existing published query that already owns this content's alias */
+							__(
+								'An identical query is already published as "%s". Each unique query is published once — open the existing copy or change this query before publishing.',
+								'wpgraphql-ide'
+							),
+							collision.conflictTitle
+						),
+						actions: existing
+							? [
+									{
+										label: __(
+											'Open existing',
+											'wpgraphql-ide'
+										),
+										onClick: () =>
+											switchTab(String(existing.id)),
+									},
+								]
+							: undefined,
+						explicitDismiss: true,
+					},
+					'error'
+				);
+				return;
+			}
 			const message =
 				error?.message && typeof error.message === 'string'
 					? sprintf(
@@ -564,6 +599,8 @@ export function IDELayout({ fetcher, onClose }) {
 		saveTab,
 		publishTab,
 		addNotice,
+		allDocuments,
+		switchTab,
 	]);
 
 	// Whether the active document is published (immutable query).
