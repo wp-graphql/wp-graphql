@@ -1,7 +1,7 @@
 <?php
 /**
- * IDE-specific REST routes (publish, cascade-delete, import/export,
- * reorder) under `wpgraphql-ide/v1`.
+ * IDE-specific REST routes (documents import/export/reorder and
+ * collections reorder) under `wpgraphql-ide/v1`.
  *
  * @package WPGraphQLIDE
  */

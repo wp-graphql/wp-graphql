@@ -150,11 +150,12 @@
 
 ### Internal: REST → GraphQL migration for the IDE client
 
-Document, collection, and execution-history CRUD inside the IDE now
-runs through GraphQL via `src/api/graphql-client.js` instead of
-`apiFetch` against the WP REST API. The migration is internal —
-consumer-facing return shapes from `src/api/documents.js` and
-`src/api/history.js` are unchanged.
+Document and collection CRUD inside the IDE now runs through GraphQL
+via `src/api/graphql-client.js` instead of `apiFetch` against the WP
+REST API. The migration is internal — consumer-facing return shapes
+from `src/api/documents.js` are unchanged. Execution history is
+browser-local (`src/api/history-local.js`) and never went through
+REST or GraphQL.
 
 The same `_graphql_ide_*` post meta keys still back the storage and
 the SmartCacheBridge keeps the REST routes exposed, so third-party
