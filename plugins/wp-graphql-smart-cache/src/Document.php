@@ -162,12 +162,9 @@ class Document {
 		$content = $input['content'] ?? null;
 		if ( ! is_string( $content ) && 'updateGraphqlDocument' === $mutation_name && ! empty( $input['id'] ) ) {
 			$id_parts = \GraphQLRelay\Relay::fromGlobalId( $input['id'] );
-			$post_id  = is_array( $id_parts ) && isset( $id_parts['id'] ) ? (int) $id_parts['id'] : 0;
-			if ( $post_id > 0 ) {
-				$existing = get_post( $post_id );
-				if ( $existing instanceof \WP_Post ) {
-					$content = (string) $existing->post_content;
-				}
+			$post     = isset( $id_parts['id'] ) ? get_post( (int) $id_parts['id'] ) : null;
+			if ( $post instanceof \WP_Post ) {
+				$content = $post->post_content;
 			}
 		}
 
