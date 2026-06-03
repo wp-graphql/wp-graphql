@@ -174,7 +174,7 @@ const actions = {
 	 */
 	loadDocuments:
 		() =>
-		async ({ dispatch }) => {
+		async ({ dispatch, select }) => {
 			// One-shot upgrade path from 4.x: if the previous IDE left
 			// `graphiql:tabState` in localStorage, migrate it into the
 			// new unsaved-tabs + open_tabs prefs model before reading
@@ -279,13 +279,44 @@ const actions = {
 					(id) => !persisted.includes(id)
 				);
 
-				const tabIds = [...persisted, ...orphanedTemps];
+				// Preserve any workspace tabs the user has already opened
+				// (e.g. clicked the Settings cog while loadDocuments was
+				// in-flight). Their ids are neither doc nor draft ids so
+				// they'd fall out of `validIds`, and `prefs.open_tabs`
+				// doesn't carry them across reloads. Reading the live
+				// store state recovers them and keeps the tab strip
+				// stable when hydrate races with topbar actions.
+				const currentOpenTabObjects =
+					select.getOpenTabObjects?.() ?? [];
+				const workspaceTabObjs = currentOpenTabObjects.filter(
+					(t) => t && t.type && t.type !== 'query-editor'
+				);
+
+				const queryTabIds = [...persisted, ...orphanedTemps];
+				// Mix string ids (default to query-editor in the
+				// reducer) with workspace tab objects so the latter
+				// keep their `type` after SET_OPEN_TABS.
+				const tabIds = [...queryTabIds, ...workspaceTabObjs];
 
 				if (tabIds.length > 0) {
 					dispatch({ type: 'SET_OPEN_TABS', tabIds });
 
+					// Mixed strings + objects — normalize for lookup.
+					const tabIdStrings = tabIds.map((t) =>
+						typeof t === 'string' ? t : String(t.id)
+					);
+					// If the user interacted during hydrate and is now
+					// looking at a workspace tab, keep them there rather
+					// than yanking focus back to the persisted active tab.
+					const liveActive = String(select.getActiveTab?.() || '');
+					const liveActiveIsWorkspace = workspaceTabObjs.some(
+						(t) => String(t.id) === liveActive
+					);
+
 					let activeId = '';
-					if (tabIds.includes(String(activeTab))) {
+					if (liveActiveIsWorkspace) {
+						activeId = liveActive;
+					} else if (tabIdStrings.includes(String(activeTab))) {
 						activeId = String(activeTab);
 					} else if (unsavedIds.length > 0) {
 						// Prefer landing on the most recent draft so a
@@ -293,7 +324,7 @@ const actions = {
 						// where they were typing.
 						activeId = unsavedIds[unsavedIds.length - 1];
 					} else {
-						activeId = tabIds[0];
+						activeId = tabIdStrings[0];
 					}
 					dispatch({ type: 'SET_ACTIVE_TAB', tabId: activeId });
 				} else if (!shared) {
