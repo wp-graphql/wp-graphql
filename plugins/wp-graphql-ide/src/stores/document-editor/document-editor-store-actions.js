@@ -286,11 +286,9 @@ const actions = {
 				// doesn't carry them across reloads. Reading the live
 				// store state recovers them and keeps the tab strip
 				// stable when hydrate races with topbar actions.
-				const currentOpenTabObjects =
-					select.getOpenTabObjects?.() ?? [];
-				const workspaceTabObjs = currentOpenTabObjects.filter(
-					(t) => t && t.type && t.type !== 'query-editor'
-				);
+				const workspaceTabObjs = select
+					.getOpenTabObjects()
+					.filter((t) => t && t.type && t.type !== 'query-editor');
 
 				const queryTabIds = [...persisted, ...orphanedTemps];
 				// Mix string ids (default to query-editor in the
@@ -308,7 +306,7 @@ const actions = {
 					// If the user interacted during hydrate and is now
 					// looking at a workspace tab, keep them there rather
 					// than yanking focus back to the persisted active tab.
-					const liveActive = String(select.getActiveTab?.() || '');
+					const liveActive = String(select.getActiveTab() || '');
 					const liveActiveIsWorkspace = workspaceTabObjs.some(
 						(t) => String(t.id) === liveActive
 					);
