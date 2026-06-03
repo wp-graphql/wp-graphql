@@ -59,9 +59,19 @@ const makeDispatch = () => {
 	return dispatch;
 };
 
+// `loadDocuments` reads workspace-tab + active-tab state via `select` so
+// it can preserve a tab the user opened while hydrate was in flight.
+// These tests boot from an empty store, so both selectors return the
+// "nothing open yet" shape.
+const makeSelect = () => ({
+	getOpenTabObjects: jest.fn(() => []),
+	getActiveTab: jest.fn(() => null),
+});
+
 const runLoad = async () => {
 	const dispatch = makeDispatch();
-	await actions.loadDocuments()({ dispatch });
+	const select = makeSelect();
+	await actions.loadDocuments()({ dispatch, select });
 	return dispatch;
 };
 
