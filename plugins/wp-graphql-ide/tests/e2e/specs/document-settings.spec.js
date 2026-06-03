@@ -83,15 +83,19 @@ test.describe('Document Settings (left-panel toggle)', () => {
 	});
 
 	test('settings persist on a saved document', async ({ page }) => {
-		// Unique per run — aliases and saved-doc names are unique-constrained
-		// in the DB, so reusing literals would fail when the test re-runs
-		// against an environment that wasn't reset between runs.
+		// Unique per run — aliases AND query content are unique-constrained
+		// in Smart Cache (content-addressable identity by sha256), so the
+		// query has to vary too. Reusing literals would fail when the test
+		// re-runs against an environment that wasn't reset between runs.
 		const suffix = Date.now().toString(36);
 		const docName = `SettingsSpecDoc-${suffix}`;
 		const alias = `home-feed-${suffix}`;
+		// `posts(where: { search: "<suffix>" })` is a valid query whose
+		// normalized form differs per run, producing a unique content hash.
+		const uniqueQuery = `{ posts(where: { search: "${suffix}" }) { nodes { id } } }`;
 
 		await page.click(selectors.addTab);
-		await typeQuery(page, '{ posts { nodes { id } } }');
+		await typeQuery(page, uniqueQuery);
 
 		// Save flow goes through the toolbar's "Save draft" button —
 		// Cmd+S was deliberately removed earlier in the rebuild.
