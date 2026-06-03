@@ -53,9 +53,9 @@ test.describe('Saved Queries panel', () => {
 		await page.getByRole('button', { name: title }).first().click();
 
 		// Active tab title now contains the doc title.
-		await expect(
-			page.locator(`${selectors.tab}.is-active`)
-		).toContainText(title);
+		await expect(page.locator(`${selectors.tab}.is-active`)).toContainText(
+			title
+		);
 	});
 
 	test('importing a JSON file lands the documents in the panel', async ({
@@ -84,13 +84,11 @@ test.describe('Saved Queries panel', () => {
 		// The file input is hidden but `setInputFiles` works on it
 		// directly — bypassing the kebab → menu-item → ref-click chain
 		// keeps the test focused on the upload + handler behavior.
-		await page
-			.locator('input[type="file"][accept*="json"]')
-			.setInputFiles({
-				name: `import-${stamp}.json`,
-				mimeType: 'application/json',
-				buffer: Buffer.from(payload),
-			});
+		await page.locator('input[type="file"][accept*="json"]').setInputFiles({
+			name: `import-${stamp}.json`,
+			mimeType: 'application/json',
+			buffer: Buffer.from(payload),
+		});
 
 		// Success toast surfaces with "Imported N quer{y,ies}".
 		await expect(
@@ -119,13 +117,8 @@ test.describe('Saved Queries panel', () => {
 		await openSavedQueriesPanel(page);
 
 		// Open the panel kebab and pick Export queries.
-		await page
-			.locator('.wpgraphql-ide-panel-kebab')
-			.first()
-			.click();
-		await page
-			.getByRole('menuitem', { name: /Export queries/i })
-			.click();
+		await page.locator('.wpgraphql-ide-panel-kebab').first().click();
+		await page.getByRole('menuitem', { name: /Export queries/i }).click();
 
 		// The dialog mounts. We don't trigger the download itself —
 		// asserting the dialog rendered is enough to catch wiring

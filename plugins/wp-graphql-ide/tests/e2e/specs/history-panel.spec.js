@@ -92,9 +92,9 @@ test.describe('History panel', () => {
 			.first()
 			.click();
 
-		await expect(
-			page.locator(`${selectors.tab}.is-active`)
-		).toContainText(/posts/);
+		await expect(page.locator(`${selectors.tab}.is-active`)).toContainText(
+			/posts/
+		);
 	});
 
 	test('Request history response-pane tab is hidden for draft docs', async ({
@@ -112,9 +112,9 @@ test.describe('History panel', () => {
 		await page.click(selectors.addTab);
 		await typeQuery(page, body);
 		await runQueryAndAwait(page);
-		await expect(
-			page.locator(selectors.responseStatus)
-		).toBeVisible({ timeout: 10000 });
+		await expect(page.locator(selectors.responseStatus)).toBeVisible({
+			timeout: 10000,
+		});
 		await expect(
 			page.getByRole('tab', { name: /Request history/i })
 		).toBeHidden();

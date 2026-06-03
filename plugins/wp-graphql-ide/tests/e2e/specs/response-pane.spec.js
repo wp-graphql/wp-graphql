@@ -35,16 +35,16 @@ test.describe('Response pane', () => {
 		await typeQuery(page, '{ thisFieldDoesNotExist }');
 		await runQueryAndAwait(page);
 
-		await expect(
-			page.locator(selectors.responseStatus)
-		).toBeVisible({ timeout: 10000 });
+		await expect(page.locator(selectors.responseStatus)).toBeVisible({
+			timeout: 10000,
+		});
 
 		// Errors tab must exist in the DOM with its data-tab-name marker.
 		// This is the contract the red-error CSS targets — losing the
 		// attribute breaks the visual indicator silently.
-		await expect(
-			page.locator('[data-tab-name="ext:errors"]')
-		).toHaveCount(1);
+		await expect(page.locator('[data-tab-name="ext:errors"]')).toHaveCount(
+			1
+		);
 	});
 
 	test('every bottom-strip tab carries a stable data-tab-name attribute', async ({
@@ -58,9 +58,9 @@ test.describe('Response pane', () => {
 		await page.click(selectors.addTab);
 		await typeQuery(page, '{ __typename }');
 		await runQueryAndAwait(page);
-		await expect(
-			page.locator(selectors.responseStatus)
-		).toBeVisible({ timeout: 10000 });
+		await expect(page.locator(selectors.responseStatus)).toBeVisible({
+			timeout: 10000,
+		});
 
 		const tabsWithName = page.locator(
 			'.components-tab-panel__tabs-item[data-tab-name]'

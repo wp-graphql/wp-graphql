@@ -75,8 +75,9 @@ test.describe('Auth toggle', () => {
 		await page.keyboard.type('{ __typename }');
 
 		const [request] = await Promise.all([
-			page.waitForRequest((req) =>
-				req.url().includes('graphql') && req.method() === 'POST'
+			page.waitForRequest(
+				(req) =>
+					req.url().includes('graphql') && req.method() === 'POST'
 			),
 			page.keyboard.press(
 				process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter'

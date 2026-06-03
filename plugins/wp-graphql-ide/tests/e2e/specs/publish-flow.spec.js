@@ -12,6 +12,9 @@ const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
  * Save a fresh draft, return the title we used so callers can find it
  * in the Saved Queries panel or the snackbar text later. The Publish
  * button only appears for saved-but-not-yet-published docs.
+ * @param page
+ * @param body
+ * @param title
  */
 async function saveDraft(page, body, title) {
 	await page.click(selectors.addTab);

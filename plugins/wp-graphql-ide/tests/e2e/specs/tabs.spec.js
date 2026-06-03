@@ -24,9 +24,15 @@ test.describe('Tab management', () => {
 		const stampA = `a-${Date.now()}`;
 		const stampB = `b-${Date.now()}`;
 		await page.click(selectors.addTab);
-		await typeQuery(page, `{ posts(where: {search: "${stampA}"}) { nodes { id } } }`);
+		await typeQuery(
+			page,
+			`{ posts(where: {search: "${stampA}"}) { nodes { id } } }`
+		);
 		await page.click(selectors.addTab);
-		await typeQuery(page, `{ posts(where: {search: "${stampB}"}) { nodes { id } } }`);
+		await typeQuery(
+			page,
+			`{ posts(where: {search: "${stampB}"}) { nodes { id } } }`
+		);
 
 		const tabsBefore = await countTabs(page);
 		expect(tabsBefore).toBeGreaterThanOrEqual(2);
@@ -41,9 +47,7 @@ test.describe('Tab management', () => {
 
 		await expect(page.locator(selectors.tab)).toHaveCount(tabsBefore - 1);
 		// Active tab is still some tab (didn't leave us with no active).
-		await expect(
-			page.locator(`${selectors.tab}.is-active`)
-		).toHaveCount(1);
+		await expect(page.locator(`${selectors.tab}.is-active`)).toHaveCount(1);
 	});
 
 	test('open tabs persist across a full page reload', async ({ page }) => {
