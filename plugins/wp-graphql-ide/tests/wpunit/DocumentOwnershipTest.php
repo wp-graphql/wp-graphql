@@ -98,11 +98,14 @@ class DocumentOwnershipTest extends \Codeception\TestCase\WPTestCase {
 		// A post with post_author = 0 (system-authored / orphaned) should
 		// NOT read as "owned by everyone" just because anonymous = 0.
 		// This is exactly the guard `current_user_id > 0` in the helper.
+		// `post_content` must be valid GraphQL — Smart Cache's
+		// `save_document_cb` validates every save.
 		$orphan = $this->factory()->post->create(
 			[
-				'post_type'   => 'graphql_document',
-				'post_status' => 'draft',
-				'post_author' => 0,
+				'post_type'    => 'graphql_document',
+				'post_status'  => 'draft',
+				'post_author'  => 0,
+				'post_content' => '{ __typename }',
 			]
 		);
 

@@ -24,52 +24,14 @@ class ImportExportTest extends \Codeception\TestCase\WPTestCase {
 	private $admin_a;
 	private $admin_b;
 
-	/**
-	 * Smart Cache owns the `graphql_document` post type and the
-	 * `graphql_document_group` taxonomy at runtime, but the wpunit
-	 * bootstrap intentionally loads only wp-graphql + the IDE — a
-	 * handful of other suites depend on Smart Cache being absent. We
-	 * register the bare minimum here so the import path has real WP
-	 * objects to wire into, then strip them in tearDown so other tests
-	 * in the same Codeception run aren't polluted (registration is
-	 * global state that survives setUp/tearDown otherwise).
-	 */
-	private $owns_post_type = false;
-	private $owns_taxonomy  = false;
-
 	public function setUp(): void {
 		parent::setUp();
-
-		if ( ! post_type_exists( 'graphql_document' ) ) {
-			register_post_type( 'graphql_document', [
-				'public'   => false,
-				'show_ui'  => false,
-				'supports' => [ 'title', 'editor', 'author', 'page-attributes' ],
-			] );
-			$this->owns_post_type = true;
-		}
-		if ( ! taxonomy_exists( 'graphql_document_group' ) ) {
-			register_taxonomy( 'graphql_document_group', 'graphql_document', [
-				'public'       => false,
-				'hierarchical' => false,
-			] );
-			$this->owns_taxonomy = true;
-		}
-
 		$this->admin_a = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->admin_b = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown(): void {
 		wp_set_current_user( 0 );
-		if ( $this->owns_taxonomy ) {
-			unregister_taxonomy( 'graphql_document_group' );
-			$this->owns_taxonomy = false;
-		}
-		if ( $this->owns_post_type ) {
-			unregister_post_type( 'graphql_document' );
-			$this->owns_post_type = false;
-		}
 		parent::tearDown();
 	}
 
