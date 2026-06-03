@@ -186,9 +186,11 @@ class SettingsRegistry {
 
 		foreach ( $setting_sections as $id => $section ) {
 			if ( false === get_option( $id ) ) {
-				// Initialize as an empty array so callers can safely merge
-				// onto get_option( $id, [] ) without type-juggling.
-				add_option( $id, [] );
+				// Create with WordPress's default (empty string) — matching the
+				// long-standing behavior. Initializing as [] would serialize the
+				// option, which renders it disabled on /wp-admin/options.php; the
+				// sanitize_options() callback already tolerates a string value.
+				add_option( $id );
 			}
 
 			register_setting( $id, $id, [ $this, 'sanitize_options' ] );
