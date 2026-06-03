@@ -155,7 +155,25 @@ class Document {
 		}
 
 		// Make sure the normalized hash for the query string isset.
-		$input['alias'][] = Utils::generateHash( $input['content'] );
+		// On `updateGraphqlDocument`, callers may send alias changes without
+		// re-sending content (e.g. editing only the description + alias from
+		// a settings panel). Fall back to the post's existing content so the
+		// hash regeneration doesn't crash on a null/missing `content` input.
+		$content = $input['content'] ?? null;
+		if ( ! is_string( $content ) && 'updateGraphqlDocument' === $mutation_name && ! empty( $input['id'] ) ) {
+			$id_parts = \GraphQLRelay\Relay::fromGlobalId( $input['id'] );
+			$post_id  = is_array( $id_parts ) && isset( $id_parts['id'] ) ? (int) $id_parts['id'] : 0;
+			if ( $post_id > 0 ) {
+				$existing = get_post( $post_id );
+				if ( $existing instanceof \WP_Post ) {
+					$content = (string) $existing->post_content;
+				}
+			}
+		}
+
+		if ( is_string( $content ) && '' !== $content ) {
+			$input['alias'][] = Utils::generateHash( $content );
+		}
 
 		return $input;
 	}
