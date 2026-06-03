@@ -107,6 +107,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Screenshots ==
 
+1. Schema-aware autocomplete with inline hover documentation as you build a query.
+2. Browse the schema in the Docs explorer — search types and fields, and Cmd-click from the editor to jump straight to a type.
+3. Per-user execution history alongside clear, inline error reporting, with tracing, query log, and response-header tabs.
+
 == Upgrade Notice ==
 
 = 5.0.0 =

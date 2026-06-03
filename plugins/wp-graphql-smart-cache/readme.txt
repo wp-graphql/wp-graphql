@@ -70,6 +70,10 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
+== Screenshots ==
+
+1. The Smart Cache panel in the WPGraphQL IDE — see cache HIT/MISS, the session hit rate, TTL, the cache key, and the purge-map tags emitted for a response.
+2. Cache settings — configure the network-cache max-age, the object cache, purge-event logging, and on-demand purging.
 
 == Upgrade Notice ==
 

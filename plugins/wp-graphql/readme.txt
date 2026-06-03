@@ -71,6 +71,11 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
+== Screenshots ==
+
+1. The WPGraphQL IDE — write a GraphQL query with schema-aware autocomplete, run it, and inspect the JSON response, timing, resolver count, and response headers.
+2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
+
 == Upgrade Notice ==
 
 = 2.6.0 =

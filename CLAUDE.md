@@ -14,6 +14,15 @@ WPGraphQL is a monorepo containing the WPGraphQL ecosystem of WordPress plugins.
 - **plugins/wp-graphql-acf/** — ACF field groups and fields in GraphQL — [`CLAUDE.md`](plugins/wp-graphql-acf/CLAUDE.md)
 - **plugins/wp-graphql-schema-monitor/** — Schema change monitoring (experimental)
 
+### Branding & design system
+
+The `design/brand/` directory holds the WPGraphQL product-family brand guides
+(a shared navy foundation + a per-product accent for core, IDE, ACF, and Smart
+Cache) and the scripts that generate each plugin's WordPress.org assets (icons,
+banners, screenshots). Start at [`design/brand/README.md`](design/brand/README.md)
+— it documents the guides, the scoped-theme conventions the `wpgraphql.com` site
+uses, and how to (re)generate or contribute assets.
+
 ## Development Environment
 
 Requires Docker. Uses `@wordpress/env` for local WordPress.

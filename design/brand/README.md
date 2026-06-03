@@ -61,3 +61,78 @@ notes keep the guides honest about what actually ships.
   guides (e.g. site `--navy-950: 222 47% 8%` vs guide `224 48% 7%`). The site's
   values are intentionally left as-is; only the accent scales (violet, emerald,
   …) were transcribed from the guides.
+
+## WordPress.org asset generation
+
+This directory also holds the scripts that generate the WordPress.org plugin
+assets (icons, banners, screenshots) for each product, so they can be
+re-rendered whenever the branding or a plugin's UI changes — nothing is
+hand-drawn in an image editor. Generated files are written into each plugin's
+`plugins/<slug>/.wordpress-org/` directory.
+
+### Files
+
+| File | Purpose |
+| --- | --- |
+| `marks.mjs` | The product brand marks as inline SVG (`ide` / `acf` / `smartCache` / `wpgraphql`), transcribed from the website logo components. Shared by both generators. |
+| `constellation.mjs` | Generates the "constellation" graph SVG — a network of accent nodes/edges radiating from the logo. Seeded + deterministic; options: `clearFactor` (radius kept clear around the logo) and `density` (node count). |
+| `generate-wporg-assets.mjs` | Renders **icons** (128/256) and **banners** (772×250, 1544×500). |
+| `generate-wporg-screenshots.mjs` | Composites raw admin-UI captures onto a branded **frame** (4000×2200). |
+
+### How it works
+
+Each script defines a `products` array. Every entry sets the product `slug`,
+`accent` / `accentRgb`, its `mark` (from `marks.mjs`), the wordmark `name` /
+`accentWord`, and per-asset flags. The script builds on-brand HTML and
+screenshots it at exact pixel sizes with **Playwright** (Chromium), then writes
+the PNG/JPG into `plugins/<slug>/.wordpress-org/`.
+
+- **Banners** support a `minimal` variant (centered mark + accent glow) and a
+  `graph: true` variant (the constellation). `seed` controls the constellation
+  layout so each product differs.
+- **Screenshots** list `sources` (paths to the raw UI captures). Each is drawn
+  in a rounded, shadowed window on the navy field, with the product logo and a
+  subtle constellation in the margins. `ext` picks `jpg`/`png`.
+- Wordmark/tagline text uses **Bricolage Grotesque** / **DM Mono** loaded from
+  Google Fonts at render time.
+
+### Prerequisites
+
+- Install the Chromium build Playwright expects (one-time):
+  `npx playwright install chromium`
+- Run the scripts **from the website workspace** so `@playwright/test` resolves:
+  `cd websites/wpgraphql.com`
+- Network access (for the Google Fonts used in banners/screenshots).
+
+### Commands
+
+```bash
+cd websites/wpgraphql.com
+
+# Icons + banners for every product
+node ../../design/brand/generate-wporg-assets.mjs
+
+# Limit to one product; --banners skips icons
+node ../../design/brand/generate-wporg-assets.mjs wp-graphql-ide --banners
+
+# Screenshots for every product (needs the source captures to exist)
+node ../../design/brand/generate-wporg-screenshots.mjs
+
+# Limit screenshots to one product
+node ../../design/brand/generate-wporg-screenshots.mjs wp-graphql-acf
+```
+
+Both generators accept plugin slugs as positional args to limit which products
+they render.
+
+### Updating assets
+
+- **New/changed icon or banner:** edit the product's accent / mark / flags in
+  `generate-wporg-assets.mjs` and re-run it.
+- **New screenshots:** capture the raw admin UI, set the product's `sources`
+  paths in `generate-wporg-screenshots.mjs`, run it, then update the
+  `== Screenshots ==` captions in that plugin's `readme.txt` (order matters —
+  caption *n* describes `screenshot-n`).
+- **Heads-up:** the screenshot `sources` currently point at absolute paths on
+  the author's machine (a local CleanShot folder). Swap in your own capture
+  paths before running the screenshot generator.
