@@ -17,15 +17,28 @@ import FunctionPreview, {
 import ActionPreview, {
   ActionPreviewFragment,
 } from "components/Preview/ActionPreview"
+import ExtensionsArchive from "components/extensions/ExtensionsArchive"
 
 export default function Archive({ data }) {
   const { archive } = data
+  const nodes = archive?.contentNodes?.nodes ?? []
+
+  // The Extensions archive (ExtensionPlugin content type) gets a branded
+  // featured section on top of the headless community list.
+  if (nodes.some((node) => node.__typename === "ExtensionPlugin")) {
+    return (
+      <SiteLayout>
+        <ExtensionsArchive nodes={nodes} />
+      </SiteLayout>
+    )
+  }
+
   return (
     <SiteLayout>
       <div className="mx-auto max-w-5xl px-6 pb-24 pt-16 sm:pt-20">
         <header className="mx-auto max-w-3xl text-center">
           <h1 className="text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
-            {archive?.label ? archive.label : archive?.name ?? "Archive"}
+            {archive?.label ? archive.label : (archive?.name ?? "Archive")}
           </h1>
           {archive?.description && (
             <div
