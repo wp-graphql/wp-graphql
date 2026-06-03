@@ -93,7 +93,7 @@
 		"babel-jest": "^30.4.1",
 		"chalk": "^5.6.2",
 		"clsx": "^2.1.1",
-		"concurrently": "^8.2.2",
+		"concurrently": "^9.2.1",
 		"docker-compose": "^0.24.8",
 		"dotenv": "^17.4.2",
 		"eslint-plugin-jest": "^27.9.0",
