@@ -2178,6 +2178,28 @@ input.wpgraphql-ide-tab-input:focus {
 	font-style: italic;
 }
 
+.wpgraphql-ide-saved-queries-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 0 12px;
+}
+
+.wpgraphql-ide-saved-queries-empty-hint {
+	margin: 0;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: 1.4;
+}
+
+.wpgraphql-ide-saved-queries-empty-footnote {
+	margin: 0;
+	color: var(--wp-components-color-gray-700, #757575);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: 1.4;
+}
+
 .wpgraphql-ide-export-divider {
 	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
 	margin: 4px 0;

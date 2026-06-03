@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
+	Button,
 	DropdownMenu,
 	MenuGroup,
 	MenuItem,
@@ -532,6 +533,85 @@ function CollectionSection({
 			{!collapsed && (
 				<div className="wpgraphql-ide-collection-body">{children}</div>
 			)}
+		</div>
+	);
+}
+
+/**
+ * Body of the uncategorized "Documents" section. Picks between the
+ * doc list, the All-tab empty-state CTA, and the per-section "No
+ * documents" placeholder. Lifted out of the render so the branching
+ * stays linear (avoids a nested ternary lint hit).
+ *
+ * @param {Object}   props
+ * @param {Array}    props.uncategorized  Docs not in any collection.
+ * @param {Function} props.renderDoc      List renderer for a single doc.
+ * @param {string}   props.filter         Active filter tab name.
+ * @param {number}   props.allCount       Total docs across all buckets.
+ * @param {Object}   props.importInputRef Ref to the hidden file input.
+ */
+function renderUncategorizedBody({
+	uncategorized,
+	renderDoc,
+	filter,
+	allCount,
+	importInputRef,
+}) {
+	if (uncategorized.length > 0) {
+		return (
+			<ul className="wpgraphql-ide-documents-list">
+				{uncategorized.map(renderDoc)}
+			</ul>
+		);
+	}
+	if (filter === 'all' && allCount === 0) {
+		return (
+			<SavedQueriesEmptyState
+				onImportClick={() => importInputRef.current?.click()}
+			/>
+		);
+	}
+	return (
+		<p className="wpgraphql-ide-collection-empty">
+			{__('No documents', 'wpgraphql-ide')}
+		</p>
+	);
+}
+
+/**
+ * Empty-state CTA shown in place of the uncategorized "Documents" list
+ * when the All tab is genuinely empty (no docs in any bucket). Points
+ * the user at the two paths into the panel: save the active query, or
+ * import a JSON. Sitewide / Mine tabs keep the per-section "No documents"
+ * copy.
+ *
+ * @param {Object}   props
+ * @param {Function} props.onImportClick Triggers the hidden file input the
+ *                                       kebab "Import queries…" action uses.
+ */
+export function SavedQueriesEmptyState({ onImportClick }) {
+	return (
+		<div className="wpgraphql-ide-saved-queries-empty">
+			<p className="wpgraphql-ide-saved-queries-empty-hint">
+				{__(
+					'Use the toolbar Save button to save the current query into a collection.',
+					'wpgraphql-ide'
+				)}
+			</p>
+			<Button
+				variant="primary"
+				size="compact"
+				onClick={onImportClick}
+				className="wpgraphql-ide-saved-queries-empty-import"
+			>
+				{__('Import queries from JSON', 'wpgraphql-ide')}
+			</Button>
+			<p className="wpgraphql-ide-saved-queries-empty-footnote">
+				{__(
+					'Want examples? Import the sample JSON from the plugin’s seeds/ folder.',
+					'wpgraphql-ide'
+				)}
+			</p>
 		</div>
 	);
 }
@@ -1293,15 +1373,13 @@ export function SavedQueriesPanel() {
 									: undefined
 							}
 						>
-							{uncategorized.length > 0 ? (
-								<ul className="wpgraphql-ide-documents-list">
-									{uncategorized.map(renderDoc)}
-								</ul>
-							) : (
-								<p className="wpgraphql-ide-collection-empty">
-									{__('No documents', 'wpgraphql-ide')}
-								</p>
-							)}
+							{renderUncategorizedBody({
+								uncategorized,
+								renderDoc,
+								filter,
+								allCount,
+								importInputRef,
+							})}
 						</CollectionSection>
 					)}
 
