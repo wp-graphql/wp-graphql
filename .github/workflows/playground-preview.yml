@@ -1,0 +1,89 @@
+name: Playground Preview
+
+# Builds the IDE plugin from the PR commit, uploads the ZIP as a
+# workflow artifact, and posts (or updates) a sticky PR comment with a
+# WordPress Playground link that boots a fresh WP, installs the plugin,
+# and drops the reviewer at the IDE.
+#
+# The comment edits in place across pushes — no spam, always points at
+# the latest commit.
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/wp-graphql-ide/**'
+      - '.github/workflows/playground-preview.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run -w @wpgraphql/wp-graphql-ide build
+
+      # `wp-scripts plugin-zip` uses the npm package name as the filename,
+      # which for a scoped package (`@wpgraphql/wp-graphql-ide`) lands as
+      # `@wpgraphql/wp-graphql-ide.zip` — the `@wpgraphql/` becomes a real
+      # subdirectory. Rename to a stable, predictable filename for the
+      # nightly.link URL the comment references.
+      - name: Normalize ZIP filename
+        run: |
+          BUILT_ZIP=$(find plugins/wp-graphql-ide -maxdepth 3 -name '*.zip' -not -path '*/node_modules/*' | head -1)
+          if [ -z "$BUILT_ZIP" ]; then
+            echo "::error::No plugin ZIP found after build"
+            exit 1
+          fi
+          mv "$BUILT_ZIP" plugins/wp-graphql-ide/wp-graphql-ide.zip
+          ls -la plugins/wp-graphql-ide/wp-graphql-ide.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp-graphql-ide
+          path: plugins/wp-graphql-ide/wp-graphql-ide.zip
+          if-no-files-found: error
+
+      # Build the Playground URL with a base64-encoded blueprint inline
+      # in the URL fragment. nightly.link proxies the workflow artifact
+      # to a public URL Playground can fetch — no extra hosting infra.
+      - id: url
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          BLUEPRINT=$(cat <<JSON
+          {
+            "preferredVersions": { "php": "8.3", "wp": "latest" },
+            "features": { "networking": true },
+            "login": true,
+            "landingPage": "/wp-admin/admin.php?page=graphql-ide",
+            "steps": [
+              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://downloads.wordpress.org/plugin/wp-graphql.latest-stable.zip" }, "options": { "activate": true } },
+              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" }, "options": { "activate": true } }
+            ]
+          }
+          JSON
+          )
+          ENCODED=$(printf '%s' "$BLUEPRINT" | base64 -w0)
+          echo "url=https://playground.wordpress.net/#${ENCODED}" >> "$GITHUB_OUTPUT"
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: playground-preview
+          message: |
+            ## ▶ Preview in WordPress Playground
+
+            **[Open this PR in Playground](${{ steps.url.outputs.url }})** — boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE.
+
+            <sub>Built from `${{ github.event.pull_request.head.sha }}`. Auto-updates when you push.</sub>

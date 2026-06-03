@@ -221,11 +221,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: 'wp-graphql-ide / WP 6.8 / PHP 8.3'
-            wp: '6.8'
+          # IDE floor is WP 7.0 (admin refresh, see plugin header).
+          # Pinned to `trunk` until 7.0 is the stable release.
+          - name: 'wp-graphql-ide / WP trunk / PHP 8.3'
+            wp: trunk
             php: '8.3'
-          - name: 'wp-graphql-ide / WP 6.1 / PHP 7.4'
-            wp: '6.1'
+          - name: 'wp-graphql-ide / WP trunk / PHP 7.4'
+            wp: trunk
             php: '7.4'
     uses: ./.github/workflows/smoke-test-reusable.yml
     secrets: inherit

@@ -168,7 +168,11 @@ jobs:
       - name: Start WordPress environment
         env:
           WP_ENV_PHP_VERSION: ${{ inputs.php }}
-          WP_ENV_CORE: ${{ format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
+          # `wp: trunk` resolves to the WordPress/WordPress GitHub repo
+          # (wp-env follows it as `core`), matching the integration
+          # workflow's pattern. The wp.org `wordpress-<x>.zip` URL has
+          # no `trunk.zip` artifact, so the literal interpolation 404s.
+          WP_ENV_CORE: ${{ inputs.wp == 'trunk' && 'WordPress/WordPress' || format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
         run: npm run wp-env start
 
       - name: Install plugin from zip via WP-CLI
