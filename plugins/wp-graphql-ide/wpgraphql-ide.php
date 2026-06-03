@@ -187,29 +187,11 @@ function show_admin_notice() {
 
 /**
  * Assign custom capability to administrator role on plugin activation.
- *
- * Also seeds example collections + documents on first activation so a
- * fresh install isn't an empty IDE. Seeding is gated by an option so
- * re-activation never duplicates content.
  */
 function wpgraphql_ide_activate(): void {
 	$administrator = get_role( 'administrator' );
 	if ( $administrator ) {
 		$administrator->add_cap( 'manage_graphql_ide' );
-	}
-
-	// Seeding now requires Smart Cache, since the IDE no longer owns the
-	// document post type. If Smart Cache isn't active at activation time,
-	// skip the seed silently — users who install Smart Cache later don't
-	// get auto-seeded; that's an acceptable trade-off given seed content
-	// is purely a discoverability nicety, not core functionality.
-	if ( class_exists( '\\WPGraphQL\\SmartCache\\Document' ) ) {
-		// Post types registered on `init` aren't available during
-		// activation, so register Smart Cache's first if it isn't already.
-		if ( ! post_type_exists( 'graphql_document' ) ) {
-			( new \WPGraphQL\SmartCache\Document() )->init();
-		}
-		\WPGraphQLIDE\ImportExport::seed();
 	}
 }
 register_activation_hook( __FILE__, __NAMESPACE__ . '\\wpgraphql_ide_activate' );

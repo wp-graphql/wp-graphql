@@ -17,43 +17,12 @@ namespace WPGraphQLIDE;
 class ImportExport {
 
 	/**
-	 * Bump when shipping a new example dataset. The seeder runs only
-	 * when the stored `wpgraphql_ide_seed_version` differs from this
-	 * value, so users who deleted earlier seeds won't get them
-	 * recreated unless we ship a newer set.
-	 */
-	// phpcs:ignore SlevomatCodingStandard.TypeHints.ClassConstantTypeHint.MissingNativeTypeHint -- Typed class constants require PHP 8.3+; this plugin's floor is 7.4.
-	public const SEED_VERSION = '1';
-
-	/**
 	 * Wire format version for the import/export JSON. Bump on any
 	 * breaking schema change (renamed/removed fields, restructured
 	 * collections, etc.). Additive changes don't require a bump.
 	 */
 	// phpcs:ignore SlevomatCodingStandard.TypeHints.ClassConstantTypeHint.MissingNativeTypeHint -- Typed class constants require PHP 8.3+; this plugin's floor is 7.4.
 	public const IMPORT_SCHEMA_VERSION = 1;
-
-	/**
-	 * Seed example collections and documents for the activating user.
-	 * Idempotent via `wpgraphql_ide_seed_version`.
-	 *
-	 * Documents are seeded as published; Smart Cache's `save_document_cb`
-	 * hashes the content and writes the SHA-256 into `post_name` so the
-	 * activated install matches the canonical example dataset exactly.
-	 */
-	public static function seed(): void {
-		if ( get_option( 'wpgraphql_ide_seed_version' ) === self::SEED_VERSION ) {
-			return;
-		}
-
-		$author_id = get_current_user_id();
-		if ( ! $author_id ) {
-			return;
-		}
-
-		self::import( self::get_seed_definitions(), $author_id );
-		update_option( 'wpgraphql_ide_seed_version', self::SEED_VERSION, false );
-	}
 
 	/**
 	 * Import a `{ collections: [...] }` payload as documents owned by the
@@ -340,27 +309,4 @@ class ImportExport {
 		];
 	}
 
-	/**
-	 * Load the canonical example dataset from `seeds/example-documents.json`.
-	 * Returns the raw parsed payload — same shape the importer accepts.
-	 * Edit the JSON file and bump `SEED_VERSION` to push updated examples
-	 * to existing installs.
-	 *
-	 * @return array{collections?: array<int, array{name:string, documents:array<int,array<string,mixed>>}>}
-	 */
-	private static function get_seed_definitions(): array {
-		$path = WPGRAPHQL_IDE_PLUGIN_DIR_PATH . 'seeds/example-documents.json';
-		if ( ! file_exists( $path ) ) {
-			return [ 'collections' => [] ];
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- Reading a local plugin file.
-		$contents = file_get_contents( $path );
-		if ( false === $contents ) {
-			return [ 'collections' => [] ];
-		}
-
-		$data = json_decode( $contents, true );
-		return is_array( $data ) ? $data : [ 'collections' => [] ];
-	}
 }
