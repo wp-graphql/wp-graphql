@@ -46,7 +46,18 @@ class Storage {
 				if ( ! is_array( $terms ) ) {
 					return ! empty( $storage['multi'] ) ? [] : ( $field['default'] ?? '' );
 				}
-				$names = array_values( array_map( static fn( $t ) => $t->name, $terms ) );
+				$names = [];
+				foreach ( $terms as $term ) {
+					$names[] = $term->name;
+				}
+				// `read_filter` lets a field config drop internal terms
+				// from the user-facing list (e.g. Smart Cache's auto-
+				// stamped sha256 alias) without leaking that knowledge
+				// into the generic storage layer.
+				if ( isset( $field['read_filter'] ) && is_callable( $field['read_filter'] ) ) {
+					$filter = $field['read_filter'];
+					$names  = array_values( array_filter( $names, $filter ) );
+				}
 				return ! empty( $storage['multi'] ) ? $names : ( $names[0] ?? ( $field['default'] ?? '' ) );
 		}
 

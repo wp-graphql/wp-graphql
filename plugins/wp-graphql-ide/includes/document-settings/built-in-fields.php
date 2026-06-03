@@ -37,6 +37,16 @@ function register_built_in_fields(): void {
 			'type'              => 'tag_list',
 			'default'           => [],
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_alias_list',
+			// Smart Cache stamps the sha256 of every saved doc's
+			// normalized content onto the alias taxonomy as a content-
+			// addressed identity term. That's an internal primitive,
+			// not a user alias, and surfacing it would cause the IDE
+			// to round-trip it back through the save mutation (and
+			// trip Smart Cache's "alias already in use" guard for any
+			// other doc sharing the content). Strip 64-char hex names
+			// here so the user-facing aliases list only contains the
+			// names a human chose.
+			'read_filter'       => static fn( string $name ): bool => 1 !== preg_match( '/^[a-f0-9]{64}$/i', $name ),
 			'storage'           => [
 				// Smart Cache's existing alias taxonomy — registered in
 				// WPGraphQL\SmartCache\Document with TAXONOMY_NAME =
