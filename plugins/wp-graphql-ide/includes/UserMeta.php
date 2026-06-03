@@ -418,7 +418,19 @@ class UserMeta {
 		}
 
 		if ( $changed ) {
+			// `update_user_meta` runs the registered `sanitize_callback`
+			// (`sanitize_personal_collections`), which reads
+			// `get_current_user_id()` to enforce per-document ownership.
+			// When `before_delete_post` fires from a CRON context, a
+			// CLI invocation, or simply a deleter who isn't the doc
+			// author, that check would strip *every* one of the author's
+			// document_ids — wiping the personal_collections we're trying
+			// to surgically prune. Switch into the author's session for
+			// the write and restore the previous user immediately.
+			$previous_user = get_current_user_id();
+			wp_set_current_user( $author_id );
 			update_user_meta( $author_id, 'wpgraphql_ide_personal_collections', $collections );
+			wp_set_current_user( $previous_user );
 		}
 	}
 }
