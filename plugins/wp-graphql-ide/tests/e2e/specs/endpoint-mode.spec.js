@@ -18,14 +18,17 @@ const ENDPOINT_URL = `${BASE_URL}/graphql`;
 /**
  * Toggle the public-endpoint IDE setting on or off via wp-cli in the
  * tests-cli container. WPGraphQL stores `graphql_ide_settings` as a
- * single serialized option, so `wp option patch update` is the
- * narrowest knob — won't disturb other IDE settings the suite assumes.
+ * single serialized option. `wp option patch update` would be the
+ * narrowest knob but it requires the subkey to already exist (it
+ * errors when the option is the empty array a fresh install starts
+ * with), so we use `wp option patch insert` for the first toggle and
+ * `update` for subsequent toggles via a shell `||` fallback.
  *
  * @param {'on' | 'off'} value
  */
 function setEndpointMode(value) {
 	execSync(
-		`npm run --prefix ../.. wp-env run tests-cli -- wp option patch update graphql_ide_settings graphql_ide_public_endpoint ${value}`,
+		`npm run --prefix ../.. wp-env run tests-cli -- bash -c "wp option patch update graphql_ide_settings graphql_ide_public_endpoint ${value} || wp option patch insert graphql_ide_settings graphql_ide_public_endpoint ${value}"`,
 		{ stdio: 'pipe' }
 	);
 }
