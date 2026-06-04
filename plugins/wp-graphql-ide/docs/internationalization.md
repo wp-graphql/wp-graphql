@@ -1,11 +1,11 @@
 ---
 title: "Internationalization"
-description: "How the WPGraphQL IDE handles translations, what WordPress 7.0 expects, and the gaps still to close."
+description: "How the WPGraphQL IDE handles translations, what modern WordPress expects, and the gaps still to close."
 ---
 
 # Internationalization
 
-WPGraphQL IDE targets WordPress 7.0+, which inherits the modern i18n stack introduced in 6.5 ("performant translations" via `.l10n.php` files) and 6.7 (just-in-time textdomain loading). This doc explains what the plugin does today, what WordPress expects of it, and what still needs wiring.
+WPGraphQL IDE requires WordPress 6.1+ and takes advantage of the modern i18n stack introduced in 6.5 ("performant translations" via `.l10n.php` files) and 6.7 (just-in-time textdomain loading) when the host site provides it; older versions fall back to the classic `.mo` loader. This doc explains what the plugin does today, what WordPress expects of it, and what still needs wiring.
 
 ## Textdomain
 
@@ -29,7 +29,7 @@ __( 'GraphQL IDE', 'wpgraphql-ide' );
 
 If a string is missing the textdomain it falls through to the default `default` textdomain and can never be translated by the plugin's `.mo` / `.l10n.php` files.
 
-## How WordPress 7.0 loads translations
+## How WordPress loads translations
 
 You do **not** call `load_plugin_textdomain()`. WordPress has auto-loaded it from the `Text Domain:` header since 4.6, and since 6.7 it uses **just-in-time loading** that races against any manual call you make. Calling it yourself triggers `_doing_it_wrong` warnings under WP-CLI and produces no benefit.
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.0...wp-graphql-smart-cache/v2.2.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-smart-cache ([#3856](https://github.com/wp-graphql/wp-graphql/issues/3856)) ([a76bc01](https://github.com/wp-graphql/wp-graphql/commit/a76bc01a42b97505368ca2bae85db40fbc32241e))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-smart-cache ([#3860](https://github.com/wp-graphql/wp-graphql/issues/3860)) ([bcd0c0d](https://github.com/wp-graphql/wp-graphql/commit/bcd0c0d8f4d0f0c92debcc781eb1bcd3c465305d))
+* guard null content when regenerating document hash on updateGraphqlDocument ([#3879](https://github.com/wp-graphql/wp-graphql/issues/3879)) ([95c732b](https://github.com/wp-graphql/wp-graphql/commit/95c732b5f305a541aeb94952d508fae1ac26f566))
+
 ## [2.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.1.0...wp-graphql-smart-cache/v2.2.0) (2026-05-08)
 
 

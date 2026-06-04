@@ -531,6 +531,13 @@ jobs:
           # wp-graphql-smart-cache (component) -> wpgraphql-smart-cache (WordPress.org slug)
           SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           BUILD_DIR: plugin-build/${{ matrix.component }}
+          # WordPress.org assets (banners/icons/screenshots) live in each plugin's
+          # source .wordpress-org dir. The 10up action defaults ASSETS_DIR to a
+          # repo-root .wordpress-org, which does not exist in this monorepo, so it
+          # logged "No assets directory found; skipping asset copy" and never synced
+          # the SVN assets/ folder. Point it at the source dir (always present, and
+          # independent of .distignore, which excludes .wordpress-org from BUILD_DIR).
+          ASSETS_DIR: ${{ steps.plugin_info.outputs.package_path }}/.wordpress-org
           VERSION: ${{ steps.plugin_info.outputs.version }}
           # Note: The 10up action should sync BUILD_DIR to SVN trunk
           # If it's not updating readme.txt, it might be reading from the source tag
