@@ -1,0 +1,149 @@
+/* =============================================================
+   WPGraphQL Design System — globals.css
+   Compatible with: Tailwind v4 + shadcn/ui
+   ============================================================= */
+
+@import "tailwindcss";
+
+/* ── Google Fonts ── */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap");
+
+/* =============================================================
+   CSS CUSTOM PROPERTIES — DESIGN TOKENS
+   ============================================================= */
+@layer base {
+  :root {
+    /* ── Navy Scale ── */
+    --navy-950: 222 47% 8%;
+    --navy-900: 222 45% 10%;
+    --navy-800: 222 42% 15%;
+    --navy-700: 224 43% 21%;
+    --navy-600: 225 42% 26%;
+    --navy-500: 226 40% 31%;
+    --navy-400: 220 31% 42%;
+    --navy-300: 219 26% 57%;
+    --navy-200: 219 23% 73%;
+    --navy-100: 219 30% 86%;
+    --navy-50:  220 35% 95%;
+
+    /* ── Orange Scale ── */
+    --orange-600: 26 100% 38%;
+    --orange-500: 27 100% 44%;
+    --orange-400: 28 100% 47%;
+    --orange-300: 30 100% 55%;   /* PRIMARY ACCENT: #FF8C1A */
+    --orange-200: 31 100% 65%;
+    --orange-100: 33 100% 80%;
+    --orange-50:  35 100% 93%;
+
+    /* ── Semantic Tokens (Dark — default) ── */
+    --background:         var(--navy-950);
+    --foreground:         220 60% 97%;
+
+    --card:               var(--navy-900);
+    --card-foreground:    220 60% 97%;
+
+    --popover:            var(--navy-900);
+    --popover-foreground: 220 60% 97%;
+
+    --primary:            var(--orange-300);
+    --primary-foreground: var(--navy-950);
+
+    --secondary:          var(--navy-700);
+    --secondary-foreground: 220 60% 97%;
+
+    --muted:              var(--navy-800);
+    --muted-foreground:   var(--navy-300);
+
+    --accent:             var(--navy-700);
+    --accent-foreground:  220 60% 97%;
+
+    --destructive:        0 84% 60%;
+    --destructive-foreground: 220 60% 97%;
+
+    --border:             var(--navy-700);
+    --input:              var(--navy-700);
+    --ring:               var(--orange-300);
+
+    --radius: 0.5rem;
+
+    /* ── Chart Colors ── */
+    --chart-1: var(--orange-300);
+    --chart-2: var(--navy-300);
+    --chart-3: var(--orange-500);
+    --chart-4: var(--navy-400);
+    --chart-5: var(--orange-200);
+
+    /* ── Sidebar (for dashboard layouts) ── */
+    --sidebar-background:        var(--navy-900);
+    --sidebar-foreground:        220 60% 97%;
+    --sidebar-primary:           var(--orange-300);
+    --sidebar-primary-foreground: var(--navy-950);
+    --sidebar-accent:            var(--navy-800);
+    --sidebar-accent-foreground: 220 60% 97%;
+    --sidebar-border:            var(--navy-700);
+    --sidebar-ring:              var(--orange-300);
+  }
+
+  /* ── Light Mode Override ── */
+  .light {
+    --background:         var(--navy-50);
+    --foreground:         var(--navy-950);
+
+    --card:               220 60% 99%;
+    --card-foreground:    var(--navy-950);
+
+    --popover:            220 60% 99%;
+    --popover-foreground: var(--navy-950);
+
+    --primary:            var(--orange-400);
+    --primary-foreground: 220 60% 99%;
+
+    --secondary:          var(--navy-100);
+    --secondary-foreground: var(--navy-800);
+
+    --muted:              var(--navy-100);
+    --muted-foreground:   var(--navy-400);
+
+    --accent:             var(--navy-100);
+    --accent-foreground:  var(--navy-800);
+
+    --destructive:        0 72% 51%;
+    --destructive-foreground: 220 60% 99%;
+
+    --border:             var(--navy-200);
+    --input:              var(--navy-200);
+    --ring:               var(--orange-400);
+
+    --sidebar-background:        220 60% 99%;
+    --sidebar-foreground:        var(--navy-900);
+    --sidebar-primary:           var(--orange-400);
+    --sidebar-primary-foreground: 220 60% 99%;
+    --sidebar-accent:            var(--navy-50);
+    --sidebar-accent-foreground: var(--navy-900);
+    --sidebar-border:            var(--navy-200);
+    --sidebar-ring:              var(--orange-400);
+  }
+}
+
+/* =============================================================
+   BASE STYLES
+   ============================================================= */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-feature-settings: "cv01", "cv02", "cv03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mono elements */
+  code, kbd, pre, samp,
+  .font-mono {
+    font-family: 'DM Mono', monospace;
+  }
+}

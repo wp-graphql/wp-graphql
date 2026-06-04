@@ -104,6 +104,12 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Learn more about how [Appsero collects and uses data](https://appsero.com/privacy-policy/).
 
+== Screenshots ==
+
+1. Configure a Field Group for GraphQL — toggle "Show in GraphQL", set the GraphQL type name, and choose which schema types it shows on.
+2. ACF field groups and fields appear automatically in the GraphQL schema, explored here in the WPGraphQL IDE.
+3. Per-field GraphQL settings — control the field's GraphQL name, description, and nullability in the schema.
+
 == Upgrade Notice ==
 
 = 2.3.0 =
