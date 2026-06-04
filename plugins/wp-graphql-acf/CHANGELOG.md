@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.6.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.1...wp-graphql-acf/v2.6.2) (2026-06-04)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.9.0 to 2.10.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3873](https://github.com/wp-graphql/wp-graphql/issues/3873)) ([c4efe56](https://github.com/wp-graphql/wp-graphql/commit/c4efe569622a3a18a6a61198e92b977d0c9cabd3))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-acf ([#3855](https://github.com/wp-graphql/wp-graphql/issues/3855)) ([4c0002e](https://github.com/wp-graphql/wp-graphql/commit/4c0002e49c5ed4968ab4d25182c16c23c3b32b23))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-acf ([#3862](https://github.com/wp-graphql/wp-graphql/issues/3862)) ([d28f0ca](https://github.com/wp-graphql/wp-graphql/commit/d28f0cacb85a301ee54f11fabfa49740289e40f8))
+
 ## [2.6.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.0...wp-graphql-acf/v2.6.1) (2026-05-20)
 
 
