@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.1...wp-graphql-ide/v4.5.0) (2026-06-04)
+
+
+### New Features
+
+* **deps:** bump @wordpress/hooks from 3.58.0 to 4.44.0 ([#3853](https://github.com/wp-graphql/wp-graphql/issues/3853)) ([249fe34](https://github.com/wp-graphql/wp-graphql/commit/249fe3437adc04876d54bcebdd64bad3aaf13343))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 4 updates ([#3826](https://github.com/wp-graphql/wp-graphql/issues/3826)) ([46d2c97](https://github.com/wp-graphql/wp-graphql/commit/46d2c9743525ff04e3fa4e7d5baad72c30eebe8b))
+
+
+### Bug Fixes
+
+* Allow compatible interface field override with `register_graphql_field()` ([#3539](https://github.com/wp-graphql/wp-graphql/issues/3539)) ([0cf2b22](https://github.com/wp-graphql/wp-graphql/commit/0cf2b22ab9a9faef4607b62f42cb228542ce5b87))
+* **deps-dev:** bump concurrently from 8.2.2 to 9.2.1 ([#3868](https://github.com/wp-graphql/wp-graphql/issues/3868)) ([d8f5b55](https://github.com/wp-graphql/wp-graphql/commit/d8f5b5522f4a993721b8c481b2beb858c6c2fb27))
+* **deps-dev:** bump phpstan/phpstan from 2.1.51 to 2.1.54 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3818](https://github.com/wp-graphql/wp-graphql/issues/3818)) ([31961db](https://github.com/wp-graphql/wp-graphql/commit/31961db350176eb238fca007dd2b547c10c199bd))
+* **deps-dev:** bump phpstan/phpstan from 2.1.54 to 2.1.55 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3872](https://github.com/wp-graphql/wp-graphql/issues/3872)) ([d7b013c](https://github.com/wp-graphql/wp-graphql/commit/d7b013cc07d590282c2c0f2246083b48f3221a4a))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-ide ([#3857](https://github.com/wp-graphql/wp-graphql/issues/3857)) ([c01a41c](https://github.com/wp-graphql/wp-graphql/commit/c01a41cf89878ac77423f7d3f635d2d679e70e15))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-ide ([#3861](https://github.com/wp-graphql/wp-graphql/issues/3861)) ([e935973](https://github.com/wp-graphql/wp-graphql/commit/e935973da50a9cbd70eadf9f4fb3dbc64f528ecc))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3827](https://github.com/wp-graphql/wp-graphql/issues/3827)) ([208feff](https://github.com/wp-graphql/wp-graphql/commit/208feffb8a2aa979dc93f6c2aec240b15e1a13ea))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#3849](https://github.com/wp-graphql/wp-graphql/issues/3849)) ([cf0a309](https://github.com/wp-graphql/wp-graphql/commit/cf0a309f5c5b58d8abfa8afd5d798b1141bd04e9))
+
 ## [4.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.0...wp-graphql-ide/v4.4.1) (2026-05-08)
 
 
