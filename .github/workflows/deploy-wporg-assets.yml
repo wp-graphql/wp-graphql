@@ -1,0 +1,139 @@
+# Deploy WordPress.org Assets
+#
+# Asset-only deployments to WordPress.org — banners, icons, screenshots, and
+# blueprints that live in each plugin's `.wordpress-org/` directory.
+#
+# WHY THIS EXISTS (separate from release-please.yml):
+# WordPress.org assets are decoupled from plugin versions — the SVN `assets/`
+# directory can (and should) be updated without cutting a release. Using the
+# release workflow's `redeploy_tag` path for an asset tweak is the wrong tool:
+# it deletes/re-creates the SVN tag, re-transmits the whole plugin, and bumps
+# the plugin's "last updated" date. This workflow uses 10up's dedicated
+# asset-update action, which syncs ONLY `.wordpress-org/` -> SVN `assets/`.
+#
+# TRIGGERS:
+# - push to main touching `plugins/*/.wordpress-org/**` — assets go live as soon
+#   as they merge (no release required). Only the changed plugins are deployed.
+# - workflow_dispatch — pick a single plugin or `all` to (re)deploy on demand
+#   (e.g. to backfill assets that pre-date this workflow, like the brand refresh).
+#
+# SLUG MAPPING:
+# WordPress.org slugs are resolved from release-please-config.json on main, the
+# same source release-please.yml uses (e.g. wp-graphql-smart-cache (component)
+# -> wpgraphql-smart-cache (.org slug)). Core has no override and defaults to its
+# folder name `wp-graphql`.
+
+name: Deploy WordPress.org Assets
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'plugins/*/.wordpress-org/**'
+  workflow_dispatch:
+    inputs:
+      component:
+        description: "Which plugin's assets to deploy"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - wp-graphql
+          - wp-graphql-ide
+          - wp-graphql-acf
+          - wp-graphql-smart-cache
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize asset deploys per ref; never cancel an in-flight SVN commit.
+  group: wporg-assets-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect:
+    name: Detect components to deploy
+    runs-on: ubuntu-latest
+    outputs:
+      components: ${{ steps.detect.outputs.components }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          # Full history so the push diff range (before..after) always resolves.
+          fetch-depth: 0
+
+      - name: Detect components
+        id: detect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_COMPONENT: ${{ github.event.inputs.component }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$INPUT_COMPONENT" == "all" ]]; then
+              COMPONENTS='["wp-graphql","wp-graphql-ide","wp-graphql-acf","wp-graphql-smart-cache"]'
+            else
+              COMPONENTS=$(jq -nc --arg c "$INPUT_COMPONENT" '[$c]')
+            fi
+          else
+            # push: deploy only the plugins whose .wordpress-org assets changed.
+            if [[ -z "$BEFORE_SHA" || "$BEFORE_SHA" =~ ^0+$ ]]; then
+              RANGE_ARGS="HEAD~1 HEAD"
+            else
+              RANGE_ARGS="$BEFORE_SHA $AFTER_SHA"
+            fi
+            CHANGED=$(git diff --name-only $RANGE_ARGS -- plugins/ \
+              | grep -E '^plugins/[^/]+/\.wordpress-org/' \
+              | sed -E 's#^plugins/([^/]+)/\.wordpress-org/.*#\1#' \
+              | sort -u || true)
+            COMPONENTS=$(printf '%s\n' "$CHANGED" | jq -R . | jq -sc 'map(select(length > 0))')
+          fi
+
+          echo "components=$COMPONENTS" >> "$GITHUB_OUTPUT"
+          echo "Components to deploy: $COMPONENTS"
+
+  deploy:
+    name: Deploy ${{ matrix.component }} assets to WordPress.org
+    needs: detect
+    if: needs.detect.outputs.components != '' && needs.detect.outputs.components != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: ${{ fromJSON(needs.detect.outputs.components) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Resolve WordPress.org slug
+        id: slug
+        env:
+          COMPONENT: ${{ matrix.component }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Resolve slug from config on main so it matches release-please.yml.
+          CONFIG_JSON=$(curl -sL "https://raw.githubusercontent.com/${GH_REPO}/main/release-please-config.json")
+          WP_ORG_SLUG=$(echo "$CONFIG_JSON" | jq -r --arg c "$COMPONENT" '.packages["plugins/\($c)"].wp_org_slug // $c')
+          if [[ -z "$WP_ORG_SLUG" || "$WP_ORG_SLUG" == "null" ]]; then
+            echo "::error::Could not resolve WordPress.org slug for component: $COMPONENT"
+            exit 1
+          fi
+          echo "wp_org_slug=${WP_ORG_SLUG}" >> "$GITHUB_OUTPUT"
+          echo "Resolved slug for ${COMPONENT}: ${WP_ORG_SLUG}"
+
+      - name: Deploy assets
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: ${{ steps.slug.outputs.wp_org_slug }}
+          ASSETS_DIR: plugins/${{ matrix.component }}/.wordpress-org
