@@ -14,11 +14,18 @@ namespace Tests\WPGraphQLIDE\DocumentSettings;
 
 class AliasUniquenessTest extends \Codeception\TestCase\WPTestCase {
 
+	// Seeds manage_graphql_ide in setUp — WPLoader doesn't. See the trait.
+	use \Helper\GrantsIdeCapability;
+
 	private $admin;
 	private $rest_server;
 
 	public function setUp(): void {
 		parent::setUp();
+
+		// WPLoader doesn't fire the activation that grants manage_graphql_ide,
+		// so seed it here — otherwise the admin route 403s. See GrantsIdeCapability.
+		$this->grantIdeCapability();
 
 		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $this->admin );

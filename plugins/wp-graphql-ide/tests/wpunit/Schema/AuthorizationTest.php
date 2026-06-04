@@ -22,12 +22,19 @@ namespace Tests\WPGraphQLIDE\Schema;
 
 class AuthorizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	// Seeds manage_graphql_ide in setUp — WPLoader doesn't. See the trait.
+	use \Helper\GrantsIdeCapability;
+
 	private $user_a;
 	private $user_b;
 
 	public function setUp(): void {
 		parent::setUp();
 		$this->clearSchema();
+
+		// WPLoader doesn't fire the activation that grants manage_graphql_ide,
+		// so seed it here. See GrantsIdeCapability.
+		$this->grantIdeCapability();
 
 		// Two users with the IDE capability so the test isn't accidentally
 		// testing the cap gate — it's testing data isolation at equal

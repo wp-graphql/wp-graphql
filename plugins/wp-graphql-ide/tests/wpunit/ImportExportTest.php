@@ -21,11 +21,20 @@ namespace Tests\WPGraphQLIDE;
 
 class ImportExportTest extends \Codeception\TestCase\WPTestCase {
 
+	// Seeds manage_graphql_ide in setUp — WPLoader doesn't. See the trait.
+	use \Helper\GrantsIdeCapability;
+
 	private $admin_a;
 	private $admin_b;
 
 	public function setUp(): void {
 		parent::setUp();
+
+		// WPLoader doesn't fire the activation that grants manage_graphql_ide,
+		// so seed it here — otherwise import/export runs as an admin without
+		// the cap and creates nothing. See GrantsIdeCapability.
+		$this->grantIdeCapability();
+
 		$this->admin_a = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->admin_b = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 	}

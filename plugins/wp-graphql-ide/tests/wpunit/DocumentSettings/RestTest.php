@@ -12,12 +12,19 @@ namespace Tests\WPGraphQLIDE\DocumentSettings;
 
 class RestTest extends \Codeception\TestCase\WPTestCase {
 
+	// Seeds manage_graphql_ide in setUp — WPLoader doesn't. See the trait.
+	use \Helper\GrantsIdeCapability;
+
 	private $admin_a;
 	private $admin_b;
 	private $rest_server;
 
 	public function setUp(): void {
 		parent::setUp();
+
+		// WPLoader doesn't fire the activation that grants manage_graphql_ide,
+		// so seed it here — otherwise every admin route 403s. See GrantsIdeCapability.
+		$this->grantIdeCapability();
 
 		$this->admin_a = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->admin_b = $this->factory()->user->create( [ 'role' => 'administrator' ] );

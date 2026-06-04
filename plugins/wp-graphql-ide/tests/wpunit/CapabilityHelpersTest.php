@@ -25,11 +25,21 @@ namespace Tests\WPGraphQLIDE;
 
 class CapabilityHelpersTest extends \Codeception\TestCase\WPTestCase {
 
+	// Seeds manage_graphql_ide in setUp — WPLoader doesn't. See the trait.
+	// Needed so test_user_can_returns_true_for_user_with_default_cap sees a
+	// real activated install (admins hold the default cap). Admin-only, so the
+	// subscriber/custom-cap and filter assertions below are unaffected.
+	use \Helper\GrantsIdeCapability;
+
 	private $custom_cap_user;
 	private $rest_server;
 
 	public function setUp(): void {
 		parent::setUp();
+
+		// WPLoader doesn't fire the activation that grants manage_graphql_ide.
+		// See GrantsIdeCapability.
+		$this->grantIdeCapability();
 
 		// User who has a custom cap but NOT `manage_graphql_ide`.
 		// Subscribers don't have `edit_others_posts` by default, so this

@@ -23,12 +23,20 @@ namespace Tests\WPGraphQLIDE;
 
 class UserMetaTest extends \Codeception\TestCase\WPTestCase {
 
+	// Seeds manage_graphql_ide in setUp — WPLoader doesn't. See the trait.
+	use \Helper\GrantsIdeCapability;
+
 	private int $admin_a;
 	private int $admin_b;
 	private int $subscriber;
 
 	public function setUp(): void {
 		parent::setUp();
+
+		// WPLoader doesn't fire the activation that grants manage_graphql_ide,
+		// so seed it here. See GrantsIdeCapability.
+		$this->grantIdeCapability();
+
 		$this->admin_a    = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->admin_b    = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->subscriber = $this->factory()->user->create( [ 'role' => 'subscriber' ] );

@@ -199,17 +199,51 @@ register_activation_hook( __FILE__, __NAMESPACE__ . '\\wpgraphql_ide_activate' )
 
 /**
  * Adds custom capabilities to specified roles.
+ *
+ * Runs on every `plugins_loaded` (not just activation) so the cap is granted
+ * for installs that never fire the activation hook — must-use plugins,
+ * Composer/bootstrap loads, or sites where the plugin is force-activated.
+ *
+ * The stored hash is only a fast-path to skip the role writes when nothing has
+ * changed. We deliberately do NOT trust it on its own: a role can lose the cap
+ * after the hash is saved (role reset/migration, multisite role sync, a manual
+ * edit), and a hash-only guard would then leave administrators permanently
+ * without `manage_graphql_ide`. So we also re-apply whenever a target role is
+ * actually missing its cap, which makes this self-healing and idempotent.
  */
 function add_custom_capabilities(): void {
 	$capabilities = get_custom_capabilities();
 	$current_hash = generate_capabilities_hash( $capabilities );
 
-	if ( ! has_capabilities_hash_changed( $current_hash ) ) {
+	// Skip only when the definition is unchanged AND every role already holds
+	// its cap. Either condition failing means we (re)apply.
+	if ( ! has_capabilities_hash_changed( $current_hash ) && capabilities_are_applied( $capabilities ) ) {
 		return;
 	}
 
 	update_roles_capabilities( $capabilities );
 	save_capabilities_hash( $current_hash );
+}
+
+/**
+ * Whether every role already holds each of its declared capabilities.
+ *
+ * @since x-release-please-version
+ *
+ * @param array<string,string[]> $capabilities Map of capability => role slugs.
+ * @return bool True only if all roles exist and already have their caps.
+ */
+function capabilities_are_applied( array $capabilities ): bool {
+	foreach ( $capabilities as $capability => $roles ) {
+		foreach ( $roles as $role_name ) {
+			$role = get_role( $role_name );
+			if ( ! $role instanceof \WP_Role || ! $role->has_cap( $capability ) ) {
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 /**
