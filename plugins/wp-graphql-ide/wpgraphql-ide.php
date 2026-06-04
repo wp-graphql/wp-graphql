@@ -10,7 +10,7 @@
  * Text Domain:       wpgraphql-ide
  * Domain Path:       /languages
  * Version:           4.4.1
- * Requires at least: 6.0
+ * Requires at least: 6.1
  * Tested up to:      7.0
  * Requires PHP:      7.4
  * Requires Plugins:  wp-graphql
