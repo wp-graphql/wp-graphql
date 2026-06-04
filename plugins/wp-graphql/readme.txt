@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.14.1
+Stable tag: 2.15.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -305,6 +305,21 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.15.0 =
+
+**New Features**
+
+* **deps:** bump @wordpress/hooks from 3.58.0 to 4.44.0 ([#3853](https://github.com/wp-graphql/wp-graphql/issues/3853))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 7 updates ([#3865](https://github.com/wp-graphql/wp-graphql/issues/3865))
+* resolve WPGraphQL settings outside the admin (at the /graphql endpoint) ([#3878](https://github.com/wp-graphql/wp-graphql/issues/3878))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @wordpress/babel-preset-default from 7.42.0 to 8.45.0 ([#3871](https://github.com/wp-graphql/wp-graphql/issues/3871))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql ([#3858](https://github.com/wp-graphql/wp-graphql/issues/3858))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql ([#3859](https://github.com/wp-graphql/wp-graphql/issues/3859))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#3849](https://github.com/wp-graphql/wp-graphql/issues/3849))
 
 = 2.14.1 =
 

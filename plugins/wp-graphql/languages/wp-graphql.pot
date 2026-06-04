@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.14.1\n"
+"Project-Id-Version: WPGraphQL 2.15.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-21T22:59:20+00:00\n"
+"POT-Creation-Date: 2026-06-04T00:23:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -142,7 +142,7 @@ msgstr ""
 
 #: src/Admin/GraphiQL/GraphiQL.php:221
 #: src/Admin/GraphiQL/GraphiQL.php:222
-#: src/Admin/Settings/Settings.php:63
+#: src/Admin/Settings/Settings.php:81
 msgid "GraphQL"
 msgstr ""
 
@@ -152,169 +152,169 @@ msgstr ""
 msgid "The GraphiQL IDE requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:62
-#: src/Admin/Settings/Settings.php:72
+#: src/Admin/Settings/Settings.php:80
+#: src/Admin/Settings/Settings.php:90
 msgid "WPGraphQL Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:73
+#: src/Admin/Settings/Settings.php:91
 msgid "Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:90
+#: src/Admin/Settings/Settings.php:108
 msgid "WPGraphQL General Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:99
+#: src/Admin/Settings/Settings.php:117
 msgid "GraphQL Endpoint"
 msgstr ""
 
 #. translators: %1$s is the site url, %2$s is the default endpoint
-#: src/Admin/Settings/Settings.php:102
+#: src/Admin/Settings/Settings.php:120
 #, php-format
 msgid "The endpoint (path) for the GraphQL API on the site. <a target=\"_blank\" href=\"%1$s/%2$s\">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than \"graphql\" <em>could</em> have an affect on tooling in the GraphQL ecosystem"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:114
+#: src/Admin/Settings/Settings.php:132
 msgid "The \"GraphQL Endpoint\" field is required and cannot be blank. The default endpoint is \"graphql\""
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:129
+#: src/Admin/Settings/Settings.php:147
 msgid "Restrict Endpoint to Authenticated Users"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:130
+#: src/Admin/Settings/Settings.php:148
 msgid "Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:136
+#: src/Admin/Settings/Settings.php:154
 msgid "Enable Batch Queries"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:137
+#: src/Admin/Settings/Settings.php:155
 msgid "WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:143
+#: src/Admin/Settings/Settings.php:161
 msgid "Batch Query Limit"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:144
+#: src/Admin/Settings/Settings.php:162
 msgid "If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:157
+#: src/Admin/Settings/Settings.php:175
 msgid "Enable Query Depth Limiting"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:158
+#: src/Admin/Settings/Settings.php:176
 msgid "Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:164
+#: src/Admin/Settings/Settings.php:182
 msgid "Max Depth to allow for GraphQL Queries"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:165
+#: src/Admin/Settings/Settings.php:183
 msgid "If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:178
+#: src/Admin/Settings/Settings.php:196
 msgid "Enable GraphQL Type Tracking"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about force enabling.
-#: src/Admin/Settings/Settings.php:181
+#: src/Admin/Settings/Settings.php:199
 #, php-format
 msgid "When enabled, WPGraphQL will track the Types, Models, and Nodes used in the request, and return those values in the headers for use in debugging or header-based cache invalidation. %s"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:182
-#: src/Admin/Settings/Settings.php:287
+#: src/Admin/Settings/Settings.php:200
+#: src/Admin/Settings/Settings.php:305
 msgid "NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. "
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:190
+#: src/Admin/Settings/Settings.php:208
 msgid "Enable GraphiQL IDE"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:191
+#: src/Admin/Settings/Settings.php:209
 msgid "GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:197
+#: src/Admin/Settings/Settings.php:215
 msgid "GraphiQL IDE Admin Bar Link"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:198
+#: src/Admin/Settings/Settings.php:216
 msgid "Show GraphiQL IDE Link in the WordPress Admin Bar"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:204
+#: src/Admin/Settings/Settings.php:222
 msgid "Delete Data on Deactivation"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:205
+#: src/Admin/Settings/Settings.php:223
 msgid "Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:211
+#: src/Admin/Settings/Settings.php:229
 msgid "Enable GraphQL Debug Mode"
 msgstr ""
 
 #. translators: %s is the value of the GRAPHQL_DEBUG constant
-#: src/Admin/Settings/Settings.php:214
+#: src/Admin/Settings/Settings.php:232
 #, php-format
 msgid "This setting is disabled. \"GRAPHQL_DEBUG\" has been set to \"%s\" with code"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:215
+#: src/Admin/Settings/Settings.php:233
 msgid "Whether GraphQL requests should execute in \"debug\" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:223
+#: src/Admin/Settings/Settings.php:241
 msgid "Enable GraphQL Tracing"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:224
+#: src/Admin/Settings/Settings.php:242
 msgid "Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:230
+#: src/Admin/Settings/Settings.php:248
 msgid "Tracing Role"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:231
+#: src/Admin/Settings/Settings.php:249
 msgid "If Tracing is enabled, this limits it to requests from users with the specified User Role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:253
+#: src/Admin/Settings/Settings.php:271
 msgid "Enable GraphQL Query Logs"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:254
+#: src/Admin/Settings/Settings.php:272
 msgid "Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:260
+#: src/Admin/Settings/Settings.php:278
 msgid "Query Log Role"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:261
+#: src/Admin/Settings/Settings.php:279
 msgid "If Query Logs are enabled, this limits them to requests from users with the specified User Role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:283
+#: src/Admin/Settings/Settings.php:301
 msgid "Enable Public Introspection"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about debug mode.
-#: src/Admin/Settings/Settings.php:286
+#: src/Admin/Settings/Settings.php:304
 #, php-format
 msgid "GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s "
 msgstr ""
 
-#: src/Admin/Settings/SettingsRegistry.php:455
+#: src/Admin/Settings/SettingsRegistry.php:504
 msgid "Choose File"
 msgstr ""
 
