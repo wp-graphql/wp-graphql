@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Squares2X2Icon } from "@heroicons/react/20/solid"
 import { SectionHeading } from "@/components/extensions/SectionHeading"
+import Constellation from "@/components/extensions/Constellation"
 import ExtensionPreview from "@/components/Preview/ExtensionPreview"
 import { featuredExtensions, isFeaturedExtension } from "../../data/extensions"
 
@@ -36,27 +37,41 @@ export default function ExtensionsArchive({ nodes = [] }) {
           />
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {featuredExtensions.map(
-              ({ name, href, description, theme, Mark }) => (
+              ({ name, href, description, theme, Mark }, i) => (
                 <Link key={href} href={href} legacyBehavior>
                   <a
-                    className={`${theme} group flex flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow-md`}
+                    className={`${theme} group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow-md`}
                   >
-                    <Mark size={64} className="h-16 w-16 rounded-xl" />
-                    <h3 className="mt-6 text-headline font-bold tracking-tight text-foreground">
-                      {name}
-                    </h3>
-                    <p className="mt-2 flex-1 text-base text-muted-foreground">
-                      {description}
-                    </p>
-                    <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                      Explore {name}
-                      <span
-                        aria-hidden="true"
-                        className="transition-transform group-hover:translate-x-0.5"
-                      >
-                        →
+                    {/* Brand-tinted constellation field + a soft glow behind the
+                        logo mark — a mini echo of the wp.org plugin banner. */}
+                    <Constellation variant={i} />
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -left-4 -top-4 h-40 w-40 rounded-full bg-primary/20 blur-2xl transition-opacity group-hover:bg-primary/30"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-card/30 to-card"
+                    />
+
+                    <div className="relative flex flex-1 flex-col">
+                      <Mark size={64} className="h-16 w-16 rounded-xl" />
+                      <h3 className="mt-6 text-headline font-bold tracking-tight text-foreground">
+                        {name}
+                      </h3>
+                      <p className="mt-2 flex-1 text-base text-muted-foreground">
+                        {description}
+                      </p>
+                      <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                        Explore {name}
+                        <span
+                          aria-hidden="true"
+                          className="transition-transform group-hover:translate-x-0.5"
+                        >
+                          →
+                        </span>
                       </span>
-                    </span>
+                    </div>
                   </a>
                 </Link>
               )

@@ -1,9 +1,9 @@
 === WPGraphQL IDE ===
 Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
-Requires at least: 7.0
+Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 4.4.1
+Stable tag: 4.5.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -142,6 +142,24 @@ WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in 
 * **`wpgraphql_ide_external_fragments` filter** restored with smarter merge behavior — only fragments referenced by the outgoing query are prepended, with transitive resolution between external fragments.
 * New extension API: `registerPreference` (typed device/user prefs), `executeRequest` / `executeResponse` filters, `wpgraphql-ide.afterExecute` action.
 * New autocomplete + hover popups render reliably above the slide-up drawer overlay.
+
+= 4.5.0 =
+
+**New Features**
+
+* **deps:** bump @wordpress/hooks from 3.58.0 to 4.44.0 ([#3853](https://github.com/wp-graphql/wp-graphql/issues/3853))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 4 updates ([#3826](https://github.com/wp-graphql/wp-graphql/issues/3826))
+
+**Bug Fixes**
+
+* Allow compatible interface field override with `register_graphql_field()` ([#3539](https://github.com/wp-graphql/wp-graphql/issues/3539))
+* **deps-dev:** bump concurrently from 8.2.2 to 9.2.1 ([#3868](https://github.com/wp-graphql/wp-graphql/issues/3868))
+* **deps-dev:** bump phpstan/phpstan from 2.1.51 to 2.1.54 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3818](https://github.com/wp-graphql/wp-graphql/issues/3818))
+* **deps-dev:** bump phpstan/phpstan from 2.1.54 to 2.1.55 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3872](https://github.com/wp-graphql/wp-graphql/issues/3872))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-ide ([#3857](https://github.com/wp-graphql/wp-graphql/issues/3857))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-ide ([#3861](https://github.com/wp-graphql/wp-graphql/issues/3861))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3827](https://github.com/wp-graphql/wp-graphql/issues/3827))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#3849](https://github.com/wp-graphql/wp-graphql/issues/3849))
 
 = 4.4.1 =
 

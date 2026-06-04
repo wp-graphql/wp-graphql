@@ -19,6 +19,7 @@ import { useLayoutData } from "lib/wpgraphql-client"
 import { socialHeaderLinks } from "../../data/social"
 import { featuredExtensions } from "../../data/extensions"
 import { SearchButton } from "./SearchButton"
+import Constellation from "@/components/extensions/Constellation"
 import { cn } from "@/lib/utils"
 
 // The WP-sourced nav item we enhance with a branded dropdown. Matched by label
@@ -72,14 +73,28 @@ function ExtensionsMenu({ label = "Extensions", viewAllHref = "/extensions" }) {
                 </p>
                 <div className="grid gap-2 px-4 pb-4 sm:px-6">
                   {featuredExtensions.map(
-                    ({ name, href, description, Mark }) => (
+                    ({ name, href, description, theme, Mark }, i) => (
                       <Link key={href} href={href} legacyBehavior>
-                        <a className="-m-2 flex items-start gap-4 rounded-lg p-3 transition-colors hover:bg-accent">
+                        <a
+                          className={`${theme} group relative -m-2 flex items-start gap-4 overflow-hidden rounded-lg p-3 transition-colors hover:bg-accent`}
+                        >
+                          {/* Brand-tinted constellation, revealed on hover. */}
+                          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                            <Constellation
+                              variant={i}
+                              count={16}
+                              width={360}
+                              height={104}
+                              opacity={1}
+                              intensity={1.8}
+                              className="[mask-image:linear-gradient(to_right,black_60%,transparent)]"
+                            />
+                          </div>
                           <Mark
                             size={40}
-                            className="h-10 w-10 flex-shrink-0 rounded-md"
+                            className="relative h-10 w-10 flex-shrink-0 rounded-md"
                           />
-                          <div>
+                          <div className="relative">
                             <p className="text-sm font-semibold text-foreground">
                               {name}
                             </p>
