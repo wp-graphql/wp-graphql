@@ -373,6 +373,10 @@ jobs:
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
       install_wp_graphql_core_deps: true
+      # IDE's WPUnit suite loads Smart Cache via WPLoader; it needs
+      # Smart Cache's autoloader inside the test container so the
+      # graphql_document post type actually registers.
+      install_wp_graphql_smart_cache_deps: true
 
   # ===========================================
   # WP GraphQL for ACF – matrix (full vs Free-only for fork PRs)

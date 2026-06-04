@@ -70,6 +70,11 @@ on:
         required: false
         type: boolean
         default: false
+      install_wp_graphql_smart_cache_deps:
+        description: 'Whether this plugin loads WPGraphQL Smart Cache during WPUnit (WPLoader requires its plugin file); if true, runs composer install in plugins/wp-graphql-smart-cache so its autoloader is available and the graphql_document post type actually registers'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   # Job naming strategy:
@@ -147,6 +152,18 @@ jobs:
         uses: ramsey/composer-install@v4
         with:
           working-directory: plugins/wp-graphql
+
+      # Smart Cache's entry file only loads its classes when its own
+      # vendor/autoload.php is present. Plugins whose WPLoader config
+      # boots Smart Cache (currently the IDE) need its autoloader inside
+      # the test container — without this, can_load_plugin() bails and
+      # the graphql_document post type is never registered, so every REST
+      # test hitting /wp/v2/graphql_document/* 404s.
+      - name: Install WPGraphQL Smart Cache Composer dependencies
+        if: inputs.install_wp_graphql_smart_cache_deps
+        uses: ramsey/composer-install@v4
+        with:
+          working-directory: plugins/wp-graphql-smart-cache
 
       - name: Setup Node
         uses: actions/setup-node@v6
