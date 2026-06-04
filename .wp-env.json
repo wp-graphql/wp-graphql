@@ -26,7 +26,6 @@
       "plugins": [
         "./plugins/wp-graphql",
         "./plugins/wp-graphql-smart-cache",
-        "./plugins/wp-graphql-ide",
         "./plugins/wp-graphql-acf",
         "./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
       ],
