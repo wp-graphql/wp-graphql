@@ -8,8 +8,13 @@
 # directory can (and should) be updated without cutting a release. Using the
 # release workflow's `redeploy_tag` path for an asset tweak is the wrong tool:
 # it deletes/re-creates the SVN tag, re-transmits the whole plugin, and bumps
-# the plugin's "last updated" date. This workflow uses 10up's dedicated
-# asset-update action, which syncs ONLY `.wordpress-org/` -> SVN `assets/`.
+# the plugin's "last updated" date.
+#
+# We sync the SVN `assets/` subtree directly with svn rather than using
+# 10up/action-wordpress-plugin-asset-update: that action assumes a single-plugin
+# repo and rsyncs $GITHUB_WORKSPACE (our monorepo root) into the plugin's trunk/,
+# which fails in this layout. Scoping the working copy to assets/ is both
+# monorepo-correct and safer — a commit here cannot touch trunk/ or tags/.
 #
 # TRIGGERS:
 # - push to main touching `plugins/*/.wordpress-org/**` — assets go live as soon
@@ -129,11 +134,60 @@ jobs:
           echo "wp_org_slug=${WP_ORG_SLUG}" >> "$GITHUB_OUTPUT"
           echo "Resolved slug for ${COMPONENT}: ${WP_ORG_SLUG}"
 
-      - name: Deploy assets
-        uses: 10up/action-wordpress-plugin-asset-update@stable
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      - name: Deploy assets to WordPress.org
+        # NOTE: We sync the SVN assets/ subtree directly instead of using
+        # 10up/action-wordpress-plugin-asset-update. That action assumes a
+        # single-plugin repo: it rsyncs $GITHUB_WORKSPACE (our monorepo root)
+        # into the plugin's trunk/ and then fails reverting trunk/vendor/composer.
+        # Checking out only assets/ is both monorepo-correct and safer — the
+        # working copy is scoped to assets/, so a commit cannot touch trunk/tags.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: ${{ steps.slug.outputs.wp_org_slug }}
-          ASSETS_DIR: plugins/${{ matrix.component }}/.wordpress-org
+          COMPONENT: ${{ matrix.component }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          SRC="${GITHUB_WORKSPACE}/plugins/${COMPONENT}/.wordpress-org"
+          if [[ ! -d "$SRC" ]]; then
+            echo "::error::No .wordpress-org directory for ${COMPONENT} at ${SRC}"
+            exit 1
+          fi
+
+          SVN_DIR="${HOME}/svn-${SLUG}-assets"
+          SVN_AUTH=(--username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache --non-interactive)
+
+          echo "➤ Checking out ${SLUG} assets/ ..."
+          svn checkout "https://plugins.svn.wordpress.org/${SLUG}/assets" "$SVN_DIR" "${SVN_AUTH[@]}"
+
+          echo "➤ Syncing ${COMPONENT} .wordpress-org -> assets/ ..."
+          rsync -rc --delete --exclude='.svn' "${SRC}/" "${SVN_DIR}/"
+
+          cd "$SVN_DIR"
+
+          # Stage new files/dirs, then stage deletions for files removed from source.
+          svn add --force . -q
+          svn status | awk '/^!/ {print $2}' | xargs -r -n1 svn delete --force -q
+
+          # Serve images inline (not as downloads) per WordPress.org guidance.
+          find . -path ./.svn -prune -o -name '*.png' -print0 | xargs -0 -r svn propset svn:mime-type image/png
+          find . -path ./.svn -prune -o -name '*.jpg' -print0 | xargs -0 -r svn propset svn:mime-type image/jpeg
+          find . -path ./.svn -prune -o -name '*.gif' -print0 | xargs -0 -r svn propset svn:mime-type image/gif
+          find . -path ./.svn -prune -o -name '*.svg' -print0 | xargs -0 -r svn propset svn:mime-type image/svg+xml
+
+          echo "➤ Pending changes:"
+          svn status
+
+          if [[ -z "$(svn status)" ]]; then
+            echo "🛑 Nothing to deploy — ${SLUG} assets already up to date."
+            exit 0
+          fi
+
+          echo "➤ Committing assets for ${SLUG} ..."
+          svn commit -m "Update ${SLUG} WordPress.org assets (${COMMIT_SHA})" "${SVN_AUTH[@]}"
+          echo "✓ Assets deployed for ${SLUG}"
