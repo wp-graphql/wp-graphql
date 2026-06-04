@@ -15,6 +15,7 @@ import {
   SectionHeading as BaseSectionHeading,
   VisualPanel,
 } from "@/components/extensions/SectionHeading"
+import Constellation from "@/components/extensions/Constellation"
 
 const WP_ORG_URL = "https://wordpress.org/plugins/wpgraphql-smart-cache/"
 // Repo root — issues / security policy live at the monorepo level.
@@ -110,6 +111,16 @@ function Hero() {
             radial-gradient(ellipse 500px 500px at 5% 85%, hsl(var(--primary) / 0.05) 0%, transparent 65%)
           `,
         }}
+      />
+      {/* Rose constellation field, faded toward the bottom edge. */}
+      <Constellation
+        variant={4}
+        count={48}
+        width={1440}
+        height={720}
+        opacity={0.75}
+        intensity={1.6}
+        className="-z-10 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
       />
       <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">

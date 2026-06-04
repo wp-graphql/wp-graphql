@@ -1,4 +1,5 @@
 import HomepageCta from "components/HomePage/HomepageCta"
+import HomepageExtensions from "components/HomePage/HomepageExtensions"
 import HomepageFeatures from "components/HomePage/HomepageFeatures"
 import HomepageFrameworks from "components/HomePage/HomepageFrameworks"
 import HomepageHero from "components/HomePage/HomepageHero"
@@ -12,6 +13,7 @@ export default function FrontPage({ data }) {
         <HomepageHero />
         <HomepageFrameworks />
         <HomepageFeatures />
+        <HomepageExtensions />
         <HomePageTrust />
         <HomepageCta />
       </main>

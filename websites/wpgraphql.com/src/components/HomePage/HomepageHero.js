@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import MockIDE, { Tok } from "@/components/MockIDE"
+import Constellation from "@/components/extensions/Constellation"
 
 const heroQuery = (
   <>
@@ -35,6 +36,17 @@ const heroResponse = (
 export default function HomepageHero() {
   return (
     <section className="relative overflow-hidden">
+      {/* Full-bleed constellation field (WPGraphQL orange via the default
+          --primary), faded toward the bottom so it never fights the copy. */}
+      <Constellation
+        variant={7}
+        count={48}
+        width={1440}
+        height={720}
+        opacity={0.75}
+        intensity={1.6}
+        className="-z-10 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
+      />
       <div className="mx-auto max-w-8xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div className="lg:max-w-xl">
