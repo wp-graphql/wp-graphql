@@ -184,15 +184,14 @@ class SettingsRegistry {
 		 */
 		$setting_sections = apply_filters( 'graphql_settings_sections', $this->settings_sections );
 
+		// Register each section's setting so it resolves outside admin (e.g.
+		// during a /graphql request). Deliberately does NOT create the option
+		// row — that's done lazily in admin_init(). Pre-creating it here would
+		// run on every request and flip get_option() from `false` to a stored
+		// value in non-admin contexts, which breaks callers that array-write
+		// onto a not-yet-saved option (e.g. `$opt['key'] = 'x'`). Reads stay
+		// safe regardless: get_graphql_setting() defaults a missing option to [].
 		foreach ( $setting_sections as $id => $section ) {
-			if ( false === get_option( $id ) ) {
-				// Create with WordPress's default (empty string) — matching the
-				// long-standing behavior. Initializing as [] would serialize the
-				// option, which renders it disabled on /wp-admin/options.php; the
-				// sanitize_options() callback already tolerates a string value.
-				add_option( $id );
-			}
-
 			register_setting( $id, $id, [ $this, 'sanitize_options' ] );
 		}
 	}
@@ -219,6 +218,13 @@ class SettingsRegistry {
 		$setting_sections = apply_filters( 'graphql_settings_sections', $this->settings_sections );
 
 		foreach ( $setting_sections as $id => $section ) {
+			// Create the option row for the Settings API form (admin only).
+			// WordPress's empty-string default keeps it editable on
+			// /wp-admin/options.php (an array value would serialize + disable it).
+			if ( false === get_option( $id ) ) {
+				add_option( $id );
+			}
+
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
 				$callback        = static function () use ( $section ) {
