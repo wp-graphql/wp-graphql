@@ -18,17 +18,22 @@ const ENDPOINT_URL = `${BASE_URL}/graphql`;
 /**
  * Toggle the public-endpoint IDE setting on or off via wp-cli in the
  * tests-cli container. WPGraphQL stores `graphql_ide_settings` as a
- * single serialized option. `wp option patch update` would be the
- * narrowest knob but it requires the subkey to already exist (it
- * errors when the option is the empty array a fresh install starts
- * with), so we use `wp option patch insert` for the first toggle and
- * `update` for subsequent toggles via a shell `||` fallback.
+ * single serialized option; `wp option patch` can't deal with the
+ * option being missing or set to anything other than an array (a fresh
+ * install has it as `false`/empty string, which makes `insert` error
+ * out with "Cannot create key … on data type string"). Just overwrite
+ * the whole option with the desired state — the other IDE settings
+ * are defaulted via `get_graphql_setting()` in PHP, so absence is
+ * equivalent to their declared defaults and no other e2e suite reads
+ * them by name. The `afterAll` resets `graphql_ide_public_endpoint`
+ * back to `off`, which is also its declared default.
  *
  * @param {'on' | 'off'} value
  */
 function setEndpointMode(value) {
+	const payload = JSON.stringify({ graphql_ide_public_endpoint: value });
 	execSync(
-		`npm run --prefix ../.. wp-env run tests-cli -- bash -c "wp option patch update graphql_ide_settings graphql_ide_public_endpoint ${value} || wp option patch insert graphql_ide_settings graphql_ide_public_endpoint ${value}"`,
+		`npm run --prefix ../.. wp-env run tests-cli -- wp option update graphql_ide_settings --format=json '${payload}'`,
 		{ stdio: 'pipe' }
 	);
 }
