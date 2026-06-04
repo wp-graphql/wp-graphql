@@ -81,6 +81,21 @@ jobs:
           working-directory: plugins/wp-graphql
           composer-options: '--no-progress'
 
+      # `.wp-env.json` mounts wp-graphql-smart-cache for every plugin's
+      # test container, and Smart Cache's entry file only loads its
+      # classes when its own vendor/autoload.php is present. Without it,
+      # can_load_plugin() bails and Smart Cache's post types + GraphQL
+      # types (graphql_document / graphqlDocumentGroups / …) never
+      # register — which breaks any e2e suite that touches them (notably
+      # the IDE's). Install for every plugin except smart-cache itself
+      # (already covered by the per-plugin composer step above).
+      - name: Install wp-graphql-smart-cache dependencies (if needed)
+        if: inputs.plugin_name != 'wp-graphql-smart-cache'
+        uses: ramsey/composer-install@v4
+        with:
+          working-directory: plugins/wp-graphql-smart-cache
+          composer-options: '--no-progress'
+
       - name: Install NPM dependencies
         uses: nick-fields/retry@v4
         with:
