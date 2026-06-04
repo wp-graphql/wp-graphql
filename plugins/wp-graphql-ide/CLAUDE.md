@@ -96,5 +96,5 @@ Multi-entry webpack via `@wordpress/scripts`. React, ReactDOM, and GraphQL are W
 - **Public API surface**: store names, access functions, PHP hooks, and registered preference keys are public. Breaking changes require a major version bump.
 - **i18n**: text domain `wpgraphql-ide`. Use `@wordpress/i18n` in JS, `__()`/`_x()` in PHP.
 - **Smart Cache dependency**: saved-document features degrade gracefully when Smart Cache is not installed (`hasSmartCache` flag in bootstrap data).
-- **Requirements**: PHP 7.4+, WordPress 5.7+, WPGraphQL active.
+- **Requirements**: PHP 7.4+, WordPress 6.0+, WPGraphQL active.
 - **Docs**: live in `docs/` (mirrors core WPGraphQL's `docs/` + `docs_nav.json` layout). Reference: `docs/access-functions.md` (JS API), `docs/actions-and-filters.md` (PHP/JS hooks), `docs/api-surface.md` (surface inventory). Guides + index: `docs/README.md`. The `docs/` dir is excluded from the shipped zip via `.distignore`.
