@@ -331,22 +331,35 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # IDE floor is WP 7.0 (admin refresh, see plugin header). Until
-          # 7.0 is the stable release, the matrix uses `trunk` — older
-          # WP rows that other plugins still test would gate-fail
-          # activation here. PHP boundary stays 7.4.
+          # Coverage job: Latest WP/PHP
+          - name: 'wp-graphql-ide / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
+            theme: twentytwentyfive
+            multisite: false
+            coverage: true
+          # Boundary: Current stable
+          - name: 'wp-graphql-ide / WP 6.8 / PHP 8.3'
+            php: '8.3'
+            wp: '6.8'
+            theme: twentytwentyfive
+            multisite: false
+            coverage: false
+          # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement)
+          - name: 'wp-graphql-ide / WP 6.1 / PHP 7.4'
+            php: '7.4'
+            wp: '6.1'
+            theme: twentytwentyone
+            multisite: false
+            coverage: false
+          # Experimental: WordPress trunk (allowed to fail)
           - name: 'wp-graphql-ide / WP trunk / PHP 8.4'
             php: '8.4'
             wp: trunk
             theme: twentytwentyfive
             multisite: false
-            coverage: true
-          - name: 'wp-graphql-ide / WP trunk / PHP 7.4'
-            php: '7.4'
-            wp: trunk
-            theme: twentytwentyone
-            multisite: false
             coverage: false
+            experimental: true
     uses: ./.github/workflows/integration-tests-reusable.yml
     secrets: inherit
     with:
