@@ -347,6 +347,17 @@ jobs:
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
+      # `bin/setup-wp-env.sh` deactivates wp-graphql-ide on the `tests-cli`
+      # env so other plugins' acceptance/functional suites don't see the
+      # IDE's admin chrome. When THIS run is the IDE's own wpunit suite,
+      # re-activate it here — SmartCacheBridge needs to be loaded so the
+      # filter that adds `show_in_rest` to `graphql_document` is in place
+      # before Smart Cache's `init` callback registers the post type.
+      - name: Re-activate IDE for its own wpunit suite
+        if: inputs.plugin_name == 'wp-graphql-ide'
+        run: |
+          npm run wp-env -- run tests-cli -- wp plugin activate wp-graphql-ide
+
       - name: Run WPUnit Tests
         env:
           MULTISITE: ${{ inputs.multisite && 'true' || '' }}
