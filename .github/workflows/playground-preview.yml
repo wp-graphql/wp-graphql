@@ -1,22 +1,24 @@
 name: Playground Preview
 
-# Builds the IDE plugin from the PR commit, uploads the ZIP as a
-# workflow artifact, and posts (or updates) a sticky PR comment with a
-# WordPress Playground link that boots a fresh WP, installs the plugin,
-# and drops the reviewer at the IDE.
-#
-# The comment edits in place across pushes — no spam, always points at
-# the latest commit.
+# Builds the IDE plugin from the PR commit and uploads the ZIP as a
+# workflow artifact, plus a tiny metadata file with the PR number and
+# head SHA. The sticky preview comment is posted by a sibling workflow
+# (`playground-preview-comment.yml`) triggered on `workflow_run` so it
+# runs in the base repo context — required to comment on PRs from
+# forks, where `pull_request`'s `GITHUB_TOKEN` is read-only by design.
 
 on:
   pull_request:
     paths:
       - 'plugins/wp-graphql-ide/**'
       - '.github/workflows/playground-preview.yml'
+      - '.github/workflows/playground-preview-comment.yml'
 
+# No pull-requests:write here — fork PRs would silently get it
+# downgraded to read anyway, and the actual commenting happens in the
+# sibling workflow on workflow_run.
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   preview:
@@ -54,36 +56,21 @@ jobs:
           path: plugins/wp-graphql-ide/wp-graphql-ide.zip
           if-no-files-found: error
 
-      # Build the Playground URL with a base64-encoded blueprint inline
-      # in the URL fragment. nightly.link proxies the workflow artifact
-      # to a public URL Playground can fetch — no extra hosting infra.
-      - id: url
-        env:
-          REPO: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
+      # Stash the PR number + head SHA in a separate artifact so the
+      # sibling workflow_run-triggered workflow can build a comment
+      # targeted at the right PR without a GitHub API lookup. The
+      # workflow_run event exposes `head_sha` but not the PR number,
+      # so this is the easiest reliable handoff.
+      - name: Save PR metadata
         run: |
-          BLUEPRINT=$(cat <<JSON
+          mkdir -p pr-meta
           {
-            "preferredVersions": { "php": "8.3", "wp": "latest" },
-            "features": { "networking": true },
-            "login": true,
-            "landingPage": "/wp-admin/admin.php?page=graphql-ide",
-            "steps": [
-              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://downloads.wordpress.org/plugin/wp-graphql.latest-stable.zip" }, "options": { "activate": true } },
-              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" }, "options": { "activate": true } }
-            ]
-          }
-          JSON
-          )
-          ENCODED=$(printf '%s' "$BLUEPRINT" | base64 -w0)
-          echo "url=https://playground.wordpress.net/#${ENCODED}" >> "$GITHUB_OUTPUT"
+            echo "PR_NUMBER=${{ github.event.pull_request.number }}"
+            echo "HEAD_SHA=${{ github.event.pull_request.head.sha }}"
+          } > pr-meta/pr-meta.env
 
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - uses: actions/upload-artifact@v4
         with:
-          header: playground-preview
-          message: |
-            ## ▶ Preview in WordPress Playground
-
-            **[Open this PR in Playground](${{ steps.url.outputs.url }})** — boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE.
-
-            <sub>Built from `${{ github.event.pull_request.head.sha }}`. Auto-updates when you push.</sub>
+          name: pr-meta
+          path: pr-meta/pr-meta.env
+          if-no-files-found: error
