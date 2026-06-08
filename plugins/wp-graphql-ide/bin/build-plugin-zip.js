@@ -33,40 +33,40 @@
  * dependency tree, which is already a devDep of this workspace — no new
  * deps to declare.
  */
-const AdmZip = require( 'adm-zip' );
-const { sync: packlist } = require( 'npm-packlist' );
-const path = require( 'path' );
-const fs = require( 'fs' );
+const AdmZip = require('adm-zip');
+const { sync: packlist } = require('npm-packlist');
+const path = require('path');
+const fs = require('fs');
 
 const SLUG = 'wp-graphql-ide';
-const OUTPUT = path.join( process.cwd(), `${ SLUG }.zip` );
+const OUTPUT = path.join(process.cwd(), `${SLUG}.zip`);
 
-process.stdout.write( `Creating ${ SLUG }.zip with top-level \`${ SLUG }/\`…\n\n` );
+process.stdout.write(`Creating ${SLUG}.zip with top-level \`${SLUG}/\`…\n\n`);
 
 // Remove the previous archive and the scoped-name directory
 // `wp-scripts plugin-zip` would have left behind on prior runs, so
 // repeated builds don't accumulate or pick up stale state.
-if ( fs.existsSync( OUTPUT ) ) {
-	fs.rmSync( OUTPUT );
+if (fs.existsSync(OUTPUT)) {
+	fs.rmSync(OUTPUT);
 }
-fs.rmSync( path.join( process.cwd(), '@wpgraphql' ), {
+fs.rmSync(path.join(process.cwd(), '@wpgraphql'), {
 	recursive: true,
 	force: true,
-} );
+});
 
 const files = packlist();
 const zip = new AdmZip();
 
-for ( const file of files ) {
-	process.stdout.write( `  Adding \`${ SLUG }/${ file }\`.\n` );
+for (const file of files) {
+	process.stdout.write(`  Adding \`${SLUG}/${file}\`.\n`);
 	// adm-zip's second arg is the directory inside the ZIP. Prefix
 	// each file's source dir with the slug so we get
 	// `wp-graphql-ide/build/wpgraphql-ide.js` inside the archive
 	// rather than the flat `build/wpgraphql-ide.js` that `wp-scripts
 	// plugin-zip` produces.
-	const zipDir = path.posix.join( SLUG, path.posix.dirname( file ) );
-	zip.addLocalFile( file, zipDir === SLUG + '/.' ? SLUG : zipDir );
+	const zipDir = path.posix.join(SLUG, path.posix.dirname(file));
+	zip.addLocalFile(file, zipDir === SLUG + '/.' ? SLUG : zipDir);
 }
 
-zip.writeZip( OUTPUT );
-process.stdout.write( `\nDone. ${ SLUG }.zip is ready! 🎉\n` );
+zip.writeZip(OUTPUT);
+process.stdout.write(`\nDone. ${SLUG}.zip is ready! 🎉\n`);
