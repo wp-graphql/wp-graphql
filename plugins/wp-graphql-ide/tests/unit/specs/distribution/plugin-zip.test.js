@@ -115,9 +115,7 @@ describe('Distribution ZIP', () => {
 		// more brittle than just naming the canonical entrypoints.
 		expect(entries).toContain(`${SLUG}/build/wpgraphql-ide.js`);
 		expect(entries).toContain(`${SLUG}/build/wpgraphql-ide.asset.php`);
-		expect(entries).toContain(
-			`${SLUG}/build/wpgraphql-ide-render.js`
-		);
+		expect(entries).toContain(`${SLUG}/build/wpgraphql-ide-render.js`);
 		expect(entries).toContain(
 			`${SLUG}/build/wpgraphql-ide-render.asset.php`
 		);
