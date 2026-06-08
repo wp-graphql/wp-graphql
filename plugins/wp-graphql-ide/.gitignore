@@ -66,5 +66,6 @@ wp-graphql-ide.zip
 /blob-report/
 /playwright/.cache/
 /@wpgraphql/
+.playground-artifact/
 
 **/package-lock.json
