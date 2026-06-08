@@ -35,6 +35,19 @@ jobs:
 
       - run: npm run -w @wpgraphql/wp-graphql-ide build
 
+      # Smoke-test the built ZIP before we hand it to Playground.
+      # Catches the regression where `package.json`'s `files` list
+      # drifts out of sync with the entry file's `require_once`
+      # graph — that's the bug that surfaced in Playground as a
+      # silent `PHP.run() failed with exit code 255` (the fatal
+      # happened before any output buffer could flush). Cheap; just
+      # parses the entry file and asserts each required path is in
+      # the archive.
+      - name: Verify plugin ZIP contents
+        run: |
+          npm run -w @wpgraphql/wp-graphql-ide test:unit -- \
+            tests/unit/specs/distribution/plugin-zip.test.js
+
       # `actions/upload-artifact` wraps whatever it's given in a ZIP
       # automatically (that wrapper ZIP is what the user — or Playground
       # via nightly.link — downloads). Uploading our built
