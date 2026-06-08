@@ -35,24 +35,16 @@ jobs:
 
       - run: npm run -w @wpgraphql/wp-graphql-ide build
 
-      # `wp-scripts plugin-zip` uses the npm package name as the filename,
-      # which for a scoped package (`@wpgraphql/wp-graphql-ide`) lands as
-      # `@wpgraphql/wp-graphql-ide.zip` — the `@wpgraphql/` becomes a real
-      # subdirectory. Rename to a stable, predictable filename for the
-      # nightly.link URL the comment references.
-      - name: Normalize ZIP filename
-        run: |
-          BUILT_ZIP=$(find plugins/wp-graphql-ide -maxdepth 3 -name '*.zip' -not -path '*/node_modules/*' | head -1)
-          if [ -z "$BUILT_ZIP" ]; then
-            echo "::error::No plugin ZIP found after build"
-            exit 1
-          fi
-          mv "$BUILT_ZIP" plugins/wp-graphql-ide/wp-graphql-ide.zip
-          ls -la plugins/wp-graphql-ide/wp-graphql-ide.zip
-
       - uses: actions/upload-artifact@v4
         with:
           name: wp-graphql-ide
+          # The IDE's `build:zip` (bin/build-plugin-zip.js) writes a
+          # properly-structured archive — `wp-graphql-ide.zip` at the
+          # plugin root, with everything inside under a single
+          # `wp-graphql-ide/` top-level directory. That's what
+          # WordPress, wp.org's installer, and Playground's
+          # `installPlugin` step all expect; no rename or repack
+          # needed here.
           path: plugins/wp-graphql-ide/wp-graphql-ide.zip
           if-no-files-found: error
 

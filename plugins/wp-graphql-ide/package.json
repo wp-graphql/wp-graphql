@@ -21,7 +21,7 @@
 	"scripts": {
 		"build": "npm run build:main && npm run build:zip",
 		"build:main": "wp-scripts build",
-		"build:zip": "wp-scripts plugin-zip",
+		"build:zip": "node bin/build-plugin-zip.js",
 		"check-engines": "wp-scripts check-engines",
 		"clean": "rimraf node_modules plugins/*/node_modules plugins/*/build build",
 		"format": "wp-scripts format",
