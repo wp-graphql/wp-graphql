@@ -9,6 +9,7 @@
 	},
 	"files": [
 		"build",
+		"includes",
 		"package.json",
 		"plugins/*/*.php",
 		"plugins/*/build",
