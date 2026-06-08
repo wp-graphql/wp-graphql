@@ -43,42 +43,19 @@ jobs:
         id: meta
         run: |
           set -euo pipefail
-          # The metadata file is two KEY=VALUE lines from the sibling
-          # workflow; source it into the env-file format GitHub Actions
-          # outputs use. Validating both keys are present catches a
-          # mismatch with the producer side instead of silently posting
-          # a comment on PR #0.
+          # The metadata file is KEY=VALUE lines from the sibling
+          # workflow; source it and surface the values as step outputs.
+          # Validating each key is present catches a mismatch with the
+          # producer side instead of silently posting a comment on
+          # PR #0 or with an empty link.
           # shellcheck disable=SC1091
           source pr-meta.env
           : "${PR_NUMBER:?PR_NUMBER missing from pr-meta artifact}"
           : "${HEAD_SHA:?HEAD_SHA missing from pr-meta artifact}"
+          : "${PLAYGROUND_URL:?PLAYGROUND_URL missing from pr-meta artifact}"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
-
-      # Build the Playground URL with a base64-encoded blueprint inline
-      # in the URL fragment. nightly.link proxies the workflow artifact
-      # (uploaded by playground-preview.yml under the same run_id) to a
-      # public URL Playground can fetch — no extra hosting infra.
-      - id: url
-        env:
-          REPO: ${{ github.repository }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
-        run: |
-          BLUEPRINT=$(cat <<JSON
-          {
-            "preferredVersions": { "php": "8.3", "wp": "latest" },
-            "features": { "networking": true },
-            "login": true,
-            "landingPage": "/wp-admin/admin.php?page=graphql-ide",
-            "steps": [
-              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://downloads.wordpress.org/plugin/wp-graphql.latest-stable.zip" }, "options": { "activate": true } },
-              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" }, "options": { "activate": true } }
-            ]
-          }
-          JSON
-          )
-          ENCODED=$(printf '%s' "$BLUEPRINT" | base64 -w0)
-          echo "url=https://playground.wordpress.net/#${ENCODED}" >> "$GITHUB_OUTPUT"
+          echo "playground_url=$PLAYGROUND_URL" >> "$GITHUB_OUTPUT"
 
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -87,6 +64,8 @@ jobs:
           message: |
             ## ▶ Preview in WordPress Playground
 
-            **[Open this PR in Playground](${{ steps.url.outputs.url }})** — boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE.
+            [![Open in WordPress Playground](https://img.shields.io/badge/Open%20in-WordPress%20Playground-3858E9?logo=wordpress&logoColor=white)](${{ steps.meta.outputs.playground_url }})
+
+            Boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE.
 
             <sub>Built from `${{ steps.meta.outputs.head_sha }}`. Auto-updates when you push.</sub>

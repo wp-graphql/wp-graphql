@@ -56,17 +56,74 @@ jobs:
           path: plugins/wp-graphql-ide/wp-graphql-ide.zip
           if-no-files-found: error
 
-      # Stash the PR number + head SHA in a separate artifact so the
-      # sibling workflow_run-triggered workflow can build a comment
-      # targeted at the right PR without a GitHub API lookup. The
-      # workflow_run event exposes `head_sha` but not the PR number,
-      # so this is the easiest reliable handoff.
+      # Build the Playground URL once, here. Both surfaces — the step
+      # summary on this run and the sticky PR comment on the sibling
+      # workflow_run workflow — read the same URL from the pr-meta
+      # artifact so the blueprint lives in exactly one place.
+      #
+      # nightly.link proxies the workflow artifact (same run_id) to a
+      # public URL Playground can fetch — no extra hosting infra.
+      - id: playground
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          BLUEPRINT=$(cat <<JSON
+          {
+            "preferredVersions": { "php": "8.3", "wp": "latest" },
+            "features": { "networking": true },
+            "login": true,
+            "landingPage": "/wp-admin/admin.php?page=graphql-ide",
+            "steps": [
+              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://downloads.wordpress.org/plugin/wp-graphql.latest-stable.zip" }, "options": { "activate": true } },
+              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" }, "options": { "activate": true } }
+            ]
+          }
+          JSON
+          )
+          ENCODED=$(printf '%s' "$BLUEPRINT" | base64 -w0)
+          echo "url=https://playground.wordpress.net/#${ENCODED}" >> "$GITHUB_OUTPUT"
+          echo "artifact_url=https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" >> "$GITHUB_OUTPUT"
+
+      # Step summary surfaces the link on the workflow run page itself —
+      # works on fork PRs (no write permission needed) and gives a
+      # touchpoint even before the sticky comment workflow lands.
+      # Follows the WordPress Playground "Open in Playground" badge
+      # convention (shields.io badge → playground.wordpress.net#blueprint).
+      - name: Write Playground link to step summary
+        env:
+          URL: ${{ steps.playground.outputs.url }}
+          ARTIFACT_URL: ${{ steps.playground.outputs.artifact_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          {
+            echo "## ▶ Preview in WordPress Playground"
+            echo
+            echo "[![Open in WordPress Playground](https://img.shields.io/badge/Open%20in-WordPress%20Playground-3858E9?logo=wordpress&logoColor=white)](${URL})"
+            echo
+            echo "Boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE."
+            echo
+            echo "<sub>Built from \`${HEAD_SHA}\` · Artifact: [\`wp-graphql-ide.zip\`](${ARTIFACT_URL})</sub>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Stash the PR number, head SHA, and the assembled Playground URL
+      # in an artifact so the sibling workflow_run-triggered workflow
+      # can post/update the sticky comment without rebuilding the URL
+      # or doing a GitHub API lookup. The workflow_run event exposes
+      # `head_sha` but not the PR number, so this is the reliable
+      # handoff path.
       - name: Save PR metadata
+        env:
+          URL: ${{ steps.playground.outputs.url }}
         run: |
           mkdir -p pr-meta
           {
             echo "PR_NUMBER=${{ github.event.pull_request.number }}"
             echo "HEAD_SHA=${{ github.event.pull_request.head.sha }}"
+            # Single-quote the URL — the base64 blueprint includes `=`
+            # padding and the fragment marker `#`, both of which need
+            # to survive `source pr-meta.env` in the comment workflow.
+            echo "PLAYGROUND_URL='${URL}'"
           } > pr-meta/pr-meta.env
 
       - uses: actions/upload-artifact@v4
