@@ -53,7 +53,7 @@ jobs:
       - name: Stage plugin contents for artifact upload
         run: |
           set -euo pipefail
-          STAGING=plugins/wp-graphql-ide/.playground-artifact
+          STAGING=plugins/wp-graphql-ide/playground-artifact
           rm -rf "$STAGING"
           mkdir -p "$STAGING"
           unzip -q plugins/wp-graphql-ide/wp-graphql-ide.zip -d "$STAGING"
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: wp-graphql-ide
-          path: plugins/wp-graphql-ide/.playground-artifact/
+          path: plugins/wp-graphql-ide/playground-artifact/
           if-no-files-found: error
 
       # Build the Playground URL once, here. Both surfaces — the step
