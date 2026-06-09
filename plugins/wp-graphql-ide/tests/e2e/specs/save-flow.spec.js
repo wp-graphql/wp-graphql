@@ -31,6 +31,22 @@ test.describe('Save flow', () => {
 		await expect(page.getByLabel('Document name')).toBeVisible();
 	});
 
+	test('SaveDialog prefills the Document name from the operation', async ({
+		page,
+	}) => {
+		// First-save should seed the name field from the operation name,
+		// matching the tab title — not open blank.
+		await page.click(selectors.addTab);
+		await typeQuery(page, 'query GetPosts { posts { nodes { id } } }');
+		await page.getByRole('button', { name: 'Save draft' }).click();
+
+		const dialog = page.locator('.wpgraphql-ide-save-dialog');
+		await expect(dialog).toBeVisible({ timeout: 5000 });
+		await expect(dialog.getByLabel('Document name')).toHaveValue(
+			'GetPosts'
+		);
+	});
+
 	test('SaveDialog closes on Escape without saving', async ({ page }) => {
 		await page.click(selectors.addTab);
 		await typeQuery(page, '{ posts { nodes { id } } }');
