@@ -3,6 +3,11 @@
 ## [2.15.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.0...wp-graphql/v2.15.1) (2026-06-09)
 
 
+### Security
+
+* prevent user enumeration via the deprecated `SendPasswordResetEmailPayload.user` field. The field could reveal whether a username/email belonged to a registered account (and expose author-class user data) to unauthenticated requests; it is now gated on the `list_users` capability. See [GHSA-jhh7-832h-f8hv](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-jhh7-832h-f8hv)
+
+
 ### Bug Fixes
 
 * **ci:** deploy WordPress.org assets via ASSETS_DIR + dedicated asset-update workflow ([#3880](https://github.com/wp-graphql/wp-graphql/issues/3880)) ([5f301b1](https://github.com/wp-graphql/wp-graphql/commit/5f301b16bf9e3c36d145d33ba568876f27884e17))

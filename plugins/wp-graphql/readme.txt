@@ -78,6 +78,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.15.1 =
+
+**Security release.** Fixes a user-enumeration issue in the `sendPasswordResetEmail` mutation via the deprecated `user` payload field. Updating is recommended. See GHSA-jhh7-832h-f8hv.
+
 = 2.6.0 =
 
 **New Features**
@@ -307,6 +311,10 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 == Changelog ==
 
 = 2.15.1 =
+
+**Security**
+
+* prevent user enumeration via the deprecated `SendPasswordResetEmailPayload.user` field; it is now gated on the `list_users` capability. See [GHSA-jhh7-832h-f8hv](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-jhh7-832h-f8hv)
 
 **Bug Fixes**
 
