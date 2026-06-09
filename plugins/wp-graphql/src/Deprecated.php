@@ -111,7 +111,6 @@ final class Deprecated {
 
 		$this->graphql_post_types();
 		$this->menu_item_connected_object();
-		$this->send_password_reset_email_user();
 	}
 
 	/**
@@ -422,30 +421,6 @@ final class Deprecated {
 					return $resolver->one_to_one()->get_connection();
 				},
 			]
-		);
-	}
-
-	/**
-	 * SendPasswordResetEmail.user output field\
-	 *
-	 * @todo remove in 3.0.0
-	 */
-	public function send_password_reset_email_user(): void {
-		register_graphql_field(
-			'SendPasswordResetEmailPayload',
-			'user',
-			[
-				'type'              => 'User',
-				'description'       => static function () {
-					return __( 'The user that the password reset email was sent to', 'wp-graphql' );
-				},
-				'deprecationReason' => static function () {
-					return __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' );
-				},
-				'resolve'           => static function ( $payload, $args, AppContext $context ) {
-					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
-				},
-			],
 		);
 	}
 }

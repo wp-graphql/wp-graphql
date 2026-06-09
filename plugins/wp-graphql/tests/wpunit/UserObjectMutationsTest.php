@@ -1052,9 +1052,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$query = '
 		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
 			sendPasswordResetEmail( input: $input ) {
-				user {
-					databaseId
-				}
 				success
 			}
 		}
@@ -1078,7 +1075,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
-		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 	}
 
 	public function testSendPasswordResetEmailWithUsername() {
@@ -1093,7 +1089,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEmpty( $actual['extensions']['debug'] );
-		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
 		// Test when user has permissions
 		wp_set_current_user( $this->admin );
@@ -1101,8 +1096,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
-		// @todo deprecate.
-		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
 	public function testSendPasswordResetEmailWithEmail() {
@@ -1117,7 +1110,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEmpty( $actual['extensions']['debug'] );
-		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
 		// Test when user has permissions
 		wp_set_current_user( $this->admin );
@@ -1125,8 +1117,38 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = $this->sendPasswordResetEmailMutation( $email );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
-		// @todo deprecate.
-		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
+	}
+
+	/**
+	 * The deprecated `user` field on SendPasswordResetEmailPayload was removed in 3.0.0. Selecting
+	 * it must now be a schema validation error rather than resolving (it previously leaked user
+	 * existence to unauthenticated callers). This guards against the field being reintroduced.
+	 */
+	public function testSendPasswordResetEmailUserFieldIsRemoved() {
+		$query = '
+		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
+			sendPasswordResetEmail( input: $input ) {
+				user {
+					databaseId
+				}
+				success
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'username' => 'someUser',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual, 'Selecting the removed user field must produce a validation error.' );
+		$this->assertStringContainsString( 'user', $actual['errors'][0]['message'] );
 	}
 
 	public function testSendPasswordResetEmailActivationKeyWithUsername() {

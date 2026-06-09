@@ -182,15 +182,16 @@ mutation {
   sendPasswordResetEmail(input: {
     username: \"your_username\"
   }) {
-    user {
-      id
-      email
-    }
+    success
   }
 }
 ```
 
 This mutation could be used to create an interface like the Reset Password screen in WordPress.
+
+> **Note:** `sendPasswordResetEmail` intentionally always returns `success: true`, whether or not the
+> supplied username/email matches a real account. This prevents the mutation from being used to
+> enumerate which usernames or email addresses are registered, so the payload only exposes `success`.
 
 ![Screenshot of the WordPress "reset password" screen](./images/users-wordpress-reset-password.png)
 
