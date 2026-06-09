@@ -58,13 +58,23 @@ export function useAutoSave({
 				return;
 			}
 			const payload = { [field]: value };
-			if (field === 'query' && isAutoTitle(activeDocument.title)) {
+			// Skip sticky-title persist for temp drafts — they save
+			// per-keystroke, so persisting here would freeze the
+			// title at the first incomplete name (`query G {` locks
+			// at "G"). IDELayout already renders the live derivation
+			// for unsaved drafts.
+			const isTempDraft = String(activeDocument.id).startsWith('temp-');
+			if (
+				field === 'query' &&
+				!isTempDraft &&
+				isAutoTitle(activeDocument.title)
+			) {
 				const stable = deriveStableDocTitle(value);
 				if (stable) {
 					payload.title = stable;
 				}
 			}
-			if (String(activeDocument.id).startsWith('temp-')) {
+			if (isTempDraft) {
 				saveDocument(activeDocument.id, payload);
 				return;
 			}
