@@ -58,15 +58,26 @@ export function useAutoSave({
 				return;
 			}
 			const payload = { [field]: value };
+			// Temp drafts are local-only and fire synchronously on every
+			// keystroke — there's no debounce to let the op name settle.
+			// Persisting a derived title here froze it on the first character
+			// whenever a body brace already followed the name (an autoclosed
+			// `{}`, or the body typed before the name), which is how tabs
+			// ended up titled "G" instead of "GetPosts". Skip it: while the
+			// title is auto the tab derives live from the query (see
+			// displayDocTitle), and the first explicit save sets a real one.
+			if (String(activeDocument.id).startsWith('temp-')) {
+				saveDocument(activeDocument.id, payload);
+				return;
+			}
+			// Real docs save on a 2s debounce, so by the time this fires the
+			// op name has settled — freeze the derived name so an auto-titled
+			// doc round-trips as e.g. "GetPosts" rather than "Untitled".
 			if (field === 'query' && isAutoTitle(activeDocument.title)) {
 				const stable = deriveStableDocTitle(value);
 				if (stable) {
 					payload.title = stable;
 				}
-			}
-			if (String(activeDocument.id).startsWith('temp-')) {
-				saveDocument(activeDocument.id, payload);
-				return;
 			}
 			debouncedSave(activeDocument.id, payload);
 		},

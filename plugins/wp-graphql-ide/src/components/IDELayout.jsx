@@ -1211,7 +1211,15 @@ export function IDELayout({ fetcher, onClose }) {
 					defaultTitle={
 						saveDialogMode === 'rename'
 							? activeDocument.title || ''
-							: ''
+							: // Prefill the first-save name from the operation,
+								// matching the tab title. deriveDocTitle returns
+								// the 'Untitled' sentinel for empty/unparseable
+								// queries — leave the field blank then so the
+								// placeholder shows instead of "Untitled".
+								(() => {
+									const derived = deriveDocTitle(query);
+									return isAutoTitle(derived) ? '' : derived;
+								})()
 					}
 					defaultCollectionIds={
 						saveDialogMode === 'rename' &&

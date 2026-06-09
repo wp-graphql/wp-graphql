@@ -42,6 +42,8 @@ Thank you for your interest in contributing to WPGraphQL! This guide covers how 
 
 **Breaking Change Marker (`!`)**: The `!` suffix can only be used with `feat`, `fix`, or `perf` prefixes. Using `!` with other prefixes (like `chore!:` or `ci!:`) will fail CI validation since those types don't trigger releases.
 
+> **⚠️ Breaking changes target the `next` branch, not `main`.** `main` is the current stable (2.x) release line — a breaking change merged there would force its next release to be a major. Breaking changes for the next major (e.g. 3.0) are collected on the long-lived **`next`** branch, which cuts release candidates. Open `feat!:` / `fix!:` / `perf!:` PRs against `next`.
+
 **Examples:**
 - `feat: add support for custom post type archives`
 - `fix: resolve N+1 query issue in connections`

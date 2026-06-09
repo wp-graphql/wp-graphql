@@ -37,7 +37,7 @@
     "clsx": "^2.1.1",
     "cross-fetch": "^4.1.0",
     "feed": "^4.2.2",
-    "graphql": "^16.14.0",
+    "graphql": "^16.14.1",
     "graphql-tag": "^2.12.6",
     "http-status-codes": "^2.2.0",
     "lucide-react": "^1.16.0",
