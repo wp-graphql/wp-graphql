@@ -65,6 +65,10 @@ The following are handled automatically by our CI/CD workflows. **Please do not 
 | Changelog entries | `CHANGELOG.md` | release-please |
 | **Upgrade Notice** | `readme.txt` | `update-release-pr.yml` workflow |
 
+### Breaking changes target the `next` branch
+
+`main` is the current stable (2.x) release line. Breaking changes (`feat!:` / `fix!:` / `perf!:`) for the next major (e.g. 3.0) are collected on the long-lived **`next`** branch — which cuts release candidates — **not `main`**, where they would force the next release to be a major. Open breaking-change PRs against `next`. See the [full Contributing guide](../docs/CONTRIBUTING.md#1-pr-titles-and-conventional-commits).
+
 ### Breaking Changes & Upgrade Notices
 
 When a release contains breaking changes (commits with `feat!:`, `fix!:`, or `perf!:` prefix):
