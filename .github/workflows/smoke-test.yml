@@ -31,11 +31,13 @@ on:
     branches:
       - main
       - release/*
+      - next
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
       - main
       - release/*
+      - next
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}

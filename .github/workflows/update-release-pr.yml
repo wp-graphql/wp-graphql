@@ -22,6 +22,7 @@ on:
     types: [opened, synchronize]
     branches:
       - main
+      - next
 
 permissions:
   contents: write

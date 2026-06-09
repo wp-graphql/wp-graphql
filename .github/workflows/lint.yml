@@ -5,11 +5,13 @@ on:
     branches:
       - main
       - release/*
+      - next
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
       - main
       - release/*
+      - next
 
 # Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
