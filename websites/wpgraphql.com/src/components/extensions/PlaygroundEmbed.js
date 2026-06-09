@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button"
 import { SectionHeading as BaseSectionHeading } from "@/components/extensions/SectionHeading"
 import { WPGraphQLIDELogoMark } from "@/components/IDE/WPGraphQLIDELogo"
 
-// Mirror of the blueprint in .github/workflows/playground-preview.yml — same
-// PHP/WP versions, same landing page — but installs the stable IDE build from
-// wordpress.org instead of a per-PR nightly.link artifact. Keeping the two in
-// the same shape means visitors and PR reviewers see the same demo flow.
+// Blueprint mirrors the one in .github/workflows/playground-preview.yml so the
+// public demo and the PR-preview demo share install steps. login / landingPage
+// / networking are also set here, but the surrounding query string (`url=`,
+// `login=yes`, `networking=yes`) takes precedence — that's the documented
+// override path and is more reliable when plugins redirect on activation.
+// Only the IDE source URL differs from the GH version (wp.org stable here,
+// per-PR nightly.link artifact there).
 const BLUEPRINT = {
   preferredVersions: { php: "8.3", wp: "latest" },
   features: { networking: true },
@@ -32,6 +35,23 @@ const BLUEPRINT = {
     },
   ],
 }
+
+// mode=seamless          → hides Playground's own browser chrome (address bar,
+//                          left toolbar) so the embed is just WordPress.
+// storage=temp           → no persistence across sessions; every visitor gets a
+//                          fresh install. Right call for a "try it" demo.
+// networking=yes         → required to fetch the plugin zips at boot.
+// login=yes              → auto-login as admin so the IDE is reachable.
+// url=…                  → overrides the blueprint's landingPage; first-party
+//                          plugin activation redirects (wp-graphql's settings
+//                          tour) can otherwise win the race.
+const PLAYGROUND_QS = new URLSearchParams({
+  mode: "seamless",
+  storage: "temp",
+  networking: "yes",
+  login: "yes",
+  url: "/wp-admin/admin.php?page=graphql-ide",
+}).toString()
 
 function SectionHeading(props) {
   return <BaseSectionHeading icon={CommandLineIcon} {...props} />
@@ -87,7 +107,7 @@ function Placeholder({ onLaunch }) {
 function LiveEmbed() {
   // Playground reads the blueprint from the URL fragment as base64-encoded JSON
   // — same convention as the GH workflow's sticky preview link.
-  const url = `https://playground.wordpress.net/#${btoa(JSON.stringify(BLUEPRINT))}`
+  const url = `https://playground.wordpress.net/?${PLAYGROUND_QS}#${btoa(JSON.stringify(BLUEPRINT))}`
   return (
     <div className="ide-border overflow-hidden rounded-2xl border shadow-elev-md">
       <iframe
@@ -95,7 +115,7 @@ function LiveEmbed() {
         title="WPGraphQL IDE — live demo running in WordPress Playground"
         loading="lazy"
         allow="clipboard-write"
-        className="block aspect-[16/10] min-h-[640px] w-full border-0 bg-card"
+        className="block aspect-[16/10] min-h-[760px] w-full border-0 bg-card"
       />
     </div>
   )
