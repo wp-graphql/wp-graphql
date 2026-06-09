@@ -60,10 +60,12 @@ artifacts
 build/
 wpgraphql-ide/
 wpgraphql-ide.zip
+wp-graphql-ide.zip
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /@wpgraphql/
+playground-artifact/
 
 **/package-lock.json

@@ -1,0 +1,109 @@
+import {
+	loginToWordPressAdmin,
+	visitDedicatedIde,
+	ensureDocumentOpen,
+	typeQuery,
+	selectors,
+} from '../utils.js';
+
+const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
+
+const countTabs = (page) => page.locator(selectors.tab).count();
+
+test.describe('Tab management', () => {
+	test.beforeEach(async ({ page }) => {
+		await loginToWordPressAdmin(page);
+		await visitDedicatedIde(page);
+		await ensureDocumentOpen(page);
+	});
+
+	test('closing a tab removes it from the strip and leaves the next tab active', async ({
+		page,
+	}) => {
+		// Stamp each tab's content so we can assert which one stayed.
+		const stampA = `a-${Date.now()}`;
+		const stampB = `b-${Date.now()}`;
+		await page.click(selectors.addTab);
+		await typeQuery(
+			page,
+			`{ posts(where: {search: "${stampA}"}) { nodes { id } } }`
+		);
+		await page.click(selectors.addTab);
+		await typeQuery(
+			page,
+			`{ posts(where: {search: "${stampB}"}) { nodes { id } } }`
+		);
+
+		const tabsBefore = await countTabs(page);
+		expect(tabsBefore).toBeGreaterThanOrEqual(2);
+
+		// Close the active tab — the close affordance is a `<span>` with
+		// aria-label `Close <title>`. Title for an anonymous shorthand
+		// query defaults to the first field (`posts`).
+		const activeCloser = page
+			.locator(`${selectors.tab}.is-active`)
+			.getByLabel(/^Close /);
+		await activeCloser.click();
+
+		await expect(page.locator(selectors.tab)).toHaveCount(tabsBefore - 1);
+		// Active tab is still some tab (didn't leave us with no active).
+		await expect(page.locator(`${selectors.tab}.is-active`)).toHaveCount(1);
+	});
+
+	test('tab title tracks the full operation name when a body brace precedes the name', async ({
+		page,
+	}) => {
+		// Regression: the tab froze to the first character of the op name
+		// (e.g. "G" instead of "GetPosts") whenever a body brace already
+		// followed the name being typed. Reproduce that exact condition by
+		// putting the `{` in place first, then typing the name in front of
+		// it one character at a time.
+		await page.click(selectors.addTab);
+		// Seed `query ` then drop the body opener; one ArrowLeft lands the
+		// caret before the `{` (works whether or not autoclose adds a `}`).
+		await typeQuery(page, 'query ');
+		await page.keyboard.type('{');
+		await page.keyboard.press('ArrowLeft');
+		await page.keyboard.type('GetPosts');
+
+		const activeTitle = page
+			.locator(`${selectors.tab}.is-active .wpgraphql-ide-tab-text`)
+			.first();
+		await expect(activeTitle).toHaveText('GetPosts', { timeout: 5000 });
+	});
+
+	test('open tabs persist across a full page reload', async ({ page }) => {
+		const stamp = Date.now();
+		const body = `{ posts(where: {search: "persist-${stamp}"}) { nodes { id } } }`;
+		await page.click(selectors.addTab);
+		await typeQuery(page, body);
+
+		const countBefore = await countTabs(page);
+		await page.reload({ waitUntil: 'domcontentloaded' });
+		await page.waitForSelector(selectors.tabRow, {
+			state: 'visible',
+			timeout: 10000,
+		});
+
+		// Same number of tabs after reload (unsaved-tabs storage hydrates
+		// from localStorage on mount).
+		await expect(page.locator(selectors.tab)).toHaveCount(countBefore);
+		// The body we typed is still in some tab's content. Click each
+		// tab until the editor shows our marker, then assert.
+		const tabs = page.locator(selectors.tab);
+		const total = await tabs.count();
+		let found = false;
+		for (let i = 0; i < total; i++) {
+			await tabs.nth(i).click();
+			const editor = page
+				.locator('.wpgraphql-ide-graphql-editor .cm-content')
+				.first();
+			const text = await editor.innerText();
+			if (text.includes(`persist-${stamp}`)) {
+				found = true;
+				break;
+			}
+		}
+		expect(found).toBe(true);
+	});
+});

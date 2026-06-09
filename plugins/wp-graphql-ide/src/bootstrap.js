@@ -1,0 +1,84 @@
+/**
+ * Typed accessors for the boolean flags + `loginUrl` injected by PHP
+ * via `WPGRAPHQL_IDE_DATA`.
+ *
+ * `wp_localize_script` serializes PHP `true` as the string `"1"` and
+ * PHP `false` as `""`, so a strict `=== true` check on a checkbox flag
+ * never matches. Reading the raw object inline meant the same gotcha
+ * could be (and was) re-introduced anywhere a flag was read. Funnel
+ * every read through this module so the coercion lives in one place.
+ *
+ * Non-boolean fields (`personalCollections`, `panelOrder`, `context`,
+ * `nonce`, etc.) don't share the coercion problem and are still read
+ * inline at their consumers.
+ *
+ * Server-side fields are documented in
+ * `includes/AssetEnqueue.php::enqueue()` and
+ * `includes/public-endpoint.php::inject_public_endpoint_data()`.
+ */
+
+const data = (typeof window !== 'undefined' && window.WPGRAPHQL_IDE_DATA) || {};
+
+/** Whether the IDE is on the dedicated `?page=graphql-ide` admin page. */
+export const isDedicatedIdePage = !!data.isDedicatedIdePage;
+
+/**
+ * Whether the IDE should render full-page (no slide-up drawer). True
+ * for both the dedicated admin page and the public `/?graphql` shell.
+ */
+export const renderStandalone = !!data.renderStandalone;
+
+/**
+ * Whether the IDE is in endpoint mode — rendered at the public
+ * `/?graphql` URL for visitors who lack `manage_graphql_ide`. Hides
+ * Save / Saved Queries / Document Settings / Share / topbar actions /
+ * (when anonymous) the auth toggle. History remains available — it
+ * lives in localStorage and works for anonymous visitors too.
+ * IDE-capable admins at the same URL have this flag *false*.
+ */
+export const endpointMode = !!data.endpointMode;
+
+/** Whether the visitor is logged in to WordPress. */
+export const isUserLoggedIn = !!data.isUserLoggedIn;
+
+/**
+ * Whether the public-endpoint IDE invites anonymous visitors to sign
+ * in. Driven by the `Allow sign-in on the public IDE` setting. When
+ * false, the auth-toggle avatar is a static public-state indicator and
+ * the Saved Queries panel is hidden for anonymous visitors. History
+ * remains available regardless — it's localStorage-only. Always true
+ * on the dedicated admin page (only meaningful on endpoint renders,
+ * where the setting actually applies).
+ */
+export const allowEndpointSignIn = endpointMode
+	? !!data.allowEndpointSignIn
+	: true;
+
+/**
+ * Sign-in URL with `redirect_to` set to the current page, or empty
+ * when no sign-in affordance should render (visitor is already
+ * logged in, or the field wasn't injected).
+ */
+export const loginUrl = typeof data.loginUrl === 'string' ? data.loginUrl : '';
+
+/**
+ * Whether WPGraphQL Smart Cache is active on the site.
+ *
+ * The IDE depends on Smart Cache for everything saved-document related —
+ * the graphql_document post type, the graphql_document_group taxonomy
+ * (collections), and the validate-and-hash-on-save machinery all live in
+ * Smart Cache. When the flag is false:
+ *
+ *   - Saved Queries activity panel is hidden
+ *   - Save / Save As / Publish / Share editor actions don't register
+ *   - Document Settings drawer / Share dialog don't surface
+ *   - Personal Collections fall through (no UI to manage them)
+ *   - Import / Export route to a no-op affordance
+ *
+ * History (localStorage-only), preferences, schema introspection, and
+ * request execution keep working — the IDE is still a functional
+ * GraphQL client without Smart Cache. Server-side this is set in
+ * `includes/AssetEnqueue.php::enqueue()` via
+ * `class_exists('\\WPGraphQL\\SmartCache\\Document')`.
+ */
+export const hasSmartCache = !!data.hasSmartCache;
