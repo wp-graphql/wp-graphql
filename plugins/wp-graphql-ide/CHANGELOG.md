@@ -170,6 +170,22 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.5.0...wp-graphql-ide/v5.0.0) (2026-06-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ide:** rebuild IDE on Smart Cache primitives with WordPress components and CodeMirror 6 ([#3784](https://github.com/wp-graphql/wp-graphql/issues/3784))
+
+### New Features
+
+* **ide:** rebuild IDE on Smart Cache primitives with WordPress components and CodeMirror 6 ([#3784](https://github.com/wp-graphql/wp-graphql/issues/3784)) ([35070c8](https://github.com/wp-graphql/wp-graphql/commit/35070c826fdde48140707e09d196c04451b42c20))
+
+
+### Bug Fixes
+
+* **ide:** derive saved-document name from operation and fix frozen tab title ([#3897](https://github.com/wp-graphql/wp-graphql/issues/3897)) ([d493b52](https://github.com/wp-graphql/wp-graphql/commit/d493b52b9ddadab04688b0fe8cb4d6396e6aea99))
+
 ## [4.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.1...wp-graphql-ide/v4.5.0) (2026-06-04)
 
 
