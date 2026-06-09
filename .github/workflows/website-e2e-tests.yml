@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - release/*
+      - next
     paths:
       - 'websites/wpgraphql.com/**'
       - '.github/workflows/website-e2e-tests.yml'
@@ -14,6 +15,7 @@ on:
     branches:
       - main
       - release/*
+      - next
     paths:
       - 'websites/wpgraphql.com/**'
       - '.github/workflows/website-e2e-tests.yml'
