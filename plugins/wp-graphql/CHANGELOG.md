@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.0...wp-graphql/v2.15.1) (2026-06-09)
+
+
+### Bug Fixes
+
+* **ci:** deploy WordPress.org assets via ASSETS_DIR + dedicated asset-update workflow ([#3880](https://github.com/wp-graphql/wp-graphql/issues/3880)) ([5f301b1](https://github.com/wp-graphql/wp-graphql/commit/5f301b16bf9e3c36d145d33ba568876f27884e17))
+
 ## [2.15.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.14.1...wp-graphql/v2.15.0) (2026-06-04)
 
 
