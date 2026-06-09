@@ -1,0 +1,1695 @@
+import React, {
+	useState,
+	useMemo,
+	useEffect,
+	useCallback,
+	useRef,
+} from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import {
+	Button,
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
+	SearchControl,
+	TabPanel,
+} from '@wordpress/components';
+import {
+	Icon,
+	file,
+	moreVertical,
+	chevronDown,
+	chevronRight,
+	check,
+} from '@wordpress/icons';
+import { useSelect, useDispatch } from '@wordpress/data';
+import hooks from '../wordpress-hooks';
+import { useDialog } from './dialogs/DialogProvider';
+import { DeleteCollectionDialog } from './dialogs/DeleteCollectionDialog';
+import { ExportDialog } from './dialogs/ExportDialog';
+import { SaveDialog } from './dialogs/SaveDialog';
+import { NewCollectionDialog } from './dialogs/NewCollectionDialog';
+import { ShareCollectionDialog } from './dialogs/ShareCollectionDialog';
+import { RenameInput } from './RenameInput';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import {
+	updateDocument,
+	exportDocuments,
+	importDocuments,
+} from '../api/documents';
+import { displayDocTitle } from '../utils/derive-doc-title';
+import { isTempId } from '../utils/document-id';
+import { importResultToNotice } from '../utils/import-result-notice';
+import { isUserLoggedIn } from '../bootstrap';
+import { InlineSignInPrompt } from './InlineSignInPrompt';
+
+/**
+ * Hydrate the `collapsedSections` map from the bootstrap-localized
+ * `sectionStates` meta blob. The server stores arbitrary per-section
+ * state under each key; here we project it down to just the
+ * `collapsed` booleans this component cares about. Keys we don't
+ * recognize (or sections without a `collapsed` field) are ignored,
+ * which means the future-proof envelope can grow new fields without
+ * breaking the hydration path.
+ *
+ * @return {Object<string, boolean>} Map of section key to collapsed flag.
+ */
+function hydrateCollapsedSections() {
+	const data = window.WPGRAPHQL_IDE_DATA || {};
+	const raw = data.sectionStates || {};
+	const out = {};
+	for (const [key, state] of Object.entries(raw)) {
+		if (state && typeof state.collapsed === 'boolean') {
+			out[key] = state.collapsed;
+		}
+	}
+	return out;
+}
+
+/**
+ * Whether the current WordPress user can enumerate other users.
+ *
+ * The Sharing dialog needs to search and resolve user IDs, which the
+ * GraphQL `users` field gates on the `list_users` capability. IDE
+ * access is gated on `manage_graphql_ide`, which is a strict superset
+ * — admins have both, but a custom role granted IDE access (e.g. an
+ * author with the editor toolkit) may not. Hide the Sharing
+ * affordance entirely in that case so the dialog never opens onto a
+ * "0 users found" / silent 401 dead end.
+ */
+function userCanListUsers() {
+	const data = window.WPGRAPHQL_IDE_DATA || {};
+	return Boolean(data.capabilities && data.capabilities.listUsers);
+}
+
+/**
+ * Saved Queries panel icon for the activity bar.
+ */
+export const SavedQueriesIcon = () => <Icon icon={file} />;
+
+const PANEL_ACTION_HOOK = 'wpgraphql-ide.saved-queries.action';
+
+/**
+ * Kebab rendered in the panel header (right of the title). Bridges
+ * its menu items to the panel body via the `wpgraphql-ide.saved-queries.action`
+ * hook so the panel owns the modal/state and the header stays stateless.
+ */
+export function SavedQueriesPanelHeaderAction() {
+	const collectionCount = useSelect(
+		(select) => select('wpgraphql-ide/app').getCollections().length,
+		[]
+	);
+
+	return (
+		<DropdownMenu
+			icon={moreVertical}
+			label={__('Saved queries actions', 'wpgraphql-ide')}
+			toggleProps={{
+				size: 'small',
+				className: 'wpgraphql-ide-panel-kebab',
+			}}
+			popoverProps={{ placement: 'bottom-start' }}
+		>
+			{({ onClose: closeMenu }) => (
+				<>
+					<MenuGroup>
+						<MenuItem
+							onClick={() => {
+								closeMenu();
+								hooks.doAction(
+									PANEL_ACTION_HOOK,
+									'new-collection'
+								);
+							}}
+						>
+							{__('New collection', 'wpgraphql-ide')}
+						</MenuItem>
+					</MenuGroup>
+					<MenuGroup>
+						<MenuItem
+							onClick={() => {
+								closeMenu();
+								hooks.doAction(PANEL_ACTION_HOOK, 'import');
+							}}
+						>
+							{__('Import queries…', 'wpgraphql-ide')}
+						</MenuItem>
+						<MenuItem
+							disabled={collectionCount === 0}
+							onClick={() => {
+								closeMenu();
+								hooks.doAction(PANEL_ACTION_HOOK, 'export');
+							}}
+						>
+							{__('Export queries…', 'wpgraphql-ide')}
+						</MenuItem>
+					</MenuGroup>
+				</>
+			)}
+		</DropdownMenu>
+	);
+}
+
+// SORT_OPTIONS is computed lazily inside the component so __() runs
+// after wp.i18n is available and so the labels stay reactive to
+// locale-switching extensions if any are ever introduced.
+const getSortOptions = () => [
+	{ value: 'manual', label: __('Manual', 'wpgraphql-ide') },
+	{ value: 'title_asc', label: __('Alphabetical', 'wpgraphql-ide') },
+	{
+		value: 'modified_desc',
+		label: __('Recently modified', 'wpgraphql-ide'),
+	},
+	{ value: 'status', label: __('Status', 'wpgraphql-ide') },
+];
+
+/**
+ * Sort a list of documents according to the active sort mode.
+ *
+ * @param {Array<Object>} docs Documents to sort.
+ * @param {string}        mode Sort mode.
+ * @return {Array<Object>} A new sorted array.
+ */
+function sortDocuments(docs, mode) {
+	const out = [...docs];
+	const titleCmp = (a, b) =>
+		displayDocTitle(a).localeCompare(displayDocTitle(b), undefined, {
+			sensitivity: 'base',
+		});
+
+	switch (mode) {
+		case 'title_asc':
+			out.sort(titleCmp);
+			break;
+		case 'modified_desc':
+			out.sort((a, b) => {
+				const ta = a.modified ? Date.parse(a.modified) : 0;
+				const tb = b.modified ? Date.parse(b.modified) : 0;
+				if (tb !== ta) {
+					return tb - ta;
+				}
+				return titleCmp(a, b);
+			});
+			break;
+		case 'status':
+			out.sort((a, b) => {
+				const sa = a.status === 'publish' ? 1 : 0;
+				const sb = b.status === 'publish' ? 1 : 0;
+				if (sa !== sb) {
+					return sa - sb;
+				}
+				return titleCmp(a, b);
+			});
+			break;
+		case 'manual':
+		default:
+			break;
+	}
+
+	return out;
+}
+
+/**
+ * Collapsible collection section with kebab menu and drop target.
+ *
+ * @param {Object}          root0                         Props.
+ * @param {string}          root0.title                   Section title.
+ * @param {number}          root0.count                   Document count.
+ * @param {boolean}         root0.collapsed               Whether collapsed.
+ * @param {Function}        root0.onToggle                Toggle callback.
+ * @param {Function}        [root0.onDelete]              Delete callback.
+ * @param {Function}        [root0.onRename]              Rename callback.
+ * @param {Function}        [root0.onDrop]                Drop handler callback.
+ * @param {string}          root0.dropTargetId            Drop zone ID.
+ * @param {string}          root0.dragOverId              Currently hovered drop zone.
+ * @param {Function}        root0.setDragOver             Set drag-over state.
+ * @param {React.ReactNode} root0.children                Nested content.
+ * @param {number}          [root0.collectionId]          Collection ID (number for taxonomy collections).
+ * @param {Function}        [root0.onCollectionDragStart] Collection drag-start handler.
+ * @param {Function}        [root0.onCollectionDragOver]  Collection drag-over handler.
+ * @param {Function}        [root0.onCollectionDrop]      Collection drop handler.
+ * @param {Function}        [root0.onCollectionDragEnd]   Collection drag-end handler.
+ * @param {string}          [root0.collectionDropPos]     Drop indicator position ('before'|'after'|null).
+ * @param {string}          [root0.sortMode]              Active sort mode for this section.
+ * @param {Function}        [root0.onSortModeChange]      Sort mode change handler.
+ * @param {Function}        [root0.onDeleteAll]           Bulk-delete-all-docs handler.
+ * @param {string}          [root0.deleteAllLabel]        Label for the bulk-delete menu item.
+ * @param {Function}        [root0.onShare]               Open a sharing dialog for this collection.
+ */
+function CollectionSection({
+	title,
+	count,
+	collapsed,
+	onToggle,
+	onDelete,
+	onRename,
+	onDrop,
+	dropTargetId,
+	dragOverId,
+	setDragOver,
+	collectionId,
+	onCollectionDragStart,
+	onCollectionDragOver,
+	onCollectionDrop,
+	onCollectionDragEnd,
+	collectionDropPos,
+	sortMode,
+	onSortModeChange,
+	onDeleteAll,
+	deleteAllLabel,
+	onShare,
+	children,
+}) {
+	const resolvedDeleteAllLabel =
+		deleteAllLabel || __('Delete all queries', 'wpgraphql-ide');
+	const isOver = !!dropTargetId && dragOverId === dropTargetId;
+	const [editing, setEditing] = useState(false);
+	const [editValue, setEditValue] = useState(title);
+	const hasMenu =
+		onDelete ||
+		onRename ||
+		typeof onSortModeChange === 'function' ||
+		typeof onDeleteAll === 'function' ||
+		typeof onShare === 'function';
+	const isReorderable = typeof collectionId === 'number';
+
+	return (
+		<div
+			className={`wpgraphql-ide-collection-section${collectionDropPos === 'before' ? ' is-drop-above' : ''}${collectionDropPos === 'after' ? ' is-drop-below' : ''}`}
+		>
+			<div
+				className={`wpgraphql-ide-collection-header${isOver ? ' is-drag-over' : ''}${isReorderable ? ' is-reorderable' : ''}`}
+				role="button"
+				tabIndex={editing ? -1 : 0}
+				aria-expanded={!collapsed}
+				aria-label={
+					collapsed
+						? sprintf(
+								/* translators: %s: name of the collapsible section being expanded */
+								__('%s: expand section', 'wpgraphql-ide'),
+								title
+							)
+						: sprintf(
+								/* translators: %s: name of the collapsible section being collapsed */
+								__('%s: collapse section', 'wpgraphql-ide'),
+								title
+							)
+				}
+				onClick={() => {
+					// Don't toggle when the user is mid-rename or interacting
+					// with a control inside the row (kebab, rename input).
+					// Inner controls stop propagation themselves; this guard
+					// covers focus rings on link hover etc.
+					if (editing) {
+						return;
+					}
+					onToggle();
+				}}
+				onKeyDown={(e) => {
+					if (editing) {
+						return;
+					}
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						onToggle();
+					}
+				}}
+				draggable={isReorderable}
+				onDragStart={(e) => {
+					if (!isReorderable || !onCollectionDragStart) {
+						return;
+					}
+					onCollectionDragStart(collectionId);
+					e.dataTransfer.setData(
+						'application/x-wpgraphql-ide-collection',
+						String(collectionId)
+					);
+					e.dataTransfer.effectAllowed = 'move';
+				}}
+				onDragEnd={() => {
+					if (onCollectionDragEnd) {
+						onCollectionDragEnd();
+					}
+				}}
+				onDragOver={(e) => {
+					// Two cases: a doc drag (assign-to-collection) or a
+					// collection drag (sibling reorder). The presence of
+					// the collection mime decides which one.
+					const types = Array.from(e.dataTransfer.types || []);
+					const isCollectionDrag = types.includes(
+						'application/x-wpgraphql-ide-collection'
+					);
+					if (isCollectionDrag && isReorderable) {
+						e.preventDefault();
+						e.dataTransfer.dropEffect = 'move';
+						const rect = e.currentTarget.getBoundingClientRect();
+						const position =
+							e.clientY < rect.top + rect.height / 2
+								? 'before'
+								: 'after';
+						if (onCollectionDragOver) {
+							onCollectionDragOver(collectionId, position);
+						}
+						return;
+					}
+					e.preventDefault();
+					e.dataTransfer.dropEffect = 'move';
+					setDragOver(dropTargetId);
+				}}
+				onDragLeave={() => setDragOver(null)}
+				onDrop={(e) => {
+					const types = Array.from(e.dataTransfer.types || []);
+					const isCollectionDrag = types.includes(
+						'application/x-wpgraphql-ide-collection'
+					);
+					if (isCollectionDrag && isReorderable && onCollectionDrop) {
+						e.preventDefault();
+						e.stopPropagation();
+						onCollectionDrop(collectionId);
+						return;
+					}
+					e.preventDefault();
+					const docId = e.dataTransfer.getData('text/plain');
+					if (docId && onDrop) {
+						onDrop(docId);
+					}
+					setDragOver(null);
+				}}
+			>
+				{/* Chevron is a static visual cue now; the parent header
+				    handles the click target so the entire row is hit-able. */}
+				<span
+					className="wpgraphql-ide-collection-toggle"
+					aria-hidden="true"
+				>
+					<Icon
+						icon={collapsed ? chevronRight : chevronDown}
+						size={18}
+					/>
+				</span>
+				{editing ? (
+					<RenameInput
+						className="wpgraphql-ide-collection-rename-input"
+						ariaLabel={__('Rename collection', 'wpgraphql-ide')}
+						value={editValue}
+						onChange={setEditValue}
+						onCommit={(trimmed) => {
+							if (trimmed !== title && onRename) {
+								onRename(trimmed);
+							}
+							setEditing(false);
+						}}
+						onCancel={() => {
+							setEditing(false);
+							setEditValue(title);
+						}}
+					/>
+				) : (
+					<span className="wpgraphql-ide-collection-title">
+						{title}
+					</span>
+				)}
+				<span className="wpgraphql-ide-collection-count">
+					({count})
+				</span>
+				{hasMenu ? (
+					// Wrap in a stopPropagation span so clicks on the kebab
+					// (toggle, menu items) don't bubble up to the header's
+					// expand/collapse handler.
+					// eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+					<span
+						className="wpgraphql-ide-collection-kebab-wrap"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<DropdownMenu
+							icon={moreVertical}
+							label={__('Collection actions', 'wpgraphql-ide')}
+							toggleProps={{
+								size: 'small',
+								className: 'wpgraphql-ide-collection-kebab',
+							}}
+						>
+							{({ onClose: closeMenu }) => (
+								<>
+									{/* Order is risk-ascending: safe / reversible
+								    actions first, data-mutating actions
+								    further down, destructive at the bottom.
+								    Share is the most common safe action so
+								    it leads. Sort is purely a view setting.
+								    Rename modifies the source-of-truth name
+								    so it sits closer to Delete to make
+								    accidental clicks less likely. */}
+									{typeof onShare === 'function' && (
+										<MenuGroup>
+											<MenuItem
+												onClick={() => {
+													onShare();
+													closeMenu();
+												}}
+											>
+												{__('Sharing', 'wpgraphql-ide')}
+											</MenuItem>
+										</MenuGroup>
+									)}
+									{typeof onSortModeChange === 'function' && (
+										<MenuGroup
+											label={__(
+												'Sort by',
+												'wpgraphql-ide'
+											)}
+										>
+											{getSortOptions().map((opt) => (
+												<MenuItem
+													key={opt.value}
+													icon={
+														(sortMode ||
+															'manual') ===
+														opt.value
+															? check
+															: null
+													}
+													onClick={() => {
+														onSortModeChange(
+															opt.value
+														);
+														closeMenu();
+													}}
+												>
+													{opt.label}
+												</MenuItem>
+											))}
+										</MenuGroup>
+									)}
+									{onRename && (
+										<MenuGroup>
+											<MenuItem
+												onClick={() => {
+													setEditValue(title);
+													setEditing(true);
+													closeMenu();
+												}}
+											>
+												{__('Rename', 'wpgraphql-ide')}
+											</MenuItem>
+										</MenuGroup>
+									)}
+									{onDelete && (
+										<MenuGroup>
+											<MenuItem
+												isDestructive
+												onClick={() => {
+													onDelete();
+													closeMenu();
+												}}
+											>
+												{__(
+													'Delete collection',
+													'wpgraphql-ide'
+												)}
+											</MenuItem>
+										</MenuGroup>
+									)}
+									{typeof onDeleteAll === 'function' && (
+										<MenuGroup>
+											<MenuItem
+												isDestructive
+												onClick={() => {
+													closeMenu();
+													onDeleteAll();
+												}}
+											>
+												{resolvedDeleteAllLabel}
+											</MenuItem>
+										</MenuGroup>
+									)}
+								</>
+							)}
+						</DropdownMenu>
+					</span>
+				) : (
+					<span className="wpgraphql-ide-collection-kebab-spacer" />
+				)}
+			</div>
+			{!collapsed && (
+				<div className="wpgraphql-ide-collection-body">{children}</div>
+			)}
+		</div>
+	);
+}
+
+/**
+ * Body of the uncategorized "Documents" section. Picks between the
+ * doc list, the All-tab empty-state CTA, and the per-section "No
+ * documents" placeholder. Lifted out of the render so the branching
+ * stays linear (avoids a nested ternary lint hit).
+ *
+ * @param {Object}   props
+ * @param {Array}    props.uncategorized  Docs not in any collection.
+ * @param {Function} props.renderDoc      List renderer for a single doc.
+ * @param {string}   props.filter         Active filter tab name.
+ * @param {number}   props.allCount       Total docs across all buckets.
+ * @param {Object}   props.importInputRef Ref to the hidden file input.
+ */
+function renderUncategorizedBody({
+	uncategorized,
+	renderDoc,
+	filter,
+	allCount,
+	importInputRef,
+}) {
+	if (uncategorized.length > 0) {
+		return (
+			<ul className="wpgraphql-ide-documents-list">
+				{uncategorized.map(renderDoc)}
+			</ul>
+		);
+	}
+	if (filter === 'all' && allCount === 0) {
+		return (
+			<SavedQueriesEmptyState
+				onImportClick={() => importInputRef.current?.click()}
+			/>
+		);
+	}
+	return (
+		<p className="wpgraphql-ide-collection-empty">
+			{__('No documents', 'wpgraphql-ide')}
+		</p>
+	);
+}
+
+/**
+ * Empty-state CTA shown in place of the uncategorized "Documents" list
+ * when the All tab is genuinely empty (no docs in any bucket). Points
+ * the user at the two paths into the panel: save the active query, or
+ * import a JSON. Sitewide / Mine tabs keep the per-section "No documents"
+ * copy.
+ *
+ * @param {Object}   props
+ * @param {Function} props.onImportClick Triggers the hidden file input the
+ *                                       kebab "Import queries…" action uses.
+ */
+export function SavedQueriesEmptyState({ onImportClick }) {
+	return (
+		<div className="wpgraphql-ide-saved-queries-empty">
+			<p className="wpgraphql-ide-saved-queries-empty-hint">
+				{__(
+					'Use the toolbar Save button to save the current query into a collection.',
+					'wpgraphql-ide'
+				)}
+			</p>
+			<Button
+				variant="primary"
+				size="compact"
+				onClick={onImportClick}
+				className="wpgraphql-ide-saved-queries-empty-import"
+			>
+				{__('Import queries from JSON', 'wpgraphql-ide')}
+			</Button>
+			<p className="wpgraphql-ide-saved-queries-empty-footnote">
+				{__(
+					'Want examples? Import the sample JSON from the plugin’s seeds/ folder.',
+					'wpgraphql-ide'
+				)}
+			</p>
+		</div>
+	);
+}
+
+/**
+ * Saved Queries panel — documents grouped by collection.
+ */
+export function SavedQueriesPanel() {
+	const { confirm } = useDialog();
+	const notify = (content, type = 'default') =>
+		hooks.doAction('wpgraphql-ide.notice', content, type);
+
+	const [search, setSearch] = useState('');
+	// WP-style filter row: `'all' | 'sitewide' | 'mine'`. Acts as a
+	// *filter*, not a folder — sections render in their own order
+	// below and the filter hides the ones that don't match.
+	//
+	//   all      → everything the user can see (sitewide collections,
+	//              personal collections, collections shared with them,
+	//              and their uncategorized drafts)
+	//   sitewide → only docs assigned to a sitewide (taxonomy-backed)
+	//              collection
+	//   mine     → only docs in the user's own personal collections
+	const [filter, setFilter] = useState('all');
+	// Seed from per-user meta so a user's collapse choices survive a
+	// reload. The hydrator only pulls the `collapsed` field; other
+	// per-section state (added later) sits alongside it server-side.
+	const [collapsedSections, setCollapsedSections] = useState(
+		hydrateCollapsedSections
+	);
+	const [newCollectionOpen, setNewCollectionOpen] = useState(false);
+	const [shareTarget, setShareTarget] = useState(null);
+	const canListUsers = userCanListUsers();
+	const [dragOverId, setDragOverId] = useState(null);
+	const [deleteTarget, setDeleteTarget] = useState(null);
+	const [renameTarget, setRenameTarget] = useState(null);
+	// Drop indicator for sibling reorder. `kind` distinguishes between
+	// dragging a document vs a collection so we render the right line.
+	const [dropIndicator, setDropIndicator] = useState(null);
+	const dragDocRef = useRef(null);
+	const dragCollectionRef = useRef(null);
+
+	const { documents, activeTab } = useSelect((select) => {
+		const editor = select('wpgraphql-ide/document-editor');
+		// `getQueryDocuments` returns the documents list with workspace
+		// tabs (Settings, etc.) already filtered out — and memoized,
+		// so the same input state produces the same array reference and
+		// wp-data's "non-equal value" warning stays quiet.
+		return {
+			documents: editor.getQueryDocuments(),
+			activeTab: editor.getActiveTab(),
+		};
+	}, []);
+
+	const { collections, sortModes, personalCollections, sharedCollections } =
+		useSelect((select) => {
+			const app = select('wpgraphql-ide/app');
+			return {
+				collections: app.getCollections(),
+				sortModes: app.getCollectionSortModes(),
+				personalCollections: app.getPersonalCollections(),
+				sharedCollections: app.getSharedCollections(),
+			};
+		}, []);
+
+	const sortModeFor = useCallback(
+		(key) => sortModes[String(key)] || 'manual',
+		[sortModes]
+	);
+
+	const { switchTab, removeDocument, reorderDocuments } = useDispatch(
+		'wpgraphql-ide/document-editor'
+	);
+	const {
+		loadCollections,
+		addCollection,
+		removeCollection,
+		renameCollection,
+		reorderCollections,
+		setCollectionSortMode,
+		createPersonalCollection,
+		renamePersonalCollection,
+		removePersonalCollection,
+		togglePersonalCollectionMembership,
+		updatePersonalCollectionSharedWith,
+		saveUserPreference,
+	} = useDispatch('wpgraphql-ide/app');
+
+	// Debounce the persist so rapid toggles coalesce into a single
+	// store dispatch (which in turn handles the REST write). 500ms keeps
+	// the network quiet while still feeling instantaneous to the user.
+	const [persistSectionStates] = useDebouncedCallback((blob) => {
+		saveUserPreference('section_states', JSON.stringify(blob));
+	}, 500);
+
+	const [exportOpen, setExportOpen] = useState(false);
+
+	useEffect(() => {
+		// Anonymous visitors can't load server-side collections — the REST
+		// route requires `manage_graphql_ide` and would 403. Skip the call
+		// so we don't spend a request on a guaranteed failure.
+		if (!isUserLoggedIn) {
+			return;
+		}
+		loadCollections();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		const namespace = 'wpgraphql-ide/saved-queries-panel';
+		hooks.addAction(PANEL_ACTION_HOOK, namespace, (action) => {
+			if (action === 'new-collection') {
+				setNewCollectionOpen(true);
+			} else if (action === 'import') {
+				importInputRef.current?.click();
+			} else if (action === 'export') {
+				setExportOpen(true);
+			}
+		});
+		return () => hooks.removeAction(PANEL_ACTION_HOOK, namespace);
+	}, []);
+
+	const savedDocs = useMemo(
+		() => documents.filter((d) => !isTempId(d.id)),
+		[documents]
+	);
+
+	const unsavedDocs = useMemo(
+		() => documents.filter((d) => isTempId(d.id)),
+		[documents]
+	);
+
+	const filterDocs = useCallback(
+		(docs) => {
+			let filtered = docs;
+			if (search.trim()) {
+				const q = search.toLowerCase();
+				filtered = filtered.filter(
+					(d) =>
+						displayDocTitle(d).toLowerCase().includes(q) ||
+						(d.query || '').toLowerCase().includes(q)
+				);
+			}
+			return filtered;
+		},
+		[search]
+	);
+
+	const { grouped, uncategorized } = useMemo(() => {
+		const filtered = filterDocs(savedDocs);
+		const groups = {};
+		const ungrouped = [];
+		for (const doc of filtered) {
+			const docCollections = doc.collections || [];
+			if (docCollections.length === 0) {
+				ungrouped.push(doc);
+			} else {
+				for (const cId of docCollections) {
+					if (!groups[cId]) {
+						groups[cId] = [];
+					}
+					groups[cId].push(doc);
+				}
+			}
+		}
+		for (const cId of Object.keys(groups)) {
+			groups[cId] = sortDocuments(groups[cId], sortModeFor(cId));
+		}
+		return {
+			grouped: groups,
+			uncategorized: sortDocuments(ungrouped, sortModeFor('_documents')),
+		};
+	}, [savedDocs, filterDocs, sortModeFor]);
+
+	// Personal-collection groupings, derived from each entry's document_ids.
+	// Lookup is O(n) per personal collection; fine at IDE-scale.
+	const personalGrouped = useMemo(() => {
+		const filtered = filterDocs(savedDocs);
+		const byId = new Map(filtered.map((d) => [Number(d.id), d]));
+		const groups = {};
+		for (const pc of personalCollections) {
+			const docs = (pc.document_ids || [])
+				.map((id) => byId.get(Number(id)))
+				.filter(Boolean);
+			groups[pc.id] = sortDocuments(docs, sortModeFor(pc.id));
+		}
+		return groups;
+	}, [savedDocs, filterDocs, personalCollections, sortModeFor]);
+
+	// Filter-row counts: unique-doc counts so a doc in multiple
+	// collections doesn't double-count.
+	const { allCount, sitewideCount, mineCount } = useMemo(() => {
+		// `Mine` counts only docs that live in a personal collection.
+		// Uncategorized docs surface under `All` (which already covers
+		// everything the user can see), so they're intentionally
+		// excluded from Mine to keep Mine = "my organized collections."
+		const mineIds = new Set();
+		for (const pc of personalCollections) {
+			for (const id of pc.document_ids || []) {
+				if (savedDocs.find((d) => Number(d.id) === Number(id))) {
+					mineIds.add(Number(id));
+				}
+			}
+		}
+		// `Sitewide` = docs assigned to one or more sitewide
+		// (taxonomy-backed) collections. Drives the second filter tab —
+		// "show me only the things any admin can curate", separate from
+		// "Mine" (personal) and from uncategorized author-scoped drafts.
+		const sitewideIds = new Set();
+		for (const doc of savedDocs) {
+			if ((doc.collections || []).length > 0) {
+				sitewideIds.add(Number(doc.id));
+			}
+		}
+		const incomingSharedIds = new Set();
+		for (const sc of sharedCollections) {
+			for (const d of sc.documents || []) {
+				incomingSharedIds.add(Number(d.id));
+			}
+		}
+		const allIds = new Set([
+			...savedDocs.map((d) => Number(d.id)),
+			...incomingSharedIds,
+		]);
+		return {
+			allCount: allIds.size,
+			sitewideCount: sitewideIds.size,
+			mineCount: mineIds.size,
+		};
+	}, [savedDocs, personalCollections, sharedCollections]);
+
+	const showSitewide = filter === 'all' || filter === 'sitewide';
+	const showPersonal = filter === 'all' || filter === 'mine';
+	// `Shared with me` is read-only borrowed content — surfaces under
+	// All only; Mine is reserved for the user's own organized
+	// collections, Sitewide is reserved for the taxonomy.
+	const showShared = filter === 'all';
+	// Uncategorized "Documents" — author-scoped catch-all that doesn't
+	// belong to a curated personal or sitewide collection. Surfaces
+	// under All only.
+	const showUncategorized = filter === 'all';
+
+	const toggleSection = (key) => {
+		setCollapsedSections((prev) => {
+			const next = { ...prev, [key]: !prev[key] };
+			// Wrap each boolean in a per-section object so the envelope
+			// can carry additional fields later (sort preferences,
+			// last-viewed timestamps, etc.) without breaking the
+			// hydration path or requiring a server release.
+			const blob = {};
+			for (const [k, collapsed] of Object.entries(next)) {
+				blob[k] = { collapsed };
+			}
+			persistSectionStates(blob);
+			return next;
+		});
+	};
+
+	const performDeleteCollection = async ({ deleteContents }) => {
+		if (!deleteTarget) {
+			return;
+		}
+		const { id } = deleteTarget;
+		if (deleteContents) {
+			// In 5.0 the server-side cascade endpoint
+			// (`/documents/collections/:id`) was removed in favor of
+			// Smart Cache's stock taxonomy DELETE. So we cascade client-
+			// side: find every saved document tagged with this term and
+			// remove each (which fires the document-editor store's
+			// own delete path — closes the tab if open, then DELETEs
+			// the post), then drop the term itself.
+			const inCollection = documents.filter(
+				(d) =>
+					!isTempId(d.id) &&
+					Array.isArray(d.collections) &&
+					d.collections.includes(id)
+			);
+			for (const d of inCollection) {
+				await removeDocument(d.id);
+			}
+			await removeCollection(id);
+			await loadCollections();
+		} else {
+			await removeCollection(id);
+		}
+		// Documents in the deleted collection still carry the now-stale
+		// term ID in their `collections` array. Reload from the server
+		// so the renderer (which groups by live collections) treats
+		// them as uncategorized instead of orphaning them under a
+		// ghost group.
+		reloadDocs();
+	};
+
+	const importInputRef = useRef(null);
+
+	const handleImportFile = async (e) => {
+		// eslint-disable-next-line no-shadow
+		const importedFile = e.target.files?.[0];
+		e.target.value = '';
+		if (!importedFile) {
+			return;
+		}
+		let result;
+		let error;
+		try {
+			const text = await importedFile.text();
+			const payload = JSON.parse(text);
+			result = await importDocuments(payload);
+		} catch (err) {
+			error = err;
+			// eslint-disable-next-line no-console
+			console.error('Import failed:', err);
+		}
+		if (!error && !result?.error) {
+			await loadCollections();
+			reloadDocs();
+		}
+		const notice = importResultToNotice({ result, error });
+		notify(notice.message, notice.type);
+	};
+
+	const reloadDocs = () => {
+		const { dispatch: dis } =
+			// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+			require('@wordpress/data');
+		dis('wpgraphql-ide/document-editor').loadDocuments();
+	};
+
+	const handleAssignCollection = async (docId, collectionId) => {
+		const doc = documents.find((d) => String(d.id) === String(docId));
+		if (!doc) {
+			return;
+		}
+		const current = doc.collections || [];
+		const next = current.includes(collectionId)
+			? current.filter((c) => c !== collectionId)
+			: [...current, collectionId];
+		await updateDocument(docId, { collections: next });
+		reloadDocs();
+	};
+
+	const handleDropToCollection = async (docId, collectionId) => {
+		await updateDocument(docId, {
+			collections: collectionId ? [collectionId] : [],
+		});
+		reloadDocs();
+	};
+
+	const handleDeleteAllUncategorized = async () => {
+		const targets = uncategorized;
+		if (targets.length === 0) {
+			return;
+		}
+		const ok = await confirm({
+			title: __('Delete all documents', 'wpgraphql-ide'),
+			message: sprintf(
+				/* translators: %d: number of documents to be deleted */
+				_n(
+					'Delete %d document in "Documents"? This cannot be undone.',
+					'Delete all %d documents in "Documents"? This cannot be undone.',
+					targets.length,
+					'wpgraphql-ide'
+				),
+				targets.length
+			),
+			confirmLabel: __('Delete all', 'wpgraphql-ide'),
+			isDestructive: true,
+		});
+		if (!ok) {
+			return;
+		}
+		await Promise.all(targets.map((d) => removeDocument(d.id)));
+	};
+
+	const handleDiscardAllUnsaved = async () => {
+		const targets = unsavedDocs;
+		if (targets.length === 0) {
+			return;
+		}
+		const ok = await confirm({
+			title: __('Discard unsaved tabs', 'wpgraphql-ide'),
+			message: sprintf(
+				/* translators: %d: number of unsaved tabs to be discarded */
+				_n(
+					'Discard %d unsaved tab? Its contents will be lost.',
+					'Discard all %d unsaved tabs? Their contents will be lost.',
+					targets.length,
+					'wpgraphql-ide'
+				),
+				targets.length
+			),
+			confirmLabel: __('Discard all', 'wpgraphql-ide'),
+			isDestructive: true,
+		});
+		if (!ok) {
+			return;
+		}
+		await Promise.all(targets.map((d) => removeDocument(d.id)));
+	};
+
+	const renderDoc = (doc) => {
+		const isActive = String(doc.id) === String(activeTab);
+		const isUnsaved = isTempId(doc.id);
+		const isPublished = !isUnsaved && doc.status === 'publish';
+		const isDraft = !isUnsaved && !isPublished;
+		const docCollections = doc.collections || [];
+		const sectionKey =
+			docCollections.length > 0 ? docCollections[0] : '_documents';
+		const canDrag = !isUnsaved && sortModeFor(sectionKey) === 'manual';
+
+		const isDropAbove =
+			dropIndicator?.kind === 'doc' &&
+			dropIndicator.id === String(doc.id) &&
+			dropIndicator.position === 'before';
+		const isDropBelow =
+			dropIndicator?.kind === 'doc' &&
+			dropIndicator.id === String(doc.id) &&
+			dropIndicator.position === 'after';
+
+		return (
+			<li
+				key={doc.id}
+				draggable={canDrag}
+				onDragStart={(e) => {
+					dragDocRef.current = String(doc.id);
+					dragCollectionRef.current = null;
+					e.dataTransfer.setData('text/plain', String(doc.id));
+					e.dataTransfer.setData(
+						'application/x-wpgraphql-ide-doc',
+						String(doc.id)
+					);
+					e.dataTransfer.effectAllowed = 'move';
+				}}
+				onDragOver={(e) => {
+					if (!dragDocRef.current) {
+						return;
+					}
+					if (String(dragDocRef.current) === String(doc.id)) {
+						return;
+					}
+					e.preventDefault();
+					e.dataTransfer.dropEffect = 'move';
+					const rect = e.currentTarget.getBoundingClientRect();
+					const position =
+						e.clientY < rect.top + rect.height / 2
+							? 'before'
+							: 'after';
+					setDropIndicator({
+						kind: 'doc',
+						id: String(doc.id),
+						position,
+					});
+				}}
+				onDrop={(e) => {
+					if (!dragDocRef.current) {
+						return;
+					}
+					e.preventDefault();
+					e.stopPropagation();
+					const sourceId = String(dragDocRef.current);
+					const targetId = String(doc.id);
+					if (sourceId === targetId) {
+						return;
+					}
+					const rect = e.currentTarget.getBoundingClientRect();
+					const before = e.clientY < rect.top + rect.height / 2;
+					const ids = savedDocs.map((d) => String(d.id));
+					const fromIdx = ids.indexOf(sourceId);
+					if (fromIdx === -1) {
+						return;
+					}
+					ids.splice(fromIdx, 1);
+					let toIdx = ids.indexOf(targetId);
+					if (toIdx === -1) {
+						return;
+					}
+					if (!before) {
+						toIdx += 1;
+					}
+					ids.splice(toIdx, 0, sourceId);
+					reorderDocuments(ids);
+					setDropIndicator(null);
+					dragDocRef.current = null;
+				}}
+				onDragEnd={() => {
+					dragDocRef.current = null;
+					setDragOverId(null);
+					setDropIndicator(null);
+				}}
+				className={`wpgraphql-ide-document-item${isActive ? ' is-active' : ''}${isPublished ? ' is-published' : ''}${canDrag ? ' is-draggable' : ''}${isDropAbove ? ' is-drop-above' : ''}${isDropBelow ? ' is-drop-below' : ''}`}
+			>
+				<button
+					type="button"
+					className="wpgraphql-ide-document-label"
+					onClick={() => switchTab(String(doc.id))}
+				>
+					<span
+						className={`wpgraphql-ide-document-title-text${isUnsaved ? ' is-unsaved' : ''}`}
+					>
+						{displayDocTitle(doc)}
+						{isDraft && (
+							<span className="wpgraphql-ide-document-badge">
+								{' '}
+								{__('— Draft', 'wpgraphql-ide')}
+							</span>
+						)}
+					</span>
+				</button>
+				{!isUnsaved && (
+					<DropdownMenu
+						icon={moreVertical}
+						label={__('Document actions', 'wpgraphql-ide')}
+						popoverProps={{ placement: 'bottom-start' }}
+						toggleProps={{
+							size: 'small',
+							className: 'wpgraphql-ide-document-kebab',
+						}}
+					>
+						{({ onClose: closeMenu }) => (
+							<>
+								<MenuGroup>
+									<MenuItem
+										onClick={() => {
+											closeMenu();
+											setRenameTarget(doc);
+										}}
+									>
+										{__('Rename', 'wpgraphql-ide')}
+									</MenuItem>
+								</MenuGroup>
+								{(() => {
+									const docCols = doc.collections || [];
+									const available = collections.filter(
+										(c) => !docCols.includes(c.id)
+									);
+									const inCollection = docCols.length > 0;
+									return (
+										<>
+											{available.length > 0 && (
+												<MenuGroup
+													label={__(
+														'Move to',
+														'wpgraphql-ide'
+													)}
+												>
+													{available.map((c) => (
+														<MenuItem
+															key={c.id}
+															onClick={() => {
+																handleAssignCollection(
+																	doc.id,
+																	c.id
+																);
+																closeMenu();
+															}}
+														>
+															{c.name}
+														</MenuItem>
+													))}
+												</MenuGroup>
+											)}
+											{inCollection && (
+												<MenuGroup>
+													{docCols.map((cId) => {
+														const col =
+															collections.find(
+																(cx) =>
+																	cx.id ===
+																	cId
+															);
+														if (!col) {
+															return null;
+														}
+														return (
+															<MenuItem
+																key={`remove-${cId}`}
+																onClick={() => {
+																	handleAssignCollection(
+																		doc.id,
+																		cId
+																	);
+																	closeMenu();
+																}}
+															>
+																{sprintf(
+																	/* translators: %s: name of the collection the document is being removed from */
+																	__(
+																		'Remove from %s',
+																		'wpgraphql-ide'
+																	),
+																	col.name
+																)}
+															</MenuItem>
+														);
+													})}
+												</MenuGroup>
+											)}
+										</>
+									);
+								})()}
+								<MenuGroup>
+									<MenuItem
+										isDestructive
+										onClick={async () => {
+											closeMenu();
+											const ok = await confirm({
+												title: __(
+													'Delete document',
+													'wpgraphql-ide'
+												),
+												message: sprintf(
+													/* translators: %s: title of the document being deleted */
+													__(
+														'Delete "%s"? This cannot be undone.',
+														'wpgraphql-ide'
+													),
+													displayDocTitle(doc)
+												),
+												confirmLabel: __(
+													'Delete',
+													'wpgraphql-ide'
+												),
+												isDestructive: true,
+											});
+											if (ok) {
+												removeDocument(doc.id);
+											}
+										}}
+									>
+										{__('Delete', 'wpgraphql-ide')}
+									</MenuItem>
+								</MenuGroup>
+							</>
+						)}
+					</DropdownMenu>
+				)}
+			</li>
+		);
+	};
+
+	const emptyMessage = () =>
+		__('No documents in this collection', 'wpgraphql-ide');
+
+	const renderDocList = (docs) => {
+		if (docs.length === 0) {
+			return (
+				<p className="wpgraphql-ide-collection-empty">
+					{emptyMessage()}
+				</p>
+			);
+		}
+		return (
+			<ul className="wpgraphql-ide-documents-list">
+				{docs.map(renderDoc)}
+			</ul>
+		);
+	};
+
+	return (
+		<div className="wpgraphql-ide-saved-queries-panel">
+			{/* Search and filter tabs only make sense once there are
+			    server-side collections to filter against. Anonymous
+			    visitors see the InlineSignInPrompt in place of that
+			    list — and the Unsaved section, which is local-only,
+			    still renders below. */}
+			{isUserLoggedIn && (
+				<div className="wpgraphql-ide-saved-queries-search">
+					<SearchControl
+						value={search}
+						onChange={setSearch}
+						placeholder={__('Search…', 'wpgraphql-ide')}
+						__nextHasNoMarginBottom
+						size="compact"
+					/>
+					<input
+						ref={importInputRef}
+						type="file"
+						accept="application/json,.json"
+						onChange={handleImportFile}
+						style={{ display: 'none' }}
+					/>
+				</div>
+			)}
+
+			{isUserLoggedIn && (
+				<TabPanel
+					className="wpgraphql-ide-saved-queries-filter"
+					tabs={[
+						{
+							name: 'all',
+							title: sprintf(
+								/* translators: %d: total number of queries visible across all collections */
+								__('All (%d)', 'wpgraphql-ide'),
+								allCount
+							),
+						},
+						{
+							name: 'sitewide',
+							title: sprintf(
+								/* translators: %d: number of queries in sitewide collections */
+								__('Sitewide (%d)', 'wpgraphql-ide'),
+								sitewideCount
+							),
+						},
+						{
+							name: 'mine',
+							title: sprintf(
+								/* translators: %d: number of queries in the user's personal collections */
+								__('Mine (%d)', 'wpgraphql-ide'),
+								mineCount
+							),
+						},
+					]}
+					initialTabName={filter}
+					onSelect={(name) => setFilter(name)}
+				>
+					{() => null}
+				</TabPanel>
+			)}
+
+			{!isUserLoggedIn && (
+				<InlineSignInPrompt
+					title={__('Sign in to see your queries', 'wpgraphql-ide')}
+					description={__(
+						'Saved queries and collections are scoped to your account. Unsaved tabs stay here until you save them.',
+						'wpgraphql-ide'
+					)}
+				/>
+			)}
+
+			{isUserLoggedIn && (
+				<div className="wpgraphql-ide-collections-list">
+					{/* "Documents" — uncategorized author-scoped docs. Pinned
+				    above the curated collections per the inbox-at-top
+				    pattern (Gmail, Linear, VS Code Source Control): the
+				    user's default working bucket goes first, organized
+				    layers below. Renders under "All" and "Mine" since
+				    these are effectively private until assigned to a
+				    sitewide collection. */}
+					{showUncategorized && (
+						<CollectionSection
+							title={__('Documents', 'wpgraphql-ide')}
+							count={uncategorized.length}
+							collapsed={!!collapsedSections._documents}
+							onToggle={() => toggleSection('_documents')}
+							onDrop={(docId) =>
+								handleDropToCollection(docId, null)
+							}
+							dropTargetId="collection-documents"
+							dragOverId={dragOverId}
+							setDragOver={setDragOverId}
+							sortMode={sortModeFor('_documents')}
+							onSortModeChange={(mode) =>
+								setCollectionSortMode('_documents', mode)
+							}
+							onDeleteAll={
+								uncategorized.length > 0
+									? handleDeleteAllUncategorized
+									: undefined
+							}
+						>
+							{renderUncategorizedBody({
+								uncategorized,
+								renderDoc,
+								filter,
+								allCount,
+								importInputRef,
+							})}
+						</CollectionSection>
+					)}
+
+					{showSitewide &&
+						collections.map((c) => {
+							const docs = grouped[c.id] || [];
+							return (
+								<CollectionSection
+									key={c.id}
+									title={c.name}
+									count={docs.length}
+									collapsed={
+										c.id in collapsedSections
+											? collapsedSections[c.id]
+											: docs.length === 0
+									}
+									onToggle={() => toggleSection(c.id)}
+									onDelete={() =>
+										setDeleteTarget({
+											id: c.id,
+											name: c.name,
+										})
+									}
+									onRename={(newName) =>
+										renameCollection(c.id, newName)
+									}
+									onDrop={(docId) =>
+										handleDropToCollection(docId, c.id)
+									}
+									dropTargetId={`collection-${c.id}`}
+									dragOverId={dragOverId}
+									setDragOver={setDragOverId}
+									collectionId={c.id}
+									onCollectionDragStart={(id) => {
+										dragCollectionRef.current = id;
+										dragDocRef.current = null;
+									}}
+									onCollectionDragOver={(id, position) => {
+										if (!dragCollectionRef.current) {
+											return;
+										}
+										if (dragCollectionRef.current === id) {
+											return;
+										}
+										setDropIndicator({
+											kind: 'collection',
+											id,
+											position,
+										});
+									}}
+									onCollectionDrop={(targetId) => {
+										const sourceId =
+											dragCollectionRef.current;
+										if (
+											!sourceId ||
+											sourceId === targetId
+										) {
+											return;
+										}
+										const ids = collections.map(
+											(col) => col.id
+										);
+										const fromIdx = ids.indexOf(sourceId);
+										if (fromIdx === -1) {
+											return;
+										}
+										ids.splice(fromIdx, 1);
+										let toIdx = ids.indexOf(targetId);
+										if (toIdx === -1) {
+											return;
+										}
+										if (
+											dropIndicator?.position === 'after'
+										) {
+											toIdx += 1;
+										}
+										ids.splice(toIdx, 0, sourceId);
+										reorderCollections(ids);
+										setDropIndicator(null);
+										dragCollectionRef.current = null;
+									}}
+									collectionDropPos={
+										dropIndicator?.kind === 'collection' &&
+										dropIndicator.id === c.id
+											? dropIndicator.position
+											: null
+									}
+									onCollectionDragEnd={() => {
+										dragCollectionRef.current = null;
+										setDropIndicator(null);
+									}}
+									sortMode={sortModeFor(c.id)}
+									onSortModeChange={(mode) =>
+										setCollectionSortMode(c.id, mode)
+									}
+								>
+									{renderDocList(docs)}
+								</CollectionSection>
+							);
+						})}
+
+					{/* Shared with me — read-only personal collections owned by
+				    other users that have been shared with the current user. */}
+					{showShared &&
+						sharedCollections.map((sc) => {
+							const sectionKey = `shared-${sc.id}`;
+							const sortedDocs = sortDocuments(
+								Array.isArray(sc.documents) ? sc.documents : [],
+								sortModeFor(sectionKey)
+							);
+							return (
+								<CollectionSection
+									key={sectionKey}
+									title={sprintf(
+										/* translators: 1: name of the shared collection, 2: display name of the user who shared it */
+										__(
+											'%1$s — shared by %2$s',
+											'wpgraphql-ide'
+										),
+										sc.name,
+										sc.owner?.display_name ||
+											__('another user', 'wpgraphql-ide')
+									)}
+									count={sortedDocs.length}
+									collapsed={
+										sectionKey in collapsedSections
+											? collapsedSections[sectionKey]
+											: sortedDocs.length === 0
+									}
+									onToggle={() => toggleSection(sectionKey)}
+									sortMode={sortModeFor(sectionKey)}
+									onSortModeChange={(mode) =>
+										setCollectionSortMode(sectionKey, mode)
+									}
+								>
+									{sortedDocs.length > 0 ? (
+										<ul className="wpgraphql-ide-documents-list">
+											{sortedDocs.map((doc) => (
+												<li
+													key={doc.id}
+													className="wpgraphql-ide-document-item"
+												>
+													<button
+														type="button"
+														className="wpgraphql-ide-document-button"
+														onClick={() =>
+															switchTab(doc.id)
+														}
+													>
+														<span className="wpgraphql-ide-document-title-text">
+															{doc.title ||
+																__(
+																	'Untitled',
+																	'wpgraphql-ide'
+																)}
+														</span>
+													</button>
+												</li>
+											))}
+										</ul>
+									) : (
+										<p className="wpgraphql-ide-collection-empty">
+											No documents
+										</p>
+									)}
+								</CollectionSection>
+							);
+						})}
+
+					{/* Personal collections — per-user, with sharing ACL. */}
+					{showPersonal &&
+						personalCollections.map((pc) => {
+							const docs = personalGrouped[pc.id] || [];
+							return (
+								<CollectionSection
+									key={`pc-${pc.id}`}
+									title={pc.name}
+									count={docs.length}
+									collapsed={
+										pc.id in collapsedSections
+											? collapsedSections[pc.id]
+											: docs.length === 0
+									}
+									onToggle={() => toggleSection(pc.id)}
+									onDelete={() =>
+										removePersonalCollection(pc.id)
+									}
+									onRename={(newName) =>
+										renamePersonalCollection(pc.id, newName)
+									}
+									onShare={
+										canListUsers
+											? () => setShareTarget(pc)
+											: undefined
+									}
+									sortMode={sortModeFor(pc.id)}
+									onSortModeChange={(mode) =>
+										setCollectionSortMode(pc.id, mode)
+									}
+								>
+									{renderDocList(docs)}
+								</CollectionSection>
+							);
+						})}
+				</div>
+			)}
+
+			{/* Unsaved tabs — orthogonal to the visibility filter (they
+			    aren't on the server yet), so render them outside the
+			    filtered list so they're always visible when present.
+			    Anonymous visitors still see them since they live entirely
+			    in local state. */}
+			{unsavedDocs.length > 0 && (
+				<div className="wpgraphql-ide-collections-list wpgraphql-ide-collections-list--unsaved">
+					<CollectionSection
+						title={__('Unsaved', 'wpgraphql-ide')}
+						count={unsavedDocs.length}
+						collapsed={!!collapsedSections._unsaved}
+						onToggle={() => toggleSection('_unsaved')}
+						dropTargetId="collection-unsaved"
+						dragOverId={dragOverId}
+						setDragOver={setDragOverId}
+						onDeleteAll={handleDiscardAllUnsaved}
+						deleteAllLabel={__(
+							'Discard all unsaved',
+							'wpgraphql-ide'
+						)}
+					>
+						<ul className="wpgraphql-ide-documents-list">
+							{unsavedDocs.map(renderDoc)}
+						</ul>
+					</CollectionSection>
+				</div>
+			)}
+
+			{newCollectionOpen && (
+				<NewCollectionDialog
+					onClose={() => setNewCollectionOpen(false)}
+					onCreateSitewide={async (name) => {
+						await addCollection(name);
+					}}
+					onCreatePersonal={async (name) => {
+						await createPersonalCollection(name);
+					}}
+				/>
+			)}
+			{shareTarget && (
+				<ShareCollectionDialog
+					collection={shareTarget}
+					onClose={() => setShareTarget(null)}
+					onSubmit={async (sharedWith) => {
+						await updatePersonalCollectionSharedWith(
+							shareTarget.id,
+							sharedWith
+						);
+					}}
+				/>
+			)}
+			{exportOpen && (
+				<ExportDialog
+					fetchPayload={exportDocuments}
+					collections={collections}
+					onClose={() => setExportOpen(false)}
+				/>
+			)}
+			{deleteTarget && (
+				<DeleteCollectionDialog
+					name={deleteTarget.name}
+					onConfirm={performDeleteCollection}
+					onClose={() => setDeleteTarget(null)}
+				/>
+			)}
+			{renameTarget && (
+				<SaveDialog
+					mode="rename"
+					defaultTitle={renameTarget.title || ''}
+					defaultCollectionIds={
+						Array.isArray(renameTarget.collections)
+							? renameTarget.collections
+							: []
+					}
+					collections={collections}
+					personalCollections={personalCollections}
+					onSubmit={async ({
+						title,
+						collectionIds,
+						personalCollectionIds,
+					}) => {
+						await updateDocument(renameTarget.id, {
+							title,
+							collections: Array.isArray(collectionIds)
+								? collectionIds
+								: [],
+						});
+						if (
+							Array.isArray(personalCollectionIds) &&
+							personalCollectionIds.length > 0
+						) {
+							for (const pcId of personalCollectionIds) {
+								await togglePersonalCollectionMembership(
+									pcId,
+									renameTarget.id
+								);
+							}
+						}
+						reloadDocs();
+					}}
+					onClose={() => setRenameTarget(null)}
+				/>
+			)}
+		</div>
+	);
+}

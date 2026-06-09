@@ -1,22 +1,74 @@
 === WPGraphQL IDE ===
 Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
-Requires at least: 5.7
-Tested up to: 6.8
+Requires at least: 6.1
+Tested up to: 7.0
 Stable tag: 4.5.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-GraphQL IDE for WPGraphQL
+Modern GraphQL IDE for WPGraphQL — schema-aware editor, execution history, saved queries, and a public endpoint mode.
 
 == Description ==
 
-GraphQL IDE for WPGraphQL.
+WPGraphQL IDE is a next-generation query editor for WPGraphQL, built on WordPress's component library and CodeMirror 6. It replaces the bundled legacy GraphiQL interface with a faster, more extensible IDE that feels native to wp-admin.
+
+**Three ways to open the IDE:**
+
+* **Dedicated page** at `wp-admin/admin.php?page=graphql-ide`
+* **Drawer** — slide-up panel triggered from the admin bar, available on every wp-admin and front-end page
+* **Public endpoint mode** (opt-in) — visiting the GraphQL endpoint URL in a browser renders the IDE shell instead of returning JSON. Anonymous visitors get a read-only schema browser; signed-in administrators get the full editor.
+
+**Editor features:**
+
+* Multi-tab editor with auto-save and overflow tab dropdown
+* Schema-aware autocomplete, hover-doc tooltips, and inline lint warnings (powered by CodeMirror 6 + cm6-graphql)
+* Cmd-click navigation from any field, type, or argument straight to the Docs Explorer
+* Response panes: JSON viewer, table view, status code / duration / size / resolver-count badges, request tracing, query log, N+1 detection
+* Variables and headers editors with their own autocomplete
+* Per-document settings (description, alias names, max-age cache hint, allow/deny)
+* Execution history persisted to localStorage, scoped per WordPress user and IDE context — available to anonymous public-endpoint visitors too
+* Saved Queries panel with personal collections and share links (when WPGraphQL Smart Cache is also active)
+* Full keyboard support: Cmd+Enter to execute, Ctrl+Shift+P to prettify, arrow keys to switch tabs
+
+**What's new in 5.0:**
+
+* **Rebuilt UI** on `@wordpress/components` and `@wordpress/data`. The legacy GraphiQL wrapper is gone — see the Upgrade Notice if you have customizations.
+* **Smart Cache integration.** Saved documents now live in `wp-graphql-smart-cache`'s `graphql_document` post type — one canonical primitive for the WPGraphQL ecosystem. The IDE works standalone when Smart Cache isn't installed; Saved Queries / Document Settings / share links light up when it is.
+* **Three render modes** (above), each individually configurable.
+* **Schema-typed data layer.** Document and collection operations run through WPGraphQL itself instead of the WordPress REST API.
+* **Full internationalization.** Every UI string passes through `@wordpress/i18n` under the `wpgraphql-ide` text domain.
+* **Auto-upgrade from 4.x.** Open tabs and query history saved by the legacy GraphiQL UI migrate forward on first 5.0 load.
+
+For the complete breaking-change list and 4.x → 5.0 migration guide, see `UPGRADE-5.0.md` in the plugin or the project's GitHub releases.
 
 == Installation ==
 
+1. Install and activate [WPGraphQL](https://wordpress.org/plugins/wp-graphql/) — required.
+2. (Optional but recommended) Install and activate [WPGraphQL Smart Cache](https://wordpress.org/plugins/wpgraphql-smart-cache/) — unlocks Saved Queries, personal collections, share links, and the Document Settings drawer.
+3. Install WPGraphQL IDE from the WordPress.org plugin directory, or upload the plugin zip and activate it.
+4. Open the IDE from **GraphQL → GraphQL IDE** in the admin menu, or click the **GraphQL IDE** entry in the admin bar.
+
+The IDE requires the `manage_graphql_ide` capability, which is granted to administrators by default. Hosts can override the capability requirement via the `wpgraphql_ide_capability_required` filter.
+
 == Frequently Asked Questions ==
+
+= How do I open the IDE? =
+
+The plugin adds three entry points: a dedicated admin page under **GraphQL → GraphQL IDE**, a slide-up drawer triggered from the **GraphQL IDE** link in the admin bar (works on every wp-admin and front-end page), and an opt-in public endpoint mode that renders the IDE when you visit the GraphQL endpoint URL in a browser.
+
+= Do I need WPGraphQL Smart Cache? =
+
+No — the IDE works as a standalone GraphQL client without it. Smart Cache is optional but unlocks the saved-document features: the Saved Queries panel, personal collections, share links, and the Document Settings drawer. Install Smart Cache and the IDE detects it automatically; no configuration needed.
+
+= What changed in 5.0? =
+
+5.0 rebuilds the UI on `@wordpress/components` and CodeMirror 6, moves saved-document storage onto Smart Cache's `graphql_document` post type, and ships full internationalization. Extension authors should consult `UPGRADE-5.0.md` (bundled with the plugin) — several legacy hooks were renamed, and a few were briefly removed and then restored with improved behavior. Open tabs and query history saved by 4.x are migrated forward automatically on first 5.0 load.
+
+= How do I enable the public endpoint? =
+
+Under **GraphQL → IDE Settings**, check **Public IDE at GraphQL endpoint**. Once enabled, browser visits to the GraphQL endpoint URL (with an HTML `Accept` header) render the IDE shell instead of returning JSON. API clients (curl, fetch with `Content-Type: application/json`, GraphQL clients in general) keep getting JSON as before. Optionally enable **Allow sign-in on the public IDE** to surface a sign-in prompt to anonymous visitors.
 
 = Where can I find the non-compressed JavaScript and CSS source code? =
 
@@ -27,15 +79,20 @@ The non-compressed source code for the JavaScript and CSS files is available in 
 
 You can view or download the source code directly from the GitHub repository.
 
-= What are some of the major dependencies used in the plugin? =
+= What are the major dependencies? =
 
-The WPGraphQL IDE plugin includes several important dependencies. You can learn more about these libraries at the following links:
+* **CodeMirror 6** ([codemirror.net](https://codemirror.net/)) — the editor surface, with `cm6-graphql` for schema-aware GraphQL highlighting + autocomplete
+* **`@wordpress/components`** and **`@wordpress/data`** — UI primitives and state management
+* **`@graphiql/toolkit`** — fragment-merging utilities reused from the GraphiQL project
+* **vaul** ([github.com/emilkowalski/vaul](https://github.com/emilkowalski/vaul)) — the slide-up drawer
+* **graphql-js** ([github.com/graphql/graphql-js](https://github.com/graphql/graphql-js)) — the underlying GraphQL parser
 
-- **GraphQL.js**: [https://github.com/graphql/graphql-js](https://github.com/graphql/graphql-js)
-- **GraphiQL**: [https://github.com/graphql/graphiql](https://github.com/graphql/graphiql)
-- **Vaul**: [https://github.com/emilkowalski/vaul](https://github.com/emilkowalski/vaul)
+= Where do I report bugs or request features? =
+
+Open an issue at [github.com/wp-graphql/wp-graphql](https://github.com/wp-graphql/wp-graphql/issues). For security issues, please follow the [security policy](https://github.com/wp-graphql/wp-graphql/security/policy) instead of filing a public issue.
 
 = How does WPGraphQL IDE handle privacy and telemetry? =
+
 WPGraphQL IDE uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com.
 
 == Privacy Policy ==
@@ -50,11 +107,41 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Screenshots ==
 
+1. Schema-aware autocomplete with inline hover documentation as you build a query.
+2. Browse the schema in the Docs explorer — search types and fields, and Cmd-click from the editor to jump straight to a type.
+3. Per-user execution history alongside clear, inline error reporting, with tracing, query log, and response-header tabs.
+
 == Upgrade Notice ==
+
+= 5.0.0 =
+Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage moves to WPGraphQL Smart Cache's `graphql_document` post type (install Smart Cache to keep Saved Queries / Document Settings / share links). Three render modes (admin page / drawer / public endpoint). Full breaking-change list and 4.x → 5.0 migration guide in `UPGRADE-5.0.md` (bundled with the plugin) — most user data (open tabs, query history) auto-migrates on first load.
 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.0.0 =
+
+**Breaking changes**
+
+* IDE UI rebuilt on `@wordpress/components` + `@wordpress/data` + CodeMirror 6. Legacy GraphiQL wrapper removed.
+* Saved-document storage moved to WPGraphQL Smart Cache's `graphql_document` post type. The IDE-owned `graphql_ide_query` post type, `graphql_ide_collection` taxonomy, and Document-Settings taxonomies are removed. Saved Queries / Document Settings / share links require Smart Cache to be active.
+* GraphQL types `IdeQuery`, `IdeQueries`, `IdeCollection`, `IdeCollections` removed. Use `graphqlDocument` / `graphqlDocumentGroup` (from Smart Cache) instead.
+* REST routes removed: `/wpgraphql-ide/v1/documents/:id/publish` and `/wpgraphql-ide/v1/documents/collections/:id`. The publish flow is now a standard `POST /wp/v2/graphql_document/:id`; cascade-delete is client-side.
+* `wpgraphql_ide_capability_required` filter now consulted at every IDE permission check — REST callbacks, post-type / taxonomy capability maps, meta auth, admin menu, public-endpoint flag. Hosts overriding the cap to a different value will now find their override honored end-to-end (previously only the admin menu link was gated).
+* Legacy `graphiql_*` hook aliases dropped (`enqueue_graphiql_extension`, `graphiql_external_fragments`, `graphiql_rendered`, `graphiql_toolbar_before_buttons`, `graphiql_toolbar_after_buttons`). Use the canonical `wpgraphql_ide_*` / `wpgraphql-ide.*` names.
+
+**New features**
+
+* **Three render modes** — dedicated admin page, slide-up drawer (from the admin bar, on any wp-admin or front-end page), and an opt-in public IDE at the GraphQL endpoint URL.
+* **Smart Cache integration** via `SmartCacheBridge`. GraphQL fields `variables` and `headers` added to `GraphqlDocument` (read + Create/Update inputs) for execution context.
+* **Schema-typed data layer.** Document and collection CRUD inside the IDE run through WPGraphQL via the bundled `gql()` client. REST remains for user preferences, the aggregated `documentSettings` readback field, and bulk import/export/reorder. Execution history is browser-local.
+* **Full internationalization.** Every UI string passes through `@wordpress/i18n` with the `wpgraphql-ide` text domain.
+* **Auto-upgrade from 4.x.** Open tabs (`graphiql:tabState`) and query history (`graphiql:queries`) saved by the legacy GraphiQL UI migrate forward on first 5.0 load; legacy localStorage keys are cleared.
+* **Anonymous history on the public endpoint.** Visitors without a logged-in session get a browser-local history bucket (capped at 100, newest first), mirroring the 4.x GraphiQL behavior.
+* **`wpgraphql_ide_external_fragments` filter** restored with smarter merge behavior — only fragments referenced by the outgoing query are prepended, with transitive resolution between external fragments.
+* New extension API: `registerPreference` (typed device/user prefs), `executeRequest` / `executeResponse` filters, `wpgraphql-ide.afterExecute` action.
+* New autocomplete + hover popups render reliably above the slide-up drawer overlay.
 
 = 4.5.0 =
 

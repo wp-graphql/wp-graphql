@@ -1,0 +1,6070 @@
+/* ==========================================================================
+   WPGraphQL IDE Layout — Gutenberg Post Editor Pattern
+   White header bar, panel sidebar from left, clean content area.
+   ========================================================================== */
+
+/* GraphQL syntax palette. Single source of truth for token colors used
+   across the query editor (CodeMirror), Query Composer, Docs Explorer,
+   and hover tooltips. Defined on :root so the values also cascade to
+   CodeMirror's hover/autocomplete tooltips, which the editor renders
+   into <body> (outside the #wpgraphql-ide-app subtree). Override any of
+   these on `:root` or a narrower selector to theme the whole IDE. */
+:root {
+	--gql-color-keyword: #a31515;          /* query | mutation | fragment | on */
+	--gql-color-operation-name: #117a3e;   /* the name after query/mutation */
+	--gql-color-field: #1f61a0;            /* field name on a type */
+	--gql-color-argument: #996800;         /* arg / input field name */
+	--gql-color-type: #117a3e;             /* TypeName references */
+	--gql-color-string: #a31515;
+	--gql-color-number: #005cc5;
+	--gql-color-bool: #005cc5;
+	--gql-color-null: #005cc5;
+	--gql-color-enum: #996800;             /* EnumValue */
+	--gql-color-variable: #aa6900;         /* $foo */
+	--gql-color-directive: #7a3e9d;        /* @include / @skip */
+	--gql-color-comment: #6a9955;
+	--gql-color-punctuation: var(--wp-components-color-gray-700, #50575e);      /* { } , : . */
+
+	/* JSON syntax palette — used by the Variables, Headers, and
+	   Response viewers. Separate from the GraphQL token set because
+	   the conventions differ (property names are colored, strings vs
+	   numbers vs literals have distinct meanings). */
+	--json-color-property: #2e7d32;
+	--json-color-string: #a31515;
+	--json-color-number: #1751c1;
+	--json-color-bool: #7b1fa2;
+	--json-color-null: #7b1fa2;
+	--json-color-punctuation: #586069;     /* braces, brackets, separators */
+}
+
+/* IDE chrome palette. These four shades sit between Gutenberg's
+   `--wp-components-color-gray-*` tokens and are not exposed as
+   first-party WP variables, so we alias them here as the single
+   source of truth. Visually identical to the WP admin chrome they
+   were originally lifted from. */
+:root {
+	--wpgraphql-ide-text-strong: #2c3338;     /* primary heading / strong body text on light surfaces */
+	--wpgraphql-ide-text-muted: #646970;      /* secondary text, default icon color */
+	--wpgraphql-ide-surface-soft: #f6f7f7;    /* subtle hover / inset surface */
+	--wpgraphql-ide-border-subtle: #e0e0e0;   /* light divider / thin rule */
+
+	/* Semantic state colors. WP admin uses these exact hues for
+	   notices, validation, and badges; the tracing panel reuses the
+	   same shades for its fast/ok/slow hue scale. */
+	--wpgraphql-ide-color-success: #00a32a;
+	--wpgraphql-ide-color-warning: #dba617;
+	--wpgraphql-ide-color-error: #d63638;
+}
+
+/* Single accent alias — every "this is the active color" use in the
+   IDE resolves through here. Chain mirrors Gutenberg's
+   `--wp-components-color-accent` definition so theming the IDE means
+   overriding one variable.
+
+   Declared on `body` (not `:root`) on purpose: WP's
+   `wp-includes/css/dist/base-styles/admin-schemes.css` defines the
+   scheme-specific value of `--wp-admin-theme-color` on
+   `body.admin-color-<slug>` selectors. CSS custom properties are
+   resolved at computed-value time, so an alias defined on `:root`
+   would lock in the global `:root { --wp-admin-theme-color: #3858e9 }`
+   default and never see the body-scoped override — every IDE surface
+   would stay Modern-blue regardless of the active admin scheme.
+   Resolving the chain on `body` puts the lookup in scope of the
+   scheme rule, so the alias tracks the active scheme correctly. */
+body {
+	--wpgraphql-ide-accent: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+}
+
+/* Typography scale. WP admin doesn't expose a typographic-token system
+   for admin chrome, so we alias the five sizes the IDE actually uses
+   under predictable names. Numeric names keep the value-to-token map
+   one-to-one and self-documenting. */
+:root {
+	--wpgraphql-ide-text-10: 10px;
+	--wpgraphql-ide-text-11: 11px;
+	--wpgraphql-ide-text-12: 12px;
+	--wpgraphql-ide-text-13: 13px;
+	--wpgraphql-ide-text-14: 14px;
+
+	/* Type weight + leading — two steps each, the only ones the IDE
+	   uses with any frequency. */
+	--wpgraphql-ide-weight-medium: 500;
+	--wpgraphql-ide-weight-semibold: 600;
+	--wpgraphql-ide-leading-tight: 1.4;
+	--wpgraphql-ide-leading-normal: 1.5;
+}
+
+/* Corner-radius scale. Three step sizes plus the "full" pill/circle
+   token, mirroring the four distinct shapes the IDE actually uses. */
+:root {
+	--wpgraphql-ide-radius-sm: 2px;
+	--wpgraphql-ide-radius-md: 3px;
+	--wpgraphql-ide-radius-lg: 4px;
+	--wpgraphql-ide-radius-full: 50%;
+}
+
+/* Spacing scale. Pixel-named for one-to-one mapping. Currently driving
+   the `gap` axis but intentionally property-neutral so future passes
+   can route padding / margin / inset through the same tokens. */
+:root {
+	--wpgraphql-ide-space-2: 2px;
+	--wpgraphql-ide-space-4: 4px;
+	--wpgraphql-ide-space-6: 6px;
+	--wpgraphql-ide-space-8: 8px;
+	--wpgraphql-ide-space-12: 12px;
+	--wpgraphql-ide-space-16: 16px;
+}
+
+/* Dialog Modal — confirm/prompt replacements for window.confirm/alert. */
+.wpgraphql-ide-dialog .components-modal__content {
+	min-width: 360px;
+	max-width: 480px;
+}
+
+/* Every IDE dialog renders an explicit Cancel button in its action row,
+   which makes WP Modal's default "X" close button redundant. Hide it
+   visually but keep escape-key + overlay-click dismissal intact (those
+   don't depend on this button's presence). */
+.wpgraphql-ide-dialog .components-modal__header .components-button[aria-label="Close"] {
+	display: none;
+}
+
+.wpgraphql-ide-dialog-message {
+	margin: 0 0 16px;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	margin-top: 16px;
+}
+
+/* Vertical-rhythm helper for dialog bodies. Each direct child is a control
+   group (a label-and-control pair). Uses a consistent 20px gap between
+   groups so labels never crash into the field above — matches WP admin's
+   default form spacing. */
+.wpgraphql-ide-dialog-stack > * + * {
+	margin-top: 20px;
+}
+
+.wpgraphql-ide-save-dialog-fields {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+}
+
+/* SaveDialog collections picker. Sitewide and personal collections share
+   one flat list; an inline divider separates the two groups when both
+   are present. Personal rows carry a small lock + "Personal" pill so the
+   scope is legible without a second fieldset. */
+.wpgraphql-ide-save-dialog-section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-save-dialog-section-label {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-save-dialog-list {
+	list-style: none;
+	margin: 0;
+	padding: 4px 0;
+	display: flex;
+	flex-direction: column;
+	max-height: 220px;
+	overflow-y: auto;
+}
+
+.wpgraphql-ide-save-dialog-row {
+	padding: 6px 4px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-save-dialog-row:hover {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-save-dialog-divider {
+	height: 1px;
+	margin: 6px 4px;
+	padding: 0;
+	background: var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-save-dialog-row-label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-save-dialog-row-scope {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+	padding: 1px 6px;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-gray-700, #50575e);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border-radius: 10px;
+}
+
+.wpgraphql-ide-save-dialog-row-scope svg {
+	fill: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-save-dialog-empty {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-style: italic;
+}
+
+.wpgraphql-ide-export-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	max-height: 50vh;
+	overflow-y: auto;
+	padding: 4px 0;
+}
+
+.wpgraphql-ide-share-toggles {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-12, 12px);
+	margin-bottom: 20px;
+}
+
+.wpgraphql-ide-share-footer {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+	margin-top: 8px;
+	padding-top: 12px;
+	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+}
+
+.wpgraphql-ide-share-footer .wpgraphql-ide-dialog-actions {
+	margin-top: 0;
+}
+
+#wpgraphql-ide-app {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* On dedicated IDE page, use viewport height */
+body.graphql_page_graphql-ide #wpgraphql-ide-app {
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+}
+
+
+.wpgraphql-ide-container {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+	background: var(--wp-components-color-background, #fff);
+	position: relative;
+	user-select: none;
+}
+
+/* Content areas where text SHOULD be selectable */
+.wpgraphql-ide-editor,
+.wpgraphql-ide-response-viewer,
+.wpgraphql-ide-headers-table,
+.wpgraphql-ide-errors-list,
+.wpgraphql-ide-debug-list,
+.wpgraphql-ide-tracing-table,
+.wpgraphql-ide-querylog-list,
+.wpgraphql-ide-history-entry-preview,
+.wpgraphql-ide-saved-queries-empty {
+	user-select: text;
+}
+
+/* Thin scrollbars throughout the IDE */
+.wpgraphql-ide-container *::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+.wpgraphql-ide-container *::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.wpgraphql-ide-container *::-webkit-scrollbar-thumb {
+	background: var(--wp-components-color-gray-200, #dcdcde);
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+}
+
+.wpgraphql-ide-container *::-webkit-scrollbar-thumb:hover {
+	background: var(--wp-components-color-gray-400, #a7aaad);
+}
+
+.wpgraphql-ide-container * {
+	scrollbar-width: thin;
+	scrollbar-color: var(--wp-components-color-gray-200, #dcdcde) transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Top bar — global header with sidebar toggle, title, settings
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-topbar {
+	display: flex;
+	align-items: center;
+	height: 40px;
+	padding: 0 8px;
+	background: var(--wp-components-color-background, #fff);
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-topbar-left,
+.wpgraphql-ide-topbar-right {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+}
+
+.wpgraphql-ide-topbar-center {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+}
+
+.wpgraphql-ide-topbar-title {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-topbar-btn.components-button {
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-topbar-btn.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-topbar-btn.components-button.is-active {
+	color: var(--wp-components-color-background, #fff);
+	background: var(--wp-components-color-foreground, #1e1e1e);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-topbar-btn.components-button.is-active:hover {
+	color: var(--wp-components-color-background, #fff);
+	background: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-topbar-btn.is-loading svg {
+	animation: wpgraphql-ide-spin 1s linear infinite;
+}
+
+.wpgraphql-ide-topbar-btn.components-button svg {
+	width: 20px;
+	height: 20px;
+}
+
+.wpgraphql-ide-topbar-sep {
+	width: 1px;
+	height: 20px;
+	background: var(--wp-components-color-gray-200, #dcdcde);
+	margin: 0 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Activity bar — vertical, global panel toggles
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-activity-bar {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+	padding: 8px 4px;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border-right: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-activity-btn.components-button {
+	width: 36px;
+	height: 36px;
+	min-width: 36px;
+	padding: 0;
+	border-radius: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-activity-btn.components-button:hover {
+	color: var(--wpgraphql-ide-accent) !important;
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7) !important;
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-active:hover {
+	color: var(--wpgraphql-ide-accent) !important;
+	background: transparent !important;
+}
+
+.wpgraphql-ide-activity-btn.components-button:focus,
+.wpgraphql-ide-activity-btn.components-button:focus-visible,
+.wpgraphql-ide-activity-btn.components-button:focus:not(:disabled) {
+	color: var(--wpgraphql-ide-accent);
+	background: transparent;
+	border-radius: 0;
+	box-shadow: inset 0 0 0 1.5px var(--wpgraphql-ide-accent) !important;
+	outline: none;
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-active {
+	color: var(--wpgraphql-ide-accent);
+	background: transparent;
+	border-radius: 0;
+	box-shadow: inset 3px 0 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-active:focus,
+.wpgraphql-ide-activity-btn.components-button.is-active:focus-visible,
+.wpgraphql-ide-activity-btn.components-button.is-active:focus:not(:disabled) {
+	box-shadow: inset 3px 0 0 0 var(--wpgraphql-ide-accent),
+		inset 0 0 0 1.5px var(--wpgraphql-ide-accent) !important;
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-drag-before {
+	box-shadow: inset 0 2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-activity-btn.components-button.is-drag-after {
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-activity-btn.components-button svg {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+}
+
+/* ---------------------------------------------------------------------------
+   Editor area — document-scoped: tabs + editors, right of activity bar
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-editor-area {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-workspace-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+	text-align: center;
+	gap: var(--wpgraphql-ide-space-12, 12px);
+	padding: 32px;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-empty-icon {
+	width: 48px;
+	height: 48px;
+	color: var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-empty-title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-empty-description {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: #757575;
+	max-width: 320px;
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-workspace-tab-content {
+	flex: 1;
+	overflow: auto;
+	min-height: 0;
+}
+
+/* Tab row within editor area */
+.wpgraphql-ide-tab-row {
+	display: flex;
+	align-items: stretch;
+	background: var(--wp-components-color-background, #fff);
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	flex-shrink: 0;
+	/* Hold tab-row height when no tabs are open so the strip doesn't
+	   collapse to the size of the `+` button. */
+	min-height: 36px;
+}
+
+/* Document notices — wraps a stock @wordpress/components Notice so the
+   visual treatment (left border, palette, action button styling) comes
+   from WP's admin notice tokens rather than custom CSS. We only bound
+   the wrapper geometrically so the notice sits flush below the toolbar
+   and stretches to the full pane width. */
+.wpgraphql-ide-document-notices {
+	flex-shrink: 0;
+}
+
+/* Accent-tinted background. `color-mix` derives the soft tint from the
+   IDE accent so the notice adapts to the user's admin color scheme
+   (Sunrise → soft red, Ectoplasm → soft purple, etc.) without hard-
+   coding a per-scheme palette. */
+.wpgraphql-ide-document-notice.components-notice {
+	margin: 0;
+	border-radius: 0;
+	background: color-mix(in srgb, var(--wpgraphql-ide-accent) 8%, transparent);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	border-bottom: 1px solid
+		color-mix(in srgb, var(--wpgraphql-ide-accent) 24%, transparent);
+}
+
+.wpgraphql-ide-document-notice .wpgraphql-ide-document-notice-link.components-button {
+	color: var(--wpgraphql-ide-accent);
+	text-decoration: underline;
+}
+
+.wpgraphql-ide-document-notice-header {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-document-notice-header:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: 2px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-document-notice-summary {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-document-notice-chevron {
+	flex-shrink: 0;
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-top: 2px;
+}
+
+.wpgraphql-ide-document-notice-detail {
+	margin-top: 8px;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-document-notice-detail p {
+	margin: 0 0 6px;
+}
+
+.wpgraphql-ide-document-notice-detail p:last-child {
+	margin-bottom: 0;
+}
+
+.wpgraphql-ide-editors {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* Tab bar */
+.wpgraphql-ide-tab-bar {
+	display: flex;
+	align-items: stretch;
+	gap: 0;
+	flex: 1;
+	min-width: 0;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: none;
+}
+
+.wpgraphql-ide-tab-bar::-webkit-scrollbar {
+	display: none;
+}
+
+.wpgraphql-ide-tab {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 8px 10px;
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+	white-space: nowrap;
+	min-width: 60px;
+	max-width: 240px;
+	flex-shrink: 1;
+	margin-bottom: -1px;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-tab:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-tab.is-active {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	border-bottom-color: var(--wpgraphql-ide-accent);
+}
+
+/* Drag-to-reorder feedback. The dragged tab dims so it visually
+   "lifts"; the target shows a thin vertical insertion bar via inset
+   box-shadow on the appropriate edge so layout never shifts. */
+.wpgraphql-ide-tab.is-dragging {
+	opacity: 0.4;
+}
+
+.wpgraphql-ide-tab.is-drop-before {
+	box-shadow: inset 2px 0 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-tab.is-drop-after {
+	box-shadow: inset -2px 0 0 0 var(--wpgraphql-ide-accent);
+}
+
+/* The tab is a native `<button>`, so the browser draws its default focus
+   ring on click and (via the inline rename input) on `:focus-within` —
+   which produces a visual jump when the user double-clicks to rename.
+   The `is-active` underline already carries focus emphasis for mouse
+   users; restore a real ring only for keyboard navigation. */
+.wpgraphql-ide-tab:focus,
+.wpgraphql-ide-tab:focus-within {
+	outline: none;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-tab:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
+}
+
+/* DropdownMenu wraps its toggle in `<div class="components-dropdown">`,
+   so the inner button's `align-self: stretch` references the wrapper's
+   content height, not the row. Stretch the wrapper so the kebab matches
+   the `+` button's full row height. Scoped to the tab bar so the
+   overflow `+N` dropdown (fixed height) isn't caught. */
+.wpgraphql-ide-tab-bar > .components-dropdown:has(> .wpgraphql-ide-tab-kebab) {
+	display: flex;
+	align-self: stretch;
+}
+
+/* Global tabs kebab — sits to the right of the + button. Anchors close
+   actions on the active tab so we don't need a per-tab context menu.
+   Mirrors the `+` button's geometry exactly so the two trailing
+   controls read as a unit; only the left separator distinguishes
+   them visually. */
+.wpgraphql-ide-tab-kebab.components-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	min-width: 36px;
+	height: auto;
+	padding: 0;
+	border: none;
+	border-left: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	background: none;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: 0;
+	flex-shrink: 0;
+	align-self: stretch;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-tab-kebab.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-tab-kebab.components-button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
+}
+
+.wpgraphql-ide-tab-kebab.components-button svg {
+	width: 18px;
+	height: 18px;
+}
+
+.wpgraphql-ide-tab-label {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Holds the title text node in idle state and overlays the rename input
+   on top of it during edit. The static text is always rendered, so the
+   wrap's intrinsic width drives the tab — toggling editingId does not
+   reflow the strip. */
+.wpgraphql-ide-tab-text-wrap {
+	position: relative;
+	display: inline-block;
+	min-width: 0;
+}
+
+.wpgraphql-ide-tab-text {
+	white-space: pre;
+	visibility: visible;
+}
+
+.wpgraphql-ide-tab-text[aria-hidden="true"] {
+	visibility: hidden;
+}
+
+.wpgraphql-ide-tab-dirty {
+	width: 6px;
+	height: 6px;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+	background: var(--wpgraphql-ide-accent);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-tab.is-dirty .wpgraphql-ide-tab-label,
+.wpgraphql-ide-tab.is-temp .wpgraphql-ide-tab-label {
+	font-style: italic;
+}
+
+.wpgraphql-ide-tab-close {
+	visibility: hidden;
+	font-size: var(--wpgraphql-ide-text-14, 14px);
+	line-height: 1;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+	padding: 0 2px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-tab:hover .wpgraphql-ide-tab-close,
+.wpgraphql-ide-tab.is-active .wpgraphql-ide-tab-close {
+	visibility: visible;
+}
+
+.wpgraphql-ide-tab-close:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: rgba(0, 0, 0, 0.08);
+}
+
+/* Disabled while inline-renaming so the click doesn't fire mid-edit, but
+   still occupies its slot in the tab so the input doesn't reflow into it. */
+.wpgraphql-ide-tab-close.is-disabled,
+.wpgraphql-ide-tab-close.is-disabled:hover {
+	pointer-events: none;
+	cursor: default;
+	opacity: 0.4;
+	background: transparent;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-tab-overflow.components-button {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	padding: 4px 8px;
+	height: 28px;
+	min-width: auto;
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-tab-overflow.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-tab-add,
+.wpgraphql-ide-tab-add.components-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	min-width: 36px;
+	height: auto;
+	border: none;
+	background: none;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+	border-radius: 0;
+	flex-shrink: 0;
+	align-self: stretch;
+	padding: 0;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-tab-add:hover,
+.wpgraphql-ide-tab-add.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-tab-add.components-button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
+}
+
+/* Inline rename input. Renders in the exact box the label occupied so the
+   tab strip doesn't grow or break its bottom border while editing. The
+   active-tab underline carries focus emphasis — the input adds none.
+   `appearance: none` and explicit font-* properties strip the user-agent
+   stylesheet's input metrics, which otherwise add a hidden min-height and
+   internal padding that push the tab taller than its idle state. */
+/* Inline rename input. `field-sizing: content` (Chrome 123+, Firefox 123+,
+   Safari 18+) makes the input intrinsically size to its text the way the
+   static span does, so swapping span ↔ input doesn't reflow the tab strip.
+   Browsers without that property fall back to a `size` attribute set on
+   the element (DocumentTabs renders it dynamically). The visual chrome is
+   an `inset` box-shadow so the border paints inside the input box and
+   doesn't add a single pixel of layout width.
+
+   We override at `input.<class>` specificity to beat WordPress admin's
+   `input[type="text"]` rule, which otherwise injects padding, min-height,
+   and a real border that all push the tab taller and wider. */
+/* Overlays the static text node so the input occupies exactly the same
+   pixels — no layout participation, no width drift. The static text
+   under it sets the tab's intrinsic width and grows/shrinks as the user
+   types. */
+input.wpgraphql-ide-tab-input {
+	appearance: none;
+	-webkit-appearance: none;
+	position: absolute;
+	inset: 0;
+	font: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	font-style: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+	border: none;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	padding: 0;
+	margin: 0;
+	outline: none;
+	background: transparent;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	box-sizing: border-box;
+	box-shadow: none;
+	cursor: text;
+}
+
+input.wpgraphql-ide-tab-input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px var(--wpgraphql-ide-accent);
+}
+
+/* Floating execution pill — bottom-right of query editor.
+   Geometry is concentric: a 4px padding around 40px-tall children
+   gives a 48px-tall pill. `border-radius: 9999px` flags the outer
+   shape as a "true pill at any width" — the browser caps the radius
+   at half the smaller dimension, so the pill stays a perfect capsule
+   no matter how the children flex. The same trick applied to the
+   inner controls means their focus rings (drawn via box-shadow
+   *outside* the element) also render as perfect pills, instead of
+   reverting to a rounded rectangle when the shadow extends the
+   bounding box past the half-height threshold. */
+.wpgraphql-ide-execution-pill {
+	position: absolute;
+	bottom: 12px;
+	right: 12px;
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+	padding: 4px;
+	background: rgba(255, 255, 255, 0.96);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	border-radius: 9999px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	z-index: 5;
+}
+
+/* All children share a 40px content height so the inner row reads
+   as a single rhythm — no size jump between configure and execute.
+   Hierarchy comes from color (solid blue play button) rather than
+   size, matching the WP-core / Gutenberg convention for primary
+   actions in a toolbar. */
+
+/* Auth-mode dropdown toggle. Icon-only — circle. Sized smaller than
+   the 40px play button so it reads as a passive state indicator and
+   doesn't compete with the primary execute action. The badge +
+   grayscale-when-public carry the auth state; the touch target stays
+   reachable (28×28 with the parent flex container's 40px rhythm). */
+.wpgraphql-ide-auth-avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+	transition: background-color 0.15s ease;
+	margin: 0 4px;
+}
+
+/* Force avatar image to fit the smaller button (~85% of the touch
+   target). */
+.wpgraphql-ide-auth-avatar > span {
+	width: 24px !important;
+	height: 24px !important;
+}
+
+/* Auth status badge sized to read clearly inside the pill.
+   The module-CSS hash prevents a direct class selector, so target by structure. */
+.wpgraphql-ide-auth-avatar > span > span {
+	width: 8px !important;
+	height: 8px !important;
+	border-width: 1.5px !important;
+}
+
+.wpgraphql-ide-auth-avatar:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-auth-avatar:focus-visible {
+	box-shadow: 0 0 0 1.5px
+		var(--wpgraphql-ide-accent);
+	outline: none;
+}
+
+/* Hairline divider separating the configure cluster (method + auth)
+   from the primary action (send). Sized to ~half the inner height
+   so it reads as a separator, not a fence. */
+.wpgraphql-ide-execution-pill-divider {
+	display: block;
+	width: 1px;
+	height: 22px;
+	margin: 0 6px 0 4px;
+	background: var(--wp-components-color-gray-300, #dcdcde);
+}
+
+/* HTTP-method dropdown toggle. Text + caret — pill corners. The
+   `9999px` radius keeps the focus ring (box-shadow outside the
+   element) a perfect pill instead of a rounded rectangle. Height
+   tracks the primary execute button (48 px) so the pill reads as a
+   single visual rhythm — the configure cluster keeps the smaller
+   font + transparent fill to stay secondary inside the larger
+   bezel. */
+.wpgraphql-ide-execution-method-btn.components-button {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	height: 48px;
+	padding: 0 8px 0 16px;
+	color: var(--wp-components-color-gray-700, #50575e);
+	background: transparent;
+	border: none;
+	border-radius: 9999px;
+	box-shadow: none;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+}
+
+.wpgraphql-ide-execution-method-btn.components-button:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-execution-method-btn.components-button:focus-visible {
+	box-shadow: 0 0 0 1.5px
+		var(--wpgraphql-ide-accent);
+	outline: none;
+}
+
+/* Save button */
+.wpgraphql-ide-save-button.components-button {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	height: 28px;
+	padding: 0 10px;
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	border: none;
+	background: none;
+}
+
+.wpgraphql-ide-save-button.components-button:disabled {
+	opacity: 0.3;
+	cursor: default;
+}
+
+.wpgraphql-ide-save-button.components-button.is-dirty {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+}
+
+.wpgraphql-ide-save-button.components-button.is-dirty:hover {
+	color: var(--wpgraphql-ide-accent);
+}
+
+/* Publish button — Gutenberg-style white on accent */
+.wpgraphql-ide-publish-button.components-button {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	height: 28px;
+	padding: 0 12px;
+	color: var(--wp-components-color-background, #fff) !important;
+}
+
+.wpgraphql-ide-publish-button.components-button:hover {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* Toolbar divider — separates document identity from actions */
+/* Smart Cache extension renderer (registered by the smart-cache-panel
+   sub-plugin). Lives in the main IDE stylesheet for now since extension
+   tabs share the response-extensions container; can move to the plugin
+   bundle when we lift this into wp-graphql-smart-cache. */
+.wpgraphql-ide-smart-cache {
+	/* Tab content already pads via `.wpgraphql-ide-response-tabs
+	   .components-tab-panel__tab-content` — adding our own padding
+	   would double up and visibly mis-align with Tracing/Debug. */
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-smart-cache-status {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	padding: 10px 12px;
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-status.is-hit {
+	background: #edf7ed;
+	border-color: #c8e6c9;
+}
+
+.wpgraphql-ide-smart-cache-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+	background: var(--wp-components-color-gray-500, #9ca3af);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-smart-cache-status.is-hit .wpgraphql-ide-smart-cache-status-dot {
+	background: #2d8a3e;
+}
+
+/* Status pill icon — replaces the colored dot with a WP icon. Color
+   reuses the success/info palette already in this file. */
+.wpgraphql-ide-smart-cache-status-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-status.is-hit .wpgraphql-ide-smart-cache-status-icon {
+	color: #2d8a3e;
+}
+
+.wpgraphql-ide-smart-cache-status-label {
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.wpgraphql-ide-smart-cache-status-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-smart-cache-meta {
+	margin: 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: var(--wpgraphql-ide-space-16, 16px);
+	row-gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-smart-cache-meta dt {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-smart-cache-meta dd {
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	word-break: break-all;
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-smart-cache-key-row {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	flex-wrap: wrap;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-smart-cache-key {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wpgraphql-ide-smart-cache-copy.components-button {
+	flex: 0 0 auto;
+	font-family: inherit;
+}
+
+.wpgraphql-ide-smart-cache-hint {
+	margin: 16px 0 0;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+/* Session counter — small chip strip showing HIT/MISS totals for the
+   current page-load. Persists across panel remounts via module-scoped
+   state. */
+.wpgraphql-ide-smart-cache-session {
+	margin: 12px 0 0;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-session-label {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-session-stat {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-session-stat.is-hit {
+	background: #edf7ed;
+	border-color: #c8e6c9;
+	color: #1f6f2e;
+}
+
+.wpgraphql-ide-smart-cache-session-stat.is-miss {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-session-ratio {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* Disclosure rows — DevTools-style accordions. Each section is a
+   <details> element; the section-root class (e.g. .wpgraphql-ide-smart
+   -cache-policy) is co-applied for selector compatibility. */
+.wpgraphql-ide-smart-cache-details {
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-smart-cache-details:last-of-type {
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-smart-cache-details-summary {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	padding: 10px 4px;
+	cursor: pointer;
+	list-style: none;
+	user-select: none;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-smart-cache-details-summary::-webkit-details-marker {
+	display: none;
+}
+
+/* Custom chevron — rotates when the section is open. */
+.wpgraphql-ide-smart-cache-details-summary::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-right: 1.5px solid var(--wp-components-color-gray-700, #50575e);
+	border-bottom: 1.5px solid var(--wp-components-color-gray-700, #50575e);
+	transform: rotate(-45deg);
+	margin-right: 4px;
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-smart-cache-details[open] > .wpgraphql-ide-smart-cache-details-summary::before {
+	transform: rotate(45deg);
+}
+
+.wpgraphql-ide-smart-cache-details-summary:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-smart-cache-details-summary:focus-visible {
+	outline: 2px solid var(
+		--wp-admin-theme-color,
+		var(--wpgraphql-ide-accent)
+	);
+	outline-offset: -2px;
+}
+
+.wpgraphql-ide-smart-cache-details-label {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-smart-cache-details-aside {
+	margin-left: auto;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	min-width: 0;
+}
+
+.wpgraphql-ide-smart-cache-details-aside code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	background: rgba(0, 0, 0, 0.04);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+	color: var(--wp-components-color-gray-700, #50575e);
+	max-width: 220px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-smart-cache-details-body {
+	padding: 4px 4px 12px 22px;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+/* Section-specific body adjustments — flex column for stacked rows. */
+.wpgraphql-ide-smart-cache-policy .wpgraphql-ide-smart-cache-details-body,
+.wpgraphql-ide-smart-cache-network .wpgraphql-ide-smart-cache-details-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+.wpgraphql-ide-smart-cache-policy-row {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-smart-cache-policy-label {
+	color: var(--wp-components-color-gray-700, #50575e);
+	min-width: 70px;
+}
+
+.wpgraphql-ide-smart-cache-policy-muted {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-network .wpgraphql-ide-smart-cache-details-body
+	> code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	background: rgba(0, 0, 0, 0.05);
+	padding: 2px 6px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+	align-self: flex-start;
+}
+
+.wpgraphql-ide-smart-cache-network-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* TTL countdown card. Reuses the policy/network grid layout. */
+.wpgraphql-ide-smart-cache-ttl {
+	margin: 16px 0 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: var(--wpgraphql-ide-space-16, 16px);
+	row-gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-smart-cache-ttl dt {
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wpgraphql-ide-smart-cache-ttl dd {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-smart-cache-ttl-muted {
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* Native <progress> styled to match Gutenberg's accent color so the
+   bar reads as part of the WP admin without a custom component. */
+.wpgraphql-ide-smart-cache-ttl-progress {
+	display: block;
+	width: 100%;
+	height: 4px;
+	margin-top: 8px;
+	-webkit-appearance: none;
+	appearance: none;
+	border: none;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	overflow: hidden;
+	background: var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-smart-cache-ttl-progress::-webkit-progress-bar {
+	background: var(--wp-components-color-gray-200, #dcdcde);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-smart-cache-ttl-progress::-webkit-progress-value {
+	background: var(
+		--wp-admin-theme-color,
+		var(--wpgraphql-ide-accent)
+	);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	transition: width 0.2s ease;
+}
+
+.wpgraphql-ide-smart-cache-ttl-progress::-moz-progress-bar {
+	background: var(
+		--wp-admin-theme-color,
+		var(--wpgraphql-ide-accent)
+	);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+/* Expired state — the bar is fully filled at this point; switch the
+   accent to muted gray so it reads as "stale, no longer fresh". */
+.wpgraphql-ide-smart-cache-ttl-progress.is-expired::-webkit-progress-value {
+	background: var(--wp-components-color-gray-500, #9ca3af);
+}
+.wpgraphql-ide-smart-cache-ttl-progress.is-expired::-moz-progress-bar {
+	background: var(--wp-components-color-gray-500, #9ca3af);
+}
+
+/* Purge map — list of nodes + list types that invalidate this cache
+   entry. Read from the same Query Analyzer data smart-cache uses for
+   purging, so this is a faithful preview of what will trigger a purge. */
+.wpgraphql-ide-smart-cache-purge-map-explainer,
+.wpgraphql-ide-smart-cache-header-keys-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-group {
+	margin-top: 10px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-group:first-child {
+	margin-top: 0;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-group-label {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-smart-cache-purge-map-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+.wpgraphql-ide-smart-cache-purge-map-list code {
+	display: inline-block;
+	padding: 2px 6px;
+	background: rgba(0, 0, 0, 0.05);
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+}
+
+.wpgraphql-ide-smart-cache-purge-map-empty {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-style: italic;
+}
+
+/* Prerequisite checklist — shown on a MISS when the server includes a
+   cacheStatus diagnostic block. Tells the user which of {settings on,
+   anonymous, query, stored} are in place and which are blocking. */
+.wpgraphql-ide-smart-cache-checklist {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-smart-cache-checklist-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-smart-cache-checklist-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 0;
+	background: transparent;
+	border: none;
+}
+
+.wpgraphql-ide-smart-cache-checklist-icon {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-checklist-item.is-ok
+	.wpgraphql-ide-smart-cache-checklist-icon {
+	color: #2d8a3e;
+}
+
+.wpgraphql-ide-smart-cache-checklist-item.is-blocking
+	.wpgraphql-ide-smart-cache-checklist-icon {
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-smart-cache-checklist-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-smart-cache-checklist-label {
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-smart-cache-checklist-hint {
+	margin-top: 4px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-smart-cache-checklist-hint code {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	padding: 1px 4px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+	background: rgba(0, 0, 0, 0.05);
+}
+
+/* Smart Cache HIT/MISS badge in the response status row. Mirrors the
+   tracing-badge pattern; HIT picks up the same green palette as the
+   in-tab status pill so both surfaces read as one signal. */
+.wpgraphql-ide-smart-cache-badge.is-hit {
+	color: #2d8a3e;
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+}
+
+.wpgraphql-ide-smart-cache-badge.is-hit:hover,
+.wpgraphql-ide-smart-cache-badge.is-hit:focus {
+	color: #1f6f2e;
+}
+
+/* Snackbar — absolute to IDE container, bottom-left.
+   Width grows with content (up to a sane cap) so short, single-thought
+   notices stay on one line — wrapping a 50-character quip into two
+   lines reads as a layout bug, not a stylistic choice. The cap keeps
+   long error messages from running across the entire IDE. */
+.wpgraphql-ide-snackbar-list {
+	position: absolute;
+	bottom: 16px;
+	left: 16px;
+	z-index: 10;
+	max-width: min(720px, calc(100% - 32px));
+}
+
+/* Individual snackbars inside the list — let their content set the
+   width up to the list's cap, so a short notice doesn't get padded
+   out to 720px. */
+.wpgraphql-ide-snackbar-list .components-snackbar {
+	width: max-content;
+	max-width: 100%;
+}
+
+.wpgraphql-ide-snackbar-list .components-snackbar.is-error {
+	background: var(--wpgraphql-ide-color-error, #d63638);
+	color: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-snackbar-list .components-snackbar.is-error .components-snackbar__action {
+	color: var(--wp-components-color-background, #fff);
+}
+
+/* Two-line snackbar content for the easter-egg milestones (comical
+   quip → actionable "Tip: …"). Gutenberg's `.components-snackbar__
+   content` is itself `display: flex; flex-direction: row` so a pair
+   of sibling spans would render side-by-side. Wrapping them in one
+   flex-column div means the snackbar sees a single flex item and
+   our wrapper owns the vertical stack. */
+.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	width: 100%;
+}
+
+.wpgraphql-ide-snackbar-list .wpgraphql-ide-snackbar-tip {
+	opacity: 0.85;
+	font-style: italic;
+}
+
+.wpgraphql-ide-send-button.components-button {
+	color: var(--wp-components-color-background, #fff) !important;
+	/* 48×48 circle — primary CTA. Sized larger than the secondary
+	   controls (method picker 40, auth avatar 28) so the visual
+	   weight tracks the action's importance, not just its colour.
+	   The pill grows to fit via flex; the divider gap keeps the
+	   configure cluster visually separate. */
+	width: 48px;
+	min-width: 48px;
+	height: 48px;
+	padding: 0;
+	justify-content: center;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+}
+
+.wpgraphql-ide-send-button.components-button:hover {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+.wpgraphql-ide-send-button.components-button:active {
+	background: var(--wp-admin-theme-color-darker-20, #183ad6);
+}
+
+@keyframes wpgraphql-ide-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Query composer inline toggle button */
+.wpgraphql-ide-toolbar-composer-btn.components-button {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-toolbar-composer-btn.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-toolbar-composer-btn.components-button.is-active {
+	color: var(--wp-components-color-background, #fff);
+	background: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-toolbar-composer-btn.components-button.is-active:hover {
+	color: var(--wp-components-color-background, #fff);
+	background: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+/* Query composer rendered inline within the editor area. The wrapper itself
+   is a flex column with no scroll — the inner operations region scrolls and
+   the "Add new" footer stays pinned at the bottom. */
+.wpgraphql-ide-query-composer-inline {
+	border-right: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	overflow: hidden;
+	flex-shrink: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	box-sizing: border-box;
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-background, #fff);
+}
+
+/* Constrain SVG icons inside the query composer (checkboxes, arrows) */
+.wpgraphql-ide-query-composer-inline svg {
+	max-width: 16px;
+	max-height: 16px;
+	flex-shrink: 0;
+}
+
+/* Prevent inputs/selects from overflowing the composer panel */
+.wpgraphql-ide-query-composer-inline input,
+.wpgraphql-ide-query-composer-inline select {
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+/* Composer column right-edge resize handle */
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-query-composer-inline > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* Document Settings panel — shares the editor's left slot with the Query
+   Composer (mutually exclusive). Same structural treatment as the composer
+   wrapper, with its own scrollable form body. */
+.wpgraphql-ide-doc-settings-inline {
+	border-right: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	overflow: hidden;
+	flex-shrink: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	box-sizing: border-box;
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-doc-settings-inline > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-doc-settings-inline > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-doc-settings-inline > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* The settings form scrolls vertically when content overflows the panel. */
+.wpgraphql-ide-doc-settings-inline > .wpgraphql-ide-doc-settings-panel {
+	flex: 1;
+	overflow-y: auto;
+}
+
+/* Body row inside the resizable editor area — siblings of the
+   composer/settings panel and the GraphQL editor itself. The notice
+   sits *above* this row inside the same ResizableBox so the bottom
+   Variables/Headers strip stays anchored regardless of whether a notice
+   is showing. */
+.wpgraphql-ide-editor-resizable-body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Side-panel wrapper — flex row that contains the LeftPanel (Composer
+   or Document Settings, full vertical extent) and the editor stack
+   (editor + Variables/Headers below it). The LeftPanel was previously
+   stacked inside the editor's height-resizable, which capped it to the
+   editor area only — leaving the Variables/Headers strip exposed below.
+   Lifting it out lets the panel cover both halves, the way Gutenberg's
+   document settings drawer covers the entire post-editor body. */
+.wpgraphql-ide-editor-with-side {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-editor-stack {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Documents panel (sidebar list of open queries)
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-documents-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Root-level uncategorized items — slight indent to align with collection body */
+.wpgraphql-ide-collections-list > .wpgraphql-ide-documents-list {
+	padding-left: 4px;
+}
+
+/* Document list items */
+.wpgraphql-ide-document-item {
+	display: flex;
+	align-items: center;
+	height: 24px;
+	padding: 0 4px 0 0;
+}
+
+.wpgraphql-ide-document-item.is-draggable {
+	cursor: grab;
+}
+
+.wpgraphql-ide-document-item.is-draggable:active {
+	cursor: grabbing;
+}
+
+/* Drop indicator — a 2px accent line drawn at the top or bottom edge
+   of the hovered item while dragging a sibling for reorder. Used for
+   both document items and collection sections. */
+.wpgraphql-ide-document-item.is-drop-above {
+	box-shadow: inset 0 2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-document-item.is-drop-below {
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-collection-section.is-drop-above {
+	box-shadow: inset 0 2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-collection-section.is-drop-below {
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-collection-header.is-reorderable {
+	cursor: grab;
+}
+
+.wpgraphql-ide-collection-header.is-reorderable:active {
+	cursor: grabbing;
+}
+
+.wpgraphql-ide-document-item.is-active {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	box-shadow: inset 3px 0 0 0 var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-document-item:hover:not(.is-active) {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+/* Published documents — muted to signal "stored, not changeable".
+   Touches every editor surface and the surrounding chrome so the
+   gray treatment reads as a single mode, not a single panel. */
+.wpgraphql-ide-editor.is-readonly,
+.wpgraphql-ide-editor.is-readonly .cm-editor,
+.wpgraphql-ide-editor.is-readonly .cm-scroller {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+/* Drop syntax highlighting entirely in readonly mode — published docs
+   read as plain text, signalling "this is stored output, not editable
+   source". Overrides the shared --gql-color-* palette to a single neutral
+   so every token (keyword, field, type, etc.) renders the same. */
+.wpgraphql-ide-editor.is-readonly {
+	--gql-color-keyword: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-operation-name: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-field: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-argument: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-type: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-string: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-number: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-bool: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-null: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-enum: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-variable: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-directive: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-comment: var(--wp-components-color-gray-700, #50575e);
+	--gql-color-punctuation: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* `cm-content` stays transparent in readonly mode so the
+   `.cm-selectionLayer` (which sits underneath cm-content in the DOM)
+   isn't covered by an opaque grey when the user selects text. */
+.wpgraphql-ide-editor.is-readonly .cm-content {
+	background: transparent;
+}
+
+/* Force every CodeMirror highlight token (set inline by lezer's highlight
+   theme) back to the neutral colour. The CSS variable override above
+   covers our own selectors; this catches the tokens CM6 paints inline. */
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-keyword,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-string,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-number,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-bool,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-atom,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-variableName,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-typeName,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-propertyName,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-className,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-meta,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-comment,
+.wpgraphql-ide-editor.is-readonly .cm-content .tok-punctuation,
+.wpgraphql-ide-editor.is-readonly .cm-content [class*='tok-'] {
+	color: var(--wp-components-color-gray-700, #50575e) !important;
+	font-weight: normal !important;
+}
+
+.wpgraphql-ide-editor.is-readonly .cm-gutters {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+}
+
+.wpgraphql-ide-editor.is-readonly .cm-activeLine,
+.wpgraphql-ide-editor.is-readonly .cm-activeLineGutter {
+	background: transparent;
+}
+
+/* Strip every visual cue that would make the user think they can type:
+   no caret, no caret blink animation, no focus outline. Selection-and-
+   copy still works because contenteditable stays on (see GraphQLEditor). */
+.wpgraphql-ide-editor.is-readonly .cm-cursor,
+.wpgraphql-ide-editor.is-readonly .cm-cursorLayer,
+.wpgraphql-ide-editor.is-readonly .cm-dropCursor {
+	display: none !important;
+}
+
+.wpgraphql-ide-editor.is-readonly .cm-content,
+.wpgraphql-ide-editor.is-readonly .cm-editor.cm-focused {
+	outline: none !important;
+	caret-color: transparent;
+}
+
+/* Filter tabs — All / Mine / Shared. Active state uses underline +
+   color only; font-weight is held constant across active/inactive
+   states so tab labels don't reflow when switching (font-weight
+   changes glyph widths and would cause a visible jiggle). */
+.wpgraphql-ide-saved-queries-filter {
+	flex-shrink: 0;
+	border-bottom: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+}
+
+.wpgraphql-ide-saved-queries-filter .components-tab-panel__tabs {
+	padding: 0 8px;
+}
+
+.wpgraphql-ide-saved-queries-filter .components-tab-panel__tabs-item {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	padding: 8px 12px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-saved-queries-filter
+	.components-tab-panel__tabs-item.is-active {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-saved-queries-filter
+	.components-tab-panel__tabs-item:hover:not(.is-active) {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-saved-queries-filter .components-tab-panel__tab-content {
+	display: none;
+}
+
+/* Unsaved section — pinned to the bottom of the panel, outside the
+   filter so it's always visible when present. Higher specificity than
+   the base `.wpgraphql-ide-collections-list { flex: 1 }` rule below
+   so the unsaved block sits tight to its content while the filtered
+   list above absorbs any remaining vertical space. */
+.wpgraphql-ide-collections-list.wpgraphql-ide-collections-list--unsaved {
+	flex: 0 0 auto;
+	overflow: visible;
+	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+}
+
+/* Document label */
+.wpgraphql-ide-document-label {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	padding: 0 4px 0 12px;
+	border: none;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	cursor: pointer;
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	text-align: left;
+	height: 100%;
+}
+
+.wpgraphql-ide-document-item.is-active .wpgraphql-ide-document-label {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+
+/* Document kebab — hidden until hover/focus */
+.wpgraphql-ide-document-kebab.components-button {
+	opacity: 0;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-document-item:hover .wpgraphql-ide-document-kebab.components-button,
+.wpgraphql-ide-document-kebab.components-button:focus {
+	opacity: 1;
+}
+
+/* Saved Queries panel — matches Gutenberg block inserter layout */
+.wpgraphql-ide-saved-queries-panel {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	margin: -16px -8px -16px -16px;
+}
+
+/* Search — fixed above tabs, part of panel infrastructure */
+.wpgraphql-ide-saved-queries-search {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 6px 8px 6px 12px;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-saved-queries-search > .components-base-control,
+.wpgraphql-ide-saved-queries-search > .components-search-control {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-panel-kebab.components-button {
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	min-width: 24px;
+	min-height: 24px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-panel-kebab.components-button svg {
+	width: 18px;
+	height: 18px;
+}
+
+.wpgraphql-ide-panel-kebab.components-button:hover {
+	color: var(--wpgraphql-ide-accent);
+	background: transparent;
+}
+
+/* Collection sections — collapsible groups like WP Engine Local */
+.wpgraphql-ide-collections-list {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	min-height: 0;
+	min-width: 0;
+}
+
+/* Collection sections — match Gutenberg PanelBody */
+.wpgraphql-ide-collection-section {
+	border-bottom: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+}
+
+.wpgraphql-ide-collection-section:last-child {
+	border-bottom: none;
+}
+
+.wpgraphql-ide-collection-header {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 36px;
+	padding: 0 16px 0 0;
+}
+
+.wpgraphql-ide-collection-header:hover {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-collection-header.is-drag-over {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	box-shadow: inset 0 -2px 0 0 var(--wpgraphql-ide-accent);
+}
+
+/* Chevron toggle */
+.wpgraphql-ide-collection-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 100%;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	flex-shrink: 0;
+}
+
+/* Title button */
+.wpgraphql-ide-collection-title {
+	flex: 1;
+	min-width: 0;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
+	text-align: left;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+/* Rename input */
+.wpgraphql-ide-collection-rename-input {
+	flex: 1;
+	min-width: 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	padding: 1px 4px;
+	border: 1px solid var(--wpgraphql-ide-accent);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	outline: none;
+}
+
+/* Count */
+.wpgraphql-ide-collection-count {
+	color: #757575;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: 400;
+	flex-shrink: 0;
+	margin-left: 6px;
+}
+
+/* Kebab — hidden until hover */
+.wpgraphql-ide-collection-kebab.components-button {
+	opacity: 0;
+	flex-shrink: 0;
+	margin-right: 4px;
+}
+
+.wpgraphql-ide-collection-header:hover .wpgraphql-ide-collection-kebab.components-button {
+	opacity: 1;
+}
+
+.wpgraphql-ide-collection-kebab.components-button:focus {
+	opacity: 1;
+}
+
+/* Spacer matching kebab width for sections without a menu */
+.wpgraphql-ide-collection-kebab-spacer {
+	width: 28px;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-collection-body {
+	padding: 4px 0 4px 20px;
+}
+
+.wpgraphql-ide-collection-empty {
+	padding: 4px 0;
+	margin: 0;
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-style: italic;
+}
+
+.wpgraphql-ide-saved-queries-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 0 12px;
+}
+
+.wpgraphql-ide-saved-queries-empty-hint {
+	margin: 0;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: 1.4;
+}
+
+.wpgraphql-ide-saved-queries-empty-footnote {
+	margin: 0;
+	color: var(--wp-components-color-gray-700, #757575);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: 1.4;
+}
+
+.wpgraphql-ide-export-divider {
+	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+	margin: 4px 0;
+}
+
+.wpgraphql-ide-export-empty {
+	color: #757575;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	margin: 0;
+}
+
+.wpgraphql-ide-export-footer {
+	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+	padding-top: 12px;
+	margin-top: 8px;
+}
+
+
+/* Empty state */
+.wpgraphql-ide-saved-queries-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 32px 16px;
+	text-align: center;
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+.wpgraphql-ide-saved-queries-empty p {
+	margin: 0 0 4px;
+}
+
+/* Panel header actions container */
+.wpgraphql-ide-panel-header-spacer {
+	flex: 1;
+}
+
+.wpgraphql-ide-document-title-text {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-document-title-text.is-unsaved {
+	font-style: italic;
+}
+
+.wpgraphql-ide-document-badge {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	white-space: nowrap;
+}
+
+
+
+
+/* ---------------------------------------------------------------------------
+   Editor toolbar (inline at top of query pane)
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-editor-toolbar {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 4px 8px 4px 12px;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	flex-shrink: 0;
+	min-height: 36px;
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-editor-label {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-editor-toolbar-spacer {
+	flex: 1;
+}
+
+.wpgraphql-ide-editor-toolbar .components-button {
+	height: 28px;
+	min-width: 28px;
+	padding: 0 6px;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-editor-toolbar .components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-editor-toolbar .components-button svg {
+	width: 20px;
+	height: 20px;
+}
+
+/* ---------------------------------------------------------------------------
+   Main content area
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-main {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Activity panel (sidebar)
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-activity-panel {
+	border-right: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 12px;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	flex-shrink: 0;
+	min-height: 36px;
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-panel-title {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	line-height: 1;
+}
+
+.wpgraphql-ide-panel-close.components-button {
+	min-width: 24px;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-panel-close.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-panel-close.components-button svg {
+	width: 20px;
+	height: 20px;
+}
+
+.wpgraphql-ide-plugin {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 16px;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+.wpgraphql-ide-plugin .components-spinner {
+	width: 24px;
+	height: 24px;
+}
+
+.wpgraphql-ide-plugin svg {
+	max-width: 18px;
+	max-height: 16px;
+	display: inline-block;
+	vertical-align: middle;
+	flex-shrink: 0;
+}
+
+
+/* Query composer form controls — match WordPress admin native styles */
+.wpgraphql-ide-plugin input[type="text"],
+.wpgraphql-ide-plugin input[type="number"] {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	padding: 4px 6px;
+	border: 1px solid #8c8f94;
+	border-radius: 0;
+	min-width: 60px;
+	width: auto;
+	max-width: none;
+	box-sizing: content-box;
+	background: var(--wp-components-color-background, #fff);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	line-height: normal;
+}
+
+.wpgraphql-ide-plugin input[type="text"]:focus,
+.wpgraphql-ide-plugin input[type="number"]:focus {
+	border-color: var(--wpgraphql-ide-accent);
+	box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
+	outline: none;
+}
+
+.wpgraphql-ide-plugin select {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	padding: 0 24px 0 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 0;
+	max-width: none;
+	height: 28px;
+	background: var(--wp-components-color-background, #fff);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-plugin select:focus {
+	border-color: var(--wpgraphql-ide-accent);
+	box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
+	outline: none;
+}
+
+/* Operation name input (wider, no clipping) */
+.wpgraphql-ide-plugin > div > span > input[type="text"],
+.wpgraphql-ide-plugin .graphiql-explorer-root input[type="text"] {
+	min-width: 100px;
+}
+
+/* Action icons next to operation name (× and copy) */
+.wpgraphql-ide-plugin > div > span > span,
+.wpgraphql-ide-plugin > div > span > button {
+	font-size: 16px;
+	cursor: pointer;
+	padding: 2px;
+}
+
+/* Prevent tooltips from causing layout shift in query composer */
+.wpgraphql-ide-plugin [title] {
+	position: relative;
+}
+
+.wpgraphql-ide-plugin input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	margin: 0 4px 0 0;
+	flex-shrink: 0;
+	border-radius: 0;
+	accent-color: var(--wpgraphql-ide-accent);
+	cursor: pointer;
+}
+
+/* Activity panel resize handle */
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* ---------------------------------------------------------------------------
+   Share Collection dialog
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-share-collection-status {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+/* Search results — list rows with a `+` affordance, visually distinct
+   from the shared-with chips below so it's obvious they're click-to-add,
+   not already-added. */
+.wpgraphql-ide-share-collection-results {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+	background: var(--wp-components-color-background, #fff);
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.wpgraphql-ide-share-collection-results > li + li {
+	border-top: 1px solid #f0f0f0;
+}
+
+.wpgraphql-ide-share-collection-result {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	width: 100%;
+	padding: 8px 12px;
+	background: transparent;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+	font: inherit;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-share-collection-result:hover,
+.wpgraphql-ide-share-collection-result:focus-visible {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	outline: none;
+}
+
+.wpgraphql-ide-share-collection-result-name {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+}
+
+.wpgraphql-ide-share-collection-result-slug {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-share-collection-result-add {
+	margin-left: auto;
+	fill: var(--wpgraphql-ide-accent);
+}
+
+/* Shared-with section — chips for users who currently have access. */
+.wpgraphql-ide-share-collection-shared-label {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-gray-700, #50575e);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-share-collection-empty {
+	margin: 0;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-style: italic;
+}
+
+.wpgraphql-ide-share-collection-chips {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-share-collection-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 2px 4px 2px 10px;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border-radius: 12px;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-share-collection-chip-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+	cursor: pointer;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-share-collection-chip-remove:hover,
+.wpgraphql-ide-share-collection-chip-remove:focus-visible {
+	background: var(--wp-components-color-gray-200, #dcdcde);
+	outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Query pane
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-query-pane {
+	display: flex;
+	flex-direction: column;
+	min-width: 200px;
+	/* Pair with .wpgraphql-ide-response-pane min-width — dragging the
+	   editor's right edge can never push the response below its 440px
+	   floor. */
+	max-width: calc(100% - 440px);
+	border-right: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	position: relative;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.wpgraphql-ide-editor-resizable {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	position: relative;
+	transition: opacity 0.15s ease;
+	max-height: calc(100% - 120px);
+}
+
+/* When the bottom strip (Variables/Headers, or any registered editor-bottom
+   panel) has nothing to render, reclaim the reserved space so the editor
+   fills the pane and no empty white strip is left behind. flex:1 in the
+   query-pane column overrides the ResizableBox's inline height so the
+   editor — and the absolutely-positioned execution pill anchored to its
+   bottom-right — keep a stable layout. The resize handle is disabled in
+   JS for this state since there's nothing to resize against. */
+.wpgraphql-ide-editor-resizable.is-fullheight {
+	flex: 1;
+	max-height: 100%;
+}
+
+
+/* Space between editor toolbar and CodeMirror content */
+.wpgraphql-ide-editor-resizable .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-editor-tools {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-editor-tools.is-readonly {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+/* Make the Variables/Headers editors fill the tab body so clicking
+   anywhere in the empty space focuses the editor (mirrors how the
+   main query editor behaves). Without this, the JSONEditor only
+   occupies a single line of height with a dead zone underneath. */
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content > .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content .cm-editor {
+	height: 100%;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content .cm-scroller {
+	min-height: 100%;
+}
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tab-content .cm-gutters {
+	min-height: 100%;
+}
+
+/* Resize handles */
+/* Hide ALL default ResizableBox handle visuals (circles/spinners) */
+.wpgraphql-ide-container .components-resizable-box__handle > *,
+.wpgraphql-ide-container .components-resizable-box__side-handle::before,
+.wpgraphql-ide-container .components-resizable-box__side-handle::after {
+	display: none !important;
+}
+
+/* Drag-time dimensions pill — anchored to its own pane's top-right.
+   Hidden by default; `.is-active` reveals it during any drag. */
+.wpgraphql-ide-resize-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 100;
+	display: none;
+	padding: 3px 8px;
+	background: rgba(255, 255, 255, 0.85);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	line-height: var(--wpgraphql-ide-leading-tight, 1.4);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", sans-serif;
+	font-variant-numeric: tabular-nums;
+	pointer-events: none;
+	user-select: none;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-resize-overlay.is-active {
+	display: inline-block;
+}
+
+/* Containers that aren't ResizableBoxes themselves but still host an
+   indicator — give them a positioning context so the pill anchors,
+   and let them fill the remaining flex space so the pill measures the
+   *visible* pane (not just the inner tab strip). */
+.wpgraphql-ide-response-body--empty {
+	position: relative;
+}
+.wpgraphql-ide-response-tabs-wrap,
+.wpgraphql-ide-editor-bottom {
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+.wpgraphql-ide-response-tabs-wrap > .components-tab-panel,
+.wpgraphql-ide-editor-bottom > .components-tab-panel {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Collapsed bottom strip — only the tab bar + chevron is visible. The
+   editor / response viewer above grows into the freed space because
+   EditorPane / ResponseContent skip their ResizableBox wrapper in this
+   mode and let the surrounding flex column fill it. */
+.wpgraphql-ide-response-tabs-wrap.is-collapsed,
+.wpgraphql-ide-editor-bottom.is-collapsed {
+	flex: 0 0 auto;
+}
+.wpgraphql-ide-response-tabs-wrap.is-collapsed > .components-tab-panel,
+.wpgraphql-ide-editor-bottom.is-collapsed > .components-tab-panel {
+	flex: 0 0 auto;
+}
+
+/* Editor / response-viewer wrapper used when the bottom strip is
+   collapsed. ResizableBox is skipped, so this plain div flex-fills
+   the parent column. Doubled-class selectors beat the single-class
+   defaults — `.wpgraphql-ide-editor-resizable` reserves 120px for
+   the bottom strip via `max-height: calc(100% - 120px)`, which we
+   must release since the collapsed strip only needs ~36 px.
+   `.wpgraphql-ide-response-viewer` defaults to `flex: none`, same
+   problem on the response side. */
+.wpgraphql-ide-editor-resizable.wpgraphql-ide-editor-resizable--filling,
+.wpgraphql-ide-response-viewer.wpgraphql-ide-response-viewer--filling {
+	flex: 1;
+	min-height: 0;
+	max-height: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Tab-strip row hosts the strip and the trailing collapse chevron.
+   The scroll lives in the content area below (see the per-consumer
+   rules), so the strip is just a normal flex row — no sticky
+   acrobatics, no z-index stacking against scrolled content.
+   `cursor: pointer` signals that the empty space between the tabs
+   and the chevron is also a collapse hit target. */
+.wpgraphql-ide-tab-strip-row {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: stretch;
+	background: var(--wp-components-color-background, #fff);
+	cursor: pointer;
+}
+.wpgraphql-ide-tab-strip-row > .components-tab-panel__tabs {
+	flex: 1;
+	min-width: 0;
+}
+
+.wpgraphql-ide-tab-collapse-btn {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	border: none;
+	background: transparent;
+	color: var(--wp-components-color-gray-700, #50575e);
+	cursor: pointer;
+	padding: 0;
+}
+.wpgraphql-ide-tab-collapse-btn:hover {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	background: rgba(0, 0, 0, 0.04);
+}
+.wpgraphql-ide-tab-collapse-btn:focus-visible {
+	outline: 1.5px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
+}
+
+/* Collapsed handle row: all tab labels visible, active one prominent,
+   the rest subdued — preserves the discoverability of multiple tabs
+   while keeping the docked-control reading. */
+.wpgraphql-ide-tab-collapsed-handle {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	height: 36px;
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-tab-collapsed-tab {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	padding: 0 12px;
+	border: none;
+	background: transparent;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #757575;
+	cursor: pointer;
+	transition:
+		color 0.12s ease,
+		background-color 0.12s ease;
+}
+.wpgraphql-ide-tab-collapsed-tab:hover {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	background: rgba(0, 0, 0, 0.04);
+}
+.wpgraphql-ide-tab-collapsed-tab.is-active {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+.wpgraphql-ide-tab-collapsed-tab:focus-visible {
+	outline: 1.5px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
+}
+
+.wpgraphql-ide-tab-collapsed-chevron {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	margin-left: auto;
+	border: none;
+	background: transparent;
+	color: var(--wp-components-color-gray-700, #50575e);
+	cursor: pointer;
+	padding: 0;
+}
+.wpgraphql-ide-tab-collapsed-chevron:hover {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	background: rgba(0, 0, 0, 0.04);
+}
+.wpgraphql-ide-tab-collapsed-chevron:focus-visible {
+	outline: 1.5px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle,
+.wpgraphql-ide-editor-resizable > .components-resizable-box__handle,
+.wpgraphql-ide-activity-panel > .components-resizable-box__handle {
+	z-index: 1;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle-right {
+	width: 8px;
+	right: -4px;
+	cursor: col-resize;
+	background: transparent;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle-right::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 24px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-query-pane > .components-resizable-box__handle-right:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* Shared vertical split resize handle (used by query and response panes) */
+.wpgraphql-ide-resizable-split > .components-resizable-box__handle-bottom {
+	height: 8px;
+	bottom: -4px;
+	cursor: row-resize;
+	background: transparent;
+	z-index: 1;
+}
+
+.wpgraphql-ide-resizable-split > .components-resizable-box__handle-bottom::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 2px;
+	background: #ddd;
+	border-radius: 1px;
+}
+
+.wpgraphql-ide-resizable-split > .components-resizable-box__handle-bottom:hover::after {
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* ---------------------------------------------------------------------------
+   Response pane
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-response-pane {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	/* 440 is the floor at which the bottom tab strip + verdict block +
+	   table all stay legible. Anything tighter and even the overflow `+N`
+	   button starts getting clipped, so we'd rather have the workspace
+	   scroll horizontally below this width than mangle the response UI. */
+	min-width: 440px;
+	position: relative;
+	background: var(--wp-components-color-background, #fff);
+	overflow: hidden;
+}
+
+.wpgraphql-ide-response-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 12px;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	flex-shrink: 0;
+	min-height: 36px;
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-response-label {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-response-header .components-button {
+	height: 28px;
+	min-width: 28px;
+	padding: 0 6px;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-response-header .components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-response-header .components-button svg {
+	width: 20px;
+	height: 20px;
+}
+
+.wpgraphql-ide-response-header .components-spinner {
+	width: 16px;
+	height: 16px;
+}
+
+.wpgraphql-ide-response-meta {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	margin-left: auto;
+}
+
+.wpgraphql-ide-response-status {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-response-status--success {
+	background: #edfaef;
+	color: var(--wpgraphql-ide-color-success, #00a32a);
+}
+
+.wpgraphql-ide-response-status--error {
+	background: #fcf0f1;
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-response-duration {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+/* The empty response state is always painted with the readonly token
+   (regardless of draft/published) so the editor never shows a stark
+   white "nothing here" plate. White returns only when there's actual
+   response data and the doc is a draft. */
+.wpgraphql-ide-response-empty {
+	flex: 1;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wpgraphql-ide-response-body--empty {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-response-empty-hint {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	user-select: none;
+	max-width: 320px;
+	padding: 0 16px;
+}
+
+.wpgraphql-ide-response-empty-title {
+	margin: 0 0 4px;
+	font-size: var(--wpgraphql-ide-text-14, 14px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	letter-spacing: 0.01em;
+}
+
+.wpgraphql-ide-response-empty-description {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: #757575;
+	letter-spacing: 0.01em;
+}
+
+
+.wpgraphql-ide-response-size {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+/* Tracing summary badges in the response status row. Click switches
+   the response tab to Tracing — visible discoverable surface for the
+   data that's otherwise buried two clicks deep. */
+.wpgraphql-ide-response-trace-badge {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.wpgraphql-ide-response-trace-badge:hover,
+.wpgraphql-ide-response-trace-badge:focus {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	text-decoration: underline;
+	outline: none;
+}
+
+.wpgraphql-ide-response-trace-badge--warning {
+	color: var(--wpgraphql-ide-color-error, #d63638);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+}
+
+.wpgraphql-ide-response-trace-badge--warning:hover,
+.wpgraphql-ide-response-trace-badge--warning:focus {
+	color: #b32d2e;
+	text-decoration: underline;
+}
+
+/* View mode toggle (JSON | Table) */
+.wpgraphql-ide-response-mode-toggle {
+	display: flex;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+}
+
+.wpgraphql-ide-response-header .wpgraphql-ide-response-meta + .wpgraphql-ide-response-mode-toggle {
+	margin-left: 16px;
+}
+
+.wpgraphql-ide-response-mode-btn {
+	padding: 2px 8px;
+	border: none;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	cursor: pointer;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-response-mode-btn.is-active {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-response-mode-btn:hover:not(.is-active) {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+/* Response body — viewer + always-visible bottom tabs */
+.wpgraphql-ide-response-body {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wpgraphql-ide-response-viewer {
+	flex: none;
+	min-height: 50px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-response-viewer .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+}
+
+/* Response viewer fill: the response often has fewer lines than the
+   panel is tall. Stretch the scroller and the gutters wrapper (where
+   the gray paints) to fill, and force a white scroller background so
+   the area to the right of the gutter looks like clean content
+   instead of a hole between the JSON and the bottom tabs. */
+.wpgraphql-ide-response-viewer .cm-scroller {
+	min-height: 100%;
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-response-viewer .cm-gutters {
+	min-height: 100%;
+}
+
+.wpgraphql-ide-response-tabs {
+	border-top: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-response-tabs {
+	border-top-color: var(--wp-components-color-gray-200, #dcdcde);
+}
+
+
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	/* No `overflow: hidden` — the OverflowTabs cutoff calc already
+	   ensures children don't exceed the strip's width, and clipping
+	   here was hiding the top edge of each tab label when the strip's
+	   intrinsic height ended up shorter than the buttons (which
+	   happened in some flex layouts). */
+}
+
+.wpgraphql-ide-response-tabs .components-tab-panel__tabs-item {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	padding: 8px 12px;
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/* The overflow trigger is a wp-components DropdownMenu, which wraps its
+   toggle in `<div class="components-dropdown">`. That wrapper — not the
+   button — is the flex child of the strip, so stretching the *button*
+   has no effect (its parent is the wrapper at natural toggle height,
+   floating above the row). Stretch the wrapper itself and let the
+   inner button fill it via height: 100%. Matches the established
+   pattern for the document-tab kebab. */
+.wpgraphql-ide-response-tabs
+	.components-tab-panel__tabs
+	> .components-dropdown {
+	display: flex;
+	align-items: stretch;
+	align-self: stretch;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: 1;
+	padding: 8px 12px;
+	height: 100%;
+	color: var(--wp-components-color-gray-700, #50575e);
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	min-width: auto;
+	flex-shrink: 0;
+	white-space: nowrap;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button:hover {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	background: transparent;
+	box-shadow: none;
+}
+
+.wpgraphql-ide-response-tabs .wpgraphql-ide-tabs-overflow.components-button:focus-visible {
+	box-shadow: inset 0 0 0 1.5px
+		var(--wpgraphql-ide-accent);
+	outline: none;
+}
+
+/* Red the Errors tab when errors > 0. Targets by `data-tab-name`
+   (set in OverflowTabs.jsx) rather than position — users can reorder
+   the response strip, so `:nth-child(N)` would highlight whichever tab
+   happened to sit in slot 2. */
+.wpgraphql-ide-response-tabs.has-errors
+	.components-tab-panel__tabs-item[data-tab-name='ext:errors'],
+.wpgraphql-ide-response-tabs.has-errors
+	.wpgraphql-ide-tab-collapsed-tab[data-tab-name='ext:errors'] {
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-response-tabs .components-tab-panel__tab-content {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: 8px 12px;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+/* ---------------------------------------------------------------------------
+   Debug extension tab
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-debug-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-debug-entry {
+	padding: 8px 0;
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-debug-entry:last-child {
+	border-bottom: none;
+}
+
+.wpgraphql-ide-debug-entry-header {
+	display: flex;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	align-items: baseline;
+}
+
+.wpgraphql-ide-debug-type {
+	flex-shrink: 0;
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	padding: 2px 6px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	background: #fcf9e8;
+	color: var(--wpgraphql-ide-color-warning, #dba617);
+	text-transform: uppercase;
+}
+
+.wpgraphql-ide-debug-message {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	word-break: break-word;
+}
+
+.wpgraphql-ide-debug-stack-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	margin-top: 6px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-debug-stack-toggle:hover {
+	color: var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-debug-stack-chevron {
+	display: inline-block;
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-debug-stack-chevron.is-open {
+	transform: rotate(90deg);
+}
+
+.wpgraphql-ide-debug-stack {
+	margin: 6px 0 0 4px;
+	padding: 4px 0 4px 18px;
+	border-left: 2px solid var(--wp-components-color-gray-200, #dcdcde);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-debug-stack li {
+	padding: 2px 0;
+	word-break: break-all;
+}
+
+.wpgraphql-ide-debug-stack code {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	background: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Tracing extension tab
+
+   Scoped CSS custom properties drive the verdict + per-row bar colors so
+   they can be themed without hunting for selectors. WP admin's theme color
+   provides the accent fallback; the success/warning/error tokens follow
+   the WordPress admin palette. The bar in each duration cell is a
+   horizontal background fill whose width is set inline via `--bar-pct`.
+   --------------------------------------------------------------------------- */
+
+/* Tokens are defined in our own namespace so the panel reads as a unit
+   and is easy to retheme. Each falls through `var()` to the WP design
+   system token (matches the pattern wp-components itself uses), so the
+   panel auto-adapts to admin color schemes / future WP token rollouts.
+   Status (fast/ok/slow) hues alias the IDE's semantic state palette
+   so notices, validation, and timing all read from the same source. */
+.wpgraphql-ide-tracing-panel {
+	--wpgraphql-ide-tracing-fast: var(--wpgraphql-ide-color-success, #00a32a);
+	--wpgraphql-ide-tracing-ok: var(--wpgraphql-ide-color-warning, #dba617);
+	--wpgraphql-ide-tracing-slow: var(--wpgraphql-ide-color-error, #d63638);
+	--wpgraphql-ide-tracing-muted: var(--wp-components-color-gray-700, #50575e);
+	--wpgraphql-ide-tracing-faint: var(--wp-components-color-gray-400, #a7aaad);
+	--wpgraphql-ide-tracing-text: var(--wp-components-color-foreground, #1e1e1e);
+	--wpgraphql-ide-tracing-bg: var(--wp-components-color-gray-100, #f0f0f1);
+	--wpgraphql-ide-tracing-rule: var(--wp-components-color-gray-200, #dcdcde);
+	--wpgraphql-ide-tracing-row-rule: var(--wp-components-color-gray-100, #f0f0f1);
+	--wpgraphql-ide-tracing-accent: var(
+		--wp-components-color-accent,
+		var(--wpgraphql-ide-accent)
+	);
+	--wpgraphql-ide-tracing-accent-soft: color-mix(
+		in srgb,
+		var(--wpgraphql-ide-tracing-accent) 8%,
+		transparent
+	);
+
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-12, 12px);
+}
+
+/* Reset code-element styling inherited from wp-admin / wp-components so
+   identifiers in the table read as inline text, not chips with grey
+   backgrounds (which start to dominate the layout once columns are
+   narrow). */
+.wpgraphql-ide-tracing-table code,
+.wpgraphql-ide-tracing-verdict code {
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	font-size: inherit;
+	color: inherit;
+}
+
+.wpgraphql-ide-querylog-summary {
+	display: flex;
+	gap: 24px;
+	padding: 8px 10px;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-querylog-summary > div {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+}
+
+.wpgraphql-ide-querylog-label {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--wp-components-color-gray-600, #646970);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-querylog-value {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: var(--wp-components-color-gray-800, #2c3338);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+.wpgraphql-ide-tracing-verdict {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 12px 14px;
+	background: var(--wpgraphql-ide-tracing-bg);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	/* 4px left rule matches wp-admin notice convention so the verdict
+	   reads as a status callout in the same visual language users see
+	   in Settings / Tools / etc. */
+	border-left: 4px solid var(--wpgraphql-ide-tracing-fast);
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="ok"] {
+	border-left-color: var(--wpgraphql-ide-tracing-ok);
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="slow"] {
+	border-left-color: var(--wpgraphql-ide-tracing-slow);
+}
+
+.wpgraphql-ide-tracing-verdict-headline {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-tracing-verdict-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+	background: var(--wpgraphql-ide-tracing-fast);
+	flex-shrink: 0;
+	align-self: center;
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="ok"] .wpgraphql-ide-tracing-verdict-dot {
+	background: var(--wpgraphql-ide-tracing-ok);
+}
+
+.wpgraphql-ide-tracing-verdict[data-tier="slow"] .wpgraphql-ide-tracing-verdict-dot {
+	background: var(--wpgraphql-ide-tracing-slow);
+}
+
+.wpgraphql-ide-tracing-verdict-label {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-tracing-text);
+}
+
+.wpgraphql-ide-tracing-verdict-summary {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-tracing-muted);
+}
+
+.wpgraphql-ide-tracing-verdict-detail {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-tracing-muted);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-tracing-verdict-detail code {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	color: var(--wpgraphql-ide-tracing-text);
+}
+
+
+.wpgraphql-ide-tracing-controls {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+	flex-wrap: wrap;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-tracing-muted);
+}
+
+.wpgraphql-ide-tracing-controls > label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-tracing-trivial-toggle {
+	cursor: pointer;
+}
+
+.wpgraphql-ide-tracing-trivial-toggle input {
+	margin: 0;
+	/* Tints the native checkbox to the user's admin color scheme so it
+	   matches the rest of wp-admin without pulling in CheckboxControl. */
+	accent-color: var(--wpgraphql-ide-tracing-accent);
+}
+
+.wpgraphql-ide-tracing-controls select {
+	/* Light WP-admin field treatment so the dropdown reads as a form
+	   control rather than a bare browser default. */
+	border: 1px solid var(--wpgraphql-ide-tracing-rule);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	background: var(--wp-components-color-background, #fff);
+	color: var(--wpgraphql-ide-tracing-text);
+	padding: 2px 6px;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-tracing-controls select:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-tracing-accent);
+	outline-offset: 0;
+	border-color: var(--wpgraphql-ide-tracing-accent);
+}
+
+/* Whole-row click target so users don't have to aim at the path
+   string. Hover surfaces the affordance; focus-visible draws a
+   keyboard outline. */
+.wpgraphql-ide-tracing-row.is-clickable {
+	cursor: pointer;
+}
+
+.wpgraphql-ide-tracing-row.is-clickable:hover {
+	background: var(--wpgraphql-ide-tracing-accent-soft);
+}
+
+.wpgraphql-ide-tracing-row.is-clickable:hover .wpgraphql-ide-tracing-path {
+	color: var(--wpgraphql-ide-tracing-accent);
+	text-decoration: underline;
+}
+
+.wpgraphql-ide-tracing-row.is-clickable:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-tracing-accent);
+	outline-offset: -2px;
+	background: var(--wpgraphql-ide-tracing-accent-soft);
+}
+
+.wpgraphql-ide-tracing-n1 {
+	margin: 4px 0;
+	padding: 12px 14px;
+	/* Warning, not error — N+1 patterns aren't failures, they're
+	   resolver-shape hints. Yellow/amber treatment instead of red. */
+	border-left: 3px solid var(--wpgraphql-ide-tracing-ok);
+	background: #fcf9e8;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-tracing-n1-title {
+	margin: 0 0 4px;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-tracing-text);
+}
+
+.wpgraphql-ide-tracing-n1-description {
+	margin: 0 0 10px;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-tracing-muted);
+	line-height: var(--wpgraphql-ide-leading-tight, 1.4);
+}
+
+.wpgraphql-ide-tracing-n1-table {
+	background: var(--wp-components-color-background, #fff);
+	border: 1px solid #f0e2b6;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	margin: 0;
+}
+
+.wpgraphql-ide-tracing-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	table-layout: fixed;
+}
+
+.wpgraphql-ide-tracing-table th {
+	text-align: left;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: var(--wpgraphql-ide-tracing-muted);
+	padding: 4px 8px;
+	border-bottom: 1px solid var(--wpgraphql-ide-tracing-rule);
+	background: var(--wpgraphql-ide-tracing-bg);
+	position: sticky;
+	top: 0;
+}
+
+.wpgraphql-ide-tracing-table th.is-numeric,
+.wpgraphql-ide-tracing-table td.is-numeric {
+	text-align: right;
+	white-space: nowrap;
+	font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+.wpgraphql-ide-tracing-table th.is-bar-col {
+	width: 180px;
+}
+
+.wpgraphql-ide-tracing-table td {
+	padding: 6px 8px;
+	border-bottom: 1px solid var(--wpgraphql-ide-tracing-row-rule);
+	vertical-align: top;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col {
+	position: relative;
+	vertical-align: middle;
+	padding: 4px 8px;
+}
+
+.wpgraphql-ide-tracing-bar-track {
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	height: 100%;
+	pointer-events: none;
+}
+
+.wpgraphql-ide-tracing-bar-track::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: var(--bar-pct, 0%);
+	height: 18px;
+	background: var(--wpgraphql-ide-tracing-fast);
+	opacity: 0.24;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	transition: width 200ms ease;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col[data-tier="ok"] .wpgraphql-ide-tracing-bar-track::before {
+	background: var(--wpgraphql-ide-tracing-ok);
+	opacity: 0.28;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col[data-tier="slow"] .wpgraphql-ide-tracing-bar-track::before {
+	background: var(--wpgraphql-ide-tracing-slow);
+	opacity: 0.32;
+}
+
+.wpgraphql-ide-tracing-bar-value {
+	position: relative;
+	z-index: 1;
+}
+
+.wpgraphql-ide-tracing-table td.is-bar-col[data-tier="slow"] .wpgraphql-ide-tracing-bar-value {
+	color: var(--wpgraphql-ide-tracing-slow);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-tracing-path {
+	display: block;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	color: var(--wpgraphql-ide-tracing-text);
+	/* `anywhere` lets the path break at any character when it has to,
+	   but the browser still prefers natural break points (like `.`)
+	   over splitting words mid-token — `break-all` had no such
+	   preference and produced ragged `posts.edg / es.0.nod / e.link`
+	   stacks. */
+	overflow-wrap: anywhere;
+	word-break: normal;
+}
+
+.wpgraphql-ide-tracing-parent {
+	display: block;
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wpgraphql-ide-tracing-faint);
+	margin-top: 2px;
+}
+
+/* The `→ ReturnType` suffix renders inline with the parent type only
+   in narrow layouts (see container query below). Hidden by default
+   because the wide layout has its own dedicated column. */
+.wpgraphql-ide-tracing-return-inline {
+	display: none;
+}
+
+@container (max-width: 560px) {
+	.wpgraphql-ide-tracing-table .wpgraphql-ide-tracing-return-cell {
+		display: none;
+	}
+
+	.wpgraphql-ide-tracing-return-inline {
+		display: inline;
+	}
+
+	.wpgraphql-ide-tracing-table th.is-bar-col {
+		width: auto;
+	}
+
+	.wpgraphql-ide-tracing-verdict-headline {
+		gap: var(--wpgraphql-ide-space-6, 6px);
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Query Log extension tab
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-querylog-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.wpgraphql-ide-querylog-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-querylog-entry {
+	padding: 10px 0;
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-querylog-entry:last-child {
+	border-bottom: none;
+}
+
+.wpgraphql-ide-querylog-entry-header {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.wpgraphql-ide-querylog-time {
+	flex-shrink: 0;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-gray-700, #50575e);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	padding: 2px 6px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	white-space: nowrap;
+	margin-top: 2px;
+}
+
+.wpgraphql-ide-querylog-sql {
+	margin: 0;
+	flex: 1;
+	min-width: 0;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	white-space: pre-wrap;
+	word-break: break-word;
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-querylog-stack-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	margin-top: 6px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-querylog-stack-toggle:hover {
+	color: var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-querylog-stack-chevron {
+	display: inline-block;
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-querylog-stack-chevron.is-open {
+	transform: rotate(90deg);
+}
+
+.wpgraphql-ide-querylog-stack {
+	margin: 6px 0 0 4px;
+	padding: 4px 0 4px 18px;
+	border-left: 2px solid var(--wp-components-color-gray-200, #dcdcde);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-700, #50575e);
+	list-style: decimal;
+}
+
+.wpgraphql-ide-querylog-stack li {
+	padding: 2px 0;
+	word-break: break-all;
+}
+
+/* Headers panel */
+/* Response headers — Chrome DevTools-style key-value table */
+.wpgraphql-ide-headers-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	line-height: var(--wpgraphql-ide-leading-tight, 1.4);
+}
+
+.wpgraphql-ide-header-row:nth-child(even) {
+	background: #f9f9f9;
+}
+
+.wpgraphql-ide-header-row:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+/* In readonly mode the surrounding plate is already var(--wp-components-color-gray-100, #f0f0f1), so the
+   default zebra/hover swap inverts visually. Soften both: zebra to
+   blend against the plate, hover to a slightly darker pick-out. */
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-header-row:nth-child(even) {
+	background: transparent;
+}
+
+.wpgraphql-ide-response-body.is-readonly .wpgraphql-ide-header-row:hover {
+	background: #e8eaed;
+}
+
+.wpgraphql-ide-header-name {
+	color: #8b3dff;
+	font-weight: 400;
+	padding: 2px 8px 2px 12px;
+	white-space: nowrap;
+	vertical-align: top;
+	user-select: all;
+}
+
+.wpgraphql-ide-header-value {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	padding: 2px 12px 2px 0;
+	word-break: break-all;
+	vertical-align: top;
+	user-select: all;
+}
+
+/* Errors panel */
+.wpgraphql-ide-errors-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-error-card {
+	padding: 8px;
+	margin-bottom: 8px;
+	border: 1px solid #fcf0f1;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-error-message {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-error-meta {
+	display: flex;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	margin-top: 4px;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-error-location {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-family: monospace;
+}
+
+.wpgraphql-ide-error-path {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-error-details-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	margin-top: 6px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-error-details-chevron {
+	display: inline-block;
+	transition: transform 0.15s;
+}
+
+.wpgraphql-ide-error-details-chevron.is-open {
+	transform: rotate(90deg);
+}
+
+.wpgraphql-ide-error-details {
+	margin-top: 6px;
+	padding: 8px;
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	overflow-x: auto;
+}
+
+/* Extensions empty state — surfaced as a synthetic tab when the
+   response includes extension keys nothing has registered for. */
+.wpgraphql-ide-extensions-empty {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+.wpgraphql-ide-extensions-empty p {
+	margin: 0 0 8px;
+}
+
+.wpgraphql-ide-extensions-empty ul {
+	margin: 0;
+	padding-left: 20px;
+}
+
+.wpgraphql-ide-extensions-empty code {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+/* Table view */
+.wpgraphql-ide-table-view {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-table-toolbar {
+	padding: 4px 12px;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-table-scroll {
+	flex: 1;
+	overflow: auto;
+	padding: 8px 12px;
+}
+
+.wpgraphql-ide-table-breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-table-crumb {
+	border: none;
+	background: none;
+	padding: 2px 4px;
+	color: var(--wpgraphql-ide-accent);
+	cursor: pointer;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-table-crumb.is-current {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	cursor: default;
+}
+
+.wpgraphql-ide-table-crumb-sep {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+}
+
+.wpgraphql-ide-data-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-data-table th {
+	text-align: left;
+	padding: 6px 8px;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+	position: sticky;
+	top: 0;
+}
+
+.wpgraphql-ide-data-table td {
+	padding: 4px 8px;
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+	vertical-align: top;
+}
+
+.wpgraphql-ide-data-table-sort {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	border: none;
+	background: none;
+	padding: 0;
+	cursor: pointer;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-data-table-sort-indicator {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+.wpgraphql-ide-table-index-col,
+.wpgraphql-ide-table-index {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	width: 32px;
+}
+
+.wpgraphql-ide-table-cell-null {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+}
+
+.wpgraphql-ide-table-cell-bool {
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-table-cell-num {
+	color: var(--gql-color-number, #005cc5);
+}
+
+.wpgraphql-ide-table-cell-drill {
+	border: none;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-family: monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-accent);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-table-cell-drill:hover {
+	background: var(--wp-components-color-gray-200, #dcdcde);
+}
+
+/* Tree view (objects in table mode) */
+.wpgraphql-ide-tree-row {
+	display: flex;
+	gap: var(--wpgraphql-ide-space-12, 12px);
+	padding: 3px 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-tree-field {
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-gray-700, #50575e);
+	min-width: 80px;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-tree-section {
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-tree-section-header {
+	display: block;
+	width: 100%;
+	text-align: left;
+	border: none;
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+	padding: 4px 8px;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	cursor: pointer;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-tree-section-header:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-tree-section-content {
+	padding-left: 12px;
+	border-left: 2px solid var(--wp-components-color-gray-200, #dcdcde);
+	margin-left: 4px;
+}
+
+.wpgraphql-ide-table-cell-str {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	word-break: break-word;
+	max-width: 380px;
+}
+
+.wpgraphql-ide-tree-object {
+	border-top: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-tree-scalar {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	padding: 4px 8px;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wpgraphql-ide-tree-value {
+	flex: 1;
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	word-break: break-word;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-response-pane > .wpgraphql-ide-editor {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   CodeMirror — light theme to match WordPress admin
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-editor .cm-editor {
+	height: 100%;
+	background: var(--wp-components-color-background, #fff);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-editor .cm-editor.cm-focused {
+	outline: none;
+}
+
+.wpgraphql-ide-editor .cm-scroller {
+	overflow: auto;
+	font-family: Menlo, Consolas, Monaco, "Andale Mono", "Courier New", monospace;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-editor .cm-editor {
+	height: 100%;
+}
+
+.wpgraphql-ide-editor .cm-scroller {
+	height: 100%;
+}
+
+.wpgraphql-ide-editor .cm-content {
+	padding: 0 0 4px;
+	caret-color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-editor .cm-gutters {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+	border-right: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+}
+
+.wpgraphql-ide-editor .cm-activeLineGutter {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+/* Active-line indicator: inset left bar instead of an opaque background.
+   A background here would paint over `.cm-selectionLayer`, hiding the
+   selection on whichever line holds the caret (notably the last line
+   after Cmd+A). The inset shadow is non-occluding. */
+.wpgraphql-ide-editor .cm-activeLine {
+	background: transparent;
+	box-shadow: inset 2px 0 0 var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-editor .cm-selectionBackground {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.15) !important;
+}
+
+.wpgraphql-ide-editor .cm-focused .cm-selectionBackground {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.3) !important;
+}
+
+.wpgraphql-ide-editor .cm-cursor,
+.wpgraphql-ide-editor .cm-dropCursor {
+	border-left: 2px solid var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-editor .cm-matchingBracket {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.2);
+	color: inherit;
+}
+
+.wpgraphql-ide-editor .cm-searchMatch {
+	background: #fcf0b4;
+}
+
+.wpgraphql-ide-editor .cm-searchMatch.cm-searchMatch-selected {
+	background: #edfaef;
+}
+
+/* Placeholder text */
+.wpgraphql-ide-editor .cm-placeholder {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	font-style: italic;
+}
+
+/* Tooltip (autocomplete, lint, hover docs) — rendered on document.body via
+   tooltips() so they live outside the editor's stacking context. We must
+   constrain width here since the body offers no container width.
+   Field-description tooltips can carry long deprecation messages, so without
+   a max-width they previously stretched end-to-end across the viewport.
+   Keep this rule narrow: don't touch padding, display, or other layout
+   properties that the graphql/autocomplete extensions rely on internally.
+   Colors / borders / shadows tuned to match WP admin's elevation tokens.
+
+   z-index must clear the IDE's drawer (z-index: 999999 in
+   styles/wpgraphql-ide.css). Tooltips portal to document.body, so on
+   the dedicated IDE page nothing competes; in drawer mode, the drawer
+   overlay would otherwise paint on top and hide every autocomplete /
+   hover popup. 1000000 matches the bump already applied to
+   .components-popover et al. for the same reason.
+
+   `!important` is required: @codemirror/view injects its own
+   `.cm-tooltip { z-index: 500 }` rule via runtime stylesheet
+   construction, AFTER this stylesheet loads, so a plain rule of equal
+   specificity loses the cascade. The same pattern (`!important` on
+   `.components-popover` / `[data-radix-popper-content-wrapper]`) is
+   already in styles/wpgraphql-ide.css for the same reason. */
+.cm-tooltip {
+	max-width: 460px;
+	background: var(--wp-components-color-background, #fff);
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+	color: #1d2327;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	white-space: normal;
+	overflow-wrap: anywhere;
+	z-index: 1000000 !important;
+}
+
+/* Pad the inner section that CM6 renders for hover/info tooltips. The
+   autocomplete dropdown's <ul> isn't wrapped in a section, so it's
+   unaffected. */
+.cm-tooltip .cm-tooltip-section {
+	padding: 12px 14px;
+}
+
+.cm-tooltip code {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	padding: 1px 5px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.cm-tooltip p {
+	margin: 0 0 6px;
+}
+
+.cm-tooltip p:last-child {
+	margin-bottom: 0;
+}
+
+/* Schema hover docs — two-section layout with a monospaced type signature
+   above a hairline divider, then prose description below. Mirrors the WP
+   admin docs panel idiom: muted signature, plain-language body.
+   Token spans (.wpgraphql-ide-hov-*) reuse the editor's syntax-highlight
+   palette so the signature reads in the same visual language as the code. */
+.wpgraphql-ide-hover-signature {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	letter-spacing: 0.1px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wpgraphql-ide-hover-signature:last-child {
+	padding-bottom: 0;
+	margin-bottom: 0;
+	border-bottom: none;
+}
+
+/* Signature token colors — share the unified --gql-color-* palette so the
+   tooltip reads like the editor and Docs panel. */
+.wpgraphql-ide-hov-type {
+	color: var(--gql-color-type);
+}
+.wpgraphql-ide-hov-field {
+	color: var(--gql-color-field);
+}
+.wpgraphql-ide-hov-arg {
+	color: var(--gql-color-argument);
+}
+.wpgraphql-ide-hov-punct {
+	color: var(--gql-color-punctuation);
+}
+
+.wpgraphql-ide-hover-description {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: #1d2327;
+	line-height: 1.6;
+	white-space: pre-wrap;
+}
+
+/* Inline `code` snippets inside descriptions get the same chip treatment
+   as `.cm-tooltip code`, but scoped here so it survives if the outer
+   `.cm-tooltip code` rule changes. */
+.wpgraphql-ide-hov-code {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	padding: 1px 5px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+/* Autocomplete dropdown overrides: max-width clamp doesn't apply here, and
+   the list itself controls its own padding. */
+.cm-tooltip.cm-tooltip-autocomplete {
+	max-width: none;
+	max-height: 250px;
+}
+
+.cm-tooltip-autocomplete > ul {
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.cm-tooltip-autocomplete > ul > li {
+	padding: 4px 8px;
+}
+
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
+	background: var(--wpgraphql-ide-accent);
+	color: var(--wp-components-color-background, #fff);
+}
+
+/* Side panel that CM6 renders next to the autocomplete dropdown to show
+   the highlighted suggestion's description. CM6 places it as a sibling of
+   `.cm-tooltip-autocomplete` (not a child), so it needs its own background
+   and border or it renders invisible against the page. */
+.cm-completionInfo {
+	max-width: 360px;
+	padding: 8px 10px;
+	background: var(--wp-components-color-background, #fff);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+.cm-completionInfo p {
+	margin: 0 0 6px;
+}
+
+.cm-completionInfo p:last-child {
+	margin-bottom: 0;
+}
+
+.cm-completionInfo code {
+	background: rgba(0, 0, 0, 0.05);
+	padding: 1px 4px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+}
+
+/* Suppress lint dot — less jarring, especially on empty documents */
+.wpgraphql-ide-editor .cm-lint-marker {
+	opacity: 0.4;
+}
+
+.wpgraphql-ide-editor .cm-lint-marker:hover {
+	opacity: 1;
+}
+
+/* Lint diagnostic tooltip */
+.cm-diagnostic {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	padding: 4px 8px;
+}
+
+.cm-diagnostic-error {
+	border-left: 3px solid var(--wpgraphql-ide-color-error, #d63638);
+}
+
+/* Fold markers */
+.wpgraphql-ide-editor .cm-foldGutter span {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+}
+
+.wpgraphql-ide-editor .cm-foldGutter span:hover {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+}
+
+/* ---------------------------------------------------------------------------
+   Variables/Headers tab indicator
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-editor-tools .components-tab-panel__tabs-item {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	padding: 8px 12px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   History panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-history-panel {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+/* ---------------------------------------------------------------------------
+   Help panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-help-panel {
+	display: flex;
+	flex-direction: column;
+}
+
+.wpgraphql-ide-help-section {
+	padding: 12px 0;
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-help-section:last-child {
+	border-bottom: none;
+}
+
+.wpgraphql-ide-help-section-title {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	margin: 0 0 4px;
+}
+
+.wpgraphql-ide-help-card-desc {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	margin: 0 0 6px;
+}
+
+.wpgraphql-ide-help-card-link {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wpgraphql-ide-accent);
+	text-decoration: none;
+}
+
+.wpgraphql-ide-help-card-link:hover {
+	text-decoration: underline;
+	color: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+/* ---------------------------------------------------------------------------
+   Docs Explorer panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-docs-panel {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-tight, 1.4);
+}
+
+/* Search header — stays pinned at the top of the docs panel regardless
+   of which view (root, type detail, search results) is rendered below.
+   Wrapped so the body underneath can be the flex-1 scroll container. */
+.wpgraphql-ide-docs-search-header {
+	flex-shrink: 0;
+	padding-bottom: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-docs-body {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.wpgraphql-ide-docs-empty {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	margin: 0;
+}
+
+/* Back button */
+.wpgraphql-ide-docs-back.components-button {
+	margin-bottom: 8px;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	padding: 0;
+	height: auto;
+	min-height: 0;
+}
+
+.wpgraphql-ide-docs-back.components-button:hover {
+	color: var(--wpgraphql-ide-accent);
+}
+
+/* Sticky header for the type detail view — pins Back + name + description
+   to the top of the panel's scroll container so the user can always see
+   *what type they're looking at* while scrolling its (often long) field list.
+   The negative top/horizontal offsets and matching padding cancel out the
+   16px padding `.wpgraphql-ide-plugin` applies, so the sticky surface spans
+   the panel's full width and reaches all the way to the top edge. */
+.wpgraphql-ide-docs-type-header {
+	position: sticky;
+	top: -16px;
+	margin: -16px -16px 12px;
+	padding: 16px 16px 8px;
+	background: var(--wp-components-color-background, #fff);
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+	z-index: 1;
+}
+
+/* Type detail heading */
+.wpgraphql-ide-docs-type-name {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--gql-color-type);
+	font-family: monospace;
+	padding: 4px 0;
+}
+
+.wpgraphql-ide-docs-description {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	margin: 0;
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-docs-type-header .wpgraphql-ide-docs-back {
+	margin-bottom: 4px;
+}
+
+/* Section grouping */
+.wpgraphql-ide-docs-section {
+	margin-bottom: 16px;
+}
+
+.wpgraphql-ide-docs-section-title {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	margin-bottom: 4px;
+	padding: 8px 0 4px;
+}
+
+/* Search input */
+input.wpgraphql-ide-docs-search,
+input.wpgraphql-ide-docs-search[type="text"] {
+	width: 100%;
+	padding: 8px 10px;
+	border: none !important;
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	margin-bottom: 4px;
+	box-sizing: border-box;
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+input.wpgraphql-ide-docs-search:focus,
+input.wpgraphql-ide-docs-search[type="text"]:focus {
+	background: var(--wp-components-color-background, #fff);
+	border: none !important;
+	box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.4);
+	outline: none;
+}
+
+/* Search results — categorized into Types and Fields. */
+.wpgraphql-ide-docs-search-group {
+	margin-top: 12px;
+}
+
+.wpgraphql-ide-docs-search-group-title {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	padding: 4px 0;
+}
+
+/* Field-match row — clickable, with the parent type prefix muted so the
+   field name reads as the primary identifier. */
+.wpgraphql-ide-docs-field-link {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	width: 100%;
+	padding: 6px 8px;
+	border: none;
+	background: transparent;
+	text-align: left;
+	font-family: Menlo, Consolas, Monaco, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: #1d2327;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-docs-field-link:hover {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+}
+
+.wpgraphql-ide-docs-field-link-path {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-docs-field-link-type {
+	color: var(--gql-color-type);
+}
+
+.wpgraphql-ide-docs-field-link-dot {
+	color: var(--gql-color-punctuation);
+}
+
+.wpgraphql-ide-docs-field-link-name {
+	color: var(--gql-color-field);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-docs-field-link-type-ref {
+	flex-shrink: 0;
+	color: var(--gql-color-type);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+}
+
+/* Root type entries (query, mutation, subscription) */
+.wpgraphql-ide-docs-type-entry {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	padding: 8px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-docs-type-entry:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-docs-type-label {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	min-width: 72px;
+}
+
+.wpgraphql-ide-docs-type-link {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--gql-color-type);
+	cursor: pointer;
+	font-family: monospace;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	text-align: left;
+}
+
+.wpgraphql-ide-docs-type-link:hover {
+	text-decoration: underline;
+}
+
+.wpgraphql-ide-docs-type-kind {
+	margin-left: auto;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	text-transform: lowercase;
+}
+
+/* Type badge — inline pill for return types and arg types */
+.wpgraphql-ide-docs-type-badge {
+	display: inline;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border: none;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	padding: 1px 6px;
+	color: var(--gql-color-type);
+	cursor: pointer;
+	font-family: monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-docs-type-badge:hover {
+	background: var(--wp-components-color-gray-200, #dcdcde);
+	color: var(--gql-color-type);
+	text-decoration: underline;
+}
+
+.wpgraphql-ide-docs-type-badge.is-small {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	padding: 0 4px;
+}
+
+/* Field list items */
+.wpgraphql-ide-docs-field {
+	padding: 8px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-docs-field + .wpgraphql-ide-docs-field {
+	border-top: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-docs-field:hover {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+/* Field that was cmd-clicked from the editor — give it a steady tint so the
+   user can find it inside a long fields list, plus a gentle pulse on entry. */
+.wpgraphql-ide-docs-field.is-focused {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	box-shadow: inset 3px 0 0 var(--wpgraphql-ide-accent);
+	animation: wpgraphql-ide-docs-field-pulse 1.2s ease-out;
+}
+
+@keyframes wpgraphql-ide-docs-field-pulse {
+	0% {
+		background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.22);
+	}
+	100% {
+		background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.08);
+	}
+}
+
+.wpgraphql-ide-docs-field-header {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-docs-field-name {
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--gql-color-field);
+}
+
+.wpgraphql-ide-docs-field-desc {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	margin-top: 2px;
+	line-height: var(--wpgraphql-ide-leading-tight, 1.4);
+}
+
+/* Arguments toggle */
+.wpgraphql-ide-docs-args-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	margin-top: 4px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-docs-args-toggle:hover {
+	color: var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-docs-args-chevron {
+	display: inline-block;
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	transition: transform 0.15s ease;
+}
+
+.wpgraphql-ide-docs-args-chevron.is-open {
+	transform: rotate(90deg);
+}
+
+/* Arguments list */
+.wpgraphql-ide-docs-args {
+	margin-top: 6px;
+	margin-left: 4px;
+	padding: 4px 0 4px 10px;
+	border-left: 2px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-docs-arg {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	padding: 2px 0;
+}
+
+.wpgraphql-ide-docs-arg-name {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--gql-color-argument);
+}
+
+.wpgraphql-ide-docs-arg-name::after {
+	content: ':';
+}
+
+/* Enum values */
+.wpgraphql-ide-docs-enum-value {
+	padding: 6px 8px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-docs-enum-value:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-docs-enum-value code {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	padding: 2px 6px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-docs-enum-value:hover code {
+	background: var(--wp-components-color-gray-200, #dcdcde);
+}
+
+/* ---------------------------------------------------------------------------
+   History panel
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-history-panel--empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+.wpgraphql-ide-history-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	padding: 24px 20px;
+	text-align: center;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	max-width: 280px;
+}
+
+/* Auth-gated panel prompt — Saved Queries / History when anonymous on
+   the public endpoint. Centered lock-icon header + heading + body +
+   primary "Sign in" button, mirroring the history empty-state rhythm
+   so adjacent panel content reads as one design system. */
+.wpgraphql-ide-inline-signin {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	padding: 32px 24px;
+	text-align: center;
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	max-width: 320px;
+	margin: 0 auto;
+}
+
+.wpgraphql-ide-inline-signin-icon {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-inline-signin-title {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-14, 14px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-inline-signin-description {
+	margin: 0 0 8px;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-history-empty-icon {
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	margin-bottom: 4px;
+}
+
+.wpgraphql-ide-history-empty-title {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-14, 14px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-history-empty-description {
+	margin: 0;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-history-footer {
+	padding: 12px 8px;
+	border-top: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+	text-align: center;
+}
+
+.wpgraphql-ide-history-footer .components-button.is-link {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	text-decoration: none;
+}
+
+.wpgraphql-ide-history-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-history-entry {
+	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-history-entry-button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 6px 8px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-history-entry-button:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-history-entry-header {
+	display: flex;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-history-avatar {
+	width: 14px;
+	height: 14px;
+	border-radius: var(--wpgraphql-ide-radius-full, 50%);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-history-avatar.is-public {
+	filter: grayscale(100%);
+	opacity: 0.5;
+}
+
+.wpgraphql-ide-history-method {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	padding: 1px 5px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	white-space: nowrap;
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-history-status {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	padding: 1px 5px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-history-status--success {
+	background: #edfaef;
+	color: var(--wpgraphql-ide-color-success, #00a32a);
+}
+
+.wpgraphql-ide-history-status--error {
+	background: #fcf0f1;
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-history-duration {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-history-entry-time {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-history-entry-id {
+	margin-left: auto;
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+
+.wpgraphql-ide-history-entry-button:hover .wpgraphql-ide-history-entry-id {
+	opacity: 1;
+}
+
+.wpgraphql-ide-history-entry-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	margin-top: 2px;
+}
+
+.wpgraphql-ide-history-entry-label {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-history-entry-preview {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Operation-grouped activity-bar rows. Tighter typography than the
+   per-run Request-history rows: the activity bar is dense by nature,
+   and the dedup means each row stands on its own — no need for the
+   header pills (method / status / duration) the per-run variant uses. */
+.wpgraphql-ide-history-entry--operation .wpgraphql-ide-history-entry-button {
+	padding: 6px 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	line-height: 1.3;
+}
+
+.wpgraphql-ide-history-entry-name {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.wpgraphql-ide-history-entry-body {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	font-family: Menlo, Consolas, Monaco, monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Anonymous queries promote the body to the primary identity line —
+   bumped a hair larger and a touch darker than the muted secondary. */
+.wpgraphql-ide-history-entry-body--primary {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+}
+
+.wpgraphql-ide-history-entry-meta {
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	color: var(--wp-components-color-gray-400, #a7aaad);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Settings workspace tab — Cursor-style two-pane layout (nav + form).
+   --------------------------------------------------------------------------- */
+
+.wpgraphql-ide-settings-tab {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	height: 100%;
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-settings-empty {
+	padding: 32px;
+	color: #757575;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+.wpgraphql-ide-settings-nav {
+	flex-shrink: 0;
+	width: 240px;
+	min-width: 220px;
+	border-right: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+	background: #fafafa;
+	overflow-y: auto;
+	padding: 12px 0;
+}
+
+.wpgraphql-ide-settings-nav ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wpgraphql-ide-settings-nav-item {
+	display: block;
+	width: 100%;
+	padding: 8px 16px;
+	border: none;
+	background: transparent;
+	text-align: left;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	cursor: pointer;
+	border-left: 3px solid transparent;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.wpgraphql-ide-settings-nav-item:hover {
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-settings-nav-item.is-active {
+	background: var(--wp-components-color-background, #fff);
+	border-left-color: var(--wpgraphql-ide-accent);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-settings-pane {
+	flex: 1;
+	min-width: 0;
+	overflow-y: auto;
+	padding: 24px 32px;
+}
+
+.wpgraphql-ide-settings-pane-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+	margin-bottom: 24px;
+}
+
+.wpgraphql-ide-settings-pane-heading {
+	min-width: 0;
+	flex: 1;
+}
+
+.wpgraphql-ide-settings-pane-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	flex-shrink: 0;
+}
+
+.wpgraphql-ide-settings-pane-header h2 {
+	margin: 0 0 4px;
+	font-size: 18px;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-settings-pane-desc {
+	margin: 0;
+	color: #757575;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-settings-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 720px;
+}
+
+.wpgraphql-ide-settings-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+.wpgraphql-ide-setting--divider {
+	margin-top: 8px;
+	padding-top: 16px;
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+/* First divider sits under the pane header, which already separates it. */
+.wpgraphql-ide-settings-field:first-child .wpgraphql-ide-setting--divider {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.wpgraphql-ide-setting--divider h2 {
+	margin: 0 0 6px 0;
+	font-size: 15px;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-setting--divider p {
+	margin: 0 0 6px 0;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-setting--divider p:last-child {
+	margin-bottom: 0;
+}
+
+/* Captured `<hr>` would double up with the divider's own top rule. */
+.wpgraphql-ide-setting--divider hr {
+	display: none;
+}
+
+/* Individual field controls */
+.wpgraphql-ide-setting {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-setting-label {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-setting input[type='text'],
+.wpgraphql-ide-setting input[type='url'],
+.wpgraphql-ide-setting input[type='number'],
+.wpgraphql-ide-setting select,
+.wpgraphql-ide-setting textarea {
+	width: 100%;
+	max-width: 480px;
+	padding: 6px 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-family: inherit;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	background: var(--wp-components-color-background, #fff);
+	box-sizing: border-box;
+}
+
+.wpgraphql-ide-setting input[type='text']:focus,
+.wpgraphql-ide-setting input[type='url']:focus,
+.wpgraphql-ide-setting input[type='number']:focus,
+.wpgraphql-ide-setting select:focus,
+.wpgraphql-ide-setting textarea:focus {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: -1px;
+	border-color: transparent;
+}
+
+.wpgraphql-ide-setting textarea {
+	resize: vertical;
+	min-height: 80px;
+}
+
+.wpgraphql-ide-setting-checkbox,
+.wpgraphql-ide-setting-radio {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	cursor: pointer;
+}
+
+.wpgraphql-ide-setting-radio-group,
+.wpgraphql-ide-setting-multicheck {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-setting-desc {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: #757575;
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+}
+
+.wpgraphql-ide-setting-desc a {
+	color: var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-setting-unsupported {
+	margin: 0;
+	padding: 8px 12px;
+	background: #fcf9e8;
+	border-left: 3px solid #ddb900;
+	color: #614c00;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+/* Document Settings view — swaps in place of the GraphQL editor (and the
+   request-scoped Variables/Headers tabs) when the user toggles the
+   Query/Settings switch. Settings are persistent properties of the saved
+   document; Variables/Headers belong to the request, so they're hidden
+   while in this view. */
+
+/* Document Settings gear in the editor toolbar — sits next to the Query
+   Composer toggle and uses identical styling so the icon-button cluster
+   reads as one group (grey idle, dark filled when active). */
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button {
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+}
+
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button:hover {
+	color: var(--wpgraphql-ide-text-strong, #2c3338);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button.is-active {
+	color: var(--wp-components-color-background, #fff);
+	background: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-toolbar-doc-settings-btn.components-button.is-active:hover {
+	color: var(--wp-components-color-background, #fff);
+	background: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-editor-settings-view {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-doc-settings-panel {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: 16px 20px;
+	box-sizing: border-box;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+}
+
+.wpgraphql-ide-doc-settings-empty {
+	margin: 0;
+	color: #757575;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+.wpgraphql-ide-doc-setting {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+.wpgraphql-ide-doc-setting-label {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-doc-setting-desc {
+	margin: 0;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	color: #757575;
+}
+
+.wpgraphql-ide-doc-setting input[type='text'],
+.wpgraphql-ide-doc-setting input[type='number'],
+.wpgraphql-ide-doc-setting textarea {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ccc;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-family: inherit;
+}
+
+.wpgraphql-ide-doc-setting-tag-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 4px;
+	border: 1px solid #ccc;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	min-height: 32px;
+	background: var(--wp-components-color-background, #fff);
+}
+
+.wpgraphql-ide-doc-setting-tag-list.is-disabled {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-doc-setting-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	padding: 2px 6px;
+	background: #e5f1f8;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-doc-setting-tag-remove {
+	background: none;
+	border: none;
+	color: #555;
+	cursor: pointer;
+	padding: 0 2px;
+	font-size: var(--wpgraphql-ide-text-14, 14px);
+	line-height: 1;
+}
+
+.wpgraphql-ide-doc-setting-tag-remove:hover {
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-doc-setting-tag-input {
+	flex: 1;
+	min-width: 80px;
+	padding: 2px 4px;
+	border: none;
+	background: transparent;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	outline: none;
+}
+
+.wpgraphql-ide-doc-setting-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-doc-setting-radio-option {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	cursor: pointer;
+}
+
+/* Cache Inspector — cache-wide workspace tab listing every Smart Cache
+   entry by size, age, and TTL. Lives in the IDE for now; the renderer
+   talks only to the cache-inspector REST routes registered by the sub-
+   plugin, so lifting it into wp-graphql-smart-cache later is mostly
+   namespace bookkeeping. */
+.wpgraphql-ide-cache-inspector {
+	padding: 16px 24px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+}
+
+.wpgraphql-ide-cache-inspector--loading {
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-cache-inspector-header-summary {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-header-summary strong {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-cache-inspector-header-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-cache-inspector-empty {
+	text-align: center;
+	padding: 48px 16px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-empty-hint {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	margin-top: 4px;
+}
+
+.wpgraphql-ide-cache-inspector-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+}
+
+.wpgraphql-ide-cache-inspector-table th,
+.wpgraphql-ide-cache-inspector-table td {
+	padding: 8px 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-cache-inspector-table th {
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-gray-700, #50575e);
+	border-bottom-color: var(--wp-components-color-gray-300, #c3c4c7);
+}
+
+.wpgraphql-ide-cache-inspector-table th.is-numeric,
+.wpgraphql-ide-cache-inspector-table td.is-numeric {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.wpgraphql-ide-cache-inspector-table th.is-actions,
+.wpgraphql-ide-cache-inspector-table td.is-actions {
+	text-align: right;
+	width: 100px;
+}
+
+.wpgraphql-ide-cache-inspector-key {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	background: rgba(0, 0, 0, 0.04);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+}
+
+.wpgraphql-ide-cache-inspector-help {
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	border-radius: var(--wpgraphql-ide-radius-lg, 4px);
+	background: var(--wp-components-color-gray-100, #f6f7f7);
+}
+
+.wpgraphql-ide-cache-inspector-help-toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+	background: transparent;
+	border: none;
+	padding: 8px 12px;
+	cursor: pointer;
+	font: inherit;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+	text-align: left;
+}
+
+.wpgraphql-ide-cache-inspector-help-toggle:hover,
+.wpgraphql-ide-cache-inspector-help-toggle:focus-visible {
+	color: var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-cache-inspector-help-body {
+	padding: 0 16px 12px 16px;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-help-body p {
+	margin: 0 0 10px 0;
+}
+
+.wpgraphql-ide-cache-inspector-help-body strong {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-help-body code {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	background: rgba(0, 0, 0, 0.06);
+	padding: 1px 5px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+}
+
+.wpgraphql-ide-cache-inspector-help-glossary {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 8px 12px;
+	margin: 0 0 10px 0;
+}
+
+.wpgraphql-ide-cache-inspector-help-glossary dt {
+	margin: 0;
+	padding-top: 1px;
+}
+
+.wpgraphql-ide-cache-inspector-help-glossary dd {
+	margin: 0;
+}
+
+/* Cache Inspector — design pass additions: stat strip, filter bar,
+   sortable headers, inline size bars, type badges, bulk select. */
+.wpgraphql-ide-cache-inspector-stat-strip {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpgraphql-ide-space-16, 16px);
+	flex-wrap: wrap;
+}
+
+.wpgraphql-ide-cache-inspector-stat-primary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-2, 2px);
+	min-width: 0;
+}
+
+.wpgraphql-ide-cache-inspector-stat-strip.is-selection
+	.wpgraphql-ide-cache-inspector-stat-primary {
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-12, 12px);
+}
+
+.wpgraphql-ide-cache-inspector-stat-value {
+	font-size: 22px;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	line-height: 1.1;
+	font-variant-numeric: tabular-nums;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-stat-label {
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: 1.3;
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-top: 2px;
+}
+
+.wpgraphql-ide-cache-inspector-stat-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+	flex-shrink: 0;
+}
+
+/* Filter bar — SearchControl on its own row above the TabPanel filter
+   strip. Matches `SavedQueriesPanel`'s vertical stack (search, then
+   tabs), which is the WP-native rhythm for "filter a list by category +
+   substring". */
+.wpgraphql-ide-cache-inspector-filters {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-cache-inspector-filter-search {
+	width: 100%;
+}
+
+/* Sortable column headers — mirror the ResponseTableView pattern but
+   scoped to the cache inspector so the two surfaces stay decoupled. */
+.wpgraphql-ide-cache-inspector-sort {
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	font: inherit;
+	color: inherit;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-cache-inspector-table th.is-numeric
+	.wpgraphql-ide-cache-inspector-sort {
+	flex-direction: row-reverse; /* indicator on the left of the label when right-aligned */
+}
+
+.wpgraphql-ide-cache-inspector-sort:hover,
+.wpgraphql-ide-cache-inspector-sort:focus-visible {
+	color: var(
+		--wp-admin-theme-color,
+		var(--wpgraphql-ide-accent)
+	);
+}
+
+.wpgraphql-ide-cache-inspector-sort-indicator {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	min-width: 8px;
+	display: inline-block;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-table th[aria-sort='ascending']
+	.wpgraphql-ide-cache-inspector-sort-indicator,
+.wpgraphql-ide-cache-inspector-table th[aria-sort='descending']
+	.wpgraphql-ide-cache-inspector-sort-indicator {
+	color: var(--wpgraphql-ide-accent);
+}
+
+/* Row hover + selection + tabular numerics. */
+.wpgraphql-ide-cache-inspector-table tbody tr:hover {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+.wpgraphql-ide-cache-inspector-table tbody tr.is-selected {
+	background: rgba(56, 88, 233, 0.06);
+}
+
+.wpgraphql-ide-cache-inspector-table td.is-numeric {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Cache key cell: type badge + truncated key, aligned on a single
+   baseline. */
+.wpgraphql-ide-cache-inspector-key-cell {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-8, 8px);
+}
+
+.wpgraphql-ide-cache-inspector-type {
+	display: inline-block;
+	font-size: var(--wpgraphql-ide-text-10, 10px);
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 1px 6px;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.wpgraphql-ide-cache-inspector-type--response {
+	color: var(--wpgraphql-ide-accent);
+	border: 1px solid currentColor;
+	background: transparent;
+}
+
+.wpgraphql-ide-cache-inspector-type--tracker {
+	color: var(--wp-components-color-gray-700, #50575e);
+	background: var(--wp-components-color-gray-100, #f0f0f1);
+	border: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+/* Spacer keeps non-tracker key-cells aligned where the chevron would sit. */
+.wpgraphql-ide-cache-inspector-expand {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--wp-components-color-gray-700, #50575e);
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+}
+
+.wpgraphql-ide-cache-inspector-expand:hover,
+.wpgraphql-ide-cache-inspector-expand:focus-visible {
+	color: var(--wpgraphql-ide-accent);
+	background: rgba(0, 0, 0, 0.04);
+}
+
+.wpgraphql-ide-cache-inspector-expand-spacer {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+
+.wpgraphql-ide-cache-inspector-tracker-row > td {
+	padding: 0;
+	background: var(--wp-components-color-gray-100, #f6f7f7);
+	border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-body {
+	/* Indent aligns the body under the cache-key cell (chevron + spacer + cell padding). */
+	padding: 10px 16px 12px calc(12px + 24px + 12px);
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-loading {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpgraphql-ide-space-6, 6px);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-empty,
+.wpgraphql-ide-cache-inspector-tracker-summary {
+	margin: 0 0 6px 0;
+}
+
+.wpgraphql-ide-cache-inspector-tracker-summary strong {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-members {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-members li {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wpgraphql-ide-cache-inspector-tracker-members code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-12, 12px);
+	background: rgba(0, 0, 0, 0.05);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-status {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-weight: var(--wpgraphql-ide-weight-semibold, 600);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-status.is-live {
+	color: var(--wpgraphql-ide-accent);
+}
+
+.wpgraphql-ide-cache-inspector-tracker-status.is-gone {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-style: italic;
+}
+
+/* Size cell with inline progress bar showing % of the largest entry —
+   the headline visualization for spotting overstuffing at a glance. */
+.wpgraphql-ide-cache-inspector-size-cell {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: var(--wpgraphql-ide-space-4, 4px);
+}
+
+/* Custom div-based bar (replaces native <progress>) so the value
+   pseudo can take a `min-width` and tiny entries register visually
+   instead of vanishing. The inner fill is positioned by inline
+   `width: N%` style; min-width keeps it visible even at sub-1%. */
+.wpgraphql-ide-cache-inspector-size-bar {
+	position: relative;
+	width: 80px;
+	height: 4px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	overflow: hidden;
+	background: var(--wp-components-color-gray-300, #c3c4c7);
+	display: block;
+}
+
+.wpgraphql-ide-cache-inspector-size-bar-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	min-width: 2px;
+	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	background: var(
+		--wp-admin-theme-color,
+		var(--wpgraphql-ide-accent)
+	);
+}
+
+/* "Expired" label — replaces "0s" for stale entries so the state is
+   discoverable at a glance instead of looking like a live countdown. */
+.wpgraphql-ide-cache-inspector-expired {
+	color: var(--wp-components-color-gray-700, #50575e);
+	font-style: italic;
+}
+
+/* Bulk-select checkbox column — narrow, vertically centered, no
+   left-padding so the checkbox aligns with the table edge. */
+.wpgraphql-ide-cache-inspector-table th.wpgraphql-ide-cache-inspector-col-checkbox,
+.wpgraphql-ide-cache-inspector-table td.wpgraphql-ide-cache-inspector-col-checkbox {
+	width: 32px;
+	padding-right: 0;
+}
+
+.wpgraphql-ide-cache-inspector-col-checkbox .components-checkbox-control {
+	margin: 0;
+}
+
+/* Type filter — Gutenberg <TabPanel> with the underline-active-tab
+   treatment that matches `SavedQueriesPanel`'s Documents filter. Rules
+   are duplicated rather than aliased so changes to either filter strip
+   don't accidentally bleed into the other.
+
+   Font weight is held constant across active/inactive states so the
+   underline animation isn't accompanied by a glyph-width jiggle. */
+.wpgraphql-ide-cache-inspector-filter {
+	flex-shrink: 0;
+	border-bottom: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+}
+
+.wpgraphql-ide-cache-inspector-filter .components-tab-panel__tabs {
+	padding: 0 8px;
+}
+
+.wpgraphql-ide-cache-inspector-filter .components-tab-panel__tabs-item {
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	padding: 8px 12px;
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+.wpgraphql-ide-cache-inspector-filter
+	.components-tab-panel__tabs-item.is-active {
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-cache-inspector-filter
+	.components-tab-panel__tabs-item:hover:not(.is-active) {
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+/* Tabs drive a sibling list; the panel's own content slot stays empty,
+   so hide it to keep the strip flush against the next row. */
+.wpgraphql-ide-cache-inspector-filter .components-tab-panel__tab-content {
+	display: none;
+}
+
+/* Purge map: footer-style meta line showing keys count + char length
+   (the X-GraphQL-Keys budget consumption). Lives below the type
+   groups inside the same details body. */
+.wpgraphql-ide-smart-cache-purge-map-meta {
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	color: var(--wp-components-color-gray-700, #50575e);
+}
+
+/* Cache integrity warning — only rendered when the Query Analyzer
+   dropped entries from X-GraphQL-Keys due to its header-length
+   budget. These rows are genuinely concerning (cache may serve
+   stale data for the skipped resources), so the section opens by
+   default and uses a warning-tinted accent. */
+.wpgraphql-ide-smart-cache-skipped .wpgraphql-ide-smart-cache-details-summary {
+	color: var(--wpgraphql-ide-color-error, #d63638);
+}
+
+.wpgraphql-ide-smart-cache-skipped-explainer {
+	color: var(--wp-components-color-gray-700, #50575e);
+	margin-bottom: 8px;
+}
+
+.wpgraphql-ide-smart-cache-skipped-explainer code {
+	background: rgba(0, 0, 0, 0.04);
+	padding: 1px 6px;
+	border-radius: var(--wpgraphql-ide-radius-md, 3px);
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+}
+
+/* Response tab strip drag-to-reorder indicators. Mirrors the activity
+   bar's `is-drag-before` / `is-drag-after` pattern (usePanelOrder) but
+   uses left/right edge accents because the tab strip is horizontal. */
+.components-tab-panel__tabs-item.is-drag-left {
+	box-shadow: inset 2px 0 0 0
+		var(--wpgraphql-ide-accent);
+}
+
+.components-tab-panel__tabs-item.is-drag-right {
+	box-shadow: inset -2px 0 0 0
+		var(--wpgraphql-ide-accent);
+}
+
+/* Source-tab indicator: a small opacity dip while a tab is being
+   dragged. The browser owns the ghost image; this dips the in-place
+   button so the user can tell which tab is the source even if the
+   ghost lands far from the strip. */
+.components-tab-panel__tabs-item.is-dragging {
+	opacity: 0.4;
+}

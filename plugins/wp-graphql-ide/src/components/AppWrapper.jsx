@@ -1,80 +1,57 @@
 import { useEffect } from '@wordpress/element';
-import { doAction } from '@wordpress/hooks';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { parse, print } from 'graphql';
-import LZString from 'lz-string';
 
+import hooks from '../wordpress-hooks';
 import { AppDrawer } from './AppDrawer';
 import { App } from './App';
+import { DialogProvider } from './dialogs/DialogProvider';
+import { ResizeOverlayProvider } from './ResizeOverlay';
+
+import {
+	endpointMode,
+	isUserLoggedIn,
+	isDedicatedIdePage,
+	renderStandalone,
+} from '../bootstrap';
 
 // eslint-disable-next-line no-undef
 const {
-	isDedicatedIdePage,
 	context: { drawerButtonLabel },
 } = window.WPGRAPHQL_IDE_DATA;
 
-// Safely get window.location - it should always exist, but be defensive
-const url =
-	typeof window !== 'undefined' && window.location
-		? new URL(window.location.href)
-		: null;
-const params = url ? url.searchParams : new URLSearchParams();
-
 const setInitialState = (dispatch) => {
 	const {
-		setDrawerOpen,
-		setQuery,
 		setShouldRenderStandalone,
 		setInitialStateLoaded,
+		toggleAuthentication,
 	} = dispatch;
 
-	if (isDedicatedIdePage) {
+	// Standalone mode: full-page render with no slide-up drawer.
+	// Dedicated admin page sets `isDedicatedIdePage`; the public
+	// `?graphql` endpoint sets `renderStandalone` (for both anonymous
+	// and signed-in admins, since both land at the same URL and
+	// should see the same shell shape — only the feature set
+	// differs, via `endpointMode`).
+	if (isDedicatedIdePage || renderStandalone) {
 		setShouldRenderStandalone(true);
 	}
 
-	if (url && params.has('wpgraphql_ide')) {
-		const queryParam = params.get('wpgraphql_ide');
-		const queryParamShareObjectString =
-			LZString.decompressFromEncodedURIComponent(queryParam);
-		const queryParamShareObject = JSON.parse(queryParamShareObjectString);
-
-		const { query } = queryParamShareObject;
-
-		let parsedQuery;
-		let printedQuery = null;
-
-		// convert the query from a string to an AST
-		// console errors if there are any
-		try {
-			parsedQuery = parse(query);
-		} catch (error) {
-			// eslint-disable-next-line no-console
-			console.error(`Error parsing the query "${query}"`, error.message);
-			parsedQuery = null;
-		}
-
-		// Convert the AST back to a formatted printed document
-		// console errors if there are any
-		if (null !== parsedQuery) {
-			try {
-				printedQuery = print(parsedQuery);
-			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.error(
-					`Error printing the query "${query}"`,
-					error.message
-				);
-				printedQuery = null;
-			}
-		}
-
-		if (null !== printedQuery && url) {
-			setDrawerOpen(true);
-			setQuery(printedQuery);
-			params.delete('wpgraphql_ide');
-			window.history.pushState({}, '', url.toString());
-		}
+	// Public-endpoint render for an anonymous visitor: the app store's
+	// `isAuthenticated` initial state is `true` because most surfaces
+	// only mount for logged-in admins. On the public endpoint that
+	// default would have us send a useless / invalid nonce. Flip it
+	// off once on hydration when we know the visitor is anonymous.
+	// `wp_localize_script` serializes PHP `false` as the empty string
+	// `""`, so a truthy check is right here.
+	if (endpointMode && !isUserLoggedIn) {
+		toggleAuthentication();
 	}
+
+	// Deep-link share restore (`?wpgraphql_ide=`) is handled in the
+	// document-editor store's `loadDocuments` thunk, which opens the
+	// shared payload as a real tab. Doing it here against the app store
+	// doesn't work: the tab-switch sync in IDELayout re-seeds the live
+	// query from the active document right after this runs.
 
 	setInitialStateLoaded();
 };
@@ -100,7 +77,7 @@ export function AppWrapper() {
 		 * the current state of `drawerOpen` to any listeners, providing context
 		 * about the application's UI state.
 		 */
-		doAction('wpgraphql-ide.rendered');
+		hooks.doAction('wpgraphql-ide.rendered');
 
 		/**
 		 * Cleanup action on component unmount.
@@ -110,13 +87,13 @@ export function AppWrapper() {
 		 * any necessary cleanup or teardown operations in response to the App
 		 * component's lifecycle.
 		 */
-		return () => doAction('wpgraphql-ide.destroyed');
+		return () => hooks.doAction('wpgraphql-ide.destroyed');
 	}, []);
 
 	return <RenderAppWrapper />;
 }
 
-export function RenderAppWrapper() {
+function RenderAppWrapper() {
 	const isInitialStateLoaded = useSelect((select) => {
 		return select('wpgraphql-ide/app').isInitialStateLoaded();
 	});
@@ -131,17 +108,25 @@ export function RenderAppWrapper() {
 
 	if (shouldRenderStandalone) {
 		return (
-			<div className="AppRoot">
-				<App />
+			<div className="wpgraphql-ide-shell">
+				<DialogProvider>
+					<ResizeOverlayProvider>
+						<App />
+					</ResizeOverlayProvider>
+				</DialogProvider>
 			</div>
 		);
 	}
 
 	return (
-		<div className="AppRoot">
-			<AppDrawer buttonLabel={drawerButtonLabel}>
-				<App />
-			</AppDrawer>
+		<div className="wpgraphql-ide-shell">
+			<DialogProvider>
+				<ResizeOverlayProvider>
+					<AppDrawer buttonLabel={drawerButtonLabel}>
+						<App />
+					</AppDrawer>
+				</ResizeOverlayProvider>
+			</DialogProvider>
 		</div>
 	);
 }

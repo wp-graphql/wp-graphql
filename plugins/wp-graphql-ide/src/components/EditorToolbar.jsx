@@ -1,35 +1,57 @@
-import clsx from 'clsx';
 import { useSelect } from '@wordpress/data';
-import { ToolbarButton } from '@graphiql/react';
+import { __ } from '@wordpress/i18n';
+import { MenuItem } from '@wordpress/components';
 
-export const EditorToolbar = () => {
+// Built lazily so __() runs after wp.i18n is loaded. Notice strings
+// are keyed by built-in button name; extension buttons can supply
+// their own notice via the onClick handler.
+const getButtonNotices = () => ({
+	prettify: __('Query prettified', 'wpgraphql-ide'),
+	share: __('Shareable link copied to clipboard', 'wpgraphql-ide'),
+	'merge-fragments': __('Fragments merged', 'wpgraphql-ide'),
+	'copy-query': __('Query copied to clipboard', 'wpgraphql-ide'),
+});
+
+export const EditorToolbar = ({ onClose, onNotice, hideMutating = false }) => {
 	const buttons = useSelect((select) =>
 		select('wpgraphql-ide/document-editor').buttons()
 	);
 
 	return (
 		<>
-			{Object.entries(buttons).map(([key, button]) => {
+			{buttons.map((button, index) => {
 				const props = button.config();
-				const buttonName = buttons[key].name ?? key;
+				const buttonName = button.name ?? String(index);
 
 				if (!isValidButton(props, buttonName)) {
 					return null;
 				}
 
-				const baseClassName = `graphiql-${buttonName}-button`;
+				// Buttons that mutate the query (Prettify, Merge) are hidden
+				// on read-only documents. Authors opt in by declaring
+				// `mutates: true` in their config.
+				if (hideMutating && props.mutates) {
+					return null;
+				}
 
-				// Merge the base className with any classNames provided in props.
-				const mergedClassName = clsx(baseClassName, props?.className);
-
-				// If a component is provided, use it, otherwise use the default ToolbarButton
-				const Component = props.component || ToolbarButton;
 				return (
-					<Component
-						{...props}
-						className={mergedClassName} // mergedClassName must be below { ...props } in order to render with the correct classNames
-						key={key}
-					/>
+					<MenuItem
+						key={button.name ?? index}
+						onClick={() => {
+							if (onClose) {
+								onClose();
+							}
+							props.onClick();
+							const notices = getButtonNotices();
+							if (onNotice && notices[buttonName]) {
+								onNotice(notices[buttonName]);
+							}
+						}}
+						aria-label={props.label}
+						shortcut={props.shortcut}
+					>
+						{props.children || props.label}
+					</MenuItem>
 				);
 			})}
 		</>

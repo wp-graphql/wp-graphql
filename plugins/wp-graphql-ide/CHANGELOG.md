@@ -1,5 +1,175 @@
 # Changelog
 
+## Unreleased
+
+> **Breaking changes (5.0.0 prep)** — surfaced here ahead of release because the
+> commits landed in mixed `feat(ide)!:` and `test(ide):` shapes during the rebuild.
+> release-please will regenerate this section from commit history on the next
+> release; until then this is the source of truth.
+
+### Breaking changes
+
+- **Document storage:** the IDE no longer owns a "saved query" primitive of
+  its own. The 4.x `graphql_ide_query` post type, the `graphql_ide_collection`
+  taxonomy, and the three Document Settings taxonomies
+  (`graphql_ide_query_alias`, `graphql_ide_query_maxage`,
+  `graphql_ide_query_grant`) are all removed. They duplicated WPGraphQL
+  Smart Cache's existing `graphql_document` post type + `graphql_query_alias`
+  / `graphql_document_grant` / `graphql_document_http_maxage` /
+  `graphql_document_group` taxonomies, which are the canonical owners of the
+  GraphQL-document primitive in this ecosystem.
+
+  5.0 IDE now treats saved-document support as **progressive enhancement**:
+  the IDE works standalone with local-only unsaved tabs (same model as
+  GraphiQL), and lights up the full Saved Queries / Collections / Document
+  Settings surface when Smart Cache is also active. No migration is provided
+  for existing 4.x installs that have stored queries under `graphql_ide_query`;
+  that data was developer-preview only and is considered lost on upgrade.
+- **Schema:** the `IdeQuery` / `IdeQueries` GraphQL types and the
+  `IdeCollection` / `IdeCollections` GraphQL types are removed (consequence
+  of the post-type / taxonomy removals above). Consumers query
+  `graphqlDocument` and `graphqlDocumentGroup` directly via Smart Cache's
+  schema.
+- **REST capability:** the share-collection dialog now requires `list_users`
+  in addition to `manage_graphql_ide`. IDE users without `list_users` will see
+  the Sharing affordance hidden instead of opening onto a permission-denied
+  dead end.
+- **REST routes removed:** `/wpgraphql-ide/v1/documents/:id/publish` and
+  `/wpgraphql-ide/v1/documents/collections/:id` (the publish-with-hash and
+  cascade-delete routes) are removed. The publish flow is now a standard
+  `POST /wp/v2/graphql_document/:id` with `status=publish`; Smart Cache's
+  `save_document_cb` validates, normalizes, and writes the sha256 hash to
+  `post_name` server-side. Cascade-collection deletion is performed
+  client-side (delete each child document, then delete the term) since the
+  caller already has the documents loaded.
+- **Publish duplicate-detection dialog removed:** the old publish endpoint
+  returned `already_exists: true` with the existing document ID when a
+  duplicate normalized query was detected, which drove a "this query is
+  already published" choice dialog. With Smart Cache as the owner,
+  `wp_unique_post_slug()` resolves collisions by suffixing the slug
+  (`<hash>`, `<hash>-2`, …) and the dialog no longer fires. Identical
+  queries published from different drafts will coexist as separate
+  documents.
+- **Capability filter integrity:** the `wpgraphql_ide_capability_required`
+  filter is now consulted at every IDE permission check — REST permission
+  callbacks, post-type / taxonomy capability maps, post-meta and user-meta
+  auth callbacks, the admin submenu cap, the public-endpoint trimming flag,
+  user-can checks against other users, and `get_users()` queries.
+  Previously the filter was consulted in exactly one place (the admin menu
+  render gate) and bypassed everywhere else, so a host filtering the cap
+  to a different value would see the admin link but be 403'd at every
+  actual operation. Hosts already relying on the filter to gate IDE
+  visibility will now find their override is honored end-to-end —
+  intended, but a behavior change.
+  Two new global-namespace access functions are introduced:
+  `wpgraphql_ide_get_capability()` (returns the filtered cap string) and
+  `wpgraphql_ide_user_can()` (`current_user_can()` against it). New code
+  should call these directly; the existing namespaced
+  `\WPGraphQLIDE\user_has_graphql_ide_capability()` is preserved as a
+  back-compat wrapper.
+- **Extension hooks pruned.** Major-version surface cleanup: hooks with zero
+  external consumers (verified by `gh search code`) and no internal
+  callers are removed rather than carried forward as speculative extension
+  points. The hooks the IDE *does* still expose
+  (`wpgraphql_ide_init`, `wpgraphql_ide_enqueue_script`,
+  `wpgraphql_ide_capability_required`, `wpgraphql_ide_context`,
+  `wpgraphql_ide_localized_data`, `wpgraphql-ide.init`,
+  `wpgraphql-ide.rendered`, `wpgraphql-ide.destroyed`, and the
+  per-registry `afterRegister*` JS actions) are unchanged.
+
+  **Removed PHP hooks** (0 external consumers, 0 internal callers):
+    - `wpgraphql_ide_endpoint_api_params` filter — the public-endpoint
+      GET-param allow-list is now a literal in `public-endpoint.php`.
+    - `wpgraphql_ide_register_document_settings` action — the built-in
+      Document Settings fields registered through it now `add_action('init',
+      ..., 11)` directly. The Document Settings surface is migrating into
+      WPGraphQL Smart Cache, so extending fields from outside the IDE is
+      a Smart-Cache-side concern.
+
+  **Removed JS actions** (10 paired `register*Error` actions, hypervigilant
+  failure-notification surface that no consumer could productively hook):
+    - `wpgraphql-ide.registerPreferenceError`
+    - `wpgraphql-ide.registerToolbarButtonError`
+    - `wpgraphql-ide.registerActivityBarPanelError`
+    - `wpgraphql-ide.registerResponseExtensionTabError`
+    - `wpgraphql-ide.registerEditorBottomTabError`
+    - `wpgraphql-ide.registerStatusBarItemError`
+    - `wpgraphql-ide.registerResponseViewModeError`
+    - `wpgraphql-ide.registerResponseActionError`
+    - `wpgraphql-ide.registerEditorActionError`
+    - `wpgraphql-ide.registerDocumentTabActionError`
+
+    Registration failures still log to `console.error` — that's the
+    actionable signal. The matching `wpgraphql-ide.afterRegister*` success
+    actions are unchanged.
+
+  **Legacy `graphiql_*` hooks** (already not fired in 5.0; documented here
+  for upgrade clarity since the 4.x docs referenced them):
+    - `graphiql_external_fragments` — was an alias for
+      `wpgraphql_ide_external_fragments`. Hook the canonical name; behavior
+      now smart-merges (see "New Features" below).
+    - `enqueue_graphiql_extension` — was an alias for
+      `wpgraphql_ide_enqueue_script`. Hook the canonical name.
+    - `graphiql_rendered` — was an alias for the `wpgraphql-ide.rendered`
+      JS action. Hook the canonical name via `wp.hooks.addAction`.
+    - `graphiql_toolbar_before_buttons` / `graphiql_toolbar_after_buttons` —
+      no longer fired; the modern way to add toolbar items is
+      `registerDocumentEditorToolbarButton()`.
+
+### New Features
+
+- **`wpgraphql_ide_external_fragments` (restored).** The 4.x PHP filter is
+  back, with a behavior upgrade: 5.0 parses each outgoing query, finds
+  unresolved fragment spreads, and prepends only the matching fragment
+  definitions before sending. Transitive references between external
+  fragments are resolved, so a fragment that spreads another fragment
+  pulls both in. Unreferenced fragments never go over the wire, and a
+  fragment defined in the user's query wins over an external definition
+  with the same name. This was a real user-requested 4.x capability that
+  was inadvertently dropped during the rebuild; it now ships as a
+  declarative way to share canonical fragment shapes (`PostFields`,
+  `UserFields`, etc.) across every editor session. See
+  `docs/actions-and-filters.md`.
+
+### Schema additions
+
+- **`GraphqlDocument.variables`** and **`GraphqlDocument.headers`** —
+  new String fields on Smart Cache's `GraphqlDocument` GraphQL type,
+  exposing the IDE's per-document execution context. Same fields are
+  added as inputs on `CreateGraphqlDocumentInput` and
+  `UpdateGraphqlDocumentInput`. Backed by the existing
+  `_graphql_ide_variables` / `_graphql_ide_headers` post meta (the
+  SmartCacheBridge already registers the keys), so REST and GraphQL
+  reads/writes round-trip against the same storage. Lets downstream
+  GraphQL consumers (codegen, third-party tooling, the IDE itself)
+  read and write execution context without falling back to REST.
+
+### Internal: REST → GraphQL migration for the IDE client
+
+Document and collection CRUD inside the IDE now runs through GraphQL
+via `src/api/graphql-client.js` instead of `apiFetch` against the WP
+REST API. The migration is internal — consumer-facing return shapes
+from `src/api/documents.js` are unchanged. Execution history is
+browser-local (`src/api/history-local.js`) and never went through
+REST or GraphQL.
+
+The same `_graphql_ide_*` post meta keys still back the storage and
+the SmartCacheBridge keeps the REST routes exposed, so third-party
+consumers of the REST surface are unaffected.
+
+Stays REST in this release (no GraphQL equivalent, or one that doesn't
+fit a single mutation):
+
+- User preferences. `updateUser` doesn't accept arbitrary user meta.
+- The aggregated `documentSettings` REST readback field.
+- `/wpgraphql-ide/v1/documents/import|export|reorder` and
+  `/collections/reorder` — bulk / non-CRUD orchestration.
+
+`gql()` also gained a one-shot nonce-refresh-and-retry on 401/403
+responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
+sessions that outlive the bootstrap nonce don't start silently
+failing.
+
 ## [4.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.1...wp-graphql-ide/v4.5.0) (2026-06-04)
 
 

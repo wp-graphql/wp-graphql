@@ -4,7 +4,7 @@
 import { QueryComposer } from './components/QueryComposer';
 import { pencil as editIcon, Icon } from '@wordpress/icons';
 
-window.addEventListener('WPGraphQLIDE_Window_Ready', function (_event) {
+window.addEventListener('WPGraphQLIDE_Window_Ready', function () {
 	if (!window.WPGraphQLIDE) {
 		return;
 	}
@@ -16,14 +16,7 @@ window.addEventListener('WPGraphQLIDE_Window_Ready', function (_event) {
 			'query-composer',
 			{
 				title: 'Query Composer',
-				icon: () => (
-					<Icon
-						icon={editIcon}
-						style={{
-							fill: 'hsla(var(--color-neutral), var(--alpha-tertiary))',
-						}}
-					/>
-				),
+				icon: () => <Icon icon={editIcon} />,
 				content: () => <QueryComposer />,
 			},
 			3 // Priority

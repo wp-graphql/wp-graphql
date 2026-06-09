@@ -1,0 +1,330 @@
+import React, { useEffect, useMemo } from 'react';
+import { __ } from '@wordpress/i18n';
+import { ResizableBox } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { useResizeReporter } from '../ResizeOverlay';
+import { OverflowTabs } from '../OverflowTabs';
+import { useResponseTabOrder } from '../../hooks/useResponseTabOrder';
+
+/**
+ * Body of the response pane: the JSON / table viewer up top with a
+ * resizable bottom strip carrying Headers / Errors / Extensions.
+ *
+ * When there's no response yet, the panel is intentionally bare — no
+ * tabs, no resizer, just an empty surface with a "Run the query…" hint
+ * filling the panel height.
+ *
+ * @param {Object}                             props
+ * @param {string}                             props.response               - JSON-stringified response body, or empty string.
+ * @param {'formatted'|'table'}                props.responseViewMode       - Top-pane render mode.
+ * @param {'data'|'full'}                      props.responseDataScope      - Whether the viewer renders only `data` or the full envelope.
+ * @param {Object|null}                        props.responseHeaders        - Response headers map (count drives the Headers tab label).
+ * @param {Array}                              props.extensionTabs          - Extension tab descriptors registered via the response-extensions store.
+ * @param {string|number}                      props.responseViewerHeight   - Height of the top pane (px or '%').
+ * @param {Function}                           props.onResponseViewerResize - Called with the new px height on resize stop.
+ * @param {{name: string, token: number}|null} props.tabRequest             - Programmatic tab navigation request from the parent (e.g. status-bar badge). `name` is the tab to focus; `token` is bumped on every click so re-clicking the same tab still re-keys the TabPanel and re-applies focus.
+ * @param {boolean}                            [props.bottomCollapsed]      - Whether the bottom tabs strip is collapsed.
+ * @param {Function}                           [props.onSetBottomCollapsed] - Setter for `bottomCollapsed`.
+ * @param {string|null}                        [props.bottomActiveTab]      - Last-active bottom tab name.
+ * @param {Function}                           [props.onSetBottomActiveTab] - Setter for `bottomActiveTab`.
+ */
+export function ResponseContent({
+	response,
+	responseViewMode,
+	responseDataScope,
+	responseHeaders,
+	extensionTabs,
+	responseViewerHeight,
+	onResponseViewerResize,
+	tabRequest,
+	bottomCollapsed = false,
+	onSetBottomCollapsed,
+	bottomActiveTab,
+	onSetBottomActiveTab,
+}) {
+	const parsed = useMemo(() => {
+		if (!response) {
+			return null;
+		}
+		try {
+			return JSON.parse(response);
+		} catch {
+			return null;
+		}
+	}, [response]);
+
+	const errors = parsed?.errors || [];
+	const extensions = parsed?.extensions || {};
+
+	// Auto-focus the Errors tab on any response that contains errors.
+	// Without this, the red highlight on the tab is the only signal —
+	// and if the strip is collapsed (or the user's last-active tab was
+	// something else), the actual error message stays hidden. Only
+	// fires when the response itself changes, so a manual click to
+	// another tab after the run still sticks until the next execution.
+	useEffect(() => {
+		if (errors.length === 0) {
+			return;
+		}
+		if (bottomCollapsed && onSetBottomCollapsed) {
+			onSetBottomCollapsed(false);
+		}
+		onSetBottomActiveTab?.('ext:errors');
+		// `errors.length` is derived from `response`; depending on
+		// either is equivalent, and depending on the setters would
+		// re-fire every render because new function identities arrive
+		// each parent render.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [response]);
+
+	// Synthetic data slots — Errors and Headers describe the response
+	// envelope itself, not response.extensions, so they don't have a
+	// matching extensions[name] entry. We surface them under their tab
+	// `name` so a single map can resolve every registered tab's data.
+	const slotData = { ...extensions, errors, headers: responseHeaders };
+
+	// `activeDocument` feeds the optional `predicate` on each tab so
+	// extensions can opt in/out per document (e.g. the built-in Request-
+	// history tab only renders for published documents). Read once here
+	// rather than per-tab to keep the filter cheap.
+	const activeDocument = useSelect(
+		(s) => s('wpgraphql-ide/document-editor').getActiveDocument(),
+		[]
+	);
+
+	const activeExtTabs = extensionTabs.filter((tab) => {
+		const visible = tab.alwaysShow || extensions[tab.name] !== undefined;
+		if (!visible) {
+			return false;
+		}
+		if (typeof tab.predicate === 'function') {
+			try {
+				return !!tab.predicate({
+					activeDocument,
+					response: parsed,
+					data: slotData[tab.name],
+				});
+			} catch {
+				// A throwing predicate hides the tab — better than crashing
+				// the whole response pane on a third-party extension bug.
+				return false;
+			}
+		}
+		return true;
+	});
+
+	// The synthetic "Extensions" tab still appears when the response
+	// includes extension data that no plugin has registered a renderer
+	// for — useful as a "you have data here but nothing's reading it"
+	// signal. It hides itself as soon as that data is registered or the
+	// response stops emitting it.
+	//
+	// `queryAnalyzer` is *consumed* by the Smart Cache panel (which
+	// reads nodes / list types / root types / keys count / skipped
+	// diagnostics from it). When Smart Cache is rendering, we hide the
+	// raw queryAnalyzer payload from the unregistered fallback so it
+	// doesn't show as both an Extensions tab AND inside Smart Cache.
+	// When Smart Cache isn't present (e.g. wp-graphql-smart-cache not
+	// installed) the fallback still shows it so the data isn't lost.
+	const smartCacheConsumed = extensions.graphqlSmartCache !== undefined;
+	const unregisteredExtensionKeys = Object.keys(extensions).filter((key) => {
+		if (smartCacheConsumed && key === 'queryAnalyzer') {
+			return false;
+		}
+		return !extensionTabs.some((t) => t.name === key);
+	});
+	const showUnregisteredFallback = unregisteredExtensionKeys.length > 0;
+
+	const bottomTabs = [
+		...activeExtTabs.map((t) => {
+			const data = slotData[t.name];
+			const title =
+				typeof t.title === 'function'
+					? t.title({ data, response, errors, responseHeaders })
+					: t.title || t.name;
+			return { name: `ext:${t.name}`, title };
+		}),
+		...(showUnregisteredFallback
+			? [
+					{
+						name: 'extensions:unregistered',
+						title: __('Extensions', 'wpgraphql-ide'),
+					},
+				]
+			: []),
+	];
+
+	// User-defined drag-to-reorder over the bottom tabs. Newly registered
+	// extensions append at the end of the saved order so they never
+	// disappear from view. Mirrors the activity-bar `usePanelOrder` story.
+	const reorder = useResponseTabOrder(bottomTabs);
+	const orderedBottomTabs = reorder.orderedTabs;
+
+	const viewerContent = useMemo(() => {
+		if (!response) {
+			return '';
+		}
+		if (responseDataScope === 'data') {
+			if (parsed?.data !== undefined && parsed?.data !== null) {
+				return JSON.stringify(parsed.data, null, 2);
+			}
+			return '// No data in response';
+		}
+		return response;
+	}, [response, responseDataScope, parsed]);
+
+	const reporter = useResizeReporter(__('Response viewer', 'wpgraphql-ide'));
+	const tabsReporter = useResizeReporter(
+		__('Response tabs', 'wpgraphql-ide')
+	);
+
+	const viewModes = useSelect(
+		(s) => s('wpgraphql-ide/response-view-modes').responseViewModes(),
+		[]
+	);
+	const activeMode =
+		viewModes.find((m) => m.value === responseViewMode) || viewModes[0];
+
+	const renderViewer = () => {
+		if (!response) {
+			return <div className="wpgraphql-ide-response-empty" />;
+		}
+		return activeMode
+			? activeMode.render({
+					response,
+					parsed,
+					dataScope: responseDataScope,
+					viewerContent,
+				})
+			: null;
+	};
+
+	if (!response) {
+		return (
+			<div className="wpgraphql-ide-response-body wpgraphql-ide-response-body--empty">
+				{reporter.indicator}
+				<div className="wpgraphql-ide-response-empty">
+					<div className="wpgraphql-ide-response-empty-hint">
+						<h3 className="wpgraphql-ide-response-empty-title">
+							{__('No response yet', 'wpgraphql-ide')}
+						</h3>
+						<p className="wpgraphql-ide-response-empty-description">
+							{__(
+								'Run a query to see results here.',
+								'wpgraphql-ide'
+							)}
+						</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="wpgraphql-ide-response-body">
+			{bottomCollapsed ? (
+				// Collapsed bottom = no split, viewer fills the column.
+				<div className="wpgraphql-ide-response-viewer wpgraphql-ide-response-viewer--filling">
+					{reporter.indicator}
+					{renderViewer()}
+				</div>
+			) : (
+				<ResizableBox
+					size={{ width: '100%', height: responseViewerHeight }}
+					minHeight={50}
+					enable={{ bottom: true }}
+					onResizeStart={reporter.reportStart}
+					onResize={reporter.reportResize}
+					onResizeStop={(e, d, elt) => {
+						reporter.reportStop();
+						onResponseViewerResize(elt.offsetHeight);
+					}}
+					className="wpgraphql-ide-response-viewer wpgraphql-ide-resizable-split"
+				>
+					{reporter.indicator}
+					{renderViewer()}
+				</ResizableBox>
+			)}
+			<div
+				className={`wpgraphql-ide-response-tabs-wrap${bottomCollapsed ? ' is-collapsed' : ''}`}
+			>
+				{tabsReporter.indicator}
+				<OverflowTabs
+					// Re-key on the request token so every status-bar click
+					// (even repeated clicks targeting the same tab) remounts
+					// the tab strip with the requested initialTabName. Without
+					// the token, a click while the requested tab is already
+					// active is a no-op state change.
+					key={`${errors.length > 0 ? 'has-errors' : 'no-errors'}|${tabRequest?.token || ''}`}
+					className={`wpgraphql-ide-response-tabs${errors.length > 0 ? ' has-errors' : ''}`}
+					tabs={orderedBottomTabs}
+					reorder={reorder}
+					initialTabName={
+						tabRequest?.name ||
+						bottomActiveTab ||
+						(errors.length > 0 ? 'ext:errors' : 'ext:tracing')
+					}
+					activeTabName={bottomActiveTab || undefined}
+					onActiveTabChange={onSetBottomActiveTab}
+					collapsed={bottomCollapsed}
+					onCollapse={
+						onSetBottomCollapsed
+							? () => onSetBottomCollapsed(true)
+							: undefined
+					}
+					onExpand={
+						onSetBottomCollapsed
+							? (name) => {
+									onSetBottomCollapsed(false);
+									if (
+										name &&
+										(!bottomActiveTab ||
+											bottomActiveTab !== name)
+									) {
+										onSetBottomActiveTab?.(name);
+									}
+								}
+							: undefined
+					}
+				>
+					{(tab) => {
+						if (tab.name.startsWith('ext:')) {
+							const extName = tab.name.slice(4);
+							const ext = activeExtTabs.find(
+								(t) => t.name === extName
+							);
+							const ExtContent = ext?.content;
+							return ExtContent ? (
+								<ExtContent
+									data={slotData[extName]}
+									response={response}
+								/>
+							) : null;
+						}
+						if (tab.name === 'extensions:unregistered') {
+							return (
+								<div className="wpgraphql-ide-extensions-empty">
+									<p>
+										The response contains extension data,
+										but no plugin has registered a renderer
+										for it:
+									</p>
+									<ul>
+										{unregisteredExtensionKeys.map(
+											(key) => (
+												<li key={key}>
+													<code>{key}</code>
+												</li>
+											)
+										)}
+									</ul>
+								</div>
+							);
+						}
+						return null;
+					}}
+				</OverflowTabs>
+			</div>
+		</div>
+	);
+}
