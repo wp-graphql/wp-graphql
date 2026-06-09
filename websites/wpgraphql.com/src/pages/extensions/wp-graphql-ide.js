@@ -16,6 +16,7 @@ import {
   VisualPanel,
 } from "@/components/extensions/SectionHeading"
 import Constellation from "@/components/extensions/Constellation"
+import PlaygroundEmbed from "@/components/extensions/PlaygroundEmbed"
 
 const WP_ORG_URL = "https://wordpress.org/plugins/wpgraphql-ide/"
 // Repo root — used for issues / security policy (those live at the monorepo level).
@@ -657,6 +658,7 @@ function WpGraphQLIde({ layoutData }) {
             The shared SiteHeader/SiteFooter remain WPGraphQL-orange. */}
         <div className="theme-ide">
           <Hero />
+          <PlaygroundEmbed />
           <RenderModes />
           <EditorFeatures />
           <SmartCacheIntegration />
