@@ -50,6 +50,28 @@ test.describe('Tab management', () => {
 		await expect(page.locator(`${selectors.tab}.is-active`)).toHaveCount(1);
 	});
 
+	test('tab title tracks the full operation name when a body brace precedes the name', async ({
+		page,
+	}) => {
+		// Regression: the tab froze to the first character of the op name
+		// (e.g. "G" instead of "GetPosts") whenever a body brace already
+		// followed the name being typed. Reproduce that exact condition by
+		// putting the `{` in place first, then typing the name in front of
+		// it one character at a time.
+		await page.click(selectors.addTab);
+		// Seed `query ` then drop the body opener; one ArrowLeft lands the
+		// caret before the `{` (works whether or not autoclose adds a `}`).
+		await typeQuery(page, 'query ');
+		await page.keyboard.type('{');
+		await page.keyboard.press('ArrowLeft');
+		await page.keyboard.type('GetPosts');
+
+		const activeTitle = page
+			.locator(`${selectors.tab}.is-active .wpgraphql-ide-tab-text`)
+			.first();
+		await expect(activeTitle).toHaveText('GetPosts', { timeout: 5000 });
+	});
+
 	test('open tabs persist across a full page reload', async ({ page }) => {
 		const stamp = Date.now();
 		const body = `{ posts(where: {search: "persist-${stamp}"}) { nodes { id } } }`;
