@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.15.1\n"
+"Project-Id-Version: WPGraphQL 3.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-09T15:52:01+00:00\n"
+"POT-Creation-Date: 2026-06-10T18:29:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -738,84 +738,76 @@ msgstr ""
 msgid "This will be removed in the next major release of WPGraphQL."
 msgstr ""
 
-#: src/Deprecated.php:129
+#: src/Deprecated.php:128
 msgid "Deprecated in favor of the connectedNode field"
 msgstr ""
 
-#: src/Deprecated.php:132
+#: src/Deprecated.php:131
 msgid "The object connected to this menu item."
 msgstr ""
 
-#: src/Deprecated.php:177
+#: src/Deprecated.php:176
 msgid "This will be removed in the next version of WPGraphQL. Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead."
 msgstr ""
 
 #. translators: %s is the post type's GraphQL name.
-#: src/Deprecated.php:211
+#: src/Deprecated.php:210
 #, php-format
 msgid "Get the %s object by its global ID"
 msgstr ""
 
 #. translators: %s is the post type's GraphQL name.
-#: src/Deprecated.php:221
+#: src/Deprecated.php:220
 #, php-format
 msgid "Get the %s by its database ID"
 msgstr ""
 
 #. translators: %s is the post type's GraphQL name.
-#: src/Deprecated.php:231
+#: src/Deprecated.php:230
 #, php-format
 msgid "Get the %s by its uri"
 msgstr ""
 
 #. translators: %s is the post type's GraphQL name.
-#: src/Deprecated.php:244
+#: src/Deprecated.php:243
 #, php-format
 msgid "Get the %s by its slug (only available for non-hierarchical types)"
 msgstr ""
 
-#: src/Deprecated.php:260
+#: src/Deprecated.php:259
 msgid "Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: \"\" ), use post(id: \"\" idType: \"\")"
 msgstr ""
 
 #. translators: %s is the post type's GraphQL name.
-#: src/Deprecated.php:265
+#: src/Deprecated.php:264
 #, php-format
 msgid "A %s object"
 msgstr ""
 
-#: src/Deprecated.php:276
+#: src/Deprecated.php:275
 msgid "The \"id\" is invalid"
 msgstr ""
 
-#: src/Deprecated.php:355
+#: src/Deprecated.php:354
 msgid "The ancestors of the content node."
 msgstr ""
 
-#: src/Deprecated.php:358
+#: src/Deprecated.php:357
 msgid "This content type is not hierarchical and typically will not have ancestors"
 msgstr ""
 
-#: src/Deprecated.php:374
+#: src/Deprecated.php:373
 msgid "The parent of the content node."
 msgstr ""
 
-#: src/Deprecated.php:377
+#: src/Deprecated.php:376
 msgid "This content type is not hierarchical and typically will not have a parent"
 msgstr ""
 
 #. translators: %s is the post type's GraphQL name.
-#: src/Deprecated.php:407
+#: src/Deprecated.php:406
 #, php-format
 msgid "The \"%s\" Type is not publicly queryable and does not support previews. This field will be removed in the future."
-msgstr ""
-
-#: src/Deprecated.php:440
-msgid "The user that the password reset email was sent to"
-msgstr ""
-
-#: src/Deprecated.php:443
-msgid "This field will be removed in a future version of WPGraphQL"
 msgstr ""
 
 #: src/Experimental/Admin.php:43

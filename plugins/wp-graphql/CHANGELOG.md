@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.0.0-rc](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.1...wp-graphql/v3.0.0-rc) (2026-06-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* start the 3.0 prerelease line (remove SendPasswordResetEmailPayload.user) ([#3915](https://github.com/wp-graphql/wp-graphql/issues/3915))
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3905](https://github.com/wp-graphql/wp-graphql/issues/3905)) ([3945ef3](https://github.com/wp-graphql/wp-graphql/commit/3945ef3f14ad9f475b3e82aa5c7638346306fff3))
+* start the 3.0 prerelease line (remove SendPasswordResetEmailPayload.user) ([#3915](https://github.com/wp-graphql/wp-graphql/issues/3915)) ([edae7db](https://github.com/wp-graphql/wp-graphql/commit/edae7db9225fbd9f2c088978ef4a00e8e3fda88a))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3894](https://github.com/wp-graphql/wp-graphql/issues/3894)) ([786f53f](https://github.com/wp-graphql/wp-graphql/commit/786f53fb3b7b78d1b50890de84982c3ab6564d10))
+
 ## [2.15.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.0...wp-graphql/v2.15.1) (2026-06-09)
 
 
