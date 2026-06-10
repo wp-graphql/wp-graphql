@@ -26,7 +26,7 @@ if ( ! function_exists( 'wpgraphql_ide_get_capability' ) ) {
 	 * returns a non-string or empty value, so a misconfigured filter
 	 * never accidentally opens the gate to everyone.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.0.1
 	 *
 	 * @return string Capability slug.
 	 */
@@ -50,7 +50,7 @@ if ( ! function_exists( 'wpgraphql_ide_user_can' ) ) {
 	 *
 	 * Equivalent to `current_user_can( wpgraphql_ide_get_capability() )`.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.0.1
 	 */
 	function wpgraphql_ide_user_can(): bool {
 		return current_user_can( wpgraphql_ide_get_capability() );
@@ -72,7 +72,7 @@ if ( ! function_exists( 'wpgraphql_ide_user_owns_document' ) ) {
 	 * (one `get_post()` call). Returns `false` for an invalid input —
 	 * the caller doesn't have to pre-validate.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.0.1
 	 *
 	 * @param int|\WP_Post|null $post Post object or post ID.
 	 */

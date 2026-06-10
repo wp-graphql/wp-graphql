@@ -245,7 +245,7 @@ class AssetEnqueue {
 	 * Returned values are coerced to strings and empty entries dropped so
 	 * a misbehaving filter can't break the bootstrap shape.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.0.1
 	 *
 	 * @return array<string>
 	 */
@@ -258,7 +258,7 @@ class AssetEnqueue {
 		 * into outgoing queries that reference them by name. Fragments not
 		 * referenced by a given query are omitted from that request.
 		 *
-		 * @since x-release-please-version
+		 * @since 5.0.1
 		 *
 		 * @param array<string> $fragments List of fragment SDL strings.
 		 */
