@@ -146,11 +146,9 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 
 	upgradeNotice += '\nPlease review these changes before upgrading.\n';
 
-	// Find the Upgrade Notice section. The outer regex bounds the body slice
-	// at the next `\n==` heading (or EOF) — that bound is the load-bearing
-	// invariant: every mutation below operates inside `sectionBody` and is
-	// spliced back, so no inner regex can ever escape the section and wipe
-	// a sibling section (the regression that stranded the IDE 5.0.0 release).
+	// Find the Upgrade Notice body. The outer regex bounds the slice at
+	// the next `\n==` heading (or EOF); inner mutations operate on
+	// `sectionBody` and are spliced back, so they cannot escape the section.
 	const upgradeNoticeMatch = content.match(
 		/(== Upgrade Notice ==\n\n?)([\s\S]*?)(?=\n==|$)/
 	);
@@ -160,19 +158,16 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 		const sectionPrefix = upgradeNoticeMatch[1];
 		let sectionBody = upgradeNoticeMatch[2];
 
-		// Anchor `= X.Y.Z =` to a line start so prose mentions
-		// (e.g. "Upgraded from = 5.0.0 = to ...") don't false-positive into
-		// the replace branch.
+		// Anchor `= X.Y.Z =` to a line start so prose mentions don't
+		// false-positive into the replace branch.
 		const versionNoticeRegex = new RegExp(
 			`(^|\\n)= ${escapedVersion} =`
 		);
 		const hasVersionNotice = versionNoticeRegex.test(sectionBody);
 
 		if (hasVersionNotice) {
-			// Replace within the body slice only. `$` here is end-of-slice
-			// (the outer regex already bounded the section), so the lazy
-			// match cannot consume past the section even if no sibling
-			// `= <digit>` heading exists.
+			// Replace within the body slice only. `$` is end-of-slice
+			// (the outer regex bounded the section).
 			const existingNoticeRegex = new RegExp(
 				`(^|\\n)= ${escapedVersion} =[\\s\\S]*?(?=\\n= \\d|$)`
 			);
