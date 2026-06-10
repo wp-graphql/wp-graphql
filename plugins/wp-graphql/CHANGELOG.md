@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.16.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.1...wp-graphql/v2.16.0) (2026-06-10)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3905](https://github.com/wp-graphql/wp-graphql/issues/3905)) ([3945ef3](https://github.com/wp-graphql/wp-graphql/commit/3945ef3f14ad9f475b3e82aa5c7638346306fff3))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3894](https://github.com/wp-graphql/wp-graphql/issues/3894)) ([786f53f](https://github.com/wp-graphql/wp-graphql/commit/786f53fb3b7b78d1b50890de84982c3ab6564d10))
+
 ## [2.15.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.0...wp-graphql/v2.15.1) (2026-06-09)
 
 
