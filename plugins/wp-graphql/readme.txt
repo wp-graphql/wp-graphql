@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.15.1
+Stable tag: 3.0.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -77,6 +77,14 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
 
 == Upgrade Notice ==
+
+= 3.0.0 =
+
+**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
+
+* start the 3.0 prerelease line (remove SendPasswordResetEmailPayload.user) ([#3915](https://github.com/wp-graphql/wp-graphql/issues/3915))
+
+Please review these changes before upgrading.
 
 = 2.15.1 =
 
