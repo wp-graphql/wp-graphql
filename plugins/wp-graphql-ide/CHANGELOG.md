@@ -170,6 +170,25 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.5.0...wp-graphql-ide/v5.0.0) (2026-06-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ide:** rebuild IDE on Smart Cache primitives with WordPress components and CodeMirror 6 ([#3784](https://github.com/wp-graphql/wp-graphql/issues/3784))
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3905](https://github.com/wp-graphql/wp-graphql/issues/3905)) ([3945ef3](https://github.com/wp-graphql/wp-graphql/commit/3945ef3f14ad9f475b3e82aa5c7638346306fff3))
+* **ide:** rebuild IDE on Smart Cache primitives with WordPress components and CodeMirror 6 ([#3784](https://github.com/wp-graphql/wp-graphql/issues/3784)) ([35070c8](https://github.com/wp-graphql/wp-graphql/commit/35070c826fdde48140707e09d196c04451b42c20))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.55 to 2.2.1 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3886](https://github.com/wp-graphql/wp-graphql/issues/3886)) ([1e9f85a](https://github.com/wp-graphql/wp-graphql/commit/1e9f85ada2bad160297507796c004525b1369e76))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3894](https://github.com/wp-graphql/wp-graphql/issues/3894)) ([786f53f](https://github.com/wp-graphql/wp-graphql/commit/786f53fb3b7b78d1b50890de84982c3ab6564d10))
+* **ide:** derive saved-document name from operation and fix frozen tab title ([#3897](https://github.com/wp-graphql/wp-graphql/issues/3897)) ([d493b52](https://github.com/wp-graphql/wp-graphql/commit/d493b52b9ddadab04688b0fe8cb4d6396e6aea99))
+
 ## [4.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.4.1...wp-graphql-ide/v4.5.0) (2026-06-04)
 
 
