@@ -158,9 +158,14 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 		const hasVersionNotice = versionNoticeRegex.test(upgradeNoticeMatch[2]);
 
 		if (hasVersionNotice) {
-			// Replace existing notice for this version
+			// Replace existing notice for this version.
+			// The trailing lookahead must also stop at the next `== ` major section
+			// heading (e.g. `== Changelog ==`); otherwise, when no later
+			// `= <digit>` heading exists in the Upgrade Notice block, the lazy
+			// match runs all the way to EOF and the replacement wipes the
+			// Changelog out of readme.txt.
 			const existingNoticeRegex = new RegExp(
-				`(= ${escapedVersion} =[\\s\\S]*?)(?=\\n= \\d|$)`
+				`(= ${escapedVersion} =[\\s\\S]*?)(?=\\n= \\d|\\n== |$)`
 			);
 			content = content.replace(existingNoticeRegex, upgradeNotice);
 			console.log(

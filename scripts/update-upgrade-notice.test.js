@@ -264,6 +264,16 @@ Please review these changes before upgrading.
 				matches && matches.length === 1,
 				'Should have exactly one version header'
 			);
+			// Regression guard: the existing Changelog section must survive
+			// being adjacent to the upserted Upgrade Notice block.
+			assert(
+				readme.includes('== Changelog =='),
+				'Should preserve the existing Changelog section'
+			);
+			assert(
+				readme.includes('= 2.0.0 ='),
+				'Should preserve the existing 2.0.0 changelog entry'
+			);
 		}),
 
 	// Test 5: Alternative breaking changes header format
@@ -371,6 +381,75 @@ Stable tag: 2.0.0
 			);
 			assert(readme.includes('#100'), 'Should include correct PR link');
 			assert(!readme.includes('#200'), 'Should NOT include v4 PR link');
+		}),
+
+	// Test 8a: Regression — wp-graphql-ide 5.0.0 release PR shape (PR #3892).
+	// The release-please flow pre-populated `= 5.0.0 =` in the Upgrade Notice
+	// section with no later `= <digit>` heading after it, immediately followed
+	// by `== Changelog ==`. The buggy lazy match swallowed the Changelog header
+	// up to EOF and the downstream `update-readme-changelog.js` then threw.
+	() =>
+		test('preserves "== Changelog ==" when upserting an upgrade notice with no later = <digit> heading', () => {
+			createChangelog(`# Changelog
+
+## [5.0.0](https://github.com/wp-graphql/wp-graphql/compare/v4.5.0...v5.0.0) (2026-06-09)
+
+### ⚠ BREAKING CHANGES
+
+* Rebuild IDE UI on @wordpress/components ([#3784](https://github.com/wp-graphql/wp-graphql/pull/3784))
+`);
+
+			createReadme(`=== Test Plugin ===
+Stable tag: 4.5.0
+
+== Upgrade Notice ==
+
+= 5.0.0 =
+Hand-written upgrade-notice paragraph from the feature PR.
+
+WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
+
+== Changelog ==
+
+= 5.0.0 =
+
+**Breaking changes**
+
+* IDE UI rebuilt on @wordpress/components.
+
+= 4.5.0 =
+* Previous release.
+`);
+
+			const result = runScript('5.0.0');
+			assert(result.success, `Script should succeed. Output: ${result.output}`);
+
+			const readme = readReadme();
+			assert(
+				readme.includes('== Changelog =='),
+				'Must preserve the == Changelog == section heading'
+			);
+			assert(
+				readme.includes('= 4.5.0 ='),
+				'Must preserve earlier changelog entries'
+			);
+			// New upgrade-notice content for 5.0.0 should be present.
+			assert(
+				readme.includes('Rebuild IDE UI on @wordpress/components'),
+				'Should write the new breaking change into the upgrade notice'
+			);
+			// The pre-existing 5.0.0 Changelog body should still be there.
+			assert(
+				readme.includes('IDE UI rebuilt on @wordpress/components'),
+				'Must preserve the pre-existing 5.0.0 changelog body'
+			);
+			// `= 5.0.0 =` should appear exactly twice: once in Upgrade Notice,
+			// once in Changelog.
+			const fiveZero = readme.match(/= 5\.0\.0 =/g) || [];
+			assert(
+				fiveZero.length === 2,
+				`Expected exactly 2 occurrences of "= 5.0.0 =" (one per section), got ${fiveZero.length}`
+			);
 		}),
 
 	// Test 8: Scoped breaking changes (e.g., **resolver:**)
