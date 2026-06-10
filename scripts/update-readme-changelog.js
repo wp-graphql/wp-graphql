@@ -187,29 +187,14 @@ function upsertVersionInReadme(readmeContent, versionBlock, version) {
 		throw new Error('Could not find "== Changelog ==" section in readme.txt');
 	}
 
-	// Scope all changelog mutations to the slice that starts at the heading.
-	// Everything before (Description, Upgrade Notice, …) is untouchable
-	// prefix and can never be matched by the replace below — this is what
-	// stops the bug where, on a release-please run, the FIRST `= X.Y.Z =`
-	// in readme.txt is in the Upgrade Notice section (already written by
-	// the prior `update-upgrade-notice.js` step) and the changelog block
-	// silently overwrites it.
+	// Scope mutations to the slice that starts at the heading; anything
+	// before is pass-through prefix.
 	const changelogStart = headingMatch.index;
 	const prefix = readmeContent.slice(0, changelogStart);
 	const changelogSection = readmeContent.slice(changelogStart);
 
-	// Lookahead alternatives (all evaluated within `changelogSection`):
-	//   `\n= [digit]…` — next sibling version heading
-	//   `\n== `        — next major section heading
-	//   `$`            — end of input (i.e. end of section / file)
-	// Lookbehind `(?<=^|\n)` anchors to a line-start `= X.Y.Z =` heading
-	// without consuming the preceding `\n`, so the replacement preserves it.
-	//
-	// (The prior implementation used `\Z` in the lookahead, which is NOT a
-	// valid JS regex escape — it matched the literal character `Z`. When
-	// neither sibling alternative fired, the lazy match failed entirely and
-	// the script fell through to the `inserted` branch, prepending a
-	// duplicate `= X.Y.Z =` block.)
+	// Match a `= X.Y.Z =` heading bounded by the next sibling version
+	// heading, the next major section heading, or end of input.
 	const versionPattern = new RegExp(
 		`(?<=^|\\n)= ${escapeRegExp(version)} =[\\s\\S]*?(?=\\n= [0-9]+\\.[0-9]+\\.[0-9]+(?:-[\\w.-]+)? =\\s*(?:\\n|$)|\\n== |$)`
 	);
