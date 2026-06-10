@@ -111,7 +111,6 @@ final class Deprecated {
 
 		$this->graphql_post_types();
 		$this->menu_item_connected_object();
-		$this->send_password_reset_email_user();
 	}
 
 	/**
@@ -422,42 +421,6 @@ final class Deprecated {
 					return $resolver->one_to_one()->get_connection();
 				},
 			]
-		);
-	}
-
-	/**
-	 * SendPasswordResetEmail.user output field\
-	 *
-	 * @todo remove in 3.0.0
-	 */
-	public function send_password_reset_email_user(): void {
-		register_graphql_field(
-			'SendPasswordResetEmailPayload',
-			'user',
-			[
-				'type'              => 'User',
-				'description'       => static function () {
-					return __( 'The user that the password reset email was sent to', 'wp-graphql' );
-				},
-				'deprecationReason' => static function () {
-					return __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' );
-				},
-				'resolve'           => static function ( $payload, $args, AppContext $context ) {
-					// The `sendPasswordResetEmail` mutation deliberately obfuscates whether the supplied
-					// username/email matches a real account (it always returns `success: true`) to prevent
-					// user enumeration. The internal `$payload['id']` is only populated on a real match, so
-					// resolving it for everyone would turn this field into an enumeration oracle: an
-					// unauthenticated caller could test arbitrary emails/logins and learn which ones exist
-					// (and link them to a user identity). Only expose the user to requesters who already have
-					// the capability to list users; everyone else gets null regardless of whether the account
-					// exists, preserving the mutation's anti-enumeration guarantee.
-					if ( empty( $payload['id'] ) || ! current_user_can( 'list_users' ) ) {
-						return null;
-					}
-
-					return $context->get_loader( 'user' )->load_deferred( $payload['id'] );
-				},
-			],
 		);
 	}
 }

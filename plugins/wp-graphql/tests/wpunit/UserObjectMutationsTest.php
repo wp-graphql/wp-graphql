@@ -1052,9 +1052,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$query = '
 		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
 			sendPasswordResetEmail( input: $input ) {
-				user {
-					databaseId
-				}
 				success
 			}
 		}
@@ -1078,7 +1075,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
-		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 	}
 
 	public function testSendPasswordResetEmailWithUsername() {
@@ -1093,7 +1089,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEmpty( $actual['extensions']['debug'] );
-		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
 		// Test when user has permissions
 		wp_set_current_user( $this->admin );
@@ -1101,8 +1096,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
-		// @todo deprecate.
-		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
 	public function testSendPasswordResetEmailWithEmail() {
@@ -1117,7 +1110,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEmpty( $actual['extensions']['debug'] );
-		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
 		// Test when user has permissions
 		wp_set_current_user( $this->admin );
@@ -1125,60 +1117,38 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = $this->sendPasswordResetEmailMutation( $email );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
-		// @todo deprecate.
-		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
 	/**
-	 * The deprecated `user` field on the SendPasswordResetEmailPayload must not leak whether an
-	 * account exists to unauthenticated callers. Author-class users (those with published posts)
-	 * are "public" to the User model, so prior to the fix the field resolved to a full User object
-	 * for them while resolving to null for non-existent accounts — an unauthenticated enumeration
-	 * oracle keyed on email/login. The field must resolve to null for callers without the
-	 * `list_users` capability regardless of whether the account exists.
-	 *
-	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories
+	 * The deprecated `user` field on SendPasswordResetEmailPayload was removed in 3.0.0. Selecting
+	 * it must now be a schema validation error rather than resolving (it previously leaked user
+	 * existence to unauthenticated callers). This guards against the field being reintroduced.
 	 */
-	public function testSendPasswordResetEmailUserFieldDoesNotLeakExistenceToPublic() {
-		$user     = get_userdata( $this->author );
-		$username = $user->user_login;
-		$email    = $user->user_email;
+	public function testSendPasswordResetEmailUserFieldIsRemoved() {
+		$query = '
+		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
+			sendPasswordResetEmail( input: $input ) {
+				user {
+					databaseId
+				}
+				success
+			}
+		}
+		';
 
-		wp_set_current_user( 0 );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'username' => 'someUser',
+					],
+				],
+			]
+		);
 
-		// Existing author-class (public) user, by username.
-		$actual = $this->sendPasswordResetEmailMutation( $username );
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
-		$this->assertEmpty( $actual['extensions']['debug'], 'A real account should not produce a debug notice.' );
-		$this->assertNull( $actual['data']['sendPasswordResetEmail']['user'], 'The deprecated user field must not expose an existing public user to unauthenticated callers.' );
-
-		// Same existing user, by email.
-		$actual = $this->sendPasswordResetEmailMutation( $email );
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
-		$this->assertNull( $actual['data']['sendPasswordResetEmail']['user'], 'The deprecated user field must not expose an existing public user when looked up by email.' );
-
-		// Non-existent account: the response must be indistinguishable from the existing-user case.
-		$actual = $this->sendPasswordResetEmailMutation( 'thisUserDoesNotExist' );
-		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
-		$this->assertNull( $actual['data']['sendPasswordResetEmail']['user'], 'A non-existent account must also resolve user to null so the two cases cannot be told apart.' );
-	}
-
-	/**
-	 * Requesters who can list users retain access to the deprecated `user` field — the fix closes
-	 * the enumeration hole without removing the legitimate admin-side utility of the field.
-	 */
-	public function testSendPasswordResetEmailUserFieldVisibleToCapableUser() {
-		$user     = get_userdata( $this->author );
-		$username = $user->user_login;
-
-		wp_set_current_user( $this->admin );
-
-		$actual = $this->sendPasswordResetEmailMutation( $username );
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
-		$this->assertEquals( $this->author, $actual['data']['sendPasswordResetEmail']['user']['databaseId'], 'A user with the list_users capability should still receive the resolved user.' );
+		$this->assertArrayHasKey( 'errors', $actual, 'Selecting the removed user field must produce a validation error.' );
+		$this->assertStringContainsString( 'user', $actual['errors'][0]['message'] );
 	}
 
 	public function testSendPasswordResetEmailActivationKeyWithUsername() {
