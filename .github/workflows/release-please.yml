@@ -320,11 +320,14 @@ jobs:
             echo "Deploying new release: ${COMPONENT} v${VERSION} (tag: ${TAG})"
           fi
 
-          # Detect a prerelease by the SemVer prerelease identifier (e.g. 3.0.0-rc.0).
-          # Prereleases are deployed to a WordPress.org SVN tag ONLY and never touch
-          # trunk or the Stable tag, so the auto-update audience stays on the current
-          # stable release while opt-in testers can install the tagged RC.
-          if [[ "$VERSION" == *"-"* ]]; then
+          # Treat anything that isn't a release from `main` as a prerelease. Stable
+          # WordPress.org deploys (trunk + Stable tag) come ONLY from `main`; every other
+          # branch (notably `next`) deploys to an SVN tag only and never moves the Stable
+          # tag. We also treat any SemVer-prerelease version (e.g. 3.0.0-rc.0) as a
+          # prerelease. Keying on the branch — not just the version string — is the safety
+          # net: even if release-please ever emits a non-`-rc` version on a non-main branch,
+          # it can never publish to the stable channel.
+          if [[ "$GITHUB_REF_NAME" != "main" || "$VERSION" == *"-"* ]]; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
           else
             echo "is_prerelease=false" >> $GITHUB_OUTPUT
