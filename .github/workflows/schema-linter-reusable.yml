@@ -252,6 +252,10 @@ jobs:
 
       - name: Run Schema Inspector
         if: steps.get-latest-tag.outputs.tag_found == 'true' && steps.get-previous-schema.outputs.schema_available == 'true'
+        # Breaking schema changes are intentional on the `next` (3.0) integration line, so the
+        # inspector runs and reports them but does not fail the build there. On `main` and
+        # `release/*` it stays blocking — an accidental breaking change should fail CI.
+        continue-on-error: ${{ github.base_ref == 'next' || github.ref_name == 'next' }}
         run: |
           # This schema and previous release schema
           node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-previous-schema.outputs.safe_tag }}.graphql /tmp/schema-${{ inputs.component }}.graphql
