@@ -170,6 +170,13 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.0.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.0.0...wp-graphql-ide/v5.0.1) (2026-06-10)
+
+
+### Bug Fixes
+
+* **release:** release script no longer crashes mid-run updating readme.txt ([#3916](https://github.com/wp-graphql/wp-graphql/issues/3916)) ([5650e62](https://github.com/wp-graphql/wp-graphql/commit/5650e62ebdca7edb8e8e018e8a824c6238ce2973))
+
 ## [5.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v4.5.0...wp-graphql-ide/v5.0.0) (2026-06-09)
 
 
