@@ -38,7 +38,7 @@ class Access {
 	 * already enforces. Mirror the REST behavior here so the per-user
 	 * isolation is the same on both surfaces.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.0.1
 	 *
 	 * @param array<string, mixed> $query_args  Connection query args (forwarded to WP_Query).
 	 * @param mixed                $source      The parent (root) source for the connection.
@@ -82,7 +82,7 @@ class Access {
 	 * resolves to null. This matches WPGraphQL's existing pattern for
 	 * draft posts and is the same path used by core's `is_post_private()`.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.0.1
 	 *
 	 * @param bool        $is_private   Whether the model is private.
 	 * @param string      $model_name   Name of the WPGraphQL model.
