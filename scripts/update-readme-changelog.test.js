@@ -221,6 +221,141 @@ Stable tag: 1.0.0
 			assert.strictEqual(readReadme(), originalReadme, 'readme should stay unchanged');
 		}),
 
+	// Regression — scoping to the Changelog section.
+	// PR #3892's failure shape: by the time this script runs, the Upgrade
+	// Notice section already contains a `= X.Y.Z =` heading written by the
+	// `update-upgrade-notice.js` step. The original script's full-content
+	// regex matched the FIRST `= X.Y.Z =` (in Upgrade Notice) and silently
+	// overwrote it with changelog markup. Scoping the operation to the
+	// Changelog slice makes that impossible by construction.
+	() =>
+		test('upgrade notice section with the same `= X.Y.Z =` heading is not touched', () => {
+			createChangelog(`# Changelog
+
+## [3.0.0](https://example.com) (2026-01-20)
+
+### Bug Fixes
+
+* canonical changelog body ([#1](https://example.com/issues/1))
+`);
+
+			const upgradeNoticeBody =
+				'**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.\n\n* upgrade-notice body line\n\nPlease review these changes before upgrading.';
+
+			createReadme(`=== Test ===
+Stable tag: 3.0.0
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+
+${upgradeNoticeBody}
+
+== Changelog ==
+
+= 3.0.0 =
+
+* old stale changelog body
+
+= 2.0.0 =
+
+* previous
+`);
+
+			const result = runScript('3.0.0');
+			assert(result.success, 'script should succeed');
+
+			const readme = readReadme();
+			// Upgrade Notice body is untouched.
+			assert(
+				readme.includes('upgrade-notice body line'),
+				'Upgrade Notice body must survive the changelog upsert'
+			);
+			assert(
+				readme.includes(
+					'**⚠️ BREAKING CHANGES**: This release contains breaking changes'
+				),
+				'Upgrade Notice marker must survive verbatim'
+			);
+			// Changelog body was replaced with the canonical bullet.
+			assert(
+				readme.includes('* canonical changelog body'),
+				'Changelog `= 3.0.0 =` block should be replaced with the CHANGELOG.md bullet'
+			);
+			assert(
+				!readme.includes('* old stale changelog body'),
+				'Old changelog body for 3.0.0 must be gone'
+			);
+			// Exactly one `= 3.0.0 =` per section.
+			const threeZero = readme.match(/= 3\.0\.0 =/g) || [];
+			assert.strictEqual(
+				threeZero.length,
+				2,
+				`Expected exactly 2 occurrences of "= 3.0.0 =" (one per section), got ${threeZero.length}`
+			);
+			// Order check: the Upgrade Notice's `= 3.0.0 =` precedes Changelog's.
+			const upgradeNoticeIdx = readme.indexOf('== Upgrade Notice ==');
+			const changelogIdx = readme.indexOf('== Changelog ==');
+			const firstThree = readme.indexOf('= 3.0.0 =');
+			const secondThree = readme.indexOf('= 3.0.0 =', firstThree + 1);
+			assert(
+				firstThree > upgradeNoticeIdx && firstThree < changelogIdx,
+				'First `= 3.0.0 =` must remain in Upgrade Notice'
+			);
+			assert(
+				secondThree > changelogIdx,
+				'Second `= 3.0.0 =` must be in Changelog'
+			);
+		}),
+
+	// Regression — the `\Z` literal bug. When the target version is the
+	// only `= X.Y.Z =` in the readme AND no `== ` section follows it, the
+	// previous regex's lookahead (which used the invalid `\Z` escape, JS
+	// treats it as literal `Z`) failed to match, the script fell through to
+	// the `inserted` branch, and the result was a duplicate version heading.
+	() =>
+		test('updates the only `= X.Y.Z =` heading in the file without inserting a duplicate', () => {
+			createChangelog(`# Changelog
+
+## [1.0.0](https://example.com) (2026-01-20)
+
+### Bug Fixes
+
+* the fix ([#1](https://example.com/issues/1))
+`);
+
+			createReadme(`=== Test ===
+Stable tag: 1.0.0
+
+== Changelog ==
+
+= 1.0.0 =
+
+* old stale body
+`);
+
+			const result = runScript('1.0.0');
+			assert(result.success, `script should succeed. Output: ${result.output}`);
+			assert(
+				result.output.includes('updated readme changelog'),
+				'should take the "updated" branch, not "inserted"'
+			);
+
+			const readme = readReadme();
+			assert(
+				!readme.includes('* old stale body'),
+				'old body must be replaced'
+			);
+			assert(readme.includes('* the fix'), 'new body must be present');
+			// Exactly one occurrence — no duplicate prepended.
+			const matches = readme.match(/= 1\.0\.0 =/g) || [];
+			assert.strictEqual(
+				matches.length,
+				1,
+				`Expected exactly 1 occurrence of "= 1.0.0 =", got ${matches.length}`
+			);
+		}),
+
 	() =>
 		test('collapses excessive blank lines in changelog section', () => {
 			createChangelog(`# Changelog
