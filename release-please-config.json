@@ -15,6 +15,7 @@
 			"draft": false,
 			"prerelease": true,
 			"prerelease-type": "rc",
+			"versioning": "prerelease",
 			"changelog-path": "CHANGELOG.md",
 			"changelog-sections": [
 				{ "type": "feat", "section": "New Features", "hidden": false },
