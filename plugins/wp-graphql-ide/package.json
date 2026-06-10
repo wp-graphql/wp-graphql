@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql-ide",
-	"version": "4.5.0",
+	"version": "5.0.0",
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -60,7 +60,7 @@
 		"@codemirror/autocomplete": "^6.0.0",
 		"@codemirror/commands": "^6.0.0",
 		"@codemirror/lang-json": "^6.0.2",
-		"@codemirror/language": "^6.0.0",
+		"@codemirror/language": "^6.12.3",
 		"@codemirror/lint": "^6.0.0",
 		"@codemirror/state": "^6.0.0",
 		"@codemirror/view": "^6.0.0",
@@ -78,8 +78,8 @@
 		"cm6-graphql": "^0.2.1",
 		"codemirror": "^6.0.0",
 		"copy-to-clipboard": "^3.3.3",
-		"graphql": "^16.14.0",
-		"graphql-language-service": "^5.5.0",
+		"graphql": "^16.14.1",
+		"graphql-language-service": "^5.5.1",
 		"graphql-ws": "^5.14.2",
 		"lz-string": "^1.5.0",
 		"react": "^18.2.0",
@@ -87,8 +87,8 @@
 		"vaul": "^0.9.0"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.29.5",
-		"@babel/preset-react": "^7.28.5",
+		"@babel/preset-env": "^7.29.7",
+		"@babel/preset-react": "^7.29.7",
 		"@playwright/test": "^1.60.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^15.0.7",
@@ -97,7 +97,7 @@
 		"@typescript-eslint/parser": "^6.21.0",
 		"@wordpress/e2e-test-utils-playwright": "^0.19.3",
 		"@wordpress/env": "^10.39.0",
-		"@wordpress/prettier-config": "^4.46.0",
+		"@wordpress/prettier-config": "^4.47.0",
 		"@wordpress/scripts": "^27.9.0",
 		"adm-zip": "^0.5.16",
 		"babel-jest": "^30.4.1",

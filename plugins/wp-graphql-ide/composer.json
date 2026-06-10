@@ -33,7 +33,7 @@
 		"lucatume/wp-browser": "^3.7.0",
 		"codeception/module-rest": "^2.0",
 		"phpunit/php-timer": "^5.0",
-		"phpstan/phpstan": "~2.1.2",
+		"phpstan/phpstan": "~2.2.1",
 		"phpstan/phpstan-deprecation-rules": "^2.0.1",
 		"phpstan/extension-installer": "^1.1",
 		"szepeviktor/phpstan-wordpress": "^2.0.1",
