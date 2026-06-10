@@ -97,7 +97,9 @@
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
-			"prerelease": false,
+			"prerelease": true,
+			"prerelease-type": "rc",
+			"versioning": "prerelease",
 			"changelog-path": "CHANGELOG.md",
 			"changelog-sections": [
 				{ "type": "feat", "section": "New Features", "hidden": false },
@@ -164,7 +166,9 @@
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
-			"prerelease": false,
+			"prerelease": true,
+			"prerelease-type": "rc",
+			"versioning": "prerelease",
 			"changelog-path": "CHANGELOG.md",
 			"changelog-sections": [
 				{ "type": "feat", "section": "New Features", "hidden": false },
@@ -226,7 +230,9 @@
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
 			"draft": false,
-			"prerelease": false,
+			"prerelease": true,
+			"prerelease-type": "rc",
+			"versioning": "prerelease",
 			"changelog-path": "CHANGELOG.md",
 			"changelog-sections": [
 				{ "type": "feat", "section": "New Features", "hidden": false },
