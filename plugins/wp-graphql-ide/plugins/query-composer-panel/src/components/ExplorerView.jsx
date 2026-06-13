@@ -122,13 +122,26 @@ class ExplorerView extends React.PureComponent {
 		if (!container || !pathKey) {
 			return;
 		}
-		// querySelector with a data-attribute selector — pathKey is built from
-		// AST field names (validated identifiers), so it's safe to embed.
-		const el = container.querySelector(`[data-field-path="${pathKey}"]`);
+		// findCursorPath walks AST Field nodes — it will surface names the
+		// user typed that aren't in the schema (and so have no DOM row).
+		// Walk back up the path until a row that exists is found so the
+		// reveal still lands on the nearest visible ancestor.
+		//
+		// querySelector with a data-attribute selector — pathKey is built
+		// from AST field names (validated identifiers), so it's safe to embed.
+		let candidate = pathKey;
+		let el = container.querySelector(`[data-field-path="${candidate}"]`);
+		while (!el && candidate.includes('|')) {
+			candidate = candidate.substring(0, candidate.lastIndexOf('|'));
+			el = container.querySelector(`[data-field-path="${candidate}"]`);
+		}
 		if (!el) {
 			return;
 		}
-		el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+		// `center` keeps the row away from the panel's sticky operation
+		// title-bar at the top and the bottom edge of the scroll area —
+		// both clip a row aligned to the nearest edge.
+		el.scrollIntoView({ block: 'center', behavior: 'smooth' });
 		el.classList.add(CURSOR_TARGET_CLASS);
 		this._cursorHighlightEl = el;
 		this._cursorHighlightTimer = setTimeout(() => {

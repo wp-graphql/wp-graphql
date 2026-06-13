@@ -87,4 +87,22 @@ test.describe('Query Composer follows the editor cursor', () => {
 			/graphiql-explorer-row--cursor-target/
 		);
 	});
+
+	test('cursor on a name that is not a schema field falls back to the nearest ancestor row', async ({
+		page,
+	}) => {
+		// `fakeSlugXYZ` is not a field on Post — the cursor still resolves
+		// to a parsed Field AST node, but no row exists for it in the
+		// explorer. The reveal should fall back to the deepest ancestor
+		// that does have a row (here: `nodes`).
+		await typeQuery(
+			page,
+			'query MyQuery { posts { nodes { fakeSlugXYZ } } }'
+		);
+
+		await clickTokenInEditor(page, 'fakeSlugXYZ');
+		await expect(fieldRow(page, 'query:MyQuery|posts|nodes')).toHaveClass(
+			/graphiql-explorer-row--cursor-target/
+		);
+	});
 });
