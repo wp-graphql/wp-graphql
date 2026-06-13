@@ -25,10 +25,13 @@ const composerPanel = (page) =>
 const fieldRow = (page, path) =>
 	composerPanel(page).locator(`[data-field-path="${path}"]`);
 
+// The Query Composer is rendered inline next to the editor (not as an
+// activity-bar panel), so the toggle lives in the editor toolbar. The
+// button's accessible name flips between "Show Query Composer" and
+// "Hide Query Composer" with state, so target it by its stable class.
 const openQueryComposer = async (page) => {
-	const btn = page
-		.locator(selectors.activityBar)
-		.getByRole('button', { name: 'Query Composer', exact: true });
+	const btn = page.locator('.wpgraphql-ide-toolbar-composer-btn');
+	await expect(btn).toBeVisible();
 	if ((await btn.getAttribute('aria-pressed')) !== 'true') {
 		await btn.click();
 	}
