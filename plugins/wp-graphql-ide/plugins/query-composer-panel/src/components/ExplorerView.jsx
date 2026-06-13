@@ -6,7 +6,9 @@ import {
 	defaultGetDefaultFieldNames,
 	defaultGetDefaultScalarArgValue,
 	defaultStyles,
+	findCursorPath,
 	memoizeParseQuery,
+	operationKey,
 } from '../utils';
 import { GraphQLObjectType, print } from 'graphql';
 import RootView from './RootView';
@@ -14,34 +16,17 @@ import { defaultCheckboxChecked, defaultCheckboxUnchecked } from './Checkbox';
 import ArrowOpen from './ArrowOpen';
 import ArrowClosed from './ArrowClosed';
 
-// Stable key for an operation/fragment so user-toggled collapse state survives
-// re-parses (the AST node object identity changes on every keystroke).
-function operationKey(operation, index) {
-	const name = operation && operation.name && operation.name.value;
-	const kind =
-		operation.kind === 'FragmentDefinition'
-			? 'fragment'
-			: operation.operation || 'query';
-	return name ? `${kind}:${name}` : `${kind}:_${index}`;
-}
-
-// Find the operation key whose AST loc spans the given cursor offset. Returns
-// null if the cursor isn't inside any named operation (or locations are absent).
-function findOpKeyAtCursor(operations, cursorOffset) {
-	if (typeof cursorOffset !== 'number') {
+// Pipe-delimited path key for matching FieldView's `data-field-path`
+// attribute. Pipes can't appear in GraphQL identifiers so collisions are
+// impossible. Returns null when there's no field-level target (cursor is
+// outside every operation, or inside an operation but not on a field).
+const CURSOR_TARGET_CLASS = 'graphiql-explorer-row--cursor-target';
+const CURSOR_HIGHLIGHT_MS = 1500;
+function fieldPathKey(cursor) {
+	if (!cursor || !cursor.fieldPath || cursor.fieldPath.length === 0) {
 		return null;
 	}
-	for (let i = 0; i < operations.length; i++) {
-		const op = operations[i];
-		if (
-			op.loc &&
-			cursorOffset >= op.loc.start &&
-			cursorOffset <= op.loc.end
-		) {
-			return operationKey(op, i);
-		}
-	}
-	return null;
+	return `${cursor.opKey}|${cursor.fieldPath.join('|')}`;
 }
 
 class ExplorerView extends React.PureComponent {
@@ -54,11 +39,12 @@ class ExplorerView extends React.PureComponent {
 		// Tracks which op the cursor was last in, so we can wipe stale user
 		// toggles when the cursor moves to a different operation.
 		lastCursorOpKey: null,
+		// Tracks the last cursor field-path key we revealed, so typing within
+		// the same field doesn't re-trigger scroll/highlight on every keystroke.
+		lastFieldPathKey: null,
 	};
 
 	static getDerivedStateFromProps(props, state) {
-		// When the cursor enters a new operation, drop user toggles so the
-		// composer refocuses on the active op.
 		const ops = (() => {
 			try {
 				return memoizeParseQuery(props.query).definitions.filter(
@@ -70,11 +56,20 @@ class ExplorerView extends React.PureComponent {
 				return [];
 			}
 		})();
-		const cursorOpKey = findOpKeyAtCursor(ops, props.cursorOffset);
+		const cursor = findCursorPath(ops, props.cursorOffset);
+		const cursorOpKey = cursor ? cursor.opKey : null;
+		const nextFieldPathKey = fieldPathKey(cursor);
+		const patch = {};
+		// When the cursor enters a new operation, drop user toggles so the
+		// composer refocuses on the active op.
 		if (cursorOpKey && cursorOpKey !== state.lastCursorOpKey) {
-			return { lastCursorOpKey: cursorOpKey, collapsedByKey: {} };
+			patch.lastCursorOpKey = cursorOpKey;
+			patch.collapsedByKey = {};
 		}
-		return null;
+		if (nextFieldPathKey !== state.lastFieldPathKey) {
+			patch.lastFieldPathKey = nextFieldPathKey;
+		}
+		return Object.keys(patch).length ? patch : null;
 	}
 
 	_setCollapsed = (key, collapsed) => {
@@ -84,6 +79,8 @@ class ExplorerView extends React.PureComponent {
 	};
 
 	_ref;
+	_cursorHighlightEl = null;
+	_cursorHighlightTimer = null;
 	_resetScroll = () => {
 		const container = this._ref;
 		if (container) {
@@ -92,7 +89,56 @@ class ExplorerView extends React.PureComponent {
 	};
 	componentDidMount() {
 		this._resetScroll();
+		// Reveal the row for the cursor's initial position (e.g. when the
+		// panel opens with the editor already focused on a field).
+		this._revealCursorTarget(this.state.lastFieldPathKey);
 	}
+
+	componentDidUpdate(_prevProps, prevState) {
+		if (this.state.lastFieldPathKey !== prevState.lastFieldPathKey) {
+			this._revealCursorTarget(this.state.lastFieldPathKey);
+		}
+	}
+
+	componentWillUnmount() {
+		if (this._cursorHighlightTimer) {
+			clearTimeout(this._cursorHighlightTimer);
+			this._cursorHighlightTimer = null;
+		}
+	}
+
+	// Scroll the row matching `pathKey` into view and apply a brief highlight
+	// class. No-op when there's no container, no key, or no matching row.
+	_revealCursorTarget = (pathKey) => {
+		const container = this._ref;
+		if (this._cursorHighlightTimer) {
+			clearTimeout(this._cursorHighlightTimer);
+			this._cursorHighlightTimer = null;
+		}
+		if (this._cursorHighlightEl) {
+			this._cursorHighlightEl.classList.remove(CURSOR_TARGET_CLASS);
+			this._cursorHighlightEl = null;
+		}
+		if (!container || !pathKey) {
+			return;
+		}
+		// querySelector with a data-attribute selector — pathKey is built from
+		// AST field names (validated identifiers), so it's safe to embed.
+		const el = container.querySelector(`[data-field-path="${pathKey}"]`);
+		if (!el) {
+			return;
+		}
+		el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+		el.classList.add(CURSOR_TARGET_CLASS);
+		this._cursorHighlightEl = el;
+		this._cursorHighlightTimer = setTimeout(() => {
+			if (this._cursorHighlightEl) {
+				this._cursorHighlightEl.classList.remove(CURSOR_TARGET_CLASS);
+				this._cursorHighlightEl = null;
+			}
+			this._cursorHighlightTimer = null;
+		}, CURSOR_HIGHLIGHT_MS);
+	};
 
 	_onEdit = (query) => this.props.onEdit(query);
 
@@ -178,10 +224,11 @@ class ExplorerView extends React.PureComponent {
 				? DEFAULT_DOCUMENT.definitions
 				: _relevantOperations;
 
-		const cursorOpKey = findOpKeyAtCursor(
+		const cursor = findCursorPath(
 			_relevantOperations,
 			this.props.cursorOffset
 		);
+		const cursorOpKey = cursor ? cursor.opKey : null;
 
 		const renameOperation = (targetOperation, name) => {
 			const newName =
@@ -610,6 +657,7 @@ class ExplorerView extends React.PureComponent {
 								}}
 								styleConfig={styleConfig}
 								availableFragments={availableFragments}
+								opKey={opKey}
 							/>
 						);
 					})}
