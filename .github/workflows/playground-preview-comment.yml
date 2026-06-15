@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download PR metadata artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: pr-meta
           run-id: ${{ github.event.workflow_run.id }}
@@ -57,7 +57,7 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
           echo "playground_url=$PLAYGROUND_URL" >> "$GITHUB_OUTPUT"
 
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - uses: marocchino/sticky-pull-request-comment@v3
         with:
           number: ${{ steps.meta.outputs.pr_number }}
           header: playground-preview
