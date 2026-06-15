@@ -95,7 +95,7 @@
 		"@types/node": "^22.19.17",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
-		"@wordpress/e2e-test-utils-playwright": "^0.19.3",
+		"@wordpress/e2e-test-utils-playwright": "^1.46.0",
 		"@wordpress/env": "^10.39.0",
 		"@wordpress/prettier-config": "^4.47.0",
 		"@wordpress/scripts": "^27.9.0",
