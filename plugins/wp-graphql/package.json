@@ -77,15 +77,15 @@
 		"@types/node": "^22.19.17",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
-		"@wordpress/babel-preset-default": "^8.47.0",
+		"@wordpress/babel-preset-default": "^8.48.0",
 		"@wordpress/env": "^10.39.0",
-		"@wordpress/jest-preset-default": "^12.47.0",
+		"@wordpress/jest-preset-default": "^12.48.0",
 		"@wordpress/scripts": "^27.9.0",
 		"babel-jest": "^30.4.1",
 		"babel-plugin-inline-json-import": "^0.3.2",
 		"eslint-plugin-jest": "^27.9.0",
 		"lint-staged": "^16.4.0",
-		"sort-package-json": "^3.6.1",
+		"sort-package-json": "^3.7.1",
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
 	"engines": {
