@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working in this repository. It covers the monorepo as a whole and the conventions shared across plugins. Each plugin has its own `CLAUDE.md` (linked below) with plugin-specific commands, architecture, and gotchas — those load automatically when you work inside the plugin's directory.
 
 ## Repository Overview
 
@@ -8,11 +8,20 @@ WPGraphQL is a monorepo containing the WPGraphQL ecosystem of WordPress plugins.
 
 ### Plugins in the Monorepo
 
-- **plugins/wp-graphql/** — Core GraphQL API plugin (PHP 7.4+, WP 6.0+)
-- **plugins/wp-graphql-ide/** — GraphiQL IDE for WordPress admin (React-based)
-- **plugins/wp-graphql-smart-cache/** — Caching and cache invalidation
-- **plugins/wp-graphql-acf/** — ACF field groups and fields in GraphQL
+- **plugins/wp-graphql/** — Core GraphQL API plugin (PHP 7.4+, WP 6.0+) — [`CLAUDE.md`](plugins/wp-graphql/CLAUDE.md)
+- **plugins/wp-graphql-ide/** — GraphiQL IDE for WordPress admin (React-based) — [`CLAUDE.md`](plugins/wp-graphql-ide/CLAUDE.md)
+- **plugins/wp-graphql-smart-cache/** — Caching and cache invalidation — [`CLAUDE.md`](plugins/wp-graphql-smart-cache/CLAUDE.md)
+- **plugins/wp-graphql-acf/** — ACF field groups and fields in GraphQL — [`CLAUDE.md`](plugins/wp-graphql-acf/CLAUDE.md)
 - **plugins/wp-graphql-schema-monitor/** — Schema change monitoring (experimental)
+
+### Branding & design system
+
+The `design/brand/` directory holds the WPGraphQL product-family brand guides
+(a shared navy foundation + a per-product accent for core, IDE, ACF, and Smart
+Cache) and the scripts that generate each plugin's WordPress.org assets (icons,
+banners, screenshots). Start at [`design/brand/README.md`](design/brand/README.md)
+— it documents the guides, the scoped-theme conventions the `wpgraphql.com` site
+uses, and how to (re)generate or contribute assets.
 
 ## Development Environment
 
@@ -28,113 +37,38 @@ npm run wp-env destroy               # Reset everything
 
 wp-env must be running for tests and linting commands to work.
 
-## Build Commands
+## Build, Test, and Lint
+
+Turborepo orchestrates per-workspace tasks. Run a task across all workspaces, or scope it to one plugin with `-w <workspace>`:
 
 ```bash
-npm run build                        # Build all workspaces (Turborepo)
-npm run -w @wpgraphql/wp-graphql build   # Build specific plugin
+npm run build                            # Build all workspaces
+npm run -w @wpgraphql/wp-graphql build   # Build one plugin
+npm run format                           # Prettier across all workspaces
 ```
 
-## Testing
+Tests and PHP linting run inside the wp-env Docker containers and are invoked per workspace. The exact scripts, file-path conventions, and single-test syntax differ per plugin — see that plugin's `CLAUDE.md`. Workspace names:
 
-Tests run inside wp-env Docker containers. Test file paths are relative to `plugins/wp-graphql/`.
-
-```bash
-# WPUnit tests (Codeception + PHPUnit)
-npm run -w @wpgraphql/wp-graphql test:codecept:wpunit
-
-# Single test file
-npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- tests/wpunit/PostObjectQueriesTest.php
-
-# Single test method
-npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- tests/wpunit/PostObjectQueriesTest.php:testPostQuery
-
-# Acceptance and functional tests
-npm run -w @wpgraphql/wp-graphql test:codecept:acceptance
-npm run -w @wpgraphql/wp-graphql test:codecept:functional
-
-# E2E (Playwright)
-npm run -w @wpgraphql/wp-graphql test:e2e
-npm run -w @wpgraphql/wp-graphql-acf test:e2e   # wp-graphql-acf (requires wp-env + install-test-deps)
-# Local-only: full CI-like run for wp-graphql-acf (build, wp-env, install ACF, test, stop): ./bin/run-acf-e2e-local.sh
-
-# Other plugins
-npm run -w @wpgraphql/wp-graphql-smart-cache test:codecept:wpunit
-npm run -w @wpgraphql/wp-graphql-ide test:unit
-npm run -w @wpgraphql/wp-graphql-ide test:e2e
-```
-
-## Linting and Static Analysis
-
-File paths in linting commands are relative to `plugins/wp-graphql/` (e.g., use `src/Data/NodeResolver.php` not `plugins/wp-graphql/src/Data/NodeResolver.php`).
-
-```bash
-# PHP coding standards (WordPress Coding Standards)
-npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run check-cs -- src/Data/NodeResolver.php
-npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run fix-cs -- src/Data/NodeResolver.php
-
-# PHPStan (level 8, strict) — requires memory limit flag
-npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run phpstan -- --memory-limit=2G
-
-# JavaScript
-npm run -w @wpgraphql/wp-graphql lint:js
-npm run format                       # Prettier across all workspaces
-```
-
-## Core Plugin Architecture (plugins/wp-graphql/)
-
-**Entry point**: `wp-graphql.php` → loads `constants.php`, `activation.php`, `access-functions.php`, then `WPGraphQL::instance()->setup()`.
-
-**Namespace**: `WPGraphQL\` (PSR-4 autoloading via Composer, maps to `src/`).
-
-Key source directories under `src/`:
-
-- **Registry/** — `TypeRegistry` and `SchemaRegistry` for registering all GraphQL types and fields
-- **Type/** — GraphQL type definitions (ObjectType, Enum, Interface, Union, Input)
-- **Connection/** — Relay-style cursor-based pagination (`first`/`after`/`last`/`before`)
-- **Data/** — Data loaders that batch-load and cache DB queries to prevent N+1 problems
-- **Model/** — Access control and data transformation layer before resolution (e.g., `Post.php`, `User.php`)
-- **Mutation/** — GraphQL mutation definitions
-- **Server/** — GraphQL server configuration and validation rules
-- **Admin/** — WordPress admin UI
-- **Utils/** — Utilities like `InstrumentSchema`
-
-**Public API**: `access-functions.php` contains functions like `register_graphql_type()`, `register_graphql_field()`, `register_graphql_connection()`, etc.
-
-### Registering Types and Fields
-
-```php
-add_action( 'graphql_register_types', function( $type_registry ) {
-    register_graphql_field( 'Post', 'customField', [
-        'type' => 'String',
-        'resolve' => function( $post ) {
-            return get_post_meta( $post->databaseId, 'custom_field', true );
-        }
-    ]);
-});
-```
-
-## Coding Conventions
-
-- **PHP**: WordPress Coding Standards (PHPCS), PHPStan level 8. Minimum PHP 7.4.
-- **JavaScript**: `@wordpress/scripts` with ESLint and Prettier.
-- **Version placeholders**: Use `@since x-release-please-version` in PHPDoc `@since` tags.
-- **Deprecation**: `_deprecated_argument( __METHOD__, 'x-release-please-version', 'Message.' );`
-- **Autoloading**: `WPGRAPHQL_AUTOLOAD` constant can disable vendor autoload for environments with a global autoloader.
+| Plugin | Workspace |
+| --- | --- |
+| Core | `@wpgraphql/wp-graphql` |
+| IDE | `@wpgraphql/wp-graphql-ide` |
+| Smart Cache | `@wpgraphql/wp-graphql-smart-cache` |
+| ACF | `@wpgraphql/wp-graphql-acf` |
 
 ## Development Workflow
 
-- **TDD preferred**: For bug fixes, write failing tests first, confirm they fail, implement the fix, confirm they pass.
-- **Conventional Commits**: PR titles must follow format (`feat:`, `fix:`, `perf:`, `docs:`, `chore:`, etc.). PRs are squash-merged so the title becomes the commit message. The `!` suffix (e.g., `feat!:`) signals a breaking change.
+- **Every bug fix ships with a regression test.** A fix is not done until a test that fails before the fix and passes after it is committed alongside the change. No fix-only commits for reproducible bugs.
+- **Test the widest user-facing surface first.** Prefer the test that exercises the software the way a user does — e2e (Playwright) and integration/functional/acceptance (Codeception) — over a narrow unit test. Reach for the broadest layer that can reproduce the bug; reproduce it there first. Unit tests are valuable and we want them, but the core priority is proving the software works as a whole, not that one function does. When a unit test is faster or more precise for the specific logic, add it _in addition to_ — not _instead of_ — the surface-level test.
+- **TDD preferred**: For bug fixes, write the failing test(s) first, confirm they fail, implement the fix, confirm they pass.
+- **Conventional Commits**: PR titles must follow the format (`feat:`, `fix:`, `perf:`, `docs:`, `chore:`, etc.). PRs are squash-merged, so the title becomes the commit message. The `!` suffix (e.g., `feat!:`) signals a breaking change.
 - **CI matrix**: Tests run across WordPress 6.1–trunk, PHP 7.4–8.4, block and classic themes, single and multisite.
 
-## Debugging
+## Shared Coding Conventions
 
-- `define('GRAPHQL_DEBUG', true)` or enable via WPGraphQL Settings
-- Query Logs: requires Query Monitor plugin, enable in WPGraphQL Settings
-- Query Tracing: shows resolver timing, enable in WPGraphQL Settings
+These apply across the PHP plugins; see each plugin's `CLAUDE.md` for its specifics (PHP floor, PHPStan level, JS tooling).
 
-## Key Dependencies
-
-- `webonyx/graphql-php` — Core GraphQL PHP implementation
-- `ivome/graphql-relay-php` — Relay specification implementation
+- **PHP**: WordPress Coding Standards (PHPCS), checked/fixed and statically analyzed via each plugin's Composer scripts (`check-cs` / `fix-cs` / `phpstan`).
+- **JavaScript**: `@wordpress/scripts` (ESLint + Prettier).
+- **Version placeholders**: Use `@since x-release-please-version` in PHPDoc `@since` tags; release-please rewrites them on release.
+- **Deprecation**: `_deprecated_argument( __METHOD__, 'x-release-please-version', 'Message.' );`

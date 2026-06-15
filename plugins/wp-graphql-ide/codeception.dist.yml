@@ -76,8 +76,10 @@ modules:
       theme: '%TEST_THEME%'
       plugins:
         - wp-graphql/wp-graphql.php
+        - wp-graphql-smart-cache/wp-graphql-smart-cache.php
         - wp-graphql-ide/wpgraphql-ide.php
       activatePlugins:
         - wp-graphql/wp-graphql.php
+        - wp-graphql-smart-cache/wp-graphql-smart-cache.php
         - wp-graphql-ide/wpgraphql-ide.php
       configFile: 'tests/_data/config.php'

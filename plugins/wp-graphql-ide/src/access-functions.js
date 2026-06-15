@@ -1,5 +1,86 @@
 import hooks from './wordpress-hooks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
+import {
+	registerPreference as registerPreferenceImpl,
+	setPreference as setPreferenceImpl,
+	getPreference as getPreferenceImpl,
+	readDevicePreference as readDevicePreferenceImpl,
+	PREFERENCE_KEYS,
+} from './api/preferences';
+
+export { PREFERENCE_KEYS };
+
+/**
+ * Register a preference key so the IDE knows where to persist it.
+ *
+ * Plugins use this to declare their own prefs and pick whether each
+ * lives in localStorage (`scope: 'device'` — cheap, anon-friendly) or
+ * server user-meta (`scope: 'user'` — cross-device, logged-in only).
+ * Once registered, the same `setPreference` / `getPreference` calls
+ * the IDE uses for its built-ins do the right thing for your key.
+ *
+ * Plugins should prefix their keys with a short plugin identifier
+ * (`'my_plugin_sidebar_width'`, not `'sidebar_width'`) to avoid
+ * collision with built-ins or other extensions. `user`-scope keys
+ * must match the WP user-meta format (`[A-Za-z_][A-Za-z0-9_]*`);
+ * `device`-scope keys can be any string but the same convention is
+ * recommended so a pref can move between scopes without renaming.
+ *
+ * Hooks fired:
+ *
+ * - `wpgraphql-ide.afterRegisterPreference` on success
+ *
+ * @param {string}            key
+ * @param {Object}            config
+ * @param {'device' | 'user'} config.scope
+ *
+ * @return {void}
+ */
+export function registerPreference(key, config) {
+	try {
+		registerPreferenceImpl(key, config);
+		hooks.doAction('wpgraphql-ide.afterRegisterPreference', key, config);
+	} catch (error) {
+		console.error(`Failed to register preference: ${key}`, error);
+	}
+}
+
+/**
+ * Read a single preference value. Routes by registered scope.
+ *
+ * Returns a Promise — `user`-scoped reads round-trip through REST.
+ * For sync-only paths (lazy useState init, etc.) use
+ * {@link readDevicePreference} which is sync but only returns
+ * `device`-scope values.
+ *
+ * @param {string} key
+ * @return {Promise<*>}
+ */
+export function getPreference(key) {
+	return getPreferenceImpl(key);
+}
+
+/**
+ * Synchronous read for `device`-scope preferences. Returns `undefined`
+ * for `user`-scope keys (those require a server round-trip).
+ *
+ * @param {string} key
+ * @return {*}
+ */
+export function readDevicePreference(key) {
+	return readDevicePreferenceImpl(key);
+}
+
+/**
+ * Write a single preference value. Routes by registered scope.
+ *
+ * @param {string} key
+ * @param {*}      value
+ * @return {Promise<*>}
+ */
+export function setPreference(key, value) {
+	return setPreferenceImpl(key, value);
+}
 
 /**
  * Public function to register a new editor toolbar button.
@@ -29,13 +110,6 @@ export function registerDocumentEditorToolbarButton(
 		);
 	} catch (error) {
 		console.error(`Failed to register button: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerToolbarButtonError',
-			name,
-			config,
-			priority,
-			error
-		);
 	}
 }
 
@@ -54,41 +128,392 @@ export function registerActivityBarPanel(name, config, priority = 10) {
 		);
 	} catch (error) {
 		console.error(`Failed to register activity bar panel: ${name}`, error);
-		hooks.doAction(
-			'wpgraphql-ide.registerActivityBarPanelError',
+	}
+}
+
+/**
+ * Register a tab in the response extensions panel.
+ *
+ * Most tabs map 1:1 onto a key in the GraphQL response `extensions` object
+ * — Tracing reads `extensions.tracing`, Debug reads `extensions.debug`, etc.
+ * The tab is only shown when the latest response contains that key; the
+ * `content` component receives the value at that key as its `data` prop.
+ *
+ * The built-in `errors` and `headers` tabs use the same registry but flag
+ * themselves with `alwaysShow: true` (they describe the response itself,
+ * not response.extensions, so their data is sourced from synthetic slots
+ * — see slotData in ResponseContent.jsx).
+ *
+ * @param {string}          name                      Extension key (e.g. "debug", "graphqlSmartCache").
+ * @param {Object}          config                    Tab configuration.
+ * @param {string|Function} config.title              Human-readable tab title. Pass a
+ *                                                    function `({data, response}) =>
+ *                                                    string` to surface a count or
+ *                                                    other state (e.g. "Errors (3)").
+ * @param {Function}        config.content            Component receiving `{ data, response }`.
+ * @param {boolean}         [config.alwaysShow=false] When true, the tab is shown
+ *                                                    even if there's no matching key in
+ *                                                    response.extensions. Used by the
+ *                                                    built-in errors / headers tabs.
+ * @param {Function}        [config.predicate]        Optional per-document gate
+ *                                                    `({ activeDocument, response, data }) => boolean`.
+ *                                                    Return falsy to hide the tab for the
+ *                                                    current document (e.g. the built-in
+ *                                                    Request-history tab only shows when
+ *                                                    `activeDocument.status === 'publish'`).
+ *                                                    Runs in addition to `alwaysShow` /
+ *                                                    `extensions[name]` presence — if the
+ *                                                    predicate returns false the tab is
+ *                                                    hidden regardless.
+ * @param {number}          [priority=10]             Lower values render first.
+ *
+ * @return {void}
+ */
+export function registerResponseExtensionTab(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/response-extensions').registerExtensionTab(
 			name,
 			config,
-			priority,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterResponseExtensionTab',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(
+			`Failed to register response extension tab: ${name}`,
 			error
 		);
 	}
 }
 
-// export function registerActivityBarUtility(
-// 	name,
-// 	config,
-// 	priority = 10
-// ) {
-// 	try {
-// 		dispatch( 'wpgraphql-ide/activity-bar' ).registerUtilityButton(
-// 			name,
-// 			config,
-// 			priority
-// 		);
-// 		hooks.doAction(
-// 			'wpgraphql-ide.afterRegisterActivityBarUtilityButton',
-// 			name,
-// 			config,
-// 			priority
-// 		);
-// 	} catch ( error ) {
-// 		console.error( `Failed to register button: ${ name }`, error );
-// 		hooks.doAction(
-// 			'wpgraphql-ide.registerActivityBarUtilityButtonError',
-// 			name,
-// 			config,
-// 			priority,
-// 			error
-// 		);
-// 	}
-// }
+/**
+ * Register a tab in the editor's bottom tools area (where Variables and
+ * Headers live). The tab is rendered by EditorPane via OverflowTabs and
+ * sits beneath the query editor.
+ *
+ * The `content` component receives the editor context as props:
+ *   { query, variables, onVariablesChange, variableToType,
+ *     headers, onHeadersChange, response, activeDocument }
+ * Built-in tabs use what they need; plugins can pull from props or read
+ * the stores directly via useSelect.
+ *
+ * @param {string}          name           Unique tab identifier.
+ * @param {Object}          config         Tab configuration.
+ * @param {string|Function} config.title   Human-readable tab title (or
+ *                                         function for dynamic titles).
+ * @param {Function}        config.content Component receiving editor-context props.
+ * @param {number}          [priority=10]  Lower values render first.
+ *
+ * @return {void}
+ */
+export function registerEditorBottomTab(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/editor-bottom-tabs').registerEditorBottomTab(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterEditorBottomTab',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register editor bottom tab: ${name}`, error);
+	}
+}
+
+/**
+ * Register an item in the response toolbar's status row (where the HTTP
+ * status code, duration, size, and resolver-count badges live). Useful
+ * for surfacing live response signals next to the existing meta — cache
+ * hit/miss, schema warnings, custom badges, etc.
+ *
+ * The `render` callback receives:
+ *   { response, parsedResponse, responseStatus, responseDuration,
+ *     responseSize, isFetching, focusResponseTab(name) }
+ * It should return a ReactNode (rendered inline in the meta row) or
+ * null to hide the item for the current response.
+ *
+ * @param {string}   name          Unique item identifier.
+ * @param {Object}   config        Item configuration.
+ * @param {Function} config.render Render callback returning a ReactNode or null.
+ * @param {number}   [priority=10] Lower values render first (left-to-right).
+ *
+ * @return {void}
+ */
+export function registerStatusBarItem(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/status-bar-items').registerStatusBarItem(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterStatusBarItem',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register status bar item: ${name}`, error);
+	}
+}
+
+/**
+ * Register a response viewer mode (the JSON / Table / etc. toggle in the
+ * response toolbar). Each mode owns both the toggle button label and the
+ * top-pane content when it's active.
+ *
+ * The `render` callback receives:
+ *   { response, parsed, dataScope, viewerContent }
+ * where `viewerContent` is the pre-formatted string the JSON viewer
+ * uses (already filtered by data-scope).
+ *
+ * @param {string}   value         Unique mode value (e.g. "formatted", "table").
+ * @param {Object}   config        Mode configuration.
+ * @param {string}   config.label  Toggle-button label.
+ * @param {Function} config.render Render callback returning a ReactNode.
+ * @param {number}   [priority=10] Lower values render first (left-to-right).
+ *
+ * @return {void}
+ */
+export function registerResponseViewMode(value, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/response-view-modes').registerResponseViewMode(
+			value,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterResponseViewMode',
+			value,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register response view mode: ${value}`, error);
+	}
+}
+
+/**
+ * Register an item in the response toolbar's kebab dropdown ("Response
+ * options" — currently houses the data-scope toggle). Useful for
+ * "Copy as cURL", "Export to Postman", etc.
+ *
+ * Items with the same `group` string render under a `<MenuGroup
+ * label={group}>` (Gutenberg post-editor pattern). Omit `group` to
+ * land in the unlabelled top group.
+ *
+ * The action callbacks receive a ctx object:
+ *   { dataScope, setDataScope, response, parsedResponse, closeMenu }
+ *
+ * @param {string}          name                   Unique action identifier.
+ * @param {Object}          config                 Action configuration.
+ * @param {string|Function} config.label           Item label (or fn(ctx) => string).
+ * @param {Function}        config.onClick         Click handler `(ctx) => void`.
+ * @param {Function}        [config.isSelected]    Returns true to render a checkmark.
+ * @param {Function}        [config.isDisabled]    Returns true to disable the item.
+ * @param {boolean}         [config.isDestructive] Renders the item with the destructive style.
+ * @param {string}          [config.group]         Group label (drives MenuGroup).
+ * @param {Function}        [config.predicate]     Hide when this returns false.
+ * @param {number}          [priority=10]          Sort order within group.
+ *
+ * @return {void}
+ */
+export function registerResponseAction(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/response-actions').registerResponseAction(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterResponseAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register response action: ${name}`, error);
+	}
+}
+
+/**
+ * Register an item in the editor toolbar's kebab dropdown — sits below
+ * the registered editor toolbar buttons (Prettify, etc.) and above the
+ * Save / Publish buttons. Used by the built-in Share / Rename /
+ * Duplicate-as-draft items; ideal for plugins that want to add
+ * "Open in Studio", "Copy operation", "Run on staging", etc.
+ *
+ * Same shape as registerResponseAction (label / onClick / isSelected /
+ * isDisabled / isDestructive / group / predicate / priority).
+ *
+ * The action callbacks receive a ctx object:
+ *   { query, activeDocument, isPublished, isTempId, endpointMode,
+ *     openShareDialog, openRenameDialog, duplicateAsDraft, addNotice,
+ *     closeMenu }
+ *
+ * @param {string}          name                   Unique action identifier.
+ * @param {Object}          config                 Action configuration.
+ * @param {string|Function} config.label           Item label (or fn(ctx) => string).
+ * @param {Function}        config.onClick         Click handler `(ctx) => void`.
+ * @param {Function}        [config.isSelected]    Returns true to render a checkmark.
+ * @param {Function}        [config.isDisabled]    Returns true to disable.
+ * @param {boolean}         [config.isDestructive] Renders destructive style.
+ * @param {string}          [config.group]         Group label (drives MenuGroup).
+ * @param {Function}        [config.predicate]     Hide when this returns false.
+ * @param {number}          [priority=10]          Sort order within group.
+ *
+ * @return {void}
+ */
+export function registerEditorAction(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/editor-actions').registerEditorAction(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterEditorAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register editor action: ${name}`, error);
+	}
+}
+
+/**
+ * Register an item in the document-tabs kebab dropdown (Close active /
+ * Close inactive / Close all). Plugins can extend with "Pin tab",
+ * "Lock tab", "Move all to collection", etc.
+ *
+ * Same shape as registerEditorAction. The action callbacks receive a
+ * ctx object:
+ *   { activeId, tabs, onClose, onCloseOthers, onCloseAll, closeMenu }
+ *
+ * @param {string}          name                   Unique action identifier.
+ * @param {Object}          config                 Action configuration.
+ * @param {string|Function} config.label           Item label (or fn(ctx) => string).
+ * @param {Function}        config.onClick         Click handler `(ctx) => void`.
+ * @param {Function}        [config.isSelected]    Returns true to render a checkmark.
+ * @param {Function}        [config.isDisabled]    Returns true to disable.
+ * @param {boolean}         [config.isDestructive] Renders destructive style.
+ * @param {string}          [config.group]         Group label (drives MenuGroup).
+ * @param {Function}        [config.predicate]     Hide when this returns false.
+ * @param {number}          [priority=10]          Sort order within group.
+ *
+ * @return {void}
+ */
+export function registerDocumentTabAction(name, config, priority = 10) {
+	try {
+		dispatch(
+			'wpgraphql-ide/document-tab-actions'
+		).registerDocumentTabAction(name, config, priority);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterDocumentTabAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register document tab action: ${name}`, error);
+	}
+}
+
+/**
+ * Register a workspace tab type with a content renderer.
+ *
+ * Once registered, the tab type can be opened with `openWorkspaceTab`.
+ *
+ * @param {string}   name           Unique tab type identifier.
+ * @param {Object}   config         Tab type configuration.
+ * @param {string}   config.title   Human-readable display name.
+ * @param {Function} config.content React component to render as workspace content.
+ * @param {Function} [config.icon]  Optional icon component.
+ *
+ * @return {void}
+ */
+export function registerWorkspaceTabType(name, config) {
+	try {
+		dispatch('wpgraphql-ide/document-editor').registerTabType(name, config);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterWorkspaceTabType',
+			name,
+			config
+		);
+	} catch (error) {
+		console.error(`Failed to register workspace tab type: ${name}`, error);
+	}
+}
+
+/**
+ * Open a workspace tab of a registered type.
+ *
+ * If a tab with the given ID is already open, it is switched to instead
+ * of creating a duplicate.
+ *
+ * @param {string} typeName      Tab type name (must be registered via registerWorkspaceTabType).
+ * @param {Object} options       Options.
+ * @param {string} options.id    Unique tab ID. Reusing an ID switches to the existing tab.
+ * @param {string} options.title Display title for the tab.
+ *
+ * @return {void}
+ */
+export function openWorkspaceTab(typeName, { id, title } = {}) {
+	const registered = select('wpgraphql-ide/document-editor').getTabType(
+		typeName
+	);
+	if (!registered) {
+		console.error(`Workspace tab type "${typeName}" is not registered.`);
+		return;
+	}
+	const tabId = id || `${typeName}-${Date.now()}`;
+	const tabTitle = title || registered.title || typeName;
+	dispatch('wpgraphql-ide/document-editor').openWorkspaceTab(
+		typeName,
+		tabId,
+		tabTitle
+	);
+}
+
+/**
+ * Register a topbar action button that opens a workspace tab.
+ *
+ * Topbar actions appear in the global top bar (right side, after schema
+ * refresh). Clicking one opens or switches to a singleton workspace tab.
+ *
+ * @param {string}   name           Unique action identifier.
+ * @param {Object}   config         Action configuration.
+ * @param {string}   config.title   Tooltip / aria-label text.
+ * @param {Function} config.icon    React component rendering the icon.
+ * @param {string}   config.tabType Workspace tab type to open (must be registered).
+ * @param {string}   [config.tabId] Singleton tab ID (defaults to tabType).
+ * @param {number}   [priority=10]  Sort order (lower = first).
+ *
+ * @return {void}
+ */
+export function registerTopbarAction(name, config, priority = 10) {
+	try {
+		dispatch('wpgraphql-ide/document-editor').registerTopbarAction(
+			name,
+			config,
+			priority
+		);
+		hooks.doAction(
+			'wpgraphql-ide.afterRegisterTopbarAction',
+			name,
+			config,
+			priority
+		);
+	} catch (error) {
+		console.error(`Failed to register topbar action: ${name}`, error);
+	}
+}

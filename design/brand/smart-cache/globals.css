@@ -1,0 +1,46 @@
+/* =============================================================
+   WPGraphQL Smart Cache Design System — globals.css
+   Tailwind v4 + shadcn/ui · Rose accent on navy foundation
+   ============================================================= */
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap");
+
+@layer base {
+  :root {
+    --navy-950:224 48% 7%; --navy-900:224 46% 9%; --navy-800:224 42% 13%;
+    --navy-700:225 42% 18%; --navy-600:225 40% 22%; --navy-500:226 38% 27%;
+    --navy-400:220 28% 36%; --navy-300:220 24% 51%; --navy-200:220 22% 67%;
+    --navy-100:220 28% 82%; --navy-50:220 32% 93%;
+    --rose-700:343 74% 30%; --rose-600:343 80% 35%;
+    --rose-500:343 82% 42%; --rose-400:343 80% 50%;
+    --rose-300:343 90% 60%; /* PRIMARY: #F43F5E */
+    --rose-200:343 97% 73%; --rose-100:343 97% 82%; --rose-50:356 100% 97%;
+    --orange-300:30 100% 55%; --cyan-300:191 100% 48%;
+    --violet-300:267 89% 65%; --emerald-300:160 84% 39%;
+
+    --background:var(--navy-950); --foreground:356 40% 97%;
+    --card:var(--navy-900); --card-foreground:356 40% 97%;
+    --popover:var(--navy-900); --popover-foreground:356 40% 97%;
+    --primary:var(--rose-300); --primary-foreground:var(--navy-950);
+    --secondary:var(--navy-700); --secondary-foreground:356 40% 97%;
+    --muted:var(--navy-800); --muted-foreground:var(--navy-300);
+    --accent:var(--navy-700); --accent-foreground:356 40% 97%;
+    --destructive:0 84% 60%; --destructive-foreground:356 40% 97%;
+    --border:var(--navy-700); --input:var(--navy-700); --ring:var(--rose-300); --radius:0.5rem;
+    --chart-1:var(--rose-300); --chart-2:var(--navy-300); --chart-3:var(--rose-500); --chart-4:var(--navy-400); --chart-5:var(--rose-200);
+    --sidebar-background:var(--navy-900); --sidebar-foreground:356 40% 97%;
+    --sidebar-primary:var(--rose-300); --sidebar-primary-foreground:var(--navy-950);
+    --sidebar-accent:var(--navy-800); --sidebar-accent-foreground:356 40% 97%;
+    --sidebar-border:var(--navy-700); --sidebar-ring:var(--rose-300);
+  }
+  .light {
+    --background:var(--navy-50); --foreground:var(--navy-950);
+    --primary:var(--rose-400); --primary-foreground:356 40% 99%;
+    --border:var(--navy-200); --input:var(--navy-200); --ring:var(--rose-400);
+  }
+}
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-family:'Bricolage Grotesque',sans-serif; -webkit-font-smoothing:antialiased; }
+  code,kbd,pre,samp,.font-mono { font-family:'DM Mono',monospace; }
+}

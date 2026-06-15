@@ -1,0 +1,347 @@
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import {
+	Button,
+	Modal,
+	Notice,
+	SearchControl,
+	Spinner,
+} from '@wordpress/components';
+import { Icon, close, plus } from '@wordpress/icons';
+import { gql } from '../../api/graphql-client';
+
+// Hydrate shared users by databaseId. Returns the WP user objects keyed
+// by id so the chip list reads as names rather than numeric IDs.
+const USERS_BY_ID_QUERY = `
+	query SharedUsers($ids: [Int]) {
+		users(where: { include: $ids }, first: 100) {
+			nodes {
+				databaseId
+				name
+				slug
+			}
+		}
+	}
+`;
+
+// Search by name/email. The 250ms debounce stays in the component;
+// this just packages the query.
+const USER_SEARCH_QUERY = `
+	query SearchUsers($search: String) {
+		users(where: { search: $search }, first: 10) {
+			nodes {
+				databaseId
+				name
+				slug
+			}
+		}
+	}
+`;
+
+function nodeToUser(n) {
+	return { id: n.databaseId, name: n.name, slug: n.slug };
+}
+
+/**
+ * Share a personal collection with specific other users.
+ *
+ * Reads the collection's current `shared_with` list and lets the owner
+ * add or remove user IDs. On save, calls `onSubmit(nextSharedWith)` with
+ * the full updated list — caller is responsible for persisting.
+ *
+ * @param {Object}   props
+ * @param {Object}   props.collection The personal collection (with name + shared_with).
+ * @param {Function} props.onSubmit   Called with `(newSharedWith: number[])`.
+ * @param {Function} props.onClose    Close the dialog.
+ * @return {JSX.Element}
+ */
+export function ShareCollectionDialog({ collection, onSubmit, onClose }) {
+	const [shared, setShared] = useState(
+		Array.isArray(collection?.shared_with) ? collection.shared_with : []
+	);
+	const [search, setSearch] = useState('');
+	const [searchResults, setSearchResults] = useState([]);
+	const [searching, setSearching] = useState(false);
+	const [usersById, setUsersById] = useState({});
+	const [submitting, setSubmitting] = useState(false);
+	// Track the most recent error so the user knows when search/hydrate
+	// failed instead of seeing a silent empty result list. Auth failures
+	// (401/403) get a distinct message so the fix is obvious; everything
+	// else falls back to a generic "couldn't load users".
+	const [error, setError] = useState(null);
+
+	const messageForError = useCallback((e) => {
+		if (e && (e.status === 401 || e.status === 403)) {
+			return __(
+				'You don\u2019t have permission to look up users on this site.',
+				'wpgraphql-ide'
+			);
+		}
+		return __(
+			'Couldn\u2019t load users. Check your connection and try again.',
+			'wpgraphql-ide'
+		);
+	}, []);
+
+	// Hydrate display names for already-shared users so the chip list reads
+	// nicely on first paint.
+	useEffect(() => {
+		if (shared.length === 0) {
+			return;
+		}
+		const missing = shared.filter((id) => !usersById[id]);
+		if (missing.length === 0) {
+			return;
+		}
+		const controller = new AbortController();
+		gql(
+			USERS_BY_ID_QUERY,
+			{ ids: missing.map(Number) },
+			{ signal: controller.signal }
+		)
+			.then((result) => {
+				const map = { ...usersById };
+				for (const node of result?.users?.nodes || []) {
+					const u = nodeToUser(node);
+					map[u.id] = u;
+				}
+				setUsersById(map);
+				setError(null);
+			})
+			.catch((e) => {
+				if (e?.name === 'AbortError') {
+					return;
+				}
+				setError(messageForError(e));
+			});
+		return () => controller.abort();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [shared]);
+
+	// Debounced user search. AbortController on each keystroke so a slow
+	// in-flight request can't overwrite a fresher result list.
+	useEffect(() => {
+		const term = search.trim();
+		if (term.length < 2) {
+			setSearchResults([]);
+			return undefined;
+		}
+		setSearching(true);
+		const controller = new AbortController();
+		const timer = setTimeout(() => {
+			gql(
+				USER_SEARCH_QUERY,
+				{ search: term },
+				{ signal: controller.signal }
+			)
+				.then((result) => {
+					setSearchResults(
+						(result?.users?.nodes || []).map(nodeToUser)
+					);
+					setError(null);
+				})
+				.catch((e) => {
+					if (e?.name === 'AbortError') {
+						return;
+					}
+					setSearchResults([]);
+					setError(messageForError(e));
+				})
+				.finally(() => setSearching(false));
+		}, 250);
+		return () => {
+			clearTimeout(timer);
+			controller.abort();
+		};
+	}, [search, messageForError]);
+
+	const addUser = useCallback((user) => {
+		setShared((prev) =>
+			prev.includes(user.id) ? prev : [...prev, user.id]
+		);
+		setUsersById((prev) => ({ ...prev, [user.id]: user }));
+		setSearch('');
+		setSearchResults([]);
+	}, []);
+
+	const removeUser = useCallback((id) => {
+		setShared((prev) => prev.filter((x) => x !== id));
+	}, []);
+
+	const submit = async () => {
+		if (submitting) {
+			return;
+		}
+		setSubmitting(true);
+		try {
+			await onSubmit(shared);
+			onClose();
+		} catch (e) {
+			setSubmitting(false);
+		}
+	};
+
+	const visibleResults = useMemo(
+		() => searchResults.filter((u) => !shared.includes(u.id)),
+		[searchResults, shared]
+	);
+
+	return (
+		<Modal
+			title={sprintf(
+				/* translators: %s: name of the personal collection being shared */
+				__('Share "%s"', 'wpgraphql-ide'),
+				collection?.name || __('Collection', 'wpgraphql-ide')
+			)}
+			onRequestClose={() => (submitting ? null : onClose())}
+			className="wpgraphql-ide-dialog wpgraphql-ide-share-collection-dialog"
+		>
+			<div className="wpgraphql-ide-dialog-stack">
+				<p className="wpgraphql-ide-dialog-message">
+					{__(
+						'Add users who should see this collection. They get read-only access — you remain the only person who can edit it.',
+						'wpgraphql-ide'
+					)}
+				</p>
+				{/* Form wrapper lets Enter submit, which we hijack to add the
+				    first visible search result. Keyboard-only users can find
+				    a person and add them without grabbing the mouse. */}
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						if (visibleResults.length > 0) {
+							addUser(visibleResults[0]);
+						}
+					}}
+				>
+					<SearchControl
+						label={__('Add user', 'wpgraphql-ide')}
+						value={search}
+						onChange={setSearch}
+						placeholder={__(
+							'Search by name or username…',
+							'wpgraphql-ide'
+						)}
+						__nextHasNoMarginBottom
+					/>
+				</form>
+				{searching && (
+					<div className="wpgraphql-ide-share-collection-status">
+						<Spinner /> {__('Searching…', 'wpgraphql-ide')}
+					</div>
+				)}
+				{error && !searching && (
+					<Notice
+						status="error"
+						isDismissible
+						onRemove={() => setError(null)}
+					>
+						{error}
+					</Notice>
+				)}
+				{visibleResults.length > 0 && (
+					<ul className="wpgraphql-ide-share-collection-results">
+						{visibleResults.map((u) => {
+							const showSlug =
+								u.slug &&
+								u.slug.toLowerCase() !==
+									(u.name || '').toLowerCase();
+							return (
+								<li key={u.id}>
+									<button
+										type="button"
+										className="wpgraphql-ide-share-collection-result"
+										onClick={() => addUser(u)}
+									>
+										<span className="wpgraphql-ide-share-collection-result-name">
+											{u.name}
+										</span>
+										{showSlug && (
+											<span className="wpgraphql-ide-share-collection-result-slug">
+												@{u.slug}
+											</span>
+										)}
+										<Icon
+											icon={plus}
+											size={16}
+											className="wpgraphql-ide-share-collection-result-add"
+										/>
+									</button>
+								</li>
+							);
+						})}
+					</ul>
+				)}
+				<div className="wpgraphql-ide-share-collection-shared">
+					{shared.length === 0 ? (
+						<p className="wpgraphql-ide-share-collection-empty">
+							{__('Not shared with anyone yet.', 'wpgraphql-ide')}
+						</p>
+					) : (
+						<>
+							<div className="wpgraphql-ide-share-collection-shared-label">
+								{sprintf(
+									/* translators: %d: number of users the collection is shared with */
+									__('Shared with (%d)', 'wpgraphql-ide'),
+									shared.length
+								)}
+							</div>
+							<ul className="wpgraphql-ide-share-collection-chips">
+								{shared.map((id) => {
+									const user = usersById[id];
+									const label = user
+										? user.name
+										: sprintf(
+												/* translators: %d: numeric WordPress user ID, shown when the display name hasn't loaded yet */
+												__('User #%d', 'wpgraphql-ide'),
+												id
+											);
+									return (
+										<li
+											key={id}
+											className="wpgraphql-ide-share-collection-chip"
+										>
+											<span>{label}</span>
+											<button
+												type="button"
+												className="wpgraphql-ide-share-collection-chip-remove"
+												aria-label={sprintf(
+													/* translators: %s: display name (or fallback) of the user being removed from the share list */
+													__(
+														'Remove %s',
+														'wpgraphql-ide'
+													),
+													label
+												)}
+												onClick={() => removeUser(id)}
+											>
+												<Icon icon={close} size={14} />
+											</button>
+										</li>
+									);
+								})}
+							</ul>
+						</>
+					)}
+				</div>
+			</div>
+			<div className="wpgraphql-ide-dialog-actions">
+				<Button
+					variant="tertiary"
+					onClick={onClose}
+					disabled={submitting}
+				>
+					{__('Cancel', 'wpgraphql-ide')}
+				</Button>
+				<Button
+					variant="primary"
+					onClick={submit}
+					disabled={submitting}
+					isBusy={submitting}
+				>
+					{__('Save', 'wpgraphql-ide')}
+				</Button>
+			</div>
+		</Modal>
+	);
+}
