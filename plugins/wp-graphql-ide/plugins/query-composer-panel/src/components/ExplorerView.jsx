@@ -138,22 +138,28 @@ class ExplorerView extends React.PureComponent {
 		if (!el) {
 			return;
 		}
-		// Drive the panel's own scroll container instead of calling
-		// `el.scrollIntoView` — smooth scroll otherwise chains up through
-		// every scrollable ancestor and the IDE drawer slides its header
-		// out of view. Centering also keeps the row away from the sticky
-		// operation title-bar at the top and the bottom edge, which both
-		// clip a row aligned to the nearest edge.
+		// Drive the panel's own scroll container, skip the scroll when the
+		// row is already in view, and write `scrollTop` directly instead of
+		// `scrollIntoView` / smooth `scrollTo`. Both `scrollIntoView` and a
+		// smooth scroll dispatch scroll events that the Vaul drawer picks
+		// up as drag input — it then nudges itself up or down in response.
+		// A direct `scrollTop` assignment doesn't dispatch a synthetic
+		// gesture and is contained to the explorer's operations container.
 		const scrollContainer =
 			container.querySelector('.graphiql-explorer-operations') ||
 			container;
 		const elRect = el.getBoundingClientRect();
 		const containerRect = scrollContainer.getBoundingClientRect();
-		const targetTop =
-			scrollContainer.scrollTop +
-			(elRect.top - containerRect.top) -
-			(scrollContainer.clientHeight - elRect.height) / 2;
-		scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
+		const elTop = elRect.top - containerRect.top;
+		const elBottom = elTop + elRect.height;
+		const visibleHeight = scrollContainer.clientHeight;
+		if (elTop < 0 || elBottom > visibleHeight) {
+			const targetTop =
+				scrollContainer.scrollTop +
+				elTop -
+				(visibleHeight - elRect.height) / 2;
+			scrollContainer.scrollTop = Math.max(0, targetTop);
+		}
 		el.classList.add(CURSOR_TARGET_CLASS);
 		this._cursorHighlightEl = el;
 		this._cursorHighlightTimer = setTimeout(() => {
