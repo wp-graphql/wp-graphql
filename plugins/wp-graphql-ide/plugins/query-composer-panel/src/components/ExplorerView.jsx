@@ -138,10 +138,22 @@ class ExplorerView extends React.PureComponent {
 		if (!el) {
 			return;
 		}
-		// `center` keeps the row away from the panel's sticky operation
-		// title-bar at the top and the bottom edge of the scroll area —
-		// both clip a row aligned to the nearest edge.
-		el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+		// Drive the panel's own scroll container instead of calling
+		// `el.scrollIntoView` — smooth scroll otherwise chains up through
+		// every scrollable ancestor and the IDE drawer slides its header
+		// out of view. Centering also keeps the row away from the sticky
+		// operation title-bar at the top and the bottom edge, which both
+		// clip a row aligned to the nearest edge.
+		const scrollContainer =
+			container.querySelector('.graphiql-explorer-operations') ||
+			container;
+		const elRect = el.getBoundingClientRect();
+		const containerRect = scrollContainer.getBoundingClientRect();
+		const targetTop =
+			scrollContainer.scrollTop +
+			(elRect.top - containerRect.top) -
+			(scrollContainer.clientHeight - elRect.height) / 2;
+		scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
 		el.classList.add(CURSOR_TARGET_CLASS);
 		this._cursorHighlightEl = el;
 		this._cursorHighlightTimer = setTimeout(() => {
