@@ -1129,6 +1129,58 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
+	/**
+	 * The deprecated `user` field on the SendPasswordResetEmailPayload must not leak whether an
+	 * account exists to unauthenticated callers. Author-class users (those with published posts)
+	 * are "public" to the User model, so prior to the fix the field resolved to a full User object
+	 * for them while resolving to null for non-existent accounts — an unauthenticated enumeration
+	 * oracle keyed on email/login. The field must resolve to null for callers without the
+	 * `list_users` capability regardless of whether the account exists.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories
+	 */
+	public function testSendPasswordResetEmailUserFieldDoesNotLeakExistenceToPublic() {
+		$user     = get_userdata( $this->author );
+		$username = $user->user_login;
+		$email    = $user->user_email;
+
+		wp_set_current_user( 0 );
+
+		// Existing author-class (public) user, by username.
+		$actual = $this->sendPasswordResetEmailMutation( $username );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEmpty( $actual['extensions']['debug'], 'A real account should not produce a debug notice.' );
+		$this->assertNull( $actual['data']['sendPasswordResetEmail']['user'], 'The deprecated user field must not expose an existing public user to unauthenticated callers.' );
+
+		// Same existing user, by email.
+		$actual = $this->sendPasswordResetEmailMutation( $email );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertNull( $actual['data']['sendPasswordResetEmail']['user'], 'The deprecated user field must not expose an existing public user when looked up by email.' );
+
+		// Non-existent account: the response must be indistinguishable from the existing-user case.
+		$actual = $this->sendPasswordResetEmailMutation( 'thisUserDoesNotExist' );
+		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertNull( $actual['data']['sendPasswordResetEmail']['user'], 'A non-existent account must also resolve user to null so the two cases cannot be told apart.' );
+	}
+
+	/**
+	 * Requesters who can list users retain access to the deprecated `user` field — the fix closes
+	 * the enumeration hole without removing the legitimate admin-side utility of the field.
+	 */
+	public function testSendPasswordResetEmailUserFieldVisibleToCapableUser() {
+		$user     = get_userdata( $this->author );
+		$username = $user->user_login;
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->sendPasswordResetEmailMutation( $username );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEquals( $this->author, $actual['data']['sendPasswordResetEmail']['user']['databaseId'], 'A user with the list_users capability should still receive the resolved user.' );
+	}
+
 	public function testSendPasswordResetEmailActivationKeyWithUsername() {
 		$user     = get_userdata( $this->subscriber );
 		$username = $user->user_login;

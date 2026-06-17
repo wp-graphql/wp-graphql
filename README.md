@@ -34,6 +34,8 @@ wp-graphql/
 │   └── wp-graphql-acf/      # ACF extension plugin
 ├── websites/
 │   └── wpgraphql.com/        # WPGraphQL.com Next.js website
+├── design/
+│   └── brand/                # Product-family brand guides + wp.org asset generators
 ├── .wp-env.json             # Shared WordPress environment config
 ├── package.json             # Root workspace configuration
 └── turbo.json               # Turborepo build orchestration

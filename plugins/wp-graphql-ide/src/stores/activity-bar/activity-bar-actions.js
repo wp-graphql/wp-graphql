@@ -10,14 +10,12 @@ const actions = {
 		config,
 		priority,
 	}),
-	registerUtility: (name, config, priority) => ({
-		type: 'REGISTER_UTILITY',
-		name,
-		config,
-		priority,
-	}),
 	toggleActivityPanelVisibility: (panel) => ({
 		type: 'TOGGLE_ACTIVITY_PANEL_VISIBILITY',
+		panel,
+	}),
+	setVisiblePanel: (panel) => ({
+		type: 'SET_VISIBLE_PANEL',
 		panel,
 	}),
 };

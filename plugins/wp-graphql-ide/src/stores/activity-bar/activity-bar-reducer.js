@@ -1,11 +1,37 @@
+import { readDevicePreference, setPreference } from '../../api/preferences';
+
 /**
  * The initial state of the activity bar.
  * @type {Object}
  */
+const initialPanel = (() => {
+	const fromDevice = readDevicePreference('visible_panel');
+	if (typeof fromDevice === 'string' && fromDevice !== '') {
+		return fromDevice;
+	}
+	// Migrate the older single-key entry one time. The key was the
+	// previous storage location before everything moved into the
+	// scope-aware bucket.
+	try {
+		if (typeof window !== 'undefined') {
+			const legacy = window.localStorage.getItem(
+				'wpgraphql_ide_visible_panel'
+			);
+			if (legacy) {
+				window.localStorage.removeItem('wpgraphql_ide_visible_panel');
+				setPreference('visible_panel', legacy).catch(() => {});
+				return legacy;
+			}
+		}
+	} catch {
+		// localStorage unavailable
+	}
+	return null;
+})();
+
 const initialState = {
 	activityPanels: {},
-	visiblePanel: null,
-	utilities: {},
+	visiblePanel: initialPanel,
 };
 
 /**
@@ -16,29 +42,6 @@ const initialState = {
  */
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
-		case 'REGISTER_UTILITY':
-			// Ensure button name is unique
-			if (action.name in state.utilities) {
-				console.warn({
-					message: `The "${action.name}" utility already exists. Name must be unique.`,
-					existingUtility: state.utilities[action.name],
-					duplicateUtility: action.config,
-				});
-				return state;
-			}
-
-			const utility = {
-				config: action.config,
-				priority: action.priority || 10, // default priority to 10 if not provided
-			};
-
-			return {
-				...state,
-				utilities: {
-					...state.utilities,
-					[action.name]: utility,
-				},
-			};
 		case 'REGISTER_PANEL':
 			// Ensure panel name is unique
 			if (action.name in state.activityPanels) {
@@ -50,7 +53,7 @@ const reducer = (state = initialState, action) => {
 				return state;
 			}
 
-			// Ensure config is a function before calling it
+			// Ensure config has a content callback.
 			if (typeof action.config.content !== 'function') {
 				console.error(
 					`Config for panel "${action.name}" requires a content callback.`
@@ -88,16 +91,19 @@ const reducer = (state = initialState, action) => {
 					[action.name]: panel,
 				},
 			};
-		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY':
-			console.log({
-				message: `Toggling panel visibility.`,
-				panel: action.panel,
-			});
+		case 'TOGGLE_ACTIVITY_PANEL_VISIBILITY': {
+			const nextPanel =
+				state.visiblePanel === action.panel ? null : action.panel;
+			setPreference('visible_panel', nextPanel || '').catch(() => {});
 			return {
 				...state,
-				visiblePanel:
-					state.visiblePanel === action.panel ? null : action.panel,
+				visiblePanel: nextPanel,
 			};
+		}
+		case 'SET_VISIBLE_PANEL': {
+			setPreference('visible_panel', action.panel || '').catch(() => {});
+			return { ...state, visiblePanel: action.panel };
+		}
 		default:
 			return state;
 	}

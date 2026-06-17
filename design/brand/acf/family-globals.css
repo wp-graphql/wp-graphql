@@ -1,0 +1,109 @@
+/* =============================================================
+   WPGraphQL Product Family — family-globals.css  (v3)
+   Covers all four products. Apply theme class to <html>.
+
+   Default (no class)  → WPGraphQL  #FF8C1A  orange
+   .theme-radiql       → RadiQL     #00D4F5  cyan
+   .theme-ide          → IDE        #8B5CF6  violet
+   .theme-acf          → ACF        #10B981  emerald
+   .light              → Light mode for any product
+   ============================================================= */
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap");
+
+@layer base {
+  :root {
+    --navy-950:224 48% 7%; --navy-900:224 46% 9%; --navy-800:224 42% 13%;
+    --navy-700:225 42% 18%; --navy-600:225 40% 22%; --navy-500:226 38% 27%;
+    --navy-400:220 28% 36%; --navy-300:220 24% 51%; --navy-200:220 22% 67%;
+    --navy-100:220 28% 82%; --navy-50:220 32% 93%;
+    --orange-600:26 100% 38%; --orange-500:27 100% 44%; --orange-400:28 100% 47%;
+    --orange-300:30 100% 55%; --orange-200:31 100% 65%; --orange-100:33 100% 80%; --orange-50:35 100% 93%;
+    --cyan-600:188 100% 27%; --cyan-500:188 100% 34%; --cyan-400:188 100% 42%;
+    --cyan-300:191 100% 48%; --cyan-200:191 100% 68%; --cyan-100:191 100% 84%; --cyan-50:191 100% 93%;
+    --violet-700:268 61% 26%; --violet-600:268 63% 37%; --violet-500:268 65% 47%;
+    --violet-400:268 82% 58%; --violet-300:267 89% 65%; --violet-200:267 83% 76%;
+    --violet-100:267 69% 85%; --violet-50:267 87% 95%;
+    --emerald-700:162 91% 17%; --emerald-600:162 88% 19%; --emerald-500:160 84% 25%;
+    --emerald-400:158 64% 32%; --emerald-300:160 84% 39%; --emerald-200:156 72% 53%;
+    --emerald-100:152 76% 68%; --emerald-50:151 81% 94%;
+  }
+}
+
+/* WPGraphQL default */
+@layer base {
+  :root {
+    --background:var(--navy-950); --foreground:220 60% 97%;
+    --card:var(--navy-900); --card-foreground:220 60% 97%;
+    --popover:var(--navy-900); --popover-foreground:220 60% 97%;
+    --primary:var(--orange-300); --primary-foreground:var(--navy-950);
+    --secondary:var(--navy-700); --secondary-foreground:220 60% 97%;
+    --muted:var(--navy-800); --muted-foreground:var(--navy-300);
+    --accent:var(--navy-700); --accent-foreground:220 60% 97%;
+    --destructive:0 84% 60%; --destructive-foreground:220 60% 97%;
+    --border:var(--navy-700); --input:var(--navy-700); --ring:var(--orange-300); --radius:0.5rem;
+    --chart-1:var(--orange-300); --chart-2:var(--navy-300); --chart-3:var(--orange-500); --chart-4:var(--navy-400); --chart-5:var(--orange-200);
+    --sidebar-background:var(--navy-900); --sidebar-foreground:220 60% 97%;
+    --sidebar-primary:var(--orange-300); --sidebar-primary-foreground:var(--navy-950);
+    --sidebar-accent:var(--navy-800); --sidebar-accent-foreground:220 60% 97%;
+    --sidebar-border:var(--navy-700); --sidebar-ring:var(--orange-300);
+  }
+  :root.light {
+    --background:var(--navy-50); --foreground:var(--navy-950);
+    --card:220 60% 99%; --card-foreground:var(--navy-950);
+    --primary:var(--orange-400); --primary-foreground:220 60% 99%;
+    --secondary:var(--navy-100); --secondary-foreground:var(--navy-800);
+    --muted:var(--navy-100); --muted-foreground:var(--navy-400);
+    --border:var(--navy-200); --input:var(--navy-200); --ring:var(--orange-400);
+    --sidebar-background:220 60% 99%; --sidebar-foreground:var(--navy-900);
+    --sidebar-primary:var(--orange-400); --sidebar-primary-foreground:220 60% 99%;
+    --sidebar-accent:var(--navy-50); --sidebar-border:var(--navy-200); --sidebar-ring:var(--orange-400);
+  }
+}
+
+/* RadiQL */
+@layer base {
+  .theme-radiql {
+    --primary:var(--cyan-300); --ring:var(--cyan-300);
+    --chart-1:var(--cyan-300); --chart-3:var(--cyan-500); --chart-5:var(--cyan-200);
+    --sidebar-primary:var(--cyan-300); --sidebar-primary-foreground:var(--navy-950); --sidebar-ring:var(--cyan-300);
+  }
+  .theme-radiql.light,.theme-radiql .light {
+    --primary:var(--cyan-500); --ring:var(--cyan-500);
+    --sidebar-primary:var(--cyan-500); --sidebar-ring:var(--cyan-500);
+  }
+}
+
+/* WPGraphQL IDE */
+@layer base {
+  .theme-ide {
+    --primary:var(--violet-300); --ring:var(--violet-300);
+    --chart-1:var(--violet-300); --chart-3:var(--violet-500); --chart-5:var(--violet-200);
+    --sidebar-primary:var(--violet-300); --sidebar-primary-foreground:var(--navy-950); --sidebar-ring:var(--violet-300);
+    --ide-status-bar:var(--violet-500);
+  }
+  .theme-ide.light,.theme-ide .light {
+    --primary:var(--violet-500); --ring:var(--violet-500);
+    --sidebar-primary:var(--violet-500); --sidebar-ring:var(--violet-500);
+    --ide-status-bar:var(--violet-600);
+  }
+}
+
+/* WPGraphQL for ACF */
+@layer base {
+  .theme-acf {
+    --primary:var(--emerald-300); --ring:var(--emerald-300);
+    --chart-1:var(--emerald-300); --chart-3:var(--emerald-500); --chart-5:var(--emerald-200);
+    --sidebar-primary:var(--emerald-300); --sidebar-primary-foreground:var(--navy-950); --sidebar-ring:var(--emerald-300);
+  }
+  .theme-acf.light,.theme-acf .light {
+    --primary:var(--emerald-400); --ring:var(--emerald-400);
+    --sidebar-primary:var(--emerald-400); --sidebar-ring:var(--emerald-400);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-family:'Bricolage Grotesque',sans-serif; font-feature-settings:"cv01","cv02","cv03"; -webkit-font-smoothing:antialiased; }
+  code,kbd,pre,samp,.font-mono { font-family:'DM Mono',monospace; }
+}

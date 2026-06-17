@@ -54,6 +54,5 @@ phpstan.neon.dist
 phpunit.xml.dist
 README.md
 CONTRIBUTING.md
-ACTIONS_AND_FILTERS.md
 CLAUDE.md
 schema.graphql

@@ -1,10 +1,10 @@
 import React from 'react';
 import {
 	coerceArgValue,
-	defaultInputObjectFields,
+	makeDefaultValueNode,
 	unwrapInputType,
 } from '../utils';
-import { isInputObjectType, isLeafType } from 'graphql';
+import { isLeafType } from 'graphql';
 import AbstractArgView from './AbstractArgView';
 
 class InputArgView extends React.PureComponent {
@@ -33,36 +33,29 @@ class InputArgView extends React.PureComponent {
 			parentField,
 			makeDefaultArg,
 		} = this.props;
-		const argType = unwrapInputType(arg.type);
 
 		let argSelection = null;
 		if (this._previousArgSelection) {
 			argSelection = this._previousArgSelection;
-		} else if (isInputObjectType(argType)) {
-			const fields = argType.getFields();
-			argSelection = {
-				kind: 'ObjectField',
-				name: { kind: 'Name', value: arg.name },
-				value: {
-					kind: 'ObjectValue',
-					fields: defaultInputObjectFields(
-						getDefaultScalarArgValue,
-						makeDefaultArg,
-						parentField,
-						Object.keys(fields).map((k) => fields[k])
-					),
-				},
-			};
-		} else if (isLeafType(argType)) {
-			argSelection = {
-				kind: 'ObjectField',
-				name: { kind: 'Name', value: arg.name },
-				value: getDefaultScalarArgValue(parentField, arg, argType),
-			};
+		} else {
+			const value = makeDefaultValueNode(
+				arg.type,
+				getDefaultScalarArgValue,
+				makeDefaultArg,
+				parentField,
+				arg
+			);
+			if (value) {
+				argSelection = {
+					kind: 'ObjectField',
+					name: { kind: 'Name', value: arg.name },
+					value,
+				};
+			}
 		}
 
 		if (!argSelection) {
-			console.error('Unable to add arg for argType', argType);
+			console.error('Unable to add arg for argType', arg.type);
 		} else {
 			return this.props.modifyFields(
 				[...(selection.fields || []), argSelection],
@@ -75,11 +68,14 @@ class InputArgView extends React.PureComponent {
 		let settingToNull = false;
 		let settingToVariable = false;
 		let settingToLiteralValue = false;
+		// Order matters: see ArgView._setArgValue for the same fix.
+		// `event.kind` throws on null/undefined; the legacy catch
+		// silenced it and Inline became a silent no-op.
 		try {
-			if (event.kind === 'VariableDefinition') {
-				settingToVariable = true;
-			} else if (event === null || typeof event === 'undefined') {
+			if (event === null || typeof event === 'undefined') {
 				settingToNull = true;
+			} else if (event.kind === 'VariableDefinition') {
+				settingToVariable = true;
 			} else if (typeof event.kind === 'string') {
 				settingToLiteralValue = true;
 			}
@@ -171,6 +167,7 @@ class InputArgView extends React.PureComponent {
 				argValue={argSelection ? argSelection.value : null}
 				arg={arg}
 				parentField={parentField}
+				parentTypeName={this.props.parentTypeName}
 				addArg={this._addArg}
 				removeArg={this._removeArg}
 				setArgFields={this._modifyChildFields}

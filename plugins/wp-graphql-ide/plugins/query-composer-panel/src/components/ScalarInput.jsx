@@ -32,10 +32,8 @@ class ScalarInput extends React.PureComponent {
 			<span style={{ color }}>
 				{argType.name === 'String' ? '"' : ''}
 				<input
+					className="graphiql-explorer-scalar-input"
 					style={{
-						border: 'none',
-						borderBottom: '1px solid #888',
-						outline: 'none',
 						width: `${Math.max(1, Math.min(15, value.length))}ch`,
 						color,
 					}}

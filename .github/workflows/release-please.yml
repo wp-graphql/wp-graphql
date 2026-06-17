@@ -415,34 +415,47 @@ jobs:
 
           echo "✅ Clean build directory created at ${BUILD_DIR}"
 
-          # Update version numbers in build directory files
-          # This is necessary because the tag may have old version numbers
-          # The 10up action reads version from wp-graphql.php and may overwrite Stable tag if versions don't match
+          # Update version numbers in build directory files.
+          # This is the deploy-time safety net: it asserts the in-tree state
+          # one last time before the 10up action ships to SVN, so if
+          # update-release-pr.yml ever fails mid-run and lands a release PR
+          # with stale Version: / constant values (the bug that stranded
+          # wp-graphql-ide 5.0.0 with Version: 4.5.0 inside /tags/5.0.0/),
+          # the deploy still ships matching metadata.
+          # The 10up action reads version from the main plugin file and may
+          # overwrite Stable tag if versions don't match.
           echo "🔄 Updating version numbers in build directory to ${VERSION}..."
 
-          # Update Stable tag in readme.txt (match "Stable tag:" or "Stable Tag:" per plugin convention)
+          # Update Stable tag in readme.txt (match "Stable tag:" or "Stable Tag:"
+          # per plugin convention). This step is plugin-agnostic.
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
             sed -i.bak "s/^Stable [Tt]ag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
             rm -f "${BUILD_DIR}/readme.txt.bak"
             echo "✅ Updated Stable tag in readme.txt"
           fi
 
-          # Update Version in wp-graphql.php (both header and @version docblock)
-          if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
-            sed -i.bak "s/^ \* Version: [0-9]\+\.[0-9]\+\.[0-9]\+/ * Version: ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
-            sed -i.bak "s/^ \* @version  [0-9]\+\.[0-9]\+\.[0-9]\+/ * @version  ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
-            rm -f "${BUILD_DIR}/wp-graphql.php.bak"
-            echo "✅ Updated Version in wp-graphql.php"
-          fi
+          # Update the plugin's main `Version:` header and its
+          # WPGRAPHQL_*_VERSION constant via the same script used in
+          # update-release-pr.yml. Single source of truth for "bump version
+          # metadata in a plugin's files" — covers every plugin defined in
+          # release-please-config.json (currently wp-graphql, wp-graphql-ide,
+          # wp-graphql-smart-cache, wp-graphql-acf) via their `constantMap`.
+          (
+            cd "${GITHUB_WORKSPACE}"
+            node scripts/update-version-constants.js \
+              --version="${VERSION}" \
+              --component="${COMPONENT}" \
+              --plugin-dir="plugin-build/${COMPONENT}"
+          )
 
-          # Update WPGRAPHQL_VERSION constant in constants.php
-          if [[ -f "${BUILD_DIR}/constants.php" ]]; then
-            sed -i.bak "s/define( 'WPGRAPHQL_VERSION', '[^']*' );/define( 'WPGRAPHQL_VERSION', '${VERSION}' );/" "${BUILD_DIR}/constants.php"
-            rm -f "${BUILD_DIR}/constants.php.bak"
-            echo "✅ Updated WPGRAPHQL_VERSION in constants.php"
-          fi
-
-          # Verify all updates
+          # Verify all updates. update-version-constants.js exits non-zero on
+          # any failure, so the run would already have failed by here if the
+          # constant or header bump didn't land — these checks are a final
+          # cross-validate against the actual on-disk state the 10up action
+          # is about to ship to SVN. Look up the per-plugin file names from
+          # the same constantMap config the script consumes (single source
+          # of truth — adding a new plugin to release-please-config.json
+          # automatically covers it here too).
           echo "🔍 Verifying version updates:"
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
             if grep -qi "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
@@ -453,21 +466,31 @@ jobs:
             fi
           fi
 
-          if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
-            if grep -q "Version: ${VERSION}" "${BUILD_DIR}/wp-graphql.php"; then
-              echo "  ✅ wp-graphql.php Version: ${VERSION}"
+          MAIN_PLUGIN_FILE=$(jq -r --arg comp "${COMPONENT}" \
+            '.packages[] | select(.component==$comp) | .constantMap.mainPluginFile // empty' \
+            "${GITHUB_WORKSPACE}/release-please-config.json")
+          CONST_FILE=$(jq -r --arg comp "${COMPONENT}" \
+            '.packages[] | select(.component==$comp) | .constantMap.fileName // empty' \
+            "${GITHUB_WORKSPACE}/release-please-config.json")
+          CONST_NAME=$(jq -r --arg comp "${COMPONENT}" \
+            '.packages[] | select(.component==$comp) | .constantMap.constantName // empty' \
+            "${GITHUB_WORKSPACE}/release-please-config.json")
+
+          if [[ -n "${MAIN_PLUGIN_FILE}" && -f "${BUILD_DIR}/${MAIN_PLUGIN_FILE}" ]]; then
+            if grep -qE "^[[:space:]]*\*[[:space:]]*Version:[[:space:]]+${VERSION}[[:space:]]*$" "${BUILD_DIR}/${MAIN_PLUGIN_FILE}"; then
+              echo "  ✅ ${MAIN_PLUGIN_FILE} Version: ${VERSION}"
             else
-              echo "  ❌ wp-graphql.php Version incorrect"
-              grep "Version:" "${BUILD_DIR}/wp-graphql.php" | head -2
+              echo "  ❌ ${MAIN_PLUGIN_FILE} Version incorrect"
+              grep -E "^[[:space:]]*\*[[:space:]]*Version:" "${BUILD_DIR}/${MAIN_PLUGIN_FILE}" | head -2 || echo "    (not found)"
             fi
           fi
 
-          if [[ -f "${BUILD_DIR}/constants.php" ]]; then
-            if grep -q "WPGRAPHQL_VERSION', '${VERSION}'" "${BUILD_DIR}/constants.php"; then
-              echo "  ✅ constants.php WPGRAPHQL_VERSION: ${VERSION}"
+          if [[ -n "${CONST_FILE}" && -n "${CONST_NAME}" && -f "${BUILD_DIR}/${CONST_FILE}" ]]; then
+            if grep -qE "define\\([[:space:]]*['\"]${CONST_NAME}['\"][[:space:]]*,[[:space:]]*['\"]${VERSION}['\"]" "${BUILD_DIR}/${CONST_FILE}"; then
+              echo "  ✅ ${CONST_FILE} ${CONST_NAME}: ${VERSION}"
             else
-              echo "  ❌ constants.php WPGRAPHQL_VERSION incorrect"
-              grep "WPGRAPHQL_VERSION" "${BUILD_DIR}/constants.php" | head -1
+              echo "  ❌ ${CONST_FILE} ${CONST_NAME} incorrect"
+              grep "${CONST_NAME}" "${BUILD_DIR}/${CONST_FILE}" | head -1 || echo "    (not found)"
             fi
           fi
 
@@ -531,6 +554,13 @@ jobs:
           # wp-graphql-smart-cache (component) -> wpgraphql-smart-cache (WordPress.org slug)
           SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           BUILD_DIR: plugin-build/${{ matrix.component }}
+          # WordPress.org assets (banners/icons/screenshots) live in each plugin's
+          # source .wordpress-org dir. The 10up action defaults ASSETS_DIR to a
+          # repo-root .wordpress-org, which does not exist in this monorepo, so it
+          # logged "No assets directory found; skipping asset copy" and never synced
+          # the SVN assets/ folder. Point it at the source dir (always present, and
+          # independent of .distignore, which excludes .wordpress-org from BUILD_DIR).
+          ASSETS_DIR: ${{ steps.plugin_info.outputs.package_path }}/.wordpress-org
           VERSION: ${{ steps.plugin_info.outputs.version }}
           # Note: The 10up action should sync BUILD_DIR to SVN trunk
           # If it's not updating readme.txt, it might be reading from the source tag

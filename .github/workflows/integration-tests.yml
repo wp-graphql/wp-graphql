@@ -331,17 +331,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Coverage job: Latest WP/PHP
-          - name: 'wp-graphql-ide / WP 6.9 / PHP 8.4'
+          # Coverage job: Latest stable WP/PHP
+          - name: 'wp-graphql-ide / WP 7.0 / PHP 8.4'
             php: '8.4'
-            wp: '6.9'
+            wp: '7.0'
             theme: twentytwentyfive
             multisite: false
             coverage: true
-          # Boundary: Current stable
-          - name: 'wp-graphql-ide / WP 6.8 / PHP 8.3'
-            php: '8.3'
-            wp: '6.8'
+          # Boundary: Previous stable
+          - name: 'wp-graphql-ide / WP 6.9 / PHP 8.4'
+            php: '8.4'
+            wp: '6.9'
             theme: twentytwentyfive
             multisite: false
             coverage: false
@@ -373,6 +373,10 @@ jobs:
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
       install_wp_graphql_core_deps: true
+      # IDE's WPUnit suite loads Smart Cache via WPLoader; it needs
+      # Smart Cache's autoloader inside the test container so the
+      # graphql_document post type actually registers.
+      install_wp_graphql_smart_cache_deps: true
 
   # ===========================================
   # WP GraphQL for ACF – matrix (full vs Free-only for fork PRs)
