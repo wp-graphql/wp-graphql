@@ -1,16 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Drawer as VaulDrawer } from 'vaul';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 export function AppDrawer({ children, buttonLabel }) {
-	const isDrawerOpen = useSelect((select) => {
-		return select('wpgraphql-ide/app').isDrawerOpen();
-	});
+	const isDrawerOpen = useSelect(
+		(select) => select('wpgraphql-ide/app').isDrawerOpen(),
+		[]
+	);
 
 	const { setDrawerOpen } = useDispatch('wpgraphql-ide/app');
 
 	// Use local state for VaulDrawer, sync with WordPress store
 	const [localOpen, setLocalOpen] = useState(false);
+	// Defer heavy child rendering until the next frame so the drawer
+	// animation isn't blocked by CodeMirror / store initialization.
+	const [childrenReady, setChildrenReady] = useState(false);
+	const rafRef = useRef(null);
+	useEffect(() => {
+		if (localOpen && !childrenReady) {
+			rafRef.current = window.requestAnimationFrame(() => {
+				setChildrenReady(true);
+			});
+		}
+		return () => {
+			if (rafRef.current) {
+				window.cancelAnimationFrame(rafRef.current);
+			}
+		};
+	}, [localOpen, childrenReady]);
 
 	// Sync local state with WordPress store
 	useEffect(() => {
@@ -80,14 +97,14 @@ export function AppDrawer({ children, buttonLabel }) {
 				// Try to find a focusable element in the drawer content
 				const drawer = document.querySelector('[data-vaul-drawer]');
 				if (drawer) {
-					// Look for the GraphiQL query editor or any focusable element
+					// Look for the query editor or any focusable element
 					const focusableElements = drawer.querySelectorAll(
 						'textarea, input, button, [tabindex]:not([tabindex="-1"])'
 					);
 
-					// Prefer the GraphiQL query editor textarea
+					// Prefer the query editor
 					const queryEditor = drawer.querySelector(
-						'.graphiql-query-editor textarea, .CodeMirror textarea'
+						'.wpgraphql-ide-graphql-editor .cm-content, .cm-editor .cm-content'
 					);
 					if (queryEditor) {
 						queryEditor.focus();
@@ -151,9 +168,14 @@ export function AppDrawer({ children, buttonLabel }) {
 						<VaulDrawer.Description className="screen-reader-text">
 							Interactive GraphQL query editor for WPGraphQL
 						</VaulDrawer.Description>
-						{children}
+						{childrenReady ? children : null}
 					</VaulDrawer.Content>
-					<VaulDrawer.Overlay />
+					<VaulDrawer.Overlay
+						onClick={() => {
+							setLocalOpen(false);
+							setDrawerOpen(false);
+						}}
+					/>
 				</VaulDrawer.Portal>
 			</VaulDrawer.Root>
 		</div>

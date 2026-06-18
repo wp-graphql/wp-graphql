@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - release/*
+      - next
     paths:
       - 'websites/wpgraphql.com/**'
       - '.github/workflows/website-e2e-tests.yml'
@@ -14,6 +15,7 @@ on:
     branches:
       - main
       - release/*
+      - next
     paths:
       - 'websites/wpgraphql.com/**'
       - '.github/workflows/website-e2e-tests.yml'
@@ -99,7 +101,9 @@ jobs:
         run: npm run build -w @wpgraphql/wpgraphql-com
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
-          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
+          # Public GraphQL endpoint default so fork PRs (which can't read repo
+          # secrets) still prerender against live data instead of throwing.
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL || 'https://content.wpgraphql.com/graphql' }}
           NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
           FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
 
@@ -123,7 +127,7 @@ jobs:
           exit 1
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
-          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL }}
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL || 'https://content.wpgraphql.com/graphql' }}
           NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
           FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
 

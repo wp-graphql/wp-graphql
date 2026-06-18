@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.15.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.0...wp-graphql/v2.15.1) (2026-06-09)
+
+
+### Security
+
+* prevent user enumeration via the deprecated `SendPasswordResetEmailPayload.user` field. The field could reveal whether a username/email belonged to a registered account (and expose author-class user data) to unauthenticated requests; it is now gated on the `list_users` capability. See [GHSA-jhh7-832h-f8hv](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-jhh7-832h-f8hv)
+
+
+### Bug Fixes
+
+* **ci:** deploy WordPress.org assets via ASSETS_DIR + dedicated asset-update workflow ([#3880](https://github.com/wp-graphql/wp-graphql/issues/3880)) ([5f301b1](https://github.com/wp-graphql/wp-graphql/commit/5f301b16bf9e3c36d145d33ba568876f27884e17))
+
+## [2.15.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.14.1...wp-graphql/v2.15.0) (2026-06-04)
+
+
+### New Features
+
+* **deps:** bump @wordpress/hooks from 3.58.0 to 4.44.0 ([#3853](https://github.com/wp-graphql/wp-graphql/issues/3853)) ([249fe34](https://github.com/wp-graphql/wp-graphql/commit/249fe3437adc04876d54bcebdd64bad3aaf13343))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 7 updates ([#3865](https://github.com/wp-graphql/wp-graphql/issues/3865)) ([8a41c7c](https://github.com/wp-graphql/wp-graphql/commit/8a41c7c9e0f195cabbe9ca461adc5fab5bb29222))
+* resolve WPGraphQL settings outside the admin (at the /graphql endpoint) ([#3878](https://github.com/wp-graphql/wp-graphql/issues/3878)) ([f10661c](https://github.com/wp-graphql/wp-graphql/commit/f10661cab1121acb53267ca7f6680b3901f8a364))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/babel-preset-default from 7.42.0 to 8.45.0 ([#3871](https://github.com/wp-graphql/wp-graphql/issues/3871)) ([e05bdd6](https://github.com/wp-graphql/wp-graphql/commit/e05bdd6fb7ef67110f24c469f3ca943ffa4662bc))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql ([#3858](https://github.com/wp-graphql/wp-graphql/issues/3858)) ([805bd06](https://github.com/wp-graphql/wp-graphql/commit/805bd06ccc1e2e603f2d63a615dbe0995e4e4834))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql ([#3859](https://github.com/wp-graphql/wp-graphql/issues/3859)) ([150cc30](https://github.com/wp-graphql/wp-graphql/commit/150cc3032b79d9ba988c4e76d2c88862683feba6))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#3849](https://github.com/wp-graphql/wp-graphql/issues/3849)) ([cf0a309](https://github.com/wp-graphql/wp-graphql/commit/cf0a309f5c5b58d8abfa8afd5d798b1141bd04e9))
+
 ## [2.14.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.14.0...wp-graphql/v2.14.1) (2026-05-21)
 
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import {
 	coerceArgValue,
-	defaultInputObjectFields,
+	makeDefaultValueNode,
 	unwrapInputType,
 } from '../utils';
-import { isInputObjectType, isLeafType } from 'graphql';
+import { isLeafType } from 'graphql';
 import AbstractArgView from './AbstractArgView';
 
 class ArgView extends React.PureComponent {
@@ -33,36 +33,33 @@ class ArgView extends React.PureComponent {
 			parentField,
 			arg,
 		} = this.props;
-		const argType = unwrapInputType(arg.type);
 
 		let argSelection = null;
 		if (this._previousArgSelection) {
 			argSelection = this._previousArgSelection;
-		} else if (isInputObjectType(argType)) {
-			const fields = argType.getFields();
-			argSelection = {
-				kind: 'Argument',
-				name: { kind: 'Name', value: arg.name },
-				value: {
-					kind: 'ObjectValue',
-					fields: defaultInputObjectFields(
-						getDefaultScalarArgValue,
-						makeDefaultArg,
-						parentField,
-						Object.keys(fields).map((k) => fields[k])
-					),
-				},
-			};
-		} else if (isLeafType(argType)) {
-			argSelection = {
-				kind: 'Argument',
-				name: { kind: 'Name', value: arg.name },
-				value: getDefaultScalarArgValue(parentField, arg, argType),
-			};
+		} else {
+			// `makeDefaultValueNode` peels non-null and list wrappers so a
+			// list arg seeds as `ListValue` with a single default item,
+			// and a list-of-input-objects seeds as `ListValue` of one
+			// `ObjectValue` populated with required-field defaults.
+			const value = makeDefaultValueNode(
+				arg.type,
+				getDefaultScalarArgValue,
+				makeDefaultArg,
+				parentField,
+				arg
+			);
+			if (value) {
+				argSelection = {
+					kind: 'Argument',
+					name: { kind: 'Name', value: arg.name },
+					value,
+				};
+			}
 		}
 
 		if (!argSelection) {
-			console.error('Unable to add arg for argType', argType);
+			console.error('Unable to add arg for argType', arg.type);
 			return null;
 		}
 		return this.props.modifyArguments(
@@ -74,11 +71,16 @@ class ArgView extends React.PureComponent {
 		let settingToNull = false;
 		let settingToVariable = false;
 		let settingToLiteralValue = false;
+		// Order matters: null/undefined has to come first because
+		// `event.kind` would throw on those, which the legacy catch
+		// silently swallowed — leaving every flag false and turning
+		// the call into a silent no-op (the symptom: Inline appears
+		// unclickable when a variable's defaultValue is missing).
 		try {
-			if (event.kind === 'VariableDefinition') {
-				settingToVariable = true;
-			} else if (event === null || typeof event === 'undefined') {
+			if (event === null || typeof event === 'undefined') {
 				settingToNull = true;
+			} else if (event.kind === 'VariableDefinition') {
+				settingToVariable = true;
 			} else if (typeof event.kind === 'string') {
 				settingToLiteralValue = true;
 			}

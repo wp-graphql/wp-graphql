@@ -94,6 +94,12 @@ WPGraphQL may deprecate certain functionality before fully removing or changing 
 
 Deprecations will be clearly communicated in release notes and upgrade guides, providing users with sufficient time to adapt their projects before the feature is fully removed or changed.
 
+### Removed in 3.0
+
+The next major release (**3.0**) removes long-deprecated code. Removals are tracked in the [v3.0 master tracking issue](https://github.com/wp-graphql/wp-graphql/issues/3902), and release candidates are published on the `next` branch ahead of the stable release. Notable removals so far:
+
+- **`SendPasswordResetEmailPayload.user`** — the deprecated `user` field has been removed. Select `success` instead; the `sendPasswordResetEmail` mutation intentionally exposes only `success` so it cannot be used for user enumeration.
+
 ## Support Policy
 
 WPGraphQL will support only the latest `minor.patch` version of the **last 2 major versions**. This means that older versions within a major release (e.g., `1.1.x` if `1.2.x` exists) and versions beyond this window will no longer receive official support, and users will be encouraged to upgrade to the latest version.

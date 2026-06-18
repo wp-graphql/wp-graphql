@@ -90,7 +90,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 We use [release-please](https://github.com/googleapis/release-please) for automated releases. The workflow is **component-agnostic** and works for any plugin defined in `release-please-config.json`:
 
-1. **On Push to Main**: release-please analyzes commits and creates/updates a Release PR
+1. **On Push to `main` or `next`**: release-please analyzes commits and creates/updates a Release PR for that branch's release line (see [Prerelease line](#prerelease-line-next-branch) below)
 2. **Release PR Contents**:
    - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
    - Auto-generated changelog from commit messages
@@ -110,6 +110,21 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Can be triggered via `workflow_dispatch` with `redeploy_tag` input (e.g., `wp-graphql/v2.7.0`)
 - Automatically deletes existing SVN tag before re-deployment to ensure clean deployment
 - Useful for fixing deployment issues or updating version numbers
+
+**Prerelease line (`next` branch)**:
+
+The workflow runs on both `main` and `next` (`target-branch: ${{ github.ref_name }}`), giving each branch an **independent release line**. release-please reads its config and manifest from the branch it runs on, so the two never interfere:
+
+- **`main`** → stable releases (e.g. `2.16.0`). `prerelease: false`.
+- **`next`** → the integration branch for the next major. `wp-graphql` is configured with `prerelease: true` / `prerelease-type: "rc"` in `release-please-config.json` *on that branch*, so it cuts release candidates (e.g. `3.0.0-rc.0`). Breaking changes (`feat!:` / `fix!:` / `perf!:`) for the next major target `next`, not `main`.
+
+**Prereleases are deployed to WordPress.org safely (tag-only)**: an RC must never move the `Stable tag`, or the auto-update audience would be pushed onto it. So for prerelease versions (any version containing a `-`, e.g. `3.0.0-rc.0`) the workflow:
+- **skips** the trunk-first 10up deploy and the trunk readme verification, and
+- instead runs `svn import` to publish the build to an SVN `/tags/<version>` path **only** — trunk and the `Stable tag` are left untouched.
+
+Opt-in testers can install the tagged RC while everyone else stays on the current stable release. Stable releases from `main` continue to use the 10up trunk deploy unchanged.
+
+> **Merge-back at 3.0 GA:** when `next` merges into `main`, revert `wp-graphql`'s `prerelease` back to `false` in `release-please-config.json` so `main` resumes cutting stable releases. The `target-branch` and tag-only-prerelease deploy logic are branch-agnostic and safe to keep on `main` (stable versions contain no `-`, so the prerelease path is never taken).
 
 ### Update Release PR (`update-release-pr.yml`)
 

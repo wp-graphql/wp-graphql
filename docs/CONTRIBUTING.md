@@ -42,6 +42,8 @@ Thank you for your interest in contributing to WPGraphQL! This guide covers how 
 
 **Breaking Change Marker (`!`)**: The `!` suffix can only be used with `feat`, `fix`, or `perf` prefixes. Using `!` with other prefixes (like `chore!:` or `ci!:`) will fail CI validation since those types don't trigger releases.
 
+> **⚠️ Breaking changes target the `next` branch, not `main`.** `main` is the current stable (2.x) release line; a breaking change merged there would force the next release off `main` to be a major. Breaking changes for the next major (e.g. 3.0) are collected on the long-lived **`next`** branch, which cuts release candidates. Open `feat!:` / `fix!:` / `perf!:` PRs against `next`. See [Release Process](#release-process-release-please).
+
 **Examples:**
 - `feat: add support for custom post type archives`
 - `fix: resolve N+1 query issue in connections`
@@ -103,7 +105,14 @@ See the [Testing Guide](./TESTING.md) for detailed instructions.
 
 ### Release Process (release-please)
 
-We use [release-please](https://github.com/googleapis/release-please) for automated releases:
+We use [release-please](https://github.com/googleapis/release-please) for automated releases.
+
+There are two independent release lines, one per branch:
+
+- **`main`** → current stable releases (2.x).
+- **`next`** → release candidates for the next major (e.g. `3.0.0-rc.N`). This is where breaking changes are collected. See [PR Titles and Conventional Commits](#1-pr-titles-and-conventional-commits) for which prefixes belong on `next`. Release candidates are published to a WordPress.org SVN tag only and never move the `Stable tag`, so stable users are unaffected; opt-in testers can install the tagged RC.
+
+The flow below applies to whichever branch your PR targets:
 
 1. **PR Merged**: Your PR is squash merged with a conventional commit title
 2. **Release PR Created**: release-please creates/updates a Release PR with:

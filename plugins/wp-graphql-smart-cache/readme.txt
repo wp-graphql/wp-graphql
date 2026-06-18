@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -70,6 +70,10 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
+== Screenshots ==
+
+1. The Smart Cache panel in the WPGraphQL IDE — see cache HIT/MISS, the session hit rate, TTL, the cache key, and the purge-map tags emitted for a response.
+2. Cache settings — configure the network-cache max-age, the object cache, purge-event logging, and on-demand purging.
 
 == Upgrade Notice ==
 
@@ -113,6 +117,14 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.2.1 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-smart-cache ([#3856](https://github.com/wp-graphql/wp-graphql/issues/3856))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-smart-cache ([#3860](https://github.com/wp-graphql/wp-graphql/issues/3860))
+* guard null content when regenerating document hash on updateGraphqlDocument ([#3879](https://github.com/wp-graphql/wp-graphql/issues/3879))
 
 = 2.2.0 =
 

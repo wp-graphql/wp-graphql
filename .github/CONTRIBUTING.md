@@ -65,6 +65,15 @@ The following are handled automatically by our CI/CD workflows. **Please do not 
 | Changelog entries | `CHANGELOG.md` | release-please |
 | **Upgrade Notice** | `readme.txt` | `update-release-pr.yml` workflow |
 
+### Release Lines (`main` and `next`)
+
+release-please runs on two branches, each with its own independent release line:
+
+- **`main`** — current stable (2.x) releases.
+- **`next`** — release candidates for the next major (e.g. `3.0.0-rc.N`), and the home for breaking changes. RCs deploy to a WordPress.org SVN tag only and never move the `Stable tag`, so stable users stay put.
+
+**Breaking changes (`feat!:` / `fix!:` / `perf!:`) target `next`, not `main`** — merging one into `main` would force its next release to be a major. See the [workflows README](workflows/README.md#prerelease-line-next-branch) for the full mechanics.
+
 ### Breaking Changes & Upgrade Notices
 
 When a release contains breaking changes (commits with `feat!:`, `fix!:`, or `perf!:` prefix):

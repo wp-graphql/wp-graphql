@@ -35,6 +35,45 @@
   --color-orange-wpg-500: hsl(27 100% 44%);
   --color-orange-wpg-600: hsl(26 100% 38%);
 
+  /* ── Violet (WPGraphQL IDE sibling-brand accent) — shared navy foundation, violet accent.
+     Values from the IDE brand guide (ide-theme/family-globals.css); -800/-900 extrapolated. ── */
+  --color-violet-50:  hsl(267 87% 95%);
+  --color-violet-100: hsl(267 69% 85%);
+  --color-violet-200: hsl(267 83% 76%);
+  --color-violet-300: hsl(267 89% 65%);   /* IDE PRIMARY ACCENT (dark mode) — #A78BFA */
+  --color-violet-400: hsl(268 82% 58%);
+  --color-violet-500: hsl(268 65% 47%);   /* IDE PRIMARY ACCENT (light mode) */
+  --color-violet-600: hsl(268 63% 37%);
+  --color-violet-700: hsl(268 61% 26%);
+  --color-violet-800: hsl(268 58% 19%);
+  --color-violet-900: hsl(268 54% 13%);
+
+  /* ── Emerald (WPGraphQL for ACF sibling-brand accent) — shared navy foundation, emerald accent.
+     Values from the ACF brand guide (acf-theme/family-globals.css); -800/-900 extrapolated. ── */
+  --color-emerald-50:  hsl(151 81% 94%);
+  --color-emerald-100: hsl(152 76% 68%);
+  --color-emerald-200: hsl(156 72% 53%);
+  --color-emerald-300: hsl(160 84% 39%);   /* ACF PRIMARY ACCENT (dark mode) — #10B981 */
+  --color-emerald-400: hsl(158 64% 32%);   /* ACF PRIMARY ACCENT (light mode) */
+  --color-emerald-500: hsl(160 84% 25%);
+  --color-emerald-600: hsl(162 88% 19%);
+  --color-emerald-700: hsl(162 91% 17%);
+  --color-emerald-800: hsl(163 90% 13%);
+  --color-emerald-900: hsl(164 88% 9%);
+
+  /* ── Rose (WPGraphQL Smart Cache sibling-brand accent) — shared navy foundation, rose accent.
+     Values from the Smart Cache brand guide (sc-theme/family-globals.css); 50/100/800/900 extrapolated. ── */
+  --color-rose-50:  hsl(344 100% 97%);
+  --color-rose-100: hsl(343 100% 90%);
+  --color-rose-200: hsl(343 97% 73%);
+  --color-rose-300: hsl(343 90% 60%);   /* SMART CACHE PRIMARY ACCENT (dark mode) — #F43F5E */
+  --color-rose-400: hsl(343 80% 50%);   /* SMART CACHE PRIMARY ACCENT (light mode) */
+  --color-rose-500: hsl(343 82% 42%);
+  --color-rose-600: hsl(343 80% 35%);
+  --color-rose-700: hsl(343 74% 30%);
+  --color-rose-800: hsl(343 70% 24%);
+  --color-rose-900: hsl(343 66% 17%);
+
   /* ── Typography — fonts ──
      `--font-bricolage` and `--font-dm-mono` are injected onto <html> by next/font/google
      in src/lib/fonts.js. We provide system fallbacks here. */
@@ -68,10 +107,13 @@
   --text-headline--letter-spacing: -0.02em;
   --text-headline--font-weight: 600;
 
-  /* ── Shadows — orange glow + navy elevation ── */
-  --shadow-glow-sm: 0 0 12px -2px hsl(30 100% 55% / 0.25);
-  --shadow-glow-md: 0 0 24px -4px hsl(30 100% 55% / 0.30);
-  --shadow-glow-lg: 0 0 40px -8px hsl(30 100% 55% / 0.35);
+  /* ── Shadows — accent glow + navy elevation ──
+     Glow color is driven by --glow (an HSL triple) so scoped themes like
+     .theme-ide can re-tint every shadow-glow-* utility without new classes.
+     Default --glow is the WPGraphQL orange accent (see :root below). ── */
+  --shadow-glow-sm: 0 0 12px -2px hsl(var(--glow) / 0.25);
+  --shadow-glow-md: 0 0 24px -4px hsl(var(--glow) / 0.30);
+  --shadow-glow-lg: 0 0 40px -8px hsl(var(--glow) / 0.35);
   --shadow-elev-sm: 0 1px 3px 0 hsl(222 47% 4% / 0.4), 0 1px 2px -1px hsl(222 47% 4% / 0.4);
   --shadow-elev-md: 0 4px 12px -2px hsl(222 47% 4% / 0.5), 0 2px 4px -2px hsl(222 47% 4% / 0.3);
   --shadow-elev-lg: 0 12px 32px -4px hsl(222 47% 4% / 0.6), 0 4px 8px -4px hsl(222 47% 4% / 0.3);
@@ -111,8 +153,8 @@
   to   { transform: translateX(0); }
 }
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 12px -2px hsl(30 100% 55% / 0.2); }
-  50%      { box-shadow: 0 0 24px -2px hsl(30 100% 55% / 0.5); }
+  0%, 100% { box-shadow: 0 0 12px -2px hsl(var(--glow) / 0.2); }
+  50%      { box-shadow: 0 0 24px -2px hsl(var(--glow) / 0.5); }
 }
 
 /* ============================================================
@@ -176,6 +218,11 @@
   --input:                  224 43% 21%;
   --ring:                   30 100% 55%;
 
+  /* Accent glow color (HSL triple) consumed by --shadow-glow-* and glow-pulse.
+     Default = WPGraphQL orange; scoped themes (.theme-ide) override it.
+     Light mode intentionally inherits this value, matching prior behavior. */
+  --glow:                   30 100% 55%;
+
   /* Body-text tier — softer than --foreground for long-form copy.
      navy-200 (#A3B4CC) on dark bg = brand "text-secondary". */
   --body-text:              219 23% 73%;
@@ -224,6 +271,55 @@
   /* Body-text tier in light mode — navy-700 (#1E2D50). Dark enough to
      read against the navy-50 background but softer than --foreground. */
   --body-text:              224 43% 21%;
+}
+
+/* ============================================================
+   SIBLING-BRAND THEME SCOPES — per-product accent overrides
+
+   Mirrors the IDE brand guide's family-globals.css. Apply the class to any
+   wrapper (e.g. an extension landing page body) and every accent-driven
+   utility inside it — text-primary, bg-primary, ring, shadow-glow-* —
+   re-tints to that product's color. The shared navy foundation, surfaces,
+   and light/dark behavior are inherited unchanged. --primary-foreground is
+   left as inherited: the navy foreground reads on violet-300 (dark), and the
+   .light block already supplies a near-white foreground for violet-500.
+
+   WPGraphQL (orange) is the default and needs no scope. Future siblings
+   (.theme-acf, Smart Cache) add their own block here.
+   ============================================================ */
+.theme-ide {
+  --primary:        267 89% 65%;  /* violet-300 */
+  --ring:           267 89% 65%;
+  --glow:           267 89% 65%;
+  --ide-status-bar: 268 65% 47%;  /* violet-500 */
+}
+.light .theme-ide {
+  --primary:        268 65% 47%;  /* violet-500 */
+  --ring:           268 65% 47%;
+  --glow:           268 65% 47%;
+  --ide-status-bar: 268 63% 37%;  /* violet-600 */
+}
+
+.theme-acf {
+  --primary:        160 84% 39%;  /* emerald-300 */
+  --ring:           160 84% 39%;
+  --glow:           160 84% 39%;
+}
+.light .theme-acf {
+  --primary:        158 64% 32%;  /* emerald-400 */
+  --ring:           158 64% 32%;
+  --glow:           158 64% 32%;
+}
+
+.theme-smart-cache {
+  --primary:        343 90% 60%;  /* rose-300 */
+  --ring:           343 90% 60%;
+  --glow:           343 90% 60%;
+}
+.light .theme-smart-cache {
+  --primary:        343 80% 50%;  /* rose-400 */
+  --ring:           343 80% 50%;
+  --glow:           343 80% 50%;
 }
 
 /* ============================================================

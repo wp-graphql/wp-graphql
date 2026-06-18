@@ -47,6 +47,11 @@ on:
   push:
     branches:
       - main
+      # The `next` branch is the integration line for the next major (e.g. 3.0).
+      # release-please runs against it as a separate release line that cuts
+      # prereleases (see `prerelease`/`prerelease-type` in release-please-config.json
+      # on this branch). Stable releases still come only from `main`.
+      - next
   workflow_dispatch:
     inputs:
       debug:
@@ -83,6 +88,11 @@ jobs:
           token: ${{ secrets.REPO_PAT }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # Maintain an independent release line per branch: `main` -> stable,
+          # `next` -> prerelease. github.ref_name is the branch that triggered
+          # the run, and release-please reads its config + manifest from that
+          # same branch, so each line stays self-contained.
+          target-branch: ${{ github.ref_name }}
 
       - name: Detect components with releases
         id: components
@@ -310,6 +320,19 @@ jobs:
             echo "Deploying new release: ${COMPONENT} v${VERSION} (tag: ${TAG})"
           fi
 
+          # Treat anything that isn't a release from `main` as a prerelease. Stable
+          # WordPress.org deploys (trunk + Stable tag) come ONLY from `main`; every other
+          # branch (notably `next`) deploys to an SVN tag only and never moves the Stable
+          # tag. We also treat any SemVer-prerelease version (e.g. 3.0.0-rc.0) as a
+          # prerelease. Keying on the branch — not just the version string — is the safety
+          # net: even if release-please ever emits a non-`-rc` version on a non-main branch,
+          # it can never publish to the stable channel.
+          if [[ "$GITHUB_REF_NAME" != "main" || "$VERSION" == *"-"* ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
           echo "Component: $COMPONENT"
           echo "Package path: $PACKAGE_PATH"
           echo "Version: $VERSION"
@@ -318,7 +341,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || 'main' }}
+          # New releases build from the branch that triggered the run (main -> stable,
+          # next -> prerelease); re-deploys build from the release tag.
+          ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || github.ref_name }}
           fetch-depth: 0
 
       - name: Setup PHP
@@ -522,6 +547,10 @@ jobs:
           echo "✅ SVN tag ${VERSION} deleted (or didn't exist)"
 
       - name: WordPress Plugin Deploy
+        # Stable releases only. This 10up action is trunk-first: it syncs BUILD_DIR to
+        # trunk and moves the Stable tag, so it must never run for a prerelease (which
+        # is published to a tag-only SVN path in the dedicated step below).
+        if: steps.plugin_info.outputs.is_prerelease != 'true'
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -531,13 +560,22 @@ jobs:
           # wp-graphql-smart-cache (component) -> wpgraphql-smart-cache (WordPress.org slug)
           SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           BUILD_DIR: plugin-build/${{ matrix.component }}
+          # WordPress.org assets (banners/icons/screenshots) live in each plugin's
+          # source .wordpress-org dir. The 10up action defaults ASSETS_DIR to a
+          # repo-root .wordpress-org, which does not exist in this monorepo, so it
+          # logged "No assets directory found; skipping asset copy" and never synced
+          # the SVN assets/ folder. Point it at the source dir (always present, and
+          # independent of .distignore, which excludes .wordpress-org from BUILD_DIR).
+          ASSETS_DIR: ${{ steps.plugin_info.outputs.package_path }}/.wordpress-org
           VERSION: ${{ steps.plugin_info.outputs.version }}
           # Note: The 10up action should sync BUILD_DIR to SVN trunk
           # If it's not updating readme.txt, it might be reading from the source tag
           # We've updated BUILD_DIR/readme.txt, so it should sync correctly
 
       - name: Verify and fix SVN trunk readme.txt if needed
-        # The 10up action may not update readme.txt correctly, so we manually verify and fix it
+        # The 10up action may not update readme.txt correctly, so we manually verify and fix it.
+        # Stable releases only — prereleases never touch trunk.
+        if: steps.plugin_info.outputs.is_prerelease != 'true'
         env:
           WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           MATRIX_COMPONENT: ${{ matrix.component }}
@@ -568,6 +606,47 @@ jobs:
           else
             echo "⚠️  readme.txt not found in BUILD_DIR"
           fi
+
+      - name: Deploy prerelease to WordPress.org SVN tag only
+        # Prereleases (e.g. 3.0.0-rc.0) are published as an SVN /tags/<version> entry
+        # WITHOUT touching trunk or trunk's readme "Stable tag". WordPress.org serves
+        # the stable download from the tag that trunk's Stable tag points at, so leaving
+        # trunk untouched guarantees the auto-update audience stays on the current stable
+        # release while opt-in testers can install the tagged RC. This intentionally
+        # bypasses the trunk-first 10up action above.
+        if: steps.plugin_info.outputs.is_prerelease == 'true'
+        env:
+          WP_ORG_SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
+          MATRIX_COMPONENT: ${{ matrix.component }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          COMPONENT="$MATRIX_COMPONENT"
+          VERSION="$PLUGIN_VERSION"
+          BUILD_DIR="plugin-build/${COMPONENT}"
+          SVN_URL="https://plugins.svn.wordpress.org/${WP_ORG_SLUG}"
+          TAG_URL="${SVN_URL}/tags/${VERSION}"
+
+          echo "🚀 Publishing prerelease ${VERSION} to ${TAG_URL}"
+          echo "    (tag-only deploy — trunk and the Stable tag are left untouched)"
+
+          # Make reruns idempotent: drop an existing tag of the same version first.
+          if svn info "${TAG_URL}" --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive >/dev/null 2>&1; then
+            echo "ℹ️  Tag ${VERSION} already exists; removing it before re-import."
+            svn delete "${TAG_URL}" \
+              -m "Remove ${VERSION} prerelease tag for clean re-import" \
+              --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive
+          fi
+
+          # `svn import` creates the tag path directly with no working copy and never
+          # references trunk, so trunk's Stable tag is guaranteed to be left as-is.
+          svn import "${BUILD_DIR}" "${TAG_URL}" \
+            -m "Release candidate ${VERSION} (prerelease tag; not promoted to stable)" \
+            --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive
+
+          echo "✅ Prerelease ${VERSION} published to SVN tag. Stable channel unchanged."
 
       - name: Create plugin zip artifact
         env:

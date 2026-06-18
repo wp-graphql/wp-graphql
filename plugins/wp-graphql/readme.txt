@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.14.1
+Stable tag: 2.15.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -71,7 +71,16 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
+== Screenshots ==
+
+1. The WPGraphQL IDE — write a GraphQL query with schema-aware autocomplete, run it, and inspect the JSON response, timing, resolver count, and response headers.
+2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
+
 == Upgrade Notice ==
+
+= 2.15.1 =
+
+**Security release.** Fixes a user-enumeration issue in the `sendPasswordResetEmail` mutation via the deprecated `user` payload field. Updating is recommended. See GHSA-jhh7-832h-f8hv.
 
 = 2.6.0 =
 
@@ -301,6 +310,31 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 2.15.1 =
+
+**Security**
+
+* prevent user enumeration via the deprecated `SendPasswordResetEmailPayload.user` field; it is now gated on the `list_users` capability. See [GHSA-jhh7-832h-f8hv](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-jhh7-832h-f8hv)
+
+**Bug Fixes**
+
+* **ci:** deploy WordPress.org assets via ASSETS_DIR + dedicated asset-update workflow ([#3880](https://github.com/wp-graphql/wp-graphql/issues/3880))
+
+= 2.15.0 =
+
+**New Features**
+
+* **deps:** bump @wordpress/hooks from 3.58.0 to 4.44.0 ([#3853](https://github.com/wp-graphql/wp-graphql/issues/3853))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 7 updates ([#3865](https://github.com/wp-graphql/wp-graphql/issues/3865))
+* resolve WPGraphQL settings outside the admin (at the /graphql endpoint) ([#3878](https://github.com/wp-graphql/wp-graphql/issues/3878))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @wordpress/babel-preset-default from 7.42.0 to 8.45.0 ([#3871](https://github.com/wp-graphql/wp-graphql/issues/3871))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql ([#3858](https://github.com/wp-graphql/wp-graphql/issues/3858))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql ([#3859](https://github.com/wp-graphql/wp-graphql/issues/3859))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#3849](https://github.com/wp-graphql/wp-graphql/issues/3849))
+
 = 2.14.1 =
 
 **Bug Fixes**
@@ -438,7 +472,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.14.1
+* replace x-release-please-version placeholders with 2.15.1
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =

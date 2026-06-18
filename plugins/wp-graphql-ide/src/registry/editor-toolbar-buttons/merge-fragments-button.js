@@ -1,12 +1,13 @@
-import { MergeIcon } from '@graphiql/react';
+import { __ } from '@wordpress/i18n';
 import { select, dispatch } from '@wordpress/data';
+import { MERGE_LABEL } from '../../utils/shortcut-labels';
 
 export const mergeFragmentsButton = () => {
 	return {
-		label: 'Merge fragments into query (Shift-Ctrl-M)',
-		children: (
-			<MergeIcon className="graphiql-toolbar-icon" aria-hidden="true" />
-		),
+		label: __('Merge fragments into query', 'wpgraphql-ide'),
+		children: __('Merge', 'wpgraphql-ide'),
+		shortcut: MERGE_LABEL,
+		mutates: true,
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();
 			dispatch('wpgraphql-ide/app').mergeQuery(query);

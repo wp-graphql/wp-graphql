@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 6.5
 Requires PHP: 7.3
-Stable tag: 2.6.1
+Stable tag: 2.6.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -104,6 +104,12 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Learn more about how [Appsero collects and uses data](https://appsero.com/privacy-policy/).
 
+== Screenshots ==
+
+1. Configure a Field Group for GraphQL — toggle "Show in GraphQL", set the GraphQL type name, and choose which schema types it shows on.
+2. ACF field groups and fields appear automatically in the GraphQL schema, explored here in the WPGraphQL IDE.
+3. Per-field GraphQL settings — control the field's GraphQL name, description, and nullability in the schema.
+
 == Upgrade Notice ==
 
 = 2.3.0 =
@@ -121,6 +127,14 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://acf.wpgraphql.com/upgrade-guide/) before upgrading.
 
 == Changelog ==
+
+= 2.6.2 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.9.0 to 2.10.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3873](https://github.com/wp-graphql/wp-graphql/issues/3873))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-acf ([#3855](https://github.com/wp-graphql/wp-graphql/issues/3855))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-acf ([#3862](https://github.com/wp-graphql/wp-graphql/issues/3862))
 
 = 2.6.1 =
 
