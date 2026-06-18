@@ -2,7 +2,7 @@
 Contributors: jasonbahl
 Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
-Tested up to: 6.5
+Tested up to: 7.0
 Requires PHP: 7.3
 Stable tag: 2.6.3
 License: GPL-3

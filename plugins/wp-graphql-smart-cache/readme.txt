@@ -2,7 +2,7 @@
 Contributors: jasonbahl, markkelnar
 Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 2.2.1
 Requires WPGraphQL: 2.0.0
