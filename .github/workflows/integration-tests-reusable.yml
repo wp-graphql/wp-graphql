@@ -104,22 +104,24 @@ jobs:
     env:
       WP_ENV_PHP_VERSION: ${{ inputs.php }}
       WP_ENV_CORE: ${{ inputs.wp == 'trunk' && 'WordPress/WordPress' || format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
-      # Pin wp-env's home to a fixed absolute path for the whole job. By default
-      # @wordpress/env derives this per-invocation: `~/wp-env` when `/snap`
-      # exists, else `~/.wp-env` (see @wordpress/env's get-cache-directory.js,
-      # which does a live `fs.stat('/snap')` on every command). On GitHub runners
-      # that check can resolve inconsistently between the `start` step and a later
-      # `run` step, so they point at different instance directories and `run`
-      # fails intermittently with "Environment not initialized. Run `wp-env start`
-      # first." (a fresh job re-run clears it). Pinning WP_ENV_HOME removes that
-      # branch so every step in the job resolves the same instance.
-      WP_ENV_HOME: ${{ runner.temp }}/wp-env
 
     steps:
       - name: Configure environment variables
         run: |
           echo "PHP_FPM_UID=$(id -u)" >> "$GITHUB_ENV"
           echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
+          # Pin wp-env's home to a fixed absolute path for the whole job. By
+          # default @wordpress/env derives this per-invocation: `~/wp-env` when
+          # `/snap` exists, else `~/.wp-env` (see get-cache-directory.js, which
+          # does a live `fs.stat('/snap')` on every command). On GitHub runners
+          # that check can resolve inconsistently between the `start` step and a
+          # later `run` step, so they point at different instance directories and
+          # `run` fails intermittently with "Environment not initialized. Run
+          # `wp-env start` first." (a fresh job re-run clears it). Pinning
+          # WP_ENV_HOME removes that branch so every step resolves the same
+          # instance. (Set here via $GITHUB_ENV because the `runner` context is
+          # not available in a job-level `env:` block.)
+          echo "WP_ENV_HOME=${RUNNER_TEMP}/wp-env" >> "$GITHUB_ENV"
 
       - name: Checkout repository
         uses: actions/checkout@v7
