@@ -104,6 +104,16 @@ jobs:
     env:
       WP_ENV_PHP_VERSION: ${{ inputs.php }}
       WP_ENV_CORE: ${{ inputs.wp == 'trunk' && 'WordPress/WordPress' || format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
+      # Pin wp-env's home to a fixed absolute path for the whole job. By default
+      # @wordpress/env derives this per-invocation: `~/wp-env` when `/snap`
+      # exists, else `~/.wp-env` (see @wordpress/env's get-cache-directory.js,
+      # which does a live `fs.stat('/snap')` on every command). On GitHub runners
+      # that check can resolve inconsistently between the `start` step and a later
+      # `run` step, so they point at different instance directories and `run`
+      # fails intermittently with "Environment not initialized. Run `wp-env start`
+      # first." (a fresh job re-run clears it). Pinning WP_ENV_HOME removes that
+      # branch so every step in the job resolves the same instance.
+      WP_ENV_HOME: ${{ runner.temp }}/wp-env
 
     steps:
       - name: Configure environment variables
@@ -199,24 +209,10 @@ jobs:
           command: |
             ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
-      # `wp-env start` can report success a beat before the instance is fully
-      # queryable, so the first `wp-env run` after it intermittently fails with
-      # "Environment not initialized. Run `wp-env start` first." A manual job
-      # re-run "fixes" it, which is the tell-tale sign of a start/run race rather
-      # than a real problem. Retry to absorb the race in-job. This is also the
-      # first command to touch each environment after start, so it doubles as a
-      # readiness gate for the test steps below (it exercises both the dev `cli`
-      # and the `tests-cli` the suite actually uses).
-      - name: Log versions (waits for wp-env to be ready)
-        uses: nick-fields/retry@v4
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          retry_wait_seconds: 10
-          command: |
-            npm run wp-env -- run cli php -- -v
-            npm run wp-env -- run cli wp core version
-            npm run wp-env -- run tests-cli wp core version
+      - name: Log versions
+        run: |
+          npm run wp-env -- run cli php -- -v
+          npm run wp-env -- run cli wp core version
 
       - name: Activate test theme
         run: |
