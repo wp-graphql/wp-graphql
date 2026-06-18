@@ -78,7 +78,7 @@
     "postcss-import": "^16.1.1",
     "prettier": "^3.8.4",
     "tailwindcss": "^4.2.4",
-    "typescript": "^4.8.4"
+    "typescript": "^5.9.3"
   },
   "overrides": {
     "@babel/runtime": "^7.27.6",
