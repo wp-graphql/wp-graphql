@@ -42,7 +42,7 @@ jobs:
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check if release-please PR
         id: check-release-pr
