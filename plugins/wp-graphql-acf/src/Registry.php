@@ -324,22 +324,48 @@ class Registry {
 		$clone_field_interfaces = [];
 		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field ) {
-				// if the field is a clone field, track it
-				if ( ! empty( $field['clone'] ) && is_array( $field['clone'] ) ) {
-					foreach ( $field['clone'] as $clone_field ) {
-						$cloned_group = acf_get_field_group( $clone_field );
+				// Only whole-group seamless clones WITHOUT a prefix flatten the
+				// source group's fields onto the parent type. For those, we
+				// attach the source group's `_Fields` interface here so the
+				// parent type inherits the source fields.
+				//
+				// Skip the interface attachment when:
+				//  - prefix_name=1: the source fields live under the clone's
+				//    prefixed wrapper type, not flat on the parent. Attaching
+				//    the interface here would "spill" the source fields onto
+				//    the parent in addition to their prefixed location.
+				//  - display=group: the source fields live inside a wrapper
+				//    object named after the clone field; same reason.
+				//  - clone[] is not a field-group key: cherry-picked clones
+				//    have no source group to attach an interface for.
+				//
+				// @see https://github.com/wp-graphql/wpgraphql-acf/issues/269
+				if ( empty( $field['clone'] ) || ! is_array( $field['clone'] ) ) {
+					continue;
+				}
 
-						if ( ! $cloned_group ) {
-							continue;
-						}
+				if ( ! empty( $field['prefix_name'] ) ) {
+					continue;
+				}
 
-						if ( ! $this->should_field_group_show_in_graphql( $cloned_group ) ) {
-							continue;
-						}
+				$display = $field['display'] ?? 'seamless';
+				if ( 'seamless' !== $display ) {
+					continue;
+				}
 
-						$cloned_type_name         = $this->get_field_group_graphql_type_name( $cloned_group );
-						$clone_field_interfaces[] = $cloned_type_name . '_Fields';
+				foreach ( $field['clone'] as $clone_field ) {
+					$cloned_group = acf_get_field_group( $clone_field );
+
+					if ( ! $cloned_group ) {
+						continue;
 					}
+
+					if ( ! $this->should_field_group_show_in_graphql( $cloned_group ) ) {
+						continue;
+					}
+
+					$cloned_type_name         = $this->get_field_group_graphql_type_name( $cloned_group );
+					$clone_field_interfaces[] = $cloned_type_name . '_Fields';
 				}
 			}
 		}
@@ -522,6 +548,7 @@ class Registry {
 		];
 
 		$fields = $acf_field_group['sub_fields'] ?? $this->get_acf_fields( $acf_field_group );
+		$fields = $this->expand_cherry_picked_clone_fields( $fields );
 
 		foreach ( $fields as $acf_field ) {
 			$graphql_field_name = $this->get_graphql_field_name( $acf_field );
@@ -536,6 +563,86 @@ class Registry {
 		}
 
 		return $graphql_fields;
+	}
+
+	/**
+	 * Inline-expand seamless clone fields whose `clone[]` selectors are all field
+	 * keys (i.e. cherry-picked individual fields rather than a whole field group).
+	 *
+	 * For whole-group clones we rely on `get_field_group_interfaces()` to apply
+	 * the source group's `_Fields` interface to the parent type. Cherry-picked
+	 * clones have no source group to attach an interface to, so the fields are
+	 * silently dropped unless we splice them into the parent's field list here.
+	 *
+	 * This mirrors ACF Pro's own `acf_field_clone::acf_get_fields()` splice
+	 * (called via the `acf/get_fields` filter), but restricted to the
+	 * cherry-picked + seamless + no-prefix shape so it cannot collide with the
+	 * interface-based path used for whole-group clones.
+	 *
+	 * @see https://github.com/wp-graphql/wpgraphql-acf/issues/258
+	 *
+	 * @param array<mixed> $fields Raw ACF fields for the parent group/layout.
+	 *
+	 * @return array<mixed>
+	 */
+	public function expand_cherry_picked_clone_fields( array $fields ): array {
+		if ( ! function_exists( 'acf_is_field_key' ) || ! function_exists( 'acf_get_field' ) ) {
+			return $fields;
+		}
+
+		$expanded = [];
+
+		foreach ( $fields as $field ) {
+			if ( ! $this->is_cherry_picked_seamless_clone( $field ) ) {
+				$expanded[] = $field;
+				continue;
+			}
+
+			$clone_selectors = $field['clone'];
+
+			foreach ( $clone_selectors as $selector ) {
+				$cloned = acf_get_field( $selector );
+				if ( empty( $cloned ) ) {
+					continue;
+				}
+				$expanded[] = $cloned;
+			}
+		}
+
+		return $expanded;
+	}
+
+	/**
+	 * Whether $field is a clone field whose `clone[]` selectors are all field
+	 * keys (not field-group keys), with seamless display and no prefix.
+	 *
+	 * @param mixed $field A raw ACF field.
+	 */
+	private function is_cherry_picked_seamless_clone( $field ): bool {
+		if ( ! is_array( $field ) || ( $field['type'] ?? '' ) !== 'clone' ) {
+			return false;
+		}
+
+		if ( 'seamless' !== ( $field['display'] ?? 'seamless' ) ) {
+			return false;
+		}
+
+		if ( ! empty( $field['prefix_name'] ) ) {
+			return false;
+		}
+
+		$selectors = $field['clone'] ?? [];
+		if ( ! is_array( $selectors ) || empty( $selectors ) ) {
+			return false;
+		}
+
+		foreach ( $selectors as $selector ) {
+			if ( ! is_string( $selector ) || ! acf_is_field_key( $selector ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
