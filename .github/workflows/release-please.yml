@@ -316,7 +316,7 @@ jobs:
           echo "Tag: $TAG"
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || 'main' }}
           fetch-depth: 0
