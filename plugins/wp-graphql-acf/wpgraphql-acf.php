@@ -8,7 +8,7 @@
  * Text Domain: wpgraphql-acf
  * Requires PHP: 7.3
  * Requires at least: 5.9
- * Tested up to: 6.5
+ * Tested up to: 7.0
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Requires Plugins: wp-graphql

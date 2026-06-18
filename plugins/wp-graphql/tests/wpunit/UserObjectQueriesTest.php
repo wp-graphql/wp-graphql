@@ -1104,8 +1104,14 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		// Default admin color in WordPress is 'fresh'
-		$this->assertEquals( 'fresh', $actual['data']['user']['adminColor'] );
+		// Derive the expected admin color the same way the resolver does
+		// ( WPGraphQL\Model\User: get_user_option( 'admin_color' ) with a 'fresh'
+		// fallback ) instead of hardcoding it. WordPress 7.0 changed the default
+		// scheme from 'fresh' to 'modern', and hardcoding made this assertion
+		// brittle across WordPress versions.
+		$expected_admin_color = get_user_option( 'admin_color', $user_id );
+		$expected_admin_color = ! empty( $expected_admin_color ) ? $expected_admin_color : 'fresh';
+		$this->assertEquals( $expected_admin_color, $actual['data']['user']['adminColor'] );
 		// Rich editing defaults to enabled
 		$this->assertTrue( $actual['data']['user']['hasRichEditingEnabled'] );
 		// Syntax highlighting defaults to enabled

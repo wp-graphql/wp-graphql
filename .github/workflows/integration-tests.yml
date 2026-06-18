@@ -158,7 +158,7 @@ jobs:
   # certainly pass for versions in between.
   #
   # - 4 coverage jobs: Latest WP/PHP with all theme × multisite combos
-  # - 3 boundary jobs: Current stable, mid-range, oldest supported
+  # - 3 boundary jobs: Previous stable, mid-range, oldest supported
   # - 1 experimental: WordPress trunk (allowed to fail)
   #
   # Update this matrix when new WP/PHP versions are released:
@@ -166,13 +166,13 @@ jobs:
   # - PHP support: https://www.php.net/supported-versions.php
   # - WP PHP requirements: https://make.wordpress.org/core/handbook/references/php-compatibility-and-target-versions/
   #
-  # Last updated: 2026-01-21
+  # Last updated: 2026-06-18
   # ===========================================
 
   # Job naming strategy:
   # - Parent job name: "Integration: plugin / WP X.X / PHP X.X"
   # - Child job name: "theme (modifiers)" (from reusable workflow)
-  # - Full name in branch protection: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / twentytwentyfive 📊"
+  # - Full name in branch protection: "Integration: wp-graphql / WP 7.0 / PHP 8.4 / twentytwentyfive 📊"
   wp-graphql:
     name: 'Integration: ${{ matrix.name }}'
     needs: detect-changes
@@ -186,34 +186,34 @@ jobs:
       matrix:
         include:
           # Coverage jobs: Latest WP/PHP with all theme × multisite combinations
-          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+          - name: 'wp-graphql / WP 7.0 / PHP 8.4'
             php: '8.4'
-            wp: '6.9'
+            wp: '7.0'
             theme: twentytwentyfive
             multisite: false
             coverage: true
-          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+          - name: 'wp-graphql / WP 7.0 / PHP 8.4'
             php: '8.4'
-            wp: '6.9'
+            wp: '7.0'
             theme: twentytwentyfive
             multisite: true
             coverage: true
-          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+          - name: 'wp-graphql / WP 7.0 / PHP 8.4'
             php: '8.4'
-            wp: '6.9'
+            wp: '7.0'
             theme: twentytwentyone
             multisite: false
             coverage: true
-          - name: 'wp-graphql / WP 6.9 / PHP 8.4'
+          - name: 'wp-graphql / WP 7.0 / PHP 8.4'
             php: '8.4'
-            wp: '6.9'
+            wp: '7.0'
             theme: twentytwentyone
             multisite: true
             coverage: true
-          # Boundary: Current stable
-          - name: 'wp-graphql / WP 6.8 / PHP 8.3'
+          # Boundary: Previous stable
+          - name: 'wp-graphql / WP 6.9 / PHP 8.3'
             php: '8.3'
-            wp: '6.8'
+            wp: '6.9'
             theme: twentytwentyfive
             multisite: false
             coverage: false
@@ -273,16 +273,16 @@ jobs:
       matrix:
         include:
           # Coverage job: Latest WP/PHP
-          - name: 'wp-graphql-smart-cache / WP 6.9 / PHP 8.4'
+          - name: 'wp-graphql-smart-cache / WP 7.0 / PHP 8.4'
             php: '8.4'
-            wp: '6.9'
+            wp: '7.0'
             theme: twentytwentyfive
             multisite: false
             coverage: true
-          # Boundary: Current stable
-          - name: 'wp-graphql-smart-cache / WP 6.8 / PHP 8.3'
+          # Boundary: Previous stable
+          - name: 'wp-graphql-smart-cache / WP 6.9 / PHP 8.3'
             php: '8.3'
-            wp: '6.8'
+            wp: '6.9'
             theme: twentytwentyfive
             multisite: false
             coverage: false
@@ -401,7 +401,7 @@ jobs:
         id: set-matrix
         run: |
           FULL_MATRIX='{"include":[
-            {"name":"wp-graphql-acf / WP 6.9 / PHP 8.4 / ACF Pro + ACF Extended Pro","php":"8.4","wp":"6.9","theme":"twentytwentyfive","multisite":false,"coverage":true,"acf_pro":true,"acf_extended":true,"acf_extended_pro":true,"experimental":false},
+            {"name":"wp-graphql-acf / WP 7.0 / PHP 8.4 / ACF Pro + ACF Extended Pro","php":"8.4","wp":"7.0","theme":"twentytwentyfive","multisite":false,"coverage":true,"acf_pro":true,"acf_extended":true,"acf_extended_pro":true,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Pro","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free + ACF Extended Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":true,"acf_extended_pro":false,"experimental":false},
