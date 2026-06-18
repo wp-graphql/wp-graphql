@@ -1,10 +1,11 @@
 <?php
 /**
  * Plugin Name:       WPGraphQL IDE
+ * Plugin URI:        https://wordpress.org/plugins/wpgraphql-ide/
  * Description:       A next-gen query editor for WPGraphQL.
- * Author:            WPGraphQL, Joseph Fusco
- * Author URI:        https://github.com/josephfusco
- * GitHub Plugin URI: https://github.com/wp-graphql/wpgraphql-ide
+ * Author:            WPGraphQL
+ * Author URI:        https://www.wpgraphql.com
+ * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
  * License:           GPL-3
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       wpgraphql-ide
@@ -128,6 +129,7 @@ function initialize_plugin() {
 	add_filter( 'graphql_setting_field_config', [ \WPGraphQLIDE\SettingsPage::class, 'rewrite_legacy_graphiql_link' ], 10, 3 );
 	add_filter( 'graphql_get_setting_section_field_value', [ \WPGraphQLIDE\SettingsPage::class, 'force_legacy_graphiql_off' ], 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ \WPGraphQLIDE\AdminUI::class, 'add_settings_link' ] );
+	add_filter( 'plugin_row_meta', [ \WPGraphQLIDE\AdminUI::class, 'add_plugin_row_meta' ], 10, 2 );
 
 	// Scope REST queries to the current user's own documents.
 	// `graphql_document` is Smart Cache's saved-document post type — the
