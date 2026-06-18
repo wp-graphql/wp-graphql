@@ -549,3 +549,13 @@
 	border-color: var(--wp-admin-theme-color, #3858e9);
 	color: var(--wp-admin-theme-color, #3858e9);
 }
+
+/* Cursor-target highlight: the row matching the editor cursor briefly tints
+   with the WP admin accent so the user can orient when the composer scrolls
+   to it. The class is added by ExplorerView for ~1.5s, then removed —
+   the transition fades the residual background out. */
+#wpgraphql-ide-app .wpgraphql-ide-query-composer-inline .graphiql-explorer-row.graphiql-explorer-row--cursor-target {
+	background: rgba(var(--wp-admin-theme-color--rgb, 56, 88, 233), 0.18);
+	box-shadow: inset 2px 0 0 var(--wp-admin-theme-color, #3858e9);
+	transition: background-color 1.2s ease-out, box-shadow 1.2s ease-out;
+}
