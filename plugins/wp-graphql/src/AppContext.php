@@ -291,8 +291,8 @@ class AppContext {
 		// Warn about accessing the loaders property directly.
 		_doing_it_wrong(
 			__METHOD__,
-			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ), //phpcs:ignore PHPCS.Functions.VersionParameter.InvalidVersion -- @todo Fix this smell.
-			'2.3.2' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
+			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ),
+			'2.3.2'
 		);
 
 		// Return the actual loaders array.

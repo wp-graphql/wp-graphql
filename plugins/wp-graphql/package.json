@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql",
-	"version": "2.15.1",
+	"version": "2.16.0",
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -51,7 +51,7 @@
 	"dependencies": {
 		"@ant-design/icons": "6.2.5",
 		"@apollo/client": "3.14.1",
-		"@wordpress/api-fetch": "^7.46.0",
+		"@wordpress/api-fetch": "^7.48.0",
 		"@wordpress/components": "^30.9.0",
 		"@wordpress/compose": "^7.46.0",
 		"@wordpress/element": "^6.37.0",
@@ -69,23 +69,23 @@
 		"use-query-params": "1.2.3"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.29.5",
-		"@babel/preset-react": "^7.28.5",
+		"@babel/preset-env": "^7.29.7",
+		"@babel/preset-react": "^7.29.7",
 		"@playwright/test": "^1.60.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^15.0.7",
 		"@types/node": "^22.19.17",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
-		"@wordpress/babel-preset-default": "^8.45.0",
+		"@wordpress/babel-preset-default": "^8.48.0",
 		"@wordpress/env": "^10.39.0",
-		"@wordpress/jest-preset-default": "^12.46.0",
+		"@wordpress/jest-preset-default": "^12.48.0",
 		"@wordpress/scripts": "^27.9.0",
 		"babel-jest": "^30.4.1",
 		"babel-plugin-inline-json-import": "^0.3.2",
 		"eslint-plugin-jest": "^27.9.0",
 		"lint-staged": "^16.4.0",
-		"sort-package-json": "^3.6.1",
+		"sort-package-json": "^3.7.1",
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
 	"engines": {

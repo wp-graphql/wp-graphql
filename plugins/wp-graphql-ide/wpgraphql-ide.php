@@ -9,7 +9,7 @@
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       wpgraphql-ide
  * Domain Path:       /languages
- * Version:           4.5.0
+ * Version:           5.0.1
  * Requires at least: 6.1
  * Tested up to:      7.0
  * Requires PHP:      7.4
@@ -28,7 +28,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
-define( 'WPGRAPHQL_IDE_VERSION', '4.5.0' );
+define( 'WPGRAPHQL_IDE_VERSION', '5.0.1' );
 define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -228,7 +228,7 @@ function add_custom_capabilities(): void {
 /**
  * Whether every role already holds each of its declared capabilities.
  *
- * @since x-release-please-version
+ * @since 5.0.1
  *
  * @param array<string,string[]> $capabilities Map of capability => role slugs.
  * @return bool True only if all roles exist and already have their caps.

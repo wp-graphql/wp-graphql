@@ -182,34 +182,42 @@ function normalizeChangelogSpacing(readmeContent) {
 
 function upsertVersionInReadme(readmeContent, versionBlock, version) {
 	const changelogHeadingRegex = /^== Changelog ==[ \t]*$/m;
-	if (!changelogHeadingRegex.test(readmeContent)) {
+	const headingMatch = readmeContent.match(changelogHeadingRegex);
+	if (!headingMatch) {
 		throw new Error('Could not find "== Changelog ==" section in readme.txt');
 	}
 
+	// Scope mutations to the slice that starts at the heading; anything
+	// before is pass-through prefix.
+	const changelogStart = headingMatch.index;
+	const prefix = readmeContent.slice(0, changelogStart);
+	const changelogSection = readmeContent.slice(changelogStart);
+
+	// Match a `= X.Y.Z =` heading bounded by the next sibling version
+	// heading, the next major section heading, or end of input.
 	const versionPattern = new RegExp(
-		`^= ${escapeRegExp(version)} =[\\s\\S]*?(?=^= [0-9]+\\.[0-9]+\\.[0-9]+(?:-[\\w.-]+)? =\\s*$|^== |\\Z)`,
-		'm'
+		`(?<=^|\\n)= ${escapeRegExp(version)} =[\\s\\S]*?(?=\\n= [0-9]+\\.[0-9]+\\.[0-9]+(?:-[\\w.-]+)? =\\s*(?:\\n|$)|\\n== |$)`
 	);
 
-	if (versionPattern.test(readmeContent)) {
-		const updatedContent = readmeContent.replace(
+	if (versionPattern.test(changelogSection)) {
+		const updatedSection = changelogSection.replace(
 			versionPattern,
 			versionBlock.trimEnd() + '\n\n'
 		);
 		return {
-			updatedContent: normalizeChangelogSpacing(updatedContent),
+			updatedContent: normalizeChangelogSpacing(prefix + updatedSection),
 			action: 'updated',
 		};
 	}
 
-	const headingMatch = readmeContent.match(changelogHeadingRegex);
-	const insertAt = headingMatch.index + headingMatch[0].length;
-	const prefix = readmeContent.slice(0, insertAt);
-	const suffix = readmeContent.slice(insertAt);
+	// Insert at the top of the Changelog section.
+	const insertAt = headingMatch[0].length;
+	const sectionPrefix = changelogSection.slice(0, insertAt);
+	const sectionSuffix = changelogSection.slice(insertAt);
 
 	return {
 		updatedContent: normalizeChangelogSpacing(
-			`${prefix}\n\n${versionBlock.trimEnd()}\n\n${suffix.replace(/^\n+/, '')}`
+			`${prefix}${sectionPrefix}\n\n${versionBlock.trimEnd()}\n\n${sectionSuffix.replace(/^\n+/, '')}`
 		),
 		action: 'inserted',
 	};
