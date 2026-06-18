@@ -194,10 +194,24 @@ jobs:
           command: |
             ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
-      - name: Log versions
-        run: |
-          npm run wp-env -- run cli php -- -v
-          npm run wp-env -- run cli wp core version
+      # `wp-env start` can report success a beat before the instance is fully
+      # queryable, so the first `wp-env run` after it intermittently fails with
+      # "Environment not initialized. Run `wp-env start` first." A manual job
+      # re-run "fixes" it, which is the tell-tale sign of a start/run race rather
+      # than a real problem. Retry to absorb the race in-job. This is also the
+      # first command to touch each environment after start, so it doubles as a
+      # readiness gate for the test steps below (it exercises both the dev `cli`
+      # and the `tests-cli` the suite actually uses).
+      - name: Log versions (waits for wp-env to be ready)
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          retry_wait_seconds: 10
+          command: |
+            npm run wp-env -- run cli php -- -v
+            npm run wp-env -- run cli wp core version
+            npm run wp-env -- run tests-cli wp core version
 
       - name: Activate test theme
         run: |
