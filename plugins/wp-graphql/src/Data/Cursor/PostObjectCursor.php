@@ -158,7 +158,208 @@ class PostObjectCursor extends AbstractCursor {
 
 		$this->compare_with_id_field();
 
+		/**
+		 * When WP_Query applies its search relevance ordering, the relevance expression
+		 * is the primary sort, ahead of the date/ID comparisons collected above, so the
+		 * cursor cutoff must compare against it first or pages will drop and duplicate
+		 * results whenever relevance order differs from date order.
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/1818
+		 */
+		$relevance = $this->get_search_relevance_compare_config();
+
+		if ( null !== $relevance ) {
+			$inner_sql = $this->builder->to_sql();
+
+			if ( '' !== trim( $inner_sql ) ) {
+				/**
+				 * The multi-term CASE expression sorts ascending while the rest of the
+				 * ordering (and the single-term boolean expression) sorts descending, so
+				 * the CASE comparison is the inverse of the cursor's base compare. This
+				 * holds for backward pagination too, where Config inverts the relevance
+				 * expression in the ORDER BY (see graphql_wp_query_cursor_pagination_search_orderby).
+				 */
+				$compare = $relevance['ascending'] ? ( '<' === $this->compare ? '>' : '<' ) : $this->compare;
+
+				// Mirrors CursorBuilder::to_sql() nesting: rows past the cursor either rank
+				// differently, or rank the same and resolve via the date/ID comparisons.
+				return ' AND ' . sprintf(
+					' %1$s %2$s= %3$d AND ( %1$s %2$s %3$d OR (%4$s ) ) ',
+					$relevance['expression'],
+					$compare,
+					$relevance['value'],
+					$inner_sql
+				);
+			}
+		}
+
 		return $this->to_sql();
+	}
+
+	/**
+	 * When WP_Query's native search relevance ordering is active for this query, returns
+	 * the relevance expression (matching what WP_Query::parse_search_order() generates),
+	 * the cursor node's computed rank, and the expression's sort direction. Returns null
+	 * when relevance ordering is not in play.
+	 *
+	 * @since x-release-please-version
+	 *
+	 * @return array{expression:string,value:int,ascending:bool}|null
+	 */
+	private function get_search_relevance_compare_config() {
+		$search               = $this->get_query_var( 's' );
+		$orderby              = $this->get_query_var( 'orderby' );
+		$search_orderby_title = $this->get_query_var( 'search_orderby_title' );
+
+		// Mirrors WP_Query: relevance ordering applies when searching, title ordering
+		// clauses exist, and no other orderby is specified (or it is explicitly 'relevance').
+		if ( empty( $search ) || ! is_string( $search ) || empty( $search_orderby_title ) || ! is_array( $search_orderby_title ) ) {
+			return null;
+		}
+
+		if ( ! empty( $orderby ) && 'relevance' !== $orderby ) {
+			return null;
+		}
+
+		$node = $this->cursor_node;
+
+		if ( ! $node instanceof \WP_Post ) {
+			return null;
+		}
+
+		$terms_count = absint( $this->get_query_var( 'search_terms_count' ) ?? 1 );
+
+		if ( $terms_count > 1 ) {
+			$expression = $this->get_multi_term_relevance_expression( $search, $search_orderby_title );
+
+			if ( '' === $expression ) {
+				return null;
+			}
+
+			return [
+				'expression' => $expression,
+				'value'      => $this->get_multi_term_relevance_rank( $node, $search, $search_orderby_title ),
+				'ascending'  => true,
+			];
+		}
+
+		// Single word or sentence search: the expression is a boolean title match, sorted DESC.
+		$exact   = (bool) $this->get_query_var( 'exact' );
+		$matches = $exact ? 0 === strcasecmp( $node->post_title, $search ) : false !== stripos( $node->post_title, $search );
+
+		return [
+			'expression' => '(' . reset( $search_orderby_title ) . ')',
+			'value'      => $matches ? 1 : 0,
+			'ascending'  => false,
+		];
+	}
+
+	/**
+	 * Builds the same CASE expression WP_Query::parse_search_order() generates for
+	 * multi-term searches, reusing the prepared title LIKE clauses WP_Query stored in
+	 * the query vars during parse_search().
+	 *
+	 * @since x-release-please-version
+	 *
+	 * @param string   $search               The raw search string (`s` query var).
+	 * @param string[] $search_orderby_title The prepared post_title LIKE clauses from WP_Query.
+	 */
+	private function get_multi_term_relevance_expression( string $search, array $search_orderby_title ): string {
+		$num_terms = count( $search_orderby_title );
+
+		// If the search terms contain negative queries, WP doesn't order by sentence matches.
+		$like = '';
+		if ( ! preg_match( '/(?:\s|^)\-/', $search ) ) {
+			$like = "'%" . esc_sql( $this->wpdb->esc_like( $search ) ) . "%'";
+		}
+
+		$expression = '';
+
+		// Sentence match in 'post_title'.
+		if ( $like ) {
+			$expression .= "WHEN {$this->wpdb->posts}.post_title LIKE {$like} THEN 1 "; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		// Sanity limit, sort as sentence when more than 6 terms.
+		if ( $num_terms < 7 ) {
+			// All words in title.
+			$expression .= 'WHEN ' . implode( ' AND ', $search_orderby_title ) . ' THEN 2 ';
+			// Any word in title, not needed when $num_terms == 1.
+			if ( $num_terms > 1 ) {
+				$expression .= 'WHEN ' . implode( ' OR ', $search_orderby_title ) . ' THEN 3 ';
+			}
+		}
+
+		// Sentence match in 'post_content' and 'post_excerpt'.
+		if ( $like ) {
+			$expression .= "WHEN {$this->wpdb->posts}.post_excerpt LIKE {$like} THEN 4 "; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$expression .= "WHEN {$this->wpdb->posts}.post_content LIKE {$like} THEN 5 "; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		return '' !== $expression ? '(CASE ' . $expression . 'ELSE 6 END)' : '';
+	}
+
+	/**
+	 * Computes the cursor node's rank under the multi-term relevance CASE expression,
+	 * evaluating the same conditions in the same order as the SQL.
+	 *
+	 * @since x-release-please-version
+	 *
+	 * @param \WP_Post $node                 The cursor node post.
+	 * @param string   $search               The raw search string (`s` query var).
+	 * @param string[] $search_orderby_title The prepared post_title LIKE clauses from WP_Query.
+	 */
+	private function get_multi_term_relevance_rank( \WP_Post $node, string $search, array $search_orderby_title ): int {
+		$num_terms = count( $search_orderby_title );
+
+		$sentence_match_applies = ! preg_match( '/(?:\s|^)\-/', $search );
+
+		// Sentence match in 'post_title'.
+		if ( $sentence_match_applies && false !== stripos( $node->post_title, $search ) ) {
+			return 1;
+		}
+
+		if ( $num_terms < 7 ) {
+			$terms = $this->get_query_var( 'search_terms' );
+			$terms = is_array( $terms ) ? array_values(
+				array_filter(
+					$terms,
+					static function ( $term ) {
+						return is_string( $term ) && '' !== $term && '-' !== $term[0];
+					}
+				)
+			) : [];
+
+			if ( ! empty( $terms ) ) {
+				$matched = 0;
+				foreach ( $terms as $term ) {
+					if ( false !== stripos( $node->post_title, $term ) ) {
+						++$matched;
+					}
+				}
+
+				// All words in title.
+				if ( count( $terms ) === $matched ) {
+					return 2;
+				}
+
+				// Any word in title.
+				if ( $num_terms > 1 && $matched > 0 ) {
+					return 3;
+				}
+			}
+		}
+
+		// Sentence match in 'post_excerpt' and 'post_content'.
+		if ( $sentence_match_applies && false !== stripos( $node->post_excerpt, $search ) ) {
+			return 4;
+		}
+
+		if ( $sentence_match_applies && false !== stripos( $node->post_content, $search ) ) {
+			return 5;
+		}
+
+		return 6;
 	}
 
 	/**
