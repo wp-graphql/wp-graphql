@@ -7,6 +7,11 @@ class OembedFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		add_filter( 'pre_oembed_result', [ $this, 'mock_oembed_result' ], 10, 3 );
+	}
+
+	public function mock_oembed_result( $result, $url, $args ) {
+		return '<div>mock oembed content</div>';
 	}
 
 
@@ -14,6 +19,7 @@ class OembedFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 	 * @return void
 	 */
 	public function tearDown(): void {
+		remove_filter( 'pre_oembed_result', [ $this, 'mock_oembed_result' ], 10 );
 		parent::tearDown();
 	}
 
@@ -38,12 +44,7 @@ class OembedFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 	}
 
 	public function get_expected_clone_value() {
-		return wp_oembed_get( $this->get_clone_value_to_save(), [ 'width' => 550 ] );
-
-	}
-
-	public function testQueryCloneFieldOnPost(): void {
-		$this->markTestSkipped( 'Clone field tests need investigation - prefix_name behavior may have changed' );
+		return '<div>mock oembed content</div>';
 	}
 
 }
