@@ -30,7 +30,7 @@ trait WPInterfaceTrait {
 		/**
 		 * Filters the interfaces applied to an object type
 		 *
-		 * @param string[]                   $interfaces     List of interfaces applied to the Object Type
+		 * @param array<string|object|callable():\GraphQL\Type\Definition\InterfaceType> $interfaces List of interfaces applied to the Object Type. Each entry may be an interface name, an InterfaceType instance, or a callable that returns one.
 		 * @param array<string,mixed>        $config         The config for the Object Type
 		 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
 		 */
