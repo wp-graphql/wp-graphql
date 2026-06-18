@@ -1199,7 +1199,7 @@ class TypeRegistry {
 		}
 
 		if ( isset( $type['non_null'] ) ) {
-			/** @var TypeDef inner_type */
+			/** @var \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type $inner_type */
 			$inner_type = $this->setup_type_modifiers( $type['non_null'] );
 			return $this->non_null( $inner_type );
 		}
