@@ -42,7 +42,7 @@ jobs:
       is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check if release-please PR
         id: check-release-pr
