@@ -206,10 +206,24 @@ jobs:
       - name: Start the Docker testing environment
         uses: nick-fields/retry@v4
         with:
-          timeout_minutes: 10
+          timeout_minutes: 15
           max_attempts: 3
           command: |
             ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step
+            # below. On failure, dump the wp-env home so a recurrence is
+            # diagnosable from the logs.
+            if ! npm run wp-env -- run tests-cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; dumping state and retrying start"
+              echo "WP_ENV_HOME=${WP_ENV_HOME:-<unset>}"
+              ls -la "${WP_ENV_HOME:-$HOME/.wp-env}" 2>/dev/null || true
+              exit 1
+            fi
 
       - name: Log versions
         run: |
