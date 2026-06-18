@@ -39,7 +39,7 @@ jobs:
       test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check context (Release PR or push to main)
         id: check-context
