@@ -176,16 +176,21 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: npm ci
+          command: npm ci --prefer-offline --no-audit --no-fund
 
+      # Build only the plugin under test (and its workspace deps) rather than
+      # every plugin in the monorepo. Smart Cache and ACF have no JS build, so
+      # their jobs build nothing; core's built assets are file_exists-guarded
+      # (see Admin/GraphiQL, Admin/Extensions), so dependent-plugin jobs that
+      # load core don't need it built.
       - name: Build JavaScript assets
-        run: npm run build -- --filter='./plugins/*'
+        run: npm run build -- --filter='@wpgraphql/${{ inputs.plugin_name }}...'
 
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
-        with:
-          key: docker-${{ runner.os }}-${{ inputs.php }}-${{ inputs.wp }}
-
+      # Note: we intentionally do NOT cache the wp-env Docker images. The repo's
+      # 10GB Actions cache budget is consumed by composer/npm/Playwright caches,
+      # so the multi-GB image caches were always evicted before the next run —
+      # every run missed the cache yet still paid ~30s saving it. wp-env pulls
+      # the images directly, which is no slower than restoring an image tarball.
       - name: Start the Docker testing environment
         uses: nick-fields/retry@v4
         with:
