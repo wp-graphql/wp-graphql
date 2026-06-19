@@ -147,6 +147,19 @@ class Preview {
 			$parent   = get_post( $post->post_parent );
 			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
 
+			// Meta keys that WordPress revisions (registered with `revisions_enabled`, or
+			// added via the `wp_post_revision_meta_keys` filter) are stored on the revision
+			// itself, so resolve those from the revision rather than the parent. This
+			// mirrors core's `_wp_preview_meta_filter`. (`wp_post_revision_meta_keys()` was
+			// added in WordPress 6.4.)
+			if ( '' !== $meta_key && $parent instanceof \WP_Post && function_exists( 'wp_post_revision_meta_keys' ) ) {
+				$revisioned_meta_keys = wp_post_revision_meta_keys( $parent->post_type );
+
+				if ( is_array( $revisioned_meta_keys ) && in_array( $meta_key, $revisioned_meta_keys, true ) ) {
+					return $default_value;
+				}
+			}
+
 			$parent_meta = isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, (bool) $single ) : $default_value;
 
 			// Wrap in array in case of single as get_post_metadata filter returns first value from array when single.

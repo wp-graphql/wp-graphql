@@ -1452,6 +1452,119 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Meta keys that WordPress revisions (registered with `revisions_enabled`, e.g. core's
+	 * `footnotes`) must resolve from the revision's own value in a preview, not from the
+	 * parent. Previously the blanket parent-fallback overwrote the revision's value.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
+	 */
+	public function testRevisionedMetaResolvesFromRevisionInPreview() {
+		WPGraphQL::clear_schema();
+
+		// A meta key WordPress revisions (stored on the revision itself).
+		register_post_meta(
+			'post',
+			'revisionedMetaKey',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true,
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'revisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'revisionedMetaKey', true );
+				},
+			]
+		);
+
+		// Different values on the published post and on the revision.
+		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
+		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { revisionedMetaKey } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'revised value', $actual['data']['post']['revisionedMetaKey'], '#3260: a revisioned meta key resolves from the revision, not the parent' );
+
+		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * The same revisioned-meta resolution applies when querying a revision directly through
+	 * the `revisions` connection, not only through the preview flow. The revision node must
+	 * resolve a revisioned meta key from its own value.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
+	 */
+	public function testRevisionedMetaResolvesFromRevisionInRevisionsConnection() {
+		WPGraphQL::clear_schema();
+
+		register_post_meta(
+			'post',
+			'revisionedMetaKey',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true,
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'revisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'revisionedMetaKey', true );
+				},
+			]
+		);
+
+		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
+		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { revisions { nodes { databaseId revisionedMetaKey } } } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$revision_node = null;
+		foreach ( $actual['data']['post']['revisions']['nodes'] as $node ) {
+			if ( (int) $node['databaseId'] === (int) $this->preview ) {
+				$revision_node = $node;
+			}
+		}
+
+		$this->assertNotNull( $revision_node, 'The revision should appear in the revisions connection' );
+		$this->assertSame( 'revised value', $revision_node['revisionedMetaKey'], '#3260: a revisioned meta key resolves from the revision in the revisions connection too' );
+
+		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		WPGraphQL::clear_schema();
+	}
+
+	/**
 	 * With the preview extension, a previewed (non-hierarchical) post keeps its published
 	 * databaseId, so a client can identify the published post directly while still showing
 	 * the draft content. This is the capability requested in #2876, which the legacy

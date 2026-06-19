@@ -67,6 +67,10 @@ register_graphql_field( 'Post', 'myComputedField', [
 
 A field with neither option resolves from the published post, so forgetting to opt in is safe (the value is current, never broken).
 
+### Previewing post meta
+
+Meta keys that WordPress revisions, those registered with `revisions_enabled` (or added via the `wp_post_revision_meta_keys` filter, such as core's `footnotes`), resolve from the revision's own value in a preview, mirroring core. Other meta keys continue to resolve from the published post, and the `graphql_resolve_revision_meta_from_parent` filter can still be used to opt a specific key into resolving from the revision.
+
 ### Authentication and authorization
 
 A preview is only resolved when **all** of the following are true:
