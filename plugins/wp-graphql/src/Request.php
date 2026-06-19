@@ -293,6 +293,14 @@ class Request {
 		$this->app_context->viewer = wp_get_current_user();
 
 		/**
+		 * Set the preview context for the request from the `preview` envelope in the
+		 * request `extensions`, if present. This carries the request-scoped preview
+		 * params (the post being previewed, and the previewed featured image), mirroring
+		 * the query params WordPress core uses for front-end previews.
+		 */
+		$this->app_context->preview = $this->get_preview_context();
+
+		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
@@ -335,6 +343,51 @@ class Request {
 		 * @param \WPGraphQL\Request $request The instance of the Request being executed
 		 */
 		do_action( 'graphql_before_execute', $this );
+	}
+
+	/**
+	 * Parses and normalizes the `preview` envelope from the request `extensions`.
+	 *
+	 * The envelope mirrors the query params WordPress core uses for front-end previews
+	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`):
+	 *
+	 *     "extensions": { "preview": { "id": 123, "thumbnailId": 456, "nonce": "..." } }
+	 *
+	 * The presence of a valid `id` marks the request as a preview of that post. Authorization
+	 * is enforced where the context is consumed (capability checks relative to the post),
+	 * not here. The `nonce` is accepted for forward compatibility but is not yet verified.
+	 *
+	 * @return array{id:int,revisionId:int,thumbnailId:?int,nonce:?string}|null
+	 */
+	private function get_preview_context(): ?array {
+		if ( ! $this->params instanceof OperationParams ) {
+			return null;
+		}
+
+		$extensions = $this->params->extensions;
+
+		if ( ! is_array( $extensions ) || empty( $extensions['preview'] ) || ! is_array( $extensions['preview'] ) ) {
+			return null;
+		}
+
+		$preview = $extensions['preview'];
+
+		$id = isset( $preview['id'] ) ? absint( $preview['id'] ) : 0;
+
+		// Without a post id there is nothing to preview.
+		if ( empty( $id ) ) {
+			return null;
+		}
+
+		return [
+			'id'          => $id,
+			// The latest revision of the targeted post, used to overlay previewable fields.
+			'revisionId'  => \WPGraphQL\Utils\Utils::get_post_preview_id( $id ),
+			// A `thumbnailId` of 0 is meaningful (the featured image was removed in the
+			// preview), so only treat an absent key as "no override".
+			'thumbnailId' => isset( $preview['thumbnailId'] ) ? absint( $preview['thumbnailId'] ) : null,
+			'nonce'       => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
+		];
 	}
 
 	/**

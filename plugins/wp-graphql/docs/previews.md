@@ -1,0 +1,125 @@
+---
+uri: "/docs/previews/"
+title: "Previews"
+---
+
+WPGraphQL can return the unpublished, in-progress version of a post (a "preview") instead of the published version. This is what lets a headless front end render a preview of edits an author has made but not yet published.
+
+There are two ways to request a preview:
+
+- The **`preview` request extension** (recommended). Preview is a request-level concern, so it is expressed in the request `extensions` rather than as a field argument.
+- The **`asPreview` field argument** (deprecated). This still works for backwards compatibility, but new integrations should use the extension.
+
+## The `preview` request extension
+
+GraphQL requests may carry an `extensions` object alongside `query` and `variables`. WPGraphQL reads a `preview` envelope from it:
+
+```jsonc
+{
+  "query": "query Post($id: ID!) { post(id: $id, idType: DATABASE_ID) { title content featuredImage { node { sourceUrl } } } }",
+  "variables": { "id": 123 },
+  "extensions": {
+    "preview": {
+      "id": 123,
+      "thumbnailId": 456,
+      "nonce": "45d5b05f1b"
+    }
+  }
+}
+```
+
+The envelope mirrors the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
+
+| Field         | Maps to          | Purpose                                                                 |
+| ------------- | ---------------- | ----------------------------------------------------------------------- |
+| `id`          | `preview_id`     | The database ID of the published post being previewed.                  |
+| `thumbnailId` | `_thumbnail_id`  | The previewed featured image. `0` means the featured image was removed. |
+| `nonce`       | `preview_nonce`  | Reserved for forward compatibility. Not currently verified.             |
+
+When the request resolves the post identified by `id`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from that post's latest revision, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content and featured image come from the revision.
+
+Because identity is preserved, the overlay also works for a previewed post that appears **inside a connection** (for example previewing how your edits look in a list of posts), and the node keeps its real `databaseId` and cursor.
+
+You do **not** need to pass `asPreview` as well.
+
+### Which fields are previewable
+
+Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, and resolves the featured image from the request's `thumbnailId`.
+
+Plugins can opt their own fields into preview resolution via field config:
+
+```php
+// Resolve this field's normal resolver against the revision when previewing.
+register_graphql_field( 'Post', 'myDraftField', [
+    'type'          => 'String',
+    'isPreviewable' => true,
+] );
+
+// Or supply a request-derived previewed value (e.g. from the preview envelope).
+register_graphql_field( 'Post', 'myComputedField', [
+    'type'           => 'String',
+    'previewResolve' => static function ( $source, $args, $context, $info, $preview ) {
+        // $preview is the normalized `preview` envelope for the request.
+        return '...';
+    },
+] );
+```
+
+A field with neither option resolves from the published post, so forgetting to opt in is safe (the value is current, never broken).
+
+### Authentication and authorization
+
+A preview is only resolved when **all** of the following are true:
+
+- The request is authenticated.
+- The authenticated user can edit the post (`current_user_can( 'edit_post', id )`).
+- The `id` in the envelope matches the post being resolved.
+
+If any of these is not met, the request is resolved exactly as if no `preview` envelope had been provided: the published node (or `null`, per the usual access rules) is returned, and **no error is thrown**. This is intentional: an invalid or unauthorized envelope produces a response identical to a request without one, so it cannot be used to probe for posts a user cannot access.
+
+When `GRAPHQL_DEBUG` is enabled, a debug notice is added to the response `extensions` when a `preview` envelope was provided for a post the current user is not allowed to preview.
+
+Because previews require an authenticated, edit-capable user, preview responses are not cached.
+
+### Previewing the featured image
+
+WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `thumbnailId` in the envelope. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `thumbnailId` instead of the published featured image.
+
+```graphql
+query Preview($id: ID!) {
+  post(id: $id, idType: DATABASE_ID) {
+    title
+    featuredImageDatabaseId
+    featuredImage {
+      node {
+        sourceUrl
+      }
+    }
+  }
+}
+```
+
+With `extensions.preview` set to `{ "id": 123, "thumbnailId": 456 }`, the query above returns attachment `456` as the featured image.
+
+### Passing preview params from WordPress
+
+When an author clicks **Preview** in wp-admin, WordPress generates a URL with `preview_id`, `preview_nonce`, and `_thumbnail_id` query parameters. A headless framework that handles the preview can map those parameters into the `preview` extension on its GraphQL request, so the front end renders the same preview WordPress would.
+
+## The `asPreview` argument (deprecated)
+
+Before the `preview` extension, previews were requested with an `asPreview` field argument:
+
+```graphql
+query Post($id: ID!) {
+  post(id: $id, idType: DATABASE_ID, asPreview: true) {
+    title
+    content
+  }
+}
+```
+
+This continues to work for requests that do **not** carry a `preview` extension, and is now marked deprecated in the schema. Unlike the extension, `asPreview: true` swaps the whole node to the revision, so `databaseId` becomes the *revision's* id rather than the published post's.
+
+The argument and the extension are separate mechanisms and should not be combined. When a request provides **both** a `preview` extension and `asPreview: true`, the extension wins (the identity-preserving overlay is applied), the `asPreview` argument is ignored, and a debug notice is added under `GRAPHQL_DEBUG`.
+
+The argument is planned for removal in a future major version. To migrate, drop `asPreview: true` from your queries and send the `preview` extension on the request instead. As a bonus, the extension preserves the node's published `databaseId`, so toolbars and editors no longer need to map the revision id back to the published post.
