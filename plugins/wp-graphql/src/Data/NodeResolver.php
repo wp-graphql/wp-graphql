@@ -265,8 +265,21 @@ class NodeResolver {
 				return null;
 			}
 
-			if ( empty( $extra_query_vars ) && isset( $this->wp->query_vars['error'] ) && '404' === $this->wp->query_vars['error'] ) {
-				return null;
+			// A 404 from parse_request() means the requested path did not match a
+			// registered rewrite rule, so the queried object (if any) is an unrelated
+			// post that WP_Query returned because a pre-seeded `post_type` query var
+			// turned the request into an unbounded query. Bail in that case so typed
+			// `idType: URI` fields stay consistent with nodeByUri, which returns null
+			// for partial or wrong-hierarchy URIs (#3042).
+			//
+			// The exception is an explicit slug lookup (idType: SLUG), which passes a
+			// `name` and intentionally resolves by post_name without requiring the
+			// full path to match a rewrite rule.
+			if ( isset( $this->wp->query_vars['error'] ) && '404' === $this->wp->query_vars['error'] ) {
+				$is_slug_lookup = is_array( $extra_query_vars ) && ! empty( $extra_query_vars['name'] );
+				if ( ! $is_slug_lookup ) {
+					return null;
+				}
 			}
 
 			$post_id = $queried_object->ID;
