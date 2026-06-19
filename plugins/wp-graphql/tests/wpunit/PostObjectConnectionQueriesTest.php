@@ -197,6 +197,68 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 	}
 
+	/**
+	 * The dateQuery before/after bounds should be able to constrain the time of day,
+	 * not just the calendar day. WP_Query's date_query supports hour/minute/second on
+	 * before/after natively, so exposing those fields on DateInput lets clients filter
+	 * sub-day windows.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1234
+	 */
+	public function testDateQueryAfterFiltersByHour() {
+		// Two posts on the same calendar day, twelve hours apart. Use a fixed past
+		// date so both remain `publish` (a future date would flip to `future`).
+		$early = $this->createPostObject(
+			[
+				'post_title' => 'Early sub-day post',
+				'post_date'  => '2020-01-15 08:30:00',
+			]
+		);
+		$late = $this->createPostObject(
+			[
+				'post_title' => 'Late sub-day post',
+				'post_date'  => '2020-01-15 20:30:00',
+			]
+		);
+
+		$query = '
+		query postsByHour($where:RootQueryToPostConnectionWhereArgs) {
+			posts(first:100 where:$where) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'where' => [
+				'dateQuery' => [
+					'column' => 'DATE',
+					'after'  => [
+						'year'  => 2020,
+						'month' => 1,
+						'day'   => 15,
+						'hour'  => 12,
+					],
+				],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'The hour bound should be a valid DateInput field' );
+
+		$returned_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+
+		// The 20:30 post is after the 12:00 bound, the 08:30 post is before it.
+		$this->assertContains( $late, $returned_ids, 'The post published after the hour bound should be returned' );
+		$this->assertNotContains( $early, $returned_ids, 'The post published before the hour bound should be filtered out' );
+
+		wp_delete_post( $early, true );
+		wp_delete_post( $late, true );
+	}
+
 	public function testDefaultQueryAmount() {
 		// Create some additional posts to test a large query.
 		$post_ids = $this->create_posts( 25 );
