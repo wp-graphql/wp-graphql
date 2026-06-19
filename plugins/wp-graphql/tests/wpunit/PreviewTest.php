@@ -1707,6 +1707,10 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'An unauthenticated request must never see preview content via the envelope' );
+
+		// A debug-only notice explains why the preview was ignored (GRAPHQL_DEBUG is on in tests).
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_EXTENSION_IGNORED', $debug_types, 'A debug notice should explain the ignored preview' );
 	}
 
 	/**

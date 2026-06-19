@@ -301,6 +301,18 @@ class Request {
 		$this->app_context->preview = $this->get_preview_context();
 
 		/**
+		 * If a preview was requested for a post the current user is not allowed to preview,
+		 * surface a debug-only notice (visible under GRAPHQL_DEBUG). The request still
+		 * resolves the published data, so this never exposes unpublished content.
+		 */
+		if ( is_array( $this->app_context->preview ) && ! current_user_can( 'edit_post', $this->app_context->preview['id'] ) ) {
+			graphql_debug(
+				__( 'A `preview` request extension was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
+				[ 'type' => 'PREVIEW_EXTENSION_IGNORED' ]
+			);
+		}
+
+		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
