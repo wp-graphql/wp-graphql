@@ -542,13 +542,30 @@ class Post extends Model {
 					return $this->html_entity_decode( apply_filters( 'the_excerpt', $excerpt ), 'excerptRendered' );
 				},
 				'featuredImageDatabaseId'   => function () {
-					if ( $this->isRevision ) {
-						$id = $this->parentDatabaseId;
-					} else {
-						$id = $this->data->ID;
+					// For non-revisions, the featured image is simply this post's thumbnail.
+					if ( ! $this->isRevision ) {
+						$thumbnail_id = get_post_thumbnail_id( $this->data->ID );
+
+						return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 					}
 
-					$thumbnail_id = get_post_thumbnail_id( $id );
+					// For revisions (e.g. `asPreview`), prefer the revision's own _thumbnail_id
+					// when it has one, so an in-progress featured image change is reflected in
+					// the preview. The Preview meta filter resolves revision meta from the parent
+					// by default, so opt that single key out to read the revision's own value, and
+					// fall back to the parent's published featured image only when the revision
+					// does not override it.
+					$resolve_own_thumbnail = static function ( $should, $object_id, $meta_key ) {
+						return '_thumbnail_id' === $meta_key ? false : $should;
+					};
+
+					add_filter( 'graphql_resolve_revision_meta_from_parent', $resolve_own_thumbnail, 10, 3 );
+					$thumbnail_id = get_post_meta( $this->data->ID, '_thumbnail_id', true );
+					remove_filter( 'graphql_resolve_revision_meta_from_parent', $resolve_own_thumbnail, 10 );
+
+					if ( empty( $thumbnail_id ) ) {
+						$thumbnail_id = get_post_thumbnail_id( $this->parentDatabaseId );
+					}
 
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},

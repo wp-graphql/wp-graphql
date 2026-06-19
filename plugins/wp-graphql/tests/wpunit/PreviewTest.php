@@ -1300,4 +1300,98 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		WPGraphQL::clear_schema();
 	}
+
+	/**
+	 * The featuredImage on a preview should reflect the revision's own featured image
+	 * (an in-progress change), not the parent's published one.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2664
+	 */
+	public function testFeaturedImageReflectsRevisionOwnThumbnail() {
+		wp_set_current_user( $this->admin );
+
+		// The published post's featured image is $this->featured_image (set in setUp).
+		// Simulate an in-progress featured image change by storing a *different*
+		// _thumbnail_id on the revision itself.
+		$filename       = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$revision_image = $this->factory()->attachment->create_upload_object( $filename );
+		update_metadata( 'post', $this->preview, '_thumbnail_id', $revision_image );
+
+		$query = '
+		query Preview( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID, asPreview: true ) {
+				featuredImageDatabaseId
+				featuredImage {
+					node {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.featuredImageDatabaseId', $revision_image ),
+				$this->expectedField( 'post.featuredImage.node.databaseId', $revision_image ),
+			]
+		);
+
+		$this->assertNotEquals(
+			$this->featured_image,
+			$actual['data']['post']['featuredImageDatabaseId'],
+			'The preview must not return the parent post\'s published featured image when the revision overrides it'
+		);
+
+		wp_delete_attachment( $revision_image, true );
+	}
+
+	/**
+	 * When a revision does not override the featured image, the preview should fall back
+	 * to the parent post's published featured image (the fix must be conditional, not a
+	 * blind swap that would drop the featured image on previews that don't change it).
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2664
+	 */
+	public function testFeaturedImageFallsBackToParentWhenRevisionHasNoThumbnail() {
+		wp_set_current_user( $this->admin );
+
+		// $this->preview has no _thumbnail_id of its own, so the preview should resolve
+		// the parent post's published featured image ($this->featured_image).
+		$query = '
+		query Preview( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID, asPreview: true ) {
+				featuredImageDatabaseId
+				featuredImage {
+					node {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.featuredImageDatabaseId', $this->featured_image ),
+				$this->expectedField( 'post.featuredImage.node.databaseId', $this->featured_image ),
+			]
+		);
+	}
 }
