@@ -173,7 +173,22 @@ jobs:
           # workflow's pattern. The wp.org `wordpress-<x>.zip` URL has
           # no `trunk.zip` artifact, so the literal interpolation 404s.
           WP_ENV_CORE: ${{ inputs.wp == 'trunk' && 'WordPress/WordPress' || format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
-        run: npm run wp-env start
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            npm run wp-env start
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step below.
+            if ! npm run wp-env -- run cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; retrying start"
+              exit 1
+            fi
 
       - name: Install plugin from zip via WP-CLI
         run: |
