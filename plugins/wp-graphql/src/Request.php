@@ -363,13 +363,13 @@ class Request {
 	 * The envelope mirrors the query params WordPress core uses for front-end previews
 	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 	 *
-	 *     "extensions": { "preview": { "id": 123, "thumbnailId": 456, "nonce": "..." } }
+	 *     "extensions": { "preview": { "id": 123, "featuredImageDatabaseId": 456, "nonce": "..." } }
 	 *
 	 * The presence of a valid `id` marks the request as a preview of that post. Authorization
 	 * is enforced where the context is consumed (capability checks relative to the post),
 	 * not here. The `nonce` is accepted for forward compatibility but is not yet verified.
 	 *
-	 * @return array{id:int,revisionId:int,thumbnailId:?int,nonce:?string}|null
+	 * @return array{id:int,revisionId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */
 	private function get_preview_context(): ?array {
 		if ( ! $this->params instanceof OperationParams ) {
@@ -391,14 +391,19 @@ class Request {
 			return null;
 		}
 
+		// Only resolve the revision to overlay from when the current user can actually
+		// preview the post. This avoids a revision lookup for unauthorized requests and is
+		// a defense-in-depth complement to the capability checks at the point of overlay.
+		$revision_id = current_user_can( 'edit_post', $id ) ? \WPGraphQL\Utils\Utils::get_post_preview_id( $id ) : 0;
+
 		return [
-			'id'          => $id,
+			'id'                      => $id,
 			// The latest revision of the targeted post, used to overlay previewable fields.
-			'revisionId'  => \WPGraphQL\Utils\Utils::get_post_preview_id( $id ),
-			// A `thumbnailId` of 0 is meaningful (the featured image was removed in the
-			// preview), so only treat an absent key as "no override".
-			'thumbnailId' => isset( $preview['thumbnailId'] ) ? absint( $preview['thumbnailId'] ) : null,
-			'nonce'       => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
+			'revisionId'              => $revision_id,
+			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
+			// in the preview), so only treat an absent key as "no override".
+			'featuredImageDatabaseId' => isset( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null,
+			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
 		];
 	}
 

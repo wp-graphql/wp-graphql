@@ -15,12 +15,12 @@ class NodeWithFeaturedImage {
 	 * featured image when the request carries one.
 	 *
 	 * When the request's preview context targets this node (`preview.id` matches the
-	 * node or, for a revision, its parent) and the viewer can edit that post, the
-	 * client-supplied `thumbnailId` is used instead of the stored featured image. This
+	 * node) and the viewer can edit that post, the client-supplied
+	 * `featuredImageDatabaseId` is used instead of the stored featured image. This
 	 * mirrors how WordPress core resolves the previewed featured image from the
 	 * `_thumbnail_id` request parameter, which it never persists to the revision.
 	 *
-	 * A `thumbnailId` of 0 means the featured image was removed in the preview.
+	 * A `featuredImageDatabaseId` of 0 means the featured image was removed in the preview.
 	 *
 	 * @param \WPGraphQL\Model\Post $post    The post the featured image is resolved for.
 	 * @param \WPGraphQL\AppContext $context The AppContext for the request.
@@ -35,12 +35,12 @@ class NodeWithFeaturedImage {
 		// The viewer must be authenticated and able to edit the post being previewed.
 		if (
 			is_array( $preview )
-			&& isset( $preview['thumbnailId'] )
+			&& isset( $preview['featuredImageDatabaseId'] )
 			&& (int) $post->databaseId === (int) $preview['id']
 			&& is_user_logged_in()
 			&& current_user_can( 'edit_post', (int) $preview['id'] )
 		) {
-			return ! empty( $preview['thumbnailId'] ) ? absint( $preview['thumbnailId'] ) : null;
+			return ! empty( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null;
 		}
 
 		return ! empty( $post->featuredImageDatabaseId ) ? absint( $post->featuredImageDatabaseId ) : null;

@@ -87,7 +87,7 @@ class AppContext {
 	 * `preview` envelope in the request `extensions`. Null when the request is not
 	 * a preview request.
 	 *
-	 * @var array{id:int,revisionId:int,thumbnailId:?int,nonce:?string}|null
+	 * @var array{id:int,revisionId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */
 	public $preview = null;
 

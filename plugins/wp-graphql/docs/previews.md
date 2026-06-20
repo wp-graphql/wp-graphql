@@ -21,7 +21,7 @@ GraphQL requests may carry an `extensions` object alongside `query` and `variabl
   "extensions": {
     "preview": {
       "id": 123,
-      "thumbnailId": 456,
+      "featuredImageDatabaseId": 456,
       "nonce": "45d5b05f1b"
     }
   }
@@ -33,7 +33,7 @@ The envelope mirrors the query parameters WordPress core adds to a front-end pre
 | Field         | Maps to          | Purpose                                                                 |
 | ------------- | ---------------- | ----------------------------------------------------------------------- |
 | `id`          | `preview_id`     | The database ID of the published post being previewed.                  |
-| `thumbnailId` | `_thumbnail_id`  | The previewed featured image. `0` means the featured image was removed. |
+| `featuredImageDatabaseId` | `_thumbnail_id`  | The previewed featured image. `0` means the featured image was removed. |
 | `nonce`       | `preview_nonce`  | Reserved for forward compatibility. Not currently verified.             |
 
 When the request resolves the post identified by `id`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from that post's latest revision, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content and featured image come from the revision.
@@ -44,7 +44,7 @@ You do **not** need to pass `asPreview` as well.
 
 ### Which fields are previewable
 
-Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, and resolves the featured image from the request's `thumbnailId`.
+Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, and resolves the featured image from the request's `featuredImageDatabaseId`.
 
 Plugins can opt their own fields into preview resolution via field config:
 
@@ -67,6 +67,8 @@ register_graphql_field( 'Post', 'myComputedField', [
 
 A field with neither option resolves from the published post, so forgetting to opt in is safe (the value is current, never broken).
 
+`previewResolve` runs only inside an authorized preview (the request is authenticated and the viewer can edit the post being previewed). It receives the raw `preview` envelope, including client-supplied values, so if your callback exposes anything sensitive beyond what an editor of that post may already see, apply your own checks.
+
 ### Previewing post meta
 
 Meta keys that WordPress revisions, those registered with `revisions_enabled` (or added via the `wp_post_revision_meta_keys` filter, such as core's `footnotes`), resolve from the revision's own value in a preview, mirroring core. Other meta keys continue to resolve from the published post, and the `graphql_resolve_revision_meta_from_parent` filter can still be used to opt a specific key into resolving from the revision.
@@ -87,7 +89,7 @@ Because previews require an authenticated, edit-capable user, preview responses 
 
 ### Previewing the featured image
 
-WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `thumbnailId` in the envelope. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `thumbnailId` instead of the published featured image.
+WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `featuredImageDatabaseId` in the envelope. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `featuredImageDatabaseId` instead of the published featured image.
 
 ```graphql
 query Preview($id: ID!) {
@@ -103,7 +105,7 @@ query Preview($id: ID!) {
 }
 ```
 
-With `extensions.preview` set to `{ "id": 123, "thumbnailId": 456 }`, the query above returns attachment `456` as the featured image.
+With `extensions.preview` set to `{ "id": 123, "featuredImageDatabaseId": 456 }`, the query above returns attachment `456` as the featured image.
 
 ### Passing preview params from WordPress
 

@@ -1302,7 +1302,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * A `preview` envelope in the request `extensions` carrying a `thumbnailId` should
+	 * A `preview` envelope in the request `extensions` carrying a `featuredImageDatabaseId` should
 	 * override the featured image when previewing, mirroring how core reads the previewed
 	 * featured image from the `_thumbnail_id` request parameter.
 	 *
@@ -1338,7 +1338,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'extensions' => [
 					'preview' => [
 						'id'          => $this->post,
-						'thumbnailId' => $new_image,
+						'featuredImageDatabaseId' => $new_image,
 					],
 				],
 			]
@@ -1349,7 +1349,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				// Identity is preserved: the node is still the published post.
 				$this->expectedField( 'post.databaseId', $this->post ),
-				// The featured image is overlaid from the previewed thumbnailId.
+				// The featured image is overlaid from the previewed featuredImageDatabaseId.
 				$this->expectedField( 'post.featuredImageDatabaseId', $new_image ),
 				$this->expectedField( 'post.featuredImageId', \GraphQLRelay\Relay::toGlobalId( 'post', (string) $new_image ) ),
 				$this->expectedField( 'post.featuredImage.node.databaseId', $new_image ),
@@ -1359,14 +1359,14 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotEquals(
 			$this->featured_image,
 			$actual['data']['post']['featuredImageDatabaseId'],
-			'The preview should reflect the previewed thumbnailId, not the published featured image'
+			'The preview should reflect the previewed featuredImageDatabaseId, not the published featured image'
 		);
 
 		wp_delete_attachment( $new_image, true );
 	}
 
 	/**
-	 * The previewed `thumbnailId` must only be honored for a viewer who can edit the post
+	 * The previewed `featuredImageDatabaseId` must only be honored for a viewer who can edit the post
 	 * being previewed. A viewer without edit caps should never have the featured image
 	 * overridden by a client-supplied thumbnail id.
 	 *
@@ -1396,7 +1396,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'extensions' => [
 					'preview' => [
 						'id'          => $this->post,
-						'thumbnailId' => $new_image,
+						'featuredImageDatabaseId' => $new_image,
 					],
 				],
 			]
