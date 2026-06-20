@@ -1564,6 +1564,10 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
 	 */
 	public function testRevisionedMetaResolvesFromRevisionInPreview() {
+		if ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) ) {
+			$this->markTestSkipped( 'Revisioned post meta (revisions_enabled / wp_post_revision_meta_keys) requires WordPress 6.4+.' );
+		}
+
 		WPGraphQL::clear_schema();
 
 		// A meta key WordPress revisions (stored on the revision itself).
@@ -1617,6 +1621,10 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
 	 */
 	public function testRevisionedMetaResolvesFromRevisionInRevisionsConnection() {
+		if ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) ) {
+			$this->markTestSkipped( 'Revisioned post meta (revisions_enabled / wp_post_revision_meta_keys) requires WordPress 6.4+.' );
+		}
+
 		WPGraphQL::clear_schema();
 
 		register_post_meta(

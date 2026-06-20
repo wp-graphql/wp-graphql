@@ -83,6 +83,8 @@ A field with neither option resolves from the published post, so forgetting to o
 
 Meta keys that WordPress revisions, those registered with `revisions_enabled` (or added via the `wp_post_revision_meta_keys` filter, such as core's `footnotes`), resolve from the revision's own value in a preview, mirroring core. Other meta keys continue to resolve from the published post, and the `graphql_resolve_revision_meta_from_parent` filter can still be used to opt a specific key into resolving from the revision.
 
+> **Requires WordPress 6.4+.** Revisioned post meta is built on the meta revisions framework added in WordPress 6.4 (`revisions_enabled` and `wp_post_revision_meta_keys()`). On earlier versions these keys resolve from the published post instead. The rest of the preview overlay (`title`, `content`, `excerpt`, the featured image, and identity preservation) works on all supported WordPress versions.
+
 ### Authentication and authorization
 
 A preview is only resolved when **all** of the following are true:
