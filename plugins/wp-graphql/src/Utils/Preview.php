@@ -11,14 +11,6 @@ use WPGraphQL\Model\Post;
 class Preview {
 
 	/**
-	 * Cache of revision Post models keyed by revision database ID, to avoid rebuilding
-	 * the model for every overlaid field of a previewed node.
-	 *
-	 * @var array<int,\WPGraphQL\Model\Post|null>
-	 */
-	private static $revision_models = [];
-
-	/**
 	 * Overlays previewable fields from a post's revision when the request carries a
 	 * `preview` envelope targeting that post, while preserving the node's published
 	 * identity (id/databaseId and any field not opted in stay published).
@@ -84,7 +76,13 @@ class Preview {
 	}
 
 	/**
-	 * Builds (and caches per request) the Post model for a revision id.
+	 * Builds the Post model for a revision id.
+	 *
+	 * A fresh model is built per call rather than cached, because the Model captures the
+	 * current user and its visibility at construction. A persisted (e.g. static) cache
+	 * would let a model built for one user/request be reused for another, leaking the
+	 * constructing user's visibility/owner context. `get_post()` is object-cached, so
+	 * the cost is negligible.
 	 *
 	 * @param int $revision_id The revision's database ID.
 	 */
@@ -93,12 +91,9 @@ class Preview {
 			return null;
 		}
 
-		if ( ! array_key_exists( $revision_id, self::$revision_models ) ) {
-			$revision_post                         = get_post( $revision_id );
-			self::$revision_models[ $revision_id ] = $revision_post instanceof \WP_Post ? new Post( $revision_post ) : null;
-		}
+		$revision_post = get_post( $revision_id );
 
-		return self::$revision_models[ $revision_id ];
+		return $revision_post instanceof \WP_Post ? new Post( $revision_post ) : null;
 	}
 
 	/**
