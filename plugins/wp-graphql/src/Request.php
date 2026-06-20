@@ -305,7 +305,7 @@ class Request {
 		 * surface a debug-only notice (visible under GRAPHQL_DEBUG). The request still
 		 * resolves the published data, so this never exposes unpublished content.
 		 */
-		if ( is_array( $this->app_context->preview ) && ! current_user_can( 'edit_post', $this->app_context->preview['id'] ) ) {
+		if ( is_array( $this->app_context->preview ) && ! current_user_can( 'edit_post', $this->app_context->preview['databaseId'] ) ) {
 			graphql_debug(
 				__( 'A `preview` request extension was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
 				[ 'type' => 'PREVIEW_EXTENSION_IGNORED' ]
@@ -363,13 +363,14 @@ class Request {
 	 * The envelope mirrors the query params WordPress core uses for front-end previews
 	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 	 *
-	 *     "extensions": { "preview": { "id": 123, "featuredImageDatabaseId": 456, "nonce": "..." } }
+	 *     "extensions": { "preview": { "databaseId": 123, "featuredImageDatabaseId": 456, "nonce": "..." } }
 	 *
-	 * The presence of a valid `id` marks the request as a preview of that post. Authorization
-	 * is enforced where the context is consumed (capability checks relative to the post),
-	 * not here. The `nonce` is accepted for forward compatibility but is not yet verified.
+	 * The presence of a valid `databaseId` marks the request as a preview of that post.
+	 * Authorization is enforced where the context is consumed (capability checks relative to
+	 * the post), not here. The `nonce` is accepted for forward compatibility but is not yet
+	 * verified.
 	 *
-	 * @return array{id:int,revisionId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */
 	private function get_preview_context(): ?array {
 		if ( ! $this->params instanceof OperationParams ) {
@@ -384,22 +385,22 @@ class Request {
 
 		$preview = $extensions['preview'];
 
-		$id = isset( $preview['id'] ) ? absint( $preview['id'] ) : 0;
+		$database_id = isset( $preview['databaseId'] ) ? absint( $preview['databaseId'] ) : 0;
 
 		// Without a post id there is nothing to preview.
-		if ( empty( $id ) ) {
+		if ( empty( $database_id ) ) {
 			return null;
 		}
 
 		// Only resolve the revision to overlay from when the current user can actually
 		// preview the post. This avoids a revision lookup for unauthorized requests and is
 		// a defense-in-depth complement to the capability checks at the point of overlay.
-		$revision_id = current_user_can( 'edit_post', $id ) ? \WPGraphQL\Utils\Utils::get_post_preview_id( $id ) : 0;
+		$revision_database_id = current_user_can( 'edit_post', $database_id ) ? \WPGraphQL\Utils\Utils::get_post_preview_id( $database_id ) : 0;
 
 		return [
-			'id'                      => $id,
+			'databaseId'              => $database_id,
 			// The latest revision of the targeted post, used to overlay previewable fields.
-			'revisionId'              => $revision_id,
+			'revisionDatabaseId'      => $revision_database_id,
 			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
 			// in the preview), so only treat an absent key as "no override".
 			'featuredImageDatabaseId' => isset( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null,

@@ -14,8 +14,8 @@ class NodeWithFeaturedImage {
 	 * Resolves the database ID of the node's featured image, honoring a previewed
 	 * featured image when the request carries one.
 	 *
-	 * When the request's preview context targets this node (`preview.id` matches the
-	 * node) and the viewer can edit that post, the client-supplied
+	 * When the request's preview context targets this node (`preview.databaseId` matches
+	 * the node) and the viewer can edit that post, the client-supplied
 	 * `featuredImageDatabaseId` is used instead of the stored featured image. This
 	 * mirrors how WordPress core resolves the previewed featured image from the
 	 * `_thumbnail_id` request parameter, which it never persists to the revision.
@@ -36,9 +36,9 @@ class NodeWithFeaturedImage {
 		if (
 			is_array( $preview )
 			&& isset( $preview['featuredImageDatabaseId'] )
-			&& (int) $post->databaseId === (int) $preview['id']
+			&& (int) $post->databaseId === (int) $preview['databaseId']
 			&& is_user_logged_in()
-			&& current_user_can( 'edit_post', (int) $preview['id'] )
+			&& current_user_can( 'edit_post', (int) $preview['databaseId'] )
 		) {
 			return ! empty( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null;
 		}

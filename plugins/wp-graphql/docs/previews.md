@@ -20,7 +20,7 @@ GraphQL requests may carry an `extensions` object alongside `query` and `variabl
   "variables": { "id": 123 },
   "extensions": {
     "preview": {
-      "id": 123,
+      "databaseId": 123,
       "featuredImageDatabaseId": 456,
       "nonce": "45d5b05f1b"
     }
@@ -30,13 +30,13 @@ GraphQL requests may carry an `extensions` object alongside `query` and `variabl
 
 The envelope mirrors the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 
-| Field         | Maps to          | Purpose                                                                 |
-| ------------- | ---------------- | ----------------------------------------------------------------------- |
-| `id`          | `preview_id`     | The database ID of the published post being previewed.                  |
-| `featuredImageDatabaseId` | `_thumbnail_id`  | The previewed featured image. `0` means the featured image was removed. |
-| `nonce`       | `preview_nonce`  | Reserved for forward compatibility. Not currently verified.             |
+| Field                     | Maps to         | Purpose                                                                 |
+| ------------------------- | --------------- | ----------------------------------------------------------------------- |
+| `databaseId`              | `preview_id`    | The database ID of the published post being previewed.                  |
+| `featuredImageDatabaseId` | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
+| `nonce`                   | `preview_nonce` | Reserved for forward compatibility. Not currently verified.             |
 
-When the request resolves the post identified by `id`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from that post's latest revision, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content and featured image come from the revision.
+When the request resolves the post identified by `databaseId`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from that post's latest revision, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content and featured image come from the revision.
 
 Because identity is preserved, the overlay also works for a previewed post that appears **inside a connection** (for example previewing how your edits look in a list of posts), and the node keeps its real `databaseId` and cursor.
 
@@ -79,7 +79,7 @@ A preview is only resolved when **all** of the following are true:
 
 - The request is authenticated.
 - The authenticated user can edit the post (`current_user_can( 'edit_post', id )`).
-- The `id` in the envelope matches the post being resolved.
+- The `databaseId` in the envelope matches the post being resolved.
 
 If any of these is not met, the request is resolved exactly as if no `preview` envelope had been provided: the published node (or `null`, per the usual access rules) is returned, and **no error is thrown**. This is intentional: an invalid or unauthorized envelope produces a response identical to a request without one, so it cannot be used to probe for posts a user cannot access.
 
@@ -105,7 +105,7 @@ query Preview($id: ID!) {
 }
 ```
 
-With `extensions.preview` set to `{ "id": 123, "featuredImageDatabaseId": 456 }`, the query above returns attachment `456` as the featured image.
+With `extensions.preview` set to `{ "databaseId": 123, "featuredImageDatabaseId": 456 }`, the query above returns attachment `456` as the featured image.
 
 ### Passing preview params from WordPress
 

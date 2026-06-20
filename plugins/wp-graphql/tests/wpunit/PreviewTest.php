@@ -1337,7 +1337,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'variables'  => [ 'id' => $this->post ],
 				'extensions' => [
 					'preview' => [
-						'id'          => $this->post,
+						'databaseId'              => $this->post,
 						'featuredImageDatabaseId' => $new_image,
 					],
 				],
@@ -1395,7 +1395,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'variables'  => [ 'id' => $this->post ],
 				'extensions' => [
 					'preview' => [
-						'id'          => $this->post,
+						'databaseId'              => $this->post,
 						'featuredImageDatabaseId' => $new_image,
 					],
 				],
@@ -1442,7 +1442,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'query'      => $query,
 				'variables'  => $variables,
-				'extensions' => [ 'preview' => [ 'id' => $this->post ] ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
 			]
 		);
 
@@ -1591,7 +1591,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
 				'variables'  => [ 'id' => $this->post ],
-				'extensions' => [ 'preview' => [ 'id' => $this->post ] ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
 			]
 		);
 
@@ -1621,7 +1621,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'query'      => $query,
 				'variables'  => [ 'id' => $this->post ],
-				'extensions' => [ 'preview' => [ 'id' => $this->post ] ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
 			]
 		);
 
@@ -1663,7 +1663,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql(
 			[
 				'query'      => $query,
-				'extensions' => [ 'preview' => [ 'id' => $this->post ] ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
 			]
 		);
 
@@ -1701,7 +1701,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'query'      => $query,
 				'variables'  => [ 'id' => $this->post ],
-				'extensions' => [ 'preview' => [ 'id' => $this->post ] ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
 			]
 		);
 
@@ -1734,7 +1734,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'query'      => $query,
 				'variables'  => [ 'id' => $this->post ],
 				// A preview id that targets a different, non-existent post.
-				'extensions' => [ 'preview' => [ 'id' => 99999999 ] ],
+				'extensions' => [ 'preview' => [ 'databaseId' => 99999999 ] ],
 			]
 		);
 

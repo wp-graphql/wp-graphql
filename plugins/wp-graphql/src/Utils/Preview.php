@@ -43,14 +43,14 @@ class Preview {
 		}
 
 		// The overlay only applies to the post the preview context targets.
-		if ( ! $source instanceof Post || (int) $source->databaseId !== (int) $context->preview['id'] ) {
+		if ( ! $source instanceof Post || (int) $source->databaseId !== (int) $context->preview['databaseId'] ) {
 			return $nil;
 		}
 
 		$preview = $context->preview;
 
 		// Only authenticated users who can edit (preview) the post may see previewed data.
-		if ( ! is_user_logged_in() || ! current_user_can( 'edit_post', (int) $preview['id'] ) ) {
+		if ( ! is_user_logged_in() || ! current_user_can( 'edit_post', (int) $preview['databaseId'] ) ) {
 			return $nil;
 		}
 
@@ -63,7 +63,7 @@ class Preview {
 
 		// Opted-in fields resolve their normal resolver against the revision model.
 		if ( ! empty( $config['isPreviewable'] ) ) {
-			$revision = self::get_revision_model( (int) ( $preview['revisionId'] ?? 0 ) );
+			$revision = self::get_revision_model( (int) ( $preview['revisionDatabaseId'] ?? 0 ) );
 
 			if ( $revision instanceof Post ) {
 				return is_callable( $field_resolver )
