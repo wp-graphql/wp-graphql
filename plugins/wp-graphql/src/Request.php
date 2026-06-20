@@ -307,7 +307,7 @@ class Request {
 		 */
 		if ( is_array( $this->app_context->preview ) && ! current_user_can( 'edit_post', $this->app_context->preview['databaseId'] ) ) {
 			graphql_debug(
-				__( 'A `preview` request extension was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
+				__( 'Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
 				[ 'type' => 'PREVIEW_EXTENSION_IGNORED' ]
 			);
 		}
@@ -363,12 +363,12 @@ class Request {
 	 * The envelope mirrors the query params WordPress core uses for front-end previews
 	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 	 *
-	 *     "extensions": { "preview": { "databaseId": 123, "featuredImageDatabaseId": 456, "nonce": "..." } }
+	 *     X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"..."}
 	 *
-	 * The request `extensions.preview` object is the primary source. As a fallback, the same
-	 * JSON object may be sent in an `X-GraphQL-Preview` HTTP header, for clients or
-	 * intermediaries (gateways, CDNs, persisted-query middleware) where request `extensions`
-	 * may not survive to the server.
+	 * The `X-GraphQL-Preview` request header (a JSON-encoded object) is the primary source,
+	 * because a headers UI exists in every GraphQL IDE. The same object may instead be sent
+	 * as a `preview` entry in the request `extensions` as a fallback (for example to keep the
+	 * context inside the operation body). The header takes precedence when both are present.
 	 *
 	 * The presence of a valid `databaseId` marks the request as a preview of that post.
 	 * Authorization is enforced where the context is consumed (capability checks relative to
@@ -418,17 +418,27 @@ class Request {
 	/**
 	 * Resolves the raw `preview` input for the request.
 	 *
-	 * The request `extensions.preview` object is the primary source. When it is absent, the
-	 * same JSON object is accepted from an `X-GraphQL-Preview` HTTP header as a fallback, so
-	 * the context survives clients or intermediaries that drop request `extensions`. The
-	 * header value is a JSON-encoded object, e.g.:
+	 * The `X-GraphQL-Preview` HTTP header (a JSON-encoded object) is the primary source,
+	 * since a headers UI is available in every GraphQL IDE. When the header is absent, the
+	 * same object is accepted as a `preview` entry in the request `extensions` as a fallback.
+	 * The header value is a JSON-encoded object, e.g.:
 	 *
 	 *     X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"..."}
 	 *
 	 * @return array<string,mixed>|null The raw (unnormalized) preview input, or null when none.
 	 */
 	private function get_preview_input(): ?array {
-		// Primary: the `preview` object in the request extensions.
+		// Primary: a JSON-encoded `X-GraphQL-Preview` header.
+		if ( ! empty( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) {
+			$header  = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) );
+			$decoded = json_decode( $header, true );
+
+			if ( is_array( $decoded ) && ! empty( $decoded ) ) {
+				return $decoded;
+			}
+		}
+
+		// Fallback: the `preview` object in the request extensions.
 		if ( $this->params instanceof OperationParams ) {
 			$extensions = $this->params->extensions;
 
@@ -437,15 +447,7 @@ class Request {
 			}
 		}
 
-		// Fallback: a JSON-encoded `X-GraphQL-Preview` header.
-		if ( empty( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) {
-			return null;
-		}
-
-		$header  = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) );
-		$decoded = json_decode( $header, true );
-
-		return is_array( $decoded ) && ! empty( $decoded ) ? $decoded : null;
+		return null;
 	}
 
 	/**

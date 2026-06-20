@@ -276,7 +276,7 @@ class RootQuery {
 								if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
 									if ( is_array( $context->preview ) ) {
 										graphql_debug(
-											__( 'The deprecated `asPreview` argument was ignored because a `preview` request extension was provided. Use `extensions.preview` instead.', 'wp-graphql' ),
+											__( 'The deprecated `asPreview` argument was ignored because preview context was provided. Use the `X-GraphQL-Preview` header instead.', 'wp-graphql' ),
 											[ 'type' => 'PREVIEW_ARG_IGNORED' ]
 										);
 									} else {

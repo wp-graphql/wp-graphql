@@ -7,28 +7,18 @@ WPGraphQL can return the unpublished, in-progress version of a post (a "preview"
 
 There are two ways to request a preview:
 
-- The **`preview` request extension** (recommended). Preview is a request-level concern, so it is expressed in the request `extensions` rather than as a field argument.
-- The **`asPreview` field argument** (deprecated). This still works for backwards compatibility, but new integrations should use the extension.
+- The **`X-GraphQL-Preview` request header** (recommended). Preview is a request-level concern, so it is expressed as request context rather than a field argument. A header works in every GraphQL IDE's headers panel.
+- The **`asPreview` field argument** (deprecated). This still works for backwards compatibility, but new integrations should use the header.
 
-## The `preview` request extension
+## The `X-GraphQL-Preview` header
 
-GraphQL requests may carry an `extensions` object alongside `query` and `variables`. WPGraphQL reads a `preview` envelope from it:
+Send a JSON-encoded object in an `X-GraphQL-Preview` request header:
 
-```jsonc
-{
-  "query": "query Post($id: ID!) { post(id: $id, idType: DATABASE_ID) { title content featuredImage { node { sourceUrl } } } }",
-  "variables": { "id": 123 },
-  "extensions": {
-    "preview": {
-      "databaseId": 123,
-      "featuredImageDatabaseId": 456,
-      "nonce": "45d5b05f1b"
-    }
-  }
-}
+```http
+X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"45d5b05f1b"}
 ```
 
-The envelope mirrors the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
+The object mirrors the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 
 | Field                     | Maps to         | Purpose                                                                 |
 | ------------------------- | --------------- | ----------------------------------------------------------------------- |
@@ -36,25 +26,31 @@ The envelope mirrors the query parameters WordPress core adds to a front-end pre
 | `featuredImageDatabaseId` | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
 | `nonce`                   | `preview_nonce` | Reserved for forward compatibility. Not currently verified.             |
 
+The header is included in `Access-Control-Allow-Headers`, so cross-origin clients (a headless app on a different domain) can send it.
+
 When the request resolves the post identified by `databaseId`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from **the current user's autosave**, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content comes from the autosave.
 
 The overlay source is the current user's autosave (the `{id}-autosave-v1` revision WordPress saves while editing), resolved with `wp_get_post_autosave()`, exactly as core's preview does. Autosaves are per user, so a request only ever previews the authenticated user's own in-progress edits, never another editor's. If the user has no autosave for the post (for example a draft saved directly), nothing is overlaid and the post's own values are returned.
 
-### The `X-GraphQL-Preview` header fallback
-
-The `extensions.preview` object is the primary source for the preview context. The same JSON object may also be sent in an `X-GraphQL-Preview` request header. The header is a fallback for clients, or intermediaries such as gateways, CDNs, or persisted-query middleware, where the request `extensions` may not reach the server:
-
-```http
-X-GraphQL-Preview: {"databaseId":43,"featuredImageDatabaseId":47,"nonce":"45d5b05f1b"}
-```
-
-The header value is the exact same object you would put in `extensions.preview`, JSON-encoded. When both are present, `extensions.preview` takes precedence. The header is included in `Access-Control-Allow-Headers`, so cross-origin clients can send it.
-
-A robust preview client can send the context in **both** `extensions.preview` and the header. WPGraphQL prefers the extension and falls back to the header, so whichever survives the network path is used and the client does not need to detect which one arrived.
-
 Because identity is preserved, the overlay also works for a previewed post that appears **inside a connection** (for example previewing how your edits look in a list of posts), and the node keeps its real `databaseId` and cursor.
 
 You do **not** need to pass `asPreview` as well.
+
+### The `extensions.preview` fallback
+
+The same object may instead be sent as a `preview` entry in the request `extensions`, alongside `query` and `variables`:
+
+```jsonc
+{
+  "query": "query Post($id: ID!) { post(id: $id, idType: DATABASE_ID) { title content } }",
+  "variables": { "id": 123 },
+  "extensions": {
+    "preview": { "databaseId": 123, "featuredImageDatabaseId": 456, "nonce": "45d5b05f1b" }
+  }
+}
+```
+
+This is useful when you want the preview context to travel inside the operation body rather than the transport (for example to keep it with a logged or replayed operation). The `X-GraphQL-Preview` header takes precedence when both are present. You can also send both for resilience against an intermediary that drops one of them.
 
 ### Which fields are previewable
 
@@ -119,7 +115,7 @@ query Preview($id: ID!) {
 }
 ```
 
-With `extensions.preview` set to `{ "databaseId": 123, "featuredImageDatabaseId": 456 }`, the query above returns attachment `456` as the featured image.
+With the preview context set to `{ "databaseId": 123, "featuredImageDatabaseId": 456 }` (via the header or `extensions.preview`), the query above returns attachment `456` as the featured image.
 
 ### The preview flow, end to end
 
@@ -135,26 +131,23 @@ The headless equivalent:
 
 1. The author edits and clicks **Preview** in wp-admin. The autosave is saved exactly as above.
 2. WordPress generates the preview link. A headless framework (such as Faust) overrides the `preview_post_link` filter to point that link at the headless app, carrying the `preview_id` (and `preview_nonce`) query parameters.
-3. The headless app reads those parameters and runs its normal page query, adding the `preview` extension to the request:
+3. The headless app reads those parameters and runs its normal page query, adding the preview context as an `X-GraphQL-Preview` header:
 
-   ```jsonc
-   "extensions": {
-     "preview": {
-       "databaseId": 43,                // from preview_id
-       "featuredImageDatabaseId": 47    // optional, see below
-     }
-   }
+   ```http
+   X-GraphQL-Preview: {"databaseId":43,"featuredImageDatabaseId":47}
    ```
+
+   (`databaseId` comes from `preview_id`; `featuredImageDatabaseId` is optional, see below. The same object may instead go in `extensions.preview`.)
 
 4. WPGraphQL resolves the authenticated user's autosave for post `43` and overlays the previewable fields. The page renders in a preview state, with the post's identity (`databaseId`, `uri`, and so on) preserved.
 
 The request must be authenticated as the same user who made the edits (via cookie or a token), because the autosave is per user and the capability check requires an editor of the post.
 
-The featured image is a special case. WordPress does not store the previewed featured image on the autosave (the block editor sends it as `featured_media`, not as revisioned meta), and it is not included in the preview URL for the block editor. If you want the previewed featured image to appear, the headless framework can read it from the editor state and pass it as `featuredImageDatabaseId` in the envelope.
+The featured image is a special case. WordPress does not store the previewed featured image on the autosave (the block editor sends it as `featured_media`, not as revisioned meta), and it is not included in the preview URL for the block editor. If you want the previewed featured image to appear, the headless framework can read it from the editor state and pass it as `featuredImageDatabaseId` in the preview context.
 
 ## The `asPreview` argument (deprecated)
 
-Before the `preview` extension, previews were requested with an `asPreview` field argument:
+Before the preview context (header / `extensions.preview`), previews were requested with an `asPreview` field argument:
 
 ```graphql
 query Post($id: ID!) {
@@ -165,8 +158,8 @@ query Post($id: ID!) {
 }
 ```
 
-This continues to work for requests that do **not** carry a `preview` extension, and is now marked deprecated in the schema. Unlike the extension, `asPreview: true` swaps the whole node to the revision, so `databaseId` becomes the *revision's* id rather than the published post's.
+This continues to work for requests that do **not** carry a preview context, and is now marked deprecated in the schema. Unlike the preview context, `asPreview: true` swaps the whole node to the revision, so `databaseId` becomes the *revision's* id rather than the published post's.
 
-The argument and the extension are separate mechanisms and should not be combined. When a request provides **both** a `preview` extension and `asPreview: true`, the extension wins (the identity-preserving overlay is applied), the `asPreview` argument is ignored, and a debug notice is added under `GRAPHQL_DEBUG`.
+The argument and the preview context are separate mechanisms and should not be combined. When a request provides **both** a preview context and `asPreview: true`, the preview context wins (the identity-preserving overlay is applied), the `asPreview` argument is ignored, and a debug notice is added under `GRAPHQL_DEBUG`.
 
-The argument is planned for removal in a future major version. To migrate, drop `asPreview: true` from your queries and send the `preview` extension on the request instead. As a bonus, the extension preserves the node's published `databaseId`, so toolbars and editors no longer need to map the revision id back to the published post.
+The argument is planned for removal in a future major version. To migrate, drop `asPreview: true` from your queries and send the preview context (the `X-GraphQL-Preview` header) on the request instead. As a bonus, the preview context preserves the node's published `databaseId`, so toolbars and editors no longer need to map the revision id back to the published post.

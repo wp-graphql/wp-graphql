@@ -1519,22 +1519,22 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * The `extensions.preview` object takes precedence over the `X-GraphQL-Preview` header
-	 * when both are present.
+	 * The `X-GraphQL-Preview` header takes precedence over the `extensions.preview` object
+	 * when both are present (the header is the primary source).
 	 */
-	public function testExtensionsPreviewTakesPrecedenceOverHeader() {
+	public function testHeaderTakesPrecedenceOverExtensionsPreview() {
 		wp_set_current_user( $this->admin );
 
-		// Header points at a bogus post; extensions points at the real one. Extensions wins,
-		// so the overlay applies to the real post.
-		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = wp_json_encode( [ 'databaseId' => 99999999 ] );
+		// Extensions points at a bogus post; the header points at the real one. The header
+		// wins, so the overlay applies to the real post.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = wp_json_encode( [ 'databaseId' => $this->post ] );
 
 		try {
 			$actual = $this->graphql(
 				[
 					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
 					'variables'  => [ 'id' => $this->post ],
-					'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+					'extensions' => [ 'preview' => [ 'databaseId' => 99999999 ] ],
 				]
 			);
 		} finally {
@@ -1542,7 +1542,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'extensions.preview is used over the header' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'the header is used over extensions.preview' );
 	}
 
 	/**
