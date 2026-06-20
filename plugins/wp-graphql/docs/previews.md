@@ -40,6 +40,18 @@ When the request resolves the post identified by `databaseId`, it **overlays the
 
 The overlay source is the current user's autosave (the `{id}-autosave-v1` revision WordPress saves while editing), resolved with `wp_get_post_autosave()`, exactly as core's preview does. Autosaves are per user, so a request only ever previews the authenticated user's own in-progress edits, never another editor's. If the user has no autosave for the post (for example a draft saved directly), nothing is overlaid and the post's own values are returned.
 
+### The `X-GraphQL-Preview` header fallback
+
+The `extensions.preview` object is the primary source for the preview context. The same JSON object may also be sent in an `X-GraphQL-Preview` request header. The header is a fallback for clients, or intermediaries such as gateways, CDNs, or persisted-query middleware, where the request `extensions` may not reach the server:
+
+```http
+X-GraphQL-Preview: {"databaseId":43,"featuredImageDatabaseId":47,"nonce":"45d5b05f1b"}
+```
+
+The header value is the exact same object you would put in `extensions.preview`, JSON-encoded. When both are present, `extensions.preview` takes precedence. The header is included in `Access-Control-Allow-Headers`, so cross-origin clients can send it.
+
+A robust preview client can send the context in **both** `extensions.preview` and the header. WPGraphQL prefers the extension and falls back to the header, so whichever survives the network path is used and the client does not need to detect which one arrived.
+
 Because identity is preserved, the overlay also works for a previewed post that appears **inside a connection** (for example previewing how your edits look in a list of posts), and the node keeps its real `databaseId` and cursor.
 
 You do **not** need to pass `asPreview` as well.

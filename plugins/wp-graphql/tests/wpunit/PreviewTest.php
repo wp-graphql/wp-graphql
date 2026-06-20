@@ -1492,6 +1492,60 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * The preview context may be supplied via the `X-GraphQL-Preview` header (JSON-encoded)
+	 * as a fallback when the request does not carry an `extensions.preview` object, for
+	 * clients or intermediaries that drop request extensions.
+	 */
+	public function testPreviewContextFromHeaderFallback() {
+		wp_set_current_user( $this->admin );
+
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = wp_json_encode( [ 'databaseId' => $this->post ] );
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
+					'variables' => [ 'id' => $this->post ],
+					// Deliberately no `extensions.preview`; the header is the only source.
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->post, $actual['data']['post']['databaseId'], 'Identity is preserved via the header path' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'The header fallback overlays the autosave content' );
+	}
+
+	/**
+	 * The `extensions.preview` object takes precedence over the `X-GraphQL-Preview` header
+	 * when both are present.
+	 */
+	public function testExtensionsPreviewTakesPrecedenceOverHeader() {
+		wp_set_current_user( $this->admin );
+
+		// Header points at a bogus post; extensions points at the real one. Extensions wins,
+		// so the overlay applies to the real post.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = wp_json_encode( [ 'databaseId' => 99999999 ] );
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'extensions.preview is used over the header' );
+	}
+
+	/**
 	 * Meta keys that WordPress revisions (registered with `revisions_enabled`, e.g. core's
 	 * `footnotes`) must resolve from the revision's own value in a preview, not from the
 	 * parent. Previously the blanket parent-fallback overwrote the revision's value.

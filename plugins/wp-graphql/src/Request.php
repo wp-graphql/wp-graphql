@@ -358,12 +358,17 @@ class Request {
 	}
 
 	/**
-	 * Parses and normalizes the `preview` envelope from the request `extensions`.
+	 * Parses and normalizes the `preview` envelope for the request.
 	 *
 	 * The envelope mirrors the query params WordPress core uses for front-end previews
 	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 	 *
 	 *     "extensions": { "preview": { "databaseId": 123, "featuredImageDatabaseId": 456, "nonce": "..." } }
+	 *
+	 * The request `extensions.preview` object is the primary source. As a fallback, the same
+	 * JSON object may be sent in an `X-GraphQL-Preview` HTTP header, for clients or
+	 * intermediaries (gateways, CDNs, persisted-query middleware) where request `extensions`
+	 * may not survive to the server.
 	 *
 	 * The presence of a valid `databaseId` marks the request as a preview of that post.
 	 * Authorization is enforced where the context is consumed (capability checks relative to
@@ -373,17 +378,11 @@ class Request {
 	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */
 	private function get_preview_context(): ?array {
-		if ( ! $this->params instanceof OperationParams ) {
+		$preview = $this->get_preview_input();
+
+		if ( null === $preview ) {
 			return null;
 		}
-
-		$extensions = $this->params->extensions;
-
-		if ( ! is_array( $extensions ) || empty( $extensions['preview'] ) || ! is_array( $extensions['preview'] ) ) {
-			return null;
-		}
-
-		$preview = $extensions['preview'];
 
 		$database_id = isset( $preview['databaseId'] ) ? absint( $preview['databaseId'] ) : 0;
 
@@ -414,6 +413,39 @@ class Request {
 			'featuredImageDatabaseId' => isset( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null,
 			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
 		];
+	}
+
+	/**
+	 * Resolves the raw `preview` input for the request.
+	 *
+	 * The request `extensions.preview` object is the primary source. When it is absent, the
+	 * same JSON object is accepted from an `X-GraphQL-Preview` HTTP header as a fallback, so
+	 * the context survives clients or intermediaries that drop request `extensions`. The
+	 * header value is a JSON-encoded object, e.g.:
+	 *
+	 *     X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"..."}
+	 *
+	 * @return array<string,mixed>|null The raw (unnormalized) preview input, or null when none.
+	 */
+	private function get_preview_input(): ?array {
+		// Primary: the `preview` object in the request extensions.
+		if ( $this->params instanceof OperationParams ) {
+			$extensions = $this->params->extensions;
+
+			if ( is_array( $extensions ) && ! empty( $extensions['preview'] ) && is_array( $extensions['preview'] ) ) {
+				return $extensions['preview'];
+			}
+		}
+
+		// Fallback: a JSON-encoded `X-GraphQL-Preview` header.
+		if ( empty( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) {
+			return null;
+		}
+
+		$header  = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) );
+		$decoded = json_decode( $header, true );
+
+		return is_array( $decoded ) && ! empty( $decoded ) ? $decoded : null;
 	}
 
 	/**
