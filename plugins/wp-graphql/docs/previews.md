@@ -36,7 +36,9 @@ The envelope mirrors the query parameters WordPress core adds to a front-end pre
 | `featuredImageDatabaseId` | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
 | `nonce`                   | `preview_nonce` | Reserved for forward compatibility. Not currently verified.             |
 
-When the request resolves the post identified by `databaseId`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from that post's latest revision, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content and featured image come from the revision.
+When the request resolves the post identified by `databaseId`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from **the current user's autosave**, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content comes from the autosave.
+
+The overlay source is the current user's autosave (the `{id}-autosave-v1` revision WordPress saves while editing), resolved with `wp_get_post_autosave()`, exactly as core's preview does. Autosaves are per user, so a request only ever previews the authenticated user's own in-progress edits, never another editor's. If the user has no autosave for the post (for example a draft saved directly), nothing is overlaid and the post's own values are returned.
 
 Because identity is preserved, the overlay also works for a previewed post that appears **inside a connection** (for example previewing how your edits look in a list of posts), and the node keeps its real `databaseId` and cursor.
 
@@ -107,9 +109,36 @@ query Preview($id: ID!) {
 
 With `extensions.preview` set to `{ "databaseId": 123, "featuredImageDatabaseId": 456 }`, the query above returns attachment `456` as the featured image.
 
-### Passing preview params from WordPress
+### The preview flow, end to end
 
-When an author clicks **Preview** in wp-admin, WordPress generates a URL with `preview_id`, `preview_nonce`, and `_thumbnail_id` query parameters. A headless framework that handles the preview can map those parameters into the `preview` extension on its GraphQL request, so the front end renders the same preview WordPress would.
+The goal is to reproduce, in a headless app, what happens when an author clicks **Preview** in wp-admin. Here is how the pieces line up.
+
+What WordPress does natively when you click **Preview**:
+
+1. The editor saves an **autosave** for the current user (the `{id}-autosave-v1` revision) holding the in-progress, unsaved edits.
+2. It opens a preview URL built from the post's permalink: `…/?preview=true&preview_id=43&preview_nonce=<nonce>`. Note `preview_id` is the **published post id**, not a revision id.
+3. On the front end, WordPress verifies the nonce, then overlays the current user's autosave onto the published post and renders it.
+
+The headless equivalent:
+
+1. The author edits and clicks **Preview** in wp-admin. The autosave is saved exactly as above.
+2. WordPress generates the preview link. A headless framework (such as Faust) overrides the `preview_post_link` filter to point that link at the headless app, carrying the `preview_id` (and `preview_nonce`) query parameters.
+3. The headless app reads those parameters and runs its normal page query, adding the `preview` extension to the request:
+
+   ```jsonc
+   "extensions": {
+     "preview": {
+       "databaseId": 43,                // from preview_id
+       "featuredImageDatabaseId": 47    // optional, see below
+     }
+   }
+   ```
+
+4. WPGraphQL resolves the authenticated user's autosave for post `43` and overlays the previewable fields. The page renders in a preview state, with the post's identity (`databaseId`, `uri`, and so on) preserved.
+
+The request must be authenticated as the same user who made the edits (via cookie or a token), because the autosave is per user and the capability check requires an editor of the post.
+
+The featured image is a special case. WordPress does not store the previewed featured image on the autosave (the block editor sends it as `featured_media`, not as revisioned meta), and it is not included in the preview URL for the block editor. If you want the previewed featured image to appear, the headless framework can read it from the editor state and pass it as `featuredImageDatabaseId` in the envelope.
 
 ## The `asPreview` argument (deprecated)
 

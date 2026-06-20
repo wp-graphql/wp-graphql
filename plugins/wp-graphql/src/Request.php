@@ -392,14 +392,22 @@ class Request {
 			return null;
 		}
 
-		// Only resolve the revision to overlay from when the current user can actually
-		// preview the post. This avoids a revision lookup for unauthorized requests and is
-		// a defense-in-depth complement to the capability checks at the point of overlay.
-		$revision_database_id = current_user_can( 'edit_post', $database_id ) ? \WPGraphQL\Utils\Utils::get_post_preview_id( $database_id ) : 0;
+		// Resolve the revision to overlay from, mirroring how WordPress core previews a
+		// post (`_set_preview()`): the current user's autosave holds the in-progress,
+		// unsaved edits the "Preview" button shows. This is the current user's own autosave
+		// (autosaves are per-user), not the latest revision by any author. Only look it up
+		// when the current user can preview the post, which avoids the query for
+		// unauthorized requests and is a defense-in-depth complement to the capability
+		// checks at the point of overlay.
+		$revision_database_id = 0;
+		if ( current_user_can( 'edit_post', $database_id ) ) {
+			$autosave             = wp_get_post_autosave( $database_id, get_current_user_id() );
+			$revision_database_id = $autosave instanceof \WP_Post ? (int) $autosave->ID : 0;
+		}
 
 		return [
 			'databaseId'              => $database_id,
-			// The latest revision of the targeted post, used to overlay previewable fields.
+			// The current user's autosave (a revision) to overlay previewable fields from.
 			'revisionDatabaseId'      => $revision_database_id,
 			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
 			// in the preview), so only treat an absent key as "no override".
