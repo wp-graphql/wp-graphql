@@ -12,23 +12,23 @@ There are two ways to request a preview:
 
 ## The `X-GraphQL-Preview` header
 
-Send a JSON-encoded object in an `X-GraphQL-Preview` request header:
+Send the preview context as an `X-GraphQL-Preview` request header. The value is an [RFC 8941 Structured Field](https://www.rfc-editor.org/rfc/rfc8941) dictionary: comma-separated `key=value` members with lowercase keys, integer values bare and string values double-quoted.
 
 ```http
-X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"45d5b05f1b"}
+X-GraphQL-Preview: database_id=123, featured_image_database_id=456, nonce="45d5b05f1b"
 ```
 
-The object mirrors the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
+The fields mirror the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
 
-| Field                     | Maps to         | Purpose                                                                 |
-| ------------------------- | --------------- | ----------------------------------------------------------------------- |
-| `databaseId`              | `preview_id`    | The database ID of the published post being previewed.                  |
-| `featuredImageDatabaseId` | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
-| `nonce`                   | `preview_nonce` | Reserved for forward compatibility. Not currently verified.             |
+| Header field (`extensions` field)              | Maps to         | Purpose                                                                 |
+| ---------------------------------------------- | --------------- | ----------------------------------------------------------------------- |
+| `database_id` (`databaseId`)                   | `preview_id`    | The database ID of the published post being previewed.                  |
+| `featured_image_database_id` (`featuredImageDatabaseId`) | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
+| `nonce` (`nonce`)                              | `preview_nonce` | Reserved for forward compatibility. Not currently verified.             |
 
-The header is included in `Access-Control-Allow-Headers`, so cross-origin clients (a headless app on a different domain) can send it.
+The header value uses Structured Fields (the HTTP standard for structured header values), so its keys are lowercase `snake_case`; the JSON `extensions` fallback below uses the `camelCase` keys shown in parentheses. The header is included in `Access-Control-Allow-Headers`, so cross-origin clients (a headless app on a different domain) can send it.
 
-When the request resolves the post identified by `databaseId`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from **the current user's autosave**, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content comes from the autosave.
+When the request resolves the post identified by `database_id`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from **the current user's autosave**, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content comes from the autosave.
 
 The overlay source is the current user's autosave (the `{id}-autosave-v1` revision WordPress saves while editing), resolved with `wp_get_post_autosave()`, exactly as core's preview does. Autosaves are per user, so a request only ever previews the authenticated user's own in-progress edits, never another editor's. If the user has no autosave for the post (for example a draft saved directly), nothing is overlaid and the post's own values are returned.
 
@@ -134,10 +134,10 @@ The headless equivalent:
 3. The headless app reads those parameters and runs its normal page query, adding the preview context as an `X-GraphQL-Preview` header:
 
    ```http
-   X-GraphQL-Preview: {"databaseId":43,"featuredImageDatabaseId":47}
+   X-GraphQL-Preview: database_id=43, featured_image_database_id=47
    ```
 
-   (`databaseId` comes from `preview_id`; `featuredImageDatabaseId` is optional, see below. The same object may instead go in `extensions.preview`.)
+   (`database_id` comes from `preview_id`; `featured_image_database_id` is optional, see below. The same context may instead go in `extensions.preview` as a JSON object.)
 
 4. WPGraphQL resolves the authenticated user's autosave for post `43` and overlays the previewable fields. The page renders in a preview state, with the post's identity (`databaseId`, `uri`, and so on) preserved.
 

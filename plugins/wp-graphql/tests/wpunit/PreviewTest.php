@@ -1492,19 +1492,27 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * The preview context may be supplied via the `X-GraphQL-Preview` header (JSON-encoded)
-	 * as a fallback when the request does not carry an `extensions.preview` object, for
-	 * clients or intermediaries that drop request extensions.
+	 * The preview context is supplied via the `X-GraphQL-Preview` header as an RFC 8941
+	 * structured-field dictionary (the primary transport). This exercises multi-member
+	 * parsing (an integer and a string member) and both the content overlay and the
+	 * featured-image override.
 	 */
-	public function testPreviewContextFromHeaderFallback() {
+	public function testPreviewContextFromStructuredFieldHeader() {
 		wp_set_current_user( $this->admin );
 
-		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = wp_json_encode( [ 'databaseId' => $this->post ] );
+		$filename  = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$new_image = $this->factory()->attachment->create_upload_object( $filename );
+
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf(
+			'database_id=%d, featured_image_database_id=%d, nonce="abc123"',
+			$this->post,
+			$new_image
+		);
 
 		try {
 			$actual = $this->graphql(
 				[
-					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
+					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content featuredImageDatabaseId } }',
 					'variables' => [ 'id' => $this->post ],
 					// Deliberately no `extensions.preview`; the header is the only source.
 				]
@@ -1515,7 +1523,10 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $this->post, $actual['data']['post']['databaseId'], 'Identity is preserved via the header path' );
-		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'The header fallback overlays the autosave content' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'The header overlays the autosave content' );
+		$this->assertEquals( $new_image, $actual['data']['post']['featuredImageDatabaseId'], 'The header overrides the featured image' );
+
+		wp_delete_attachment( $new_image, true );
 	}
 
 	/**
@@ -1527,7 +1538,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Extensions points at a bogus post; the header points at the real one. The header
 		// wins, so the overlay applies to the real post.
-		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = wp_json_encode( [ 'databaseId' => $this->post ] );
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'database_id=' . $this->post;
 
 		try {
 			$actual = $this->graphql(

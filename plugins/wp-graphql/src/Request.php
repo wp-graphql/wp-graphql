@@ -358,17 +358,23 @@ class Request {
 	}
 
 	/**
-	 * Parses and normalizes the `preview` envelope for the request.
+	 * Parses and normalizes the preview context for the request.
 	 *
-	 * The envelope mirrors the query params WordPress core uses for front-end previews
-	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`):
+	 * The context mirrors the query params WordPress core uses for front-end previews
+	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`). Each transport uses its native
+	 * structured form:
 	 *
-	 *     X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"..."}
+	 *   - The `X-GraphQL-Preview` request header (an RFC 8941 Structured Field dictionary, with
+	 *     lowercase keys) is the primary source, because a headers UI exists in every GraphQL IDE:
 	 *
-	 * The `X-GraphQL-Preview` request header (a JSON-encoded object) is the primary source,
-	 * because a headers UI exists in every GraphQL IDE. The same object may instead be sent
-	 * as a `preview` entry in the request `extensions` as a fallback (for example to keep the
-	 * context inside the operation body). The header takes precedence when both are present.
+	 *         X-GraphQL-Preview: database_id=123, featured_image_database_id=456, nonce="abc"
+	 *
+	 *   - The same context may instead be sent as a JSON `preview` object in the request
+	 *     `extensions` as a fallback (for example to keep it inside the operation body):
+	 *
+	 *         "extensions": { "preview": { "databaseId": 123, "featuredImageDatabaseId": 456 } }
+	 *
+	 * The header takes precedence when both are present.
 	 *
 	 * The presence of a valid `databaseId` marks the request as a preview of that post.
 	 * Authorization is enforced where the context is consumed (capability checks relative to
@@ -416,29 +422,26 @@ class Request {
 	}
 
 	/**
-	 * Resolves the raw `preview` input for the request.
+	 * Resolves the raw `preview` input for the request, keyed like the JSON `extensions.preview`
+	 * object (`databaseId`, `featuredImageDatabaseId`, `nonce`).
 	 *
-	 * The `X-GraphQL-Preview` HTTP header (a JSON-encoded object) is the primary source,
-	 * since a headers UI is available in every GraphQL IDE. When the header is absent, the
-	 * same object is accepted as a `preview` entry in the request `extensions` as a fallback.
-	 * The header value is a JSON-encoded object, e.g.:
-	 *
-	 *     X-GraphQL-Preview: {"databaseId":123,"featuredImageDatabaseId":456,"nonce":"..."}
+	 * The `X-GraphQL-Preview` header (an RFC 8941 Structured Field dictionary) is the primary
+	 * source, since a headers UI is available in every GraphQL IDE. When the header is absent,
+	 * the same context is accepted as a JSON `preview` object in the request `extensions`.
 	 *
 	 * @return array<string,mixed>|null The raw (unnormalized) preview input, or null when none.
 	 */
 	private function get_preview_input(): ?array {
-		// Primary: a JSON-encoded `X-GraphQL-Preview` header.
+		// Primary: the `X-GraphQL-Preview` header (a structured-field dictionary).
 		if ( ! empty( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) {
-			$header  = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) );
-			$decoded = json_decode( $header, true );
+			$parsed = $this->parse_preview_header( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) );
 
-			if ( is_array( $decoded ) && ! empty( $decoded ) ) {
-				return $decoded;
+			if ( ! empty( $parsed ) ) {
+				return $parsed;
 			}
 		}
 
-		// Fallback: the `preview` object in the request extensions.
+		// Fallback: the JSON `preview` object in the request extensions.
 		if ( $this->params instanceof OperationParams ) {
 			$extensions = $this->params->extensions;
 
@@ -448,6 +451,63 @@ class Request {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Parses the `X-GraphQL-Preview` header as an RFC 8941 Structured Field dictionary.
+	 *
+	 * The dictionary is a comma-separated list of `key=value` members, with lowercase keys.
+	 * Only the keys this feature defines are recognized; values are integers (bare) or strings
+	 * (double-quoted). The recognized keys are mapped to the same shape as the JSON
+	 * `extensions.preview` object so both transports normalize identically.
+	 *
+	 *     database_id=123, featured_image_database_id=456, nonce="abc"
+	 *
+	 * @param string $header The raw header value.
+	 *
+	 * @return array<string,mixed> The parsed preview input, keyed like `extensions.preview`.
+	 */
+	private function parse_preview_header( string $header ): array {
+		// Map the header's lowercase structured-field keys to the JSON `preview` object keys.
+		$key_map = [
+			'database_id'                => 'databaseId',
+			'featured_image_database_id' => 'featuredImageDatabaseId',
+			'nonce'                      => 'nonce',
+		];
+
+		$parsed = [];
+
+		// Dictionary members are comma-separated.
+		foreach ( explode( ',', $header ) as $member ) {
+			if ( false === strpos( $member, '=' ) ) {
+				continue;
+			}
+
+			list( $key, $value ) = explode( '=', $member, 2 );
+
+			$key = trim( $key );
+
+			if ( ! isset( $key_map[ $key ] ) ) {
+				continue;
+			}
+
+			$value = trim( $value );
+
+			// Drop any structured-field parameters (e.g. `value;param=x`); unused here.
+			$param_pos = strpos( $value, ';' );
+			if ( false !== $param_pos ) {
+				$value = trim( substr( $value, 0, $param_pos ) );
+			}
+
+			// Structured-field strings are double-quoted; integers are bare.
+			if ( strlen( $value ) >= 2 && '"' === $value[0] && '"' === $value[ strlen( $value ) - 1 ] ) {
+				$value = stripslashes( substr( $value, 1, -1 ) );
+			}
+
+			$parsed[ $key_map[ $key ] ] = $value;
+		}
+
+		return $parsed;
 	}
 
 	/**
