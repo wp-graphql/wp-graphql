@@ -11,6 +11,10 @@ on:
         description: 'Name of the plugin (e.g., wp-graphql)'
         required: true
         type: string
+
+permissions:
+  contents: read
+
 jobs:
   # Runs the PHP coding standards checks.
   #

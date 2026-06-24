@@ -26,6 +26,9 @@ on:
         type: string
         default: 'false'
 
+permissions:
+  contents: read
+
 jobs:
   # Runs JavaScript e2e tests for a WordPress plugin using Playwright.
   #

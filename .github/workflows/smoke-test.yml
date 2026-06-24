@@ -69,11 +69,13 @@ jobs:
 
       - name: Check context (Release PR or push to main)
         id: check-context
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           TEST_ALL=false
           # Check if Release PR
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BRANCH_NAME="${{ github.head_ref }}"
+            BRANCH_NAME="$HEAD_REF"
             if [[ "$BRANCH_NAME" =~ ^release-please-- ]]; then
               TEST_ALL=true
               echo "🔔 Detected Release PR - will smoke test all plugins"
