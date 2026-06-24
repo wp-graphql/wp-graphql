@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # ===========================================
   # CHANGE DETECTION
@@ -46,8 +49,10 @@ jobs:
 
       - name: Check if release-please PR
         id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
             echo "is-release-pr=true" >> $GITHUB_OUTPUT
             echo "🔔 Detected Release PR - will run integration tests for all plugins"
           else
@@ -56,10 +61,11 @@ jobs:
 
       - name: Check if PR is from a fork
         id: check-fork-pr
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
           # Fork PRs cannot receive secrets (e.g. ACF_LICENSE_KEY). Skip wp-graphql-acf job to avoid failure.
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
             BASE_REPO="${{ github.repository }}"
             if [[ -z "$HEAD_REPO" ]] || [[ "$HEAD_REPO" != "$BASE_REPO" ]]; then
               echo "is-fork-pr=true" >> $GITHUB_OUTPUT
