@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.16.0\n"
+"Project-Id-Version: WPGraphQL 2.17.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-10T16:34:25+00:00\n"
+"POT-Creation-Date: 2026-06-24T22:08:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -553,7 +553,7 @@ msgid "The first argument should be an array of $query_vars, not the WP_Query ob
 msgstr ""
 
 #. translators: %s is the method name
-#: src/Data/Cursor/PostObjectCursor.php:292
+#: src/Data/Cursor/PostObjectCursor.php:493
 #: src/Data/Cursor/TermObjectCursor.php:212
 #: src/Data/Cursor/TermObjectCursor.php:233
 #: src/Data/Cursor/UserCursor.php:255
@@ -603,16 +603,16 @@ msgid "The global ID isn't recognized ID: %s"
 msgstr ""
 
 #. translators: %s: The query class used to resolve the URI
-#: src/Data/NodeResolver.php:177
+#: src/Data/NodeResolver.php:180
 #, php-format
 msgid "The query class %s used to resolve the URI does not exist."
 msgstr ""
 
-#: src/Data/NodeResolver.php:355
+#: src/Data/NodeResolver.php:371
 msgid "Cannot parse provided URI"
 msgstr ""
 
-#: src/Data/NodeResolver.php:390
+#: src/Data/NodeResolver.php:406
 msgid "Cannot return a resource for an external URI"
 msgstr ""
 
@@ -3403,6 +3403,18 @@ msgstr ""
 #: src/Type/Input/DateInput.php:35
 #: src/Type/Input/DateQueryInput.php:42
 msgid "Day of the month (from 1 to 31)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:41
+msgid "Hour of the day (from 0 to 23)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:47
+msgid "Minute of the hour (from 0 to 59)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:53
+msgid "Second of the minute (from 0 to 59)"
 msgstr ""
 
 #: src/Type/Input/DateQueryInput.php:17
