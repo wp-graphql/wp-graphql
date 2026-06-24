@@ -60,7 +60,22 @@ jobs:
           key: docker-${{ runner.os }}-wp-latest
 
       - name: Start wp-env
-        run: npm run wp-env start
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            npm run wp-env start
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step below.
+            if ! npm run wp-env -- run cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; retrying start"
+              exit 1
+            fi
 
       # The release schema artifact is the baseline the schema-linter diffs against, so it
       # MUST be generated with the same plugin context the linter uses for that component
