@@ -116,6 +116,13 @@ jobs:
               - .github/workflows/lint.yml
               - phpcs/WPGraphQL/PHPCS/**
               - plugins/wp-graphql-acf/**/*.php
+              - plugins/wp-graphql-acf/**/*.js
+              - plugins/wp-graphql-acf/**/*.jsx
+              - plugins/wp-graphql-acf/**/*.ts
+              - plugins/wp-graphql-acf/**/*.tsx
+              - plugins/wp-graphql-acf/eslint.config.js
+              - plugins/wp-graphql-acf/package.json
+              - plugins/wp-graphql-acf/package-lock.json
               - plugins/wp-graphql-acf/composer.json
               - plugins/wp-graphql-acf/composer.lock
               - plugins/wp-graphql-acf/phpcs.xml.dist
