@@ -76,6 +76,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   # Job naming strategy:
   # The parent workflow sets name to "Integration: plugin / WP X.X / PHP X.X".

@@ -20,6 +20,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   lint-schema:
     name: Lint ${{ inputs.component }} Schema
