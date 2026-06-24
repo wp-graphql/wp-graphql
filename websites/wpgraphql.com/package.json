@@ -68,7 +68,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
-    "eslint": "^8.57.1",
+    "eslint": "^10.4.0",
     "eslint-config-next": "^15.5.19",
     "eslint-plugin-unused-imports": "^3.2.0",
     "husky": "^9.1.7",
