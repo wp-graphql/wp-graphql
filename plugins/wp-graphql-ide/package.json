@@ -80,7 +80,7 @@
 		"copy-to-clipboard": "^3.3.3",
 		"graphql": "^16.14.2",
 		"graphql-language-service": "^5.5.2",
-		"graphql-ws": "^5.14.2",
+		"graphql-ws": "^6.0.8",
 		"lz-string": "^1.5.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
