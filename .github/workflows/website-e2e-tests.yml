@@ -44,8 +44,10 @@ jobs:
 
       - name: Check if release-please PR
         id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
             echo "is-release-pr=true" >> $GITHUB_OUTPUT
             echo "🔔 Detected Release PR - will run e2e tests for all websites"
           else

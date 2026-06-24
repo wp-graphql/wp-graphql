@@ -61,14 +61,18 @@ on:
         default: ''
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release-please:
     name: Release Please
     if: github.event.inputs.redeploy_tag == '' || github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
+    # Opens/updates the release PR and creates releases + tags. (The action
+    # authenticates with REPO_PAT; these scopes cover any GITHUB_TOKEN paths.)
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       # Output all release-please outputs for dynamic component detection
@@ -148,6 +152,8 @@ jobs:
     needs: release-please
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       components: ${{ steps.detect.outputs.components }}
     steps:
@@ -240,6 +246,9 @@ jobs:
         (github.event_name == 'workflow_dispatch' && github.event.inputs.redeploy_tag != '')
       )
     runs-on: ubuntu-latest
+    # Uploads the schema/build assets to the GitHub release (softprops/action-gh-release).
+    permissions:
+      contents: write
     strategy:
       matrix:
         component: ${{ fromJSON(needs.detect-deploy-components.outputs.components) }}
