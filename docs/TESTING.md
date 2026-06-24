@@ -213,6 +213,38 @@ npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- --coverage --coverage-x
 # Coverage report will be in plugins/wp-graphql/tests/_output/
 ```
 
+### Reading Codecov Results
+
+Pull requests can show two Codecov status checks:
+
+- `codecov/patch` reports coverage for changed lines only. This check fails when new or modified code is not covered by tests.
+- `codecov/project` reports overall repository coverage. This check fails when total coverage drops beyond the threshold configured in `codecov.yml`.
+
+The root `codecov.yml` and `plugins/wp-graphql/codecov.yml` files define ignored paths, project and patch coverage targets, path fixes, and coverage flags. Flags use `carryforward: true`, so a CI run without a fresh upload for a flag can reuse the previous upload for that flag.
+
+### CI Coverage Uploads
+
+Only integration jobs marked with the chart icon upload coverage to Codecov. For the core `wp-graphql` plugin, the current coverage upload comes from the WP 7.0 / PHP 8.4 / `twentytwentyfive` / single-site matrix row. The remaining theme and multisite rows run as plain test jobs to keep CI faster.
+
+Coverage upload steps are skipped for Dependabot PRs. If the chart-marked job fails, is skipped, or does not produce `plugins/wp-graphql/tests/_output/coverage.xml`, Codecov can show stale or missing coverage for the PR.
+
+### Codecov API Checks
+
+The Codecov web UI can occasionally lag behind or hide line-level details. The API is useful when a PR needs deeper coverage debugging:
+
+```bash
+# PR-level summary
+curl -s "https://api.codecov.io/api/v2/github/wp-graphql/repos/wp-graphql/pulls/<PR_NUMBER>"
+
+# Full line-by-line diff coverage for a PR
+curl -s "https://api.codecov.io/api/v2/github/wp-graphql/repos/wp-graphql/compare?pullid=<PR_NUMBER>"
+
+# Per-file coverage on a specific commit
+curl -s "https://api.codecov.io/api/v2/github/wp-graphql/repos/wp-graphql/commits/<COMMIT_SHA>"
+```
+
+In Codecov's raw `line_coverage` and `coverage.head` fields, `0` means the line was hit and `1` means the line was missed. This is the reverse of what many people expect. The `totals` block uses conventional hit and miss counts, so use it as a quick cross-check when reading raw line data.
+
 ## Writing Tests
 
 ### Test File Location

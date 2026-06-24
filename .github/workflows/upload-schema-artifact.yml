@@ -10,20 +10,26 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   run:
     runs-on: ubuntu-latest
     name: Generate and Upload WPGraphQL Schema Artifact
+    # Needs write access to attach the generated schema to the GitHub release.
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           # When manually triggered, checkout the specified tag
           ref: ${{ inputs.tag || github.ref }}
 
       - name: Setup PHP w/ Composer & WP-CLI
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.2
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
@@ -42,19 +48,34 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: npm ci
 
       - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
+        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
         with:
           key: docker-${{ runner.os }}-wp-latest
 
       - name: Start wp-env
-        run: npm run wp-env start
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            npm run wp-env start
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step below.
+            if ! npm run wp-env -- run cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; retrying start"
+              exit 1
+            fi
 
       # The release schema artifact is the baseline the schema-linter diffs against, so it
       # MUST be generated with the same plugin context the linter uses for that component
@@ -125,7 +146,7 @@ jobs:
           echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Upload schema as release artifact
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           tag_name: ${{ inputs.tag || github.event.release.tag_name }}
           files: /tmp/schema.graphql
