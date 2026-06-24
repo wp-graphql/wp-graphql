@@ -12,6 +12,7 @@
 [![GraphiQL E2E Tests](https://github.com/wp-graphql/wp-graphql/workflows/GraphiQL%20E2E%20Tests/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22GraphiQL+E2E+Tests%22)
 [![Code Quality](https://github.com/wp-graphql/wp-graphql/workflows/Code%20Quality/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Code+Quality%22)
 [![codecov](https://codecov.io/gh/wp-graphql/wp-graphql/branch/main/graph/badge.svg)](https://codecov.io/gh/wp-graphql/wp-graphql)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13365/badge)](https://www.bestpractices.dev/projects/13365)
 
 **Unlock the power of WordPress data with GraphQL**
 
