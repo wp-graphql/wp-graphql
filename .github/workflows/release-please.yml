@@ -77,7 +77,7 @@ jobs:
       components: ${{ steps.components.outputs.components }}
     steps:
       - name: Run release-please
-        uses: googleapis/release-please-action@v5
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           token: ${{ secrets.REPO_PAT }}
@@ -316,20 +316,20 @@ jobs:
           echo "Tag: $TAG"
 
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || 'main' }}
           fetch-depth: 0
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.2
           extensions: mbstring, intl
           tools: composer
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -342,7 +342,7 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -545,7 +545,7 @@ jobs:
           echo "✅ SVN tag ${VERSION} deleted (or didn't exist)"
 
       - name: WordPress Plugin Deploy
-        uses: 10up/action-wordpress-plugin-deploy@stable
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
@@ -607,7 +607,7 @@ jobs:
           zip -r "$MATRIX_COMPONENT.zip" "$MATRIX_COMPONENT"
 
       - name: Upload artifact to workflow
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.component }}
           path: plugin-build/${{ matrix.component }}.zip
@@ -615,7 +615,7 @@ jobs:
       - name: Upload artifact to release
         # Upload for both new releases and re-deployments
         # For re-deployments, this updates the existing release asset with the corrected version
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           tag_name: ${{ steps.plugin_info.outputs.tag_name }}
           files: plugin-build/${{ matrix.component }}.zip
