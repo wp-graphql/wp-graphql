@@ -96,9 +96,9 @@ class CommentObjectCursor extends AbstractCursor {
 			$this->compare_with_cursor_fields(
 				[
 					[
-						'key'  => "{$this->wpdb->comments}.comment_date",
-						'by'   => $this->cursor_node ? $this->cursor_node->comment_date : null,
-						'type' => 'DATETIME',
+						'key'   => "{$this->wpdb->comments}.comment_date",
+						'value' => $this->cursor_node ? $this->cursor_node->comment_date : null,
+						'type'  => 'DATETIME',
 					],
 				]
 			);
