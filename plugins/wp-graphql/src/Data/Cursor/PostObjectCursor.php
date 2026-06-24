@@ -202,7 +202,7 @@ class PostObjectCursor extends AbstractCursor {
 	 * the cursor node's computed rank, and the expression's sort direction. Returns null
 	 * when relevance ordering is not in play.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.17.0
 	 *
 	 * @return array{expression:string,value:int,ascending:bool}|null
 	 */
@@ -259,7 +259,7 @@ class PostObjectCursor extends AbstractCursor {
 	 * multi-term searches, reusing the prepared title LIKE clauses WP_Query stored in
 	 * the query vars during parse_search().
 	 *
-	 * @since x-release-please-version
+	 * @since 2.17.0
 	 *
 	 * @param string   $search               The raw search string (`s` query var).
 	 * @param string[] $search_orderby_title The prepared post_title LIKE clauses from WP_Query.
@@ -303,7 +303,7 @@ class PostObjectCursor extends AbstractCursor {
 	 * Computes the cursor node's rank under the multi-term relevance CASE expression,
 	 * evaluating the same conditions in the same order as the SQL.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.17.0
 	 *
 	 * @param \WP_Post $node                 The cursor node post.
 	 * @param string   $search               The raw search string (`s` query var).

@@ -224,7 +224,7 @@ class Config {
 	 * expression is a boolean LIKE sorted DESC. Inverting means appending DESC to the former
 	 * and swapping DESC for ASC on the latter.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.17.0
 	 *
 	 * @param string    $search_orderby The ORDER BY clause for search relevance.
 	 * @param \WP_Query $query          The WP_Query instance (passed by reference).
