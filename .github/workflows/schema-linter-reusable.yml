@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup PHP w/ Composer & WP-CLI
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.2
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
@@ -66,7 +66,7 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -76,7 +76,7 @@ jobs:
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16
 
       - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
+        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
         with:
           key: docker-${{ runner.os }}-wp-latest
 
