@@ -32,6 +32,13 @@ jobs:
         with:
           results_file: results.sarif
           results_format: sarif
+          # A fine-grained PAT (repo administration: read) lets Scorecard read
+          # branch-protection rules, which the default GITHUB_TOKEN cannot. When
+          # the SCORECARD_TOKEN secret is unset this falls back to GITHUB_TOKEN,
+          # so the workflow keeps running (Branch-Protection just stays
+          # unscored). See:
+          # https://github.com/ossf/scorecard-action#authentication-with-fine-grained-pat-optional
+          repo_token: ${{ secrets.SCORECARD_TOKEN || github.token }}
           publish_results: true
 
       - name: Upload SARIF artifact
