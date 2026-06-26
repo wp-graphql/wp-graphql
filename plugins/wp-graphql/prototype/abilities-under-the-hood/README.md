@@ -12,7 +12,7 @@ We were optimistic. We were also skeptical, because WPGraphQL's loaders and mode
 
 ## What we built
 
-Two stand-in read abilities (`wpgraphql/get-post`, `wpgraphql/get-posts`) shaped around the recommendations we shared on the [PR](https://github.com/WordPress/ai/pull/739) (split single vs list, lean default payload, raw behind explicit intent, opt-in totals, batch-by-IDs). Then we refactored WPGraphQL to resolve through them in three different places, measuring each. See [methodology](docs/methodology.md) for how to run and measure.
+Two stand-in read abilities (`wpgraphql/get-post`, `wpgraphql/get-posts`) shaped around the recommendations we shared on the [PR](https://github.com/WordPress/ai/pull/739#pullrequestreview-4581960707) (split single vs list, lean default payload, raw behind explicit intent, opt-in totals, batch-by-IDs). Then we refactored WPGraphQL to resolve through them in three different places, measuring each. See [methodology](docs/methodology.md) for how to run and measure.
 
 ## The experiments at a glance
 
