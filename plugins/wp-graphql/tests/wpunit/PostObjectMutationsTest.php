@@ -1351,4 +1351,60 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertCount( 1, $actual['data']['createPost']['post']['categories']['nodes'] );
 
 	}
+
+	/**
+	 * An Author (who holds `assign_terms` / `edit_posts` but not `edit_terms` /
+	 * `manage_categories`) should be able to assign an existing term by name.
+	 *
+	 * Post formats are the canonical case: the input matched only by id/slug, so
+	 * a `name` input fell through to the term-creation branch, which bailed on the
+	 * `edit_terms` gate and aborted all term assignment for the taxonomy.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3135
+	 */
+	public function testAuthorCanAssignExistingPostFormatByName() {
+		// Ensure the standard `video` post format term exists (the realistic case;
+		// native set_post_format() would otherwise create it).
+		if ( ! get_term_by( 'slug', 'post-format-video', 'post_format' ) ) {
+			wp_insert_term( 'video', 'post_format', [ 'slug' => 'post-format-video' ] );
+		}
+
+		wp_set_current_user( $this->author );
+
+		$query = '
+		mutation createPost( $input: CreatePostInput! ) {
+			createPost( input: $input ) {
+				post {
+					databaseId
+					postFormats {
+						nodes {
+							name
+							slug
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'title'       => 'Author post with a post format',
+				'status'      => 'DRAFT',
+				'postFormats' => [
+					'append' => false,
+					'nodes'  => [
+						[ 'name' => 'video' ],
+					],
+				],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$slugs = wp_list_pluck( $actual['data']['createPost']['post']['postFormats']['nodes'], 'slug' );
+		$this->assertContains( 'post-format-video', $slugs, 'An Author should be able to assign an existing post format by name.' );
+	}
 }

@@ -317,10 +317,20 @@ class PostObjectMutation {
 								if ( isset( $term_exists->term_id ) ) {
 									$terms_to_connect[] = $term_exists->term_id;
 								}
+
 								/**
-								 * If the input for the term isn't an existing term, check to make sure
-								 * we're allowed to create new terms during a Post Object mutation
+								 * Finally, handle the input for name if there wasn't an ID or slug input.
+								 *
+								 * Matching by name lets users assign existing terms (e.g. a standard
+								 * post format like "video") without needing the `edit_terms` capability
+								 * that creating a new term requires.
 								 */
+							} elseif ( ! empty( $node['name'] ) ) {
+								$sanitized_name = sanitize_text_field( $node['name'] );
+								$term_exists    = get_term_by( 'name', $sanitized_name, $tax_object->name );
+								if ( isset( $term_exists->term_id ) ) {
+									$terms_to_connect[] = $term_exists->term_id;
+								}
 							}
 
 							/**
@@ -331,10 +341,14 @@ class PostObjectMutation {
 							if ( ! $term_exists && true === $allow_term_creation ) {
 
 								/**
-								 * If the current user cannot edit terms, don't create terms to connect
+								 * If the current user cannot edit terms, don't create a term to connect.
+								 *
+								 * Skip just this node rather than aborting the whole taxonomy, so that
+								 * any existing terms the user matched (and is allowed to assign) are still
+								 * connected below.
 								 */
 								if ( ! isset( $tax_object->cap->edit_terms ) || ! current_user_can( $tax_object->cap->edit_terms ) ) {
-									return;
+									continue;
 								}
 
 								$created_term = self::create_term_to_connect( $node, $tax_object->name );
