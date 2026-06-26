@@ -30,3 +30,6 @@ if ( defined( 'WPGRAPHQL_DISABLE_ABILITIES_PROTOTYPE' ) && WPGRAPHQL_DISABLE_ABI
 // Stand-in read abilities (simulating future core abilities). Self-guards on the
 // Abilities API being present (WordPress 6.9+), so this is a no-op on older WP.
 require_once __DIR__ . '/data-abilities.php';
+
+// Measurement counters, surfaced in extensions.abilitiesPrototype.
+require_once __DIR__ . '/counters.php';
