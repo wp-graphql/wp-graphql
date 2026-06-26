@@ -270,8 +270,9 @@ abstract class AcfFieldTestCase extends WPGraphQLAcfTestCase {
 			$this->markTestSkipped( 'ACF Pro is not active so this test will not run.' );
 		}
 
-		// If WPGraphQL Content Blocks couldn't be activated, skip
-		if ( ! defined( 'WPGRAPHQL_CONTENT_BLOCKS_DIR' ) ) {
+		// If WPGraphQL Content Blocks couldn't be activated, skip.
+		// (Content Blocks renamed the constant to WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_DIR.)
+		if ( ! defined( 'WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_DIR' ) && ! class_exists( '\WPGraphQLContentBlocks' ) ) {
 			$this->markTestSkipped( 'This test is skipped when WPGraphQL Content Blocks is not active' );
 		}
 
