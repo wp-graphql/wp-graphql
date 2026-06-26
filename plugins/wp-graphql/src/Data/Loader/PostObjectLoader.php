@@ -65,6 +65,53 @@ class PostObjectLoader extends AbstractDataLoader {
 		}
 
 		/**
+		 * PROTOTYPE (abilities-under-the-hood): when enabled, source the fetch
+		 * AND the per-row permission decision from the `wpgraphql/get-posts`
+		 * ability instead of running WP_Query + leaving is_private() to the Model.
+		 *
+		 * The ability runs its own WP_Query( post__in ) internally (which warms
+		 * WP's object cache exactly like the native path below) and returns only
+		 * the posts the current user may view. We then pull the WP_Post objects
+		 * from that warmed cache. The Model trusts the ability's filtering via the
+		 * graphql_pre_model_data_is_private hook in resolve.php.
+		 *
+		 * This is the seam under test: does delegating to the ability cost more
+		 * than it saves? (See counters surfaced in extensions.abilitiesPrototype.)
+		 */
+		if ( function_exists( 'wpgraphql_proto_resolve_enabled' ) && wpgraphql_proto_resolve_enabled() && function_exists( 'wp_get_ability' ) ) {
+			$ability = wp_get_ability( 'wpgraphql/get-posts' );
+			if ( $ability ) {
+				$result      = $ability->execute(
+					[
+						'include'       => array_map( 'intval', $keys ),
+						'include_total' => false,
+					]
+				);
+				$visible_ids = [];
+				if ( ! is_wp_error( $result ) && isset( $result['posts'] ) && is_array( $result['posts'] ) ) {
+					foreach ( $result['posts'] as $row ) {
+						if ( isset( $row['databaseId'] ) ) {
+							$visible_ids[ (int) $row['databaseId'] ] = true;
+						}
+					}
+				}
+
+				$loaded_posts = [];
+				foreach ( $keys as $key ) {
+					$id = (int) $key;
+					if ( ! isset( $visible_ids[ $id ] ) ) {
+						// Dropped by the ability's per-row permission gate.
+						$loaded_posts[ $key ] = null;
+						continue;
+					}
+					$post_object          = get_post( $id ); // served from the cache the ability warmed.
+					$loaded_posts[ $key ] = $post_object instanceof \WP_Post ? $post_object : null;
+				}
+				return $loaded_posts;
+			}
+		}
+
+		/**
 		 * Prepare the args for the query. We're provided a specific
 		 * set of IDs, so we want to query as efficiently as possible with
 		 * as little overhead as possible. We don't want to return post counts,

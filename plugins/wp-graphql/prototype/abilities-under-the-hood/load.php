@@ -31,5 +31,8 @@ if ( defined( 'WPGRAPHQL_DISABLE_ABILITIES_PROTOTYPE' ) && WPGRAPHQL_DISABLE_ABI
 // Abilities API being present (WordPress 6.9+), so this is a no-op on older WP.
 require_once __DIR__ . '/data-abilities.php';
 
+// Resolution toggle + Model trust glue (flips PostObjectLoader to the ability path).
+require_once __DIR__ . '/resolve.php';
+
 // Measurement counters, surfaced in extensions.abilitiesPrototype.
 require_once __DIR__ . '/counters.php';
