@@ -474,6 +474,17 @@ class Post extends Model {
 					'capability' => isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts',
 				],
 				'contentRendered'           => function () {
+					/**
+					 * PROTOTYPE (abilities-under-the-hood) Experiment C: in 'field'
+					 * mode this lazy closure delegates to the get-post ability
+					 * instead of rendering locally. Because the closure only runs
+					 * when `content` is selected, laziness is preserved — the cost
+					 * is one ability execute() per node (an ability-call N+1).
+					 */
+					if ( function_exists( 'wpgraphql_proto_resolve_mode' ) && 'field' === wpgraphql_proto_resolve_mode() ) {
+						return wpgraphql_proto_field_via_ability( (int) $this->data->ID, 'content' );
+					}
+
 					$content = ! empty( $this->data->post_content ) ? $this->data->post_content : null;
 
 					return ! empty( $content ) ? $this->html_entity_decode( apply_filters( 'the_content', $content ), 'contentRendered', false ) : null;

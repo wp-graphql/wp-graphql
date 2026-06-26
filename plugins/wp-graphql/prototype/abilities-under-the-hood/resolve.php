@@ -8,7 +8,7 @@
  * permission filtering instead of running its own is_private() logic.
  *
  * Enable for a request via either:
- *   define( 'WPGRAPHQL_ABILITIES_RESOLVE', true );              // global
+ *   define( 'WPGRAPHQL_ABILITIES_RESOLVE', true );      // global
  *   add_filter( 'graphql_abilities_resolve', '__return_true' ); // per-request
  *
  * @package WPGraphQL\Prototype\Abilities
@@ -30,8 +30,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  *                    GraphQL selection set — loaders batch by ID only), so the
  *                    ability eagerly produces those fields, including rendering
  *                    the_content, regardless of what the query selected.
+ *   - 'field'      : Experiment C — the Model stays, but individual lazy field
+ *                    callbacks delegate to the get-post ability (e.g. the
+ *                    `content` resolver asks the ability for `content`). Because
+ *                    the closure only runs when the field is selected, laziness is
+ *                    preserved — at the cost of one execute() per field per node.
  */
 function wpgraphql_proto_resolve_mode(): string {
+	if ( defined( 'WPGRAPHQL_ABILITIES_RESOLVE_FIELD' ) && constant( 'WPGRAPHQL_ABILITIES_RESOLVE_FIELD' ) ) {
+		return 'field';
+	}
 	if ( defined( 'WPGRAPHQL_ABILITIES_RESOLVE_OUTPUT' ) && constant( 'WPGRAPHQL_ABILITIES_RESOLVE_OUTPUT' ) ) {
 		return 'output';
 	}
@@ -39,10 +47,38 @@ function wpgraphql_proto_resolve_mode(): string {
 		return 'permission';
 	}
 	$filtered = apply_filters( 'graphql_abilities_resolve_mode', null );
-	if ( in_array( $filtered, [ 'off', 'permission', 'output' ], true ) ) {
+	if ( in_array( $filtered, [ 'off', 'permission', 'output', 'field' ], true ) ) {
 		return $filtered;
 	}
 	return apply_filters( 'graphql_abilities_resolve', false ) ? 'permission' : 'off';
+}
+
+/**
+ * Experiment C helper: resolve a single field for one post via the get-post
+ * ability. Returns the field value, or null on error / absence.
+ *
+ * @param int    $post_id The post ID.
+ * @param string $field   The ability payload field key (e.g. 'content').
+ * @return mixed
+ */
+function wpgraphql_proto_field_via_ability( int $post_id, string $field ) {
+	if ( ! function_exists( 'wp_get_ability' ) ) {
+		return null;
+	}
+	$ability = wp_get_ability( 'wpgraphql/get-post' );
+	if ( ! $ability ) {
+		return null;
+	}
+	$result = $ability->execute(
+		[
+			'id'     => $post_id,
+			'fields' => [ $field ],
+		]
+	);
+	if ( is_wp_error( $result ) || ! is_array( $result ) ) {
+		return null;
+	}
+	return $result[ $field ] ?? null;
 }
 
 /**

@@ -78,7 +78,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * This is the seam under test: does delegating to the ability cost more
 		 * than it saves? (See counters surfaced in extensions.abilitiesPrototype.)
 		 */
-		if ( function_exists( 'wpgraphql_proto_resolve_enabled' ) && wpgraphql_proto_resolve_enabled() && function_exists( 'wp_get_ability' ) ) {
+		if ( function_exists( 'wpgraphql_proto_resolve_mode' ) && in_array( wpgraphql_proto_resolve_mode(), [ 'permission', 'output' ], true ) && function_exists( 'wp_get_ability' ) ) {
 			$ability = wp_get_ability( 'wpgraphql/get-posts' );
 			if ( $ability ) {
 				$ability_input = [
