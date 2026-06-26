@@ -81,12 +81,24 @@ class PostObjectLoader extends AbstractDataLoader {
 		if ( function_exists( 'wpgraphql_proto_resolve_enabled' ) && wpgraphql_proto_resolve_enabled() && function_exists( 'wp_get_ability' ) ) {
 			$ability = wp_get_ability( 'wpgraphql/get-posts' );
 			if ( $ability ) {
-				$result      = $ability->execute(
-					[
-						'include'       => array_map( 'intval', $keys ),
-						'include_total' => false,
-					]
-				);
+				$ability_input = [
+					'include'       => array_map( 'intval', $keys ),
+					'include_total' => false,
+				];
+
+				/**
+				 * Experiment B ('output' mode): the ability is the data source, so
+				 * the loader must request a fixed payload. It cannot pass the
+				 * GraphQL selection set (loaders batch by ID and never see it), so
+				 * it asks for everything a downstream field might need — which makes
+				 * the ability render the_content for every node up front, even when
+				 * the query only selected `title`.
+				 */
+				if ( 'output' === wpgraphql_proto_resolve_mode() && function_exists( 'wpgraphql_proto_output_fields' ) ) {
+					$ability_input['fields'] = wpgraphql_proto_output_fields();
+				}
+
+				$result      = $ability->execute( $ability_input );
 				$visible_ids = [];
 				if ( ! is_wp_error( $result ) && isset( $result['posts'] ) && is_array( $result['posts'] ) ) {
 					foreach ( $result['posts'] as $row ) {
