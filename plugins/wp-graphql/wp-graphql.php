@@ -233,3 +233,14 @@ add_filter(
 	10,
 	3
 );
+
+/**
+ * PROTOTYPE: Abilities-under-the-hood experiment.
+ *
+ * Loads the stand-in read abilities and the WPGraphQL-side wiring used to test
+ * whether WPGraphQL could resolve data through the WordPress Abilities API
+ * instead of its DataLoader / Model layer. Self-contained under
+ * `prototype/abilities-under-the-hood/`; remove that directory and this require
+ * to fully back the experiment out.
+ */
+require_once __DIR__ . '/prototype/abilities-under-the-hood/load.php';
