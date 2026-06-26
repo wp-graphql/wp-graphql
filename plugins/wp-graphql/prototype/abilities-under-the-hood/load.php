@@ -36,3 +36,7 @@ require_once __DIR__ . '/resolve.php';
 
 // Measurement counters, surfaced in extensions.abilitiesPrototype.
 require_once __DIR__ . '/counters.php';
+
+// POC: generate an ability from a persisted GraphQL query (the constructive
+// "abilities above the resolver" direction).
+require_once __DIR__ . '/poc-persisted-query-ability/persisted-query-ability.php';
