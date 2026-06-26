@@ -200,7 +200,7 @@ class PostTypeLabelDetails {
 								return __( 'Label in the media frame for using a featured image.', 'wp-graphql' );
 							},
 							'resolve'     => static function ( $labels ) {
-								return ! empty( $labels->use_featured_item ) ? $labels->use_featured_item : null;
+								return ! empty( $labels->use_featured_image ) ? $labels->use_featured_image : null;
 							},
 						],
 						'menuName'            => [
