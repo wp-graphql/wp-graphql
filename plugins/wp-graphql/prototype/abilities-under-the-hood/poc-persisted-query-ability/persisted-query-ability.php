@@ -190,9 +190,10 @@ function wpgraphql_proto_register_ability_from_persisted_query( array $pq ): voi
 		return;
 	}
 
-	$properties    = [];
-	$required      = [];
-	$output_schema = null;
+	$properties     = [];
+	$required       = [];
+	$output_schema  = null;
+	$operation_type = 'query';
 
 	try {
 		$ast       = \GraphQL\Language\Parser::parse( $pq['query'] );
@@ -221,12 +222,16 @@ function wpgraphql_proto_register_ability_from_persisted_query( array $pq ): voi
 		}
 
 		// Output schema from the operation's selection set + the GraphQL schema.
-		// (In production this would be computed once and cached against the query
-		// hash, not rebuilt per request.)
+		// Mutations select against the mutation root type, queries against the query
+		// root type. (In production this would be computed once and cached against
+		// the query hash, not rebuilt per request.)
+		$operation_type = $operation->operation; // 'query' | 'mutation' | 'subscription'.
 		$graphql_schema = \WPGraphQL::get_schema();
-		$query_type     = $graphql_schema->getQueryType();
-		if ( null !== $query_type ) {
-			$output_schema = wpgraphql_proto_selection_set_to_json_schema( $operation->selectionSet, $query_type );
+		$root_type      = 'mutation' === $operation_type
+			? $graphql_schema->getMutationType()
+			: $graphql_schema->getQueryType();
+		if ( null !== $root_type ) {
+			$output_schema = wpgraphql_proto_selection_set_to_json_schema( $operation->selectionSet, $root_type );
 		}
 	} catch ( \Throwable $e ) {
 		// On any parse/schema failure, register without the derived schemas rather
@@ -249,6 +254,12 @@ function wpgraphql_proto_register_ability_from_persisted_query( array $pq ): voi
 		'category'            => 'data',
 		// DERIVED from the persisted operation's variables — not hand-written.
 		'input_schema'        => $input_schema,
+		// DERIVED from the operation type: a query is read-only, a mutation is not.
+		'meta'                => [
+			'annotations' => [
+				'readonly' => 'query' === $operation_type,
+			],
+		],
 		'permission_callback' => static function ( $input = null ) {
 			// Authorization is enforced by WPGraphQL's resolvers / Model during
 			// execution (per-field, per-row). A single per-call gate here would be
@@ -289,7 +300,59 @@ add_action(
 				'name'        => 'wpgraphql/post-by-database-id',
 				'label'       => __( 'Get Post by Database ID (from persisted query)', 'wpgraphql-proto' ),
 				'description' => __( 'Auto-generated from a persisted GraphQL query. Input and output schemas derived from the operation; execution and authorization defer entirely to WPGraphQL.', 'wpgraphql-proto' ),
-				'query'       => 'query PostByDatabaseId($id: ID!) { post(id: $id, idType: DATABASE_ID) { databaseId title date } }',
+				'query'       => '
+					query PostByDatabaseId($id: ID!) { 
+						post(id: $id, idType: DATABASE_ID) { 
+							__typename 
+							databaseId 
+							title 
+							date 
+						} 
+					}
+				',
+			]
+		);
+
+		wpgraphql_proto_register_ability_from_persisted_query(
+			[
+				'name'        => 'wpgraphql/post-by-uri',
+				'label'       => __( 'Get Post by URI (from persisted query)', 'wpgraphql-proto' ),
+				'description' => __( 'Auto-generated from a persisted GraphQL query. Input and output schemas derived from the operation; execution and authorization defer entirely to WPGraphQL.', 'wpgraphql-proto' ),
+				'query'       => '
+					query PostByUri($uri: ID!) {
+						post(id: $uri, idType: URI) {
+							__typename
+							databaseId
+							title
+							date
+						}
+					}
+				',
+			]
+		);
+
+		// A mutation works through the exact same generator: input schema from the
+		// variables, output schema from the mutation selection set, and the derived
+		// `readonly: false` annotation comes from the operation being a mutation.
+		// Authorization still defers to WPGraphQL (createPost requires the caller to
+		// be able to create posts), so an unauthorized invoker gets nothing back.
+		wpgraphql_proto_register_ability_from_persisted_query(
+			[
+				'name'        => 'wpgraphql/create-draft-post',
+				'label'       => __( 'Create Draft Post (from persisted mutation)', 'wpgraphql-proto' ),
+				'description' => __( 'Auto-generated from a persisted GraphQL mutation. Input and output schemas derived from the operation; execution and authorization defer entirely to WPGraphQL.', 'wpgraphql-proto' ),
+				'query'       => '
+					mutation CreateDraftPost($title: String!, $content: String) {
+						createPost(input: { title: $title, content: $content, status: DRAFT }) {
+							post {
+								__typename
+								databaseId
+								title
+								status
+							}
+						}
+					}
+				',
 			]
 		);
 	},
