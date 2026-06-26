@@ -1349,6 +1349,75 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertFalse( $actual['data']['posts']['nodes'][1]['isSticky'] );
 	}
 
+	/**
+	 * The `isSticky` where arg filters the connection result set by sticky status,
+	 * modeling the WP REST API `sticky` parameter. It does not float sticky posts.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/786
+	 */
+	public function testIsStickyWhereArgFiltersConnection() {
+		// setUp() already created 6 non-sticky published posts.
+		$sticky_one = $this->createPostObject( [ 'post_title' => 'Sticky One' ] );
+		$sticky_two = $this->createPostObject( [ 'post_title' => 'Sticky Two' ] );
+
+		update_option( 'sticky_posts', [ $sticky_one, $sticky_two ] );
+
+		$query = $this->getQuery();
+
+		// isSticky: true returns only the sticky posts.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [ 'isSticky' => true ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		sort( $actual_ids );
+		$expected_ids = [ $sticky_one, $sticky_two ];
+		sort( $expected_ids );
+		$this->assertEquals( $expected_ids, $actual_ids, 'isSticky: true should return only sticky posts.' );
+
+		// isSticky: false excludes the sticky posts but keeps the rest.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [ 'isSticky' => false ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertNotContains( $sticky_one, $actual_ids, 'isSticky: false should exclude sticky posts.' );
+		$this->assertNotContains( $sticky_two, $actual_ids, 'isSticky: false should exclude sticky posts.' );
+		$this->assertContains( $this->created_post_ids[1], $actual_ids, 'isSticky: false should keep non-sticky posts.' );
+
+		// isSticky: true intersects with an explicit `in` filter (REST parity).
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [
+						'isSticky' => true,
+						'in'       => [ $sticky_one, $this->created_post_ids[1] ],
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertEquals( [ $sticky_one ], $actual_ids, 'isSticky: true with `in` should return the intersection.' );
+	}
+
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 
