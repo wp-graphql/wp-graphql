@@ -276,12 +276,16 @@ abstract class AcfFieldTestCase extends WPGraphQLAcfTestCase {
 			$this->markTestSkipped( 'This test is skipped when WPGraphQL Content Blocks is not active' );
 		}
 
-		// register ACF Block
-		acf_register_block_type([
-			'name' => 'test_block',
-			'title' => 'Test Block',
-			'post_types' => [ 'post' ],
-		]);
+		// register ACF Block.
+		// The block registry can persist across tests in the suite, so only register
+		// when it isn't already registered to avoid an "already registered" _doing_it_wrong notice.
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'acf/test-block' ) ) {
+			acf_register_block_type([
+				'name' => 'test_block',
+				'title' => 'Test Block',
+				'post_types' => [ 'post' ],
+			]);
+		}
 
 		// register Field + Field Group to Block
 		$acf_field_key = $this->register_acf_field([], [
@@ -383,7 +387,7 @@ abstract class AcfFieldTestCase extends WPGraphQLAcfTestCase {
 		$post = self::factory()->post->create([
 			'post_type' => 'post',
 			'post_status' => 'publish',
-			'post_author' => $this->admin,
+			'post_author' => $this->admin->ID,
 			'post_content' => $content
 		]);
 
