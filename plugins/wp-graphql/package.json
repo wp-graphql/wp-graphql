@@ -52,7 +52,7 @@
 		"@ant-design/icons": "6.2.5",
 		"@apollo/client": "3.14.1",
 		"@wordpress/api-fetch": "^7.48.0",
-		"@wordpress/components": "^30.9.0",
+		"@wordpress/components": "^34.0.0",
 		"@wordpress/compose": "^7.46.0",
 		"@wordpress/element": "^6.37.0",
 		"@wordpress/hooks": "^4.44.0",

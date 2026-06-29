@@ -66,7 +66,7 @@
 		"@codemirror/view": "^6.43.1",
 		"@graphiql/toolkit": "^0.9.1",
 		"@lezer/highlight": "^1.0.0",
-		"@wordpress/components": "^27.0.0",
+		"@wordpress/components": "^34.0.0",
 		"@wordpress/data": "^9.22.0",
 		"@wordpress/element": "^5.23.0",
 		"@wordpress/hooks": "^4.44.0",
