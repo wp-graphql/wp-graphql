@@ -83,7 +83,7 @@ async function waitForSchemaType(
 	}
 	const step = 500;
 	let elapsed = 0;
-	let lastRes = null;
+	let lastRes;
 	while (elapsed < timeoutMs) {
 		lastRes = await graphqlRequest(request, query, variables);
 		if (check(lastRes)) {

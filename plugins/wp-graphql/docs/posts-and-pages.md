@@ -89,6 +89,24 @@ This example shows querying posts using a search keyword.
 
 ![Screenshot of a GraphQL Query for posts using a search keyword](./images/posts-query-filter-by-keyword.png)
 
+#### Query sticky posts
+
+Use the `isSticky` argument to filter the connection by [sticky](https://wordpress.org/documentation/article/sticky-posts/) status. Pass `true` to return only sticky posts, or `false` to exclude them.
+
+```graphql
+{
+  posts(where: {isSticky: true}) {
+    nodes {
+      id
+      title
+      isSticky
+    }
+  }
+}
+```
+
+> **NOTE:** This filters the result set by sticky status, it does not float sticky posts to the top of the results. Sticky posts are returned in the connection's normal order alongside other posts, so if you need them visually pinned, sort or merge them in your client. This mirrors the WordPress REST API's `sticky` parameter.
+
 ### Single Post by Global ID
 
 Below is an example of querying a single post using the [GraphQL Global ID](/docs/wpgraphql-concepts/).

@@ -185,7 +185,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If the cursor offsets not empty,
 		 * ignore sticky posts on the query
 		 */
-		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_after_offset() ) ) {
+		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_before_offset() ) ) {
 			$query_args['ignore_sticky_posts'] = true;
 		}
 
@@ -410,6 +410,37 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( ! empty( $query_args['post_status'] ) ) {
 			$allowed_stati             = $this->sanitize_post_stati( $query_args['post_status'] );
 			$query_args['post_status'] = ! empty( $allowed_stati ) ? $allowed_stati : [ 'publish' ];
+		}
+
+		/**
+		 * Filter the result set by sticky posts.
+		 *
+		 * WPGraphQL never floats sticky posts to the top of the results (ignore_sticky_posts
+		 * is always true, which is also cursor-pagination safe). Instead `isSticky` filters
+		 * the result set, modeling the WP REST API `sticky` parameter: true limits the query
+		 * to sticky posts, false excludes them.
+		 */
+		if ( isset( $where_args['isSticky'] ) ) {
+			$sticky_posts = get_option( 'sticky_posts', [] );
+			$sticky_posts = is_array( $sticky_posts ) ? array_map( 'absint', $sticky_posts ) : [];
+
+			if ( true === $where_args['isSticky'] ) {
+				// Limit to sticky posts, intersecting with any explicit `in` filter.
+				$query_args['post__in'] = ! empty( $query_args['post__in'] )
+					? array_intersect( $sticky_posts, $query_args['post__in'] )
+					: $sticky_posts;
+
+				// WP_Query ignores an empty post__in, so force an impossible ID to return no results.
+				if ( empty( $query_args['post__in'] ) ) {
+					$query_args['post__in'] = [ 0 ];
+				}
+			} elseif ( ! empty( $sticky_posts ) ) {
+				// Exclude sticky posts, merging with any explicit `notIn` filter.
+				$query_args['post__not_in'] = array_merge( // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+					! empty( $query_args['post__not_in'] ) ? $query_args['post__not_in'] : [],
+					$sticky_posts
+				);
+			}
 		}
 
 		/**
