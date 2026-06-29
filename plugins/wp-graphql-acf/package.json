@@ -16,7 +16,7 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.0",
 		"eslint": "^10.4.0",
-		"globals": "^16.0.0"
+		"globals": "^17.6.0"
 	},
 	"scripts": {
 		"lint": "npm run lint:js && npm run lint:php",
