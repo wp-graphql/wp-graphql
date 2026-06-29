@@ -67,13 +67,13 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
-    "eslint": "^10.4.0",
+    "@playwright/test": "^1.61.0",
+    "eslint": "^10.5.0",
     "eslint-config-next": "^15.5.19",
     "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.16",
     "postcss-focus-visible": "^7.1.0",
     "postcss-import": "^16.1.1",
     "prettier": "^3.8.4",
