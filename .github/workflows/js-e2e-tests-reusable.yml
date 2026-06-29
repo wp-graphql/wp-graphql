@@ -116,7 +116,7 @@ jobs:
           echo "✅ wp-graphql built successfully"
 
       - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: playwright-cache
         with:
           path: |
@@ -126,7 +126,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Cache Playwright system dependencies (apt)
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: playwright-apt-cache
         with:
           path: ~/playwright-apt-cache

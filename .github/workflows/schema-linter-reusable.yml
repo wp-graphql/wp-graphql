@@ -40,7 +40,7 @@ jobs:
           tools: composer:v2
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v3.1.1
         with:
           working-directory: ${{ inputs.composer_working_dir }}
 
@@ -49,7 +49,7 @@ jobs:
       # (wp-env maps plugin dirs as volumes, so host vendor dirs are available in containers)
       - name: Install wp-graphql dependencies (if needed)
         if: inputs.component != 'wp-graphql'
-        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
 
