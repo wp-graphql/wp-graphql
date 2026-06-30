@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.6.4](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.3...wp-graphql-acf/v2.6.4) (2026-06-30)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump eslint from 8.57.1 to 10.4.0 ([#3977](https://github.com/wp-graphql/wp-graphql/issues/3977)) ([2a5d914](https://github.com/wp-graphql/wp-graphql/commit/2a5d914bb2238e87087310ea5fadc9014ba246b2))
+* **deps-dev:** bump globals from 16.5.0 to 17.6.0 ([#4013](https://github.com/wp-graphql/wp-graphql/issues/4013)) ([9e637e4](https://github.com/wp-graphql/wp-graphql/commit/9e637e49565b7b6738f6253cf66d8d8fca1b583b))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-acf ([#3982](https://github.com/wp-graphql/wp-graphql/issues/3982)) ([42e407c](https://github.com/wp-graphql/wp-graphql/commit/42e407cdaa6f675eacfe087d7c7eef57d06d5209))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-acf ([#3980](https://github.com/wp-graphql/wp-graphql/issues/3980)) ([ace4b97](https://github.com/wp-graphql/wp-graphql/commit/ace4b975ee67e4e89da660f577f663d9c589d81d))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015)) ([0c24553](https://github.com/wp-graphql/wp-graphql/commit/0c245535a49cde2172d4718e21a216eb98e9b237))
+* **deps-dev:** bump the wp-graphql-acf-composer-dev-minor-patch group in /plugins/wp-graphql-acf with 2 updates ([#3938](https://github.com/wp-graphql/wp-graphql/issues/3938)) ([c991ebb](https://github.com/wp-graphql/wp-graphql/commit/c991ebba555d946a23ff3a33a53a49bc0e747c36))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960)) ([391e7d3](https://github.com/wp-graphql/wp-graphql/commit/391e7d3fa02085f1905e87c2091bb025885dc6b6))
+* **wp-graphql-acf:** detect renamed Content Blocks constant so the integration loads ([#4005](https://github.com/wp-graphql/wp-graphql/issues/4005)) ([b5b604a](https://github.com/wp-graphql/wp-graphql/commit/b5b604a1d8c81b2b58b3c03a1041da86270091b4))
+* **wp-graphql-acf:** migrate ESLint to flat config for ESLint 10 ([#3995](https://github.com/wp-graphql/wp-graphql/issues/3995)) ([8e91566](https://github.com/wp-graphql/wp-graphql/commit/8e91566f1f4445195cfccebb8103b979a8de8031))
+* **wp-graphql-acf:** mock oEmbed in tests and unskip clone-field tests ([#3867](https://github.com/wp-graphql/wp-graphql/issues/3867)) ([0808257](https://github.com/wp-graphql/wp-graphql/commit/08082574d28efbf71d92d0c8dabe3ca04251beb9))
+
 ## [2.6.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.2...wp-graphql-acf/v2.6.3) (2026-06-11)
 
 
