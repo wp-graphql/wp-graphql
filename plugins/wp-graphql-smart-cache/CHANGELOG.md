@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.2.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.1...wp-graphql-smart-cache/v2.2.2) (2026-06-29)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-smart-cache ([#3985](https://github.com/wp-graphql/wp-graphql/issues/3985)) ([6699b8f](https://github.com/wp-graphql/wp-graphql/commit/6699b8ffd317de212d67076408be466684b4167d))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-smart-cache ([#3987](https://github.com/wp-graphql/wp-graphql/issues/3987)) ([cb57143](https://github.com/wp-graphql/wp-graphql/commit/cb571436ffebd933fb86bb91ad31c36d0d37f486))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.8.0 to 2.11.0 in /plugins/wp-graphql-smart-cache ([#3927](https://github.com/wp-graphql/wp-graphql/issues/3927)) ([f21d46f](https://github.com/wp-graphql/wp-graphql/commit/f21d46fe516cfd63d58dd2febc47012d292819ce))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960)) ([391e7d3](https://github.com/wp-graphql/wp-graphql/commit/391e7d3fa02085f1905e87c2091bb025885dc6b6))
+
 ## [2.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.0...wp-graphql-smart-cache/v2.2.1) (2026-06-04)
 
 

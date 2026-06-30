@@ -224,7 +224,7 @@ class Config {
 	 * expression is a boolean LIKE sorted DESC. Inverting means appending DESC to the former
 	 * and swapping DESC for ASC on the latter.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.17.0
 	 *
 	 * @param string    $search_orderby The ORDER BY clause for search relevance.
 	 * @param \WP_Query $query          The WP_Query instance (passed by reference).
@@ -455,8 +455,15 @@ class Config {
 			return $pieces;
 		}
 
-		// Determine the limit for the query
-		if ( isset( $args['number'] ) && absint( $args['number'] ) ) {
+		// Determine the limit for the query.
+		//
+		// WP_Term_Query intentionally omits the SQL LIMIT when it has to descend the
+		// term hierarchy (e.g. a `child_of` query): it queries the full set, filters
+		// the descendants in PHP, then applies `number`/`offset` in PHP. Forcing a
+		// SQL LIMIT here would truncate the result set before that descendant
+		// filtering runs, dropping children that fall outside the LIMIT window. In
+		// that case we defer to WP's PHP-side pagination. See #2739.
+		if ( empty( $args['child_of'] ) && isset( $args['number'] ) && absint( $args['number'] ) ) {
 			$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
 		}
 

@@ -7,22 +7,24 @@ on:
       - edited
       - synchronize
 
-# `amannn/action-semantic-pull-request` posts a commit status to report
-# the PR-title check result. That requires `statuses: write`, which the
-# default `GITHUB_TOKEN` doesn't have on `pull_request_target` — the
-# action then fails with "Resource not accessible by integration" even
-# when the title itself is valid. Granting just the two permissions the
-# action needs (and nothing else) keeps the token narrowly scoped.
 permissions:
-  pull-requests: read
-  statuses: write
+  contents: read
 
 jobs:
   main:
     name: Validate Pull Request Title
     runs-on: ubuntu-latest
+    # `amannn/action-semantic-pull-request` posts a commit status to report
+    # the PR-title check result. That requires `statuses: write`, which the
+    # default `GITHUB_TOKEN` doesn't have on `pull_request_target` — the
+    # action then fails with "Resource not accessible by integration" even
+    # when the title itself is valid. Granting just the two permissions the
+    # action needs (and nothing else) keeps the token narrowly scoped.
+    permissions:
+      pull-requests: read
+      statuses: write
     steps:
-      - uses: amannn/action-semantic-pull-request@v6
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -55,6 +57,8 @@ jobs:
   check-breaking-change:
     name: Validate Breaking Change Marker
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Check for breaking change marker on non-release types
         env:

@@ -14,7 +14,9 @@
 		"npm": ">=10"
 	},
 	"devDependencies": {
-		"eslint": "^8.57.1"
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.5.0",
+		"globals": "^17.7.0"
 	},
 	"scripts": {
 		"lint": "npm run lint:js && npm run lint:php",

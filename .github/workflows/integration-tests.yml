@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # ===========================================
   # CHANGE DETECTION
@@ -42,12 +45,14 @@ jobs:
       is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Check if release-please PR
         id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
             echo "is-release-pr=true" >> $GITHUB_OUTPUT
             echo "🔔 Detected Release PR - will run integration tests for all plugins"
           else
@@ -56,10 +61,11 @@ jobs:
 
       - name: Check if PR is from a fork
         id: check-fork-pr
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
           # Fork PRs cannot receive secrets (e.g. ACF_LICENSE_KEY). Skip wp-graphql-acf job to avoid failure.
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
             BASE_REPO="${{ github.repository }}"
             if [[ -z "$HEAD_REPO" ]] || [[ "$HEAD_REPO" != "$BASE_REPO" ]]; then
               echo "is-fork-pr=true" >> $GITHUB_OUTPUT
@@ -73,7 +79,7 @@ jobs:
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files_yaml: |
             wp-graphql:
@@ -407,7 +413,7 @@ jobs:
           FULL_MATRIX='{"include":[
             {"name":"wp-graphql-acf / WP 7.0 / PHP 8.4 / ACF Pro + ACF Extended Pro","php":"8.4","wp":"7.0","theme":"twentytwentyfive","multisite":false,"coverage":true,"acf_pro":true,"acf_extended":true,"acf_extended_pro":true,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
-            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Pro","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
+            {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Pro + Content Blocks","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false,"content_blocks":true,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free + ACF Extended Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":true,"acf_extended_pro":false,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.2 / PHP 7.4 / ACF Free","php":"7.4","wp":"6.2","theme":"twentytwentyone","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
             {"name":"wp-graphql-acf / WP trunk / PHP 8.4 / ACF Pro","php":"8.4","wp":"trunk","theme":"twentytwentyfive","multisite":false,"coverage":false,"experimental":true,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false}
@@ -462,6 +468,7 @@ jobs:
       acf_pro: ${{ matrix.acf_pro && 'true' || 'false' }}
       acf_extended: ${{ matrix.acf_extended && 'true' || 'false' }}
       acf_extended_pro: ${{ matrix.acf_extended_pro && 'true' || 'false' }}
+      wpgraphql_content_blocks: ${{ matrix.content_blocks || false }}
       install_wp_graphql_core_deps: true
 
   # ===========================================

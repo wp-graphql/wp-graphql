@@ -458,6 +458,141 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
+	 * A post in a custom status registered with `public => true` should be queryable
+	 * by anonymous users in a connection, the same way it is shown on the WordPress
+	 * front-end and the REST single-post endpoint.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2819
+	 */
+	public function testPublicCustomPostStatusIsQueryableByAnonymousUserInConnection() {
+		register_post_status(
+			'gqltest_public',
+			[
+				'label'                     => 'GQL Test Public',
+				'public'                    => true,
+				'show_in_admin_all_list'    => true,
+				'show_in_admin_status_list' => true,
+			]
+		);
+		$this->clearSchema();
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'gqltest_public',
+				'post_title'  => 'Public custom status post',
+			]
+		);
+
+		$query = '
+		query ( $stati: [PostStatusEnum] ) {
+			posts( where: { stati: $stati } ) {
+				nodes { databaseId status }
+			}
+		}';
+
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'stati' => [ 'GQLTEST_PUBLIC' ] ] ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertContains( $post_id, $ids, 'Anonymous users should see posts in a public custom status.' );
+
+		unset( $GLOBALS['wp_post_statuses']['gqltest_public'] );
+		$this->clearSchema();
+	}
+
+	/**
+	 * A post in a custom status that is NOT public must stay hidden from anonymous
+	 * users in a connection. Locks in the correct behavior from #3248 so the #2819
+	 * fix does not over-expose non-public statuses.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3248
+	 */
+	public function testNonPublicCustomPostStatusIsHiddenFromAnonymousUserInConnection() {
+		register_post_status(
+			'gqltest_hidden',
+			[
+				'label'   => 'GQL Test Hidden',
+				'public'  => false,
+				'private' => false,
+			]
+		);
+		$this->clearSchema();
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'gqltest_hidden',
+				'post_title'  => 'Hidden custom status post',
+			]
+		);
+
+		$query = '
+		query ( $stati: [PostStatusEnum] ) {
+			posts( where: { stati: $stati } ) {
+				nodes { databaseId }
+			}
+		}';
+
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'stati' => [ 'GQLTEST_HIDDEN' ] ] ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertNotContains( $post_id, $ids, 'Anonymous users must not see posts in a non-public custom status.' );
+
+		unset( $GLOBALS['wp_post_statuses']['gqltest_hidden'] );
+		$this->clearSchema();
+	}
+
+	/**
+	 * A user who can `read_private_posts` but cannot `edit_posts` should be able to
+	 * query `private` posts in a connection. Previously the `private` status fell
+	 * through to an `edit_posts` gate, so the status was stripped for these users.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2859
+	 */
+	public function testReadPrivatePostsCapAllowsPrivateStatiWithoutEditPosts() {
+		$reader = $this->factory()->user->create( [ 'role' => 'subscriber' ] );
+		$reader_user = new WP_User( $reader );
+		$reader_user->add_cap( 'read_private_posts' );
+
+		// Confirm the capability shape this test depends on.
+		$this->assertTrue( user_can( $reader, 'read_private_posts' ) );
+		$this->assertFalse( user_can( $reader, 'edit_posts' ) );
+
+		$private_post = $this->createPostObject(
+			[
+				'post_status' => 'private',
+				'post_title'  => 'Private post for read_private_posts user',
+			]
+		);
+
+		$query     = $this->getQuery();
+		$variables = [
+			'where' => [
+				'in'    => [ $private_post ],
+				'stati' => [ 'PRIVATE' ],
+			],
+		];
+
+		wp_set_current_user( $reader );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['posts']['nodes'], 'A read_private_posts user should see private posts.' );
+		$this->assertSame( $private_post, $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// A plain subscriber (no read_private_posts) must still have private stripped.
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['posts']['nodes'], 'A plain subscriber must not see private posts.' );
+	}
+
+	/**
 	 * @dataProvider dataProviderUserVariance
 	 */
 	public function testRevisionWithoutProperCaps( $role, $show_revisions ) {
@@ -1212,6 +1347,75 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
 		$this->assertFalse( $actual['data']['posts']['nodes'][1]['isSticky'] );
+	}
+
+	/**
+	 * The `isSticky` where arg filters the connection result set by sticky status,
+	 * modeling the WP REST API `sticky` parameter. It does not float sticky posts.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/786
+	 */
+	public function testIsStickyWhereArgFiltersConnection() {
+		// setUp() already created 6 non-sticky published posts.
+		$sticky_one = $this->createPostObject( [ 'post_title' => 'Sticky One' ] );
+		$sticky_two = $this->createPostObject( [ 'post_title' => 'Sticky Two' ] );
+
+		update_option( 'sticky_posts', [ $sticky_one, $sticky_two ] );
+
+		$query = $this->getQuery();
+
+		// isSticky: true returns only the sticky posts.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [ 'isSticky' => true ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		sort( $actual_ids );
+		$expected_ids = [ $sticky_one, $sticky_two ];
+		sort( $expected_ids );
+		$this->assertEquals( $expected_ids, $actual_ids, 'isSticky: true should return only sticky posts.' );
+
+		// isSticky: false excludes the sticky posts but keeps the rest.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [ 'isSticky' => false ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertNotContains( $sticky_one, $actual_ids, 'isSticky: false should exclude sticky posts.' );
+		$this->assertNotContains( $sticky_two, $actual_ids, 'isSticky: false should exclude sticky posts.' );
+		$this->assertContains( $this->created_post_ids[1], $actual_ids, 'isSticky: false should keep non-sticky posts.' );
+
+		// isSticky: true intersects with an explicit `in` filter (REST parity).
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [
+						'isSticky' => true,
+						'in'       => [ $sticky_one, $this->created_post_ids[1] ],
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertEquals( [ $sticky_one ], $actual_ids, 'isSticky: true with `in` should return the intersection.' );
 	}
 
 	public function testWhereArgs() {

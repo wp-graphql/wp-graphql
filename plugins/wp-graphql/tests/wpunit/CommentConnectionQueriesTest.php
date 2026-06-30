@@ -883,6 +883,51 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 
 
+	/**
+	 * Paginating a comment connection ordered by COMMENT_PARENT past the first
+	 * page must not throw an InvariantViolation.
+	 *
+	 * When all comments share the same comment_parent (the common case of
+	 * top-level comments, where comment_parent is 0), the orderby comparison
+	 * adds no field and the cursor falls back to comparing by comment_date. A
+	 * malformed fallback field (using the "by" key instead of "value") caused
+	 * the cursor compare validator to throw on the second page.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3068
+	 */
+	public function testCommentParentOrderbyPaginationDoesNotThrow() {
+		$query = $this->getQuery();
+
+		// First page, ordered by COMMENT_PARENT (all top-level => comment_parent 0).
+		$variables = [
+			'first' => 2,
+			'where' => [
+				'order'   => 'ASC',
+				'orderby' => 'COMMENT_PARENT',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertResponseIsValid( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+
+		$first_page_ids = wp_list_pluck( $actual['data']['comments']['nodes'], 'databaseId' );
+		$end_cursor     = $actual['data']['comments']['pageInfo']['endCursor'];
+
+		// Second page via the cursor. This is the path that previously threw.
+		$variables['after'] = $end_cursor;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertResponseIsValid( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+
+		// The second page must not repeat nodes from the first page.
+		$second_page_ids = wp_list_pluck( $actual['data']['comments']['nodes'], 'databaseId' );
+		$this->assertEmpty( array_intersect( $first_page_ids, $second_page_ids ) );
+	}
+
 	public function testParentWhereArgs() {
 		$query = $this->getQuery();
 
