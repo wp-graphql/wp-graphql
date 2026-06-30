@@ -30,6 +30,14 @@ use WPGraphQL\Registry\TypeRegistry;
  *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
  *  kind?:'enum'|null,
  * }
+ * @phpstan-type RegisterEnumTypeConfig array{
+ *  name?: string,
+ *  description?: string|null,
+ *  values: array<string, PartialWPEnumValueConfig>,
+ *  astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+ *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
+ *  kind?:'enum'|null,
+ * }
  * phpcs:enable
  */
 class WPEnumType extends EnumType {
