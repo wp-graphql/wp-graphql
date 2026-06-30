@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 2.6.3
+Stable tag: 2.6.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -127,6 +127,21 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://acf.wpgraphql.com/upgrade-guide/) before upgrading.
 
 == Changelog ==
+
+= 2.6.4 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump eslint from 8.57.1 to 10.4.0 ([#3977](https://github.com/wp-graphql/wp-graphql/issues/3977))
+* **deps-dev:** bump globals from 16.5.0 to 17.6.0 ([#4013](https://github.com/wp-graphql/wp-graphql/issues/4013))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-acf ([#3982](https://github.com/wp-graphql/wp-graphql/issues/3982))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-acf ([#3980](https://github.com/wp-graphql/wp-graphql/issues/3980))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015))
+* **deps-dev:** bump the wp-graphql-acf-composer-dev-minor-patch group in /plugins/wp-graphql-acf with 2 updates ([#3938](https://github.com/wp-graphql/wp-graphql/issues/3938))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960))
+* **wp-graphql-acf:** detect renamed Content Blocks constant so the integration loads ([#4005](https://github.com/wp-graphql/wp-graphql/issues/4005))
+* **wp-graphql-acf:** migrate ESLint to flat config for ESLint 10 ([#3995](https://github.com/wp-graphql/wp-graphql/issues/3995))
+* **wp-graphql-acf:** mock oEmbed in tests and unskip clone-field tests ([#3867](https://github.com/wp-graphql/wp-graphql/issues/3867))
 
 = 2.6.3 =
 
