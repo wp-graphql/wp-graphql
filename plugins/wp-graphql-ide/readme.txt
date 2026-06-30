@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.0.1
+Stable tag: 5.1.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,29 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.1.0 =
+
+**New Features**
+
+* **deps:** bump @wordpress/components from 27.6.0 to 34.0.0 ([#4011](https://github.com/wp-graphql/wp-graphql/issues/4011))
+* **deps:** bump graphql-ws from 5.16.2 to 6.0.8 ([#3978](https://github.com/wp-graphql/wp-graphql/issues/3978))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3946](https://github.com/wp-graphql/wp-graphql/issues/3946))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#3956](https://github.com/wp-graphql/wp-graphql/issues/3956))
+* **ide:** query composer reveals the field at the editor cursor ([#3936](https://github.com/wp-graphql/wp-graphql/issues/3936))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @wordpress/e2e-test-utils-playwright from 0.19.3 to 1.46.0 ([#3942](https://github.com/wp-graphql/wp-graphql/issues/3942))
+* **deps-dev:** bump @wordpress/env from 10.39.0 to 11.6.0 ([#3957](https://github.com/wp-graphql/wp-graphql/issues/3957))
+* **deps-dev:** bump @wordpress/env from 11.6.0 to 11.8.0 in the npm-dev-minor-patch group ([#3974](https://github.com/wp-graphql/wp-graphql/issues/3974))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-ide ([#3981](https://github.com/wp-graphql/wp-graphql/issues/3981))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-ide ([#3984](https://github.com/wp-graphql/wp-graphql/issues/3984))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.9.0 to 2.11.0 in /plugins/wp-graphql-ide ([#3928](https://github.com/wp-graphql/wp-graphql/issues/3928))
+* **deps-dev:** bump phpstan/phpstan from 2.2.1 to 2.2.2 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#3937](https://github.com/wp-graphql/wp-graphql/issues/3937))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 5 updates ([#3945](https://github.com/wp-graphql/wp-graphql/issues/3945))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015))
+* keep graphql_document on the classic editor when the WPGraphQL IDE is active ([#4019](https://github.com/wp-graphql/wp-graphql/issues/4019))
 
 = 5.0.1 =
 
