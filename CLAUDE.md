@@ -64,6 +64,19 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 - **Conventional Commits**: PR titles must follow the format (`feat:`, `fix:`, `perf:`, `docs:`, `chore:`, etc.). PRs are squash-merged, so the title becomes the commit message. The `!` suffix (e.g., `feat!:`) signals a breaking change.
 - **CI matrix**: Tests run across WordPress 6.1–trunk, PHP 7.4–8.4, block and classic themes, single and multisite.
 
+### Issue tracker conventions
+
+These apply when **we (the maintainers) open an issue**. Community-filed issues get triaged and labeled afterward, so don't hold them to this.
+
+- **Issue titles are plain descriptions, not Conventional Commits.** Describe the problem or request (e.g. "WPGraphQL IDE enables the block editor for the graphql_document post type"). The `fix:` / `feat:` / `chore:` prefixes are for **PR** titles, not issues — don't prefix an issue title.
+- **Label accurately at creation.** When we open the issue we already understand its scope, so apply the right labels up front rather than leaving it for triage:
+  - a `type:` label (`type: bug`, `type: enhancement`, …),
+  - `effort:` (`low` ≈ a day or less, `med` < a week, `high` > a week),
+  - `impact:` (`low` / `med` / `high` — `high` is reserved for major bugs or newly-unblocked use cases),
+  - and any area label that fits (e.g. `graphiql ide`, `regression`).
+  - Calibrate `effort` / `impact` against existing labeled issues rather than in the abstract.
+- **Link the fix back.** Reference the issue from the PR (`Fixes #1234`) so the squash-merge closes it.
+
 ## Shared Coding Conventions
 
 These apply across the PHP plugins; see each plugin's `CLAUDE.md` for its specifics (PHP floor, PHPStan level, JS tooling).
