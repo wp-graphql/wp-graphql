@@ -109,7 +109,7 @@ Use the `isSticky` argument to filter the connection by [sticky](https://wordpre
 
 #### Query pages by template
 
-Use the `template` argument to filter a connection to objects assigned a specific page template. The value is matched against the `_wp_page_template` value, such as `template-full-width.php`.
+Use the `template` argument to filter a connection to objects assigned a specific template. The value is the template's file name or slug, such as `template-full-width.php` (classic themes) or `page-no-title` (block themes).
 
 ```graphql
 {
@@ -122,7 +122,7 @@ Use the `template` argument to filter a connection to objects assigned a specifi
 }
 ```
 
-> **NOTE:** This matches classic page templates (the `_wp_page_template` meta). Block theme templates (the `wp_template` post type) are a separate system and are not matched by this argument.
+> **NOTE:** This matches the template assigned to a specific page (the "Template" selector in the editor), and works for both classic and block themes. It does not filter by a block theme's global template hierarchy.
 
 ### Single Post by Global ID
 

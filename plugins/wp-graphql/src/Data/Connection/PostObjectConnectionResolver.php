@@ -444,7 +444,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Filter the connection by the assigned classic page template (`_wp_page_template`).
+		 * Filter the connection by the per-post template assignment (`_wp_page_template`),
+		 * which covers both classic page templates and block-theme custom templates.
 		 *
 		 * This is the one place a core `where` arg introduces a meta_query. It is bounded to a
 		 * single indexed meta key, but a meta_query is still more expensive than the indexed
