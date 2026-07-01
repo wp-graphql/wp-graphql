@@ -1418,6 +1418,55 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertEquals( [ $sticky_one ], $actual_ids, 'isSticky: true with `in` should return the intersection.' );
 	}
 
+	/**
+	 * The `template` where arg filters a post/page connection to objects assigned a specific
+	 * page template (the `_wp_page_template` meta value).
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
+	 *
+	 * @throws \Exception
+	 */
+	public function testTemplateWhereArgFiltersConnection() {
+		$full_width_one = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Full Width One' ] );
+		$full_width_two = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Full Width Two' ] );
+		$sidebar        = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Sidebar' ] );
+		$no_template    = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'No Template' ] );
+
+		update_post_meta( $full_width_one, '_wp_page_template', 'template-full-width.php' );
+		update_post_meta( $full_width_two, '_wp_page_template', 'template-full-width.php' );
+		update_post_meta( $sidebar, '_wp_page_template', 'template-sidebar.php' );
+
+		$query = '
+		query PagesByTemplate( $where: RootQueryToPageConnectionWhereArgs ) {
+			pages( first: 100, where: $where ) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'where' => [ 'template' => 'template-full-width.php' ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
+		sort( $actual_ids );
+		$expected_ids = [ $full_width_one, $full_width_two ];
+		sort( $expected_ids );
+
+		$this->assertEquals( $expected_ids, $actual_ids, 'template should return only pages assigned that template' );
+		$this->assertNotContains( $sidebar, $actual_ids, 'template should exclude pages with a different template' );
+		$this->assertNotContains( $no_template, $actual_ids, 'template should exclude pages with no template' );
+	}
+
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 

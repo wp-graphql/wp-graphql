@@ -444,6 +444,26 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
+		 * Filter the connection by the assigned classic page template (`_wp_page_template`).
+		 *
+		 * This is the one place a core `where` arg introduces a meta_query. It is bounded to a
+		 * single indexed meta key, but a meta_query is still more expensive than the indexed
+		 * post columns the other args use.
+		 *
+		 * TODO (Query Cost): when the query complexity / cost analysis system lands
+		 * (see plans/001-query-complexity-validation-rule.md and the filter/sort RFC #1385),
+		 * this arg MUST be assigned a cost weighting so meta_query-backed filters can be priced
+		 * and guarded. It is intentionally shipped without one now because that system does not
+		 * yet exist.
+		 */
+		if ( isset( $where_args['template'] ) && is_string( $where_args['template'] ) && '' !== $where_args['template'] ) {
+			$query_args['meta_query'][] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'key'   => '_wp_page_template',
+				'value' => $where_args['template'],
+			];
+		}
+
+		/**
 		 * Filter the input fields
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query

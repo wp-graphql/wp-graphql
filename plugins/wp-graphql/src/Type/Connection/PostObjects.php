@@ -356,6 +356,20 @@ class PostObjects {
 			],
 
 			/**
+			 * Template parameter
+			 *
+			 * Filters by the classic page template (`_wp_page_template` meta). Block-theme
+			 * templates (the `wp_template` post type) are a separate system and are not
+			 * covered by this argument.
+			 */
+			'template'    => [
+				'type'        => 'String',
+				'description' => static function () {
+					return __( 'Filter the connection to objects assigned a specific page template, matched against the `_wp_page_template` value (e.g. `template-full-width.php`). Applies to post types that support classic page templates.', 'wp-graphql' );
+				},
+			],
+
+			/**
 			 * Password parameters
 			 *
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Password_Parameters
