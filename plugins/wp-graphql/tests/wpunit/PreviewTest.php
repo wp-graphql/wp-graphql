@@ -1559,7 +1559,9 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Meta keys that WordPress revisions (registered with `revisions_enabled`, e.g. core's
 	 * `footnotes`) must resolve from the revision's own value in a preview, not from the
-	 * parent. Previously the blanket parent-fallback overwrote the revision's value.
+	 * parent. Previously the blanket parent-fallback overwrote the revision's value. A key
+	 * that is NOT revisioned must still fall back to the parent, so the resolution stays
+	 * scoped to the keys WordPress actually revisions.
 	 *
 	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
 	 */
@@ -1582,6 +1584,19 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+		// A meta key WordPress does NOT revision. During a preview it must keep falling
+		// back to the parent, so the revisioned-meta resolution stays scoped and does not
+		// leak the revision's value for arbitrary keys.
+		register_post_meta(
+			'post',
+			'nonRevisionedMetaKey',
+			[
+				'type'         => 'string',
+				'single'       => true,
+				'show_in_rest' => true,
+			]
+		);
+
 		register_graphql_field(
 			'Post',
 			'revisionedMetaKey',
@@ -1593,23 +1608,38 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		// Different values on the published post and on the revision.
+		register_graphql_field(
+			'Post',
+			'nonRevisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'nonRevisionedMetaKey', true );
+				},
+			]
+		);
+
+		// Different values on the published post and on the revision, for both keys.
 		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
 		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+		update_post_meta( $this->post, 'nonRevisionedMetaKey', 'published only' );
+		update_metadata( 'post', $this->preview, 'nonRevisionedMetaKey', 'revision only' );
 
 		wp_set_current_user( $this->admin );
 
 		$actual = $this->graphql(
 			[
-				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { revisionedMetaKey } }',
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { revisionedMetaKey nonRevisionedMetaKey } }',
 				'variables' => [ 'id' => $this->post ],
 			]
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'revised value', $actual['data']['post']['revisionedMetaKey'], '#3260: a revisioned meta key resolves from the revision, not the parent' );
+		$this->assertSame( 'published only', $actual['data']['post']['nonRevisionedMetaKey'], '#3260: a non-revisioned meta key still falls back to the parent during a preview' );
 
 		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		unregister_post_meta( 'post', 'nonRevisionedMetaKey' );
 		WPGraphQL::clear_schema();
 	}
 
