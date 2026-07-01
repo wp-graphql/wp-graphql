@@ -1419,31 +1419,41 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
-	 * The `template` where arg filters a post/page connection to objects assigned a specific
-	 * template. Per-post template assignment uses the same storage for classic page templates
-	 * (a `.php` file name) and block-theme custom templates (a slug), so the arg matches both.
+	 * The `template` where arg is a TemplateEnum built from the templates registered for the
+	 * active theme. Its values map a schema-friendly name (e.g. `TEMPLATE_FULL_WIDTH`) to the
+	 * underlying template identifier, and `DEFAULT` filters for content with no specific
+	 * template assigned. Per-post template assignment uses the same storage for classic page
+	 * templates (a `.php` file name) and block-theme custom templates (a slug).
 	 *
 	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
 	 *
 	 * @throws \Exception
 	 */
 	public function testTemplateWhereArgFiltersConnection() {
+		// Register templates for the active theme so they appear as TemplateEnum values.
+		// A `.php` file name models a classic template; a bare slug models a block-theme one.
+		$register_templates = static function ( $templates ) {
+			$templates['template-full-width.php'] = 'Full Width';
+			$templates['page-no-title']           = 'No Title';
+			return $templates;
+		};
+		add_filter( 'theme_page_templates', $register_templates );
+
+		// Rebuild the schema so the enum picks up the registered templates.
+		$this->clearSchema();
+
 		$full_width_one = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Full Width One' ] );
 		$full_width_two = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Full Width Two' ] );
-		$sidebar        = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Sidebar' ] );
-		$no_template    = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'No Template' ] );
 		$block_template = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Block Template' ] );
+		$no_template    = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'No Template' ] );
 
-		// Classic themes store a `.php` file name; block themes store a slug. Both use the
-		// same per-post template assignment, so the arg should match either form.
 		update_post_meta( $full_width_one, '_wp_page_template', 'template-full-width.php' );
 		update_post_meta( $full_width_two, '_wp_page_template', 'template-full-width.php' );
-		update_post_meta( $sidebar, '_wp_page_template', 'template-sidebar.php' );
 		update_post_meta( $block_template, '_wp_page_template', 'page-no-title' );
 
 		$query = '
-		query PagesByTemplate( $where: RootQueryToPageConnectionWhereArgs ) {
-			pages( first: 100, where: $where ) {
+		query PagesByTemplate( $template: TemplateEnum ) {
+			pages( first: 100, where: { template: $template } ) {
 				nodes {
 					databaseId
 				}
@@ -1451,39 +1461,51 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
+		// The `TEMPLATE_FULL_WIDTH` enum value resolves to `template-full-width.php`.
 		$actual = $this->graphql(
 			[
 				'query'     => $query,
-				'variables' => [
-					'where' => [ 'template' => 'template-full-width.php' ],
-				],
+				'variables' => [ 'template' => 'TEMPLATE_FULL_WIDTH' ],
 			]
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-
 		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
 		sort( $actual_ids );
 		$expected_ids = [ $full_width_one, $full_width_two ];
 		sort( $expected_ids );
-
 		$this->assertEquals( $expected_ids, $actual_ids, 'template should return only pages assigned that template' );
-		$this->assertNotContains( $sidebar, $actual_ids, 'template should exclude pages with a different template' );
+		$this->assertNotContains( $block_template, $actual_ids, 'template should exclude pages with a different template' );
 		$this->assertNotContains( $no_template, $actual_ids, 'template should exclude pages with no template' );
 
-		// A block-theme template slug filters the same way (no `.php` extension).
+		// A block-theme template slug (no `.php`) maps to `PAGE_NO_TITLE` and filters the same way.
 		$actual = $this->graphql(
 			[
 				'query'     => $query,
-				'variables' => [
-					'where' => [ 'template' => 'page-no-title' ],
-				],
+				'variables' => [ 'template' => 'PAGE_NO_TITLE' ],
 			]
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
 		$this->assertEquals( [ $block_template ], $actual_ids, 'template should match a block-theme template slug' );
+
+		// `DEFAULT` matches content with no specific template assigned.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'template' => 'DEFAULT' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
+		$this->assertContains( $no_template, $actual_ids, 'DEFAULT should include pages with no template' );
+		$this->assertNotContains( $full_width_one, $actual_ids, 'DEFAULT should exclude templated pages' );
+		$this->assertNotContains( $block_template, $actual_ids, 'DEFAULT should exclude templated pages' );
+
+		remove_filter( 'theme_page_templates', $register_templates );
+		$this->clearSchema();
 	}
 
 	public function testWhereArgs() {

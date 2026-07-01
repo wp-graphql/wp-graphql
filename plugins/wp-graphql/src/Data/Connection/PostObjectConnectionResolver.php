@@ -458,10 +458,27 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * yet exist.
 		 */
 		if ( isset( $where_args['template'] ) && is_string( $where_args['template'] ) && '' !== $where_args['template'] ) {
-			$query_args['meta_query'][] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				'key'   => '_wp_page_template',
-				'value' => $where_args['template'],
-			];
+			if ( 'default' === $where_args['template'] ) {
+				// Content on the default template has no specific template assigned: the meta is
+				// absent, empty, or the literal "default".
+				$query_args['meta_query'][] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query, SlevomatCodingStandard.Arrays.DisallowPartiallyKeyed.DisallowedPartiallyKeyed
+					'relation' => 'OR',
+					[
+						'key'     => '_wp_page_template',
+						'compare' => 'NOT EXISTS',
+					],
+					[
+						'key'     => '_wp_page_template',
+						'value'   => [ '', 'default' ],
+						'compare' => 'IN',
+					],
+				];
+			} else {
+				$query_args['meta_query'][] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'key'   => '_wp_page_template',
+					'value' => $where_args['template'],
+				];
+			}
 		}
 
 		/**

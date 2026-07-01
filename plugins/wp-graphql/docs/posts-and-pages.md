@@ -109,11 +109,11 @@ Use the `isSticky` argument to filter the connection by [sticky](https://wordpre
 
 #### Query pages by template
 
-Use the `template` argument to filter a connection to objects assigned a specific template. The value is the template's file name or slug, such as `template-full-width.php` (classic themes) or `page-no-title` (block themes).
+Use the `template` argument to filter a connection to content assigned a specific template. `template` is a `TemplateEnum` whose values come from the templates registered for the active theme (e.g. a "Full Width" template is exposed as `TEMPLATE_FULL_WIDTH`), plus `DEFAULT` for content with no specific template assigned. Introspect the `TemplateEnum` type to see the values available in your schema.
 
 ```graphql
 {
-  pages(where: {template: "template-full-width.php"}) {
+  pages(where: {template: TEMPLATE_FULL_WIDTH}) {
     nodes {
       id
       title

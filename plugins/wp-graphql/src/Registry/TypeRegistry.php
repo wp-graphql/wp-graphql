@@ -61,6 +61,7 @@ use WPGraphQL\Type\Enum\ScriptLoadingGroupLocationEnum;
 use WPGraphQL\Type\Enum\ScriptLoadingStrategyEnum;
 use WPGraphQL\Type\Enum\TaxonomyEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
+use WPGraphQL\Type\Enum\TemplateEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\TermObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\TimezoneEnum;
@@ -384,6 +385,7 @@ class TypeRegistry {
 		TaxonomyIdTypeEnum::register_type();
 		TermNodeIdTypeEnum::register_type();
 		TermObjectsConnectionOrderbyEnum::register_type();
+		TemplateEnum::register_type();
 		TimezoneEnum::register_type();
 		UserNodeIdTypeEnum::register_type();
 		UserRoleEnum::register_type();
