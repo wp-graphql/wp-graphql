@@ -20,8 +20,7 @@ on:
     types: [completed]
 
 permissions:
-  pull-requests: write
-  actions: read   # required by actions/download-artifact to read from another run
+  contents: read
 
 jobs:
   comment:
@@ -31,9 +30,12 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write   # post the sticky PR comment
+      actions: read          # required by actions/download-artifact to read from another run
     steps:
       - name: Download PR metadata artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: pr-meta
           run-id: ${{ github.event.workflow_run.id }}
@@ -57,7 +59,7 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
           echo "playground_url=$PLAYGROUND_URL" >> "$GITHUB_OUTPUT"
 
-      - uses: marocchino/sticky-pull-request-comment@v3
+      - uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         with:
           number: ${{ steps.meta.outputs.pr_number }}
           header: playground-preview

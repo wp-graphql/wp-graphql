@@ -392,11 +392,35 @@ class Post extends Model {
 			$post_object = $this->data;
 		}
 
+		$status        = $this->data->post_status;
+		$status_object = get_post_status_object( $status );
+
 		/**
-		 * If the status is NOT publish and the user does NOT have capabilities to edit posts,
-		 * consider the post private.
+		 * A status whose `public` flag is true is visible to everyone, the same way it is on the
+		 * WordPress front-end and the REST API (e.g. `publish` and custom statuses registered with
+		 * `'public' => true`). Revisions are excluded here, their access is determined relative to
+		 * the parent post below.
 		 */
-		if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+		if (
+			'revision' !== $this->data->post_type &&
+			$status_object instanceof \stdClass &&
+			true === $status_object->public &&
+			( true === $post_type_object->public || true === $post_type_object->publicly_queryable )
+		) {
+			return false;
+		}
+
+		/**
+		 * Otherwise the post is private unless the user has the capability required for its status:
+		 * `read_private_posts` for the `private` status, and `edit_posts` for every other non-public
+		 * status (draft, pending, future, trash, and custom non-public statuses). This lets users who
+		 * can read private posts see them even without edit capabilities.
+		 */
+		$required_cap = 'private' === $status
+			? ( isset( $post_type_object->cap->read_private_posts ) ? $post_type_object->cap->read_private_posts : 'read_private_posts' )
+			: ( isset( $post_type_object->cap->edit_posts ) ? $post_type_object->cap->edit_posts : 'edit_posts' );
+
+		if ( ! current_user_can( $required_cap ) ) {
 			return true;
 		}
 
@@ -413,10 +437,6 @@ class Post extends Model {
 		 */
 
 		if ( empty( $post_type_object->name ) || ! in_array( $post_type_object->name, \WPGraphQL::get_allowed_post_types(), true ) ) {
-			return true;
-		}
-
-		if ( 'private' === $this->data->post_status && ( ! isset( $post_type_object->cap->read_private_posts ) || ! current_user_can( $post_type_object->cap->read_private_posts ) ) ) {
 			return true;
 		}
 

@@ -375,6 +375,18 @@ class PostObjects {
 			],
 
 			/**
+			 * Sticky post parameters
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#sticky-post-parameters
+			 */
+			'isSticky'    => [
+				'type'        => 'Boolean',
+				'description' => static function () {
+					return __( 'True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results.', 'wp-graphql' );
+				},
+			],
+
+			/**
 			 * NOTE: post_type is intentionally not supported on connections to Single post types as
 			 * the connection to the singular Post Type already sets this argument as the entry
 			 * point to the Graph

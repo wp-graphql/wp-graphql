@@ -64,6 +64,19 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 - **Conventional Commits**: PR titles must follow the format (`feat:`, `fix:`, `perf:`, `docs:`, `chore:`, etc.). PRs are squash-merged, so the title becomes the commit message. The `!` suffix (e.g., `feat!:`) signals a breaking change.
 - **CI matrix**: Tests run across WordPress 6.1–trunk, PHP 7.4–8.4, block and classic themes, single and multisite.
 
+### Issue tracker conventions
+
+These apply when **we (the maintainers) open an issue**. Community-filed issues get triaged and labeled afterward, so don't hold them to this.
+
+- **Issue titles are plain descriptions, not Conventional Commits.** Describe the problem or request (e.g. "WPGraphQL IDE enables the block editor for the graphql_document post type"). The `fix:` / `feat:` / `chore:` prefixes are for **PR** titles, not issues — don't prefix an issue title.
+- **Label accurately at creation.** When we open the issue we already understand its scope, so apply the right labels up front rather than leaving it for triage:
+  - a `type:` label (`type: bug`, `type: enhancement`, …),
+  - `effort:` (`low` ≈ a day or less, `med` < a week, `high` > a week),
+  - `impact:` (`low` / `med` / `high` — `high` is reserved for major bugs or newly-unblocked use cases),
+  - and any area label that fits (e.g. `graphiql ide`, `regression`).
+  - Calibrate `effort` / `impact` against existing labeled issues rather than in the abstract.
+- **Link the fix back.** Reference the issue from the PR (`Fixes #1234`) so the squash-merge closes it.
+
 ## Shared Coding Conventions
 
 These apply across the PHP plugins; see each plugin's `CLAUDE.md` for its specifics (PHP floor, PHPStan level, JS tooling).
@@ -72,3 +85,5 @@ These apply across the PHP plugins; see each plugin's `CLAUDE.md` for its specif
 - **JavaScript**: `@wordpress/scripts` (ESLint + Prettier).
 - **Version placeholders**: Use `@since x-release-please-version` in PHPDoc `@since` tags; release-please rewrites them on release.
 - **Deprecation**: `_deprecated_argument( __METHOD__, 'x-release-please-version', 'Message.' );`
+- **Hooks are supported API.** A filter or action we ship is part of the public contract. Document a new hook like any other (purpose, `@param`s, `@since`) and don't hedge it with "experimental" or "may change" disclaimers to leave room for a future refactor. If a hook later has to change or go away, retire it through the normal deprecation path above, don't stamp new hooks as throwaway. We deliberately have **no** experimental/unstable hook tier, and we won't add one via a name prefix (`__experimental`-style) either: Gutenberg ran that experiment at scale and [walked it back](https://developer.wordpress.org/block-editor/contributors/code/coding-guidelines/), because the markers never stopped adoption and the hooks ended up under the back-compat policy anyway. A PHP hook can't truly be made private (anything can `add_filter()` once you `apply_filters()`), so we don't pretend otherwise. Formal experimental *features* have a home in `WPGraphQL\Experimental`.
+- **`@internal` means "private, don't depend on this," not "unstable."** The one narrow carve-out from "hooks are public" is a hook that exists purely as plumbing behind a public function, where the function is the intended seam. Example: `graphql_wp_connection_{$type}_from_field_name` is an implementation detail of the public `rename_graphql_field()` function (authors call the function, they don't hook that filter). Tag those `@internal` (also recognized by PHPStan), alongside genuinely private symbols like admin/updater internals. `@internal` documents intent, it does not enforce anything, so keep the bar high: default to public-and-supported, and never use `@internal` to pre-excuse a change to a hook you're actually offering as an extension seam.
