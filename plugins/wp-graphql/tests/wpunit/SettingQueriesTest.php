@@ -144,6 +144,39 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * When a site uses a manual UTC offset instead of a named timezone, WordPress
+	 * stores the offset in the `gmt_offset` option and leaves `timezone_string`
+	 * empty. The `generalSettings.timezone` field maps to `timezone_string`, so it
+	 * should fall back to the resolved offset string instead of returning empty.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2060
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testGeneralSettingTimezoneFallsBackToUtcOffset() {
+		wp_set_current_user( $this->admin );
+
+		// Simulate a site configured with a manual UTC offset (e.g. UTC+2).
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', 2 );
+
+		$query = '
+			query {
+				generalSettings {
+					timezone
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['timezone'] );
+		$this->assertEquals( '+02:00', $actual['data']['generalSettings']['timezone'] );
+	}
+
+	/**
 	 * Method for testing the writingSettings
 	 *
 	 * @return void
