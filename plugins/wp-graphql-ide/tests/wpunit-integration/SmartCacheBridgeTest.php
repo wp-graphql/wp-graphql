@@ -87,6 +87,58 @@ class SmartCacheBridgeTest extends \Codeception\TestCase\WPTestCase {
 		];
 	}
 
+	// ---------------------------------------------------------------
+	// Block editor opt-out (regression: #4018)
+	//
+	// Enabling `show_in_rest` on `graphql_document` is enough to flip
+	// WordPress to the block editor, since the post type also supports
+	// `editor`. Gutenberg is not a Smart Cache feature, so the bridge
+	// must opt the post type back out and leave Smart Cache's native
+	// classic-editor admin UI untouched, while keeping REST exposure.
+	// ---------------------------------------------------------------
+
+	public function test_graphql_document_stays_on_the_classic_editor() {
+		// Both block-editor preconditions are still satisfied: the bridge
+		// added `show_in_rest`, and the post type supports `editor`. The
+		// only thing keeping Gutenberg off is the bridge's
+		// `use_block_editor_for_post_type` opt-out.
+		$post_type = get_post_type_object( 'graphql_document' );
+		$this->assertNotNull( $post_type );
+		$this->assertTrue( (bool) $post_type->show_in_rest, 'REST exposure must remain on.' );
+		$this->assertTrue( post_type_supports( 'graphql_document', 'editor' ), 'editor support must remain on.' );
+
+		$this->assertFalse(
+			use_block_editor_for_post_type( 'graphql_document' ),
+			'`graphql_document` must stay on the classic editor even though it is REST-exposed and supports the editor.'
+		);
+	}
+
+	public function test_block_editor_opt_out_is_overridable_by_sites() {
+		// The opt-out is hooked at priority 9 so it sets the default, not
+		// the final word. A site that genuinely wants Gutenberg here can
+		// re-enable it from a later-priority callback.
+		$re_enable = static function ( $use_block_editor, $post_type ) {
+			return 'graphql_document' === $post_type ? true : $use_block_editor;
+		};
+		add_filter( 'use_block_editor_for_post_type', $re_enable, 10, 2 );
+
+		$this->assertTrue(
+			use_block_editor_for_post_type( 'graphql_document' ),
+			'A priority-10 filter must be able to override the bridge default at priority 9.'
+		);
+
+		remove_filter( 'use_block_editor_for_post_type', $re_enable, 10 );
+	}
+
+	public function test_block_editor_opt_out_does_not_touch_other_post_types() {
+		// The opt-out is post-type-scoped: a normal block-editor post type
+		// must be unaffected by the bridge's callback.
+		$this->assertTrue(
+			use_block_editor_for_post_type( 'post' ),
+			'`post` must keep its default block-editor behavior.'
+		);
+	}
+
 	public function test_unrelated_taxonomies_are_not_touched_by_the_bridge_filter() {
 		// Smoke-check: the filter is taxonomy-scoped, so registering a
 		// fresh taxonomy without `show_in_rest` should NOT be flipped on.

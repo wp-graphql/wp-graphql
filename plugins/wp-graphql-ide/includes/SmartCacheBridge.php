@@ -55,6 +55,17 @@ class SmartCacheBridge {
 		add_filter( 'register_post_type_args', [ self::class, 'add_rest_to_smart_cache_post_type' ], 10, 2 );
 		add_filter( 'register_taxonomy_args', [ self::class, 'add_rest_to_smart_cache_taxonomies' ], 10, 2 );
 
+		// Keep `graphql_document` on the classic editor. Adding `show_in_rest`
+		// above (which the IDE's REST client and REST-exposed meta need) is
+		// enough to flip WordPress's `use_block_editor_for_post_type()` to
+		// true, since the post type already supports `editor`. The block
+		// editor is not a Smart Cache feature and the IDE has no business
+		// changing Smart Cache's native edit screen, so opt the post type
+		// back out. Priority 9 (below the default 10) makes this the default
+		// while still letting a site that genuinely wants Gutenberg here
+		// override it with a later-priority filter.
+		add_filter( 'use_block_editor_for_post_type', [ self::class, 'disable_block_editor_for_smart_cache_document' ], 9, 2 );
+
 		// Register IDE-specific meta on graphql_document. Runs on `init`
 		// priority 11 so it lands after Smart Cache's own init at 10.
 		add_action( 'init', [ self::class, 'register_ide_meta_on_smart_cache_document' ], 11 );
@@ -134,6 +145,33 @@ class SmartCacheBridge {
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Keep Smart Cache's `graphql_document` on the classic editor.
+	 *
+	 * The IDE only enables `show_in_rest` on this post type so its REST
+	 * client and the `_graphql_ide_*` meta work. A side effect of that is
+	 * WordPress switching the post type to the block editor, because
+	 * `use_block_editor_for_post_type()` returns true once a post type both
+	 * supports `editor` and is REST-exposed. Gutenberg was never part of
+	 * Smart Cache's document UI, so the IDE forces it back off here.
+	 *
+	 * Hooked at priority 9 (below the default 10) so it sets the default
+	 * rather than the final word: a site that deliberately wants the block
+	 * editor for `graphql_document` can still re-enable it from a callback
+	 * at priority 10 or later.
+	 *
+	 * @param bool   $use_block_editor Whether the post type uses the block editor.
+	 * @param string $post_type        Post type being checked.
+	 * @return bool
+	 */
+	public static function disable_block_editor_for_smart_cache_document( $use_block_editor, $post_type ) {
+		if ( 'graphql_document' === $post_type ) {
+			return false;
+		}
+
+		return $use_block_editor;
 	}
 
 	/**
