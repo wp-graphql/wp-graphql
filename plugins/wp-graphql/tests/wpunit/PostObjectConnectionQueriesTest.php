@@ -1419,7 +1419,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
-	 * The `template` where arg is a TemplateEnum built from the templates registered for the
+	 * The `template` where arg is a ContentTemplateEnum built from the templates registered for the
 	 * active theme. Its values map a schema-friendly name (e.g. `TEMPLATE_FULL_WIDTH`) to the
 	 * underlying template identifier, and `DEFAULT` filters for content with no specific
 	 * template assigned. Per-post template assignment uses the same storage for classic page
@@ -1430,7 +1430,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 * @throws \Exception
 	 */
 	public function testTemplateWhereArgFiltersConnection() {
-		// Register templates for the active theme so they appear as TemplateEnum values.
+		// Register templates for the active theme so they appear as ContentTemplateEnum values.
 		// A `.php` file name models a classic template; a bare slug models a block-theme one.
 		$register_templates = static function ( $templates ) {
 			$templates['template-full-width.php'] = 'Full Width';
@@ -1452,7 +1452,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		update_post_meta( $block_template, '_wp_page_template', 'page-no-title' );
 
 		$query = '
-		query PagesByTemplate( $template: TemplateEnum ) {
+		query PagesByTemplate( $template: ContentTemplateEnum ) {
 			pages( first: 100, where: { template: $template } ) {
 				nodes {
 					databaseId

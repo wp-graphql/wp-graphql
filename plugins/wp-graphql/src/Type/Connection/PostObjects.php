@@ -360,12 +360,12 @@ class PostObjects {
 			 *
 			 * Filters by the per-post template assignment (`_wp_page_template` meta), which
 			 * covers both classic page templates and block-theme custom templates assigned to
-			 * a specific post. The TemplateEnum values come from the templates registered for
+			 * a specific post. The ContentTemplateEnum values come from the templates registered for
 			 * the active theme. It does not filter by the block theme's global template
 			 * hierarchy (the `wp_template` post type), which is resolved dynamically per request.
 			 */
 			'template'    => [
-				'type'        => 'TemplateEnum',
+				'type'        => 'ContentTemplateEnum',
 				'description' => static function () {
 					return __( 'Filter the connection to content assigned a specific template.', 'wp-graphql' );
 				},

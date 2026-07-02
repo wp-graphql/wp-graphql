@@ -5,7 +5,7 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 /**
- * Class - TemplateEnum
+ * Class - ContentTemplateEnum
  *
  * The templates that can be assigned to content, used to filter connections by the
  * template a piece of content uses. Values are derived from the templates registered
@@ -13,16 +13,16 @@ use WPGraphQL\Type\WPEnumType;
  *
  * @package WPGraphQL\Type\Enum
  */
-class TemplateEnum {
+class ContentTemplateEnum {
 
 	/**
-	 * Register the TemplateEnum Type to the Schema.
+	 * Register the ContentTemplateEnum Type to the Schema.
 	 *
 	 * @return void
 	 */
 	public static function register_type() {
 		register_graphql_enum_type(
-			'TemplateEnum',
+			'ContentTemplateEnum',
 			[
 				'description' => static function () {
 					return __( 'The templates that can be assigned to content. Used to filter a connection by the template its content uses.', 'wp-graphql' );
