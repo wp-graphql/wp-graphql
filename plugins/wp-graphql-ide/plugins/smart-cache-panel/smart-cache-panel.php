@@ -80,7 +80,7 @@ function register_diagnostics_filter(): void {
 // release works on either side of the rename without triggering deprecation
 // notices.
 // TODO: drop the fallback once the minimum supported WPGraphQL version is
-// past the rename.
+// past the rename (tracked in https://github.com/wp-graphql/wp-graphql/issues/4033).
 add_action(
 	version_compare( WPGRAPHQL_VERSION, '2.17.0', '>' ) ? 'graphql_do_request' : 'do_graphql_request',
 	__NAMESPACE__ . '\register_diagnostics_filter'
