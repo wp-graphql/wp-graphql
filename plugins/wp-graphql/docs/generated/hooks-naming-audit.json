@@ -1,0 +1,52 @@
+{
+  "plugin": "wp-graphql",
+  "generatedAt": "2026-07-02T17:19:21.779Z",
+  "audit": {
+    "rules": {
+      "allowedPrefixes": [
+        "graphql_"
+      ],
+      "legacyAllowedPrefixes": [],
+      "deprecatedPrefixes": [
+        "wpgraphql_",
+        "wp_graphql_",
+        "init_graphql_"
+      ],
+      "allowedHookNamePattern": "^[a-z0-9_]+$",
+      "minSegmentsAfterPrefix": 2,
+      "lowSpecificityAllowlist": [
+        "graphql_init"
+      ],
+      "dynamicNamePattern": "^[\"']?graphql_",
+      "coreHookAllowlist": [
+        "query_vars",
+        "request",
+        "wp_enqueue_scripts",
+        "all_plugins",
+        "show_network_active_plugins",
+        "retrieve_password_title",
+        "retrieve_password_message",
+        "get_the_excerpt",
+        "the_excerpt"
+      ]
+    },
+    "summary": {
+      "totalHooks": 301,
+      "wpgraphqlHooks": 278,
+      "activeWpgraphqlHooks": 252,
+      "coreHooks": 23,
+      "staticHooks": 240,
+      "dynamicHooks": 12,
+      "flaggedHooks": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    "topPrefixes": [
+      {
+        "prefix": "graphql_",
+        "count": 240
+      }
+    ],
+    "flaggedHooks": []
+  }
+}

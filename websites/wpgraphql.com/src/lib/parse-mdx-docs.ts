@@ -3,6 +3,8 @@ import { serialize } from "next-mdx-remote/serialize"
 import slugger from "slugger"
 import { unified } from "unified"
 import { visit } from "unist-util-visit"
+import fs from "node:fs/promises"
+import path from "node:path"
 
 import fetch from "cross-fetch"
 
@@ -26,6 +28,9 @@ const githubToken = process.env.GITHUB_TOKEN?.trim()
 const octokit = new Octokit(
   githubToken ? { auth: githubToken } : {}
 )
+// Unauthenticated fallback client, used when an authenticated request is
+// rejected with "Bad credentials" (e.g. a revoked token).
+const publicOctokit = new Octokit()
 
 const DOCS_REPO = "wp-graphql"
 const DOCS_OWNER = "wp-graphql"
@@ -39,6 +44,35 @@ const IMG_PATH_REG = /^(\.\/)?(?<slug>.+)$/i
 const DOCS_PATH = `https://raw.githubusercontent.com/${DOCS_OWNER}/${DOCS_REPO}/${DOCS_BRANCH}/${DOCS_FOLDER}`
 
 const DOCS_NAV_CONFIG_URL = `${DOCS_PATH}/docs_nav.json`
+const LOCAL_DOCS_DIR = path.resolve(process.cwd(), "..", "..", DOCS_FOLDER)
+
+// Doc subtrees that have dedicated top-level routes (the Developer
+// Reference). Their markdown lives under plugins/wp-graphql/docs/<root>/ but
+// their canonical URLs are /<root>/... — the /docs/<root>/... variants
+// redirect there so the docs catch-all never renders them with the wrong nav.
+const DEVELOPER_REFERENCE_ROOTS = ["actions", "filters", "functions", "recipes"]
+
+export function toCanonicalDocUri(uri: string): string {
+  const match = uri.match(/^\/docs\/([^/]+)(\/.*)?$/)
+  if (!match || !DEVELOPER_REFERENCE_ROOTS.includes(match[1])) {
+    return uri
+  }
+
+  const rest = !match[2] || match[2] === "/index" ? "" : match[2]
+  return `/${match[1]}${rest}`
+}
+
+export function isDeveloperReferenceDocUri(uri: string): boolean {
+  return toCanonicalDocUri(uri) !== uri
+}
+
+function sanitizeMarkdownForMdx(mdContent: string) {
+  return mdContent.replace(/^\uFEFF?[\s\r\n]*(?:<!--[\s\S]*?-->\s*)+/u, "")
+}
+
+function hasTopLevelHeading(mdContent: string) {
+  return /^\s*#\s+\S+/m.test(mdContent)
+}
 
 function normalizeSlug(rawSlug: unknown): string {
   if (typeof rawSlug !== "string") {
@@ -82,6 +116,20 @@ function docUrlFromSlug(slug: string) {
   return `${DOCS_PATH}/${slug}.md`
 }
 
+function localDocPathFromSlug(slug: string) {
+  const localPath = path.resolve(LOCAL_DOCS_DIR, `${slug}.md`)
+
+  if (!localPath.startsWith(LOCAL_DOCS_DIR)) {
+    throw { notFound: true }
+  }
+
+  return localPath
+}
+
+function localDocsNavPath() {
+  return path.resolve(LOCAL_DOCS_DIR, "docs_nav.json")
+}
+
 function imgUrlFromPath(path) {
   return `${DOCS_PATH}/${path}`
 }
@@ -91,24 +139,86 @@ export function getRemoteImgUrl(localPath) {
 }
 
 export async function getAllDocMeta() {
-  const { status, data } = await octokit.request(
-    "GET /repos/{owner}/{repo}/contents/{path}",
-    {
-      owner: DOCS_OWNER,
-      repo: DOCS_REPO,
-      path: DOCS_FOLDER,
-      ref: DOCS_BRANCH, // This makes it so only released features show up in the docs.
-    }
-  )
-
-  if (status != 200) {
-    throw new Error(status)
+  const requestOptions = {
+    owner: DOCS_OWNER,
+    repo: DOCS_REPO,
+    path: DOCS_FOLDER,
+    ref: DOCS_BRANCH, // This makes it so only released features show up in the docs.
   }
 
-  return data
+  try {
+    const { status, data } = await octokit.request(
+      "GET /repos/{owner}/{repo}/contents/{path}",
+      requestOptions
+    )
+
+    if (status !== 200) {
+      throw new Error(String(status))
+    }
+
+    return data
+  } catch (error) {
+    // If token auth fails (bad credentials), fallback to unauthenticated GitHub API.
+    if (error?.status === 401 || /Bad credentials/i.test(error?.message || "")) {
+      const { status, data } = await publicOctokit.request(
+        "GET /repos/{owner}/{repo}/contents/{path}",
+        requestOptions
+      )
+      if (status !== 200) {
+        throw new Error(String(status))
+      }
+      return data
+    }
+
+    throw error
+  }
+}
+
+async function getLocalDocUris(): Promise<string[]> {
+  const uris = []
+
+  const walk = async (currentDir: string, relativePrefix = "") => {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true })
+
+    for (const entry of entries) {
+      if (entry.name.startsWith(".")) {
+        continue
+      }
+
+      const nextRelative = relativePrefix
+        ? `${relativePrefix}/${entry.name}`
+        : entry.name
+      const absolutePath = path.join(currentDir, entry.name)
+
+      if (entry.isDirectory()) {
+        await walk(absolutePath, nextRelative)
+        continue
+      }
+
+      if (!entry.isFile() || !entry.name.endsWith(".md")) {
+        continue
+      }
+
+      const slug = nextRelative.replace(/\.md$/, "")
+      uris.push(`/docs/${slug}`)
+    }
+  }
+
+  if (await fs.stat(LOCAL_DOCS_DIR).then(() => true).catch(() => false)) {
+    await walk(LOCAL_DOCS_DIR)
+  }
+
+  return uris
 }
 
 export async function getDocsNav() {
+  try {
+    const nav = await fs.readFile(localDocsNavPath(), "utf8")
+    return JSON.parse(nav)
+  } catch (_error) {
+    // Fallback to remote docs nav.
+  }
+
   const resp = await fetch(DOCS_NAV_CONFIG_URL)
 
   if (!resp.ok) {
@@ -119,6 +229,15 @@ export async function getDocsNav() {
 }
 
 export async function getAllDocUri(): Promise<string[]> {
+  try {
+    const localUris = await getLocalDocUris()
+    if (localUris.length > 0) {
+      return localUris.sort((a, b) => a.localeCompare(b))
+    }
+  } catch (_error) {
+    // Fallback to GitHub API listing.
+  }
+
   const data = await getAllDocMeta()
 
   if (!Array.isArray(data)) {
@@ -144,6 +263,12 @@ export async function getDocContent(slug) {
   // Normalize and validate the incoming slug before constructing the URL
   const safeSlug = normalizeSlug(slug)
 
+  try {
+    return await fs.readFile(localDocPathFromSlug(safeSlug), "utf8")
+  } catch (_error) {
+    // Fallback to remote source when local docs are unavailable.
+  }
+
   const resp = await fetch(docUrlFromSlug(safeSlug))
 
   if (!resp.ok) {
@@ -159,13 +284,15 @@ export async function getDocContent(slug) {
 
 export async function getParsedDoc(url) {
   const content = await getDocContent(url)
+  const normalizedContent = sanitizeMarkdownForMdx(content)
+  const hasMarkdownH1 = hasTopLevelHeading(normalizedContent)
 
   const [source, toc] = await Promise.all([
-    getSourceFromMd(content),
-    getTOCFromMd(content),
+    getSourceFromMd(normalizedContent),
+    getTOCFromMd(normalizedContent),
   ])
 
-  return { source, toc }
+  return { source, toc, hasMarkdownH1 }
 }
 
 async function getSourceFromMd(mdContent) {
@@ -183,7 +310,7 @@ async function getSourceFromMd(mdContent) {
             },
           },
         ],
-        [rehypeExternalLinks, { target: "_blank" }],
+        [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
         rehypeSlug,
         [rehypePrism, { ignoreMissing: true }],
       ],
@@ -194,26 +321,56 @@ async function getSourceFromMd(mdContent) {
 async function getTOCFromMd(mdContent) {
   const toc = []
   let parentId = null
+  const slugCounts = {}
+
+  const getNodeText = (node) => {
+    if (!node) {
+      return ""
+    }
+
+    if (typeof node.value === "string") {
+      return node.value
+    }
+
+    if (!Array.isArray(node.children)) {
+      return ""
+    }
+
+    return node.children.map((child) => getNodeText(child)).join("")
+  }
+
+  const getUniqueHeadingId = (title: string) => {
+    const baseSlug = slugger(title)
+    const count = slugCounts[baseSlug] ?? 0
+    slugCounts[baseSlug] = count + 1
+    return count === 0 ? baseSlug : `${baseSlug}-${count}`
+  }
 
   await unified()
     .use(remarkParse)
     .use(remarkFm)
+    .use(remarkGfm)
     .use(remarkRehype)
     .use(() => {
       return (tree) => {
         visit(tree, "element", (node: any) => {
           if (node.tagName === "h2" || node.tagName === "h3") {
-            if (node.children[0].value) {
-              let title = node.children[0]?.value
-              let id = slugger(title)
-
-              toc.push({
-                tagName: node.tagName,
-                id,
-                title: title ?? "title",
-                parentId: node.tagName === "h2" ? null : parentId,
-              })
+            const title = getNodeText(node).trim()
+            if (!title) {
+              return
             }
+
+            const id = getUniqueHeadingId(title)
+            if (node.tagName === "h2") {
+              parentId = id
+            }
+
+            toc.push({
+              tagName: node.tagName,
+              id,
+              title,
+              parentId: node.tagName === "h2" ? null : parentId,
+            })
           }
         })
       }

@@ -1270,7 +1270,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$expected = 'potatoes';
 
 		add_filter(
-			'graphql_endpoint',
+			'graphql_endpoint_path',
 			static function () use ( $expected ) {
 				return $expected;
 			}

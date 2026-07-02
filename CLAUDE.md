@@ -56,6 +56,19 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 | Smart Cache | `@wpgraphql/wp-graphql-smart-cache` |
 | ACF | `@wpgraphql/wp-graphql-acf` |
 
+### Hook conventions
+
+- Prefer canonical `graphql_*` hook names for new actions/filters.
+- Do not introduce new hooks with `wpgraphql_*` or `wp_graphql_*` prefixes.
+- For `do_action()` / `apply_filters()` call sites, include docblocks with:
+  - `@since x-release-please-version`
+  - `@hookGroup <group>` using `scripts/hooks/groups.json`
+- For hook migrations, keep backward compatibility with:
+  - `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+- If deprecated hooks are intentionally fired in tests, assert expected deprecations instead of treating them as failures.
+- After hook changes, run `npm run hooks:generate -- --plugin=wp-graphql` to refresh generated hook docs/audits.
+
 ## Development Workflow
 
 - **Every bug fix ships with a regression test.** A fix is not done until a test that fails before the fix and passes after it is committed alongside the change. No fix-only commits for reproducible bugs.

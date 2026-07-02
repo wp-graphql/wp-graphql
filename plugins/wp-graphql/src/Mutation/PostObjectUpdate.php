@@ -193,6 +193,9 @@ class PostObjectUpdate {
 			 * @param \WP_Post_Type       $post_type_object The Post Type object for the post being mutated
 			 * @param array<string,mixed> $args             The args used to insert the term
 			 * @param string              $mutation_name    The name of the mutation being performed
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, $post_args, $mutation_name );
 
@@ -204,6 +207,9 @@ class PostObjectUpdate {
 			 * @param int                 $post_id       Inserted post ID
 			 * @param array<string,mixed> $args          The args used to insert the term
 			 * @param string              $mutation_name The name of the mutation being performed
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			do_action( "graphql_insert_{$post_type_object->name}", absint( $post_id ), $post_args, $mutation_name );
 

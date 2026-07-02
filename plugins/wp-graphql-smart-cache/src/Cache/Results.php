@@ -35,7 +35,15 @@ class Results extends Query {
 	 * @return void
 	 */
 	public function init() {
-		add_filter( 'pre_graphql_execute_request', [ $this, 'get_query_results_from_cache_cb' ], 10, 2 );
+		// WPGraphQL releases after 2.17.0 rename pre_graphql_execute_request to
+		// graphql_pre_execute_request. Attach to whichever name the active core
+		// fires so this release works on either side of the rename without
+		// triggering deprecation notices.
+		// TODO: drop the fallback once the minimum supported WPGraphQL version
+		// is past the rename (tracked in https://github.com/wp-graphql/wp-graphql/issues/4033).
+		// @phpstan-ignore-next-line ternary.alwaysFalse (WPGRAPHQL_VERSION varies at runtime; PHPStan resolves it from a fixed stub)
+		$pre_execute_hook = version_compare( WPGRAPHQL_VERSION, '2.17.0', '>' ) ? 'graphql_pre_execute_request' : 'pre_graphql_execute_request';
+		add_filter( $pre_execute_hook, [ $this, 'get_query_results_from_cache_cb' ], 10, 2 );
 		add_action( 'graphql_return_response', [ $this, 'save_query_results_to_cache_cb' ], 10, 8 );
 		add_action( 'wpgraphql_cache_purge_nodes', [ $this, 'purge_nodes_cb' ], 10, 2 );
 		add_action( 'wpgraphql_cache_purge_all', [ $this, 'purge_all_cb' ], 10, 0 );

@@ -364,14 +364,16 @@ class DataSource {
 				continue;
 			}
 
+			$setting_key = (string) $key;
+
 			if ( ! isset( $setting['show_in_graphql'] ) ) {
 				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                              = $key;
-					$allowed_settings_by_group[ $group ][ $key ] = $setting;
+					$setting['key']                                      = $setting_key;
+					$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
 				}
 			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                              = $key;
-				$allowed_settings_by_group[ $group ][ $key ] = $setting;
+				$setting['key']                                      = $setting_key;
+				$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
 			}
 		}
 
@@ -383,6 +385,9 @@ class DataSource {
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 		 *
+		 * @param array<string,array<string,mixed>> $allowed_settings_by_group The settings grouped by normalized setting group key.
+		 *
+		 * @hookGroup settings
 		 * @since 0.0.1
 		 */
 		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
@@ -414,18 +419,20 @@ class DataSource {
 			 * add it to the $allowed_settings array
 			 */
 			foreach ( $registered_settings as $key => $setting ) {
+				$setting_key = (string) $key;
+
 				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
 					continue;
 				}
 
 				if ( ! isset( $setting['show_in_graphql'] ) ) {
 					if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-						$setting['key']           = $key;
-						$allowed_settings[ $key ] = $setting;
+						$setting['key']                   = $setting_key;
+						$allowed_settings[ $setting_key ] = $setting;
 					}
 				} elseif ( true === $setting['show_in_graphql'] ) {
-					$setting['key']           = $key;
-					$allowed_settings[ $key ] = $setting;
+					$setting['key']                   = $setting_key;
+					$allowed_settings[ $setting_key ] = $setting;
 				}
 			}
 		}
@@ -439,6 +446,9 @@ class DataSource {
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
 		 * the GraphQL Schema.
 		 *
+		 * @param array<string,array<string,mixed>> $allowed_settings The settings that can be exposed in the GraphQL schema.
+		 *
+		 * @hookGroup settings
 		 * @since 0.0.1
 		 */
 		return apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
@@ -547,6 +557,7 @@ class DataSource {
 		 * @param mixed|object|array $type The type definition the node should resolve to.
 		 * @param mixed|object|array $node The $node that is being resolved
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 0.0.6
 		 */
 		$type = apply_filters( 'graphql_resolve_node_type', $type, $node );

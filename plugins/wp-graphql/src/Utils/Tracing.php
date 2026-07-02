@@ -125,8 +125,8 @@ class Tracing {
 			return;
 		}
 
-		add_action( 'do_graphql_request', [ $this, 'init_trace' ] );
-		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 0 );
+		add_action( 'graphql_do_request', [ $this, 'init_trace' ] );
+		add_action( 'graphql_request_execute', [ $this, 'end_trace' ], 99, 0 );
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
 		add_filter(
 			'graphql_request_results',
@@ -353,6 +353,9 @@ class Tracing {
 		 * Filter whether the logs can be seen in the request results or not
 		 *
 		 * @param bool $can_see Whether the requester can see the logs or not
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_user_can_see_trace_data', $can_see );
 	}
@@ -380,6 +383,9 @@ class Tracing {
 		 *
 		 * @param Trace                    $trace     The trace to return
 		 * @param \WPGraphQL\Utils\Tracing $instance The Tracing class instance
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}

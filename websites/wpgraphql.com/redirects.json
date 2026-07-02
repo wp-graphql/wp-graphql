@@ -10,8 +10,68 @@
     "permanent": true
   },
   {
-    "source":"/2024/12/16/wpgraphql-v2-0-is-co",
-    "destination":"https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know",
+    "source": "/2024/12/16/wpgraphql-v2-0-is-co",
+    "destination": "https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know",
+    "permanent": true
+  },
+  {
+    "source": "/docs/actions",
+    "destination": "/actions",
+    "permanent": true
+  },
+  {
+    "source": "/docs/actions/index",
+    "destination": "/actions",
+    "permanent": true
+  },
+  {
+    "source": "/docs/actions/:path*",
+    "destination": "/actions/:path*",
+    "permanent": true
+  },
+  {
+    "source": "/docs/filters",
+    "destination": "/filters",
+    "permanent": true
+  },
+  {
+    "source": "/docs/filters/index",
+    "destination": "/filters",
+    "permanent": true
+  },
+  {
+    "source": "/docs/filters/:path*",
+    "destination": "/filters/:path*",
+    "permanent": true
+  },
+  {
+    "source": "/docs/functions",
+    "destination": "/functions",
+    "permanent": true
+  },
+  {
+    "source": "/docs/functions/index",
+    "destination": "/functions",
+    "permanent": true
+  },
+  {
+    "source": "/docs/functions/:path*",
+    "destination": "/functions/:path*",
+    "permanent": true
+  },
+  {
+    "source": "/docs/recipes",
+    "destination": "/recipes",
+    "permanent": true
+  },
+  {
+    "source": "/docs/recipes/index",
+    "destination": "/recipes",
+    "permanent": true
+  },
+  {
+    "source": "/docs/recipes/:path*",
+    "destination": "/recipes/:path*",
     "permanent": true
   }
 ]

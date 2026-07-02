@@ -405,7 +405,7 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test register_settings with graphql_endpoint filter uses custom endpoint
 	 */
 	public function testRegisterSettingsRespectsGraphqlEndpointFilter() {
-		add_filter( 'graphql_endpoint', function () {
+		add_filter( 'graphql_endpoint_path', function () {
 			return 'custom-api';
 		}, 10, 0 );
 		$settings = new \WPGraphQL\Admin\Settings\Settings();
@@ -423,7 +423,7 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotNull( $endpoint_field );
 		$this->assertSame( 'custom-api', $endpoint_field['default'] );
 		$this->assertTrue( $endpoint_field['disabled'] );
-		remove_all_filters( 'graphql_endpoint' );
+		remove_all_filters( 'graphql_endpoint_path' );
 	}
 
 	/**

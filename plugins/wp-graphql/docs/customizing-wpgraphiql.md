@@ -23,9 +23,9 @@ Below are some helpful commands for working on WPGraphiQL locally.
 Below you will find documentation about the PHP hooks and filters available to be used to customize
 the WPGraphiQL tooling.
 
-### enqueue\_graphiql\_extension
+### graphql_enqueue_graphiql_extension
 
-The `enqueue_graphiql_extension` action is run when the GraphiQL IDE page is loading in the admin.
+The `graphql_enqueue_graphiql_extension` action is run when the GraphiQL IDE page is loading in the admin.
 
 If you're writing JavaScript code that needs to be loaded on the GraphiQL screen, hook into this action.
 
@@ -34,7 +34,7 @@ For example:
 ```php
 // This will only enqueue the script when the GraphiQL app is loaded. Hook into this action
 // to make sure your scripts aren't loading on pages they shouldn't be loading for.
-add_action( 'enqueue_graphiql_extension', function() {
+add_action( 'graphql_enqueue_graphiql_extension', function() {
 
     wp_enqueue_script(
         'name-of-your-script', // replace this with the handle of your script
@@ -64,64 +64,64 @@ You can find the code for these extensions [here](https://github.com/wp-graphql/
 
 Below, is documentation on the hooks and filters provided by the codebase:
 
-### graphiql\_app
+### graphiql_app
 
 This filter can be used to wrap the App with Providers.
 
-### graphiql\_query\_params\_provider\_config
+### graphiql_query_params_provider_config
 
 This filter can be used to modify the config for the Query Params managed in AppContext.
 
-### graphiql\_app\_context
+### graphiql_app_context
 
 This filter can be used to modify the default values of the AppContext Provider
 
-### graphiql\_auth\_switch\_context\_default\_value
+### graphiql_auth_switch_context_default_value
 
 This filter can be used to modify the default values of the AuthSwitchContext Provider
 
-### graphiql\_explorer\_context\_default\_value
+### graphiql_explorer_context_default_value
 
 This filter can be used to modify the default values of the ExplorerContext Provider
 
-### graphiql\_fetcher
+### graphiql_fetcher
 
 This filter is provided to allow overriding the default fetcher that's used by GraphiQL.
 
 This can be seen in use by the Auth Switch feature, which changes the fetcher to be a public fetcher
 or an authenticated fetcher.
 
-### graphiql\_before\_graphiql
+### graphiql_before_graphiql
 
 This filter can be used to provide elements *before* the GraphiQL IDE is rendered.
 
 For example, the Query Composer panel is rendered at this hook.
 
-### graphiql\_after\_graphiql
+### graphiql_after_graphiql
 
 This filter can be used to provide elements *after* the GraphiQL IDE is rendered.
 
-### graphiql\_context\_default\_value
+### graphiql_context_default_value
 
 This filter can be used to modify the default values of the GraphiQL Context Provider
 
-### graphiql\_toolbar\_buttons
+### graphiql_toolbar_buttons
 
 This filter can be used to modify the buttons in the GraphiQL IDE toolbar
 
-### graphiql\_toolbar\_before\_buttons
+### graphiql_toolbar_before_buttons
 
 This filter can be used to add elements *before* the Buttons are rendered in the GraphiQL IDE toolbar
 
-### graphiql\_toolbar\_after\_buttons
+### graphiql_toolbar_after_buttons
 
 This filter can be used to add elements *after* the Buttons are rendered in the GraphiQL IDE toolbar
 
-### graphiql\_explorer\_operation\_action\_menu\_items
+### graphiql_explorer_operation_action_menu_items
 
 This filter can be used to add action items to the GraphiQL Query Composer for each operation
 
-### graphiql\_router\_screens
+### graphiql_router_screens
 
 This filter can be used to modify the "screens" that are available to the app.
 

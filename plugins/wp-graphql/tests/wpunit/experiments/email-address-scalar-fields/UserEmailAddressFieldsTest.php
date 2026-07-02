@@ -33,8 +33,8 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		\add_filter( 'graphql_debug', '__return_true', 99999 );
 
 		// Enable experiments via filters (more reliable than database options in tests)
-		\add_filter( 'wp_graphql_experiment_email-address-scalar_enabled', '__return_true', 99999 );
-		\add_filter( 'wp_graphql_experiment_email-address-scalar-fields_enabled', '__return_true', 99999 );
+		\add_filter( 'graphql_experiment_email-address-scalar_enabled', '__return_true', 99999 );
+		\add_filter( 'graphql_experiment_email-address-scalar-fields_enabled', '__return_true', 99999 );
 
 		// Also set database options for consistency
 		$settings = \get_option( 'graphql_experiments_settings', [] );
@@ -67,8 +67,8 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	public function tearDown(): void {
 		// Remove experiment enabling filters
-		\remove_filter( 'wp_graphql_experiment_email-address-scalar_enabled', '__return_true', 99999 );
-		\remove_filter( 'wp_graphql_experiment_email-address-scalar-fields_enabled', '__return_true', 99999 );
+		\remove_filter( 'graphql_experiment_email-address-scalar_enabled', '__return_true', 99999 );
+		\remove_filter( 'graphql_experiment_email-address-scalar-fields_enabled', '__return_true', 99999 );
 
 		// Disable the experiments in database
 		$settings = \get_option( 'graphql_experiments_settings', [] );

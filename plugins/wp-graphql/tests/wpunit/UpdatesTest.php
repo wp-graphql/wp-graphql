@@ -219,14 +219,14 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertFalse( $actual, 'maybe_allow_autoupdates should return false for a major update.' );
 
 		// Test with major updates enabled.
-		add_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		add_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 
 		$actual = $updates->maybe_allow_autoupdates( $default_autoupdate, $plugin_data );
 
 		$this->assertTrue( $actual, 'maybe_allow_autoupdates should return true.' );
 
 		// Cleanup.
-		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		remove_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 	}
 
 	/**
@@ -307,7 +307,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$updates = new Updates();
 		$updates->init();
 
-		add_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		add_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 
 		$plugin_date = $this->get_plugin_update_data( '99.0.0' );
 
@@ -317,7 +317,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Cleanup.
 		$this->cleanup_test_plugin( 'plugin-with-requires' );
-		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		remove_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 	}
 
 	/**
@@ -330,7 +330,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$updates = new Updates();
 		$updates->init();
 
-		add_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		add_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 
 		// Test with a major update.
 		$plugin_date = $this->get_plugin_update_data( '99.0.0' );
@@ -349,7 +349,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Test with untested autoupdates disabled.
 		add_filter(
-			'wpgraphql_untested_release_type',
+			'graphql_untested_release_type',
 			static function () {
 				return 'minor';
 			}
@@ -360,7 +360,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertFalse( $actual, 'maybe_allow_autoupdates should return false for a minor update if disallowed.' );
 
 		// Test with a patch update.
-		remove_all_filters( 'wpgraphql_untested_release_type' );
+		remove_all_filters( 'graphql_untested_release_type' );
 		$plugin_data = $this->get_plugin_update_data( $current_version[0] . '.0.99' );
 
 		$actual = $updates->maybe_allow_autoupdates( true, $plugin_data );
@@ -369,7 +369,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Test with autoupdates disabled.
 		add_filter(
-			'wpgraphql_untested_release_type',
+			'graphql_untested_release_type',
 			static function () {
 				return 'patch';
 			}
@@ -381,8 +381,8 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Cleanup.
 		$this->cleanup_test_plugin( 'plugin-with-headers' );
-		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
-		remove_all_filters( 'wpgraphql_untested_release_type' );
+		remove_filter( 'graphql_enable_major_autoupdates', '__return_true' );
+		remove_all_filters( 'graphql_untested_release_type' );
 	}
 
 	/**
@@ -395,7 +395,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$updates = new Updates();
 		$updates->init();
 
-		add_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		add_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 
 		// Test with a major update.
 		$plugin_date = $this->get_plugin_update_data( '99.0.0' );
@@ -406,7 +406,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Cleanup.
 		$this->cleanup_test_plugin( 'plugin-with-meta' );
-		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		remove_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 	}
 
 	/**
@@ -489,7 +489,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testUpdateWithIncompatiblePlugin(): void {
 		$this->install_test_plugin( 'plugin-incompatible-version' );
 
-		add_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		add_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 
 		// Test with a deactivated incompatible version.
 		$updates = new Updates();
@@ -540,7 +540,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Cleanup.
 		$this->cleanup_test_plugin( 'plugin-incompatible-version' );
-		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+		remove_filter( 'graphql_enable_major_autoupdates', '__return_true' );
 	}
 
 	/**

@@ -88,8 +88,17 @@ abstract class AbstractExperiment {
 		 * Fires after the experiment is loaded.
 		 *
 		 * @param \WPGraphQL\Experimental\Experiment\AbstractExperiment $instance The experiment instance.
+		 * @hookGroup settings
+		 * @since x-release-please-version
 		 */
-		do_action( 'wp_graphql_experiment_' . $this->get_slug() . '_loaded', $this );
+		$loaded_hook = 'graphql_experiment_' . $this->get_slug() . '_loaded';
+		do_action( $loaded_hook, $this );
+		do_action_deprecated(
+			'wp_graphql_experiment_' . $this->get_slug() . '_loaded',
+			[ $this ],
+			'x-release-please-version',
+			$loaded_hook
+		);
 	}
 
 	/**
@@ -278,6 +287,17 @@ abstract class AbstractExperiment {
 			}
 		} else {
 			// Constant not defined, apply filter to allow programmatic control
+			/**
+			 * Filters global experimental feature overrides.
+			 *
+			 * Return `false` to disable all experiments, or return an associative array keyed by
+			 * experiment slug to selectively enable/disable experiments.
+			 *
+			 * @param array<string,bool>|false|null $experimental_features The experimental feature override map, false, or null.
+			 *
+			 * @hookGroup settings
+			 * @since 2.3.8
+			 */
 			$experimental_features = apply_filters( 'graphql_experimental_features_override', null );
 
 			if ( null !== $experimental_features ) {
@@ -304,14 +324,39 @@ abstract class AbstractExperiment {
 			$setting_value = get_graphql_setting( $setting_key, 'off', Admin::$option_group );
 			$is_active     = 'on' === $setting_value;
 
+			$slug = static::get_slug();
 			/**
 			 * Filters whether the experiment is active.
 			 *
 			 * @param bool   $is_active Whether the experiment is active.
 			 * @param string $slug      The experiment's slug.
+			 *
+			 * @hookGroup settings
+			 * @since 2.3.8
 			 */
-			$is_active = apply_filters( 'wp_graphql_experiment_enabled', $is_active, static::get_slug() );
-			$is_active = apply_filters( 'wp_graphql_experiment_' . static::get_slug() . '_enabled', $is_active );
+			$is_active = apply_filters( 'graphql_experiment_enabled', $is_active, $slug );
+
+			if ( has_filter( 'wp_graphql_experiment_enabled' ) ) {
+				$is_active = apply_filters_deprecated(
+					'wp_graphql_experiment_enabled',
+					[ $is_active, $slug ],
+					'x-release-please-version',
+					'graphql_experiment_enabled'
+				);
+			}
+
+			$enabled_hook = 'graphql_experiment_' . $slug . '_enabled';
+			$is_active    = apply_filters( $enabled_hook, $is_active );
+
+			$legacy_enabled_hook = 'wp_graphql_experiment_' . $slug . '_enabled';
+			if ( has_filter( $legacy_enabled_hook ) ) {
+				$is_active = apply_filters_deprecated(
+					$legacy_enabled_hook,
+					[ $is_active ],
+					'x-release-please-version',
+					$enabled_hook
+				);
+			}
 		}
 
 		$this->is_active = $is_active;
@@ -350,10 +395,33 @@ abstract class AbstractExperiment {
 		 * Filters the experiment configuration.
 		 *
 		 * @param array{title:string,description:string} $config The experiment configuration.
-		 * @param string              $slug   The experiment's slug.
+		 * @param string                               $slug   The experiment's slug.
+		 * @hookGroup settings
+		 * @since x-release-please-version
 		 */
-		$config = apply_filters( 'wp_graphql_experiment_config', $config, $slug );
-		$config = apply_filters( 'wp_graphql_experiment_' . $slug . '_config', $config );
+		$config = apply_filters( 'graphql_experiment_config', $config, $slug );
+
+		if ( has_filter( 'wp_graphql_experiment_config' ) ) {
+			$config = apply_filters_deprecated(
+				'wp_graphql_experiment_config',
+				[ $config, $slug ],
+				'x-release-please-version',
+				'graphql_experiment_config'
+			);
+		}
+
+		$config_hook = 'graphql_experiment_' . $slug . '_config';
+		$config      = apply_filters( $config_hook, $config );
+
+		$legacy_config_hook = 'wp_graphql_experiment_' . $slug . '_config';
+		if ( has_filter( $legacy_config_hook ) ) {
+			$config = apply_filters_deprecated(
+				$legacy_config_hook,
+				[ $config ],
+				'x-release-please-version',
+				$config_hook
+			);
+		}
 
 		// Validate the config.
 		$this->validate_config( $config );

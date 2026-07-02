@@ -52,7 +52,13 @@ function CustomLink(props) {
   const isAbsolute = /^(?:[a-z]+:)?\/\//i
 
   if (isAbsolute.test(props.href)) {
-    return <a {...props} />
+    return (
+      <a
+        {...props}
+        target={props.target ?? "_blank"}
+        rel={props.rel ?? "noopener noreferrer"}
+      />
+    )
   }
 
   return <Link {...props} />

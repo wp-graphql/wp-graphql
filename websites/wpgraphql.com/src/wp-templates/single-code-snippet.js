@@ -1,6 +1,83 @@
 import gql from "graphql-tag"
-import SiteLayout from "components/Site/SiteLayout"
+import DocsLayout from "components/Docs/DocsLayout"
+import Breadcrumbs from "components/Docs/Breadcrumbs"
 import Link from "next/link"
+import getDeveloperReferenceNav from "lib/developer-reference-nav"
+import recipesIndex from "generated/recipes-index.json"
+import decodeHtmlEntities from "../../../../scripts/lib/decode-html-entities"
+
+function slugifyHeading(value) {
+  let text = String(value ?? "")
+    .toLowerCase()
+    .trim()
+
+  // Strip tags repeatedly until stable so nested sequences like
+  // "<scr<script>ipt>" can't survive a single pass.
+  let previous
+  do {
+    previous = text
+    text = text.replace(/<[^>]*>/g, "")
+  } while (text !== previous)
+
+  return text
+    .replace(/&[a-z0-9#]+;/gi, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
+
+function toPlainText(html) {
+  // Strip tags first, then decode entities exactly once. decodeHtmlEntities
+  // resolves &amp; last, so a single pass can't double-unescape sequences
+  // like &amp;lt; into a real angle bracket.
+  return decodeHtmlEntities(String(html ?? "").replace(/<[^>]*>/g, " "))
+    .replace(/\u00a0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function getExcerpt(html, maxLength = 200) {
+  const text = toPlainText(html)
+  if (text.length <= maxLength) {
+    return text
+  }
+  return `${text.slice(0, maxLength).trim()}...`
+}
+
+function addHeadingIdsAndBuildToc(html) {
+  const slugCounts = {}
+  const toc = []
+
+  const content = String(html ?? "").replace(
+    /<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi,
+    (_match, level, attrs, innerHtml) => {
+      const existingIdMatch = attrs.match(/\sid=(["'])(.*?)\1/i)
+      const headingText = toPlainText(innerHtml)
+      const baseSlug = slugifyHeading(existingIdMatch?.[2] || headingText) || "section"
+      const count = slugCounts[baseSlug] ?? 0
+      slugCounts[baseSlug] = count + 1
+      const id = count === 0 ? baseSlug : `${baseSlug}-${count}`
+      const tagName = Number(level) === 2 ? "h2" : "h3"
+
+      toc.push({
+        id,
+        title: headingText || "Section",
+        tagName,
+      })
+
+      const cleanedAttrs = attrs.replace(/\sid=(["']).*?\1/i, "")
+      return `<h${level}${cleanedAttrs} id="${id}">${innerHtml}</h${level}>`
+    }
+  )
+
+  return { content, toc }
+}
+
+function normalizeUri(uri) {
+  return String(uri ?? "")
+    .replace(/\/+$/, "")
+    .toLowerCase()
+}
 
 export default function SingleRecipe({ data }) {
   const { node } = data
@@ -8,44 +85,108 @@ export default function SingleRecipe({ data }) {
     return null
   }
 
+  const { content, toc } = addHeadingIdsAndBuildToc(node.content)
+  const docsNavData = getDeveloperReferenceNav()
+  const excerpt = getExcerpt(node.content)
+  const recipeMeta = recipesIndex?.relations?.byUri?.[normalizeUri(node.uri)] || null
+  const relatedActions = Array.isArray(recipeMeta?.relatedActions)
+    ? recipeMeta.relatedActions
+    : []
+  const relatedFilters = Array.isArray(recipeMeta?.relatedFilters)
+    ? recipeMeta.relatedFilters
+    : []
+  const relatedFunctions = Array.isArray(recipeMeta?.relatedFunctions)
+    ? recipeMeta.relatedFunctions
+    : []
+  const hasRelatedApis =
+    relatedActions.length > 0 || relatedFilters.length > 0 || relatedFunctions.length > 0
+  const pageToc = [
+    { id: "overview", title: "Overview", tagName: "h2" },
+    ...(hasRelatedApis ? [{ id: "related-apis", title: "Related APIs", tagName: "h2" }] : []),
+    ...toc,
+  ]
+
   return (
-    <SiteLayout>
-      <div className="overflow-hidden">
-        <div className="mx-auto mt-10 px-4 pb-6 sm:mt-16 sm:px-6 md:px-8 xl:px-12 xl:max-w-6xl">
-          <main className="content">
-            <article className="relative pt-10 max-w-3xl mx-auto">
-              <header>
-                <div className="space-y-6">
-                  {node.title ? (
-                    <h1 className="col-span-full break-words text-center text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
-                      {node.title}
-                    </h1>
-                  ) : null}
-                  <div className="flex flex-wrap justify-center">
-                    {node?.recipeTags?.nodes?.map((tag, i) => (
-                      <Link key={i} href={tag.uri} legacyBehavior>
-                        <a className="mr-3 font-mono text-xs font-medium uppercase tracking-widest text-primary hover:text-orange-wpg-200">
-                          {tag.name}
-                        </a>
-                      </Link>
+    <DocsLayout docsNavData={docsNavData} toc={pageToc}>
+      <Breadcrumbs
+        items={[
+          { label: "Developer Reference", href: "/developer-reference" },
+          { label: "Recipes", href: "/recipes" },
+          ...(node.title ? [{ label: node.title }] : []),
+        ]}
+      />
+      <div
+        id="content-wrapper"
+        className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
+      >
+        <article>
+          <header>
+            {node.title ? <h1>{node.title}</h1> : null}
+            {excerpt ? <p>{excerpt}</p> : null}
+            {node?.recipeTags?.nodes?.length ? (
+              <ul className="not-prose m-0 mb-6 flex list-none flex-wrap gap-2 p-0">
+                {node.recipeTags.nodes.map((tag) => (
+                  <li key={tag.id}>
+                    <Link
+                      href={tag.uri}
+                      className="inline-flex items-center rounded-md border border-slate-300 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 hover:border-sky-500 hover:text-sky-500 dark:border-slate-600 dark:text-slate-300 dark:hover:border-sky-300 dark:hover:text-sky-300"
+                    >
+                      {tag.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </header>
+          <div id="overview">
+            {node.content ? (
+              <div id="content" dangerouslySetInnerHTML={{ __html: content }} />
+            ) : null}
+          </div>
+          {hasRelatedApis ? (
+            <section id="related-apis">
+              <h2>Related APIs</h2>
+              {relatedActions.length > 0 ? (
+                <div>
+                  <h3>Actions</h3>
+                  <ul>
+                    {relatedActions.map((name) => (
+                      <li key={`action-${name}`}>
+                        <Link href={`/actions/${name}`}>{name}</Link>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-              </header>
-              <div className="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-12">
-                {node.content ? (
-                  <div
-                    id="content"
-                    className="prose"
-                    dangerouslySetInnerHTML={{ __html: node.content }}
-                  />
-                ) : null}
-              </div>
-            </article>
-          </main>
-        </div>
+              ) : null}
+              {relatedFilters.length > 0 ? (
+                <div>
+                  <h3>Filters</h3>
+                  <ul>
+                    {relatedFilters.map((name) => (
+                      <li key={`filter-${name}`}>
+                        <Link href={`/filters/${name}`}>{name}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {relatedFunctions.length > 0 ? (
+                <div>
+                  <h3>Functions</h3>
+                  <ul>
+                    {relatedFunctions.map((name) => (
+                      <li key={`function-${name}`}>
+                        <Link href={`/functions/${name}`}>{name}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+        </article>
       </div>
-    </SiteLayout>
+    </DocsLayout>
   )
 }
 

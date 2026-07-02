@@ -33,7 +33,8 @@
       "config": {
         "FS_METHOD": "direct",
         "WP_MEMORY_LIMIT": "256M",
-        "WP_MAX_MEMORY_LIMIT": "512M"
+        "WP_MAX_MEMORY_LIMIT": "512M",
+        "WPGRAPHQL_VERSION": "2.17.1"
       },
       "mappings": {
         "/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",

@@ -73,7 +73,15 @@ class MaxAge {
 
 		// From WPGraphql Router
 		add_filter( 'graphql_response_headers_to_send', [ $this, 'http_headers_cb' ], 10, 1 );
-		add_filter( 'pre_graphql_execute_request', [ $this, 'peek_at_executing_query_cb' ], 10, 2 );
+		// WPGraphQL releases after 2.17.0 rename pre_graphql_execute_request to
+		// graphql_pre_execute_request. Attach to whichever name the active core
+		// fires so this release works on either side of the rename without
+		// triggering deprecation notices.
+		// TODO: drop the fallback once the minimum supported WPGraphQL version
+		// is past the rename (tracked in https://github.com/wp-graphql/wp-graphql/issues/4033).
+		// @phpstan-ignore-next-line ternary.alwaysFalse (WPGRAPHQL_VERSION varies at runtime; PHPStan resolves it from a fixed stub)
+		$pre_execute_hook = version_compare( WPGRAPHQL_VERSION, '2.17.0', '>' ) ? 'graphql_pre_execute_request' : 'pre_graphql_execute_request';
+		add_filter( $pre_execute_hook, [ $this, 'peek_at_executing_query_cb' ], 10, 2 );
 
 		add_filter( 'graphql_mutation_input', [ $this, 'graphql_mutation_filter' ], 10, 4 );
 		add_action( 'graphql_mutation_response', [ $this, 'graphql_mutation_insert' ], 10, 6 );

@@ -355,6 +355,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array<string,mixed>                  $args       The inputArgs on the field
 		 * @param \WPGraphQL\AppContext                $context    The AppContext passed down the GraphQL tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 *
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
 	}
@@ -456,6 +459,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo object
 		 * @param mixed|string|string[]                $post_type  The post type for the query
 		 *
+		 * @hookGroup connections
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
@@ -537,6 +541,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array<\WP_Post_Type|null>                               $post_type_objects  The post type objects the connection resolves.
 		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $resolver           The connection resolver instance.
 		 *
+		 * @hookGroup connections
 		 * @since 2.17.0
 		 */
 		$allowed_statuses = apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post_type_objects, $this );
@@ -650,6 +655,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param self                $resolver        Instance of the ConnectionResolver.
 		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 *
+		 * @hookGroup connections
 		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->get_unfiltered_args() );
