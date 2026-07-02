@@ -26,18 +26,17 @@ import ExtensionsArchive from "components/extensions/ExtensionsArchive"
 import decodeHtmlEntities from "../../../../scripts/lib/decode-html-entities"
 
 function toPlainText(html) {
-  return String(html ?? "")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
+  // Strip tags first, then decode entities exactly once. decodeHtmlEntities
+  // resolves &amp; last, so a single pass can't double-unescape sequences
+  // like &amp;lt; into a real angle bracket.
+  return decodeHtmlEntities(String(html ?? "").replace(/<[^>]*>/g, " "))
+    .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ")
     .trim()
 }
 
 function getExcerpt(html, maxLength = 180) {
-  const text = decodeHtmlEntities(toPlainText(html))
+  const text = toPlainText(html)
   if (text.length <= maxLength) {
     return text
   }
@@ -45,10 +44,19 @@ function getExcerpt(html, maxLength = 180) {
 }
 
 function slugifyHeading(value) {
-  return String(value ?? "")
+  let text = String(value ?? "")
     .toLowerCase()
     .trim()
-    .replace(/<[^>]+>/g, "")
+
+  // Strip tags repeatedly until stable so nested sequences like
+  // "<scr<script>ipt>" can't survive a single pass.
+  let previous
+  do {
+    previous = text
+    text = text.replace(/<[^>]*>/g, "")
+  } while (text !== previous)
+
+  return text
     .replace(/&[a-z0-9#]+;/gi, "")
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")

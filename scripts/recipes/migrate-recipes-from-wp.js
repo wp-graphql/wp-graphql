@@ -79,18 +79,17 @@ function loadEnvFile(filePath) {
 }
 
 function toPlainText(html) {
-	return String(html ?? '')
-		.replace(/<[^>]*>/g, ' ')
-		.replace(/&nbsp;/gi, ' ')
-		.replace(/&amp;/gi, '&')
-		.replace(/&lt;/gi, '<')
-		.replace(/&gt;/gi, '>')
+	// Strip tags first, then decode entities exactly once. decodeHtmlEntities
+	// resolves &amp; last, so a single pass can't double-unescape sequences
+	// like &amp;lt; into a real angle bracket.
+	return decodeHtmlEntities(String(html ?? '').replace(/<[^>]*>/g, ' '))
+		.replace(/\u00a0/g, ' ')
 		.replace(/\s+/g, ' ')
 		.trim();
 }
 
 function excerptFromHtml(html, maxLength = 220) {
-	const text = decodeHtmlEntities(toPlainText(html));
+	const text = toPlainText(html);
 	if (text.length <= maxLength) {
 		return text;
 	}

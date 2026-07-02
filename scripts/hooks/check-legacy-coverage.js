@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 function parseArgs(argv = process.argv.slice(2)) {
 	return argv.reduce((acc, arg) => {
@@ -37,7 +37,10 @@ function readJson(filePath) {
 
 function tryReadJsonAtGitRef(ref, filePathFromRepoRoot) {
 	try {
-		const content = execSync(`git show "${ref}:${filePathFromRepoRoot}"`, {
+		// execFileSync passes the ref and path as a single argv entry with no
+		// shell involved, so ref/path values can't be interpreted as shell
+		// syntax.
+		const content = execFileSync('git', ['show', `${ref}:${filePathFromRepoRoot}`], {
 			encoding: 'utf8',
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
