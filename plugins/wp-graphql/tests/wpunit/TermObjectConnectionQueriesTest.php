@@ -998,4 +998,66 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_delete_term( $parent_category, 'category' );
 	}
+
+	/**
+	 * A `childOf` query must return the term's children even when there are more
+	 * sibling/unrelated terms than the query limit.
+	 *
+	 * WP_Term_Query intentionally omits the SQL LIMIT when it has to descend the
+	 * term hierarchy (e.g. `child_of`), filtering descendants in PHP and applying
+	 * `number`/`offset` afterwards. WPGraphQL's cursor-pagination clause used to
+	 * force a SQL LIMIT unconditionally, which truncated the result set before the
+	 * descendant filtering ran, so children outside the LIMIT window disappeared.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2739
+	 */
+	public function testChildOfReturnsChildrenBeyondTheQueryLimit() {
+		$query = $this->getQuery();
+
+		// Create more decoy terms than the default query limit (10). These sort
+		// alphabetically before the children, so they fill the SQL LIMIT window.
+		for ( $i = 1; $i <= 15; $i++ ) {
+			$this->createTermObject(
+				[
+					'taxonomy' => 'category',
+					'name'     => sprintf( 'Aaa Decoy %02d', $i ),
+				]
+			);
+		}
+
+		$parent_id = $this->createTermObject(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Zzz Parent',
+			]
+		);
+
+		$expected_children = [];
+		for ( $i = 1; $i <= 5; $i++ ) {
+			$expected_children[] = $this->createTermObject(
+				[
+					'taxonomy' => 'category',
+					'name'     => sprintf( 'Zzz Parent Child %d', $i ),
+					'parent'   => $parent_id,
+				]
+			);
+		}
+
+		$variables = [
+			'where' => [
+				'childOf' => $parent_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$actual_ids = wp_list_pluck( $actual['data']['categories']['nodes'], 'databaseId' );
+
+		$this->assertCount( 5, $actual_ids, 'All 5 children should be returned even though decoy terms exceed the query limit.' );
+		sort( $actual_ids );
+		sort( $expected_children );
+		$this->assertEquals( $expected_children, $actual_ids );
+	}
 }
