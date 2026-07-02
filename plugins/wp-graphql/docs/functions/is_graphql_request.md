@@ -19,6 +19,10 @@ Whether a GraphQL request is in action or not. This is determined by the WPGraph
 - **Since:** 0.4.1
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
+## Return
+
+- `bool`: True while a GraphQL request is in action, false otherwise.
+
 ## Recipes
 
 - [Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin](/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin)
@@ -26,7 +30,7 @@ Whether a GraphQL request is in action or not. This is determined by the WPGraph
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:672`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L672)
+- [`plugins/wp-graphql/access-functions.php:692`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L692)
 
 ```php
 function is_graphql_request(): bool {

@@ -28,7 +28,7 @@ Adds a field to the Connection Edge between the provided 'From' Type Name and 'T
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:354`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L354)
+- [`plugins/wp-graphql/access-functions.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L372)
 
 ```php
 function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ): void {

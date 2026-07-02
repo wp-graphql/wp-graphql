@@ -16,7 +16,7 @@ register_graphql_interface_type( string $type_name, $config ): void;
 
 Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
 
-- **Since:** Unknown
+- **Since:** 0.4.0
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
@@ -26,7 +26,7 @@ Given a Type Name and a $config array, this adds an Interface Type to the TypeRe
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:227`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L227)
+- [`plugins/wp-graphql/access-functions.php:237`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L237)
 
 ```php
 function register_graphql_interface_type( string $type_name, $config ): void {

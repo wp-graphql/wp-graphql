@@ -16,7 +16,7 @@ get_graphql_register_action(): string;
 
 Determine when to register types.
 
-- **Since:** Unknown
+- **Since:** 0.4.3
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Return
@@ -25,7 +25,7 @@ Determine when to register types.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:142`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L142)
+- [`plugins/wp-graphql/access-functions.php:146`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L146)
 
 ```php
 function get_graphql_register_action(): string {

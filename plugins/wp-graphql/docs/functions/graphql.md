@@ -55,7 +55,7 @@ Provides a simple way to run a GraphQL query without posting a request to the en
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:98`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L98)
+- [`plugins/wp-graphql/access-functions.php:100`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L100)
 
 ```php
 function graphql( array $request_data = [], bool $return_request = false ) {

@@ -30,7 +30,7 @@ Given a Mutation Name and Config array, this adds a Mutation to the Schema
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:532`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L532)
+- [`plugins/wp-graphql/access-functions.php:550`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L550)
 
 ```php
 function register_graphql_mutation( string $mutation_name, array $config ): void {

@@ -93,6 +93,19 @@ if ( ! function_exists( 'fixture_polyfill' ) ) {
 		return ! empty( $value );
 	}
 }
+
+if ( ! function_exists( 'fixture_internal' ) ) {
+	/**
+	 * Internal-only polyfill that should not be documented.
+	 *
+	 * @param string $value The value.
+	 *
+	 * @internal
+	 */
+	function fixture_internal( string $value ): bool {
+		return empty( $value );
+	}
+}
 `;
 
 	const pluginConfig = {
@@ -165,8 +178,21 @@ const tests = [
 				'custom @functionGroup should include matching function links'
 			);
 
+			const internalDocPath = path.join(
+				TEST_ROOT,
+				'plugins/test-plugin/docs/functions/fixture_internal.md'
+			);
+			assert(
+				!fs.existsSync(internalDocPath),
+				'@internal functions should not get a doc page'
+			);
+
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
 			assert.strictEqual(index.stats.totalFunctions, 3, 'expected three functions');
+			assert(
+				!index.functions.some((fn) => fn.name === 'fixture_internal'),
+				'@internal functions should be excluded from the index'
+			);
 
 			const lint = JSON.parse(fs.readFileSync(lintPath, 'utf8'));
 			assert(

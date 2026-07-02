@@ -183,6 +183,7 @@ function parseDocblock(rawDocblock) {
 			params: [],
 			returnTag: null,
 			throws: [],
+			isInternal: false,
 		};
 	}
 
@@ -200,6 +201,7 @@ function parseDocblock(rawDocblock) {
 	let returnTag = null;
 	let currentTag = null;
 	let inTags = false;
+	let isInternal = false;
 
 	lines.forEach((line) => {
 		const trimmed = line.trim();
@@ -265,6 +267,12 @@ function parseDocblock(rawDocblock) {
 			return;
 		}
 
+		if (/^@internal\b/.test(trimmed)) {
+			isInternal = true;
+			currentTag = null;
+			return;
+		}
+
 		if (trimmed.startsWith('@')) {
 			currentTag = null;
 			return;
@@ -286,6 +294,7 @@ function parseDocblock(rawDocblock) {
 		params,
 		returnTag,
 		throws,
+		isInternal,
 	};
 }
 
@@ -403,6 +412,13 @@ function extractFunctionsFromContent(content, sourcePath) {
 		const returnTypeMatch = declaration.match(/\)\s*:\s*([^\s{]+)/);
 		const returnType = returnTypeMatch ? returnTypeMatch[1] : null;
 		const docblock = parseDocblock(getNearestDocblock(content, functionIndex));
+
+		// Functions tagged @internal (e.g. PHP polyfills) are not part of the
+		// public API and are excluded from the docs and lint entirely.
+		if (docblock.isInternal) {
+			match = functionRegex.exec(content);
+			continue;
+		}
 
 		functions.push({
 			name: functionName,

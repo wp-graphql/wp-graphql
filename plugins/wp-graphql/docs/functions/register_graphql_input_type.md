@@ -16,7 +16,7 @@ register_graphql_input_type( string $type_name, array $config ): void;
 
 Given a Type Name and a $config array, this adds an InputType to the TypeRegistry
 
-- **Since:** Unknown
+- **Since:** 0.1.0
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
@@ -26,7 +26,7 @@ Given a Type Name and a $config array, this adds an InputType to the TypeRegistr
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:254`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L254)
+- [`plugins/wp-graphql/access-functions.php:268`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L268)
 
 ```php
 function register_graphql_input_type( string $type_name, array $config ): void {

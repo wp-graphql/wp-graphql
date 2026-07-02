@@ -16,7 +16,7 @@ register_graphql_interfaces_to_types( $interface_names, $type_names ): void;
 
 Given a type name and interface name, this applies the interface to the Type. Should be used at the `graphql_register_types` hook.
 
-- **Since:** Unknown
+- **Since:** 0.9.0
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
@@ -26,7 +26,7 @@ Given a type name and interface name, this applies the interface to the Type. Sh
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:167`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L167)
+- [`plugins/wp-graphql/access-functions.php:173`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L173)
 
 ```php
 function register_graphql_interfaces_to_types( $interface_names, $type_names ): void {

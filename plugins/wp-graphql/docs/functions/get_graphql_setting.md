@@ -31,7 +31,7 @@ Get an option value from GraphQL settings
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:853`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L853)
+- [`plugins/wp-graphql/access-functions.php:877`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L877)
 
 ```php
 function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {

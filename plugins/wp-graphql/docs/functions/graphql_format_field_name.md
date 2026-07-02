@@ -29,7 +29,7 @@ Formats the name of a field so that it plays nice with GraphiQL
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:43`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L43)
+- [`plugins/wp-graphql/access-functions.php:45`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L45)
 
 ```php
 function graphql_format_field_name( $field_name ): string {

@@ -27,7 +27,7 @@ Adds several input fields to the Connection Where Args between the provided 'Fro
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:418`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L418)
+- [`plugins/wp-graphql/access-functions.php:436`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L436)
 
 ```php
 function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ): void {

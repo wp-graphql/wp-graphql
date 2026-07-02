@@ -19,13 +19,17 @@ Whether a GraphQL HTTP request is in action or not. This is determined by checki
 - **Since:** 0.4.1
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
+## Return
+
+- `bool`: True when the current request is an HTTP request against the GraphQL endpoint, false otherwise.
+
 ## Recipes
 
 - [Debugging JWT Authentication](/recipes/debugging-jwt-authentication)
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:689`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L689)
+- [`plugins/wp-graphql/access-functions.php:711`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L711)
 
 ```php
 function is_graphql_http_request(): bool {

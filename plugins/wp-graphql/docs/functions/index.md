@@ -65,8 +65,3 @@ The functions documented below are provided by WPGraphQL to extend the schema or
 - [`get_graphql_admin_notices`](/functions/get_graphql_admin_notices)
 - [`get_graphql_setting`](/functions/get_graphql_setting)
 - [`graphql_debug`](/functions/graphql_debug)
-
-## Polyfills
-
-- [`str_ends_with`](/functions/str_ends_with)
-- [`str_starts_with`](/functions/str_starts_with)

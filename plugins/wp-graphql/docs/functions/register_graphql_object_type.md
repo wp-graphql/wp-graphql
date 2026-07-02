@@ -16,7 +16,7 @@ register_graphql_object_type( string $type_name, array $config ): void;
 
 Given a Type Name and a $config array, this adds an ObjectType to the TypeRegistry
 
-- **Since:** Unknown
+- **Since:** 0.1.0
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
@@ -32,7 +32,7 @@ Given a Type Name and a $config array, this adds an ObjectType to the TypeRegist
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L243)
+- [`plugins/wp-graphql/access-functions.php:255`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L255)
 
 ```php
 function register_graphql_object_type( string $type_name, array $config ): void {

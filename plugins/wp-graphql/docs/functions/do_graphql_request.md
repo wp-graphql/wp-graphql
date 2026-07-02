@@ -40,7 +40,7 @@ Previous access function for running GraphQL queries directly. This function wil
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:126`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L126)
+- [`plugins/wp-graphql/access-functions.php:128`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L128)
 
 ```php
 function do_graphql_request( $query, $operation_name = '', $variables = [], $return_request = false ) {

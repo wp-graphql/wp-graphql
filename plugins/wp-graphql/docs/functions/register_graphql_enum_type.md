@@ -16,7 +16,7 @@ register_graphql_enum_type( string $type_name, array $config ): void;
 
 Given a Type Name and a $config array, this adds an EnumType to the TypeRegistry
 
-- **Since:** Unknown
+- **Since:** 0.1.0
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
@@ -26,7 +26,7 @@ Given a Type Name and a $config array, this adds an EnumType to the TypeRegistry
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:298`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L298)
+- [`plugins/wp-graphql/access-functions.php:316`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L316)
 
 ```php
 function register_graphql_enum_type( string $type_name, array $config ): void {

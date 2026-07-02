@@ -23,9 +23,13 @@ Check if the name is valid for use in GraphQL
 
 - `$type_name` (`string`): The name of the type to validate
 
+## Return
+
+- `bool`: True if the name is valid for use in GraphQL, false otherwise.
+
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:818`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L818)
+- [`plugins/wp-graphql/access-functions.php:842`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L842)
 
 ```php
 function is_valid_graphql_name( string $type_name ): bool {

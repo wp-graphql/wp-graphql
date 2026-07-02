@@ -26,7 +26,7 @@ Given a Type Name and Field Name, this removes the field from the TypeRegistry
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:617`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L617)
+- [`plugins/wp-graphql/access-functions.php:635`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L635)
 
 ```php
 function deregister_graphql_field( string $type_name, string $field_name ): void {

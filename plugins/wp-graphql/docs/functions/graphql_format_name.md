@@ -25,9 +25,13 @@ Formats a string for use as a GraphQL name. Per the GraphQL spec, characters in 
 - `$replacement` (`string`): The replacement character for invalid characters. Defaults to '_'.
 - `$regex` (`string`): The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
 
+## Return
+
+- `string`: The formatted name, safe for use as a GraphQL name.
+
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:29`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L29)
+- [`plugins/wp-graphql/access-functions.php:31`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L31)
 
 ```php
 function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
