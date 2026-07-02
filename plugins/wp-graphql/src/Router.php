@@ -306,6 +306,9 @@ class Router {
 			[
 				'Authorization',
 				'Content-Type',
+				// Allows clients to send request-level preview context as a fallback to the
+				// `extensions.preview` fallback. See WPGraphQL\Request::get_preview_input().
+				'X-GraphQL-Preview',
 			]
 		);
 

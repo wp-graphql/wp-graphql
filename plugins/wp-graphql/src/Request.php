@@ -293,6 +293,26 @@ class Request {
 		$this->app_context->viewer = wp_get_current_user();
 
 		/**
+		 * Set the preview context for the request from the `preview` envelope in the
+		 * request `extensions`, if present. This carries the request-scoped preview
+		 * params (the post being previewed, and the previewed featured image), mirroring
+		 * the query params WordPress core uses for front-end previews.
+		 */
+		$this->app_context->preview = $this->get_preview_context();
+
+		/**
+		 * If a preview was requested for a post the current user is not allowed to preview,
+		 * surface a debug-only notice (visible under GRAPHQL_DEBUG). The request still
+		 * resolves the published data, so this never exposes unpublished content.
+		 */
+		if ( is_array( $this->app_context->preview ) && ! current_user_can( 'edit_post', $this->app_context->preview['databaseId'] ) ) {
+			graphql_debug(
+				__( 'Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
+				[ 'type' => 'PREVIEW_EXTENSION_IGNORED' ]
+			);
+		}
+
+		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
@@ -335,6 +355,159 @@ class Request {
 		 * @param \WPGraphQL\Request $request The instance of the Request being executed
 		 */
 		do_action( 'graphql_before_execute', $this );
+	}
+
+	/**
+	 * Parses and normalizes the preview context for the request.
+	 *
+	 * The context mirrors the query params WordPress core uses for front-end previews
+	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`). Each transport uses its native
+	 * structured form:
+	 *
+	 *   - The `X-GraphQL-Preview` request header (an RFC 8941 Structured Field dictionary, with
+	 *     lowercase keys) is the primary source, because a headers UI exists in every GraphQL IDE:
+	 *
+	 *         X-GraphQL-Preview: database_id=123, featured_image_database_id=456, nonce="abc"
+	 *
+	 *   - The same context may instead be sent as a JSON `preview` object in the request
+	 *     `extensions` as a fallback (for example to keep it inside the operation body):
+	 *
+	 *         "extensions": { "preview": { "databaseId": 123, "featuredImageDatabaseId": 456 } }
+	 *
+	 * The header takes precedence when both are present.
+	 *
+	 * The presence of a valid `databaseId` marks the request as a preview of that post.
+	 * Authorization is enforced where the context is consumed (capability checks relative to
+	 * the post), not here. The `nonce` is accepted for forward compatibility but is not yet
+	 * verified.
+	 *
+	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 */
+	private function get_preview_context(): ?array {
+		$preview = $this->get_preview_input();
+
+		if ( null === $preview ) {
+			return null;
+		}
+
+		$database_id = isset( $preview['databaseId'] ) ? absint( $preview['databaseId'] ) : 0;
+
+		// Without a post id there is nothing to preview.
+		if ( empty( $database_id ) ) {
+			return null;
+		}
+
+		// Resolve the revision to overlay from, mirroring how WordPress core previews a
+		// post (`_set_preview()`): the current user's autosave holds the in-progress,
+		// unsaved edits the "Preview" button shows. This is the current user's own autosave
+		// (autosaves are per-user), not the latest revision by any author. Only look it up
+		// when the current user can preview the post, which avoids the query for
+		// unauthorized requests and is a defense-in-depth complement to the capability
+		// checks at the point of overlay.
+		$revision_database_id = 0;
+		if ( current_user_can( 'edit_post', $database_id ) ) {
+			$autosave             = wp_get_post_autosave( $database_id, get_current_user_id() );
+			$revision_database_id = $autosave instanceof \WP_Post ? (int) $autosave->ID : 0;
+		}
+
+		return [
+			'databaseId'              => $database_id,
+			// The current user's autosave (a revision) to overlay previewable fields from.
+			'revisionDatabaseId'      => $revision_database_id,
+			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
+			// in the preview), so only treat an absent key as "no override".
+			'featuredImageDatabaseId' => isset( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null,
+			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
+		];
+	}
+
+	/**
+	 * Resolves the raw `preview` input for the request, keyed like the JSON `extensions.preview`
+	 * object (`databaseId`, `featuredImageDatabaseId`, `nonce`).
+	 *
+	 * The `X-GraphQL-Preview` header (an RFC 8941 Structured Field dictionary) is the primary
+	 * source, since a headers UI is available in every GraphQL IDE. When the header is absent,
+	 * the same context is accepted as a JSON `preview` object in the request `extensions`.
+	 *
+	 * @return array<string,mixed>|null The raw (unnormalized) preview input, or null when none.
+	 */
+	private function get_preview_input(): ?array {
+		// Primary: the `X-GraphQL-Preview` header (a structured-field dictionary).
+		if ( ! empty( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) {
+			$parsed = $this->parse_preview_header( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) );
+
+			if ( ! empty( $parsed ) ) {
+				return $parsed;
+			}
+		}
+
+		// Fallback: the JSON `preview` object in the request extensions.
+		if ( $this->params instanceof OperationParams ) {
+			$extensions = $this->params->extensions;
+
+			if ( is_array( $extensions ) && ! empty( $extensions['preview'] ) && is_array( $extensions['preview'] ) ) {
+				return $extensions['preview'];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Parses the `X-GraphQL-Preview` header as an RFC 8941 Structured Field dictionary.
+	 *
+	 * The dictionary is a comma-separated list of `key=value` members, with lowercase keys.
+	 * Only the keys this feature defines are recognized; values are integers (bare) or strings
+	 * (double-quoted). The recognized keys are mapped to the same shape as the JSON
+	 * `extensions.preview` object so both transports normalize identically.
+	 *
+	 *     database_id=123, featured_image_database_id=456, nonce="abc"
+	 *
+	 * @param string $header The raw header value.
+	 *
+	 * @return array<string,mixed> The parsed preview input, keyed like `extensions.preview`.
+	 */
+	private function parse_preview_header( string $header ): array {
+		// Map the header's lowercase structured-field keys to the JSON `preview` object keys.
+		$key_map = [
+			'database_id'                => 'databaseId',
+			'featured_image_database_id' => 'featuredImageDatabaseId',
+			'nonce'                      => 'nonce',
+		];
+
+		$parsed = [];
+
+		// Dictionary members are comma-separated.
+		foreach ( explode( ',', $header ) as $member ) {
+			if ( false === strpos( $member, '=' ) ) {
+				continue;
+			}
+
+			list( $key, $value ) = explode( '=', $member, 2 );
+
+			$key = trim( $key );
+
+			if ( ! isset( $key_map[ $key ] ) ) {
+				continue;
+			}
+
+			$value = trim( $value );
+
+			// Drop any structured-field parameters (e.g. `value;param=x`); unused here.
+			$param_pos = strpos( $value, ';' );
+			if ( false !== $param_pos ) {
+				$value = trim( substr( $value, 0, $param_pos ) );
+			}
+
+			// Structured-field strings are double-quoted; integers are bare.
+			if ( strlen( $value ) >= 2 && '"' === $value[0] && '"' === $value[ strlen( $value ) - 1 ] ) {
+				$value = stripslashes( substr( $value, 1, -1 ) );
+			}
+
+			$parsed[ $key_map[ $key ] ] = $value;
+		}
+
+		return $parsed;
 	}
 
 	/**
