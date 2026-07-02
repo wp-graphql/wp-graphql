@@ -42,6 +42,7 @@ use WPGraphQL\Type\Enum\CommentNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\CommentStatusEnum;
 use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\ContentTemplateEnum;
 use WPGraphQL\Type\Enum\ContentTypeEnum;
 use WPGraphQL\Type\Enum\ContentTypeIdTypeEnum;
 use WPGraphQL\Type\Enum\MediaItemSizeEnum;
@@ -363,6 +364,7 @@ class TypeRegistry {
 		CommentsConnectionOrderbyEnum::register_type();
 		CommentStatusEnum::register_type();
 		ContentNodeIdTypeEnum::register_type();
+		ContentTemplateEnum::register_type();
 		ContentTypeEnum::register_type();
 		ContentTypeIdTypeEnum::register_type();
 		MediaItemSizeEnum::register_type();

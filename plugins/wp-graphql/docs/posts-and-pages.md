@@ -107,6 +107,23 @@ Use the `isSticky` argument to filter the connection by [sticky](https://wordpre
 
 > **NOTE:** This filters the result set by sticky status, it does not float sticky posts to the top of the results. Sticky posts are returned in the connection's normal order alongside other posts, so if you need them visually pinned, sort or merge them in your client. This mirrors the WordPress REST API's `sticky` parameter.
 
+#### Query pages by template
+
+Use the `template` argument to filter a connection to content assigned a specific template. `template` is a `ContentTemplateEnum` whose values come from the templates registered for the active theme, plus `DEFAULT_TEMPLATE` for content with no specific template assigned. Each value is suffixed by the template's kind (a classic `full-width.php` template is exposed as `FULL_WIDTH_TEMPLATE`, a block "Page No Title" template as `PAGE_NO_TITLE_BLOCK_TEMPLATE`), mirroring the `Template_` / `BlockTemplate_` prefixes on the generated template object types and keeping the values stable as themes change. Introspect the `ContentTemplateEnum` type to see the values available in your schema.
+
+```graphql
+{
+  pages(where: {template: FULL_WIDTH_TEMPLATE}) {
+    nodes {
+      id
+      title
+    }
+  }
+}
+```
+
+> **NOTE:** This matches the template assigned to a specific page (the "Template" selector in the editor), and works for both classic and block themes. It does not filter by a block theme's global template hierarchy.
+
 ### Single Post by Global ID
 
 Below is an example of querying a single post using the [GraphQL Global ID](/docs/wpgraphql-concepts/).
