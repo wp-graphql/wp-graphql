@@ -1611,10 +1611,23 @@ function writeGeneratedOutputs({
 	);
 
 	if (validateOnly) {
-		const changedFiles = filesToWrite
-			.filter((file) => fs.existsSync(file.path))
-			.filter((file) => fs.readFileSync(file.path, 'utf8') !== file.content)
-			.map((file) => path.relative(process.cwd(), file.path));
+		// Compare only the FINAL content per path: several dynamic hooks can
+		// slug to the same filename, and only the last write survives on disk.
+		const finalContentByPath = new Map();
+		filesToWrite.forEach((file) => finalContentByPath.set(file.path, file.content));
+
+		// Ignore the volatile generatedAt timestamp inside JSON artifacts so
+		// validation only fails on real content drift.
+		const stripVolatile = (content) =>
+			content.replace(/"generatedAt":\s*"[^"]*"/g, '"generatedAt": ""');
+
+		const changedFiles = [...finalContentByPath.entries()]
+			.filter(([filePath]) => fs.existsSync(filePath))
+			.filter(
+				([filePath, content]) =>
+					stripVolatile(fs.readFileSync(filePath, 'utf8')) !== stripVolatile(content)
+			)
+			.map(([filePath]) => path.relative(process.cwd(), filePath));
 
 		const staleFiles = [
 			...listMarkdownFiles(actionsDir)

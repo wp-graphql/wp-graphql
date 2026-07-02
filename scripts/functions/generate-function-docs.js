@@ -870,9 +870,16 @@ function writeOutputs({
 	);
 
 	if (validateOnly) {
+		// Ignore the volatile generatedAt timestamp inside JSON artifacts so
+		// validation only fails on real content drift.
+		const stripVolatile = (content) =>
+			content.replace(/"generatedAt":\s*"[^"]*"/g, '"generatedAt": ""');
+
 		const changedFiles = filesToWrite
 			.filter((file) => fs.existsSync(file.path))
-			.filter((file) => fs.readFileSync(file.path, 'utf8') !== file.content)
+			.filter(
+				(file) => stripVolatile(fs.readFileSync(file.path, 'utf8')) !== stripVolatile(file.content)
+			)
 			.map((file) => path.relative(process.cwd(), file.path));
 
 		const staleFiles = listMarkdownFiles(functionsDir)
