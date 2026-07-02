@@ -100,7 +100,9 @@ export async function getStaticProps({ params }) {
     }
   } catch (e) {
     if (e.notFound) {
-      console.error(params, e)
+      // Literal first argument so route-controlled params can't be
+      // interpreted as console format directives.
+      console.error("doc not found", { params }, e)
       // Include revalidate so a transient build-time fetch failure can't
       // permanently cache a 404 — without this, ISR never retries the page
       // even after the underlying .md file becomes reachable again.

@@ -62,7 +62,7 @@ add_action( 'wpgraphql_ide_enqueue_script', __NAMESPACE__ . '\enqueue_assets' );
  * filter is a no-op on installs without smart-cache.
  *
  * Runs at priority 11 so smart-cache (priority 10) has already populated
- * `graphqlObjectCache`. Hooked off `do_graphql_request` to register the
+ * `graphqlObjectCache`. Hooked off `graphql_do_request` to register the
  * filter only inside a GraphQL request lifecycle.
  *
  * @return void
@@ -75,7 +75,7 @@ function register_diagnostics_filter(): void {
 		7
 	);
 }
-add_action( 'do_graphql_request', __NAMESPACE__ . '\register_diagnostics_filter' );
+add_action( 'graphql_do_request', __NAMESPACE__ . '\register_diagnostics_filter' );
 
 /**
  * @param mixed                                $response
@@ -124,7 +124,7 @@ function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $
 				? ( $analyzer->get_query_types() ?: [] )
 				: [];
 
-			// On a cache HIT, smart-cache's `pre_graphql_execute_request`
+			// On a cache HIT, smart-cache's `graphql_pre_execute_request`
 			// short-circuits resolution — so the analyzer's runtime nodes
 			// is empty even when the cached entry was originally written
 			// with nodes tracked. The cached response payload still has

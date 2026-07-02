@@ -73,7 +73,7 @@ class MaxAge {
 
 		// From WPGraphql Router
 		add_filter( 'graphql_response_headers_to_send', [ $this, 'http_headers_cb' ], 10, 1 );
-		add_filter( 'pre_graphql_execute_request', [ $this, 'peek_at_executing_query_cb' ], 10, 2 );
+		add_filter( 'graphql_pre_execute_request', [ $this, 'peek_at_executing_query_cb' ], 10, 2 );
 
 		add_filter( 'graphql_mutation_input', [ $this, 'graphql_mutation_filter' ], 10, 4 );
 		add_action( 'graphql_mutation_response', [ $this, 'graphql_mutation_insert' ], 10, 6 );
