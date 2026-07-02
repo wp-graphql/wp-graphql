@@ -38,6 +38,17 @@ function ensureDir(dirPath) {
 	}
 }
 
+/**
+ * Escape characters that MDX treats as expression/JSX delimiters so recipe
+ * titles and summaries containing raw code (e.g. `function() {`) can't break
+ * MDX compilation of the generated index page.
+ */
+function escapeMdxText(value) {
+	return String(value ?? '')
+		.replace(/\\/g, '\\\\')
+		.replace(/[{}<]/g, (char) => `\\${char}`);
+}
+
 function renderRecipesIndex(recipes) {
 	const grouped = recipes.reduce((acc, recipe) => {
 		const group = recipe.group || 'Uncategorized';
@@ -83,9 +94,9 @@ function renderRecipesIndex(recipes) {
 		grouped[group]
 			.sort((a, b) => a.title.localeCompare(b.title))
 			.forEach((recipe) => {
-				lines.push(`- [${recipe.title}](${recipe.uri})`);
+				lines.push(`- [${escapeMdxText(recipe.title)}](${recipe.uri})`);
 				if (recipe.summary) {
-					lines.push(`  - ${recipe.summary}`);
+					lines.push(`  - ${escapeMdxText(recipe.summary)}`);
 				}
 			});
 		lines.push('');
@@ -189,3 +200,5 @@ function main() {
 if (require.main === module) {
 	main();
 }
+
+module.exports = { escapeMdxText, renderRecipesIndex };
