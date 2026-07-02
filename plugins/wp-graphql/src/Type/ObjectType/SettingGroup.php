@@ -91,7 +91,7 @@ class SettingGroup {
 							// translators: %s is the name of the setting group.
 							return isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
-						'resolve'     => static function () use ( $setting_field ) {
+						'resolve'     => static function () use ( $setting_field, $group_name ) {
 
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
@@ -108,18 +108,38 @@ class SettingGroup {
 							switch ( $setting_field['type'] ) {
 								case 'integer':
 								case 'int':
-									return absint( $option );
+									$value = absint( $option );
+									break;
 								case 'string':
-									return (string) $option;
+									$value = (string) $option;
+									break;
 								case 'boolean':
 								case 'bool':
-									return (bool) $option;
+									$value = (bool) $option;
+									break;
 								case 'number':
 								case 'float':
-									return (float) $option;
+									$value = (float) $option;
+									break;
+								default:
+									$value = ! empty( $option ) ? $option : null;
+									break;
 							}
 
-							return ! empty( $option ) ? $option : null;
+							/**
+							 * Filters the resolved value of a single settings field before it is returned in the Schema.
+							 *
+							 * This gives extensions a seam to normalize or override a setting's resolved value
+							 * (for example, deriving `timezone` from the `gmt_offset` option when `timezone_string`
+							 * is empty) without adding one-off special cases to the core resolver.
+							 *
+							 * @param mixed               $value         The resolved (and type-cast) value of the setting field.
+							 * @param array<string,mixed> $setting_field The setting field config, including its `key` and `type`.
+							 * @param string              $group_name    The name of the settings group the field belongs to.
+							 *
+							 * @since x-release-please-version
+							 */
+							return apply_filters( 'graphql_setting_field_value', $value, $setting_field, $group_name );
 						},
 					];
 				}
@@ -127,5 +147,30 @@ class SettingGroup {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * Default callback for the `graphql_setting_field_value` filter.
+	 *
+	 * When a site is configured with a manual UTC offset instead of a named timezone,
+	 * WordPress stores the offset in the `gmt_offset` option and leaves `timezone_string`
+	 * empty. The `timezone` field maps to `timezone_string`, so without this fallback it
+	 * would resolve to an empty string. Here we defer to `wp_timezone_string()`, which
+	 * returns the named timezone when set and otherwise builds an offset string (e.g. `+02:00`)
+	 * from `gmt_offset`.
+	 *
+	 * @param mixed               $value         The resolved value of the setting field.
+	 * @param array<string,mixed> $setting_field The setting field config, including its `key` and `type`.
+	 *
+	 * @return mixed
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function resolve_default_setting_field_value( $value, array $setting_field ) {
+		if ( isset( $setting_field['key'] ) && 'timezone_string' === $setting_field['key'] && empty( $value ) ) {
+			return wp_timezone_string();
+		}
+
+		return $value;
 	}
 }
