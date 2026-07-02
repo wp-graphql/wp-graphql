@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.17.0\n"
+"Project-Id-Version: WPGraphQL 2.18.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-24T22:08:11+00:00\n"
+"POT-Creation-Date: 2026-07-02T04:07:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -2482,79 +2482,83 @@ msgstr ""
 msgid "Show posts with a specific password."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:395
+#: src/Type/Connection/PostObjects.php:385
+msgid "True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:407
 msgid "Show posts with a specific status."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:403
+#: src/Type/Connection/PostObjects.php:415
 msgid "Retrieve posts where post status is in an array."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:418
+#: src/Type/Connection/PostObjects.php:430
 #: src/Type/Connection/Users.php:238
 msgid "What parameter to use to order the objects by."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:430
+#: src/Type/Connection/PostObjects.php:442
 msgid "Filter the connection based on dates"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:442
+#: src/Type/Connection/PostObjects.php:454
 msgid "Get objects with a specific mimeType property"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:520
+#: src/Type/Connection/PostObjects.php:532
 msgid "The user that's connected as the author of the object. Use the userId for the author object."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:526
+#: src/Type/Connection/PostObjects.php:538
 msgid "Find objects connected to the author by the author's nicename"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:534
+#: src/Type/Connection/PostObjects.php:546
 msgid "Find objects connected to author(s) in the array of author's userIds"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:542
+#: src/Type/Connection/PostObjects.php:554
 msgid "Find objects NOT connected to author(s) in the array of author's userIds"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:558
+#: src/Type/Connection/PostObjects.php:570
 msgid "Category ID"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:564
+#: src/Type/Connection/PostObjects.php:576
 msgid "Use Category Slug"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:572
-#: src/Type/Connection/PostObjects.php:580
+#: src/Type/Connection/PostObjects.php:584
+#: src/Type/Connection/PostObjects.php:592
 msgid "Array of category IDs, used to display objects from one category OR another"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:595
+#: src/Type/Connection/PostObjects.php:607
 msgid "Tag Slug"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:601
+#: src/Type/Connection/PostObjects.php:613
 msgid "Use Tag ID"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:609
-#: src/Type/Connection/PostObjects.php:617
+#: src/Type/Connection/PostObjects.php:621
+#: src/Type/Connection/PostObjects.php:629
 msgid "Array of tag IDs, used to display objects from one tag OR another"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:625
+#: src/Type/Connection/PostObjects.php:637
 msgid "Array of tag slugs, used to display objects from one tag AND another"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:633
+#: src/Type/Connection/PostObjects.php:645
 msgid "Array of tag slugs, used to include objects in ANY specified tags"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:646
-#: src/Type/Connection/PostObjects.php:662
+#: src/Type/Connection/PostObjects.php:658
+#: src/Type/Connection/PostObjects.php:674
 msgid "The Types of content to filter"
 msgstr ""
 
@@ -3514,7 +3518,7 @@ msgid "A paginated relationship between objects. Supports cursor-based paginatio
 msgstr ""
 
 #: src/Type/InterfaceType/Connection.php:27
-#: src/Type/WPConnectionType.php:480
+#: src/Type/WPConnectionType.php:485
 msgid "Information about pagination in a connection."
 msgstr ""
 
@@ -5134,92 +5138,92 @@ msgstr ""
 #. translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
 #. translators: the placeholders are the name of the Types the connection is between.
 #: src/Type/WPConnectionType.php:339
-#: src/Type/WPConnectionType.php:457
-#: src/Type/WPConnectionType.php:562
+#: src/Type/WPConnectionType.php:462
+#: src/Type/WPConnectionType.php:567
 #, php-format
 msgid "Connection between the %1$s type and the %2$s type"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:349
+#: src/Type/WPConnectionType.php:353
 msgid "The node of the connection, without the edges"
 msgstr ""
 
 #. translators: %s is the name of the connection.
-#: src/Type/WPConnectionType.php:377
+#: src/Type/WPConnectionType.php:380
 #, php-format
 msgid "Pagination metadata specific to \"%1$s\" collections. Provides cursors and flags for navigating through sets of %2$s Nodes."
 msgstr ""
 
-#: src/Type/WPConnectionType.php:406
+#: src/Type/WPConnectionType.php:409
 msgid "An edge in a connection"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:414
+#: src/Type/WPConnectionType.php:421
 msgid "A cursor for use in pagination"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:422
+#: src/Type/WPConnectionType.php:428
 msgid "The item at the end of the edge"
 msgstr ""
 
 #. translators: %s is the name of the connection.
-#: src/Type/WPConnectionType.php:487
+#: src/Type/WPConnectionType.php:492
 #, php-format
 msgid "Edges for the %s connection"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:493
+#: src/Type/WPConnectionType.php:498
 msgid "The nodes of the connection, without the edges"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:514
+#: src/Type/WPConnectionType.php:519
 msgid "The number of items to return after the referenced \"after\" cursor"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:520
+#: src/Type/WPConnectionType.php:525
 msgid "The number of items to return before the referenced \"before\" cursor"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:526
+#: src/Type/WPConnectionType.php:531
 msgid "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:532
+#: src/Type/WPConnectionType.php:537
 msgid "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
 msgstr ""
 
 #. translators: %s is the name of the connection edge.
-#: src/Type/WPConnectionType.php:599
+#: src/Type/WPConnectionType.php:604
 #, php-format
 msgid "Pagination metadata specific to \"%1$s\" collections. Provides cursors and flags for navigating through sets of \"%2$s\" Nodes."
 msgstr ""
 
 #. translators: %s is the name of the type the connection edge is to.
-#: src/Type/WPConnectionType.php:613
+#: src/Type/WPConnectionType.php:618
 #, php-format
 msgid "Represents a connection to a %1$s. Contains both the %2$s Node and metadata about the relationship."
 msgstr ""
 
 #. translators: %s is the name of the type the connection edge is to.
-#: src/Type/WPConnectionType.php:620
+#: src/Type/WPConnectionType.php:625
 #, php-format
 msgid "The connected %s Node"
 msgstr ""
 
 #. translators: %s is the name of the type the connection is to.
-#: src/Type/WPConnectionType.php:635
+#: src/Type/WPConnectionType.php:640
 #, php-format
 msgid "A paginated collection of %1$s Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of %2$s Nodes"
 msgstr ""
 
 #. translators: %1$s is the name of the type the connection is from, %2$s is the name of the type the connection is to.
-#: src/Type/WPConnectionType.php:643
+#: src/Type/WPConnectionType.php:648
 #, php-format
 msgid "A list of edges (relational context) between %1$s and connected %2$s Nodes"
 msgstr ""
 
 #. translators: %s is the name of the type the connection is to.
-#: src/Type/WPConnectionType.php:656
+#: src/Type/WPConnectionType.php:661
 #, php-format
 msgid "A list of connected %s Nodes"
 msgstr ""
