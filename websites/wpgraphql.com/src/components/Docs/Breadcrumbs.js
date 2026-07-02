@@ -13,9 +13,7 @@ export default function Breadcrumbs({ items }) {
   }
 
   return (
-    // lg:-mt-2 compensates for the article column's py-12 vs the sidebar
-    // rails' py-10, so the trail top-aligns with the sidebar headings.
-    <nav aria-label="Breadcrumb" className="not-prose mb-4 lg:-mt-2">
+    <nav aria-label="Breadcrumb" className="not-prose mb-4">
       <ol className="flex flex-wrap items-center gap-1.5 font-mono text-xs tracking-wide text-muted-foreground">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
