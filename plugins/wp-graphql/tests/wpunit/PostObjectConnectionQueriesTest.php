@@ -1508,6 +1508,53 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->clearSchema();
 	}
 
+	/**
+	 * When two distinct templates would map to the same enum name (e.g. a classic
+	 * `my-template.php` and a block-theme `my-template`), each must still get a unique,
+	 * filterable enum value rather than one being silently dropped.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
+	 *
+	 * @throws \Exception
+	 */
+	public function testContentTemplateEnumDisambiguatesCollidingTemplates() {
+		// A classic `.php` template and a block-theme slug that collapse to the same base name.
+		$register = static function ( $templates ) {
+			$templates['my-template.php'] = 'My Template (classic)';
+			$templates['my-template']     = 'My Template (block)';
+			return $templates;
+		};
+		add_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+
+		$classic_page = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Classic Template' ] );
+		$block_page   = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Block Template' ] );
+		update_post_meta( $classic_page, '_wp_page_template', 'my-template.php' );
+		update_post_meta( $block_page, '_wp_page_template', 'my-template' );
+
+		$query = '
+		query( $template: ContentTemplateEnum ) {
+			pages( first: 100, where: { template: $template } ) {
+				nodes { databaseId }
+			}
+		}
+		';
+
+		// On collision each template is qualified by its kind (never by the leaked file
+		// extension): the block-theme template becomes `MY_TEMPLATE_BLOCK_TEMPLATE` and the
+		// classic one `MY_TEMPLATE_CONTENT_TEMPLATE`. Both remain filterable.
+		$block_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_TEMPLATE_BLOCK_TEMPLATE' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $block_result );
+		$this->assertEquals( [ $block_page ], wp_list_pluck( $block_result['data']['pages']['nodes'], 'databaseId' ), 'MY_TEMPLATE_BLOCK_TEMPLATE should resolve to the block-theme template' );
+
+		$classic_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_TEMPLATE_CONTENT_TEMPLATE' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $classic_result );
+		$this->assertEquals( [ $classic_page ], wp_list_pluck( $classic_result['data']['pages']['nodes'], 'databaseId' ), 'MY_TEMPLATE_CONTENT_TEMPLATE should resolve to the classic template' );
+
+		remove_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+	}
+
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 
