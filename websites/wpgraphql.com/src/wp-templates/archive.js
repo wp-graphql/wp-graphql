@@ -1,7 +1,7 @@
 import gql from "graphql-tag"
-import Link from "next/link"
 
 import SiteLayout from "components/Site/SiteLayout"
+import PreviewCard from "components/Preview/PreviewCard"
 import DocsLayout from "components/Docs/DocsLayout"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 import recipesIndex from "generated/recipes-index.json"
@@ -136,21 +136,20 @@ export default function Archive({ data }) {
               return (
                 <section key={groupName}>
                   <h2 id={groupHeading?.id}>{groupName}</h2>
-                  {groupItems.map((recipe) => (
-                    <div key={recipe.id || recipe.uri}>
-                      <h3>
-                        <Link href={recipe.uri}>{recipe.title}</Link>
-                      </h3>
-                      {recipe.summary ? (
-                        <p>{recipe.summary}</p>
-                      ) : recipe?.content ? (
-                        <p>{getExcerpt(recipe.content)}</p>
-                      ) : null}
-                      <p>
-                        <Link href={recipe.uri}>View recipe</Link>
-                      </p>
-                    </div>
-                  ))}
+                  <div className="not-prose grid gap-5">
+                    {groupItems.map((recipe) => (
+                      <PreviewCard
+                        key={recipe.id || recipe.uri}
+                        title={recipe.title}
+                        excerpt={
+                          recipe.summary ||
+                          (recipe?.content ? getExcerpt(recipe.content) : "")
+                        }
+                        href={recipe.uri}
+                        cta="View recipe"
+                      />
+                    ))}
+                  </div>
                 </section>
               )
             })}
