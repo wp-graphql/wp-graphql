@@ -1422,7 +1422,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 * The `template` where arg is a ContentTemplateEnum built from the templates registered for the
 	 * active theme. Each value maps a schema-friendly, kind-qualified name (e.g. a classic
 	 * `full-width.php` -> `FULL_WIDTH_TEMPLATE`, a block `page-no-title` -> `PAGE_NO_TITLE_BLOCK_TEMPLATE`)
-	 * to the underlying identifier, plus `DEFAULT` for content with no specific template assigned.
+	 * to the underlying identifier, plus `DEFAULT_TEMPLATE` for content with no specific template assigned.
 	 * Per-post template assignment uses the same storage for classic templates (a `.php` file name)
 	 * and block-theme custom templates (a slug).
 	 *
@@ -1491,19 +1491,19 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
 		$this->assertEquals( [ $block_template ], $actual_ids, 'template should match a block-theme template slug' );
 
-		// `DEFAULT` matches content with no specific template assigned.
+		// `DEFAULT_TEMPLATE` matches content with no specific template assigned.
 		$actual = $this->graphql(
 			[
 				'query'     => $query,
-				'variables' => [ 'template' => 'DEFAULT' ],
+				'variables' => [ 'template' => 'DEFAULT_TEMPLATE' ],
 			]
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
-		$this->assertContains( $no_template, $actual_ids, 'DEFAULT should include pages with no template' );
-		$this->assertNotContains( $full_width_one, $actual_ids, 'DEFAULT should exclude templated pages' );
-		$this->assertNotContains( $block_template, $actual_ids, 'DEFAULT should exclude templated pages' );
+		$this->assertContains( $no_template, $actual_ids, 'DEFAULT_TEMPLATE should include pages with no template' );
+		$this->assertNotContains( $full_width_one, $actual_ids, 'DEFAULT_TEMPLATE should exclude templated pages' );
+		$this->assertNotContains( $block_template, $actual_ids, 'DEFAULT_TEMPLATE should exclude templated pages' );
 
 		remove_filter( 'theme_page_templates', $register_templates );
 		$this->clearSchema();

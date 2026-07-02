@@ -41,7 +41,7 @@ class ContentTemplateEnum {
 		// Always include the default option so the enum is never empty and callers can
 		// filter for content that uses no specific template.
 		$values = [
-			'DEFAULT' => [
+			'DEFAULT_TEMPLATE' => [
 				'value'       => 'default',
 				'description' => static function () {
 					return __( 'The default template, applied when no specific template is assigned.', 'wp-graphql' );
@@ -73,7 +73,7 @@ class ContentTemplateEnum {
 		// existing one (e.g. adding a classic `page-no-title.php` alongside a block
 		// `page-no-title` adds PAGE_NO_TITLE_TEMPLATE without touching
 		// PAGE_NO_TITLE_BLOCK_TEMPLATE).
-		$used_names = [ 'DEFAULT' => true ];
+		$used_names = [ 'DEFAULT_TEMPLATE' => true ];
 		foreach ( $templates as $file => $name ) {
 			$enum_name = self::get_enum_name( $file );
 
