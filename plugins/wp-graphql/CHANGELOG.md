@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.18.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.17.0...wp-graphql/v2.18.0) (2026-07-02)
+
+
+### New Features
+
+* add isSticky where arg to post connections ([#4002](https://github.com/wp-graphql/wp-graphql/issues/4002)) ([65f1602](https://github.com/wp-graphql/wp-graphql/commit/65f16029f90668cc1400b45875774a0b43f3a620))
+* **deps:** bump @wordpress/components from 27.6.0 to 34.0.0 ([#4011](https://github.com/wp-graphql/wp-graphql/issues/4011)) ([40c346f](https://github.com/wp-graphql/wp-graphql/commit/40c346f24bc5e6785e718cef3a560058ea4825b0))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4010](https://github.com/wp-graphql/wp-graphql/issues/4010)) ([fa2d23d](https://github.com/wp-graphql/wp-graphql/commit/fa2d23d51aa1887b79e3752dd080b4b46c80cb72))
+
+
+### Bug Fixes
+
+* allow public menuItems queries to opt out of the location restriction ([#4000](https://github.com/wp-graphql/wp-graphql/issues/4000)) ([d0b0bdb](https://github.com/wp-graphql/wp-graphql/commit/d0b0bdb5bbd0b61cb6f32a7ae31d0caa8896abd5))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015)) ([0c24553](https://github.com/wp-graphql/wp-graphql/commit/0c245535a49cde2172d4718e21a216eb98e9b237))
+* **deps:** bump webonyx/graphql-php from 15.33.0 to 15.33.1 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4007](https://github.com/wp-graphql/wp-graphql/issues/4007)) ([8bbced8](https://github.com/wp-graphql/wp-graphql/commit/8bbced82057389d1bafb9291feb209f514f9fc38))
+* don't deprecate connection edge node/cursor fields ([#4006](https://github.com/wp-graphql/wp-graphql/issues/4006)) ([a739a75](https://github.com/wp-graphql/wp-graphql/commit/a739a75e365be74594bdcd5983b9510ebbbb8dcb))
+* don't force a SQL LIMIT on childOf term queries ([#4001](https://github.com/wp-graphql/wp-graphql/issues/4001)) ([458b5dd](https://github.com/wp-graphql/wp-graphql/commit/458b5dd698744db6417755a01826281ce31d9aa9))
+* read use_featured_image for the PostType useFeaturedImage label ([#3997](https://github.com/wp-graphql/wp-graphql/issues/3997)) ([db63063](https://github.com/wp-graphql/wp-graphql/commit/db6306315b9ea0a2f74541bb872ab0050bbb4d45))
+* use the role slug when building UserRoleEnum descriptions ([#3996](https://github.com/wp-graphql/wp-graphql/issues/3996)) ([85e48fe](https://github.com/wp-graphql/wp-graphql/commit/85e48fe9862f2c65ba243e7a631e721e880da436))
+
 ## [2.17.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.16.0...wp-graphql/v2.17.0) (2026-06-24)
 
 
