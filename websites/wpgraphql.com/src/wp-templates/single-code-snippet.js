@@ -1,5 +1,6 @@
 import gql from "graphql-tag"
 import DocsLayout from "components/Docs/DocsLayout"
+import Breadcrumbs from "components/Docs/Breadcrumbs"
 import Link from "next/link"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 import recipesIndex from "generated/recipes-index.json"
@@ -104,6 +105,13 @@ export default function SingleRecipe({ data }) {
         className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
       >
         <article>
+          <Breadcrumbs
+            items={[
+              { label: "Developer Reference", href: "/developer-reference" },
+              { label: "Recipes", href: "/recipes" },
+              ...(node.title ? [{ label: node.title }] : []),
+            ]}
+          />
           <header>
             {node.title ? <h1>{node.title}</h1> : null}
             {excerpt ? <p>{excerpt}</p> : null}

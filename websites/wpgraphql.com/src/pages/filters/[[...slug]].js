@@ -1,6 +1,7 @@
 import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
+import Breadcrumbs from "components/Docs/Breadcrumbs"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
@@ -30,8 +31,18 @@ export default function FilterDocPage({
   toc,
   docsNavData,
   layoutData,
+  docSlug,
   hasMarkdownH1,
 }) {
+  const isIndex = docSlug === "filters/index"
+  const currentLabel =
+    source?.frontmatter?.title || docSlug?.split("/").pop() || ""
+  const breadcrumbItems = [
+    { label: "Developer Reference", href: "/developer-reference" },
+    { label: "Filters", href: "/filters" },
+    ...(isIndex ? [] : [{ label: currentLabel }]),
+  ]
+
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData}>
@@ -39,8 +50,9 @@ export default function FilterDocPage({
           id="content-wrapper"
           className="relative z-20 mt-8 max-w-none prose"
         >
+          <Breadcrumbs items={breadcrumbItems} />
           {source?.frontmatter?.title && !hasMarkdownH1 && (
-            <header className="relative z-20 -mt-8">
+            <header className="relative z-20">
               <h1>{source.frontmatter.title}</h1>
             </header>
           )}
@@ -69,6 +81,7 @@ export async function getStaticProps({ params }) {
         source,
         docsNavData,
         layoutData,
+        docSlug,
         hasMarkdownH1,
       },
       revalidate: 30,
