@@ -1,12 +1,36 @@
-import Image from "next/image"
+import { WPGraphQLLogo, WPGraphQLLogoMark } from "./WPGraphQLLogo"
 
-export default function SiteLogo(props) {
+/**
+ * Renders the WPGraphQL identity. By default shows the wordmark + sub-label
+ * lockup; pass `markOnly` to render just the elephant mark.
+ */
+export default function SiteLogo({
+  width,
+  height,
+  size,
+  markOnly,
+  variant = "default",
+  subLabel,
+  className,
+}) {
+  const resolvedSize = size ?? width ?? height ?? 40
+
+  if (markOnly) {
+    return (
+      <WPGraphQLLogoMark
+        size={resolvedSize}
+        variant={variant}
+        className={className}
+      />
+    )
+  }
+
   return (
-    <Image
-      width={props?.width ?? 42}
-      height={props?.height ?? 42}
-      src="/logo-wpgraphql.svg"
-      alt="WPGraphQL Logo"
+    <WPGraphQLLogo
+      size={resolvedSize}
+      variant={variant}
+      subLabel={subLabel}
+      className={className}
     />
   )
 }

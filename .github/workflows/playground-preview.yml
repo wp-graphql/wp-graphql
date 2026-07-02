@@ -1,0 +1,154 @@
+name: Playground Preview
+
+# Builds the IDE plugin from the PR commit and uploads the ZIP as a
+# workflow artifact, plus a tiny metadata file with the PR number and
+# head SHA. The sticky preview comment is posted by a sibling workflow
+# (`playground-preview-comment.yml`) triggered on `workflow_run` so it
+# runs in the base repo context — required to comment on PRs from
+# forks, where `pull_request`'s `GITHUB_TOKEN` is read-only by design.
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/wp-graphql-ide/**'
+      - '.github/workflows/playground-preview.yml'
+      - '.github/workflows/playground-preview-comment.yml'
+
+# No pull-requests:write here — fork PRs would silently get it
+# downgraded to read anyway, and the actual commenting happens in the
+# sibling workflow on workflow_run.
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run -w @wpgraphql/wp-graphql-ide build
+
+      # Smoke-test the built ZIP before we hand it to Playground.
+      # Catches the regression where `package.json`'s `files` list
+      # drifts out of sync with the entry file's `require_once`
+      # graph — that's the bug that surfaced in Playground as a
+      # silent `PHP.run() failed with exit code 255` (the fatal
+      # happened before any output buffer could flush). Cheap; just
+      # parses the entry file and asserts each required path is in
+      # the archive.
+      - name: Verify plugin ZIP contents
+        run: |
+          npm run -w @wpgraphql/wp-graphql-ide test:unit -- \
+            tests/unit/specs/distribution/plugin-zip.test.js
+
+      # `actions/upload-artifact` wraps whatever it's given in a ZIP
+      # automatically (that wrapper ZIP is what the user — or Playground
+      # via nightly.link — downloads). Uploading our built
+      # `wp-graphql-ide.zip` as a file therefore produces a DOUBLE-zipped
+      # download: extract one level and you've got the inner ZIP, not
+      # the plugin directory. Playground's `installPlugin` extracts
+      # exactly one level, finds the inner ZIP, can't locate a plugin
+      # dir at `wp-content/plugins/wp-graphql-ide`, and the subsequent
+      # `activatePlugin` step fails.
+      #
+      # Extract our properly-structured ZIP into a staging dir and
+      # upload THAT — GitHub's artifact wrapper then becomes the one
+      # and only ZIP layer. The resulting download contains
+      # `wp-graphql-ide/<files>` at its root, which is exactly what
+      # Playground expects.
+      - name: Stage plugin contents for artifact upload
+        run: |
+          set -euo pipefail
+          STAGING=plugins/wp-graphql-ide/playground-artifact
+          rm -rf "$STAGING"
+          mkdir -p "$STAGING"
+          unzip -q plugins/wp-graphql-ide/wp-graphql-ide.zip -d "$STAGING"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: wp-graphql-ide
+          path: plugins/wp-graphql-ide/playground-artifact/
+          if-no-files-found: error
+
+      # Build the Playground URL once, here. Both surfaces — the step
+      # summary on this run and the sticky PR comment on the sibling
+      # workflow_run workflow — read the same URL from the pr-meta
+      # artifact so the blueprint lives in exactly one place.
+      #
+      # nightly.link proxies the workflow artifact (same run_id) to a
+      # public URL Playground can fetch — no extra hosting infra.
+      - id: playground
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          BLUEPRINT=$(cat <<JSON
+          {
+            "preferredVersions": { "php": "8.3", "wp": "latest" },
+            "features": { "networking": true },
+            "login": true,
+            "landingPage": "/wp-admin/admin.php?page=graphql-ide",
+            "steps": [
+              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://downloads.wordpress.org/plugin/wp-graphql.latest-stable.zip" }, "options": { "activate": true } },
+              { "step": "installPlugin", "pluginData": { "resource": "url", "url": "https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" }, "options": { "activate": true } }
+            ]
+          }
+          JSON
+          )
+          ENCODED=$(printf '%s' "$BLUEPRINT" | base64 -w0)
+          echo "url=https://playground.wordpress.net/#${ENCODED}" >> "$GITHUB_OUTPUT"
+          echo "artifact_url=https://nightly.link/${REPO}/actions/runs/${RUN_ID}/wp-graphql-ide.zip" >> "$GITHUB_OUTPUT"
+
+      # Step summary surfaces the link on the workflow run page itself —
+      # works on fork PRs (no write permission needed) and gives a
+      # touchpoint even before the sticky comment workflow lands.
+      # Follows the WordPress Playground "Open in Playground" badge
+      # convention (shields.io badge → playground.wordpress.net#blueprint).
+      - name: Write Playground link to step summary
+        env:
+          URL: ${{ steps.playground.outputs.url }}
+          ARTIFACT_URL: ${{ steps.playground.outputs.artifact_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          {
+            echo "## ▶ Preview in WordPress Playground"
+            echo
+            echo "[![Open in WordPress Playground](https://img.shields.io/badge/Open%20in-WordPress%20Playground-3858E9?logo=wordpress&logoColor=white)](${URL})"
+            echo
+            echo "Boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE."
+            echo
+            echo "<sub>Built from \`${HEAD_SHA}\` · Artifact: [\`wp-graphql-ide.zip\`](${ARTIFACT_URL})</sub>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Stash the PR number, head SHA, and the assembled Playground URL
+      # in an artifact so the sibling workflow_run-triggered workflow
+      # can post/update the sticky comment without rebuilding the URL
+      # or doing a GitHub API lookup. The workflow_run event exposes
+      # `head_sha` but not the PR number, so this is the reliable
+      # handoff path.
+      - name: Save PR metadata
+        env:
+          URL: ${{ steps.playground.outputs.url }}
+        run: |
+          mkdir -p pr-meta
+          {
+            echo "PR_NUMBER=${{ github.event.pull_request.number }}"
+            echo "HEAD_SHA=${{ github.event.pull_request.head.sha }}"
+            # Single-quote the URL — the base64 blueprint includes `=`
+            # padding and the fragment marker `#`, both of which need
+            # to survive `source pr-meta.env` in the comment workflow.
+            echo "PLAYGROUND_URL='${URL}'"
+          } > pr-meta/pr-meta.env
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pr-meta
+          path: pr-meta/pr-meta.env
+          if-no-files-found: error

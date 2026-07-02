@@ -2,9 +2,9 @@
 Contributors: jasonbahl
 Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
-Tested up to: 6.5
+Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 2.5.2
+Stable tag: 2.6.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -100,7 +100,15 @@ WPGraphQL for Advanced Custom Fields uses [Appsero](https://appsero.com) SDK to 
 
 The Appsero SDK **doesn't collect data by default** and only starts gathering basic telemetry data when a user allows it via the admin notice. No data is collected without user consent.
 
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
+
 Learn more about how [Appsero collects and uses data](https://appsero.com/privacy-policy/).
+
+== Screenshots ==
+
+1. Configure a Field Group for GraphQL — toggle "Show in GraphQL", set the GraphQL type name, and choose which schema types it shows on.
+2. ACF field groups and fields appear automatically in the GraphQL schema, explored here in the WPGraphQL IDE.
+3. Per-field GraphQL settings — control the field's GraphQL name, description, and nullability in the schema.
 
 == Upgrade Notice ==
 
@@ -119,6 +127,53 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://acf.wpgraphql.com/upgrade-guide/) before upgrading.
 
 == Changelog ==
+
+= 2.6.4 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump eslint from 8.57.1 to 10.4.0 ([#3977](https://github.com/wp-graphql/wp-graphql/issues/3977))
+* **deps-dev:** bump globals from 16.5.0 to 17.6.0 ([#4013](https://github.com/wp-graphql/wp-graphql/issues/4013))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-acf ([#3982](https://github.com/wp-graphql/wp-graphql/issues/3982))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-acf ([#3980](https://github.com/wp-graphql/wp-graphql/issues/3980))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015))
+* **deps-dev:** bump the wp-graphql-acf-composer-dev-minor-patch group in /plugins/wp-graphql-acf with 2 updates ([#3938](https://github.com/wp-graphql/wp-graphql/issues/3938))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960))
+* **wp-graphql-acf:** detect renamed Content Blocks constant so the integration loads ([#4005](https://github.com/wp-graphql/wp-graphql/issues/4005))
+* **wp-graphql-acf:** migrate ESLint to flat config for ESLint 10 ([#3995](https://github.com/wp-graphql/wp-graphql/issues/3995))
+* **wp-graphql-acf:** mock oEmbed in tests and unskip clone-field tests ([#3867](https://github.com/wp-graphql/wp-graphql/issues/3867))
+
+= 2.6.3 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.10.1 to 2.10.4 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3887](https://github.com/wp-graphql/wp-graphql/issues/3887))
+* **deps-dev:** bump php-stubs/acf-pro-stubs from 6.5.0 to 6.5.0.1 in /plugins/wp-graphql-acf ([#3888](https://github.com/wp-graphql/wp-graphql/issues/3888))
+
+= 2.6.2 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.9.0 to 2.10.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3873](https://github.com/wp-graphql/wp-graphql/issues/3873))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-acf ([#3855](https://github.com/wp-graphql/wp-graphql/issues/3855))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-acf ([#3862](https://github.com/wp-graphql/wp-graphql/issues/3862))
+
+= 2.6.1 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump composer/composer from 2.2.27 to 2.2.28 in /plugins/wp-graphql-acf ([#3833](https://github.com/wp-graphql/wp-graphql/issues/3833))
+
+= 2.6.0 =
+
+**New Features**
+
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785))
+
+**Bug Fixes**
+
+* **deps-dev:** bump composer/composer from 2.2.26 to 2.2.27 in /plugins/wp-graphql-acf ([#3774](https://github.com/wp-graphql/wp-graphql/issues/3774))
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744))
 
 = 2.5.2 =
 

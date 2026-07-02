@@ -1,0 +1,54 @@
+name: Cleanup PR caches
+
+# When a pull request is closed (merged or not), delete the GitHub Actions
+# caches it created. Caches from a PR run are scoped to refs/pull/<number>/merge
+# and otherwise linger until GitHub LRU-evicts them.
+#
+# The integration test suite is cache-heavy (composer, npm, Playwright) and the
+# repo's 10GB Actions cache budget was thrashing — once over the limit, GitHub
+# evicts least-recently-used caches, which meant the caches that actually speed
+# jobs up kept getting dropped. Proactively reclaiming closed-PR caches keeps the
+# useful base-branch caches hot.
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Delete caches for closed PR
+    runs-on: ubuntu-latest
+    permissions:
+      # Required to delete Actions caches via the API.
+      actions: write
+      contents: read
+    steps:
+      - name: Delete caches for this PR's ref
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          gh extension install actions/gh-actions-cache || true
+
+          echo "Fetching caches for $PR_REF ..."
+          cache_keys=$(gh actions-cache list -R "$GH_REPO" -B "$PR_REF" --limit 100 | cut -f1)
+
+          if [ -z "$cache_keys" ]; then
+            echo "No caches found for $PR_REF — nothing to clean up."
+            exit 0
+          fi
+
+          echo "Deleting $(echo "$cache_keys" | wc -l | tr -d ' ') cache(s) for $PR_REF:"
+          # Best-effort: don't abort the whole job if a single delete fails
+          # (e.g. the cache was already evicted between list and delete).
+          set +e
+          for key in $cache_keys; do
+            echo "  - $key"
+            gh actions-cache delete "$key" -R "$GH_REPO" -B "$PR_REF" --confirm
+          done
+          echo "Cache cleanup complete."

@@ -1,14 +1,12 @@
-import { gql } from "@apollo/client"
 import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
-import { NavMenuFragment } from "components/Site/SiteHeader"
+import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
+import "lib/wpgraphql-client-config"
 
-import { getParsedDoc, getDocsNav, getAllDocUri } from "lib/parse-mdx-docs"
+import { getAllDocUri, getDocsNav, getParsedDoc } from "lib/parse-mdx-docs"
 
 import components from "components/Docs/MdxComponents"
-
-import { getApolloClient, addApolloState } from "@faustwp/core/dist/mjs/client"
 
 function toDocSlug(slugParam) {
   if (Array.isArray(slugParam)) {
@@ -40,21 +38,23 @@ function toSlugParams(uri) {
   return { params: { slug: slug.split("/") } }
 }
 
-export default function Doc({ source, toc, docsNavData, hasMarkdownH1 }) {
+export default function Doc({ source, toc, docsNavData, layoutData, hasMarkdownH1 }) {
   return (
-    <DocsLayout toc={toc} docsNavData={docsNavData}>
-      <div
-        id="content-wrapper"
-        className="relative z-20 prose mt-8 prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
-      >
-        {source?.frontmatter?.title && !hasMarkdownH1 && (
-          <header className="relative z-20 -mt-8">
-            <h1>{source.frontmatter.title}</h1>
-          </header>
-        )}
-        <MDXRemote {...source} components={components} />
-      </div>
-    </DocsLayout>
+    <LayoutProvider value={layoutData}>
+      <DocsLayout toc={toc} docsNavData={docsNavData}>
+        <div
+          id="content-wrapper"
+          className="relative z-20 mt-8 prose"
+        >
+          {source?.frontmatter?.title && !hasMarkdownH1 && (
+            <header className="relative z-20 -mt-8">
+              <h1>{source.frontmatter.title}</h1>
+            </header>
+          )}
+          <MDXRemote {...source} components={components} />
+        </div>
+      </DocsLayout>
+    </LayoutProvider>
   )
 }
 
@@ -68,30 +68,25 @@ export async function getStaticProps({ params }) {
   try {
     const { source, toc, hasMarkdownH1 } = await getParsedDoc(docSlug)
     const docsNavData = await getDocsNav()
-    const apolloClient = getApolloClient()
+    const layoutData = await getLayoutData()
 
-    await apolloClient.query({
-      query: gql`
-        query NavQuery {
-          ...NavMenu
-        }
-        ${NavMenuFragment}
-      `,
-    })
-
-    return addApolloState(apolloClient, {
+    return {
       props: {
         toc,
         source,
         docsNavData,
         hasMarkdownH1,
+        layoutData,
       },
       revalidate: 30,
-    })
+    }
   } catch (e) {
     if (e.notFound) {
       console.error(params, e)
-      return e
+      // Include revalidate so a transient build-time fetch failure can't
+      // permanently cache a 404 — without this, ISR never retries the page
+      // even after the underlying .md file becomes reachable again.
+      return { notFound: true, revalidate: 30 }
     }
 
     throw e
@@ -99,35 +94,17 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-  const apolloClient = getApolloClient()
-
-  const { data } = await apolloClient.query({
-    query: gql`
-      query PrebuildDocsQuery {
-        menu(id: "Primary Nav", idType: NAME) {
-          menuItems {
-            nodes {
-              parentDatabaseId
-              uri
-            }
-          }
-        }
-      }
-    `,
-  })
-
-  // Adds prerendering for Docs linked from main nav menu
-  const docsMenuPaths = data?.menu?.menuItems?.nodes?.reduce((acc, menuItem) => {
-    if (menuItem.parentDatabaseId !== 0 && menuItem.uri.startsWith("/docs")) {
-      acc.push(menuItem.uri)
-    }
-
-    return acc
-  }, [])
-
-  const generatedDocPaths = await getAllDocUri()
-  const allPaths = [...new Set([...(docsMenuPaths ?? []), ...generatedDocPaths])]
-  const paths = allPaths.map((uri) => toSlugParams(uri)).filter(Boolean)
+  // Pre-render paths sourced from the actual .md files in the docs folder,
+  // not from the WordPress Primary Nav menu. The menu only references ~4 docs
+  // out of ~50, and any drift between menu URIs and real files produced
+  // permanent static 404s for the menu-linked docs.
+  let paths = []
+  try {
+    const uris = await getAllDocUri()
+    paths = uris.map((uri) => toSlugParams(uri)).filter(Boolean)
+  } catch (e) {
+    console.error("getStaticPaths: failed to enumerate docs from GitHub", e)
+  }
 
   return {
     paths,

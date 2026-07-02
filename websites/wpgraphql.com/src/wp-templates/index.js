@@ -13,13 +13,13 @@ const templates = {
   author,
   archive,
   "archive-post": ArchivePost,
-  "single-code-snippets": singleCodeSnippet,
-  "single-functions": SingleDeveloperReference,
-  "single-actions": SingleDeveloperReference,
-  "single-filters": SingleDeveloperReference,
+  "single-code-snippet": singleCodeSnippet,
+  "single-function": SingleDeveloperReference,
+  "single-action": SingleDeveloperReference,
+  "single-filter": SingleDeveloperReference,
   singular,
   "front-page": FrontPage,
-  "home": ArchivePost,
+  home: ArchivePost,
   index,
 }
 

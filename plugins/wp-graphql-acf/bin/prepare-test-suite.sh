@@ -44,6 +44,14 @@ if [ -n "$ACF_EXTENDED_PLUGIN_SLUG" ]; then
   ACTIVATE_PLUGINS_YAML="${ACTIVATE_PLUGINS_YAML}"$'\n'"        - ${ACF_EXTENDED_PLUGIN_SLUG}"
 fi
 
+# Add WPGraphQL Content Blocks if detected (only needs WPGraphQL active).
+# Without this, the integration's gate constant is never defined under WPLoader and the
+# testFieldOnAcfBlock family silently auto-skips.
+if [ -n "$WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG" ]; then
+  PLUGINS_YAML="${PLUGINS_YAML}"$'\n'"        - ${WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG}"
+  ACTIVATE_PLUGINS_YAML="${ACTIVATE_PLUGINS_YAML}"$'\n'"        - ${WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG}"
+fi
+
 # Create wpunit suite file
 WPUNIT_SUITE_FILE="tests/wpunit.suite.yml"
 cat > "$WPUNIT_SUITE_FILE" << EOF
@@ -153,4 +161,4 @@ ${ACTIVATE_PLUGINS_YAML}
 bootstrap: bootstrap.php
 EOF
 
-echo "Created $WPUNIT_SUITE_FILE, $FUNCTIONAL_SUITE_FILE, and $ACCEPTANCE_SUITE_FILE with plugins: wp-graphql/wp-graphql.php wpgraphql-acf/wpgraphql-acf.php${ACF_PLUGIN_SLUG:+ }${ACF_PLUGIN_SLUG}${ACF_EXTENDED_PLUGIN_SLUG:+ }${ACF_EXTENDED_PLUGIN_SLUG}"
+echo "Created $WPUNIT_SUITE_FILE, $FUNCTIONAL_SUITE_FILE, and $ACCEPTANCE_SUITE_FILE with plugins: wp-graphql/wp-graphql.php wpgraphql-acf/wpgraphql-acf.php${ACF_PLUGIN_SLUG:+ }${ACF_PLUGIN_SLUG}${ACF_EXTENDED_PLUGIN_SLUG:+ }${ACF_EXTENDED_PLUGIN_SLUG}${WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG:+ }${WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG}"

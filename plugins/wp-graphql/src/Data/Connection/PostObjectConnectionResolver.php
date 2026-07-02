@@ -185,7 +185,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If the cursor offsets not empty,
 		 * ignore sticky posts on the query
 		 */
-		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_after_offset() ) ) {
+		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_before_offset() ) ) {
 			$query_args['ignore_sticky_posts'] = true;
 		}
 
@@ -237,21 +237,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If the query is a search, the source is not another Post, and the parent input $arg is not
 		 * explicitly set in the query, unset the $query_args['post_parent'] so the search
 		 * can search all posts, not just top level posts.
+		 *
+		 * The search input arg is mapped to `s` before this point (see sanitize_input_fields).
 		 */
-		if ( ! $this->source instanceof \WP_Post && isset( $query_args['search'] ) && ! isset( $input_fields['parent'] ) ) {
+		if ( ! $this->source instanceof \WP_Post && isset( $query_args['s'] ) && ! isset( $input_fields['parent'] ) ) {
 			unset( $query_args['post_parent'] );
-		}
-
-		/**
-		 * If the query contains search default the results to
-		 */
-		if ( isset( $query_args['search'] ) && ! empty( $query_args['search'] ) ) {
-			/**
-			 * Don't order search results by title (causes funky issues with cursors)
-			 */
-			$query_args['search_orderby_title'] = false;
-			$query_args['orderby']              = 'date';
-			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
 		if ( empty( $args['where']['orderby'] ) && ! empty( $query_args['post__in'] ) ) {
@@ -426,6 +416,37 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
+		 * Filter the result set by sticky posts.
+		 *
+		 * WPGraphQL never floats sticky posts to the top of the results (ignore_sticky_posts
+		 * is always true, which is also cursor-pagination safe). Instead `isSticky` filters
+		 * the result set, modeling the WP REST API `sticky` parameter: true limits the query
+		 * to sticky posts, false excludes them.
+		 */
+		if ( isset( $where_args['isSticky'] ) ) {
+			$sticky_posts = get_option( 'sticky_posts', [] );
+			$sticky_posts = is_array( $sticky_posts ) ? array_map( 'absint', $sticky_posts ) : [];
+
+			if ( true === $where_args['isSticky'] ) {
+				// Limit to sticky posts, intersecting with any explicit `in` filter.
+				$query_args['post__in'] = ! empty( $query_args['post__in'] )
+					? array_intersect( $sticky_posts, $query_args['post__in'] )
+					: $sticky_posts;
+
+				// WP_Query ignores an empty post__in, so force an impossible ID to return no results.
+				if ( empty( $query_args['post__in'] ) ) {
+					$query_args['post__in'] = [ 0 ];
+				}
+			} elseif ( ! empty( $sticky_posts ) ) {
+				// Exclude sticky posts, merging with any explicit `notIn` filter.
+				$query_args['post__not_in'] = array_merge( // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+					! empty( $query_args['post__not_in'] ) ? $query_args['post__not_in'] : [],
+					$sticky_posts
+				);
+			}
+		}
+
+		/**
 		 * Filter the input fields
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
@@ -489,31 +510,40 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 		/**
 		 * Make sure the statuses are allowed to be queried by the current user. If so, allow it,
-		 * otherwise return null, effectively removing it from the $allowed_statuses that will
-		 * be passed to WP_Query
+		 * otherwise remove it from the $allowed_statuses that will be passed to WP_Query.
+		 *
+		 * For connections spanning multiple post types, a status is only allowed if the current
+		 * user can query it for every post type in the connection (the most restrictive choice).
 		 */
-		$allowed_statuses = array_filter(
-			array_map(
-				static function ( $status ) use ( $post_type_objects ) {
+		$allowed_statuses = array_values(
+			array_filter(
+				$statuses,
+				function ( $status ) use ( $post_type_objects ) {
 					foreach ( $post_type_objects as $post_type_object ) {
-						if ( 'publish' === $status ) {
-							return $status;
+						if ( ! $this->can_query_post_status( (string) $status, $post_type_object ) ) {
+							return false;
 						}
-
-						if ( 'private' === $status && ( ! isset( $post_type_object->cap->read_private_posts ) || ! current_user_can( $post_type_object->cap->read_private_posts ) ) ) {
-							return null;
-						}
-
-						if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
-							return null;
-						}
-
-						return $status;
 					}
-				},
-				$statuses
+
+					return true;
+				}
 			)
 		);
+
+		/**
+		 * Filters the post statuses the current user is allowed to query in this connection.
+		 *
+		 * Allows extensions to adjust which statuses are queryable (for example to expose an
+		 * additional custom status to specific users, or to further restrict access).
+		 *
+		 * @param string[]                                                $allowed_statuses   The statuses determined to be queryable by the current user.
+		 * @param string[]                                                $requested_statuses The statuses requested via the connection `stati` where arg.
+		 * @param array<\WP_Post_Type|null>                               $post_type_objects  The post type objects the connection resolves.
+		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $resolver           The connection resolver instance.
+		 *
+		 * @since 2.17.0
+		 */
+		$allowed_statuses = apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post_type_objects, $this );
 
 		/**
 		 * If there are no allowed statuses to pass to WP_Query, prevent the connection
@@ -538,6 +568,43 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Return the $allowed_statuses to the query args
 		 */
 		return $allowed_statuses;
+	}
+
+	/**
+	 * Determines whether the current user can query posts of the given status for the given post type.
+	 *
+	 * Published content, and any status whose `public` flag is true, are queryable by everyone,
+	 * the same way they are exposed on the WordPress front-end and the REST API (e.g. custom
+	 * statuses registered with `'public' => true`). The `private` status requires the post type's
+	 * `read_private_posts` capability. All other statuses (draft, pending, future, trash, and
+	 * custom non-public statuses) require the post type's `edit_posts` capability.
+	 *
+	 * @param string             $status           The post status to check.
+	 * @param \WP_Post_Type|null $post_type_object The post type object the status is being queried for.
+	 */
+	protected function can_query_post_status( string $status, $post_type_object ): bool {
+		// An unregistered/invalid post type can't be queried.
+		if ( ! $post_type_object instanceof \WP_Post_Type ) {
+			return false;
+		}
+
+		if ( 'publish' === $status ) {
+			return true;
+		}
+
+		// A status flagged public is queryable by anyone, mirroring the WP front-end and REST API.
+		$status_object = get_post_status_object( $status );
+		if ( $status_object instanceof \stdClass && true === $status_object->public ) {
+			return true;
+		}
+
+		// The private status is queryable by users who can read private posts (CPT-aware via the cap object).
+		if ( 'private' === $status ) {
+			return isset( $post_type_object->cap->read_private_posts ) && current_user_can( $post_type_object->cap->read_private_posts );
+		}
+
+		// All other statuses require edit capabilities.
+		return isset( $post_type_object->cap->edit_posts ) && current_user_can( $post_type_object->cap->edit_posts );
 	}
 
 	/**

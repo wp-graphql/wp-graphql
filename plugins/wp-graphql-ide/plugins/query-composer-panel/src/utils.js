@@ -2,6 +2,7 @@ import {
 	isEnumType,
 	isInputObjectType,
 	isLeafType,
+	isListType,
 	isNonNullType,
 	isRequiredInputField,
 	isScalarType,
@@ -105,6 +106,86 @@ export function unwrapInputType(inputType) {
 		unwrappedType = unwrappedType.ofType;
 	}
 	return unwrappedType;
+}
+
+/**
+ * If `inputType` is a list (optionally wrapped in non-null), return the
+ * list's element type. The element type is returned with its own
+ * wrappers intact so the caller can distinguish `[ID!]` from `[ID]`.
+ * Returns null when the type isn't a list.
+ *
+ * @param {*} inputType
+ */
+export function getListItemType(inputType) {
+	let t = inputType;
+	if (isNonNullType(t)) {
+		t = t.ofType;
+	}
+	if (isListType(t)) {
+		return t.ofType;
+	}
+	return null;
+}
+
+/**
+ * Build a default GraphQL value AST node for any input type, peeling
+ * non-null and list wrappers as it goes. Used when the composer needs
+ * to seed a value — e.g. when the user first checks an arg, when a new
+ * list item is added, or when `Inline` rebuilds an inline structure
+ * for a variable that has no captured `defaultValue`.
+ *
+ * @param {*}        type
+ * @param {Function} getDefaultScalarArgValue
+ * @param {Function} makeDefaultArg
+ * @param {*}        parentField
+ * @param {*}        field
+ */
+export function makeDefaultValueNode(
+	type,
+	getDefaultScalarArgValue,
+	makeDefaultArg,
+	parentField,
+	field
+) {
+	if (isNonNullType(type)) {
+		return makeDefaultValueNode(
+			type.ofType,
+			getDefaultScalarArgValue,
+			makeDefaultArg,
+			parentField,
+			field
+		);
+	}
+	if (isListType(type)) {
+		const itemType = type.ofType;
+		const item = makeDefaultValueNode(
+			itemType,
+			getDefaultScalarArgValue,
+			makeDefaultArg,
+			parentField,
+			field
+		);
+		return {
+			kind: 'ListValue',
+			values: item ? [item] : [],
+		};
+	}
+	if (isInputObjectType(type)) {
+		const fields = type.getFields();
+		return {
+			kind: 'ObjectValue',
+			fields: defaultInputObjectFields(
+				getDefaultScalarArgValue,
+				makeDefaultArg,
+				parentField,
+				Object.keys(fields).map((k) => fields[k])
+			),
+		};
+	}
+	if (isLeafType(type)) {
+		return getDefaultScalarArgValue(parentField, field || { type }, type);
+	}
+	return null;
 }
 
 export function coerceArgValue(argType, value) {
@@ -251,12 +332,71 @@ export function defaultArgs(getDefaultScalarArgValue, makeDefaultArg, field) {
 	return args;
 }
 
+// Stable key for an operation/fragment so user-toggled collapse state survives
+// re-parses (the AST node object identity changes on every keystroke).
+export function operationKey(operation, index) {
+	const name = operation && operation.name && operation.name.value;
+	const kind =
+		operation.kind === 'FragmentDefinition'
+			? 'fragment'
+			: operation.operation || 'query';
+	return name ? `${kind}:${name}` : `${kind}:_${index}`;
+}
+
+// Walk the operations to find the deepest Field whose loc spans the cursor.
+// Returns `{ opKey, fieldPath }` where fieldPath is the chain of field names
+// from operation root → leaf (empty when the cursor is inside an operation
+// but not on a field). Returns null when the cursor is outside every
+// operation, locations are absent, or the offset is not a number.
+//
+// Aliases are ignored: matching is by `field.name.value` to stay consistent
+// with how FieldView resolves selections. Fragment spreads and inline
+// fragments are not descended into in v1 — the path stops at the nearest
+// containing field.
+export function findCursorPath(operations, cursorOffset) {
+	if (typeof cursorOffset !== 'number') {
+		return null;
+	}
+	for (let i = 0; i < operations.length; i++) {
+		const op = operations[i];
+		if (
+			!op.loc ||
+			cursorOffset < op.loc.start ||
+			cursorOffset > op.loc.end
+		) {
+			continue;
+		}
+		const fieldPath = [];
+		let selectionSet = op.selectionSet;
+		// Descend through Field selections until no child Field's loc spans
+		// the cursor. The deepest match wins.
+		while (selectionSet && Array.isArray(selectionSet.selections)) {
+			const match = selectionSet.selections.find(
+				(sel) =>
+					sel.kind === 'Field' &&
+					sel.loc &&
+					cursorOffset >= sel.loc.start &&
+					cursorOffset <= sel.loc.end
+			);
+			if (!match) {
+				break;
+			}
+			fieldPath.push(match.name.value);
+			selectionSet = match.selectionSet;
+		}
+		return { opKey: operationKey(op, i), fieldPath };
+	}
+	return null;
+}
+
 export function parseQuery(text) {
 	try {
 		if (!text.trim()) {
 			return null;
 		}
-		return parse(text, { noLocation: true });
+		// Keep locations so the composer can map editor cursor offsets back
+		// to the operation that contains them (drives auto-expansion).
+		return parse(text);
 	} catch (e) {
 		return new Error(e);
 	}

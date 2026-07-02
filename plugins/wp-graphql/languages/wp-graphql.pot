@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.11.2\n"
+"Project-Id-Version: WPGraphQL 2.17.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-13T17:43:21+00:00\n"
+"POT-Creation-Date: 2026-06-24T22:08:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -142,7 +142,7 @@ msgstr ""
 
 #: src/Admin/GraphiQL/GraphiQL.php:221
 #: src/Admin/GraphiQL/GraphiQL.php:222
-#: src/Admin/Settings/Settings.php:63
+#: src/Admin/Settings/Settings.php:81
 msgid "GraphQL"
 msgstr ""
 
@@ -152,169 +152,169 @@ msgstr ""
 msgid "The GraphiQL IDE requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:62
-#: src/Admin/Settings/Settings.php:72
+#: src/Admin/Settings/Settings.php:80
+#: src/Admin/Settings/Settings.php:90
 msgid "WPGraphQL Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:73
+#: src/Admin/Settings/Settings.php:91
 msgid "Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:90
+#: src/Admin/Settings/Settings.php:108
 msgid "WPGraphQL General Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:99
+#: src/Admin/Settings/Settings.php:117
 msgid "GraphQL Endpoint"
 msgstr ""
 
 #. translators: %1$s is the site url, %2$s is the default endpoint
-#: src/Admin/Settings/Settings.php:102
+#: src/Admin/Settings/Settings.php:120
 #, php-format
 msgid "The endpoint (path) for the GraphQL API on the site. <a target=\"_blank\" href=\"%1$s/%2$s\">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than \"graphql\" <em>could</em> have an affect on tooling in the GraphQL ecosystem"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:114
+#: src/Admin/Settings/Settings.php:132
 msgid "The \"GraphQL Endpoint\" field is required and cannot be blank. The default endpoint is \"graphql\""
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:129
+#: src/Admin/Settings/Settings.php:147
 msgid "Restrict Endpoint to Authenticated Users"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:130
+#: src/Admin/Settings/Settings.php:148
 msgid "Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:136
+#: src/Admin/Settings/Settings.php:154
 msgid "Enable Batch Queries"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:137
+#: src/Admin/Settings/Settings.php:155
 msgid "WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:143
+#: src/Admin/Settings/Settings.php:161
 msgid "Batch Query Limit"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:144
+#: src/Admin/Settings/Settings.php:162
 msgid "If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:157
+#: src/Admin/Settings/Settings.php:175
 msgid "Enable Query Depth Limiting"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:158
+#: src/Admin/Settings/Settings.php:176
 msgid "Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:164
+#: src/Admin/Settings/Settings.php:182
 msgid "Max Depth to allow for GraphQL Queries"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:165
+#: src/Admin/Settings/Settings.php:183
 msgid "If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:178
+#: src/Admin/Settings/Settings.php:196
 msgid "Enable GraphQL Type Tracking"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about force enabling.
-#: src/Admin/Settings/Settings.php:181
+#: src/Admin/Settings/Settings.php:199
 #, php-format
 msgid "When enabled, WPGraphQL will track the Types, Models, and Nodes used in the request, and return those values in the headers for use in debugging or header-based cache invalidation. %s"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:182
-#: src/Admin/Settings/Settings.php:287
+#: src/Admin/Settings/Settings.php:200
+#: src/Admin/Settings/Settings.php:305
 msgid "NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. "
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:190
+#: src/Admin/Settings/Settings.php:208
 msgid "Enable GraphiQL IDE"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:191
+#: src/Admin/Settings/Settings.php:209
 msgid "GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:197
+#: src/Admin/Settings/Settings.php:215
 msgid "GraphiQL IDE Admin Bar Link"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:198
+#: src/Admin/Settings/Settings.php:216
 msgid "Show GraphiQL IDE Link in the WordPress Admin Bar"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:204
+#: src/Admin/Settings/Settings.php:222
 msgid "Delete Data on Deactivation"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:205
+#: src/Admin/Settings/Settings.php:223
 msgid "Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:211
+#: src/Admin/Settings/Settings.php:229
 msgid "Enable GraphQL Debug Mode"
 msgstr ""
 
 #. translators: %s is the value of the GRAPHQL_DEBUG constant
-#: src/Admin/Settings/Settings.php:214
+#: src/Admin/Settings/Settings.php:232
 #, php-format
 msgid "This setting is disabled. \"GRAPHQL_DEBUG\" has been set to \"%s\" with code"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:215
+#: src/Admin/Settings/Settings.php:233
 msgid "Whether GraphQL requests should execute in \"debug\" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:223
+#: src/Admin/Settings/Settings.php:241
 msgid "Enable GraphQL Tracing"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:224
+#: src/Admin/Settings/Settings.php:242
 msgid "Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:230
+#: src/Admin/Settings/Settings.php:248
 msgid "Tracing Role"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:231
+#: src/Admin/Settings/Settings.php:249
 msgid "If Tracing is enabled, this limits it to requests from users with the specified User Role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:253
+#: src/Admin/Settings/Settings.php:271
 msgid "Enable GraphQL Query Logs"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:254
+#: src/Admin/Settings/Settings.php:272
 msgid "Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:260
+#: src/Admin/Settings/Settings.php:278
 msgid "Query Log Role"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:261
+#: src/Admin/Settings/Settings.php:279
 msgid "If Query Logs are enabled, this limits them to requests from users with the specified User Role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:283
+#: src/Admin/Settings/Settings.php:301
 msgid "Enable Public Introspection"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about debug mode.
-#: src/Admin/Settings/Settings.php:286
+#: src/Admin/Settings/Settings.php:304
 #, php-format
 msgid "GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s "
 msgstr ""
 
-#: src/Admin/Settings/SettingsRegistry.php:455
+#: src/Admin/Settings/SettingsRegistry.php:504
 msgid "Choose File"
 msgstr ""
 
@@ -553,7 +553,7 @@ msgid "The first argument should be an array of $query_vars, not the WP_Query ob
 msgstr ""
 
 #. translators: %s is the method name
-#: src/Data/Cursor/PostObjectCursor.php:292
+#: src/Data/Cursor/PostObjectCursor.php:493
 #: src/Data/Cursor/TermObjectCursor.php:212
 #: src/Data/Cursor/TermObjectCursor.php:233
 #: src/Data/Cursor/UserCursor.php:255
@@ -603,16 +603,16 @@ msgid "The global ID isn't recognized ID: %s"
 msgstr ""
 
 #. translators: %s: The query class used to resolve the URI
-#: src/Data/NodeResolver.php:177
+#: src/Data/NodeResolver.php:180
 #, php-format
 msgid "The query class %s used to resolve the URI does not exist."
 msgstr ""
 
-#: src/Data/NodeResolver.php:355
+#: src/Data/NodeResolver.php:371
 msgid "Cannot parse provided URI"
 msgstr ""
 
-#: src/Data/NodeResolver.php:381
+#: src/Data/NodeResolver.php:406
 msgid "Cannot return a resource for an external URI"
 msgstr ""
 
@@ -1316,40 +1316,64 @@ msgstr ""
 msgid "Sorry, you are not allowed to create mediaItems as this user"
 msgstr ""
 
+#: src/Mutation/MediaItemCreate.php:188
+msgid "Invalid parent type."
+msgstr ""
+
 #. translators: %s is the file path.
-#: src/Mutation/MediaItemCreate.php:193
+#: src/Mutation/MediaItemCreate.php:213
 #, php-format
 msgid "Invalid filePath \"%s\""
 msgstr ""
 
 #. translators: %1$s is the protocol, %2$s is the list of allowed protocols.
-#: src/Mutation/MediaItemCreate.php:217
+#: src/Mutation/MediaItemCreate.php:237
 #, php-format
 msgid "Invalid protocol. \"%1$s\". Only \"%2$s\" allowed."
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:245
+#: src/Mutation/MediaItemCreate.php:255
 msgid "Sorry, the file could not be uploaded"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:260
+#: src/Mutation/MediaItemCreate.php:270
 msgid "Sorry, the URL for this file is invalid, it must be a valid URL"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:292
+#: src/Mutation/MediaItemCreate.php:310
 msgid "Sorry, the URL for this file is invalid, it must be a path to the mediaItem file"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:314
+#: src/Mutation/MediaItemCreate.php:328
+msgid "The web server cannot generate responsive image sizes for this image. Convert it to JPEG or PNG before uploading."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:350
 msgid "The parent of the Media Item is of an invalid type"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:318
+#: src/Mutation/MediaItemCreate.php:354
 msgid "Sorry, you are not allowed to upload mediaItems assigned to this parent node"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:340
+#: src/Mutation/MediaItemCreate.php:376
 msgid "The media item failed to create but no error was provided"
+msgstr ""
+
+#. translators: %s is the required disk space in kilobytes.
+#: src/Mutation/MediaItemCreate.php:426
+#, php-format
+msgid "Not enough space to upload. %s KB needed."
+msgstr ""
+
+#. translators: %s is the maximum allowed file size in kilobytes.
+#: src/Mutation/MediaItemCreate.php:435
+#, php-format
+msgid "This file is too big. Files must be less than %s KB in size."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:442
+msgid "You have used your space quota. Please delete files before uploading."
 msgstr ""
 
 #: src/Mutation/MediaItemDelete.php:39
@@ -1938,105 +1962,105 @@ msgid "The user failed to update"
 msgstr ""
 
 #. translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
-#: src/Registry/TypeRegistry.php:462
+#: src/Registry/TypeRegistry.php:469
 #, php-format
 msgid "List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
-#: src/Registry/TypeRegistry.php:473
+#: src/Registry/TypeRegistry.php:480
 #, php-format
 msgid "The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:484
+#: src/Registry/TypeRegistry.php:491
 #, php-format
 msgid "The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:494
+#: src/Registry/TypeRegistry.php:501
 #, php-format
 msgid "The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:504
+#: src/Registry/TypeRegistry.php:511
 #, php-format
 msgid "The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:519
+#: src/Registry/TypeRegistry.php:526
 #, php-format
 msgid "Set relationships between the %1$s to %2$s"
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:530
+#: src/Registry/TypeRegistry.php:537
 #, php-format
 msgid "If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:541
+#: src/Registry/TypeRegistry.php:548
 msgid "The input list of items to set."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:587
+#: src/Registry/TypeRegistry.php:594
 msgid "Site URL."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:610
+#: src/Registry/TypeRegistry.php:617
 msgid "Site icon URL configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:616
+#: src/Registry/TypeRegistry.php:623
 msgid "Size of the site icon in pixels. Defaults to 512. Max 512."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:646
+#: src/Registry/TypeRegistry.php:653
 msgid "The media item representing the site icon configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
 #. translators: %s is the GraphQL name of the settings group.
-#: src/Registry/TypeRegistry.php:680
+#: src/Registry/TypeRegistry.php:687
 #, php-format
 msgid "Fields of the '%s' settings group"
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:775
+#: src/Registry/TypeRegistry.php:782
 #, php-format
 msgid "The Type name '%1$s' is invalid and has not been added to the GraphQL Schema."
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:793
+#: src/Registry/TypeRegistry.php:800
 #, php-format
 msgid "You cannot register duplicate Types to the Schema. The Type '%1$s' already exists in the Schema. Make sure to give new Types a unique name."
 msgstr ""
 
 #. translators: %s is the Field name.
-#: src/Registry/TypeRegistry.php:1091
+#: src/Registry/TypeRegistry.php:1098
 #, php-format
 msgid "The registered field '%s' does not have a Type defined. Make sure to define a type for all fields."
 msgstr ""
 
 #. translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
-#: src/Registry/TypeRegistry.php:1120
+#: src/Registry/TypeRegistry.php:1127
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is configured to return '%3$s' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with '%3$s', or it needs to be registered to the Schema."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1250
+#: src/Registry/TypeRegistry.php:1257
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is invalid. Field names cannot start with a number."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1288
+#: src/Registry/TypeRegistry.php:1319
 #, php-format
 msgid "You cannot register duplicate fields on the same Type. The field '%1$s' already exists on the type '%2$s'. Make sure to give the field a unique name."
 msgstr ""
@@ -3381,6 +3405,18 @@ msgstr ""
 msgid "Day of the month (from 1 to 31)"
 msgstr ""
 
+#: src/Type/Input/DateInput.php:41
+msgid "Hour of the day (from 0 to 23)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:47
+msgid "Minute of the hour (from 0 to 59)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:53
+msgid "Second of the minute (from 0 to 59)"
+msgstr ""
+
 #: src/Type/Input/DateQueryInput.php:17
 msgid "Filter the connection based on input"
 msgstr ""
@@ -4628,7 +4664,7 @@ msgstr ""
 #: src/Type/ObjectType/RootQuery.php:471
 #: src/Type/ObjectType/RootQuery.php:512
 #: src/Type/ObjectType/RootQuery.php:608
-#: src/Type/ObjectType/RootQuery.php:929
+#: src/Type/ObjectType/RootQuery.php:936
 msgid "The ID input is invalid"
 msgstr ""
 
@@ -4649,12 +4685,12 @@ msgid "The content type the node is used for. Required when idType is set to \"n
 msgstr ""
 
 #: src/Type/ObjectType/RootQuery.php:245
-#: src/Type/ObjectType/RootQuery.php:785
+#: src/Type/ObjectType/RootQuery.php:792
 msgid "Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn't have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the \"asPreview\" argument is not explicitly provided as an argument."
 msgstr ""
 
 #: src/Type/ObjectType/RootQuery.php:267
-#: src/Type/ObjectType/RootQuery.php:828
+#: src/Type/ObjectType/RootQuery.php:835
 msgid "The ID input is invalid. Make sure you set the proper idType for your input."
 msgstr ""
 
@@ -4795,23 +4831,23 @@ msgid "Returns the current user"
 msgstr ""
 
 #. translators: %1$s is the post type GraphQL name, %2$s is the post type description
-#: src/Type/ObjectType/RootQuery.php:762
+#: src/Type/ObjectType/RootQuery.php:769
 #, php-format
 msgid "An object of the %1$s Type. %2$s"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:773
-#: src/Type/ObjectType/RootQuery.php:893
+#: src/Type/ObjectType/RootQuery.php:780
+#: src/Type/ObjectType/RootQuery.php:900
 msgid "The globally unique identifier of the object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:779
-#: src/Type/ObjectType/RootQuery.php:899
+#: src/Type/ObjectType/RootQuery.php:786
+#: src/Type/ObjectType/RootQuery.php:906
 msgid "Type of unique identifier to fetch by. Default is Global ID"
 msgstr ""
 
 #. translators: %s is the taxonomys' GraphQL name.
-#: src/Type/ObjectType/RootQuery.php:883
+#: src/Type/ObjectType/RootQuery.php:890
 msgid "A % object"
 msgstr ""
 
@@ -5213,13 +5249,13 @@ msgid "\"%1$s\" is not a valid Interface Type and cannot be implemented as an In
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Type/WPInterfaceTrait.php:262
+#: src/Type/WPInterfaceTrait.php:286
 #, php-format
 msgid "Invalid Interface field %1$s registered to the \"%2$s\" Type. Fields must be registered a valid GraphQL `type`."
 msgstr ""
 
 #. translators: 1: Object type name, 2: Field name, 3: Argument name, 4: Expected argument type, 5: Actual argument type.
-#: src/Type/WPInterfaceTrait.php:317
+#: src/Type/WPInterfaceTrait.php:342
 #, php-format
 msgid "Interface field argument \"%1$s.%2$s(%3$s:)\" expected to be of type \"%4$s\" but got \"%5$s\". Please ensure the field arguments match the interface field arguments or rename the argument."
 msgstr ""

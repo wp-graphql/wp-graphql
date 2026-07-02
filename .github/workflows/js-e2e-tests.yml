@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # ===========================================
   # CHANGE DETECTION
@@ -42,12 +45,14 @@ jobs:
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Check if release-please PR
         id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
             echo "is-release-pr=true" >> $GITHUB_OUTPUT
             echo "🔔 Detected Release PR - will run e2e tests for all plugins with e2e tests"
           else
@@ -56,7 +61,7 @@ jobs:
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files_yaml: |
             wp-graphql:

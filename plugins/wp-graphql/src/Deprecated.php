@@ -443,7 +443,19 @@ final class Deprecated {
 					return __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' );
 				},
 				'resolve'           => static function ( $payload, $args, AppContext $context ) {
-					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
+					// The `sendPasswordResetEmail` mutation deliberately obfuscates whether the supplied
+					// username/email matches a real account (it always returns `success: true`) to prevent
+					// user enumeration. The internal `$payload['id']` is only populated on a real match, so
+					// resolving it for everyone would turn this field into an enumeration oracle: an
+					// unauthenticated caller could test arbitrary emails/logins and learn which ones exist
+					// (and link them to a user identity). Only expose the user to requesters who already have
+					// the capability to list users; everyone else gets null regardless of whether the account
+					// exists, preserving the mutation's anti-enumeration guarantee.
+					if ( empty( $payload['id'] ) || ! current_user_can( 'list_users' ) ) {
+						return null;
+					}
+
+					return $context->get_loader( 'user' )->load_deferred( $payload['id'] );
 				},
 			],
 		);

@@ -1,0 +1,73 @@
+name: Playground Preview Comment
+
+# Posts (or updates) the sticky PR comment with a WordPress Playground
+# link to the IDE plugin built by `playground-preview.yml`.
+#
+# Split off into its own workflow because `pull_request` from forks
+# silently downgrades `GITHUB_TOKEN`'s `pull-requests: write` to read,
+# which is why the comment step was failing for every fork PR. The
+# `workflow_run` trigger runs in the BASE repo context with the base
+# repo's token, so commenting works for fork PRs too.
+#
+# Caveat: like every `workflow_run`-triggered workflow, GitHub always
+# executes the copy of this file on the default branch — changes here
+# don't take effect on the PR that introduces them. They'll start
+# working for fork PRs once merged.
+
+on:
+  workflow_run:
+    workflows: ['Playground Preview']
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  comment:
+    # Skip on non-PR runs (manual reruns, schedules, etc) and on failed builds —
+    # no point pointing reviewers at a Playground link backed by a missing artifact.
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write   # post the sticky PR comment
+      actions: read          # required by actions/download-artifact to read from another run
+    steps:
+      - name: Download PR metadata artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pr-meta
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Read PR metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          # The metadata file is KEY=VALUE lines from the sibling
+          # workflow; source it and surface the values as step outputs.
+          # Validating each key is present catches a mismatch with the
+          # producer side instead of silently posting a comment on
+          # PR #0 or with an empty link.
+          # shellcheck disable=SC1091
+          source pr-meta.env
+          : "${PR_NUMBER:?PR_NUMBER missing from pr-meta artifact}"
+          : "${HEAD_SHA:?HEAD_SHA missing from pr-meta artifact}"
+          : "${PLAYGROUND_URL:?PLAYGROUND_URL missing from pr-meta artifact}"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "playground_url=$PLAYGROUND_URL" >> "$GITHUB_OUTPUT"
+
+      - uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          number: ${{ steps.meta.outputs.pr_number }}
+          header: playground-preview
+          message: |
+            ## ▶ Preview in WordPress Playground
+
+            [![Open in WordPress Playground](https://img.shields.io/badge/Open%20in-WordPress%20Playground-3858E9?logo=wordpress&logoColor=white)](${{ steps.meta.outputs.playground_url }})
+
+            Boots a fresh WordPress, installs WPGraphQL + this PR's IDE build, lands you at the IDE.
+
+            <sub>Built from `${{ steps.meta.outputs.head_sha }}`. Auto-updates when you push.</sub>

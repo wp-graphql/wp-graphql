@@ -20,8 +20,8 @@
   z-index: 999999 !important; /* High z-index to appear above WordPress admin panels */
   width: 100vw !important;
   height: 90vh !important;
-  border-top-left-radius: 20px !important;
-  border-top-right-radius: 20px !important;
+  border-top-left-radius: 4px !important;
+  border-top-right-radius: 4px !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
 }
@@ -104,24 +104,18 @@
 /* Fix layout shift from drawer opening everywhere except the dedicated IDE page */
 /* Removed - was causing jump when drawer opens. Vaul handles body scroll locking. */
 
-.graphiql-dialog,
-.graphiql-dialog-overlay {
-  z-index: 1000000; /* Above drawer */
-}
-
-/* Fix popover visibility within drawer */
-[data-radix-popper-content-wrapper] {
+/* Fix popover/dropdown visibility and interaction within drawer */
+[data-radix-popper-content-wrapper],
+.components-popover,
+.components-dropdown-menu__popover {
   z-index: 1000000 !important; /* Above drawer */
+  pointer-events: auto !important;
 }
 
-/* Fix GraphiQL tooltips and hover popovers within drawer */
-.CodeMirror-lint-tooltip{
-  z-index: 1000000 !important; /* Above drawer */
-}
-
-.graphiql-dialog-title,
-.graphiql-history-header {
-  color: hsla(var(--color-neutral),1);
+/* Ensure dropdown menu items are interactive inside drawer */
+.components-popover .components-menu-group,
+.components-popover .components-menu-item {
+  pointer-events: auto !important;
 }
 
 /* Align WPGraphQL logo with existing buttons */
@@ -151,16 +145,99 @@ body.graphql_page_graphql-ide #wpfooter {
   display: none
 }
 
-/* Ful-height AppRoot on dedicated IDE page */
-body.graphql_page_graphql-ide .AppRoot {
+/* Ful-height shell on dedicated IDE page */
+body.graphql_page_graphql-ide .wpgraphql-ide-shell {
   height: 100%;
 }
 
-
-
-.graphiql-container .graphiql-editor-tools>button.active {
-	background-color: hsla(var(--color-neutral), var(--alpha-background-medium));
+/* Theme insulation — scoped to `#wpgraphql-ide-app` and portaled
+   `.wpgraphql-ide-dialog`, never `.wpgraphql-ide-shell` (which also
+   wraps the WP-admin-bar drawer trigger that must inherit adminbar
+   styling). */
+.wpgraphql-ide-shell #wpgraphql-ide-app,
+.wpgraphql-ide-dialog {
+  isolation: isolate;
 }
 
-/** Fix for the CodeMirror info tooltip */
-.CodeMirror-info { z-index: 999999; }
+.wpgraphql-ide-shell #wpgraphql-ide-app,
+.wpgraphql-ide-shell #wpgraphql-ide-app *,
+.wpgraphql-ide-shell #wpgraphql-ide-app *::before,
+.wpgraphql-ide-shell #wpgraphql-ide-app *::after,
+.wpgraphql-ide-dialog,
+.wpgraphql-ide-dialog *,
+.wpgraphql-ide-dialog *::before,
+.wpgraphql-ide-dialog *::after {
+  box-sizing: border-box;
+}
+
+/* Theme rules like `button { padding: 12px 24px; font-family: serif }`
+   bleed into our chrome because form controls don't inherit `font` by
+   default. Force inheritance so our parent typography is honored. */
+.wpgraphql-ide-shell #wpgraphql-ide-app :is(button, input, select, textarea),
+.wpgraphql-ide-dialog :is(button, input, select, textarea) {
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* ==========================================================================
+   Front-end drawer style isolation
+   --------------------------------------------------------------------------
+   The drawer renders inside whatever theme the visitor is using, so the
+   IDE inherits any global rules the theme set on `body`, `button`, `svg`,
+   `img`, etc. We saw two visible regressions on real sites:
+
+   1. Kebab buttons sit a couple pixels above their row because the active
+      theme set `button { vertical-align: middle | bottom }` or messed
+      with `line-height`. The IDE's component buttons don't override
+      vertical-align by themselves, so they pick up whatever the theme
+      cascades down.
+   2. Emojis render in two visibly different styles in the same drawer:
+      wp-emoji replaces unicode emoji with `<img class="emoji">` on
+      initial server-rendered DOM, but content rendered later by React
+      stays as the native font glyph. Result: a heart from one source
+      looks like a flat illustration while a heart from React looks like
+      a system emoji.
+
+   Fix both at the drawer + dedicated-page level by re-establishing a
+   baseline for text-flow, button alignment, and inline media. Scoped to
+   the IDE so theme styles outside the drawer keep working.
+   ========================================================================== */
+
+[data-vaul-drawer] #wpgraphql-ide-app,
+.wpgraphql-ide-shell #wpgraphql-ide-app,
+.wpgraphql-ide-dialog {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1e1e1e;
+}
+
+/* Themes commonly set `button { vertical-align: bottom | middle }` or
+   inflate `line-height`, both of which push the icon a few pixels off
+   center and make kebabs look unaligned with the rest of the row. Pin
+   buttons inside the IDE to a known baseline. */
+[data-vaul-drawer] #wpgraphql-ide-app button,
+.wpgraphql-ide-shell #wpgraphql-ide-app button {
+  vertical-align: baseline;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+[data-vaul-drawer] #wpgraphql-ide-app svg,
+.wpgraphql-ide-shell #wpgraphql-ide-app svg {
+  vertical-align: middle;
+}
+
+/* wp-emoji's `<img class="emoji">` substitution and React's native
+   emoji rendering produce two visibly different glyph styles in the
+   same drawer (twemoji image vs system font). React owns this subtree
+   anyway — wp-emoji's mutations get clobbered on the next render — so
+   App.jsx tags the IDE root with WordPress's official opt-out class,
+   `wp-exclude-emoji`. wp-emoji's parser checks for that class and
+   skips the subtree, so every emoji inside the IDE renders the same
+   way (native font). See wp-includes/js/wp-emoji.js. */
+

@@ -23,7 +23,7 @@
 	],
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"webonyx/graphql-php": "15.31.4",
+		"webonyx/graphql-php": "15.33.1",
 		"ivome/graphql-relay-php": "0.7.0",
 		"appsero/client": "2.0.6"
 	},
@@ -35,7 +35,7 @@
 		"phpcompatibility/phpcompatibility-wp": "^3.0.0-alpha",
 		"phpstan/extension-installer": "^1.1",
 		"phpstan/phpstan-deprecation-rules": "^2.0.1",
-		"phpstan/phpstan": "~2.1.2",
+		"phpstan/phpstan": "~2.2.2",
 		"phpunit/phpunit": "^9.5",
 		"slevomat/coding-standard": "^8.9",
 		"szepeviktor/phpstan-wordpress": "^2.0.1",

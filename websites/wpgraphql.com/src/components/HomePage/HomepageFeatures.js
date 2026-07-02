@@ -1,65 +1,136 @@
-import Image from "next/image"
+import MockIDE, { Tok } from "@/components/MockIDE"
+import ColocationDemo from "@/components/ColocationDemo"
+
+// ─── "Query what you need" — pick exactly which fields come back ───────────
+const exactFieldsQuery = (
+  <>
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetUser</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="key">user</Tok><Tok kind="punc">(</Tok><Tok kind="key">id</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"dXNlcjox\""}</Tok><Tok kind="punc">) {"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="key">name</Tok>{"\n"}
+    {"    "}<Tok kind="key">email</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
+const exactFieldsResponse = (
+  <>
+    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="str">{"\"user\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Jane Doe\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"      "}<Tok kind="str">{"\"email\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"jane@example.com\""}</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
+
+// ─── "Nested resources" — follow connections in a single request ────────────
+const nestedQuery = (
+  <>
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetPostsWithAuthor</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="key">title</Tok>{"\n"}
+    {"      "}<Tok kind="key">author</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"        "}<Tok kind="key">node</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="key">name</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="key">categories</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"        "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="key">name</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
+const nestedResponse = (
+  <>
+    <Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"    "}<Tok kind="str">{"\"posts\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"author\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"            "}<Tok kind="str">{"\"node\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"              "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Jane\""}</Tok>{"\n"}
+    {"            "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"          "}<Tok kind="punc">{"}"}</Tok><Tok kind="punc">,</Tok>{"\n"}
+    {"          "}<Tok kind="str">{"\"categories\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
+    {"            "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
+    {"              "}<Tok kind="punc">{"{"}</Tok>{"\n"}
+    {"                "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"News\""}</Tok>{"\n"}
+    {"              "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"            "}<Tok kind="punc">{"]"}</Tok>{"\n"}
+    {"          "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"      "}<Tok kind="punc">{"]"}</Tok>{"\n"}
+    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+  </>
+)
+
+function Feature({ eyebrow, title, body, query, response }) {
+  return (
+    <section className="py-20 sm:py-28">
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:max-w-7xl lg:px-8">
+        <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
+          {eyebrow}
+        </p>
+        <h2 className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+          {title}
+        </h2>
+        <p className="mx-auto mt-5 max-w-prose text-base text-muted-foreground sm:text-lg">
+          {body}
+        </p>
+        <div className="mx-auto mt-12 max-w-4xl">
+          <MockIDE query={query} response={response} />
+        </div>
+      </div>
+    </section>
+  )
+}
 
 export default function HomepageFeatures() {
   return (
     <>
-      <div className="relative bg-white dark:bg-navy pt-16 overflow-hidden sm:pt-24 lg:pt-32">
-        <div className="mx-auto max-w-md px-4 text-center sm:px-6 sm:max-w-3xl lg:px-8 lg:max-w-7xl">
-          <div>
-            <h2 className="subtitle font-sans">
-              Efficient Data Fetching
-            </h2>
-            <p className="mt-2 text-3xl font-extrabold text-navy dark:text-white tracking-tight sm:text-4xl font-lora">
-              Query what you need. Get exactly that.
-            </p>
-            <p className="mt-5 max-w-prose mx-auto text-xl text-navy dark:text-gray-100">
-              With GraphQL, the client makes declarative queries, asking for the
-              exact data needed, and exactly what was asked for is given in
-              response, nothing more. This allows the client to have control over
-              their application, and allows the GraphQL server to perform more
-              efficiently by only fetching the resources requested.
-            </p>
-          </div>
-          <div className="mt-12 -mb-10 sm:-mb-24 lg:-mb-10">
-            <Image
-              className="rounded-lg shadow-xl ring-1 ring-black ring-opacity-5"
-              src="/images/graphiql-query-posts.png"
-              alt=""
-              width={1024}
-              height={402}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="relative bg-blue-100 dark:bg-slate-900 pt-16 overflow-hidden sm:pt-24 lg:pt-32">
-        <div className="mx-auto max-w-md px-4 text-center sm:px-6 sm:max-w-3xl lg:px-8 lg:max-w-7xl">
-          <div>
-            <h2 className="subtitle font-sans">
-              Nested Resources
-            </h2>
-            <p className="mt-2 text-3xl font-extrabold text-navy dark:text-white tracking-tight sm:text-4xl font-lora">
-              Fetch many resources in a single request
-            </p>
-            <p className="mt-5 max-w-prose mx-auto text-xl text-navy dark:text-gray-100">
-              GraphQL queries allow access to multiple root resources, and also
-              smoothly follow references between connected resources. While a
-              typical REST API would require round-trip requests to many
-              endpoints, GraphQL APIs can get all the data your app needs in a
-              single request. Apps using GraphQL can be quick even on slow
-              mobile network connections.
-            </p>
-          </div>
-          <div className="mt-12 -mb-10 sm:-mb-24 lg:-mb-10">
-            <Image
-              className="rounded-lg shadow-xl ring-1 ring-black ring-opacity-5"
-              src="/images/query-multiple-root-resources.png"
-              alt=""
-              width={1017}
-              height={438}
-            />
+      <Feature
+        eyebrow="Efficient Data Fetching"
+        title={<>Query what you need. <span className="text-primary">Get exactly that.</span></>}
+        body="With GraphQL, the client makes declarative queries, asking for the exact data needed, and exactly what was asked for is given in response — nothing more. Clients have control over their application, and the GraphQL server only fetches what was requested."
+        query={exactFieldsQuery}
+        response={exactFieldsResponse}
+      />
+      <Feature
+        eyebrow="Nested Resources"
+        title={<>Fetch many resources in a <span className="text-primary">single request</span></>}
+        body="GraphQL queries access multiple root resources and smoothly follow references between connected ones. While a typical REST API would require round-trip requests to many endpoints, GraphQL can return everything your app needs in one round-trip — quick even on slow mobile connections."
+        query={nestedQuery}
+        response={nestedResponse}
+      />
+      <section className="py-20 sm:py-28">
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:max-w-7xl lg:px-8">
+          <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
+            Data Colocation
+          </p>
+          <h2 className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+            Define data needs <span className="text-primary">next to your components</span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-prose text-base text-muted-foreground sm:text-lg">
+            GraphQL fragments let each component declare the fields it needs.
+            Compose those fragments into one query at the page level — the
+            data graph stays in sync with the UI tree, automatically.
+          </p>
+          <div className="mx-auto mt-12 max-w-4xl">
+            <ColocationDemo />
           </div>
         </div>
-      </div>
+      </section>
     </>
   )
 }

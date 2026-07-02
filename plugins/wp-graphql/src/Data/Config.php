@@ -45,6 +45,12 @@ class Config {
 		add_filter( 'posts_where', [ $this, 'graphql_wp_query_cursor_pagination_support' ], 10, 2 );
 
 		/**
+		 * Filter the search relevance ORDER BY expression so backward (last) pagination
+		 * reads the tail of the result set, mirroring how the date ordering is inverted.
+		 */
+		add_filter( 'posts_search_orderby', [ $this, 'graphql_wp_query_cursor_pagination_search_orderby' ], 10, 2 );
+
+		/**
 		 * Filter the term_clauses in the WP_Term_Query to allow for cursor pagination support where a Term ID
 		 * can be used as a point of comparison when slicing the results to return.
 		 */
@@ -208,6 +214,52 @@ class Config {
 
 		// If there is a cursor compare in the arguments, use it as the stablizer for cursors.
 		return ( $orderby ? "{$orderby}, " : '' ) . "{$key} {$order}";
+	}
+
+	/**
+	 * When a searched query is paginated backward (`last`), the rest of the ordering is
+	 * inverted (e.g. post_date ASC instead of DESC), but WP_Query never inverts the search
+	 * relevance expression it prepends via parse_search_order(). Invert it here so the SQL
+	 * window reads the tail of the relevance-ordered result set.
+	 *
+	 * The multi-term expression is a CASE that sorts ascending by default; the single-term
+	 * expression is a boolean LIKE sorted DESC. Inverting means appending DESC to the former
+	 * and swapping DESC for ASC on the latter.
+	 *
+	 * @since 2.17.0
+	 *
+	 * @param string    $search_orderby The ORDER BY clause for search relevance.
+	 * @param \WP_Query $query          The WP_Query instance (passed by reference).
+	 *
+	 * @return string
+	 */
+	public function graphql_wp_query_cursor_pagination_search_orderby( string $search_orderby, WP_Query $query ) {
+		// Bail early if it's not a GraphQL Request.
+		if ( true !== is_graphql_request() ) {
+			return $search_orderby;
+		}
+
+		// Bail early if there is nothing to invert.
+		if ( empty( $search_orderby ) ) {
+			return $search_orderby;
+		}
+
+		// Bail early if disabled by connection.
+		if ( isset( $query->query_vars['graphql_apply_cursor_pagination_orderby'] )
+			&& false === $query->query_vars['graphql_apply_cursor_pagination_orderby'] ) {
+			return $search_orderby;
+		}
+
+		// Only invert for backward (`last`) pagination.
+		if ( ! isset( $query->query_vars['graphql_cursor_compare'] ) || '>' !== $query->query_vars['graphql_cursor_compare'] ) {
+			return $search_orderby;
+		}
+
+		if ( ' DESC' === substr( $search_orderby, -5 ) ) {
+			return substr( $search_orderby, 0, -5 ) . ' ASC';
+		}
+
+		return $search_orderby . ' DESC';
 	}
 
 	/**
@@ -414,8 +466,15 @@ class Config {
 			return $pieces;
 		}
 
-		// Determine the limit for the query
-		if ( isset( $args['number'] ) && absint( $args['number'] ) ) {
+		// Determine the limit for the query.
+		//
+		// WP_Term_Query intentionally omits the SQL LIMIT when it has to descend the
+		// term hierarchy (e.g. a `child_of` query): it queries the full set, filters
+		// the descendants in PHP, then applies `number`/`offset` in PHP. Forcing a
+		// SQL LIMIT here would truncate the result set before that descendant
+		// filtering runs, dropping children that fall outside the LIMIT window. In
+		// that case we defer to WP's PHP-side pagination. See #2739.
+		if ( empty( $args['child_of'] ) && isset( $args['number'] ) && absint( $args['number'] ) ) {
 			$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
 		}
 

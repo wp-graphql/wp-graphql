@@ -6,36 +6,38 @@ import DocsSidebar from "./DocsNavSideBar"
 export default function DocsLayout({ children, toc, docsNavData }) {
   return (
     <SiteLayout>
-      <main className="mx-auto w-full max-w-8xl px-4 sm:px-6 lg:px-8">
-        <aside className="z-20 lg:hidden">
-          <DocsSidebar>
-            <DocsNav docsNavData={docsNavData} />
-          </DocsSidebar>
-        </aside>
-        <div className="grid grid-cols-1 items-start gap-8 py-6 lg:grid-cols-[18rem_minmax(0,1fr)_16rem]">
-          <aside
-            id="docs-nav"
-            className="sticky top-6 hidden h-[90vh] overflow-y-auto pr-2 lg:block"
-          >
-            <DocsNav docsNavData={docsNavData} />
+      {/* Mobile: floating button + slide-over panel */}
+      <aside className="z-20 lg:hidden">
+        <DocsSidebar>
+          <DocsNav docsNavData={docsNavData} />
+        </DocsSidebar>
+      </aside>
+
+      <div className="mx-auto w-full max-w-8xl px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-[14rem_minmax(0,1fr)_12rem] lg:gap-10">
+          {/* Left rail: docs nav. sticky relative to the document scroll
+              (not an internal overflow container) so it stays in view as the
+              article scrolls. top-20 clears the sticky site header. */}
+          <aside id="docs-nav" className="hidden lg:block">
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-10 pr-4">
+              <DocsNav docsNavData={docsNavData} />
+            </div>
           </aside>
 
-          <article
-            id="doc-content"
-            className="min-w-0 self-start"
-          >
-            {children}
+          {/* Article column: min-w-0 prevents long code blocks from forcing
+              the grid track wider. Centered max-width inside. */}
+          <article id="doc-content" className="min-w-0 py-10 lg:py-12">
+            <div className="mx-auto max-w-3xl">{children}</div>
           </article>
-          <aside
-            id="doc-table-of-contents"
-            className="sticky top-6 hidden lg:block"
-          >
-            <div className="w-full text-sm font-semibold leading-6 text-slate-900 dark:text-slate-100">
+
+          {/* Right rail: on-this-page TOC, sticky alongside the article. */}
+          <aside id="doc-table-of-contents" className="hidden lg:block">
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-10">
               {toc && <TableOfContents toc={toc} />}
             </div>
           </aside>
         </div>
-      </main>
+      </div>
     </SiteLayout>
   )
 }

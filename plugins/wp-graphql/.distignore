@@ -3,7 +3,9 @@
 /.idea
 /.log
 /.vscode
-# .wordpress-org is kept (contains WordPress.org assets like banners, icons, screenshots)
+# .wordpress-org holds WordPress.org assets (banners/icons/screenshots) deployed to the
+# SVN assets/ dir via the release workflow's ASSETS_DIR — keep it out of trunk and the zip.
+/.wordpress-org
 /bin
 /github
 /plugin-build

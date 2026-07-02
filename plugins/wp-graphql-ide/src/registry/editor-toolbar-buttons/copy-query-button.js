@@ -1,16 +1,14 @@
-import { CopyIcon } from '@graphiql/react';
+import { __ } from '@wordpress/i18n';
 import { select } from '@wordpress/data';
-import copy from 'copy-to-clipboard';
+import copyToClipboard from 'copy-to-clipboard';
 
 export const copyQueryButton = () => {
 	return {
-		label: 'Copy query (Shift-Ctrl-C)',
-		children: (
-			<CopyIcon className="graphiql-toolbar-icon" aria-hidden="true" />
-		),
+		label: __('Copy query', 'wpgraphql-ide'),
+		children: __('Copy', 'wpgraphql-ide'),
 		onClick: () => {
 			const query = select('wpgraphql-ide/app').getQuery();
-			copy(query);
+			copyToClipboard(query);
 		},
 	};
 };

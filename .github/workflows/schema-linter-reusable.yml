@@ -20,16 +20,19 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   lint-schema:
     name: Lint ${{ inputs.component }} Schema
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup PHP w/ Composer & WP-CLI
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.2
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
@@ -37,7 +40,7 @@ jobs:
           tools: composer:v2
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v3.1.1
         with:
           working-directory: ${{ inputs.composer_working_dir }}
 
@@ -46,7 +49,7 @@ jobs:
       # (wp-env maps plugin dirs as volumes, so host vendor dirs are available in containers)
       - name: Install wp-graphql dependencies (if needed)
         if: inputs.component != 'wp-graphql'
-        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
 
@@ -60,13 +63,13 @@ jobs:
           test -f ${{ inputs.composer_working_dir }}/vendor/autoload.php && echo "✅ ${{ inputs.component }} vendor/autoload.php exists" || echo "❌ ${{ inputs.component }} vendor/autoload.php missing"
 
       - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -76,12 +79,27 @@ jobs:
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16
 
       - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
+        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
         with:
           key: docker-${{ runner.os }}-wp-latest
 
       - name: Start wp-env
-        run: npm run wp-env start
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            npm run wp-env start
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step below.
+            if ! npm run wp-env -- run cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; retrying start"
+              exit 1
+            fi
 
       - name: Configure active plugins for schema generation
         run: |

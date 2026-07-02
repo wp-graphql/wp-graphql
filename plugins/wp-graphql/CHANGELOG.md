@@ -1,5 +1,129 @@
 # Changelog
 
+## [2.17.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.16.0...wp-graphql/v2.17.0) (2026-06-24)
+
+
+### New Features
+
+* add hour, minute, and second to DateInput for sub-day date filtering ([#3967](https://github.com/wp-graphql/wp-graphql/issues/3967)) ([f51aaa9](https://github.com/wp-graphql/wp-graphql/commit/f51aaa9aef05b442055bb8fa7210022750c57f59))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3946](https://github.com/wp-graphql/wp-graphql/issues/3946)) ([493a88b](https://github.com/wp-graphql/wp-graphql/commit/493a88b984a488ced79e313919f028425f26b54e))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#3956](https://github.com/wp-graphql/wp-graphql/issues/3956)) ([2fbbdcb](https://github.com/wp-graphql/wp-graphql/commit/2fbbdcb477cb901226ae97b5e20b022f21d23f1b))
+
+
+### Bug Fixes
+
+* comment cursor throws on COMMENT_PARENT orderby pagination ([#3964](https://github.com/wp-graphql/wp-graphql/issues/3964)) ([902d872](https://github.com/wp-graphql/wp-graphql/commit/902d8721950b2a221cd071bbc4c076e3081e5301))
+* cursor pagination drops results for searched post connections (relevance-aware cursors) ([#3935](https://github.com/wp-graphql/wp-graphql/issues/3935)) ([b8f6405](https://github.com/wp-graphql/wp-graphql/commit/b8f6405f947c70aa433372b6d85b946fcb26db40))
+* **deps-dev:** bump @wordpress/env from 10.39.0 to 11.6.0 ([#3957](https://github.com/wp-graphql/wp-graphql/issues/3957)) ([8056225](https://github.com/wp-graphql/wp-graphql/commit/8056225698845930c661e8804ec13c80ef1d1233))
+* **deps-dev:** bump @wordpress/env from 11.6.0 to 11.8.0 in the npm-dev-minor-patch group ([#3974](https://github.com/wp-graphql/wp-graphql/issues/3974)) ([c9fd00a](https://github.com/wp-graphql/wp-graphql/commit/c9fd00af9810cebdd688821de9b372cccb7e5009))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql ([#3986](https://github.com/wp-graphql/wp-graphql/issues/3986)) ([f39743b](https://github.com/wp-graphql/wp-graphql/commit/f39743b24336c28807608f564f9f4b4e7c6585f0))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql ([#3983](https://github.com/wp-graphql/wp-graphql/issues/3983)) ([d08234a](https://github.com/wp-graphql/wp-graphql/commit/d08234a502583a2a7cd2063e69792341864c8450))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.8.0 to 2.11.0 in /plugins/wp-graphql ([#3926](https://github.com/wp-graphql/wp-graphql/issues/3926)) ([d0258a7](https://github.com/wp-graphql/wp-graphql/commit/d0258a79ffc386c8cc6bbee4b2a611bc5d16af78))
+* **deps-dev:** bump phpstan/phpstan from 2.1.54 to 2.1.55 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3874](https://github.com/wp-graphql/wp-graphql/issues/3874)) ([cfeff25](https://github.com/wp-graphql/wp-graphql/commit/cfeff2501e903d685e3cfae14cb9396a836f61b6))
+* **deps-dev:** bump phpstan/phpstan from 2.1.55 to 2.2.2 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3953](https://github.com/wp-graphql/wp-graphql/issues/3953)) ([8eef55e](https://github.com/wp-graphql/wp-graphql/commit/8eef55edd3cae9436f4fd3d65cc619010df875f7))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 5 updates ([#3945](https://github.com/wp-graphql/wp-graphql/issues/3945)) ([2636204](https://github.com/wp-graphql/wp-graphql/commit/2636204b4209c8767a6dcd38b3ffdf99538b8ad5))
+* **deps:** bump webonyx/graphql-php from 15.32.3 to 15.33.0 in /plugins/wp-graphql ([#3973](https://github.com/wp-graphql/wp-graphql/issues/3973)) ([8ea3692](https://github.com/wp-graphql/wp-graphql/commit/8ea369211cfd9063a8652ce086b5c0b4217957bf))
+* honor public post statuses and read_private_posts cap in post access checks ([#3966](https://github.com/wp-graphql/wp-graphql/issues/3966)) ([39e5144](https://github.com/wp-graphql/wp-graphql/commit/39e51443a4f08fb5c07d4873efc6f0eb65962853))
+* page-by-URI over-resolution and homepage resolution in subdirectory installs ([#3965](https://github.com/wp-graphql/wp-graphql/issues/3965)) ([c630f39](https://github.com/wp-graphql/wp-graphql/commit/c630f39d8db3c9933704f3a72e16464dc85473ff))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960)) ([391e7d3](https://github.com/wp-graphql/wp-graphql/commit/391e7d3fa02085f1905e87c2091bb025885dc6b6))
+
+## [2.16.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.1...wp-graphql/v2.16.0) (2026-06-10)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#3905](https://github.com/wp-graphql/wp-graphql/issues/3905)) ([3945ef3](https://github.com/wp-graphql/wp-graphql/commit/3945ef3f14ad9f475b3e82aa5c7638346306fff3))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3894](https://github.com/wp-graphql/wp-graphql/issues/3894)) ([786f53f](https://github.com/wp-graphql/wp-graphql/commit/786f53fb3b7b78d1b50890de84982c3ab6564d10))
+
+## [2.15.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.15.0...wp-graphql/v2.15.1) (2026-06-09)
+
+
+### Security
+
+* prevent user enumeration via the deprecated `SendPasswordResetEmailPayload.user` field. The field could reveal whether a username/email belonged to a registered account (and expose author-class user data) to unauthenticated requests; it is now gated on the `list_users` capability. See [GHSA-jhh7-832h-f8hv](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-jhh7-832h-f8hv)
+
+
+### Bug Fixes
+
+* **ci:** deploy WordPress.org assets via ASSETS_DIR + dedicated asset-update workflow ([#3880](https://github.com/wp-graphql/wp-graphql/issues/3880)) ([5f301b1](https://github.com/wp-graphql/wp-graphql/commit/5f301b16bf9e3c36d145d33ba568876f27884e17))
+
+## [2.15.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.14.1...wp-graphql/v2.15.0) (2026-06-04)
+
+
+### New Features
+
+* **deps:** bump @wordpress/hooks from 3.58.0 to 4.44.0 ([#3853](https://github.com/wp-graphql/wp-graphql/issues/3853)) ([249fe34](https://github.com/wp-graphql/wp-graphql/commit/249fe3437adc04876d54bcebdd64bad3aaf13343))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 7 updates ([#3865](https://github.com/wp-graphql/wp-graphql/issues/3865)) ([8a41c7c](https://github.com/wp-graphql/wp-graphql/commit/8a41c7c9e0f195cabbe9ca461adc5fab5bb29222))
+* resolve WPGraphQL settings outside the admin (at the /graphql endpoint) ([#3878](https://github.com/wp-graphql/wp-graphql/issues/3878)) ([f10661c](https://github.com/wp-graphql/wp-graphql/commit/f10661cab1121acb53267ca7f6680b3901f8a364))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/babel-preset-default from 7.42.0 to 8.45.0 ([#3871](https://github.com/wp-graphql/wp-graphql/issues/3871)) ([e05bdd6](https://github.com/wp-graphql/wp-graphql/commit/e05bdd6fb7ef67110f24c469f3ca943ffa4662bc))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql ([#3858](https://github.com/wp-graphql/wp-graphql/issues/3858)) ([805bd06](https://github.com/wp-graphql/wp-graphql/commit/805bd06ccc1e2e603f2d63a615dbe0995e4e4834))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql ([#3859](https://github.com/wp-graphql/wp-graphql/issues/3859)) ([150cc30](https://github.com/wp-graphql/wp-graphql/commit/150cc3032b79d9ba988c4e76d2c88862683feba6))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#3849](https://github.com/wp-graphql/wp-graphql/issues/3849)) ([cf0a309](https://github.com/wp-graphql/wp-graphql/commit/cf0a309f5c5b58d8abfa8afd5d798b1141bd04e9))
+
+## [2.14.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.14.0...wp-graphql/v2.14.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* Allow compatible interface field override with `register_graphql_field()` ([#3539](https://github.com/wp-graphql/wp-graphql/issues/3539)) ([0cf2b22](https://github.com/wp-graphql/wp-graphql/commit/0cf2b22ab9a9faef4607b62f42cb228542ce5b87))
+
+## [2.14.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.13.0...wp-graphql/v2.14.0) (2026-05-19)
+
+
+### New Features
+
+* **deps:** bump sanitize-html from 2.17.3 to 2.17.4 ([#3831](https://github.com/wp-graphql/wp-graphql/issues/3831)) ([ee20be9](https://github.com/wp-graphql/wp-graphql/commit/ee20be95605b33df7bafeff353c7afa818df2201))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 4 updates ([#3826](https://github.com/wp-graphql/wp-graphql/issues/3826)) ([46d2c97](https://github.com/wp-graphql/wp-graphql/commit/46d2c9743525ff04e3fa4e7d5baad72c30eebe8b))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#3820](https://github.com/wp-graphql/wp-graphql/issues/3820)) ([03d0ca8](https://github.com/wp-graphql/wp-graphql/commit/03d0ca8aaa4777123dc2654f95a4936e12912f07))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.27 to 2.2.28 in /plugins/wp-graphql ([#3832](https://github.com/wp-graphql/wp-graphql/issues/3832)) ([d36cc10](https://github.com/wp-graphql/wp-graphql/commit/d36cc1034d997178d11bfc00d382910d01b5cf8a))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#3827](https://github.com/wp-graphql/wp-graphql/issues/3827)) ([208feff](https://github.com/wp-graphql/wp-graphql/commit/208feffb8a2aa979dc93f6c2aec240b15e1a13ea))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group across 1 directory with 2 updates ([#3829](https://github.com/wp-graphql/wp-graphql/issues/3829)) ([12b7a48](https://github.com/wp-graphql/wp-graphql/commit/12b7a48f7b87b23f2e49a99ca9f0ebee1fb2cc13))
+* **security:** drop file:// support from createMediaItem mutation ([#3834](https://github.com/wp-graphql/wp-graphql/issues/3834)) ([eb91d26](https://github.com/wp-graphql/wp-graphql/commit/eb91d26ec45cc432c42a112d6c79de165b70beb8))
+
+## [2.13.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.12.0...wp-graphql/v2.13.0) (2026-05-08)
+
+
+### New Features
+
+* **deps:** bump styled-components from 6.4.0 to 6.4.1 in the npm-prod-minor-patch group ([#3805](https://github.com/wp-graphql/wp-graphql/issues/3805)) ([4bf5402](https://github.com/wp-graphql/wp-graphql/commit/4bf5402097329bf340fded88dea1ae29bce037b1))
+* **deps:** bump the npm-prod-minor-patch group with 3 updates ([#3792](https://github.com/wp-graphql/wp-graphql/issues/3792)) ([42b200b](https://github.com/wp-graphql/wp-graphql/commit/42b200be4c1c723d191fbcbc0c04818b4b313676))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump phpstan/phpstan from 2.1.46 to 2.1.50 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3789](https://github.com/wp-graphql/wp-graphql/issues/3789)) ([9c4173a](https://github.com/wp-graphql/wp-graphql/commit/9c4173a018e6a5efe1628c23a3f05654bf72b879))
+* **deps-dev:** bump phpstan/phpstan from 2.1.50 to 2.1.51 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#3802](https://github.com/wp-graphql/wp-graphql/issues/3802)) ([05b8711](https://github.com/wp-graphql/wp-graphql/commit/05b8711beb0bc5a1adba2aade44c7c48ba1f3712))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 6 updates ([#3799](https://github.com/wp-graphql/wp-graphql/issues/3799)) ([5e01960](https://github.com/wp-graphql/wp-graphql/commit/5e0196088e807cabeb502b3e868685c8d6878863))
+* **deps:** bump webonyx/graphql-php from 15.31.5 to 15.32.3 in /plugins/wp-graphql ([#3804](https://github.com/wp-graphql/wp-graphql/issues/3804)) ([ed641bb](https://github.com/wp-graphql/wp-graphql/commit/ed641bb513c3d6f7d62ecfd36a6ff3dd472425fb))
+
+## [2.12.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.2...wp-graphql/v2.12.0) (2026-04-23)
+
+
+### New Features
+
+* allow additional valid hosts ([#3778](https://github.com/wp-graphql/wp-graphql/issues/3778)) ([c601b26](https://github.com/wp-graphql/wp-graphql/commit/c601b268fd20ad3be6aca559da5d64fece2079e5))
+* **deps:** bump sanitize-html from 2.17.2 to 2.17.3 ([#3779](https://github.com/wp-graphql/wp-graphql/issues/3779)) ([123177c](https://github.com/wp-graphql/wp-graphql/commit/123177c7a0110dce35922a2ad9c8e3286a939261))
+* **deps:** bump styled-components from 6.3.12 to 6.4.0 in the npm-prod-minor-patch group ([#3781](https://github.com/wp-graphql/wp-graphql/issues/3781)) ([a6cfe6c](https://github.com/wp-graphql/wp-graphql/commit/a6cfe6c4080e6f9c16504a257d6214570289fd10))
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785)) ([bd0c310](https://github.com/wp-graphql/wp-graphql/commit/bd0c310147b7129a74dc9619d11fdf8d3f0d1975))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.26 to 2.2.27 in /plugins/wp-graphql ([#3773](https://github.com/wp-graphql/wp-graphql/issues/3773)) ([8f249b6](https://github.com/wp-graphql/wp-graphql/commit/8f249b6788306a2b48e2cde91959caaf648476ac))
+* **deps:** bump webonyx/graphql-php from 15.31.4 to 15.31.5 in /plugins/wp-graphql ([#3766](https://github.com/wp-graphql/wp-graphql/issues/3766)) ([fa15880](https://github.com/wp-graphql/wp-graphql/commit/fa1588021293c8f69bffed7af0d76b2e6c3759c2))
+
 ## [2.11.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.11.1...wp-graphql/v2.11.2) (2026-04-13)
 
 

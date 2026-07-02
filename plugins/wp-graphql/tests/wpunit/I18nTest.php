@@ -21,6 +21,19 @@ class I18nTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->setExpectedIncorrectUsage( 'WP_Block_Bindings_Registry::register' );
 		}
 
+		// WordPress 7.0 ships the core/breadcrumbs block, which the test
+		// bootstrap registers a second time during `init`, producing a
+		// "Block type ... is already registered" incorrect usage notice for
+		// WP_Block_Type_Registry::register. It is unrelated to WPGraphQL i18n,
+		// so declare it as expected on WordPress 7.0+. We scope this narrowly to
+		// this single notice (rather than suppressing all incorrect usage) so the
+		// trunk integration job still surfaces any *other* incorrect-usage notice
+		// a future WordPress release might introduce. Must run before
+		// parent::setUp() because the notice fires during WordPress initialization.
+		if ( version_compare( $GLOBALS['wp_version'], '7.0', '>=' ) ) {
+			$this->setExpectedIncorrectUsage( 'WP_Block_Type_Registry::register' );
+		}
+
 		// Suppress doing_it_wrong notices before parent::setUp() to catch theme notices early.
 		//
 		// This prevents false failures from theme-related notices that are unrelated to

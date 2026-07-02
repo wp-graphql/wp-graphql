@@ -1,0 +1,31 @@
+# Codeception Test Suite Configuration — wpunit-integration
+#
+# Mirrors the `wpunit` suite (Asserts + WPLoader) but boots WordPress
+# with WPGraphQL Smart Cache also active. Smart Cache owns the
+# `graphql_document` post type, the `graphql_query_alias` taxonomy, and
+# the `save_document_cb` validator that hashes and content-addresses
+# every save. Several import/export and Saved-Queries behaviors only
+# show up with that machinery wired in.
+#
+# The default `wpunit` suite deliberately omits Smart Cache because a
+# handful of existing tests assert IDE behavior in the degraded state
+# (no Smart Cache). Keeping the two suites side-by-side preserves both
+# guarantees without one regression-suiting against the other.
+#
+# Run:
+#   npm run -w @wpgraphql/wp-graphql-ide test:codecept:wpunit-integration
+actor: WpunitTester
+modules:
+  enabled:
+    - Asserts
+    - lucatume\WPBrowser\Module\WPLoader
+  config:
+    lucatume\WPBrowser\Module\WPLoader:
+      plugins:
+        - wp-graphql/wp-graphql.php
+        - wp-graphql-smart-cache/wp-graphql-smart-cache.php
+        - wp-graphql-ide/wpgraphql-ide.php
+      activatePlugins:
+        - wp-graphql/wp-graphql.php
+        - wp-graphql-smart-cache/wp-graphql-smart-cache.php
+        - wp-graphql-ide/wpgraphql-ide.php

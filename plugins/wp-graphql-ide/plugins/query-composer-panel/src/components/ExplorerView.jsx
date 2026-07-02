@@ -6,7 +6,9 @@ import {
 	defaultGetDefaultFieldNames,
 	defaultGetDefaultScalarArgValue,
 	defaultStyles,
+	findCursorPath,
 	memoizeParseQuery,
+	operationKey,
 } from '../utils';
 import { GraphQLObjectType, print } from 'graphql';
 import RootView from './RootView';
@@ -14,13 +16,71 @@ import { defaultCheckboxChecked, defaultCheckboxUnchecked } from './Checkbox';
 import ArrowOpen from './ArrowOpen';
 import ArrowClosed from './ArrowClosed';
 
+// Pipe-delimited path key for matching FieldView's `data-field-path`
+// attribute. Pipes can't appear in GraphQL identifiers so collisions are
+// impossible. Returns null when there's no field-level target (cursor is
+// outside every operation, or inside an operation but not on a field).
+const CURSOR_TARGET_CLASS = 'graphiql-explorer-row--cursor-target';
+const CURSOR_HIGHLIGHT_MS = 1500;
+function fieldPathKey(cursor) {
+	if (!cursor || !cursor.fieldPath || cursor.fieldPath.length === 0) {
+		return null;
+	}
+	return `${cursor.opKey}|${cursor.fieldPath.join('|')}`;
+}
+
 class ExplorerView extends React.PureComponent {
 	state = {
 		newOperationType: 'query',
 		operationToScrollTo: null,
+		// Map of `${kind}:${name}` -> boolean. Absent key means "use default
+		// (cursor-matched op expanded, rest collapsed when multiple exist)".
+		collapsedByKey: {},
+		// Tracks which op the cursor was last in, so we can wipe stale user
+		// toggles when the cursor moves to a different operation.
+		lastCursorOpKey: null,
+		// Tracks the last cursor field-path key we revealed, so typing within
+		// the same field doesn't re-trigger scroll/highlight on every keystroke.
+		lastFieldPathKey: null,
+	};
+
+	static getDerivedStateFromProps(props, state) {
+		const ops = (() => {
+			try {
+				return memoizeParseQuery(props.query).definitions.filter(
+					(d) =>
+						d.kind === 'OperationDefinition' ||
+						d.kind === 'FragmentDefinition'
+				);
+			} catch {
+				return [];
+			}
+		})();
+		const cursor = findCursorPath(ops, props.cursorOffset);
+		const cursorOpKey = cursor ? cursor.opKey : null;
+		const nextFieldPathKey = fieldPathKey(cursor);
+		const patch = {};
+		// When the cursor enters a new operation, drop user toggles so the
+		// composer refocuses on the active op.
+		if (cursorOpKey && cursorOpKey !== state.lastCursorOpKey) {
+			patch.lastCursorOpKey = cursorOpKey;
+			patch.collapsedByKey = {};
+		}
+		if (nextFieldPathKey !== state.lastFieldPathKey) {
+			patch.lastFieldPathKey = nextFieldPathKey;
+		}
+		return Object.keys(patch).length ? patch : null;
+	}
+
+	_setCollapsed = (key, collapsed) => {
+		this.setState((prev) => ({
+			collapsedByKey: { ...prev.collapsedByKey, [key]: collapsed },
+		}));
 	};
 
 	_ref;
+	_cursorHighlightEl = null;
+	_cursorHighlightTimer = null;
 	_resetScroll = () => {
 		const container = this._ref;
 		if (container) {
@@ -29,7 +89,87 @@ class ExplorerView extends React.PureComponent {
 	};
 	componentDidMount() {
 		this._resetScroll();
+		// Reveal the row for the cursor's initial position (e.g. when the
+		// panel opens with the editor already focused on a field).
+		this._revealCursorTarget(this.state.lastFieldPathKey);
 	}
+
+	componentDidUpdate(_prevProps, prevState) {
+		if (this.state.lastFieldPathKey !== prevState.lastFieldPathKey) {
+			this._revealCursorTarget(this.state.lastFieldPathKey);
+		}
+	}
+
+	componentWillUnmount() {
+		if (this._cursorHighlightTimer) {
+			clearTimeout(this._cursorHighlightTimer);
+			this._cursorHighlightTimer = null;
+		}
+	}
+
+	// Scroll the row matching `pathKey` into view and apply a brief highlight
+	// class. No-op when there's no container, no key, or no matching row.
+	_revealCursorTarget = (pathKey) => {
+		const container = this._ref;
+		if (this._cursorHighlightTimer) {
+			clearTimeout(this._cursorHighlightTimer);
+			this._cursorHighlightTimer = null;
+		}
+		if (this._cursorHighlightEl) {
+			this._cursorHighlightEl.classList.remove(CURSOR_TARGET_CLASS);
+			this._cursorHighlightEl = null;
+		}
+		if (!container || !pathKey) {
+			return;
+		}
+		// findCursorPath walks AST Field nodes — it will surface names the
+		// user typed that aren't in the schema (and so have no DOM row).
+		// Walk back up the path until a row that exists is found so the
+		// reveal still lands on the nearest visible ancestor.
+		//
+		// querySelector with a data-attribute selector — pathKey is built
+		// from AST field names (validated identifiers), so it's safe to embed.
+		let candidate = pathKey;
+		let el = container.querySelector(`[data-field-path="${candidate}"]`);
+		while (!el && candidate.includes('|')) {
+			candidate = candidate.substring(0, candidate.lastIndexOf('|'));
+			el = container.querySelector(`[data-field-path="${candidate}"]`);
+		}
+		if (!el) {
+			return;
+		}
+		// Drive the panel's own scroll container, skip the scroll when the
+		// row is already in view, and write `scrollTop` directly instead of
+		// `scrollIntoView` / smooth `scrollTo`. Both `scrollIntoView` and a
+		// smooth scroll dispatch scroll events that the Vaul drawer picks
+		// up as drag input — it then nudges itself up or down in response.
+		// A direct `scrollTop` assignment doesn't dispatch a synthetic
+		// gesture and is contained to the explorer's operations container.
+		const scrollContainer =
+			container.querySelector('.graphiql-explorer-operations') ||
+			container;
+		const elRect = el.getBoundingClientRect();
+		const containerRect = scrollContainer.getBoundingClientRect();
+		const elTop = elRect.top - containerRect.top;
+		const elBottom = elTop + elRect.height;
+		const visibleHeight = scrollContainer.clientHeight;
+		if (elTop < 0 || elBottom > visibleHeight) {
+			const targetTop =
+				scrollContainer.scrollTop +
+				elTop -
+				(visibleHeight - elRect.height) / 2;
+			scrollContainer.scrollTop = Math.max(0, targetTop);
+		}
+		el.classList.add(CURSOR_TARGET_CLASS);
+		this._cursorHighlightEl = el;
+		this._cursorHighlightTimer = setTimeout(() => {
+			if (this._cursorHighlightEl) {
+				this._cursorHighlightEl.classList.remove(CURSOR_TARGET_CLASS);
+				this._cursorHighlightEl = null;
+			}
+			this._cursorHighlightTimer = null;
+		}, CURSOR_HIGHLIGHT_MS);
+	};
 
 	_onEdit = (query) => this.props.onEdit(query);
 
@@ -114,6 +254,12 @@ class ExplorerView extends React.PureComponent {
 			_relevantOperations.length === 0
 				? DEFAULT_DOCUMENT.definitions
 				: _relevantOperations;
+
+		const cursor = findCursorPath(
+			_relevantOperations,
+			this.props.cursorOffset
+		);
+		const cursorOpKey = cursor ? cursor.opKey : null;
 
 		const renameOperation = (targetOperation, name) => {
 			const newName =
@@ -292,60 +438,34 @@ class ExplorerView extends React.PureComponent {
 
 		const actionsEl =
 			actionsOptions.length === 0 || this.props.hideActions ? null : (
-				<div
-					style={{
-						minHeight: '50px',
-						maxHeight: '50px',
-						overflow: 'none',
-					}}
+				<form
+					className="graphiql-explorer-actions"
+					onSubmit={(event) => event.preventDefault()}
 				>
-					<form
-						className="variable-editor-title graphiql-explorer-actions"
-						style={{
-							...styleConfig.styles.explorerActionsStyle,
-							display: 'flex',
-							flexDirection: 'row',
-							alignItems: 'center',
-							borderTop: '1px solid rgb(214, 214, 214)',
-						}}
-						onSubmit={(event) => event.preventDefault()}
+					<span className="graphiql-explorer-actions-label">
+						Add new
+					</span>
+					<select
+						onChange={(event) =>
+							this._setAddOperationType(event.target.value)
+						}
+						value={this.state.newOperationType}
 					>
-						<span
-							style={{
-								display: 'inline-block',
-								flexGrow: '0',
-								textAlign: 'right',
-							}}
-						>
-							Add new{' '}
-						</span>
-						<select
-							onChange={(event) =>
-								this._setAddOperationType(event.target.value)
-							}
-							value={this.state.newOperationType}
-							style={{ flexGrow: '2' }}
-						>
-							{actionsOptions}
-						</select>
-						<button
-							type="submit"
-							className="toolbar-button"
-							onClick={() =>
-								this.state.newOperationType
-									? addOperation(this.state.newOperationType)
-									: null
-							}
-							style={{
-								...styleConfig.styles.buttonStyle,
-								height: '22px',
-								width: '22px',
-							}}
-						>
-							<span>+</span>
-						</button>
-					</form>
-				</div>
+						{actionsOptions}
+					</select>
+					<button
+						type="submit"
+						className="graphiql-explorer-actions-add"
+						aria-label="Add operation"
+						onClick={() =>
+							this.state.newOperationType
+								? addOperation(this.state.newOperationType)
+								: null
+						}
+					>
+						+
+					</button>
+				</form>
 			);
 
 		const externalFragments =
@@ -399,26 +519,9 @@ class ExplorerView extends React.PureComponent {
 				ref={(ref) => {
 					this._ref = ref;
 				}}
-				style={{
-					fontSize: 12,
-					textOverflow: 'ellipsis',
-					whiteSpace: 'nowrap',
-					margin: 0,
-					padding: 8,
-					fontFamily:
-						'Consolas, Inconsolata, "Droid Sans Mono", Monaco, monospace',
-					display: 'flex',
-					flexDirection: 'column',
-					height: '100%',
-				}}
 				className="graphiql-explorer-root"
 			>
-				<div
-					style={{
-						flexGrow: '1',
-						overflow: 'scroll',
-					}}
-				>
+				<div className="graphiql-explorer-operations">
 					{relevantOperations.map((operation, index) => {
 						const operationName =
 							operation && operation.name && operation.name.value;
@@ -478,14 +581,60 @@ class ExplorerView extends React.PureComponent {
 							this.props.onEdit(textualNewDocument);
 						};
 
+						// With multiple operations: when the editor cursor
+						// is inside an operation, that one is the default-
+						// expanded; otherwise the first is. User toggles
+						// override the default until the cursor moves to a
+						// new operation (which wipes the toggle map).
+						const opKey = operationKey(operation, index);
+						const userCollapsed = this.state.collapsedByKey[opKey];
+						let defaultCollapsed;
+						if (relevantOperations.length <= 1) {
+							defaultCollapsed = false;
+						} else if (cursorOpKey) {
+							defaultCollapsed = opKey !== cursorOpKey;
+						} else {
+							defaultCollapsed = index !== 0;
+						}
+						const isCollapsed =
+							typeof userCollapsed === 'boolean'
+								? userCollapsed
+								: defaultCollapsed;
+						const onToggleCollapsed = () =>
+							this._setCollapsed(opKey, !isCollapsed);
+
+						let rootTypeName = null;
+						if (operationType === 'query' && queryType) {
+							rootTypeName = queryType.name;
+						} else if (
+							operationType === 'mutation' &&
+							mutationType
+						) {
+							rootTypeName = mutationType.name;
+						} else if (
+							operationType === 'subscription' &&
+							subscriptionType
+						) {
+							rootTypeName = subscriptionType.name;
+						} else if (
+							operation.kind === 'FragmentDefinition' &&
+							fragmentTypeName
+						) {
+							rootTypeName = fragmentTypeName;
+						}
+
 						return (
 							<RootView
 								key={index}
 								isLast={index === relevantOperations.length - 1}
 								fields={fields}
+								rootTypeName={rootTypeName}
 								operationType={operationType}
 								name={operationName}
 								definition={operation}
+								isCollapsed={isCollapsed}
+								onToggleCollapsed={onToggleCollapsed}
+								canCollapse={true}
 								onOperationRename={onOperationRename}
 								onOperationDestroy={onOperationDestroy}
 								onOperationClone={onOperationClone}
@@ -539,6 +688,7 @@ class ExplorerView extends React.PureComponent {
 								}}
 								styleConfig={styleConfig}
 								availableFragments={availableFragments}
+								opKey={opKey}
 							/>
 						);
 					})}

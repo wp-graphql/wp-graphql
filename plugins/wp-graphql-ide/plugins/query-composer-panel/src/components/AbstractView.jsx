@@ -125,6 +125,7 @@ class AbstractView extends React.PureComponent {
 								<FieldView
 									key={fieldName}
 									field={fields[fieldName]}
+									parentTypeName={implementingType.name}
 									selections={childSelections}
 									modifySelections={
 										this._modifyChildSelections

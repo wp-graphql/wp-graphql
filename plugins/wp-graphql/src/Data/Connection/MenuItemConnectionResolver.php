@@ -48,8 +48,11 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		// Public queries should only be allowed to query for Menu Items assigned to a Menu Location.
 		$locations = is_array( $menu_locations ) && ! empty( $menu_locations ) ? array_unique( array_values( $menu_locations ) ) : [];
 
+		// Whether a location was explicitly requested via the `location` where arg.
+		$has_explicit_location = ! empty( $args['where']['location'] );
+
 		// If the location argument is set, set the argument to the input argument
-		if ( ! empty( $args['where']['location'] ) ) {
+		if ( $has_explicit_location ) {
 			$locations = isset( $menu_locations[ $args['where']['location'] ] ) ? [ $menu_locations[ $args['where']['location'] ] ] : []; // We use an empty array to prevent fetching all media items if the location has no items assigned.
 
 		} elseif ( current_user_can( 'edit_theme_options' ) ) {
@@ -57,8 +60,30 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			$locations = null;
 		}
 
+		/**
+		 * Filter whether the menu item connection should be restricted to items
+		 * assigned to a registered menu location.
+		 *
+		 * By default, public (unauthenticated) requests are limited to menu items
+		 * assigned to a menu location. Return `false` to allow public requests to
+		 * query menu items belonging to menus that are not assigned to any location
+		 * (e.g. when using the "Make Menus and Menu Items public" recipe, which also
+		 * flips the MenuItem Model privacy gate via `graphql_data_is_private`).
+		 *
+		 * An explicit `location` where arg always restricts to that location and is
+		 * unaffected by this filter.
+		 *
+		 * @param bool                 $restrict_to_locations Whether to restrict the connection to assigned menu locations. Default true.
+		 * @param int[]|null           $locations             The menu location term IDs the connection is being restricted to, or null when unrestricted (privileged user).
+		 * @param array<string,mixed>  $args                  The GraphQL args passed to the resolver.
+		 * @param array<string,mixed>  $unfiltered_args       Array of arguments input in the field as part of the GraphQL query.
+		 *
+		 * @since x-release-please-version
+		 */
+		$restrict_to_locations = $has_explicit_location || apply_filters( 'graphql_menu_item_connection_restrict_to_locations', true, $locations, $args, $this->get_unfiltered_args() );
+
 		// Only query for menu items in assigned locations.
-		if ( isset( $locations ) ) {
+		if ( $restrict_to_locations && isset( $locations ) ) {
 
 			// unset the location arg
 			// we don't need this passed as a taxonomy parameter to wp_query

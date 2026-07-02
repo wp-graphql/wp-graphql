@@ -1,4 +1,13 @@
 import { GraphiQL } from 'graphiql';
+// `@graphiql/react` is an upstream package that ships nested under
+// `graphiql@1.x` at runtime but isn't hoisted to a path the lint
+// resolver walks. The hooks below (usePrettifyEditors,
+// useHistoryContext) drive the Prettify and History buttons on this
+// toolbar, so the import has to stay. Adding @graphiql/react as a
+// top-level dep would silence the lint, but it'd also commit the
+// repo to a version of an upstream we don't otherwise consume —
+// suppressing the resolver-only warning here is the smaller change.
+// eslint-disable-next-line import/no-unresolved
 import { usePrettifyEditors, useHistoryContext } from '@graphiql/react';
 import { useGraphiQLContext } from '../context/GraphiQLContext';
 const { hooks } = wpGraphiQL;

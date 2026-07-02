@@ -10,20 +10,26 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   run:
     runs-on: ubuntu-latest
     name: Generate and Upload WPGraphQL Schema Artifact
+    # Needs write access to attach the generated schema to the GitHub release.
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           # When manually triggered, checkout the specified tag
           ref: ${{ inputs.tag || github.ref }}
 
       - name: Setup PHP w/ Composer & WP-CLI
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: 8.2
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
@@ -31,30 +37,101 @@ jobs:
           tools: composer:v2
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@5c2bcf28d7b060ef3c601d7b476d5430a7b46c27 # v3.1.1
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
 
       - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: npm ci
 
       - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
+        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
         with:
           key: docker-${{ runner.os }}-wp-latest
 
       - name: Start wp-env
-        run: npm run wp-env start
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            npm run wp-env start
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step below.
+            if ! npm run wp-env -- run cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; retrying start"
+              exit 1
+            fi
+
+      # The release schema artifact is the baseline the schema-linter diffs against, so it
+      # MUST be generated with the same plugin context the linter uses for that component
+      # (see schema-linter.yml `active_plugins`). wp-env activates every monorepo plugin by
+      # default, which would otherwise bake other plugins' schema (e.g. the IDE's
+      # `updateGraphqlSetting`) into this component's baseline and produce phantom "breaking
+      # change" diffs when the linter regenerates the component-only schema.
+      - name: Determine released component and required plugins
+        id: component
+        run: |
+          TAG="${{ inputs.tag || github.event.release.tag_name }}"
+          # Tags are component-scoped (e.g. wp-graphql/v2.16.0 -> component wp-graphql).
+          if [[ "$TAG" == */* ]]; then
+            COMPONENT="${TAG%%/*}"
+          else
+            COMPONENT="wp-graphql"
+          fi
+          # Required plugins = wp-graphql (always — registers the CLI command + is the base
+          # dependency) plus the component itself. Mirrors schema-linter.yml's active_plugins.
+          REQUIRED="wp-graphql"
+          if [[ "$COMPONENT" != "wp-graphql" ]]; then
+            REQUIRED="wp-graphql $COMPONENT"
+          fi
+          echo "component=$COMPONENT" >> "$GITHUB_OUTPUT"
+          echo "required_plugins=$REQUIRED" >> "$GITHUB_OUTPUT"
+          echo "Releasing component: $COMPONENT | required plugins: $REQUIRED"
+
+      - name: Scope active plugins for schema generation
+        run: |
+          REQUIRED="${{ steps.component.outputs.required_plugins }}"
+          echo "Active plugins (before):"
+          npm run wp-env run cli -- wp plugin list --status=active || true
+
+          # Deactivate any active plugin not in the required set. Keep wp-graphql active so the
+          # `wp graphql` CLI command stays registered.
+          ACTIVE=$(npm run wp-env run cli -- wp plugin list --status=active 2>/dev/null | awk 'NR>1 {print $1}' | grep -v "^wp-graphql$" || true)
+          for plugin in $ACTIVE; do
+            [ -z "$plugin" ] && continue
+            keep=false
+            for req in $REQUIRED; do
+              if [ "$plugin" = "$req" ]; then keep=true; break; fi
+            done
+            if [ "$keep" = false ]; then
+              echo "Deactivating $plugin"
+              npm run wp-env run cli -- wp plugin deactivate "$plugin" 2>/dev/null || true
+            fi
+          done
+
+          # Ensure required (non-wp-graphql) plugins are active.
+          for plugin in $REQUIRED; do
+            [ "$plugin" = "wp-graphql" ] && continue
+            npm run wp-env run cli -- wp plugin activate "$plugin" 2>/dev/null || echo "Warning: could not activate $plugin"
+          done
+
+          echo "Active plugins (after):"
+          npm run wp-env run cli -- wp plugin list --status=active
 
       - name: Generate the Static Schema
         run: |
@@ -69,7 +146,7 @@ jobs:
           echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Upload schema as release artifact
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           tag_name: ${{ inputs.tag || github.event.release.tag_name }}
           files: /tmp/schema.graphql

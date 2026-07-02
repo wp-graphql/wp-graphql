@@ -59,3 +59,16 @@ Copy `.env.local.example` to `.env.local` and fill in the values:
 - `NEXT_PUBLIC_WORDPRESS_URL` - The WordPress URL (used for previews and data fetching)
 - `FAUSTWP_SECRET_KEY` - Secret key for FaustWP previews
 - `GITHUB_TOKEN` - GitHub token for API calls (optional)
+
+## Branding & design system
+
+The extension landing pages (`/extensions/*`) and the site's theming use the
+WPGraphQL product-family "sibling brand" system — a shared navy foundation with a
+per-product accent (violet for IDE, emerald for ACF, rose for Smart Cache),
+applied via scoped `.theme-*` classes in `src/styles/globals.css`. Logo
+components live in `src/components/<Product>/` and the shared section building
+blocks in `src/components/extensions/`.
+
+The source-of-truth brand guides, tokens, and the WordPress.org asset generators
+live in the monorepo's [`design/brand/`](../../design/brand/README.md) directory.
+If you're adding or restyling a sibling-brand page or asset, start there.

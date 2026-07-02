@@ -1,6 +1,5 @@
-import { gql } from "@apollo/client"
+import gql from "graphql-tag"
 import DocsLayout from "components/Docs/DocsLayout"
-import { NavMenuFragment } from "components/Site/SiteLayout"
 import Link from "next/link"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 import recipesIndex from "generated/recipes-index.json"
@@ -175,34 +174,31 @@ export default function SingleRecipe({ data }) {
   )
 }
 
-SingleRecipe.query = gql`
-  query GetRecipe($uri: ID!) {
-    node: contentNode(id: $uri, idType: URI) {
-      id
-      ... on NodeWithTitle {
-        title
-      }
-      uri
-      ... on NodeWithContentEditor {
-        content
-      }
-      ... on CodeSnippet {
-        recipeTags: codeSnippetTags {
-          nodes {
-            id
-            name
-            uri
+SingleRecipe.queries = {
+  node: {
+    query: gql`
+      query SingleCodeSnippet_Node($uri: ID!) {
+        node: contentNode(id: $uri, idType: URI) {
+          id
+          ... on NodeWithTitle {
+            title
+          }
+          uri
+          ... on NodeWithContentEditor {
+            content
+          }
+          ... on CodeSnippet {
+            recipeTags: codeSnippetTags {
+              nodes {
+                id
+                name
+                uri
+              }
+            }
           }
         }
       }
-    }
-    ...NavMenu
-  }
-  ${NavMenuFragment}
-`
-
-SingleRecipe.variables = ({ uri }) => {
-  return {
-    uri,
-  }
+    `,
+    variables: ({ seed }) => ({ uri: seed?.uri }),
+  },
 }

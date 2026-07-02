@@ -6,12 +6,13 @@
 [![Monthly Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/monthly)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Daily Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/daily)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Latest Stable Version](https://poser.pugx.org/wp-graphql/wp-graphql/v/stable)](https://packagist.org/packages/wp-graphql/wp-graphql)
-[![Testing Integration](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22)
-[![WordPress Coding Standards](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
-[![Schema Linter](https://github.com/wp-graphql/wp-graphql/workflows/Schema%20Linter/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Schema+Linter%22)
-[![GraphiQL E2E Tests](https://github.com/wp-graphql/wp-graphql/workflows/GraphiQL%20E2E%20Tests/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22GraphiQL+E2E+Tests%22)
-[![Code Quality](https://github.com/wp-graphql/wp-graphql/workflows/Code%20Quality/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Code+Quality%22)
+[![Integration Tests](https://github.com/wp-graphql/wp-graphql/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions/workflows/integration-tests.yml)
+[![Lint](https://github.com/wp-graphql/wp-graphql/actions/workflows/lint.yml/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions/workflows/lint.yml)
+[![Schema Linter](https://github.com/wp-graphql/wp-graphql/actions/workflows/schema-linter.yml/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions/workflows/schema-linter.yml)
+[![JS E2E Tests](https://github.com/wp-graphql/wp-graphql/actions/workflows/js-e2e-tests.yml/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions/workflows/js-e2e-tests.yml)
+[![CodeQL](https://github.com/wp-graphql/wp-graphql/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/wp-graphql/wp-graphql/branch/main/graph/badge.svg)](https://codecov.io/gh/wp-graphql/wp-graphql)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13365/badge)](https://www.bestpractices.dev/projects/13365)
 
 **Unlock the power of WordPress data with GraphQL**
 
@@ -34,6 +35,8 @@ wp-graphql/
 │   └── wp-graphql-acf/      # ACF extension plugin
 ├── websites/
 │   └── wpgraphql.com/        # WPGraphQL.com Next.js website
+├── design/
+│   └── brand/                # Product-family brand guides + wp.org asset generators
 ├── .wp-env.json             # Shared WordPress environment config
 ├── package.json             # Root workspace configuration
 └── turbo.json               # Turborepo build orchestration
@@ -171,3 +174,5 @@ WPGraphQL is becoming a [Canonical Plugin on WordPress.org](https://wordpress.or
 ### 🛠 **Privacy & Telemetry**
 
 WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**, helping us improve the plugin responsibly.
+
+When telemetry is enabled, each payload is sent to Appsero **and** mirrored in non-blocking requests to WPGraphQL-operated infrastructure at [https://telemetry.wpgraphql.com](https://telemetry.wpgraphql.com) (the same data as described in Appsero’s policy).

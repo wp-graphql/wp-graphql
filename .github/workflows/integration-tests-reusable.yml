@@ -70,6 +70,14 @@ on:
         required: false
         type: boolean
         default: false
+      install_wp_graphql_smart_cache_deps:
+        description: 'Whether this plugin loads WPGraphQL Smart Cache during WPUnit (WPLoader requires its plugin file); if true, runs composer install in plugins/wp-graphql-smart-cache so its autoloader is available and the graphql_document post type actually registers'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
 
 jobs:
   # Job naming strategy:
@@ -107,7 +115,7 @@ jobs:
           echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
@@ -131,51 +139,85 @@ jobs:
           echo "Required ACF license secret(s) are set."
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ inputs.php }}
           tools: composer:v2
           extensions: json, mbstring
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v4
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v4
         with:
           working-directory: ${{ inputs.plugin_path }}
 
       - name: Install WPGraphQL core Composer dependencies
         if: inputs.install_wp_graphql_core_deps
-        uses: ramsey/composer-install@v4
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v4
         with:
           working-directory: plugins/wp-graphql
 
+      # Smart Cache's entry file only loads its classes when its own
+      # vendor/autoload.php is present. Plugins whose WPLoader config
+      # boots Smart Cache (currently the IDE) need its autoloader inside
+      # the test container — without this, can_load_plugin() bails and
+      # the graphql_document post type is never registered, so every REST
+      # test hitting /wp/v2/graphql_document/* 404s.
+      - name: Install WPGraphQL Smart Cache Composer dependencies
+        if: inputs.install_wp_graphql_smart_cache_deps
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v4
+        with:
+          working-directory: plugins/wp-graphql-smart-cache
+
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: npm ci
+          command: npm ci --prefer-offline --no-audit --no-fund
 
+      # Build only the plugin under test (and its workspace deps) rather than
+      # every plugin in the monorepo. Smart Cache and ACF have no JS build, so
+      # their jobs build nothing; core's built assets are file_exists-guarded
+      # (see Admin/GraphiQL, Admin/Extensions), so dependent-plugin jobs that
+      # load core don't need it built.
       - name: Build JavaScript assets
-        run: npm run build -- --filter='./plugins/*'
+        run: npm run build -- --filter='@wpgraphql/${{ inputs.plugin_name }}...'
 
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
-        with:
-          key: docker-${{ runner.os }}-${{ inputs.php }}-${{ inputs.wp }}
-
+      # Note: we intentionally do NOT cache the wp-env Docker images. The repo's
+      # 10GB Actions cache budget is consumed by composer/npm/Playwright caches,
+      # so the multi-GB image caches were always evicted before the next run —
+      # every run missed the cache yet still paid ~30s saving it. wp-env pulls
+      # the images directly, which is no slower than restoring an image tarball.
       - name: Start the Docker testing environment
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
-          timeout_minutes: 10
+          timeout_minutes: 15
           max_attempts: 3
           command: |
             ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            # wp-env intermittently reports a successful start but leaves the
+            # instance uninitialized: the next `wp-env run` then fails with
+            # "Environment not initialized. Run `wp-env start` first." for the
+            # rest of the job, and only a fresh start clears it. Probe readiness
+            # here so a bad start fails THIS step and retries `wp-env start`
+            # (which re-creates the instance) instead of poisoning every step
+            # below. On failure, dump the wp-env home so a recurrence is
+            # diagnosable from the logs.
+            if ! npm run wp-env -- run tests-cli wp core version; then
+              echo "::warning::wp-env reported a successful start but is not initialized; dumping state and retrying start"
+              # wp-env's home defaults to ~/wp-env on snap runners, else ~/.wp-env
+              # (or $WP_ENV_HOME when set). Dump whichever exists for diagnosis.
+              for d in "$WP_ENV_HOME" "$HOME/wp-env" "$HOME/.wp-env"; do
+                [ -n "$d" ] && [ -d "$d" ] && { echo "== $d =="; ls -la "$d"; }
+              done
+              exit 1
+            fi
 
       - name: Log versions
         run: |
@@ -330,13 +372,33 @@ jobs:
           echo "Testing GraphQL endpoint..."
           npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
 
+      # Acceptance / Functional steps are skipped when a plugin has no
+      # specs in the corresponding directory. wp-graphql-ide dropped its
+      # acceptance/functional suites during the rebuild; running an empty
+      # suite makes codecept exit 1 even though there's nothing to test.
+      # The hashFiles guard makes the steps only fire when there's actual
+      # content under the directory, which is what every other plugin in
+      # the matrix already has.
       - name: Run Acceptance Tests
+        if: hashFiles(format('plugins/{0}/tests/acceptance/**/*.php', inputs.plugin_name)) != ''
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}
 
       - name: Run Functional Tests
+        if: hashFiles(format('plugins/{0}/tests/functional/**/*.php', inputs.plugin_name)) != ''
         run: |
           npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
+      # `bin/setup-wp-env.sh` deactivates wp-graphql-ide on the `tests-cli`
+      # env so other plugins' acceptance/functional suites don't see the
+      # IDE's admin chrome. When THIS run is the IDE's own wpunit suite,
+      # re-activate it here — SmartCacheBridge needs to be loaded so the
+      # filter that adds `show_in_rest` to `graphql_document` is in place
+      # before Smart Cache's `init` callback registers the post type.
+      - name: Re-activate IDE for its own wpunit suite
+        if: inputs.plugin_name == 'wp-graphql-ide'
+        run: |
+          npm run wp-env -- run tests-cli -- wp plugin activate wp-graphql-ide
 
       - name: Run WPUnit Tests
         env:
@@ -345,9 +407,21 @@ jobs:
         run: |
           npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && github.actor != 'dependabot[bot]' && '--coverage --coverage-xml' || '' }}'
 
+      # Plugins can opt in to a second wpunit suite that boots with a
+      # different plugin set (e.g. Smart Cache active). Defined per-plugin
+      # at `tests/wpunit-integration.suite.yml`; the hashFiles guard skips
+      # the step for plugins that don't ship one.
+      - name: Run WPUnit Integration Tests
+        if: hashFiles(format('plugins/{0}/tests/wpunit-integration.suite.yml', inputs.plugin_name)) != ''
+        env:
+          MULTISITE: ${{ inputs.multisite && 'true' || '' }}
+          TEST_THEME: ${{ inputs.theme }}
+        run: |
+          npm run -w @wpgraphql/${{ inputs.plugin_name }} test:codecept:wpunit-integration -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
       - name: Upload test failure artifacts
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ inputs.plugin_name }}-test-failures-php${{ inputs.php }}-wp${{ inputs.wp }}${{ inputs.multisite && '-multisite' || '' }}
           path: ${{ inputs.plugin_path }}/tests/_output/*.fail.html
@@ -377,7 +451,7 @@ jobs:
       - name: Upload coverage to Codecov
         # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
         if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: ${{ inputs.plugin_path }}/tests/_output/coverage.xml
           flags: ${{ inputs.plugin_name }}-wpunit-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
@@ -389,7 +463,7 @@ jobs:
       - name: Upload HTML coverage report as artifact
         # Skip coverage steps for Dependabot PRs - dependency updates don't change coverage
         if: ${{ inputs.coverage && github.actor != 'dependabot[bot]' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ inputs.plugin_name }}-code-coverage-${{ inputs.php }}-${{ inputs.wp }}-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
           path: ${{ inputs.plugin_path }}/tests/_output/html
