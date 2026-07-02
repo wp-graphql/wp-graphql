@@ -75,7 +75,16 @@ function register_diagnostics_filter(): void {
 		7
 	);
 }
-add_action( 'graphql_do_request', __NAMESPACE__ . '\register_diagnostics_filter' );
+// WPGraphQL releases after 2.17.0 rename do_graphql_request to
+// graphql_do_request. Attach to whichever name the active core fires so this
+// release works on either side of the rename without triggering deprecation
+// notices.
+// TODO: drop the fallback once the minimum supported WPGraphQL version is
+// past the rename.
+add_action(
+	version_compare( WPGRAPHQL_VERSION, '2.17.0', '>' ) ? 'graphql_do_request' : 'do_graphql_request',
+	__NAMESPACE__ . '\register_diagnostics_filter'
+);
 
 /**
  * @param mixed                                $response
