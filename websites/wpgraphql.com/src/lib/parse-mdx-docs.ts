@@ -46,6 +46,26 @@ const DOCS_PATH = `https://raw.githubusercontent.com/${DOCS_OWNER}/${DOCS_REPO}/
 const DOCS_NAV_CONFIG_URL = `${DOCS_PATH}/docs_nav.json`
 const LOCAL_DOCS_DIR = path.resolve(process.cwd(), "..", "..", DOCS_FOLDER)
 
+// Doc subtrees that have dedicated top-level routes (the Developer
+// Reference). Their markdown lives under plugins/wp-graphql/docs/<root>/ but
+// their canonical URLs are /<root>/... — the /docs/<root>/... variants
+// redirect there so the docs catch-all never renders them with the wrong nav.
+const DEVELOPER_REFERENCE_ROOTS = ["actions", "filters", "functions", "recipes"]
+
+export function toCanonicalDocUri(uri: string): string {
+  const match = uri.match(/^\/docs\/([^/]+)(\/.*)?$/)
+  if (!match || !DEVELOPER_REFERENCE_ROOTS.includes(match[1])) {
+    return uri
+  }
+
+  const rest = !match[2] || match[2] === "/index" ? "" : match[2]
+  return `/${match[1]}${rest}`
+}
+
+export function isDeveloperReferenceDocUri(uri: string): boolean {
+  return toCanonicalDocUri(uri) !== uri
+}
+
 function sanitizeMarkdownForMdx(mdContent: string) {
   return mdContent.replace(/^\uFEFF?[\s\r\n]*(?:<!--[\s\S]*?-->\s*)+/u, "")
 }

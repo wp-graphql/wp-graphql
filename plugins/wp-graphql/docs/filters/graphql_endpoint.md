@@ -33,7 +33,7 @@ Legacy endpoint path filter retained for backward compatibility.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:910`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L910)
+- [`plugins/wp-graphql/access-functions.php:936`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L936)
 
 ```php
 apply_filters_deprecated(
@@ -46,7 +46,7 @@ apply_filters_deprecated(
 
 ## Related
 
-- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:910`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L910)
+- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:936`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L936)
 - `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L121)
 
 ## Recipes

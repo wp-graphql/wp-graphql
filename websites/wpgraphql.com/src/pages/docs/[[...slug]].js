@@ -4,7 +4,13 @@ import DocsLayout from "components/Docs/DocsLayout"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
-import { getAllDocUri, getDocsNav, getParsedDoc } from "lib/parse-mdx-docs"
+import {
+  getAllDocUri,
+  getDocsNav,
+  getParsedDoc,
+  isDeveloperReferenceDocUri,
+  toCanonicalDocUri,
+} from "lib/parse-mdx-docs"
 
 import components from "components/Docs/MdxComponents"
 
@@ -65,6 +71,18 @@ export async function getStaticProps({ params }) {
     return { notFound: true }
   }
 
+  // Developer Reference subtrees (actions/filters/functions/recipes) have
+  // dedicated top-level routes; send /docs/<root>/... to the canonical URL.
+  const requestedUri = `/docs/${docSlug}`
+  if (isDeveloperReferenceDocUri(requestedUri)) {
+    return {
+      redirect: {
+        destination: toCanonicalDocUri(requestedUri),
+        permanent: true,
+      },
+    }
+  }
+
   try {
     const { source, toc, hasMarkdownH1 } = await getParsedDoc(docSlug)
     const docsNavData = await getDocsNav()
@@ -101,7 +119,10 @@ export async function getStaticPaths() {
   let paths = []
   try {
     const uris = await getAllDocUri()
-    paths = uris.map((uri) => toSlugParams(uri)).filter(Boolean)
+    paths = uris
+      .filter((uri) => !isDeveloperReferenceDocUri(uri))
+      .map((uri) => toSlugParams(uri))
+      .filter(Boolean)
   } catch (e) {
     console.error("getStaticPaths: failed to enumerate docs from GitHub", e)
   }

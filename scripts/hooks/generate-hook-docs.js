@@ -1080,7 +1080,7 @@ function renderIndexPage({ title, kind, hooks }) {
 				const status = hook.lifecycle?.status;
 				const statusSuffix =
 					status === 'deprecated' ? ' _(deprecated)_' : status === 'removed' ? ' _(removed)_' : '';
-				lines.push(`- [\`${hook.name}\`](/docs/${kind}/${slug})${statusSuffix}`);
+				lines.push(`- [\`${hook.name}\`](/${kind}/${slug})${statusSuffix}`);
 			});
 		lines.push('');
 	});

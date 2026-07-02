@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-02T16:09:32.462Z",
+  "generatedAt": "2026-07-02T17:09:29.846Z",
   "stats": {
     "totalHooks": 301,
     "actions": 69,
@@ -4682,7 +4682,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "graphql_get_endpoint()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 910,
+      "line": 936,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy endpoint path filter retained for backward compatibility.",
@@ -4706,7 +4706,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 910,
+          "line": 936,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters_deprecated"
         },
@@ -4771,7 +4771,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 910,
+          "line": 936,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters_deprecated"
         },
@@ -4812,7 +4812,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "graphql_get_endpoint()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 908,
+      "line": 934,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the relative endpoint path where GraphQL can be accessed.",
@@ -4842,7 +4842,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 908,
+          "line": 934,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters"
         },
@@ -4896,7 +4896,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 908,
+          "line": 934,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters"
         },
@@ -6057,7 +6057,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "get_graphql_setting()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 888,
+      "line": 912,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the value before returning it",
@@ -6107,7 +6107,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 888,
+          "line": 912,
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
@@ -6125,7 +6125,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "get_graphql_setting()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 866,
+      "line": 890,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the section fields",
@@ -6165,7 +6165,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 866,
+          "line": 890,
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }

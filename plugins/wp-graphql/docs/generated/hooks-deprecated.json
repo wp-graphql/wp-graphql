@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-02T16:09:32.462Z",
+  "generatedAt": "2026-07-02T17:09:29.846Z",
   "count": 21,
   "hooks": [
     {
@@ -262,7 +262,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 910,
+          "line": 936,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters_deprecated"
         },
@@ -298,7 +298,7 @@
         },
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 910
+          "line": 936
         }
       ],
       "occurrences": 2

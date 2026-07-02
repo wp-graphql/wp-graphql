@@ -30,7 +30,7 @@ Filter the section fields
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:866`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L866)
+- [`plugins/wp-graphql/access-functions.php:890`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L890)
 
 ```php
 apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_n
 
 ## Related
 
-- `get_graphql_setting()` in [`plugins/wp-graphql/access-functions.php:866`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L866)
+- `get_graphql_setting()` in [`plugins/wp-graphql/access-functions.php:890`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L890)
