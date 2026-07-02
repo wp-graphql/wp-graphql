@@ -187,6 +187,52 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	}
 
 	/**
+	 * The `home` option ("Site Address") should be queryable via generalSettings.
+	 *
+	 * WordPress core registers `siteurl` ("WordPress Address") for the REST API, which is
+	 * exposed as `generalSettings.url`, but core does not register `home`. WPGraphQL
+	 * registers `home` for GraphQL so headless sites can read the canonical front-end URL,
+	 * which can differ from the WordPress Address.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2520
+	 * @throws \Exception
+	 */
+	public function testGeneralSettingsHomeIsExposed() {
+		wp_set_current_user( $this->admin );
+
+		// Set the Site Address (home) to a value distinct from the WordPress Address (siteurl).
+		update_option( 'home', 'https://frontend.example.com' );
+		update_option( 'siteurl', 'https://wp.example.com' );
+
+		$query = '
+		{
+			generalSettings {
+				url
+				home
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// The `home` field should exist and resolve on every install. Without the
+		// registration the field would not exist on the GeneralSettings type and the
+		// query above would error, so this guards the registration itself.
+		$this->assertArrayHasKey( 'home', $actual['data']['generalSettings'] );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['home'] );
+
+		// On multisite, update_option() for siteurl/home does not round-trip through
+		// GraphQL to the set value (mirrors the guarded assertion in testAllSettingsQuery),
+		// so only assert the exact values on single-site installs.
+		if ( ! is_multisite() ) {
+			$this->assertEquals( 'https://wp.example.com', $actual['data']['generalSettings']['url'] );
+			$this->assertEquals( 'https://frontend.example.com', $actual['data']['generalSettings']['home'] );
+		}
+	}
+
+	/**
 	 * Ensure RootQuery does not expose allSettings when no settings are available.
 	 *
 	 * @return void

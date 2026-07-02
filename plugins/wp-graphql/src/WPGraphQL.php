@@ -236,6 +236,12 @@ final class WPGraphQL {
 		// Determine what to show in graphql
 		add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 
+		// Register extra core settings (e.g. the `home` / "Site Address" URL) that core does
+		// not register for the REST API. Hooked here (priority 11, right after
+		// register_initial_settings) so it only runs during GraphQL requests and never alters
+		// REST API or admin behavior. See https://github.com/wp-graphql/wp-graphql/issues/2520
+		add_action( 'init_graphql_request', [ self::class, 'register_extra_settings' ], 11 );
+
 		// Throw an exception
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
 		add_action( 'do_graphql_request', [ $this, 'introspection_check' ], 10, 4 );
@@ -532,6 +538,34 @@ final class WPGraphQL {
 		// Run late so the user can filter the args themselves.
 		add_filter( 'register_post_type_args', [ self::class, 'register_graphql_post_type_args' ], 99, 2 );
 		add_filter( 'register_taxonomy_args', [ self::class, 'register_graphql_taxonomy_args' ], 99, 2 );
+	}
+
+	/**
+	 * Registers additional core settings to expose in the GraphQL Schema.
+	 *
+	 * WordPress core registers the `siteurl` option ("WordPress Address") for the REST API,
+	 * which WPGraphQL surfaces as the `url` field on `generalSettings`, but core does not
+	 * register the `home` option ("Site Address"). On headless installs the Site Address is
+	 * often the canonical front-end URL, so it is useful to read it from the GraphQL Schema.
+	 *
+	 * This registers `home` for GraphQL only. It runs on `init_graphql_request` (immediately
+	 * after core's `register_initial_settings()`), so it is scoped to GraphQL requests and
+	 * leaves the REST API and admin behavior untouched.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2520
+	 *
+	 * @return void
+	 */
+	public static function register_extra_settings(): void {
+		register_setting(
+			'general',
+			'home',
+			[
+				'show_in_graphql' => true,
+				'type'            => 'string',
+				'description'     => __( 'Site Address (URL). The front-end address visitors use to reach the site, stored in the `home` option. This can differ from the WordPress Address (`url`) on headless or decoupled installs.', 'wp-graphql' ),
+			]
+		);
 	}
 
 	/**
