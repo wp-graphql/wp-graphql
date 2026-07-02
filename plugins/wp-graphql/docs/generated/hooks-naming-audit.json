@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-21T19:21:42.486Z",
+  "generatedAt": "2026-07-02T16:09:32.462Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,11 +31,11 @@
       ]
     },
     "summary": {
-      "totalHooks": 296,
-      "wpgraphqlHooks": 273,
-      "activeWpgraphqlHooks": 247,
+      "totalHooks": 301,
+      "wpgraphqlHooks": 278,
+      "activeWpgraphqlHooks": 252,
       "coreHooks": 23,
-      "staticHooks": 235,
+      "staticHooks": 240,
       "dynamicHooks": 12,
       "flaggedHooks": 0,
       "warnings": 0,
@@ -44,7 +44,7 @@
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 235
+        "count": 240
       }
     ],
     "flaggedHooks": []

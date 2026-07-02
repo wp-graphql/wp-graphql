@@ -19,6 +19,11 @@ Whether a GraphQL request is in action or not. This is determined by the WPGraph
 - **Since:** 0.4.1
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
+## Recipes
+
+- [Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin](/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin)
+- [Fix pagination conflict with the “Post Type Order” plugin](/recipes/fix-pagination-conflict-with-the-post-type-order-plugin)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:672`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L672)

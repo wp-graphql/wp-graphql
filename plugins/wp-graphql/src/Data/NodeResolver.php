@@ -409,6 +409,7 @@ class NodeResolver {
 			 *
 			 * @param string[] $allowed_hosts Hostnames permitted when comparing the parsed URI host.
 			 *
+			 * @hookGroup request-lifecycle
 			 * @since 2.12.0
 			 */
 			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', $default_allowed_hosts );

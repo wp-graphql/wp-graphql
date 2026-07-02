@@ -541,6 +541,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array<\WP_Post_Type|null>                               $post_type_objects  The post type objects the connection resolves.
 		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $resolver           The connection resolver instance.
 		 *
+		 * @hookGroup connections
 		 * @since 2.17.0
 		 */
 		$allowed_statuses = apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post_type_objects, $this );

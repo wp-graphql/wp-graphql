@@ -38,3 +38,7 @@ do_action( 'graphql_server_config', $config, $this->params );
 ## Related
 
 - `Request::get_server()` in [`plugins/wp-graphql/src/Request.php:990`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L990)
+
+## Recipes
+
+- [Changing the Server Debug Flag](/recipes/change-the-debug-flag)

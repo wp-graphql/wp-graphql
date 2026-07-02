@@ -34,7 +34,7 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:444`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L444)
+- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:465`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L465)
 
 ```php
 apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args,
 
 ## Related
 
-- `PostObjectConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:444`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L444)
+- `PostObjectConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:465`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L465)

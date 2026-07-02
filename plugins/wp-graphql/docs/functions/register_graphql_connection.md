@@ -23,6 +23,14 @@ Given a config array for a connection, this registers a connection by creating a
 
 - `$config` (`array<string,mixed>`): Array to configure the connection
 
+## Recipes
+
+- [Add Primary Category field for The SEO Framework plugin](/recipes/add-primary-category-field-for-the-seo-framework-plugin)
+- [Page Siblings Connection](/recipes/page-siblings-connection)
+- [Popular Posts](/recipes/popular-posts)
+- [Register Connection to Attached Media](/recipes/register-connection-to-attached-media)
+- [Tag to Content Node Connection](/recipes/tag-to-content-node-connection)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:514`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L514)

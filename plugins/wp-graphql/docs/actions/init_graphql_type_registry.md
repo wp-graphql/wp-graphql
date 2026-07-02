@@ -33,7 +33,7 @@ Legacy type registry initialization hook retained for backward compatibility.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L284)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:291`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L291)
 
 ```php
 do_action_deprecated(
@@ -46,4 +46,4 @@ do_action_deprecated(
 
 ## Related
 
-- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L284)
+- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:291`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L291)

@@ -24,7 +24,7 @@ Filters the interfaces applied to an object type
 
 ## Parameters
 
-- `$interfaces` (`string[]`): List of interfaces applied to the Object Type
+- `$interfaces` (`array<string|object|callable():\GraphQL\Type\Definition\InterfaceType>`): List of interfaces applied to the Object Type. Each entry may be an interface name, an InterfaceType instance, or a callable that returns one.
 - `$config` (`array<string,mixed>`): The config for the Object Type
 - `$type` (`mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType`): The Type instance
 

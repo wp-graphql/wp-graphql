@@ -1,10 +1,10 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-21T19:21:42.486Z",
+  "generatedAt": "2026-07-02T16:09:32.462Z",
   "stats": {
-    "totalHooks": 296,
+    "totalHooks": 301,
     "actions": 69,
-    "filters": 227,
+    "filters": 232,
     "dynamic": 19,
     "snippets": 0
   },
@@ -90,7 +90,7 @@
     "flaggedHooks": 0,
     "warnings": 0,
     "errors": 0,
-    "wpgraphqlHooks": 273,
+    "wpgraphqlHooks": 278,
     "coreHooks": 23
   },
   "hooks": [
@@ -567,7 +567,24 @@
           "emitter": "do_action_deprecated"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Log WPGraphQL requests to error log",
+          "slug": "log-wpgraphql-requests-to-error-log",
+          "uri": "/recipes/log-wpgraphql-requests-to-error-log",
+          "wordpressUri": "/recipes/log-wpgraphql-requests-to-error-log/",
+          "uriKey": "/recipes/log-wpgraphql-requests-to-error-log",
+          "group": "WP Admin",
+          "summary": "This snippet logs all WPGraphQL requests to the error log add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) { error_log( wp_json_encode( [ 'query' => $query, 'operation' => $operation,…",
+          "relatedActions": [
+            "do_graphql_request"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "do_graphql_request"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -622,7 +639,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 540,
+      "line": 560,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -646,7 +663,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 540,
+          "line": 560,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -1462,6 +1479,117 @@
           "line": 385,
           "symbol": "Model::wrap_fields()",
           "emitter": "do_action"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_allowed_hosts",
+      "kind": "filter",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "NodeResolver::parse_request()",
+      "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
+      "line": 415,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters hostnames treated as belonging to this WordPress install when resolving node URIs. By default includes the hosts from `site_url()` and `home_url()`. Extensions may append hosts (for example language-specific domains mapped to the same site).",
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$allowed_hosts",
+          "description": "Hostnames permitted when comparing the parsed URI host."
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "2.12.0",
+      "hookGroup": "request-lifecycle",
+      "isDynamic": false,
+      "rawExpression": "'graphql_allowed_hosts'",
+      "sourceCall": "apply_filters( 'graphql_allowed_hosts', $default_allowed_hosts );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
+          "line": 415,
+          "symbol": "NodeResolver::parse_request()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_allowed_post_stati",
+      "kind": "filter",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "PostObjectConnectionResolver::sanitize_post_stati()",
+      "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
+      "line": 547,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters the post statuses the current user is allowed to query in this connection. Allows extensions to adjust which statuses are queryable (for example to expose an additional custom status to specific users, or to further restrict access).",
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$allowed_statuses",
+          "description": "The statuses determined to be queryable by the current user."
+        },
+        {
+          "type": "string[]",
+          "name": "$requested_statuses",
+          "description": "The statuses requested via the connection `stati` where arg."
+        },
+        {
+          "type": "array<\\WP_Post_Type|null>",
+          "name": "$post_type_objects",
+          "description": "The post type objects the connection resolves."
+        },
+        {
+          "type": "\\WPGraphQL\\Data\\Connection\\PostObjectConnectionResolver",
+          "name": "$resolver",
+          "description": "The connection resolver instance."
+        }
+      ],
+      "argumentCount": 4,
+      "docblockParamCount": 4,
+      "since": "2.17.0",
+      "hookGroup": "connections",
+      "isDynamic": false,
+      "rawExpression": "'graphql_allowed_post_stati'",
+      "sourceCall": "apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post_type_objects, $this );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
+          "line": 547,
+          "symbol": "PostObjectConnectionResolver::sanitize_post_stati()",
+          "emitter": "apply_filters"
         }
       ],
       "relatedRecipes": []
@@ -3185,7 +3313,37 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Filter Connection Args",
+          "slug": "filter-connection-args",
+          "uri": "/recipes/filter-connection-args",
+          "wordpressUri": "/recipes/filter-connection-args/",
+          "uriKey": "/recipes/filter-connection-args",
+          "group": "Uncategorized",
+          "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_connection_query_args"
+          ],
+          "relatedFunctions": []
+        },
+        {
+          "title": "Make all Users Public",
+          "slug": "make-all-users-public",
+          "uri": "/recipes/make-all-users-public",
+          "wordpressUri": "/recipes/make-all-users-public/",
+          "uriKey": "/recipes/make-all-users-public",
+          "group": "Authorization",
+          "summary": "The following snippets allow for Users with no published content to be shown in public (non-authenticated) WPGraphQL query results. For a more detailed write-up, read the blog post: Allowing WPGraphQL to show unpublished…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_connection_query_args",
+            "graphql_object_visibility"
+          ],
+          "relatedFunctions": []
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -3581,7 +3739,24 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Making Menus and Menu Items public",
+          "slug": "making-menus-and-menu-items-public",
+          "uri": "/recipes/making-menus-and-menu-items-public",
+          "wordpressUri": "/recipes/making-menus-and-menu-items-public/",
+          "uriKey": "/recipes/making-menus-and-menu-items-public",
+          "group": "Authorization",
+          "summary": "By default, Menus and Menu Items that are not assigned to a Menu Location are considered private, meaning they are not exposed in non-authenticated WPGraphQL Queries. If you want to expose Menus and Menu Items that are n…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_data_is_private"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4537,12 +4712,29 @@
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 103,
+          "line": 121,
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters_deprecated"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Update WPGraphQL Endpoint URL",
+          "slug": "update-wpgraphql-endpoint-url",
+          "uri": "/recipes/update-wpgraphql-endpoint-url",
+          "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+          "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+          "group": "WP Admin",
+          "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_endpoint"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4555,7 +4747,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "Settings::register_settings()",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 103,
+      "line": 121,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy endpoint path filter retained for backward compatibility.",
@@ -4585,12 +4777,29 @@
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 103,
+          "line": 121,
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters_deprecated"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Update WPGraphQL Endpoint URL",
+          "slug": "update-wpgraphql-endpoint-url",
+          "uri": "/recipes/update-wpgraphql-endpoint-url",
+          "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+          "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+          "group": "WP Admin",
+          "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_endpoint"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -4639,7 +4848,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 101,
+          "line": 119,
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters"
         }
@@ -4657,7 +4866,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Settings::register_settings()",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 101,
+      "line": 119,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the configured endpoint path for WPGraphQL.",
@@ -4693,7 +4902,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 101,
+          "line": 119,
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters"
         }
@@ -4806,7 +5015,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "TypeRegistry::get_excluded_connections()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1532,
+      "line": 1862,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the list of GraphQL connections to excluded from the registry.",
@@ -4836,7 +5045,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 1532,
+          "line": 1862,
           "symbol": "TypeRegistry::get_excluded_connections()",
           "emitter": "apply_filters"
         }
@@ -4854,7 +5063,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "TypeRegistry::get_excluded_mutations()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1559,
+      "line": 1889,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the list of GraphQL mutations to excluded from the registry.",
@@ -4884,7 +5093,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 1559,
+          "line": 1889,
           "symbol": "TypeRegistry::get_excluded_mutations()",
           "emitter": "apply_filters"
         }
@@ -4902,7 +5111,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "TypeRegistry::get_excluded_types()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1504,
+      "line": 1834,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the list of GraphQL types to exclude from the schema. Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type. To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();",
@@ -4932,7 +5141,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 1504,
+          "line": 1834,
           "symbol": "TypeRegistry::get_excluded_types()",
           "emitter": "apply_filters"
         }
@@ -5247,7 +5456,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Experimental::is_enabled()",
       "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 68,
+      "line": 70,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter whether WPGraphQL experimental features should be enabled.",
@@ -5277,7 +5486,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-          "line": 68,
+          "line": 70,
           "symbol": "Experimental::is_enabled()",
           "emitter": "apply_filters"
         }
@@ -5974,7 +6183,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "TypeRegistry::get_type()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 1039,
+      "line": 1046,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the type before it is loaded into the registry.",
@@ -6009,7 +6218,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 1039,
+          "line": 1046,
           "symbol": "TypeRegistry::get_type()",
           "emitter": "apply_filters"
         }
@@ -6338,9 +6547,9 @@
       "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "do_action",
-      "enclosingSymbol": "SettingsRegistry::admin_init()",
+      "enclosingSymbol": "SettingsRegistry::init_registry()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 173,
+      "line": 191,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires before WPGraphQL settings sections and fields are registered.",
@@ -6370,8 +6579,8 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 173,
-          "symbol": "SettingsRegistry::admin_init()",
+          "line": 191,
+          "symbol": "SettingsRegistry::init_registry()",
           "emitter": "do_action"
         }
       ],
@@ -6388,7 +6597,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "TypeRegistry::init()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 282,
+      "line": 289,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action as the Type registry is being initiated.",
@@ -6418,7 +6627,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 282,
+          "line": 289,
           "symbol": "TypeRegistry::init()",
           "emitter": "do_action"
         }
@@ -6858,7 +7067,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "TypeRegistry::get_introspection_keys()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 927,
+      "line": 934,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the keys that are prepared for introspection.",
@@ -6888,7 +7097,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 927,
+          "line": 934,
           "symbol": "TypeRegistry::get_introspection_keys()",
           "emitter": "apply_filters"
         }
@@ -7264,7 +7473,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "PostObjectConnectionResolver::sanitize_input_fields()",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 444,
+      "line": 465,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the input fields This allows plugins/themes to hook in and alter what $args should be allowed to be passed from a GraphQL Query to the WP_Query",
@@ -7324,7 +7533,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-          "line": 444,
+          "line": 465,
           "symbol": "PostObjectConnectionResolver::sanitize_input_fields()",
           "emitter": "apply_filters"
         }
@@ -7415,7 +7624,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "MediaItemCreate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/MediaItemCreate.php",
-      "line": 213,
+      "line": 233,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the allowed protocols for the mutation",
@@ -7465,7 +7674,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/MediaItemCreate.php",
-          "line": 213,
+          "line": 233,
           "symbol": "MediaItemCreate::mutate_and_get_payload()",
           "emitter": "apply_filters"
         }
@@ -7619,7 +7828,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "MenuItemConnectionResolver::prepare_args()",
       "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
-      "line": 108,
+      "line": 134,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the GraphQL args before they are used in get_query_args().",
@@ -7654,8 +7863,71 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
-          "line": 108,
+          "line": 134,
           "symbol": "MenuItemConnectionResolver::prepare_args()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_menu_item_connection_restrict_to_locations",
+      "kind": "filter",
+      "group": "connections",
+      "groupLabel": "Connections",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "MenuItemConnectionResolver::prepare_query_args()",
+      "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
+      "line": 84,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filter whether the menu item connection should be restricted to items assigned to a registered menu location. By default, public (unauthenticated) requests are limited to menu items assigned to a menu location. Return `false` to allow public requests to query menu items belonging to menus that are not assigned to any location (e.g. when using the \"Make Menus and Menu Items public\" recipe, which also flips the MenuItem Model privacy gate via `graphql_data_is_private`). An explicit `location` where arg always restricts to that location and is unaffected by this filter.",
+      "params": [
+        {
+          "type": "bool",
+          "name": "$restrict_to_locations",
+          "description": "Whether to restrict the connection to assigned menu locations. Default true."
+        },
+        {
+          "type": "int[]|null",
+          "name": "$locations",
+          "description": "The menu location term IDs the connection is being restricted to, or null when unrestricted (privileged user)."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$args",
+          "description": "The GraphQL args passed to the resolver."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$unfiltered_args",
+          "description": "Array of arguments input in the field as part of the GraphQL query."
+        }
+      ],
+      "argumentCount": 4,
+      "docblockParamCount": 4,
+      "since": "x-release-please-version",
+      "hookGroup": "connections",
+      "isDynamic": false,
+      "rawExpression": "'graphql_menu_item_connection_restrict_to_locations'",
+      "sourceCall": "apply_filters( 'graphql_menu_item_connection_restrict_to_locations', true, $locations, $args, $this->get_unfiltered_args() );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php",
+          "line": 84,
+          "symbol": "MenuItemConnectionResolver::prepare_query_args()",
           "emitter": "apply_filters"
         }
       ],
@@ -8077,7 +8349,22 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Deprecating a field in the Schema",
+          "slug": "deprecating-a-field-in-the-schema",
+          "uri": "/recipes/deprecating-a-field-in-the-schema",
+          "wordpressUri": "/recipes/deprecating-a-field-in-the-schema/",
+          "uriKey": "/recipes/deprecating-a-field-in-the-schema",
+          "group": "Custom Fields",
+          "summary": "Sometimes it can be helpful to deprecate a field in the Schema without removing it altogether. This snippet shows how to deprecate the `Post.excerpt` field. You can use this technique to deprecate other fields. // Filter…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_object_fields"
+          ],
+          "relatedFunctions": []
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8203,7 +8490,23 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Make all Users Public",
+          "slug": "make-all-users-public",
+          "uri": "/recipes/make-all-users-public",
+          "wordpressUri": "/recipes/make-all-users-public/",
+          "uriKey": "/recipes/make-all-users-public",
+          "group": "Authorization",
+          "summary": "The following snippets allow for Users with no published content to be shown in public (non-authenticated) WPGraphQL query results. For a more detailed write-up, read the blog post: Allowing WPGraphQL to show unpublished…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_connection_query_args",
+            "graphql_object_visibility"
+          ],
+          "relatedFunctions": []
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8269,7 +8572,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "PostObjectConnectionResolver::prepare_args()",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 593,
+      "line": 661,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the GraphQL args before they are used in get_query_args().",
@@ -8309,7 +8612,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-          "line": 593,
+          "line": 661,
           "symbol": "PostObjectConnectionResolver::prepare_args()",
           "emitter": "apply_filters"
         }
@@ -8327,7 +8630,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "PostObjectConnectionResolver::prepare_query_args()",
       "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-      "line": 372,
+      "line": 362,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the $query args to allow folks to customize queries programmatically",
@@ -8377,12 +8680,31 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php",
-          "line": 372,
+          "line": 362,
           "symbol": "PostObjectConnectionResolver::prepare_query_args()",
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_post_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -8531,7 +8853,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "PostObjectCursor::compare_with_meta_field()",
       "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-      "line": 256,
+      "line": 457,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Allow filtering the meta key used for cursor based pagination",
@@ -8581,7 +8903,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php",
-          "line": 256,
+          "line": 457,
           "symbol": "PostObjectCursor::compare_with_meta_field()",
           "emitter": "apply_filters"
         }
@@ -8861,7 +9183,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "NodeResolver::resolve_uri()",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 348,
+      "line": 364,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri. This can be used by Extensions to resolve edge cases that are not handled by the core NodeResolver.",
@@ -8921,7 +9243,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-          "line": 348,
+          "line": 364,
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
@@ -10080,7 +10402,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Config::graphql_wp_comments_query_cursor_pagination_support()",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 479,
+      "line": 538,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If pre-filter hooked, return $pre_pieces.",
@@ -10120,7 +10442,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Config.php",
-          "line": 479,
+          "line": 538,
           "symbol": "Config::graphql_wp_comments_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
@@ -10138,7 +10460,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Config::graphql_wp_query_cursor_pagination_stability()",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 186,
+      "line": 192,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If pre-filter hooked, return $pre_orderby.",
@@ -10178,7 +10500,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Config.php",
-          "line": 186,
+          "line": 192,
           "symbol": "Config::graphql_wp_query_cursor_pagination_stability()",
           "emitter": "apply_filters"
         }
@@ -10196,7 +10518,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Config::graphql_wp_query_cursor_pagination_support()",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 239,
+      "line": 291,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If pre-filter hooked, return $pre_where.",
@@ -10236,7 +10558,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Config.php",
-          "line": 239,
+          "line": 291,
           "symbol": "Config::graphql_wp_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
@@ -10254,7 +10576,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Config::graphql_wp_term_query_cursor_pagination_support()",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 401,
+      "line": 453,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If pre-filter hooked, return $pre_pieces.",
@@ -10299,7 +10621,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Config.php",
-          "line": 401,
+          "line": 453,
           "symbol": "Config::graphql_wp_term_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
@@ -10317,7 +10639,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Config::graphql_wp_user_query_cursor_pagination_stability()",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 293,
+      "line": 345,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If pre-filter hooked, return $pre_orderby.",
@@ -10357,7 +10679,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Config.php",
-          "line": 293,
+          "line": 345,
           "symbol": "Config::graphql_wp_user_query_cursor_pagination_stability()",
           "emitter": "apply_filters"
         }
@@ -10375,7 +10697,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Config::graphql_wp_user_query_cursor_pagination_support()",
       "file": "plugins/wp-graphql/src/Data/Config.php",
-      "line": 346,
+      "line": 398,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If pre-filter hooked, return $pre_where.",
@@ -10415,7 +10737,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Config.php",
-          "line": 346,
+          "line": 398,
           "symbol": "Config::graphql_wp_user_query_cursor_pagination_support()",
           "emitter": "apply_filters"
         }
@@ -10862,6 +11184,69 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_query_log_entry",
+      "kind": "filter",
+      "group": "debugging",
+      "groupLabel": "Debugging and Instrumentation",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "QueryLog::normalize_query_log_entry()",
+      "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
+      "line": 211,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filter a single saved query row after default normalization.",
+      "params": [
+        {
+          "type": "array{sql: string, time: float, stack: string}",
+          "name": "$parts",
+          "description": "Normalized SQL, elapsed time, and stack/debug string."
+        },
+        {
+          "type": "mixed",
+          "name": "$query",
+          "description": "Raw row from `$wpdb->queries`."
+        },
+        {
+          "type": "int",
+          "name": "$index",
+          "description": "Index of this query in the log."
+        },
+        {
+          "type": "\\WPGraphQL\\Utils\\QueryLog",
+          "name": "$query_log",
+          "description": "The QueryLog instance."
+        }
+      ],
+      "argumentCount": 4,
+      "docblockParamCount": 4,
+      "since": "2.12.0",
+      "hookGroup": "debugging",
+      "isDynamic": false,
+      "rawExpression": "'graphql_query_log_entry'",
+      "sourceCall": "apply_filters( 'graphql_query_log_entry', $defaults, $query, $index, $this );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
+          "line": 211,
+          "symbol": "QueryLog::normalize_query_log_entry()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_register_initial_types",
       "kind": "action",
       "group": "schema-registration",
@@ -10871,7 +11256,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "TypeRegistry::init_type_registry()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 310,
+      "line": 317,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action as the type registry is initialized. This executes before the `graphql_register_types` action to allow for earlier hooking",
@@ -10901,7 +11286,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 310,
+          "line": 317,
           "symbol": "TypeRegistry::init_type_registry()",
           "emitter": "do_action"
         }
@@ -10972,7 +11357,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Settings::register_settings()",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 319,
+      "line": 337,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after core WPGraphQL settings have been registered.",
@@ -11002,7 +11387,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 319,
+          "line": 337,
           "symbol": "Settings::register_settings()",
           "emitter": "do_action"
         }
@@ -11073,7 +11458,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "TypeRegistry::init_type_registry()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 712,
+      "line": 719,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action as the type registry is initialized. This executes before the `graphql_register_types` action to allow for earlier hooking",
@@ -11103,12 +11488,234 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 712,
+          "line": 719,
           "symbol": "TypeRegistry::init_type_registry()",
           "emitter": "do_action"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Add Edit Link to All Post Types",
+          "slug": "add-edit-link-to-all-post-types",
+          "uri": "/recipes/add-edit-link-to-all-post-types",
+          "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
+          "uriKey": "/recipes/add-edit-link-to-all-post-types",
+          "group": "Custom Fields",
+          "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field for unencoded content",
+          "slug": "add-field-for-unencoded-content",
+          "uri": "/recipes/add-field-for-unencoded-content",
+          "wordpressUri": "/recipes/add-field-for-unencoded-content/",
+          "uriKey": "/recipes/add-field-for-unencoded-content",
+          "group": "Custom Fields",
+          "summary": "The following adds a field to the NodeWithContentEditor interface to get the unencoded content for a post: add_action( 'graphql_register_types', function() { register_graphql_field( 'NodeWithContentEditor', 'unencodedCon…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add field to output URLs for Sitemap",
+          "slug": "add-field-to-output-urls-for-sitemap",
+          "uri": "/recipes/add-field-to-output-urls-for-sitemap",
+          "wordpressUri": "/recipes/add-field-to-output-urls-for-sitemap/",
+          "uriKey": "/recipes/add-field-to-output-urls-for-sitemap",
+          "group": "Custom Fields",
+          "summary": "The following code is an example of how you can create a field called allUrls that will output site URLs that could be used to generate a sitemap. The resolver uses mostly hard-coded data, but shows what a potential solu…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "slug": "add-wp-admin-color-schemes-to-wpgraphql",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
+          "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
+          "group": "WP Admin",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "List of Key Values",
+          "slug": "list-of-key-values",
+          "uri": "/recipes/list-of-key-values",
+          "wordpressUri": "/recipes/list-of-key-values/",
+          "uriKey": "/recipes/list-of-key-values",
+          "group": "Custom Fields",
+          "summary": "This is an example showing how to return a list of keys and values where the keys and values are both strings. add_action( 'graphql_register_types', function() { register_graphql_object_type( 'keyValue', [ 'description'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Page Siblings Connection",
+          "slug": "page-siblings-connection",
+          "uri": "/recipes/page-siblings-connection",
+          "wordpressUri": "/recipes/page-siblings-connection/",
+          "uriKey": "/recipes/page-siblings-connection",
+          "group": "Uncategorized",
+          "summary": "Below is a connection that adds the ability to query page siblings (i.e. pages that share the same parent) add_action( 'graphql_register_types', function() { register_graphql_connection( [ 'fromType' => 'Page', 'toType'…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Popular Posts",
+          "slug": "popular-posts",
+          "uri": "/recipes/popular-posts",
+          "wordpressUri": "/recipes/popular-posts/",
+          "uriKey": "/recipes/popular-posts",
+          "group": "Custom Post Types",
+          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection",
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register a basic Mutation",
+          "slug": "register-a-basic-mutation",
+          "uri": "/recipes/register-a-basic-mutation",
+          "wordpressUri": "/recipes/register-a-basic-mutation/",
+          "uriKey": "/recipes/register-a-basic-mutation",
+          "group": "Custom Fields",
+          "summary": "This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output. add_action( 'graphql_register_types', function()…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_mutation"
+          ]
+        },
+        {
+          "title": "Register Connection to Attached Media",
+          "slug": "register-connection-to-attached-media",
+          "uri": "/recipes/register-connection-to-attached-media",
+          "wordpressUri": "/recipes/register-connection-to-attached-media/",
+          "uriKey": "/recipes/register-connection-to-attached-media",
+          "group": "Custom Post Types",
+          "summary": "This code shows how to register a connection to attached media in WPGraphQL add_action( 'graphql_register_types', function() { register_graphql_connection([ 'fromType' => 'ContentNode', 'toType' => 'MediaItem', 'fromFiel…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_connection"
+          ]
+        },
+        {
+          "title": "Register field as a list of strings",
+          "slug": "register-field-as-a-list-of-strings",
+          "uri": "/recipes/register-field-as-a-list-of-strings",
+          "wordpressUri": "/recipes/register-field-as-a-list-of-strings/",
+          "uriKey": "/recipes/register-field-as-a-list-of-strings",
+          "group": "Custom Fields",
+          "summary": "The below code registers a field called listOfStrings that returns a list of strings as the result: add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'listOfStrings', [ 'type' => [ '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register GraphQL Field with Argument",
+          "slug": "register-graphql-field-with-argument",
+          "uri": "/recipes/register-graphql-field-with-argument",
+          "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+          "uriKey": "/recipes/register-graphql-field-with-argument",
+          "group": "Custom Fields",
+          "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "slug": "register-object-and-field-for-custom-list-of-users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "wordpressUri": "/recipes/register-object-and-field-for-custom-list-of-users/",
+          "uriKey": "/recipes/register-object-and-field-for-custom-list-of-users",
+          "group": "Custom Fields",
+          "summary": "The following code creates an object type called StuntPerformer and creates a field on the RootQuery called stuntPerformers that returns a custom list of users. In this case, the list of users are the admins of the websi…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_field",
+            "register_graphql_object_type"
+          ]
+        },
+        {
+          "title": "Tag to Content Node Connection",
+          "slug": "tag-to-content-node-connection",
+          "uri": "/recipes/tag-to-content-node-connection",
+          "wordpressUri": "/recipes/tag-to-content-node-connection/",
+          "uriKey": "/recipes/tag-to-content-node-connection",
+          "group": "Custom Post Types",
+          "summary": "The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term. add_action( '…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql",
+            "register_graphql_connection"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11121,7 +11728,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "TypeRegistry::init_type_registry()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 722,
+      "line": 729,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action as the type registry is initialized. This executes during the `graphql_register_types` action to allow for earlier hooking",
@@ -11151,7 +11758,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 722,
+          "line": 729,
           "symbol": "TypeRegistry::init_type_registry()",
           "emitter": "do_action"
         }
@@ -11473,7 +12080,24 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Remove Extensions from GraphQL Response",
+          "slug": "remove-extensions-from-graphql-response",
+          "uri": "/recipes/remove-extensions-from-graphql-response",
+          "wordpressUri": "/recipes/remove-extensions-from-graphql-response/",
+          "uriKey": "/recipes/remove-extensions-from-graphql-response",
+          "group": "Execution",
+          "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_request_results"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11526,7 +12150,25 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Allow login mutation to be public when the endpoint is fully restricted",
+          "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+          "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "group": "Authorization",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_require_authentication_allowed_fields",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -11816,7 +12458,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "NodeResolver::resolve_uri()",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 247,
+      "line": 250,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped. This is to be used in extensions to resolve their own nodes which might not use WordPress permalink structure. It differs from 'graphql_pre_resolve_uri' in that it has been called after the query has been run using the query vars.",
@@ -11876,7 +12518,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-          "line": 247,
+          "line": 250,
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
@@ -11894,7 +12536,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "NodeResolver::resolve_uri()",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 176,
+      "line": 179,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the query class used to resolve the URI. By default this is WP_Query. This can be used by Extensions which use a different query class to resolve data.",
@@ -11944,7 +12586,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-          "line": 176,
+          "line": 179,
           "symbol": "NodeResolver::resolve_uri()",
           "emitter": "apply_filters"
         }
@@ -12846,7 +13488,24 @@
           "emitter": "do_action"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Changing the Server Debug Flag",
+          "slug": "change-the-debug-flag",
+          "uri": "/recipes/change-the-debug-flag",
+          "wordpressUri": "/recipes/change-the-debug-flag/",
+          "uriKey": "/recipes/change-the-debug-flag",
+          "group": "Extensions",
+          "summary": "The following snippets show how to change the Debug Flag for the GraphQL Server execution. By default, the function callstack trace is not included with errors data unless users are logged in. If you wanted to track this…",
+          "relatedActions": [
+            "graphql_server_config"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -12859,7 +13518,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "SettingsRegistry::register_field()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 144,
+      "line": 154,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the setting field config",
@@ -12899,7 +13558,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 144,
+          "line": 154,
           "symbol": "SettingsRegistry::register_field()",
           "emitter": "apply_filters"
         }
@@ -12917,7 +13576,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::admin_enqueue_scripts()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 77,
+      "line": 87,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires when WPGraphQL settings assets should be enqueued.",
@@ -12941,7 +13600,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 77,
+          "line": 87,
           "symbol": "SettingsRegistry::admin_enqueue_scripts()",
           "emitter": "do_action"
         }
@@ -12959,7 +13618,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::show_forms()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 698,
+      "line": 749,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after rendering a WPGraphQL settings form section.",
@@ -12989,7 +13648,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 698,
+          "line": 749,
           "symbol": "SettingsRegistry::show_forms()",
           "emitter": "do_action"
         }
@@ -13007,7 +13666,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::show_forms()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 688,
+      "line": 739,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires before rendering a WPGraphQL settings form section.",
@@ -13037,7 +13696,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 688,
+          "line": 739,
           "symbol": "SettingsRegistry::show_forms()",
           "emitter": "do_action"
         }
@@ -13053,9 +13712,9 @@
       "groupSource": "explicit",
       "sourceType": "wpgraphql",
       "emitter": "apply_filters",
-      "enclosingSymbol": "SettingsRegistry::admin_init()",
+      "enclosingSymbol": "SettingsRegistry::init_registry()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 182,
+      "line": 200,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the WPGraphQL settings sections.",
@@ -13085,7 +13744,67 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 182,
+          "line": 200,
+          "symbol": "SettingsRegistry::init_registry()",
+          "emitter": "apply_filters"
+        },
+        {
+          "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
+          "line": 235,
+          "symbol": "SettingsRegistry::admin_init()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_settings_sections",
+      "kind": "filter",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "SettingsRegistry::admin_init()",
+      "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
+      "line": 235,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters the WPGraphQL settings sections.",
+      "params": [
+        {
+          "type": "array<string,array<string,mixed>>",
+          "name": "$setting_sections",
+          "description": "The registered settings sections"
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "0.13.0",
+      "hookGroup": "settings",
+      "isDynamic": false,
+      "rawExpression": "'graphql_settings_sections'",
+      "sourceCall": "apply_filters( 'graphql_settings_sections', $this->settings_sections );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
+          "line": 200,
+          "symbol": "SettingsRegistry::init_registry()",
+          "emitter": "apply_filters"
+        },
+        {
+          "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
+          "line": 235,
           "symbol": "SettingsRegistry::admin_init()",
           "emitter": "apply_filters"
         }
@@ -13564,7 +14283,26 @@
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_term_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -13640,7 +14378,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryLog::get_query_log()",
       "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-      "line": 175,
+      "line": 170,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the trace",
@@ -13675,7 +14413,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-          "line": 175,
+          "line": 170,
           "symbol": "QueryLog::get_query_log()",
           "emitter": "apply_filters"
         },
@@ -13734,7 +14472,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryLog.php",
-          "line": 175,
+          "line": 170,
           "symbol": "QueryLog::get_query_log()",
           "emitter": "apply_filters"
         },
@@ -13764,9 +14502,9 @@
       "description": "Filters the interfaces applied to an object type",
       "params": [
         {
-          "type": "string[]",
+          "type": "array<string|object|callable():\\GraphQL\\Type\\Definition\\InterfaceType>",
           "name": "$interfaces",
-          "description": "List of interfaces applied to the Object Type"
+          "description": "List of interfaces applied to the Object Type. Each entry may be an interface name, an InterfaceType instance, or a callable that returns one."
         },
         {
           "type": "array<string,mixed>",
@@ -15632,7 +16370,7 @@
       "emitter": "do_action_deprecated",
       "enclosingSymbol": "TypeRegistry::init()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 284,
+      "line": 291,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy type registry initialization hook retained for backward compatibility.",
@@ -15656,7 +16394,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 284,
+          "line": 291,
           "symbol": "TypeRegistry::init()",
           "emitter": "do_action_deprecated"
         }
@@ -15770,7 +16508,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "NodeResolver::parse_request()",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 562,
+      "line": 588,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the query variables allowed before processing. Allows (publicly allowed) query vars to be added, removed, or changed prior to executing the query. Needed to allow custom rewrite rules using your own arguments to work, or any other custom query variables you want to be publicly available.",
@@ -15800,7 +16538,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-          "line": 562,
+          "line": 588,
           "symbol": "NodeResolver::parse_request()",
           "emitter": "apply_filters"
         }
@@ -15902,7 +16640,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "NodeResolver::parse_request()",
       "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-      "line": 655,
+      "line": 681,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the array of parsed query variables.",
@@ -15932,12 +16670,100 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/NodeResolver.php",
-          "line": 655,
+          "line": 681,
           "symbol": "NodeResolver::parse_request()",
           "emitter": "apply_filters"
         }
       ],
-      "relatedRecipes": []
+      "relatedRecipes": [
+        {
+          "title": "Allow login mutation to be public when the endpoint is fully restricted",
+          "slug": "allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
+          "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
+          "group": "Authorization",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_require_authentication_allowed_fields",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Filter to add restricted field on Model",
+          "slug": "filter-to-add-restricted-field-on-model",
+          "uri": "/recipes/filter-to-add-restricted-field-on-model",
+          "wordpressUri": "/recipes/filter-to-add-restricted-field-on-model/",
+          "uriKey": "/recipes/filter-to-add-restricted-field-on-model",
+          "group": "Queries",
+          "summary": "Labels on Post Types are not publicly exposed by WordPress. They are attributes for use in the Admin, and are treated with respect to proper access to the admin. To see the labels, the user requesting them must be authen…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Advanced Taxonomy Terms Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_terms', function() {…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_term_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "slug": "fix-pagination-conflict-with-the-post-type-order-plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "wordpressUri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin/",
+          "uriKey": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin",
+          "group": "Uncategorized",
+          "summary": "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_post_object_connection_query_args",
+            "request"
+          ],
+          "relatedFunctions": [
+            "graphql",
+            "is_graphql_request"
+          ]
+        },
+        {
+          "title": "Register GraphQL Field with Argument",
+          "slug": "register-graphql-field-with-argument",
+          "uri": "/recipes/register-graphql-field-with-argument",
+          "wordpressUri": "/recipes/register-graphql-field-with-argument/",
+          "uriKey": "/recipes/register-graphql-field-with-argument",
+          "group": "Custom Fields",
+          "summary": "This is an example of registering a field with an argument showing how to use the argument in a resolver. add_action( 'graphql_register_types', function() { register_graphql_field( 'RootQuery', 'myNewField', [ 'type' =>…",
+          "relatedActions": [
+            "graphql_register_types"
+          ],
+          "relatedFilters": [
+            "request"
+          ],
+          "relatedFunctions": [
+            "register_graphql_field"
+          ]
+        }
+      ]
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16113,7 +16939,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 816,
+      "line": 836,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16137,7 +16963,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 816,
+          "line": 836,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -16155,7 +16981,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 516,
+      "line": 536,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16179,13 +17005,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16239,7 +17065,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 525,
+      "line": 545,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16263,13 +17089,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16347,13 +17173,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16431,13 +17257,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16515,13 +17341,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16599,13 +17425,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16683,13 +17509,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16767,13 +17593,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 516,
+          "line": 536,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 525,
+          "line": 545,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16995,7 +17821,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "Experimental::is_enabled()",
       "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 71,
+      "line": 73,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy experimental features toggle filter retained for backward compatibility.",
@@ -17019,7 +17845,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-          "line": 71,
+          "line": 73,
           "symbol": "Experimental::is_enabled()",
           "emitter": "apply_filters_deprecated"
         }

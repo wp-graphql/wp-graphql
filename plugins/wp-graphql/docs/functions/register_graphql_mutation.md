@@ -24,6 +24,10 @@ Given a Mutation Name and Config array, this adds a Mutation to the Schema
 - `$mutation_name` (`string`): The name of the Mutation to register
 - `$config` (`array<string,mixed>`): The config for the mutation
 
+## Recipes
+
+- [Register a basic Mutation](/recipes/register-a-basic-mutation)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:532`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L532)

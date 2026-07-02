@@ -41,3 +41,7 @@ apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_
 ## Related
 
 - `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L284)
+
+## Recipes
+
+- [Make all Users Public](/recipes/make-all-users-public)

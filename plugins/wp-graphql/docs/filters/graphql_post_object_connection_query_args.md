@@ -32,7 +32,7 @@ Filter the $query args to allow folks to customize queries programmatically
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L372)
+- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:362`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L362)
 
 ```php
 apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
@@ -40,4 +40,8 @@ apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->
 
 ## Related
 
-- `PostObjectConnectionResolver::prepare_query_args()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L372)
+- `PostObjectConnectionResolver::prepare_query_args()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:362`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L362)
+
+## Recipes
+
+- [Fix pagination conflict with the “Post Type Order” plugin](/recipes/fix-pagination-conflict-with-the-post-type-order-plugin)

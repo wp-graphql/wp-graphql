@@ -28,7 +28,7 @@ Filter the list of GraphQL mutations to excluded from the registry.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1559`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1559)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1889`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1889)
 
 ```php
 apply_filters( 'graphql_excluded_mutations', [] );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_excluded_mutations', [] );
 
 ## Related
 
-- `TypeRegistry::get_excluded_mutations()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1559`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1559)
+- `TypeRegistry::get_excluded_mutations()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1889`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1889)

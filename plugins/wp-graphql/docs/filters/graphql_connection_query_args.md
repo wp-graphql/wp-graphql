@@ -39,3 +39,8 @@ apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, 
 ## Related
 
 - `AbstractConnectionResolver::__construct()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:242`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L242)
+
+## Recipes
+
+- [Filter Connection Args](/recipes/filter-connection-args)
+- [Make all Users Public](/recipes/make-all-users-public)

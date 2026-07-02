@@ -28,7 +28,7 @@ Filter whether WPGraphQL experimental features should be enabled.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Experimental/Experimental.php:68`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L68)
+- [`plugins/wp-graphql/src/Experimental/Experimental.php:70`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L70)
 
 ```php
 apply_filters( 'graphql_experimental_features_enabled', true );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_experimental_features_enabled', true );
 
 ## Related
 
-- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:68`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L68)
+- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:70`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L70)

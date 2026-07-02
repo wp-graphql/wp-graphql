@@ -32,7 +32,7 @@ Allow filtering the meta key used for cursor based pagination
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:256`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L256)
+- [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:457`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L457)
 
 ```php
 apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_type, $order, $this );
@@ -40,4 +40,4 @@ apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_typ
 
 ## Related
 
-- `PostObjectCursor::compare_with_meta_field()` in [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:256`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L256)
+- `PostObjectCursor::compare_with_meta_field()` in [`plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php:457`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Cursor/PostObjectCursor.php#L457)

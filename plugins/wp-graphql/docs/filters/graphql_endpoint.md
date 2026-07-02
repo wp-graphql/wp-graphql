@@ -47,4 +47,8 @@ apply_filters_deprecated(
 ## Related
 
 - `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:910`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L910)
-- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:103`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L103)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L121)
+
+## Recipes
+
+- [Update WPGraphQL Endpoint URL](/recipes/update-wpgraphql-endpoint-url)

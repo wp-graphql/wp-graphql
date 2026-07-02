@@ -34,7 +34,7 @@ This filter provides a fallback for resolving nodes that were unable to be resol
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/NodeResolver.php:348`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L348)
+- [`plugins/wp-graphql/src/Data/NodeResolver.php:364`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L364)
 
 ```php
 apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query,
 
 ## Related
 
-- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:348`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L348)
+- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:364`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L364)

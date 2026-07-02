@@ -217,7 +217,10 @@ function parseDocblock(rawDocblock) {
 			return;
 		}
 
-		const paramMatch = trimmed.match(/^@param\s+(\S+)\s+(\$\S+)\s*(.*)$/);
+		// The type may contain spaces (e.g. array shapes like
+		// `array{sql: string, time: float}`), so match it lazily up to the
+		// `$variable` token rather than assuming a single non-space token.
+		const paramMatch = trimmed.match(/^@param\s+(\S.*?)\s+(\$\S+)\s*(.*)$/);
 		if (paramMatch) {
 			params.push({
 				type: paramMatch[1],

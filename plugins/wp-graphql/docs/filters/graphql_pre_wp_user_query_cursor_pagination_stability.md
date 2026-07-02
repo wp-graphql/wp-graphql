@@ -30,7 +30,7 @@ If pre-filter hooked, return $pre_orderby.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Config.php:293`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L293)
+- [`plugins/wp-graphql/src/Data/Config.php:345`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L345)
 
 ```php
 apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $orderby, $query );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $o
 
 ## Related
 
-- `Config::graphql_wp_user_query_cursor_pagination_stability()` in [`plugins/wp-graphql/src/Data/Config.php:293`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L293)
+- `Config::graphql_wp_user_query_cursor_pagination_stability()` in [`plugins/wp-graphql/src/Data/Config.php:345`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L345)

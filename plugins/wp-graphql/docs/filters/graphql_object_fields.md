@@ -40,3 +40,7 @@ apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_
 ## Related
 
 - `WPObjectType::prepare_fields()` in [`plugins/wp-graphql/src/Type/WPObjectType.php:183`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L183)
+
+## Recipes
+
+- [Deprecating a field in the Schema](/recipes/deprecating-a-field-in-the-schema)

@@ -43,3 +43,7 @@ apply_filters( 'graphql_request_results', $response, $this->schema, $operation, 
 ## Related
 
 - `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:566`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L566)
+
+## Recipes
+
+- [Remove Extensions from GraphQL Response](/recipes/remove-extensions-from-graphql-response)

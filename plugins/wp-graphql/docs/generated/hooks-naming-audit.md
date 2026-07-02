@@ -6,10 +6,10 @@ Do not edit manually.
 
 ## Summary
 
-- Total hooks: 296
-- WPGraphQL hooks audited: 273
+- Total hooks: 301
+- WPGraphQL hooks audited: 278
 - Core hooks excluded from audit: 23
-- Static hooks: 235
+- Static hooks: 240
 - Dynamic hooks: 12
 - Flagged hooks: 0
 - Warnings: 0
@@ -17,7 +17,7 @@ Do not edit manually.
 
 ## Top Prefixes
 
-- `graphql_`: 235
+- `graphql_`: 240
 
 ## Flagged Hooks
 

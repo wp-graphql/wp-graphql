@@ -37,4 +37,4 @@ apply_filters( 'graphql_endpoint_path', $endpoint );
 ## Related
 
 - `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:908`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L908)
-- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:101`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L101)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:119`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L119)

@@ -204,6 +204,9 @@ class QueryLog {
 		 * @param mixed                                           $query     Raw row from `$wpdb->queries`.
 		 * @param int                                             $index     Index of this query in the log.
 		 * @param \WPGraphQL\Utils\QueryLog                       $query_log The QueryLog instance.
+		 *
+		 * @hookGroup debugging
+		 * @since 2.12.0
 		 */
 		$filtered = apply_filters( 'graphql_query_log_entry', $defaults, $query, $index, $this );
 

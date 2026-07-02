@@ -31,7 +31,7 @@ If pre-filter hooked, return $pre_pieces.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Config.php:401`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L401)
+- [`plugins/wp-graphql/src/Data/Config.php:453`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L453)
 
 ```php
 apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pie
 
 ## Related
 
-- `Config::graphql_wp_term_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:401`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L401)
+- `Config::graphql_wp_term_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:453`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L453)

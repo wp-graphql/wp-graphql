@@ -37,5 +37,5 @@ apply_filters( 'graphql_tracing_response', $trace, $this );
 
 ## Related
 
-- `QueryLog::get_query_log()` in [`plugins/wp-graphql/src/Utils/QueryLog.php:175`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryLog.php#L175)
+- `QueryLog::get_query_log()` in [`plugins/wp-graphql/src/Utils/QueryLog.php:170`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryLog.php#L170)
 - `Tracing::get_trace()` in [`plugins/wp-graphql/src/Utils/Tracing.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Tracing.php#L390)

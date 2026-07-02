@@ -32,7 +32,7 @@ Filter the query class used to resolve the URI. By default this is WP_Query. Thi
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/NodeResolver.php:176`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L176)
+- [`plugins/wp-graphql/src/Data/NodeResolver.php:179`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L179)
 
 ```php
 apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
@@ -40,4 +40,4 @@ apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->conte
 
 ## Related
 
-- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:176`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L176)
+- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:179`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L179)

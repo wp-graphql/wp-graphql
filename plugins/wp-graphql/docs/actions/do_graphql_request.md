@@ -47,3 +47,7 @@ do_action_deprecated(
 ## Related
 
 - `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:613`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L613)
+
+## Recipes
+
+- [Log WPGraphQL requests to error log](/recipes/log-wpgraphql-requests-to-error-log)

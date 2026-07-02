@@ -32,6 +32,27 @@ Provides a simple way to run a GraphQL query without posting a request to the en
 
 - `\Exception`
 
+## Recipes
+
+- [ACF Nav Menu Plugin Support](/recipes/acf-nav-menu-plugin-support)
+- [Add Edit Link to All Post Types](/recipes/add-edit-link-to-all-post-types)
+- [Add field for unencoded content](/recipes/add-field-for-unencoded-content)
+- [Add WP Admin Color Schemes to WPGraphQL](/recipes/add-wp-admin-color-schemes-to-wpgraphql)
+- [Allow login mutation to be public when the endpoint is fully restricted](/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted)
+- [Changing the Server Debug Flag](/recipes/change-the-debug-flag)
+- [Filter to add restricted field on Model](/recipes/filter-to-add-restricted-field-on-model)
+- [Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin](/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin)
+- [Fix pagination conflict with the “Post Type Order” plugin](/recipes/fix-pagination-conflict-with-the-post-type-order-plugin)
+- [Making Menus and Menu Items public](/recipes/making-menus-and-menu-items-public)
+- [Popular Posts](/recipes/popular-posts)
+- [Register a basic Mutation](/recipes/register-a-basic-mutation)
+- [Register object and field for custom list of users](/recipes/register-object-and-field-for-custom-list-of-users)
+- [Remove Extensions from GraphQL Response](/recipes/remove-extensions-from-graphql-response)
+- [Showing Post Type labels in public queries](/recipes/showing-post-type-labels-in-public-queries)
+- [Tag to Content Node Connection](/recipes/tag-to-content-node-connection)
+- [Update WPGraphQL Endpoint URL](/recipes/update-wpgraphql-endpoint-url)
+- [Using GraphQL Fragments in PHP](/recipes/using-graphql-fragments-in-php)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:98`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L98)

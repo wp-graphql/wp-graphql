@@ -28,7 +28,7 @@ Filter the list of GraphQL types to exclude from the schema. Note: using this fi
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1504`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1504)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1834`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1834)
 
 ```php
 apply_filters( 'graphql_excluded_types', [] );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_excluded_types', [] );
 
 ## Related
 
-- `TypeRegistry::get_excluded_types()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1504`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1504)
+- `TypeRegistry::get_excluded_types()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1834`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1834)

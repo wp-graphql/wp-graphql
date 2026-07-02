@@ -29,7 +29,7 @@ Filters the GraphQL args before they are used in get_query_args().
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php:108`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php#L108)
+- [`plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php:134`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php#L134)
 
 ```php
 apply_filters( 'graphql_menu_item_connection_args', $args, $this->get_unfiltered_args() );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_menu_item_connection_args', $args, $this->get_unfiltered
 
 ## Related
 
-- `MenuItemConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php:108`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php#L108)
+- `MenuItemConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php:134`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php#L134)

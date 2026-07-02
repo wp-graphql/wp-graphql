@@ -30,7 +30,7 @@ If pre-filter hooked, return $pre_where.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Config.php:346`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L346)
+- [`plugins/wp-graphql/src/Data/Config.php:398`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L398)
 
 ```php
 apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $where, $query );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $whe
 
 ## Related
 
-- `Config::graphql_wp_user_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:346`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L346)
+- `Config::graphql_wp_user_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:398`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L398)

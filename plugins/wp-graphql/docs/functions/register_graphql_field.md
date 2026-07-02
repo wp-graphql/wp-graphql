@@ -29,6 +29,18 @@ Given a Type Name, Field Name, and a $config array, this adds a Field to a regis
 
 - `\Exception`
 
+## Recipes
+
+- [Add Edit Link to All Post Types](/recipes/add-edit-link-to-all-post-types)
+- [Add field for unencoded content](/recipes/add-field-for-unencoded-content)
+- [Add field to output URLs for Sitemap](/recipes/add-field-to-output-urls-for-sitemap)
+- [Add WP Admin Color Schemes to WPGraphQL](/recipes/add-wp-admin-color-schemes-to-wpgraphql)
+- [List of Key Values](/recipes/list-of-key-values)
+- [Popular Posts](/recipes/popular-posts)
+- [Register field as a list of strings](/recipes/register-field-as-a-list-of-strings)
+- [Register GraphQL Field with Argument](/recipes/register-graphql-field-with-argument)
+- [Register object and field for custom list of users](/recipes/register-object-and-field-for-custom-list-of-users)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:314`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L314)

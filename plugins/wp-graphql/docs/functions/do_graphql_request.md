@@ -34,6 +34,10 @@ Previous access function for running GraphQL queries directly. This function wil
 
 - `\Exception`
 
+## Recipes
+
+- [Log WPGraphQL requests to error log](/recipes/log-wpgraphql-requests-to-error-log)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:126`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L126)

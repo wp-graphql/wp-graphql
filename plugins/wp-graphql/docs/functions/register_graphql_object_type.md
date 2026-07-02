@@ -24,6 +24,12 @@ Given a Type Name and a $config array, this adds an ObjectType to the TypeRegist
 - `$type_name` (`string`): The name of the Type to register
 - `$config` (`array<string,mixed>`): The Type config
 
+## Recipes
+
+- [Add WP Admin Color Schemes to WPGraphQL](/recipes/add-wp-admin-color-schemes-to-wpgraphql)
+- [List of Key Values](/recipes/list-of-key-values)
+- [Register object and field for custom list of users](/recipes/register-object-and-field-for-custom-list-of-users)
+
 ## Source
 
 - [`plugins/wp-graphql/access-functions.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L243)

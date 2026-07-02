@@ -28,7 +28,7 @@ Filters the WPGraphQL settings sections.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:182`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L182)
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:235`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L235)
 
 ```php
 apply_filters( 'graphql_settings_sections', $this->settings_sections );
@@ -36,4 +36,5 @@ apply_filters( 'graphql_settings_sections', $this->settings_sections );
 
 ## Related
 
-- `SettingsRegistry::admin_init()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:182`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L182)
+- `SettingsRegistry::init_registry()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:200`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L200)
+- `SettingsRegistry::admin_init()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:235`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L235)

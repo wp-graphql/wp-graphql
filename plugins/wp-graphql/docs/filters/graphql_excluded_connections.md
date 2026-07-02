@@ -28,7 +28,7 @@ Filter the list of GraphQL connections to excluded from the registry.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1532`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1532)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1862`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1862)
 
 ```php
 apply_filters( 'graphql_excluded_connections', [] );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_excluded_connections', [] );
 
 ## Related
 
-- `TypeRegistry::get_excluded_connections()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1532`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1532)
+- `TypeRegistry::get_excluded_connections()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1862`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1862)

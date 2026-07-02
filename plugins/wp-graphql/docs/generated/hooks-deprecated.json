@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-21T19:21:42.486Z",
+  "generatedAt": "2026-07-02T16:09:32.462Z",
   "count": 21,
   "hooks": [
     {
@@ -43,7 +43,24 @@
           "emitter": "do_action_deprecated"
         }
       ],
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Log WPGraphQL requests to error log",
+          "slug": "log-wpgraphql-requests-to-error-log",
+          "uri": "/recipes/log-wpgraphql-requests-to-error-log",
+          "wordpressUri": "/recipes/log-wpgraphql-requests-to-error-log/",
+          "uriKey": "/recipes/log-wpgraphql-requests-to-error-log",
+          "group": "WP Admin",
+          "summary": "This snippet logs all WPGraphQL requests to the error log add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) { error_log( wp_json_encode( [ 'query' => $query, 'operation' => $operation,…",
+          "relatedActions": [
+            "do_graphql_request"
+          ],
+          "relatedFilters": [],
+          "relatedFunctions": [
+            "do_graphql_request"
+          ]
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
@@ -221,7 +238,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "Settings::register_settings()",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 103,
+      "line": 121,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy endpoint path filter retained for backward compatibility.",
@@ -251,16 +268,33 @@
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 103,
+          "line": 121,
           "symbol": "Settings::register_settings()",
           "emitter": "apply_filters_deprecated"
         }
       ],
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Update WPGraphQL Endpoint URL",
+          "slug": "update-wpgraphql-endpoint-url",
+          "uri": "/recipes/update-wpgraphql-endpoint-url",
+          "wordpressUri": "/recipes/update-wpgraphql-endpoint-url/",
+          "uriKey": "/recipes/update-wpgraphql-endpoint-url",
+          "group": "WP Admin",
+          "summary": "You can modify the WPGraphQL endpoint in code with the following: function my_new_graphql_endpoint() { return 'cutepuppies'; }; add_filter( 'graphql_endpoint', 'my_new_graphql_endpoint' ); This will change the graphql en…",
+          "relatedActions": [],
+          "relatedFilters": [
+            "graphql_endpoint"
+          ],
+          "relatedFunctions": [
+            "graphql"
+          ]
+        }
+      ],
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 103
+          "line": 121
         },
         {
           "file": "plugins/wp-graphql/access-functions.php",
@@ -667,7 +701,7 @@
       "emitter": "do_action_deprecated",
       "enclosingSymbol": "TypeRegistry::init()",
       "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-      "line": 284,
+      "line": 291,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy type registry initialization hook retained for backward compatibility.",
@@ -691,7 +725,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 284,
+          "line": 291,
           "symbol": "TypeRegistry::init()",
           "emitter": "do_action_deprecated"
         }
@@ -700,7 +734,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-          "line": 284
+          "line": 291
         }
       ],
       "occurrences": 1
@@ -1069,7 +1103,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "Experimental::is_enabled()",
       "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-      "line": 71,
+      "line": 73,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Legacy experimental features toggle filter retained for backward compatibility.",
@@ -1093,7 +1127,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-          "line": 71,
+          "line": 73,
           "symbol": "Experimental::is_enabled()",
           "emitter": "apply_filters_deprecated"
         }
@@ -1102,7 +1136,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
-          "line": 71
+          "line": 73
         }
       ],
       "occurrences": 1

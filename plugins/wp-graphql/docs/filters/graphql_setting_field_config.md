@@ -30,7 +30,7 @@ Filter the setting field config
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:144`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L144)
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:154`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L154)
 
 ```php
 apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $section );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_setting_field_config', $field_config, $field_name, $sect
 
 ## Related
 
-- `SettingsRegistry::register_field()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:144`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L144)
+- `SettingsRegistry::register_field()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:154`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L154)

@@ -42,3 +42,7 @@ apply_filters( 'graphql_data_is_private', (bool) $is_private, $this->get_model_n
 ## Related
 
 - `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:258`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L258)
+
+## Recipes
+
+- [Making Menus and Menu Items public](/recipes/making-menus-and-menu-items-public)

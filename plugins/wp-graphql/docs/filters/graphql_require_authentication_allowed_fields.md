@@ -38,3 +38,7 @@ apply_filters( 'graphql_require_authentication_allowed_fields', $allowed_root_fi
 ## Related
 
 - `RequireAuthentication::getVisitor()` in [`plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php:77`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php#L77)
+
+## Recipes
+
+- [Allow login mutation to be public when the endpoint is fully restricted](/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted)

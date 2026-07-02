@@ -28,7 +28,7 @@ Fires before rendering a WPGraphQL settings form section.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:688`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L688)
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:739`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L739)
 
 ```php
 do_action( 'graphql_settings_form_top', $form );
@@ -36,4 +36,4 @@ do_action( 'graphql_settings_form_top', $form );
 
 ## Related
 
-- `SettingsRegistry::show_forms()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:688`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L688)
+- `SettingsRegistry::show_forms()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:739`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L739)

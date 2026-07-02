@@ -28,7 +28,7 @@ Fire an action as the type registry is initialized. This executes before the `gr
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:712`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L712)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:719`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L719)
 
 ```php
 do_action( 'graphql_register_types', $type_registry );
@@ -36,4 +36,20 @@ do_action( 'graphql_register_types', $type_registry );
 
 ## Related
 
-- `TypeRegistry::init_type_registry()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:712`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L712)
+- `TypeRegistry::init_type_registry()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:719`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L719)
+
+## Recipes
+
+- [Add Edit Link to All Post Types](/recipes/add-edit-link-to-all-post-types)
+- [Add field for unencoded content](/recipes/add-field-for-unencoded-content)
+- [Add field to output URLs for Sitemap](/recipes/add-field-to-output-urls-for-sitemap)
+- [Add WP Admin Color Schemes to WPGraphQL](/recipes/add-wp-admin-color-schemes-to-wpgraphql)
+- [List of Key Values](/recipes/list-of-key-values)
+- [Page Siblings Connection](/recipes/page-siblings-connection)
+- [Popular Posts](/recipes/popular-posts)
+- [Register a basic Mutation](/recipes/register-a-basic-mutation)
+- [Register Connection to Attached Media](/recipes/register-connection-to-attached-media)
+- [Register field as a list of strings](/recipes/register-field-as-a-list-of-strings)
+- [Register GraphQL Field with Argument](/recipes/register-graphql-field-with-argument)
+- [Register object and field for custom list of users](/recipes/register-object-and-field-for-custom-list-of-users)
+- [Tag to Content Node Connection](/recipes/tag-to-content-node-connection)

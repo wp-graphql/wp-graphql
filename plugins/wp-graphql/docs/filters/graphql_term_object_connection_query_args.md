@@ -41,3 +41,7 @@ apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->
 ## Related
 
 - `TermObjectConnectionResolver::prepare_query_args()` in [`plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php:141`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/TermObjectConnectionResolver.php#L141)
+
+## Recipes
+
+- [Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin](/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin)

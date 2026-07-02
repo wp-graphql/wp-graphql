@@ -34,7 +34,7 @@ When this filter return anything other than null, it will be used as a resolved 
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/NodeResolver.php:247`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L247)
+- [`plugins/wp-graphql/src/Data/NodeResolver.php:250`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L250)
 
 ```php
 apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this
 
 ## Related
 
-- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:247`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L247)
+- `NodeResolver::resolve_uri()` in [`plugins/wp-graphql/src/Data/NodeResolver.php:250`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/NodeResolver.php#L250)

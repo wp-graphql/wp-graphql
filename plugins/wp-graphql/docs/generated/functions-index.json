@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-04-21T19:21:42.724Z",
+  "generatedAt": "2026-07-02T16:09:32.659Z",
   "stats": {
     "totalFunctions": 43
   },
@@ -249,7 +249,12 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 126,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Log WPGraphQL requests to error log",
+          "uri": "/recipes/log-wpgraphql-requests-to-error-log"
+        }
+      ],
       "since": "0.0.2",
       "signature": "do_graphql_request( $query, $operation_name = '', $variables = [], $return_request = false );",
       "description": "Previous access function for running GraphQL queries directly. This function will eventually be deprecated in favor of `graphql`."
@@ -293,7 +298,80 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 98,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "ACF Nav Menu Plugin Support",
+          "uri": "/recipes/acf-nav-menu-plugin-support"
+        },
+        {
+          "title": "Add Edit Link to All Post Types",
+          "uri": "/recipes/add-edit-link-to-all-post-types"
+        },
+        {
+          "title": "Add field for unencoded content",
+          "uri": "/recipes/add-field-for-unencoded-content"
+        },
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql"
+        },
+        {
+          "title": "Allow login mutation to be public when the endpoint is fully restricted",
+          "uri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted"
+        },
+        {
+          "title": "Changing the Server Debug Flag",
+          "uri": "/recipes/change-the-debug-flag"
+        },
+        {
+          "title": "Filter to add restricted field on Model",
+          "uri": "/recipes/filter-to-add-restricted-field-on-model"
+        },
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin"
+        },
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin"
+        },
+        {
+          "title": "Making Menus and Menu Items public",
+          "uri": "/recipes/making-menus-and-menu-items-public"
+        },
+        {
+          "title": "Popular Posts",
+          "uri": "/recipes/popular-posts"
+        },
+        {
+          "title": "Register a basic Mutation",
+          "uri": "/recipes/register-a-basic-mutation"
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users"
+        },
+        {
+          "title": "Remove Extensions from GraphQL Response",
+          "uri": "/recipes/remove-extensions-from-graphql-response"
+        },
+        {
+          "title": "Showing Post Type labels in public queries",
+          "uri": "/recipes/showing-post-type-labels-in-public-queries"
+        },
+        {
+          "title": "Tag to Content Node Connection",
+          "uri": "/recipes/tag-to-content-node-connection"
+        },
+        {
+          "title": "Update WPGraphQL Endpoint URL",
+          "uri": "/recipes/update-wpgraphql-endpoint-url"
+        },
+        {
+          "title": "Using GraphQL Fragments in PHP",
+          "uri": "/recipes/using-graphql-fragments-in-php"
+        }
+      ],
       "since": "0.2.0",
       "signature": "graphql( array $request_data = [], bool $return_request = false );",
       "description": "Provides a simple way to run a GraphQL query without posting a request to the endpoint."
@@ -381,7 +459,12 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 689,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Debugging JWT Authentication",
+          "uri": "/recipes/debugging-jwt-authentication"
+        }
+      ],
       "since": "0.4.1",
       "signature": "is_graphql_http_request(): bool;",
       "description": "Whether a GraphQL HTTP request is in action or not. This is determined by checking if the request is occurring on the route defined for the GraphQL endpoint. This conditional should only be used for features that apply to HTTP requests. If you are going to apply filters to underlying WordPress core functionality that should affect _all_ GraphQL requests, you should use \"is_graphql_request\" but if you need to apply filters only if the GraphQL request is an HTTP request, use this conditional. Default false."
@@ -392,7 +475,16 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 672,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Fix pagination conflict with the “Advanced Taxonomy Terms Order” plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-advanced-taxonomy-terms-order-plugin"
+        },
+        {
+          "title": "Fix pagination conflict with the “Post Type Order” plugin",
+          "uri": "/recipes/fix-pagination-conflict-with-the-post-type-order-plugin"
+        }
+      ],
       "since": "0.4.1",
       "signature": "is_graphql_request(): bool;",
       "description": "Whether a GraphQL request is in action or not. This is determined by the WPGraphQL Request class being initiated. True while a request is in action, false after a request completes. This should be used when a condition needs to be checked for ALL GraphQL requests, such as filtering WP_Query for GraphQL requests, for example. Default false."
@@ -425,7 +517,28 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 514,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Add Primary Category field for The SEO Framework plugin",
+          "uri": "/recipes/add-primary-category-field-for-the-seo-framework-plugin"
+        },
+        {
+          "title": "Page Siblings Connection",
+          "uri": "/recipes/page-siblings-connection"
+        },
+        {
+          "title": "Popular Posts",
+          "uri": "/recipes/popular-posts"
+        },
+        {
+          "title": "Register Connection to Attached Media",
+          "uri": "/recipes/register-connection-to-attached-media"
+        },
+        {
+          "title": "Tag to Content Node Connection",
+          "uri": "/recipes/tag-to-content-node-connection"
+        }
+      ],
       "since": "0.1.0",
       "signature": "register_graphql_connection( array $config ): void;",
       "description": "Given a config array for a connection, this registers a connection by creating all appropriate fields and types for the connection"
@@ -491,7 +604,44 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 314,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Add Edit Link to All Post Types",
+          "uri": "/recipes/add-edit-link-to-all-post-types"
+        },
+        {
+          "title": "Add field for unencoded content",
+          "uri": "/recipes/add-field-for-unencoded-content"
+        },
+        {
+          "title": "Add field to output URLs for Sitemap",
+          "uri": "/recipes/add-field-to-output-urls-for-sitemap"
+        },
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql"
+        },
+        {
+          "title": "List of Key Values",
+          "uri": "/recipes/list-of-key-values"
+        },
+        {
+          "title": "Popular Posts",
+          "uri": "/recipes/popular-posts"
+        },
+        {
+          "title": "Register field as a list of strings",
+          "uri": "/recipes/register-field-as-a-list-of-strings"
+        },
+        {
+          "title": "Register GraphQL Field with Argument",
+          "uri": "/recipes/register-graphql-field-with-argument"
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users"
+        }
+      ],
       "since": "0.1.0",
       "signature": "register_graphql_field( string $type_name, string $field_name, array $config ): void;",
       "description": "Given a Type Name, Field Name, and a $config array, this adds a Field to a registered Type in the TypeRegistry"
@@ -546,7 +696,12 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 532,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Register a basic Mutation",
+          "uri": "/recipes/register-a-basic-mutation"
+        }
+      ],
       "since": "0.1.0",
       "signature": "register_graphql_mutation( string $mutation_name, array $config ): void;",
       "description": "Given a Mutation Name and Config array, this adds a Mutation to the Schema"
@@ -557,7 +712,20 @@
       "file": "plugins/wp-graphql/access-functions.php",
       "line": 243,
       "group": null,
-      "relatedRecipes": [],
+      "relatedRecipes": [
+        {
+          "title": "Add WP Admin Color Schemes to WPGraphQL",
+          "uri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql"
+        },
+        {
+          "title": "List of Key Values",
+          "uri": "/recipes/list-of-key-values"
+        },
+        {
+          "title": "Register object and field for custom list of users",
+          "uri": "/recipes/register-object-and-field-for-custom-list-of-users"
+        }
+      ],
       "since": null,
       "signature": "register_graphql_object_type( string $type_name, array $config ): void;",
       "description": "Given a Type Name and a $config array, this adds an ObjectType to the TypeRegistry"

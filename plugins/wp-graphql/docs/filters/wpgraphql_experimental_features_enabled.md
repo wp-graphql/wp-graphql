@@ -33,7 +33,7 @@ Legacy experimental features toggle filter retained for backward compatibility.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Experimental/Experimental.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L71)
+- [`plugins/wp-graphql/src/Experimental/Experimental.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L73)
 
 ```php
 apply_filters_deprecated(
@@ -46,4 +46,4 @@ apply_filters_deprecated(
 
 ## Related
 
-- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L71)
+- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L73)

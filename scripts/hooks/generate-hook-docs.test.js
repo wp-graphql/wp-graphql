@@ -114,6 +114,16 @@ do_action( 'graphql_docs_missing_since', [ 'ok' => true ] );
 apply_filters( 'graphql_docs_param_mismatch', [ 'ok' => true ], 'extra' );
 
 /**
+ * Filter with an array-shape param type containing spaces.
+ *
+ * @param array{sql: string, time: float} $parts Normalized parts.
+ * @param string                          $raw   Raw row.
+ * @since 1.0.0
+ * @hookGroup request-lifecycle
+ */
+apply_filters( 'graphql_docs_shape_param', [ 'sql' => '' ], 'raw' );
+
+/**
  * Core hook passthrough.
  *
  * @since 1.0.0
@@ -302,7 +312,18 @@ const tests = [
 			);
 
 			const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-			assert.strictEqual(index.stats.totalHooks, 9, 'expected nine hooks');
+			assert.strictEqual(index.stats.totalHooks, 10, 'expected ten hooks');
+
+			const shapeHook = index.hooks.find(
+				(hook) => hook.name === 'graphql_docs_shape_param'
+			);
+			assert(shapeHook, 'array-shape param hook should exist');
+			assert.strictEqual(
+				shapeHook.params[0].type,
+				'array{sql: string, time: float}',
+				'array-shape param types with spaces should parse as a single type'
+			);
+			assert.strictEqual(shapeHook.params[0].name, '$parts');
 
 			const payloadHook = index.hooks.find((hook) => hook.name === 'graphql_docs_payload');
 			assert(payloadHook, 'filter hook should exist');
@@ -333,6 +354,14 @@ const tests = [
 			assert(
 				lint.warnings.some((item) => item.type === 'hook_param_count_mismatch'),
 				'param count mismatches should be linted'
+			);
+			assert(
+				!lint.warnings.some(
+					(item) =>
+						item.hook === 'graphql_docs_shape_param' &&
+						item.type === 'hook_param_count_mismatch'
+				),
+				'array-shape param types should not trigger a false param count mismatch'
 			);
 			assert(
 				lint.warnings.some((item) => item.type === 'missing_hook_since'),
