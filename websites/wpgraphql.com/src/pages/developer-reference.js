@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
@@ -54,23 +56,31 @@ export default function DeveloperReference({ layoutData }) {
           </header>
           <div className="grid gap-5 md:grid-cols-2">
             {references.map((ref) => (
-              <Card key={ref.name}>
+              <Card
+                key={ref.name}
+                className="group relative transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow-sm"
+              >
                 <CardHeader>
                   {ref?.icon && (
                     <div className="flex h-12 w-12 items-center justify-center rounded-md border border-border bg-muted text-primary">
                       <ref.icon className="h-6 w-6" aria-hidden="true" />
                     </div>
                   )}
-                  <CardTitle className="mt-4 text-display-sm font-bold tracking-tight">
-                    {ref.name}
+                  <CardTitle className="mt-4 text-display-sm font-bold tracking-tight transition-colors group-hover:text-primary">
+                    {/* Stretched link makes the whole card clickable — same
+                        pattern as PreviewCard. */}
+                    <Link
+                      href={ref.link}
+                      className="before:absolute before:inset-0 before:content-[''] before:rounded-xl focus-visible:outline-none focus-visible:before:ring-2 focus-visible:before:ring-ring"
+                    >
+                      {ref.name}
+                    </Link>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-6">
                   <p className="text-muted-foreground">{ref.description}</p>
-                  <Button asChild className="self-start">
-                    <a href={ref.link} target="_blank" rel="noreferrer">
-                      Visit {ref.name}
-                    </a>
+                  <Button asChild className="relative self-start">
+                    <Link href={ref.link}>Visit {ref.name}</Link>
                   </Button>
                 </CardContent>
               </Card>
