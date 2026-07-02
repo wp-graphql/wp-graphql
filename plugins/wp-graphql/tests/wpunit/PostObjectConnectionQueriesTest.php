@@ -1420,10 +1420,11 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	/**
 	 * The `template` where arg is a ContentTemplateEnum built from the templates registered for the
-	 * active theme. Its values map a schema-friendly name (e.g. `TEMPLATE_FULL_WIDTH`) to the
-	 * underlying template identifier, and `DEFAULT` filters for content with no specific
-	 * template assigned. Per-post template assignment uses the same storage for classic page
-	 * templates (a `.php` file name) and block-theme custom templates (a slug).
+	 * active theme. Each value maps a schema-friendly, kind-qualified name (e.g. a classic
+	 * `full-width.php` -> `FULL_WIDTH_TEMPLATE`, a block `page-no-title` -> `PAGE_NO_TITLE_BLOCK_TEMPLATE`)
+	 * to the underlying identifier, plus `DEFAULT` for content with no specific template assigned.
+	 * Per-post template assignment uses the same storage for classic templates (a `.php` file name)
+	 * and block-theme custom templates (a slug).
 	 *
 	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
 	 *
@@ -1433,8 +1434,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		// Register templates for the active theme so they appear as ContentTemplateEnum values.
 		// A `.php` file name models a classic template; a bare slug models a block-theme one.
 		$register_templates = static function ( $templates ) {
-			$templates['template-full-width.php'] = 'Full Width';
-			$templates['page-no-title']           = 'No Title';
+			$templates['full-width.php'] = 'Full Width';
+			$templates['page-no-title']  = 'No Title';
 			return $templates;
 		};
 		add_filter( 'theme_page_templates', $register_templates );
@@ -1447,8 +1448,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$block_template = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Block Template' ] );
 		$no_template    = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'No Template' ] );
 
-		update_post_meta( $full_width_one, '_wp_page_template', 'template-full-width.php' );
-		update_post_meta( $full_width_two, '_wp_page_template', 'template-full-width.php' );
+		update_post_meta( $full_width_one, '_wp_page_template', 'full-width.php' );
+		update_post_meta( $full_width_two, '_wp_page_template', 'full-width.php' );
 		update_post_meta( $block_template, '_wp_page_template', 'page-no-title' );
 
 		$query = '
@@ -1461,11 +1462,11 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		// The `TEMPLATE_FULL_WIDTH` enum value resolves to `template-full-width.php`.
+		// The classic template's value is suffixed `_TEMPLATE` and resolves to `full-width.php`.
 		$actual = $this->graphql(
 			[
 				'query'     => $query,
-				'variables' => [ 'template' => 'TEMPLATE_FULL_WIDTH' ],
+				'variables' => [ 'template' => 'FULL_WIDTH_TEMPLATE' ],
 			]
 		);
 
@@ -1478,11 +1479,11 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertNotContains( $block_template, $actual_ids, 'template should exclude pages with a different template' );
 		$this->assertNotContains( $no_template, $actual_ids, 'template should exclude pages with no template' );
 
-		// A block-theme template slug (no `.php`) maps to `PAGE_NO_TITLE` and filters the same way.
+		// A block-theme template slug (no `.php`) is qualified as `_BLOCK_TEMPLATE` and filters the same way.
 		$actual = $this->graphql(
 			[
 				'query'     => $query,
-				'variables' => [ 'template' => 'PAGE_NO_TITLE' ],
+				'variables' => [ 'template' => 'PAGE_NO_TITLE_BLOCK_TEMPLATE' ],
 			]
 		);
 
@@ -1509,19 +1510,19 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
-	 * When two distinct templates would map to the same enum name (e.g. a classic
-	 * `my-template.php` and a block-theme `my-template`), each must still get a unique,
-	 * filterable enum value rather than one being silently dropped.
+	 * Two templates that share a base name (e.g. a classic `my-layout.php` and a block-theme
+	 * `my-layout`) each get a distinct, filterable enum value because every value is qualified
+	 * by kind. Neither is silently dropped, and the qualifier never leaks the file extension.
 	 *
 	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
 	 *
 	 * @throws \Exception
 	 */
-	public function testContentTemplateEnumDisambiguatesCollidingTemplates() {
+	public function testContentTemplateEnumDistinguishesTemplatesByKind() {
 		// A classic `.php` template and a block-theme slug that collapse to the same base name.
 		$register = static function ( $templates ) {
-			$templates['my-template.php'] = 'My Template (classic)';
-			$templates['my-template']     = 'My Template (block)';
+			$templates['my-layout.php'] = 'My Layout (classic)';
+			$templates['my-layout']     = 'My Layout (block)';
 			return $templates;
 		};
 		add_filter( 'theme_page_templates', $register );
@@ -1529,8 +1530,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$classic_page = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Classic Template' ] );
 		$block_page   = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Block Template' ] );
-		update_post_meta( $classic_page, '_wp_page_template', 'my-template.php' );
-		update_post_meta( $block_page, '_wp_page_template', 'my-template' );
+		update_post_meta( $classic_page, '_wp_page_template', 'my-layout.php' );
+		update_post_meta( $block_page, '_wp_page_template', 'my-layout' );
 
 		$query = '
 		query( $template: ContentTemplateEnum ) {
@@ -1540,16 +1541,16 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		// On collision each template is qualified by its kind (never by the leaked file
-		// extension): the block-theme template becomes `MY_TEMPLATE_BLOCK_TEMPLATE` and the
-		// classic one `MY_TEMPLATE_CONTENT_TEMPLATE`. Both remain filterable.
-		$block_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_TEMPLATE_BLOCK_TEMPLATE' ] ] );
+		// Each template is qualified by its kind (never by the leaked file extension): the
+		// block-theme template is `MY_LAYOUT_BLOCK_TEMPLATE` and the classic one
+		// `MY_LAYOUT_TEMPLATE`. Both remain filterable.
+		$block_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_LAYOUT_BLOCK_TEMPLATE' ] ] );
 		$this->assertArrayNotHasKey( 'errors', $block_result );
-		$this->assertEquals( [ $block_page ], wp_list_pluck( $block_result['data']['pages']['nodes'], 'databaseId' ), 'MY_TEMPLATE_BLOCK_TEMPLATE should resolve to the block-theme template' );
+		$this->assertEquals( [ $block_page ], wp_list_pluck( $block_result['data']['pages']['nodes'], 'databaseId' ), 'MY_LAYOUT_BLOCK_TEMPLATE should resolve to the block-theme template' );
 
-		$classic_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_TEMPLATE_CONTENT_TEMPLATE' ] ] );
+		$classic_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_LAYOUT_TEMPLATE' ] ] );
 		$this->assertArrayNotHasKey( 'errors', $classic_result );
-		$this->assertEquals( [ $classic_page ], wp_list_pluck( $classic_result['data']['pages']['nodes'], 'databaseId' ), 'MY_TEMPLATE_CONTENT_TEMPLATE should resolve to the classic template' );
+		$this->assertEquals( [ $classic_page ], wp_list_pluck( $classic_result['data']['pages']['nodes'], 'databaseId' ), 'MY_LAYOUT_TEMPLATE should resolve to the classic template' );
 
 		remove_filter( 'theme_page_templates', $register );
 		$this->clearSchema();

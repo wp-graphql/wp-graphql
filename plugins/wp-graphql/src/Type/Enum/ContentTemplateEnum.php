@@ -67,26 +67,17 @@ class ContentTemplateEnum {
 		// post types (or the theme) report their templates.
 		ksort( $templates );
 
-		// Pass 1: compute the preferred (clean) name for each template and count how many
-		// templates want each, so collisions can be detected up front.
-		$preferred = [];
-		$counts    = [];
-		foreach ( $templates as $file => $name ) {
-			$clean              = self::get_preferred_enum_name( $file );
-			$preferred[ $file ] = $clean;
-			if ( '' !== $clean ) {
-				$counts[ $clean ] = ( $counts[ $clean ] ?? 0 ) + 1;
-			}
-		}
-
-		// Pass 2: assign each template a unique value name. When two distinct templates want
-		// the same name (e.g. a classic `my-template.php` and a block-theme `my-template`),
-		// qualify each by its kind so both stay filterable, without leaking the extension.
+		// Each value name is qualified by the template's kind unconditionally, so a value's
+		// name depends only on that template, never on which other templates exist. That keeps
+		// the enum additive: registering a new template can add a value but never renames an
+		// existing one (e.g. adding a classic `page-no-title.php` alongside a block
+		// `page-no-title` adds PAGE_NO_TITLE_TEMPLATE without touching
+		// PAGE_NO_TITLE_BLOCK_TEMPLATE).
 		$used_names = [ 'DEFAULT' => true ];
 		foreach ( $templates as $file => $name ) {
-			$clean = $preferred[ $file ];
+			$enum_name = self::get_enum_name( $file );
 
-			if ( '' === $clean ) {
+			if ( '' === $enum_name ) {
 				graphql_debug(
 					sprintf(
 						// translators: %s is the template identifier.
@@ -97,19 +88,15 @@ class ContentTemplateEnum {
 				continue;
 			}
 
-			$candidate = $clean;
-			if ( ( $counts[ $clean ] ?? 0 ) > 1 ) {
-				$candidate .= self::is_block_template( $file ) ? '_BLOCK_TEMPLATE' : '_CONTENT_TEMPLATE';
-			}
-
-			// Guard against any remaining collision (e.g. two block templates whose slugs
-			// collapse to the same name) with a numeric suffix.
-			$enum_name = $candidate;
+			// Guard against the rare case where two same-kind templates still collapse to the
+			// same name (e.g. `full-width.php` vs `full_width.php`) with a numeric suffix.
+			$candidate = $enum_name;
 			$suffix    = 2;
-			while ( isset( $used_names[ $enum_name ] ) ) {
-				$enum_name = $candidate . '_' . $suffix;
+			while ( isset( $used_names[ $candidate ] ) ) {
+				$candidate = $enum_name . '_' . $suffix;
 				++$suffix;
 			}
+			$enum_name = $candidate;
 
 			$used_names[ $enum_name ] = true;
 
@@ -126,23 +113,32 @@ class ContentTemplateEnum {
 	}
 
 	/**
-	 * The preferred enum value name for a template identifier: a schema-friendly form of
-	 * the identifier without its extension, e.g. `my-template.php` -> `MY_TEMPLATE`.
+	 * The enum value name for a template identifier: a schema-friendly form of the
+	 * identifier without its extension, qualified by the template's kind so the name is
+	 * stable regardless of what other templates exist. A classic `full-width.php` becomes
+	 * `FULL_WIDTH_TEMPLATE`; a block-theme `page-no-title` becomes `PAGE_NO_TITLE_BLOCK_TEMPLATE`.
+	 * The `_TEMPLATE` / `_BLOCK_TEMPLATE` suffixes mirror the `Template_` / `BlockTemplate_`
+	 * prefixes used for the generated template object types.
 	 *
 	 * @param string $file The template identifier (file name or slug).
 	 */
-	private static function get_preferred_enum_name( string $file ): string {
+	private static function get_enum_name( string $file ): string {
 		$base = preg_replace( '/\.\w+$/', '', $file );
+		$name = WPEnumType::get_safe_name( is_string( $base ) && '' !== $base ? $base : $file );
 
-		return WPEnumType::get_safe_name( is_string( $base ) && '' !== $base ? $base : $file );
+		if ( '' === $name ) {
+			return '';
+		}
+
+		return $name . ( self::is_block_template( $file ) ? '_BLOCK_TEMPLATE' : '_TEMPLATE' );
 	}
 
 	/**
 	 * Whether a template identifier is a block template rather than a classic one.
 	 *
 	 * Classic templates are PHP files; block templates are slugs. This is only used to
-	 * qualify colliding enum names by kind, so a heuristic on the identifier is enough,
-	 * and the extension itself is never surfaced in the schema.
+	 * qualify the enum value name by kind, so a heuristic on the identifier is enough, and
+	 * the extension itself is never surfaced in the schema.
 	 *
 	 * @param string $file The template identifier (file name or slug).
 	 */

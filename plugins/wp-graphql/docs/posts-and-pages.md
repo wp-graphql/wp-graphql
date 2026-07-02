@@ -109,11 +109,11 @@ Use the `isSticky` argument to filter the connection by [sticky](https://wordpre
 
 #### Query pages by template
 
-Use the `template` argument to filter a connection to content assigned a specific template. `template` is a `ContentTemplateEnum` whose values come from the templates registered for the active theme (e.g. a "Full Width" template is exposed as `TEMPLATE_FULL_WIDTH`), plus `DEFAULT` for content with no specific template assigned. Introspect the `ContentTemplateEnum` type to see the values available in your schema.
+Use the `template` argument to filter a connection to content assigned a specific template. `template` is a `ContentTemplateEnum` whose values come from the templates registered for the active theme, plus `DEFAULT` for content with no specific template assigned. Each value is suffixed by the template's kind (a classic `full-width.php` template is exposed as `FULL_WIDTH_TEMPLATE`, a block "Page No Title" template as `PAGE_NO_TITLE_BLOCK_TEMPLATE`), mirroring the `Template_` / `BlockTemplate_` prefixes on the generated template object types and keeping the values stable as themes change. Introspect the `ContentTemplateEnum` type to see the values available in your schema.
 
 ```graphql
 {
-  pages(where: {template: TEMPLATE_FULL_WIDTH}) {
+  pages(where: {template: FULL_WIDTH_TEMPLATE}) {
     nodes {
       id
       title
