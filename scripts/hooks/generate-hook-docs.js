@@ -827,6 +827,30 @@ function slugFromHookName(hookName) {
 	return hookName.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
 }
 
+/**
+ * One-line summary for index listings: the first sentence of a description,
+ * length-capped, with MDX expression delimiters escaped so raw code in a
+ * description can't break MDX compilation of the index page.
+ */
+function summarizeForIndex(description) {
+	const text = String(description ?? '')
+		.replace(/\s+/g, ' ')
+		.trim();
+
+	if (!text) {
+		return '';
+	}
+
+	const sentenceMatch = text.match(/^.*?[.!?](?=\s|$)/);
+	let summary = sentenceMatch ? sentenceMatch[0] : text;
+
+	if (summary.length > 180) {
+		summary = `${summary.slice(0, 177).trimEnd()}...`;
+	}
+
+	return summary.replace(/\\/g, '\\\\').replace(/[{}<]/g, (char) => `\\${char}`);
+}
+
 function collectHookReferences(hooks) {
 	const referencesByKey = new Map();
 
@@ -1081,8 +1105,13 @@ function renderIndexPage({ title, kind, hooks }) {
 				const statusSuffix =
 					status === 'deprecated' ? ' _(deprecated)_' : status === 'removed' ? ' _(removed)_' : '';
 				lines.push(`- [\`${hook.name}\`](/${kind}/${slug})${statusSuffix}`);
+				const summary = summarizeForIndex(hook.description);
+				if (summary) {
+					lines.push('');
+					lines.push(`  ${summary}`);
+				}
+				lines.push('');
 			});
-		lines.push('');
 	});
 
 	return lines.join('\n');

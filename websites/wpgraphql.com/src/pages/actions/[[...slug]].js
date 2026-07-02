@@ -46,11 +46,11 @@ export default function ActionDocPage({
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData}>
+        <Breadcrumbs items={breadcrumbItems} />
         <div
           id="content-wrapper"
           className="relative z-20 mt-8 max-w-none prose"
         >
-          <Breadcrumbs items={breadcrumbItems} />
           {source?.frontmatter?.title && !hasMarkdownH1 && (
             <header className="relative z-20">
               <h1>{source.frontmatter.title}</h1>

@@ -100,18 +100,18 @@ export default function SingleRecipe({ data }) {
 
   return (
     <DocsLayout docsNavData={docsNavData} toc={pageToc}>
+      <Breadcrumbs
+        items={[
+          { label: "Developer Reference", href: "/developer-reference" },
+          { label: "Recipes", href: "/recipes" },
+          ...(node.title ? [{ label: node.title }] : []),
+        ]}
+      />
       <div
         id="content-wrapper"
         className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
       >
         <article>
-          <Breadcrumbs
-            items={[
-              { label: "Developer Reference", href: "/developer-reference" },
-              { label: "Recipes", href: "/recipes" },
-              ...(node.title ? [{ label: node.title }] : []),
-            ]}
-          />
           <header>
             {node.title ? <h1>{node.title}</h1> : null}
             {excerpt ? <p>{excerpt}</p> : null}
