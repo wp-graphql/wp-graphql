@@ -3,6 +3,7 @@ import gql from "graphql-tag"
 import SiteLayout from "components/Site/SiteLayout"
 import PreviewCard from "components/Preview/PreviewCard"
 import DocsLayout from "components/Docs/DocsLayout"
+import Breadcrumbs from "components/Docs/Breadcrumbs"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 import recipesIndex from "generated/recipes-index.json"
 
@@ -114,6 +115,12 @@ export default function Archive({ data }) {
 
     return (
       <DocsLayout docsNavData={docsNavData} toc={toc}>
+        <Breadcrumbs
+          items={[
+            { label: "Developer Reference", href: "/developer-reference" },
+            { label: "Recipes" },
+          ]}
+        />
         <div
           id="content-wrapper"
           className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
