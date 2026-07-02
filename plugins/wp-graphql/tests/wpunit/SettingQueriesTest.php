@@ -177,6 +177,121 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * A setting registered with the `number` type should be cast to a float when
+	 * resolved. Core ships no float settings, so this exercises the `number`/`float`
+	 * branch of the settings resolver's type switch.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testRegisteredNumberSettingResolvesAsFloat() {
+		wp_set_current_user( $this->admin );
+
+		register_setting(
+			'floatGroup',
+			'ratio',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test registering a number setting.', 'wp-graphql' ),
+				'show_in_graphql' => true,
+			]
+		);
+
+		update_option( 'ratio', '2.5' );
+
+		$query = '
+			query {
+				floatGroupSettings {
+					ratio
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertIsFloat( $actual['data']['floatGroupSettings']['ratio'] );
+		$this->assertEquals( 2.5, $actual['data']['floatGroupSettings']['ratio'] );
+	}
+
+	/**
+	 * A setting whose registered type is not one of the explicitly-cast scalar types
+	 * (integer, string, boolean, number/float) should resolve to its raw stored value,
+	 * exercising the `default` branch of the settings resolver's type switch.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testRegisteredSettingWithUnmappedTypeResolvesRawValue() {
+		wp_set_current_user( $this->admin );
+
+		// `id` resolves to the ID scalar but is not handled by an explicit `case`,
+		// so the resolver falls through to the default branch.
+		register_setting(
+			'rawGroup',
+			'token',
+			[
+				'type'            => 'id',
+				'description'     => __( 'Test registering a setting with an unmapped type.', 'wp-graphql' ),
+				'show_in_graphql' => true,
+			]
+		);
+
+		update_option( 'token', 'abc-123' );
+
+		$query = '
+			query {
+				rawGroupSettings {
+					token
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'abc-123', $actual['data']['rawGroupSettings']['token'] );
+	}
+
+	/**
+	 * The `graphql_setting_field_value` filter should be able to override a setting's
+	 * resolved value, covering the filter seam added alongside the timezone fallback.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testSettingFieldValueFilterCanOverrideResolvedValue() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'blogname', 'original title' );
+
+		$filter = static function ( $value, $setting_field ) {
+			if ( isset( $setting_field['key'] ) && 'blogname' === $setting_field['key'] ) {
+				return 'filtered title';
+			}
+
+			return $value;
+		};
+
+		add_filter( 'graphql_setting_field_value', $filter, 10, 2 );
+
+		$query = '
+			query {
+				generalSettings {
+					title
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_setting_field_value', $filter, 10 );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'filtered title', $actual['data']['generalSettings']['title'] );
+	}
+
+	/**
 	 * Method for testing the writingSettings
 	 *
 	 * @return void
