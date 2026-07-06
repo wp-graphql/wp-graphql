@@ -7,22 +7,30 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 51
-- Total findings: 51
+- Warnings: 55
+- Total findings: 55
 
 ## Findings by Type
 
-- `missing_hook_since`: 20
+- `missing_hook_since`: 24
 - `naming_convention`: 31
 
 ## Findings
 
 ### `missing_hook_since`
 
+- **Hook:** `graphql_get_extensions`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Extensions/Extensions.php` (line 404)
+- **Hook:** `graphql_render_admin_page`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 273)
 - **Hook:** `enqueue_graphiql_extension`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
-  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 321)
+  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 320)
 - **Hook:** `graphql_endpoint`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -39,6 +47,14 @@ Do not edit manually.
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
   - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 359)
+- **Hook:** `graphql_get_dependents`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 397)
+- **Hook:** `graphql_get_possible_dependents`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 439)
 - **Hook:** `init_graphql_request`
   - Severity: warning
   - Message: Missing @since tag in nearest docblock
@@ -105,7 +121,7 @@ Do not edit manually.
 - **Hook:** `enqueue_graphiql_extension`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
-  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 321)
+  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 320)
 - **Hook:** `graphql_endpoint`
   - Severity: warning
   - Message: low_specificity: Hook name has too few semantic segments after prefix.

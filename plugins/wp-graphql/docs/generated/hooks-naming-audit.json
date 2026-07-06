@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-06T20:59:43.883Z",
+  "generatedAt": "2026-07-06T21:10:31.079Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -80,7 +80,7 @@
         "hook": "enqueue_graphiql_extension",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 321,
+        "line": 320,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",

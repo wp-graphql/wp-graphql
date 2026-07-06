@@ -24,7 +24,7 @@ Fires before GraphiQL extensions are enqueued.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:321`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L321)
+- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:320`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L320)
 
 ```php
 do_action( 'enqueue_graphiql_extension' );
@@ -32,4 +32,4 @@ do_action( 'enqueue_graphiql_extension' );
 
 ## Related
 
-- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:321`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L321)
+- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:320`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L320)

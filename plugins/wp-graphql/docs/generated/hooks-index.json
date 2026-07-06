@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-06T20:59:43.883Z",
+  "generatedAt": "2026-07-06T21:10:31.079Z",
   "stats": {
     "totalHooks": 277,
     "actions": 62,
@@ -87,9 +87,23 @@
     "warnings": [
       {
         "type": "missing_hook_since",
+        "hook": "graphql_get_extensions",
+        "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
+        "line": 404,
+        "message": "Missing @since tag in nearest docblock"
+      },
+      {
+        "type": "missing_hook_since",
+        "hook": "graphql_render_admin_page",
+        "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
+        "line": 273,
+        "message": "Missing @since tag in nearest docblock"
+      },
+      {
+        "type": "missing_hook_since",
         "hook": "enqueue_graphiql_extension",
         "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 321,
+        "line": 320,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -118,6 +132,20 @@
         "hook": "wpgraphql_untested_release_type",
         "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
         "line": 359,
+        "message": "Missing @since tag in nearest docblock"
+      },
+      {
+        "type": "missing_hook_since",
+        "hook": "graphql_get_dependents",
+        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+        "line": 397,
+        "message": "Missing @since tag in nearest docblock"
+      },
+      {
+        "type": "missing_hook_since",
+        "hook": "graphql_get_possible_dependents",
+        "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+        "line": 439,
         "message": "Missing @since tag in nearest docblock"
       },
       {
@@ -229,7 +257,7 @@
         "type": "naming_convention",
         "hook": "enqueue_graphiql_extension",
         "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-        "line": 321,
+        "line": 320,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
@@ -877,7 +905,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "GraphiQL::enqueue_graphiql()",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 321,
+      "line": 320,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires before GraphiQL extensions are enqueued.",
@@ -901,7 +929,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-          "line": 321,
+          "line": 320,
           "symbol": "GraphiQL::enqueue_graphiql()",
           "emitter": "do_action"
         }
@@ -5638,7 +5666,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "UpdateChecker::get_dependents()",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 398,
+      "line": 397,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the list of plugins that use WPGraphQL as a dependency.",
@@ -5656,7 +5684,7 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": "x-release-please-version",
+      "since": null,
       "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_dependents'",
@@ -5673,7 +5701,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-          "line": 398,
+          "line": 397,
           "symbol": "UpdateChecker::get_dependents()",
           "emitter": "apply_filters"
         }
@@ -5691,7 +5719,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Extensions::get_extensions()",
       "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
-      "line": 405,
+      "line": 404,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the list of extensions, allowing other plugins to add or remove extensions.",
@@ -5704,7 +5732,7 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": "x-release-please-version",
+      "since": null,
       "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_extensions'",
@@ -5721,7 +5749,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
-          "line": 405,
+          "line": 404,
           "symbol": "Extensions::get_extensions()",
           "emitter": "apply_filters"
         }
@@ -5739,7 +5767,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "UpdateChecker::get_possible_dependents()",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-      "line": 441,
+      "line": 439,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the list of plugins that use WPGraphQL as a dependency. Can be used to hide false positives or to add additional plugins that may use WPGraphQL as a dependency.",
@@ -5757,7 +5785,7 @@
       ],
       "argumentCount": 2,
       "docblockParamCount": 2,
-      "since": "x-release-please-version",
+      "since": null,
       "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_get_possible_dependents'",
@@ -5774,7 +5802,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
-          "line": 441,
+          "line": 439,
           "symbol": "UpdateChecker::get_possible_dependents()",
           "emitter": "apply_filters"
         }
@@ -11191,7 +11219,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "GraphiQL::render_graphiql_admin_page()",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 274,
+      "line": 273,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the rendered GraphiQL admin page markup.",
@@ -11204,7 +11232,7 @@
       ],
       "argumentCount": 1,
       "docblockParamCount": 1,
-      "since": "x-release-please-version",
+      "since": null,
       "hookGroup": "settings",
       "isDynamic": false,
       "rawExpression": "'graphql_render_admin_page'",
@@ -11221,7 +11249,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-          "line": 274,
+          "line": 273,
           "symbol": "GraphiQL::render_graphiql_admin_page()",
           "emitter": "apply_filters"
         }

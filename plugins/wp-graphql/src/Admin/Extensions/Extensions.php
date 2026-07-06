@@ -400,7 +400,6 @@ final class Extensions {
 			 * @param array<string,Extension> $extensions The list of extensions.
 			 *
 			 * @hookGroup settings
-			 * @since x-release-please-version
 			 */
 			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
 

@@ -3,9 +3,23 @@
   "warnings": [
     {
       "type": "missing_hook_since",
+      "hook": "graphql_get_extensions",
+      "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
+      "line": 404,
+      "message": "Missing @since tag in nearest docblock"
+    },
+    {
+      "type": "missing_hook_since",
+      "hook": "graphql_render_admin_page",
+      "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
+      "line": 273,
+      "message": "Missing @since tag in nearest docblock"
+    },
+    {
+      "type": "missing_hook_since",
       "hook": "enqueue_graphiql_extension",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 321,
+      "line": 320,
       "message": "Missing @since tag in nearest docblock"
     },
     {
@@ -34,6 +48,20 @@
       "hook": "wpgraphql_untested_release_type",
       "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
       "line": 359,
+      "message": "Missing @since tag in nearest docblock"
+    },
+    {
+      "type": "missing_hook_since",
+      "hook": "graphql_get_dependents",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 397,
+      "message": "Missing @since tag in nearest docblock"
+    },
+    {
+      "type": "missing_hook_since",
+      "hook": "graphql_get_possible_dependents",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 439,
       "message": "Missing @since tag in nearest docblock"
     },
     {
@@ -145,7 +173,7 @@
       "type": "naming_convention",
       "hook": "enqueue_graphiql_extension",
       "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
-      "line": 321,
+      "line": 320,
       "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
     },
     {

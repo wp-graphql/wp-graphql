@@ -19,7 +19,7 @@ Filter the list of extensions, allowing other plugins to add or remove extension
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** x-release-please-version
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Admin/Extensions/Extensions.php`
 
 ## Parameters
@@ -28,7 +28,7 @@ Filter the list of extensions, allowing other plugins to add or remove extension
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:405`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L405)
+- [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:404`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L404)
 
 ```php
 apply_filters( 'graphql_get_extensions', $extensions );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_get_extensions', $extensions );
 
 ## Related
 
-- `Extensions::get_extensions()` in [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:405`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L405)
+- `Extensions::get_extensions()` in [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:404`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L404)

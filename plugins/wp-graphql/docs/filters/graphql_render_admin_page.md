@@ -19,7 +19,7 @@ Filters the rendered GraphiQL admin page markup.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** x-release-please-version
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
 
 ## Parameters
@@ -28,7 +28,7 @@ Filters the rendered GraphiQL admin page markup.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:274`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L274)
+- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:273`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L273)
 
 ```php
 apply_filters( 'graphql_render_admin_page', '<div class="wrap" dir="ltr"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_render_admin_page', '<div class="wrap" dir="ltr"><div id
 
 ## Related
 
-- `GraphiQL::render_graphiql_admin_page()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:274`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L274)
+- `GraphiQL::render_graphiql_admin_page()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:273`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L273)
