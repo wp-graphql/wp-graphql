@@ -49,9 +49,9 @@
 		"webpack-dev-server": ">=5.2.1"
 	},
 	"dependencies": {
-		"@ant-design/icons": "6.2.5",
+		"@ant-design/icons": "6.3.2",
 		"@apollo/client": "3.14.1",
-		"@wordpress/api-fetch": "^7.48.1",
+		"@wordpress/api-fetch": "^7.49.0",
 		"@wordpress/components": "^34.0.0",
 		"@wordpress/compose": "^7.46.0",
 		"@wordpress/element": "^6.37.0",
@@ -64,7 +64,7 @@
 		"lz-string": "1.5.0",
 		"query-string": "7.1.3",
 		"sanitize-html": "^2.17.5",
-		"styled-components": "6.4.2",
+		"styled-components": "6.4.3",
 		"use-error-boundary": "2.0.6",
 		"use-query-params": "1.2.3"
 	},
