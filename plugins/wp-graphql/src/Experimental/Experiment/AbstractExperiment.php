@@ -89,6 +89,7 @@ abstract class AbstractExperiment {
 		 *
 		 * @param \WPGraphQL\Experimental\Experiment\AbstractExperiment $instance The experiment instance.
 		 * @hookGroup settings
+		 * @since 2.5.0
 		 */
 		do_action( 'wp_graphql_experiment_' . $this->get_slug() . '_loaded', $this );
 	}
@@ -370,6 +371,7 @@ abstract class AbstractExperiment {
 		 * @param array{title:string,description:string} $config The experiment configuration.
 		 * @param string                               $slug   The experiment's slug.
 		 * @hookGroup settings
+		 * @since 2.5.0
 		 */
 		$config = apply_filters( 'wp_graphql_experiment_config', $config, $slug );
 

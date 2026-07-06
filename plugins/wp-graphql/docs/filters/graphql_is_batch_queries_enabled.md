@@ -29,7 +29,7 @@ Filter whether batch queries are supported or not
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:912`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L912)
+- [`plugins/wp-graphql/src/Request.php:916`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L916)
 
 ```php
 apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this
 
 ## Related
 
-- `Request::is_batch_queries_enabled()` in [`plugins/wp-graphql/src/Request.php:912`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L912)
+- `Request::is_batch_queries_enabled()` in [`plugins/wp-graphql/src/Request.php:916`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L916)

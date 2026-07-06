@@ -1059,6 +1059,7 @@ abstract class AbstractConnectionResolver {
 				 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
 				 * @param self                 $resolver   The instance of the connection resolver
 				 * @hookGroup connections
+				 * @since 0.3.0
 				 */
 				$connection = apply_filters( 'graphql_connection', $connection, $this );
 				return $connection;

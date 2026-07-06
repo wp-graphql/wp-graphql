@@ -19,7 +19,7 @@ Filters the list of plugins that use WPGraphQL as a dependency.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 2.0.0
 - **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
 ## Parameters
@@ -29,7 +29,7 @@ Filters the list of plugins that use WPGraphQL as a dependency.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:397`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L397)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:401`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L401)
 
 ```php
 apply_filters( 'graphql_get_dependents', $plugins, $all_plugins );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_get_dependents', $plugins, $all_plugins );
 
 ## Related
 
-- `UpdateChecker::get_dependents()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:397`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L397)
+- `UpdateChecker::get_dependents()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:401`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L401)

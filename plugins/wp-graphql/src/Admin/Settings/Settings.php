@@ -114,6 +114,7 @@ class Settings {
 		 *
 		 * @param ?string $endpoint A custom endpoint path.
 		 * @hookGroup settings
+		 * @since 0.0.6
 		 */
 		$custom_endpoint = apply_filters( 'graphql_endpoint', null );
 		$this->settings_api->register_field(

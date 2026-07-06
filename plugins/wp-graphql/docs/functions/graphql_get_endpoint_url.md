@@ -25,7 +25,7 @@ Return the full url for the GraphQL Endpoint.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:946`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L946)
+- [`plugins/wp-graphql/access-functions.php:947`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L947)
 
 ```php
 function graphql_get_endpoint_url(): string {

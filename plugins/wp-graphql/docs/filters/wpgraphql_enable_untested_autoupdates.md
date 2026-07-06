@@ -19,7 +19,7 @@ Filter whether to allow autoupdates with untested plugins.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 2.0.0
 - **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
 ## Parameters
@@ -32,7 +32,7 @@ Filter whether to allow autoupdates with untested plugins.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:341`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L341)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:343`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L343)
 
 ```php
 apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
@@ -40,4 +40,4 @@ apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->re
 
 ## Related
 
-- `UpdateChecker::should_allow_untested_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:341`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L341)
+- `UpdateChecker::should_allow_untested_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:343`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L343)

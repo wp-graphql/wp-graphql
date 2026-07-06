@@ -30,7 +30,7 @@ Filters whether or not the model is valid. This is useful when the dataloader is
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1367`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1367)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1368`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1368)
 
 ```php
 apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_is_valid_model()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1367`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1367)
+- `AbstractConnectionResolver::get_is_valid_model()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1368`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1368)

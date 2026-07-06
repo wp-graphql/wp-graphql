@@ -26,7 +26,7 @@ Registers an admin notice to display on WPGraphQL plugin screens.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:1011`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L1011)
+- [`plugins/wp-graphql/access-functions.php:1012`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L1012)
 
 ```php
 function register_graphql_admin_notice( string $slug, array $config ): void {

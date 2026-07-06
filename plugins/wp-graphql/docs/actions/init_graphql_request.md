@@ -19,12 +19,12 @@ Action – intentionally with no context – to indicate a GraphQL Request has s
 
 - **Type:** action
 - **Group:** Request Lifecycle
-- **Since:** Unknown
+- **Since:** 0.0.32
 - **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:160`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L160)
+- [`plugins/wp-graphql/src/Request.php:161`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L161)
 
 ```php
 do_action( 'init_graphql_request' );
@@ -32,5 +32,5 @@ do_action( 'init_graphql_request' );
 
 ## Related
 
-- `Commands::generate_static_schema()` in [`plugins/wp-graphql/src/CLI/Commands.php:70`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/CLI/Commands.php#L70)
-- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:160`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L160)
+- `Commands::generate_static_schema()` in [`plugins/wp-graphql/src/CLI/Commands.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/CLI/Commands.php#L71)
+- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:161`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L161)

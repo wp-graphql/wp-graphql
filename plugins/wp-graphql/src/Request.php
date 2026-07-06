@@ -156,6 +156,7 @@ class Request {
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
 		 *
 		 * @hookGroup request-lifecycle
+		 * @since 0.0.32
 		 */
 		do_action( 'init_graphql_request' );
 
@@ -506,6 +507,7 @@ class Request {
 		 * @param \WPGraphQL\Request               $request   Instance of the Request
 		 *
 		 * @hookGroup request-lifecycle
+		 * @since 0.0.6
 		 */
 		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -589,6 +591,7 @@ class Request {
 		 * @param \GraphQL\Server\OperationParams $params    The Operation Params. This includes any extra params,
 		 *                                                   such as extensions or any other modifications to the request body
 		 * @hookGroup request-lifecycle
+		 * @since 0.0.6
 		 */
 		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 	}
@@ -664,6 +667,7 @@ class Request {
 		 * @param ?SerializableResult $response The response to return early. Null continues execution.
 		 * @param self               $request  The request instance being executed.
 		 * @hookGroup request-lifecycle
+		 * @since 1.6.6
 		 */
 		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
@@ -770,7 +774,7 @@ class Request {
 		 * @param mixed|null $response The response to return early. Null continues execution.
 		 * @param self       $request  The request instance being executed.
 		 * @hookGroup request-lifecycle
-		 * @since 0.0.5
+		 * @since 1.6.6
 		 */
 		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 

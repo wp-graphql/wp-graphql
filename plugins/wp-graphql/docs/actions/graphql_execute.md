@@ -19,7 +19,7 @@ Run an action. This is a good place for debug tools to hook in to log things, et
 
 - **Type:** action
 - **Group:** Request Lifecycle
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
@@ -33,7 +33,7 @@ Run an action. This is a good place for debug tools to hook in to log things, et
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:510`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L510)
+- [`plugins/wp-graphql/src/Request.php:512`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L512)
 
 ```php
 do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
@@ -41,4 +41,4 @@ do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $var
 
 ## Related
 
-- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:510`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L510)
+- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:512`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L512)

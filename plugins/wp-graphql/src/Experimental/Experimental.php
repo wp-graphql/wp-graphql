@@ -65,6 +65,7 @@ final class Experimental {
 				 *
 				 * @param bool $is_enabled Whether experimental features should be enabled.
 				 * @hookGroup settings
+				 * @since 2.5.0
 				 */
 				$this->is_enabled = (bool) apply_filters( 'wpgraphql_experimental_features_enabled', true );
 			}

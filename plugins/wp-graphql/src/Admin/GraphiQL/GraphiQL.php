@@ -269,6 +269,7 @@ class GraphiQL {
 			 * @param string $rendered The rendered HTML markup for the GraphiQL admin page.
 			 *
 			 * @hookGroup settings
+			 * @since 1.6.9
 			 */
 			$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap" dir="ltr"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
 		}
@@ -316,6 +317,7 @@ class GraphiQL {
 		 * Fires before GraphiQL extensions are enqueued.
 		 *
 		 * @hookGroup settings
+		 * @since 1.7.0
 		 */
 		do_action( 'enqueue_graphiql_extension' );
 	}

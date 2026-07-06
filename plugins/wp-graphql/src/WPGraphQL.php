@@ -623,6 +623,7 @@ final class WPGraphQL {
 		 * @param array<string,mixed> $args           The graphql specific args for the post type
 		 * @param string              $post_type_name The name of the post type being registered
 		 * @hookGroup schema-registration
+		 * @since 1.12.0
 		 */
 		$graphql_args = apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
 
@@ -653,6 +654,7 @@ final class WPGraphQL {
 		 * @param array<string,mixed> $args          The graphql specific args for the taxonomy
 		 * @param string              $taxonomy_name The name of the taxonomy being registered
 		 * @hookGroup schema-registration
+		 * @since 1.12.0
 		 */
 		$graphql_args = apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 
@@ -907,6 +909,7 @@ final class WPGraphQL {
 			 * information about the context we know at this point
 			 *
 			 * @hookGroup schema-registration
+			 * @since 0.0.16
 			 */
 			self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 		}

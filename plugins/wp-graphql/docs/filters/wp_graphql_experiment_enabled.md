@@ -29,7 +29,7 @@ Filters whether the experiment is active.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:329`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L329)
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:330`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L330)
 
 ```php
 apply_filters( 'wp_graphql_experiment_enabled', $is_active, $slug );
@@ -37,4 +37,4 @@ apply_filters( 'wp_graphql_experiment_enabled', $is_active, $slug );
 
 ## Related
 
-- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:329`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L329)
+- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:330`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L330)

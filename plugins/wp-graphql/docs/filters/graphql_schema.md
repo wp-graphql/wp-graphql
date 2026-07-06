@@ -19,7 +19,7 @@ Generate & Filter the schema.
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 0.0.16
 - **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
@@ -29,7 +29,7 @@ Generate & Filter the schema.
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:911`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L911)
+- [`plugins/wp-graphql/src/WPGraphQL.php:914`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L914)
 
 ```php
 apply_filters( 'graphql_schema', $schema, self::get_app_context() );
@@ -37,5 +37,5 @@ apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 
 ## Related
 
-- `SchemaRegistry::get_schema()` in [`plugins/wp-graphql/src/Registry/SchemaRegistry.php:81`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/SchemaRegistry.php#L81)
-- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:911`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L911)
+- `SchemaRegistry::get_schema()` in [`plugins/wp-graphql/src/Registry/SchemaRegistry.php:82`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/SchemaRegistry.php#L82)
+- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:914`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L914)

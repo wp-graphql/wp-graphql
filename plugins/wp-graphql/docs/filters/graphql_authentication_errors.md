@@ -37,5 +37,5 @@ apply_filters( 'graphql_authentication_errors', null, self::get_request() );
 
 ## Related
 
-- `Request::filtered_authentication_errors()` in [`plugins/wp-graphql/src/Request.php:394`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L394)
+- `Request::filtered_authentication_errors()` in [`plugins/wp-graphql/src/Request.php:395`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L395)
 - `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:760`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L760)

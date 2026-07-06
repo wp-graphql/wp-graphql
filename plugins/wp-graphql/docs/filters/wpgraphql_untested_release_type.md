@@ -19,7 +19,7 @@ Filter the release type to use when checking for untested plugins. This is used 
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 2.0.0
 - **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
 ## Parameters
@@ -28,7 +28,7 @@ Filter the release type to use when checking for untested plugins. This is used 
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:359`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L359)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:362`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L362)
 
 ```php
 apply_filters( 'wpgraphql_untested_release_type', 'major' );
@@ -36,4 +36,4 @@ apply_filters( 'wpgraphql_untested_release_type', 'major' );
 
 ## Related
 
-- `UpdateChecker::get_untested_release_type()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:359`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L359)
+- `UpdateChecker::get_untested_release_type()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:362`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L362)

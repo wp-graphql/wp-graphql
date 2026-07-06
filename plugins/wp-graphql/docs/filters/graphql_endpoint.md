@@ -19,7 +19,7 @@ Filter the relative endpoint path where GraphQL can be accessed.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
 ## Parameters
@@ -28,7 +28,7 @@ Filter the relative endpoint path where GraphQL can be accessed.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:933`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L933)
+- [`plugins/wp-graphql/access-functions.php:934`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L934)
 
 ```php
 apply_filters( 'graphql_endpoint', $endpoint );
@@ -36,8 +36,8 @@ apply_filters( 'graphql_endpoint', $endpoint );
 
 ## Related
 
-- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:933`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L933)
-- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:118`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L118)
+- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:934`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L934)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:119`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L119)
 
 ## Recipes
 

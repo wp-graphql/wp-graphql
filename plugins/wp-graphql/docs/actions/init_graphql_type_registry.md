@@ -19,7 +19,7 @@ Fire an action as the Type registry is being initiated.
 
 - **Type:** action
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 0.4.0
 - **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
 ## Parameters
@@ -28,7 +28,7 @@ Fire an action as the Type registry is being initiated.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:288`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L288)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:289`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L289)
 
 ```php
 do_action( 'init_graphql_type_registry', $this );
@@ -36,4 +36,4 @@ do_action( 'init_graphql_type_registry', $this );
 
 ## Related
 
-- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:288`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L288)
+- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:289`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L289)

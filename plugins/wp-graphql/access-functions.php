@@ -929,6 +929,7 @@ function graphql_get_endpoint(): string {
 	 *
 	 * @param string $endpoint The relative endpoint path that GraphQL can be accessed at.
 	 * @hookGroup settings
+	 * @since 0.0.6
 	 */
 	$filtered_endpoint = apply_filters( 'graphql_endpoint', $endpoint );
 

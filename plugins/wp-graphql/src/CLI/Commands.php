@@ -66,6 +66,7 @@ class Commands extends \WP_CLI_Command {
 		 * Fires when initializing a GraphQL request from WP-CLI.
 		 *
 		 * @hookGroup request-lifecycle
+		 * @since 0.0.32
 		 */
 		do_action( 'init_graphql_request' );
 

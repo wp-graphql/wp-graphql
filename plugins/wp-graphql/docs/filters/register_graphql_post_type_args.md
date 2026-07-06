@@ -19,7 +19,7 @@ Filters the graphql args set on a post type
 
 - **Type:** filter
 - **Group:** Schema Registration
-- **Since:** Unknown
+- **Since:** 1.12.0
 - **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
 ## Parameters
@@ -29,7 +29,7 @@ Filters the graphql args set on a post type
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:627`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L627)
+- [`plugins/wp-graphql/src/WPGraphQL.php:628`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L628)
 
 ```php
 apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
@@ -37,4 +37,4 @@ apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name
 
 ## Related
 
-- `WPGraphQL::register_graphql_post_type_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:627`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L627)
+- `WPGraphQL::register_graphql_post_type_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:628`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L628)

@@ -19,7 +19,7 @@ Run an action for each request.
 
 - **Type:** action
 - **Group:** Request Lifecycle
-- **Since:** Unknown
+- **Since:** 0.0.6
 - **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
@@ -31,7 +31,7 @@ Run an action for each request.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:593`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L593)
+- [`plugins/wp-graphql/src/Request.php:596`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L596)
 
 ```php
 do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
@@ -39,7 +39,7 @@ do_action( 'do_graphql_request', $params->query, $params->operation, $params->va
 
 ## Related
 
-- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:593`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L593)
+- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:596`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L596)
 
 ## Recipes
 

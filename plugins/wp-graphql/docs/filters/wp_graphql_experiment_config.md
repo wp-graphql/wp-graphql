@@ -19,7 +19,7 @@ Filters the experiment configuration.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 2.5.0
 - **Source File:** `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php`
 
 ## Parameters
@@ -29,7 +29,7 @@ Filters the experiment configuration.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:374`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L374)
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:376`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L376)
 
 ```php
 apply_filters( 'wp_graphql_experiment_config', $config, $slug );
@@ -37,4 +37,4 @@ apply_filters( 'wp_graphql_experiment_config', $config, $slug );
 
 ## Related
 
-- `AbstractExperiment::prepare_config()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:374`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L374)
+- `AbstractExperiment::prepare_config()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:376`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L376)

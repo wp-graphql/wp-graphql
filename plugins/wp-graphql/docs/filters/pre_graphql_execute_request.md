@@ -19,7 +19,7 @@ Filter this to be anything other than null to short-circuit HTTP execution.
 
 - **Type:** filter
 - **Group:** Request Lifecycle
-- **Since:** 0.0.5
+- **Since:** 1.6.6
 - **Source File:** `plugins/wp-graphql/src/Request.php`
 
 ## Parameters
@@ -29,7 +29,7 @@ Filter this to be anything other than null to short-circuit HTTP execution.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:775`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L775)
+- [`plugins/wp-graphql/src/Request.php:779`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L779)
 
 ```php
 apply_filters( 'pre_graphql_execute_request', null, $this );
@@ -37,5 +37,5 @@ apply_filters( 'pre_graphql_execute_request', null, $this );
 
 ## Related
 
-- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:668`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L668)
-- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:775`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L775)
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:672`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L672)
+- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:779`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L779)

@@ -284,6 +284,7 @@ class TypeRegistry {
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry.
 		 *
 		 * @hookGroup schema-registration
+		 * @since 0.4.0
 		 */
 		do_action( 'init_graphql_type_registry', $this );
 	}

@@ -28,7 +28,7 @@ Execute batch queries
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:332`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L332)
+- [`plugins/wp-graphql/src/Request.php:333`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L333)
 
 ```php
 do_action( 'graphql_execute_batch_queries', $this->params );
@@ -36,4 +36,4 @@ do_action( 'graphql_execute_batch_queries', $this->params );
 
 ## Related
 
-- `Request::before_execute()` in [`plugins/wp-graphql/src/Request.php:332`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L332)
+- `Request::before_execute()` in [`plugins/wp-graphql/src/Request.php:333`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L333)

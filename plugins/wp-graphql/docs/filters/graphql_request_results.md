@@ -34,7 +34,7 @@ Filter the $response of the GraphQL execution. This allows for the response to b
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:549`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L549)
+- [`plugins/wp-graphql/src/Request.php:551`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L551)
 
 ```php
 apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this, $query_id );
@@ -42,7 +42,7 @@ apply_filters( 'graphql_request_results', $response, $this->schema, $operation, 
 
 ## Related
 
-- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:549`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L549)
+- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:551`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L551)
 
 ## Recipes
 

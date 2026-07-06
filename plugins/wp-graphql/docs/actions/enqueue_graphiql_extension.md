@@ -19,12 +19,12 @@ Fires before GraphiQL extensions are enqueued.
 
 - **Type:** action
 - **Group:** Settings and Admin
-- **Since:** Unknown
+- **Since:** 1.7.0
 - **Source File:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:320`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L320)
+- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:322`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L322)
 
 ```php
 do_action( 'enqueue_graphiql_extension' );
@@ -32,4 +32,4 @@ do_action( 'enqueue_graphiql_extension' );
 
 ## Related
 
-- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:320`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L320)
+- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:322`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L322)
