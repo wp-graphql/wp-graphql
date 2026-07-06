@@ -29,7 +29,7 @@ Generate & Filter the schema.
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:998`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L998)
+- [`plugins/wp-graphql/src/WPGraphQL.php:971`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L971)
 
 ```php
 apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() 
 
 ## Related
 
-- `WPGraphQL::get_type_registry()` in [`plugins/wp-graphql/src/WPGraphQL.php:998`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L998)
+- `WPGraphQL::get_type_registry()` in [`plugins/wp-graphql/src/WPGraphQL.php:971`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L971)

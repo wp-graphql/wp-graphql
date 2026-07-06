@@ -29,7 +29,7 @@ Filter the type before it is loaded into the registry.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1046`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1046)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1038`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1038)
 
 ```php
 apply_filters( 'graphql_get_type', $type, $type_name );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_get_type', $type, $type_name );
 
 ## Related
 
-- `TypeRegistry::get_type()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1046`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1046)
+- `TypeRegistry::get_type()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:1038`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L1038)

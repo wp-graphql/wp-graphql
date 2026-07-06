@@ -62,7 +62,7 @@ add_action( 'wpgraphql_ide_enqueue_script', __NAMESPACE__ . '\enqueue_assets' );
  * filter is a no-op on installs without smart-cache.
  *
  * Runs at priority 11 so smart-cache (priority 10) has already populated
- * `graphqlObjectCache`. Hooked off `graphql_do_request` to register the
+ * `graphqlObjectCache`. Hooked off `do_graphql_request` to register the
  * filter only inside a GraphQL request lifecycle.
  *
  * @return void
@@ -75,16 +75,7 @@ function register_diagnostics_filter(): void {
 		7
 	);
 }
-// WPGraphQL releases after 2.17.0 rename do_graphql_request to
-// graphql_do_request. Attach to whichever name the active core fires so this
-// release works on either side of the rename without triggering deprecation
-// notices.
-// TODO: drop the fallback once the minimum supported WPGraphQL version is
-// past the rename (tracked in https://github.com/wp-graphql/wp-graphql/issues/4033).
-add_action(
-	version_compare( WPGRAPHQL_VERSION, '2.17.0', '>' ) ? 'graphql_do_request' : 'do_graphql_request',
-	__NAMESPACE__ . '\register_diagnostics_filter'
-);
+add_action( 'do_graphql_request', __NAMESPACE__ . '\register_diagnostics_filter' );
 
 /**
  * @param mixed                                $response
@@ -133,7 +124,7 @@ function augment_smart_cache_diagnostics( $response, $schema, $operation_name, $
 				? ( $analyzer->get_query_types() ?: [] )
 				: [];
 
-			// On a cache HIT, smart-cache's `graphql_pre_execute_request`
+			// On a cache HIT, smart-cache's `pre_graphql_execute_request`
 			// short-circuits resolution — so the analyzer's runtime nodes
 			// is empty even when the cached entry was originally written
 			// with nodes tracked. The cached response payload still has

@@ -29,7 +29,7 @@ Return the filtered root value
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:251`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L251)
+- [`plugins/wp-graphql/src/Request.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L243)
 
 ```php
 apply_filters( 'graphql_root_value', $root_value, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_root_value', $root_value, $this );
 
 ## Related
 
-- `Request::get_root_value()` in [`plugins/wp-graphql/src/Request.php:251`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L251)
+- `Request::get_root_value()` in [`plugins/wp-graphql/src/Request.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L243)

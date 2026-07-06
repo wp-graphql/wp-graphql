@@ -52,6 +52,10 @@ title: Filters
 
   Filters the query args used by the connection.
 
+- [`graphql_connection`](/filters/graphql_connection)
+
+  Filter the connection.
+
 - [`graphql_connection_args`](/filters/graphql_connection_args)
 
   Filters the GraphQL args before they are used in get_query_args().
@@ -111,10 +115,6 @@ title: Filters
 - [`graphql_connection_query_class`](/filters/graphql_connection_query_class)
 
   Filters the `$query_class` that will be used to execute the query.
-
-- [`graphql_connection_resolved`](/filters/graphql_connection_resolved)
-
-  Filter the connection.
 
 - [`graphql_connection_should_execute`](/filters/graphql_connection_should_execute)
 
@@ -470,14 +470,6 @@ title: Filters
 
   This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri.
 
-- [`graphql_pre_execute_request`](/filters/graphql_pre_execute_request)
-
-  Filter this to be anything other than null to short-circuit the request.
-
-- [`graphql_pre_execute_request`](/filters/graphql_pre_execute_request)
-
-  Filter this to be anything other than null to short-circuit HTTP execution.
-
 - [`graphql_pre_is_graphql_http_request`](/filters/graphql_pre_is_graphql_http_request)
 
   Filter whether the request is a GraphQL HTTP Request.
@@ -538,6 +530,14 @@ title: Filters
 
   Return the validation rules to use in the request
 
+- [`pre_graphql_execute_request`](/filters/pre_graphql_execute_request)
+
+  Filter this to be anything other than null to short-circuit the request.
+
+- [`pre_graphql_execute_request`](/filters/pre_graphql_execute_request)
+
+  Filter this to be anything other than null to short-circuit HTTP execution.
+
 ## Schema Registration
 
 - [`graphql_custom_scalar_config`](/filters/graphql_custom_scalar_config)
@@ -592,25 +592,17 @@ title: Filters
 
   Filter to manually format a GraphQL name according to custom rules.
 
-- [`graphql_register_post_type_args`](/filters/graphql_register_post_type_args)
+- [`graphql_schema`](/filters/graphql_schema)
 
-  Filters the graphql args set on a post type
+  Filter the Schema
 
-- [`graphql_register_taxonomy_args`](/filters/graphql_register_taxonomy_args)
+- [`graphql_schema`](/filters/graphql_schema)
 
-  Filters the graphql args set on a taxonomy
+  Generate & Filter the schema.
 
 - [`graphql_schema_config`](/filters/graphql_schema_config)
 
   Set the $filterable_config as the $config that was passed to the WPSchema when instantiated
-
-- [`graphql_schema_instance`](/filters/graphql_schema_instance)
-
-  Filter the Schema
-
-- [`graphql_schema_instance`](/filters/graphql_schema_instance)
-
-  Generate & Filter the schema.
 
 - [`graphql_term_entities_allowed_taxonomies`](/filters/graphql_term_entities_allowed_taxonomies)
 
@@ -676,6 +668,14 @@ title: Filters
 
   Filter the config of WPUnionType
 
+- [`register_graphql_post_type_args`](/filters/register_graphql_post_type_args)
+
+  Filters the graphql args set on a post type
+
+- [`register_graphql_taxonomy_args`](/filters/register_graphql_taxonomy_args)
+
+  Filters the graphql args set on a taxonomy
+
 ## Settings and Admin
 
 - [`graphql_add_admin_notice`](/filters/graphql_add_admin_notice)
@@ -698,37 +698,17 @@ title: Filters
 
   Filters whether the embedded GraphiQL IDE should be enabled.
 
-- [`graphql_enable_major_autoupdates`](/filters/graphql_enable_major_autoupdates)
-
-  Filter whether to allow major autoupdates.
-
-- [`graphql_enable_untested_autoupdates`](/filters/graphql_enable_untested_autoupdates)
-
-  Filter whether to allow autoupdates with untested plugins.
-
-- [`graphql_endpoint_path`](/filters/graphql_endpoint_path)
+- [`graphql_endpoint`](/filters/graphql_endpoint)
 
   Filter the configured endpoint path for WPGraphQL.
 
-- [`graphql_endpoint_path`](/filters/graphql_endpoint_path)
+- [`graphql_endpoint`](/filters/graphql_endpoint)
 
   Filter the relative endpoint path where GraphQL can be accessed.
-
-- [`graphql_experiment_config`](/filters/graphql_experiment_config)
-
-  Filters the experiment configuration.
-
-- [`graphql_experiment_enabled`](/filters/graphql_experiment_enabled)
-
-  Filters whether the experiment is active.
 
 - [`graphql_experimental_features_cap`](/filters/graphql_experimental_features_cap)
 
   Filters the capability required to turn experimental features on and off.
-
-- [`graphql_experimental_features_enabled`](/filters/graphql_experimental_features_enabled)
-
-  Filter whether WPGraphQL experimental features should be enabled.
 
 - [`graphql_experimental_features_override`](/filters/graphql_experimental_features_override)
 
@@ -782,6 +762,26 @@ title: Filters
 
   Filters whether WPGraphQL admin pages should be visible.
 
-- [`graphql_untested_release_type`](/filters/graphql_untested_release_type)
+- [`wp_graphql_experiment_config`](/filters/wp_graphql_experiment_config)
+
+  Filters the experiment configuration.
+
+- [`wp_graphql_experiment_enabled`](/filters/wp_graphql_experiment_enabled)
+
+  Filters whether the experiment is active.
+
+- [`wpgraphql_enable_major_autoupdates`](/filters/wpgraphql_enable_major_autoupdates)
+
+  Filter whether to allow major autoupdates.
+
+- [`wpgraphql_enable_untested_autoupdates`](/filters/wpgraphql_enable_untested_autoupdates)
+
+  Filter whether to allow autoupdates with untested plugins.
+
+- [`wpgraphql_experimental_features_enabled`](/filters/wpgraphql_experimental_features_enabled)
+
+  Filter whether WPGraphQL experimental features should be enabled.
+
+- [`wpgraphql_untested_release_type`](/filters/wpgraphql_untested_release_type)
 
   Filter the release type to use when checking for untested plugins.

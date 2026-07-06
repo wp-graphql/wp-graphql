@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-02T17:19:22.013Z",
+  "generatedAt": "2026-07-06T21:00:59.592Z",
   "stats": {
     "totalFunctions": 41
   },
@@ -73,7 +73,7 @@
       "name": "get_graphql_admin_notices",
       "slug": "get_graphql_admin_notices",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 1041,
+      "line": 1032,
       "group": null,
       "relatedRecipes": [],
       "since": "1.29.0",
@@ -245,7 +245,7 @@
       "name": "graphql_get_endpoint_url",
       "slug": "graphql_get_endpoint_url",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 955,
+      "line": 946,
       "group": null,
       "relatedRecipes": [],
       "since": "1.12.0",
@@ -314,7 +314,7 @@
       "name": "register_graphql_admin_notice",
       "slug": "register_graphql_admin_notice",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 1020,
+      "line": 1011,
       "group": null,
       "relatedRecipes": [],
       "since": "1.21.0",

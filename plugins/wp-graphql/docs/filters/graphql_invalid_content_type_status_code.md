@@ -29,7 +29,7 @@ Filter the status code to return when the content type is invalid
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:888`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L888)
+- [`plugins/wp-graphql/src/Request.php:846`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L846)
 
 ```php
 apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
 
 ## Related
 
-- `Request::get_invalid_content_type_response()` in [`plugins/wp-graphql/src/Request.php:888`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L888)
+- `Request::get_invalid_content_type_response()` in [`plugins/wp-graphql/src/Request.php:846`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L846)

@@ -5,45 +5,36 @@ Do not edit manually.
 ---
 title: register_graphql_taxonomy_args
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # register_graphql_taxonomy_args
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_register_taxonomy_args` instead.
-
 ```php
-apply_filters_deprecated( 'register_graphql_taxonomy_args', [ $graphql_args, $taxonomy_name ], 'x-release-please-version', 'graphql_register_taxonomy_args' );
+apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 ```
 
-Legacy taxonomy registration filter retained for backward compatibility.
+Filters the graphql args set on a taxonomy
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** 1.12.0
+- **Group:** Schema Registration
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_register_taxonomy_args`
+- `$args` (`array<string,mixed>`): The graphql specific args for the taxonomy
+- `$taxonomy_name` (`string`): The name of the taxonomy being registered
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:669`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L669)
+- [`plugins/wp-graphql/src/WPGraphQL.php:657`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L657)
 
 ```php
-apply_filters_deprecated(
-				'register_graphql_taxonomy_args',
-				[ $graphql_args, $taxonomy_name ],
-				'x-release-please-version',
-				'graphql_register_taxonomy_args'
-			);
+apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 ```
 
 ## Related
 
-- `WPGraphQL::register_graphql_taxonomy_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:669`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L669)
+- `WPGraphQL::register_graphql_taxonomy_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:657`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L657)

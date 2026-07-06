@@ -5,48 +5,41 @@ Do not edit manually.
 ---
 title: do_graphql_request
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
 # do_graphql_request
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_do_request` instead.
-
 ```php
-do_action_deprecated( 'do_graphql_request', [ $params->query, $params->operation, $params->variables, $params ], 'x-release-please-version', 'graphql_do_request' );
+do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 ```
 
-Legacy GraphQL request lifecycle action retained for backward compatibility.
+Run an action for each request.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** 0.0.5
+- **Group:** Request Lifecycle
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Request.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_do_request`
+- `$query` (`?string`): The GraphQL query
+- `$operation` (`?string`): The name of the operation
+- `$variables` (`?array<string,mixed>`): Variables to be passed to your GraphQL request
+- `$params` (`\GraphQL\Server\OperationParams`): The Operation Params. This includes any extra params,
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:613`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L613)
+- [`plugins/wp-graphql/src/Request.php:593`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L593)
 
 ```php
-do_action_deprecated(
-			'do_graphql_request',
-			[ $params->query, $params->operation, $params->variables, $params ],
-			'x-release-please-version',
-			'graphql_do_request'
-		);
+do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 ```
 
 ## Related
 
-- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:613`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L613)
+- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:593`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L593)
 
 ## Recipes
 

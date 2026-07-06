@@ -29,7 +29,7 @@ Pass through a filter to allow the taxonomies to be modified. For example if a c
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:851`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L851)
+- [`plugins/wp-graphql/src/WPGraphQL.php:833`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L833)
 
 ```php
 apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_obje
 
 ## Related
 
-- `WPGraphQL::get_allowed_taxonomies()` in [`plugins/wp-graphql/src/WPGraphQL.php:851`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L851)
+- `WPGraphQL::get_allowed_taxonomies()` in [`plugins/wp-graphql/src/WPGraphQL.php:833`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L833)

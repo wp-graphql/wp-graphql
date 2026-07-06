@@ -5,46 +5,32 @@ Do not edit manually.
 ---
 title: init_graphql_request
 hookType: action
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
 # init_graphql_request
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_init_request` instead.
-
 ```php
-do_action_deprecated( 'init_graphql_request', [], 'x-release-please-version', 'graphql_init_request' );
+do_action( 'init_graphql_request' );
 ```
 
-Legacy request initialization hook retained for backward compatibility.
+Action – intentionally with no context – to indicate a GraphQL Request has started.
 
 - **Type:** action
-- **Group:** Uncategorized
-- **Since:** 0.0.5
+- **Group:** Request Lifecycle
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Request.php`
-
-## Lifecycle
-
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_init_request`
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:163`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L163)
+- [`plugins/wp-graphql/src/Request.php:160`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L160)
 
 ```php
-do_action_deprecated(
-			'init_graphql_request',
-			[],
-			'x-release-please-version',
-			'graphql_init_request'
-		);
+do_action( 'init_graphql_request' );
 ```
 
 ## Related
 
-- `Commands::generate_static_schema()` in [`plugins/wp-graphql/src/CLI/Commands.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/CLI/Commands.php#L73)
-- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:163`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L163)
+- `Commands::generate_static_schema()` in [`plugins/wp-graphql/src/CLI/Commands.php:70`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/CLI/Commands.php#L70)
+- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:160`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L160)

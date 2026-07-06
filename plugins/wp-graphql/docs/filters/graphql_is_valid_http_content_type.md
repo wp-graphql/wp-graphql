@@ -29,7 +29,7 @@ Allow graphql to validate custom content types for HTTP POST requests
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:854`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L854)
+- [`plugins/wp-graphql/src/Request.php:812`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L812)
 
 ```php
 apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
 
 ## Related
 
-- `Request::is_valid_http_content_type()` in [`plugins/wp-graphql/src/Request.php:854`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L854)
+- `Request::is_valid_http_content_type()` in [`plugins/wp-graphql/src/Request.php:812`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L812)

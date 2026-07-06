@@ -77,17 +77,8 @@ class SchemaRegistry {
 		 * @param \WPGraphQL\WPSchema $schema The generated Schema
 		 * @param \WPGraphQL\Registry\SchemaRegistry $registry The Schema Registry Instance
 		 * @hookGroup schema-registration
-		 * @since x-release-please-version
 		 */
-		$schema = apply_filters( 'graphql_schema_instance', $schema, $this );
-		if ( has_filter( 'graphql_schema' ) ) {
-			$schema = apply_filters_deprecated(
-				'graphql_schema',
-				[ $schema, $this ],
-				'x-release-please-version',
-				'graphql_schema_instance'
-			);
-		}
+		$schema = apply_filters( 'graphql_schema', $schema, $this );
 
 		return $schema;
 	}

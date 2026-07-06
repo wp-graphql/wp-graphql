@@ -28,7 +28,7 @@ Filters whether GraphQL debug mode is enabled.
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:974`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L974)
+- [`plugins/wp-graphql/src/WPGraphQL.php:947`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L947)
 
 ```php
 apply_filters( 'graphql_debug_enabled', $enabled );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_debug_enabled', $enabled );
 
 ## Related
 
-- `WPGraphQL::debug()` in [`plugins/wp-graphql/src/WPGraphQL.php:974`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L974)
+- `WPGraphQL::debug()` in [`plugins/wp-graphql/src/WPGraphQL.php:947`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L947)

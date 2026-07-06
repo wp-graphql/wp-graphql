@@ -28,7 +28,7 @@ Fire an action when the Type Registry is returned
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:1008`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L1008)
+- [`plugins/wp-graphql/src/WPGraphQL.php:981`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L981)
 
 ```php
 do_action( 'graphql_get_type_registry', self::$type_registry );
@@ -36,4 +36,4 @@ do_action( 'graphql_get_type_registry', self::$type_registry );
 
 ## Related
 
-- `WPGraphQL::get_type_registry()` in [`plugins/wp-graphql/src/WPGraphQL.php:1008`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L1008)
+- `WPGraphQL::get_type_registry()` in [`plugins/wp-graphql/src/WPGraphQL.php:981`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L981)

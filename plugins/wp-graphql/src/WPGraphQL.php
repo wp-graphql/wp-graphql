@@ -236,18 +236,18 @@ final class WPGraphQL {
 		);
 
 		// Determine what to show in graphql
-		add_action( 'graphql_init_request', 'register_initial_settings', 10 );
+		add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 
 		// Throw an exception
-		add_action( 'graphql_do_request', [ $this, 'min_php_version_check' ] );
-		add_action( 'graphql_do_request', [ $this, 'introspection_check' ], 10, 4 );
+		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
+		add_action( 'do_graphql_request', [ $this, 'introspection_check' ], 10, 4 );
 
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 		add_action( 'after_setup_theme', [ $this, 'setup_experiments' ] );
 
 		add_action(
-			'graphql_init_request',
+			'init_graphql_request',
 			static function () {
 				$tracing = new \WPGraphQL\Utils\Tracing();
 				$tracing->init();
@@ -623,17 +623,8 @@ final class WPGraphQL {
 		 * @param array<string,mixed> $args           The graphql specific args for the post type
 		 * @param string              $post_type_name The name of the post type being registered
 		 * @hookGroup schema-registration
-		 * @since x-release-please-version
 		 */
-		$graphql_args = apply_filters( 'graphql_register_post_type_args', $graphql_args, $post_type_name );
-		if ( has_filter( 'register_graphql_post_type_args' ) ) {
-			$graphql_args = apply_filters_deprecated(
-				'register_graphql_post_type_args',
-				[ $graphql_args, $post_type_name ],
-				'x-release-please-version',
-				'graphql_register_post_type_args'
-			);
-		}
+		$graphql_args = apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
 
 		return wp_parse_args( $args, $graphql_args );
 	}
@@ -662,17 +653,8 @@ final class WPGraphQL {
 		 * @param array<string,mixed> $args          The graphql specific args for the taxonomy
 		 * @param string              $taxonomy_name The name of the taxonomy being registered
 		 * @hookGroup schema-registration
-		 * @since x-release-please-version
 		 */
-		$graphql_args = apply_filters( 'graphql_register_taxonomy_args', $graphql_args, $taxonomy_name );
-		if ( has_filter( 'register_graphql_taxonomy_args' ) ) {
-			$graphql_args = apply_filters_deprecated(
-				'register_graphql_taxonomy_args',
-				[ $graphql_args, $taxonomy_name ],
-				'x-release-please-version',
-				'graphql_register_taxonomy_args'
-			);
-		}
+		$graphql_args = apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 
 		return wp_parse_args( $args, $graphql_args );
 	}
@@ -925,17 +907,8 @@ final class WPGraphQL {
 			 * information about the context we know at this point
 			 *
 			 * @hookGroup schema-registration
-			 * @since x-release-please-version
 			 */
-			self::$schema = apply_filters( 'graphql_schema_instance', $schema, self::get_app_context() );
-			if ( has_filter( 'graphql_schema' ) ) {
-				self::$schema = apply_filters_deprecated(
-					'graphql_schema',
-					[ self::$schema, self::get_app_context() ],
-					'x-release-please-version',
-					'graphql_schema_instance'
-				);
-			}
+			self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 		}
 
 		/**

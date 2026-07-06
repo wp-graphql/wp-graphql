@@ -5,45 +5,39 @@ Do not edit manually.
 ---
 title: wpgraphql_enable_untested_autoupdates
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # wpgraphql_enable_untested_autoupdates
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_enable_untested_autoupdates` instead.
-
 ```php
-apply_filters_deprecated( 'wpgraphql_enable_untested_autoupdates', [ $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data ], 'x-release-please-version', 'graphql_enable_untested_autoupdates' );
+apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
 ```
 
-Legacy untested autoupdate filter retained for backward compatibility.
+Filter whether to allow autoupdates with untested plugins.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Settings and Admin
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_enable_untested_autoupdates`
+- `$should_allow` (`bool`): Whether to allow autoupdates with untested plugins.
+- `$release_type` (`string`): The release type of the current version of WPGraphQL. Either 'major', 'minor', 'patch', or 'prerelease'.
+- `$new_version` (`string`): The new WPGraphQL version number.
+- `$current_version` (`string`): The current WPGraphQL version number.
+- `$plugin_data` (`object`): The plugin data object.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:355`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L355)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:341`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L341)
 
 ```php
-apply_filters_deprecated(
-				'wpgraphql_enable_untested_autoupdates',
-				[ $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data ],
-				'x-release-please-version',
-				'graphql_enable_untested_autoupdates'
-			);
+apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
 ```
 
 ## Related
 
-- `UpdateChecker::should_allow_untested_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:355`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L355)
+- `UpdateChecker::should_allow_untested_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:341`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L341)

@@ -5,45 +5,38 @@ Do not edit manually.
 ---
 title: wpgraphql_enable_major_autoupdates
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # wpgraphql_enable_major_autoupdates
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_enable_major_autoupdates` instead.
-
 ```php
-apply_filters_deprecated( 'wpgraphql_enable_major_autoupdates', [ $should_allow, $this->new_version, $this->current_version, $this->plugin_data ], 'x-release-please-version', 'graphql_enable_major_autoupdates' );
+apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
 ```
 
-Legacy autoupdate filter retained for backward compatibility.
+Filter whether to allow major autoupdates.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Settings and Admin
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_enable_major_autoupdates`
+- `$should_allow` (`bool`): Whether to allow major autoupdates. Defaults to false.
+- `$new_version` (`string`): The new WPGraphQL version number.
+- `$current_version` (`string`): The current WPGraphQL version number.
+- `$plugin_data` (`object`): The plugin data object.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:320`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L320)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:316`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L316)
 
 ```php
-apply_filters_deprecated(
-				'wpgraphql_enable_major_autoupdates',
-				[ $should_allow, $this->new_version, $this->current_version, $this->plugin_data ],
-				'x-release-please-version',
-				'graphql_enable_major_autoupdates'
-			);
+apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
 ```
 
 ## Related
 
-- `UpdateChecker::should_allow_major_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:320`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L320)
+- `UpdateChecker::should_allow_major_autoupdates()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:316`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L316)

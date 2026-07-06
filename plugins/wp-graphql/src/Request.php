@@ -156,16 +156,8 @@ class Request {
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
 		 *
 		 * @hookGroup request-lifecycle
-		 * @since x-release-please-version
 		 */
-		do_action( 'graphql_init_request' );
-
-		do_action_deprecated(
-			'init_graphql_request',
-			[],
-			'x-release-please-version',
-			'graphql_init_request'
-		);
+		do_action( 'init_graphql_request' );
 
 		// Start tracking debug log messages
 		$this->debug_log = new DebugLog();
@@ -514,17 +506,8 @@ class Request {
 		 * @param \WPGraphQL\Request               $request   Instance of the Request
 		 *
 		 * @hookGroup request-lifecycle
-		 * @since x-release-please-version
 		 */
-		do_action( 'graphql_request_execute', $response, $this->schema, $operation, $query, $variables, $this );
-		if ( has_action( 'graphql_execute' ) ) {
-			do_action_deprecated(
-				'graphql_execute',
-				[ $response, $this->schema, $operation, $query, $variables, $this ],
-				'x-release-please-version',
-				'graphql_request_execute'
-			);
-		}
+		do_action( 'graphql_execute', $response, $this->schema, $operation, $query, $variables, $this );
 
 		/**
 		 * Add the debug log to the request
@@ -606,16 +589,8 @@ class Request {
 		 * @param \GraphQL\Server\OperationParams $params    The Operation Params. This includes any extra params,
 		 *                                                   such as extensions or any other modifications to the request body
 		 * @hookGroup request-lifecycle
-		 * @since x-release-please-version
 		 */
-		do_action( 'graphql_do_request', $params->query, $params->operation, $params->variables, $params );
-
-		do_action_deprecated(
-			'do_graphql_request',
-			[ $params->query, $params->operation, $params->variables, $params ],
-			'x-release-please-version',
-			'graphql_do_request'
-		);
+		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 	}
 
 	/**
@@ -658,7 +633,7 @@ class Request {
 		 * If there was an authentication error, return it as a GraphQL error response
 		 * instead of executing the query.
 		 *
-		 * IMPORTANT: This intentionally happens BEFORE the `graphql_pre_execute_request` filter.
+		 * IMPORTANT: This intentionally happens BEFORE the `pre_graphql_execute_request` filter.
 		 * Authentication failures should fail fast for security reasons:
 		 * - Don't give plugins a chance to interfere with or "undo" auth failures
 		 * - Avoid unnecessary filter processing for failed requests
@@ -689,17 +664,8 @@ class Request {
 		 * @param ?SerializableResult $response The response to return early. Null continues execution.
 		 * @param self               $request  The request instance being executed.
 		 * @hookGroup request-lifecycle
-		 * @since x-release-please-version
 		 */
-		$response = apply_filters( 'graphql_pre_execute_request', null, $this );
-		if ( has_filter( 'pre_graphql_execute_request' ) ) {
-			$response = apply_filters_deprecated(
-				'pre_graphql_execute_request',
-				[ $response, $this ],
-				'x-release-please-version',
-				'graphql_pre_execute_request'
-			);
-		}
+		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
 		if ( null === $response ) {
 			/**
@@ -806,15 +772,7 @@ class Request {
 		 * @hookGroup request-lifecycle
 		 * @since 0.0.5
 		 */
-		$response = apply_filters( 'graphql_pre_execute_request', null, $this );
-		if ( has_filter( 'pre_graphql_execute_request' ) ) {
-			$response = apply_filters_deprecated(
-				'pre_graphql_execute_request',
-				[ $response, $this ],
-				'x-release-please-version',
-				'graphql_pre_execute_request'
-			);
-		}
+		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
 		/**
 		 * If no cached response, execute the query

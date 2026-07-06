@@ -5,45 +5,31 @@ Do not edit manually.
 ---
 title: enqueue_graphiql_extension
 hookType: action
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # enqueue_graphiql_extension
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_enqueue_graphiql_extension` instead.
-
 ```php
-do_action_deprecated( 'enqueue_graphiql_extension', [], 'x-release-please-version', 'graphql_enqueue_graphiql_extension' );
+do_action( 'enqueue_graphiql_extension' );
 ```
 
-Legacy GraphiQL extension enqueue action retained for backward compatibility.
+Fires before GraphiQL extensions are enqueued.
 
 - **Type:** action
-- **Group:** Uncategorized
+- **Group:** Settings and Admin
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php`
 
-## Lifecycle
-
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_enqueue_graphiql_extension`
-
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:323`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L323)
+- [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:321`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L321)
 
 ```php
-do_action_deprecated(
-			'enqueue_graphiql_extension',
-			[],
-			'x-release-please-version',
-			'graphql_enqueue_graphiql_extension'
-		);
+do_action( 'enqueue_graphiql_extension' );
 ```
 
 ## Related
 
-- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:323`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L323)
+- `GraphiQL::enqueue_graphiql()` in [`plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php:321`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php#L321)

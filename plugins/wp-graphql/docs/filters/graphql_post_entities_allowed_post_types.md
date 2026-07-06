@@ -29,7 +29,7 @@ Pass through a filter to allow the post_types to be modified. For example if a c
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:765`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L765)
+- [`plugins/wp-graphql/src/WPGraphQL.php:747`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L747)
 
 ```php
 apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $po
 
 ## Related
 
-- `WPGraphQL::get_allowed_post_types()` in [`plugins/wp-graphql/src/WPGraphQL.php:765`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L765)
+- `WPGraphQL::get_allowed_post_types()` in [`plugins/wp-graphql/src/WPGraphQL.php:747`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L747)

@@ -927,19 +927,10 @@ function graphql_get_endpoint(): string {
 	/**
 	 * Filter the relative endpoint path where GraphQL can be accessed.
 	 *
-	 * @param string $endpoint_path The relative endpoint path that GraphQL can be accessed at.
+	 * @param string $endpoint The relative endpoint path that GraphQL can be accessed at.
 	 * @hookGroup settings
-	 * @since x-release-please-version
 	 */
-	$filtered_endpoint = apply_filters( 'graphql_endpoint_path', $endpoint );
-	if ( has_filter( 'graphql_endpoint' ) ) {
-		$filtered_endpoint = apply_filters_deprecated(
-			'graphql_endpoint',
-			[ $filtered_endpoint ],
-			'x-release-please-version',
-			'graphql_endpoint_path'
-		);
-	}
+	$filtered_endpoint = apply_filters( 'graphql_endpoint', $endpoint );
 
 	// If the filtered endpoint has a value (not filtered to a falsy value), use it. else return the default endpoint
 	return is_string( $filtered_endpoint ) && ! empty( $filtered_endpoint ) ? $filtered_endpoint : $endpoint;

@@ -29,7 +29,7 @@ Filters the list of plugins that use WPGraphQL as a dependency.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:428`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L428)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:398`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L398)
 
 ```php
 apply_filters( 'graphql_get_dependents', $plugins, $all_plugins );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_get_dependents', $plugins, $all_plugins );
 
 ## Related
 
-- `UpdateChecker::get_dependents()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:428`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L428)
+- `UpdateChecker::get_dependents()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:398`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L398)

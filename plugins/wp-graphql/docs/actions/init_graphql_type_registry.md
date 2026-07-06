@@ -5,45 +5,35 @@ Do not edit manually.
 ---
 title: init_graphql_type_registry
 hookType: action
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # init_graphql_type_registry
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_init_type_registry` instead.
-
 ```php
-do_action_deprecated( 'init_graphql_type_registry', [ $this ], 'x-release-please-version', 'graphql_init_type_registry' );
+do_action( 'init_graphql_type_registry', $this );
 ```
 
-Legacy type registry initialization hook retained for backward compatibility.
+Fire an action as the Type registry is being initiated.
 
 - **Type:** action
-- **Group:** Uncategorized
+- **Group:** Schema Registration
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Registry/TypeRegistry.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_init_type_registry`
+- `$registry` (`\WPGraphQL\Registry\TypeRegistry`): Instance of the TypeRegistry.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:291`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L291)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:288`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L288)
 
 ```php
-do_action_deprecated(
-			'init_graphql_type_registry',
-			[ $this ],
-			'x-release-please-version',
-			'graphql_init_type_registry'
-		);
+do_action( 'init_graphql_type_registry', $this );
 ```
 
 ## Related
 
-- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:291`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L291)
+- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:288`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L288)

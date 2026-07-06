@@ -5,46 +5,37 @@ Do not edit manually.
 ---
 title: graphql_schema
 hookType: filter
-hookGroup: uncategorized
+hookGroup: schema-registration
 plugin: wp-graphql
 ---
 
 # graphql_schema
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_schema_instance` instead.
-
 ```php
-apply_filters_deprecated( 'graphql_schema', [ self::$schema, self::get_app_context() ], 'x-release-please-version', 'graphql_schema_instance' );
+apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 ```
 
-Legacy schema filter retained for backward compatibility.
+Generate & Filter the schema.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** 0.0.5
+- **Group:** Schema Registration
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/WPGraphQL.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_schema_instance`
+- `$schema` (`\WPGraphQL\WPSchema`): The executable Schema that GraphQL executes against
+- `$app_context` (`\WPGraphQL\AppContext`): Object The AppContext object containing all of the
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:932`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L932)
+- [`plugins/wp-graphql/src/WPGraphQL.php:911`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L911)
 
 ```php
-apply_filters_deprecated(
-					'graphql_schema',
-					[ self::$schema, self::get_app_context() ],
-					'x-release-please-version',
-					'graphql_schema_instance'
-				);
+apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 ```
 
 ## Related
 
-- `SchemaRegistry::get_schema()` in [`plugins/wp-graphql/src/Registry/SchemaRegistry.php:84`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/SchemaRegistry.php#L84)
-- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:932`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L932)
+- `SchemaRegistry::get_schema()` in [`plugins/wp-graphql/src/Registry/SchemaRegistry.php:81`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/SchemaRegistry.php#L81)
+- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:911`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L911)

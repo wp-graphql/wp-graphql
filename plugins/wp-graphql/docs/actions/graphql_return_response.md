@@ -35,7 +35,7 @@ Run an action after the response has been filtered, as the response is being ret
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:583`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L583)
+- [`plugins/wp-graphql/src/Request.php:566`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L566)
 
 ```php
 do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this, $query_id );
@@ -43,4 +43,4 @@ do_action( 'graphql_return_response', $filtered_response, $response, $this->sche
 
 ## Related
 
-- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:583`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L583)
+- `Request::after_execute_actions()` in [`plugins/wp-graphql/src/Request.php:566`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L566)

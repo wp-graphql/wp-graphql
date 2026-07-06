@@ -28,7 +28,7 @@ Fire an action when the Schema is returned
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:948`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L948)
+- [`plugins/wp-graphql/src/WPGraphQL.php:921`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L921)
 
 ```php
 do_action( 'graphql_get_schema', self::$schema );
@@ -36,4 +36,4 @@ do_action( 'graphql_get_schema', self::$schema );
 
 ## Related
 
-- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:948`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L948)
+- `WPGraphQL::get_schema()` in [`plugins/wp-graphql/src/WPGraphQL.php:921`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L921)

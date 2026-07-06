@@ -5,45 +5,36 @@ Do not edit manually.
 ---
 title: graphql_connection
 hookType: filter
-hookGroup: uncategorized
+hookGroup: connections
 plugin: wp-graphql
 ---
 
 # graphql_connection
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_connection_resolved` instead.
-
 ```php
-apply_filters_deprecated( 'graphql_connection', [ $connection, $this ], 'x-release-please-version', 'graphql_connection_resolved' );
+apply_filters( 'graphql_connection', $connection, $this );
 ```
 
-Legacy connection result filter retained for backward compatibility.
+Filter the connection. In some cases, connections will want to provide additional information other than edges, nodes, and pageInfo This filter allows additional fields to be returned to the connection resolver
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Connections
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_connection_resolved`
+- `$connection` (`?array<string,mixed>`): The connection data being returned. A single edge or null if the connection is one-to-one.
+- `$resolver` (`self`): The instance of the connection resolver
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1066`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1066)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1063`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1063)
 
 ```php
-apply_filters_deprecated(
-						'graphql_connection',
-						[ $connection, $this ],
-						'x-release-please-version',
-						'graphql_connection_resolved'
-					);
+apply_filters( 'graphql_connection', $connection, $this );
 ```
 
 ## Related
 
-- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1066`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1066)
+- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1063`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1063)

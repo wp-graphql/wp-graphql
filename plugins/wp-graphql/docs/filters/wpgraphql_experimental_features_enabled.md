@@ -5,45 +5,35 @@ Do not edit manually.
 ---
 title: wpgraphql_experimental_features_enabled
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # wpgraphql_experimental_features_enabled
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_experimental_features_enabled` instead.
-
 ```php
-apply_filters_deprecated( 'wpgraphql_experimental_features_enabled', [ $this->is_enabled ], 'x-release-please-version', 'graphql_experimental_features_enabled' );
+apply_filters( 'wpgraphql_experimental_features_enabled', true );
 ```
 
-Legacy experimental features toggle filter retained for backward compatibility.
+Filter whether WPGraphQL experimental features should be enabled.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Settings and Admin
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Experimental/Experimental.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_experimental_features_enabled`
+- `$is_enabled` (`bool`): Whether experimental features should be enabled.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Experimental/Experimental.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L73)
+- [`plugins/wp-graphql/src/Experimental/Experimental.php:69`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L69)
 
 ```php
-apply_filters_deprecated(
-						'wpgraphql_experimental_features_enabled',
-						[ $this->is_enabled ],
-						'x-release-please-version',
-						'graphql_experimental_features_enabled'
-					);
+apply_filters( 'wpgraphql_experimental_features_enabled', true );
 ```
 
 ## Related
 
-- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L73)
+- `Experimental::is_enabled()` in [`plugins/wp-graphql/src/Experimental/Experimental.php:69`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experimental.php#L69)

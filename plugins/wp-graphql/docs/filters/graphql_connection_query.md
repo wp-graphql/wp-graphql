@@ -29,7 +29,7 @@ Set the query for the resolver, for use as reference in filters, etc Filter the 
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1130`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1130)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1121)
 
 ```php
 apply_filters( 'graphql_connection_query', $this->get_query(), $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_query', $this->get_query(), $this );
 
 ## Related
 
-- `AbstractConnectionResolver::execute_and_get_ids()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1130`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1130)
+- `AbstractConnectionResolver::execute_and_get_ids()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1121)

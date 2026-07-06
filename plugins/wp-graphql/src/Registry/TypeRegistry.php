@@ -276,7 +276,7 @@ class TypeRegistry {
 		/**
 		 * When the Type Registry is initialized execute these files
 		 */
-		add_action( 'graphql_init_type_registry', [ $this, 'init_type_registry' ], 5, 1 );
+		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 5, 1 );
 
 		/**
 		 * Fire an action as the Type registry is being initiated.
@@ -284,16 +284,8 @@ class TypeRegistry {
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry.
 		 *
 		 * @hookGroup schema-registration
-		 * @since x-release-please-version
 		 */
-		do_action( 'graphql_init_type_registry', $this );
-
-		do_action_deprecated(
-			'init_graphql_type_registry',
-			[ $this ],
-			'x-release-please-version',
-			'graphql_init_type_registry'
-		);
+		do_action( 'init_graphql_type_registry', $this );
 	}
 
 	/**

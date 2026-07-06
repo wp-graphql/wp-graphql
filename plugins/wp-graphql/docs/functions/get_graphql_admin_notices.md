@@ -25,7 +25,7 @@ Get the admin notices registered for the WPGraphQL plugin screens
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:1041`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L1041)
+- [`plugins/wp-graphql/access-functions.php:1032`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L1032)
 
 ```php
 function get_graphql_admin_notices(): array {

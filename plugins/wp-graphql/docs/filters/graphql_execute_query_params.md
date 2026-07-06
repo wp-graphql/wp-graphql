@@ -29,7 +29,7 @@ Allow the query string to be determined by a filter. Ex, when params->queryId is
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:718`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L718)
+- [`plugins/wp-graphql/src/Request.php:684`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L684)
 
 ```php
 apply_filters(
@@ -41,4 +41,4 @@ apply_filters(
 
 ## Related
 
-- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:718`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L718)
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:684`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L684)

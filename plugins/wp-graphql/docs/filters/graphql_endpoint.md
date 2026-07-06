@@ -11,43 +11,33 @@ plugin: wp-graphql
 
 # graphql_endpoint
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_endpoint_path` instead.
-
 ```php
-apply_filters_deprecated( 'graphql_endpoint', [ $filtered_endpoint ], 'x-release-please-version', 'graphql_endpoint_path' );
+apply_filters( 'graphql_endpoint', $endpoint );
 ```
 
-Legacy endpoint path filter retained for backward compatibility.
+Filter the relative endpoint path where GraphQL can be accessed.
 
 - **Type:** filter
 - **Group:** Settings and Admin
-- **Since:** 1.12.0
+- **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/access-functions.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_endpoint_path`
+- `$endpoint` (`string`): The relative endpoint path that GraphQL can be accessed at.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:936`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L936)
+- [`plugins/wp-graphql/access-functions.php:933`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L933)
 
 ```php
-apply_filters_deprecated(
-			'graphql_endpoint',
-			[ $filtered_endpoint ],
-			'x-release-please-version',
-			'graphql_endpoint_path'
-		);
+apply_filters( 'graphql_endpoint', $endpoint );
 ```
 
 ## Related
 
-- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:936`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L936)
-- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L121)
+- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:933`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L933)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:118`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L118)
 
 ## Recipes
 

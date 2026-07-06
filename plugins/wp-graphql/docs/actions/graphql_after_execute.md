@@ -29,7 +29,7 @@ Run an action after GraphQL Execution
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:468`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L468)
+- [`plugins/wp-graphql/src/Request.php:460`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L460)
 
 ```php
 do_action( 'graphql_after_execute', $filtered_response, $this );
@@ -37,4 +37,4 @@ do_action( 'graphql_after_execute', $filtered_response, $this );
 
 ## Related
 
-- `Request::after_execute()` in [`plugins/wp-graphql/src/Request.php:468`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L468)
+- `Request::after_execute()` in [`plugins/wp-graphql/src/Request.php:460`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L460)

@@ -30,18 +30,6 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 
 define( 'WPGRAPHQL_IDE_VERSION', '5.1.0' );
-
-/**
- * The minimum WPGraphQL version this release of the IDE supports. Mirrors
- * WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION in Smart Cache: when
- * the active WPGraphQL is older, the IDE declines to load and shows an admin
- * notice instead of degrading silently. Bump this when the IDE starts
- * depending on newer core hooks or APIs.
- */
-if ( ! defined( 'WPGRAPHQL_IDE_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
-	define( 'WPGRAPHQL_IDE_WPGRAPHQL_REQUIRED_MIN_VERSION', '2.0.0' );
-}
-
 define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -86,29 +74,20 @@ require_once __DIR__ . '/includes/document-settings.php';
 require_once __DIR__ . '/includes/public-endpoint.php';
 
 /**
- * Check if WPGraphQL is available at a supported version and handle the case
- * where it is not.
+ * Check if WPGraphQL is available and handle the case where it is not.
  *
  * @return void
  */
 function check_wpgraphql_availability() {
 	// Check for the WPGraphQL class (available on init)
 	// Router is initialized later on after_setup_theme, but we check for it in the enqueue function
-	if ( ! class_exists( 'WPGraphQL' ) || ! defined( 'WPGRAPHQL_VERSION' ) ) {
+	if ( ! class_exists( 'WPGraphQL' ) ) {
 		add_action( 'admin_notices', __NAMESPACE__ . '\\show_admin_notice' );
-		return;
+	} else {
+		add_custom_capabilities();
+
+		do_action( 'wpgraphql_ide_init' );
 	}
-
-	// The IDE hooks into core APIs that only exist at or above the minimum
-	// version; loading against an older core would fail silently instead.
-	if ( version_compare( WPGRAPHQL_VERSION, WPGRAPHQL_IDE_WPGRAPHQL_REQUIRED_MIN_VERSION, 'lt' ) ) {
-		add_action( 'admin_notices', __NAMESPACE__ . '\\show_admin_notice' );
-		return;
-	}
-
-	add_custom_capabilities();
-
-	do_action( 'wpgraphql_ide_init' );
 }
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\check_wpgraphql_availability' );
 
@@ -193,7 +172,7 @@ function initialize_plugin() {
 add_action( 'wpgraphql_ide_init', __NAMESPACE__ . '\\initialize_plugin' );
 
 /**
- * Show admin notice if WPGraphQL is not available at a supported version.
+ * Show admin notice if WPGraphQL is not available.
  *
  * @return void
  */
@@ -202,26 +181,7 @@ function show_admin_notice() {
 	<div class="notice notice-error">
 		<h3><?php esc_html_e( 'WPGraphQL IDE cannot load', 'wpgraphql-ide' ); ?></h3>
 		<ol>
-			<li>
-			<?php
-			printf(
-				/* translators: %s: minimum required WPGraphQL version */
-				esc_html__( 'WPGraphQL (version %s or newer) must be installed and active', 'wpgraphql-ide' ),
-				esc_html( WPGRAPHQL_IDE_WPGRAPHQL_REQUIRED_MIN_VERSION )
-			);
-			?>
-			</li>
-			<?php if ( defined( 'WPGRAPHQL_VERSION' ) ) : ?>
-				<li>
-				<?php
-				printf(
-					/* translators: %s: detected WPGraphQL version */
-					esc_html__( 'Detected WPGraphQL version: %s', 'wpgraphql-ide' ),
-					esc_html( WPGRAPHQL_VERSION )
-				);
-				?>
-				</li>
-			<?php endif; ?>
+			<li><?php esc_html_e( 'WPGraphQL must be installed and active', 'wpgraphql-ide' ); ?></li>
 		</ol>
 	</div>
 	<?php

@@ -5,46 +5,37 @@ Do not edit manually.
 ---
 title: pre_graphql_execute_request
 hookType: filter
-hookGroup: uncategorized
+hookGroup: request-lifecycle
 plugin: wp-graphql
 ---
 
 # pre_graphql_execute_request
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_pre_execute_request` instead.
-
 ```php
-apply_filters_deprecated( 'pre_graphql_execute_request', [ $response, $this ], 'x-release-please-version', 'graphql_pre_execute_request' );
+apply_filters( 'pre_graphql_execute_request', null, $this );
 ```
 
-Legacy pre-execute request filter retained for backward compatibility.
+Filter this to be anything other than null to short-circuit HTTP execution.
 
 - **Type:** filter
-- **Group:** Uncategorized
-- **Since:** Unknown
+- **Group:** Request Lifecycle
+- **Since:** 0.0.5
 - **Source File:** `plugins/wp-graphql/src/Request.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_pre_execute_request`
+- `$response` (`mixed|null`): The response to return early. Null continues execution.
+- `$request` (`self`): The request instance being executed.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:811`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L811)
+- [`plugins/wp-graphql/src/Request.php:775`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L775)
 
 ```php
-apply_filters_deprecated(
-				'pre_graphql_execute_request',
-				[ $response, $this ],
-				'x-release-please-version',
-				'graphql_pre_execute_request'
-			);
+apply_filters( 'pre_graphql_execute_request', null, $this );
 ```
 
 ## Related
 
-- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:696`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L696)
-- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:811`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L811)
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:668`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L668)
+- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:775`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L775)

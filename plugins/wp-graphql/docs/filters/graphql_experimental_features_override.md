@@ -28,7 +28,7 @@ Filters global experimental feature overrides. Return `false` to disable all exp
 
 ## Source
 
-- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:301`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L301)
+- [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:293`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L293)
 
 ```php
 apply_filters( 'graphql_experimental_features_override', null );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_experimental_features_override', null );
 
 ## Related
 
-- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:301`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L301)
+- `AbstractExperiment::is_active()` in [`plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php:293`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php#L293)

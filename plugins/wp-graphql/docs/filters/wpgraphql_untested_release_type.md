@@ -5,45 +5,35 @@ Do not edit manually.
 ---
 title: wpgraphql_untested_release_type
 hookType: filter
-hookGroup: uncategorized
+hookGroup: settings
 plugin: wp-graphql
 ---
 
 # wpgraphql_untested_release_type
 
-> [!WARNING]
-> This hook has been deprecated since x-release-please-version and should not be used for new integrations.
-> Use `graphql_untested_release_type` instead.
-
 ```php
-apply_filters_deprecated( 'wpgraphql_untested_release_type', [ $release_type ], 'x-release-please-version', 'graphql_untested_release_type' );
+apply_filters( 'wpgraphql_untested_release_type', 'major' );
 ```
 
-Legacy release channel filter retained for backward compatibility.
+Filter the release type to use when checking for untested plugins. This is used to prevent autoupdates when a plugin is untested with the specified channel. I.e. major > minor > patch > prerelease.
 
 - **Type:** filter
-- **Group:** Uncategorized
+- **Group:** Settings and Admin
 - **Since:** Unknown
 - **Source File:** `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php`
 
-## Lifecycle
+## Parameters
 
-- **Deprecated in:** x-release-please-version
-- **Replacement:** `graphql_untested_release_type`
+- `$release_type` (`'major'|'minor'|'patch'|'prerelease'`): The release type to use when checking for untested plugins. Defaults to 'major'.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:383`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L383)
+- [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:359`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L359)
 
 ```php
-apply_filters_deprecated(
-				'wpgraphql_untested_release_type',
-				[ $release_type ],
-				'x-release-please-version',
-				'graphql_untested_release_type'
-			);
+apply_filters( 'wpgraphql_untested_release_type', 'major' );
 ```
 
 ## Related
 
-- `UpdateChecker::get_untested_release_type()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:383`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L383)
+- `UpdateChecker::get_untested_release_type()` in [`plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php:359`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php#L359)

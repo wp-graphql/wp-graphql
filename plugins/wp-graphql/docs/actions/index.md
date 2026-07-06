@@ -66,6 +66,10 @@ title: Actions
 
 ## Request Lifecycle
 
+- [`do_graphql_request`](/actions/do_graphql_request)
+
+  Run an action for each request.
+
 - [`graphql_after_execute`](/actions/graphql_after_execute)
 
   Run an action after GraphQL Execution
@@ -74,9 +78,9 @@ title: Actions
 
   This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
 
-- [`graphql_do_request`](/actions/graphql_do_request)
+- [`graphql_execute`](/actions/graphql_execute)
 
-  Run an action for each request.
+  Run an action.
 
 - [`graphql_execute_batch_queries`](/actions/graphql_execute_batch_queries)
 
@@ -85,14 +89,6 @@ title: Actions
 - [`graphql_init`](/actions/graphql_init)
 
   Fire off init action
-
-- [`graphql_init_request`](/actions/graphql_init_request)
-
-  Fires when initializing a GraphQL request from WP-CLI.
-
-- [`graphql_init_request`](/actions/graphql_init_request)
-
-  Action – intentionally with no context – to indicate a GraphQL Request has started.
 
 - [`graphql_mutation_response`](/actions/graphql_mutation_response)
 
@@ -106,10 +102,6 @@ title: Actions
 
   Run an action after the HTTP Response is ready to be sent back.
 
-- [`graphql_request_execute`](/actions/graphql_request_execute)
-
-  Run an action.
-
 - [`graphql_response_set_headers`](/actions/graphql_response_set_headers)
 
   Fire an action when the headers are set
@@ -122,6 +114,14 @@ title: Actions
 
   Run an action when the server config is created.
 
+- [`init_graphql_request`](/actions/init_graphql_request)
+
+  Fires when initializing a GraphQL request from WP-CLI.
+
+- [`init_graphql_request`](/actions/init_graphql_request)
+
+  Action – intentionally with no context – to indicate a GraphQL Request has started.
+
 ## Schema Registration
 
 - [`graphql_get_schema`](/actions/graphql_get_schema)
@@ -131,10 +131,6 @@ title: Actions
 - [`graphql_get_type_registry`](/actions/graphql_get_type_registry)
 
   Fire an action when the Type Registry is returned
-
-- [`graphql_init_type_registry`](/actions/graphql_init_type_registry)
-
-  Fire an action as the Type registry is being initiated.
 
 - [`graphql_register_initial_types`](/actions/graphql_register_initial_types)
 
@@ -164,7 +160,15 @@ title: Actions
 
   Fires after a WPUnionType has been configured and before registration.
 
+- [`init_graphql_type_registry`](/actions/init_graphql_type_registry)
+
+  Fire an action as the Type registry is being initiated.
+
 ## Settings and Admin
+
+- [`enqueue_graphiql_extension`](/actions/enqueue_graphiql_extension)
+
+  Fires before GraphiQL extensions are enqueued.
 
 - [`graphql_admin_notices_init`](/actions/graphql_admin_notices_init)
 
@@ -181,10 +185,6 @@ title: Actions
 - [`graphql_do_update_routine`](/actions/graphql_do_update_routine)
 
   Fires the update routine.
-
-- [`graphql_enqueue_graphiql_extension`](/actions/graphql_enqueue_graphiql_extension)
-
-  Fires before GraphiQL extensions are enqueued.
 
 - [`graphql_experiments_loaded`](/actions/graphql_experiments_loaded)
 

@@ -7,8 +7,223 @@ Do not edit manually.
 ## Summary
 
 - Errors: 0
-- Warnings: 0
-- Total findings: 0
+- Warnings: 51
+- Total findings: 51
 
-No lint findings detected.
+## Findings by Type
+
+- `missing_hook_since`: 20
+- `naming_convention`: 31
+
+## Findings
+
+### `missing_hook_since`
+
+- **Hook:** `enqueue_graphiql_extension`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 321)
+- **Hook:** `graphql_endpoint`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php` (line 118)
+- **Hook:** `wpgraphql_enable_major_autoupdates`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 316)
+- **Hook:** `wpgraphql_enable_untested_autoupdates`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 341)
+- **Hook:** `wpgraphql_untested_release_type`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 359)
+- **Hook:** `init_graphql_request`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/CLI/Commands.php` (line 70)
+- **Hook:** `graphql_connection`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1063)
+- **Hook:** `'wp_graphql_experiment_' . $this->get_slug() . '_loaded'`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 93)
+- **Hook:** `wp_graphql_experiment_config`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 374)
+- **Hook:** `wpgraphql_experimental_features_enabled`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Experimental/Experimental.php` (line 69)
+- **Hook:** `graphql_schema`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Registry/SchemaRegistry.php` (line 81)
+- **Hook:** `init_graphql_type_registry`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 288)
+- **Hook:** `init_graphql_request`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Request.php` (line 160)
+- **Hook:** `graphql_execute`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Request.php` (line 510)
+- **Hook:** `do_graphql_request`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Request.php` (line 593)
+- **Hook:** `pre_graphql_execute_request`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/Request.php` (line 668)
+- **Hook:** `register_graphql_post_type_args`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 627)
+- **Hook:** `register_graphql_taxonomy_args`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 657)
+- **Hook:** `graphql_schema`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 911)
+- **Hook:** `graphql_endpoint`
+  - Severity: warning
+  - Message: Missing @since tag in nearest docblock
+  - Source: `plugins/wp-graphql/access-functions.php` (line 933)
+
+### `naming_convention`
+
+- **Hook:** `enqueue_graphiql_extension`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php` (line 321)
+- **Hook:** `graphql_endpoint`
+  - Severity: warning
+  - Message: low_specificity: Hook name has too few semantic segments after prefix.
+  - Source: `plugins/wp-graphql/src/Admin/Settings/Settings.php` (line 118)
+- **Hook:** `wpgraphql_enable_major_autoupdates`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "wpgraphql_".
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 316)
+- **Hook:** `wpgraphql_enable_major_autoupdates`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 316)
+- **Hook:** `wpgraphql_enable_untested_autoupdates`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "wpgraphql_".
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 341)
+- **Hook:** `wpgraphql_enable_untested_autoupdates`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 341)
+- **Hook:** `wpgraphql_untested_release_type`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "wpgraphql_".
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 359)
+- **Hook:** `wpgraphql_untested_release_type`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php` (line 359)
+- **Hook:** `init_graphql_request`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "init_graphql_".
+  - Source: `plugins/wp-graphql/src/CLI/Commands.php` (line 70)
+- **Hook:** `init_graphql_request`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/CLI/Commands.php` (line 70)
+- **Hook:** `graphql_connection`
+  - Severity: warning
+  - Message: low_specificity: Hook name has too few semantic segments after prefix.
+  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1063)
+- **Hook:** `wp_graphql_experiment_enabled`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "wp_graphql_".
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 329)
+- **Hook:** `wp_graphql_experiment_enabled`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 329)
+- **Hook:** `wp_graphql_experiment_config`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "wp_graphql_".
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 374)
+- **Hook:** `wp_graphql_experiment_config`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 374)
+- **Hook:** `wpgraphql_experimental_features_enabled`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "wpgraphql_".
+  - Source: `plugins/wp-graphql/src/Experimental/Experimental.php` (line 69)
+- **Hook:** `wpgraphql_experimental_features_enabled`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Experimental/Experimental.php` (line 69)
+- **Hook:** `graphql_schema`
+  - Severity: warning
+  - Message: low_specificity: Hook name has too few semantic segments after prefix.
+  - Source: `plugins/wp-graphql/src/Registry/SchemaRegistry.php` (line 81)
+- **Hook:** `init_graphql_type_registry`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "init_graphql_".
+  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 288)
+- **Hook:** `init_graphql_type_registry`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 288)
+- **Hook:** `init_graphql_request`
+  - Severity: warning
+  - Message: deprecated_prefix: Hook name uses deprecated prefix "init_graphql_".
+  - Source: `plugins/wp-graphql/src/Request.php` (line 160)
+- **Hook:** `init_graphql_request`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Request.php` (line 160)
+- **Hook:** `graphql_execute`
+  - Severity: warning
+  - Message: low_specificity: Hook name has too few semantic segments after prefix.
+  - Source: `plugins/wp-graphql/src/Request.php` (line 510)
+- **Hook:** `do_graphql_request`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Request.php` (line 593)
+- **Hook:** `pre_graphql_execute_request`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Request.php` (line 668)
+- **Hook:** `pre_graphql_execute_request`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/Request.php` (line 775)
+- **Hook:** `register_graphql_post_type_args`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 627)
+- **Hook:** `register_graphql_taxonomy_args`
+  - Severity: warning
+  - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
+  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 657)
+- **Hook:** `graphql_schema`
+  - Severity: warning
+  - Message: low_specificity: Hook name has too few semantic segments after prefix.
+  - Source: `plugins/wp-graphql/src/WPGraphQL.php` (line 911)
+- **Hook:** `graphql_endpoint`
+  - Severity: warning
+  - Message: low_specificity: Hook name has too few semantic segments after prefix.
+  - Source: `plugins/wp-graphql/access-functions.php` (line 933)
+- **Hook:** `'wp_graphql_experiment_' . $this->get_slug() . '_loaded'`
+  - Severity: warning
+  - Message: dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix.
+  - Source: `plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php` (line 93)
 

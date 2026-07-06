@@ -25,18 +25,11 @@ class RouterTest extends WPTestCase {
 		parent::tearDown();
 	}
 
-	/**
-	 * Expect deprecation notice for the legacy init_graphql_request hook.
-	 */
-	private function expectLegacyInitGraphqlRequestDeprecation(): void {
-		$this->setExpectedDeprecated( 'init_graphql_request' );
-	}
-
 	public function testRouteEndpoint() {
 		/**
 		 * Test that the default route is set to "graphql"
 		 */
-		$this->assertEquals( 'graphql', apply_filters( 'graphql_endpoint_path', \WPGraphQL\Router::$route ) );
+		$this->assertEquals( 'graphql', apply_filters( 'graphql_endpoint', \WPGraphQL\Router::$route ) );
 	}
 
 	/**
@@ -44,14 +37,14 @@ class RouterTest extends WPTestCase {
 	 */
 	public function testGraphQLRewriteRule() {
 		global $wp_rewrite;
-		$route = apply_filters( 'graphql_endpoint_path', \WPGraphQL\Router::$route );
+		$route = apply_filters( 'graphql_endpoint', \WPGraphQL\Router::$route );
 		$this->assertArrayHasKey( $route . '/?$', $wp_rewrite->extra_rules_top );
 	}
 
 	public function testAddQueryVar() {
 		$query_vars = [];
 		$actual     = \WPGraphQL\Router::add_query_var( $query_vars );
-		$this->assertEquals( $actual, [ apply_filters( 'graphql_endpoint_path', \WPGraphQL\Router::$route ) ] );
+		$this->assertEquals( $actual, [ apply_filters( 'graphql_endpoint', \WPGraphQL\Router::$route ) ] );
 	}
 
 	public function testGetRawData() {
@@ -234,7 +227,7 @@ class RouterTest extends WPTestCase {
 		});
 
 		// Trigger wp_head during GraphQL execution (some plugins do this)
-		add_action( 'graphql_request_execute', function() {
+		add_action( 'graphql_execute', function() {
 			ob_start();
 			do_action( 'wp_head' );
 			$output = ob_get_clean();
@@ -273,7 +266,7 @@ class RouterTest extends WPTestCase {
 		});
 
 		// Some plugins trigger wp_footer during API requests
-		add_action( 'graphql_request_execute', function() {
+		add_action( 'graphql_execute', function() {
 			ob_start();
 			do_action( 'wp_footer' );
 			$output = ob_get_clean();
@@ -300,7 +293,7 @@ class RouterTest extends WPTestCase {
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
 		remove_all_actions( 'wp_footer' );
-		remove_all_actions( 'graphql_request_execute' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
@@ -313,7 +306,7 @@ class RouterTest extends WPTestCase {
 		});
 
 		// Some plugins trigger admin_notices during API requests
-		add_action( 'graphql_request_execute', function() {
+		add_action( 'graphql_execute', function() {
 			ob_start();
 			do_action( 'admin_notices' );
 			$output = ob_get_clean();
@@ -342,7 +335,7 @@ class RouterTest extends WPTestCase {
 
 		// Cleanup
 		remove_all_actions( 'admin_notices' );
-		remove_all_actions( 'graphql_request_execute' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
@@ -387,7 +380,7 @@ class RouterTest extends WPTestCase {
 			echo '<!-- Plugin comment -->';
 		});
 
-		add_action( 'graphql_request_execute', function() {
+		add_action( 'graphql_execute', function() {
 			echo '<div>Debug output from plugin</div>';
 			wp_print_inline_script_tag( 'console.log("Debug script");' );
 		});
@@ -418,7 +411,7 @@ class RouterTest extends WPTestCase {
 
 		// Cleanup
 		remove_all_actions( 'wp_enqueue_scripts' );
-		remove_all_actions( 'graphql_request_execute' );
+		remove_all_actions( 'graphql_execute' );
 		remove_all_filters( 'wp_die_handler' );
 	}
 
@@ -462,7 +455,6 @@ class RouterTest extends WPTestCase {
 	 * Test plugins outputting HTML during init_graphql_request action
 	 */
 	public function testInitGraphqlRequestOutputDoesNotBreakResponse() {
-		$this->expectLegacyInitGraphqlRequestDeprecation();
 		add_action( 'init_graphql_request', function() {
 			echo '<div class="graphql-debug">Initializing GraphQL request</div>';
 			wp_print_inline_script_tag( 'window.graphqlRequestInit = true;' );
@@ -562,7 +554,7 @@ class RouterTest extends WPTestCase {
 	 * Test plugins outputting HTML during graphql_execute action
 	 */
 	public function testGraphqlExecuteOutputDoesNotBreakResponse() {
-		add_action( 'graphql_request_execute', function( $response, $schema, $operation, $query, $variables, $request ) {
+		add_action( 'graphql_execute', function( $response, $schema, $operation, $query, $variables, $request ) {
 			// Plugin trying to log GraphQL execution
 			echo '<div class="graphql-execution-log">';
 			echo 'Operation: ' . esc_html($operation) . '<br>';
@@ -593,7 +585,7 @@ class RouterTest extends WPTestCase {
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
 
 		// Cleanup
-		remove_all_actions( 'graphql_request_execute' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
@@ -731,7 +723,7 @@ class RouterTest extends WPTestCase {
 	 * Test plugins outputting HTML using graphql_schema filter
 	 */
 	public function testGraphqlSchemaFilterOutputDoesNotBreakResponse() {
-		add_filter( 'graphql_schema_instance', function( $schema, $app_context ) {
+		add_filter( 'graphql_schema', function( $schema, $app_context ) {
 			// Plugin trying to debug schema during filtering
 			echo '<div class="schema-debug">Schema filtered for GraphQL</div>';
 			echo '<!-- Schema types: ' . count($schema->getTypeMap()) . ' -->';
@@ -757,7 +749,7 @@ class RouterTest extends WPTestCase {
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
 
 		// Cleanup
-		remove_all_filters( 'graphql_schema_instance' );
+		remove_all_filters( 'graphql_schema' );
 	}
 
 	/**
@@ -815,7 +807,6 @@ class RouterTest extends WPTestCase {
 	 * This simulates real-world scenarios where multiple plugins might be outputting
 	 */
 	public function testComplexNestedWPGraphQLHooksOutputDoesNotBreakResponse() {
-		$this->expectLegacyInitGraphqlRequestDeprecation();
 		// Create some test posts to ensure we have data to query
 		$this->factory()->post->create_many( 3, [
 			'post_status' => 'publish'
@@ -846,7 +837,7 @@ class RouterTest extends WPTestCase {
 			}
 		}, 10, 4);
 
-		add_action( 'graphql_request_execute', function() {
+		add_action( 'graphql_execute', function() {
 			echo '<div class="execution-complete">GraphQL execution completed</div>';
 		});
 
@@ -878,7 +869,7 @@ class RouterTest extends WPTestCase {
 		remove_all_actions( 'graphql_before_resolve_field' );
 		remove_all_filters( 'graphql_pre_return_field_from_model' );
 		remove_all_actions( 'graphql_after_resolve_field' );
-		remove_all_actions( 'graphql_request_execute' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
