@@ -58,14 +58,12 @@ PR titles must follow conventional commits format:
 
 - Use canonical `graphql_*` names for new actions/filters.
 - Do not introduce new `wpgraphql_*` or `wp_graphql_*` hooks.
-- `do_action()` / `apply_filters()` call sites should include docblocks with:
-  - `@since x-release-please-version`
-  - `@hookGroup <group>` using values from `scripts/hooks/groups.json`
+- `do_action()` / `apply_filters()` call sites need a complete docblock (description, typed `@param` per arg, `@since x-release-please-version` for new hooks, `@hookGroup <group>` from `scripts/hooks/groups.json`). The hook linter checks this.
 - When renaming hooks, preserve backward compatibility:
   - `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
   - `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
 - Tests should expect deprecation notices when deprecated hooks are intentionally fired.
-- After changing hooks, regenerate docs/audit with `npm run hooks:generate -- --plugin=wp-graphql`.
+- Don't regenerate or commit the generated hook docs — the release-please flow does that when a release PR is cut. Just write a complete docblock at the call site.
 
 ## File Paths
 
