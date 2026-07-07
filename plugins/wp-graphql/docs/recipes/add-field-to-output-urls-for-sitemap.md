@@ -14,7 +14,7 @@ The following code is an example of how you can create a field called allUrls th
 
 The resolver uses mostly hard-coded data, but shows what a potential solution could look like.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_field( 'RootQuery', 'allUrls', [
@@ -41,7 +41,7 @@ add_action( 'graphql_register_types', function() {
 
 You can then query this field using:
 
-```
+```graphql
 {
   allUrls
 }

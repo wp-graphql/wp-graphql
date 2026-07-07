@@ -12,7 +12,7 @@ summary: "This is an example of registering a field with an argument showing how
 
 This is an example of registering a field with an argument showing how to use the argument in a resolver.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_field( 'RootQuery', 'myNewField', [
@@ -38,7 +38,7 @@ This will register a new field (myNewField ) to the RootQuery, and adds an argum
 
 We can query this like so:
 
-```
+```graphql
 query {
   myNewField
 }
@@ -46,7 +46,7 @@ query {
 
 And the results will be:
 
-```
+```graphql
 {
   "data": {
     "myNewField": "test"
@@ -56,7 +56,7 @@ And the results will be:
 
 Now, we can pass a value to the argument like so:
 
-```
+```graphql
 query {
   myNewField( myArg: "something" )
 }
@@ -64,7 +64,7 @@ query {
 
 and the results will be:
 
-```
+```graphql
 {
   "data": {
     "myNewField": "The value of myArg is: something"
@@ -74,7 +74,7 @@ and the results will be:
 
 Now, you can introduce variables like so:
 
-```
+```php
 query MyQuery($myArg:String) {
   myNewField( myArg: $myArg )
 }

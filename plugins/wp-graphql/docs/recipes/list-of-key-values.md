@@ -12,7 +12,7 @@ summary: "This is an example showing how to return a list of keys and values whe
 
 This is an example showing how to return a list of keys and values where the keys and values are both strings.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_object_type( 'keyValue', [

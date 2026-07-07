@@ -16,7 +16,7 @@ This snippet shows how to deprecate the \`Post.excerpt\` field.
 
 You can use this technique to deprecate other fields.
 
-```
+```php
 // Filter the Object Fields
 add_filter( 'graphql_object_fields', function( $fields, $type_name, $wp_object_type, $type_registry ) {
 

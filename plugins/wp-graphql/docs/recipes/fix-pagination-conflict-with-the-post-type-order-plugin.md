@@ -16,7 +16,7 @@ When using the Post Type Order plugin along with WPGraphQL, you might experience
 
 This snippet should help correct the conflict:
 
-```
+```php
 add_action( 'pre_get_posts', function () {
 
 	// access the custom post type order class

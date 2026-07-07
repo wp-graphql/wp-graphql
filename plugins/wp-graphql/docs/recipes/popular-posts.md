@@ -12,7 +12,7 @@ summary: "The following code allows you to query for popular posts. It’s still
 
 The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta\_key is involved. Beware though, meta queries can be expensive!
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	// This registers a connection to the Schema at the root of the Graph
@@ -49,7 +49,7 @@ add_action( 'graphql_register_types', function() {
 
 You can query for the popular posts using this GraphQL query:
 
-```
+```graphql
 {
   popularPosts(first: 10, where: {dateQuery: {after: {year: 2021, month: 10}}}) {
     nodes {

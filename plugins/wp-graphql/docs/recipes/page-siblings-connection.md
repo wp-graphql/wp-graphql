@@ -12,7 +12,7 @@ summary: "Below is a connection that adds the ability to query page siblings (i.
 
 Below is a connection that adds the ability to query page siblings (i.e. pages that share the same parent)
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_connection( [

@@ -18,7 +18,7 @@ When a user requesting a `PostType`, these are the following fields that are by
 
 You can use the `graphql_allowed_fields_on_restricted_type` filter to expose more fields publicly if you chose to do so: [https://github.com/wp-graphql/wp-graphql/blob/develop/src/Model/Model.php#L292](https://github.com/wp-graphql/wp-graphql/blob/develop/src/Model/Model.php#L287)
 
-```
+```php
 add_filter( 'graphql_allowed_fields_on_restricted_type', function( $fields, $model_name, $data, $visibility, $owner, $current_user ) {
 	if ( 'PostTypeObject' === $model_name ) {
 		$fields[] = 'label';

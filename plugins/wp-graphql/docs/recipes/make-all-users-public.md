@@ -14,7 +14,7 @@ The following snippets allow for Users with no published content to be shown in 
 
 For a more detailed write-up, read the blog post: [Allowing WPGraphQL to show unpublished authors in User Queries](https://www.wpgraphql.com/2020/12/11/allowing-wpgraphql-to-show-unpublished-authors-in-user-queries/)
 
-```
+```php
 add_filter( 'graphql_connection_query_args', function( $query_args, $connection_resolver ) {
 
   if ( $connection_resolver instanceof \WPGraphQL\Data\Connection\UserConnectionResolver ) {
@@ -26,7 +26,7 @@ add_filter( 'graphql_connection_query_args', function( $query_args, $connection_
 }, 10, 2 );
 ```
 
-```
+```php
 add_filter( 'graphql_object_visibility', function( $visibility, $model_name, $data, $owner, $current_user ) {
 
   // only apply our adjustments to the UserObject Model

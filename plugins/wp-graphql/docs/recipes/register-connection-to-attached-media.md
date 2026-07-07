@@ -12,7 +12,7 @@ summary: "This code shows how to register a connection to attached media in WPGr
 
 This code shows how to register a [connection](https://www.wpgraphql.com/docs/connections/) to attached media in WPGraphQL
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_connection([
@@ -32,7 +32,7 @@ add_action( 'graphql_register_types', function() {
 
 You can then query for this new connection using the `attachedMedia` field on a ContentNode:
 
-```
+```graphql
 {
   contentNodes {
     nodes {

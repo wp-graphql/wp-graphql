@@ -14,7 +14,7 @@ By default, Menus and Menu Items that are not assigned to a Menu Location are co
   
 If you want to expose Menus and Menu Items that are not assigned to menu locations to public GraphQL Queries, you can use the following snippet:
 
-```
+```php
 add_filter( 'graphql_data_is_private', function( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
 
 	if ( 'MenuObject' === $model_name || 'MenuItemObject' === $model_name ) {

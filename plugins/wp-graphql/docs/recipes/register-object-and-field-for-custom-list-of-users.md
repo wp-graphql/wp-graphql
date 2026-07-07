@@ -14,7 +14,7 @@ The following code creates an object type called `StuntPerformer` and creates a 
 
 In this case, the list of users are the admins of the website, but custom logic could be added to return a curated list of users.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_object_type(
@@ -70,7 +70,7 @@ add_action( 'graphql_register_types', function() {
 
 You can now query for these stuntPerformers with the following GraphQL:
 
-```
+```graphql
 {
   stuntPerformers {
     firstName

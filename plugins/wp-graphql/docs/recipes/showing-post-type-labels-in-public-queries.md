@@ -22,7 +22,7 @@ Querying for the label of a Post Type as a public user returns a `null` value by
 
 With the following snippet, you can expose the `label` field to public users:
 
-```
+```php
 add_filter( 'graphql_allowed_fields_on_restricted_type', function( $allowed_restricted_fields, $model_name, $data, $visibility, $owner, $current_user ) {
 
 	if ( 'PostTypeObject' === $model_name ) {

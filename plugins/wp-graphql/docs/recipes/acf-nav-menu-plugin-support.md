@@ -12,7 +12,7 @@ summary: "This adds support (native) for the ACF Nav Menu field plugin ( https:/
 
 This adds support (native) for the ACF Nav Menu field plugin ([https://github.com/jgraup/advanced-custom-fields-nav-menu-field](https://github.com/jgraup/advanced-custom-fields-nav-menu-field)). This also requires [WPGraphQL for Advanced Custom Fields](https://github.com/wp-graphql/wp-graphql-acf).
 
-```
+```php
 add_filter( 'wpgraphql_acf_register_graphql_field', function( $field_config, $type_name, $field_name, $config ) {
 	if ( isset( $config['acf_field']['type'] ) && 'nav_menu' === $config['acf_field']['type'] ) {
 		$field_config['type'] = 'Menu';
@@ -27,7 +27,7 @@ add_filter( 'wpgraphql_acf_register_graphql_field', function( $field_config, $ty
 
 You can query for this:
 
-```
+```graphql
 {
   post(id: 1669, idType: DATABASE_ID) {
     id

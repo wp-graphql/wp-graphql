@@ -12,7 +12,7 @@ summary: "The following code registers a connection from Tags to ContentNodes. A
 
 The following code registers a connection from Tags to ContentNodes. A field name called contentNodes will be added to the Tag type to make it easy to view all Posts that are tagged with that specific term.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 	register_graphql_connection([
 		'fromType' => 'Tag',

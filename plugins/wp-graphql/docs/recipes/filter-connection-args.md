@@ -12,7 +12,7 @@ summary: "This filters connection args by checking the field name the connection
 
 This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from.
 
-```
+```php
 add_filter( 'graphql_connection_query_args', function( $args, \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection ) {
 
 	// Get the Info from the resolver

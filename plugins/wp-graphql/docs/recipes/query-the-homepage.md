@@ -14,7 +14,7 @@ In WordPress, the homepage can be a Page or an archive of posts of the Post post
   
 This query allows you to query the homepage, and specify what data you want in response if the homepage is a page, or if the homepage is a `ContentType` node.
 
-```
+```graphql
 {
   nodeByUri(uri: "/") {
     __typename

@@ -12,7 +12,7 @@ summary: "This snippet logs all WPGraphQL requests to the error log add_action( 
 
 This snippet logs all WPGraphQL requests to the error log
 
-```
+```php
 add_action( 'do_graphql_request', function( $query, $operation, $variables, $params) {
 	error_log( wp_json_encode( [
 		'query' => $query,

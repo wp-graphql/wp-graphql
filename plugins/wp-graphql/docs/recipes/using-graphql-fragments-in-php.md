@@ -12,7 +12,7 @@ summary: "You can execute GraphQL queries in PHP. In this case, we even show usi
 
 You can execute GraphQL queries in PHP. In this case, we even show using a GraphQL Fragment.
 
-```
+```php
 add_action( 'init', function() {
 
 	$results = graphql([
@@ -43,7 +43,7 @@ Executing this code leads to the following output:
 
 Additionally, if you were to define your fragment in another file, such as the file that is rendering the data, you can define fragments as variables and concatenate them like so:
 
-```
+```php
 $fragment = '
   fragment PostFields on Post {
     id

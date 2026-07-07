@@ -135,6 +135,28 @@ function createTurndown() {
 		bulletListMarker: '-',
 	});
 
+	// WordPress code blocks carry the language on the <pre> as
+	// `class="wp-block-code lang-php"` (or `language-php`), which Turndown's
+	// default rule (which only reads a `language-` class off the inner <code>)
+	// misses — producing bare fences with no syntax highlighting. Read the
+	// language off either element and emit it on the fence so rehype-prism-plus
+	// can highlight it.
+	td.addRule('fencedCodeWithLanguage', {
+		filter: (node) =>
+			node.nodeName === 'PRE' && node.firstChild && node.firstChild.nodeName === 'CODE',
+		replacement: (_content, node) => {
+			const code = node.firstChild;
+			const classNames = `${node.getAttribute('class') || ''} ${code.getAttribute('class') || ''}`;
+			const match = classNames.match(/(?:lang|language)-([a-z0-9+#-]+)/i);
+			const language = match ? match[1].toLowerCase() : '';
+			const text = (code.textContent || '').replace(/\n+$/, '');
+			// Use a fence longer than any backtick run inside the code.
+			const longestRun = (text.match(/`+/g) || []).reduce((max, run) => Math.max(max, run.length), 0);
+			const fence = '`'.repeat(Math.max(3, longestRun + 1));
+			return `\n\n${fence}${language}\n${text}\n${fence}\n\n`;
+		},
+	});
+
 	// WordPress renders oEmbeds (e.g. a YouTube block) as a
 	// `<figure class="wp-block-embed"><iframe src="youtube.com/embed/ID">`.
 	// Turndown drops iframes by default; convert YouTube embeds to a

@@ -16,7 +16,7 @@ If you’re using a GraphQL mutation to authenticate, such as the one provided b
   
 This snippet allows you to “allow” the login mutation when all other root operations are restricted.
 
-```
+```php
 add_filter( 
   'graphql_require_authentication_allowed_fields', 
   function( $allowed ) {

@@ -12,7 +12,7 @@ summary: "This snippet shows how to register a basic GraphQL Mutation with a sin
 
 This snippet shows how to register a basic GraphQL Mutation with a single input field, a single output field, and the input is simply returned as the value for the output.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_mutation( 'testMutation', [

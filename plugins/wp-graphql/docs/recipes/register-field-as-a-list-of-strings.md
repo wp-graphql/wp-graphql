@@ -12,7 +12,7 @@ summary: "The below code registers a field called listOfStrings that returns a l
 
 The below code registers a field called `listOfStrings` that returns a list of strings as the result:
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_field( 'RootQuery', 'listOfStrings', [
@@ -30,7 +30,7 @@ add_action( 'graphql_register_types', function() {
 
 This field can now be queried:
 
-```
+```graphql
 {
   listOfStrings
 }

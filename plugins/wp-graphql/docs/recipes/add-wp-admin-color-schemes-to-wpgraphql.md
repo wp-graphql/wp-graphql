@@ -12,7 +12,7 @@ summary: "The following example code allows you to add WP Admin Color Schemes da
 
 The following example code allows you to add WP Admin Color Schemes data to WPGraphQL.
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	$mock_colors = '

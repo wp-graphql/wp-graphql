@@ -12,7 +12,7 @@ summary: "This snippet outputs the $_SERVER superglobal so we can see if the Aut
 
 This snippet outputs the `$_SERVER` superglobal so we can see if the Authorization token is being passed to the server or not.
 
-```
+```php
 add_action( 'init', function() {
 
 	if ( is_graphql_http_request() ) {

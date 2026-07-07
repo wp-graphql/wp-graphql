@@ -14,7 +14,7 @@ When using the [Advanced Taxonomy Terms Order](https://wordpress.org/plugins/tax
 
 This snippet should help correct the conflict:
 
-```
+```php
 add_action( 'pre_get_terms', function() {
 
 	// if WPGraphQL isn't active or CPTUI isn't active, carry on and bail early

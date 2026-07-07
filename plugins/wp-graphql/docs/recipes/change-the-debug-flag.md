@@ -16,7 +16,7 @@ By default, the function callstack trace is _not_ included with errors data unle
 
 If you wanted to track this data on the server, for example, even for public requests, and send the data to a logging service, for example, you could enable the call stack with the following snippet. (Just make sure you \_also\_ cleanup the errors after the fact so you don’t expose too much data to public users.)
 
-```
+```php
 add_action( 'graphql_server_config', function( \GraphQL\Server\ServerConfig $config ) {
 	$config->setDebugFlag( 1 );
 });
@@ -30,7 +30,7 @@ There is no callstack trace with the error.
 
 **Example of the Error Trace when the debug flag is set to 2**
 
-```
+```php
 add_action( 'graphql_server_config', function( \GraphQL\Server\ServerConfig $config ) {
 	$config->setDebugFlag( 2 );
 });

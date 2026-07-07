@@ -306,6 +306,14 @@ async function getSourceFromMd(mdContent) {
           {
             selectors: ["img[src]"],
             inspectEach: ({ url, node }) => {
+              // Relative image paths are stored alongside the markdown and
+              // need to be rewritten to their raw GitHub URL. Absolute URLs
+              // (e.g. recipe screenshots hosted on content.wpgraphql.com) and
+              // data URIs are already resolvable — rewriting them would
+              // prepend the docs path and break them.
+              if (/^(?:https?:)?\/\//i.test(url) || url.startsWith("data:")) {
+                return
+              }
               node.properties.src = getRemoteImgUrl(url)
             },
           },

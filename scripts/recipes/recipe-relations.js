@@ -238,7 +238,14 @@ function loadRecipeRelations(docsDir) {
 			const forFrontmatter = stripLeadingGeneratedNotice(content);
 			const frontmatterMatch = forFrontmatter.match(/^---\n([\s\S]*?)\n---\n?/);
 			const frontmatter = frontmatterMatch ? parseFrontmatter(frontmatterMatch[1]) : {};
-			const bodyForInference = stripFrontmatterBlock(content);
+			// Strip the language token off code fences (```graphql -> ```) before
+			// inference: the fence language would otherwise be matched as an API
+			// name (e.g. the `graphql` function). The code *content* is kept so
+			// real hook/function mentions inside snippets are still detected.
+			const bodyForInference = stripFrontmatterBlock(content).replace(
+				/^```[a-z0-9+#-]+\s*$/gim,
+				'```'
+			);
 			const inferred = inferRelatedApiNames(bodyForInference, inventory);
 			const relativePath = path.relative(recipesDir, filePath).replace(/\\/g, '/');
 			const slug = relativePath.replace(/\.md$/, '');

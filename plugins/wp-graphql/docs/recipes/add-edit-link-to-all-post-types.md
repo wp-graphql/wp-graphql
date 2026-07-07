@@ -12,7 +12,7 @@ summary: "The following snippet shows how to add the “Edit” link as a GraphQ
 
 The following snippet shows how to add the “Edit” link as a GraphQL field to all post types:
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 
 	register_graphql_field( 'ContentNode', 'editLink', [

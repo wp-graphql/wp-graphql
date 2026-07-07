@@ -12,7 +12,7 @@ summary: "This snippet removes the “extensions” from the GraphQL response: a
 
 This snippet removes the “extensions” from the GraphQL response:
 
-```
+```php
 add_filter( 'graphql_request_results', function( $response ) {
 	// If it's an ExecutionResult object, we need to handle it differently
 	if ( $response instanceof \GraphQL\Executor\ExecutionResult ) {

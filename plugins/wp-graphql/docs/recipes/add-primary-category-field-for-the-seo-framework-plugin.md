@@ -12,7 +12,7 @@ summary: "The following adds a field called primaryCat field when using The SEO 
 
 The following adds a field called `primaryCat` field when using [The SEO Framework](https://wordpress.org/plugins/autodescription/) WordPress Plugin
 
-```
+```php
 add_action( 'init', function() {
 
 	register_graphql_connection([

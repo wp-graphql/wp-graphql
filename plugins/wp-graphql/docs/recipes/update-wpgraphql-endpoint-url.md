@@ -12,7 +12,7 @@ summary: "You can modify the WPGraphQL endpoint in code with the following: func
 
 You can modify the WPGraphQL endpoint in code with the following:
 
-```
+```php
 function my_new_graphql_endpoint() {
   return 'cutepuppies';
 };

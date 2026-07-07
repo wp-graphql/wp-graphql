@@ -12,7 +12,7 @@ summary: "The following adds a field to the NodeWithContentEditor interface to g
 
 The following adds a field to the `NodeWithContentEditor` interface to get the unencoded content for a post:
 
-```
+```php
 add_action( 'graphql_register_types', function() {
 	register_graphql_field( 'NodeWithContentEditor', 'unencodedContent', [
 		'type' => 'String',
@@ -26,7 +26,7 @@ add_action( 'graphql_register_types', function() {
 
 You can query now query for this field:
 
-```
+```graphql
 {
   contentNode(id: 952, idType: DATABASE_ID) {
     id
