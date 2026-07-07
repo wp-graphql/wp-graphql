@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/core"
 import { serialize } from "next-mdx-remote/serialize"
-import slugger from "slugger"
+import GithubSlugger from "github-slugger"
 import { unified } from "unified"
 import { visit } from "unist-util-visit"
 import fs from "node:fs/promises"
@@ -321,7 +321,10 @@ async function getSourceFromMd(mdContent) {
 async function getTOCFromMd(mdContent) {
   const toc = []
   let parentId = null
-  const slugCounts = {}
+  // Use github-slugger (the same library rehype-slug uses to assign heading
+  // ids in the rendered content) so the TOC anchor links match the real
+  // heading ids exactly — including its per-document duplicate handling.
+  const slugs = new GithubSlugger()
 
   const getNodeText = (node) => {
     if (!node) {
@@ -339,13 +342,6 @@ async function getTOCFromMd(mdContent) {
     return node.children.map((child) => getNodeText(child)).join("")
   }
 
-  const getUniqueHeadingId = (title: string) => {
-    const baseSlug = slugger(title)
-    const count = slugCounts[baseSlug] ?? 0
-    slugCounts[baseSlug] = count + 1
-    return count === 0 ? baseSlug : `${baseSlug}-${count}`
-  }
-
   await unified()
     .use(remarkParse)
     .use(remarkFm)
@@ -360,7 +356,7 @@ async function getTOCFromMd(mdContent) {
               return
             }
 
-            const id = getUniqueHeadingId(title)
+            const id = slugs.slug(title)
             if (node.tagName === "h2") {
               parentId = id
             }

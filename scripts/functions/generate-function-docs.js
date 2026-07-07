@@ -40,7 +40,7 @@ function escapeMdxText(value) {
 
 	// Escape backslashes first so a pre-existing backslash can't neutralize
 	// the escapes added for MDX expression delimiters.
-	return value.replace(/\\/g, '\\\\').replace(/[{}]/g, '\\$&');
+	return value.replace(/\\/g, '\\\\').replace(/[{}<]/g, '\\$&');
 }
 
 function ensureDir(dirPath) {

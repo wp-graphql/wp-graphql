@@ -72,9 +72,12 @@ function normalizeUri(uri) {
 export default function Archive({ data }) {
   const { archive } = data
   const nodes = archive?.contentNodes?.nodes ?? []
+  // A recipe-tag term archive resolves to the concrete `CodeSnippetTag`
+  // type — `TermNode` is an interface and is never a `__typename` value, so
+  // matching on it would make this branch dead.
   const isRecipeArchive =
     archive?.uri?.startsWith("/recipes") ||
-    (archive?.__typename === "TermNode" &&
+    (archive?.__typename === "CodeSnippetTag" &&
       nodes.length > 0 &&
       nodes.every((node) => node.__typename === "CodeSnippet"))
 

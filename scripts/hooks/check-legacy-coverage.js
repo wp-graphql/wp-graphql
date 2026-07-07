@@ -35,6 +35,17 @@ function readJson(filePath) {
 	return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
+function gitRefExists(ref) {
+	try {
+		execFileSync('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], {
+			stdio: ['ignore', 'ignore', 'ignore'],
+		});
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 function tryReadJsonAtGitRef(ref, filePathFromRepoRoot) {
 	try {
 		// execFileSync passes the ref and path as a single argv entry with no
@@ -111,6 +122,17 @@ function main() {
 	const legacyPayload = readJson(legacyHooksPath);
 
 	if (!baseIndex) {
+		// Distinguish "the base ref doesn't resolve" (a typo'd --base-ref or a
+		// clone missing the ref — a misconfiguration that would silently
+		// disable this gate) from "the ref is valid but the baseline index
+		// simply doesn't exist there yet" (the legitimate first-run skip).
+		if (!gitRefExists(baseRef)) {
+			console.error(
+				`Base ref "${baseRef}" could not be resolved. Refusing to skip the legacy coverage check (fix --base-ref or fetch the ref).`
+			);
+			process.exit(1);
+		}
+
 		console.log(
 			`No baseline hooks index found at ref "${baseRef}". Skipping legacy coverage check for ${pluginSlug}.`
 		);

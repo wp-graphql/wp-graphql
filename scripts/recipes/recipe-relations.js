@@ -43,6 +43,17 @@ function parseFrontmatter(source) {
 			return;
 		}
 
+		// Double-quoted scalars are written with JSON.stringify (see
+		// migrate-recipes-from-wp.js yamlScalar), so JSON.parse them to
+		// unescape embedded quotes/backslashes rather than stripping one char.
+		if (rawValue.startsWith('"') && rawValue.endsWith('"')) {
+			try {
+				result[key] = JSON.parse(rawValue);
+				return;
+			} catch {
+				// Fall through to the naive strip for malformed values.
+			}
+		}
 		result[key] = rawValue.replace(/^['"]|['"]$/g, '');
 	});
 

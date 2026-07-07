@@ -92,6 +92,27 @@ try {
 	assert.deepStrictEqual(boundary.relatedActions, ['graphql_register_types']);
 	assert.deepStrictEqual(boundary.relatedFunctions, []);
 
+	// A JSON-stringified frontmatter scalar (as written by
+	// migrate-recipes-from-wp.js) with an embedded quote must round-trip
+	// unescaped, not keep the literal backslash.
+	fs.writeFileSync(
+		path.join(TEST_ROOT, 'docs', 'recipes', 'quoted.md'),
+		[
+			'---',
+			`title: ${JSON.stringify('The "Best" Recipe')}`,
+			`summary: ${JSON.stringify('Uses add_action( "init", fn ) and a \\ backslash.')}`,
+			'---',
+			'',
+			'Body mentions graphql_register_types.',
+			'',
+		].join('\n'),
+		'utf8'
+	);
+	const rel3 = loadRecipeRelations(path.join(TEST_ROOT, 'docs'));
+	const quoted = rel3.recipes.find((r) => r.slug === 'quoted');
+	assert.strictEqual(quoted.title, 'The "Best" Recipe');
+	assert.strictEqual(quoted.summary, 'Uses add_action( "init", fn ) and a \\ backslash.');
+
 	console.log('recipe-relations.test.js: ok');
 } finally {
 	cleanup();

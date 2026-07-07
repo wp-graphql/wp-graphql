@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-06T21:00:59.758Z",
+  "generatedAt": "2026-07-07T03:57:27.994Z",
   "stats": {
     "totalRecipes": 31
   },
@@ -90,7 +90,7 @@
       "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
       "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
       "group": "WP Admin",
-      "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+      "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \"fresh\":{ \"name\":\"Default\", \"url\":false, \"colors\":[ \"#222\", \"#3…",
       "relatedActions": [
         "graphql_register_types"
       ],
@@ -169,7 +169,7 @@
       "wordpressUri": "/recipes/filter-connection-args/",
       "uriKey": "/recipes/filter-connection-args",
       "group": "Uncategorized",
-      "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+      "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\WPGraphQL\\Data\\Conne…",
       "relatedActions": [],
       "relatedFilters": [
         "graphql_connection_query_args"
@@ -561,7 +561,7 @@
           "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
           "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
           "group": "WP Admin",
-          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \"fresh\":{ \"name\":\"Default\", \"url\":false, \"colors\":[ \"#222\", \"#3…",
           "relatedActions": [
             "graphql_register_types"
           ],
@@ -896,7 +896,7 @@
           "wordpressUri": "/recipes/filter-connection-args/",
           "uriKey": "/recipes/filter-connection-args",
           "group": "Uncategorized",
-          "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+          "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\WPGraphQL\\Data\\Conne…",
           "relatedActions": [],
           "relatedFilters": [
             "graphql_connection_query_args"
@@ -1088,7 +1088,7 @@
           "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
           "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
           "group": "WP Admin",
-          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \"fresh\":{ \"name\":\"Default\", \"url\":false, \"colors\":[ \"#222\", \"#3…",
           "relatedActions": [
             "graphql_register_types"
           ],
@@ -1389,7 +1389,7 @@
           "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
           "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
           "group": "WP Admin",
-          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \"fresh\":{ \"name\":\"Default\", \"url\":false, \"colors\":[ \"#222\", \"#3…",
           "relatedActions": [
             "graphql_register_types"
           ],
@@ -1579,7 +1579,7 @@
           "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
           "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
           "group": "WP Admin",
-          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+          "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \"fresh\":{ \"name\":\"Default\", \"url\":false, \"colors\":[ \"#222\", \"#3…",
           "relatedActions": [
             "graphql_register_types"
           ],
@@ -1804,7 +1804,7 @@
         "wordpressUri": "/recipes/add-wp-admin-color-schemes-to-wpgraphql/",
         "uriKey": "/recipes/add-wp-admin-color-schemes-to-wpgraphql",
         "group": "WP Admin",
-        "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \\\"fresh\\\":{ \\\"name\\\":\\\"Default\\\", \\\"url\\\":false, \\\"colors\\\":[ \\\"#222\\\", \\\"#3…",
+        "summary": "The following example code allows you to add WP Admin Color Schemes data to WPGraphQL. add_action( 'graphql_register_types', function() { $mock_colors = ' { \"fresh\":{ \"name\":\"Default\", \"url\":false, \"colors\":[ \"#222\", \"#3…",
         "relatedActions": [
           "graphql_register_types"
         ],
@@ -1883,7 +1883,7 @@
         "wordpressUri": "/recipes/filter-connection-args/",
         "uriKey": "/recipes/filter-connection-args",
         "group": "Uncategorized",
-        "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\\\WPGraphQL\\\\Data\\\\Conne…",
+        "summary": "This filters connection args by checking the field name the connection is coming from as well as the type the connection is coming from. add_filter( 'graphql_connection_query_args', function( $args, \\WPGraphQL\\Data\\Conne…",
         "relatedActions": [],
         "relatedFilters": [
           "graphql_connection_query_args"
