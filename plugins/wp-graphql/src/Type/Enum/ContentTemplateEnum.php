@@ -12,6 +12,8 @@ use WPGraphQL\Type\WPEnumType;
  * for the active theme (the same source as the ContentTemplate types).
  *
  * @package WPGraphQL\Type\Enum
+ *
+ * @since x-release-please-version
  */
 class ContentTemplateEnum {
 
@@ -19,6 +21,8 @@ class ContentTemplateEnum {
 	 * Register the ContentTemplateEnum Type to the Schema.
 	 *
 	 * @return void
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function register_type() {
 		register_graphql_enum_type(
@@ -77,7 +81,11 @@ class ContentTemplateEnum {
 		foreach ( $templates as $file => $name ) {
 			$enum_name = self::get_enum_name( $file );
 
+			// Defensive: get_enum_name() runs the identifier through WPEnumType::get_safe_name(),
+			// which always returns a non-empty name, so this guard is not reachable via a registered
+			// template. It stays as a safety net in case the naming rules change.
 			if ( '' === $enum_name ) {
+				// @codeCoverageIgnoreStart
 				graphql_debug(
 					sprintf(
 						// translators: %s is the template identifier.
@@ -86,6 +94,7 @@ class ContentTemplateEnum {
 					)
 				);
 				continue;
+				// @codeCoverageIgnoreEnd
 			}
 
 			// Guard against the rare case where two same-kind templates still collapse to the
@@ -117,8 +126,10 @@ class ContentTemplateEnum {
 	 * identifier without its extension, qualified by the template's kind so the name is
 	 * stable regardless of what other templates exist. A classic `full-width.php` becomes
 	 * `FULL_WIDTH_TEMPLATE`; a block-theme `page-no-title` becomes `PAGE_NO_TITLE_BLOCK_TEMPLATE`.
-	 * The `_TEMPLATE` / `_BLOCK_TEMPLATE` suffixes mirror the `Template_` / `BlockTemplate_`
-	 * prefixes used for the generated template object types.
+	 *
+	 * Qualifying by kind unconditionally keeps the enum additive: a value's name depends only
+	 * on its own template, so registering a new template can add a value but never renames an
+	 * existing one, even when a classic and a block template share a base name.
 	 *
 	 * @param string $file The template identifier (file name or slug).
 	 */

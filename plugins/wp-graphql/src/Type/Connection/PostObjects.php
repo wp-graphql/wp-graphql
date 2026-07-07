@@ -363,6 +363,8 @@ class PostObjects {
 			 * a specific post. The ContentTemplateEnum values come from the templates registered for
 			 * the active theme. It does not filter by the block theme's global template
 			 * hierarchy (the `wp_template` post type), which is resolved dynamically per request.
+			 *
+			 * @since x-release-please-version
 			 */
 			'template'    => [
 				'type'        => 'ContentTemplateEnum',

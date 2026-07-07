@@ -1556,6 +1556,57 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->clearSchema();
 	}
 
+	/**
+	 * Two templates of the *same* kind whose identifiers collapse to the same enum name (a classic
+	 * `full-width.php` and a classic `full_width.php` both sanitize to `FULL_WIDTH_TEMPLATE`) must each
+	 * get a distinct, filterable value. The first keeps the base name and the second is disambiguated
+	 * with a numeric suffix (`FULL_WIDTH_TEMPLATE_2`) so neither template is silently dropped.
+	 *
+	 * Assignment order is deterministic because the templates are sorted by identifier before names are
+	 * generated: `full-width.php` sorts before `full_width.php`, so it claims the un-suffixed name.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
+	 *
+	 * @throws \Exception
+	 */
+	public function testContentTemplateEnumDisambiguatesSameKindNameCollisions() {
+		$register = static function ( $templates ) {
+			$templates['full-width.php'] = 'Full Width (hyphen)';
+			$templates['full_width.php'] = 'Full Width (underscore)';
+			return $templates;
+		};
+		add_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+
+		$hyphen_page     = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Hyphen Template' ] );
+		$underscore_page = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Underscore Template' ] );
+		update_post_meta( $hyphen_page, '_wp_page_template', 'full-width.php' );
+		update_post_meta( $underscore_page, '_wp_page_template', 'full_width.php' );
+
+		$query = '
+		query( $template: ContentTemplateEnum ) {
+			pages( first: 100, where: { template: $template } ) {
+				nodes { databaseId }
+			}
+		}
+		';
+
+		// The first template (sorted by identifier) claims the un-suffixed name and resolves to
+		// `full-width.php`.
+		$first = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'FULL_WIDTH_TEMPLATE' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $first );
+		$this->assertEquals( [ $hyphen_page ], wp_list_pluck( $first['data']['pages']['nodes'], 'databaseId' ), 'FULL_WIDTH_TEMPLATE should resolve to full-width.php' );
+
+		// The colliding same-kind template is disambiguated with a numeric suffix and resolves to
+		// `full_width.php`, so it is still filterable rather than dropped.
+		$second = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'FULL_WIDTH_TEMPLATE_2' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $second );
+		$this->assertEquals( [ $underscore_page ], wp_list_pluck( $second['data']['pages']['nodes'], 'databaseId' ), 'FULL_WIDTH_TEMPLATE_2 should resolve to full_width.php' );
+
+		remove_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+	}
+
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 
