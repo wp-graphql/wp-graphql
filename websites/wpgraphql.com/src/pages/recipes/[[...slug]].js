@@ -4,11 +4,13 @@ import Link from "next/link"
 import DocsLayout from "components/Docs/DocsLayout"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
 import PreviewCard from "components/Preview/PreviewCard"
+import PrevNext from "components/Docs/PrevNext"
 import components from "components/Docs/MdxComponents"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
 import { getParsedDoc } from "lib/parse-mdx-docs"
+import { siblingNav } from "lib/sibling-nav"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 import recipesIndex from "generated/recipes-index.json"
 
@@ -143,7 +145,7 @@ function RelatedApis({ related }) {
   )
 }
 
-function RecipeSingle({ source, toc, hasMarkdownH1, title, related, layoutData }) {
+function RecipeSingle({ source, toc, hasMarkdownH1, title, related, nav, layoutData }) {
   const docsNavData = getDeveloperReferenceNav()
   const hasRelatedApis =
     (related?.relatedActions?.length ?? 0) > 0 ||
@@ -182,6 +184,7 @@ function RecipeSingle({ source, toc, hasMarkdownH1, title, related, layoutData }
             </div>
             {hasRelatedApis ? <RelatedApis related={related} /> : null}
           </article>
+          <PrevNext prev={nav?.prev} next={nav?.next} />
         </div>
       </DocsLayout>
     </LayoutProvider>
@@ -210,6 +213,13 @@ export async function getStaticProps({ params }) {
     const { source, toc, hasMarkdownH1 } = await getParsedDoc(`recipes/${slug}`)
     const meta = recipesIndex?.relations?.byUri?.[normalizeUri(`/recipes/${slug}`)] || null
 
+    const navItems = (recipesIndex?.recipes ?? []).map((recipe) => ({
+      slug: recipe.slug,
+      label: recipe.title,
+      href: recipe.uri,
+    }))
+    const nav = siblingNav(navItems, slug)
+
     return {
       props: {
         isIndex: false,
@@ -222,6 +232,7 @@ export async function getStaticProps({ params }) {
           relatedFilters: meta?.relatedFilters ?? [],
           relatedFunctions: meta?.relatedFunctions ?? [],
         },
+        nav,
         layoutData,
       },
       revalidate: 30,

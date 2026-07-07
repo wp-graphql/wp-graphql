@@ -2,10 +2,12 @@ import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
+import PrevNext from "components/Docs/PrevNext"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
-import { getParsedDoc } from "lib/parse-mdx-docs"
+import { getParsedDoc, listDocSlugs } from "lib/parse-mdx-docs"
+import { siblingNav } from "lib/sibling-nav"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 
 import components from "components/Docs/MdxComponents"
@@ -33,6 +35,7 @@ export default function FunctionDocPage({
   layoutData,
   docSlug,
   hasMarkdownH1,
+  nav,
 }) {
   const isIndex = docSlug === "functions/index"
   const currentLabel =
@@ -57,6 +60,7 @@ export default function FunctionDocPage({
             </header>
           )}
           <MDXRemote {...source} components={components} />
+          {!isIndex && <PrevNext prev={nav?.prev} next={nav?.next} />}
         </div>
       </DocsLayout>
     </LayoutProvider>
@@ -75,6 +79,17 @@ export async function getStaticProps({ params }) {
     const docsNavData = getDeveloperReferenceNav()
     const layoutData = await getLayoutData()
 
+    let nav = { prev: null, next: null }
+    if (docSlug !== "functions/index") {
+      const slugs = await listDocSlugs("functions")
+      const items = slugs.map((s) => ({
+        slug: s,
+        label: s,
+        href: `/functions/${s}`,
+      }))
+      nav = siblingNav(items, docSlug.split("/").pop())
+    }
+
     return {
       props: {
         toc,
@@ -83,6 +98,7 @@ export async function getStaticProps({ params }) {
         layoutData,
         docSlug,
         hasMarkdownH1,
+        nav,
       },
       revalidate: 30,
     }

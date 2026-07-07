@@ -211,6 +211,26 @@ async function getLocalDocUris(): Promise<string[]> {
   return uris
 }
 
+/**
+ * List the doc slugs in a developer-reference subdirectory (e.g. "actions"),
+ * excluding the generated index. Used to build prev/next navigation. Returns
+ * an empty array when the local docs aren't available.
+ */
+export async function listDocSlugs(subdir: string): Promise<string[]> {
+  const dir = path.join(LOCAL_DOCS_DIR, subdir)
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true })
+    return entries
+      .filter(
+        (entry) =>
+          entry.isFile() && entry.name.endsWith(".md") && entry.name !== "index.md"
+      )
+      .map((entry) => entry.name.replace(/\.md$/, ""))
+  } catch (_error) {
+    return []
+  }
+}
+
 export async function getDocsNav() {
   try {
     const nav = await fs.readFile(localDocsNavPath(), "utf8")
