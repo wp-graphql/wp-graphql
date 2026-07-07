@@ -32,6 +32,16 @@ class WPInputObjectType extends InputObjectType {
 		if ( ! is_string( $name ) ) {
 			$name = '';
 		}
+		/**
+		 * Filters the GraphQL type name before the input type is registered.
+		 *
+		 * @param string                               $type_name           The GraphQL type name.
+		 * @param InputObjectConfig                    $config              The input type configuration.
+		 * @param \WPGraphQL\Type\WPInputObjectType    $wp_input_object_type The input type instance.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
+		 */
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields'] = $this->get_fields( $config, $type_registry );
 
@@ -97,6 +107,9 @@ class WPInputObjectType extends InputObjectType {
 		 * @param string                            $type_name     The name of the object type
 		 * @param array<string,mixed>               $config        The type config
 		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );
 
@@ -114,6 +127,9 @@ class WPInputObjectType extends InputObjectType {
 		 *
 		 * @param array<string,FieldConfig> $fields        The array of fields for the object config
 		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $type_registry );
 
@@ -125,6 +141,9 @@ class WPInputObjectType extends InputObjectType {
 		 *
 		 * @param array<string,FieldConfig>            $fields        The array of fields for the object config
 		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.0.5
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $type_registry );
 

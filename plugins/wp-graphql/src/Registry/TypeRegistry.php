@@ -279,9 +279,12 @@ class TypeRegistry {
 		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 5, 1 );
 
 		/**
-		 * Fire an action as the Type registry is being initiated
+		 * Fire an action as the Type registry is being initiated.
 		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
+		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 0.4.0
 		 */
 		do_action( 'init_graphql_type_registry', $this );
 	}
@@ -301,6 +304,8 @@ class TypeRegistry {
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
+		 * @hookGroup schema-registration
+		 * @since 0.4.3
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
 
@@ -701,6 +706,8 @@ class TypeRegistry {
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
+		 * @hookGroup schema-registration
+		 * @since 0.4.0
 		 */
 		do_action( 'graphql_register_types', $type_registry );
 
@@ -709,6 +716,8 @@ class TypeRegistry {
 		 * during the `graphql_register_types` action to allow for earlier hooking
 		 *
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
+		 * @hookGroup schema-registration
+		 * @since 0.4.3
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 	}
@@ -912,6 +921,8 @@ class TypeRegistry {
 			 * Filter the keys that are prepared for introspection.
 			 *
 			 * @param array<string> $introspection_keys The keys to prepare for introspection.
+			 * @hookGroup schema-registration
+			 * @since 2.3.0
 			 */
 			$introspection_keys       = \apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
 			self::$introspection_keys = $introspection_keys;
@@ -1022,6 +1033,8 @@ class TypeRegistry {
 			 *
 			 * @param ?TypeDef $type The type to load.
 			 * @param string   $type_name The name of the type.
+			 * @hookGroup schema-registration
+			 * @since 1.6.0
 			 */
 			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
 			unset( $this->type_loaders[ $key ] );
@@ -1808,6 +1821,7 @@ class TypeRegistry {
 			 *
 			 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
 			 *
+			 * @hookGroup schema-registration
 			 * @since 1.13.0
 			 */
 			$excluded_types = apply_filters( 'graphql_excluded_types', [] );
@@ -1835,6 +1849,7 @@ class TypeRegistry {
 			 *
 			 * @param string[] $excluded_connections The names of the GraphQL connections to exclude.
 			 *
+			 * @hookGroup schema-registration
 			 * @since 1.14.0
 			 */
 			$excluded_connections = apply_filters( 'graphql_excluded_connections', [] );
@@ -1861,6 +1876,7 @@ class TypeRegistry {
 			 *
 			 * @param string[] $excluded_mutations The names of the GraphQL mutations to exclude.
 			 *
+			 * @hookGroup schema-registration
 			 * @since 1.14.0
 			 */
 			$excluded_mutations = apply_filters( 'graphql_excluded_mutations', [] );

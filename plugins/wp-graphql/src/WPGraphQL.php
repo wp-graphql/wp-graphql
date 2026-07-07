@@ -200,6 +200,8 @@ final class WPGraphQL {
 				 * Fire off init action
 				 *
 				 * @param \WPGraphQL $instance The instance of the WPGraphQL class
+				 * @hookGroup request-lifecycle
+				 * @since 1.1.5
 				 */
 				do_action( 'graphql_init', $instance );
 			}
@@ -494,6 +496,8 @@ final class WPGraphQL {
 			 *
 			 * @param string $stored_version The version number currently stored in the database.
 			 * @param string $new_version    The version number of the current plugin.
+			 * @hookGroup settings
+			 * @since 1.2.3
 			 */
 			do_action( 'graphql_do_update_routine', $stored_version, WPGRAPHQL_VERSION );
 		}
@@ -618,6 +622,8 @@ final class WPGraphQL {
 		 *
 		 * @param array<string,mixed> $args           The graphql specific args for the post type
 		 * @param string              $post_type_name The name of the post type being registered
+		 * @hookGroup schema-registration
+		 * @since 1.12.0
 		 */
 		$graphql_args = apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
 
@@ -647,6 +653,8 @@ final class WPGraphQL {
 		 *
 		 * @param array<string,mixed> $args          The graphql specific args for the taxonomy
 		 * @param string              $taxonomy_name The name of the taxonomy being registered
+		 * @hookGroup schema-registration
+		 * @since 1.12.0
 		 */
 		$graphql_args = apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 
@@ -736,6 +744,7 @@ final class WPGraphQL {
 			 *
 			 * @since 1.8.1 add $post_type_objects parameter.
 			 * @since 0.0.2
+			 * @hookGroup schema-registration
 			 */
 			$allowed_post_type_names = apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
 
@@ -821,6 +830,7 @@ final class WPGraphQL {
 			 *
 			 * @since 1.8.1 add $tax_names and $tax_objects parameters.
 			 * @since 0.0.2
+			 * @hookGroup schema-registration
 			 */
 			$allowed_tax_names = apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
 
@@ -898,13 +908,18 @@ final class WPGraphQL {
 			 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
 			 * information about the context we know at this point
 			 *
-			 * @since 0.0.5
+			 * @hookGroup schema-registration
+			 * @since 0.0.16
 			 */
 			self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 		}
 
 		/**
 		 * Fire an action when the Schema is returned
+		 *
+		 * @param \WPGraphQL\WPSchema $schema The executable schema.
+		 * @hookGroup schema-registration
+		 * @since 1.1.5
 		 */
 		do_action( 'graphql_get_schema', self::$schema );
 
@@ -926,7 +941,11 @@ final class WPGraphQL {
 		}
 
 		/**
+		 * Filters whether GraphQL debug mode is enabled.
+		 *
 		 * @param bool $enabled Whether GraphQL Debug is enabled or not
+		 * @hookGroup debugging
+		 * @since 1.1.5
 		 */
 		return (bool) apply_filters( 'graphql_debug_enabled', $enabled );
 	}
@@ -949,6 +968,7 @@ final class WPGraphQL {
 			 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
 			 * information about the context we know at this point
 			 *
+			 * @hookGroup schema-registration
 			 * @since 0.0.5
 			 */
 			self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
@@ -956,6 +976,10 @@ final class WPGraphQL {
 
 		/**
 		 * Fire an action when the Type Registry is returned
+		 *
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The GraphQL type registry.
+		 * @hookGroup schema-registration
+		 * @since 1.1.5
 		 */
 		do_action( 'graphql_get_type_registry', self::$type_registry );
 
