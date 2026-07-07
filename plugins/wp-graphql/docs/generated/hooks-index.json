@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-07T03:57:28.228Z",
+  "generatedAt": "2026-07-07T15:47:25.928Z",
   "stats": {
     "totalHooks": 277,
     "actions": 62,
@@ -10776,7 +10776,7 @@
           "wordpressUri": "/recipes/add-edit-link-to-all-post-types/",
           "uriKey": "/recipes/add-edit-link-to-all-post-types",
           "group": "Custom Fields",
-          "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…",
+          "summary": "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => 'String', 'de…",
           "relatedActions": [
             "graphql_register_types"
           ],
@@ -10877,7 +10877,7 @@
           "wordpressUri": "/recipes/popular-posts/",
           "uriKey": "/recipes/popular-posts",
           "group": "Custom Post Types",
-          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…",
+          "summary": "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be expensi…",
           "relatedActions": [
             "graphql_register_types"
           ],
@@ -11290,7 +11290,7 @@
           "wordpressUri": "/recipes/remove-extensions-from-graphql-response/",
           "uriKey": "/recipes/remove-extensions-from-graphql-response",
           "group": "Execution",
-          "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…",
+          "summary": "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $response instan…",
           "relatedActions": [],
           "relatedFilters": [
             "graphql_request_results"
@@ -11360,7 +11360,7 @@
           "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
           "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
           "group": "Authorization",
-          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already authenticated. If y…",
           "relatedActions": [],
           "relatedFilters": [
             "graphql_require_authentication_allowed_fields",
@@ -15791,7 +15791,7 @@
           "wordpressUri": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/",
           "uriKey": "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted",
           "group": "Authorization",
-          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already a…",
+          "summary": "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already authenticated. If y…",
           "relatedActions": [],
           "relatedFilters": [
             "graphql_require_authentication_allowed_fields",
