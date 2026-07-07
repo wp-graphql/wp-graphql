@@ -7,7 +7,7 @@ title: "Popular Posts"
 wordpressUri: "/recipes/popular-posts/"
 wordpressId: "2329"
 group: "Custom Post Types"
-summary: "The following code allows you to query for popular posts. It&#8217;s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be e…"
+summary: "The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta_key is involved. Beware though, meta queries can be expensi…"
 ---
 
 The following code allows you to query for popular posts. It’s still up to you to determine the best way to store popular posts, but this example assumes a meta\_key is involved. Beware though, meta queries can be expensive!

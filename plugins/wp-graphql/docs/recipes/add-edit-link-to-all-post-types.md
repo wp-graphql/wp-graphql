@@ -7,7 +7,7 @@ title: "Add Edit Link to All Post Types"
 wordpressUri: "/recipes/add-edit-link-to-all-post-types/"
 wordpressId: "7712"
 group: "Custom Fields"
-summary: "The following snippet shows how to add the &#8220;Edit&#8221; link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => '…"
+summary: "The following snippet shows how to add the “Edit” link as a GraphQL field to all post types: add_action( 'graphql_register_types', function() { register_graphql_field( 'ContentNode', 'editLink', [ 'type' => 'String', 'de…"
 ---
 
 The following snippet shows how to add the “Edit” link as a GraphQL field to all post types:

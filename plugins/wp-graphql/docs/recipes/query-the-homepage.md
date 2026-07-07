@@ -7,7 +7,7 @@ title: "Query the Homepage"
 wordpressUri: "/recipes/query-the-homepage/"
 wordpressId: "7883"
 group: "Queries"
-summary: "In WordPress, the homepage can be a Page or an archive of posts of the Post post_type (which is represented by WPGraphQL as a &#8220;ContentType&#8221; node). This query allows you to query the homepage, and specify what…"
+summary: "In WordPress, the homepage can be a Page or an archive of posts of the Post post_type (which is represented by WPGraphQL as a “ContentType” node). This query allows you to query the homepage, and specify what data you wa…"
 ---
 
 In WordPress, the homepage can be a Page or an archive of posts of the Post post\_type (which is represented by WPGraphQL as a “ContentType” node).  

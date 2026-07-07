@@ -10,6 +10,8 @@ group: "Uncategorized"
 summary: "When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries. This snippet should help correct the conflict: add_action( 'pre_get_posts', function () { // access the…"
 ---
 
+<YouTube id="gN1SD1_zPnc" />
+
 When using the Post Type Order plugin along with WPGraphQL, you might experience some issues with paginated queries.
 
 This snippet should help correct the conflict:

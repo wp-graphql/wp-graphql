@@ -64,6 +64,30 @@ function CustomLink(props) {
   return <Link {...props} />
 }
 
+/**
+ * Renders a responsive, lazy-loaded YouTube player. Recipe markdown embeds
+ * videos as `<YouTube id="..." />` (see the migration's turndown rule); this
+ * maps that to a real player, preserving the inline video the CMS showed.
+ */
+function YouTube({ id, title }) {
+  if (!id) {
+    return null
+  }
+  return (
+    <div className="not-prose my-6 aspect-video w-full overflow-hidden rounded-xl border border-border">
+      <iframe
+        className="h-full w-full"
+        src={`https://www.youtube-nocookie.com/embed/${id}`}
+        title={title ?? "YouTube video player"}
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      />
+    </div>
+  )
+}
+
 const components = {
   h2: (props) => <LinkedHeading as="h2" {...props} />,
   h3: (props) => <LinkedHeading as="h3" {...props} />,
@@ -71,6 +95,7 @@ const components = {
   h5: (props) => <LinkedHeading as="h5" {...props} />,
   h6: (props) => <LinkedHeading as="h6" {...props} />,
   a: CustomLink,
+  YouTube,
   _Heading: (props) => <Heading {...props} />,
 }
 

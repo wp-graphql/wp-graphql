@@ -7,7 +7,7 @@ title: "Allow login mutation to be public when the endpoint is fully restricted"
 wordpressUri: "/recipes/allow-login-mutation-to-be-public-when-the-endpoint-is-fully-restricted/"
 wordpressId: "822859"
 group: "Authorization"
-summary: "If you&#8217;ve configured your WPGraphQL settings to &#8220;Limit the execution of GraphQL operations to authenticated requests&#8221;, this will block all root operations unless the user making the request is already a…"
+summary: "If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already authenticated. If y…"
 ---
 
 If you’ve configured your WPGraphQL settings to “Limit the execution of GraphQL operations to authenticated requests”, this will block all root operations unless the user making the request is already authenticated.  

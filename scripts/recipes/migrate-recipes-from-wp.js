@@ -120,18 +120,48 @@ function yamlScalar(value) {
 }
 
 function createTurndown() {
+	let TurndownService;
 	try {
-		const TurndownService = require('turndown');
-		return new TurndownService({
-			headingStyle: 'atx',
-			codeBlockStyle: 'fenced',
-			bulletListMarker: '-',
-		});
+		TurndownService = require('turndown');
 	} catch {
 		throw new Error(
 			'Missing dependency "turndown". Install it from the repo root:\n  npm install -D turndown'
 		);
 	}
+
+	const td = new TurndownService({
+		headingStyle: 'atx',
+		codeBlockStyle: 'fenced',
+		bulletListMarker: '-',
+	});
+
+	// WordPress renders oEmbeds (e.g. a YouTube block) as a
+	// `<figure class="wp-block-embed"><iframe src="youtube.com/embed/ID">`.
+	// Turndown drops iframes by default; convert YouTube embeds to a
+	// `<YouTube>` MDX component so the front-end renders a real player
+	// (see MdxComponents.js). Non-YouTube iframes degrade to a plain link.
+	td.addRule('youtubeEmbed', {
+		filter: (node) =>
+			node.nodeName === 'IFRAME' &&
+			/(?:youtube\.com\/embed\/|youtu\.be\/)/i.test(node.getAttribute('src') || ''),
+		replacement: (_content, node) => {
+			const src = node.getAttribute('src') || '';
+			const match = src.match(/(?:youtube\.com\/embed\/|youtu\.be\/)([A-Za-z0-9_-]+)/i);
+			return match ? `\n\n<YouTube id="${match[1]}" />\n\n` : '';
+		},
+	});
+
+	td.addRule('otherIframe', {
+		filter: (node) =>
+			node.nodeName === 'IFRAME' &&
+			!/(?:youtube\.com\/embed\/|youtu\.be\/)/i.test(node.getAttribute('src') || ''),
+		replacement: (_content, node) => {
+			const src = node.getAttribute('src') || '';
+			return src ? `\n\n[Embedded content](${src})\n\n` : '';
+		},
+	});
+
+	return td;
 }
 
 async function sleep(ms) {

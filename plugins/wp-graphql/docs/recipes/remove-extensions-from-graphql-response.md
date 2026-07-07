@@ -7,7 +7,7 @@ title: "Remove Extensions from GraphQL Response"
 wordpressUri: "/recipes/remove-extensions-from-graphql-response/"
 wordpressId: "8496"
 group: "Execution"
-summary: "This snippet removes the &#8220;extensions&#8221; from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $res…"
+summary: "This snippet removes the “extensions” from the GraphQL response: add_filter( 'graphql_request_results', function( $response ) { // If it's an ExecutionResult object, we need to handle it differently if ( $response instan…"
 ---
 
 This snippet removes the “extensions” from the GraphQL response:
