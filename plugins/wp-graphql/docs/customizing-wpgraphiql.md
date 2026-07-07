@@ -23,9 +23,9 @@ Below are some helpful commands for working on WPGraphiQL locally.
 Below you will find documentation about the PHP hooks and filters available to be used to customize
 the WPGraphiQL tooling.
 
-### graphql_enqueue_graphiql_extension
+### enqueue_graphiql_extension
 
-The `graphql_enqueue_graphiql_extension` action is run when the GraphiQL IDE page is loading in the admin.
+The `enqueue_graphiql_extension` action is run when the GraphiQL IDE page is loading in the admin.
 
 If you're writing JavaScript code that needs to be loaded on the GraphiQL screen, hook into this action.
 
@@ -34,7 +34,7 @@ For example:
 ```php
 // This will only enqueue the script when the GraphiQL app is loaded. Hook into this action
 // to make sure your scripts aren't loading on pages they shouldn't be loading for.
-add_action( 'graphql_enqueue_graphiql_extension', function() {
+add_action( 'enqueue_graphiql_extension', function() {
 
     wp_enqueue_script(
         'name-of-your-script', // replace this with the handle of your script
