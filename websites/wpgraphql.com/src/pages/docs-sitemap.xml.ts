@@ -22,7 +22,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // Developer Reference docs live at top-level canonical URLs
   // (/actions/..., /filters/..., etc.) — advertise those, not the
   // redirecting /docs/... variants.
-  const canonicalUris = [...new Set(docUris.map((uri) => toCanonicalDocUri(uri)))]
+  const canonicalUris = [
+    ...new Set(docUris.map((uri) => toCanonicalDocUri(uri))),
+  ]
 
   const allDocsSitemap = canonicalUris.map((docUri) => ({
     loc: `${SITE_URL}${docUri}`,

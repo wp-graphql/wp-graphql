@@ -32,7 +32,10 @@ const SITEMAP_QUERY = /* GraphQL */ `
   }
 `
 
-async function getAllWPContent(after: string | null = null, acc: any[] = []): Promise<any[]> {
+async function getAllWPContent(
+  after: string | null = null,
+  acc: any[] = []
+): Promise<any[]> {
   const result = await request({
     query: SITEMAP_QUERY,
     variables: { after },

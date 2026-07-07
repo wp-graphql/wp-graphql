@@ -35,7 +35,9 @@ export default async function HandleRevalidate(
 
   const expected = process.env.WPGRAPHQL_REVALIDATE_SECRET
   if (!expected) {
-    console.error("[revalidate] WPGRAPHQL_REVALIDATE_SECRET is not set; refusing all requests")
+    console.error(
+      "[revalidate] WPGRAPHQL_REVALIDATE_SECRET is not set; refusing all requests"
+    )
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ error: "revalidation not configured" })
@@ -60,9 +62,9 @@ export default async function HandleRevalidate(
       .json({ error: `too many paths (max ${MAX_PATHS_PER_REQUEST})` })
   }
   if (!body.paths.every(isValidPath)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: "every entry in `paths` must be a string starting with /" })
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      error: "every entry in `paths` must be a string starting with /",
+    })
   }
 
   const paths = Array.from(new Set(body.paths as string[]))

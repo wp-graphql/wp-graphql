@@ -66,14 +66,34 @@ describe("getTemplateStaticProps", () => {
     const ArchivePost = () => null
     ArchivePost.queries = {
       posts: {
-        query: /* GraphQL */ `query ArchivePost_Posts { posts { nodes { id title } } }`,
+        query: /* GraphQL */ `
+          query ArchivePost_Posts {
+            posts {
+              nodes {
+                id
+                title
+              }
+            }
+          }
+        `,
         variables: () => ({}),
       },
     }
     const Layout = {
       queries: {
         navMenu: {
-          query: /* GraphQL */ `query Layout_NavMenu { menu { menuItems { nodes { id label } } } }`,
+          query: /* GraphQL */ `
+            query Layout_NavMenu {
+              menu {
+                menuItems {
+                  nodes {
+                    id
+                    label
+                  }
+                }
+              }
+            }
+          `,
           variables: () => ({}),
         },
       },
@@ -83,7 +103,9 @@ describe("getTemplateStaticProps", () => {
       Layout,
     })
 
-    const result = await getTemplateStaticProps({ params: { wordpressNode: ["blog"] } })
+    const result = await getTemplateStaticProps({
+      params: { wordpressNode: ["blog"] },
+    })
 
     assert.equal(result.props.template, "archive-post")
     assert.equal(result.props.uri, "/blog/")
@@ -96,7 +118,9 @@ describe("getTemplateStaticProps", () => {
   })
 
   it("returns notFound when seed.node is null and uri is not the front page", async () => {
-    const { fn } = makeFetchSpy(() => ({ data: { node: null, generalSettings: null } }))
+    const { fn } = makeFetchSpy(() => ({
+      data: { node: null, generalSettings: null },
+    }))
     setFetch(fn)
 
     configure({
@@ -104,7 +128,9 @@ describe("getTemplateStaticProps", () => {
       Layout: { queries: {} },
     })
 
-    const result = await getTemplateStaticProps({ params: { wordpressNode: ["nope"] } })
+    const result = await getTemplateStaticProps({
+      params: { wordpressNode: ["nope"] },
+    })
     assert.deepEqual(result, { notFound: true, revalidate: 5 })
   })
 
@@ -189,7 +215,9 @@ describe("getTemplateStaticProps", () => {
       Layout: { queries: {} },
     })
 
-    const result = await getTemplateStaticProps({ params: { wordpressNode: ["blog"] } })
+    const result = await getTemplateStaticProps({
+      params: { wordpressNode: ["blog"] },
+    })
 
     // 'a' was skipped — its top-level fields aren't in data
     assert.equal("a" in result.props.data, false)

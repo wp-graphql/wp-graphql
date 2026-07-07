@@ -53,7 +53,8 @@ function addHeadingIdsAndBuildToc(html) {
     (_match, level, attrs, innerHtml) => {
       const existingIdMatch = attrs.match(/\sid=(["'])(.*?)\1/i)
       const headingText = toPlainText(innerHtml)
-      const baseSlug = slugifyHeading(existingIdMatch?.[2] || headingText) || "section"
+      const baseSlug =
+        slugifyHeading(existingIdMatch?.[2] || headingText) || "section"
       const count = slugCounts[baseSlug] ?? 0
       slugCounts[baseSlug] = count + 1
       const id = count === 0 ? baseSlug : `${baseSlug}-${count}`
@@ -88,7 +89,8 @@ export default function SingleRecipe({ data }) {
   const { content, toc } = addHeadingIdsAndBuildToc(node.content)
   const docsNavData = getDeveloperReferenceNav()
   const excerpt = getExcerpt(node.content)
-  const recipeMeta = recipesIndex?.relations?.byUri?.[normalizeUri(node.uri)] || null
+  const recipeMeta =
+    recipesIndex?.relations?.byUri?.[normalizeUri(node.uri)] || null
   const relatedActions = Array.isArray(recipeMeta?.relatedActions)
     ? recipeMeta.relatedActions
     : []
@@ -99,10 +101,14 @@ export default function SingleRecipe({ data }) {
     ? recipeMeta.relatedFunctions
     : []
   const hasRelatedApis =
-    relatedActions.length > 0 || relatedFilters.length > 0 || relatedFunctions.length > 0
+    relatedActions.length > 0 ||
+    relatedFilters.length > 0 ||
+    relatedFunctions.length > 0
   const pageToc = [
     { id: "overview", title: "Overview", tagName: "h2" },
-    ...(hasRelatedApis ? [{ id: "related-apis", title: "Related APIs", tagName: "h2" }] : []),
+    ...(hasRelatedApis
+      ? [{ id: "related-apis", title: "Related APIs", tagName: "h2" }]
+      : []),
     ...toc,
   ]
 

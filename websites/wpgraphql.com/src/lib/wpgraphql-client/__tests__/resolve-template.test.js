@@ -43,16 +43,28 @@ describe("resolveTemplate", () => {
 
     const ArchivePost = () => null
     ArchivePost.queries = {
-      posts: { query: `query Posts { posts { nodes { id } } }`, variables: () => ({}) },
+      posts: {
+        query: `query Posts { posts { nodes { id } } }`,
+        variables: () => ({}),
+      },
     }
     const Layout = {
       queries: {
-        navMenu: { query: `query Nav { menu { menuItems { nodes { id } } } }`, variables: () => ({}) },
+        navMenu: {
+          query: `query Nav { menu { menuItems { nodes { id } } } }`,
+          variables: () => ({}),
+        },
       },
     }
-    configure({ templates: { "archive-post": ArchivePost, index: () => null }, Layout })
+    configure({
+      templates: { "archive-post": ArchivePost, index: () => null },
+      Layout,
+    })
 
-    const out = await resolveTemplate({ uri: "/blog/", params: { wordpressNode: ["blog"] } })
+    const out = await resolveTemplate({
+      uri: "/blog/",
+      params: { wordpressNode: ["blog"] },
+    })
 
     assert.equal(out.template, "archive-post")
     assert.equal(out.uri, "/blog/")
@@ -62,7 +74,9 @@ describe("resolveTemplate", () => {
   })
 
   it("returns { notFound: true, ... } when seed.node is null and not the front page", async () => {
-    const { fn } = makeFetchSpy(() => ({ data: { node: null, generalSettings: null } }))
+    const { fn } = makeFetchSpy(() => ({
+      data: { node: null, generalSettings: null },
+    }))
     setFetch(fn)
 
     configure({ templates: { index: () => null }, Layout: { queries: {} } })
@@ -77,7 +91,9 @@ describe("resolveTemplate", () => {
       { data: { node: null, generalSettings: null } },
       // template + layout calls won't fire because front-page.queries is empty
     ]
-    const { fn } = makeFetchSpy(({ callIndex }) => responses[callIndex] ?? { data: {} })
+    const { fn } = makeFetchSpy(
+      ({ callIndex }) => responses[callIndex] ?? { data: {} }
+    )
     setFetch(fn)
 
     const FrontPage = () => null
