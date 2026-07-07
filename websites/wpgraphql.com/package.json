@@ -7,21 +7,20 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "npm run test:lint -- --fix",
-    "test:format": "prettier '*.{js,jsx,ts,tsx,css,mdx,json}'",
+    "test:format": "prettier --check .",
     "test:lint": "next lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:unit": "node --test src/lib/wpgraphql-client/__tests__",
     "postbuild": "next-sitemap",
-    "format": "npm run test:format -- --write",
+    "format": "prettier --write .",
     "prepare": "husky install"
   },
   "browserslist": [
     "> 1%"
   ],
   "lint-staged": {
-    "src/*.{js, ts}": "npm run lint -- --cache",
-    "*.": "npm run format"
+    "**/*.{js,jsx,ts,tsx,css,md,mdx,json,yml,yaml}": "prettier --write"
   },
   "dependencies": {
     "@docsearch/react": "^3.3.0",
