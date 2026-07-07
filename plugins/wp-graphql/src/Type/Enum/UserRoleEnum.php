@@ -18,7 +18,7 @@ class UserRoleEnum {
 		foreach ( $all_roles as $key => $role ) {
 			$formatted_role = WPEnumType::get_safe_name( isset( $role['name'] ) ? $role['name'] : $key );
 
-			switch ( $role ) {
+			switch ( $key ) {
 				case 'administrator':
 					$description = static function () {
 						return __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );

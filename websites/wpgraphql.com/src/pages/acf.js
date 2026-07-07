@@ -23,8 +23,8 @@ function AcfHero() {
             </p>
             <h1 className="mt-3 text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
               Interact with your{" "}
-              <span className="text-primary">Advanced Custom Fields</span>{" "}
-              data using GraphQL queries
+              <span className="text-primary">Advanced Custom Fields</span> data
+              using GraphQL queries
             </h1>
             <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
               Automatically expose your ACF Field Groups and Fields to the
@@ -86,8 +86,8 @@ function HowItWorks() {
             Create your ACF Fields
           </h3>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Create your ACF Field Groups and Fields the way you normally would
-            — using the ACF UI, registering fields with PHP, or using ACF
+            Create your ACF Field Groups and Fields the way you normally would —
+            using the ACF UI, registering fields with PHP, or using ACF
             local-json. Each field group and field can be configured to
             &quot;Show in GraphQL&quot;.
           </p>
@@ -121,12 +121,37 @@ function HowItWorks() {
 
 function SupportedFields() {
   const fields = [
-    "Text", "Text Area", "Number", "Range", "Email", "URL", "Password",
-    "Image", "File", "WYSIWYG", "oEmbed", "Select", "Checkbox", "Radio Button",
-    "Button Group", "True False", "Link", "Post Object", "Page Link",
-    "Relationship", "Taxonomy", "User", "Google Map", "Date Picker",
-    "Date/Time Picker", "Time Picker", "Color Picker", "Group", "Repeater",
-    "Flex Field", "Gallery",
+    "Text",
+    "Text Area",
+    "Number",
+    "Range",
+    "Email",
+    "URL",
+    "Password",
+    "Image",
+    "File",
+    "WYSIWYG",
+    "oEmbed",
+    "Select",
+    "Checkbox",
+    "Radio Button",
+    "Button Group",
+    "True False",
+    "Link",
+    "Post Object",
+    "Page Link",
+    "Relationship",
+    "Taxonomy",
+    "User",
+    "Google Map",
+    "Date Picker",
+    "Date/Time Picker",
+    "Time Picker",
+    "Color Picker",
+    "Group",
+    "Repeater",
+    "Flex Field",
+    "Gallery",
   ]
 
   return (
@@ -135,7 +160,10 @@ function SupportedFields() {
         <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
           Supported Fields
         </p>
-        <h2 id="supported-fields" className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+        <h2
+          id="supported-fields"
+          className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md"
+        >
           Nearly every ACF field — out of the box
         </h2>
       </div>
@@ -151,10 +179,10 @@ function SupportedFields() {
       </div>
       <p className="mx-auto mt-10 max-w-3xl text-center text-sm text-muted-foreground">
         WPGraphQL for Advanced Custom Fields supports nearly all of the ACF
-        (free &amp; pro) fields. Some fields, such as Accordion and Tab, are
-        not data fields and are not supported. The Clone field needs more
-        assessment. Fields from 3rd-party extensions are not supported out
-        of the box.
+        (free &amp; pro) fields. Some fields, such as Accordion and Tab, are not
+        data fields and are not supported. The Clone field needs more
+        assessment. Fields from 3rd-party extensions are not supported out of
+        the box.
       </p>
     </section>
   )
@@ -185,7 +213,10 @@ function Why() {
         <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
           Why WPGraphQL for ACF?
         </p>
-        <h2 id="why-wpgraphql-for-acf" className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+        <h2
+          id="why-wpgraphql-for-acf"
+          className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md"
+        >
           Built for teams shipping content
         </h2>
       </div>
@@ -209,11 +240,11 @@ function Why() {
 
 function WorksWithJS() {
   const frameworks = [
-    { name: "React",   logo: "/logos/logo-react.png" },
-    { name: "Vue",     logo: "/logos/logo-vue.png" },
+    { name: "React", logo: "/logos/logo-react.png" },
+    { name: "Vue", logo: "/logos/logo-vue.png" },
     { name: "Next.js", logo: "/logos/logo-nextjs.png" },
-    { name: "Gatsby",  logo: "/logos/logo-gatsby.png" },
-    { name: "Ember",   logo: "/logos/logo-ember.png" },
+    { name: "Gatsby", logo: "/logos/logo-gatsby.png" },
+    { name: "Ember", logo: "/logos/logo-ember.png" },
     { name: "Angular", logo: "/logos/logo-angular.png" },
   ]
 
@@ -223,7 +254,10 @@ function WorksWithJS() {
         <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
           Framework Agnostic
         </p>
-        <h2 id="frameworks" className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+        <h2
+          id="frameworks"
+          className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md"
+        >
           Works with popular JavaScript frameworks
         </h2>
       </div>
@@ -233,7 +267,13 @@ function WorksWithJS() {
             key={fw.name}
             className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-glow-sm"
           >
-            <Image src={fw.logo} alt={`${fw.name} logo`} width={48} height={48} className="h-12 w-auto" />
+            <Image
+              src={fw.logo}
+              alt={`${fw.name} logo`}
+              width={48}
+              height={48}
+              className="h-12 w-auto"
+            />
             <span className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground">
               {fw.name}
             </span>
@@ -250,17 +290,38 @@ function Pricing() {
       <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
         Pricing &amp; Support
       </p>
-      <h2 id="pricing-support" className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+      <h2
+        id="pricing-support"
+        className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md"
+      >
         Free, open source, MIT licensed
       </h2>
       <p className="mt-6 text-base text-muted-foreground sm:text-lg">
-        WPGraphQL for Advanced Custom Fields is a <strong className="text-foreground">FREE</strong>{" "}
-        open-source WordPress plugin. The code is available on{" "}
-        <a className="text-primary hover:underline" href="https://github.com/wp-graphql/wp-graphql-acf" rel="noreferrer" target="_blank">Github</a>.
-        Support and feature requests are handled through{" "}
-        <a className="text-primary hover:underline" href="https://github.com/wp-graphql/wp-graphql-acf/issues" rel="noreferrer" target="_blank">issues</a>.
-        For general questions about the plugin, visit the{" "}
-        <Link href="/discord" className="text-primary hover:underline">WPGraphQL Discord</Link>.
+        WPGraphQL for Advanced Custom Fields is a{" "}
+        <strong className="text-foreground">FREE</strong> open-source WordPress
+        plugin. The code is available on{" "}
+        <a
+          className="text-primary hover:underline"
+          href="https://github.com/wp-graphql/wp-graphql-acf"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Github
+        </a>
+        . Support and feature requests are handled through{" "}
+        <a
+          className="text-primary hover:underline"
+          href="https://github.com/wp-graphql/wp-graphql-acf/issues"
+          rel="noreferrer"
+          target="_blank"
+        >
+          issues
+        </a>
+        . For general questions about the plugin, visit the{" "}
+        <Link href="/discord" className="text-primary hover:underline">
+          WPGraphQL Discord
+        </Link>
+        .
       </p>
     </section>
   )
@@ -297,8 +358,13 @@ function Faq() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-20">
       <div className="text-center">
-        <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">FAQ</p>
-        <h2 id="faq" className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
+        <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
+          FAQ
+        </p>
+        <h2
+          id="faq"
+          className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md"
+        >
           Frequently asked questions
         </h2>
       </div>

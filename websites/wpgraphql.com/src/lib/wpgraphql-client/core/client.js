@@ -58,7 +58,9 @@ function originHostHeaders() {
 
 async function postJson(endpoint, body) {
   if (!_fetch) {
-    throw new Error("wpgraphql-client/client: no fetch implementation available")
+    throw new Error(
+      "wpgraphql-client/client: no fetch implementation available"
+    )
   }
   const res = await _fetch(endpoint, {
     method: "POST",
@@ -74,7 +76,9 @@ async function postJson(endpoint, body) {
 
 async function getJson(url) {
   if (!_fetch) {
-    throw new Error("wpgraphql-client/client: no fetch implementation available")
+    throw new Error(
+      "wpgraphql-client/client: no fetch implementation available"
+    )
   }
   const res = await _fetch(url, {
     method: "GET",
@@ -90,7 +94,12 @@ async function getJson(url) {
  * @param {string} [args.operationName]
  * @param {string} [args.endpoint]
  */
-export async function request({ query, variables = {}, operationName, endpoint } = {}) {
+export async function request({
+  query,
+  variables = {},
+  operationName,
+  endpoint,
+} = {}) {
   if (!query) throw new TypeError("request: query is required")
 
   const document = asDocument(query)

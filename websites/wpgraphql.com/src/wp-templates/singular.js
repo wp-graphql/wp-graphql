@@ -13,11 +13,11 @@ export default function Singlar({ data }) {
 
   const date = post?.date
     ? new Date(post.date).toLocaleDateString("en-us", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
     : null
 
   return (

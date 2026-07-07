@@ -7,14 +7,20 @@ A template is a React component that renders a `data` prop. Its `queries` static
 ```js
 // src/wp-templates/archive-post.js
 import gql from "graphql-tag"
-import PostPreview, { PostPreviewFragment } from "components/Preview/PostPreview"
+import PostPreview, {
+  PostPreviewFragment,
+} from "components/Preview/PostPreview"
 import SiteLayout from "components/Site/SiteLayout"
 
 export default function ArchivePost({ data }) {
   const posts = data?.posts?.nodes ?? []
   return (
     <SiteLayout>
-      <ul>{posts.map((p) => <PostPreview key={p.id} post={p} />)}</ul>
+      <ul>
+        {posts.map((p) => (
+          <PostPreview key={p.id} post={p} />
+        ))}
+      </ul>
     </SiteLayout>
   )
 }
@@ -23,7 +29,11 @@ ArchivePost.queries = {
   posts: {
     query: gql`
       query ArchivePost_Posts($first: Int) {
-        posts(first: $first) { nodes { ...PostPreview } }
+        posts(first: $first) {
+          nodes {
+            ...PostPreview
+          }
+        }
       }
       ${PostPreviewFragment}
     `,
@@ -37,11 +47,11 @@ ArchivePost.queries = {
 
 Each entry in `Template.queries` describes one independent GraphQL operation:
 
-| key | type | notes |
-|---|---|---|
-| `query` | `string \| DocumentNode` | The GraphQL query. Use `gql` from `graphql-tag` so fragments interpolate. |
-| `variables` | `(reqCtx) => object` | Optional. Receives `{ uri, seed, params }`. Defaults to `{}`. |
-| `skip` | `(reqCtx) => boolean` | Optional. Return `true` to skip this query for the current request. |
+| key         | type                     | notes                                                                     |
+| ----------- | ------------------------ | ------------------------------------------------------------------------- |
+| `query`     | `string \| DocumentNode` | The GraphQL query. Use `gql` from `graphql-tag` so fragments interpolate. |
+| `variables` | `(reqCtx) => object`     | Optional. Receives `{ uri, seed, params }`. Defaults to `{}`.             |
+| `skip`      | `(reqCtx) => boolean`    | Optional. Return `true` to skip this query for the current request.       |
 
 `reqCtx` is shaped:
 
@@ -65,8 +75,26 @@ surfaces as `data.posts.nodes`. If you declare two queries with distinct top-lev
 
 ```js
 ArchivePost.queries = {
-  posts:    { query: gql`query Q1 { posts { nodes { id } } }` },
-  settings: { query: gql`query Q2 { generalSettings { title } }` },
+  posts: {
+    query: gql`
+      query Q1 {
+        posts {
+          nodes {
+            id
+          }
+        }
+      }
+    `,
+  },
+  settings: {
+    query: gql`
+      query Q2 {
+        generalSettings {
+          title
+        }
+      }
+    `,
+  },
 }
 
 // data === { posts: { nodes: [...] }, generalSettings: { title: "..." } }
@@ -76,8 +104,20 @@ If two queries declare the same top-level field, the **later entry wins**. Use f
 
 ```js
 ArchivePost.queries = {
-  recent:    { query: gql`query Q1 { recent: posts(first: 5) { nodes { id } } }` },
-  trending:  { query: gql`query Q2 { trending: posts(where: { ... }) { nodes { id } } }` },
+  recent: {
+    query: gql`
+      query Q1 {
+        recent: posts(first: 5) {
+          nodes {
+            id
+          }
+        }
+      }
+    `,
+  },
+  trending: {
+    query: gql`query Q2 { trending: posts(where: { ... }) { nodes { id } } }`,
+  },
 }
 
 // data === { recent: { nodes: [...] }, trending: { nodes: [...] } }
@@ -106,7 +146,15 @@ Use `variables(reqCtx)` to pull values from the request:
 ```js
 Singular.queries = {
   post: {
-    query: gql`query Singular_Post($uri: ID!) { post(id: $uri, idType: URI) { id title content } }`,
+    query: gql`
+      query Singular_Post($uri: ID!) {
+        post(id: $uri, idType: URI) {
+          id
+          title
+          content
+        }
+      }
+    `,
     variables: ({ uri }) => ({ uri }),
   },
 }
