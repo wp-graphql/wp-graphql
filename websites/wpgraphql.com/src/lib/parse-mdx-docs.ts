@@ -248,6 +248,33 @@ export async function getDocsNav() {
   return resp.json()
 }
 
+/**
+ * Flatten the grouped docs nav (`{ [section]: [{ title, href }] }`) into a
+ * single ordered list of `{ href, label }` items, preserving the section and
+ * item order. This is the front-to-back reading sequence used to build the
+ * prev/next footer on docs pages.
+ */
+export function flattenDocsNav(
+  nav: Record<string, Array<{ title?: string; href?: string }>>
+): Array<{ href: string; label: string }> {
+  if (!nav || typeof nav !== "object") {
+    return []
+  }
+
+  const items: Array<{ href: string; label: string }> = []
+  for (const group of Object.values(nav)) {
+    if (!Array.isArray(group)) {
+      continue
+    }
+    for (const item of group) {
+      if (item && typeof item.href === "string") {
+        items.push({ href: item.href, label: item.title ?? item.href })
+      }
+    }
+  }
+  return items
+}
+
 export async function getAllDocUri(): Promise<string[]> {
   try {
     const localUris = await getLocalDocUris()
