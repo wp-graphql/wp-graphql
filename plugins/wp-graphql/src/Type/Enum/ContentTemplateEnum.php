@@ -71,12 +71,16 @@ class ContentTemplateEnum {
 		// post types (or the theme) report their templates.
 		ksort( $templates );
 
-		// Each value name is qualified by the template's kind unconditionally, so a value's
-		// name depends only on that template, never on which other templates exist. That keeps
-		// the enum additive: registering a new template can add a value but never renames an
-		// existing one (e.g. adding a classic `page-no-title.php` alongside a block
-		// `page-no-title` adds PAGE_NO_TITLE_TEMPLATE without touching
-		// PAGE_NO_TITLE_BLOCK_TEMPLATE).
+		// Each value name is qualified by the template's kind unconditionally. That makes the
+		// enum additive across the block/classic axis: a classic and a block template that share
+		// a base name never collide or rename each other, so adding one never touches the other
+		// (e.g. adding a classic `page-no-title.php` alongside a block `page-no-title` adds
+		// PAGE_NO_TITLE_TEMPLATE without touching PAGE_NO_TITLE_BLOCK_TEMPLATE). The one case this
+		// cannot cover is two *same-kind* templates whose identifiers sanitize to the same name
+		// (e.g. `full-width.php` vs `full_width.php`); that clash falls back to a numeric suffix
+		// below, which is the only place a value name depends on which other templates exist. It
+		// requires a single theme to ship two files differing only by characters that sanitize
+		// identically, so it is effectively a theme-authoring pathology rather than a real case.
 		$used_names = [ 'DEFAULT_TEMPLATE' => true ];
 		foreach ( $templates as $file => $name ) {
 			$enum_name = self::get_enum_name( $file );
@@ -97,8 +101,13 @@ class ContentTemplateEnum {
 				// @codeCoverageIgnoreEnd
 			}
 
-			// Guard against the rare case where two same-kind templates still collapse to the
-			// same name (e.g. `full-width.php` vs `full_width.php`) with a numeric suffix.
+			// Last-resort fallback for the same-kind clash described above: keep both templates
+			// filterable by appending a numeric suffix (e.g. `full-width.php` vs `full_width.php`
+			// -> FULL_WIDTH_TEMPLATE + FULL_WIDTH_TEMPLATE_2). This is deterministic for a fixed
+			// set (see ksort above) but set-dependent, so it is the one path that can shift a
+			// value name when a colliding same-kind template is added or removed. WordPress itself
+			// never hits this because it stores the raw, unique file/slug rather than a sanitized
+			// name; the clash exists only because enum names live in a restricted character set.
 			$candidate = $enum_name;
 			$suffix    = 2;
 			while ( isset( $used_names[ $candidate ] ) ) {
@@ -127,9 +136,11 @@ class ContentTemplateEnum {
 	 * stable regardless of what other templates exist. A classic `full-width.php` becomes
 	 * `FULL_WIDTH_TEMPLATE`; a block-theme `page-no-title` becomes `PAGE_NO_TITLE_BLOCK_TEMPLATE`.
 	 *
-	 * Qualifying by kind unconditionally keeps the enum additive: a value's name depends only
-	 * on its own template, so registering a new template can add a value but never renames an
-	 * existing one, even when a classic and a block template share a base name.
+	 * Qualifying by kind unconditionally keeps the enum additive across the block/classic axis:
+	 * a classic and a block template that share a base name get distinct names and never rename
+	 * each other, so adding one never touches the other. The remaining edge, two same-kind
+	 * templates whose identifiers sanitize to the same name, is disambiguated by the caller with
+	 * a numeric suffix and is the only case a value name depends on the wider template set.
 	 *
 	 * @param string $file The template identifier (file name or slug).
 	 */
