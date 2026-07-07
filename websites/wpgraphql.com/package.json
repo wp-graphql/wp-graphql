@@ -67,8 +67,8 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.0",
-    "eslint": "^10.5.0",
+    "@playwright/test": "^1.61.1",
+    "eslint": "^10.6.0",
     "eslint-config-next": "^15.5.19",
     "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
@@ -76,7 +76,7 @@
     "postcss": "^8.5.16",
     "postcss-focus-visible": "^7.1.0",
     "postcss-import": "^16.1.1",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.1",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3"
   },
