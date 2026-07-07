@@ -40,7 +40,9 @@ function slugifyHeading(value) {
 
 function RecipesIndex({ layoutData }) {
   const docsNavData = getDeveloperReferenceNav()
-  const recipes = Array.isArray(recipesIndex?.recipes) ? recipesIndex.recipes : []
+  const recipes = Array.isArray(recipesIndex?.recipes)
+    ? recipesIndex.recipes
+    : []
 
   const grouped = recipes.reduce((acc, recipe) => {
     const group = recipe.group || "Uncategorized"
@@ -145,7 +147,15 @@ function RelatedApis({ related }) {
   )
 }
 
-function RecipeSingle({ source, toc, hasMarkdownH1, title, related, nav, layoutData }) {
+function RecipeSingle({
+  source,
+  toc,
+  hasMarkdownH1,
+  title,
+  related,
+  nav,
+  layoutData,
+}) {
   const docsNavData = getDeveloperReferenceNav()
   const hasRelatedApis =
     (related?.relatedActions?.length ?? 0) > 0 ||
@@ -200,7 +210,8 @@ export default function RecipesPage(props) {
 
 export async function getStaticProps({ params }) {
   const slugParts = params?.slug
-  const isIndex = !slugParts || (Array.isArray(slugParts) && slugParts.length === 0)
+  const isIndex =
+    !slugParts || (Array.isArray(slugParts) && slugParts.length === 0)
   const layoutData = await getLayoutData()
 
   if (isIndex) {
@@ -211,7 +222,8 @@ export async function getStaticProps({ params }) {
 
   try {
     const { source, toc, hasMarkdownH1 } = await getParsedDoc(`recipes/${slug}`)
-    const meta = recipesIndex?.relations?.byUri?.[normalizeUri(`/recipes/${slug}`)] || null
+    const meta =
+      recipesIndex?.relations?.byUri?.[normalizeUri(`/recipes/${slug}`)] || null
 
     const navItems = (recipesIndex?.recipes ?? []).map((recipe) => ({
       slug: recipe.slug,

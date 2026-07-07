@@ -47,14 +47,18 @@ function toSlugParams(uri) {
   return { params: { slug: slug.split("/") } }
 }
 
-export default function Doc({ source, toc, docsNavData, layoutData, hasMarkdownH1, nav }) {
+export default function Doc({
+  source,
+  toc,
+  docsNavData,
+  layoutData,
+  hasMarkdownH1,
+  nav,
+}) {
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData}>
-        <div
-          id="content-wrapper"
-          className="relative z-20 mt-8 prose"
-        >
+        <div id="content-wrapper" className="relative z-20 mt-8 prose">
           {source?.frontmatter?.title && !hasMarkdownH1 && (
             <header className="relative z-20 -mt-8">
               <h1>{source.frontmatter.title}</h1>

@@ -28,7 +28,10 @@ describe("getGraphqlEndpoint", () => {
 
   it("falls back to WPGRAPHQL_URL when NEXT_PUBLIC_WPGRAPHQL_URL is unset", () => {
     process.env.WPGRAPHQL_URL = "https://server-only.example.com/graphql"
-    assert.equal(getGraphqlEndpoint(), "https://server-only.example.com/graphql")
+    assert.equal(
+      getGraphqlEndpoint(),
+      "https://server-only.example.com/graphql"
+    )
   })
 
   it("prefers NEXT_PUBLIC_WPGRAPHQL_URL over WPGRAPHQL_URL", () => {

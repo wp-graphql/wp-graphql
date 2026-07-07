@@ -25,9 +25,7 @@ import rehypeUrlInspector from "@jsdevtools/rehype-url-inspector"
 // without auth we still get 60 unauth req/hr, which is plenty for the docs
 // sitemap and dev-time doc fetches.
 const githubToken = process.env.GITHUB_TOKEN?.trim()
-const octokit = new Octokit(
-  githubToken ? { auth: githubToken } : {}
-)
+const octokit = new Octokit(githubToken ? { auth: githubToken } : {})
 // Unauthenticated fallback client, used when an authenticated request is
 // rejected with "Bad credentials" (e.g. a revoked token).
 const publicOctokit = new Octokit()
@@ -159,7 +157,10 @@ export async function getAllDocMeta() {
     return data
   } catch (error) {
     // If token auth fails (bad credentials), fallback to unauthenticated GitHub API.
-    if (error?.status === 401 || /Bad credentials/i.test(error?.message || "")) {
+    if (
+      error?.status === 401 ||
+      /Bad credentials/i.test(error?.message || "")
+    ) {
       const { status, data } = await publicOctokit.request(
         "GET /repos/{owner}/{repo}/contents/{path}",
         requestOptions
@@ -204,7 +205,12 @@ async function getLocalDocUris(): Promise<string[]> {
     }
   }
 
-  if (await fs.stat(LOCAL_DOCS_DIR).then(() => true).catch(() => false)) {
+  if (
+    await fs
+      .stat(LOCAL_DOCS_DIR)
+      .then(() => true)
+      .catch(() => false)
+  ) {
     await walk(LOCAL_DOCS_DIR)
   }
 
@@ -223,7 +229,9 @@ export async function listDocSlugs(subdir: string): Promise<string[]> {
     return entries
       .filter(
         (entry) =>
-          entry.isFile() && entry.name.endsWith(".md") && entry.name !== "index.md"
+          entry.isFile() &&
+          entry.name.endsWith(".md") &&
+          entry.name !== "index.md"
       )
       .map((entry) => entry.name.replace(/\.md$/, ""))
   } catch (_error) {
@@ -365,7 +373,10 @@ async function getSourceFromMd(mdContent) {
             },
           },
         ],
-        [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
+        [
+          rehypeExternalLinks,
+          { target: "_blank", rel: ["noopener", "noreferrer"] },
+        ],
         rehypeSlug,
         [rehypePrism, { ignoreMissing: true }],
       ],

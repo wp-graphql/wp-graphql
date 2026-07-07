@@ -46,10 +46,10 @@ export async function getTemplateStaticProps(ctx, opts = {}) {
     const layoutKeys = Object.keys(result.layoutData ?? {})
     console.log(
       `[wpgraphql-client] uri=${uri} template=${result.template}` +
-      ` typename=${seed.typename ?? "-"} postType=${seed.postType ?? "-"}` +
-      ` slug=${seed.slug ?? "-"}` +
-      ` data=[${dataKeys.join(", ") || "-"}]` +
-      ` layoutData=[${layoutKeys.join(", ") || "-"}]`
+        ` typename=${seed.typename ?? "-"} postType=${seed.postType ?? "-"}` +
+        ` slug=${seed.slug ?? "-"}` +
+        ` data=[${dataKeys.join(", ") || "-"}]` +
+        ` layoutData=[${layoutKeys.join(", ") || "-"}]`
     )
   }
 

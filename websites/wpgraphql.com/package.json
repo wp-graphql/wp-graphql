@@ -7,21 +7,20 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "npm run test:lint -- --fix",
-    "test:format": "prettier '*.{js,jsx,ts,tsx,css,mdx,json}'",
-    "test:lint": "next lint",
+    "test:format": "prettier --check .",
+    "test:lint": "eslint .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:unit": "node --test src/lib/wpgraphql-client/__tests__",
     "postbuild": "next-sitemap",
-    "format": "npm run test:format -- --write",
+    "format": "prettier --write .",
     "prepare": "husky install"
   },
   "browserslist": [
     "> 1%"
   ],
   "lint-staged": {
-    "src/*.{js, ts}": "npm run lint -- --cache",
-    "*.": "npm run format"
+    "**/*.{js,jsx,ts,tsx,css,md,mdx,json,yml,yaml}": "prettier --write"
   },
   "dependencies": {
     "@docsearch/react": "^3.3.0",
@@ -67,9 +66,11 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^16.2.10",
     "@playwright/test": "^1.61.1",
-    "eslint": "^10.6.0",
-    "eslint-config-next": "^15.5.19",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.10",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",

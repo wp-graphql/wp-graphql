@@ -5,7 +5,11 @@ import "lib/wpgraphql-client-config"
 
 import SiteLayout from "components/Site/SiteLayout"
 import { Eyebrow } from "@/components/extensions/SectionHeading"
-import { BoltIcon, BookOpenIcon, CodeBracketIcon } from "@heroicons/react/20/solid"
+import {
+  BoltIcon,
+  BookOpenIcon,
+  CodeBracketIcon,
+} from "@heroicons/react/20/solid"
 import { FaFilter } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,25 +17,29 @@ import { Button } from "@/components/ui/button"
 const references = [
   {
     name: "Recipes",
-    description: "Tasty treats that boost your productivity. WPGraphQL Recipes are snippets that showcase how to customize WPGraphQL using the actions, filters and functions available.",
+    description:
+      "Tasty treats that boost your productivity. WPGraphQL Recipes are snippets that showcase how to customize WPGraphQL using the actions, filters and functions available.",
     icon: BookOpenIcon,
     link: "/recipes",
   },
   {
     name: "Functions",
-    description: "Need to add a Field or Type to the GraphQL Schema? There's a function for that. Learn more about the functions available to make your WPGraphQL server work for you.",
+    description:
+      "Need to add a Field or Type to the GraphQL Schema? There's a function for that. Learn more about the functions available to make your WPGraphQL server work for you.",
     icon: CodeBracketIcon,
     link: "/functions",
   },
   {
     name: "Actions",
-    description: "Actions allow 3rd-party code to hook into WPGraphQL at certain parts of GraphQL execution. Learn about the actions available to hook into.",
+    description:
+      "Actions allow 3rd-party code to hook into WPGraphQL at certain parts of GraphQL execution. Learn about the actions available to hook into.",
     icon: BoltIcon,
     link: "/actions",
   },
   {
     name: "Filters",
-    description: "Filters allow 3rd-party code to modify data at certain parts of GraphQL execution. Learn about the filters available to hook into.",
+    description:
+      "Filters allow 3rd-party code to modify data at certain parts of GraphQL execution. Learn about the filters available to hook into.",
     icon: FaFilter,
     link: "/filters",
   },
@@ -60,8 +68,8 @@ export default function DeveloperReference({ layoutData }) {
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
                 WPGraphQL was built with customization in mind. Find everything
-                you need to interact with WPGraphQL — from recipes to actions and
-                filters.
+                you need to interact with WPGraphQL — from recipes to actions
+                and filters.
               </p>
             </div>
           </div>

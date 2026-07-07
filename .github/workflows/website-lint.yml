@@ -1,0 +1,122 @@
+name: Website Lint
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+    paths:
+      - 'websites/wpgraphql.com/**'
+      - '.github/workflows/website-lint.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths:
+      - 'websites/wpgraphql.com/**'
+      - '.github/workflows/website-lint.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      wpgraphql-com: ${{ steps.filter.outputs.wpgraphql-com_any_changed }}
+      is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Check if release-please PR
+        id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
+            echo "is-release-pr=true" >> $GITHUB_OUTPUT
+            echo "🔔 Detected Release PR - will lint all websites"
+          else
+            echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect changed files
+        id: filter
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          files_yaml: |
+            wpgraphql-com:
+              - websites/wpgraphql.com/**
+              - .github/workflows/website-lint.yml
+              - package.json
+              - package-lock.json
+
+      - name: Log detected changes
+        run: |
+          echo "wpgraphql.com changed: ${{ steps.filter.outputs.wpgraphql-com_any_changed }}"
+          echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
+
+  wpgraphql-com:
+    name: 'Lint: wpgraphql.com'
+    needs: detect-changes
+    # Run if: website has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wpgraphql-com == 'true' ||
+       needs.detect-changes.outputs.is-release-pr == 'true' ||
+       github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm ci
+
+      - name: Check formatting (Prettier)
+        run: npm run test:format -w @wpgraphql/wpgraphql-com
+
+      - name: Lint (ESLint)
+        run: npm run test:lint -w @wpgraphql/wpgraphql-com
+
+  status-check:
+    name: 'Website Lint'
+    runs-on: ubuntu-latest
+    needs: [detect-changes, wpgraphql-com]
+    if: always() # Run even if previous jobs were skipped
+    steps:
+      - name: Check website lint results
+        run: |
+          # Check if any required jobs failed (excluding skipped)
+          if [ "${{ needs.wpgraphql-com.result }}" == "failure" ]; then
+            echo "❌ wpgraphql.com lint failed"
+            exit 1
+          fi
+          # Allow skipped jobs (expected when files don't change)
+          if [ "${{ needs.wpgraphql-com.result }}" == "skipped" ]; then
+            echo "ℹ️ wpgraphql.com lint skipped (no changes detected)"
+          fi
+          echo "✅ All required website lint checks passed"

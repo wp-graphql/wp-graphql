@@ -13,16 +13,18 @@
  */
 
 const TOKEN_CLASSES = {
-  key:  "ide-tok-key",
-  str:  "ide-tok-str",
-  num:  "ide-tok-num",
-  kw:   "ide-tok-kw",
+  key: "ide-tok-key",
+  str: "ide-tok-str",
+  num: "ide-tok-num",
+  kw: "ide-tok-kw",
   punc: "ide-tok-punc",
-  cmt:  "ide-tok-cmt",
+  cmt: "ide-tok-cmt",
 }
 
 export function Tok({ kind = "key", children }) {
-  return <span className={TOKEN_CLASSES[kind] || TOKEN_CLASSES.key}>{children}</span>
+  return (
+    <span className={TOKEN_CLASSES[kind] || TOKEN_CLASSES.key}>{children}</span>
+  )
 }
 
 function PaneHeader({ children }) {

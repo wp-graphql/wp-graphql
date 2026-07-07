@@ -122,7 +122,10 @@ export default function Archive({ data }) {
       }
     })
 
-    const toc = [{ id: "recipes", title: "Recipes", tagName: "h2" }, ...groupToc]
+    const toc = [
+      { id: "recipes", title: "Recipes", tagName: "h2" },
+      ...groupToc,
+    ]
 
     return (
       <DocsLayout docsNavData={docsNavData} toc={toc}>
@@ -136,13 +139,15 @@ export default function Archive({ data }) {
           id="content-wrapper"
           className="relative z-20 mt-8 max-w-none prose dark:prose-dark prose-code:before:content-none prose-code:after:content-none"
         >
-          <h1>{archive?.label ? archive.label : archive?.name ?? "Recipes"}</h1>
+          <h1>
+            {archive?.label ? archive.label : (archive?.name ?? "Recipes")}
+          </h1>
           {archive?.description ? (
             <div dangerouslySetInnerHTML={{ __html: archive.description }} />
           ) : (
             <p>
-              WPGraphQL recipes are practical snippets that show how to customize
-              WPGraphQL with actions, filters, and functions.
+              WPGraphQL recipes are practical snippets that show how to
+              customize WPGraphQL with actions, filters, and functions.
             </p>
           )}
 

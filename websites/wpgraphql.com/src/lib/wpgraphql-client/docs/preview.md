@@ -55,11 +55,11 @@ export default (req, res) => exitPreviewMode(req, res)
 
 Env vars:
 
-| var | purpose |
-|---|---|
-| `WPGRAPHQL_PREVIEW_SECRET` | shared secret with WordPress; validated on each preview request |
-| `WPGRAPHQL_PREVIEW_USER` | service-account WP username |
-| `WPGRAPHQL_PREVIEW_APP_PASSWORD` | Application Password for that user |
+| var                              | purpose                                                         |
+| -------------------------------- | --------------------------------------------------------------- |
+| `WPGRAPHQL_PREVIEW_SECRET`       | shared secret with WordPress; validated on each preview request |
+| `WPGRAPHQL_PREVIEW_USER`         | service-account WP username                                     |
+| `WPGRAPHQL_PREVIEW_APP_PASSWORD` | Application Password for that user                              |
 
 ## WordPress side
 
