@@ -8,6 +8,8 @@ title: Actions
 
 # Actions
 
+Actions let your code run at specific points in the WPGraphQL request lifecycle without changing the value being processed. Below are the actions WPGraphQL provides for you to hook into.
+
 ## Debugging and Instrumentation
 
 - [`graphql_after_resolve_field`](/actions/graphql_after_resolve_field)

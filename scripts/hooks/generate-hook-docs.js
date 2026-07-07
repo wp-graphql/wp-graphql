@@ -1078,6 +1078,11 @@ function renderIndexPage({ title, kind, hooks }) {
 	const grouped = groupHooks(hooks);
 	const orderedGroups = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
 
+	const intro =
+		kind === 'actions'
+			? 'Actions let your code run at specific points in the WPGraphQL request lifecycle without changing the value being processed. Below are the actions WPGraphQL provides for you to hook into.'
+			: 'Filters let your code modify a value as it passes through WPGraphQL — the schema, a query, a response, and more. Below are the filters WPGraphQL provides for you to hook into.';
+
 	const lines = [];
 	lines.push(GENERATED_NOTICE.trimEnd());
 	lines.push('---');
@@ -1085,6 +1090,8 @@ function renderIndexPage({ title, kind, hooks }) {
 	lines.push('---');
 	lines.push('');
 	lines.push(`# ${title}`);
+	lines.push('');
+	lines.push(intro);
 	lines.push('');
 
 	if (hooks.length === 0) {

@@ -8,6 +8,8 @@ title: Filters
 
 # Filters
 
+Filters let your code modify a value as it passes through WPGraphQL — the schema, a query, a response, and more. Below are the filters WPGraphQL provides for you to hook into.
+
 ## Authentication and Authorization
 
 - [`graphql_authentication_error_status_code`](/filters/graphql_authentication_error_status_code)
