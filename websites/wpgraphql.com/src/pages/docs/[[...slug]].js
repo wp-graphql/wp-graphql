@@ -1,16 +1,19 @@
 import { MDXRemote } from "next-mdx-remote"
 
 import DocsLayout from "components/Docs/DocsLayout"
+import PrevNext from "components/Docs/PrevNext"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
 import {
+  flattenDocsNav,
   getAllDocUri,
   getDocsNav,
   getParsedDoc,
   isDeveloperReferenceDocUri,
   toCanonicalDocUri,
 } from "lib/parse-mdx-docs"
+import { orderedSiblings } from "lib/sibling-nav"
 
 import components from "components/Docs/MdxComponents"
 
@@ -44,7 +47,7 @@ function toSlugParams(uri) {
   return { params: { slug: slug.split("/") } }
 }
 
-export default function Doc({ source, toc, docsNavData, layoutData, hasMarkdownH1 }) {
+export default function Doc({ source, toc, docsNavData, layoutData, hasMarkdownH1, nav }) {
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData}>
@@ -58,6 +61,7 @@ export default function Doc({ source, toc, docsNavData, layoutData, hasMarkdownH
             </header>
           )}
           <MDXRemote {...source} components={components} />
+          <PrevNext prev={nav?.prev} next={nav?.next} />
         </div>
       </DocsLayout>
     </LayoutProvider>
@@ -88,6 +92,10 @@ export async function getStaticProps({ params }) {
     const docsNavData = await getDocsNav()
     const layoutData = await getLayoutData()
 
+    // Prev/next follows the sidebar nav's front-to-back reading order rather
+    // than an alphabetical sort — the docs are meant to be read in sequence.
+    const nav = orderedSiblings(flattenDocsNav(docsNavData), requestedUri)
+
     return {
       props: {
         toc,
@@ -95,6 +103,7 @@ export async function getStaticProps({ params }) {
         docsNavData,
         hasMarkdownH1,
         layoutData,
+        nav,
       },
       revalidate: 30,
     }
