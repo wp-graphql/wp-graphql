@@ -99,6 +99,9 @@ jobs:
       - name: Check formatting (Prettier)
         run: npm run test:format -w @wpgraphql/wpgraphql-com
 
+      - name: Lint (ESLint)
+        run: npm run test:lint -w @wpgraphql/wpgraphql-com
+
   status-check:
     name: 'Website Lint'
     runs-on: ubuntu-latest
