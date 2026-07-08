@@ -68,12 +68,27 @@ For non-Next.js frameworks, build a thin equivalent over `resolveTemplate()` fro
 import gql from "graphql-tag"
 
 export default function ArchivePost({ data }) {
-  return <ul>{data.posts.nodes.map((p) => <li key={p.id}>{p.title}</li>)}</ul>
+  return (
+    <ul>
+      {data.posts.nodes.map((p) => (
+        <li key={p.id}>{p.title}</li>
+      ))}
+    </ul>
+  )
 }
 
 ArchivePost.queries = {
   posts: {
-    query: gql`query ArchivePost_Posts($first: Int) { posts(first: $first) { nodes { id title } } }`,
+    query: gql`
+      query ArchivePost_Posts($first: Int) {
+        posts(first: $first) {
+          nodes {
+            id
+            title
+          }
+        }
+      }
+    `,
     variables: () => ({ first: 100 }),
   },
 }

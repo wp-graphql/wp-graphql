@@ -1,5 +1,6 @@
 export function getGraphqlEndpoint() {
-  const raw = process.env.NEXT_PUBLIC_WPGRAPHQL_URL || process.env.WPGRAPHQL_URL || ""
+  const raw =
+    process.env.NEXT_PUBLIC_WPGRAPHQL_URL || process.env.WPGRAPHQL_URL || ""
   const trimmed = raw.replace(/\/+$/, "")
   if (!trimmed) {
     throw new Error(

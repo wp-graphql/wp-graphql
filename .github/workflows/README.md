@@ -12,6 +12,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 - `lint.yml` detects which plugins have changes and triggers `lint-reusable.yml` for each affected plugin
 - Runs all plugins on release PRs or pushes to main
 - Each plugin's linting runs independently (PHPCS and PHPStan)
+- For `wp-graphql`, `lint.yml` also runs hook legacy coverage (`scripts/hooks/check-legacy-coverage.js`) to ensure removed hooks remain represented in `scripts/hooks/legacy-hooks.json`
 
 ### 2. Schema Linting (`schema-linter.yml`)
 
@@ -118,8 +119,12 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Replaces `x-release-please-version` placeholders with actual version:
   - In all PHP files (`@since x-release-please-version` → `@since 2.7.0`)
   - In `readme.txt` (`Stable tag: x-release-please-version` → `Stable tag: 2.7.0`)
+  - In `scripts/hooks/legacy-hooks.json` for the releasing component
 - Checks for breaking changes in the CHANGELOG
 - Updates the Upgrade Notice section in `readme.txt` if breaking changes exist
+- Regenerates hook docs/audits for supported components (`scripts/hooks/generate-hook-docs.js`)
+- Regenerates function docs for supported components (`scripts/functions/generate-function-docs.js`)
+- Updates readme changelog and optional POT file generation
 - Commits changes back to the Release PR branch
 - Ensures WordPress.org users see warnings before upgrading
 
@@ -168,8 +173,12 @@ flowchart TD
     PR --> |Squash Merged| MAIN[main branch]
     MAIN --> RP[release-please]
     RP --> |Creates/Updates| RPR[Release PR]
-    RPR --> URP[Update Upgrade Notice]
+    RPR --> URP[Update Release PR tasks]
+    URP --> HGD[Regenerate Hook Docs]
+    URP --> FGD[Regenerate Function Docs]
     URP --> |Merged| REL[Create Release]
+    HGD --> |Included in PR| REL
+    FGD --> |Included in PR| REL
     REL --> WO[Deploy to WordPress.org]
     REL --> ZIP[Upload Zip Artifact]
     REL --> GH[GitHub Release]

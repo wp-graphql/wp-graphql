@@ -28,7 +28,10 @@ export default function Category({ data }) {
         </div>
         <ul className="grid gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
           {category?.posts?.nodes?.map((post, index) => (
-            <li key={post.id} className={`flex w-full ${index === 0 ? "xl:col-span-2" : ""}`}>
+            <li
+              key={post.id}
+              className={`flex w-full ${index === 0 ? "xl:col-span-2" : ""}`}
+            >
               <PostPreview post={post} isLatest={index === 0} />
             </li>
           ))}
