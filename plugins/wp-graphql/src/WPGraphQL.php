@@ -236,7 +236,6 @@ final class WPGraphQL {
 		// Determine what to show in graphql
 		add_action( 'init_graphql_request', 'register_initial_settings', 10 );
 
-
 		// Throw an exception
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
 		add_action( 'do_graphql_request', [ $this, 'introspection_check' ], 10, 4 );
@@ -534,7 +533,6 @@ final class WPGraphQL {
 		add_filter( 'register_post_type_args', [ self::class, 'register_graphql_post_type_args' ], 99, 2 );
 		add_filter( 'register_taxonomy_args', [ self::class, 'register_graphql_taxonomy_args' ], 99, 2 );
 	}
-
 
 	/**
 	 * Sets up the default post types to show_in_graphql.

@@ -636,25 +636,29 @@ class TypeRegistry {
 		);
 
 		/**
-		 * Register the home field on GeneralSettings.
+		 * Register the homeUrl field on GeneralSettings.
 		 *
-		 * WordPress core does not register the `home` option ("Site Address") for the REST API —
-		 * only `siteurl` ("WordPress Address") is registered. On headless or decoupled installs
-		 * the Site Address is often the canonical front-end URL and differs from `siteurl`, so
-		 * exposing it as a read-only field gives clients a reliable way to read it.
+		 * WordPress core does not register the `home` option ("Site Address") as a setting for
+		 * the REST API — only `siteurl` ("WordPress Address") is registered. On headless or
+		 * decoupled installs the Site Address is often the canonical front-end URL and differs
+		 * from `siteurl`, so exposing it as a read-only field gives clients a reliable way to
+		 * read it. It is registered as a plain field (not via register_setting) so it is not
+		 * writable through the updateSettings mutation.
 		 *
 		 * This uses get_home_url() so it is multisite-aware (returns the current network site's
-		 * home URL, not the value of the raw option).
+		 * home URL, not the value of the raw option). The value is public information: core
+		 * exposes it to unauthenticated visitors in the REST API index, and it appears in the
+		 * markup of every front-end page.
 		 *
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/2520
 		 */
 		$this->register_field(
 			'GeneralSettings',
-			'home',
+			'homeUrl',
 			[
 				'type'        => 'String',
 				'description' => static function () {
-					return __( 'Site Address (URL). The front-end address visitors use to reach the site, stored in the `home` option. This can differ from the WordPress Address (`url`) on headless or decoupled installs.', 'wp-graphql' );
+					return __( 'The address at which visitors reach the site\'s front end. Can differ from the `url` field when the front end and the content management backend are served from different addresses, such as on headless or decoupled installs.', 'wp-graphql' );
 				},
 				'resolve'     => static function () {
 					return get_home_url();
