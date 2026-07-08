@@ -636,6 +636,33 @@ class TypeRegistry {
 		);
 
 		/**
+		 * Register the home field on GeneralSettings.
+		 *
+		 * WordPress core does not register the `home` option ("Site Address") for the REST API —
+		 * only `siteurl` ("WordPress Address") is registered. On headless or decoupled installs
+		 * the Site Address is often the canonical front-end URL and differs from `siteurl`, so
+		 * exposing it as a read-only field gives clients a reliable way to read it.
+		 *
+		 * This uses get_home_url() so it is multisite-aware (returns the current network site's
+		 * home URL, not the value of the raw option).
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/2520
+		 */
+		$this->register_field(
+			'GeneralSettings',
+			'home',
+			[
+				'type'        => 'String',
+				'description' => static function () {
+					return __( 'Site Address (URL). The front-end address visitors use to reach the site, stored in the `home` option. This can differ from the WordPress Address (`url`) on headless or decoupled installs.', 'wp-graphql' );
+				},
+				'resolve'     => static function () {
+					return get_home_url();
+				},
+			]
+		);
+
+		/**
 		 * Register the siteIcon connection on GeneralSettings.
 		 *
 		 * This provides access to the MediaItem that is set as the site icon,
