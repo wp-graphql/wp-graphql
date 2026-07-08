@@ -24,6 +24,8 @@ use WPGraphQL\Utils\Utils;
  * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
  * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
  *
+ * @return string The formatted name, safe for use as a GraphQL name.
+ *
  * @since v1.17.0
  */
 function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
@@ -138,6 +140,8 @@ function do_graphql_request( $query, $operation_name = '', $variables = [], $ret
  * Determine when to register types.
  *
  * @return 'graphql_register_initial_types'|'graphql_register_types'|'graphql_register_types_late'
+ *
+ * @since 0.4.3
  */
 function get_graphql_register_action(): string {
 	$action = 'graphql_register_types_late';
@@ -163,6 +167,8 @@ function get_graphql_register_action(): string {
  * Schema.
  *
  * register_graphql_interfaces_to_types( [ 'MyNewInterface' ], [ 'Post', 'Page' ] );
+ *
+ * @since 0.9.0
  */
 function register_graphql_interfaces_to_types( $interface_names, $type_names ): void {
 	// Bail if no interfaces or types.
@@ -207,6 +213,8 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ): 
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
+ *
+ * @since 0.1.0
  */
 function register_graphql_type( string $type_name, array $config ): void {
 	add_action(
@@ -223,6 +231,8 @@ function register_graphql_type( string $type_name, array $config ): void {
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
+ *
+ * @since 0.4.0
  */
 function register_graphql_interface_type( string $type_name, $config ): void {
 	add_action(
@@ -239,6 +249,8 @@ function register_graphql_interface_type( string $type_name, $config ): void {
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
+ *
+ * @since 0.1.0
  */
 function register_graphql_object_type( string $type_name, array $config ): void {
 	$config['kind'] = 'object';
@@ -250,6 +262,8 @@ function register_graphql_object_type( string $type_name, array $config ): void 
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
+ *
+ * @since 0.1.0
  */
 function register_graphql_input_type( string $type_name, array $config ): void {
 	$config['kind'] = 'input';
@@ -263,6 +277,8 @@ function register_graphql_input_type( string $type_name, array $config ): void {
  * @param array<string,mixed> $config    The Type config
  *
  * @throws \Exception
+ *
+ * @since 0.1.0
  */
 function register_graphql_union_type( string $type_name, array $config ): void {
 	add_action(
@@ -294,6 +310,8 @@ function register_graphql_union_type( string $type_name, array $config ): void {
  *   extensionASTNodes?: \GraphQL\Language\AST\EnumTypeExtensionNode[]|null,
  *   kind?: 'enum'|null
  * } $config
+ *
+ * @since 0.1.0
  */
 function register_graphql_enum_type( string $type_name, array $config ): void {
 	$config['kind'] = 'enum';
@@ -667,6 +685,8 @@ function deregister_graphql_mutation( string $mutation_name ): void {
  *
  * Default false.
  *
+ * @return bool True while a GraphQL request is in action, false otherwise.
+ *
  * @since 0.4.1
  */
 function is_graphql_request(): bool {
@@ -683,6 +703,8 @@ function is_graphql_request(): bool {
  * GraphQL request is an HTTP request, use this conditional.
  *
  * Default false.
+ *
+ * @return bool True when the current request is an HTTP request against the GraphQL endpoint, false otherwise.
  *
  * @since 0.4.1
  */
@@ -813,6 +835,8 @@ function graphql_debug( $message, $config = [] ): void {
  *
  * @param string $type_name The name of the type to validate
  *
+ * @return bool True if the name is valid for use in GraphQL, false otherwise.
+ *
  * @since 0.14.0
  */
 function is_valid_graphql_name( string $type_name ): bool {
@@ -859,6 +883,9 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 	 * @param array<string,mixed> $section_fields The values of the fields stored for the section
 	 * @param string              $section_name   The name of the section
 	 * @param mixed               $default_value  The default value for the option being retrieved
+	 *
+	 * @hookGroup settings
+	 * @since 0.13.0
 	 */
 	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
@@ -878,12 +905,17 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 	 * @param string              $option_name    The name of the option
 	 * @param array<string,mixed> $section_fields The setting values within the section
 	 * @param string              $section_name   The name of the section the setting belongs to
+	 *
+	 * @hookGroup settings
+	 * @since 0.13.0
 	 */
 	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
 }
 
 /**
  * Get the endpoint route for the WPGraphQL API
+ *
+ * @return string The relative endpoint path where the GraphQL API can be accessed.
  *
  * @since 1.12.0
  */
@@ -893,7 +925,11 @@ function graphql_get_endpoint(): string {
 	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
 
 	/**
-	 * @param string $endpoint The relative endpoint that graphql can be accessed at
+	 * Filter the relative endpoint path where GraphQL can be accessed.
+	 *
+	 * @param string $endpoint The relative endpoint path that GraphQL can be accessed at.
+	 * @hookGroup settings
+	 * @since 0.0.6
 	 */
 	$filtered_endpoint = apply_filters( 'graphql_endpoint', $endpoint );
 
@@ -903,6 +939,8 @@ function graphql_get_endpoint(): string {
 
 /**
  * Return the full url for the GraphQL Endpoint.
+ *
+ * @return string The full URL to the GraphQL endpoint.
  *
  * @since 1.12.0
  */
@@ -916,8 +954,12 @@ function graphql_get_endpoint_url(): string {
 if ( ! function_exists( 'str_starts_with' ) ) {
 
 	/**
-	 * @param string $haystack
-	 * @param string $needle
+	 * Polyfill for the PHP 8.0 str_starts_with() function.
+	 *
+	 * @param string $haystack The string to search in.
+	 * @param string $needle   The substring to search for at the start of the haystack.
+	 *
+	 * @internal
 	 */
 	function str_starts_with( string $haystack, string $needle ): bool {
 		return 0 === strncmp( $haystack, $needle, strlen( $needle ) );
@@ -930,8 +972,12 @@ if ( ! function_exists( 'str_starts_with' ) ) {
 if ( ! function_exists( 'str_ends_with' ) ) {
 
 	/**
-	 * @param string $haystack
-	 * @param string $needle
+	 * Polyfill for the PHP 8.0 str_ends_with() function.
+	 *
+	 * @param string $haystack The string to search in.
+	 * @param string $needle   The substring to search for at the end of the haystack.
+	 *
+	 * @internal
 	 */
 	function str_ends_with( string $haystack, string $needle ): bool {
 		if ( '' === $needle || $needle === $haystack ) {
@@ -949,6 +995,8 @@ if ( ! function_exists( 'str_ends_with' ) ) {
 }
 
 /**
+ * Registers an admin notice to display on WPGraphQL plugin screens.
+ *
  * @param string              $slug A unique slug to identify the admin notice by
  * @param array<string,mixed> $config The config for the admin notice. Determines visibility, context, etc.
  *
@@ -958,6 +1006,8 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *  is_dismissable?: bool,
  *  conditions?: callable():bool
  * } $config
+ *
+ * @since 1.21.0
  */
 function register_graphql_admin_notice( string $slug, array $config ): void {
 	add_action(
@@ -977,6 +1027,8 @@ function register_graphql_admin_notice( string $slug, array $config ): void {
  *  is_dismissable?: bool,
  *  conditions?: callable():bool,
  * }>
+ *
+ * @since 1.29.0
  */
 function get_graphql_admin_notices(): array {
 	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();

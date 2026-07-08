@@ -1,0 +1,222 @@
+{
+  "errors": [],
+  "warnings": [
+    {
+      "type": "naming_convention",
+      "hook": "enqueue_graphiql_extension",
+      "file": "plugins/wp-graphql/src/Admin/GraphiQL/GraphiQL.php",
+      "line": 322,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "graphql_endpoint",
+      "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
+      "line": 119,
+      "message": "low_specificity: Hook name has too few semantic segments after prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_enable_major_autoupdates",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 317,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_enable_major_autoupdates",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 317,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_enable_untested_autoupdates",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 343,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_enable_untested_autoupdates",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 343,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_untested_release_type",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 362,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_untested_release_type",
+      "file": "plugins/wp-graphql/src/Admin/Updates/UpdateChecker.php",
+      "line": 362,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "init_graphql_request",
+      "file": "plugins/wp-graphql/src/CLI/Commands.php",
+      "line": 71,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"init_graphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "init_graphql_request",
+      "file": "plugins/wp-graphql/src/CLI/Commands.php",
+      "line": 71,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "graphql_connection",
+      "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
+      "line": 1064,
+      "message": "low_specificity: Hook name has too few semantic segments after prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wp_graphql_experiment_enabled",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 330,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wp_graphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wp_graphql_experiment_enabled",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 330,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wp_graphql_experiment_config",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 376,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wp_graphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wp_graphql_experiment_config",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 376,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_experimental_features_enabled",
+      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
+      "line": 70,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"wpgraphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "wpgraphql_experimental_features_enabled",
+      "file": "plugins/wp-graphql/src/Experimental/Experimental.php",
+      "line": 70,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "graphql_schema",
+      "file": "plugins/wp-graphql/src/Registry/SchemaRegistry.php",
+      "line": 82,
+      "message": "low_specificity: Hook name has too few semantic segments after prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "init_graphql_type_registry",
+      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
+      "line": 289,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"init_graphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "init_graphql_type_registry",
+      "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
+      "line": 289,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "init_graphql_request",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 161,
+      "message": "deprecated_prefix: Hook name uses deprecated prefix \"init_graphql_\"."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "init_graphql_request",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 161,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "graphql_execute",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 512,
+      "message": "low_specificity: Hook name has too few semantic segments after prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "do_graphql_request",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 596,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "pre_graphql_execute_request",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 672,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "pre_graphql_execute_request",
+      "file": "plugins/wp-graphql/src/Request.php",
+      "line": 779,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "register_graphql_post_type_args",
+      "file": "plugins/wp-graphql/src/WPGraphQL.php",
+      "line": 628,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "register_graphql_taxonomy_args",
+      "file": "plugins/wp-graphql/src/WPGraphQL.php",
+      "line": 659,
+      "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "graphql_schema",
+      "file": "plugins/wp-graphql/src/WPGraphQL.php",
+      "line": 914,
+      "message": "low_specificity: Hook name has too few semantic segments after prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "graphql_endpoint",
+      "file": "plugins/wp-graphql/access-functions.php",
+      "line": 934,
+      "message": "low_specificity: Hook name has too few semantic segments after prefix."
+    },
+    {
+      "type": "naming_convention",
+      "hook": "'wp_graphql_experiment_' . $this->get_slug() . '_loaded'",
+      "file": "plugins/wp-graphql/src/Experimental/Experiment/AbstractExperiment.php",
+      "line": 94,
+      "message": "dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix."
+    }
+  ]
+}

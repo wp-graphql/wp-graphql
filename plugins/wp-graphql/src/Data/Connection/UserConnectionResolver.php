@@ -255,6 +255,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @param \WPGraphQL\AppContext                $context The AppContext object
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 		 *
+		 * @hookGroup connections
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );

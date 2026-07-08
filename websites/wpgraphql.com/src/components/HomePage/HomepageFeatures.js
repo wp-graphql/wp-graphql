@@ -4,23 +4,58 @@ import ColocationDemo from "@/components/ColocationDemo"
 // ─── "Query what you need" — pick exactly which fields come back ───────────
 const exactFieldsQuery = (
   <>
-    <Tok kind="kw">query</Tok> <Tok kind="key">GetUser</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="key">user</Tok><Tok kind="punc">(</Tok><Tok kind="key">id</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"dXNlcjox\""}</Tok><Tok kind="punc">) {"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="key">name</Tok>{"\n"}
-    {"    "}<Tok kind="key">email</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetUser</Tok>{" "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">user</Tok>
+    <Tok kind="punc">(</Tok>
+    <Tok kind="key">id</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"dXNlcjox"'}</Tok>
+    <Tok kind="punc">) {"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="key">name</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="key">email</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )
 const exactFieldsResponse = (
   <>
-    <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="str">{"\"user\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Jane Doe\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
-    {"      "}<Tok kind="str">{"\"email\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"jane@example.com\""}</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="str">{'"data"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="str">{'"user"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="str">{'"name"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"Jane Doe"'}</Tok>
+    <Tok kind="punc">,</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="str">{'"email"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"jane@example.com"'}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )
@@ -28,49 +63,139 @@ const exactFieldsResponse = (
 // ─── "Nested resources" — follow connections in a single request ────────────
 const nestedQuery = (
   <>
-    <Tok kind="kw">query</Tok> <Tok kind="key">GetPostsWithAuthor</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="key">title</Tok>{"\n"}
-    {"      "}<Tok kind="key">author</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"        "}<Tok kind="key">node</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"          "}<Tok kind="key">name</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"      "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"      "}<Tok kind="key">categories</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"        "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"          "}<Tok kind="key">name</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"      "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetPostsWithAuthor</Tok>{" "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="key">title</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="key">author</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="key">node</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="key">name</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="key">categories</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="key">name</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )
 const nestedResponse = (
   <>
-    <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="str">{"\"posts\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"author\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"            "}<Tok kind="str">{"\"node\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"              "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Jane\""}</Tok>{"\n"}
-    {"            "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"          "}<Tok kind="punc">{"}"}</Tok><Tok kind="punc">,</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"categories\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"            "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
-    {"              "}<Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"                "}<Tok kind="str">{"\"name\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"News\""}</Tok>{"\n"}
-    {"              "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"            "}<Tok kind="punc">{"]"}</Tok>{"\n"}
-    {"          "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"      "}<Tok kind="punc">{"]"}</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="str">{'"data"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="str">{'"posts"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="str">{'"nodes"'}</Tok>
+    <Tok kind="punc">: [</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="str">{'"title"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"Hello, world"'}</Tok>
+    <Tok kind="punc">,</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="str">{'"author"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"            "}
+    <Tok kind="str">{'"node"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"              "}
+    <Tok kind="str">{'"name"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"Jane"'}</Tok>
+    {"\n"}
+    {"            "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="punc">{"}"}</Tok>
+    <Tok kind="punc">,</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="str">{'"categories"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"            "}
+    <Tok kind="str">{'"nodes"'}</Tok>
+    <Tok kind="punc">: [</Tok>
+    {"\n"}
+    {"              "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"                "}
+    <Tok kind="str">{'"name"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"News"'}</Tok>
+    {"\n"}
+    {"              "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"            "}
+    <Tok kind="punc">{"]"}</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="punc">{"]"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )
@@ -101,14 +226,24 @@ export default function HomepageFeatures() {
     <>
       <Feature
         eyebrow="Efficient Data Fetching"
-        title={<>Query what you need. <span className="text-primary">Get exactly that.</span></>}
+        title={
+          <>
+            Query what you need.{" "}
+            <span className="text-primary">Get exactly that.</span>
+          </>
+        }
         body="With GraphQL, the client makes declarative queries, asking for the exact data needed, and exactly what was asked for is given in response — nothing more. Clients have control over their application, and the GraphQL server only fetches what was requested."
         query={exactFieldsQuery}
         response={exactFieldsResponse}
       />
       <Feature
         eyebrow="Nested Resources"
-        title={<>Fetch many resources in a <span className="text-primary">single request</span></>}
+        title={
+          <>
+            Fetch many resources in a{" "}
+            <span className="text-primary">single request</span>
+          </>
+        }
         body="GraphQL queries access multiple root resources and smoothly follow references between connected ones. While a typical REST API would require round-trip requests to many endpoints, GraphQL can return everything your app needs in one round-trip — quick even on slow mobile connections."
         query={nestedQuery}
         response={nestedResponse}
@@ -119,12 +254,13 @@ export default function HomepageFeatures() {
             Data Colocation
           </p>
           <h2 className="mt-3 text-display-sm font-bold tracking-tight text-foreground sm:text-display-md">
-            Define data needs <span className="text-primary">next to your components</span>
+            Define data needs{" "}
+            <span className="text-primary">next to your components</span>
           </h2>
           <p className="mx-auto mt-5 max-w-prose text-base text-muted-foreground sm:text-lg">
             GraphQL fragments let each component declare the fields it needs.
-            Compose those fragments into one query at the page level — the
-            data graph stays in sync with the UI tree, automatically.
+            Compose those fragments into one query at the page level — the data
+            graph stays in sync with the UI tree, automatically.
           </p>
           <div className="mx-auto mt-12 max-w-4xl">
             <ColocationDemo />

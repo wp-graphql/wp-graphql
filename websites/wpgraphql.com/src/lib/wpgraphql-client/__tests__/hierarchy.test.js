@@ -29,17 +29,29 @@ const fullRegistry = {
 
 describe("buildCandidateNames", () => {
   it("front page wins when isFrontPage is true", () => {
-    const names = buildCandidateNames({ isFrontPage: true, typename: "Page", slug: "home" })
+    const names = buildCandidateNames({
+      isFrontPage: true,
+      typename: "Page",
+      slug: "home",
+    })
     assert.equal(names[0], "front-page")
   })
 
   it("home is preferred for isPostsPage when not the front page", () => {
-    const names = buildCandidateNames({ isPostsPage: true, typename: "Page", slug: "blog" })
+    const names = buildCandidateNames({
+      isPostsPage: true,
+      typename: "Page",
+      slug: "blog",
+    })
     assert.equal(names[0], "home")
   })
 
   it("orders single-{postType}-{slug} before single-{postType}, then single, singular", () => {
-    const names = buildCandidateNames({ typename: "Post", postType: "post", slug: "hello-world" })
+    const names = buildCandidateNames({
+      typename: "Post",
+      postType: "post",
+      slug: "hello-world",
+    })
     assert.deepEqual(names.slice(0, 4), [
       "single-post-hello-world",
       "single-post",
@@ -55,7 +67,11 @@ describe("buildCandidateNames", () => {
 
   it("orders category-{slug} before category, then archive", () => {
     const names = buildCandidateNames({ typename: "Category", slug: "news" })
-    assert.deepEqual(names.slice(0, 3), ["category-news", "category", "archive"])
+    assert.deepEqual(names.slice(0, 3), [
+      "category-news",
+      "category",
+      "archive",
+    ])
   })
 
   it("orders tag-{slug} before tag, then archive", () => {
@@ -83,7 +99,10 @@ describe("buildCandidateNames", () => {
   })
 
   it("orders archive-{postType} before archive for ContentType nodes", () => {
-    const names = buildCandidateNames({ typename: "ContentType", postType: "post" })
+    const names = buildCandidateNames({
+      typename: "ContentType",
+      postType: "post",
+    })
     assert.deepEqual(names.slice(0, 2), ["archive-post", "archive"])
   })
 
@@ -93,7 +112,11 @@ describe("buildCandidateNames", () => {
   })
 
   it("always ends with index as the final fallback", () => {
-    const names = buildCandidateNames({ typename: "Post", postType: "post", slug: "x" })
+    const names = buildCandidateNames({
+      typename: "Post",
+      postType: "post",
+      slug: "x",
+    })
     assert.equal(names.at(-1), "index")
   })
 
@@ -157,7 +180,10 @@ describe("buildCandidateNames", () => {
 describe("resolveTemplateName", () => {
   it("returns front-page when seed.isFrontPage and registry has it", () => {
     assert.equal(
-      resolveTemplateName({ isFrontPage: true, typename: "Page" }, fullRegistry),
+      resolveTemplateName(
+        { isFrontPage: true, typename: "Page" },
+        fullRegistry
+      ),
       "front-page"
     )
   })
@@ -216,19 +242,31 @@ describe("resolveTemplateName", () => {
     }
 
     assert.equal(
-      resolveTemplateName({ isFrontPage: true, typename: "Page" }, liveLikeRegistry),
+      resolveTemplateName(
+        { isFrontPage: true, typename: "Page" },
+        liveLikeRegistry
+      ),
       "front-page"
     )
     assert.equal(
-      resolveTemplateName({ typename: "Category", slug: "news" }, liveLikeRegistry),
+      resolveTemplateName(
+        { typename: "Category", slug: "news" },
+        liveLikeRegistry
+      ),
       "category"
     )
     assert.equal(
-      resolveTemplateName({ typename: "ContentType", postType: "post" }, liveLikeRegistry),
+      resolveTemplateName(
+        { typename: "ContentType", postType: "post" },
+        liveLikeRegistry
+      ),
       "archive-post"
     )
     assert.equal(
-      resolveTemplateName({ typename: "User", slug: "alice" }, liveLikeRegistry),
+      resolveTemplateName(
+        { typename: "User", slug: "alice" },
+        liveLikeRegistry
+      ),
       "author"
     )
     assert.equal(

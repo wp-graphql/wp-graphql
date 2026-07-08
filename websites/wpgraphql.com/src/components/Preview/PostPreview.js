@@ -22,7 +22,7 @@ export const PostPreviewFragment = gql`
 
 export default function PostPreview({ post, isLatest }) {
   if (!post) {
-    return null;
+    return null
   }
 
   const date = post?.date
@@ -31,7 +31,7 @@ export default function PostPreview({ post, isLatest }) {
         month: "long",
         day: "numeric",
       })
-    : null;
+    : null
 
   return (
     <article
@@ -46,8 +46,13 @@ export default function PostPreview({ post, isLatest }) {
           alt={post.author.node.name}
         />
         <div className="text-sm">
-          <p className="leading-none text-foreground">{post.author.node.name}</p>
-          <time className="font-mono text-xs text-muted-foreground" dateTime={post.date}>
+          <p className="leading-none text-foreground">
+            {post.author.node.name}
+          </p>
+          <time
+            className="font-mono text-xs text-muted-foreground"
+            dateTime={post.date}
+          >
             {date}
           </time>
         </div>
@@ -55,10 +60,12 @@ export default function PostPreview({ post, isLatest }) {
       <div>
         <h2 className="mb-2 text-2xl font-bold leading-8 tracking-tight">
           <Link href={post.uri} legacyBehavior>
-            <a className="text-foreground hover:text-primary transition-colors">{post.title}</a>
+            <a className="text-foreground hover:text-primary transition-colors">
+              {post.title}
+            </a>
           </Link>
         </h2>
       </div>
     </article>
-  );
+  )
 }

@@ -14,7 +14,7 @@ runs:
       uses: actions/setup-node@v3
       id: node-setup
       with:
-        node-version-file: '.nvmrc'
+        node-version-file: ".nvmrc"
 
     - name: Cache Node Modules
       id: node-cache

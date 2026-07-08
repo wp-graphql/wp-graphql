@@ -1,6 +1,8 @@
 import gql from "graphql-tag"
 import SiteLayout from "components/Site/SiteLayout"
-import PostPreview, { PostPreviewFragment } from "components/Preview/PostPreview"
+import PostPreview, {
+  PostPreviewFragment,
+} from "components/Preview/PostPreview"
 
 export default function ArchivePost({ data }) {
   const posts = data?.posts?.nodes
@@ -18,7 +20,10 @@ export default function ArchivePost({ data }) {
         </div>
         <ul className="grid gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
           {posts.map((post, index) => (
-            <li key={post.id} className={`flex w-full ${index === 0 ? "xl:col-span-2" : ""}`}>
+            <li
+              key={post.id}
+              className={`flex w-full ${index === 0 ? "xl:col-span-2" : ""}`}
+            >
               <PostPreview post={post} isLatest={index === 0} />
             </li>
           ))}
