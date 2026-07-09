@@ -3,7 +3,8 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 })
 
 function getWpRemotePattern() {
-  const url = process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://wp.wpgraphql.com"
+  const url =
+    process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://wp.wpgraphql.com"
   try {
     const parsed = new URL(url)
     return {

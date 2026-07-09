@@ -13,7 +13,8 @@ function makeFetchSpy(responses) {
     return {
       ok: true,
       status: 200,
-      json: async () => (typeof next === "function" ? next({ url, init }) : next),
+      json: async () =>
+        typeof next === "function" ? next({ url, init }) : next,
     }
   }
   return { fn, calls }

@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next"
 import { getServerSideSitemapLegacy } from "next-sitemap"
-import { getAllDocUri } from "lib/parse-mdx-docs"
+import { getAllDocUri, toCanonicalDocUri } from "lib/parse-mdx-docs"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
 
@@ -19,7 +19,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     console.error("[docs-sitemap] failed to fetch doc URIs:", err)
   }
 
-  const allDocsSitemap = docUris.map((docUri) => ({
+  // Developer Reference docs live at top-level canonical URLs
+  // (/actions/..., /filters/..., etc.) — advertise those, not the
+  // redirecting /docs/... variants.
+  const canonicalUris = [
+    ...new Set(docUris.map((uri) => toCanonicalDocUri(uri))),
+  ]
+
+  const allDocsSitemap = canonicalUris.map((docUri) => ({
     loc: `${SITE_URL}${docUri}`,
   }))
 

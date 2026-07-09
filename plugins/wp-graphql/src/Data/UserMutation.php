@@ -129,7 +129,10 @@ class UserMutation {
 			/**
 			 * Filters all of the fields available for input
 			 *
-			 * @param array<string,array<string,mixed>> $input_fields
+			 * @param array<string,array<string,mixed>> $input_fields The fields available as user mutation input.
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			self::$input_fields = apply_filters( 'graphql_user_mutation_input_fields', $input_fields );
 		}
@@ -229,6 +232,9 @@ class UserMutation {
 		 * @param array<string,mixed> $insert_user_args The arguments to ultimately be passed to the WordPress function
 		 * @param array<string,mixed> $input            Input data from the GraphQL mutation
 		 * @param string              $mutation_name    What user mutation is being performed for context
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
@@ -262,6 +268,9 @@ class UserMutation {
 		 * @param string                               $mutation_name The name of the mutation (ex: create, update, delete)
 		 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
 	}

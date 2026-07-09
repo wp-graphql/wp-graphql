@@ -210,6 +210,8 @@ abstract class Model {
 			 * @param int|null    $owner          The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
 			 *
+			 * @hookGroup models
+			 * @since 0.3.0
 			 * @return string
 			 */
 			$protected_cap = apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -225,6 +227,8 @@ abstract class Model {
 			 * @param int|null    $owner        The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
 			 *
+			 * @hookGroup models
+			 * @since 1.1.3
 			 * @return bool|null
 			 */
 			$pre_is_private = apply_filters( 'graphql_pre_model_data_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -247,6 +251,8 @@ abstract class Model {
 			 * @param int|null    $owner        The user ID for the owner of this piece of data
 			 * @param \WP_User    $current_user The current user for the session
 			 *
+			 * @hookGroup models
+			 * @since 0.3.0
 			 * @return bool
 			 */
 			$is_private = apply_filters( 'graphql_data_is_private', (bool) $is_private, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -271,6 +277,8 @@ abstract class Model {
 		 * @param int|null    $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User    $current_user The current user for the session
 		 *
+		 * @hookGroup models
+		 * @since 0.3.0
 		 * @return string
 		 */
 		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
@@ -349,6 +357,8 @@ abstract class Model {
 				 * @param string   $visibility   The visibility setting for this piece of data
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
+				 * @hookGroup models
+				 * @since 0.3.0
 				 */
 				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
@@ -369,6 +379,8 @@ abstract class Model {
 				 * @param string   $visibility   The visibility setting for this piece of data
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
+				 * @hookGroup models
+				 * @since 0.3.0
 				 */
 				do_action( 'graphql_after_return_field_from_model', $result, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
@@ -416,6 +428,8 @@ abstract class Model {
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param int|null $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
+		 * @hookGroup models
+		 * @since 0.3.0
 		 */
 		return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 	}
@@ -446,6 +460,8 @@ abstract class Model {
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param int|null $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
+		 * @hookGroup models
+		 * @since 0.3.0
 		 */
 		$capability = apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
@@ -495,6 +511,8 @@ abstract class Model {
 		 * @param string                 $visibility   The visibility setting for this piece of data
 		 * @param ?int                   $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User               $current_user The current user for the session
+		 * @hookGroup models
+		 * @since 1.7.0
 		 */
 		$this->fields = apply_filters( 'graphql_model_prepare_fields', $this->fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 		$this->wrap_fields();
@@ -520,6 +538,8 @@ abstract class Model {
 		 * @param string                 $str        The string to decode
 		 * @param string                 $field_name The name of the field being encoded
 		 * @param \WPGraphQL\Model\Model $model      The Model the field is being decoded on
+		 * @hookGroup models
+		 * @since 0.15.0
 		 */
 		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $str, $field_name, $this );
 

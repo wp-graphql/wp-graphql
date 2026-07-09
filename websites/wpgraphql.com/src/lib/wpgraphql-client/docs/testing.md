@@ -12,17 +12,17 @@ This runs `node --test src/lib/wpgraphql-client/__tests__` from the website work
 
 ## Coverage
 
-| file | what it covers |
-|---|---|
-| `endpoint.test.js` | env-var precedence, trimming, missing-var error |
-| `print.test.js` | AST printing, parse + print round-trip, `getOperation` for query / mutation / subscription |
-| `hash.test.js` | known-vector SHA-256 digests, determinism, error on non-string input |
-| `client.test.js` | GET URL shape, omitted-when-empty variables, operationName encoding, APQ retry, non-APQ errors pass through, mutation always POSTs, URL-length guard |
-| `hierarchy.test.js` | every hierarchy slot, slug/postType/taxonomy normalization, deduplication, registry fallthrough, smoke test against the live wpgraphql.com registry shape |
-| `seed-query.test.js` | response → normalized seed for Page / Post / Category / ContentType / front-page / missing-node |
-| `resolve-template.test.js` | happy path, notFound, front-page bypass, input validation |
-| `get-template-static-props.test.js` | Next.js adapter happy path, notFound + revalidate, skip predicates |
-| `templates.test.js` | registry configure / getRegistry / re-configure |
+| file                                | what it covers                                                                                                                                            |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `endpoint.test.js`                  | env-var precedence, trimming, missing-var error                                                                                                           |
+| `print.test.js`                     | AST printing, parse + print round-trip, `getOperation` for query / mutation / subscription                                                                |
+| `hash.test.js`                      | known-vector SHA-256 digests, determinism, error on non-string input                                                                                      |
+| `client.test.js`                    | GET URL shape, omitted-when-empty variables, operationName encoding, APQ retry, non-APQ errors pass through, mutation always POSTs, URL-length guard      |
+| `hierarchy.test.js`                 | every hierarchy slot, slug/postType/taxonomy normalization, deduplication, registry fallthrough, smoke test against the live wpgraphql.com registry shape |
+| `seed-query.test.js`                | response → normalized seed for Page / Post / Category / ContentType / front-page / missing-node                                                           |
+| `resolve-template.test.js`          | happy path, notFound, front-page bypass, input validation                                                                                                 |
+| `get-template-static-props.test.js` | Next.js adapter happy path, notFound + revalidate, skip predicates                                                                                        |
+| `templates.test.js`                 | registry configure / getRegistry / re-configure                                                                                                           |
 
 Total: 75 tests at the time of writing.
 
