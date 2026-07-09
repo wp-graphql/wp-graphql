@@ -518,6 +518,136 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		unregister_setting( 'zool', 'points' );
 	}
 
+	/**
+	 * A setting registered with a group must surface on both read surfaces:
+	 * as a field on its group type and as a group-prefixed field on the
+	 * flat Settings type.
+	 */
+	public function testRegisteredSettingAppearsInFlatAndGroupedTypes() {
+		wp_set_current_user( $this->admin );
+
+		register_setting(
+			'zool',
+			'points',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test how many points we have in Zool.' ),
+				'show_in_graphql' => true,
+			]
+		);
+
+		$query = '
+		query GetTypes {
+			grouped: __type(name: "ZoolSettings") {
+				fields {
+					name
+				}
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		unregister_setting( 'zool', 'points' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$grouped_fields = wp_list_pluck( $actual['data']['grouped']['fields'], 'name' );
+		$flat_fields    = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'points', $grouped_fields );
+		$this->assertContains( 'zoolSettingsPoints', $flat_fields );
+	}
+
+	/**
+	 * A setting registered with `show_in_rest` (and no explicit
+	 * `show_in_graphql`) must also surface on both read surfaces.
+	 */
+	public function testSettingRegisteredForRestAppearsInFlatAndGroupedTypes() {
+		wp_set_current_user( $this->admin );
+
+		register_setting(
+			'zool',
+			'points',
+			[
+				'type'         => 'number',
+				'description'  => __( 'Test how many points we have in Zool.' ),
+				'show_in_rest' => true,
+			]
+		);
+
+		$query = '
+		query GetTypes {
+			grouped: __type(name: "ZoolSettings") {
+				fields {
+					name
+				}
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		unregister_setting( 'zool', 'points' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$grouped_fields = wp_list_pluck( $actual['data']['grouped']['fields'], 'name' );
+		$flat_fields    = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'points', $grouped_fields );
+		$this->assertContains( 'zoolSettingsPoints', $flat_fields );
+	}
+
+	/**
+	 * The grouped and flat read surfaces terminate in independent filters:
+	 * emptying `graphql_allowed_settings_by_group` removes the per-group
+	 * root fields but leaves the flat allSettings surface intact.
+	 */
+	public function testFilteringGroupedSettingsDoesNotAffectFlatSettings() {
+		wp_set_current_user( $this->admin );
+
+		$filter = static function () {
+			return [];
+		};
+
+		add_filter( 'graphql_allowed_settings_by_group', $filter, 99 );
+		$this->clearSchema();
+
+		$query = '
+		query GetTypes {
+			__type(name: "RootQuery") {
+				fields {
+					name
+				}
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_allowed_settings_by_group', $filter, 99 );
+		$this->clearSchema();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$root_fields = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		$this->assertNotContains( 'generalSettings', $root_fields, 'Expected per-group root fields to be removed when the grouped settings are filtered out' );
+		$this->assertContains( 'allSettings', $root_fields, 'Expected the flat allSettings surface to be unaffected by the grouped settings filter' );
+		$flat_fields = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'generalSettingsTitle', $flat_fields );
+	}
+
 	public function testUnregisteringSettingPreventsItFromBeingInTheSchema() {
 
 		register_setting(
