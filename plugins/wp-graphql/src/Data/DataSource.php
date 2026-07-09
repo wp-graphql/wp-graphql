@@ -331,6 +331,55 @@ class DataSource {
 	}
 
 	/**
+	 * Build the canonical, normalized map of settings WPGraphQL can expose.
+	 *
+	 * The map is keyed by option name and each entry is the setting's registered
+	 * args plus its `key`. Both read surfaces (the flat settings map and the
+	 * grouped settings map) are derived from this single map so a setting cannot
+	 * appear on one surface and not the other.
+	 *
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 *
+	 * @return array<string,array<string,mixed>>
+	 *
+	 * @since x-release-please-version
+	 */
+	protected static function get_normalized_settings( TypeRegistry $type_registry ): array {
+
+		/**
+		 * Get all registered settings
+		 */
+		$registered_settings = get_registered_settings();
+
+		/**
+		 * Loop through the $registered_settings and add the setting to the
+		 * normalized map if it is allowed in GraphQL, or in REST when the
+		 * setting doesn't declare `show_in_graphql`.
+		 */
+		$normalized_settings = [];
+		foreach ( $registered_settings as $key => $setting ) {
+			$setting_key = (string) $key;
+
+			if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $setting['show_in_graphql'] ) ) {
+				if ( ! isset( $setting['show_in_rest'] ) || false === $setting['show_in_rest'] ) {
+					continue;
+				}
+			} elseif ( true !== $setting['show_in_graphql'] ) {
+				continue;
+			}
+
+			$setting['key']                      = $setting_key;
+			$normalized_settings[ $setting_key ] = $setting;
+		}
+
+		return $normalized_settings;
+	}
+
+	/**
 	 * Get all of the allowed settings by group
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
@@ -340,18 +389,11 @@ class DataSource {
 	public static function get_allowed_settings_by_group( TypeRegistry $type_registry ) {
 
 		/**
-		 * Get all registered settings
-		 */
-		$registered_settings = get_registered_settings();
-
-		/**
-		 * Loop through the $registered_settings array and build an array of
-		 * settings for each group ( general, reading, discussion, writing, reading, etc. )
-		 * if the setting is allowed in REST or GraphQL
+		 * Group the normalized settings ( general, reading, discussion, writing, etc. ),
+		 * skipping settings that don't have a group.
 		 */
 		$allowed_settings_by_group = [];
-		foreach ( $registered_settings as $key => $setting ) {
-			// Bail if the setting doesn't have a group.
+		foreach ( self::get_normalized_settings( $type_registry ) as $setting_key => $setting ) {
 			if ( ! isset( $setting['group'] ) || empty( $setting['group'] ) ) {
 				continue;
 			}
@@ -360,27 +402,8 @@ class DataSource {
 			$setting_group = $setting['group'];
 			$group         = self::format_group_name( $setting_group );
 
-			if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
-				continue;
-			}
-
-			$setting_key = (string) $key;
-
-			if ( ! isset( $setting['show_in_graphql'] ) ) {
-				if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-					$setting['key']                                      = $setting_key;
-					$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
-				}
-			} elseif ( true === $setting['show_in_graphql'] ) {
-				$setting['key']                                      = $setting_key;
-				$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
-			}
+			$allowed_settings_by_group[ $group ][ $setting_key ] = $setting;
 		}
-
-		/**
-		 * Set the setting groups that are allowed
-		 */
-		$allowed_settings_by_group = ! empty( $allowed_settings_by_group ) ? $allowed_settings_by_group : [];
 
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
@@ -403,44 +426,9 @@ class DataSource {
 	public static function get_allowed_settings( TypeRegistry $type_registry ) {
 
 		/**
-		 * Get all registered settings
+		 * The flat view is the normalized map itself.
 		 */
-		$registered_settings = get_registered_settings();
-
-		/**
-		 * Set allowed settings variable.
-		 */
-		$allowed_settings = [];
-
-		if ( ! empty( $registered_settings ) ) {
-
-			/**
-			 * Loop through the $registered_settings and if the setting is allowed in REST or GraphQL
-			 * add it to the $allowed_settings array
-			 */
-			foreach ( $registered_settings as $key => $setting ) {
-				$setting_key = (string) $key;
-
-				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
-					continue;
-				}
-
-				if ( ! isset( $setting['show_in_graphql'] ) ) {
-					if ( isset( $setting['show_in_rest'] ) && false !== $setting['show_in_rest'] ) {
-						$setting['key']                   = $setting_key;
-						$allowed_settings[ $setting_key ] = $setting;
-					}
-				} elseif ( true === $setting['show_in_graphql'] ) {
-					$setting['key']                   = $setting_key;
-					$allowed_settings[ $setting_key ] = $setting;
-				}
-			}
-		}
-
-		/**
-		 * Verify that we have the allowed settings
-		 */
-		$allowed_settings = ! empty( $allowed_settings ) ? $allowed_settings : [];
+		$allowed_settings = self::get_normalized_settings( $type_registry );
 
 		/**
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
