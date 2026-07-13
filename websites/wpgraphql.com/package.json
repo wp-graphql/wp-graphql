@@ -68,7 +68,7 @@
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.10",
     "@playwright/test": "^1.61.1",
-    "eslint": "^10.5.0",
+    "eslint": "^9",
     "eslint-config-next": "^16.2.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
