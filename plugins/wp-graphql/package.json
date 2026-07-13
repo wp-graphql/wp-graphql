@@ -76,7 +76,7 @@
 		"@testing-library/react": "^15.0.7",
 		"@types/node": "^22.19.17",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
-		"@typescript-eslint/parser": "^6.21.0",
+		"@typescript-eslint/parser": "^8.61.0",
 		"@wordpress/babel-preset-default": "^8.49.0",
 		"@wordpress/env": "^11.9.0",
 		"@wordpress/jest-preset-default": "^12.49.0",
