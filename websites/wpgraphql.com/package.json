@@ -77,7 +77,7 @@
     "postcss": "^8.5.16",
     "postcss-focus-visible": "^7.1.0",
     "postcss-import": "^16.1.1",
-    "prettier": "^3.9.1",
+    "prettier": "^3.9.4",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3"
   },
