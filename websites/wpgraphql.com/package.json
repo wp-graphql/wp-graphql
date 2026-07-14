@@ -23,7 +23,7 @@
     "**/*.{js,jsx,ts,tsx,css,md,mdx,json,yml,yaml}": "prettier --write"
   },
   "dependencies": {
-    "@docsearch/react": "^3.3.0",
+    "@docsearch/react": "^4.6.3",
     "@headlessui/react": "^1.7.3",
     "@heroicons/react": "2.0.12",
     "@js-temporal/polyfill": "^0.4.2",
@@ -75,7 +75,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "postcss": "^8.5.17",
-    "postcss-focus-visible": "^7.1.0",
+    "postcss-focus-visible": "^11.0.0",
     "postcss-import": "^16.1.1",
     "prettier": "^3.9.4",
     "tailwindcss": "^4.2.4",
