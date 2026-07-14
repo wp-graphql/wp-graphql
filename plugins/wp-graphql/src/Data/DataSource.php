@@ -26,6 +26,7 @@ use WPGraphQL\Model\Theme;
 use WPGraphQL\Model\User;
 use WPGraphQL\Model\UserRole;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\ObjectType\SettingGroup;
 
 /**
  * Class DataSource
@@ -376,7 +377,66 @@ class DataSource {
 			$normalized_settings[ $setting_key ] = $setting;
 		}
 
+		/**
+		 * Apply WPGraphQL-managed config to core settings that need behavior
+		 * beyond what their registration args declare.
+		 */
+		foreach ( self::get_core_setting_config() as $setting_key => $config ) {
+			if ( isset( $normalized_settings[ $setting_key ] ) ) {
+				$normalized_settings[ $setting_key ] = array_merge( $normalized_settings[ $setting_key ], $config );
+			}
+		}
+
+		/**
+		 * Filter the normalized settings map before the read and mutation surfaces are derived from it.
+		 *
+		 * This is the seam for exposing options WordPress never registers via register_setting():
+		 * seed an entry here, in memory, instead of mutating the global settings registry. Entries
+		 * follow the register_setting() args shape (`group`, `type`, `description`, ...) plus a `key`
+		 * holding the option name, and support WPGraphQL-specific config: `graphql_readonly` (bool)
+		 * rejects updates to the setting through the updateSettings mutation, and `graphql_resolve`
+		 * (callable) normalizes the setting's resolved value.
+		 *
+		 * @param array<string,array<string,mixed>> $normalized_settings The normalized settings map, keyed by option name.
+		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry       The WPGraphQL TypeRegistry.
+		 *
+		 * @hookGroup settings
+		 * @since x-release-please-version
+		 */
+		$normalized_settings = apply_filters( 'graphql_normalized_settings', $normalized_settings, $type_registry );
+
+		/**
+		 * Ensure every entry carries its option name as `key`, so filter-added
+		 * entries don't need to duplicate it.
+		 */
+		foreach ( $normalized_settings as $setting_key => $setting ) {
+			if ( ! isset( $setting['key'] ) ) {
+				$normalized_settings[ $setting_key ]['key'] = (string) $setting_key;
+			}
+		}
+
 		return $normalized_settings;
+	}
+
+	/**
+	 * WPGraphQL-managed config for core settings, applied on top of their
+	 * registered args in the normalized settings map.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 *
+	 * @since x-release-please-version
+	 */
+	protected static function get_core_setting_config(): array {
+		return [
+			// The site URL must not be updatable through the API.
+			'siteurl'         => [
+				'graphql_readonly' => true,
+			],
+			// Derive the timezone from `gmt_offset` when `timezone_string` is empty.
+			'timezone_string' => [
+				'graphql_resolve' => [ SettingGroup::class, 'resolve_timezone_setting_value' ],
+			],
+		];
 	}
 
 	/**
