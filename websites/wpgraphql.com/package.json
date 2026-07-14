@@ -23,7 +23,7 @@
     "**/*.{js,jsx,ts,tsx,css,md,mdx,json,yml,yaml}": "prettier --write"
   },
   "dependencies": {
-    "@docsearch/react": "^3.3.0",
+    "@docsearch/react": "^4.6.3",
     "@headlessui/react": "^1.7.3",
     "@heroicons/react": "2.0.12",
     "@js-temporal/polyfill": "^0.4.2",
