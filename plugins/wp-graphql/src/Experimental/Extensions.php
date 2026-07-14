@@ -53,6 +53,9 @@ class Extensions {
 		 * @param string|null                       $operation_name The operation name being executed
 		 * @param string|null                       $request        The GraphQL Request being made
 		 * @param array<string,mixed>|null          $variables      The variables sent with the request
+		 *
+		 * @hookGroup settings
+		 * @since 2.3.8
 		 */
 		$should_show_experiments_in_extensions = apply_filters(
 			'graphql_should_show_experiments_in_extensions',

@@ -53,15 +53,41 @@ Before resolving a template, `resolveTemplate()` runs `SEED_QUERY` against WPGra
 ```graphql
 query WpGraphQLClientSeed($uri: String!) {
   node: nodeByUri(uri: $uri) {
-    __typename id uri
-    ... on ContentNode { databaseId slug isPreview isRestricted
-      contentType { node { name graphqlSingleName } }
-      ... on NodeWithTitle { title } }
-    ... on TermNode { slug taxonomyName }
-    ... on User { slug }
-    ... on ContentType { name label graphqlSingleName }
+    __typename
+    id
+    uri
+    ... on ContentNode {
+      databaseId
+      slug
+      isPreview
+      isRestricted
+      contentType {
+        node {
+          name
+          graphqlSingleName
+        }
+      }
+      ... on NodeWithTitle {
+        title
+      }
+    }
+    ... on TermNode {
+      slug
+      taxonomyName
+    }
+    ... on User {
+      slug
+    }
+    ... on ContentType {
+      name
+      label
+      graphqlSingleName
+    }
   }
-  generalSettings { title description }
+  generalSettings {
+    title
+    description
+  }
 }
 ```
 

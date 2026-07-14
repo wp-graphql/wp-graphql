@@ -109,6 +109,13 @@ class Settings {
 			]
 		);
 
+		/**
+		 * Filter the configured endpoint path for WPGraphQL.
+		 *
+		 * @param ?string $endpoint A custom endpoint path.
+		 * @hookGroup settings
+		 * @since 0.0.6
+		 */
 		$custom_endpoint = apply_filters( 'graphql_endpoint', null );
 		$this->settings_api->register_field(
 			'graphql_general_settings',
@@ -312,7 +319,13 @@ class Settings {
 			]
 		);
 
-		// Action to hook into to register settings
+		/**
+		 * Fires after core WPGraphQL settings have been registered.
+		 *
+		 * @param self $settings Settings manager instance.
+		 * @hookGroup settings
+		 * @since 0.13.0
+		 */
 		do_action( 'graphql_register_settings', $this );
 	}
 

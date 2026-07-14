@@ -5,30 +5,73 @@ import Constellation from "@/components/extensions/Constellation"
 
 const heroQuery = (
   <>
-    <Tok kind="kw">query</Tok> <Tok kind="key">GetPosts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="key">title</Tok>{"\n"}
-    {"      "}<Tok kind="key">date</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetPosts</Tok>{" "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="key">title</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="key">date</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )
 
 const heroResponse = (
   <>
-    <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="str">{"\"data\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="str">{"\"posts\""}</Tok><Tok kind="punc">: {"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="str">{"\"nodes\""}</Tok><Tok kind="punc">: [</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"title\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"Hello, world\""}</Tok><Tok kind="punc">,</Tok>{"\n"}
-    {"          "}<Tok kind="str">{"\"date\""}</Tok><Tok kind="punc">: </Tok><Tok kind="str">{"\"2025-12-08\""}</Tok>{"\n"}
-    {"        "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"      "}<Tok kind="punc">]</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="str">{'"data"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="str">{'"posts"'}</Tok>
+    <Tok kind="punc">: {"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="str">{'"nodes"'}</Tok>
+    <Tok kind="punc">: [</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="str">{'"title"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"Hello, world"'}</Tok>
+    <Tok kind="punc">,</Tok>
+    {"\n"}
+    {"          "}
+    <Tok kind="str">{'"date"'}</Tok>
+    <Tok kind="punc">: </Tok>
+    <Tok kind="str">{'"2025-12-08"'}</Tok>
+    {"\n"}
+    {"        "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="punc">]</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )
@@ -59,9 +102,8 @@ export default function HomepageHero() {
               <span className="text-primary">every WordPress site</span>
             </h1>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-              WPGraphQL is a free, open-source WordPress plugin that
-              provides an extendable GraphQL schema and API for any
-              WordPress site.
+              WPGraphQL is a free, open-source WordPress plugin that provides an
+              extendable GraphQL schema and API for any WordPress site.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Button asChild size="lg">

@@ -356,6 +356,24 @@ class PostObjects {
 			],
 
 			/**
+			 * Template parameter
+			 *
+			 * Filters by the per-post template assignment (`_wp_page_template` meta), which
+			 * covers both classic page templates and block-theme custom templates assigned to
+			 * a specific post. The ContentTemplateEnum values come from the templates registered for
+			 * the active theme. It does not filter by the block theme's global template
+			 * hierarchy (the `wp_template` post type), which is resolved dynamically per request.
+			 *
+			 * @since x-release-please-version
+			 */
+			'template'    => [
+				'type'        => 'ContentTemplateEnum',
+				'description' => static function () {
+					return __( 'Filter the connection to content assigned a specific template.', 'wp-graphql' );
+				},
+			],
+
+			/**
 			 * Password parameters
 			 *
 			 * @see   : https://codex.wordpress.org/Class_Reference/WP_Query#Password_Parameters
@@ -371,6 +389,18 @@ class PostObjects {
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'Show posts with a specific password.', 'wp-graphql' );
+				},
+			],
+
+			/**
+			 * Sticky post parameters
+			 *
+			 * @see   : https://developer.wordpress.org/reference/classes/wp_query/#sticky-post-parameters
+			 */
+			'isSticky'    => [
+				'type'        => 'Boolean',
+				'description' => static function () {
+					return __( 'True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results.', 'wp-graphql' );
 				},
 			],
 

@@ -185,7 +185,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If the cursor offsets not empty,
 		 * ignore sticky posts on the query
 		 */
-		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_after_offset() ) ) {
+		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_before_offset() ) ) {
 			$query_args['ignore_sticky_posts'] = true;
 		}
 
@@ -355,6 +355,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array<string,mixed>                  $args       The inputArgs on the field
 		 * @param \WPGraphQL\AppContext                $context    The AppContext passed down the GraphQL tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 *
+		 * @hookGroup connections
+		 * @since 0.0.6
 		 */
 		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
 	}
@@ -413,6 +416,75 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
+		 * Filter the result set by sticky posts.
+		 *
+		 * WPGraphQL never floats sticky posts to the top of the results (ignore_sticky_posts
+		 * is always true, which is also cursor-pagination safe). Instead `isSticky` filters
+		 * the result set, modeling the WP REST API `sticky` parameter: true limits the query
+		 * to sticky posts, false excludes them.
+		 */
+		if ( isset( $where_args['isSticky'] ) ) {
+			$sticky_posts = get_option( 'sticky_posts', [] );
+			$sticky_posts = is_array( $sticky_posts ) ? array_map( 'absint', $sticky_posts ) : [];
+
+			if ( true === $where_args['isSticky'] ) {
+				// Limit to sticky posts, intersecting with any explicit `in` filter.
+				$query_args['post__in'] = ! empty( $query_args['post__in'] )
+					? array_intersect( $sticky_posts, $query_args['post__in'] )
+					: $sticky_posts;
+
+				// WP_Query ignores an empty post__in, so force an impossible ID to return no results.
+				if ( empty( $query_args['post__in'] ) ) {
+					$query_args['post__in'] = [ 0 ];
+				}
+			} elseif ( ! empty( $sticky_posts ) ) {
+				// Exclude sticky posts, merging with any explicit `notIn` filter.
+				$query_args['post__not_in'] = array_merge( // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+					! empty( $query_args['post__not_in'] ) ? $query_args['post__not_in'] : [],
+					$sticky_posts
+				);
+			}
+		}
+
+		/**
+		 * Filter the connection by the per-post template assignment (`_wp_page_template`),
+		 * which covers both classic page templates and block-theme custom templates.
+		 *
+		 * This is the one place a core `where` arg introduces a meta_query. It is bounded to a
+		 * single indexed meta key, but a meta_query is still more expensive than the indexed
+		 * post columns the other args use.
+		 *
+		 * TODO (Query Cost): when the query complexity / cost analysis system lands
+		 * (see plans/001-query-complexity-validation-rule.md and the filter/sort RFC #1385),
+		 * this arg MUST be assigned a cost weighting so meta_query-backed filters can be priced
+		 * and guarded. It is intentionally shipped without one now because that system does not
+		 * yet exist.
+		 */
+		if ( isset( $where_args['template'] ) && is_string( $where_args['template'] ) && '' !== $where_args['template'] ) {
+			if ( 'default' === $where_args['template'] ) {
+				// Content on the default template has no specific template assigned: the meta is
+				// absent, empty, or the literal "default".
+				$query_args['meta_query'][] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query, SlevomatCodingStandard.Arrays.DisallowPartiallyKeyed.DisallowedPartiallyKeyed
+					'relation' => 'OR',
+					[
+						'key'     => '_wp_page_template',
+						'compare' => 'NOT EXISTS',
+					],
+					[
+						'key'     => '_wp_page_template',
+						'value'   => [ '', 'default' ],
+						'compare' => 'IN',
+					],
+				];
+			} else {
+				$query_args['meta_query'][] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'key'   => '_wp_page_template',
+					'value' => $where_args['template'],
+				];
+			}
+		}
+
+		/**
 		 * Filter the input fields
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
@@ -425,6 +497,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo object
 		 * @param mixed|string|string[]                $post_type  The post type for the query
 		 *
+		 * @hookGroup connections
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
@@ -506,6 +579,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array<\WP_Post_Type|null>                               $post_type_objects  The post type objects the connection resolves.
 		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $resolver           The connection resolver instance.
 		 *
+		 * @hookGroup connections
 		 * @since 2.17.0
 		 */
 		$allowed_statuses = apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post_type_objects, $this );
@@ -619,6 +693,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param self                $resolver        Instance of the ConnectionResolver.
 		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 *
+		 * @hookGroup connections
 		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->get_unfiltered_args() );

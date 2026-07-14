@@ -112,7 +112,10 @@ export function resolveTemplateName(seed, registry) {
   }
   const candidates = buildCandidateNames(seed)
   for (const name of candidates) {
-    if (Object.prototype.hasOwnProperty.call(registry, name) && registry[name]) {
+    if (
+      Object.prototype.hasOwnProperty.call(registry, name) &&
+      registry[name]
+    ) {
       return name
     }
   }

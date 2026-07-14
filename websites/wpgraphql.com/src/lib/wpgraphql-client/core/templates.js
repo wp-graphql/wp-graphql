@@ -8,7 +8,9 @@ export function configure({ templates, Layout } = {}) {
 
 export function getRegistry() {
   if (!_registry) {
-    throw new Error("wpgraphql-client: configure({ templates, Layout }) was never called")
+    throw new Error(
+      "wpgraphql-client: configure({ templates, Layout }) was never called"
+    )
   }
   return { templates: _registry, Layout: _layout }
 }

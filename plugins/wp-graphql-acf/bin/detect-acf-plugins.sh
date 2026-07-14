@@ -20,6 +20,13 @@ elif [ -f "/var/www/html/wp-content/plugins/acf-extended/acf-extended.php" ]; th
   ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
 fi
 
+# Detect WPGraphQL Content Blocks plugin
+WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG=""
+if [ -f "/var/www/html/wp-content/plugins/wp-graphql-content-blocks/wp-graphql-content-blocks.php" ]; then
+  WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG="wp-graphql-content-blocks/wp-graphql-content-blocks.php"
+fi
+
 # Output as environment variable exports (can be sourced)
 echo "export ACF_PLUGIN_SLUG=\"${ACF_PLUGIN_SLUG}\""
 echo "export ACF_EXTENDED_PLUGIN_SLUG=\"${ACF_EXTENDED_PLUGIN_SLUG}\""
+echo "export WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG=\"${WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_SLUG}\""

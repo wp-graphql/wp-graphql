@@ -172,6 +172,9 @@ class AppContext {
 		 * throughout the resolution of a GraphQL request.
 		 *
 		 * @param mixed[] $config The config array of the AppContext object
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
 	}
@@ -193,6 +196,9 @@ class AppContext {
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>> $loader_classes The loader classes accessible in the AppContext
 		 * @param \WPGraphQL\AppContext                                                $context        The AppContext
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$this->loader_classes = apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
 

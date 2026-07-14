@@ -19,20 +19,27 @@ export default function DocsLayout({ children, toc, docsNavData }) {
               (not an internal overflow container) so it stays in view as the
               article scrolls. top-20 clears the sticky site header. */}
           <aside id="docs-nav" className="hidden lg:block">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-10 pr-4">
+            {/* top-16 matches the sticky site header's height so the rail's
+                pinned position equals its natural position at scroll zero —
+                keeping its heading top-aligned with the article content
+                (e.g. breadcrumbs). The py-10 inside the sticky element
+                provides the breathing room below the header when pinned. */}
+            <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-10 pr-4">
               <DocsNav docsNavData={docsNavData} />
             </div>
           </aside>
 
           {/* Article column: min-w-0 prevents long code blocks from forcing
               the grid track wider. Centered max-width inside. */}
-          <article id="doc-content" className="min-w-0 py-10 lg:py-12">
+          {/* py-10 matches the rails' sticky-wrapper padding so all three
+              columns' content starts at the same height. */}
+          <article id="doc-content" className="min-w-0 py-10">
             <div className="mx-auto max-w-3xl">{children}</div>
           </article>
 
           {/* Right rail: on-this-page TOC, sticky alongside the article. */}
           <aside id="doc-table-of-contents" className="hidden lg:block">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-10">
+            <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-10">
               {toc && <TableOfContents toc={toc} />}
             </div>
           </aside>

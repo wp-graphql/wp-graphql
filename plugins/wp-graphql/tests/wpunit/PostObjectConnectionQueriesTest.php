@@ -1349,6 +1349,264 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertFalse( $actual['data']['posts']['nodes'][1]['isSticky'] );
 	}
 
+	/**
+	 * The `isSticky` where arg filters the connection result set by sticky status,
+	 * modeling the WP REST API `sticky` parameter. It does not float sticky posts.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/786
+	 */
+	public function testIsStickyWhereArgFiltersConnection() {
+		// setUp() already created 6 non-sticky published posts.
+		$sticky_one = $this->createPostObject( [ 'post_title' => 'Sticky One' ] );
+		$sticky_two = $this->createPostObject( [ 'post_title' => 'Sticky Two' ] );
+
+		update_option( 'sticky_posts', [ $sticky_one, $sticky_two ] );
+
+		$query = $this->getQuery();
+
+		// isSticky: true returns only the sticky posts.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [ 'isSticky' => true ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		sort( $actual_ids );
+		$expected_ids = [ $sticky_one, $sticky_two ];
+		sort( $expected_ids );
+		$this->assertEquals( $expected_ids, $actual_ids, 'isSticky: true should return only sticky posts.' );
+
+		// isSticky: false excludes the sticky posts but keeps the rest.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [ 'isSticky' => false ],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertNotContains( $sticky_one, $actual_ids, 'isSticky: false should exclude sticky posts.' );
+		$this->assertNotContains( $sticky_two, $actual_ids, 'isSticky: false should exclude sticky posts.' );
+		$this->assertContains( $this->created_post_ids[1], $actual_ids, 'isSticky: false should keep non-sticky posts.' );
+
+		// isSticky: true intersects with an explicit `in` filter (REST parity).
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+					'where' => [
+						'isSticky' => true,
+						'in'       => [ $sticky_one, $this->created_post_ids[1] ],
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['posts']['nodes'], 'databaseId' );
+		$this->assertEquals( [ $sticky_one ], $actual_ids, 'isSticky: true with `in` should return the intersection.' );
+	}
+
+	/**
+	 * The `template` where arg is a ContentTemplateEnum built from the templates registered for the
+	 * active theme. Each value maps a schema-friendly, kind-qualified name (e.g. a classic
+	 * `full-width.php` -> `FULL_WIDTH_TEMPLATE`, a block `page-no-title` -> `PAGE_NO_TITLE_BLOCK_TEMPLATE`)
+	 * to the underlying identifier, plus `DEFAULT_TEMPLATE` for content with no specific template assigned.
+	 * Per-post template assignment uses the same storage for classic templates (a `.php` file name)
+	 * and block-theme custom templates (a slug).
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
+	 *
+	 * @throws \Exception
+	 */
+	public function testTemplateWhereArgFiltersConnection() {
+		// Register templates for the active theme so they appear as ContentTemplateEnum values.
+		// A `.php` file name models a classic template; a bare slug models a block-theme one.
+		$register_templates = static function ( $templates ) {
+			$templates['full-width.php'] = 'Full Width';
+			$templates['page-no-title']  = 'No Title';
+			return $templates;
+		};
+		add_filter( 'theme_page_templates', $register_templates );
+
+		// Rebuild the schema so the enum picks up the registered templates.
+		$this->clearSchema();
+
+		$full_width_one = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Full Width One' ] );
+		$full_width_two = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Full Width Two' ] );
+		$block_template = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Block Template' ] );
+		$no_template    = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'No Template' ] );
+
+		update_post_meta( $full_width_one, '_wp_page_template', 'full-width.php' );
+		update_post_meta( $full_width_two, '_wp_page_template', 'full-width.php' );
+		update_post_meta( $block_template, '_wp_page_template', 'page-no-title' );
+
+		$query = '
+		query PagesByTemplate( $template: ContentTemplateEnum ) {
+			pages( first: 100, where: { template: $template } ) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		// The classic template's value is suffixed `_TEMPLATE` and resolves to `full-width.php`.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'template' => 'FULL_WIDTH_TEMPLATE' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
+		sort( $actual_ids );
+		$expected_ids = [ $full_width_one, $full_width_two ];
+		sort( $expected_ids );
+		$this->assertEquals( $expected_ids, $actual_ids, 'template should return only pages assigned that template' );
+		$this->assertNotContains( $block_template, $actual_ids, 'template should exclude pages with a different template' );
+		$this->assertNotContains( $no_template, $actual_ids, 'template should exclude pages with no template' );
+
+		// A block-theme template slug (no `.php`) is qualified as `_BLOCK_TEMPLATE` and filters the same way.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'template' => 'PAGE_NO_TITLE_BLOCK_TEMPLATE' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
+		$this->assertEquals( [ $block_template ], $actual_ids, 'template should match a block-theme template slug' );
+
+		// `DEFAULT_TEMPLATE` matches content with no specific template assigned.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'template' => 'DEFAULT_TEMPLATE' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$actual_ids = wp_list_pluck( $actual['data']['pages']['nodes'], 'databaseId' );
+		$this->assertContains( $no_template, $actual_ids, 'DEFAULT_TEMPLATE should include pages with no template' );
+		$this->assertNotContains( $full_width_one, $actual_ids, 'DEFAULT_TEMPLATE should exclude templated pages' );
+		$this->assertNotContains( $block_template, $actual_ids, 'DEFAULT_TEMPLATE should exclude templated pages' );
+
+		remove_filter( 'theme_page_templates', $register_templates );
+		$this->clearSchema();
+	}
+
+	/**
+	 * Two templates that share a base name (e.g. a classic `my-layout.php` and a block-theme
+	 * `my-layout`) each get a distinct, filterable enum value because every value is qualified
+	 * by kind. Neither is silently dropped, and the qualifier never leaks the file extension.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
+	 *
+	 * @throws \Exception
+	 */
+	public function testContentTemplateEnumDistinguishesTemplatesByKind() {
+		// A classic `.php` template and a block-theme slug that collapse to the same base name.
+		$register = static function ( $templates ) {
+			$templates['my-layout.php'] = 'My Layout (classic)';
+			$templates['my-layout']     = 'My Layout (block)';
+			return $templates;
+		};
+		add_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+
+		$classic_page = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Classic Template' ] );
+		$block_page   = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Block Template' ] );
+		update_post_meta( $classic_page, '_wp_page_template', 'my-layout.php' );
+		update_post_meta( $block_page, '_wp_page_template', 'my-layout' );
+
+		$query = '
+		query( $template: ContentTemplateEnum ) {
+			pages( first: 100, where: { template: $template } ) {
+				nodes { databaseId }
+			}
+		}
+		';
+
+		// Each template is qualified by its kind (never by the leaked file extension): the
+		// block-theme template is `MY_LAYOUT_BLOCK_TEMPLATE` and the classic one
+		// `MY_LAYOUT_TEMPLATE`. Both remain filterable.
+		$block_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_LAYOUT_BLOCK_TEMPLATE' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $block_result );
+		$this->assertEquals( [ $block_page ], wp_list_pluck( $block_result['data']['pages']['nodes'], 'databaseId' ), 'MY_LAYOUT_BLOCK_TEMPLATE should resolve to the block-theme template' );
+
+		$classic_result = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'MY_LAYOUT_TEMPLATE' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $classic_result );
+		$this->assertEquals( [ $classic_page ], wp_list_pluck( $classic_result['data']['pages']['nodes'], 'databaseId' ), 'MY_LAYOUT_TEMPLATE should resolve to the classic template' );
+
+		remove_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+	}
+
+	/**
+	 * Two templates of the *same* kind whose identifiers collapse to the same enum name (a classic
+	 * `full-width.php` and a classic `full_width.php` both sanitize to `FULL_WIDTH_TEMPLATE`) must each
+	 * get a distinct, filterable value. The first keeps the base name and the second is disambiguated
+	 * with a numeric suffix (`FULL_WIDTH_TEMPLATE_2`) so neither template is silently dropped.
+	 *
+	 * Assignment order is deterministic because the templates are sorted by identifier before names are
+	 * generated: `full-width.php` sorts before `full_width.php`, so it claims the un-suffixed name.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1638
+	 *
+	 * @throws \Exception
+	 */
+	public function testContentTemplateEnumDisambiguatesSameKindNameCollisions() {
+		$register = static function ( $templates ) {
+			$templates['full-width.php'] = 'Full Width (hyphen)';
+			$templates['full_width.php'] = 'Full Width (underscore)';
+			return $templates;
+		};
+		add_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+
+		$hyphen_page     = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Hyphen Template' ] );
+		$underscore_page = $this->createPostObject( [ 'post_type' => 'page', 'post_title' => 'Underscore Template' ] );
+		update_post_meta( $hyphen_page, '_wp_page_template', 'full-width.php' );
+		update_post_meta( $underscore_page, '_wp_page_template', 'full_width.php' );
+
+		$query = '
+		query( $template: ContentTemplateEnum ) {
+			pages( first: 100, where: { template: $template } ) {
+				nodes { databaseId }
+			}
+		}
+		';
+
+		// The first template (sorted by identifier) claims the un-suffixed name and resolves to
+		// `full-width.php`.
+		$first = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'FULL_WIDTH_TEMPLATE' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $first );
+		$this->assertEquals( [ $hyphen_page ], wp_list_pluck( $first['data']['pages']['nodes'], 'databaseId' ), 'FULL_WIDTH_TEMPLATE should resolve to full-width.php' );
+
+		// The colliding same-kind template is disambiguated with a numeric suffix and resolves to
+		// `full_width.php`, so it is still filterable rather than dropped.
+		$second = $this->graphql( [ 'query' => $query, 'variables' => [ 'template' => 'FULL_WIDTH_TEMPLATE_2' ] ] );
+		$this->assertArrayNotHasKey( 'errors', $second );
+		$this->assertEquals( [ $underscore_page ], wp_list_pluck( $second['data']['pages']['nodes'], 'databaseId' ), 'FULL_WIDTH_TEMPLATE_2 should resolve to full_width.php' );
+
+		remove_filter( 'theme_page_templates', $register );
+		$this->clearSchema();
+	}
+
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 

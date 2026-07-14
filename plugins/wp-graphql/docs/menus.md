@@ -12,6 +12,29 @@ In WordPress, Navigation Menus consist of 2 types of entities: Menus and MenuIte
 
 > **NOTE:** Menus and Menu Items in WordPress are not viewable by public requests until they are assigned to a Menu Location. WPGraphQL respects this access control right, so if you are not seeing data in your queries for menus and menu items, make sure the menu is assigned to a location.
 
+### Making Menus and Menu Items public
+
+If you want public (unauthenticated) requests to query menus and menu items that are _not_ assigned to a menu location, there are two access checks to relax:
+
+1. The **Model** privacy gate, which marks a menu or menu item private when it is not assigned to a location. Override it with the `graphql_data_is_private` filter.
+2. The **connection** location restriction, which limits the `menuItems` connection to items assigned to a location for public requests. Override it with the `graphql_menu_item_connection_restrict_to_locations` filter.
+
+```php
+// 1. Make Menu and MenuItem models public.
+add_filter( 'graphql_data_is_private', function ( $is_private, $model_name ) {
+	if ( in_array( $model_name, [ 'MenuObject', 'MenuItemObject' ], true ) ) {
+		return false;
+	}
+
+	return $is_private;
+}, 10, 2 );
+
+// 2. Allow the menuItems connection to return items of menus with no assigned location.
+add_filter( 'graphql_menu_item_connection_restrict_to_locations', '__return_false' );
+```
+
+An explicit `location` where arg always restricts the connection to that location and is unaffected by the second filter.
+
 ## Querying Menus and Menu Items
 
 Below are some examples of querying Menus and Menu Items
