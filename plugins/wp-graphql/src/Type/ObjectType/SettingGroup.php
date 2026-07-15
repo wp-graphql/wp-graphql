@@ -127,11 +127,18 @@ class SettingGroup {
 							}
 
 							/**
+							 * Give the setting's own resolver, declared as `graphql_resolve`
+							 * in the normalized settings map, the first pass at the value.
+							 */
+							if ( isset( $setting_field['graphql_resolve'] ) && is_callable( $setting_field['graphql_resolve'] ) ) {
+								$value = call_user_func( $setting_field['graphql_resolve'], $value, $setting_field, $group_name );
+							}
+
+							/**
 							 * Filters the resolved value of a single settings field before it is returned in the Schema.
 							 *
 							 * This gives extensions a seam to normalize or override a setting's resolved value
-							 * (for example, deriving `timezone` from the `gmt_offset` option when `timezone_string`
-							 * is empty) without adding one-off special cases to the core resolver.
+							 * without adding one-off special cases to the core resolver.
 							 *
 							 * @param mixed               $value         The resolved (and type-cast) value of the setting field.
 							 * @param array<string,mixed> $setting_field The setting field config, including its `key` and `type`.
@@ -150,7 +157,8 @@ class SettingGroup {
 	}
 
 	/**
-	 * Default callback for the `graphql_setting_field_value` filter.
+	 * Resolver for the timezone setting, assigned as the `graphql_resolve` config
+	 * of the `timezone_string` entry in the normalized settings map.
 	 *
 	 * When a site is configured with a manual UTC offset instead of a named timezone,
 	 * WordPress stores the offset in the `gmt_offset` option and leaves `timezone_string`
@@ -166,7 +174,7 @@ class SettingGroup {
 	 *
 	 * @since x-release-please-version
 	 */
-	public static function resolve_default_setting_field_value( $value, array $setting_field ) {
+	public static function resolve_timezone_setting_value( $value, array $setting_field ) {
 		if ( isset( $setting_field['key'] ) && 'timezone_string' === $setting_field['key'] && empty( $value ) ) {
 			return wp_timezone_string();
 		}
