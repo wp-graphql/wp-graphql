@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -82,16 +81,25 @@ class SettingGroup {
 							// translators: %s is the name of the setting group.
 							return isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
-						'resolve'     => static function () use ( $setting_field, $group_name ) {
+						'resolve'     => static function () use ( $setting_field, $group_name, $field_key ) {
 
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
 							 */
-							if ( 'admin_email' === $setting_field['key'] ) {
-								if ( ! current_user_can( 'manage_options' ) ) {
-									throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
-								}
+							if ( 'admin_email' === $setting_field['key'] && ! current_user_can( 'manage_options' ) ) {
+								$field_name = ucfirst( $group_name ) . 'Settings.' . $field_key;
+								graphql_debug(
+									// translators: 1: GraphQL field name, 2: required WordPress capability.
+									sprintf( __( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ), $field_name, 'manage_options' ),
+									[
+										'type'  => 'RESTRICTED_SETTING',
+										'field' => $field_name,
+										'required_capability' => 'manage_options',
+									]
+								);
+
+								return null;
 							}
 
 							$option = ! empty( $setting_field['key'] ) ? get_option( $setting_field['key'] ) : null;
