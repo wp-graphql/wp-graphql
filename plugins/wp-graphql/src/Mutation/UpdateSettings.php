@@ -156,7 +156,7 @@ class UpdateSettings {
 	 * @param array<string,mixed>              $input The mutation input
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array<string,array<string,mixed>>
+	 * @return array<string,array<string,string>>
 	 *
 	 * @throws \GraphQL\Error\UserError
 	 */
@@ -197,36 +197,28 @@ class UpdateSettings {
 			 * then add it to $updatable_settings_options
 			 */
 			$updatable_settings_options[ Utils::format_field_name( $individual_setting_key ) ] = [
-				'option'   => $key,
-				'group'    => $setting['group'],
-				'readonly' => ! empty( $setting['graphql_readonly'] ),
+				'option' => $key,
+				'group'  => $setting['group'],
 			];
 		}
 
 		foreach ( $input as $key => $value ) {
 			/**
-			 * Check to see that the input field exists in settings, if so grab the option
-			 * name and update the option
+			 * Throw an error if the input field is the site url,
+			 * as we do not want users changing it and breaking all
+			 * the things
 			 */
-			if ( ! array_key_exists( $key, $updatable_settings_options ) ) {
-				continue;
+			if ( 'generalSettingsUrl' === $key ) {
+				throw new UserError( esc_html__( 'Sorry, that is not allowed, speak with your site administrator to change the site URL.', 'wp-graphql' ) );
 			}
 
 			/**
-			 * Throw an error if the setting is readonly, e.g. the site url,
-			 * as we do not want users changing it and breaking all the things
+			 * Check to see that the input field exists in settings, if so grab the option
+			 * name and update the option
 			 */
-			if ( ! empty( $updatable_settings_options[ $key ]['readonly'] ) ) {
-				throw new UserError(
-					sprintf(
-						/* translators: %s is the name of the readonly settings input field. */
-						esc_html__( 'Sorry, the %s setting cannot be changed with this mutation, speak with your site administrator to change it.', 'wp-graphql' ),
-						esc_html( $key )
-					)
-				);
+			if ( array_key_exists( $key, $updatable_settings_options ) ) {
+				update_option( $updatable_settings_options[ $key ]['option'], $value );
 			}
-
-			update_option( $updatable_settings_options[ $key ]['option'], $value );
 		}
 
 		return $updatable_settings_options;

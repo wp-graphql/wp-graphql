@@ -10,6 +10,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
+use WPGraphQL\Type\ObjectType\SettingGroup;
 use WPGraphQL\Utils\InstrumentSchema;
 use WPGraphQL\Utils\Preview;
 
@@ -417,6 +418,18 @@ final class WPGraphQL {
 			],
 			10,
 			4
+		);
+
+		// Provide default resolved values for settings fields (e.g. deriving the
+		// `timezone` from `gmt_offset` when `timezone_string` is empty).
+		add_filter(
+			'graphql_setting_field_value',
+			[
+				SettingGroup::class,
+				'resolve_default_setting_field_value',
+			],
+			10,
+			2
 		);
 
 		/**

@@ -62,11 +62,6 @@ class Settings {
 					continue;
 				}
 
-				// The flat field name is prefixed with the group, so entries without a group can't be exposed here.
-				if ( ! isset( $setting_field['group'] ) || empty( $setting_field['group'] ) ) {
-					continue;
-				}
-
 				/**
 				 * Determine if the individual setting already has a
 				 * REST API name, if not use the option name.
@@ -100,7 +95,7 @@ class Settings {
 							// translators: %s is the name of the setting group.
 							return sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
-						'resolve'     => static function () use ( $setting_field, $key, $group ) {
+						'resolve'     => static function () use ( $setting_field, $key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
@@ -126,29 +121,7 @@ class Settings {
 									break;
 							}
 
-							$option = isset( $option ) ? $option : null;
-
-							/**
-							 * Give the setting's own resolver, declared as `graphql_resolve`
-							 * in the normalized settings map, the first pass at the value.
-							 */
-							if ( isset( $setting_field['graphql_resolve'] ) && is_callable( $setting_field['graphql_resolve'] ) ) {
-								$option = call_user_func( $setting_field['graphql_resolve'], $option, $setting_field, $group );
-							}
-
-							/**
-							 * Filters the resolved value of a single settings field before it is returned in the Schema.
-							 *
-							 * This is the same seam applied by the grouped setting types, so a setting's
-							 * value resolves consistently on both read surfaces.
-							 *
-							 * @param mixed               $value         The resolved (and type-cast) value of the setting field.
-							 * @param array<string,mixed> $setting_field The setting field config, including its `key` and `type`.
-							 * @param string              $group_name    The name of the settings group the field belongs to.
-							 *
-							 * @since x-release-please-version
-							 */
-							return apply_filters( 'graphql_setting_field_value', $option, $setting_field, $group );
+							return isset( $option ) ? $option : null;
 						},
 					];
 				}

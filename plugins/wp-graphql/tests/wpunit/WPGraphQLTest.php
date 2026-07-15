@@ -65,6 +65,17 @@ class WPGraphQLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$filters->invoke( $instance );
 
 		$this->assertTrue( isset( $wp_filter['graphql_get_type']->callbacks ) );
+
+		// The default settings value normalization (e.g. deriving `timezone` from
+		// `gmt_offset` when `timezone_string` is empty) must be hooked to the
+		// graphql_setting_field_value filter.
+		$this->assertSame(
+			10,
+			has_filter(
+				'graphql_setting_field_value',
+				[ \WPGraphQL\Type\ObjectType\SettingGroup::class, 'resolve_default_setting_field_value' ]
+			)
+		);
 	}
 
 	/**
