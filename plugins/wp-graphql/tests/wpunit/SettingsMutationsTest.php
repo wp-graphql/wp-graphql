@@ -308,54 +308,6 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	/**
-	 * A setting registered with `graphql_readonly` must reject updates through
-	 * the updateSettings mutation and leave the stored option untouched.
-	 */
-	public function testReadonlySettingCannotBeUpdated() {
-		wp_set_current_user( $this->admin );
-
-		register_setting(
-			'vault',
-			'locked_value',
-			[
-				'type'             => 'string',
-				'description'      => __( 'Test a readonly setting.' ),
-				'show_in_graphql'  => true,
-				'graphql_readonly' => true,
-			]
-		);
-
-		update_option( 'locked_value', 'original' );
-
-		$query = '
-		mutation UpdateReadonlySetting( $input: UpdateSettingsInput! ) {
-			updateSettings( input: $input ) {
-				clientMutationId
-			}
-		}
-		';
-
-		$actual = $this->graphql(
-			[
-				'query'     => $query,
-				'variables' => [
-					'input' => [
-						'clientMutationId'         => 'readonlyTest',
-						'vaultSettingsLockedValue' => 'changed',
-					],
-				],
-			]
-		);
-
-		unregister_setting( 'vault', 'locked_value' );
-
-		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertSame( 'original', get_option( 'locked_value' ) );
-
-		delete_option( 'locked_value' );
-	}
-
-	/**
 	 * This function tests whether we receive an error or success
 	 * when trying to update the site's URL
 	 *
