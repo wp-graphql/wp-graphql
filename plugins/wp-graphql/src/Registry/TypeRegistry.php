@@ -589,24 +589,12 @@ class TypeRegistry {
 		$allowed_setting_types = DataSource::get_allowed_settings_by_group( $this );
 
 		/**
-		 * The url is not a registered setting for multisite, so this is a polyfill
-		 * to expose the URL to the Schema for multisite sites
+		 * The `url` field on GeneralSettings comes from the `siteurl` setting. Core
+		 * registers `siteurl` on single-site but not on multisite, so on multisite the
+		 * `siteurl` shim in the normalized settings map (DataSource::get_core_shim_settings)
+		 * provides it, resolving via get_site_url(). This replaces the previous multisite
+		 * register_field() polyfill and gives multisite the flat `generalSettingsUrl` field too.
 		 */
-		if ( is_multisite() ) {
-			$this->register_field(
-				'GeneralSettings',
-				'url',
-				[
-					'type'        => 'String',
-					'description' => static function () {
-						return __( 'Site URL.', 'wp-graphql' );
-					},
-					'resolve'     => static function () {
-						return get_site_url();
-					},
-				]
-			);
-		}
 
 		/**
 		 * Register the siteIconUrl field on GeneralSettings.
@@ -644,35 +632,14 @@ class TypeRegistry {
 		);
 
 		/**
-		 * Register the homeUrl field on GeneralSettings.
-		 *
-		 * WordPress core does not register the `home` option ("Site Address") as a setting for
-		 * the REST API — only `siteurl` ("WordPress Address") is registered. On headless or
-		 * decoupled installs the Site Address is often the canonical front-end URL and differs
-		 * from `siteurl`, so exposing it as a read-only field gives clients a reliable way to
-		 * read it. It is registered as a plain field (not via register_setting) so it is not
-		 * writable through the updateSettings mutation.
-		 *
-		 * This uses get_home_url() so it is multisite-aware (returns the current network site's
-		 * home URL, not the value of the raw option). The value is public information: core
-		 * exposes it to unauthenticated visitors in the REST API index, and it appears in the
-		 * markup of every front-end page.
+		 * The `homeUrl` field on GeneralSettings ("Site Address") is provided by the
+		 * `home` shim entry in the normalized settings map (see
+		 * DataSource::get_core_shim_settings), so it also appears on the flat Settings
+		 * type as `generalSettingsHomeUrl`. It is read-only and resolves via
+		 * get_home_url() (multisite-aware).
 		 *
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/2520
 		 */
-		$this->register_field(
-			'GeneralSettings',
-			'homeUrl',
-			[
-				'type'        => 'String',
-				'description' => static function () {
-					return __( 'The address at which visitors reach the site\'s front end. Can differ from the `url` field when the front end and the content management backend are served from different addresses, such as on headless or decoupled installs.', 'wp-graphql' );
-				},
-				'resolve'     => static function () {
-					return get_home_url();
-				},
-			]
-		);
 
 		/**
 		 * Register the siteIcon connection on GeneralSettings.

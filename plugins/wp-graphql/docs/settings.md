@@ -97,14 +97,17 @@ The entry follows the `register_setting()` args shape (`group`, `type`, `descrip
 
 > **NOTE:** Entries are keyed by the **option name**, which is globally unique in WordPress, there is a single row per option in the options table regardless of which group registered it, so the group is never part of the key. The `group` is metadata that places the field under the matching setting-group type. Because this filter runs *after* registered settings are collected, assigning an entry whose key matches an existing option name **overrides** that entry, so use a fresh option name unless you specifically intend to modify an existing setting's configuration.
 
+WPGraphQL uses this same mechanism to expose a few common options core doesn't register: the **Site Address** (`generalSettings { homeUrl }`, also on the flat type as `generalSettingsHomeUrl`) and the **permalink** options under a `permalinkSettings` group (`structure`, `categoryBase`, `tagBase`). On multisite it also shims `siteurl` (core only registers it on single-site), so `generalSettings { url }` and `generalSettingsUrl` are available on multisite too. These are read-only.
+
 ## Per-Setting Configuration
 
 Beyond the standard `register_setting()` args, WPGraphQL reads the following per-setting config keys. These apply whether the setting is registered with `register_setting()` (via its `$args`) or seeded through the `graphql_normalized_settings` filter above:
 
-| Field              | Type     | Required | Description                                                                                                                                                                                                             |
-| ------------------ | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `graphql_readonly` | boolean  | No       | If true, the setting is exposed for reading but cannot be changed through the `updateSettings` mutation. Use for values that must not be writable through the API, such as the site address.                            |
-| `graphql_resolve`  | callable | No       | A resolver for the setting's value, given the first pass before the value is returned. Receives the stored value and returns the value to expose. Use to normalize or derive a value, such as deriving a timezone from a UTC offset when no named zone is set. |
+| Field                | Type     | Required | Description                                                                                                                                                                                                             |
+| -------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `graphql_field_name` | string   | No       | An explicit field name for the setting. Overrides the default name (which is derived from the `show_in_rest` name or the option key). The value is run through WPGraphQL's standard field-name formatter, the same one applied to every field, so `graphql_field_name => 'homeUrl'` exposes the field as `homeUrl`.                            |
+| `graphql_readonly`   | boolean  | No       | If true, the setting is exposed for reading but cannot be changed through the `updateSettings` mutation. Use for values that must not be writable through the API, such as the site address.                            |
+| `graphql_resolve`    | callable | No       | A resolver for the setting's value, given the first pass before the value is returned. Receives the stored value and returns the value to expose. Use to normalize or derive a value, such as deriving a timezone from a UTC offset when no named zone is set. |
 
 ## Querying Settings
 

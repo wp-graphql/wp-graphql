@@ -27,6 +27,7 @@ use WPGraphQL\Model\User;
 use WPGraphQL\Model\UserRole;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Type\ObjectType\SettingGroup;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class DataSource
@@ -388,6 +389,20 @@ class DataSource {
 		}
 
 		/**
+		 * Seed the in-memory shims for options WordPress doesn't register via
+		 * register_setting() (e.g. `home`, the permalink options). Added after the
+		 * registered-settings loop and before the filter so extensions can override
+		 * them, and only when the option isn't already present in the map so a real
+		 * registration always wins.
+		 */
+		foreach ( self::get_core_shim_settings() as $setting_key => $shim ) {
+			if ( ! isset( $normalized_settings[ $setting_key ] ) ) {
+				$shim['key']                         = (string) $setting_key;
+				$normalized_settings[ $setting_key ] = $shim;
+			}
+		}
+
+		/**
 		 * Filter the normalized settings map before the read and mutation surfaces are derived from it.
 		 *
 		 * This is the seam for exposing options WordPress never registers via register_setting():
@@ -407,15 +422,54 @@ class DataSource {
 
 		/**
 		 * Ensure every entry carries its option name as `key`, so filter-added
-		 * entries don't need to duplicate it.
+		 * entries don't need to duplicate it. Then precompute each entry's GraphQL
+		 * field names once, so every read/write surface reads the same name instead
+		 * of re-deriving it independently.
 		 */
 		foreach ( $normalized_settings as $setting_key => $setting ) {
 			if ( ! isset( $setting['key'] ) ) {
+				$setting['key']                             = (string) $setting_key;
 				$normalized_settings[ $setting_key ]['key'] = (string) $setting_key;
+			}
+
+			// The base/grouped field name (e.g. `homeUrl`, used on GeneralSettings).
+			$field_name = self::get_setting_field_name( $setting );
+
+			$normalized_settings[ $setting_key ]['graphql_field_name'] = $field_name;
+
+			// The flat field name (e.g. `generalSettingsHomeUrl`, used on the Settings type)
+			// only exists for entries that belong to a group.
+			if ( ! empty( $setting['group'] ) ) {
+				$normalized_settings[ $setting_key ]['graphql_settings_field_name'] = lcfirst( self::format_group_name( (string) $setting['group'] ) . 'Settings' . ucfirst( $field_name ) );
 			}
 		}
 
 		return $normalized_settings;
+	}
+
+	/**
+	 * Derive the base (grouped) GraphQL field name for a normalized setting.
+	 *
+	 * `graphql_field_name`, when set, overrides the name otherwise derived from the
+	 * REST name (`show_in_rest['name']`) or the option key. In every case the name
+	 * is run through `Utils::format_field_name()`, the same canonical formatter the
+	 * field registration applies, so the precomputed name matches the name that
+	 * ends up in the Schema and stays consistent with field naming elsewhere.
+	 *
+	 * @param array<string,mixed> $setting A normalized settings map entry.
+	 *
+	 * @since x-release-please-version
+	 */
+	protected static function get_setting_field_name( array $setting ): string {
+		if ( ! empty( $setting['graphql_field_name'] ) ) {
+			$name = (string) $setting['graphql_field_name'];
+		} elseif ( ! empty( $setting['show_in_rest']['name'] ) ) {
+			$name = (string) $setting['show_in_rest']['name'];
+		} else {
+			$name = isset( $setting['key'] ) ? (string) $setting['key'] : '';
+		}
+
+		return Utils::format_field_name( $name );
 	}
 
 	/**
@@ -428,13 +482,84 @@ class DataSource {
 	 */
 	protected static function get_core_setting_config(): array {
 		return [
-			// The site URL must not be updatable through the API.
+			// The site URL must not be updatable through the API. The input field is
+			// kept (deprecated) rather than removed so existing schemas don't break.
 			'siteurl'         => [
-				'graphql_readonly' => true,
+				'graphql_readonly'         => true,
+				'graphql_deprecated_input' => __( 'The site URL is read-only and cannot be changed through the API.', 'wp-graphql' ),
 			],
 			// Derive the timezone from `gmt_offset` when `timezone_string` is empty.
 			'timezone_string' => [
 				'graphql_resolve' => [ SettingGroup::class, 'resolve_timezone_setting_value' ],
+			],
+		];
+	}
+
+	/**
+	 * WPGraphQL-maintained shim settings for options WordPress does not register
+	 * via register_setting() (e.g. the Site Address and the permalink options).
+	 *
+	 * These are seeded into the normalized settings map in memory so they surface
+	 * in the Schema without mutating WordPress's global settings registry. Each
+	 * entry follows the register_setting() args shape plus WPGraphQL per-entry
+	 * config. They are seeded only when the option isn't already registered, so a
+	 * real registration always wins.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 *
+	 * @since x-release-please-version
+	 */
+	protected static function get_core_shim_settings(): array {
+		return [
+			// "siteurl" is registered by core on single-site but not on multisite.
+			// Seeding it here (only applied when it isn't already registered, i.e. on
+			// multisite) exposes `url` and the flat `generalSettingsUrl` through the
+			// settings machinery instead of a one-off polyfill field. On single-site
+			// the registered setting wins.
+			'siteurl'             => [
+				'group'              => 'general',
+				'type'               => 'string',
+				'description'        => __( 'The base URL where the site\'s application and content management backend are served. Can differ from the `homeUrl` field when the front end and backend are served from different addresses, such as on headless or decoupled installs.', 'wp-graphql' ),
+				'graphql_field_name' => 'url',
+				'graphql_readonly'   => true,
+				// Multisite-aware: get_site_url() returns the current site's URL.
+				'graphql_resolve'    => static function () {
+					return get_site_url();
+				},
+			],
+			// "Site Address" (home) is not registered by core on any install.
+			'home'                => [
+				'group'              => 'general',
+				'type'               => 'string',
+				'description'        => __( 'The address at which visitors reach the site\'s front end. Can differ from the `url` field when the front end and the content management backend are served from different addresses, such as on headless or decoupled installs.', 'wp-graphql' ),
+				'graphql_field_name' => 'homeUrl',
+				'graphql_readonly'   => true,
+				// Multisite-aware: get_home_url() returns the current site's home URL,
+				// not the raw option value.
+				'graphql_resolve'    => static function () {
+					return get_home_url();
+				},
+			],
+			'permalink_structure' => [
+				'group'              => 'permalink',
+				'type'               => 'string',
+				'description'        => __( 'The structure used to build the URLs for content on the site.', 'wp-graphql' ),
+				'graphql_field_name' => 'structure',
+				'graphql_readonly'   => true,
+			],
+			'category_base'       => [
+				'group'              => 'permalink',
+				'type'               => 'string',
+				'description'        => __( 'The prefix used in the URLs of category archive pages.', 'wp-graphql' ),
+				'graphql_field_name' => 'categoryBase',
+				'graphql_readonly'   => true,
+			],
+			'tag_base'            => [
+				'group'              => 'permalink',
+				'type'               => 'string',
+				'description'        => __( 'The prefix used in the URLs of tag archive pages.', 'wp-graphql' ),
+				'graphql_field_name' => 'tagBase',
+				'graphql_readonly'   => true,
 			],
 		];
 	}
