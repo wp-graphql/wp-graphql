@@ -417,4 +417,39 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			$this->assertEquals( 'String', $emailField['type']['name'] );
 		}
 	}
+
+	/**
+	 * Restricted adminEmail reads return null while public siblings still resolve.
+	 */
+	public function testRestrictedAdminEmailReturnsNullWithoutAFieldError() {
+		$editor = $this->factory->user->create(
+			[
+				'role' => 'editor',
+			]
+		);
+
+		wp_set_current_user( $editor );
+		update_option( 'blogname', 'Public site title' );
+		add_filter( 'graphql_debug_enabled', '__return_true' );
+
+		$query = '
+			query {
+				generalSettings {
+					adminEmail
+					title
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_debug_enabled', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['generalSettings']['adminEmail'] );
+		$this->assertSame( 'Public site title', $actual['data']['generalSettings']['title'] );
+
+		$restricted_fields = array_column( $actual['extensions']['debug'], 'field' );
+		$this->assertContains( 'GeneralSettings.adminEmail', $restricted_fields );
+	}
 }

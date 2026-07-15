@@ -30,32 +30,50 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Method for testing whether a user can query settings
-	 * if they don't have the 'manage_options' capability
+	 * Restricted settings should resolve to null without affecting public sibling fields.
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function testSettingQueryAsEditor() {
-		/**
-		 * Set the editor user
-		 * Set the query
-		 * Make the request
-		 * Validate the request has errors
-		 */
+	public function testRestrictedSettingsReturnNullWithoutAffectingSiblingFields() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The admin_email setting is not registered on multisite.' );
+		}
+
 		wp_set_current_user( $this->editor );
+		update_option( 'blogname', 'Public site title' );
+		add_filter( 'graphql_debug_enabled', '__return_true' );
 
 		$query = '
 			query {
 				generalSettings {
-						email
-					}
+					email
+					title
 				}
-			';
+				allSettings {
+					generalSettingsEmail
+					generalSettingsTitle
+				}
+			}
+		';
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		remove_filter( 'graphql_debug_enabled', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['generalSettings']['email'] );
+		$this->assertSame( 'Public site title', $actual['data']['generalSettings']['title'] );
+		$this->assertNull( $actual['data']['allSettings']['generalSettingsEmail'] );
+		$this->assertSame( 'Public site title', $actual['data']['allSettings']['generalSettingsTitle'] );
+
+		$restricted_fields = array_column( $actual['extensions']['debug'], 'field' );
+		$this->assertContains( 'GeneralSettings.email', $restricted_fields );
+		$this->assertContains( 'Settings.generalSettingsEmail', $restricted_fields );
+		$this->assertSame(
+			[ 'manage_options' ],
+			array_values( array_unique( array_column( $actual['extensions']['debug'], 'required_capability' ) ) )
+		);
 	}
 
 	/**
