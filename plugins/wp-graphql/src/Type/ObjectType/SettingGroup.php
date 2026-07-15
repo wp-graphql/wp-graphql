@@ -63,20 +63,11 @@ class SettingGroup {
 				}
 
 				/**
-				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name.
-				 * Then, sanitize the field name to be camelcase
+				 * The grouped GraphQL field name is derived once in the normalized
+				 * settings map (DataSource::get_normalized_settings) so every read and
+				 * write surface uses the same name.
 				 */
-				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
-					$field_key = $setting_field['show_in_rest']['name'];
-				} else {
-					$field_key = $key;
-				}
-
-				$field_key = graphql_format_name( $field_key, ' ', '/[^a-zA-Z0-9 -]/' );
-				$field_key = lcfirst( str_replace( '_', ' ', ucwords( $field_key, '_' ) ) );
-				$field_key = lcfirst( str_replace( '-', ' ', ucwords( $field_key, '_' ) ) );
-				$field_key = lcfirst( str_replace( ' ', '', ucwords( $field_key, ' ' ) ) );
+				$field_key = isset( $setting_field['graphql_field_name'] ) ? (string) $setting_field['graphql_field_name'] : '';
 
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
