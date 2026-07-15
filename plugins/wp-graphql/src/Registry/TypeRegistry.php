@@ -140,6 +140,7 @@ use WPGraphQL\Utils\Utils;
  * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
  * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
  * @phpstan-import-type WPEnumTypeConfig from \WPGraphQL\Type\WPEnumType
+ * @phpstan-import-type RegisterEnumTypeConfig from \WPGraphQL\Type\WPEnumType
  * @phpstan-import-type WPScalarConfig from \WPGraphQL\Type\WPScalar
  *
  * @phpstan-type TypeDef \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
@@ -904,10 +905,13 @@ class TypeRegistry {
 	/**
 	 * Add an Enum Type to the registry
 	 *
+	 * The `name` is derived from the `$type_name` argument (it is overwritten in
+	 * prepare_type()), so it is optional in the config and any value passed is ignored.
+	 *
 	 * @param string              $type_name The name of the type to register
 	 * @param array<string,mixed> $config he configuration of the type
 	 *
-	 * @phpstan-param WPEnumTypeConfig $config
+	 * @phpstan-param RegisterEnumTypeConfig $config
 	 *
 	 * @throws \Exception
 	 */

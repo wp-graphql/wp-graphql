@@ -104,12 +104,13 @@ updates:
       prefix-development: 'fix'
       include: 'scope'
     ignore:
-      # query-string 8.x is pure ESM with breaking changes. The bundled GraphiQL
-      # IDE reaches it transitively through use-query-params@1.x ->
-      # serialize-query-params@1.x, which only support query-string <= 7. Holding
-      # at 7.x until use-query-params is upgraded to 2.x (see PR #3851).
+      # The GraphiQL IDE bundled in core wp-graphql is being deprecated in favor
+      # of the standalone wp-graphql-ide plugin, so we don't want to invest in
+      # upgrading its dependency tree. Ignore graphiql (and the query-param
+      # helpers it pulls in) entirely rather than churn on updates we won't ship.
+      - dependency-name: 'graphiql'
+      - dependency-name: 'use-query-params'
       - dependency-name: 'query-string'
-        update-types: ['version-update:semver-major']
     groups:
       npm-dev-minor-patch:
         dependency-type: 'development'

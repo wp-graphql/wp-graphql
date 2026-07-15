@@ -36,12 +36,12 @@
 		"prepare": "husky install"
 	},
 	"devDependencies": {
-		"@wordpress/env": "^11.9.0",
-		"@wordpress/prettier-config": "^4.49.0",
+		"@wordpress/env": "^11.10.0",
+		"@wordpress/prettier-config": "^4.50.0",
 		"@wordpress/scripts": "^27.9.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"turbo": "^2.10.0",
+		"turbo": "^2.10.4",
 		"turndown": "^7.2.4"
 	}
 }
