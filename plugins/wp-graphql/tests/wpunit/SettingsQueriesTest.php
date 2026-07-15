@@ -259,6 +259,31 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	 *
 	 * @return void
 	 */
+	/**
+	 * The timezone fallback (deriving the value from `gmt_offset` when
+	 * `timezone_string` is empty) must apply on the flat allSettings surface,
+	 * not just the grouped generalSettings surface.
+	 */
+	public function testFlatTimezoneSettingFallsBackToUtcOffset() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', '2' );
+
+		$query = '
+		query {
+			allSettings {
+				generalSettingsTimezone
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( '+02:00', $actual['data']['allSettings']['generalSettingsTimezone'] );
+	}
+
 	public function testAllSettingsFieldIsHiddenWhenNoSettingsAreExposed() {
 		$filter = static function () {
 			return [];
