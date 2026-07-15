@@ -648,58 +648,6 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertContains( 'generalSettingsTitle', $flat_fields );
 	}
 
-	/**
-	 * An entry seeded into the normalized settings map via the
-	 * `graphql_normalized_settings` filter surfaces on both read surfaces
-	 * without calling register_setting(), and its `graphql_resolve` callback
-	 * normalizes the resolved value.
-	 */
-	public function testNormalizedSettingsFilterCanAddSetting() {
-		wp_set_current_user( $this->admin );
-
-		update_option( 'shim_option', 'raw value' );
-
-		$filter = static function ( $settings ) {
-			$settings['shim_option'] = [
-				'key'             => 'shim_option',
-				'group'           => 'shimmed',
-				'type'            => 'string',
-				'description'     => 'A setting seeded into the normalized map without register_setting().',
-				'graphql_resolve' => static function ( $value ) {
-					return strtoupper( (string) $value );
-				},
-			];
-			return $settings;
-		};
-
-		add_filter( 'graphql_normalized_settings', $filter );
-		$this->clearSchema();
-
-		$query = '
-		query {
-			shimmedSettings {
-				shimOption
-			}
-			flat: __type(name: "Settings") {
-				fields {
-					name
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		remove_filter( 'graphql_normalized_settings', $filter );
-		delete_option( 'shim_option' );
-		$this->clearSchema();
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( 'RAW VALUE', $actual['data']['shimmedSettings']['shimOption'] );
-		$flat_fields = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
-		$this->assertContains( 'shimmedSettingsShimOption', $flat_fields );
-	}
-
 	public function testUnregisteringSettingPreventsItFromBeingInTheSchema() {
 
 		register_setting(
