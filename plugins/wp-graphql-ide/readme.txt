@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.1.0
+Stable tag: 5.2.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,24 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.2.0 =
+
+**New Features**
+
+* **deps:** bump @codemirror/view from 6.43.5 to 6.43.6 in the npm-prod-minor-patch group ([#4065](https://github.com/wp-graphql/wp-graphql/issues/4065))
+* **deps:** bump @wordpress/i18n from 4.58.0 to 6.21.0 ([#4038](https://github.com/wp-graphql/wp-graphql/issues/4038))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 10 updates ([#4055](https://github.com/wp-graphql/wp-graphql/issues/4055))
+* **deps:** bump vaul from 0.9.9 to 1.1.2 ([#4040](https://github.com/wp-graphql/wp-graphql/issues/4040))
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @typescript-eslint/parser from 6.21.0 to 8.61.0 ([#4056](https://github.com/wp-graphql/wp-graphql/issues/4056))
+* **deps-dev:** bump docker-compose from 0.24.8 to 1.4.2 ([#4066](https://github.com/wp-graphql/wp-graphql/issues/4066))
+* **deps-dev:** bump phpstan/phpstan from 2.2.2 to 2.2.5 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#4050](https://github.com/wp-graphql/wp-graphql/issues/4050))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 9 updates ([#4061](https://github.com/wp-graphql/wp-graphql/issues/4061))
+* **deps-dev:** bump the npm-dev-minor-patch group with 9 updates ([#4036](https://github.com/wp-graphql/wp-graphql/issues/4036))
 
 = 5.1.0 =
 
