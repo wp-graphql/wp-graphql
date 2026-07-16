@@ -31,6 +31,10 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	 * @return void
 	 */
 	public function testAllSettingsQueryAsEditor() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The admin_email setting is not registered on multisite.' );
+		}
+
 		wp_set_current_user( $this->editor );
 		$query  = '
 			query {
@@ -41,7 +45,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 		';
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual, isset( $actual['errors'] ) ? wp_json_encode( $actual['errors'] ) : '' );
 		$this->assertNull( $actual['data']['allSettings']['generalSettingsEmail'] );
 	}
 
