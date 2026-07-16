@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -90,13 +89,24 @@ class Settings {
 							// translators: %s is the name of the setting group.
 							return sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
-						'resolve'     => static function () use ( $setting_field, $key, $group ) {
+						'resolve'     => static function () use ( $setting_field, $key, $group, $field_key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
 							 */
 							if ( 'admin_email' === $key && ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								$field_name = 'Settings.' . $field_key;
+								graphql_debug(
+									// translators: 1: GraphQL field name, 2: required WordPress capability.
+									sprintf( __( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ), $field_name, 'manage_options' ),
+									[
+										'type'  => 'RESTRICTED_SETTING',
+										'field' => $field_name,
+										'required_capability' => 'manage_options',
+									]
+								);
+
+								return null;
 							}
 
 							$option = get_option( (string) $key );
