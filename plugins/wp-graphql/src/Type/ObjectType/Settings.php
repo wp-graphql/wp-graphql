@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -68,26 +67,16 @@ class Settings {
 				}
 
 				/**
-				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name.
-				 * Then, sanitize the field name to be camelcase
+				 * The flat (group-prefixed) GraphQL field name is derived once in the
+				 * normalized settings map (DataSource::get_normalized_settings) so every
+				 * read and write surface uses the same name.
 				 */
-				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
-					$field_key = $setting_field['show_in_rest']['name'];
-				} else {
-					$field_key = $key;
-				}
+				$field_key = isset( $setting_field['graphql_settings_field_name'] ) ? (string) $setting_field['graphql_settings_field_name'] : '';
 
-				$group = DataSource::format_group_name( $setting_field['group'] );
+				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
-				$field_key = lcfirst( graphql_format_name( $field_key, ' ', '/[^a-zA-Z0-9 -]/' ) );
-				$field_key = lcfirst( str_replace( '_', ' ', ucwords( $field_key, '_' ) ) );
-				$field_key = lcfirst( str_replace( '-', ' ', ucwords( $field_key, '_' ) ) );
-				$field_key = lcfirst( str_replace( ' ', '', ucwords( $field_key, ' ' ) ) );
-
-				$field_key = $group . 'Settings' . ucfirst( $field_key );
-
-				if ( ! empty( $key ) ) {
+					// The formatted group name, passed to the setting's `graphql_resolve` callback.
+					$group = DataSource::format_group_name( (string) $setting_field['group'] );
 
 					/**
 					 * Dynamically build the individual setting and it's fields
@@ -100,13 +89,24 @@ class Settings {
 							// translators: %s is the name of the setting group.
 							return sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
-						'resolve'     => static function () use ( $setting_field, $key, $group ) {
+						'resolve'     => static function () use ( $setting_field, $key, $group, $field_key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
 							 */
 							if ( 'admin_email' === $key && ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								$field_name = 'Settings.' . $field_key;
+								graphql_debug(
+									// translators: 1: GraphQL field name, 2: required WordPress capability.
+									sprintf( __( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ), $field_name, 'manage_options' ),
+									[
+										'type'  => 'RESTRICTED_SETTING',
+										'field' => $field_name,
+										'required_capability' => 'manage_options',
+									]
+								);
+
+								return null;
 							}
 
 							$option = get_option( (string) $key );

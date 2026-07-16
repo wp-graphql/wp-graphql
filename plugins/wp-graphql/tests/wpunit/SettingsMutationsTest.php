@@ -279,21 +279,15 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	/**
-	 * Method for testing whether a user can query settings
-	 * if they don't have the 'manage_options' capability
-	 *
-	 * They should not be able to query for the admin email
-	 * so we should receive an error back
+	 * Restricted settings return null when queried without manage_options.
 	 *
 	 * @return void
 	 */
 	public function testSettingsQueryAsEditor() {
-		/**
-		 * Set the editor user
-		 * Set the query
-		 * Make the request
-		 * Validate the request has errors
-		 */
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The admin_email setting is not registered on multisite.' );
+		}
+
 		wp_set_current_user( $this->editor );
 
 		$query  = '
@@ -304,7 +298,8 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 		';
 		$actual = $this->graphql( compact( 'query' ) );
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual, isset( $actual['errors'] ) ? wp_json_encode( $actual['errors'] ) : '' );
+		$this->assertNull( $actual['data']['allSettings']['generalSettingsEmail'] );
 	}
 
 	/**
@@ -562,5 +557,58 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $unique_value, $actual['data']['updateSettings']['allSettings']['mySettingGroupSettingsMySettingField'] );
 		$this->assertSame( $unique_value, $actual['data']['updateSettings']['mySettingGroupSettings']['mySettingField'] );
+	}
+
+	/**
+	 * Read-only settings seeded as shims (the Site Address, the permalink options)
+	 * are not writable, so they never appear in the updateSettings input.
+	 *
+	 * The pre-existing `generalSettingsUrl` (siteurl) input is kept for backward
+	 * compatibility (marked deprecated) and still rejects writes at runtime, rather
+	 * than being removed from the schema. That is asserted behaviorally below on
+	 * single-site installs (siteurl is only registered on single-site).
+	 *
+	 * @return void
+	 */
+	public function testReadonlyShimsAreAbsentFromMutationInput() {
+		wp_set_current_user( $this->admin );
+
+		$introspection = $this->graphql(
+			[
+				'query' => '
+					{
+						__type(name: "UpdateSettingsInput") {
+							inputFields { name }
+						}
+					}
+				',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $introspection );
+		$input_field_names = wp_list_pluck( $introspection['data']['__type']['inputFields'], 'name' );
+
+		$this->assertNotContains( 'generalSettingsHomeUrl', $input_field_names );
+		$this->assertNotContains( 'permalinkSettingsStructure', $input_field_names );
+		$this->assertNotContains( 'permalinkSettingsCategoryBase', $input_field_names );
+		$this->assertNotContains( 'permalinkSettingsTagBase', $input_field_names );
+
+		// Back-compat: on single-site the deprecated generalSettingsUrl input is
+		// still present (not removed) and rejects at runtime, rather than failing as
+		// an unknown field.
+		if ( ! is_multisite() ) {
+			$mutation = $this->graphql(
+				[
+					'query' => 'mutation {
+						updateSettings( input: { generalSettingsUrl: "https://example.test" } ) {
+							generalSettings { url }
+						}
+					}',
+				]
+			);
+
+			$this->assertArrayHasKey( 'errors', $mutation );
+			$this->assertStringContainsStringIgnoringCase( 'cannot be changed', $mutation['errors'][0]['message'] );
+		}
 	}
 }
