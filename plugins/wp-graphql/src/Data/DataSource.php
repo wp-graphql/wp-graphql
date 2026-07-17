@@ -546,12 +546,17 @@ class DataSource {
 					return get_home_url();
 				},
 			],
+			// The permalink options drive the `uri` field on every content node and
+			// term, so a change to any of them has schema-wide impact rather than
+			// affecting only its own settings group. `graphql_purge_all` marks that
+			// breadth for cache-invalidation consumers (e.g. WPGraphQL Smart Cache).
 			'permalink_structure' => [
 				'group'              => 'permalink',
 				'type'               => 'string',
 				'description'        => __( 'The structure used to build the URLs for content on the site.', 'wp-graphql' ),
 				'graphql_field_name' => 'structure',
 				'graphql_readonly'   => true,
+				'graphql_purge_all'  => true,
 			],
 			'category_base'       => [
 				'group'              => 'permalink',
@@ -559,6 +564,7 @@ class DataSource {
 				'description'        => __( 'The prefix used in the URLs of category archive pages.', 'wp-graphql' ),
 				'graphql_field_name' => 'categoryBase',
 				'graphql_readonly'   => true,
+				'graphql_purge_all'  => true,
 			],
 			'tag_base'            => [
 				'group'              => 'permalink',
@@ -566,6 +572,7 @@ class DataSource {
 				'description'        => __( 'The prefix used in the URLs of tag archive pages.', 'wp-graphql' ),
 				'graphql_field_name' => 'tagBase',
 				'graphql_readonly'   => true,
+				'graphql_purge_all'  => true,
 			],
 		];
 	}
