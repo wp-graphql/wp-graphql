@@ -103,7 +103,7 @@ class SettingGroup {
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
 					/**
-					 * Dynamically build the individual setting and it's fields
+					 * Dynamically build the individual setting and its fields
 					 * then add it to the fields array.
 					 *
 					 * No `resolve` is declared: the group's root field returns the
