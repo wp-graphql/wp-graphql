@@ -10,6 +10,7 @@ use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\PostTypeLoader;
+use WPGraphQL\Data\Loader\SettingGroupLoader;
 use WPGraphQL\Data\Loader\TaxonomyLoader;
 use WPGraphQL\Data\Loader\TermObjectLoader;
 use WPGraphQL\Data\Loader\ThemeLoader;
@@ -42,6 +43,7 @@ class AppContext {
 		'nav_menu_item'       => PostObjectLoader::class,
 		'post'                => PostObjectLoader::class,
 		'post_type'           => PostTypeLoader::class,
+		'setting_group'       => SettingGroupLoader::class,
 		'taxonomy'            => TaxonomyLoader::class,
 		'term'                => TermObjectLoader::class,
 		'theme'               => ThemeLoader::class,
