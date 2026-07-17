@@ -470,7 +470,27 @@ abstract class Model {
 		}
 
 		// @todo add support passing capability args.
-		return current_user_can( $capability );
+		if ( current_user_can( $capability ) ) {
+			return true;
+		}
+
+		// Surface the denial in debug mode so the resulting null is
+		// discoverable rather than silent.
+		graphql_debug(
+			sprintf(
+				// translators: 1: model + field name, 2: required WordPress capability.
+				__( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ),
+				$this->get_model_name() . '.' . $field_name,
+				$capability
+			),
+			[
+				'type'                => 'RESTRICTED_FIELD',
+				'field'               => $this->get_model_name() . '.' . $field_name,
+				'required_capability' => $capability,
+			]
+		);
+
+		return false;
 	}
 
 	/**

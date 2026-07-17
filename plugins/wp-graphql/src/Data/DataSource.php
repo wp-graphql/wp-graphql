@@ -483,6 +483,11 @@ class DataSource {
 	 */
 	protected static function get_core_setting_config(): array {
 		return [
+			// The administrator's email address is only readable by users who can
+			// manage the site's options.
+			'admin_email'     => [
+				'graphql_capability' => 'manage_options',
+			],
 			// The site URL must not be updatable through the API. The input field is
 			// kept (deprecated) rather than removed so existing schemas don't break.
 			'siteurl'         => [
