@@ -201,6 +201,34 @@ And that will return data similar to:
 }
 ```
 
+### Settings Groups are Nodes
+
+Each settings group implements the `Node` interface and exposes a globally unique `id`, so a group can be fetched like any other node:
+
+```graphql
+{
+  generalSettings {
+    id
+    title
+  }
+}
+```
+
+The `id` can be passed back to the `node` field to re-fetch the group:
+
+```graphql
+query GetSettingGroupNode($id: ID!) {
+  node(id: $id) {
+    ... on GeneralSettings {
+      id
+      title
+    }
+  }
+}
+```
+
+The global ID encodes the `setting_group` type and the group's key (e.g. `general`, `permalink`), and clients can treat it as an opaque cache identifier. The flat `allSettings` field is a convenience view across every group and does not implement `Node`.
+
 ## Mutations
 
 Settings can be updated using GraphQL through a mutation. Custom settings would follow the `allSettings` naming conventions where the group name is prepended before the setting field name.

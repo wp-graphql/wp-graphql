@@ -691,11 +691,11 @@ class TypeRegistry {
 							return sprintf(
 								// translators: %s is the GraphQL name of the settings group.
 								__( "Fields of the '%s' settings group", 'wp-graphql' ),
-								ucfirst( $group_name ) . 'Settings'
+								SettingGroup::get_type_name( $group_name )
 							);
 						},
-						'resolve'     => static function () use ( $setting_type ) {
-							return $setting_type;
+						'resolve'     => static function ( $root, array $args, AppContext $context ) use ( $group_name ) {
+							return $context->get_loader( 'setting_group' )->load_deferred( $group_name );
 						},
 					]
 				);

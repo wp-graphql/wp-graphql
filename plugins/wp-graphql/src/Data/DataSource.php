@@ -20,6 +20,7 @@ use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
+use WPGraphQL\Model\SettingGroup as SettingGroupModel;
 use WPGraphQL\Model\Taxonomy;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\Theme;
@@ -696,6 +697,9 @@ class DataSource {
 					break;
 				case $node instanceof PostType:
 					$type = 'ContentType';
+					break;
+				case $node instanceof SettingGroupModel:
+					$type = SettingGroup::get_type_name( $node->get_group_key() );
 					break;
 				case $node instanceof Taxonomy:
 					$type = 'Taxonomy';

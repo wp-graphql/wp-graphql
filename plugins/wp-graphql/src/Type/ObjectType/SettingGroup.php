@@ -5,7 +5,27 @@ namespace WPGraphQL\Type\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 
+/**
+ * Class SettingGroup
+ *
+ * Registers the GraphQL object types for setting groups. Not to be confused
+ * with \WPGraphQL\Model\SettingGroup, the data-layer Model a settings group
+ * resolves through.
+ */
 class SettingGroup {
+
+	/**
+	 * Given the normalized settings group key, return the GraphQL Type name
+	 * registered for the group.
+	 *
+	 * Single source of the group-key -> type-name derivation, shared by the
+	 * type registration and node-type resolution so the two cannot drift.
+	 *
+	 * @param string $group_name The normalized settings group key.
+	 */
+	public static function get_type_name( string $group_name ): string {
+		return ucfirst( $group_name ) . 'Settings';
+	}
 
 	/**
 	 * Register each settings group to the GraphQL Schema
@@ -27,19 +47,31 @@ class SettingGroup {
 			return null;
 		}
 
+		// The Node interface provides the `id` field; it is declared here only
+		// to carry a settings-specific description. The value resolves through
+		// the SettingGroup Model the group's root field returns.
+		$fields['id'] = [
+			'type'        => [ 'non_null' => 'ID' ],
+			'description' => static function () {
+				return __( 'The globally unique identifier of the settings group.', 'wp-graphql' );
+			},
+		];
+
 		register_graphql_object_type(
-			ucfirst( $group_name ) . 'Settings',
+			self::get_type_name( $group_name ),
 			[
 				// translators: %s is the name of the setting group.
 				'description' => static function () use ( $group_name ) {
 					// translators: %s is the name of the setting group.
 					return sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name );
 				},
+				'interfaces'  => [ 'Node' ],
+				'model'       => \WPGraphQL\Model\SettingGroup::class,
 				'fields'      => $fields,
 			]
 		);
 
-		return ucfirst( $group_name ) . 'Settings';
+		return self::get_type_name( $group_name );
 	}
 
 	/**
