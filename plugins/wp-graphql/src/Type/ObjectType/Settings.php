@@ -87,7 +87,7 @@ class Settings {
 						// translators: %s is the name of the setting group.
 						'description' => static function () use ( $setting_field ) {
 							// translators: %s is the name of the setting group.
-							return sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
+							return sprintf( __( 'Settings of the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
 						'resolve'     => static function ( $root, array $args, \WPGraphQL\AppContext $context ) use ( $setting_field, $group, $field_key ) {
 							/**
