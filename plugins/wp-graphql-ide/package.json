@@ -99,7 +99,7 @@
 		"@wordpress/env": "^11.10.0",
 		"@wordpress/prettier-config": "^4.50.0",
 		"@wordpress/scripts": "^27.9.0",
-		"adm-zip": "^0.5.18",
+		"adm-zip": "^0.6.0",
 		"babel-jest": "^30.4.1",
 		"chalk": "^5.6.2",
 		"clsx": "^2.1.1",
