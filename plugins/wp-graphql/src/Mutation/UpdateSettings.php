@@ -3,6 +3,7 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Utils\Utils;
@@ -34,8 +35,14 @@ class UpdateSettings {
 			[
 				'inputFields'         => $input_fields,
 				'outputFields'        => $output_fields,
-				'mutateAndGetPayload' => static function ( $input ) use ( $type_registry ) {
-					return self::mutate_and_get_payload( $input, $type_registry );
+				'mutateAndGetPayload' => static function ( $input, AppContext $context ) use ( $type_registry ) {
+					$payload = self::mutate_and_get_payload( $input, $type_registry );
+
+					// Options were just written; drop any setting-group models loaded
+					// earlier in this request so payload fields resolve fresh values.
+					$context->get_loader( 'setting_group' )->clear_all();
+
+					return $payload;
 				},
 			]
 		);
@@ -136,8 +143,8 @@ class UpdateSettings {
 
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
-				$setting_type      = DataSource::format_group_name( $group );
-				$setting_type_name = Utils::format_type_name( $setting_type . 'Settings' );
+				$group_key         = DataSource::format_group_name( $group );
+				$setting_type_name = Utils::format_type_name( $group_key . 'Settings' );
 
 				$output_fields[ Utils::format_field_name( $setting_type_name ) ] = [
 					'type'        => $setting_type_name,
@@ -146,8 +153,8 @@ class UpdateSettings {
 						// translators: %s is the setting type name
 						return sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name );
 					},
-					'resolve'     => static function () use ( $setting_type_name ) {
-						return $setting_type_name;
+					'resolve'     => static function ( $root, array $args, AppContext $context ) use ( $group_key ) {
+						return $context->get_loader( 'setting_group' )->load_deferred( $group_key );
 					},
 				];
 			}

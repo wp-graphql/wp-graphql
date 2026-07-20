@@ -105,6 +105,8 @@ Beyond the standard `register_setting()` args, WPGraphQL reads the following per
 
 | Field                | Type     | Required | Description                                                                                                                                                                                                             |
 | -------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `graphql_capability` | string   | No       | A capability required to read the setting. For users without the capability the field resolves to `null` on both read surfaces, and a debug message naming the field and the required capability is included when debugging is enabled. Used by core to restrict the administrator email to users who can manage options. |
+| `graphql_purge_all`  | boolean  | No       | Marks a setting whose change has schema-wide impact rather than affecting only its own settings group. Read by cache-invalidation consumers such as WPGraphQL Smart Cache: a change to a setting carrying this flag invalidates all cached queries, not just those that read the setting's group. Core sets it on the permalink options (which drive every `uri` field); set it on your own broadly-impactful settings. Default (omitted) scopes invalidation to the setting's group. |
 | `graphql_field_name` | string   | No       | An explicit field name for the setting. Overrides the default name (which is derived from the `show_in_rest` name or the option key). The value is run through WPGraphQL's standard field-name formatter, the same one applied to every field, so `graphql_field_name => 'homeUrl'` exposes the field as `homeUrl`.                            |
 | `graphql_readonly`   | boolean  | No       | If true, the setting is exposed for reading but cannot be changed through the `updateSettings` mutation. Use for values that must not be writable through the API, such as the site address.                            |
 | `graphql_resolve`    | callable | No       | A resolver for the setting's value, given the first pass before the value is returned. Receives the stored value and returns the value to expose. Use to normalize or derive a value, such as deriving a timezone from a UTC offset when no named zone is set. |
@@ -228,6 +230,17 @@ query GetSettingGroupNode($id: ID!) {
 ```
 
 The global ID encodes the `setting_group` type and the group's key (e.g. `general`, `permalink`), and clients can treat it as an opaque cache identifier. The flat `allSettings` field is a convenience view across every group and does not implement `Node`.
+
+Setting groups resolve through WPGraphQL's model layer, so the standard model filters apply. For example, a whole group can be made private (resolving to `null` for the current user) with the `graphql_data_is_private` filter, where the model name is the group's type name (e.g. `GeneralSettings`):
+
+```php
+add_filter( 'graphql_data_is_private', function ( $is_private, $model_name ) {
+	if ( 'GeneralSettings' === $model_name && ! current_user_can( 'manage_options' ) ) {
+		return true;
+	}
+	return $is_private;
+}, 10, 2 );
+```
 
 ## Mutations
 

@@ -103,8 +103,14 @@ class SettingGroup {
 				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
 					/**
-					 * Dynamically build the individual setting and it's fields
-					 * then add it to the fields array
+					 * Dynamically build the individual setting and its fields
+					 * then add it to the fields array.
+					 *
+					 * No `resolve` is declared: the group's root field returns the
+					 * SettingGroup Model, and the default resolver reads the field
+					 * from the Model, which owns the value resolution (option read,
+					 * type cast, `graphql_resolve`, `graphql_setting_field_value`)
+					 * and any `graphql_capability` restriction.
 					 */
 					$fields[ $field_key ] = [
 						'type'        => $type_registry->get_type( $setting_field['type'] ),
@@ -112,72 +118,6 @@ class SettingGroup {
 						'description' => static function () use ( $setting_field ) {
 							// translators: %s is the name of the setting group.
 							return isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
-						},
-						'resolve'     => static function () use ( $setting_field, $group_name, $field_key ) {
-
-							/**
-							 * Check to see if the user querying the email field has the 'manage_options' capability
-							 * All other options should be public by default
-							 */
-							if ( 'admin_email' === $setting_field['key'] && ! current_user_can( 'manage_options' ) ) {
-								$field_name = ucfirst( $group_name ) . 'Settings.' . $field_key;
-								graphql_debug(
-									// translators: 1: GraphQL field name, 2: required WordPress capability.
-									sprintf( __( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ), $field_name, 'manage_options' ),
-									[
-										'type'  => 'RESTRICTED_SETTING',
-										'field' => $field_name,
-										'required_capability' => 'manage_options',
-									]
-								);
-
-								return null;
-							}
-
-							$option = ! empty( $setting_field['key'] ) ? get_option( $setting_field['key'] ) : null;
-
-							switch ( $setting_field['type'] ) {
-								case 'integer':
-								case 'int':
-									$value = absint( $option );
-									break;
-								case 'string':
-									$value = (string) $option;
-									break;
-								case 'boolean':
-								case 'bool':
-									$value = (bool) $option;
-									break;
-								case 'number':
-								case 'float':
-									$value = (float) $option;
-									break;
-								default:
-									$value = ! empty( $option ) ? $option : null;
-									break;
-							}
-
-							/**
-							 * Give the setting's own resolver, declared as `graphql_resolve`
-							 * in the normalized settings map, the first pass at the value.
-							 */
-							if ( isset( $setting_field['graphql_resolve'] ) && is_callable( $setting_field['graphql_resolve'] ) ) {
-								$value = call_user_func( $setting_field['graphql_resolve'], $value, $setting_field, $group_name );
-							}
-
-							/**
-							 * Filters the resolved value of a single settings field before it is returned in the Schema.
-							 *
-							 * This gives extensions a seam to normalize or override a setting's resolved value
-							 * without adding one-off special cases to the core resolver.
-							 *
-							 * @param mixed               $value         The resolved (and type-cast) value of the setting field.
-							 * @param array<string,mixed> $setting_field The setting field config, including its `key` and `type`.
-							 * @param string              $group_name    The name of the settings group the field belongs to.
-							 *
-							 * @since x-release-please-version
-							 */
-							return apply_filters( 'graphql_setting_field_value', $value, $setting_field, $group_name );
 						},
 					];
 				}
