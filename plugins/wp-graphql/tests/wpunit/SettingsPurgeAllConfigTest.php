@@ -99,4 +99,27 @@ class SettingsPurgeAllConfigTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertNotEmpty( $by_group['general']['my_broad_option']['graphql_purge_all'] ?? null );
 	}
+
+	/**
+	 * The grouped settings map is resolvable without a built schema. Cache
+	 * invalidation reads it on `updated_option` outside a GraphQL request, where
+	 * the type registry is not initialized, so `get_allowed_settings_by_group()`
+	 * must work when called with no TypeRegistry.
+	 *
+	 * This test deliberately does NOT boot the schema (no graphql() call) before
+	 * reading the map.
+	 */
+	public function testGroupedMapResolvesWithoutBuiltSchema() {
+		// No registry passed, and the schema is never booted in this test.
+		$by_group = \WPGraphQL\Data\DataSource::get_allowed_settings_by_group();
+
+		// A registered core setting still maps to its group.
+		$this->assertArrayHasKey( 'general', $by_group );
+		$this->assertArrayHasKey( 'blogname', $by_group['general'] );
+
+		// The in-memory permalink shims (and their broad-impact flag) are present
+		// too, so a permalink change escalates correctly with no schema built.
+		$this->assertNotEmpty( $by_group['permalink']['permalink_structure']['graphql_purge_all'] ?? null );
+		$this->assertNotEmpty( $by_group['permalink']['tag_base']['graphql_purge_all'] ?? null );
+	}
 }
