@@ -57,7 +57,7 @@ When a cache is tagged with `skipped:$type_name` it will be purged more often th
 
 ## Tracked Events
 
-WPGraphQL Smart Cache tracks events related to all the core WordPress data types, with the current exception of Options.
+WPGraphQL Smart Cache tracks events related to all the core WordPress data types.
 
 ### Posts, Pages, Custom Post Types
 
@@ -94,9 +94,36 @@ WPGraphQL Smart Cache tracks events related to all the core WordPress data types
 
 ### Settings / Options
 
-Currently WPGraphQL Smart Cache does not track events related to updating settings.
+WPGraphQL core exposes each settings group (General, Reading, Writing, etc.) as a
+Node, so a query like `{ generalSettings { title } }` is tagged with that group's
+node key. When a setting in the group changes, Smart Cache purges the queries that
+touched it.
 
-There is a lot of nuance to consider. You can read more about this here: [#158](https://github.com/wp-graphql/wp-graphql-smart-cache/issues/158)
+- **Per-group purge (default).** Changing a setting purges only the queries that
+  read its group. Changing a General setting does not evict a `readingSettings`
+  query.
+- **Broad-impact settings purge everything.** A few settings affect data well
+  beyond their own group — the permalink options (`permalink_structure`,
+  `category_base`, `tag_base`) change the `uri` of every content node and term.
+  Core flags these as broad-impact, and a change to one triggers a full purge.
+- **One listener, every write path.** Invalidation keys off WordPress's
+  `updated_option`, so it covers the admin Settings screens, the REST API, WP-CLI
+  (`wp option update`), and the `updateSettings` GraphQL mutation alike.
+- **Unmapped options and transients are ignored.** Only options that map to an
+  exposed setting are tracked; transient writes never purge.
+
+Sites can escalate additional raw option keys to a full purge (for options that
+are not registered settings, such as `gmt_offset`) with the
+`graphql_cache_purge_all_option_keys` filter:
+
+```php
+add_filter( 'graphql_cache_purge_all_option_keys', function ( $option_keys ) {
+    $option_keys[] = 'gmt_offset';
+    return $option_keys;
+} );
+```
+
+Background on the design tradeoffs: [#158](https://github.com/wp-graphql/wp-graphql-smart-cache/issues/158)
 
 ----
 

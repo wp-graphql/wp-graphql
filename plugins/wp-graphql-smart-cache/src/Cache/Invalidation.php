@@ -26,6 +26,14 @@ class Invalidation {
 	protected static $ignored_meta_keys = null;
 
 	/**
+	 * Memoized map of option name => settings-group invalidation info, built once
+	 * per request from core's normalized settings map. Null until first built.
+	 *
+	 * @var array<string,array{group:string,purge_all:bool}>|null
+	 */
+	protected $setting_option_group_map = null;
+
+	/**
 	 * Instantiate the Cache Invalidation class
 	 *
 	 * @param Collection $collection
@@ -128,6 +136,17 @@ class Invalidation {
 
 		add_action( 'wp_insert_comment', [ $this, 'on_insert_comment_cb' ], 10, 2 );
 		add_action( 'transition_comment_status', [ $this, 'on_comment_transition_cb' ], 10, 3 );
+
+		## Settings actions
+
+		// A single updated_option listener covers every write path (REST, wp-admin,
+		// WP-CLI, and the updateSettings mutation all call update_option()).
+		add_action( 'updated_option', [ $this, 'on_updated_option_cb' ], 10, 3 );
+
+		// The option => settings-group map is memoized per request; drop it when the
+		// type registry is (re)built so a schema change is reflected on the next
+		// lookup (also keeps the map deterministic across a long-lived process).
+		add_action( 'graphql_register_types', [ $this, 'reset_setting_option_group_map' ], 10, 0 );
 	}
 
 	/**
@@ -1096,5 +1115,158 @@ class Invalidation {
 	 */
 	public function on_purge_all_cb() {
 		$this->purge( 'graphql:Query', 'purge all' );
+	}
+
+	/**
+	 * Listen for option updates and purge the caches for the settings group the
+	 * option belongs to.
+	 *
+	 * Settings groups are exposed as Nodes by WPGraphQL core, so a settings query
+	 * is tagged with its group's node id (`setting_group:<group>`). When a mapped
+	 * setting changes we purge that node id; a setting core flags as broad-impact
+	 * (`graphql_purge_all`) escalates to a full purge instead.
+	 *
+	 * A single updated_option listener covers every write path — REST, wp-admin,
+	 * WP-CLI, and the updateSettings mutation all call update_option().
+	 *
+	 * @param string $option    Name of the updated option.
+	 * @param mixed  $old_value The old option value.
+	 * @param mixed  $value     The new option value.
+	 *
+	 * @return void
+	 */
+	public function on_updated_option_cb( $option, $old_value, $value ) {
+		$target = $this->get_setting_invalidation_target( (string) $option );
+
+		// Not a mapped setting (or a transient / unrelated write): no-op.
+		if ( null === $target ) {
+			return;
+		}
+
+		// A broad-impact setting escalates to a full purge, using the same
+		// primitive as the admin "Purge Cache Now" action.
+		if ( 'all' === $target['scope'] ) {
+			//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			do_action( 'wpgraphql_cache_purge_all' );
+			return;
+		}
+
+		// Otherwise purge only the queries that touched the changed group.
+		$this->purge_nodes( 'setting_group', $target['group'], 'setting_updated' );
+	}
+
+	/**
+	 * Resolve an option name to the settings-group node it should invalidate and
+	 * the scope of that invalidation, or null when the write should be ignored.
+	 *
+	 * This is the one WP-specific translation unit ("updated_option => node id +
+	 * scope"): the transient short-circuit, the mapping gate, and the broad-impact
+	 * escalation all live here so the callback is a thin dispatcher. It is the
+	 * clean seam to lift into the core event pipeline (wp-graphql#2517) later,
+	 * where core emits the event and Smart Cache only consumes it.
+	 *
+	 * @param string $option Name of the updated option.
+	 *
+	 * @return array{group:string,scope:string}|null Purge target, or null for a no-op.
+	 */
+	public function get_setting_invalidation_target( string $option ) {
+
+		// Transients are stored as options and churn constantly (including Smart
+		// Cache's own storage). Short-circuit before any map work so high-frequency
+		// transient writes don't pay the lookup and can't trigger a purge loop.
+		if ( 0 === strpos( $option, '_transient_' ) || 0 === strpos( $option, '_site_transient_' ) ) {
+			return null;
+		}
+
+		/**
+		 * Raw option keys that should escalate to a full purge when changed.
+		 *
+		 * The `graphql_purge_all` per-entry config in core's settings map already
+		 * escalates mapped settings; this filter covers option keys that are not
+		 * themselves mapped settings (e.g. `gmt_offset`, which backs the timezone
+		 * field but isn't registered as a setting) and lets operators override
+		 * core's per-setting opinion without touching registration.
+		 *
+		 * @param string[] $option_keys Option names that force a full purge on change.
+		 *
+		 * @since x-release-please-version
+		 */
+		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$purge_all_option_keys = apply_filters( 'graphql_cache_purge_all_option_keys', [] );
+
+		if ( is_array( $purge_all_option_keys ) && in_array( $option, $purge_all_option_keys, true ) ) {
+			return [
+				'group' => '',
+				'scope' => 'all',
+			];
+		}
+
+		$map = $this->get_setting_option_group_map();
+
+		// The mapping gate: an option that isn't a mapped setting is a no-op. This
+		// also excludes Smart Cache's own option keys and every unrelated write.
+		if ( ! isset( $map[ $option ] ) ) {
+			return null;
+		}
+
+		$entry = $map[ $option ];
+
+		return [
+			'group' => $entry['group'],
+			'scope' => ! empty( $entry['purge_all'] ) ? 'all' : 'group',
+		];
+	}
+
+	/**
+	 * Reset the memoized option => settings-group map.
+	 *
+	 * Hooked to `graphql_register_types` so a (re)built type registry re-derives
+	 * the map on the next lookup.
+	 *
+	 * @return void
+	 */
+	public function reset_setting_option_group_map() {
+		$this->setting_option_group_map = null;
+	}
+
+	/**
+	 * Build (and memoize per request) the option name => settings-group map, so a
+	 * changed option resolves to the group node id core's SettingGroup model emits
+	 * (`setting_group:<group>`), plus whether the change is broad-impact.
+	 *
+	 * Reads core's normalized settings map (`get_allowed_settings_by_group()`) as
+	 * the single source of truth: it is keyed by the same group core's SettingGroup
+	 * model emits, includes the in-memory shims core seeds (the permalink options,
+	 * etc.) and any `graphql_normalized_settings` filter additions, and carries the
+	 * per-entry `graphql_purge_all` flag. Called with no TypeRegistry so it resolves
+	 * without a built schema — `updated_option` fires on many writes outside a
+	 * GraphQL request (admin saves, REST, WP-CLI, cron), and forcing a schema build
+	 * on the option-write hot path would be a real performance regression.
+	 *
+	 * Degrades to an empty map (everything a no-op) on core without the settings map.
+	 *
+	 * @return array<string,array{group:string,purge_all:bool}>
+	 */
+	protected function get_setting_option_group_map(): array {
+		if ( null !== $this->setting_option_group_map ) {
+			return $this->setting_option_group_map;
+		}
+
+		$map = [];
+
+		if ( class_exists( '\WPGraphQL\Data\DataSource' ) && method_exists( '\WPGraphQL\Data\DataSource', 'get_allowed_settings_by_group' ) ) {
+			foreach ( \WPGraphQL\Data\DataSource::get_allowed_settings_by_group() as $group_key => $settings ) {
+				foreach ( $settings as $option_key => $setting ) {
+					$map[ (string) $option_key ] = [
+						'group'     => (string) $group_key,
+						'purge_all' => ! empty( $setting['graphql_purge_all'] ),
+					];
+				}
+			}
+		}
+
+		$this->setting_option_group_map = $map;
+
+		return $map;
 	}
 }
