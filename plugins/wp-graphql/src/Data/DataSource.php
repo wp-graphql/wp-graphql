@@ -371,13 +371,12 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			$setting_key = (string) $key;
 
-			if ( ! isset( $setting['type'] ) ) {
-				continue;
-			}
-
-			// Only exclude by unknown GraphQL type when building the schema; when
-			// the map is resolved without a registry the field-type gate doesn't apply.
-			if ( null !== $type_registry && ! $type_registry->get_type( $setting['type'] ) ) {
+			// Skip settings without a type, and, only when building the schema (a
+			// registry is provided), settings whose declared type has no
+			// corresponding GraphQL type. When the map is resolved without a
+			// registry the field-type gate doesn't apply, since the map is used to
+			// identify settings, not to register fields.
+			if ( ! isset( $setting['type'] ) || ( null !== $type_registry && ! $type_registry->get_type( $setting['type'] ) ) ) {
 				continue;
 			}
 
