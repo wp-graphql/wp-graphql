@@ -32,3 +32,9 @@ parameters:
         # Document::class exists at analysis time; runtime check for when WPGraphQL not loaded
         - identifier: deadCode.unreachable
           path: wp-graphql-smart-cache.php
+        # DataSource::get_allowed_settings_by_group()'s TypeRegistry argument is
+        # optional as of the (unreleased) core settings-as-nodes work; the pinned
+        # wp-graphql-stubs still type it as required. We intentionally call it with
+        # no argument to resolve the settings map without forcing a schema build.
+        - message: '#get_allowed_settings_by_group\(\) invoked with 0 parameters, 1 required#'
+          path: src/Cache/Invalidation.php
