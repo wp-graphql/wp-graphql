@@ -341,13 +341,21 @@ class DataSource {
 	 * grouped settings map) are derived from this single map so a setting cannot
 	 * appear on one surface and not the other.
 	 *
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * The map is resolvable without a built schema. When a `TypeRegistry` is
+	 * provided (the schema-build path) settings whose declared type has no
+	 * corresponding GraphQL type are excluded, since they can't become fields.
+	 * When resolved without one (e.g. cache invalidation reading the map outside a
+	 * GraphQL request) that gate is skipped: the map is used to identify settings,
+	 * not to register fields, so over-inclusion is harmless and no schema build is
+	 * forced.
+	 *
+	 * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry The WPGraphQL TypeRegistry, or null to resolve the map without a built schema.
 	 *
 	 * @return array<string,array<string,mixed>>
 	 *
 	 * @since x-release-please-version
 	 */
-	protected static function get_normalized_settings( TypeRegistry $type_registry ): array {
+	protected static function get_normalized_settings( ?TypeRegistry $type_registry = null ): array {
 
 		/**
 		 * Get all registered settings
@@ -363,7 +371,12 @@ class DataSource {
 		foreach ( $registered_settings as $key => $setting ) {
 			$setting_key = (string) $key;
 
-			if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
+			// Skip settings without a type, and, only when building the schema (a
+			// registry is provided), settings whose declared type has no
+			// corresponding GraphQL type. When the map is resolved without a
+			// registry the field-type gate doesn't apply, since the map is used to
+			// identify settings, not to register fields.
+			if ( ! isset( $setting['type'] ) || ( null !== $type_registry && ! $type_registry->get_type( $setting['type'] ) ) ) {
 				continue;
 			}
 
@@ -413,8 +426,8 @@ class DataSource {
 		 * rejects updates to the setting through the updateSettings mutation, and `graphql_resolve`
 		 * (callable) normalizes the setting's resolved value.
 		 *
-		 * @param array<string,array<string,mixed>> $normalized_settings The normalized settings map, keyed by option name.
-		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry       The WPGraphQL TypeRegistry.
+		 * @param array<string,array<string,mixed>>     $normalized_settings The normalized settings map, keyed by option name.
+		 * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry       The WPGraphQL TypeRegistry, or null when the map is resolved without a built schema.
 		 *
 		 * @hookGroup settings
 		 * @since x-release-please-version
@@ -580,11 +593,11 @@ class DataSource {
 	/**
 	 * Get all of the allowed settings by group
 	 *
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry The WPGraphQL TypeRegistry, or null to resolve the grouped map without a built schema.
 	 *
 	 * @return array<string,array<string,mixed>> $allowed_settings_by_group
 	 */
-	public static function get_allowed_settings_by_group( TypeRegistry $type_registry ) {
+	public static function get_allowed_settings_by_group( ?TypeRegistry $type_registry = null ) {
 
 		/**
 		 * Group the normalized settings ( general, reading, discussion, writing, etc. ),
@@ -617,11 +630,11 @@ class DataSource {
 	/**
 	 * Get all of the $allowed_settings
 	 *
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry The WPGraphQL TypeRegistry, or null to resolve the flat map without a built schema.
 	 *
 	 * @return array<string,array<string,mixed>> $allowed_settings
 	 */
-	public static function get_allowed_settings( TypeRegistry $type_registry ) {
+	public static function get_allowed_settings( ?TypeRegistry $type_registry = null ) {
 
 		/**
 		 * The flat view is the normalized map itself.

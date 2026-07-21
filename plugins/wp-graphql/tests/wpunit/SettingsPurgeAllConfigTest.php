@@ -99,4 +99,57 @@ class SettingsPurgeAllConfigTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertNotEmpty( $by_group['general']['my_broad_option']['graphql_purge_all'] ?? null );
 	}
+
+	/**
+	 * The grouped settings map is resolvable without a built schema. Cache
+	 * invalidation reads it on `updated_option` outside a GraphQL request, where
+	 * the type registry is not initialized, so `get_allowed_settings_by_group()`
+	 * must work when called with no TypeRegistry.
+	 *
+	 * This test deliberately does NOT boot the schema (no graphql() call) before
+	 * reading the map.
+	 */
+	public function testGroupedMapResolvesWithoutBuiltSchema() {
+		// No registry passed, and the schema is never booted in this test.
+		$by_group = \WPGraphQL\Data\DataSource::get_allowed_settings_by_group();
+
+		// A registered core setting still maps to its group.
+		$this->assertArrayHasKey( 'general', $by_group );
+		$this->assertArrayHasKey( 'blogname', $by_group['general'] );
+
+		// The in-memory permalink shims (and their broad-impact flag) are present
+		// too, so a permalink change escalates correctly with no schema built.
+		$this->assertNotEmpty( $by_group['permalink']['permalink_structure']['graphql_purge_all'] ?? null );
+		$this->assertNotEmpty( $by_group['permalink']['tag_base']['graphql_purge_all'] ?? null );
+	}
+
+	/**
+	 * The type gate is conditional on a TypeRegistry being provided. A setting
+	 * whose declared type has no corresponding GraphQL type is excluded from the
+	 * map when a registry is passed (the schema-build path, where it couldn't
+	 * become a field), but included when the map is resolved without one (where
+	 * the map only identifies settings).
+	 */
+	public function testTypeGateAppliesOnlyWhenRegistryProvided() {
+		register_setting(
+			'general',
+			'wpgraphql_test_unknown_type_option',
+			[
+				'type'         => 'wpgraphql_nonexistent_type',
+				'show_in_rest' => true,
+			]
+		);
+
+		// Boot the schema so the type registry is built, then resolve the flat map
+		// WITH the registry: the unresolved-type setting is gated out.
+		$this->graphql( [ 'query' => '{ __typename }' ] );
+		$with_registry = \WPGraphQL\Data\DataSource::get_allowed_settings( \WPGraphQL::get_type_registry() );
+		$this->assertArrayNotHasKey( 'wpgraphql_test_unknown_type_option', $with_registry );
+
+		// Resolve the same map WITHOUT a registry: the gate is skipped, so it's kept.
+		$without_registry = \WPGraphQL\Data\DataSource::get_allowed_settings();
+		$this->assertArrayHasKey( 'wpgraphql_test_unknown_type_option', $without_registry );
+
+		unregister_setting( 'general', 'wpgraphql_test_unknown_type_option' );
+	}
 }
