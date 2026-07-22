@@ -4540,6 +4540,16 @@ input.wpgraphql-ide-tab-input:focus {
 	overflow-y: auto;
 }
 
+/* A type detail view rendered inside the scrolling body reuses the panel
+   class but must grow with its content — `height: 100%` would cap the
+   sticky elements' containing block at one viewport, un-pinning the type
+   header and section headings once the user scrolls past it. */
+.wpgraphql-ide-docs-body > .wpgraphql-ide-docs-panel {
+	display: block;
+	height: auto;
+	min-height: 100%;
+}
+
 .wpgraphql-ide-docs-empty {
 	color: var(--wpgraphql-ide-text-muted, #646970);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
@@ -4561,12 +4571,15 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wpgraphql-ide-accent);
 }
 
-/* Sticky header for the type detail view — pins Back + name + description
-   to the top of the panel's scroll container so the user can always see
-   *what type they're looking at* while scrolling its (often long) field list.
+/* Sticky header for the type detail view — pins Back + name to the top of
+   the panel's scroll container so the user can always see *what type they're
+   looking at* while scrolling its (often long) field list. The description
+   is rendered outside the header and scrolls away with the content.
    The negative top/horizontal offsets and matching padding cancel out the
    16px padding `.wpgraphql-ide-plugin` applies, so the sticky surface spans
-   the panel's full width and reaches all the way to the top edge. */
+   the panel's full width and reaches all the way to the top edge.
+   Its measured height is written to `--wpgraphql-ide-docs-header-h` (see
+   `TypeView`) so section titles can stick directly below it. */
 .wpgraphql-ide-docs-type-header {
 	position: sticky;
 	top: -16px;
@@ -4574,7 +4587,16 @@ input.wpgraphql-ide-tab-input:focus {
 	padding: 16px 16px 8px;
 	background: var(--wp-components-color-background, #fff);
 	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
-	z-index: 1;
+	z-index: 2;
+}
+
+/* Type description in the type detail view — in normal flow (not sticky),
+   below the pinned header. Generous bottom margin so the first section
+   heading doesn't crowd it. Compound selector: the base
+   `.wpgraphql-ide-docs-description` rule below sets `margin: 0` and
+   would otherwise win on source order. */
+.wpgraphql-ide-docs-description.wpgraphql-ide-docs-type-description {
+	margin: 0 0 24px;
 }
 
 /* Type detail heading */
@@ -4602,14 +4624,77 @@ input.wpgraphql-ide-tab-input:focus {
 	margin-bottom: 16px;
 }
 
-.wpgraphql-ide-docs-section-title {
-	font-size: var(--wpgraphql-ide-text-11, 11px);
+/* Section heading — a collapse/expand toggle that also sticks just below
+   the type header (offset by the header's measured height) so the user
+   always knows which section the rows under the cursor belong to. The
+   negative horizontal margins + matching padding span the panel padding,
+   giving the sticky surface a full-width background to hide rows that
+   scroll beneath it. */
+/* Section heading — Gutenberg PanelBody idiom: 13px medium title at the
+   left (flush with the section content below it), muted count, trailing
+   up/down chevron at the right edge. Spans the content width only — the
+   panel's 16px side padding lives OUTSIDE the docs-body scroll container,
+   so full-bleed negative margins would just get clipped by the scrollport
+   (they were, cutting off the chevron). Content width is all a pinned
+   heading needs to cover scrolling rows. Kept opaque with a persistent
+   bottom border so rows slide cleanly beneath it while stuck. */
+button.wpgraphql-ide-docs-section-title {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 36px;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 0;
+	border-bottom: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+	background: var(--wp-components-color-background, #fff);
+	cursor: pointer;
+	text-align: left;
+	position: sticky;
+	top: calc(var(--wpgraphql-ide-docs-header-h, 56px) - 16px);
+	z-index: 1;
+	font-family: inherit;
+}
+
+button.wpgraphql-ide-docs-section-title:hover {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+button.wpgraphql-ide-docs-section-title:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
+}
+
+.wpgraphql-ide-docs-section-chevron {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: auto;
+	flex-shrink: 0;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-docs-section-chevron svg {
+	display: block;
+	fill: currentColor;
+}
+
+.wpgraphql-ide-docs-section-label {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
 	font-weight: var(--wpgraphql-ide-weight-medium, 500);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: var(--wpgraphql-ide-text-muted, #646970);
-	margin-bottom: 4px;
-	padding: 8px 0 4px;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-docs-section-count {
+	margin-left: 6px;
+	flex-shrink: 0;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: 400;
+	color: #757575;
 }
 
 /* Search input */
