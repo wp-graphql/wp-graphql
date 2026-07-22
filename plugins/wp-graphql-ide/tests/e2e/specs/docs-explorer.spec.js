@@ -224,6 +224,24 @@ test.describe('Docs explorer interface relationships', () => {
 		).toHaveText('Page');
 	});
 
+	// The panel is narrow and scrolls vertically. Anything that overflows it
+	// horizontally (a full-width row whose padding isn't inside its width,
+	// say) puts a sideways scrollbar under a long field list.
+	test('the panel does not scroll horizontally', async ({ page }) => {
+		const body = page.locator('.wpgraphql-ide-docs-body');
+
+		// Root view, then a type with long rows and every section on show.
+		for (const open of [null, 'ContentNode']) {
+			if (open) {
+				await openType(page, open);
+			}
+			const overflow = await body.evaluate(
+				(el) => el.scrollWidth - el.clientWidth
+			);
+			expect(overflow).toBeLessThanOrEqual(0);
+		}
+	});
+
 	test('field rows do not take a hover highlight', async ({ page }) => {
 		await openType(page, 'ContentNode');
 

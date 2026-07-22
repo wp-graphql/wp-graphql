@@ -4575,16 +4575,20 @@ input.wpgraphql-ide-tab-input:focus {
    the panel's scroll container so the user can always see *what type they're
    looking at* while scrolling its (often long) field list. The description
    is rendered outside the header and scrolls away with the content.
-   The negative top/horizontal offsets and matching padding cancel out the
-   16px padding `.wpgraphql-ide-plugin` applies, so the sticky surface spans
-   the panel's full width and reaches all the way to the top edge.
+   The negative top offset and matching top padding cancel out the 16px
+   padding `.wpgraphql-ide-plugin` applies, so the sticky surface reaches
+   the top edge. Horizontally it spans the content width only, for the same
+   reason the section titles below do: that 16px side padding sits OUTSIDE
+   the docs-body scroll container, so nothing ever scrolls through the
+   gutter, and negative side margins would just overhang the scrollport and
+   scroll the whole panel sideways.
    Its measured height is written to `--wpgraphql-ide-docs-header-h` (see
    `TypeView`) so section titles can stick directly below it. */
 .wpgraphql-ide-docs-type-header {
 	position: sticky;
 	top: -16px;
-	margin: -16px -16px 12px;
-	padding: 16px 16px 8px;
+	margin: -16px 0 12px;
+	padding: 16px 0 8px;
 	background: var(--wp-components-color-background, #fff);
 	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
 	z-index: 2;
@@ -4803,6 +4807,9 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	align-items: center;
 	gap: var(--wpgraphql-ide-space-8, 8px);
 	width: 100%;
+	/* This sheet has no global border-box reset, so 100% + padding would
+	   make the row wider than the list it sits in. */
+	box-sizing: border-box;
 	margin: 0;
 	padding: 8px;
 	border: 0;
@@ -4847,9 +4854,14 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	text-transform: lowercase;
 }
 
-/* Type badge — inline pill for return types and arg types */
+/* Type badge — inline pill for return types and arg types. Connection type
+   names get long (`ContentNodeToEnqueuedStylesheetConnection`), and as a
+   flex item the badge won't shrink below its content, so it has to be
+   allowed to wrap or it pushes the whole panel sideways. */
 .wpgraphql-ide-docs-type-badge {
 	display: inline;
+	min-width: 0;
+	max-width: 100%;
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 	border: none;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -4859,7 +4871,8 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	font-family: monospace;
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
-	white-space: nowrap;
+	overflow-wrap: anywhere;
+	text-align: left;
 }
 
 .wpgraphql-ide-docs-type-badge:hover {
