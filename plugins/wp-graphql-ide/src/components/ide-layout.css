@@ -4626,18 +4626,18 @@ input.wpgraphql-ide-tab-input:focus {
 
 /* Section heading — a collapse/expand toggle that also sticks just below
    the type header (offset by the header's measured height) so the user
-   always knows which section the rows under the cursor belong to. The
-   negative horizontal margins + matching padding span the panel padding,
-   giving the sticky surface a full-width background to hide rows that
-   scroll beneath it. */
-/* Section heading — Gutenberg PanelBody idiom: 13px medium title at the
-   left (flush with the section content below it), muted count, trailing
-   up/down chevron at the right edge. Spans the content width only — the
-   panel's 16px side padding lives OUTSIDE the docs-body scroll container,
-   so full-bleed negative margins would just get clipped by the scrollport
-   (they were, cutting off the chevron). Content width is all a pinned
-   heading needs to cover scrolling rows. Kept opaque with a persistent
-   bottom border so rows slide cleanly beneath it while stuck. */
+   always knows which section the rows under the cursor belong to.
+   Gutenberg PanelBody idiom: 13px medium title at the left (flush with the
+   section content below it), muted count, trailing up/down chevron at the
+   right edge. Spans the content width only — the panel's 16px side padding
+   lives OUTSIDE the docs-body scroll container, so full-bleed negative
+   margins would just get clipped by the scrollport (they were, cutting off
+   the chevron). Content width is all a pinned heading needs to cover
+   scrolling rows. Kept opaque with a persistent bottom border so rows slide
+   cleanly beneath it while stuck.
+
+   Scoped to `button` because the root view's heading uses the plain
+   `-root-title` rule below instead. */
 button.wpgraphql-ide-docs-section-title {
 	display: flex;
 	align-items: center;
@@ -4695,6 +4695,18 @@ button.wpgraphql-ide-docs-section-title:focus-visible {
 	font-size: var(--wpgraphql-ide-text-13, 13px);
 	font-weight: 400;
 	color: #757575;
+}
+
+/* Root view heading ("Root Types") — a static label rather than a section
+   toggle, so it keeps the older muted-caps treatment and never sticks. */
+.wpgraphql-ide-docs-root-title {
+	font-size: var(--wpgraphql-ide-text-11, 11px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--wpgraphql-ide-text-muted, #646970);
+	margin-bottom: 4px;
+	padding: 8px 0 4px;
 }
 
 /* Search input */

@@ -447,7 +447,10 @@ function RootView({ schema, onSelectType }) {
 
 	return (
 		<div className="wpgraphql-ide-docs-section">
-			<div className="wpgraphql-ide-docs-section-title">
+			{/* A plain heading, not a `DocsSection`: the root view has no
+				sticky type header to offset against, and its single group
+				of entry points has nothing worth collapsing. */}
+			<div className="wpgraphql-ide-docs-root-title">
 				{__('Root Types', 'wpgraphql-ide')}
 			</div>
 			{queryType && (
