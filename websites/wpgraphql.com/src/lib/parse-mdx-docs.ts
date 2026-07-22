@@ -18,7 +18,6 @@ import remarkStringify from "rehype-stringify"
 import rehypeSlug from "rehype-slug"
 import rehypePrism from "rehype-prism-plus"
 import rehypeExternalLinks from "rehype-external-links"
-import rehypeUrlInspector from "@jsdevtools/rehype-url-inspector"
 
 // Only pass `auth` when the token is a non-empty string. Passing a missing
 // or revoked token causes GitHub to 401 ("Bad credentials") on every request;
@@ -350,29 +349,45 @@ export async function getParsedDoc(url) {
   return { source, toc, hasMarkdownH1 }
 }
 
+/**
+ * Rewrite relative `<img src>` paths to their raw GitHub URL. Relative image
+ * paths are stored alongside the markdown; absolute URLs (e.g. recipe
+ * screenshots hosted on content.wpgraphql.com) and data URIs are already
+ * resolvable, so rewriting them would prepend the docs path and break them.
+ *
+ * Replaces the unmaintained `@jsdevtools/rehype-url-inspector` (last released
+ * 2021) with an equivalent local rehype plugin built on `unist-util-visit`,
+ * which is already a direct dependency. Behavior matches the previous
+ * `selectors: ["img[src]"]` / `inspectEach` configuration exactly.
+ */
+function rehypeRewriteRelativeImageSrc() {
+  return (tree) => {
+    visit(tree, "element", (node: any) => {
+      if (node.tagName !== "img") {
+        return
+      }
+
+      const src = node.properties?.src
+      if (typeof src !== "string" || src.length === 0) {
+        return
+      }
+
+      if (/^(?:https?:)?\/\//i.test(src) || src.startsWith("data:")) {
+        return
+      }
+
+      node.properties.src = getRemoteImgUrl(src)
+    })
+  }
+}
+
 async function getSourceFromMd(mdContent) {
   return serialize(mdContent, {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [[remarkGfm, { singleTilde: false }], withSmartQuotes],
       rehypePlugins: [
-        [
-          rehypeUrlInspector,
-          {
-            selectors: ["img[src]"],
-            inspectEach: ({ url, node }) => {
-              // Relative image paths are stored alongside the markdown and
-              // need to be rewritten to their raw GitHub URL. Absolute URLs
-              // (e.g. recipe screenshots hosted on content.wpgraphql.com) and
-              // data URIs are already resolvable — rewriting them would
-              // prepend the docs path and break them.
-              if (/^(?:https?:)?\/\//i.test(url) || url.startsWith("data:")) {
-                return
-              }
-              node.properties.src = getRemoteImgUrl(url)
-            },
-          },
-        ],
+        rehypeRewriteRelativeImageSrc,
         [
           rehypeExternalLinks,
           { target: "_blank", rel: ["noopener", "noreferrer"] },
