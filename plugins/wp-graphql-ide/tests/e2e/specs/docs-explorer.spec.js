@@ -193,4 +193,48 @@ test.describe('Docs explorer interface relationships', () => {
 		expect(titleBox.y).toBeGreaterThanOrEqual(headerBox.y);
 		expect(titleBox.y - bodyBox.y).toBeLessThan(120);
 	});
+
+	// Hover feedback has to match what actually responds to a click: every
+	// row that lights up must navigate, and every row that doesn't navigate
+	// must not light up.
+	test('the whole type entry row is clickable, not just the type name', async ({
+		page,
+	}) => {
+		await openType(page, 'ContentNode');
+
+		const row = docsSection(page, 'Implementations').getByRole('button', {
+			name: 'Page',
+			exact: true,
+		});
+
+		// The button has to BE the row rather than a smaller element inside
+		// it. The row is what takes the hover highlight, so the row is what
+		// must respond to a click.
+		await expect(row).toHaveClass(/wpgraphql-ide-docs-type-entry/);
+
+		// Click the far right of the row — empty space well past the type
+		// name, which used to sit outside the click target even though the
+		// hover highlight covered it. Positional click (not page.mouse) so
+		// Playwright scrolls the row into view first.
+		const box = await row.boundingBox();
+		await row.click({ position: { x: box.width - 8, y: box.height / 2 } });
+
+		await expect(
+			docsPanel(page).locator('.wpgraphql-ide-docs-type-name')
+		).toHaveText('Page');
+	});
+
+	test('field rows do not take a hover highlight', async ({ page }) => {
+		await openType(page, 'ContentNode');
+
+		const field = docsPanel(page)
+			.locator('.wpgraphql-ide-docs-field')
+			.first();
+		const background = () =>
+			field.evaluate((el) => window.getComputedStyle(el).backgroundColor);
+
+		const before = await background();
+		await field.hover();
+		expect(await background()).toBe(before);
+	});
 });

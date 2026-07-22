@@ -811,7 +811,12 @@ function FieldItem({ field, isFocused, onSelectType }) {
 }
 
 /**
- * Clickable type name link.
+ * Clickable row that navigates to a type's detail view.
+ *
+ * The whole row is the button, not just the type name: the row is what
+ * lights up on hover, so the row is what has to be clickable. The label
+ * and kind are decorative context, hidden from assistive tech so the
+ * button announces as just the type name.
  *
  * @param {Object}   props
  * @param {string}   [props.label] Optional label prefix (e.g. "query").
@@ -821,20 +826,28 @@ function FieldItem({ field, isFocused, onSelectType }) {
  */
 function TypeLink({ label, kind, type, onClick }) {
 	return (
-		<div className="wpgraphql-ide-docs-type-entry">
+		<button
+			type="button"
+			className="wpgraphql-ide-docs-type-entry"
+			onClick={onClick}
+		>
 			{label && (
-				<span className="wpgraphql-ide-docs-type-label">{label}:</span>
+				<span
+					className="wpgraphql-ide-docs-type-label"
+					aria-hidden="true"
+				>
+					{label}:
+				</span>
 			)}
-			<button
-				type="button"
-				className="wpgraphql-ide-docs-type-link"
-				onClick={onClick}
-			>
-				{type.name}
-			</button>
+			<span className="wpgraphql-ide-docs-type-link">{type.name}</span>
 			{kind && (
-				<span className="wpgraphql-ide-docs-type-kind">{kind}</span>
+				<span
+					className="wpgraphql-ide-docs-type-kind"
+					aria-hidden="true"
+				>
+					{kind}
+				</span>
 			)}
-		</div>
+		</button>
 	);
 }

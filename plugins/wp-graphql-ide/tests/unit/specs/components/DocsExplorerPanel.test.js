@@ -230,6 +230,51 @@ describe('DocsExplorerPanel — interface relationships', () => {
 	});
 });
 
+describe('DocsExplorerPanel — click affordances', () => {
+	beforeEach(() => {
+		__dep.schema = buildSchema(SDL);
+		__dep.docsNavTarget = null;
+		__dep.setDocsNavTarget.mockReset();
+	});
+
+	// The whole row is tinted on hover, so the whole row has to be the
+	// button. Previously the row was an inert div wrapping a smaller button,
+	// so most of the highlighted area did nothing when clicked.
+	it('makes the entire type entry row the click target', () => {
+		render(<DocsExplorerPanel />);
+		openType('ContentTemplate');
+
+		const row = section('Implementations').getByRole('button', {
+			name: 'PageNoTitle',
+		});
+		expect(row).toHaveClass('wpgraphql-ide-docs-type-entry');
+
+		// The kind badge is inside that same button, not a sibling of it —
+		// clicking it navigates rather than landing on dead space.
+		expect(
+			within(row).getByText('object', { exact: false })
+		).toBeInTheDocument();
+	});
+
+	// A field row has nowhere to navigate to, so it must not be a button or
+	// announce itself as one; only the type badge and args toggle inside it
+	// are interactive.
+	it('leaves field rows non-interactive', () => {
+		render(<DocsExplorerPanel />);
+		openType('DefaultTemplate');
+
+		const fieldName = screen.getByText('templateName', {
+			selector: '.wpgraphql-ide-docs-field-name',
+		});
+		const fieldRow = fieldName.closest('.wpgraphql-ide-docs-field');
+
+		expect(fieldRow).not.toBeNull();
+		expect(fieldRow.tagName).toBe('DIV');
+		expect(fieldRow).not.toHaveAttribute('role');
+		expect(fieldRow).not.toHaveAttribute('onclick');
+	});
+});
+
 describe('DocsExplorerPanel — collapsible sections', () => {
 	beforeEach(() => {
 		__dep.schema = buildSchema(SDL);

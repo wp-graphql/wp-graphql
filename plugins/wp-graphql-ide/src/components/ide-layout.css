@@ -4794,18 +4794,32 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 }
 
-/* Root type entries (query, mutation, subscription) */
+/* Type entry rows — root entry points (query, mutation, subscription),
+   Implements / Implementations lists, union members, and search results.
+   The whole row is the button, so the full-width hover band and the pointer
+   are honest: anywhere in the row navigates. */
 .wpgraphql-ide-docs-type-entry {
 	display: flex;
 	align-items: center;
 	gap: var(--wpgraphql-ide-space-8, 8px);
+	width: 100%;
+	margin: 0;
 	padding: 8px;
+	border: 0;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	background: none;
 	cursor: pointer;
+	text-align: left;
+	font-family: inherit;
 }
 
 .wpgraphql-ide-docs-type-entry:hover {
 	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-docs-type-entry:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
 }
 
 .wpgraphql-ide-docs-type-label {
@@ -4815,17 +4829,14 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-docs-type-link {
-	background: none;
-	border: none;
-	padding: 0;
 	color: var(--gql-color-type);
-	cursor: pointer;
 	font-family: monospace;
 	font-size: var(--wpgraphql-ide-text-13, 13px);
-	text-align: left;
 }
 
-.wpgraphql-ide-docs-type-link:hover {
+/* Underline the name on row hover — the row is the target, so the cue
+   belongs to the row, not to the name it happens to sit under. */
+.wpgraphql-ide-docs-type-entry:hover .wpgraphql-ide-docs-type-link {
 	text-decoration: underline;
 }
 
@@ -4862,7 +4873,10 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	padding: 0 4px;
 }
 
-/* Field list items */
+/* Field list items — deliberately no hover treatment. A field row has
+   nowhere to navigate to; only the type badge and the args toggle inside it
+   are interactive, and they carry their own affordances. Tinting the row
+   would advertise a click target that isn't there. */
 .wpgraphql-ide-docs-field {
 	padding: 8px;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -4870,10 +4884,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-docs-field + .wpgraphql-ide-docs-field {
 	border-top: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
-}
-
-.wpgraphql-ide-docs-field:hover {
-	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
 }
 
 /* Field that was cmd-clicked from the editor — give it a steady tint so the
