@@ -29,7 +29,7 @@ Filter all object fields, passing the $typename as a param This is useful when s
 
 ## Source
 
-- [`plugins/wp-graphql/src/Type/WPEnumType.php:117`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L117)
+- [`plugins/wp-graphql/src/Type/WPEnumType.php:125`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L125)
 
 ```php
 apply_filters( 'graphql_enum_values', $values, $type_name );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_enum_values', $values, $type_name );
 
 ## Related
 
-- `WPEnumType::prepare_values()` in [`plugins/wp-graphql/src/Type/WPEnumType.php:117`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L117)
+- `WPEnumType::prepare_values()` in [`plugins/wp-graphql/src/Type/WPEnumType.php:125`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L125)

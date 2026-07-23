@@ -740,6 +740,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   Filter the section fields
 
+- [`graphql_normalized_settings`](/filters/graphql_normalized_settings)
+
+  Filter the normalized settings map before the read and mutation surfaces are derived from it.
+
 - [`graphql_render_admin_page`](/filters/graphql_render_admin_page)
 
   Filters the rendered GraphiQL admin page markup.
@@ -747,6 +751,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 - [`graphql_setting_field_config`](/filters/graphql_setting_field_config)
 
   Filter the setting field config
+
+- [`graphql_setting_field_value`](/filters/graphql_setting_field_value)
+
+  Filters the resolved value of a single settings field before it is returned in the Schema.
 
 - [`graphql_settings_sections`](/filters/graphql_settings_sections)
 

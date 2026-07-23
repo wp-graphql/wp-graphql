@@ -169,7 +169,7 @@ class SettingGroup extends Model {
 		 * @param string              $group_name    The name of the settings group the field belongs to.
 		 *
 		 * @hookGroup settings
-		 * @since x-release-please-version
+		 * @since 2.18.0
 		 */
 		return apply_filters( 'graphql_setting_field_value', $value, $setting_field, $this->group_key );
 	}
