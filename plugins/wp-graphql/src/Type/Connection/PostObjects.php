@@ -364,7 +364,7 @@ class PostObjects {
 			 * the active theme. It does not filter by the block theme's global template
 			 * hierarchy (the `wp_template` post type), which is resolved dynamically per request.
 			 *
-			 * @since x-release-please-version
+			 * @since 2.18.0
 			 */
 			'template'    => [
 				'type'        => 'ContentTemplateEnum',

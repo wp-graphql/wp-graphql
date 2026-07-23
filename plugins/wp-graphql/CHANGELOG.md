@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.18.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.17.0...wp-graphql/v2.18.0) (2026-07-23)
+
+
+### New Features
+
+* add a template where arg (ContentTemplateEnum) to post connections ([#4025](https://github.com/wp-graphql/wp-graphql/issues/4025)) ([1fa0ed9](https://github.com/wp-graphql/wp-graphql/commit/1fa0ed955ca13186b6681c6ce7963f286ee71509))
+* add isSticky where arg to post connections ([#4002](https://github.com/wp-graphql/wp-graphql/issues/4002)) ([65f1602](https://github.com/wp-graphql/wp-graphql/commit/65f16029f90668cc1400b45875774a0b43f3a620))
+* **deps:** bump @wordpress/components from 27.6.0 to 34.0.0 ([#4011](https://github.com/wp-graphql/wp-graphql/issues/4011)) ([40c346f](https://github.com/wp-graphql/wp-graphql/commit/40c346f24bc5e6785e718cef3a560058ea4825b0))
+* **deps:** bump @wordpress/i18n from 4.58.0 to 6.21.0 ([#4038](https://github.com/wp-graphql/wp-graphql/issues/4038)) ([ebb1435](https://github.com/wp-graphql/wp-graphql/commit/ebb143551d9b54dec7f8cb7ee585f99bfc446231))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 10 updates ([#4055](https://github.com/wp-graphql/wp-graphql/issues/4055)) ([3f5c40a](https://github.com/wp-graphql/wp-graphql/commit/3f5c40ae3f02962f7a31c87b3a8126da53176c2c))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4010](https://github.com/wp-graphql/wp-graphql/issues/4010)) ([fa2d23d](https://github.com/wp-graphql/wp-graphql/commit/fa2d23d51aa1887b79e3752dd080b4b46c80cb72))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4091](https://github.com/wp-graphql/wp-graphql/issues/4091)) ([5c9726b](https://github.com/wp-graphql/wp-graphql/commit/5c9726b3290e7fa74be089a5281eaa5620b9cad5))
+* expose the Site Address as generalSettings.homeUrl ([#4021](https://github.com/wp-graphql/wp-graphql/issues/4021)) ([35ea97c](https://github.com/wp-graphql/wp-graphql/commit/35ea97c38385c1cc021187a1e668bb7ea4b794a6))
+* generate developer reference docs for hooks, functions, and recipes ([#4031](https://github.com/wp-graphql/wp-graphql/issues/4031)) ([294c969](https://github.com/wp-graphql/wp-graphql/commit/294c969941c15af772bab6b448f990ec0b400966))
+* **settings:** make setting groups Nodes with an id and Node interface ([#4081](https://github.com/wp-graphql/wp-graphql/issues/4081)) ([f5d03f8](https://github.com/wp-graphql/wp-graphql/commit/f5d03f885c5de83ba246dd523ff863b8f2ba6496))
+* **settings:** route value resolution through the SettingGroup model and add the graphql_purge_all config key ([#4082](https://github.com/wp-graphql/wp-graphql/issues/4082)) ([42bca51](https://github.com/wp-graphql/wp-graphql/commit/42bca517c64c08c251dff7b0caac6ad30b106602))
+* **settings:** seed in-memory shims (home, permalink) and consolidate field-name derivation ([#4078](https://github.com/wp-graphql/wp-graphql/issues/4078)) ([6a43fad](https://github.com/wp-graphql/wp-graphql/commit/6a43fad7d2d60baca45467d4c62911bd29f964b6))
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049)) ([b78d6dc](https://github.com/wp-graphql/wp-graphql/commit/b78d6dcc1c223daa73fea36528ef028ee8427fae))
+
+
+### Bug Fixes
+
+* allow public menuItems queries to opt out of the location restriction ([#4000](https://github.com/wp-graphql/wp-graphql/issues/4000)) ([d0b0bdb](https://github.com/wp-graphql/wp-graphql/commit/d0b0bdb5bbd0b61cb6f32a7ae31d0caa8896abd5))
+* **deps-dev:** bump @typescript-eslint/parser from 6.21.0 to 8.61.0 ([#4056](https://github.com/wp-graphql/wp-graphql/issues/4056)) ([bde1f92](https://github.com/wp-graphql/wp-graphql/commit/bde1f9262205b6734d17e646f09ea7c4d7813d9e))
+* **deps-dev:** bump composer/composer from 2.2.28 to 2.2.29 in /plugins/wp-graphql ([#4096](https://github.com/wp-graphql/wp-graphql/issues/4096)) ([d523512](https://github.com/wp-graphql/wp-graphql/commit/d5235126ad3475126790c4e3c36e5f364dafdb1a))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql ([#4101](https://github.com/wp-graphql/wp-graphql/issues/4101)) ([415a5e5](https://github.com/wp-graphql/wp-graphql/commit/415a5e5827a38ea9f8e5e740501203c2ec1814a3))
+* **deps-dev:** bump phpstan/phpstan from 2.2.2 to 2.2.5 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4051](https://github.com/wp-graphql/wp-graphql/issues/4051)) ([347b2e6](https://github.com/wp-graphql/wp-graphql/commit/347b2e655ec0ba98517f8ac321bf197e7862a61e))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015)) ([0c24553](https://github.com/wp-graphql/wp-graphql/commit/0c245535a49cde2172d4718e21a216eb98e9b237))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 9 updates ([#4061](https://github.com/wp-graphql/wp-graphql/issues/4061)) ([9b50264](https://github.com/wp-graphql/wp-graphql/commit/9b50264dcfb82c9aad4fb16d2ff4983041cc5d9e))
+* **deps-dev:** bump the npm-dev-minor-patch group with 9 updates ([#4036](https://github.com/wp-graphql/wp-graphql/issues/4036)) ([9dd355f](https://github.com/wp-graphql/wp-graphql/commit/9dd355f68eb19315ab226ee13852a28fdf7cd927))
+* **deps:** bump webonyx/graphql-php from 15.33.0 to 15.33.1 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4007](https://github.com/wp-graphql/wp-graphql/issues/4007)) ([8bbced8](https://github.com/wp-graphql/wp-graphql/commit/8bbced82057389d1bafb9291feb209f514f9fc38))
+* **deps:** bump webonyx/graphql-php from 15.33.1 to 15.34.0 in /plugins/wp-graphql ([#4052](https://github.com/wp-graphql/wp-graphql/issues/4052)) ([d2e173f](https://github.com/wp-graphql/wp-graphql/commit/d2e173f68009840d790f37cacb46f6802c19c3a4))
+* don't deprecate connection edge node/cursor fields ([#4006](https://github.com/wp-graphql/wp-graphql/issues/4006)) ([a739a75](https://github.com/wp-graphql/wp-graphql/commit/a739a75e365be74594bdcd5983b9510ebbbb8dcb))
+* don't force a SQL LIMIT on childOf term queries ([#4001](https://github.com/wp-graphql/wp-graphql/issues/4001)) ([458b5dd](https://github.com/wp-graphql/wp-graphql/commit/458b5dd698744db6417755a01826281ce31d9aa9))
+* make name optional in register_enum_type() PHPStan param ([#4004](https://github.com/wp-graphql/wp-graphql/issues/4004)) ([44e7a3c](https://github.com/wp-graphql/wp-graphql/commit/44e7a3ce06c51c91f00c26ac16f2ae4e171d3d36))
+* read use_featured_image for the PostType useFeaturedImage label ([#3997](https://github.com/wp-graphql/wp-graphql/issues/3997)) ([db63063](https://github.com/wp-graphql/wp-graphql/commit/db6306315b9ea0a2f74541bb872ab0050bbb4d45))
+* resolve timezone setting from gmt_offset when timezone_string is empty ([#4023](https://github.com/wp-graphql/wp-graphql/issues/4023)) ([a11fb30](https://github.com/wp-graphql/wp-graphql/commit/a11fb3054807accf08d0f077f74b96be9119d737))
+* return null for restricted setting reads ([#4079](https://github.com/wp-graphql/wp-graphql/issues/4079)) ([e76df93](https://github.com/wp-graphql/wp-graphql/commit/e76df933721931dcb23192f3b4590ad24260558e))
+* **settings:** apply per-entry config code missing from the empty [#4049](https://github.com/wp-graphql/wp-graphql/issues/4049) squash ([#4076](https://github.com/wp-graphql/wp-graphql/issues/4076)) ([7fe94b2](https://github.com/wp-graphql/wp-graphql/commit/7fe94b2ebada7dcb87f2b5e05915fad02c6fcaf3))
+* use the role slug when building UserRoleEnum descriptions ([#3996](https://github.com/wp-graphql/wp-graphql/issues/3996)) ([85e48fe](https://github.com/wp-graphql/wp-graphql/commit/85e48fe9862f2c65ba243e7a631e721e880da436))
+
 ## [2.17.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.16.0...wp-graphql/v2.17.0) (2026-06-24)
 
 
