@@ -170,6 +170,20 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.2.0...wp-graphql-ide/v5.3.0) (2026-07-23)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4091](https://github.com/wp-graphql/wp-graphql/issues/4091)) ([5c9726b](https://github.com/wp-graphql/wp-graphql/commit/5c9726b3290e7fa74be089a5281eaa5620b9cad5))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql-ide ([#4102](https://github.com/wp-graphql/wp-graphql/issues/4102)) ([01d37a6](https://github.com/wp-graphql/wp-graphql/commit/01d37a66f645cd3b27026f04cb6e13fd00d5916a))
+* **deps-dev:** bump the npm-dev-minor-patch group with 2 updates ([#4089](https://github.com/wp-graphql/wp-graphql/issues/4089)) ([f5de472](https://github.com/wp-graphql/wp-graphql/commit/f5de472226abd9d9fbf3f89ea51e01e5f9c83961))
+* show interface relationships in Docs explorer with collapsible, sticky sections ([#4107](https://github.com/wp-graphql/wp-graphql/issues/4107)) ([bae751b](https://github.com/wp-graphql/wp-graphql/commit/bae751b6e8c86f93594178a2bfce1a75fb7397b4))
+
 ## [5.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.1.0...wp-graphql-ide/v5.2.0) (2026-07-16)
 
 
