@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-06T22:05:59.179Z",
+  "generatedAt": "2026-07-23T16:57:44.283Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,11 +31,11 @@
       ]
     },
     "summary": {
-      "totalHooks": 277,
-      "wpgraphqlHooks": 257,
-      "activeWpgraphqlHooks": 253,
+      "totalHooks": 279,
+      "wpgraphqlHooks": 259,
+      "activeWpgraphqlHooks": 255,
       "coreHooks": 20,
-      "staticHooks": 240,
+      "staticHooks": 242,
       "dynamicHooks": 13,
       "flaggedHooks": 31,
       "warnings": 31,
@@ -44,7 +44,7 @@
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 225
+        "count": 227
       },
       {
         "prefix": "wpgraphql_",
@@ -260,7 +260,7 @@
         "hook": "init_graphql_type_registry",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-        "line": 289,
+        "line": 291,
         "code": "deprecated_prefix",
         "severity": "warning",
         "message": "Hook name uses deprecated prefix \"init_graphql_\".",
@@ -270,7 +270,7 @@
         "hook": "init_graphql_type_registry",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Registry/TypeRegistry.php",
-        "line": 289,
+        "line": 291,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",

@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.17.0
+Stable tag: 2.18.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -309,6 +309,45 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.18.0 =
+
+**New Features**
+
+* add a template where arg (ContentTemplateEnum) to post connections ([#4025](https://github.com/wp-graphql/wp-graphql/issues/4025))
+* add isSticky where arg to post connections ([#4002](https://github.com/wp-graphql/wp-graphql/issues/4002))
+* **deps:** bump @wordpress/components from 27.6.0 to 34.0.0 ([#4011](https://github.com/wp-graphql/wp-graphql/issues/4011))
+* **deps:** bump @wordpress/i18n from 4.58.0 to 6.21.0 ([#4038](https://github.com/wp-graphql/wp-graphql/issues/4038))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 10 updates ([#4055](https://github.com/wp-graphql/wp-graphql/issues/4055))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4010](https://github.com/wp-graphql/wp-graphql/issues/4010))
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4091](https://github.com/wp-graphql/wp-graphql/issues/4091))
+* expose the Site Address as generalSettings.homeUrl ([#4021](https://github.com/wp-graphql/wp-graphql/issues/4021))
+* generate developer reference docs for hooks, functions, and recipes ([#4031](https://github.com/wp-graphql/wp-graphql/issues/4031))
+* **settings:** make setting groups Nodes with an id and Node interface ([#4081](https://github.com/wp-graphql/wp-graphql/issues/4081))
+* **settings:** route value resolution through the SettingGroup model and add the graphql_purge_all config key ([#4082](https://github.com/wp-graphql/wp-graphql/issues/4082))
+* **settings:** seed in-memory shims (home, permalink) and consolidate field-name derivation ([#4078](https://github.com/wp-graphql/wp-graphql/issues/4078))
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049))
+
+**Bug Fixes**
+
+* allow public menuItems queries to opt out of the location restriction ([#4000](https://github.com/wp-graphql/wp-graphql/issues/4000))
+* **deps-dev:** bump @typescript-eslint/parser from 6.21.0 to 8.61.0 ([#4056](https://github.com/wp-graphql/wp-graphql/issues/4056))
+* **deps-dev:** bump composer/composer from 2.2.28 to 2.2.29 in /plugins/wp-graphql ([#4096](https://github.com/wp-graphql/wp-graphql/issues/4096))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql ([#4101](https://github.com/wp-graphql/wp-graphql/issues/4101))
+* **deps-dev:** bump phpstan/phpstan from 2.2.2 to 2.2.5 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4051](https://github.com/wp-graphql/wp-graphql/issues/4051))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 9 updates ([#4061](https://github.com/wp-graphql/wp-graphql/issues/4061))
+* **deps-dev:** bump the npm-dev-minor-patch group with 9 updates ([#4036](https://github.com/wp-graphql/wp-graphql/issues/4036))
+* **deps:** bump webonyx/graphql-php from 15.33.0 to 15.33.1 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4007](https://github.com/wp-graphql/wp-graphql/issues/4007))
+* **deps:** bump webonyx/graphql-php from 15.33.1 to 15.34.0 in /plugins/wp-graphql ([#4052](https://github.com/wp-graphql/wp-graphql/issues/4052))
+* don't deprecate connection edge node/cursor fields ([#4006](https://github.com/wp-graphql/wp-graphql/issues/4006))
+* don't force a SQL LIMIT on childOf term queries ([#4001](https://github.com/wp-graphql/wp-graphql/issues/4001))
+* make name optional in register_enum_type() PHPStan param ([#4004](https://github.com/wp-graphql/wp-graphql/issues/4004))
+* read use_featured_image for the PostType useFeaturedImage label ([#3997](https://github.com/wp-graphql/wp-graphql/issues/3997))
+* resolve timezone setting from gmt_offset when timezone_string is empty ([#4023](https://github.com/wp-graphql/wp-graphql/issues/4023))
+* return null for restricted setting reads ([#4079](https://github.com/wp-graphql/wp-graphql/issues/4079))
+* **settings:** apply per-entry config code missing from the empty [#4049](https://github.com/wp-graphql/wp-graphql/issues/4049) squash ([#4076](https://github.com/wp-graphql/wp-graphql/issues/4076))
+* use the role slug when building UserRoleEnum descriptions ([#3996](https://github.com/wp-graphql/wp-graphql/issues/3996))
 
 = 2.17.0 =
 
