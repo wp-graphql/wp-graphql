@@ -490,7 +490,7 @@ function RootView({ schema, onSelectType }) {
  * @param {Object}          props
  * @param {string}          props.title       Section heading label.
  * @param {number}          props.count       Number of entries in the section.
- * @param {boolean}         [props.forceOpen] When truthy, expand the section (used to reveal a cmd-click focus target inside a collapsed section).
+ * @param {*}               [props.forceOpen] Expands the section whenever this changes to something truthy, revealing a focus target the user had collapsed out of view. Pass the identity of the thing being focused (a field name), not a boolean — a boolean stays `true` between two focus targets and would only fire once.
  * @param {React.ReactNode} props.children    Section content.
  */
 function DocsSection({ title, count, forceOpen, children }) {
@@ -695,7 +695,11 @@ function FieldsList({ fields, focusField, onSelectType }) {
 		<DocsSection
 			title={__('Fields', 'wpgraphql-ide')}
 			count={fields.length}
-			forceOpen={Boolean(focusField)}
+			// The field name itself, not a boolean: `TypeView` is keyed by
+			// type, so moving between two fields of the same type doesn't
+			// remount it, and a boolean would stay `true` across the move
+			// and never re-trigger the re-open.
+			forceOpen={focusField}
 		>
 			{fields.map((field) => (
 				<FieldItem
@@ -814,9 +818,12 @@ function FieldItem({ field, isFocused, onSelectType }) {
  * Clickable row that navigates to a type's detail view.
  *
  * The whole row is the button, not just the type name: the row is what
- * lights up on hover, so the row is what has to be clickable. The label
- * and kind are decorative context, hidden from assistive tech so the
- * button announces as just the type name.
+ * lights up on hover, so the row is what has to be clickable.
+ *
+ * The accessible name is composed rather than left to the row's text so it
+ * carries the same information the row shows — in an Implementations list
+ * the kind is what separates an object from an interface — and so it stays
+ * put regardless of the `text-transform` the kind is styled with.
  *
  * @param {Object}   props
  * @param {string}   [props.label] Optional label prefix (e.g. "query").
@@ -825,28 +832,25 @@ function FieldItem({ field, isFocused, onSelectType }) {
  * @param {Function} props.onClick Click handler.
  */
 function TypeLink({ label, kind, type, onClick }) {
+	const accessibleName = [
+		label ? `${label}: ` : '',
+		type.name,
+		kind ? `, ${kind}` : '',
+	].join('');
+
 	return (
 		<button
 			type="button"
 			className="wpgraphql-ide-docs-type-entry"
+			aria-label={accessibleName}
 			onClick={onClick}
 		>
 			{label && (
-				<span
-					className="wpgraphql-ide-docs-type-label"
-					aria-hidden="true"
-				>
-					{label}:
-				</span>
+				<span className="wpgraphql-ide-docs-type-label">{label}:</span>
 			)}
 			<span className="wpgraphql-ide-docs-type-link">{type.name}</span>
 			{kind && (
-				<span
-					className="wpgraphql-ide-docs-type-kind"
-					aria-hidden="true"
-				>
-					{kind}
-				</span>
+				<span className="wpgraphql-ide-docs-type-kind">{kind}</span>
 			)}
 		</button>
 	);

@@ -19,6 +19,12 @@ if (typeof window.matchMedia !== 'function') {
 	});
 }
 
+// Focusing a field scrolls its row into view; jsdom has no layout, so the
+// method doesn't exist there.
+if (typeof window.Element.prototype.scrollIntoView !== 'function') {
+	window.Element.prototype.scrollIntoView = () => {};
+}
+
 // The real `@wordpress/components` drags an untransformed ESM `uuid`
 // into jest; the panel only uses `Button`, so stub it with a plain
 // button element.
@@ -93,6 +99,13 @@ const SDL = /* GraphQL */ `
 	}
 `;
 
+// Type rows carry a composed accessible name so the kind reaches screen
+// readers too: "Page, Object" in a list that mixes kinds, "query: RootQuery"
+// for a root entry, bare "Node" where neither applies. Match the type name
+// wherever it sits in that name, without matching a longer type that merely
+// contains it (`Node` must not match `ContentNode, Object`).
+const typeRow = (name) => new RegExp(`(^|: )${name}(,|$)`);
+
 // Navigate the panel to a type detail view via the schema search input —
 // the same path a user takes.
 function openType(name) {
@@ -105,7 +118,9 @@ function openType(name) {
 	const typesGroup = screen
 		.getByText('Types')
 		.closest('.wpgraphql-ide-docs-search-group');
-	fireEvent.click(within(typesGroup).getByRole('button', { name }));
+	fireEvent.click(
+		within(typesGroup).getByRole('button', { name: typeRow(name) })
+	);
 }
 
 function section(title) {
@@ -134,10 +149,12 @@ describe('DocsExplorerPanel — interface relationships', () => {
 		const implementsSection = section('Implements');
 		expect(implementsSection).not.toBeNull();
 		expect(
-			implementsSection.getByRole('button', { name: 'ContentTemplate' })
+			implementsSection.getByRole('button', {
+				name: typeRow('ContentTemplate'),
+			})
 		).toBeInTheDocument();
 		expect(
-			implementsSection.getByRole('button', { name: 'Node' })
+			implementsSection.getByRole('button', { name: typeRow('Node') })
 		).toBeInTheDocument();
 	});
 
@@ -149,7 +166,7 @@ describe('DocsExplorerPanel — interface relationships', () => {
 		const implementsSection = section('Implements');
 		expect(implementsSection).not.toBeNull();
 		expect(
-			implementsSection.getByRole('button', { name: 'Node' })
+			implementsSection.getByRole('button', { name: typeRow('Node') })
 		).toBeInTheDocument();
 
 		// …and is implemented by the two templates.
@@ -157,11 +174,13 @@ describe('DocsExplorerPanel — interface relationships', () => {
 		expect(implementationsSection).not.toBeNull();
 		expect(
 			implementationsSection.getByRole('button', {
-				name: 'DefaultTemplate',
+				name: typeRow('DefaultTemplate'),
 			})
 		).toBeInTheDocument();
 		expect(
-			implementationsSection.getByRole('button', { name: 'PageNoTitle' })
+			implementationsSection.getByRole('button', {
+				name: typeRow('PageNoTitle'),
+			})
 		).toBeInTheDocument();
 	});
 
@@ -174,12 +193,12 @@ describe('DocsExplorerPanel — interface relationships', () => {
 		// Objects and the implementing interface both appear.
 		expect(
 			implementationsSection.getByRole('button', {
-				name: 'ContentTemplate',
+				name: typeRow('ContentTemplate'),
 			})
 		).toBeInTheDocument();
 		expect(
 			implementationsSection.getByRole('button', {
-				name: 'DefaultTemplate',
+				name: typeRow('DefaultTemplate'),
 			})
 		).toBeInTheDocument();
 	});
@@ -190,7 +209,7 @@ describe('DocsExplorerPanel — interface relationships', () => {
 
 		fireEvent.click(
 			section('Implements').getByRole('button', {
-				name: 'ContentTemplate',
+				name: typeRow('ContentTemplate'),
 			})
 		);
 
@@ -210,7 +229,7 @@ describe('DocsExplorerPanel — interface relationships', () => {
 
 		fireEvent.click(
 			section('Implementations').getByRole('button', {
-				name: 'PageNoTitle',
+				name: typeRow('PageNoTitle'),
 			})
 		);
 
@@ -245,7 +264,7 @@ describe('DocsExplorerPanel — click affordances', () => {
 		openType('ContentTemplate');
 
 		const row = section('Implementations').getByRole('button', {
-			name: 'PageNoTitle',
+			name: typeRow('PageNoTitle'),
 		});
 		expect(row).toHaveClass('wpgraphql-ide-docs-type-entry');
 
@@ -253,6 +272,26 @@ describe('DocsExplorerPanel — click affordances', () => {
 		// clicking it navigates rather than landing on dead space.
 		expect(
 			within(row).getByText('object', { exact: false })
+		).toBeInTheDocument();
+	});
+
+	// The kind is the only thing separating an object from an interface in
+	// an Implementations list, so it has to reach a screen reader and not
+	// just the eye.
+	it('names each type row with its kind', () => {
+		render(<DocsExplorerPanel />);
+		openType('Node');
+
+		const implementations = section('Implementations');
+		expect(
+			implementations.getByRole('button', {
+				name: 'ContentTemplate, Interface',
+			})
+		).toBeInTheDocument();
+		expect(
+			implementations.getByRole('button', {
+				name: 'DefaultTemplate, Object',
+			})
 		).toBeInTheDocument();
 	});
 
@@ -306,7 +345,7 @@ describe('DocsExplorerPanel — collapsible sections', () => {
 		fireEvent.click(toggle);
 		expect(toggle).toHaveAttribute('aria-expanded', 'true');
 		expect(
-			screen.getByRole('button', { name: 'ContentTemplate' })
+			screen.getByRole('button', { name: typeRow('ContentTemplate') })
 		).toBeInTheDocument();
 	});
 
@@ -348,5 +387,37 @@ describe('DocsExplorerPanel — collapsible sections', () => {
 			'aria-expanded',
 			'true'
 		);
+	});
+
+	// `TypeView` is keyed by type name, so hopping between two fields of the
+	// SAME type never remounts it and the collapse state carries over. The
+	// Fields section still has to re-open, or the field the user asked for
+	// sits inside a collapsed section.
+	it('re-expands Fields when the focus target moves within one type', () => {
+		__dep.docsNavTarget = {
+			typeName: 'DefaultTemplate',
+			fieldName: 'templateName',
+		};
+		const { rerender } = render(<DocsExplorerPanel />);
+		expect(screen.getByText('templateName')).toBeInTheDocument();
+
+		fireEvent.click(sectionToggle('Fields'));
+		expect(sectionToggle('Fields')).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
+
+		// Same type, different field — e.g. a second cmd-click in the editor.
+		__dep.docsNavTarget = {
+			typeName: 'DefaultTemplate',
+			fieldName: 'id',
+		};
+		rerender(<DocsExplorerPanel />);
+
+		expect(sectionToggle('Fields')).toHaveAttribute(
+			'aria-expanded',
+			'true'
+		);
+		expect(screen.getByText('id')).toBeInTheDocument();
 	});
 });

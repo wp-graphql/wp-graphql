@@ -14,6 +14,11 @@ const activityBarButton = (page, label) =>
 		.locator(selectors.activityBar)
 		.getByRole('button', { name: label, exact: true });
 
+// Type rows carry a composed accessible name so the kind reaches screen
+// readers too ("Page, Object"). Match the type name wherever it sits in that
+// name, without matching a longer type that merely contains it.
+const typeRow = (name) => new RegExp(`(^|: )${name}(,|$)`);
+
 const docsPanel = (page) => page.locator('.wpgraphql-ide-docs-panel').first();
 
 const docsSection = (page, title) =>
@@ -52,7 +57,7 @@ async function openType(page, typeName) {
 	await docsPanel(page)
 		.locator('.wpgraphql-ide-docs-search-group')
 		.filter({ hasText: 'Types' })
-		.getByRole('button', { name: typeName, exact: true })
+		.getByRole('button', { name: typeRow(typeName) })
 		.click();
 	await expect(
 		docsPanel(page).locator('.wpgraphql-ide-docs-type-name')
@@ -76,8 +81,7 @@ test.describe('Docs explorer interface relationships', () => {
 		await expect(implementsSection).toBeVisible();
 		await expect(
 			implementsSection.getByRole('button', {
-				name: 'ContentTemplate',
-				exact: true,
+				name: typeRow('ContentTemplate'),
 			})
 		).toBeVisible();
 	});
@@ -99,15 +103,15 @@ test.describe('Docs explorer interface relationships', () => {
 		const implementations = docsSection(page, 'Implementations');
 		await expect(implementations).toBeVisible();
 		await expect(
-			implementations.getByRole('button', { name: 'Page', exact: true })
+			implementations.getByRole('button', { name: typeRow('Page') })
 		).toBeVisible();
 		await expect(
-			implementations.getByRole('button', { name: 'Post', exact: true })
+			implementations.getByRole('button', { name: typeRow('Post') })
 		).toBeVisible();
 
 		// Clicking an implementation navigates to that type's view…
 		await implementations
-			.getByRole('button', { name: 'Page', exact: true })
+			.getByRole('button', { name: typeRow('Page') })
 			.click();
 		await expect(
 			docsPanel(page).locator('.wpgraphql-ide-docs-type-name')
@@ -115,7 +119,7 @@ test.describe('Docs explorer interface relationships', () => {
 
 		// …and its Implements link navigates back to the interface.
 		await docsSection(page, 'Implements')
-			.getByRole('button', { name: 'ContentNode', exact: true })
+			.getByRole('button', { name: typeRow('ContentNode') })
 			.click();
 		await expect(
 			docsPanel(page).locator('.wpgraphql-ide-docs-type-name')
@@ -139,8 +143,7 @@ test.describe('Docs explorer interface relationships', () => {
 			'.wpgraphql-ide-docs-section-title'
 		);
 		const pageLink = implementations.getByRole('button', {
-			name: 'Page',
-			exact: true,
+			name: typeRow('Page'),
 		});
 
 		await expect(toggle).toHaveAttribute('aria-expanded', 'true');
@@ -203,8 +206,7 @@ test.describe('Docs explorer interface relationships', () => {
 		await openType(page, 'ContentNode');
 
 		const row = docsSection(page, 'Implementations').getByRole('button', {
-			name: 'Page',
-			exact: true,
+			name: typeRow('Page'),
 		});
 
 		// The button has to BE the row rather than a smaller element inside
