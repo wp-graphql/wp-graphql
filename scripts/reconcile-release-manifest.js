@@ -29,7 +29,7 @@
  */
 
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 const DEFAULT_MANIFEST = '.release-please-manifest.json';
 
@@ -46,9 +46,11 @@ function parseArgs() {
  * Compute the reconciled manifest: main's versions for every plugin, with the
  * released component's own bump preserved from the branch.
  *
- * Returns the branch manifest unchanged when there is nothing to reconcile
- * (component missing on either side, or already in sync), so callers can treat
- * "no change" as "input === output".
+ * When the component is absent from either manifest there is nothing safe to
+ * reconcile, so the branch manifest is returned by reference. Otherwise a new
+ * object is returned; it may be deep-equal to the branch manifest when nothing
+ * has drifted, so callers decide "no change" by value (see `main()`), not by
+ * reference identity.
  *
  * @param {Object} mainManifest   Parsed manifest from main.
  * @param {Object} branchManifest Parsed manifest from the release PR branch.
@@ -73,7 +75,10 @@ function readMainManifest(args, manifestPath) {
 	if (args['main-manifest']) {
 		return fs.readFileSync(args['main-manifest'], 'utf8');
 	}
-	return execSync(`git show origin/main:${manifestPath}`, {
+	// execFileSync (not execSync) so manifestPath is passed as an argv entry
+	// rather than interpolated into a shell string — no shell, no quoting or
+	// injection surface.
+	return execFileSync('git', ['show', `origin/main:${manifestPath}`], {
 		encoding: 'utf8',
 	});
 }
