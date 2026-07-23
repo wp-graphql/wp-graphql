@@ -353,7 +353,7 @@ class DataSource {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 *
-	 * @since x-release-please-version
+	 * @since 2.18.0
 	 */
 	protected static function get_normalized_settings( ?TypeRegistry $type_registry = null ): array {
 
@@ -430,7 +430,7 @@ class DataSource {
 		 * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry       The WPGraphQL TypeRegistry, or null when the map is resolved without a built schema.
 		 *
 		 * @hookGroup settings
-		 * @since x-release-please-version
+		 * @since 2.18.0
 		 */
 		$normalized_settings = apply_filters( 'graphql_normalized_settings', $normalized_settings, $type_registry );
 
@@ -472,7 +472,7 @@ class DataSource {
 	 *
 	 * @param array<string,mixed> $setting A normalized settings map entry.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.18.0
 	 */
 	protected static function get_setting_field_name( array $setting ): string {
 		if ( ! empty( $setting['graphql_field_name'] ) ) {
@@ -492,7 +492,7 @@ class DataSource {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 *
-	 * @since x-release-please-version
+	 * @since 2.18.0
 	 */
 	protected static function get_core_setting_config(): array {
 		return [
@@ -526,7 +526,7 @@ class DataSource {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 *
-	 * @since x-release-please-version
+	 * @since 2.18.0
 	 */
 	protected static function get_core_shim_settings(): array {
 		return [

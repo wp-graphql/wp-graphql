@@ -13,7 +13,7 @@ use WPGraphQL\Type\WPEnumType;
  *
  * @package WPGraphQL\Type\Enum
  *
- * @since x-release-please-version
+ * @since 2.18.0
  */
 class ContentTemplateEnum {
 
@@ -22,7 +22,7 @@ class ContentTemplateEnum {
 	 *
 	 * @return void
 	 *
-	 * @since x-release-please-version
+	 * @since 2.18.0
 	 */
 	public static function register_type() {
 		register_graphql_enum_type(
