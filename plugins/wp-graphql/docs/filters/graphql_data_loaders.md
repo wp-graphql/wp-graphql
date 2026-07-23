@@ -38,7 +38,7 @@ No description available.
 
 ## Source
 
-- [`plugins/wp-graphql/src/AppContext.php:225`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L225)
+- [`plugins/wp-graphql/src/AppContext.php:227`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L227)
 
 ```php
 apply_filters_deprecated(
@@ -52,4 +52,4 @@ apply_filters_deprecated(
 
 ## Related
 
-- `AppContext::prepare_data_loaders()` in [`plugins/wp-graphql/src/AppContext.php:225`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L225)
+- `AppContext::prepare_data_loaders()` in [`plugins/wp-graphql/src/AppContext.php:227`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L227)
