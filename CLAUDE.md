@@ -60,6 +60,8 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 
 Non-trivial logic a GitHub Actions workflow needs belongs in a committed script (`scripts/*.js`) that the workflow *calls*, not in an inline `run:` block or a `node - <<'NODE'` heredoc. A one-line `sed`/`grep` or a straight tool invocation is fine inline; anything with branching, parsing, or JSON manipulation goes in a script. This keeps the logic testable, reviewable, and runnable locally.
 
+This is the target for new and changed workflow logic; the codebase isn't fully there yet. `update-release-pr.yml` still carries one inline `node - <<'NODE'` block (the "Replace legacy hook placeholder versions" step) that predates the convention — extract it to a tested script when you next touch it, rather than adding to it.
+
 The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcile-release-manifest.js`):
 
 - `#!/usr/bin/env node` shebang and a JSDoc header with a `Usage:` line.
