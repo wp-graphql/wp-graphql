@@ -36,8 +36,12 @@ const DEFAULT_MANIFEST = '.release-please-manifest.json';
 function parseArgs() {
 	const args = {};
 	process.argv.slice(2).forEach((arg) => {
-		const [key, value] = arg.replace(/^--/, '').split('=');
-		args[key] = value;
+		// Split on the first "=" only, so values that themselves contain "="
+		// (e.g. a path) survive intact.
+		const eq = arg.indexOf('=');
+		if (arg.startsWith('--') && eq !== -1) {
+			args[arg.slice(2, eq)] = arg.slice(eq + 1);
+		}
 	});
 	return args;
 }
@@ -104,8 +108,27 @@ function main() {
 	try {
 		mainManifest = JSON.parse(readMainManifest(args, manifestPath));
 	} catch (e) {
+		// A release PR's own manifest always exists on main, so a read failure
+		// here is a real problem (bad ref, renamed file), not an expected
+		// no-op. Fail loudly rather than exit 0 and leave the PR silently
+		// unreconciled behind a green check.
+		console.error(`Could not read manifest from main: ${e.message}`);
+		process.exit(1);
+	}
+
+	// Distinguish "nothing to reconcile" from "couldn't find the component".
+	// A missing key usually means --component was parsed wrong, which would
+	// otherwise hide behind the "already reconciled" no-op message below.
+	const ownKey = `plugins/${args.component}`;
+	if (!(ownKey in branchManifest)) {
 		console.log(
-			`Could not read manifest from main (${e.message}); skipping reconcile.`
+			`${ownKey} is not in ${manifestPath}; skipping reconcile (is --component "${args.component}" correct?).`
+		);
+		process.exit(0);
+	}
+	if (!(ownKey in mainManifest)) {
+		console.log(
+			`${ownKey} is not in main's manifest yet (new component?); skipping reconcile.`
 		);
 		process.exit(0);
 	}

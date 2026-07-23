@@ -212,6 +212,58 @@ const tests = [
 			}
 			assert(failed, 'expected non-zero exit without --component');
 		}),
+
+	() =>
+		test("CLI fails fast when main's manifest cannot be read", () => {
+			writeJson('branch.json', STALE_IDE_BRANCH);
+			// Point --main-manifest at a file that does not exist, standing in
+			// for a broken `git show origin/main:…` read.
+			let failed = false;
+			let output = '';
+			try {
+				execSync(
+					`node "${SCRIPT_PATH}" --component=wp-graphql-ide --manifest=.test-reconcile-manifest/branch.json --main-manifest=.test-reconcile-manifest/does-not-exist.json`,
+					{ cwd: path.join(__dirname, '..'), stdio: 'pipe' }
+				);
+			} catch (e) {
+				failed = true;
+				output = e.stderr ? e.stderr.toString() : '';
+			}
+			assert(
+				failed,
+				'expected a non-zero exit on unreadable main manifest'
+			);
+			assert(
+				/Could not read manifest from main/.test(output),
+				`expected a clear error, got: ${output}`
+			);
+		}),
+
+	() =>
+		test('CLI warns (not "already reconciled") when the component is absent', () => {
+			writeJson('main.json', MAIN);
+			writeJson('branch.json', STALE_IDE_BRANCH);
+			const before = fs.readFileSync(
+				path.join(TEST_DIR, 'branch.json'),
+				'utf8'
+			);
+			// A component neither manifest tracks — e.g. a misparsed name.
+			const { success, output } = runScript('not-a-plugin');
+			assert(success, `expected exit 0, got: ${output}`);
+			assert(
+				/skipping reconcile/.test(output),
+				`expected a distinct skip message, got: ${output}`
+			);
+			assert(
+				!/already reconciled/.test(output),
+				'must not claim the manifest is already reconciled'
+			);
+			assert.strictEqual(
+				fs.readFileSync(path.join(TEST_DIR, 'branch.json'), 'utf8'),
+				before,
+				'file should be untouched'
+			);
+		}),
 ];
 
 console.log('\n🧪 Running reconcile-release-manifest.js tests...\n');
