@@ -66,33 +66,13 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           BRANCH_NAME: ${{ github.head_ref }}
         run: |
-          # Extract version and component from the PR title or branch name
-          # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
-          # Branch names are like "release-please--branches--main--components--wp-graphql"
-
-          # Extract component from PR title (e.g., "wp-graphql" from "release wp-graphql 2.7.0")
-          COMPONENT=$(echo "$PR_TITLE" | grep -oE 'release\s+([a-z0-9-]+)' | awk '{print $2}' || echo "")
-
-          if [ -z "$COMPONENT" ]; then
-            # Fallback: extract from branch name
-            COMPONENT=$(echo "$BRANCH_NAME" | sed 's/.*--components--//' || echo "wp-graphql")
-          fi
-
-          # Try to get version from PR title first
-          VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-
-          if [ -z "$VERSION" ]; then
-            # Fallback: extract from CHANGELOG.md (first version header)
-            PLUGIN_DIR="plugins/${COMPONENT}"
-            if [ -f "${PLUGIN_DIR}/CHANGELOG.md" ]; then
-              VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "${PLUGIN_DIR}/CHANGELOG.md" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-            fi
-          fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
-          echo "plugin_dir=plugins/${COMPONENT}" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION for component: $COMPONENT"
+          # Resolves version/component/plugin_dir from the PR title (falling
+          # back to the branch name and the component CHANGELOG). Reads
+          # PR_TITLE / BRANCH_NAME from the env above rather than as command
+          # arguments, so PR-controlled strings never reach the shell. Prints
+          # key=value lines and logs a summary to stderr — see
+          # scripts/extract-release-version-info.js.
+          node scripts/extract-release-version-info.js >> "$GITHUB_OUTPUT"
 
       - name: Reconcile shared release manifest with main
         env:
