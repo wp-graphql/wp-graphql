@@ -93,7 +93,7 @@ jobs:
       # bash, unlike the release helpers under scripts/. Both jobs run WITHOUT
       # an actions/checkout step (they only transform release-please's output
       # JSON, so they never needed the repo on disk). Moving this to a tested
-      # scripts/release/*.js would mean adding a checkout to a checkout-less
+      # scripts/*.js helper would mean adding a checkout to a checkout-less
       # job on the deploy path, a bigger change than the extraction is worth
       # today. If this logic grows, do both: add the checkout AND extract.
       # The transform is pure and was parity-verified once: take the output
