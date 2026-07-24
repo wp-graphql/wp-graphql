@@ -183,61 +183,9 @@ jobs:
           COMPONENT: ${{ steps.version_info.outputs.component }}
           VERSION: ${{ steps.version_info.outputs.version }}
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const filePath = 'scripts/hooks/legacy-hooks.json';
-          const component = process.env.COMPONENT;
-          const version = process.env.VERSION;
-
-          if (!component || !version) {
-            console.log('Missing COMPONENT or VERSION; skipping legacy hook replacement.');
-            process.exit(0);
-          }
-
-          if (!fs.existsSync(filePath)) {
-            console.log('No scripts/hooks/legacy-hooks.json found; skipping.');
-            process.exit(0);
-          }
-
-          const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-          const entries = payload && typeof payload === 'object' ? payload[component] : null;
-
-          if (!Array.isArray(entries)) {
-            console.log(`No legacy hook entries for ${component}; skipping.`);
-            process.exit(0);
-          }
-
-          const replacePlaceholders = (value) => {
-            if (typeof value === 'string') {
-              return value.replace(/x-release-please-version/g, version);
-            }
-
-            if (Array.isArray(value)) {
-              return value.map(replacePlaceholders);
-            }
-
-            if (value && typeof value === 'object') {
-              return Object.fromEntries(
-                Object.entries(value).map(([key, nested]) => [key, replacePlaceholders(nested)])
-              );
-            }
-
-            return value;
-          };
-
-          const updatedEntries = replacePlaceholders(entries);
-          const before = JSON.stringify(entries);
-          const after = JSON.stringify(updatedEntries);
-
-          if (before === after) {
-            console.log(`No legacy hook placeholders to replace for ${component}.`);
-            process.exit(0);
-          }
-
-          payload[component] = updatedEntries;
-          fs.writeFileSync(filePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
-          console.log(`✅ Updated scripts/hooks/legacy-hooks.json placeholders for ${component}`);
-          NODE
+          node scripts/hooks/replace-legacy-hook-versions.js \
+            --component="$COMPONENT" \
+            --version="$VERSION"
 
       - name: Check for languages directory
         id: i18n

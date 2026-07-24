@@ -88,6 +88,17 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+      # NOTE (future us): this detection logic — and the "Detect components
+      # for deployment" step in the next job — is intentionally left as inline
+      # bash, unlike the release helpers under scripts/. Both jobs run WITHOUT
+      # an actions/checkout step (they only transform release-please's output
+      # JSON, so they never needed the repo on disk). Moving this to a tested
+      # scripts/*.js helper would mean adding a checkout to a checkout-less
+      # job on the deploy path, a bigger change than the extraction is worth
+      # today. If this logic grows, do both: add the checkout AND extract.
+      # The transform is pure and was parity-verified once: take the output
+      # keys ending in `--release_created` whose value is "true", strip the
+      # `plugins/` prefix, sorted the way `jq keys` sorts (lexicographically).
       - name: Detect components with releases
         id: components
         env:
