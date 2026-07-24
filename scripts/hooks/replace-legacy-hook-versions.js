@@ -69,37 +69,49 @@ function replacePlaceholders(value, version) {
  * Replace placeholders in one component's entries within a legacy-hooks
  * payload.
  *
- * Returns `{ payload, changed }`. `changed` is false (and `payload` is the
- * input unchanged) when the component has no entries or nothing matched, so
- * callers can skip writing.
+ * Returns `{ payload, changed, reason }`. `changed` is false (and `payload`
+ * is the input unchanged) when there was nothing to do; `reason` says why, so
+ * callers can log the distinct cases:
+ *   - 'no-entries'     — the component has no entries array (missing/malformed)
+ *   - 'no-placeholders'— entries exist but none held a placeholder
+ *   - 'updated'        — placeholders were replaced (changed === true)
  *
  * @param {Object} payload   Parsed legacy-hooks.json.
  * @param {string} component Component key (e.g. wp-graphql).
  * @param {string} version   Replacement version.
- * @return {{ payload: Object, changed: boolean }}
+ * @return {{ payload: Object, changed: boolean, reason: string }}
  */
 function replaceComponentVersions(payload, component, version) {
 	const entries =
 		payload && typeof payload === 'object' ? payload[component] : null;
 
 	if (!Array.isArray(entries)) {
-		return { payload, changed: false };
+		return { payload, changed: false, reason: 'no-entries' };
 	}
 
 	const updated = replacePlaceholders(entries, version);
 	if (JSON.stringify(updated) === JSON.stringify(entries)) {
-		return { payload, changed: false };
+		return { payload, changed: false, reason: 'no-placeholders' };
 	}
 
-	return { payload: { ...payload, [component]: updated }, changed: true };
+	return {
+		payload: { ...payload, [component]: updated },
+		changed: true,
+		reason: 'updated',
+	};
 }
 
 function main() {
 	const args = parseArgs();
 
+	// A no-op skip, not a hard failure, when a value is missing: this step
+	// only fills placeholders in a JSON that is usually empty, so it must
+	// never block the release PR update. (The workflow also guards with
+	// `if: version != ''`; this keeps the script resilient on its own, as the
+	// original inline step was.)
 	if (!args.component || !args.version) {
-		console.error('--component and --version are required');
-		process.exit(1);
+		console.log('Missing --component or --version; skipping.');
+		process.exit(0);
 	}
 
 	const filePath = args.file || DEFAULT_FILE;
@@ -110,15 +122,17 @@ function main() {
 	}
 
 	const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-	const { payload: updated, changed } = replaceComponentVersions(
-		payload,
-		args.component,
-		args.version
-	);
+	const {
+		payload: updated,
+		changed,
+		reason,
+	} = replaceComponentVersions(payload, args.component, args.version);
 
 	if (!changed) {
 		console.log(
-			`No legacy hook placeholders to replace for ${args.component}.`
+			reason === 'no-entries'
+				? `No legacy hook entries for ${args.component}; skipping.`
+				: `No legacy hook placeholders to replace for ${args.component}.`
 		);
 		process.exit(0);
 	}

@@ -142,27 +142,29 @@ const tests = [
 		}),
 
 	() =>
-		test('reports no change when the component is absent', () => {
+		test('reports reason "no-entries" when the component is absent', () => {
 			const payload = { 'wp-graphql': [] };
-			const { changed } = replaceComponentVersions(
+			const { changed, reason } = replaceComponentVersions(
 				payload,
 				'not-a-plugin',
 				'2.18.0'
 			);
 			assert.strictEqual(changed, false);
+			assert.strictEqual(reason, 'no-entries');
 		}),
 
 	() =>
-		test('reports no change when there are no placeholders left', () => {
+		test('reports reason "no-placeholders" when nothing is left to replace', () => {
 			const payload = {
 				'wp-graphql': [{ name: 'hook', since: '2.0.0' }],
 			};
-			const { changed } = replaceComponentVersions(
+			const { changed, reason } = replaceComponentVersions(
 				payload,
 				'wp-graphql',
 				'2.18.0'
 			);
 			assert.strictEqual(changed, false);
+			assert.strictEqual(reason, 'no-placeholders');
 		}),
 
 	() =>
@@ -186,21 +188,33 @@ const tests = [
 		}),
 
 	() =>
-		test('CLI exits non-zero without required args', () => {
+		test('CLI logs "no entries" (not "no placeholders") for a missing component', () => {
+			writeFile({ 'wp-graphql': [{ name: 'h', since: PLACEHOLDER }] });
+			const before = fs.readFileSync(TEST_FILE, 'utf8');
+			const { success, output } = runScript('not-a-plugin', '2.18.0');
+			assert(success, `script failed: ${output}`);
+			assert(/No legacy hook entries/.test(output), output);
+			assert(!/No legacy hook placeholders/.test(output), output);
+			assert.strictEqual(fs.readFileSync(TEST_FILE, 'utf8'), before);
+		}),
+
+	() =>
+		test('CLI skips (exit 0) without required args, as the inline step did', () => {
 			writeFile({ 'wp-graphql': [] });
-			let failed = false;
-			try {
-				execSync(`node "${SCRIPT_PATH}" --file="${TEST_FILE}"`, {
+			const before = fs.readFileSync(TEST_FILE, 'utf8');
+			// Missing --component/--version must not fail the release workflow.
+			const output = execSync(
+				`node "${SCRIPT_PATH}" --file="${TEST_FILE}"`,
+				{
 					cwd: path.join(__dirname, '..', '..'),
-					stdio: 'pipe',
-				});
-			} catch (e) {
-				failed = true;
-			}
-			assert(
-				failed,
-				'expected non-zero exit without --component/--version'
+					encoding: 'utf8',
+				}
 			);
+			assert(
+				/skipping/i.test(output),
+				`expected a skip message, got: ${output}`
+			);
+			assert.strictEqual(fs.readFileSync(TEST_FILE, 'utf8'), before);
 		}),
 ];
 
