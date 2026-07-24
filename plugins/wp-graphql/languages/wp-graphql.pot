@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.17.0\n"
+"Project-Id-Version: WPGraphQL 2.18.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-24T22:08:11+00:00\n"
+"POT-Creation-Date: 2026-07-23T16:57:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -81,7 +81,7 @@ msgstr ""
 #. translators: %s is the class name
 #: deprecated/Types.php:26
 #: deprecated/Types.php:45
-#: src/Router.php:642
+#: src/Router.php:659
 #, php-format
 msgid "This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead."
 msgstr ""
@@ -90,23 +90,23 @@ msgstr ""
 msgid "You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href=\"https://acf.wpgraphql.com/\" target=\"_blank\" rel=\"nofollow\">WPGraphQL for ACF</a>?"
 msgstr ""
 
-#: src/Admin/AdminNotices.php:188
+#: src/Admin/AdminNotices.php:196
 msgid "Config message is required"
 msgstr ""
 
-#: src/Admin/AdminNotices.php:193
+#: src/Admin/AdminNotices.php:201
 msgid "Config conditions should be callable"
 msgstr ""
 
-#: src/Admin/AdminNotices.php:198
+#: src/Admin/AdminNotices.php:206
 msgid "Config type should be one of the following: error | warning | success | info"
 msgstr ""
 
-#: src/Admin/AdminNotices.php:203
+#: src/Admin/AdminNotices.php:211
 msgid "is_dismissable should be a boolean"
 msgstr ""
 
-#: src/Admin/AdminNotices.php:333
+#: src/Admin/AdminNotices.php:342
 msgid "Dismiss"
 msgstr ""
 
@@ -165,156 +165,156 @@ msgstr ""
 msgid "WPGraphQL General Settings"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:117
+#: src/Admin/Settings/Settings.php:124
 msgid "GraphQL Endpoint"
 msgstr ""
 
 #. translators: %1$s is the site url, %2$s is the default endpoint
-#: src/Admin/Settings/Settings.php:120
+#: src/Admin/Settings/Settings.php:127
 #, php-format
 msgid "The endpoint (path) for the GraphQL API on the site. <a target=\"_blank\" href=\"%1$s/%2$s\">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than \"graphql\" <em>could</em> have an affect on tooling in the GraphQL ecosystem"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:132
+#: src/Admin/Settings/Settings.php:139
 msgid "The \"GraphQL Endpoint\" field is required and cannot be blank. The default endpoint is \"graphql\""
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:147
+#: src/Admin/Settings/Settings.php:154
 msgid "Restrict Endpoint to Authenticated Users"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:148
+#: src/Admin/Settings/Settings.php:155
 msgid "Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:154
+#: src/Admin/Settings/Settings.php:161
 msgid "Enable Batch Queries"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:155
+#: src/Admin/Settings/Settings.php:162
 msgid "WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:161
+#: src/Admin/Settings/Settings.php:168
 msgid "Batch Query Limit"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:162
+#: src/Admin/Settings/Settings.php:169
 msgid "If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:175
+#: src/Admin/Settings/Settings.php:182
 msgid "Enable Query Depth Limiting"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:176
+#: src/Admin/Settings/Settings.php:183
 msgid "Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:182
+#: src/Admin/Settings/Settings.php:189
 msgid "Max Depth to allow for GraphQL Queries"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:183
+#: src/Admin/Settings/Settings.php:190
 msgid "If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:196
+#: src/Admin/Settings/Settings.php:203
 msgid "Enable GraphQL Type Tracking"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about force enabling.
-#: src/Admin/Settings/Settings.php:199
+#: src/Admin/Settings/Settings.php:206
 #, php-format
 msgid "When enabled, WPGraphQL will track the Types, Models, and Nodes used in the request, and return those values in the headers for use in debugging or header-based cache invalidation. %s"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:200
-#: src/Admin/Settings/Settings.php:305
+#: src/Admin/Settings/Settings.php:207
+#: src/Admin/Settings/Settings.php:312
 msgid "NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. "
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:208
+#: src/Admin/Settings/Settings.php:215
 msgid "Enable GraphiQL IDE"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:209
+#: src/Admin/Settings/Settings.php:216
 msgid "GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:215
+#: src/Admin/Settings/Settings.php:222
 msgid "GraphiQL IDE Admin Bar Link"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:216
+#: src/Admin/Settings/Settings.php:223
 msgid "Show GraphiQL IDE Link in the WordPress Admin Bar"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:222
+#: src/Admin/Settings/Settings.php:229
 msgid "Delete Data on Deactivation"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:223
+#: src/Admin/Settings/Settings.php:230
 msgid "Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:229
+#: src/Admin/Settings/Settings.php:236
 msgid "Enable GraphQL Debug Mode"
 msgstr ""
 
 #. translators: %s is the value of the GRAPHQL_DEBUG constant
-#: src/Admin/Settings/Settings.php:232
+#: src/Admin/Settings/Settings.php:239
 #, php-format
 msgid "This setting is disabled. \"GRAPHQL_DEBUG\" has been set to \"%s\" with code"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:233
+#: src/Admin/Settings/Settings.php:240
 msgid "Whether GraphQL requests should execute in \"debug\" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:241
+#: src/Admin/Settings/Settings.php:248
 msgid "Enable GraphQL Tracing"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:242
+#: src/Admin/Settings/Settings.php:249
 msgid "Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:248
+#: src/Admin/Settings/Settings.php:255
 msgid "Tracing Role"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:249
+#: src/Admin/Settings/Settings.php:256
 msgid "If Tracing is enabled, this limits it to requests from users with the specified User Role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:271
+#: src/Admin/Settings/Settings.php:278
 msgid "Enable GraphQL Query Logs"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:272
+#: src/Admin/Settings/Settings.php:279
 msgid "Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:278
+#: src/Admin/Settings/Settings.php:285
 msgid "Query Log Role"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:279
+#: src/Admin/Settings/Settings.php:286
 msgid "If Query Logs are enabled, this limits them to requests from users with the specified User Role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:301
+#: src/Admin/Settings/Settings.php:308
 msgid "Enable Public Introspection"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about debug mode.
-#: src/Admin/Settings/Settings.php:304
+#: src/Admin/Settings/Settings.php:311
 #, php-format
 msgid "GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s "
 msgstr ""
 
-#: src/Admin/Settings/SettingsRegistry.php:504
+#: src/Admin/Settings/SettingsRegistry.php:521
 msgid "Choose File"
 msgstr ""
 
@@ -343,36 +343,36 @@ msgid "Update now"
 msgstr ""
 
 #. translators: %s: The WPGraphQL version wrapped in a strong tag.
-#: src/Admin/Updates/UpdateChecker.php:541
+#: src/Admin/Updates/UpdateChecker.php:557
 #, php-format
 msgid "The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with %s. Before updating WPGraphQL, please:"
 msgstr ""
 
 #. translators: %s: The WPGraphQL version wrapped in a strong tag.
-#: src/Admin/Updates/UpdateChecker.php:558
+#: src/Admin/Updates/UpdateChecker.php:574
 #, php-format
 msgid "Update these plugins to their latest versions that declare compatibility with %s, OR"
 msgstr ""
 
 #. translators: %s: The WPGraphQL version wrapped in a strong tag.
-#: src/Admin/Updates/UpdateChecker.php:569
+#: src/Admin/Updates/UpdateChecker.php:585
 #, php-format
 msgid "Confirm their compatibility with %s on your staging environment."
 msgstr ""
 
-#: src/Admin/Updates/UpdateChecker.php:581
+#: src/Admin/Updates/UpdateChecker.php:597
 msgid "Plugin"
 msgstr ""
 
-#: src/Admin/Updates/UpdateChecker.php:582
+#: src/Admin/Updates/UpdateChecker.php:598
 msgid "WPGraphQL Tested Up To"
 msgstr ""
 
-#: src/Admin/Updates/UpdateChecker.php:596
+#: src/Admin/Updates/UpdateChecker.php:612
 msgid "For more information, review each plugin's changelogs or contact the plugin's developers."
 msgstr ""
 
-#: src/Admin/Updates/UpdateChecker.php:598
+#: src/Admin/Updates/UpdateChecker.php:614
 msgid "We strongly recommend creating a backup of your site before updating."
 msgstr ""
 
@@ -380,28 +380,28 @@ msgstr ""
 msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
 msgstr ""
 
-#: src/AppContext.php:224
+#: src/AppContext.php:232
 msgid "The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated."
 msgstr ""
 
 #. translators: %s is the key of the loader that was not found.
-#: src/AppContext.php:259
+#: src/AppContext.php:267
 #, php-format
 msgid "No loader assigned to the key %s"
 msgstr ""
 
 #. translators: %s is the key of the loader that failed to instantiate.
-#: src/AppContext.php:268
+#: src/AppContext.php:276
 #, php-format
 msgid "Failed to instantiate %1$s: %2$s"
 msgstr ""
 
-#: src/AppContext.php:294
+#: src/AppContext.php:302
 msgid "Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead."
 msgstr ""
 
 #. translators: %s is the name of the property being set.
-#: src/AppContext.php:360
+#: src/AppContext.php:368
 #, php-format
 msgid "Setting dynamic properties on AppContext is deprecated. Use AppContext::set() instead. Attempted to set property: %s"
 msgstr ""
@@ -411,81 +411,81 @@ msgid "Comment must include an authorName."
 msgstr ""
 
 #: src/Data/CommentMutation.php:65
-#: src/Data/UserMutation.php:197
+#: src/Data/UserMutation.php:200
 msgid "The email address you are trying to use is invalid"
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:288
+#: src/Data/Connection/AbstractConnectionResolver.php:291
 #, php-format
 msgid "Class %s does not implement a valid method `prepare_query_args()`."
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:314
+#: src/Data/Connection/AbstractConnectionResolver.php:317
 #, php-format
 msgid "Class %s does not implement a valid method `get_ids_from_query()`."
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:428
+#: src/Data/Connection/AbstractConnectionResolver.php:431
 #, php-format
 msgid "The %s class does not rely on a query class. Please define a `query()` method to return the data directly."
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:546
+#: src/Data/Connection/AbstractConnectionResolver.php:549
 #, php-format
 msgid "Class %s does not implement a valid method `loader_name()`."
 msgstr ""
 
-#: src/Data/Connection/AbstractConnectionResolver.php:563
+#: src/Data/Connection/AbstractConnectionResolver.php:568
 msgid "The Connection Resolver needs to define a loader name"
 msgstr ""
 
-#: src/Data/Connection/AbstractConnectionResolver.php:931
+#: src/Data/Connection/AbstractConnectionResolver.php:950
 msgid "The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`."
 msgstr ""
 
 #. translators: %s: The name of the arg that was invalid
-#: src/Data/Connection/AbstractConnectionResolver.php:952
+#: src/Data/Connection/AbstractConnectionResolver.php:971
 #, php-format
 msgid "%s must be a positive integer."
 msgstr ""
 
 #. translators: %1$s: The name of the class that should not use a query class. %2$s: The name of the query class that is set by the resolver.
-#: src/Data/Connection/AbstractConnectionResolver.php:1137
+#: src/Data/Connection/AbstractConnectionResolver.php:1169
 #, php-format
 msgid "Class %1$s should not use a query class, but is attempting to use the %2$s query class."
 msgstr ""
 
 #. translators: %s: The connection resolver class name.
-#: src/Data/Connection/AbstractConnectionResolver.php:1149
+#: src/Data/Connection/AbstractConnectionResolver.php:1181
 #, php-format
 msgid "%s requires a query class, but no query class is set."
 msgstr ""
 
 #. translators: %s: The name of the query class that is set by the resolver.
-#: src/Data/Connection/AbstractConnectionResolver.php:1160
+#: src/Data/Connection/AbstractConnectionResolver.php:1192
 #, php-format
 msgid "The query class %s does not exist."
 msgstr ""
 
 #. translators: %1$s: The name of the query class that is set by the resolver. %2$s: The name of the resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:1171
+#: src/Data/Connection/AbstractConnectionResolver.php:1203
 #, php-format
 msgid "The query class %1$s is not compatible with %2$s."
 msgstr ""
 
 #. translators: %s: The name of the method that should be used instead.
-#: src/Data/Connection/AbstractConnectionResolver.php:1540
-#: src/Data/Connection/AbstractConnectionResolver.php:1564
-#: src/Data/Connection/AbstractConnectionResolver.php:1585
-#: src/Data/Connection/AbstractConnectionResolver.php:1610
-#: src/Data/Connection/AbstractConnectionResolver.php:1629
-#: src/Data/Connection/AbstractConnectionResolver.php:1648
-#: src/Data/Connection/AbstractConnectionResolver.php:1667
-#: src/Data/Connection/AbstractConnectionResolver.php:1688
+#: src/Data/Connection/AbstractConnectionResolver.php:1576
+#: src/Data/Connection/AbstractConnectionResolver.php:1600
+#: src/Data/Connection/AbstractConnectionResolver.php:1621
+#: src/Data/Connection/AbstractConnectionResolver.php:1646
+#: src/Data/Connection/AbstractConnectionResolver.php:1665
+#: src/Data/Connection/AbstractConnectionResolver.php:1684
+#: src/Data/Connection/AbstractConnectionResolver.php:1703
+#: src/Data/Connection/AbstractConnectionResolver.php:1724
 #, php-format
 msgid "This will be removed in the next major release. Use %s instead."
 msgstr ""
@@ -553,66 +553,90 @@ msgid "The first argument should be an array of $query_vars, not the WP_Query ob
 msgstr ""
 
 #. translators: %s is the method name
-#: src/Data/Cursor/PostObjectCursor.php:493
-#: src/Data/Cursor/TermObjectCursor.php:212
-#: src/Data/Cursor/TermObjectCursor.php:233
-#: src/Data/Cursor/UserCursor.php:255
-#: src/Data/DataSource.php:664
-#: src/Data/DataSource.php:691
-#: src/Data/DataSource.php:715
-#: src/Data/DataSource.php:739
-#: src/Data/DataSource.php:763
-#: src/Data/Loader/AbstractDataLoader.php:487
-#: src/Data/Loader/AbstractDataLoader.php:507
-#: src/Data/Loader/AbstractDataLoader.php:528
+#: src/Data/Cursor/PostObjectCursor.php:499
+#: src/Data/Cursor/TermObjectCursor.php:215
+#: src/Data/Cursor/TermObjectCursor.php:236
+#: src/Data/Cursor/UserCursor.php:258
+#: src/Data/DataSource.php:877
+#: src/Data/DataSource.php:904
+#: src/Data/DataSource.php:928
+#: src/Data/DataSource.php:952
+#: src/Data/DataSource.php:976
+#: src/Data/Loader/AbstractDataLoader.php:499
+#: src/Data/Loader/AbstractDataLoader.php:519
+#: src/Data/Loader/AbstractDataLoader.php:540
 #, php-format
 msgid "This method will be removed in the next major release. Use %s instead."
 msgstr ""
 
 #. translators: %s is the name of the taxonomy.
-#: src/Data/DataSource.php:139
-#: src/Data/DataSource.php:146
+#: src/Data/DataSource.php:142
+#: src/Data/DataSource.php:149
 #, php-format
 msgid "No taxonomy was found with the name %s"
 msgstr ""
 
 #. translators: %s is the name of the theme stylesheet.
-#: src/Data/DataSource.php:186
+#: src/Data/DataSource.php:189
 #, php-format
 msgid "No theme was found with the stylesheet: %s"
 msgstr ""
 
 #. translators: %s is the name of the user role.
-#: src/Data/DataSource.php:239
+#: src/Data/DataSource.php:242
 #, php-format
 msgid "No user role was found with the name %s"
 msgstr ""
 
-#: src/Data/DataSource.php:560
+#: src/Data/DataSource.php:508
+msgid "The site URL is read-only and cannot be changed through the API."
+msgstr ""
+
+#: src/Data/DataSource.php:541
+msgid "The base URL where the site's application and content management backend are served. Can differ from the `homeUrl` field when the front end and backend are served from different addresses, such as on headless or decoupled installs."
+msgstr ""
+
+#: src/Data/DataSource.php:553
+msgid "The address at which visitors reach the site's front end. Can differ from the `url` field when the front end and the content management backend are served from different addresses, such as on headless or decoupled installs."
+msgstr ""
+
+#: src/Data/DataSource.php:569
+msgid "The structure used to build the URLs for content on the site."
+msgstr ""
+
+#: src/Data/DataSource.php:577
+msgid "The prefix used in the URLs of category archive pages."
+msgstr ""
+
+#: src/Data/DataSource.php:585
+msgid "The prefix used in the URLs of tag archive pages."
+msgstr ""
+
+#: src/Data/DataSource.php:773
 msgid "No type was found matching the node"
 msgstr ""
 
-#: src/Data/DataSource.php:583
+#: src/Data/DataSource.php:796
 msgid "An ID needs to be provided to resolve a node."
 msgstr ""
 
 #. translators: %s is the global ID.
-#: src/Data/DataSource.php:600
+#: src/Data/DataSource.php:813
 #, php-format
 msgid "The global ID isn't recognized ID: %s"
 msgstr ""
 
 #. translators: %s: The query class used to resolve the URI
-#: src/Data/NodeResolver.php:180
+#: src/Data/NodeResolver.php:186
 #, php-format
 msgid "The query class %s used to resolve the URI does not exist."
 msgstr ""
 
-#: src/Data/NodeResolver.php:371
+#: src/Data/NodeResolver.php:383
 msgid "Cannot parse provided URI"
 msgstr ""
 
-#: src/Data/NodeResolver.php:406
+#: src/Data/NodeResolver.php:419
 msgid "Cannot return a resource for an external URI"
 msgstr ""
 
@@ -645,7 +669,7 @@ msgid "A string containing the user's URL for the user's web site."
 msgstr ""
 
 #: src/Data/UserMutation.php:52
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:193
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:202
 #: src/Mutation/UserCreate.php:73
 #: src/Mutation/UserRegister.php:48
 msgid "A string containing the user's email address."
@@ -712,23 +736,23 @@ msgid "User's locale."
 msgstr ""
 
 #. Translators: The placeholder is the name of the user role
-#: src/Data/UserMutation.php:294
+#: src/Data/UserMutation.php:303
 #, php-format
 msgid "The %s role cannot be added to this user"
 msgstr ""
 
 #. Translators: The placeholder is the name of the user role
-#: src/Data/UserMutation.php:316
+#: src/Data/UserMutation.php:325
 #, php-format
 msgid "The role %s does not exist"
 msgstr ""
 
-#: src/Data/UserMutation.php:328
+#: src/Data/UserMutation.php:337
 msgid "Sorry, you cannot remove user editing permissions for your own account."
 msgstr ""
 
 #. Translators: %s is the name of the role that can't be added to the user.
-#: src/Data/UserMutation.php:342
+#: src/Data/UserMutation.php:351
 #, php-format
 msgid "Sorry, you are not allowed to give this the following role: %s."
 msgstr ""
@@ -865,41 +889,41 @@ msgid "The experiment %1$s is deprecated: %2$s"
 msgstr ""
 
 #. translators: %1$s: The experiment's slug, %2$s: The expected README path.
-#: src/Experimental/Experiment/AbstractExperiment.php:152
+#: src/Experimental/Experiment/AbstractExperiment.php:154
 #, php-format
 msgid "Experiment \"%1$s\" is missing a README.md file. Consider adding documentation at %2$s"
 msgstr ""
 
-#: src/Experimental/Experiment/AbstractExperiment.php:190
+#: src/Experimental/Experiment/AbstractExperiment.php:192
 msgid "View documentation"
 msgstr ""
 
 #. translators: %s: The experiment's class name.
-#: src/Experimental/Experiment/AbstractExperiment.php:239
+#: src/Experimental/Experiment/AbstractExperiment.php:241
 #, php-format
 msgid "The experiment %s is missing a slug. Ensure a valid `slug` is defined in the ::slug() method."
 msgstr ""
 
 #. translators: %s: The experiment's class name.
-#: src/Experimental/Experiment/AbstractExperiment.php:376
+#: src/Experimental/Experiment/AbstractExperiment.php:399
 #, php-format
 msgid "The experiment %s is missing a configuration. Ensure a valid `config` is defined in the ::config() method."
 msgstr ""
 
 #. translators: %s: The experiment's class name.
-#: src/Experimental/Experiment/AbstractExperiment.php:386
+#: src/Experimental/Experiment/AbstractExperiment.php:409
 #, php-format
 msgid "The experiment %s is missing a title in the configuration. Ensure a valid `title` is defined in the ::config() method."
 msgstr ""
 
 #. translators: %s: The experiment's class name.
-#: src/Experimental/Experiment/AbstractExperiment.php:396
+#: src/Experimental/Experiment/AbstractExperiment.php:419
 #, php-format
 msgid "The experiment %s is missing a description in the configuration. Ensure a valid `description` is defined in the ::config() method."
 msgstr ""
 
 #. translators: %s: The experiment's class name.
-#: src/Experimental/Experiment/AbstractExperiment.php:406
+#: src/Experimental/Experiment/AbstractExperiment.php:429
 #, php-format
 msgid "The experiment %s has an invalid deprecation message in the configuration. If you are trying to deprecate the Experiment, ensure a valid `deprecationMessage` is defined in the ::config() method. Otherwise remove the `deprecationMessage` from the array"
 msgstr ""
@@ -964,57 +988,58 @@ msgstr ""
 msgid "Email address of the site administrator. Only visible to users with administrative privileges."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:121
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:228
-#: src/Type/ObjectType/SettingGroup.php:102
-#: src/Type/ObjectType/Settings.php:104
-msgid "Sorry, you do not have permission to view this setting."
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:122
+msgid "The \"GeneralSettings.adminEmail\" field requires the \"manage_options\" capability and resolved to null."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:136
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:145
 msgid "The email address representing the author for this particular comment"
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:176
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:185
 #: src/Type/Enum/UsersConnectionSearchColumnEnum.php:41
 msgid "The user's email address."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:188
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:194
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:247
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:279
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:311
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:197
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:203
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:265
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:297
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:329
 msgid "Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:211
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:220
 msgid "Deprecated in favor of the `adminEmail` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:218
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:227
 msgid "WPGraphQL: The field \"GeneralSettings.email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"GeneralSettings.adminEmail\" instead."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:254
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:238
+msgid "The \"GeneralSettings.email\" field requires the \"manage_options\" capability and resolved to null."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:272
 msgid "WPGraphQL: The field \"Commenter.email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"Commenter.emailAddress\" instead."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:286
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:304
 msgid "WPGraphQL: The field \"CommentAuthor.email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"CommentAuthor.emailAddress\" instead."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:318
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:336
 msgid "WPGraphQL: The connection edge field \"email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"emailAddress\" instead."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:361
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:397
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:379
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:415
 msgid "Cannot provide both \"email\" and \"emailAddress\" fields. Please use \"emailAddress\" as \"email\" is deprecated as part of the Email Address Scalar Fields experiment."
 msgstr ""
 
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:374
-#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:404
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:392
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:422
 msgid "WPGraphQL: The input field \"email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"emailAddress\" instead."
 msgstr ""
 
@@ -1074,20 +1099,20 @@ msgstr ""
 msgid "A test field that demonstrates optional dependencies. Returns enhanced data if TestExperiment is active, basic data otherwise."
 msgstr ""
 
-#: src/Experimental/ExperimentRegistry.php:124
+#: src/Experimental/ExperimentRegistry.php:127
 msgid "Registered experiments have not been set. Make sure not to call this function before the `graphql_experiments_registered` hook."
 msgstr ""
 
-#: src/Experimental/ExperimentRegistry.php:143
+#: src/Experimental/ExperimentRegistry.php:146
 msgid "Experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook."
 msgstr ""
 
-#: src/Experimental/ExperimentRegistry.php:162
+#: src/Experimental/ExperimentRegistry.php:165
 msgid "Active experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook."
 msgstr ""
 
 #. translators: %s is the fully-qualified class name for AbstractExperiment.
-#: src/Experimental/ExperimentRegistry.php:343
+#: src/Experimental/ExperimentRegistry.php:355
 #, php-format
 msgid "Experiment classes must extend the %s class."
 msgstr ""
@@ -1102,6 +1127,14 @@ msgstr ""
 #: src/Model/Model.php:90
 #, php-format
 msgid "An empty data set was used to initialize the modeling of this %s object"
+msgstr ""
+
+#. translators: 1: model + field name, 2: required WordPress capability.
+#. translators: 1: GraphQL field name, 2: required WordPress capability.
+#: src/Model/Model.php:482
+#: src/Type/ObjectType/Settings.php:102
+#, php-format
+msgid "The \"%1$s\" field requires the \"%2$s\" capability and resolved to null."
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:38
@@ -1173,13 +1206,13 @@ msgid "This site requires you to be logged in to leave a comment"
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:201
-#: src/Mutation/PostObjectCreate.php:340
+#: src/Mutation/PostObjectCreate.php:343
 #: src/Mutation/UserCreate.php:201
 msgid "The object failed to create but no error was provided"
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:209
-#: src/Mutation/PostObjectCreate.php:323
+#: src/Mutation/PostObjectCreate.php:326
 #: src/Mutation/TermObjectCreate.php:184
 #: src/Mutation/UserCreate.php:209
 msgid "The object failed to create"
@@ -1327,52 +1360,52 @@ msgid "Invalid filePath \"%s\""
 msgstr ""
 
 #. translators: %1$s is the protocol, %2$s is the list of allowed protocols.
-#: src/Mutation/MediaItemCreate.php:237
+#: src/Mutation/MediaItemCreate.php:240
 #, php-format
 msgid "Invalid protocol. \"%1$s\". Only \"%2$s\" allowed."
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:255
+#: src/Mutation/MediaItemCreate.php:258
 msgid "Sorry, the file could not be uploaded"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:270
+#: src/Mutation/MediaItemCreate.php:273
 msgid "Sorry, the URL for this file is invalid, it must be a valid URL"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:310
+#: src/Mutation/MediaItemCreate.php:313
 msgid "Sorry, the URL for this file is invalid, it must be a path to the mediaItem file"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:328
+#: src/Mutation/MediaItemCreate.php:331
 msgid "The web server cannot generate responsive image sizes for this image. Convert it to JPEG or PNG before uploading."
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:350
+#: src/Mutation/MediaItemCreate.php:353
 msgid "The parent of the Media Item is of an invalid type"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:354
+#: src/Mutation/MediaItemCreate.php:357
 msgid "Sorry, you are not allowed to upload mediaItems assigned to this parent node"
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:376
+#: src/Mutation/MediaItemCreate.php:379
 msgid "The media item failed to create but no error was provided"
 msgstr ""
 
 #. translators: %s is the required disk space in kilobytes.
-#: src/Mutation/MediaItemCreate.php:426
+#: src/Mutation/MediaItemCreate.php:429
 #, php-format
 msgid "Not enough space to upload. %s KB needed."
 msgstr ""
 
 #. translators: %s is the maximum allowed file size in kilobytes.
-#: src/Mutation/MediaItemCreate.php:435
+#: src/Mutation/MediaItemCreate.php:438
 #, php-format
 msgid "This file is too big. Files must be less than %s KB in size."
 msgstr ""
 
-#: src/Mutation/MediaItemCreate.php:442
+#: src/Mutation/MediaItemCreate.php:445
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr ""
 
@@ -1536,7 +1569,7 @@ msgstr ""
 msgid "Sorry, you are not allowed to create %1$s as this user"
 msgstr ""
 
-#: src/Mutation/PostObjectCreate.php:384
+#: src/Mutation/PostObjectCreate.php:390
 msgid "The status of the post could not be set"
 msgstr ""
 
@@ -1845,22 +1878,24 @@ msgstr ""
 msgid "The %1$s failed to update"
 msgstr ""
 
-#: src/Mutation/UpdateSettings.php:125
+#: src/Mutation/UpdateSettings.php:137
 msgid "Update all settings."
 msgstr ""
 
 #. translators: %s is the setting type name
-#: src/Mutation/UpdateSettings.php:142
+#: src/Mutation/UpdateSettings.php:154
 #, php-format
 msgid "Update the %s setting."
 msgstr ""
 
-#: src/Mutation/UpdateSettings.php:168
+#: src/Mutation/UpdateSettings.php:180
 msgid "Sorry, you are not allowed to edit settings as this user."
 msgstr ""
 
-#: src/Mutation/UpdateSettings.php:212
-msgid "Sorry, that is not allowed, speak with your site administrator to change the site URL."
+#. translators: %s is the name of the readonly settings input field.
+#: src/Mutation/UpdateSettings.php:234
+#, php-format
+msgid "Sorry, the %s setting cannot be changed with this mutation, speak with your site administrator to change it."
 msgstr ""
 
 #: src/Mutation/UserCreate.php:33
@@ -1962,105 +1997,101 @@ msgid "The user failed to update"
 msgstr ""
 
 #. translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
-#: src/Registry/TypeRegistry.php:469
+#: src/Registry/TypeRegistry.php:477
 #, php-format
 msgid "List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
-#: src/Registry/TypeRegistry.php:480
+#: src/Registry/TypeRegistry.php:488
 #, php-format
 msgid "The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:491
+#: src/Registry/TypeRegistry.php:499
 #, php-format
 msgid "The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:501
+#: src/Registry/TypeRegistry.php:509
 #, php-format
 msgid "The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:511
+#: src/Registry/TypeRegistry.php:519
 #, php-format
 msgid "The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:526
+#: src/Registry/TypeRegistry.php:534
 #, php-format
 msgid "Set relationships between the %1$s to %2$s"
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:537
+#: src/Registry/TypeRegistry.php:545
 #, php-format
 msgid "If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:548
+#: src/Registry/TypeRegistry.php:556
 msgid "The input list of items to set."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:594
-msgid "Site URL."
-msgstr ""
-
-#: src/Registry/TypeRegistry.php:617
+#: src/Registry/TypeRegistry.php:613
 msgid "Site icon URL configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:623
+#: src/Registry/TypeRegistry.php:619
 msgid "Size of the site icon in pixels. Defaults to 512. Max 512."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:653
+#: src/Registry/TypeRegistry.php:659
 msgid "The media item representing the site icon configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
 #. translators: %s is the GraphQL name of the settings group.
-#: src/Registry/TypeRegistry.php:687
+#: src/Registry/TypeRegistry.php:693
 #, php-format
 msgid "Fields of the '%s' settings group"
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:782
+#: src/Registry/TypeRegistry.php:792
 #, php-format
 msgid "The Type name '%1$s' is invalid and has not been added to the GraphQL Schema."
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:800
+#: src/Registry/TypeRegistry.php:810
 #, php-format
 msgid "You cannot register duplicate Types to the Schema. The Type '%1$s' already exists in the Schema. Make sure to give new Types a unique name."
 msgstr ""
 
 #. translators: %s is the Field name.
-#: src/Registry/TypeRegistry.php:1098
+#: src/Registry/TypeRegistry.php:1115
 #, php-format
 msgid "The registered field '%s' does not have a Type defined. Make sure to define a type for all fields."
 msgstr ""
 
 #. translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
-#: src/Registry/TypeRegistry.php:1127
+#: src/Registry/TypeRegistry.php:1144
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is configured to return '%3$s' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with '%3$s', or it needs to be registered to the Schema."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1257
+#: src/Registry/TypeRegistry.php:1274
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is invalid. Field names cannot start with a number."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1319
+#: src/Registry/TypeRegistry.php:1336
 #, php-format
 msgid "You cannot register duplicate fields on the same Type. The field '%1$s' already exists on the type '%2$s'. Make sure to give the field a unique name."
 msgstr ""
@@ -2098,7 +2129,7 @@ msgstr ""
 
 #: src/Registry/Utils/PostObject.php:340
 #: src/Type/ObjectType/Menu.php:42
-#: src/Type/ObjectType/MenuItem.php:152
+#: src/Type/ObjectType/MenuItem.php:155
 #: src/Type/ObjectType/User.php:199
 msgid "Deprecated in favor of the databaseId field"
 msgstr ""
@@ -2236,36 +2267,36 @@ msgstr ""
 msgid "Deprecated in favor of databaseId"
 msgstr ""
 
-#: src/Request.php:303
+#: src/Request.php:313
 msgid "Batch Queries are not supported"
 msgstr ""
 
 #. translators: First placeholder is the max number of batch operations allowed in a GraphQL request. The 2nd placeholder is the number of operations requested in the current request.
-#: src/Request.php:313
+#: src/Request.php:323
 #, php-format
 msgid "Batch requests are limited to %1$d operations. This request contained %2$d"
 msgstr ""
 
-#: src/Request.php:627
-#: src/Request.php:727
+#: src/Request.php:651
+#: src/Request.php:755
 msgid "Authentication Error"
 msgstr ""
 
-#: src/Request.php:688
+#: src/Request.php:716
 msgid "The GraphQL request returned an invalid response"
 msgstr ""
 
 #. translators: %s is the content type header value that was received
-#: src/Request.php:826
+#: src/Request.php:865
 #, php-format
 msgid "HTTP POST requests must have Content-Type: application/json header. Received: %s"
 msgstr ""
 
-#: src/Router.php:333
+#: src/Router.php:339
 msgid "If you're reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!"
 msgstr ""
 
-#: src/Router.php:761
+#: src/Router.php:781
 msgid "Cookie nonce is invalid"
 msgstr ""
 
@@ -2274,7 +2305,7 @@ msgid "The query contained __schema or __type, however GraphQL introspection is 
 msgstr ""
 
 #. translators: %s is the field name
-#: src/Server/ValidationRules/RequireAuthentication.php:98
+#: src/Server/ValidationRules/RequireAuthentication.php:104
 #, php-format
 msgid "The field \"%s\" cannot be accessed without authentication."
 msgstr ""
@@ -2474,87 +2505,95 @@ msgstr ""
 msgid "Title of the object"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:367
+#: src/Type/Connection/PostObjects.php:372
+msgid "Filter the connection to content assigned a specific template."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:385
 msgid "True for objects with passwords; False for objects without passwords; null for all objects with or without passwords"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:373
+#: src/Type/Connection/PostObjects.php:391
 msgid "Show posts with a specific password."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:395
+#: src/Type/Connection/PostObjects.php:403
+msgid "True to limit the results to sticky posts; false to exclude sticky posts. Note: this filters the result set, it does not float sticky posts to the top of the results."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:425
 msgid "Show posts with a specific status."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:403
+#: src/Type/Connection/PostObjects.php:433
 msgid "Retrieve posts where post status is in an array."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:418
+#: src/Type/Connection/PostObjects.php:448
 #: src/Type/Connection/Users.php:238
 msgid "What parameter to use to order the objects by."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:430
+#: src/Type/Connection/PostObjects.php:460
 msgid "Filter the connection based on dates"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:442
+#: src/Type/Connection/PostObjects.php:472
 msgid "Get objects with a specific mimeType property"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:520
+#: src/Type/Connection/PostObjects.php:550
 msgid "The user that's connected as the author of the object. Use the userId for the author object."
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:526
+#: src/Type/Connection/PostObjects.php:556
 msgid "Find objects connected to the author by the author's nicename"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:534
+#: src/Type/Connection/PostObjects.php:564
 msgid "Find objects connected to author(s) in the array of author's userIds"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:542
+#: src/Type/Connection/PostObjects.php:572
 msgid "Find objects NOT connected to author(s) in the array of author's userIds"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:558
+#: src/Type/Connection/PostObjects.php:588
 msgid "Category ID"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:564
+#: src/Type/Connection/PostObjects.php:594
 msgid "Use Category Slug"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:572
-#: src/Type/Connection/PostObjects.php:580
+#: src/Type/Connection/PostObjects.php:602
+#: src/Type/Connection/PostObjects.php:610
 msgid "Array of category IDs, used to display objects from one category OR another"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:595
+#: src/Type/Connection/PostObjects.php:625
 msgid "Tag Slug"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:601
+#: src/Type/Connection/PostObjects.php:631
 msgid "Use Tag ID"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:609
-#: src/Type/Connection/PostObjects.php:617
+#: src/Type/Connection/PostObjects.php:639
+#: src/Type/Connection/PostObjects.php:647
 msgid "Array of tag IDs, used to display objects from one tag OR another"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:625
+#: src/Type/Connection/PostObjects.php:655
 msgid "Array of tag slugs, used to display objects from one tag AND another"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:633
+#: src/Type/Connection/PostObjects.php:663
 msgid "Array of tag slugs, used to include objects in ANY specified tags"
 msgstr ""
 
-#: src/Type/Connection/PostObjects.php:646
-#: src/Type/Connection/PostObjects.php:662
+#: src/Type/Connection/PostObjects.php:676
+#: src/Type/Connection/PostObjects.php:692
 msgid "The Types of content to filter"
 msgstr ""
 
@@ -2861,6 +2900,26 @@ msgstr ""
 
 #: src/Type/Enum/ContentNodeIdTypeEnum.php:99
 msgid "Identify a resource by the URI."
+msgstr ""
+
+#: src/Type/Enum/ContentTemplateEnum.php:32
+msgid "The templates that can be assigned to content. Used to filter a connection by the template its content uses."
+msgstr ""
+
+#: src/Type/Enum/ContentTemplateEnum.php:51
+msgid "The default template, applied when no specific template is assigned."
+msgstr ""
+
+#. translators: %s is the template identifier.
+#: src/Type/Enum/ContentTemplateEnum.php:96
+#, php-format
+msgid "The \"%s\" template could not be added to the ContentTemplateEnum because a valid enum value name could not be generated for it."
+msgstr ""
+
+#. translators: %s is the human-readable name of the template.
+#: src/Type/Enum/ContentTemplateEnum.php:125
+#, php-format
+msgid "The \"%s\" template."
 msgstr ""
 
 #: src/Type/Enum/ContentTypeEnum.php:29
@@ -3514,7 +3573,7 @@ msgid "A paginated relationship between objects. Supports cursor-based paginatio
 msgstr ""
 
 #: src/Type/InterfaceType/Connection.php:27
-#: src/Type/WPConnectionType.php:480
+#: src/Type/WPConnectionType.php:492
 msgid "Information about pagination in a connection."
 msgstr ""
 
@@ -3589,7 +3648,7 @@ msgstr ""
 #: src/Type/ObjectType/CommentAuthor.php:52
 #: src/Type/ObjectType/ContentType.php:173
 #: src/Type/ObjectType/Menu.php:60
-#: src/Type/ObjectType/MenuItem.php:190
+#: src/Type/ObjectType/MenuItem.php:193
 #: src/Type/ObjectType/Plugin.php:74
 #: src/Type/ObjectType/Taxonomy.php:90
 #: src/Type/ObjectType/Theme.php:94
@@ -4408,67 +4467,67 @@ msgstr ""
 msgid "Connection from MenuItem to it's connected node"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:90
+#: src/Type/ObjectType/MenuItem.php:93
 msgid "The Menu a MenuItem is part of"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:105
+#: src/Type/ObjectType/MenuItem.php:108
 msgid "The globally unique identifier of the nav menu item object."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:111
+#: src/Type/ObjectType/MenuItem.php:114
 msgid "The globally unique identifier of the parent nav menu item object."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:117
+#: src/Type/ObjectType/MenuItem.php:120
 msgid "The database id of the parent menu item or null if it is the root"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:125
+#: src/Type/ObjectType/MenuItem.php:128
 msgid "Class attribute for the menu item link"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:131
+#: src/Type/ObjectType/MenuItem.php:134
 msgid "Description of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:137
+#: src/Type/ObjectType/MenuItem.php:140
 msgid "Label or title of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:143
+#: src/Type/ObjectType/MenuItem.php:146
 msgid "Link relationship (XFN) of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:149
+#: src/Type/ObjectType/MenuItem.php:152
 msgid "WP ID of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:158
+#: src/Type/ObjectType/MenuItem.php:161
 msgid "Target attribute for the menu item link."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:164
+#: src/Type/ObjectType/MenuItem.php:167
 msgid "Title attribute for the menu item link"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:170
+#: src/Type/ObjectType/MenuItem.php:173
 msgid "URL or destination of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:178
+#: src/Type/ObjectType/MenuItem.php:181
 msgid "The uri of the resource the menu item links to"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:184
+#: src/Type/ObjectType/MenuItem.php:187
 msgid "Path for the resource. Relative path for internal resources. Absolute path for external resources."
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:196
+#: src/Type/ObjectType/MenuItem.php:199
 msgid "Menu item order"
 msgstr ""
 
-#: src/Type/ObjectType/MenuItem.php:204
+#: src/Type/ObjectType/MenuItem.php:207
 msgid "The locations the menu item's Menu is assigned to"
 msgstr ""
 
@@ -4851,26 +4910,30 @@ msgstr ""
 msgid "A % object"
 msgstr ""
 
+#: src/Type/ObjectType/SettingGroup.php:56
+msgid "The globally unique identifier of the settings group."
+msgstr ""
+
 #. translators: %s is the name of the setting group.
-#: src/Type/ObjectType/SettingGroup.php:37
+#: src/Type/ObjectType/SettingGroup.php:66
 #, php-format
 msgid "The %s setting type"
 msgstr ""
 
 #. translators: %s is the name of the setting group.
-#: src/Type/ObjectType/SettingGroup.php:92
+#: src/Type/ObjectType/SettingGroup.php:120
 #, php-format
 msgid "The %s Settings Group"
 msgstr ""
 
-#: src/Type/ObjectType/Settings.php:35
+#: src/Type/ObjectType/Settings.php:34
 msgid "All of the registered settings"
 msgstr ""
 
 #. translators: %s is the name of the setting group.
-#: src/Type/ObjectType/Settings.php:96
+#: src/Type/ObjectType/Settings.php:90
 #, php-format
-msgid "Settings of the the %s Settings Group"
+msgid "Settings of the %s Settings Group"
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:23
@@ -5109,212 +5172,212 @@ msgstr ""
 msgid "The display name of the role"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:210
+#: src/Type/WPConnectionType.php:217
 msgid "Connection config needs to have at least a fromType defined"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:214
+#: src/Type/WPConnectionType.php:221
 msgid "Connection config needs to have a \"toType\" defined"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:218
+#: src/Type/WPConnectionType.php:225
 msgid "Connection config needs to have \"fromFieldName\" defined as a string value"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:290
+#: src/Type/WPConnectionType.php:297
 msgid "Arguments for filtering the connection"
 msgstr ""
 
 #. translators: %s is the name of the connection
-#: src/Type/WPConnectionType.php:304
+#: src/Type/WPConnectionType.php:311
 #, php-format
 msgid "Arguments for filtering the %s connection"
 msgstr ""
 
 #. translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
 #. translators: the placeholders are the name of the Types the connection is between.
-#: src/Type/WPConnectionType.php:339
-#: src/Type/WPConnectionType.php:457
-#: src/Type/WPConnectionType.php:562
+#: src/Type/WPConnectionType.php:346
+#: src/Type/WPConnectionType.php:469
+#: src/Type/WPConnectionType.php:574
 #, php-format
 msgid "Connection between the %1$s type and the %2$s type"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:349
+#: src/Type/WPConnectionType.php:360
 msgid "The node of the connection, without the edges"
 msgstr ""
 
 #. translators: %s is the name of the connection.
-#: src/Type/WPConnectionType.php:377
+#: src/Type/WPConnectionType.php:387
 #, php-format
 msgid "Pagination metadata specific to \"%1$s\" collections. Provides cursors and flags for navigating through sets of %2$s Nodes."
 msgstr ""
 
-#: src/Type/WPConnectionType.php:406
+#: src/Type/WPConnectionType.php:416
 msgid "An edge in a connection"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:414
+#: src/Type/WPConnectionType.php:428
 msgid "A cursor for use in pagination"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:422
+#: src/Type/WPConnectionType.php:435
 msgid "The item at the end of the edge"
 msgstr ""
 
 #. translators: %s is the name of the connection.
-#: src/Type/WPConnectionType.php:487
+#: src/Type/WPConnectionType.php:499
 #, php-format
 msgid "Edges for the %s connection"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:493
+#: src/Type/WPConnectionType.php:505
 msgid "The nodes of the connection, without the edges"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:514
+#: src/Type/WPConnectionType.php:526
 msgid "The number of items to return after the referenced \"after\" cursor"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:520
+#: src/Type/WPConnectionType.php:532
 msgid "The number of items to return before the referenced \"before\" cursor"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:526
+#: src/Type/WPConnectionType.php:538
 msgid "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
 msgstr ""
 
-#: src/Type/WPConnectionType.php:532
+#: src/Type/WPConnectionType.php:544
 msgid "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
 msgstr ""
 
 #. translators: %s is the name of the connection edge.
-#: src/Type/WPConnectionType.php:599
+#: src/Type/WPConnectionType.php:611
 #, php-format
 msgid "Pagination metadata specific to \"%1$s\" collections. Provides cursors and flags for navigating through sets of \"%2$s\" Nodes."
 msgstr ""
 
 #. translators: %s is the name of the type the connection edge is to.
-#: src/Type/WPConnectionType.php:613
+#: src/Type/WPConnectionType.php:625
 #, php-format
 msgid "Represents a connection to a %1$s. Contains both the %2$s Node and metadata about the relationship."
 msgstr ""
 
 #. translators: %s is the name of the type the connection edge is to.
-#: src/Type/WPConnectionType.php:620
+#: src/Type/WPConnectionType.php:632
 #, php-format
 msgid "The connected %s Node"
 msgstr ""
 
 #. translators: %s is the name of the type the connection is to.
-#: src/Type/WPConnectionType.php:635
+#: src/Type/WPConnectionType.php:647
 #, php-format
 msgid "A paginated collection of %1$s Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of %2$s Nodes"
 msgstr ""
 
 #. translators: %1$s is the name of the type the connection is from, %2$s is the name of the type the connection is to.
-#: src/Type/WPConnectionType.php:643
+#: src/Type/WPConnectionType.php:655
 #, php-format
 msgid "A list of edges (relational context) between %1$s and connected %2$s Nodes"
 msgstr ""
 
 #. translators: %s is the name of the type the connection is to.
-#: src/Type/WPConnectionType.php:656
+#: src/Type/WPConnectionType.php:668
 #, php-format
 msgid "A list of connected %s Nodes"
 msgstr ""
 
 #. translators: %1$s is the name of the type and %2$s is the invalid fields
-#: src/Type/WPInputObjectType.php:167
+#: src/Type/WPInputObjectType.php:186
 #, php-format
 msgid "%1$s fields must be an array, an iterable, or an InputObjectField instance, got: %2$s"
 msgstr ""
 
 #. translators: %s is the name of the interface.
-#: src/Type/WPInterfaceTrait.php:82
+#: src/Type/WPInterfaceTrait.php:85
 #, php-format
 msgid "The \"%s\" Interface attempted to implement itself, which is not allowed"
 msgstr ""
 
 #. translators: %s is the name of the GraphQL type.
-#: src/Type/WPInterfaceTrait.php:99
+#: src/Type/WPInterfaceTrait.php:102
 #, php-format
 msgid "Invalid Interface registered to the \"%s\" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType"
 msgstr ""
 
 #. translators: %1$s is the name of the interface, %2$s is the name of the type.
-#: src/Type/WPInterfaceTrait.php:115
+#: src/Type/WPInterfaceTrait.php:118
 #, php-format
 msgid "\"%1$s\" is not a valid Interface Type and cannot be implemented as an Interface on the \"%2$s\" Type"
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Type/WPInterfaceTrait.php:286
+#: src/Type/WPInterfaceTrait.php:289
 #, php-format
 msgid "Invalid Interface field %1$s registered to the \"%2$s\" Type. Fields must be registered a valid GraphQL `type`."
 msgstr ""
 
 #. translators: 1: Object type name, 2: Field name, 3: Argument name, 4: Expected argument type, 5: Actual argument type.
-#: src/Type/WPInterfaceTrait.php:342
+#: src/Type/WPInterfaceTrait.php:345
 #, php-format
 msgid "Interface field argument \"%1$s.%2$s(%3$s:)\" expected to be of type \"%4$s\" but got \"%5$s\". Please ensure the field arguments match the interface field arguments or rename the argument."
 msgstr ""
 
-#: src/Type/WPMutationType.php:132
+#: src/Type/WPMutationType.php:134
 msgid "Mutation config needs to have a valid name."
 msgstr ""
 
-#: src/Type/WPMutationType.php:142
+#: src/Type/WPMutationType.php:144
 msgid "Mutation config needs to have \"mutateAndGetPayload\" defined as a callable."
 msgstr ""
 
-#: src/Type/WPMutationType.php:163
+#: src/Type/WPMutationType.php:165
 msgid "This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions."
 msgstr ""
 
-#: src/Type/WPMutationType.php:185
+#: src/Type/WPMutationType.php:187
 msgid "If a 'clientMutationId' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions."
 msgstr ""
 
 #. translators: %s is the name of the mutation.
-#: src/Type/WPMutationType.php:286
+#: src/Type/WPMutationType.php:300
 #, php-format
 msgid "Input for the %1$s mutation."
 msgstr ""
 
 #. translators: %s is the name of the mutation.
-#: src/Type/WPMutationType.php:310
+#: src/Type/WPMutationType.php:324
 #, php-format
 msgid "The payload for the %s mutation."
 msgstr ""
 
 #. translators: %s is the name of the mutation.
-#: src/Type/WPMutationType.php:332
+#: src/Type/WPMutationType.php:346
 #, php-format
 msgid "Input for the %s mutation"
 msgstr ""
 
 #. translators: %s is the name of the mutation.
-#: src/Type/WPMutationType.php:340
+#: src/Type/WPMutationType.php:354
 #, php-format
 msgid "The %s mutation"
 msgstr ""
 
-#: src/Utils/DebugLog.php:126
+#: src/Utils/DebugLog.php:135
 msgid "GraphQL Debug logging is not active. To see debug logs, GRAPHQL_DEBUG must be enabled."
 msgstr ""
 
-#: src/Utils/InstrumentSchema.php:222
+#: src/Utils/InstrumentSchema.php:234
 msgid "You do not have permission to view this"
 msgstr ""
 
 #. translators: %s is the value of the SAVEQUERIES constant
-#: src/Utils/QueryLog.php:135
+#: src/Utils/QueryLog.php:138
 #, php-format
 msgid "Query Logging has been disabled. The 'SAVEQUERIES' Constant is set to '%s' on your server."
 msgstr ""
 
-#: src/Utils/Utils.php:147
+#: src/Utils/Utils.php:153
 msgid "The `graphql_pre_format_name` filter must return a string or null."
 msgstr ""
 
@@ -5327,43 +5390,43 @@ msgid "De-serializing instances of the WPGraphQL class is not allowed"
 msgstr ""
 
 #. translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
-#: src/WPGraphQL.php:337
+#: src/WPGraphQL.php:339
 #, php-format
 msgid "The server's current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s"
 msgstr ""
 
-#: src/WPGraphQL.php:551
+#: src/WPGraphQL.php:555
 msgid "Represents uploaded media, including images, videos, documents, and audio files."
 msgstr ""
 
-#: src/WPGraphQL.php:556
+#: src/WPGraphQL.php:560
 msgid "A standalone content entry generally used for static, non-chronological content such as \"About Us\" or \"Contact\" pages."
 msgstr ""
 
-#: src/WPGraphQL.php:561
+#: src/WPGraphQL.php:565
 msgid "A chronological content entry typically used for blog posts, news articles, or similar date-based content."
 msgstr ""
 
-#: src/WPGraphQL.php:582
+#: src/WPGraphQL.php:586
 msgid "A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure."
 msgstr ""
 
-#: src/WPGraphQL.php:587
+#: src/WPGraphQL.php:591
 msgid "A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications."
 msgstr ""
 
-#: src/WPGraphQL.php:592
+#: src/WPGraphQL.php:596
 msgid "A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as \"standard\", \"gallery\", \"video\", etc."
 msgstr ""
 
 #. translators: %s will replaced with the registered type
-#: src/WPGraphQL.php:757
+#: src/WPGraphQL.php:766
 #, php-format
 msgid "The \"%s\" post_type isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
 
 #. translators: %s will replaced with the registered taxonomy
-#: src/WPGraphQL.php:841
+#: src/WPGraphQL.php:851
 #, php-format
 msgid "The \"%s\" taxonomy isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""

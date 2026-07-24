@@ -143,7 +143,7 @@ class SettingGroup {
 	 *
 	 * @return mixed
 	 *
-	 * @since x-release-please-version
+	 * @since 2.18.0
 	 */
 	public static function resolve_timezone_setting_value( $value, array $setting_field ) {
 		if ( isset( $setting_field['key'] ) && 'timezone_string' === $setting_field['key'] && empty( $value ) ) {

@@ -1189,7 +1189,7 @@ class Invalidation {
 		 *
 		 * @param string[] $option_keys Option names that force a full purge on change.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.3.0
 		 */
 		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$purge_all_option_keys = apply_filters( 'graphql_cache_purge_all_option_keys', [] );

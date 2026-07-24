@@ -9,6 +9,9 @@
 # 2. Updates the Upgrade Notice section in readme.txt if there are breaking changes
 # 3. Regenerates hook docs/audits and updates legacy hook placeholders
 # 4. Regenerates the POT file for translations (if languages/ directory exists)
+# 5. Reconciles the shared .release-please-manifest.json against main so a
+#    release PR does not go stale (and CONFLICTING) when a sibling plugin
+#    releases first
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
@@ -63,33 +66,26 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           BRANCH_NAME: ${{ github.head_ref }}
         run: |
-          # Extract version and component from the PR title or branch name
-          # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
-          # Branch names are like "release-please--branches--main--components--wp-graphql"
+          # Resolves version/component/plugin_dir from the PR title (falling
+          # back to the branch name and the component CHANGELOG). Reads
+          # PR_TITLE / BRANCH_NAME from the env above rather than as command
+          # arguments, so PR-controlled strings never reach the shell. Prints
+          # key=value lines and logs a summary to stderr — see
+          # scripts/extract-release-version-info.js.
+          node scripts/extract-release-version-info.js >> "$GITHUB_OUTPUT"
 
-          # Extract component from PR title (e.g., "wp-graphql" from "release wp-graphql 2.7.0")
-          COMPONENT=$(echo "$PR_TITLE" | grep -oE 'release\s+([a-z0-9-]+)' | awk '{print $2}' || echo "")
-
-          if [ -z "$COMPONENT" ]; then
-            # Fallback: extract from branch name
-            COMPONENT=$(echo "$BRANCH_NAME" | sed 's/.*--components--//' || echo "wp-graphql")
-          fi
-
-          # Try to get version from PR title first
-          VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-
-          if [ -z "$VERSION" ]; then
-            # Fallback: extract from CHANGELOG.md (first version header)
-            PLUGIN_DIR="plugins/${COMPONENT}"
-            if [ -f "${PLUGIN_DIR}/CHANGELOG.md" ]; then
-              VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "${PLUGIN_DIR}/CHANGELOG.md" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-            fi
-          fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
-          echo "plugin_dir=plugins/${COMPONENT}" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION for component: $COMPONENT"
+      - name: Reconcile shared release manifest with main
+        env:
+          COMPONENT: ${{ steps.version_info.outputs.component }}
+        run: |
+          # The shared .release-please-manifest.json goes stale on an open
+          # release PR when a sibling plugin releases first (release-please
+          # only refreshes a PR when its own changelog changes), which turns
+          # the PR CONFLICTING against main. The script rewrites every sibling
+          # line to match main while keeping this PR's own bump — see
+          # scripts/reconcile-release-manifest.js for the full rationale.
+          git fetch origin main --depth=1
+          node scripts/reconcile-release-manifest.js --component="$COMPONENT"
 
       - name: Replace x-release-please-version placeholders
         if: steps.version_info.outputs.version != ''
@@ -187,61 +183,9 @@ jobs:
           COMPONENT: ${{ steps.version_info.outputs.component }}
           VERSION: ${{ steps.version_info.outputs.version }}
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const filePath = 'scripts/hooks/legacy-hooks.json';
-          const component = process.env.COMPONENT;
-          const version = process.env.VERSION;
-
-          if (!component || !version) {
-            console.log('Missing COMPONENT or VERSION; skipping legacy hook replacement.');
-            process.exit(0);
-          }
-
-          if (!fs.existsSync(filePath)) {
-            console.log('No scripts/hooks/legacy-hooks.json found; skipping.');
-            process.exit(0);
-          }
-
-          const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-          const entries = payload && typeof payload === 'object' ? payload[component] : null;
-
-          if (!Array.isArray(entries)) {
-            console.log(`No legacy hook entries for ${component}; skipping.`);
-            process.exit(0);
-          }
-
-          const replacePlaceholders = (value) => {
-            if (typeof value === 'string') {
-              return value.replace(/x-release-please-version/g, version);
-            }
-
-            if (Array.isArray(value)) {
-              return value.map(replacePlaceholders);
-            }
-
-            if (value && typeof value === 'object') {
-              return Object.fromEntries(
-                Object.entries(value).map(([key, nested]) => [key, replacePlaceholders(nested)])
-              );
-            }
-
-            return value;
-          };
-
-          const updatedEntries = replacePlaceholders(entries);
-          const before = JSON.stringify(entries);
-          const after = JSON.stringify(updatedEntries);
-
-          if (before === after) {
-            console.log(`No legacy hook placeholders to replace for ${component}.`);
-            process.exit(0);
-          }
-
-          payload[component] = updatedEntries;
-          fs.writeFileSync(filePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
-          console.log(`✅ Updated scripts/hooks/legacy-hooks.json placeholders for ${component}`);
-          NODE
+          node scripts/hooks/replace-legacy-hook-versions.js \
+            --component="$COMPONENT" \
+            --version="$VERSION"
 
       - name: Check for languages directory
         id: i18n
@@ -276,15 +220,25 @@ jobs:
         run: |
           CHANGED_FILES=""
 
+          # Paths this workflow may rewrite: the plugin's own files, the
+          # shared hook/recipe generated files, and the shared release
+          # manifest (reconciled against main above).
+          PATHS=(
+            "$PLUGIN_DIR"
+            ".release-please-manifest.json"
+            "scripts/hooks/legacy-hooks.json"
+            "websites/wpgraphql.com/src/generated/recipes-index.json"
+          )
+
           # Check if any files changed
-          if ! git diff --quiet -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"; then
-            CHANGED_FILES=$(git diff --name-only -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json")
+          if ! git diff --quiet -- "${PATHS[@]}"; then
+            CHANGED_FILES=$(git diff --name-only -- "${PATHS[@]}")
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in:"
             echo "$CHANGED_FILES"
             echo ""
             echo "Diff:"
-            git diff -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
+            git diff -- "${PATHS[@]}"
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected"
@@ -298,6 +252,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
+          git add "$PLUGIN_DIR" ".release-please-manifest.json" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
           git commit -m "chore: sync release placeholders and generated docs for ${COMPONENT}"
           git push

@@ -28,7 +28,7 @@ This filters the config for the AppContext. This can be used to store additional
 
 ## Source
 
-- [`plugins/wp-graphql/src/AppContext.php:179`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L179)
+- [`plugins/wp-graphql/src/AppContext.php:181`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L181)
 
 ```php
 apply_filters( 'graphql_app_context_config', $this->config );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_app_context_config', $this->config );
 
 ## Related
 
-- `AppContext::__construct()` in [`plugins/wp-graphql/src/AppContext.php:179`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L179)
+- `AppContext::__construct()` in [`plugins/wp-graphql/src/AppContext.php:181`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L181)

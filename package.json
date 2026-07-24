@@ -20,7 +20,7 @@
 		"format": "wp-scripts format",
 		"start": "turbo run start",
 		"test": "turbo run test",
-		"test:scripts": "node scripts/update-upgrade-notice.test.js && node scripts/update-version-constants.test.js && node scripts/update-readme-changelog.test.js && node scripts/hooks/generate-hook-docs.test.js && node scripts/functions/generate-function-docs.test.js && node scripts/recipes/recipe-relations.test.js && node scripts/recipes/generate-recipe-docs.test.js",
+		"test:scripts": "node scripts/extract-release-version-info.test.js && node scripts/update-upgrade-notice.test.js && node scripts/update-version-constants.test.js && node scripts/update-readme-changelog.test.js && node scripts/reconcile-release-manifest.test.js && node scripts/hooks/generate-hook-docs.test.js && node scripts/hooks/replace-legacy-hook-versions.test.js && node scripts/functions/generate-function-docs.test.js && node scripts/recipes/recipe-relations.test.js && node scripts/recipes/generate-recipe-docs.test.js",
 		"hooks:generate": "node scripts/hooks/generate-hook-docs.js",
 		"hooks:check-legacy": "node scripts/hooks/check-legacy-coverage.js",
 		"functions:generate": "node scripts/functions/generate-function-docs.js",

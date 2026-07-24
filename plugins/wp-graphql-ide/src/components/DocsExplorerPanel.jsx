@@ -1,7 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
-import { Icon, arrowLeft, search } from '@wordpress/icons';
+import {
+	Icon,
+	arrowLeft,
+	chevronDown,
+	chevronUp,
+	search,
+} from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	isObjectType,
@@ -317,7 +323,11 @@ function renderBody({
 	}
 	return (
 		<TypeView
+			// Keyed by type name so per-section collapse state resets to the
+			// expanded default whenever the user navigates to another type.
+			key={type.name}
 			type={type}
+			schema={schema}
 			focusField={current.focusField || null}
 			onSelectType={selectType}
 			onBack={goBack}
@@ -437,7 +447,10 @@ function RootView({ schema, onSelectType }) {
 
 	return (
 		<div className="wpgraphql-ide-docs-section">
-			<div className="wpgraphql-ide-docs-section-title">
+			{/* A plain heading, not a `DocsSection`: the root view has no
+				sticky type header to offset against, and its single group
+				of entry points has nothing worth collapsing. */}
+			<div className="wpgraphql-ide-docs-root-title">
 				{__('Root Types', 'wpgraphql-ide')}
 			</div>
 			{queryType && (
@@ -466,30 +479,143 @@ function RootView({ schema, onSelectType }) {
 }
 
 /**
+ * Collapsible section with a sticky heading.
+ *
+ * The heading is a toggle button that stays pinned just below the sticky
+ * type header while its section scrolls, so the user always knows which
+ * section (Fields, Implements, …) the rows under the cursor belong to.
+ * Collapse state is per-mount — `TypeView` is keyed by type name, so every
+ * type opens with all sections expanded.
+ *
+ * @param {Object}          props
+ * @param {string}          props.title       Section heading label.
+ * @param {number}          props.count       Number of entries in the section.
+ * @param {*}               [props.forceOpen] Expands the section whenever this changes to something truthy, revealing a focus target the user had collapsed out of view. Pass the identity of the thing being focused (a field name), not a boolean — a boolean stays `true` between two focus targets and would only fire once.
+ * @param {React.ReactNode} props.children    Section content.
+ */
+function DocsSection({ title, count, forceOpen, children }) {
+	const [open, setOpen] = useState(true);
+
+	useEffect(() => {
+		if (forceOpen) {
+			setOpen(true);
+		}
+	}, [forceOpen]);
+
+	return (
+		<div className="wpgraphql-ide-docs-section">
+			<button
+				type="button"
+				className="wpgraphql-ide-docs-section-title"
+				onClick={() => setOpen((prev) => !prev)}
+				aria-expanded={open}
+			>
+				<span className="wpgraphql-ide-docs-section-label">
+					{title}
+				</span>
+				<span className="wpgraphql-ide-docs-section-count">
+					{count}
+				</span>
+				{/* Trailing up/down chevron — the Gutenberg PanelBody idiom,
+					also used by DocumentNotices. */}
+				<span
+					className="wpgraphql-ide-docs-section-chevron"
+					aria-hidden="true"
+				>
+					<Icon icon={open ? chevronUp : chevronDown} size={18} />
+				</span>
+			</button>
+			{open && children}
+		</div>
+	);
+}
+
+/**
  * Detailed view for a single type — shows description, fields, enum
  * values, or union members.
  *
  * @param {Object}      props
  * @param {Object}      props.type         GraphQL type.
+ * @param {Object}      props.schema       Active GraphQL schema (used to look up interface implementations).
  * @param {string|null} props.focusField   Optional field name to scroll to / highlight.
  * @param {Function}    props.onSelectType Callback when a type is clicked.
  * @param {Function}    props.onBack       Back navigation callback.
  */
-function TypeView({ type, focusField, onSelectType, onBack }) {
+function TypeView({ type, schema, focusField, onSelectType, onBack }) {
+	// Object and interface types can implement interfaces; interfaces can
+	// also be implemented by other types. Both directions are shown so the
+	// user can hop between an interface and its implementations.
+	const implementedInterfaces =
+		isObjectType(type) || isInterfaceType(type) ? type.getInterfaces() : [];
+	// `getImplementations()` (rather than `getPossibleTypes()`) so the list
+	// includes interfaces that implement this interface, not just objects —
+	// e.g. `ContentNode` shows up as an implementation of `Node`.
+	let implementations = [];
+	if (isInterfaceType(type)) {
+		const { objects, interfaces } = schema.getImplementations(type);
+		implementations = [...objects, ...interfaces].sort((a, b) =>
+			a.name.localeCompare(b.name)
+		);
+	}
+
+	// Section headings stick just below the type header, so they need its
+	// rendered height as a CSS offset. Measured (rather than hardcoded)
+	// because the type name can wrap.
+	const rootRef = useRef(null);
+	const headerRef = useRef(null);
+	useEffect(() => {
+		const root = rootRef.current;
+		const header = headerRef.current;
+		if (!root || !header) {
+			return undefined;
+		}
+		const update = () => {
+			root.style.setProperty(
+				'--wpgraphql-ide-docs-header-h',
+				`${header.offsetHeight}px`
+			);
+		};
+		update();
+		if (typeof window.ResizeObserver === 'undefined') {
+			return undefined;
+		}
+		const observer = new window.ResizeObserver(update);
+		observer.observe(header);
+		return () => observer.disconnect();
+	}, []);
+
 	return (
-		<div className="wpgraphql-ide-docs-panel">
-			{/* Sticky header — pins the Back button, type name, and description
-				to the top of the panel's scroll container so they stay visible
-				as the user scrolls through long fields lists. */}
-			<header className="wpgraphql-ide-docs-type-header">
+		<div ref={rootRef} className="wpgraphql-ide-docs-panel">
+			{/* Sticky header — pins the Back button and type name to the top
+				of the panel's scroll container so the user can always see what
+				type they're looking at. The description intentionally lives
+				outside the header: it scrolls away so long descriptions don't
+				eat vertical space while browsing fields. */}
+			<header ref={headerRef} className="wpgraphql-ide-docs-type-header">
 				<BackButton onClick={onBack} />
 				<div className="wpgraphql-ide-docs-type-name">{type.name}</div>
-				{type.description && (
-					<p className="wpgraphql-ide-docs-description">
-						{decodeEntities(type.description)}
-					</p>
-				)}
 			</header>
+
+			{type.description && (
+				<p className="wpgraphql-ide-docs-description wpgraphql-ide-docs-type-description">
+					{decodeEntities(type.description)}
+				</p>
+			)}
+
+			{implementedInterfaces.length > 0 && (
+				<DocsSection
+					title={__('Implements', 'wpgraphql-ide')}
+					count={implementedInterfaces.length}
+				>
+					{implementedInterfaces.map((iface) => (
+						<TypeLink
+							key={iface.name}
+							type={iface}
+							onClick={() => onSelectType(iface)}
+						/>
+					))}
+				</DocsSection>
+			)}
 
 			{(isObjectType(type) ||
 				isInputObjectType(type) ||
@@ -501,11 +627,27 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
 				/>
 			)}
 
+			{implementations.length > 0 && (
+				<DocsSection
+					title={__('Implementations', 'wpgraphql-ide')}
+					count={implementations.length}
+				>
+					{implementations.map((t) => (
+						<TypeLink
+							key={t.name}
+							type={t}
+							kind={getTypeKind(t)}
+							onClick={() => onSelectType(t)}
+						/>
+					))}
+				</DocsSection>
+			)}
+
 			{isEnumType(type) && (
-				<div className="wpgraphql-ide-docs-section">
-					<div className="wpgraphql-ide-docs-section-title">
-						{__('Values', 'wpgraphql-ide')}
-					</div>
+				<DocsSection
+					title={__('Values', 'wpgraphql-ide')}
+					count={type.getValues().length}
+				>
 					{type.getValues().map((val) => (
 						<div
 							key={val.name}
@@ -519,14 +661,14 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
 							)}
 						</div>
 					))}
-				</div>
+				</DocsSection>
 			)}
 
 			{isUnionType(type) && (
-				<div className="wpgraphql-ide-docs-section">
-					<div className="wpgraphql-ide-docs-section-title">
-						{__('Possible Types', 'wpgraphql-ide')}
-					</div>
+				<DocsSection
+					title={__('Possible Types', 'wpgraphql-ide')}
+					count={type.getTypes().length}
+				>
 					{type.getTypes().map((t) => (
 						<TypeLink
 							key={t.name}
@@ -534,7 +676,7 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
 							onClick={() => onSelectType(t)}
 						/>
 					))}
-				</div>
+				</DocsSection>
 			)}
 		</div>
 	);
@@ -550,10 +692,15 @@ function TypeView({ type, focusField, onSelectType, onBack }) {
  */
 function FieldsList({ fields, focusField, onSelectType }) {
 	return (
-		<div className="wpgraphql-ide-docs-section">
-			<div className="wpgraphql-ide-docs-section-title">
-				{__('Fields', 'wpgraphql-ide')}
-			</div>
+		<DocsSection
+			title={__('Fields', 'wpgraphql-ide')}
+			count={fields.length}
+			// The field name itself, not a boolean: `TypeView` is keyed by
+			// type, so moving between two fields of the same type doesn't
+			// remount it, and a boolean would stay `true` across the move
+			// and never re-trigger the re-open.
+			forceOpen={focusField}
+		>
 			{fields.map((field) => (
 				<FieldItem
 					key={field.name}
@@ -562,7 +709,7 @@ function FieldsList({ fields, focusField, onSelectType }) {
 					onSelectType={onSelectType}
 				/>
 			))}
-		</div>
+		</DocsSection>
 	);
 }
 
@@ -668,7 +815,15 @@ function FieldItem({ field, isFocused, onSelectType }) {
 }
 
 /**
- * Clickable type name link.
+ * Clickable row that navigates to a type's detail view.
+ *
+ * The whole row is the button, not just the type name: the row is what
+ * lights up on hover, so the row is what has to be clickable.
+ *
+ * The accessible name is composed rather than left to the row's text so it
+ * carries the same information the row shows — in an Implementations list
+ * the kind is what separates an object from an interface — and so it stays
+ * put regardless of the `text-transform` the kind is styled with.
  *
  * @param {Object}   props
  * @param {string}   [props.label] Optional label prefix (e.g. "query").
@@ -677,21 +832,26 @@ function FieldItem({ field, isFocused, onSelectType }) {
  * @param {Function} props.onClick Click handler.
  */
 function TypeLink({ label, kind, type, onClick }) {
+	const accessibleName = [
+		label ? `${label}: ` : '',
+		type.name,
+		kind ? `, ${kind}` : '',
+	].join('');
+
 	return (
-		<div className="wpgraphql-ide-docs-type-entry">
+		<button
+			type="button"
+			className="wpgraphql-ide-docs-type-entry"
+			aria-label={accessibleName}
+			onClick={onClick}
+		>
 			{label && (
 				<span className="wpgraphql-ide-docs-type-label">{label}:</span>
 			)}
-			<button
-				type="button"
-				className="wpgraphql-ide-docs-type-link"
-				onClick={onClick}
-			>
-				{type.name}
-			</button>
+			<span className="wpgraphql-ide-docs-type-link">{type.name}</span>
 			{kind && (
 				<span className="wpgraphql-ide-docs-type-kind">{kind}</span>
 			)}
-		</div>
+		</button>
 	);
 }

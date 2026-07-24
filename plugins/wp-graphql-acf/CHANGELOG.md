@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.5...wp-graphql-acf/v2.7.0) (2026-07-23)
+
+
+### New Features
+
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049)) ([b78d6dc](https://github.com/wp-graphql/wp-graphql/commit/b78d6dcc1c223daa73fea36528ef028ee8427fae))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.28 to 2.2.29 in /plugins/wp-graphql-acf ([#4097](https://github.com/wp-graphql/wp-graphql/issues/4097)) ([6bb81eb](https://github.com/wp-graphql/wp-graphql/commit/6bb81ebffe37552c856033a3f704fabc1026c6ca))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql-acf ([#4103](https://github.com/wp-graphql/wp-graphql/issues/4103)) ([cecf205](https://github.com/wp-graphql/wp-graphql/commit/cecf205f3ed96be74d2bfd5e8468c61229a52f8e))
+
 ## [2.6.5](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.4...wp-graphql-acf/v2.6.5) (2026-07-14)
 
 
