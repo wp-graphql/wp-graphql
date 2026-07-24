@@ -69,6 +69,14 @@ The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcil
 - Pure, exported functions for the core logic; a `main()` that does the IO, guarded by `if (require.main === module)`.
 - A sibling `scripts/<name>.test.js` using Node's built-in `assert` (no test runner), added to the `test:scripts` npm script so it runs in the **Test Release Scripts** workflow. Prefer flags that let the test drive the script without a live git remote/network (e.g. `--main-manifest=<path>` to stand in for a `git show` read).
 
+**Write them defensively.** These are the points review keeps raising on these scripts — get them right up front:
+
+- **Take untrusted input through the environment, not the command line.** PR titles, branch names, and any user- or PR-controlled string should reach the script via an env var it reads (`process.env.X`), so the workflow never interpolates them into a shell command. When a script *or its test* shells out (to `git`, or to invoke another script), use `execFileSync(cmd, [args])` — never `execSync` with an interpolated string.
+- **Fail loud or skip quiet — match the step's criticality, and say which in a comment.** If the step must succeed for correctness, exit non-zero on an unexpected failure so it can't go green while leaving things broken (e.g. main's manifest is unreadable). If it's best-effort and must never block the pipeline, log and `exit 0` (e.g. a missing value for an optional placeholder fill). Pick deliberately; don't default to whichever is easier.
+- **Give distinct no-ops distinct messages.** A "nothing to do / already done" log must not also fire when the real cause is "couldn't find the target" (usually a mis-parsed arg). Return a `reason` and log each case, so a malformed input is visible instead of silently skipped.
+- **When extracting existing logic, preserve its edge-case behavior — and prove it.** Reproduce the fallbacks and fail-fast semantics of the code you're replacing (a `sed` that returns the whole branch on no match is safer than an empty string that resolves to `plugins/`); don't "tidy" an edge case into different behavior. Back the parity claim with a test or a side-by-side check, and flag any intentional divergence.
+- **Small correctness traps:** parse `--key=value` by splitting on the *first* `=` only (values can contain `=`); build dynamic string replacements with `split(x).join(v)` or a replacer function, not `String.replace(/x/g, v)` (a `$&`/`$1` in `v` would be interpreted).
+
 ### Hook conventions
 
 - Prefer canonical `graphql_*` hook names for new actions/filters.
