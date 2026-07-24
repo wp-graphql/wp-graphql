@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const assert = require('assert');
 const {
 	parseComponent,
@@ -39,15 +39,13 @@ function writeChangelog(component, body) {
 }
 
 function runScript(prTitle, branch, pluginsDir) {
-	const args = [
-		`node "${SCRIPT_PATH}"`,
-		`--pr-title=${JSON.stringify(prTitle)}`,
-		`--branch=${JSON.stringify(branch)}`,
-	];
+	// execFileSync (args array, no shell) so the values pass through as argv
+	// entries — no quoting or injection surface, even for exotic titles.
+	const args = [SCRIPT_PATH, `--pr-title=${prTitle}`, `--branch=${branch}`];
 	if (pluginsDir) {
-		args.push(`--plugins-dir=${JSON.stringify(pluginsDir)}`);
+		args.push(`--plugins-dir=${pluginsDir}`);
 	}
-	const output = execSync(args.join(' '), {
+	const output = execFileSync('node', args, {
 		cwd: path.join(__dirname, '..'),
 		encoding: 'utf8',
 	});
@@ -121,8 +119,19 @@ const tests = [
 		}),
 
 	() =>
-		test('parseComponent returns empty when neither source has one', () => {
-			assert.strictEqual(parseComponent('nothing', 'nothing'), '');
+		test('parseComponent returns the whole branch when there is no --components-- marker', () => {
+			// Matches the original sed fallback: a bogus-but-non-empty
+			// component fails fast downstream rather than resolving to
+			// plugins/ and touching every plugin.
+			assert.strictEqual(
+				parseComponent('no version-y title', 'release-please--odd'),
+				'release-please--odd'
+			);
+		}),
+
+	() =>
+		test('parseComponent returns empty only when there is no title match and no branch', () => {
+			assert.strictEqual(parseComponent('nothing', ''), '');
 		}),
 
 	() =>
@@ -198,6 +207,32 @@ const tests = [
 			);
 			assert.strictEqual(out.version, '2.18.0');
 			assert.strictEqual(out.component, 'wp-graphql-acf');
+		}),
+
+	() =>
+		test('CLI reads PR_TITLE / BRANCH_NAME from the env (the workflow path)', () => {
+			// No CLI args — the workflow passes these via env so no PR-controlled
+			// string reaches the command line.
+			const output = execFileSync('node', [SCRIPT_PATH], {
+				cwd: path.join(__dirname, '..'),
+				encoding: 'utf8',
+				env: {
+					...process.env,
+					PR_TITLE: 'chore(main): release wp-graphql-ide 5.3.0',
+					BRANCH_NAME:
+						'release-please--branches--main--components--wp-graphql-ide',
+				},
+			});
+			const out = {};
+			output
+				.trim()
+				.split('\n')
+				.forEach((line) => {
+					const [k, ...rest] = line.split('=');
+					out[k] = rest.join('=');
+				});
+			assert.strictEqual(out.version, '5.3.0');
+			assert.strictEqual(out.component, 'wp-graphql-ide');
 		}),
 ];
 

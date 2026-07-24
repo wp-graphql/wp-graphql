@@ -14,14 +14,16 @@
  * CHANGELOG.md.
  *
  * Prints `key=value` lines (version, component, plugin_dir) to stdout so the
- * workflow can append them to $GITHUB_OUTPUT:
+ * workflow can append them to $GITHUB_OUTPUT. Inputs come from the PR_TITLE
+ * and BRANCH_NAME env vars, so the workflow never builds a command out of
+ * PR-controlled strings:
  *
- *   node scripts/extract-release-version-info.js \
- *     --pr-title="$PR_TITLE" --branch="$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+ *   PR_TITLE="$PR_TITLE" BRANCH_NAME="$BRANCH_NAME" \
+ *     node scripts/extract-release-version-info.js >> "$GITHUB_OUTPUT"
  *
- * Options:
- *   --pr-title     Pull request title. Required (may be empty).
- *   --branch       Head branch name. Required (may be empty).
+ * Options (override the env vars; mainly for tests and local runs):
+ *   --pr-title     Pull request title.
+ *   --branch       Head branch name.
  *   --plugins-dir  Directory holding the plugin folders (default "plugins").
  *                  Exists so tests can point at a fixture tree.
  */
@@ -46,9 +48,15 @@ function parseArgs() {
  * Component being released: the word after "release " in the PR title, else
  * the segment after "--components--" in the branch name.
  *
+ * When the branch has no "--components--" marker, the whole branch name is
+ * returned unchanged — matching the original `sed 's/.*--components--//'`.
+ * That is deliberate: a bogus-but-non-empty component points downstream steps
+ * at a non-existent `plugins/<branch>` dir (fail fast), whereas an empty
+ * component would resolve to `plugins/` and risk operating on every plugin.
+ *
  * @param {string} prTitle Pull request title.
  * @param {string} branch  Head branch name.
- * @return {string} Component (empty string if neither source yields one).
+ * @return {string} Component (empty only when there is no title match and no branch).
  */
 function parseComponent(prTitle, branch) {
 	const fromTitle = (prTitle || '').match(/release\s+([a-z0-9-]+)/);
@@ -56,7 +64,7 @@ function parseComponent(prTitle, branch) {
 		return fromTitle[1];
 	}
 
-	if (branch && branch.includes('--components--')) {
+	if (branch) {
 		return branch.replace(/.*--components--/, '');
 	}
 
@@ -129,9 +137,12 @@ function extractVersionInfo({ prTitle, branch, pluginsDir = 'plugins' }) {
 
 function main() {
 	const args = parseArgs();
+	// Prefer env vars (PR_TITLE / BRANCH_NAME) so the workflow never has to
+	// build a shell command out of PR-controlled strings — the CLI flags stay
+	// available as an override for tests and local runs.
 	const info = extractVersionInfo({
-		prTitle: args['pr-title'] || '',
-		branch: args.branch || '',
+		prTitle: args['pr-title'] || process.env.PR_TITLE || '',
+		branch: args.branch || process.env.BRANCH_NAME || '',
 		pluginsDir: args['plugins-dir'] || 'plugins',
 	});
 
