@@ -16,8 +16,9 @@
  * Prints `key=value` lines (version, component, plugin_dir) to stdout so the
  * workflow can append them to $GITHUB_OUTPUT. Inputs come from the PR_TITLE
  * and BRANCH_NAME env vars, so the workflow never builds a command out of
- * PR-controlled strings:
+ * PR-controlled strings.
  *
+ * Usage:
  *   PR_TITLE="$PR_TITLE" BRANCH_NAME="$BRANCH_NAME" \
  *     node scripts/extract-release-version-info.js >> "$GITHUB_OUTPUT"
  *
