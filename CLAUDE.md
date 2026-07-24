@@ -56,6 +56,19 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 | Smart Cache | `@wpgraphql/wp-graphql-smart-cache` |
 | ACF | `@wpgraphql/wp-graphql-acf` |
 
+### Workflow logic lives in `scripts/`, not inlined in YAML
+
+Non-trivial logic a GitHub Actions workflow needs belongs in a committed script (`scripts/*.js`) that the workflow *calls*, not in an inline `run:` block or a `node - <<'NODE'` heredoc. A one-line `sed`/`grep` or a straight tool invocation is fine inline; anything with branching, parsing, or JSON manipulation goes in a script. This keeps the logic testable, reviewable, and runnable locally.
+
+This is the target for new and changed workflow logic; the codebase isn't fully there yet. `update-release-pr.yml` still carries one inline `node - <<'NODE'` block (the "Replace legacy hook placeholder versions" step) that predates the convention — extract it to a tested script when you next touch it, rather than adding to it.
+
+The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcile-release-manifest.js`):
+
+- `#!/usr/bin/env node` shebang and a JSDoc header with a `Usage:` line.
+- CLI args as `--key=value`, parsed by a small `parseArgs()`.
+- Pure, exported functions for the core logic; a `main()` that does the IO, guarded by `if (require.main === module)`.
+- A sibling `scripts/<name>.test.js` using Node's built-in `assert` (no test runner), added to the `test:scripts` npm script so it runs in the **Test Release Scripts** workflow. Prefer flags that let the test drive the script without a live git remote/network (e.g. `--main-manifest=<path>` to stand in for a `git show` read).
+
 ### Hook conventions
 
 - Prefer canonical `graphql_*` hook names for new actions/filters.

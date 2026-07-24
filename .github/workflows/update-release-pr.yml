@@ -9,6 +9,9 @@
 # 2. Updates the Upgrade Notice section in readme.txt if there are breaking changes
 # 3. Regenerates hook docs/audits and updates legacy hook placeholders
 # 4. Regenerates the POT file for translations (if languages/ directory exists)
+# 5. Reconciles the shared .release-please-manifest.json against main so a
+#    release PR does not go stale (and CONFLICTING) when a sibling plugin
+#    releases first
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
@@ -90,6 +93,19 @@ jobs:
           echo "component=$COMPONENT" >> $GITHUB_OUTPUT
           echo "plugin_dir=plugins/${COMPONENT}" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION for component: $COMPONENT"
+
+      - name: Reconcile shared release manifest with main
+        env:
+          COMPONENT: ${{ steps.version_info.outputs.component }}
+        run: |
+          # The shared .release-please-manifest.json goes stale on an open
+          # release PR when a sibling plugin releases first (release-please
+          # only refreshes a PR when its own changelog changes), which turns
+          # the PR CONFLICTING against main. The script rewrites every sibling
+          # line to match main while keeping this PR's own bump — see
+          # scripts/reconcile-release-manifest.js for the full rationale.
+          git fetch origin main --depth=1
+          node scripts/reconcile-release-manifest.js --component="$COMPONENT"
 
       - name: Replace x-release-please-version placeholders
         if: steps.version_info.outputs.version != ''
@@ -276,15 +292,25 @@ jobs:
         run: |
           CHANGED_FILES=""
 
+          # Paths this workflow may rewrite: the plugin's own files, the
+          # shared hook/recipe generated files, and the shared release
+          # manifest (reconciled against main above).
+          PATHS=(
+            "$PLUGIN_DIR"
+            ".release-please-manifest.json"
+            "scripts/hooks/legacy-hooks.json"
+            "websites/wpgraphql.com/src/generated/recipes-index.json"
+          )
+
           # Check if any files changed
-          if ! git diff --quiet -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"; then
-            CHANGED_FILES=$(git diff --name-only -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json")
+          if ! git diff --quiet -- "${PATHS[@]}"; then
+            CHANGED_FILES=$(git diff --name-only -- "${PATHS[@]}")
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in:"
             echo "$CHANGED_FILES"
             echo ""
             echo "Diff:"
-            git diff -- "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
+            git diff -- "${PATHS[@]}"
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected"
@@ -298,6 +324,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "$PLUGIN_DIR" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
+          git add "$PLUGIN_DIR" ".release-please-manifest.json" "scripts/hooks/legacy-hooks.json" "websites/wpgraphql.com/src/generated/recipes-index.json"
           git commit -m "chore: sync release placeholders and generated docs for ${COMPONENT}"
           git push
