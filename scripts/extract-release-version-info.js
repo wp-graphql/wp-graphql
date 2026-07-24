@@ -22,11 +22,12 @@
  *   PR_TITLE="$PR_TITLE" BRANCH_NAME="$BRANCH_NAME" \
  *     node scripts/extract-release-version-info.js >> "$GITHUB_OUTPUT"
  *
- * Options (override the env vars; mainly for tests and local runs):
- *   --pr-title     Pull request title.
- *   --branch       Head branch name.
- *   --plugins-dir  Directory holding the plugin folders (default "plugins").
- *                  Exists so tests can point at a fixture tree.
+ * Options (override the env vars; mainly for tests and local runs). All use
+ * the `--key=value` form — `parseArgs()` ignores flags without an `=`:
+ *   --pr-title=<title>     Pull request title.
+ *   --branch=<name>        Head branch name.
+ *   --plugins-dir=<dir>    Directory holding the plugin folders (default
+ *                          "plugins"). Exists so tests can point at a fixture tree.
  */
 
 const fs = require('fs');
