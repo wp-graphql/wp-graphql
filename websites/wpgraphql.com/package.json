@@ -65,7 +65,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.10",
+    "@next/eslint-plugin-next": "^16.2.11",
     "@playwright/test": "^1.61.1",
     "eslint": "^9",
     "eslint-config-next": "^16.2.10",
@@ -73,10 +73,10 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "postcss": "^8.5.21",
+    "postcss": "^8.5.22",
     "postcss-focus-visible": "^11.0.0",
     "postcss-import": "^16.1.1",
-    "prettier": "^3.9.5",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3"
   },
