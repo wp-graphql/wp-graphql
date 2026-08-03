@@ -73,6 +73,9 @@ jobs:
               - plugins/wp-graphql-ide/package.json
               - package.json
               - package-lock.json
+              # The job runs on the Node version pinned here, so a Node bump
+              # must re-run the suite.
+              - .nvmrc
             # Add additional plugins here following the same pattern.
 
       - name: Log detected changes
@@ -141,16 +144,23 @@ jobs:
     steps:
       - name: Check JS unit test results
         run: |
-          # Check if any required jobs failed (excluding skipped)
-          if [ "${{ needs.wp-graphql-ide.result }}" == "failure" ]; then
-            echo "❌ wp-graphql-ide JS unit tests failed"
+          # If change detection itself didn't succeed, downstream jobs were
+          # skipped for the wrong reason — green would be meaningless.
+          if [ "${{ needs.detect-changes.result }}" != "success" ]; then
+            echo "❌ Change detection did not succeed (${{ needs.detect-changes.result }})"
             exit 1
           fi
-          # Allow skipped jobs (expected when files don't change)
-          if [ "${{ needs.wp-graphql-ide.result }}" == "skipped" ]; then
+          # Allowlist outcomes: only success and an expected skip pass.
+          # Anything else (failure, cancelled, timed out) fails the check.
+          RESULT="${{ needs.wp-graphql-ide.result }}"
+          if [ "$RESULT" == "skipped" ]; then
             echo "ℹ️ wp-graphql-ide JS unit tests skipped (no changes detected)"
+          elif [ "$RESULT" != "success" ]; then
+            echo "❌ wp-graphql-ide JS unit tests did not succeed ($RESULT)"
+            exit 1
+          else
+            echo "✅ wp-graphql-ide JS unit tests passed"
           fi
-          echo "✅ All required JS unit tests passed"
 
   # ===========================================
   # ADDITIONAL PLUGINS
