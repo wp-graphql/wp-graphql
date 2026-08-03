@@ -34,7 +34,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const AdmZip = require('adm-zip');
 
-const PLUGIN_DIR = path.resolve(__dirname, '../../../..');
+const PLUGIN_DIR = path.resolve(__dirname, '../..');
 const ZIP_PATH = path.join(PLUGIN_DIR, 'wp-graphql-ide.zip');
 const ENTRY_PATH = path.join(PLUGIN_DIR, 'wpgraphql-ide.php');
 const SLUG = 'wp-graphql-ide';
