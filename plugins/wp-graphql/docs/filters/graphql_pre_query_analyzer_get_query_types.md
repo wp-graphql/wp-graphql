@@ -30,7 +30,7 @@ Filters query types before QueryAnalyzer derives them from the AST.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:580`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L580)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:613`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L613)
 
 ```php
 apply_filters( 'graphql_pre_query_analyzer_get_query_types', $null, $schema, $query );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_pre_query_analyzer_get_query_types', $null, $schema, $qu
 
 ## Related
 
-- `QueryAnalyzer::set_query_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:580`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L580)
+- `QueryAnalyzer::set_query_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:613`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L613)

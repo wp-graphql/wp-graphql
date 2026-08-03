@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.19.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.18.0...wp-graphql/v2.19.0) (2026-08-03)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 8 updates ([#4160](https://github.com/wp-graphql/wp-graphql/issues/4160)) ([ee1f3bb](https://github.com/wp-graphql/wp-graphql/commit/ee1f3bb7028e31b5b70ebd990d7cf7ef265c7ec5))
+* **deps:** bump the npm-prod-minor-patch group with 6 updates ([#4121](https://github.com/wp-graphql/wp-graphql/issues/4121)) ([9e7f32a](https://github.com/wp-graphql/wp-graphql/commit/9e7f32a19f3e6247a0917a31ea9f37da29f87be0))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @babel/preset-react from 7.29.7 to 8.0.1 ([#4123](https://github.com/wp-graphql/wp-graphql/issues/4123)) ([67f414c](https://github.com/wp-graphql/wp-graphql/commit/67f414c28b349cbf652e161925d18eec30f92b42))
+* **deps-dev:** bump @types/node from 22.19.21 to 26.0.1 ([#4122](https://github.com/wp-graphql/wp-graphql/issues/4122)) ([bad3ad8](https://github.com/wp-graphql/wp-graphql/commit/bad3ad82e951d1ae71664b66b41b796183a48fb7))
+* **deps-dev:** bump eslint-plugin-jest from 27.9.0 to 28.14.0 ([#4141](https://github.com/wp-graphql/wp-graphql/issues/4141)) ([ee572ac](https://github.com/wp-graphql/wp-graphql/commit/ee572ac4a553aa5c6920344a8e635e202c9ff027))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4129](https://github.com/wp-graphql/wp-graphql/issues/4129)) ([53a5f67](https://github.com/wp-graphql/wp-graphql/commit/53a5f6717fd7b0c7db9f0719ed070756700d6882))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#4154](https://github.com/wp-graphql/wp-graphql/issues/4154)) ([c2f8349](https://github.com/wp-graphql/wp-graphql/commit/c2f83492da50f100f88d2f9ae57d48f2026773fa))
+* **deps-dev:** bump the npm-dev-minor-patch group with 7 updates ([#4120](https://github.com/wp-graphql/wp-graphql/issues/4120)) ([c967308](https://github.com/wp-graphql/wp-graphql/commit/c967308e6ad01339a2f96a49fdde70a37f553339))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group across 1 directory with 3 updates ([#4146](https://github.com/wp-graphql/wp-graphql/issues/4146)) ([0d2155c](https://github.com/wp-graphql/wp-graphql/commit/0d2155c79a5bdbefa2d3997cf066c6ba1a16ac4d))
+* **deps:** bump webonyx/graphql-php from 15.34.0 to 15.35.0 in /plugins/wp-graphql ([#4133](https://github.com/wp-graphql/wp-graphql/issues/4133)) ([b46b61e](https://github.com/wp-graphql/wp-graphql/commit/b46b61e99181bb8af2fbf1851551b657caaa5146))
+
+
+### Performance Improvements
+
+* parse the query AST once in QueryAnalyzer instead of three times ([#4130](https://github.com/wp-graphql/wp-graphql/issues/4130)) ([c654f19](https://github.com/wp-graphql/wp-graphql/commit/c654f1971e1799681b95400a18820dda4bce1261))
+
 ## [2.18.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.17.0...wp-graphql/v2.18.0) (2026-07-23)
 
 
