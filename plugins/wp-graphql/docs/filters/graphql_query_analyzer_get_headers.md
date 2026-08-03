@@ -29,7 +29,7 @@ Filters GraphQL response headers after query analyzer headers are appended.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:928`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L928)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:961`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L961)
 
 ```php
 apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
 
 ## Related
 
-- `QueryAnalyzer::get_headers()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:928`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L928)
+- `QueryAnalyzer::get_headers()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:961`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L961)

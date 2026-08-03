@@ -33,7 +33,7 @@ Filters whether query analyzer details should be included in response extensions
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:957`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L957)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:990`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L990)
 
 ```php
 apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
@@ -41,4 +41,4 @@ apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $res
 
 ## Related
 
-- `QueryAnalyzer::show_query_analyzer_in_extensions()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:957`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L957)
+- `QueryAnalyzer::show_query_analyzer_in_extensions()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:990`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L990)

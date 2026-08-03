@@ -29,7 +29,7 @@ Fires after QueryAnalyzer has calculated list/query/model keys for a request.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:308`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L308)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:317`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L317)
 
 ```php
 do_action( 'graphql_determine_graphql_keys', $this, $query );
@@ -37,4 +37,4 @@ do_action( 'graphql_determine_graphql_keys', $this, $query );
 
 ## Related
 
-- `QueryAnalyzer::determine_graphql_keys()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:308`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L308)
+- `QueryAnalyzer::determine_graphql_keys()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:317`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L317)

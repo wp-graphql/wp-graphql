@@ -29,7 +29,7 @@ Filters whether to analyze queries or for a specific GraphQL request.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:204`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L204)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:213`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L213)
 
 ```php
 apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request() );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request()
 
 ## Related
 
-- `QueryAnalyzer::is_enabled_for_query()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:204`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L204)
+- `QueryAnalyzer::is_enabled_for_query()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:213`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L213)

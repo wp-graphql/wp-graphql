@@ -28,7 +28,7 @@ Filters runtime node identifiers captured while resolving a GraphQL request.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:343`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L343)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:352`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L352)
 
 ```php
 apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes 
 
 ## Related
 
-- `QueryAnalyzer::get_runtime_nodes()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:343`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L343)
+- `QueryAnalyzer::get_runtime_nodes()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:352`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L352)

@@ -32,7 +32,7 @@ Filters the assembled query analyzer keys before they are returned.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:885`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L885)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:918`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L918)
 
 ```php
 apply_filters(
@@ -55,4 +55,4 @@ apply_filters(
 
 ## Related
 
-- `QueryAnalyzer::get_graphql_keys()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:885`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L885)
+- `QueryAnalyzer::get_graphql_keys()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:918`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L918)

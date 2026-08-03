@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-07-23T16:57:44.283Z",
+  "generatedAt": "2026-08-03T22:04:24.159Z",
   "stats": {
     "totalHooks": 279,
     "actions": 62,
@@ -2191,7 +2191,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::set_list_types()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 555,
+      "line": 588,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters list type cache keys derived by QueryAnalyzer.",
@@ -2236,7 +2236,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 555,
+          "line": 588,
           "symbol": "QueryAnalyzer::set_list_types()",
           "emitter": "apply_filters"
         }
@@ -2254,7 +2254,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::set_query_models()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 754,
+      "line": 787,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters query model cache keys derived by QueryAnalyzer.",
@@ -2299,7 +2299,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 754,
+          "line": 787,
           "symbol": "QueryAnalyzer::set_query_models()",
           "emitter": "apply_filters"
         }
@@ -2317,7 +2317,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::set_query_types()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 652,
+      "line": 685,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters query type cache keys derived by QueryAnalyzer.",
@@ -2362,7 +2362,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 652,
+          "line": 685,
           "symbol": "QueryAnalyzer::set_query_types()",
           "emitter": "apply_filters"
         }
@@ -4432,7 +4432,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "QueryAnalyzer::determine_graphql_keys()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 308,
+      "line": 317,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after QueryAnalyzer has calculated list/query/model keys for a request.",
@@ -4467,7 +4467,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 308,
+          "line": 317,
           "symbol": "QueryAnalyzer::determine_graphql_keys()",
           "emitter": "do_action"
         }
@@ -9186,7 +9186,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::set_list_types()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 462,
+      "line": 496,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters list types before QueryAnalyzer derives them from the AST.",
@@ -9226,7 +9226,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 462,
+          "line": 496,
           "symbol": "QueryAnalyzer::set_list_types()",
           "emitter": "apply_filters"
         }
@@ -9244,7 +9244,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::set_query_models()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 677,
+      "line": 710,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters model identifiers before QueryAnalyzer derives them from the AST.",
@@ -9284,7 +9284,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 677,
+          "line": 710,
           "symbol": "QueryAnalyzer::set_query_models()",
           "emitter": "apply_filters"
         }
@@ -9302,7 +9302,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::set_query_types()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 580,
+      "line": 613,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters query types before QueryAnalyzer derives them from the AST.",
@@ -9342,7 +9342,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 580,
+          "line": 613,
           "symbol": "QueryAnalyzer::set_query_types()",
           "emitter": "apply_filters"
         }
@@ -10304,7 +10304,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::get_headers()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 928,
+      "line": 961,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters GraphQL response headers after query analyzer headers are appended.",
@@ -10339,7 +10339,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 928,
+          "line": 961,
           "symbol": "QueryAnalyzer::get_headers()",
           "emitter": "apply_filters"
         }
@@ -10357,7 +10357,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::get_runtime_nodes()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 343,
+      "line": 352,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters runtime node identifiers captured while resolving a GraphQL request.",
@@ -10387,7 +10387,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 343,
+          "line": 352,
           "symbol": "QueryAnalyzer::get_runtime_nodes()",
           "emitter": "apply_filters"
         }
@@ -10405,7 +10405,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::get_graphql_keys()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 885,
+      "line": 918,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the assembled query analyzer keys before they are returned.",
@@ -10455,7 +10455,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 885,
+          "line": 918,
           "symbol": "QueryAnalyzer::get_graphql_keys()",
           "emitter": "apply_filters"
         }
@@ -10473,7 +10473,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::init()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 247,
+      "line": 256,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Many clients have an 8k (8192 characters) header length cap. This is the total for ALL headers, not just individual headers. SEE: https://nodejs.org/en/blog/vulnerability/november-2018-security-releases/#denial-of-service-with-large-http-headers-cve-2018-12121 In order to respect this, we have a default limit of 4000 characters for the X-GraphQL-Keys header to allow for other headers to total up to 8k. This value can be filtered to be increased or decreased. If you see \"Parse Error: Header overflow\" errors in your client, you might want to decrease this value. On the other hand, if you've increased your allowed header length in your client (i.e. https://github.com/wp-graphql/wp-graphql/issues/2535#issuecomment-1262499064) then you might want to increase this so that keys are not truncated.",
@@ -10503,7 +10503,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 247,
+          "line": 256,
           "symbol": "QueryAnalyzer::init()",
           "emitter": "apply_filters"
         }
@@ -10521,7 +10521,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::track_nodes()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 781,
+      "line": 814,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the node ID before returning to the list of resolved nodes",
@@ -10561,7 +10561,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 781,
+          "line": 814,
           "symbol": "QueryAnalyzer::track_nodes()",
           "emitter": "apply_filters"
         }
@@ -13039,7 +13039,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::is_enabled()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 163,
+      "line": 172,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether to analyze queries for all GraphQL requests.",
@@ -13069,7 +13069,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 163,
+          "line": 172,
           "symbol": "QueryAnalyzer::is_enabled()",
           "emitter": "apply_filters"
         }
@@ -13087,7 +13087,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::is_enabled_for_query()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 204,
+      "line": 213,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether to analyze queries or for a specific GraphQL request.",
@@ -13122,7 +13122,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 204,
+          "line": 213,
           "symbol": "QueryAnalyzer::is_enabled_for_query()",
           "emitter": "apply_filters"
         }
@@ -13213,7 +13213,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "QueryAnalyzer::show_query_analyzer_in_extensions()",
       "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-      "line": 957,
+      "line": 990,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether query analyzer details should be included in response extensions.",
@@ -13268,7 +13268,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/QueryAnalyzer.php",
-          "line": 957,
+          "line": 990,
           "symbol": "QueryAnalyzer::show_query_analyzer_in_extensions()",
           "emitter": "apply_filters"
         }

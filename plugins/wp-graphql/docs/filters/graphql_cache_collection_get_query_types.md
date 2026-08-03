@@ -31,7 +31,7 @@ Filters query type cache keys derived by QueryAnalyzer.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:652`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L652)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:685`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L685)
 
 ```php
 apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query
 
 ## Related
 
-- `QueryAnalyzer::set_query_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:652`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L652)
+- `QueryAnalyzer::set_query_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:685`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L685)

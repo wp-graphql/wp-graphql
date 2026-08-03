@@ -30,7 +30,7 @@ Filters model identifiers before QueryAnalyzer derives them from the AST.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:677`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L677)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:710`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L710)
 
 ```php
 apply_filters( 'graphql_pre_query_analyzer_get_models', $null, $schema, $query );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_pre_query_analyzer_get_models', $null, $schema, $query )
 
 ## Related
 
-- `QueryAnalyzer::set_query_models()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:677`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L677)
+- `QueryAnalyzer::set_query_models()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:710`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L710)
