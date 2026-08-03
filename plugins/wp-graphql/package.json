@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql",
-	"version": "2.18.0",
+	"version": "2.19.0",
 	"private": true,
 	"repository": {
 		"type": "git",
