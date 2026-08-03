@@ -52,6 +52,91 @@ class AdminDocumentSlugTest extends \Codeception\TestCase\WPTestCase {
 		return (int) $post_id;
 	}
 
+	/**
+	 * Admin form submissions arrive slashed (wp_magic_quotes() slashes $_POST,
+	 * and edit_post() passes it slashed into wp_update_post()), and WordPress
+	 * unslashes the filtered data after wp_insert_post_data returns. A query
+	 * whose normalized form contains literal backslashes (escaped quotes or
+	 * backslashes inside a GraphQL string argument) must survive that round
+	 * trip: the stored content must be the normalized print of what was
+	 * authored, and the slug must be the hash of the *stored* content so the
+	 * alias term, re-saves, and SLUG lookups all agree.
+	 */
+	public function testAdminAuthoredDocumentWithEscapedStringsKeepsContentAndSlugInSync() {
+		wp_set_current_user( $this->admin );
+
+		// Raw text as typed by the author. The GraphQL string argument contains
+		// an escaped quote (\") and an escaped backslash (\\), so the printed
+		// normalized document contains literal backslashes.
+		$raw = 'query EscapedStrings { contentNodes( where: { search: "say \"hi\" to \\\\ backslash" } ) { nodes { __typename } } }';
+
+		$editor = new Editor();
+		add_filter( 'wp_insert_post_data', [ $editor, 'validate_and_pre_save_cb' ], 10, 2 );
+
+		// Slash the postarr exactly as an admin form submission would be.
+		$post_id = wp_insert_post(
+			wp_slash( [
+				'post_type'    => Document::TYPE_NAME,
+				'post_status'  => 'publish',
+				'post_title'   => 'Escaped Strings Demo',
+				'post_content' => $raw,
+			] ),
+			true
+		);
+
+		remove_filter( 'wp_insert_post_data', [ $editor, 'validate_and_pre_save_cb' ], 10 );
+
+		$this->assertNotWPError( $post_id );
+
+		$stored              = get_post( $post_id )->post_content;
+		$expected_normalized = \GraphQL\Language\Printer::doPrint( \GraphQL\Language\Parser::parse( $raw ) );
+
+		$this->assertSame(
+			$expected_normalized,
+			$stored,
+			'The stored document should be the normalized print of the authored query, with escape sequences intact.'
+		);
+
+		$this->assertSame(
+			Utils::generateHash( $stored ),
+			get_post( $post_id )->post_name,
+			'The slug should be the hash of the content as stored, so slug, alias term, and re-saves all agree.'
+		);
+	}
+
+	/**
+	 * The runtime persisted-query path (Document::save(), used by the
+	 * persisted query loader) must round-trip escaped strings the same way:
+	 * wp_insert_post() expects slashed data, so save() must slash what it
+	 * inserts or stored documents lose backslashes.
+	 */
+	public function testProgrammaticallySavedDocumentWithEscapedStringsRoundTrips() {
+		$raw = 'query EscapedStrings { contentNodes( where: { search: "say \"hi\" to \\\\ backslash" } ) { nodes { __typename } } }';
+
+		$expected_normalized = \GraphQL\Language\Printer::doPrint( \GraphQL\Language\Parser::parse( $raw ) );
+		$expected_hash       = Utils::getHashFromFormattedString( $expected_normalized );
+
+		$document = new Document();
+		$post_id  = $document->save( $expected_hash, $raw );
+
+		$stored = get_post( $post_id )->post_content;
+
+		$this->assertSame(
+			$expected_normalized,
+			$stored,
+			'The stored document should be the normalized print of the saved query, with escape sequences intact.'
+		);
+
+		$this->assertSame(
+			$expected_hash,
+			get_post( $post_id )->post_name,
+			'The slug should be the hash of the content as stored.'
+		);
+
+		// The persisted-query loader must return the document by its hash.
+		$this->assertSame( $expected_normalized, $document->get( $expected_hash ) );
+	}
+
 	public function testAdminAuthoredDocumentGetsContentHashSlug() {
 		wp_set_current_user( $this->admin );
 
