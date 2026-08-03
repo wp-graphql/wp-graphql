@@ -3,6 +3,7 @@
 namespace WPGraphQL\Utils;
 
 use GraphQL\Error\SyntaxError;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Server\OperationParams;
@@ -124,6 +125,14 @@ class QueryAnalyzer {
 	 * @var ?bool Whether the Query Analyzer is enabled for the specific or not.
 	 */
 	protected $is_enabled_for_query;
+
+	/**
+	 * Cache of parsed query ASTs for the current request, keyed by query string.
+	 * Avoids re-parsing the same document multiple times within a single request.
+	 *
+	 * @var array<string,?\GraphQL\Language\AST\DocumentNode>
+	 */
+	protected array $parsed_asts = [];
 
 	/**
 	 * @param \WPGraphQL\Request $request The GraphQL request being executed
@@ -365,12 +374,13 @@ class QueryAnalyzer {
 				return null;
 			}
 
-			try {
-				$ast            = Parser::parse( $this->request->params->query );
-				$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
-			} catch ( SyntaxError $error ) {
+			$ast = $this->get_parsed_ast( $this->request->params->query );
+
+			if ( null === $ast ) {
 				return null;
 			}
+
+			$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
 		}
 
 		return ! empty( $operation_name ) ? 'operation:' . $operation_name : null;
@@ -438,6 +448,30 @@ class QueryAnalyzer {
 	}
 
 	/**
+	 * Parse a query string into a DocumentNode, memoizing the result for the
+	 * lifetime of the request. Returns null if the query is empty or invalid,
+	 * letting each caller preserve its pre-memoization behavior: the set_*
+	 * methods return [] and get_operation_name() returns null.
+	 *
+	 * @param ?string $query The GraphQL query string.
+	 */
+	protected function get_parsed_ast( ?string $query ): ?DocumentNode {
+		if ( empty( $query ) ) {
+			return null;
+		}
+
+		if ( ! array_key_exists( $query, $this->parsed_asts ) ) {
+			try {
+				$this->parsed_asts[ $query ] = Parser::parse( $query );
+			} catch ( SyntaxError $error ) {
+				$this->parsed_asts[ $query ] = null;
+			}
+		}
+
+		return $this->parsed_asts[ $query ];
+	}
+
+	/**
 	 * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
 	 * by the query.
 	 *
@@ -465,13 +499,12 @@ class QueryAnalyzer {
 			return $pre_get_list_types;
 		}
 
-		if ( empty( $query ) || null === $schema ) {
+		if ( null === $schema ) {
 			return [];
 		}
 
-		try {
-			$ast = Parser::parse( $query );
-		} catch ( SyntaxError $error ) {
+		$ast = $this->get_parsed_ast( $query );
+		if ( null === $ast ) {
 			return [];
 		}
 
@@ -583,12 +616,12 @@ class QueryAnalyzer {
 			return $pre_get_query_types;
 		}
 
-		if ( empty( $query ) || null === $schema ) {
+		if ( null === $schema ) {
 			return [];
 		}
-		try {
-			$ast = Parser::parse( $query );
-		} catch ( SyntaxError $error ) {
+
+		$ast = $this->get_parsed_ast( $query );
+		if ( null === $ast ) {
 			return [];
 		}
 		$type_map  = [];
@@ -680,12 +713,12 @@ class QueryAnalyzer {
 			return $pre_get_models;
 		}
 
-		if ( empty( $query ) || null === $schema ) {
+		if ( null === $schema ) {
 			return [];
 		}
-		try {
-			$ast = Parser::parse( $query );
-		} catch ( SyntaxError $error ) {
+
+		$ast = $this->get_parsed_ast( $query );
+		if ( null === $ast ) {
 			return [];
 		}
 
