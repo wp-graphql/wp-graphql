@@ -44,9 +44,7 @@ jobs:
       # parses the entry file and asserts each required path is in
       # the archive.
       - name: Verify plugin ZIP contents
-        run: |
-          npm run -w @wpgraphql/wp-graphql-ide test:unit -- \
-            tests/unit/specs/distribution/plugin-zip.test.js
+        run: npm run -w @wpgraphql/wp-graphql-ide test:distribution
 
       # `actions/upload-artifact` wraps whatever it's given in a ZIP
       # automatically (that wrapper ZIP is what the user — or Playground
