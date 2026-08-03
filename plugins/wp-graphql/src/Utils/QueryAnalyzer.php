@@ -450,8 +450,8 @@ class QueryAnalyzer {
 	/**
 	 * Parse a query string into a DocumentNode, memoizing the result for the
 	 * lifetime of the request. Returns null if the query is empty or invalid,
-	 * preserving the previous behavior of the callers (which returned [] on a
-	 * SyntaxError).
+	 * letting each caller preserve its pre-memoization behavior: the set_*
+	 * methods return [] and get_operation_name() returns null.
 	 *
 	 * @param ?string $query The GraphQL query string.
 	 */
