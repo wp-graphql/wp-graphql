@@ -120,7 +120,13 @@ jobs:
           command: npm ci
 
       - name: Run jest unit tests
-        run: npm run -w @wpgraphql/wp-graphql-ide test:unit
+        # The distribution specs assert the contents of the *built* plugin
+        # zip, so they need webpack output to exist. They already run after
+        # a real build in playground-preview.yml ("Verify plugin ZIP
+        # contents"); everything here stays build-free.
+        run: |
+          npm run -w @wpgraphql/wp-graphql-ide test:unit -- \
+            --testPathIgnorePatterns=tests/unit/specs/distribution/
 
   # ===========================================
   # FINAL STATUS CHECK
