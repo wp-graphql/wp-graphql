@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.3.0
+Stable tag: 5.4.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,24 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.4.0 =
+
+**New Features**
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 8 updates ([#4160](https://github.com/wp-graphql/wp-graphql/issues/4160))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @babel/preset-react from 7.29.7 to 8.0.1 ([#4123](https://github.com/wp-graphql/wp-graphql/issues/4123))
+* **deps-dev:** bump @types/node from 22.19.21 to 26.0.1 ([#4122](https://github.com/wp-graphql/wp-graphql/issues/4122))
+* **deps-dev:** bump concurrently from 9.2.1 to 10.0.3 ([#4124](https://github.com/wp-graphql/wp-graphql/issues/4124))
+* **deps-dev:** bump eslint-plugin-jest from 27.9.0 to 28.14.0 ([#4141](https://github.com/wp-graphql/wp-graphql/issues/4141))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.2 in /plugins/wp-graphql-ide ([#4157](https://github.com/wp-graphql/wp-graphql/issues/4157))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4129](https://github.com/wp-graphql/wp-graphql/issues/4129))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#4154](https://github.com/wp-graphql/wp-graphql/issues/4154))
+* **deps-dev:** bump the npm-dev-minor-patch group with 7 updates ([#4120](https://github.com/wp-graphql/wp-graphql/issues/4120))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group across 1 directory with 3 updates ([#4135](https://github.com/wp-graphql/wp-graphql/issues/4135))
 
 = 5.3.0 =
 
