@@ -96,6 +96,16 @@ The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcil
 - **Conventional Commits**: PR titles must follow the format (`feat:`, `fix:`, `perf:`, `docs:`, `chore:`, etc.). PRs are squash-merged, so the title becomes the commit message. The `!` suffix (e.g., `feat!:`) signals a breaking change.
 - **CI matrix**: Tests run across WordPress 6.1–trunk, PHP 7.4–8.4, block and classic themes, single and multisite.
 
+### Adversarial self-review before opening a PR
+
+Copilot reviews every PR in this repo, and its valid findings have followed the same few patterns — all catchable before the PR exists. Before opening **or updating** a PR, re-read the complete diff in a skeptical-reviewer mindset and make these passes explicitly. The bar: an automated review of the PR should surface nothing valid.
+
+1. **Docs-vs-behavior pass.** Every claim in a comment, docblock, or description in the diff must be true for *every* caller, consumer, and edge — not just the main path you were focused on. If a docblock summarizes behavior across call sites ("callers return `[]` on error"), verify each call site actually behaves that way before writing it down.
+2. **Failure-mode pass.** For each conditional, guard, or state comparison, walk the unhappy paths: error, cancelled, timed out, empty, null, missing. Prefer allowlisting the outcomes that mean success over denylisting the ones you know mean failure — a status check that fails only on `result == "failure"` silently passes on `cancelled`.
+3. **Completeness pass.** For anything list-shaped — CI change-detection filters, trigger paths, ignore lists, required-check aggregations, test matrices — derive what belongs on the list from first principles ("every input that changes this job's outcome"), then check each item. Don't copy an existing list and assume it was complete; the list you're copying may have the same gap (and if it does, flag it for a follow-up rather than silently inheriting it).
+
+When a pass finds something, fix it and re-run the passes against the amended diff. These passes complement (not replace) the mechanical gates — tests, PHPStan, PHPCS, lint — which don't check whether prose is true or whether a list is complete.
+
 ### Issue tracker conventions
 
 These apply when **we (the maintainers) open an issue**. Community-filed issues get triaged and labeled afterward, so don't hold them to this.
