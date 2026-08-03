@@ -117,16 +117,16 @@
         },
         {
             "name": "axepress/wp-graphql-stubs",
-            "version": "v2.6.0",
+            "version": "v2.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AxeWP/wp-graphql-stubs.git",
-                "reference": "6f796f9dd0d058a68c5fab15774f37aad0e8ea97"
+                "reference": "562240c8a67e14221e36f7ee0cb29a9fd69e0a97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/6f796f9dd0d058a68c5fab15774f37aad0e8ea97",
-                "reference": "6f796f9dd0d058a68c5fab15774f37aad0e8ea97",
+                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/562240c8a67e14221e36f7ee0cb29a9fd69e0a97",
+                "reference": "562240c8a67e14221e36f7ee0cb29a9fd69e0a97",
                 "shasum": ""
             },
             "require": {
@@ -134,7 +134,7 @@
             },
             "require-dev": {
                 "php": ">=7.4",
-                "php-stubs/generator": "^0.8.0",
+                "php-stubs/generator": "^0.9.0",
                 "phpstan/phpstan": "^2.1.5"
             },
             "suggest": {
@@ -158,7 +158,7 @@
             ],
             "support": {
                 "issues": "https://github.com/AxeWP/wp-graphql-stubs/issues",
-                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.6.0"
+                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.18.0"
             },
             "funding": [
                 {
@@ -166,7 +166,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-01-20T23:19:07+00:00"
+            "time": "2026-07-24T03:32:47+00:00"
         },
         {
             "name": "behat/gherkin",
@@ -1932,16 +1932,16 @@
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.9.1",
+            "version": "v6.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "f12220f303e0d7c0844c0e5e957b0c3cee48d2f7"
+                "reference": "90a9412826b9944f93b10bf41d795b5fe68abcd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/f12220f303e0d7c0844c0e5e957b0c3cee48d2f7",
-                "reference": "f12220f303e0d7c0844c0e5e957b0c3cee48d2f7",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/90a9412826b9944f93b10bf41d795b5fe68abcd5",
+                "reference": "90a9412826b9944f93b10bf41d795b5fe68abcd5",
                 "shasum": ""
             },
             "conflict": {
@@ -1951,7 +1951,7 @@
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "nikic/php-parser": "^5.5",
                 "php": "^7.4 || ^8.0",
-                "php-stubs/generator": "^0.8.3",
+                "php-stubs/generator": "^0.8.6",
                 "phpdocumentor/reflection-docblock": "^6.0",
                 "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^9.5",
@@ -1978,9 +1978,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.9.1"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.9.4"
             },
-            "time": "2026-02-03T19:29:21+00:00"
+            "time": "2026-05-01T20:36:01+00:00"
         },
         {
             "name": "php-webdriver/webdriver",
