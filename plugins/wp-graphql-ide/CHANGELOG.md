@@ -170,6 +170,26 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.3.0...wp-graphql-ide/v5.4.0) (2026-08-03)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 8 updates ([#4160](https://github.com/wp-graphql/wp-graphql/issues/4160)) ([ee1f3bb](https://github.com/wp-graphql/wp-graphql/commit/ee1f3bb7028e31b5b70ebd990d7cf7ef265c7ec5))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @babel/preset-react from 7.29.7 to 8.0.1 ([#4123](https://github.com/wp-graphql/wp-graphql/issues/4123)) ([67f414c](https://github.com/wp-graphql/wp-graphql/commit/67f414c28b349cbf652e161925d18eec30f92b42))
+* **deps-dev:** bump @types/node from 22.19.21 to 26.0.1 ([#4122](https://github.com/wp-graphql/wp-graphql/issues/4122)) ([bad3ad8](https://github.com/wp-graphql/wp-graphql/commit/bad3ad82e951d1ae71664b66b41b796183a48fb7))
+* **deps-dev:** bump concurrently from 9.2.1 to 10.0.3 ([#4124](https://github.com/wp-graphql/wp-graphql/issues/4124)) ([decc099](https://github.com/wp-graphql/wp-graphql/commit/decc099adab31599cf8b7dbf3c2c456cf612ca84))
+* **deps-dev:** bump eslint-plugin-jest from 27.9.0 to 28.14.0 ([#4141](https://github.com/wp-graphql/wp-graphql/issues/4141)) ([ee572ac](https://github.com/wp-graphql/wp-graphql/commit/ee572ac4a553aa5c6920344a8e635e202c9ff027))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.2 in /plugins/wp-graphql-ide ([#4157](https://github.com/wp-graphql/wp-graphql/issues/4157)) ([758ec30](https://github.com/wp-graphql/wp-graphql/commit/758ec30c44371d74373d91330580a4baa698c0fe))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4129](https://github.com/wp-graphql/wp-graphql/issues/4129)) ([53a5f67](https://github.com/wp-graphql/wp-graphql/commit/53a5f6717fd7b0c7db9f0719ed070756700d6882))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#4154](https://github.com/wp-graphql/wp-graphql/issues/4154)) ([c2f8349](https://github.com/wp-graphql/wp-graphql/commit/c2f83492da50f100f88d2f9ae57d48f2026773fa))
+* **deps-dev:** bump the npm-dev-minor-patch group with 7 updates ([#4120](https://github.com/wp-graphql/wp-graphql/issues/4120)) ([c967308](https://github.com/wp-graphql/wp-graphql/commit/c967308e6ad01339a2f96a49fdde70a37f553339))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group across 1 directory with 3 updates ([#4135](https://github.com/wp-graphql/wp-graphql/issues/4135)) ([0492dd8](https://github.com/wp-graphql/wp-graphql/commit/0492dd82ab5b5abc39ab879ceca39926ddec94d6))
+
 ## [5.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.2.0...wp-graphql-ide/v5.3.0) (2026-07-23)
 
 
