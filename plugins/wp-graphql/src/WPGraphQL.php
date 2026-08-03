@@ -999,7 +999,7 @@ final class WPGraphQL {
 			return null;
 		}
 
-		$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );
+		$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- reads a bundled plugin file, not a remote URL
 
 		return ! empty( $schema ) ? $schema : null;
 	}
