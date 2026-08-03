@@ -41,7 +41,7 @@
 		"@wordpress/scripts": "^27.9.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"turbo": "^2.10.6",
+		"turbo": "^2.10.7",
 		"turndown": "^7.2.4"
 	}
 }

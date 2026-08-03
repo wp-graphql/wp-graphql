@@ -89,7 +89,7 @@
 	"devDependencies": {
 		"@babel/preset-env": "^7.29.7",
 		"@babel/preset-react": "^8.0.1",
-		"@playwright/test": "^1.61.1",
+		"@playwright/test": "^1.62.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^15.0.7",
 		"@types/node": "^26.1.1",
@@ -103,7 +103,7 @@
 		"babel-jest": "^30.4.1",
 		"chalk": "^5.6.2",
 		"clsx": "^2.1.1",
-		"concurrently": "^10.0.3",
+		"concurrently": "^10.0.4",
 		"docker-compose": "^1.4.2",
 		"dotenv": "^17.4.2",
 		"eslint-plugin-jest": "^28.14.0",
