@@ -111,6 +111,15 @@ updates:
       - dependency-name: 'graphiql'
       - dependency-name: 'use-query-params'
       - dependency-name: 'query-string'
+      # graphql v17 is a coordinated migration we'll do deliberately, after the
+      # legacy bundled GraphiQL is retired: graphiql 1.x and @apollo/client 3.x
+      # peer-depend on graphql ^15 || ^16, so an isolated major bump ships two
+      # graphql copies in the bundles and type checks fail silently across
+      # them. The v16 behaviors we rely on are pinned by canary tests (see
+      # tests named graphql-v16-canary in wp-graphql and wp-graphql-ide);
+      # minor/patch updates within v16 still flow normally.
+      - dependency-name: 'graphql'
+        update-types: ['version-update:semver-major']
     groups:
       npm-dev-minor-patch:
         dependency-type: 'development'
