@@ -104,6 +104,45 @@ test.describe('Drawer mode — IDE functionality parity with the dedicated page'
 		expect(request.url()).toMatch(/graphql/);
 	});
 
+	test('modals render above the drawer and stay interactive (regression guard for z-index)', async ({
+		page,
+	}) => {
+		// @wordpress/components Modal portals to document.body with WP
+		// core's .components-modal__screen-overlay at z-index 100000.
+		// The Vaul drawer is z-index 999999, so without the "above
+		// drawer" bump in styles/wpgraphql-ide.css every Modal-based
+		// dialog (SaveDialog, DialogProvider confirm/prompt, share,
+		// export, ...) paints underneath the drawer: the dialog is in
+		// the DOM and "visible", but the user sees nothing and can't
+		// click it. https://github.com/wp-graphql/wp-graphql/issues/4163
+		await page.click(selectors.addTab);
+		await typeQuery(page, '{ posts { nodes { id } } }');
+		await page.getByRole('button', { name: 'Save draft' }).click();
+
+		const dialog = page.locator('.wpgraphql-ide-save-dialog');
+		await expect(dialog).toBeVisible({ timeout: 5000 });
+
+		// Same deterministic check as the autocomplete guard below:
+		// computed z-index must clear the drawer overlay. (See that
+		// test's comment for why we don't hit-test coordinates.)
+		const overlay = page
+			.locator('.components-modal__screen-overlay')
+			.last();
+		const computedZ = await overlay.evaluate(
+			(el) => parseInt(getComputedStyle(el).zIndex, 10) || 0
+		);
+		expect(
+			computedZ,
+			`modal overlay z-index is ${computedZ}, expected > 999999 to clear the drawer overlay — likely .components-modal__screen-overlay is missing from the above-drawer rules in styles/wpgraphql-ide.css`
+		).toBeGreaterThan(999999);
+
+		// And the dialog must actually receive pointer events:
+		// Playwright refuses to click an element another element would
+		// intercept, so this fails if the drawer still covers the modal.
+		await dialog.getByRole('button', { name: 'Cancel' }).click();
+		await expect(dialog).toBeHidden();
+	});
+
 	test('autocomplete dropdown renders above the drawer (regression guard for z-index)', async ({
 		page,
 	}) => {
