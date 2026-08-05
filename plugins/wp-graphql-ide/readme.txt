@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.4.0
+Stable tag: 5.4.1
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,13 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.4.1 =
+
+**Bug Fixes**
+
+* **wp-graphql-ide:** render modals above the drawer in drawer mode ([#4164](https://github.com/wp-graphql/wp-graphql/issues/4164))
+* **wp-graphql-ide:** stop author-scoping unrelated connections when Smart Cache is active ([#4166](https://github.com/wp-graphql/wp-graphql/issues/4166))
 
 = 5.4.0 =
 

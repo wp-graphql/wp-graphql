@@ -170,6 +170,14 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.4.0...wp-graphql-ide/v5.4.1) (2026-08-05)
+
+
+### Bug Fixes
+
+* **wp-graphql-ide:** render modals above the drawer in drawer mode ([#4164](https://github.com/wp-graphql/wp-graphql/issues/4164)) ([f137253](https://github.com/wp-graphql/wp-graphql/commit/f137253a7cfe419ea2985ef7e219a538cbaf0884))
+* **wp-graphql-ide:** stop author-scoping unrelated connections when Smart Cache is active ([#4166](https://github.com/wp-graphql/wp-graphql/issues/4166)) ([aac1c5d](https://github.com/wp-graphql/wp-graphql/commit/aac1c5df2e08ce56d0003cb7c7cd1584bf1371b9))
+
 ## [5.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.3.0...wp-graphql-ide/v5.4.0) (2026-08-03)
 
 
