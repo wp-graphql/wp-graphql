@@ -151,14 +151,18 @@ function initialize_plugin() {
 	// Custom REST routes.
 	add_action( 'rest_api_init', [ \WPGraphQLIDE\Rest::class, 'register' ] );
 
-	// GraphQL: scope Smart Cache `graphqlDocument` connections to the
-	// current user so the IDE's data is queryable from GraphQL but
-	// isolated per user — same contract as the REST endpoints. The
-	// `graphql_data_is_private` filter closes the single-node lookup
-	// hole left by the connection-only filter: without it,
-	// `node(id: "...")` could resolve another user's document if the
-	// requester knew its global ID.
-	add_filter( 'graphql_connection_query_args', [ \WPGraphQLIDE\Access::class, 'scope_graphql_connections' ], 10, 2 );
+	// GraphQL: per-user isolation of Smart Cache `graphqlDocument` data is
+	// enforced at the model layer — another user's document resolves as
+	// private everywhere a model is built (connections, `node(id: "...")`,
+	// nested fields), matching the REST endpoints' contract. The IDE's own
+	// document list additionally passes an `author` where arg client-side
+	// (see `src/api/documents.js`) so its pagination stays correct without
+	// any connection-level scoping. Do not reintroduce author scoping via
+	// `graphql_connection_query_args`: with Smart Cache active,
+	// `graphql_document` is part of every `post_type: 'any'` connection
+	// (core `contentNodes`, ACF relationship fields), and scoping those
+	// query args blanked unrelated authenticated queries.
+	// See https://github.com/wp-graphql/wp-graphql/issues/4117.
 	add_filter( 'graphql_data_is_private', [ \WPGraphQLIDE\Access::class, 'restrict_post_visibility' ], 10, 6 );
 
 	// Strip a deleted document's id from its owner's personal collections.
