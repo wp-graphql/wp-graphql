@@ -99,6 +99,66 @@ const SDL = /* GraphQL */ `
 	}
 `;
 
+const SEARCH_SDL = /* GraphQL */ `
+	type Post {
+		id: ID
+	}
+
+	type PostFormat {
+		id: ID
+	}
+
+	type CreatePostInput {
+		id: ID
+	}
+
+	type CategoryToPostConnection {
+		id: ID
+	}
+
+	type Compost {
+		id: ID
+	}
+
+	type SearchFields {
+		post: String
+		postStatus: String
+		createPostInput: String
+		categoryToPostConnection: String
+		compost: String
+	}
+
+	type Query {
+		search: SearchFields
+	}
+`;
+
+const cappedTypes = Array.from(
+	{ length: 30 },
+	(_, index) => `type Alpha${index}Target { id: ID }`
+).join('\n');
+const cappedFields = Array.from(
+	{ length: 55 },
+	(_, index) => `alpha${index}Target: String`
+).join('\n');
+const CAPPED_SEARCH_SDL = /* GraphQL */ `
+	type Target {
+		id: ID
+	}
+
+	${cappedTypes}
+
+	type FieldContainer {
+		target: String
+		${cappedFields}
+	}
+
+	type Query {
+		target: Target
+		fields: FieldContainer
+	}
+`;
+
 // Type rows carry a composed accessible name so the kind reaches screen
 // readers too: "Page, Object" in a list that mixes kinds, "query: RootQuery"
 // for a root entry, bare "Node" where neither applies. Match the type name
@@ -134,6 +194,81 @@ function section(title) {
 function sectionToggle(title) {
 	return screen.getByText(title).closest('button');
 }
+
+function searchSchema(term) {
+	fireEvent.change(
+		screen.getByRole('textbox', {
+			name: 'Search GraphQL schema types and fields',
+		}),
+		{ target: { value: term } }
+	);
+}
+
+function searchGroup(title) {
+	return screen.getByText(title).closest('.wpgraphql-ide-docs-search-group');
+}
+
+function fieldPath(row) {
+	const type = row.querySelector('.wpgraphql-ide-docs-field-link-type');
+	const field = row.querySelector('.wpgraphql-ide-docs-field-link-name');
+	return `${type.textContent}.${field.textContent}`;
+}
+
+describe('DocsExplorerPanel — search ranking', () => {
+	beforeEach(() => {
+		__dep.schema = buildSchema(SEARCH_SDL);
+		__dep.docsNavTarget = null;
+		__dep.setDocsNavTarget.mockReset();
+	});
+
+	it('ranks exact, prefix, camel-case segment, and substring type matches', () => {
+		render(<DocsExplorerPanel />);
+		searchSchema('post');
+
+		const names = within(searchGroup('Types'))
+			.getAllByRole('button')
+			.map((row) => row.getAttribute('aria-label'));
+
+		expect(names).toEqual([
+			'Post, Object',
+			'PostFormat, Object',
+			'CreatePostInput, Object',
+			'CategoryToPostConnection, Object',
+			'Compost, Object',
+		]);
+	});
+
+	it('applies the same relevance order to field matches', () => {
+		render(<DocsExplorerPanel />);
+		searchSchema('post');
+
+		const paths = within(searchGroup('Fields'))
+			.getAllByRole('button')
+			.map(fieldPath);
+
+		expect(paths).toEqual([
+			'SearchFields.post',
+			'SearchFields.postStatus',
+			'SearchFields.createPostInput',
+			'SearchFields.categoryToPostConnection',
+			'SearchFields.compost',
+		]);
+	});
+
+	it('applies result caps after ranking', () => {
+		__dep.schema = buildSchema(CAPPED_SEARCH_SDL);
+		render(<DocsExplorerPanel />);
+		searchSchema('target');
+
+		const typeRows = within(searchGroup('Types')).getAllByRole('button');
+		expect(typeRows).toHaveLength(25);
+		expect(typeRows[0]).toHaveAccessibleName('Target, Object');
+
+		const fieldRows = within(searchGroup('Fields')).getAllByRole('button');
+		expect(fieldRows).toHaveLength(50);
+		expect(fieldPath(fieldRows[0])).toBe('FieldContainer.target');
+	});
+});
 
 describe('DocsExplorerPanel — interface relationships', () => {
 	beforeEach(() => {
