@@ -91,6 +91,58 @@ function getTypeKind(type) {
 }
 
 /**
+ * Rank a schema name against a search term.
+ *
+ * @param {string} name  GraphQL type or field name.
+ * @param {string} query Lowercase search term.
+ * @return {number} Relevance rank, where lower is better.
+ */
+function getSearchRank(name, query) {
+	const normalizedName = name.toLowerCase();
+	if (normalizedName === query) {
+		return 0;
+	}
+	if (normalizedName.startsWith(query)) {
+		return 1;
+	}
+
+	let index = normalizedName.indexOf(query);
+	while (index !== -1) {
+		const previous = name[index - 1] || '';
+		const current = name[index] || '';
+		const next = name[index + 1] || '';
+		if (
+			/[^A-Za-z0-9]/.test(previous) ||
+			(/[a-z0-9]/.test(previous) && /[A-Z]/.test(current)) ||
+			(/[A-Z]/.test(previous) &&
+				/[A-Z]/.test(current) &&
+				/[a-z]/.test(next))
+		) {
+			return 2;
+		}
+		index = normalizedName.indexOf(query, index + 1);
+	}
+
+	return 3;
+}
+
+/**
+ * Compare schema names by relevance, then length, then alphabetically.
+ *
+ * @param {string} a     First GraphQL name.
+ * @param {string} b     Second GraphQL name.
+ * @param {string} query Lowercase search term.
+ * @return {number} Sort comparison value.
+ */
+function compareSearchNames(a, b, query) {
+	return (
+		getSearchRank(a, query) - getSearchRank(b, query) ||
+		a.length - b.length ||
+		a.localeCompare(b)
+	);
+}
+
+/**
  * Docs Explorer panel content.
  *
  * Provides a browsable tree of the GraphQL schema — types, fields,
@@ -205,11 +257,12 @@ export function DocsExplorerPanel() {
 				}
 			}
 		}
-		types.sort((a, b) => a.name.localeCompare(b.name));
+		types.sort((a, b) => compareSearchNames(a.name, b.name, q));
 		fields.sort((a, b) => {
-			const aKey = `${a.type.name}.${a.field.name}`;
-			const bKey = `${b.type.name}.${b.field.name}`;
-			return aKey.localeCompare(bKey);
+			return (
+				compareSearchNames(a.field.name, b.field.name, q) ||
+				a.type.name.localeCompare(b.type.name)
+			);
 		});
 		return {
 			typeMatches: types.slice(0, 25),
