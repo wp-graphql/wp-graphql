@@ -10,15 +10,14 @@ on:
       - '.github/workflows/website-lint.yml'
       - 'package.json'
       - 'package-lock.json'
+  # No `paths` filter on pull_request: the `Website Lint` status-check job is a
+  # required check, so it must report on every PR. Change detection happens in
+  # the detect-changes job below; PRs without website changes skip the lint job
+  # and the status check passes.
   pull_request:
     branches:
       - main
       - release/*
-    paths:
-      - 'websites/wpgraphql.com/**'
-      - '.github/workflows/website-lint.yml'
-      - 'package.json'
-      - 'package-lock.json'
   workflow_dispatch:
 
 # Cancel previous workflow run groups that have not completed.
@@ -110,13 +109,22 @@ jobs:
     steps:
       - name: Check website lint results
         run: |
-          # Check if any required jobs failed (excluding skipped)
-          if [ "${{ needs.wpgraphql-com.result }}" == "failure" ]; then
-            echo "❌ wpgraphql.com lint failed"
+          # Allowlist the outcomes that mean success. Anything else (failure,
+          # cancelled, or a broken detect-changes job) must fail this required
+          # check rather than silently passing.
+          if [ "${{ needs.detect-changes.result }}" != "success" ]; then
+            echo "❌ Change detection did not succeed (${{ needs.detect-changes.result }})"
             exit 1
           fi
-          # Allow skipped jobs (expected when files don't change)
-          if [ "${{ needs.wpgraphql-com.result }}" == "skipped" ]; then
-            echo "ℹ️ wpgraphql.com lint skipped (no changes detected)"
-          fi
-          echo "✅ All required website lint checks passed"
+          case "${{ needs.wpgraphql-com.result }}" in
+            success)
+              echo "✅ wpgraphql.com lint passed"
+              ;;
+            skipped)
+              echo "ℹ️ wpgraphql.com lint skipped (no changes detected)"
+              ;;
+            *)
+              echo "❌ wpgraphql.com lint did not succeed (${{ needs.wpgraphql-com.result }})"
+              exit 1
+              ;;
+          esac
