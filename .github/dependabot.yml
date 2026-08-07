@@ -120,6 +120,15 @@ updates:
       # minor/patch updates within v16 still flow normally.
       - dependency-name: 'graphql'
         update-types: ['version-update:semver-major']
+      # eslint v10 requires @typescript-eslint v8+ across the whole install,
+      # but npm hoists @typescript-eslint v6 to the monorepo root via
+      # @wordpress/scripts in the plugin workspaces, and eslint 10 crashes
+      # loading its scope-manager (scopeManager.addGlobals is not a
+      # function). The wpgraphql.com workspace pins eslint ^9 (see the
+      # header of its eslint.config.js). Drop this ignore when
+      # @wordpress/scripts ships a typescript-eslint v8+ tree.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
     groups:
       npm-dev-minor-patch:
         dependency-type: 'development'
