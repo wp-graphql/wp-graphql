@@ -1,9 +1,15 @@
 /**
  * ESLint flat config for wpgraphql.com (Next.js app).
  *
- * Flat config for ESLint 10 — the legacy `.eslintrc` format and the
- * `next lint` command were both removed, so we run the ESLint CLI directly
- * (`eslint .`) against a flat config, mirroring the wp-graphql-acf migration.
+ * Flat config, run via the ESLint CLI directly (`eslint .`) rather than the
+ * removed `next lint` command, mirroring the wp-graphql-acf migration.
+ *
+ * ESLint is pinned to v9 for now: v10 requires @typescript-eslint v8+
+ * everywhere, but npm hoists @typescript-eslint v6 to the monorepo root
+ * (via @wordpress/scripts in the plugin workspaces), and ESLint 10 crashes
+ * loading its scope-manager (`scopeManager.addGlobals is not a function`).
+ * Unpin when @wordpress/scripts ships a typescript-eslint v8+ tree. The
+ * dependabot ignore for the eslint major lives in .github/dependabot.yml.
  *
  * Layers:
  *   - eslint-config-next/core-web-vitals — Next's React / hooks / a11y /
