@@ -16,6 +16,7 @@ use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -434,12 +435,27 @@ class RootQuery {
 										break;
 									case 'location':
 										$locations = get_nav_menu_locations();
+										$location  = (string) $args['id'];
 
-										if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
+										// The schema's vocabulary for menu locations is the
+										// MenuLocationEnum name (e.g. MY_LOCATION for a location
+										// registered as my-location), but the `id` arg is an ID
+										// scalar, so no enum-to-value coercion happens. Accept the
+										// enum-style name by mapping it back to the registered key.
+										if ( ! isset( $locations[ $location ] ) ) {
+											foreach ( array_keys( $locations ) as $registered_location ) {
+												if ( WPEnumType::get_safe_name( (string) $registered_location ) === $location ) {
+													$location = (string) $registered_location;
+													break;
+												}
+											}
+										}
+
+										if ( ! isset( $locations[ $location ] ) || ! absint( $locations[ $location ] ) ) {
 											throw new UserError( esc_html__( 'No menu set for the provided location', 'wp-graphql' ) );
 										}
 
-										$id = absint( $locations[ $args['id'] ] );
+										$id = absint( $locations[ $location ] );
 										break;
 									case 'name':
 										$menu = new \WP_Term_Query(
