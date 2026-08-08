@@ -1687,4 +1687,47 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 	}
+
+	/**
+	 * Test that enqueued stylesheets can be filtered by handle.
+	 */
+	public function testEnqueuedStylesheetsCanBeFilteredByHandle() {
+		$included_handle = 'test-filtered-stylesheet';
+		$excluded_handle = 'test-unfiltered-stylesheet';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $included_handle, $excluded_handle ) {
+				wp_enqueue_style( $included_handle, 'test-filtered-stylesheet.css', [], '1.0.0' );
+				wp_enqueue_style( $excluded_handle, 'test-unfiltered-stylesheet.css', [], '1.0.0' );
+			}
+		);
+
+		$query = '
+		query PageById( $id: ID! ) {
+			page( id: $id, idType: DATABASE_ID ) {
+				enqueuedStylesheets( where: { handles: ["' . $included_handle . '", "missing-stylesheet"] } ) {
+					nodes {
+						handle
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $this->page_id,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[ $included_handle ],
+			wp_list_pluck( $actual['data']['page']['enqueuedStylesheets']['nodes'], 'handle' )
+		);
+	}
 }
