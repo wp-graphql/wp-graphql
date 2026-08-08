@@ -1686,6 +1686,49 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( in_array( $src, $sources, true ) );
 	}
 
+	/**
+	 * Test that enqueued scripts can be filtered by handle.
+	 */
+	public function testEnqueuedScriptsCanBeFilteredByHandle() {
+		$included_handle = 'test-filtered-script';
+		$excluded_handle = 'test-unfiltered-script';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $included_handle, $excluded_handle ) {
+				wp_enqueue_script( $included_handle, 'test-filtered-script.js', [], '1.0.0', false );
+				wp_enqueue_script( $excluded_handle, 'test-unfiltered-script.js', [], '1.0.0', false );
+			}
+		);
+
+		$query = '
+		query PageById( $id: ID! ) {
+			page( id: $id, idType: DATABASE_ID ) {
+				enqueuedScripts( where: { handles: ["' . $included_handle . '", "missing-script"] } ) {
+					nodes {
+						handle
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $this->page_id,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[ $included_handle ],
+			wp_list_pluck( $actual['data']['page']['enqueuedScripts']['nodes'], 'handle' )
+		);
+	}
+
 		/**
 		 * Verifies that output from wp_print_inline_script_tag during wp_enqueue_scripts
 		 * does not break the GraphQL JSON response, due to Router-level output buffering.
