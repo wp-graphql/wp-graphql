@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.7.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.0...wp-graphql-acf/v2.7.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.2 in /plugins/wp-graphql-acf ([#4158](https://github.com/wp-graphql/wp-graphql/issues/4158)) ([c616bbc](https://github.com/wp-graphql/wp-graphql/commit/c616bbc19cff68f50144aad5a0acda28371bc805))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#4154](https://github.com/wp-graphql/wp-graphql/issues/4154)) ([c2f8349](https://github.com/wp-graphql/wp-graphql/commit/c2f83492da50f100f88d2f9ae57d48f2026773fa))
+* **deps-dev:** bump the wp-graphql-acf-composer-dev-minor-patch group across 1 directory with 2 updates ([#4145](https://github.com/wp-graphql/wp-graphql/issues/4145)) ([d9dbec7](https://github.com/wp-graphql/wp-graphql/commit/d9dbec7c4615db093d5c75a18162119643bf6e52))
+* **deps-dev:** bump wp-coding-standards/wpcs from 3.3.0 to 3.4.1 in /plugins/wp-graphql-acf ([#4125](https://github.com/wp-graphql/wp-graphql/issues/4125)) ([00f1a90](https://github.com/wp-graphql/wp-graphql/commit/00f1a9085d8f6fc0c19868c8be3f9d0a4e56b47d))
+
 ## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.5...wp-graphql-acf/v2.7.0) (2026-07-23)
 
 
