@@ -72,6 +72,18 @@ test.describe('Docs explorer interface relationships', () => {
 		await openDocsPanel(page);
 	});
 
+	test('search ranks an exact type match first', async ({ page }) => {
+		await page.locator('.wpgraphql-ide-docs-search').fill('Post');
+
+		const types = docsPanel(page)
+			.locator('.wpgraphql-ide-docs-search-group')
+			.filter({ hasText: 'Types' });
+
+		await expect(types.getByRole('button').first()).toHaveAccessibleName(
+			typeRow('Post')
+		);
+	});
+
 	test('object type shows the interfaces it implements', async ({ page }) => {
 		// `DefaultTemplate` (from #4028) is also a unique search match —
 		// broader names like `Page` fall outside the capped result list.
