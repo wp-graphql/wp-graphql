@@ -92,7 +92,7 @@
 		"@babel/preset-react": "^8.0.1",
 		"@playwright/test": "^1.62.0",
 		"@testing-library/jest-dom": "^6.9.1",
-		"@testing-library/react": "^15.0.7",
+		"@testing-library/react": "^16.3.2",
 		"@types/node": "^26.1.2",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^8.65.0",
