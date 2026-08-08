@@ -41,6 +41,10 @@
 			"href": "/docs/posts-and-pages"
 		},
 		{
+			"title": "Previews",
+			"href": "/docs/previews"
+		},
+		{
 			"title": "Custom Post Types",
 			"href": "/docs/custom-post-types"
 		},

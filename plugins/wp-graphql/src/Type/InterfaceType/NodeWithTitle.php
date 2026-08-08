@@ -23,11 +23,12 @@ class NodeWithTitle {
 				'fields'      => static function () {
 					return [
 						'title' => [
-							'type'        => 'String',
-							'description' => static function () {
+							'type'          => 'String',
+							'isPreviewable' => true,
+							'description'   => static function () {
 								return __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' );
 							},
-							'args'        => [
+							'args'          => [
 								'format' => [
 									'type'        => 'PostObjectFieldFormatEnum',
 									'description' => static function () {
@@ -35,7 +36,7 @@ class NodeWithTitle {
 									},
 								],
 							],
-							'resolve'     => static function ( $source, $args ) {
+							'resolve'       => static function ( $source, $args ) {
 								if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 									// @codingStandardsIgnoreLine.
 									return $source->titleRaw;
