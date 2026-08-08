@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.19.0\n"
+"Project-Id-Version: WPGraphQL 2.19.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-03T22:04:24+00:00\n"
+"POT-Creation-Date: 2026-08-08T03:54:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -2436,12 +2436,12 @@ msgid "Include comments for a specific user ID."
 msgstr ""
 
 #: src/Type/Connection/MenuItems.php:104
-#: src/Type/ObjectType/RootQuery.php:55
+#: src/Type/ObjectType/RootQuery.php:56
 msgid "The database ID of the object"
 msgstr ""
 
 #: src/Type/Connection/MenuItems.php:110
-#: src/Type/ObjectType/RootQuery.php:61
+#: src/Type/ObjectType/RootQuery.php:62
 msgid "The menu location for the menu being queried"
 msgstr ""
 
@@ -4683,230 +4683,230 @@ msgstr ""
 msgid "The count to increase"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:38
+#: src/Type/ObjectType/RootQuery.php:39
 msgid "The root entry point into the Graph"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:67
+#: src/Type/ObjectType/RootQuery.php:68
 msgid "The slug of the menu to query items for"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:84
+#: src/Type/ObjectType/RootQuery.php:85
 msgid "Show plugin based on a keyword search."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:90
+#: src/Type/ObjectType/RootQuery.php:91
 msgid "Show plugins with a specific status."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:96
+#: src/Type/ObjectType/RootQuery.php:97
 msgid "Retrieve plugins where plugin status is in an array."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:169
+#: src/Type/ObjectType/RootQuery.php:170
 msgid "Entry point to get all settings for the site"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:178
+#: src/Type/ObjectType/RootQuery.php:179
 msgid "Returns a Comment"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:186
+#: src/Type/ObjectType/RootQuery.php:187
 msgid "Unique identifier for the comment node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:192
+#: src/Type/ObjectType/RootQuery.php:193
 msgid "Type of unique identifier to fetch a comment by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:206
-#: src/Type/ObjectType/RootQuery.php:471
-#: src/Type/ObjectType/RootQuery.php:512
-#: src/Type/ObjectType/RootQuery.php:608
-#: src/Type/ObjectType/RootQuery.php:936
+#: src/Type/ObjectType/RootQuery.php:207
+#: src/Type/ObjectType/RootQuery.php:487
+#: src/Type/ObjectType/RootQuery.php:528
+#: src/Type/ObjectType/RootQuery.php:624
+#: src/Type/ObjectType/RootQuery.php:952
 msgid "The ID input is invalid"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:219
+#: src/Type/ObjectType/RootQuery.php:220
 msgid "A node used to manage content"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:227
+#: src/Type/ObjectType/RootQuery.php:228
 msgid "Unique identifier for the content node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:233
+#: src/Type/ObjectType/RootQuery.php:234
 msgid "Type of unique identifier to fetch a content node by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:239
+#: src/Type/ObjectType/RootQuery.php:240
 msgid "The content type the node is used for. Required when idType is set to \"name\" or \"slug\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:245
-#: src/Type/ObjectType/RootQuery.php:792
+#: src/Type/ObjectType/RootQuery.php:246
+#: src/Type/ObjectType/RootQuery.php:808
 msgid "Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn't have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the \"asPreview\" argument is not explicitly provided as an argument."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:267
-#: src/Type/ObjectType/RootQuery.php:835
+#: src/Type/ObjectType/RootQuery.php:268
+#: src/Type/ObjectType/RootQuery.php:851
 msgid "The ID input is invalid. Make sure you set the proper idType for your input."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:300
+#: src/Type/ObjectType/RootQuery.php:301
 msgid "Fetch a Content Type node by unique Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:306
+#: src/Type/ObjectType/RootQuery.php:307
 msgid "Unique Identifier for the Content Type node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:312
+#: src/Type/ObjectType/RootQuery.php:313
 msgid "Type of unique identifier to fetch a content type by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:338
+#: src/Type/ObjectType/RootQuery.php:339
 msgid "Fetch a Taxonomy node by unique Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:344
+#: src/Type/ObjectType/RootQuery.php:345
 msgid "Unique Identifier for the Taxonomy node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:350
+#: src/Type/ObjectType/RootQuery.php:351
 msgid "Type of unique identifier to fetch a taxonomy by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:376
+#: src/Type/ObjectType/RootQuery.php:377
 msgid "Fetches an object given its ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:382
+#: src/Type/ObjectType/RootQuery.php:383
 msgid "The unique identifier of the node"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:393
+#: src/Type/ObjectType/RootQuery.php:394
 msgid "Fetches an object given its Unique Resource Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:399
+#: src/Type/ObjectType/RootQuery.php:400
 msgid "Unique Resource Identifier in the form of a path or permalink for a node. Ex: \"/hello-world\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:410
+#: src/Type/ObjectType/RootQuery.php:411
 msgid "A WordPress navigation menu"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:418
+#: src/Type/ObjectType/RootQuery.php:419
 msgid "The globally unique identifier of the menu."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:424
+#: src/Type/ObjectType/RootQuery.php:425
 msgid "Type of unique identifier to fetch a menu by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:439
+#: src/Type/ObjectType/RootQuery.php:455
 msgid "No menu set for the provided location"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:484
+#: src/Type/ObjectType/RootQuery.php:500
 msgid "A WordPress navigation menu item"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:492
+#: src/Type/ObjectType/RootQuery.php:508
 msgid "The globally unique identifier of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:498
+#: src/Type/ObjectType/RootQuery.php:514
 msgid "Type of unique identifier to fetch a menu item by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:525
+#: src/Type/ObjectType/RootQuery.php:541
 msgid "A WordPress plugin"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:533
+#: src/Type/ObjectType/RootQuery.php:549
 msgid "The globally unique identifier of the plugin."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:546
+#: src/Type/ObjectType/RootQuery.php:562
 msgid "A node in a taxonomy used to group and relate content nodes"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:554
+#: src/Type/ObjectType/RootQuery.php:570
 msgid "Unique identifier for the term node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:560
+#: src/Type/ObjectType/RootQuery.php:576
 msgid "Type of unique identifier to fetch a term node by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:566
+#: src/Type/ObjectType/RootQuery.php:582
 msgid "The taxonomy of the tern node. Required when idType is set to \"name\" or \"slug\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:587
+#: src/Type/ObjectType/RootQuery.php:603
 msgid "When fetching a Term Node by \"slug\" or \"name\", the \"taxonomy\" also needs to be set as an input."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:620
+#: src/Type/ObjectType/RootQuery.php:636
 msgid "A Theme object"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:628
+#: src/Type/ObjectType/RootQuery.php:644
 msgid "The globally unique identifier of the theme."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:641
+#: src/Type/ObjectType/RootQuery.php:657
 msgid "Returns a user"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:649
+#: src/Type/ObjectType/RootQuery.php:665
 msgid "The globally unique identifier of the user."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:655
+#: src/Type/ObjectType/RootQuery.php:671
 msgid "Type of unique identifier to fetch a user by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:677
+#: src/Type/ObjectType/RootQuery.php:693
 msgid "You do not have permission to request a User by Username"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:688
+#: src/Type/ObjectType/RootQuery.php:704
 msgid "You do not have permission to request a User by Email"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:712
+#: src/Type/ObjectType/RootQuery.php:728
 msgid "Returns a user role"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:720
+#: src/Type/ObjectType/RootQuery.php:736
 msgid "The globally unique identifier of the user object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:733
+#: src/Type/ObjectType/RootQuery.php:749
 msgid "Returns the current user"
 msgstr ""
 
 #. translators: %1$s is the post type GraphQL name, %2$s is the post type description
-#: src/Type/ObjectType/RootQuery.php:769
+#: src/Type/ObjectType/RootQuery.php:785
 #, php-format
 msgid "An object of the %1$s Type. %2$s"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:780
-#: src/Type/ObjectType/RootQuery.php:900
+#: src/Type/ObjectType/RootQuery.php:796
+#: src/Type/ObjectType/RootQuery.php:916
 msgid "The globally unique identifier of the object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:786
-#: src/Type/ObjectType/RootQuery.php:906
+#: src/Type/ObjectType/RootQuery.php:802
+#: src/Type/ObjectType/RootQuery.php:922
 msgid "Type of unique identifier to fetch by. Default is Global ID"
 msgstr ""
 
 #. translators: %s is the taxonomys' GraphQL name.
-#: src/Type/ObjectType/RootQuery.php:890
+#: src/Type/ObjectType/RootQuery.php:906
 msgid "A % object"
 msgstr ""
 
