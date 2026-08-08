@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.19.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.19.0...wp-graphql/v2.19.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* resolve menu(idType: LOCATION) when given a MenuLocationEnum name ([#4171](https://github.com/wp-graphql/wp-graphql/issues/4171)) ([7bf4915](https://github.com/wp-graphql/wp-graphql/commit/7bf491584977c98e882207411a03786bbf9ea114))
+
 ## [2.19.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.18.0...wp-graphql/v2.19.0) (2026-08-03)
 
 
