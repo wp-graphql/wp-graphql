@@ -34,6 +34,19 @@ class I18nTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->setExpectedIncorrectUsage( 'WP_Block_Type_Registry::register' );
 		}
 
+		// WordPress 7.1 introduces the Icons API and registers the core icon
+		// collection during `init`. The second `init` fire in this suite
+		// re-registers it, producing "already registered" incorrect usage
+		// notices (added in 7.1.0) for both registries. Unrelated to WPGraphQL
+		// i18n, so declare them as expected, again scoped to just these two
+		// notices. The boundary is '7.1-alpha' (not '7.1') so the expectation
+		// also applies to trunk builds, whose version strings like
+		// '7.1-alpha-12345' compare lower than plain '7.1'.
+		if ( version_compare( $GLOBALS['wp_version'], '7.1-alpha', '>=' ) ) {
+			$this->setExpectedIncorrectUsage( 'WP_Icon_Collections_Registry::register' );
+			$this->setExpectedIncorrectUsage( 'WP_Icons_Registry::register' );
+		}
+
 		// Suppress doing_it_wrong notices before parent::setUp() to catch theme notices early.
 		//
 		// This prevents false failures from theme-related notices that are unrelated to

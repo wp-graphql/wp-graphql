@@ -103,6 +103,27 @@ npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- --debug
 TEST_THEME=twentytwentyfive npm run -w @wpgraphql/wp-graphql test:codecept:wpunit
 ```
 
+## Mocking Outbound HTTP in Tests
+
+Tests that exercise code which fetches remote URLs (for example, media sideloading) must never make real network requests. The convention is:
+
+- **Use RFC 5737 TEST-NET addresses** for any URL the test fabricates: `192.0.2.0/24` (TEST-NET-1), `198.51.100.0/24` (TEST-NET-2), or `203.0.113.0/24` (TEST-NET-3). These ranges are reserved for documentation and are guaranteed never to route to a real host, so even if a mock fails to intercept, no traffic leaves the machine.
+- **Intercept the request** with the `pre_http_request` filter and return a fabricated response.
+- **Allow the host through URL validation.** Since WordPress 7.1, `wp_http_validate_url()` rejects reserved and documentation IP ranges (including the TEST-NET blocks), so any URL that passes through `wp_safe_remote_get()` / `download_url()` is rejected before your `pre_http_request` mock ever runs. Explicitly allow the specific test host via the `http_request_host_is_external` filter:
+
+```php
+$allow_test_net = static function ( $external, $host ) {
+	return '203.0.113.42' === $host ? true : $external;
+};
+add_filter( 'http_request_host_is_external', $allow_test_net, 10, 2 );
+
+// ... run the code under test ...
+
+remove_filter( 'http_request_host_is_external', $allow_test_net, 10 );
+```
+
+Scope the filter to the exact host the test uses (don't return `true` unconditionally), and remove it when the test is done. See `tests/wpunit/MediaItemMutationsTest.php::testCreateMediaItemSideloadFailureIsSurfaced` for a complete example.
+
 ## Smoke Tests
 
 Smoke tests are lightweight tests that verify the plugin works correctly without running the full test suite. They're useful for quickly validating builds.
