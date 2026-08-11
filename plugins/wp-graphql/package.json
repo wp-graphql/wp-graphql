@@ -51,7 +51,7 @@
 	"dependencies": {
 		"@ant-design/icons": "6.3.2",
 		"@apollo/client": "3.14.1",
-		"@wordpress/api-fetch": "^7.51.0",
+		"@wordpress/api-fetch": "^7.52.0",
 		"@wordpress/components": "^34.0.0",
 		"@wordpress/compose": "^7.46.0",
 		"@wordpress/element": "^6.37.0",
@@ -73,7 +73,7 @@
 		"@babel/preset-react": "^8.0.1",
 		"@playwright/test": "^1.62.1",
 		"@testing-library/jest-dom": "^6.9.1",
-		"@testing-library/react": "^15.0.7",
+		"@testing-library/react": "^16.3.2",
 		"@types/node": "^26.1.2",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^8.65.0",
