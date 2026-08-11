@@ -1599,15 +1599,28 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * check rejects it. The mutation must surface the error and create no
 	 * attachment.
 	 *
-	 * Uses RFC 5737 documentation IP 203.0.113.42 to avoid any chance of
-	 * real network traffic; a higher-priority pre_http_request filter
-	 * fires before the setUp mock and serves the bad bytes.
+	 * Uses RFC 5737 documentation IP 203.0.113.42 (TEST-NET-3) to avoid any
+	 * chance of real network traffic; a higher-priority pre_http_request
+	 * filter fires before the setUp mock and serves the bad bytes.
+	 *
+	 * Since WordPress 7.1, wp_http_validate_url() rejects reserved and
+	 * documentation IP ranges — including the RFC 5737 TEST-NET blocks
+	 * (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24) — so any test using a
+	 * TEST-NET address must explicitly allow the host via the
+	 * `http_request_host_is_external` filter. That keeps the no-real-traffic
+	 * guarantee (pre_http_request still intercepts) while letting the URL
+	 * reach the code under test. See docs/testing.md.
 	 */
 	public function testCreateMediaItemSideloadFailureIsSurfaced() {
 		wp_set_current_user( $this->admin );
 
 		$bad_url   = 'http://203.0.113.42/looks-like-jpeg-but-is-text.jpg';
 		$delivered = false;
+
+		$allow_test_net = static function ( $external, $host ) {
+			return '203.0.113.42' === $host ? true : $external;
+		};
+		add_filter( 'http_request_host_is_external', $allow_test_net, 10, 2 );
 
 		$bad_bytes_filter = static function ( $preempt, $args, $url ) use ( $bad_url, &$delivered ) {
 			if ( $url !== $bad_url ) {
@@ -1636,6 +1649,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual = $this->createMediaItemMutation();
 
 		remove_filter( 'pre_http_request', $bad_bytes_filter, 5 );
+		remove_filter( 'http_request_host_is_external', $allow_test_net, 10 );
 
 		$this->assertTrue(
 			$delivered,
