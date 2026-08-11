@@ -170,6 +170,68 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.4.0...wp-graphql-ide/v5.4.1) (2026-08-05)
+
+
+### Bug Fixes
+
+* **wp-graphql-ide:** render modals above the drawer in drawer mode ([#4164](https://github.com/wp-graphql/wp-graphql/issues/4164)) ([f137253](https://github.com/wp-graphql/wp-graphql/commit/f137253a7cfe419ea2985ef7e219a538cbaf0884))
+* **wp-graphql-ide:** stop author-scoping unrelated connections when Smart Cache is active ([#4166](https://github.com/wp-graphql/wp-graphql/issues/4166)) ([aac1c5d](https://github.com/wp-graphql/wp-graphql/commit/aac1c5df2e08ce56d0003cb7c7cd1584bf1371b9))
+
+## [5.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.3.0...wp-graphql-ide/v5.4.0) (2026-08-03)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 8 updates ([#4160](https://github.com/wp-graphql/wp-graphql/issues/4160)) ([ee1f3bb](https://github.com/wp-graphql/wp-graphql/commit/ee1f3bb7028e31b5b70ebd990d7cf7ef265c7ec5))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @babel/preset-react from 7.29.7 to 8.0.1 ([#4123](https://github.com/wp-graphql/wp-graphql/issues/4123)) ([67f414c](https://github.com/wp-graphql/wp-graphql/commit/67f414c28b349cbf652e161925d18eec30f92b42))
+* **deps-dev:** bump @types/node from 22.19.21 to 26.0.1 ([#4122](https://github.com/wp-graphql/wp-graphql/issues/4122)) ([bad3ad8](https://github.com/wp-graphql/wp-graphql/commit/bad3ad82e951d1ae71664b66b41b796183a48fb7))
+* **deps-dev:** bump concurrently from 9.2.1 to 10.0.3 ([#4124](https://github.com/wp-graphql/wp-graphql/issues/4124)) ([decc099](https://github.com/wp-graphql/wp-graphql/commit/decc099adab31599cf8b7dbf3c2c456cf612ca84))
+* **deps-dev:** bump eslint-plugin-jest from 27.9.0 to 28.14.0 ([#4141](https://github.com/wp-graphql/wp-graphql/issues/4141)) ([ee572ac](https://github.com/wp-graphql/wp-graphql/commit/ee572ac4a553aa5c6920344a8e635e202c9ff027))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.2 in /plugins/wp-graphql-ide ([#4157](https://github.com/wp-graphql/wp-graphql/issues/4157)) ([758ec30](https://github.com/wp-graphql/wp-graphql/commit/758ec30c44371d74373d91330580a4baa698c0fe))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4129](https://github.com/wp-graphql/wp-graphql/issues/4129)) ([53a5f67](https://github.com/wp-graphql/wp-graphql/commit/53a5f6717fd7b0c7db9f0719ed070756700d6882))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#4154](https://github.com/wp-graphql/wp-graphql/issues/4154)) ([c2f8349](https://github.com/wp-graphql/wp-graphql/commit/c2f83492da50f100f88d2f9ae57d48f2026773fa))
+* **deps-dev:** bump the npm-dev-minor-patch group with 7 updates ([#4120](https://github.com/wp-graphql/wp-graphql/issues/4120)) ([c967308](https://github.com/wp-graphql/wp-graphql/commit/c967308e6ad01339a2f96a49fdde70a37f553339))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group across 1 directory with 3 updates ([#4135](https://github.com/wp-graphql/wp-graphql/issues/4135)) ([0492dd8](https://github.com/wp-graphql/wp-graphql/commit/0492dd82ab5b5abc39ab879ceca39926ddec94d6))
+
+## [5.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.2.0...wp-graphql-ide/v5.3.0) (2026-07-23)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group with 4 updates ([#4091](https://github.com/wp-graphql/wp-graphql/issues/4091)) ([5c9726b](https://github.com/wp-graphql/wp-graphql/commit/5c9726b3290e7fa74be089a5281eaa5620b9cad5))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql-ide ([#4102](https://github.com/wp-graphql/wp-graphql/issues/4102)) ([01d37a6](https://github.com/wp-graphql/wp-graphql/commit/01d37a66f645cd3b27026f04cb6e13fd00d5916a))
+* **deps-dev:** bump the npm-dev-minor-patch group with 2 updates ([#4089](https://github.com/wp-graphql/wp-graphql/issues/4089)) ([f5de472](https://github.com/wp-graphql/wp-graphql/commit/f5de472226abd9d9fbf3f89ea51e01e5f9c83961))
+* show interface relationships in Docs explorer with collapsible, sticky sections ([#4107](https://github.com/wp-graphql/wp-graphql/issues/4107)) ([bae751b](https://github.com/wp-graphql/wp-graphql/commit/bae751b6e8c86f93594178a2bfce1a75fb7397b4))
+
+## [5.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.1.0...wp-graphql-ide/v5.2.0) (2026-07-16)
+
+
+### New Features
+
+* **deps:** bump @codemirror/view from 6.43.5 to 6.43.6 in the npm-prod-minor-patch group ([#4065](https://github.com/wp-graphql/wp-graphql/issues/4065)) ([7d6f59a](https://github.com/wp-graphql/wp-graphql/commit/7d6f59a0c56966a3656b79e5b0e64b21624453b3))
+* **deps:** bump @wordpress/i18n from 4.58.0 to 6.21.0 ([#4038](https://github.com/wp-graphql/wp-graphql/issues/4038)) ([ebb1435](https://github.com/wp-graphql/wp-graphql/commit/ebb143551d9b54dec7f8cb7ee585f99bfc446231))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 10 updates ([#4055](https://github.com/wp-graphql/wp-graphql/issues/4055)) ([3f5c40a](https://github.com/wp-graphql/wp-graphql/commit/3f5c40ae3f02962f7a31c87b3a8126da53176c2c))
+* **deps:** bump vaul from 0.9.9 to 1.1.2 ([#4040](https://github.com/wp-graphql/wp-graphql/issues/4040)) ([3c3fe3c](https://github.com/wp-graphql/wp-graphql/commit/3c3fe3cd8cca9f5bcbf28fa5119e7afdb6c4b342))
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049)) ([b78d6dc](https://github.com/wp-graphql/wp-graphql/commit/b78d6dcc1c223daa73fea36528ef028ee8427fae))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @typescript-eslint/parser from 6.21.0 to 8.61.0 ([#4056](https://github.com/wp-graphql/wp-graphql/issues/4056)) ([bde1f92](https://github.com/wp-graphql/wp-graphql/commit/bde1f9262205b6734d17e646f09ea7c4d7813d9e))
+* **deps-dev:** bump docker-compose from 0.24.8 to 1.4.2 ([#4066](https://github.com/wp-graphql/wp-graphql/issues/4066)) ([cff6aed](https://github.com/wp-graphql/wp-graphql/commit/cff6aed4809de19bb1fec942804390acaf2f81a1))
+* **deps-dev:** bump phpstan/phpstan from 2.2.2 to 2.2.5 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#4050](https://github.com/wp-graphql/wp-graphql/issues/4050)) ([ceb4fad](https://github.com/wp-graphql/wp-graphql/commit/ceb4fad08141f9b171651eea84b0cd0d796c7cc2))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 9 updates ([#4061](https://github.com/wp-graphql/wp-graphql/issues/4061)) ([9b50264](https://github.com/wp-graphql/wp-graphql/commit/9b50264dcfb82c9aad4fb16d2ff4983041cc5d9e))
+* **deps-dev:** bump the npm-dev-minor-patch group with 9 updates ([#4036](https://github.com/wp-graphql/wp-graphql/issues/4036)) ([9dd355f](https://github.com/wp-graphql/wp-graphql/commit/9dd355f68eb19315ab226ee13852a28fdf7cd927))
+
 ## [5.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.0.1...wp-graphql-ide/v5.1.0) (2026-06-30)
 
 

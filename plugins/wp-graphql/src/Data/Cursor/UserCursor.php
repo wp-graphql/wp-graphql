@@ -78,6 +78,9 @@ class UserCursor extends AbstractCursor {
 		 * @param int                                  $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\UserCursor    $node     The cursor instance.
 		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
+		 *
 		 * @return \WP_User|null
 		 */
 		$pre_user = apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );

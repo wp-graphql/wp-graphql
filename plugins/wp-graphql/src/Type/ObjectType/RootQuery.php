@@ -319,7 +319,11 @@ class RootQuery {
 								$id = null;
 								switch ( $id_type ) {
 									case 'name':
-										$id = $args['id'];
+										// The `id` arg is an ID scalar, so no enum coercion
+										// happens, but the schema's vocabulary for content types
+										// is the ContentTypeEnum name (e.g. POST for the type
+										// registered as post). Accept either form.
+										$id = Utils::map_enum_name_to_value( 'ContentTypeEnum', (string) $args['id'] ) ?? $args['id'];
 										break;
 									case 'id':
 									default:
@@ -357,7 +361,12 @@ class RootQuery {
 								$id = null;
 								switch ( $id_type ) {
 									case 'name':
-										$id = $args['id'];
+										// The `id` arg is an ID scalar, so no enum coercion
+										// happens, but the schema's vocabulary for taxonomies is
+										// the TaxonomyEnum name, which derives from a taxonomy's
+										// graphql_single_name (e.g. TAG for the taxonomy
+										// registered as post_tag). Accept either form.
+										$id = Utils::map_enum_name_to_value( 'TaxonomyEnum', (string) $args['id'] ) ?? $args['id'];
 										break;
 									case 'id':
 									default:
@@ -435,11 +444,17 @@ class RootQuery {
 									case 'location':
 										$locations = get_nav_menu_locations();
 
-										if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
+										// The `id` arg is an ID scalar, so no enum coercion
+										// happens, but the schema's vocabulary for menu locations
+										// is the MenuLocationEnum name (e.g. MY_LOCATION for a
+										// location registered as my-location). Accept either form.
+										$location = Utils::map_enum_name_to_value( 'MenuLocationEnum', (string) $args['id'] ) ?? (string) $args['id'];
+
+										if ( ! isset( $locations[ $location ] ) || ! absint( $locations[ $location ] ) ) {
 											throw new UserError( esc_html__( 'No menu set for the provided location', 'wp-graphql' ) );
 										}
 
-										$id = absint( $locations[ $args['id'] ] );
+										$id = absint( $locations[ $location ] );
 										break;
 									case 'name':
 										$menu = new \WP_Term_Query(

@@ -285,6 +285,9 @@ class PostObjectCreate {
 			 * @param string       $default_status   The default status to be used when the post is initially inserted
 			 * @param \WP_Post_Type $post_type_object The Post Type that is being inserted
 			 * @param string       $mutation_name    The name of the mutation currently in progress
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			$default_post_status = apply_filters( 'graphql_post_object_create_default_post_status', 'draft', $post_type_object, $mutation_name );
 
@@ -366,6 +369,9 @@ class PostObjectCreate {
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
 			 * @param string       $intended_post_status       The intended post_status the post should have according to the mutation input
 			 * @param string       $default_post_status        The default status posts should use if an intended status wasn't set
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			$should_set_intended_status = apply_filters( 'graphql_post_object_create_should_set_intended_post_status', true, $post_type_object, $mutation_name, $context, $info, $intended_post_status, $default_post_status );
 

@@ -20,6 +20,37 @@ class AdminEditorDocumentCest {
 	}
 
 	/**
+	 * Regression coverage for the slash-handling in the admin save path: a
+	 * document whose normalized form contains literal backslashes (escaped
+	 * quotes / backslashes inside GraphQL string arguments) must be stored
+	 * byte-for-byte as the normalized print of what was authored, with the
+	 * slug set to the hash of that stored content. Form submissions arrive
+	 * slashed (wp_magic_quotes), which is exactly the path this exercises.
+	 */
+	public function saveDocumentWithEscapedStringsPreservesContentAndSlugTest( FunctionalTester $I ) {
+		$query = 'query EscapedStrings { contentNodes( where: { search: "say \"hi\" to \\\\ backslash" } ) { nodes { __typename } } }';
+
+		$I->loginAsAdmin();
+		$I->amOnPage( '/wp-admin/post-new.php?post_type=graphql_document' );
+
+		$I->fillField( "//input[@name='post_title']", 'escaped-strings-demo' );
+		$I->fillField( 'content', $query );
+		$I->selectOption( "form input[name='graphql_query_grant']", 'allow' );
+		$I->fillField( 'graphql_query_maxage', '200' );
+		$I->click( '//input[@id="publish"]' );
+
+		// The document is stored as the normalized print of the authored
+		// query, and the slug is the hash of those exact stored bytes.
+		$normalized = \GraphQL\Language\Printer::doPrint( \GraphQL\Language\Parser::parse( $query ) );
+
+		$I->seePostInDatabase( [
+			'post_type'    => 'graphql_document',
+			'post_content' => $normalized,
+			'post_name'    => hash( 'sha256', $normalized ),
+		] );
+	}
+
+	/**
 	 * Test http request to /{$taxonomy_name}/{$value}
 	 * When taxonomy registered, the public/public_queryable value:
 	 *   true - the WP 404 page

@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.2...wp-graphql-smart-cache/v2.3.0) (2026-07-23)
+
+
+### New Features
+
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049)) ([b78d6dc](https://github.com/wp-graphql/wp-graphql/commit/b78d6dcc1c223daa73fea36528ef028ee8427fae))
+* **smart-cache:** invalidate settings-group caches on option updates ([#4095](https://github.com/wp-graphql/wp-graphql/issues/4095)) ([edbc733](https://github.com/wp-graphql/wp-graphql/commit/edbc733a73a47bdf25ace793c5f552efd36148f3))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql-smart-cache ([#4100](https://github.com/wp-graphql/wp-graphql/issues/4100)) ([60a2fa0](https://github.com/wp-graphql/wp-graphql/commit/60a2fa01899eb8d6702f4460c96c91eefc76e636))
+
 ## [2.2.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.1...wp-graphql-smart-cache/v2.2.2) (2026-06-29)
 
 

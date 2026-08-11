@@ -130,6 +130,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * @param \WPGraphQL\AppContext                $context object passed down the resolve tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info info about fields passed down the resolve tree
 		 *
+		 * @hookGroup connections
 		 * @since 0.0.6
 		 */
 		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
@@ -233,6 +234,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * @param array<string,mixed> $args     The GraphQL args passed to the resolver.
 		 * @param self                $resolver Instance of the ConnectionResolver
 		 *
+		 * @hookGroup connections
 		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_comment_connection_args', $args, $this );
@@ -289,6 +291,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the get_terms query
 		 *
+		 * @param array<string,mixed>                  $query_args             The mapped query args to send to WP_Comment_Query.
+		 * @param array<string,mixed>                  $args                   The incoming GraphQL where args before mapping.
+		 * @param mixed                                $source                 The source node passed down the resolve tree.
+		 * @param array<string,mixed>                  $all_args               All GraphQL args provided to the connection field.
+		 * @param \WPGraphQL\AppContext                $context                The AppContext passed down the resolve tree.
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info                   ResolveInfo for the current field.
+		 *
+		 * @hookGroup connections
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );

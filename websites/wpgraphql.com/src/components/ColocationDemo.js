@@ -11,9 +11,17 @@ import { Tok } from "@/components/MockIDE"
  */
 
 const POSTS = [
-  { title: "Hello, world", author: "Jane Doe",   date: "Dec 8, 2025" },
-  { title: "Welcome to wpgraphql.blog", author: "Alex Chen", date: "Dec 4, 2025" },
-  { title: "Querying sticky posts with GraphQL", author: "Sam Patel", date: "Nov 27, 2025" },
+  { title: "Hello, world", author: "Jane Doe", date: "Dec 8, 2025" },
+  {
+    title: "Welcome to wpgraphql.blog",
+    author: "Alex Chen",
+    date: "Dec 4, 2025",
+  },
+  {
+    title: "Querying sticky posts with GraphQL",
+    author: "Sam Patel",
+    date: "Nov 27, 2025",
+  },
 ]
 
 function PaneHeader({ children }) {
@@ -33,9 +41,13 @@ function PostCard({ title, author, date }) {
       >
         &lt;PostCard /&gt;
       </span>
-      <h4 className="ide-text text-[0.85rem] font-semibold leading-tight">{title}</h4>
+      <h4 className="ide-text text-[0.85rem] font-semibold leading-tight">
+        {title}
+      </h4>
       <p className="ide-muted mt-1 font-mono text-[0.65rem]">
-        by <span className="ide-tok-str">{author}</span>{" · "}{date}
+        by <span className="ide-tok-str">{author}</span>
+        {" · "}
+        {date}
       </p>
     </article>
   )
@@ -43,25 +55,60 @@ function PostCard({ title, author, date }) {
 
 const colocatedCode = (
   <>
-    <Tok kind="cmt">{"// pages/index.tsx"}</Tok>{"\n"}
-    <Tok kind="kw">query</Tok> <Tok kind="key">GetRecentPosts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="punc">...</Tok><Tok kind="key">PostCard</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    <Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="cmt">{"// pages/index.tsx"}</Tok>
     {"\n"}
-    <Tok kind="cmt">{"// components/PostCard.tsx"}</Tok>{"\n"}
-    <Tok kind="kw">fragment</Tok> <Tok kind="key">PostCard</Tok> <Tok kind="kw">on</Tok> <Tok kind="key">Post</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"  "}<Tok kind="key">id</Tok>{"\n"}
-    {"  "}<Tok kind="key">title</Tok>{"\n"}
-    {"  "}<Tok kind="key">date</Tok>{"\n"}
-    {"  "}<Tok kind="key">author</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"    "}<Tok kind="key">node</Tok> <Tok kind="punc">{"{"}</Tok>{"\n"}
-    {"      "}<Tok kind="key">name</Tok>{"\n"}
-    {"    "}<Tok kind="punc">{"}"}</Tok>{"\n"}
-    {"  "}<Tok kind="punc">{"}"}</Tok>{"\n"}
+    <Tok kind="kw">query</Tok> <Tok kind="key">GetRecentPosts</Tok>{" "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">posts</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="key">nodes</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="punc">...</Tok>
+    <Tok kind="key">PostCard</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"\n"}
+    <Tok kind="cmt">{"// components/PostCard.tsx"}</Tok>
+    {"\n"}
+    <Tok kind="kw">fragment</Tok> <Tok kind="key">PostCard</Tok>{" "}
+    <Tok kind="kw">on</Tok> <Tok kind="key">Post</Tok>{" "}
+    <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">id</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">title</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">date</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="key">author</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="key">node</Tok> <Tok kind="punc">{"{"}</Tok>
+    {"\n"}
+    {"      "}
+    <Tok kind="key">name</Tok>
+    {"\n"}
+    {"    "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
+    {"  "}
+    <Tok kind="punc">{"}"}</Tok>
+    {"\n"}
     <Tok kind="punc">{"}"}</Tok>
   </>
 )

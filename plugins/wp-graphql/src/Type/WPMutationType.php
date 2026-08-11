@@ -83,6 +83,7 @@ class WPMutationType {
 		 * @param array<string,mixed>            $config           Array of configuration options passed to the WPMutationType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPMutationType $wp_mutation_type The instance of the WPMutationType class
 		 *
+		 * @hookGroup schema-registration
 		 * @since 1.13.0
 		 */
 		$config = apply_filters( 'graphql_wp_mutation_type_config', $config, $this );
@@ -112,6 +113,7 @@ class WPMutationType {
 		 * @param array<string,mixed>            $config           Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPMutationType $wp_mutation_type The instance of the WPMutationType class
 		 *
+		 * @hookGroup schema-registration
 		 * @since 1.13.0
 		 */
 		do_action( 'graphql_wp_mutation_type', $config, $this );
@@ -212,6 +214,9 @@ class WPMutationType {
 			 * @param \WPGraphQL\AppContext                $context       The AppContext object.
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo object.
 			 * @param string                               $mutation_name The name of the mutation field.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 			 */
 			$input = apply_filters( 'graphql_mutation_input', $unfiltered_input, $context, $info, $this->mutation_name );
 
@@ -226,6 +231,9 @@ class WPMutationType {
 			 * @param array<string,mixed>   $input               The mutation input args.
 			 * @param \WPGraphQL\AppContext $context             The AppContext object.
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 			 */
 			$pre = apply_filters( 'graphql_pre_mutate_and_get_payload', null, $this->mutation_name, $this->config['mutateAndGetPayload'], $input, $context, $info );
 
@@ -242,6 +250,9 @@ class WPMutationType {
 				 * @param array<string,mixed>   $input The mutation input args.
 				 * @param \WPGraphQL\AppContext $context The AppContext object.
 				 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object.
+				 *
+				 * @hookGroup request-lifecycle
+				 * @since 0.0.5
 				 */
 				$payload = apply_filters( 'graphql_mutation_payload', $payload, $this->mutation_name, $input, $context, $info );
 			}
@@ -255,6 +266,9 @@ class WPMutationType {
 			 * @param \WPGraphQL\AppContext                $context          The AppContext object.
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info             The ResolveInfo object.
 			 * @param string                               $mutation_name    The name of the mutation field.
+			 *
+			 * @hookGroup request-lifecycle
+			 * @since 0.0.5
 			 */
 			do_action( 'graphql_mutation_response', $payload, $input, $unfiltered_input, $context, $info, $this->mutation_name );
 

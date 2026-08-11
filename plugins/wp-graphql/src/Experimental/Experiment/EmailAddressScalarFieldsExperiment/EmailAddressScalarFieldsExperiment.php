@@ -118,7 +118,16 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 				},
 				'resolve'     => static function ( $root, $args, $context, $info ) {
 					if ( ! current_user_can( 'manage_options' ) ) {
-						throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+						graphql_debug(
+							__( 'The "GeneralSettings.adminEmail" field requires the "manage_options" capability and resolved to null.', 'wp-graphql' ),
+							[
+								'type'                => 'RESTRICTED_SETTING',
+								'field'               => 'GeneralSettings.adminEmail',
+								'required_capability' => 'manage_options',
+							]
+						);
+
+						return null;
 					}
 
 					return get_option( 'admin_email' );
@@ -225,7 +234,16 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 
 				// Fallback resolver (same logic as original)
 				if ( ! current_user_can( 'manage_options' ) ) {
-					throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+					graphql_debug(
+						__( 'The "GeneralSettings.email" field requires the "manage_options" capability and resolved to null.', 'wp-graphql' ),
+						[
+							'type'                => 'RESTRICTED_SETTING',
+							'field'               => 'GeneralSettings.email',
+							'required_capability' => 'manage_options',
+						]
+					);
+
+					return null;
 				}
 
 				return get_option( 'admin_email' );

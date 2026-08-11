@@ -87,7 +87,71 @@ When creating a PR, select the appropriate template:
 
 These placeholders are automatically replaced with the actual version by release-please during the release PR.
 
-### 5. Testing
+### 5. Hook Naming and Deprecation Conventions
+
+When introducing or changing actions/filters in `plugins/wp-graphql/`, follow these conventions:
+
+- **Use the canonical prefix**: new hooks should use the `graphql_` prefix.
+- **Do not introduce new legacy prefixes**: avoid adding new `wpgraphql_*` or `wp_graphql_*` hooks.
+- **Document hook call sites**: `do_action()` and `apply_filters()` call sites should include docblocks with:
+  - `@since x-release-please-version`
+  - `@hookGroup <group>` (using a valid group from `scripts/hooks/groups.json`)
+- **Deprecate old hooks safely**:
+  - For actions, use `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - For filters, use `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - Keep behavior backward compatible while steering users to the canonical hook.
+- **Update tests for deprecations**: when a deprecated hook is intentionally fired, tests should explicitly expect the deprecation notice.
+
+### 6. Reference Docs and Recipes
+
+The hook, function, and recipe reference docs (`plugins/wp-graphql/docs/{actions,filters,functions,recipes}/` and the inventories under `docs/generated/`) are **generated artifacts**. You do **not** regenerate or commit them in your PR — the release-please flow (`update-release-pr.yml`) regenerates them when a release PR is cut, which is also when `@since x-release-please-version` placeholders resolve. Your job is the source that feeds them:
+
+- **Hooks / functions:** write a complete docblock at the call site — a description, a typed `@param` (with a description) per arg, `@since x-release-please-version` for a genuinely new symbol, and `@hookGroup <group>` from `scripts/hooks/groups.json`. The docblock linter checks this. See "Hook Naming and Deprecation Conventions" above.
+- **Recipes:** add a markdown file under `plugins/wp-graphql/docs/recipes/` (see below).
+
+The legacy coverage check runs in CI (`lint.yml`) and verifies that any hook removed from source stays represented in `scripts/hooks/legacy-hooks.json` so its docs remain available. You can run it locally with:
+
+```bash
+npm run hooks:check-legacy -- --plugin=wp-graphql --base-ref=origin/main
+```
+
+#### Contributing a recipe
+
+Recipes are rendered directly from repo-backed markdown at `/recipes` on wpgraphql.com. To add one, create `plugins/wp-graphql/docs/recipes/<slug>.md` (the outer `~~~` below is just to show the file's own ` ``` ` code fences):
+
+~~~markdown
+---
+title: "Add a custom field to the Post type"
+group: "Custom Fields"
+summary: "A short one-line description used on the recipe index card."
+# Optional — otherwise inferred from hook/function names mentioned in the body:
+relatedActions:
+  - graphql_register_types
+relatedFilters: []
+relatedFunctions:
+  - register_graphql_field
+---
+
+Prose explaining the recipe, followed by fenced code blocks:
+
+```php
+add_action( 'graphql_register_types', function () {
+    // ...
+} );
+```
+
+To embed a video, use the component (not a raw iframe):
+
+<YouTube id="dQw4w9WgXcQ" />
+~~~
+
+Notes:
+- `title` and `group` are required; `summary` is recommended (it's the index-card blurb).
+- **Related APIs** are inferred automatically from static hook/function names mentioned in the body, unioned with any explicit `relatedActions` / `relatedFilters` / `relatedFunctions` frontmatter.
+- The recipe index and cross-links are regenerated during the release-please flow — you don't regenerate them.
+- Recipes today are served from these markdown files parsed into templates. This is the interim step toward the longer-term dogfooding goal — WordPress as the CMS, markdown as the content store, and WPGraphQL as the API for the headless front-end — so keep the markdown as the source of truth.
+
+### 7. Testing
 
 **All changes should include tests:**
 
@@ -122,6 +186,10 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - `@since x-release-please-version` placeholders are replaced with the actual version during the release PR
 - Changelogs are generated from PR titles (via squash merge commits)
 - **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
+- Hook docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
+- Function docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
+- `x-release-please-version` placeholders in `scripts/hooks/legacy-hooks.json` are automatically replaced for the releasing component (`update-release-pr.yml`)
+- Hook legacy coverage is enforced in CI (`lint.yml` → `wp-graphql-hook-legacy-coverage`)
 
 > **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
 

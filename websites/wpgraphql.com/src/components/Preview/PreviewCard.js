@@ -22,12 +22,7 @@ export default function PreviewCard({
     "before:absolute before:inset-0 before:content-[''] before:rounded-xl focus-visible:outline-none focus-visible:before:ring-2 focus-visible:before:ring-ring"
 
   const titleLink = external ? (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={linkClass}
-    >
+    <a href={href} target="_blank" rel="noreferrer" className={linkClass}>
       {title}
     </a>
   ) : (
@@ -52,7 +47,12 @@ export default function PreviewCard({
         {external ? (
           <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
         ) : (
-          <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+          <span
+            className="transition-transform group-hover:translate-x-1"
+            aria-hidden="true"
+          >
+            →
+          </span>
         )}
       </div>
     </article>

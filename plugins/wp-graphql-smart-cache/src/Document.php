@@ -290,14 +290,25 @@ class Document {
 		}
 
 		if ( array_key_exists( 'post_content', $post ) ) {
-			// Change the shape of the data
-			$data['post_content'] = $this->valid_or_throw( $post['post_content'], $post['ID'] );
+			// Change the shape of the data. This is a slashed-data context
+			// (WordPress unslashes the filtered data before persisting it), so
+			// unslash the incoming content for validation and re-slash the
+			// normalized result so escape sequences inside GraphQL string
+			// arguments survive the save intact.
+			$data['post_content'] = wp_slash( $this->valid_or_throw( wp_unslash( $post['post_content'] ), $post['ID'] ) );
 		}
 
 		return $data;
 	}
 
 	/**
+	 * Validate the content as a GraphQL document and return its normalized form.
+	 *
+	 * Expects unslashed content (the actual document text). Callers in
+	 * slashed-data contexts (e.g. the wp_insert_post_data filter) must
+	 * wp_unslash() before calling; callers passing stored post content must
+	 * pass it as-is.
+	 *
 	 * @param string $post_content
 	 * @param int    $post_id
 	 * @return string post content
@@ -313,8 +324,7 @@ class Document {
 		 */
 		try {
 			// Use graphql parser to check query string validity.
-			// Because the data comes from form submission, comes with PHP characters escaped/slashed.
-			$ast = \GraphQL\Language\Parser::parse( wp_unslash( $post_content ) );
+			$ast = \GraphQL\Language\Parser::parse( $post_content );
 
 			// Get post using the normalized hash of the query string. If not valid graphql, throws syntax error
 			$normalized_hash = Utils::generateHash( $ast );
@@ -459,7 +469,9 @@ class Document {
 			];
 
 			// The post ID on success. The value 0 or WP_Error on failure.
-			$post_id = wp_insert_post( $data, true );
+			// wp_insert_post() expects slashed data; slash so escape sequences
+			// inside GraphQL string arguments survive the save intact.
+			$post_id = wp_insert_post( wp_slash( $data ), true );
 			if ( is_wp_error( $post_id ) ) {
 				throw new RequestError( sprintf( __( 'Error save the document data for "%s"', 'wp-graphql-smart-cache' ), $normalized_hash ) );
 			}

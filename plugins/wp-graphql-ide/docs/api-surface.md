@@ -76,8 +76,7 @@ Registered in `SmartCacheBridge::register_ide_graphql_fields_on_smart_cache_docu
 
 | Filter | Hook | Purpose |
 | --- | --- | --- |
-| `scope_graphql_connections` | `graphql_connection_query_args` | Adds `author = current_user_id()` to `graphqlDocument` connections so users only see their own. |
-| `restrict_post_visibility` | `graphql_data_is_private` | Marks `graphql_document` posts private when the current user isn't the author. Gates `node(id)` / `graphqlDocument(id)`. |
+| `restrict_post_visibility` | `graphql_data_is_private` | Marks `graphql_document` posts private when the current user isn't the author. Gates connections (private models are dropped from results), `node(id)`, and `graphqlDocument(id)` alike. The IDE's document list also passes an `author` where arg client-side (`src/api/documents.js`) to keep pagination correct; connection-level author scoping in PHP was removed because it over-matched `post_type: 'any'` connections ([#4117](https://github.com/wp-graphql/wp-graphql/issues/4117)). |
 
 ### Client callsites
 

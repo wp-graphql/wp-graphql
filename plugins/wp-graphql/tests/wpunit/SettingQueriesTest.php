@@ -30,32 +30,50 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Method for testing whether a user can query settings
-	 * if they don't have the 'manage_options' capability
+	 * Restricted settings should resolve to null without affecting public sibling fields.
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function testSettingQueryAsEditor() {
-		/**
-		 * Set the editor user
-		 * Set the query
-		 * Make the request
-		 * Validate the request has errors
-		 */
+	public function testRestrictedSettingsReturnNullWithoutAffectingSiblingFields() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The admin_email setting is not registered on multisite.' );
+		}
+
 		wp_set_current_user( $this->editor );
+		update_option( 'blogname', 'Public site title' );
+		add_filter( 'graphql_debug_enabled', '__return_true' );
 
 		$query = '
 			query {
 				generalSettings {
-						email
-					}
+					email
+					title
 				}
-			';
+				allSettings {
+					generalSettingsEmail
+					generalSettingsTitle
+				}
+			}
+		';
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		remove_filter( 'graphql_debug_enabled', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['generalSettings']['email'] );
+		$this->assertSame( 'Public site title', $actual['data']['generalSettings']['title'] );
+		$this->assertNull( $actual['data']['allSettings']['generalSettingsEmail'] );
+		$this->assertSame( 'Public site title', $actual['data']['allSettings']['generalSettingsTitle'] );
+
+		$restricted_fields = array_column( $actual['extensions']['debug'], 'field' );
+		$this->assertContains( 'GeneralSettings.email', $restricted_fields );
+		$this->assertContains( 'Settings.generalSettingsEmail', $restricted_fields );
+		$this->assertSame(
+			[ 'manage_options' ],
+			array_values( array_unique( array_column( $actual['extensions']['debug'], 'required_capability' ) ) )
+		);
 	}
 
 	/**
@@ -141,6 +159,154 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		if ( ! is_multisite() ) {
 			$this->assertEquals( $mock_options['siteurl'], $generalSettings['url'] );
 		}
+	}
+
+	/**
+	 * When a site uses a manual UTC offset instead of a named timezone, WordPress
+	 * stores the offset in the `gmt_offset` option and leaves `timezone_string`
+	 * empty. The `generalSettings.timezone` field maps to `timezone_string`, so it
+	 * should fall back to the resolved offset string instead of returning empty.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2060
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testGeneralSettingTimezoneFallsBackToUtcOffset() {
+		wp_set_current_user( $this->admin );
+
+		// Simulate a site configured with a manual UTC offset (e.g. UTC+2).
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', 2 );
+
+		$query = '
+			query {
+				generalSettings {
+					timezone
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['timezone'] );
+		$this->assertEquals( '+02:00', $actual['data']['generalSettings']['timezone'] );
+	}
+
+	/**
+	 * A setting registered with the `number` type should be cast to a float when
+	 * resolved. Core ships no float settings, so this exercises the `number`/`float`
+	 * branch of the settings resolver's type switch.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testRegisteredNumberSettingResolvesAsFloat() {
+		wp_set_current_user( $this->admin );
+
+		register_setting(
+			'floatGroup',
+			'ratio',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test registering a number setting.', 'wp-graphql' ),
+				'show_in_graphql' => true,
+			]
+		);
+
+		update_option( 'ratio', '2.5' );
+
+		$query = '
+			query {
+				floatGroupSettings {
+					ratio
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertIsFloat( $actual['data']['floatGroupSettings']['ratio'] );
+		$this->assertEquals( 2.5, $actual['data']['floatGroupSettings']['ratio'] );
+	}
+
+	/**
+	 * A setting whose registered type is not one of the explicitly-cast scalar types
+	 * (integer, string, boolean, number/float) should resolve to its raw stored value,
+	 * exercising the `default` branch of the settings resolver's type switch.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testRegisteredSettingWithUnmappedTypeResolvesRawValue() {
+		wp_set_current_user( $this->admin );
+
+		// `id` resolves to the ID scalar but is not handled by an explicit `case`,
+		// so the resolver falls through to the default branch.
+		register_setting(
+			'rawGroup',
+			'token',
+			[
+				'type'            => 'id',
+				'description'     => __( 'Test registering a setting with an unmapped type.', 'wp-graphql' ),
+				'show_in_graphql' => true,
+			]
+		);
+
+		update_option( 'token', 'abc-123' );
+
+		$query = '
+			query {
+				rawGroupSettings {
+					token
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'abc-123', $actual['data']['rawGroupSettings']['token'] );
+	}
+
+	/**
+	 * The `graphql_setting_field_value` filter should be able to override a setting's
+	 * resolved value, covering the filter seam added alongside the timezone fallback.
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testSettingFieldValueFilterCanOverrideResolvedValue() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'blogname', 'original title' );
+
+		$filter = static function ( $value, $setting_field ) {
+			if ( isset( $setting_field['key'] ) && 'blogname' === $setting_field['key'] ) {
+				return 'filtered title';
+			}
+
+			return $value;
+		};
+
+		add_filter( 'graphql_setting_field_value', $filter, 10, 2 );
+
+		$query = '
+			query {
+				generalSettings {
+					title
+				}
+			}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_setting_field_value', $filter, 10 );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'filtered title', $actual['data']['generalSettings']['title'] );
 	}
 
 	/**
@@ -368,6 +534,188 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey( 'points', $names );
 
 		unregister_setting( 'zool', 'points' );
+	}
+
+	/**
+	 * A setting registered with a group must surface on both read surfaces:
+	 * as a field on its group type and as a group-prefixed field on the
+	 * flat Settings type.
+	 */
+	public function testRegisteredSettingAppearsInFlatAndGroupedTypes() {
+		wp_set_current_user( $this->admin );
+
+		register_setting(
+			'zool',
+			'points',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test how many points we have in Zool.' ),
+				'show_in_graphql' => true,
+			]
+		);
+
+		$query = '
+		query GetTypes {
+			grouped: __type(name: "ZoolSettings") {
+				fields {
+					name
+				}
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		unregister_setting( 'zool', 'points' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$grouped_fields = wp_list_pluck( $actual['data']['grouped']['fields'], 'name' );
+		$flat_fields    = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'points', $grouped_fields );
+		$this->assertContains( 'zoolSettingsPoints', $flat_fields );
+	}
+
+	/**
+	 * A setting registered with `show_in_rest` (and no explicit
+	 * `show_in_graphql`) must also surface on both read surfaces.
+	 */
+	public function testSettingRegisteredForRestAppearsInFlatAndGroupedTypes() {
+		wp_set_current_user( $this->admin );
+
+		register_setting(
+			'zool',
+			'points',
+			[
+				'type'         => 'number',
+				'description'  => __( 'Test how many points we have in Zool.' ),
+				'show_in_rest' => true,
+			]
+		);
+
+		$query = '
+		query GetTypes {
+			grouped: __type(name: "ZoolSettings") {
+				fields {
+					name
+				}
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		unregister_setting( 'zool', 'points' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$grouped_fields = wp_list_pluck( $actual['data']['grouped']['fields'], 'name' );
+		$flat_fields    = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'points', $grouped_fields );
+		$this->assertContains( 'zoolSettingsPoints', $flat_fields );
+	}
+
+	/**
+	 * The grouped and flat read surfaces terminate in independent filters:
+	 * emptying `graphql_allowed_settings_by_group` removes the per-group
+	 * root fields but leaves the flat allSettings surface intact.
+	 */
+	public function testFilteringGroupedSettingsDoesNotAffectFlatSettings() {
+		wp_set_current_user( $this->admin );
+
+		$filter = static function () {
+			return [];
+		};
+
+		add_filter( 'graphql_allowed_settings_by_group', $filter, 99 );
+		$this->clearSchema();
+
+		$query = '
+		query GetTypes {
+			__type(name: "RootQuery") {
+				fields {
+					name
+				}
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_allowed_settings_by_group', $filter, 99 );
+		$this->clearSchema();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$root_fields = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		$this->assertNotContains( 'generalSettings', $root_fields, 'Expected per-group root fields to be removed when the grouped settings are filtered out' );
+		$this->assertContains( 'allSettings', $root_fields, 'Expected the flat allSettings surface to be unaffected by the grouped settings filter' );
+		$flat_fields = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'generalSettingsTitle', $flat_fields );
+	}
+
+	/**
+	 * An entry seeded into the normalized settings map via the
+	 * `graphql_normalized_settings` filter surfaces on both read surfaces
+	 * without calling register_setting(), and its `graphql_resolve` callback
+	 * normalizes the resolved value.
+	 */
+	public function testNormalizedSettingsFilterCanAddSetting() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'shim_option', 'raw value' );
+
+		$filter = static function ( $settings ) {
+			$settings['shim_option'] = [
+				'key'             => 'shim_option',
+				'group'           => 'shimmed',
+				'type'            => 'string',
+				'description'     => 'A setting seeded into the normalized map without register_setting().',
+				'graphql_resolve' => static function ( $value ) {
+					return strtoupper( (string) $value );
+				},
+			];
+			return $settings;
+		};
+
+		add_filter( 'graphql_normalized_settings', $filter );
+		$this->clearSchema();
+
+		$query = '
+		query {
+			shimmedSettings {
+				shimOption
+			}
+			flat: __type(name: "Settings") {
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_normalized_settings', $filter );
+		delete_option( 'shim_option' );
+		$this->clearSchema();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'RAW VALUE', $actual['data']['shimmedSettings']['shimOption'] );
+		$flat_fields = wp_list_pluck( $actual['data']['flat']['fields'], 'name' );
+		$this->assertContains( 'shimmedSettingsShimOption', $flat_fields );
 	}
 
 	public function testUnregisteringSettingPreventsItFromBeingInTheSchema() {
@@ -729,5 +1077,134 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Cleanup.
 		delete_option( 'site_icon' );
 		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * The `home` (Site Address) option is seeded as an in-memory shim: exposed as
+	 * `homeUrl` on GeneralSettings and `generalSettingsHomeUrl` on the flat Settings
+	 * type, resolving via get_home_url().
+	 *
+	 * @return void
+	 */
+	public function testHomeUrlShimResolvesOnBothSurfaces() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			{
+				generalSettings { homeUrl }
+				allSettings { generalSettingsHomeUrl }
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( get_home_url(), $actual['data']['generalSettings']['homeUrl'] );
+		$this->assertEquals( get_home_url(), $actual['data']['allSettings']['generalSettingsHomeUrl'] );
+	}
+
+	/**
+	 * The permalink options are seeded as in-memory shims under a new `permalink`
+	 * group, exposed on PermalinkSettings and on the flat Settings type.
+	 *
+	 * @return void
+	 */
+	public function testPermalinkSettingsShimResolvesOnBothSurfaces() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'permalink_structure', '/%postname%/' );
+		update_option( 'category_base', 'topics' );
+		update_option( 'tag_base', 'labels' );
+
+		$query = '
+			{
+				permalinkSettings { structure categoryBase tagBase }
+				allSettings {
+					permalinkSettingsStructure
+					permalinkSettingsCategoryBase
+					permalinkSettingsTagBase
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		delete_option( 'permalink_structure' );
+		delete_option( 'category_base' );
+		delete_option( 'tag_base' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( '/%postname%/', $actual['data']['permalinkSettings']['structure'] );
+		$this->assertEquals( 'topics', $actual['data']['permalinkSettings']['categoryBase'] );
+		$this->assertEquals( 'labels', $actual['data']['permalinkSettings']['tagBase'] );
+		$this->assertEquals( '/%postname%/', $actual['data']['allSettings']['permalinkSettingsStructure'] );
+		$this->assertEquals( 'topics', $actual['data']['allSettings']['permalinkSettingsCategoryBase'] );
+		$this->assertEquals( 'labels', $actual['data']['allSettings']['permalinkSettingsTagBase'] );
+	}
+
+	/**
+	 * `graphql_field_name` is authoritative: a setting seeded via the
+	 * graphql_normalized_settings filter appears under that exact name (no
+	 * camelCasing) on both the grouped and flat surfaces.
+	 *
+	 * @return void
+	 */
+	public function testGraphqlFieldNameOverrideIsAuthoritative() {
+		$filter = static function ( array $settings ) {
+			$settings['my_shim_option'] = [
+				'group'              => 'general',
+				'type'               => 'string',
+				'description'        => 'A test shim option.',
+				'graphql_field_name' => 'myShimFieldName',
+			];
+			return $settings;
+		};
+
+		add_filter( 'graphql_normalized_settings', $filter );
+		WPGraphQL::clear_schema();
+
+		update_option( 'my_shim_option', 'shim-value' );
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			{
+				generalSettings { myShimFieldName }
+				allSettings { generalSettingsMyShimFieldName }
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_normalized_settings', $filter );
+		delete_option( 'my_shim_option' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'shim-value', $actual['data']['generalSettings']['myShimFieldName'] );
+		$this->assertEquals( 'shim-value', $actual['data']['allSettings']['generalSettingsMyShimFieldName'] );
+	}
+
+	/**
+	 * The `url` field (siteurl) resolves on both the grouped and flat surfaces. On
+	 * single-site it comes from the registered `siteurl` setting; on multisite it
+	 * comes from the seeded shim (which replaced the former register_field polyfill
+	 * and adds the flat `generalSettingsUrl` field multisite previously lacked).
+	 *
+	 * @return void
+	 */
+	public function testSiteUrlResolvesOnBothSurfaces() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			{
+				generalSettings { url }
+				allSettings { generalSettingsUrl }
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['url'] );
+		$this->assertEquals( $actual['data']['generalSettings']['url'], $actual['data']['allSettings']['generalSettingsUrl'] );
 	}
 }

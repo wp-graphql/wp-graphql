@@ -119,6 +119,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext $content The app context.
 		 * @param \WP $wp WP object.
 		 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -169,6 +172,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext      $content The app context.
 		 * @param \WP                        $wp WP object.
 		 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$query_class = apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -237,6 +243,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext                         $content          The app context.
 		 * @param \WP                                           $wp               WP object.
 		 * @param array<string,mixed>|string                    $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$node = apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 
@@ -348,6 +357,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext                         $content          The app context.
 		 * @param \WP                                           $wp               WP object.
 		 * @param array<string,mixed>|string                    $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 	}
@@ -397,6 +409,7 @@ class NodeResolver {
 			 *
 			 * @param string[] $allowed_hosts Hostnames permitted when comparing the parsed URI host.
 			 *
+			 * @hookGroup request-lifecycle
 			 * @since 2.12.0
 			 */
 			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', $default_allowed_hosts );
