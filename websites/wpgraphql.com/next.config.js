@@ -33,6 +33,12 @@ const getHeaders = async () => {
 /** @type {import('next').NextConfig} */
 const nextConfig = withBundleAnalyzer({
   pageExtensions: ["ts", "tsx", "js", "jsx"],
+  // @docsearch/react v4 is ESM-only (its exports map has no `require`
+  // condition), so the serverless runtime crashes require()ing it during
+  // on-demand ISR renders. Bundling it into the server build avoids the
+  // runtime require entirely. feed v6 is ESM-only too (its `require`
+  // condition points at an ESM file), so it gets the same treatment.
+  transpilePackages: ["@docsearch/react", "feed"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "secure.gravatar.com" },

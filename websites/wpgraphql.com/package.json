@@ -23,7 +23,7 @@
     "**/*.{js,jsx,ts,tsx,css,md,mdx,json,yml,yaml}": "prettier --write"
   },
   "dependencies": {
-    "@docsearch/react": "^4.6.3",
+    "@docsearch/react": "^4.7.0",
     "@headlessui/react": "^1.7.3",
     "@heroicons/react": "2.0.12",
     "@js-temporal/polyfill": "^0.4.2",
@@ -34,7 +34,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cross-fetch": "^4.1.0",
-    "feed": "^4.2.2",
+    "feed": "^6.0.0",
     "github-slugger": "^2.0.0",
     "graphql": "^16.14.2",
     "graphql-tag": "^2.12.7",
@@ -65,9 +65,9 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.12",
-    "@playwright/test": "^1.62.0",
-    "eslint": "^10.8.0",
+    "@next/eslint-plugin-next": "^16.2.10",
+    "@playwright/test": "^1.62.1",
+    "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
