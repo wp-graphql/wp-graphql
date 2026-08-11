@@ -513,6 +513,47 @@ class TaxonomyObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase 
 		$this->assertNotEquals( $unexpected, $actual['data'] );
 	}
 
+	public function testTaxonomyQueryByName() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			query taxonomy( $id: ID!, $idType: TaxonomyIdTypeEnum ) {
+				taxonomy( id: $id, idType: $idType ) {
+					name
+					graphqlSingleName
+				}
+			}
+		';
+
+		$actual = do_graphql_request(
+			$query,
+			'taxonomy',
+			[
+				'id'     => 'post_tag',
+				'idType' => 'NAME',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'post_tag', $actual['data']['taxonomy']['name'] );
+
+		// The schema exposes taxonomies as TaxonomyEnum names, which derive
+		// from graphql_single_name: post_tag is exposed as TAG, not POST_TAG.
+		// The enum-style name must resolve the same taxonomy as the raw
+		// registered name.
+		$actual = do_graphql_request(
+			$query,
+			'taxonomy',
+			[
+				'id'     => 'TAG',
+				'idType' => 'NAME',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'post_tag', $actual['data']['taxonomy']['name'] );
+	}
+
 	public function dataProviderUserState() {
 		return [
 			[
