@@ -361,10 +361,13 @@ class PostObjectMutation {
 					}
 
 					/**
-					 * If the current user cannot edit terms, don't create terms to connect
+					 * If the current user cannot assign terms of this taxonomy, skip it
+					 * without connecting any of its terms, but keep processing the
+					 * remaining taxonomies rather than aborting the whole mutation's
+					 * term assignment.
 					 */
 					if ( ! isset( $tax_object->cap->assign_terms ) || ! current_user_can( $tax_object->cap->assign_terms ) ) {
-						return;
+						continue;
 					}
 
 					if ( $append && 'category' === $tax_object->name ) {
