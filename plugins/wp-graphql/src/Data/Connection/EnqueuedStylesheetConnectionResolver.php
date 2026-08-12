@@ -38,7 +38,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 */
 	protected function query( array $query_args ) {
 		$queue   = $this->source->enqueuedStylesheetsQueue ? $this->source->enqueuedStylesheetsQueue : [];
-		$handles = $query_args['where']['handles'] ?? null;
+		$handles = $query_args['where']['handlesIn'] ?? null;
 
 		if ( ! is_array( $handles ) ) {
 			return $queue;

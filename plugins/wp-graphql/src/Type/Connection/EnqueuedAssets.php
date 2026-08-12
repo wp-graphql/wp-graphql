@@ -13,10 +13,10 @@ class EnqueuedAssets {
 	 */
 	public static function get_connection_args(): array {
 		return [
-			'handles' => [
+			'handlesIn' => [
 				'type'        => [ 'list_of' => 'String' ],
 				'description' => static function () {
-					return __( 'Limit results to assets with one of the specified handles.', 'wp-graphql' );
+					return __( 'Limit results to assets whose handle is in the provided list. Handles that do not match an asset are ignored. An empty list matches no assets, while omitting the argument (or passing null) leaves the connection unfiltered.', 'wp-graphql' );
 				},
 			],
 		];

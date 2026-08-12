@@ -1706,7 +1706,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$query = '
 		query PageById( $id: ID! ) {
 			page( id: $id, idType: DATABASE_ID ) {
-				enqueuedStylesheets( where: { handles: ["' . $included_handle . '", "missing-stylesheet"] } ) {
+				enqueuedStylesheets( where: { handlesIn: ["' . $included_handle . '", "missing-stylesheet"] } ) {
 					nodes {
 						handle
 					}
@@ -1728,6 +1728,34 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame(
 			[ $included_handle ],
 			wp_list_pluck( $actual['data']['page']['enqueuedStylesheets']['nodes'], 'handle' )
+		);
+	}
+
+	/**
+	 * Test that the registeredStylesheets connection supports the same handlesIn
+	 * filter as the enqueued asset connections.
+	 */
+	public function testRegisteredStylesheetsCanBeFilteredByHandle() {
+		$handle = 'test-registered-only-stylesheet';
+
+		wp_register_style( $handle, 'test-registered-only-stylesheet.css', [], '1.0.0' );
+
+		$query = '
+		query RegisteredStylesheets {
+			registeredStylesheets( where: { handlesIn: ["' . $handle . '", "missing-stylesheet"] } ) {
+				nodes {
+					handle
+				}
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[ $handle ],
+			wp_list_pluck( $actual['data']['registeredStylesheets']['nodes'], 'handle' )
 		);
 	}
 }

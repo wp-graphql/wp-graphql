@@ -15,6 +15,7 @@ use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Type\Connection\EnqueuedAssets;
 use WPGraphQL\Type\Connection\PostObjects;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Utils\Utils;
@@ -103,8 +104,9 @@ class RootQuery {
 						},
 					],
 					'registeredScripts'     => [
-						'toType'  => 'EnqueuedScript',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedScript',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 
 							// The connection resolver expects the source to include
 							// enqueuedScriptsQueue
@@ -119,8 +121,9 @@ class RootQuery {
 						},
 					],
 					'registeredStylesheets' => [
-						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedStylesheet',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 
 							// The connection resolver expects the source to include
 							// enqueuedStylesheetsQueue
