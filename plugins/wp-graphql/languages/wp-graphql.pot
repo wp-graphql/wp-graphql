@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.19.0\n"
+"Project-Id-Version: WPGraphQL 2.20.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-03T22:04:24+00:00\n"
+"POT-Creation-Date: 2026-08-14T18:43:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -2130,7 +2130,7 @@ msgstr ""
 #: src/Registry/Utils/PostObject.php:340
 #: src/Type/ObjectType/Menu.php:42
 #: src/Type/ObjectType/MenuItem.php:155
-#: src/Type/ObjectType/User.php:199
+#: src/Type/ObjectType/User.php:202
 msgid "Deprecated in favor of the databaseId field"
 msgstr ""
 
@@ -2435,13 +2435,17 @@ msgstr ""
 msgid "Include comments for a specific user ID."
 msgstr ""
 
+#: src/Type/Connection/EnqueuedAssets.php:19
+msgid "Limit results to assets whose handle is in the provided list. Handles that do not match an asset are ignored. An empty list matches no assets, while omitting the argument (or passing null) leaves the connection unfiltered."
+msgstr ""
+
 #: src/Type/Connection/MenuItems.php:104
-#: src/Type/ObjectType/RootQuery.php:55
+#: src/Type/ObjectType/RootQuery.php:56
 msgid "The database ID of the object"
 msgstr ""
 
 #: src/Type/Connection/MenuItems.php:110
-#: src/Type/ObjectType/RootQuery.php:61
+#: src/Type/ObjectType/RootQuery.php:62
 msgid "The menu location for the menu being queried"
 msgstr ""
 
@@ -3547,8 +3551,8 @@ msgid "Avatar object for user. The avatar object can be retrieved in different s
 msgstr ""
 
 #: src/Type/InterfaceType/Commenter.php:60
-#: src/Type/InterfaceType/TermNode.php:71
-#: src/Type/ObjectType/User.php:106
+#: src/Type/InterfaceType/TermNode.php:74
+#: src/Type/ObjectType/User.php:109
 msgid "Identifies the primary key from the database."
 msgstr ""
 
@@ -3585,64 +3589,64 @@ msgstr ""
 msgid "A list of connected nodes"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:31
+#: src/Type/InterfaceType/ContentNode.php:32
 msgid "Base interface for content objects like posts, pages, and media items. Provides common fields available across these content types."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:103
+#: src/Type/InterfaceType/ContentNode.php:106
 msgid "The name of the Content Type the node belongs to"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:112
+#: src/Type/InterfaceType/ContentNode.php:115
 msgid "The template assigned to a node of content"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:120
+#: src/Type/InterfaceType/ContentNode.php:123
 msgid "The ID of the node in the database."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:126
+#: src/Type/InterfaceType/ContentNode.php:129
 msgid "Post publishing date."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:132
+#: src/Type/InterfaceType/ContentNode.php:135
 msgid "The publishing date set in GMT."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:138
+#: src/Type/InterfaceType/ContentNode.php:141
 msgid "The RSS enclosure for the object"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:144
+#: src/Type/InterfaceType/ContentNode.php:147
 msgid "The current status of the object"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:150
+#: src/Type/InterfaceType/ContentNode.php:153
 msgid "The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the \"post_objects\" table."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:156
+#: src/Type/InterfaceType/ContentNode.php:159
 msgid "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:162
+#: src/Type/InterfaceType/ContentNode.php:165
 msgid "The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:168
+#: src/Type/InterfaceType/ContentNode.php:171
 msgid "The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the \"post_objects\" database table."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:174
+#: src/Type/InterfaceType/ContentNode.php:177
 msgid "The desired slug of the post"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:180
+#: src/Type/InterfaceType/ContentNode.php:183
 msgid "The permalink of the post"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:186
-#: src/Type/InterfaceType/TermNode.php:122
+#: src/Type/InterfaceType/ContentNode.php:189
+#: src/Type/InterfaceType/TermNode.php:125
 #: src/Type/ObjectType/Avatar.php:87
 #: src/Type/ObjectType/Comment.php:170
 #: src/Type/ObjectType/CommentAuthor.php:52
@@ -3652,19 +3656,19 @@ msgstr ""
 #: src/Type/ObjectType/Plugin.php:74
 #: src/Type/ObjectType/Taxonomy.php:90
 #: src/Type/ObjectType/Theme.php:94
-#: src/Type/ObjectType/User.php:205
+#: src/Type/ObjectType/User.php:208
 #: src/Type/ObjectType/UserRole.php:53
 msgid "Whether the object is restricted from the current viewer"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:192
-#: src/Type/InterfaceType/ContentNode.php:204
+#: src/Type/InterfaceType/ContentNode.php:195
+#: src/Type/InterfaceType/ContentNode.php:207
 #: src/Type/InterfaceType/Previewable.php:29
 #: src/Type/InterfaceType/Previewable.php:41
 msgid "Whether the object is a node in the preview state"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:198
+#: src/Type/InterfaceType/ContentNode.php:201
 #: src/Type/InterfaceType/Previewable.php:35
 msgid "The database id of the preview node"
 msgstr ""
@@ -3917,39 +3921,39 @@ msgstr ""
 msgid "Content that supports a draft preview mode. Allows viewing unpublished changes before they are made publicly available. Previewing unpublished changes requires appropriate permissions."
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:43
+#: src/Type/InterfaceType/TermNode.php:46
 msgid "Base interface for taxonomy terms such as categories and tags. Terms are used to organize and classify content."
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:80
+#: src/Type/InterfaceType/TermNode.php:83
 msgid "The number of objects connected to the object"
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:86
+#: src/Type/InterfaceType/TermNode.php:89
 msgid "The description of the object"
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:92
+#: src/Type/InterfaceType/TermNode.php:95
 msgid "The human friendly name of the object."
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:98
+#: src/Type/InterfaceType/TermNode.php:101
 msgid "An alphanumeric identifier for the object unique to its type."
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:104
+#: src/Type/InterfaceType/TermNode.php:107
 msgid "The ID of the term group that this term object belongs to"
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:110
+#: src/Type/InterfaceType/TermNode.php:113
 msgid "The taxonomy ID that the object is associated with"
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:116
+#: src/Type/InterfaceType/TermNode.php:119
 msgid "The name of the taxonomy that the object is associated with"
 msgstr ""
 
-#: src/Type/InterfaceType/TermNode.php:128
+#: src/Type/InterfaceType/TermNode.php:131
 msgid "The link to the term"
 msgstr ""
 
@@ -4131,17 +4135,17 @@ msgid "The url the comment author."
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:60
-#: src/Type/ObjectType/User.php:243
+#: src/Type/ObjectType/User.php:246
 msgid "The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels."
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:67
-#: src/Type/ObjectType/User.php:250
+#: src/Type/ObjectType/User.php:253
 msgid "Whether to always show the default image, never the Gravatar. Default false"
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:73
-#: src/Type/ObjectType/User.php:256
+#: src/Type/ObjectType/User.php:259
 msgid "The rating level of the avatar."
 msgstr ""
 
@@ -4683,230 +4687,230 @@ msgstr ""
 msgid "The count to increase"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:38
+#: src/Type/ObjectType/RootQuery.php:39
 msgid "The root entry point into the Graph"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:67
+#: src/Type/ObjectType/RootQuery.php:68
 msgid "The slug of the menu to query items for"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:84
+#: src/Type/ObjectType/RootQuery.php:85
 msgid "Show plugin based on a keyword search."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:90
+#: src/Type/ObjectType/RootQuery.php:91
 msgid "Show plugins with a specific status."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:96
+#: src/Type/ObjectType/RootQuery.php:97
 msgid "Retrieve plugins where plugin status is in an array."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:169
+#: src/Type/ObjectType/RootQuery.php:172
 msgid "Entry point to get all settings for the site"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:178
+#: src/Type/ObjectType/RootQuery.php:181
 msgid "Returns a Comment"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:186
+#: src/Type/ObjectType/RootQuery.php:189
 msgid "Unique identifier for the comment node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:192
+#: src/Type/ObjectType/RootQuery.php:195
 msgid "Type of unique identifier to fetch a comment by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:206
-#: src/Type/ObjectType/RootQuery.php:471
-#: src/Type/ObjectType/RootQuery.php:512
-#: src/Type/ObjectType/RootQuery.php:608
-#: src/Type/ObjectType/RootQuery.php:936
+#: src/Type/ObjectType/RootQuery.php:209
+#: src/Type/ObjectType/RootQuery.php:489
+#: src/Type/ObjectType/RootQuery.php:530
+#: src/Type/ObjectType/RootQuery.php:626
+#: src/Type/ObjectType/RootQuery.php:954
 msgid "The ID input is invalid"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:219
+#: src/Type/ObjectType/RootQuery.php:222
 msgid "A node used to manage content"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:227
+#: src/Type/ObjectType/RootQuery.php:230
 msgid "Unique identifier for the content node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:233
+#: src/Type/ObjectType/RootQuery.php:236
 msgid "Type of unique identifier to fetch a content node by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:239
+#: src/Type/ObjectType/RootQuery.php:242
 msgid "The content type the node is used for. Required when idType is set to \"name\" or \"slug\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:245
-#: src/Type/ObjectType/RootQuery.php:792
+#: src/Type/ObjectType/RootQuery.php:248
+#: src/Type/ObjectType/RootQuery.php:810
 msgid "Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn't have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the \"asPreview\" argument is not explicitly provided as an argument."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:267
-#: src/Type/ObjectType/RootQuery.php:835
+#: src/Type/ObjectType/RootQuery.php:270
+#: src/Type/ObjectType/RootQuery.php:853
 msgid "The ID input is invalid. Make sure you set the proper idType for your input."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:300
+#: src/Type/ObjectType/RootQuery.php:303
 msgid "Fetch a Content Type node by unique Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:306
+#: src/Type/ObjectType/RootQuery.php:309
 msgid "Unique Identifier for the Content Type node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:312
+#: src/Type/ObjectType/RootQuery.php:315
 msgid "Type of unique identifier to fetch a content type by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:338
+#: src/Type/ObjectType/RootQuery.php:345
 msgid "Fetch a Taxonomy node by unique Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:344
+#: src/Type/ObjectType/RootQuery.php:351
 msgid "Unique Identifier for the Taxonomy node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:350
+#: src/Type/ObjectType/RootQuery.php:357
 msgid "Type of unique identifier to fetch a taxonomy by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:376
+#: src/Type/ObjectType/RootQuery.php:388
 msgid "Fetches an object given its ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:382
+#: src/Type/ObjectType/RootQuery.php:394
 msgid "The unique identifier of the node"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:393
+#: src/Type/ObjectType/RootQuery.php:405
 msgid "Fetches an object given its Unique Resource Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:399
+#: src/Type/ObjectType/RootQuery.php:411
 msgid "Unique Resource Identifier in the form of a path or permalink for a node. Ex: \"/hello-world\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:410
+#: src/Type/ObjectType/RootQuery.php:422
 msgid "A WordPress navigation menu"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:418
+#: src/Type/ObjectType/RootQuery.php:430
 msgid "The globally unique identifier of the menu."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:424
+#: src/Type/ObjectType/RootQuery.php:436
 msgid "Type of unique identifier to fetch a menu by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:439
+#: src/Type/ObjectType/RootQuery.php:457
 msgid "No menu set for the provided location"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:484
+#: src/Type/ObjectType/RootQuery.php:502
 msgid "A WordPress navigation menu item"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:492
+#: src/Type/ObjectType/RootQuery.php:510
 msgid "The globally unique identifier of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:498
+#: src/Type/ObjectType/RootQuery.php:516
 msgid "Type of unique identifier to fetch a menu item by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:525
+#: src/Type/ObjectType/RootQuery.php:543
 msgid "A WordPress plugin"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:533
+#: src/Type/ObjectType/RootQuery.php:551
 msgid "The globally unique identifier of the plugin."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:546
+#: src/Type/ObjectType/RootQuery.php:564
 msgid "A node in a taxonomy used to group and relate content nodes"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:554
+#: src/Type/ObjectType/RootQuery.php:572
 msgid "Unique identifier for the term node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:560
+#: src/Type/ObjectType/RootQuery.php:578
 msgid "Type of unique identifier to fetch a term node by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:566
+#: src/Type/ObjectType/RootQuery.php:584
 msgid "The taxonomy of the tern node. Required when idType is set to \"name\" or \"slug\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:587
+#: src/Type/ObjectType/RootQuery.php:605
 msgid "When fetching a Term Node by \"slug\" or \"name\", the \"taxonomy\" also needs to be set as an input."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:620
+#: src/Type/ObjectType/RootQuery.php:638
 msgid "A Theme object"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:628
+#: src/Type/ObjectType/RootQuery.php:646
 msgid "The globally unique identifier of the theme."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:641
+#: src/Type/ObjectType/RootQuery.php:659
 msgid "Returns a user"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:649
+#: src/Type/ObjectType/RootQuery.php:667
 msgid "The globally unique identifier of the user."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:655
+#: src/Type/ObjectType/RootQuery.php:673
 msgid "Type of unique identifier to fetch a user by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:677
+#: src/Type/ObjectType/RootQuery.php:695
 msgid "You do not have permission to request a User by Username"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:688
+#: src/Type/ObjectType/RootQuery.php:706
 msgid "You do not have permission to request a User by Email"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:712
+#: src/Type/ObjectType/RootQuery.php:730
 msgid "Returns a user role"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:720
+#: src/Type/ObjectType/RootQuery.php:738
 msgid "The globally unique identifier of the user object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:733
+#: src/Type/ObjectType/RootQuery.php:751
 msgid "Returns the current user"
 msgstr ""
 
 #. translators: %1$s is the post type GraphQL name, %2$s is the post type description
-#: src/Type/ObjectType/RootQuery.php:769
+#: src/Type/ObjectType/RootQuery.php:787
 #, php-format
 msgid "An object of the %1$s Type. %2$s"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:780
-#: src/Type/ObjectType/RootQuery.php:900
+#: src/Type/ObjectType/RootQuery.php:798
+#: src/Type/ObjectType/RootQuery.php:918
 msgid "The globally unique identifier of the object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:786
-#: src/Type/ObjectType/RootQuery.php:906
+#: src/Type/ObjectType/RootQuery.php:804
+#: src/Type/ObjectType/RootQuery.php:924
 msgid "Type of unique identifier to fetch by. Default is Global ID"
 msgstr ""
 
 #. translators: %s is the taxonomys' GraphQL name.
-#: src/Type/ObjectType/RootQuery.php:890
+#: src/Type/ObjectType/RootQuery.php:908
 msgid "A % object"
 msgstr ""
 
@@ -5056,99 +5060,99 @@ msgstr ""
 msgid "The current version of the theme. This field is equivalent to WP_Theme->get( \"Version\" )."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:30
+#: src/Type/ObjectType/User.php:31
 msgid "A registered user account. Users can be assigned roles, author content, and have various capabilities within the site."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:56
+#: src/Type/ObjectType/User.php:59
 msgid "Connection between the User and Revisions authored by the user"
 msgstr ""
 
-#: src/Type/ObjectType/User.php:86
+#: src/Type/ObjectType/User.php:89
 msgid "The globally unique identifier for the user object."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:94
+#: src/Type/ObjectType/User.php:97
 msgid "A list of capabilities (permissions) granted to the user"
 msgstr ""
 
-#: src/Type/ObjectType/User.php:100
+#: src/Type/ObjectType/User.php:103
 msgid "User metadata option name. Usually it will be \"wp_capabilities\"."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:115
+#: src/Type/ObjectType/User.php:118
 msgid "Description of the user."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:121
+#: src/Type/ObjectType/User.php:124
 msgid "Email address of the user. This is equivalent to the WP_User->user_email property."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:129
+#: src/Type/ObjectType/User.php:132
 msgid "A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:135
+#: src/Type/ObjectType/User.php:138
 msgid "First name of the user. This is equivalent to the WP_User->user_first_name property."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:141
+#: src/Type/ObjectType/User.php:144
 msgid "Last name of the user. This is equivalent to the WP_User->user_last_name property."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:148
+#: src/Type/ObjectType/User.php:151
 msgid "Username for the user. This field is equivalent to WP_User->user_login."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:154
+#: src/Type/ObjectType/User.php:157
 msgid "Display name of the user. This is equivalent to the WP_User->display_name property."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:160
+#: src/Type/ObjectType/User.php:163
 msgid "The date the user registered or was created. The field follows a full ISO8601 date string format."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:166
+#: src/Type/ObjectType/User.php:169
 msgid "Nickname of the user."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:172
+#: src/Type/ObjectType/User.php:175
 msgid "A website url that is associated with the user."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:178
+#: src/Type/ObjectType/User.php:181
 msgid "The slug for the user. This field is equivalent to WP_User->user_nicename"
 msgstr ""
 
-#: src/Type/ObjectType/User.php:184
+#: src/Type/ObjectType/User.php:187
 msgid "The nicename for the user. This field is equivalent to WP_User->user_nicename"
 msgstr ""
 
-#: src/Type/ObjectType/User.php:190
+#: src/Type/ObjectType/User.php:193
 msgid "The preferred language locale set for the user. Value derived from get_user_locale()."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:196
+#: src/Type/ObjectType/User.php:199
 msgid "The Id of the user. Equivalent to WP_User->ID"
 msgstr ""
 
-#: src/Type/ObjectType/User.php:211
+#: src/Type/ObjectType/User.php:214
 msgid "Whether the Toolbar should be displayed when the user is viewing the site."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:217
+#: src/Type/ObjectType/User.php:220
 msgid "The admin color scheme preference for the user. Possible values include \"fresh\", \"light\", \"blue\", \"coffee\", \"ectoplasm\", \"midnight\", \"ocean\", \"sunrise\". Default is \"fresh\"."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:223
+#: src/Type/ObjectType/User.php:226
 msgid "Whether the user has enabled the visual editor. When enabled, the WYSIWYG editor is used for content editing. Defaults to true."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:229
+#: src/Type/ObjectType/User.php:232
 msgid "Whether the user has enabled syntax highlighting when editing code within the post editor. Defaults to true."
 msgstr ""
 
-#: src/Type/ObjectType/User.php:235
+#: src/Type/ObjectType/User.php:238
 msgid "Whether the user has enabled keyboard shortcuts for comment moderation. Defaults to false."
 msgstr ""
 

@@ -413,7 +413,7 @@ class Utils {
 	 *
 	 * @return ?string The underlying enum value, or null if the input matches neither an enum name nor an enum value, or the type is not a registered Enum Type.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.20.0
 	 */
 	public static function map_enum_name_to_value( string $enum_type_name, string $input ): ?string {
 		try {
