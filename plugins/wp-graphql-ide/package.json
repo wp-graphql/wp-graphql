@@ -78,7 +78,7 @@
 		"@wpgraphql-ide/smart-cache-panel": "file:plugins/smart-cache-panel",
 		"cm6-graphql": "^0.2.1",
 		"codemirror": "^6.0.0",
-		"copy-to-clipboard": "^3.3.3",
+		"copy-to-clipboard": "^4.0.2",
 		"graphql": "^16.14.2",
 		"graphql-language-service": "^5.5.2",
 		"graphql-ws": "^6.2.0",
