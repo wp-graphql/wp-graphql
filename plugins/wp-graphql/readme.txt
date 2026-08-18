@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.19.0
+Stable tag: 2.20.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -310,6 +310,24 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 2.20.0 =
+
+**New Features**
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 2 updates ([#4185](https://github.com/wp-graphql/wp-graphql/issues/4185))
+* filter enqueued assets by handle ([#4190](https://github.com/wp-graphql/wp-graphql/issues/4190))
+
+**Bug Fixes**
+
+* accept enum names in contentType and taxonomy NAME lookups ([#4174](https://github.com/wp-graphql/wp-graphql/issues/4174))
+* **deps-dev:** bump @testing-library/react from 15.0.7 to 16.3.2 ([#4187](https://github.com/wp-graphql/wp-graphql/issues/4187))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.3 in /plugins/wp-graphql ([#4179](https://github.com/wp-graphql/wp-graphql/issues/4179))
+* **deps-dev:** bump squizlabs/php_codesniffer from 3.13.5 to 3.13.6 in /plugins/wp-graphql ([#4180](https://github.com/wp-graphql/wp-graphql/issues/4180))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4192](https://github.com/wp-graphql/wp-graphql/issues/4192))
+* **deps:** bump webonyx/graphql-php from 15.35.0 to 15.37.1 in /plugins/wp-graphql ([#4181](https://github.com/wp-graphql/wp-graphql/issues/4181))
+* let assign_terms holders assign existing terms by name in post mutations ([#4003](https://github.com/wp-graphql/wp-graphql/issues/4003))
+* resolve menu(idType: LOCATION) when given a MenuLocationEnum name ([#4171](https://github.com/wp-graphql/wp-graphql/issues/4171))
+
 = 2.19.0 =
 
 **New Features**
@@ -568,7 +586,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.19.0
+* replace x-release-please-version placeholders with 2.20.0
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-08-03T22:04:24.159Z",
+  "generatedAt": "2026-08-14T18:43:56.456Z",
   "stats": {
     "totalHooks": 279,
     "actions": 62,
@@ -16260,13 +16260,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16344,13 +16344,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16428,13 +16428,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16512,13 +16512,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16596,13 +16596,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16680,13 +16680,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16704,7 +16704,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "RootQuery::register_type()",
       "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-      "line": 113,
+      "line": 115,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16764,13 +16764,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16788,7 +16788,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "RootQuery::register_type()",
       "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-      "line": 129,
+      "line": 132,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16848,13 +16848,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 113,
+          "line": 115,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 129,
+          "line": 132,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }

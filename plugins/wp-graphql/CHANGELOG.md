@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.20.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.19.0...wp-graphql/v2.20.0) (2026-08-14)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 2 updates ([#4185](https://github.com/wp-graphql/wp-graphql/issues/4185)) ([51311a9](https://github.com/wp-graphql/wp-graphql/commit/51311a982b2342b91ba0ffefa9ec815bfcf6a5d1))
+* filter enqueued assets by handle ([#4190](https://github.com/wp-graphql/wp-graphql/issues/4190)) ([45713e5](https://github.com/wp-graphql/wp-graphql/commit/45713e5f854b34f29390b2e4ec374e322fdc8484))
+
+
+### Bug Fixes
+
+* accept enum names in contentType and taxonomy NAME lookups ([#4174](https://github.com/wp-graphql/wp-graphql/issues/4174)) ([0a56bb6](https://github.com/wp-graphql/wp-graphql/commit/0a56bb683a7e34aa4d5e780cd5af0cf48a2b1ab8))
+* **deps-dev:** bump @testing-library/react from 15.0.7 to 16.3.2 ([#4187](https://github.com/wp-graphql/wp-graphql/issues/4187)) ([db97d15](https://github.com/wp-graphql/wp-graphql/commit/db97d15d4747a7adc84a12427c2261643825f24b))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.3 in /plugins/wp-graphql ([#4179](https://github.com/wp-graphql/wp-graphql/issues/4179)) ([75d60c5](https://github.com/wp-graphql/wp-graphql/commit/75d60c51a54c73f63cc43214a40c073b6419018d))
+* **deps-dev:** bump squizlabs/php_codesniffer from 3.13.5 to 3.13.6 in /plugins/wp-graphql ([#4180](https://github.com/wp-graphql/wp-graphql/issues/4180)) ([7429106](https://github.com/wp-graphql/wp-graphql/commit/74291066342266d38cc698322fafa6575c10d753))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4192](https://github.com/wp-graphql/wp-graphql/issues/4192)) ([5057a35](https://github.com/wp-graphql/wp-graphql/commit/5057a3552275686f9654c471ac36c42670814ef2))
+* **deps:** bump webonyx/graphql-php from 15.35.0 to 15.37.1 in /plugins/wp-graphql ([#4181](https://github.com/wp-graphql/wp-graphql/issues/4181)) ([2f49446](https://github.com/wp-graphql/wp-graphql/commit/2f4944679eeb31cf88a62fdb41dca5cb3e92fca9))
+* let assign_terms holders assign existing terms by name in post mutations ([#4003](https://github.com/wp-graphql/wp-graphql/issues/4003)) ([ec683db](https://github.com/wp-graphql/wp-graphql/commit/ec683dbecac22cdbb5e7c9d68b64296786d2bb76))
+* resolve menu(idType: LOCATION) when given a MenuLocationEnum name ([#4171](https://github.com/wp-graphql/wp-graphql/issues/4171)) ([7bf4915](https://github.com/wp-graphql/wp-graphql/commit/7bf491584977c98e882207411a03786bbf9ea114))
+
 ## [2.19.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.18.0...wp-graphql/v2.19.0) (2026-08-03)
 
 
