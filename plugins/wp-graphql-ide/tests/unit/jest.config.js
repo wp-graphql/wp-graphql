@@ -17,13 +17,17 @@ module.exports = {
 		'^react-dom/(.*)$': `${reactDomDir}/$1`,
 	},
 	transform: {
-		'^.+\\.[t|j]sx?$': 'babel-jest',
+		// `m?` also catches the ESM `.mjs` build-module files some
+		// `@wordpress` packages ship.
+		'^.+\\.m?[tj]sx?$': 'babel-jest',
 	},
 	transformIgnorePatterns: [
 		// `@codemirror` covers `@codemirror/lang-json` and the rest of
 		// the family — listing the child explicitly is redundant.
 		// `uuid` ships ESM-only and is dragged in by `@wordpress/components`,
 		// so it needs the babel transform too.
-		'node_modules/(?!(cm6-graphql|graphql-language-service|vscode-languageserver-types|@codemirror|@lezer|codemirror|uuid)/)',
+		// `@wordpress` covers ESM-only packages like the `@wordpress/theme`
+		// copy nested under `@wordpress/ui` (pulled in by components >= 37).
+		'node_modules/(?!(cm6-graphql|graphql-language-service|vscode-languageserver-types|@codemirror|@lezer|codemirror|uuid|@wordpress)/)',
 	],
 };
