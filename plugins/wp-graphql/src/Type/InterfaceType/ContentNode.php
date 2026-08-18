@@ -150,7 +150,7 @@ class ContentNode {
 						'slug'                      => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the "post_objects" table.', 'wp-graphql' );
+								return __( 'The url friendly identifier for the content node. This field is equivalent to the human-readable slug used to reference the node in its permalink.', 'wp-graphql' );
 							},
 						],
 						'modified'                  => [
@@ -168,7 +168,7 @@ class ContentNode {
 						'guid'                      => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the "post_objects" database table.', 'wp-graphql' );
+								return __( 'The global unique identifier for this content node. This is a stable, unique identifier for the node that does not change even if the node is moved or its url changes.', 'wp-graphql' );
 							},
 						],
 						'desiredSlug'               => [
