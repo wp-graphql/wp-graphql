@@ -43,7 +43,12 @@ class OembedFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 	}
 
 	public function testQueryCloneFieldOnPost(): void {
-		$this->markTestSkipped( 'Clone field tests need investigation - prefix_name behavior may have changed' );
+		// Skipped for environmental reasons: wp_oembed_get() requires network
+		// access to provider APIs (Twitter, etc.) that the test container
+		// cannot reach, so the expected value resolves to false while the
+		// resolved value is the raw URL fallback. The schema-level path is
+		// covered by testClonedFieldShowsInSchema above.
+		$this->markTestSkipped( 'wp_oembed_get cannot reach provider APIs from the test container; expected value is unstable.' );
 	}
 
 }

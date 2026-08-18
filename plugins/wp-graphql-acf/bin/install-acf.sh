@@ -25,12 +25,18 @@ set -e
 # Get the script directory to find .env file relative to script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Monorepo root (two levels above the plugin dir: <root>/plugins/wp-graphql-acf/.. = <root>/plugins, then ..)
+MONOREPO_ROOT="$(cd "$PLUGIN_DIR/../.." && pwd)"
 
 # Load .env file if it exists (allows users to store license keys in .env)
-# Check both in plugin directory and current directory
+# Checked in order: plugin dir, monorepo root, current working directory.
+# The monorepo-root fallback is what lets npm wrappers (install-acf:pro) find
+# a single shared .env when contributors keep one at the repo root.
 ENV_FILE=""
 if [ -f "$PLUGIN_DIR/.env" ] && [ -r "$PLUGIN_DIR/.env" ]; then
   ENV_FILE="$PLUGIN_DIR/.env"
+elif [ -f "$MONOREPO_ROOT/.env" ] && [ -r "$MONOREPO_ROOT/.env" ]; then
+  ENV_FILE="$MONOREPO_ROOT/.env"
 elif [ -f .env ] && [ -r .env ]; then
   ENV_FILE=".env"
 fi
