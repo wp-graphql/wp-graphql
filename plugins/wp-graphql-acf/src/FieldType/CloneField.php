@@ -138,12 +138,12 @@ class CloneField {
 	 *
 	 * @see https://github.com/wp-graphql/wpgraphql-acf/issues/269
 	 *
-	 * @param mixed                                  $root          The parent's resolved value.
-	 * @param array<string,mixed>                    $args          GraphQL args.
-	 * @param \WPGraphQL\AppContext                  $context       Request context.
-	 * @param \GraphQL\Type\Definition\ResolveInfo   $info          Resolve info.
-	 * @param \WPGraphQL\Acf\AcfGraphQLFieldType     $field_type    The clone field-type instance.
-	 * @param \WPGraphQL\Acf\FieldConfig             $field_config  The per-field config.
+	 * @param mixed                                $root          The parent's resolved value.
+	 * @param array<string,mixed>                  $args          GraphQL args.
+	 * @param \WPGraphQL\AppContext                $context       Request context.
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info          Resolve info.
+	 * @param \WPGraphQL\Acf\AcfGraphQLFieldType   $field_type    The clone field-type instance.
+	 * @param \WPGraphQL\Acf\FieldConfig           $field_config  The per-field config.
 	 *
 	 * @return mixed
 	 */

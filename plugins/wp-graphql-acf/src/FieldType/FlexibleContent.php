@@ -67,17 +67,17 @@ class FlexibleContent {
 						//
 						// Two storage paths to cover:
 						//
-						//  - **Local field groups** (registered in PHP via
-						//    `acf_add_local_field_group()`): the sub-fields live in the
-						//    local store keyed by the flex field's `key`. We probe with
-						//    `acf_have_local_fields($flex_field_key)` so we only use this
-						//    path when ACF's local store actually has them.
+						// - **Local field groups** (registered in PHP via
+						// `acf_add_local_field_group()`): the sub-fields live in the
+						// local store keyed by the flex field's `key`. We probe with
+						// `acf_have_local_fields($flex_field_key)` so we only use this
+						// path when ACF's local store actually has them.
 						//
-						//  - **DB-imported field groups** (created via WP admin or via
-						//    `acf_import_field_group()`): each sub-field is a stored
-						//    `acf-field` post whose `parent` is the flex field's post ID.
-						//    `acf_get_raw_fields($flex_field_id)` returns them without
-						//    triggering any filters.
+						// - **DB-imported field groups** (created via WP admin or via
+						// `acf_import_field_group()`): each sub-field is a stored
+						// `acf-field` post whose `parent` is the flex field's post ID.
+						// `acf_get_raw_fields($flex_field_id)` returns them without
+						// triggering any filters.
 						//
 						// Without the DB-storage path, prefixed seamless clones inside a
 						// flex layout — when imported through the admin Tools UI — would

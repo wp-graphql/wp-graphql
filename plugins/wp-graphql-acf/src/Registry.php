@@ -330,14 +330,14 @@ class Registry {
 				// parent type inherits the source fields.
 				//
 				// Skip the interface attachment when:
-				//  - prefix_name=1: the source fields live under the clone's
-				//    prefixed wrapper type, not flat on the parent. Attaching
-				//    the interface here would "spill" the source fields onto
-				//    the parent in addition to their prefixed location.
-				//  - display=group: the source fields live inside a wrapper
-				//    object named after the clone field; same reason.
-				//  - clone[] is not a field-group key: cherry-picked clones
-				//    have no source group to attach an interface for.
+				// - prefix_name=1: the source fields live under the clone's
+				// prefixed wrapper type, not flat on the parent. Attaching
+				// the interface here would "spill" the source fields onto
+				// the parent in addition to their prefixed location.
+				// - display=group: the source fields live inside a wrapper
+				// object named after the clone field; same reason.
+				// - clone[] is not a field-group key: cherry-picked clones
+				// have no source group to attach an interface for.
 				//
 				// @see https://github.com/wp-graphql/wpgraphql-acf/issues/269
 				if ( empty( $field['clone'] ) || ! is_array( $field['clone'] ) ) {
