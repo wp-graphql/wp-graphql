@@ -1581,6 +1581,91 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	/**
+	 * A single post in a custom status registered with `public => true` should be
+	 * queryable by anonymous users, the same way it is shown on the WordPress
+	 * front-end and the REST single-post endpoint.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2819
+	 */
+	public function testPublicCustomPostStatusSingleNodeIsQueryableByAnonymousUser() {
+		register_post_status(
+			'gqltest_public',
+			[
+				'label'                     => 'GQL Test Public',
+				'public'                    => true,
+				'show_in_admin_all_list'    => true,
+				'show_in_admin_status_list' => true,
+			]
+		);
+		$this->clearSchema();
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'gqltest_public',
+				'post_title'   => 'Public custom status single node',
+				'post_content' => 'Public content',
+			]
+		);
+
+		$query = '
+		query ( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) { databaseId title status }
+		}';
+
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'id' => $post_id ] ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post'], 'Anonymous users should resolve a single node in a public custom status.' );
+		$this->assertSame( $post_id, $actual['data']['post']['databaseId'] );
+
+		unset( $GLOBALS['wp_post_statuses']['gqltest_public'] );
+		$this->clearSchema();
+	}
+
+	/**
+	 * A single post in a non-public custom status must stay null for anonymous users.
+	 * Locks in the correct behavior from #3248 so the #2819 fix does not over-expose
+	 * non-public statuses at the single-node level.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3248
+	 */
+	public function testNonPublicCustomPostStatusSingleNodeHiddenFromAnonymousUser() {
+		register_post_status(
+			'gqltest_hidden',
+			[
+				'label'   => 'GQL Test Hidden',
+				'public'  => false,
+				'private' => false,
+			]
+		);
+		$this->clearSchema();
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'gqltest_hidden',
+				'post_title'  => 'Hidden custom status single node',
+			]
+		);
+
+		$query = '
+		query ( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) { databaseId }
+		}';
+
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'id' => $post_id ] ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post'], 'Anonymous users must not resolve a single node in a non-public custom status.' );
+
+		unset( $GLOBALS['wp_post_statuses']['gqltest_hidden'] );
+		$this->clearSchema();
+	}
+
+	/**
 	 * Test restricted posts returned on certain statuses
 	 *
 	 * @dataProvider dataProviderRestrictedPosts

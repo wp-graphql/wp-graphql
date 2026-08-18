@@ -264,6 +264,16 @@ Please review these changes before upgrading.
 				matches && matches.length === 1,
 				'Should have exactly one version header'
 			);
+			// Regression guard: the existing Changelog section must survive
+			// being adjacent to the upserted Upgrade Notice block.
+			assert(
+				readme.includes('== Changelog =='),
+				'Should preserve the existing Changelog section'
+			);
+			assert(
+				readme.includes('= 2.0.0 ='),
+				'Should preserve the existing 2.0.0 changelog entry'
+			);
 		}),
 
 	// Test 5: Alternative breaking changes header format
@@ -371,6 +381,196 @@ Stable tag: 2.0.0
 			);
 			assert(readme.includes('#100'), 'Should include correct PR link');
 			assert(!readme.includes('#200'), 'Should NOT include v4 PR link');
+		}),
+
+	// Test 8a: Regression — wp-graphql-ide 5.0.0 release PR shape (PR #3892).
+	// The release-please flow pre-populated `= 5.0.0 =` in the Upgrade Notice
+	// section with no later `= <digit>` heading after it, immediately followed
+	// by `== Changelog ==`. The buggy lazy match swallowed the Changelog header
+	// up to EOF and the downstream `update-readme-changelog.js` then threw.
+	() =>
+		test('preserves "== Changelog ==" when upserting an upgrade notice with no later = <digit> heading', () => {
+			createChangelog(`# Changelog
+
+## [5.0.0](https://github.com/wp-graphql/wp-graphql/compare/v4.5.0...v5.0.0) (2026-06-09)
+
+### ⚠ BREAKING CHANGES
+
+* Rebuild IDE UI on @wordpress/components ([#3784](https://github.com/wp-graphql/wp-graphql/pull/3784))
+`);
+
+			createReadme(`=== Test Plugin ===
+Stable tag: 4.5.0
+
+== Upgrade Notice ==
+
+= 5.0.0 =
+Hand-written upgrade-notice paragraph from the feature PR.
+
+WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
+
+== Changelog ==
+
+= 5.0.0 =
+
+**Breaking changes**
+
+* IDE UI rebuilt on @wordpress/components.
+
+= 4.5.0 =
+* Previous release.
+`);
+
+			const result = runScript('5.0.0');
+			assert(result.success, `Script should succeed. Output: ${result.output}`);
+
+			const readme = readReadme();
+			assert(
+				readme.includes('== Changelog =='),
+				'Must preserve the == Changelog == section heading'
+			);
+			assert(
+				readme.includes('= 4.5.0 ='),
+				'Must preserve earlier changelog entries'
+			);
+			// New upgrade-notice content for 5.0.0 should be present.
+			assert(
+				readme.includes('Rebuild IDE UI on @wordpress/components'),
+				'Should write the new breaking change into the upgrade notice'
+			);
+			// The pre-existing 5.0.0 Changelog body should still be there.
+			assert(
+				readme.includes('IDE UI rebuilt on @wordpress/components'),
+				'Must preserve the pre-existing 5.0.0 changelog body'
+			);
+			// `= 5.0.0 =` should appear exactly twice: once in Upgrade Notice,
+			// once in Changelog.
+			const fiveZero = readme.match(/= 5\.0\.0 =/g) || [];
+			assert(
+				fiveZero.length === 2,
+				`Expected exactly 2 occurrences of "= 5.0.0 =" (one per section), got ${fiveZero.length}`
+			);
+		}),
+
+	// Test 8b: Regression for boundary asymmetry — wp.org's readme parser
+	// accepts `==Section==` without spaces. The fix's outer regex already
+	// bounds the body slice at `\n==` (no space required), so even with the
+	// non-canonical heading the upserted upgrade notice cannot escape into
+	// the next section.
+	() =>
+		test('preserves a no-space ==Changelog== heading (boundary tolerates non-canonical form)', () => {
+			createChangelog(`# Changelog
+
+## [3.0.0] (2026-01-20)
+
+### ⚠ BREAKING CHANGES
+
+* Big change ([#400](https://github.com/wp-graphql/wp-graphql/pull/400))
+`);
+
+			createReadme(`=== Test Plugin ===
+Stable tag: 2.0.0
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+Old hand-written notice for 3.0.0.
+
+==Changelog==
+
+= 3.0.0 =
+
+* Old changelog entry.
+
+= 2.0.0 =
+* Initial.
+`);
+
+			const result = runScript('3.0.0');
+			assert(result.success, `Script should succeed. Output: ${result.output}`);
+
+			const readme = readReadme();
+			assert(
+				readme.includes('==Changelog=='),
+				'Must preserve the no-space ==Changelog== heading'
+			);
+			assert(
+				readme.includes('Old changelog entry.'),
+				'Must preserve the Changelog body content untouched'
+			);
+			assert(
+				readme.includes('= 2.0.0 ='),
+				'Must preserve earlier changelog entries'
+			);
+			assert(
+				readme.includes('Big change'),
+				'Should write the new breaking change into the upgrade notice'
+			);
+			// `= 3.0.0 =` appears once in Upgrade Notice + once in Changelog = 2.
+			const threeZero = readme.match(/= 3\.0\.0 =/g) || [];
+			assert(
+				threeZero.length === 2,
+				`Expected exactly 2 occurrences of "= 3.0.0 =" (one per section), got ${threeZero.length}`
+			);
+		}),
+
+	// Test 8c: Regression — `versionNoticeRegex` must be anchored to a line
+	// start so prose mentions of the version don't false-positive into the
+	// "replace existing notice" branch. Pre-fix, an in-body string like
+	// "Upgraded from = 3.0.0 = to ..." would set `hasVersionNotice = true`
+	// and the replace would anchor mid-paragraph, corrupting prose.
+	() =>
+		test('prose mention of "= X.Y.Z =" does not trigger the replace branch', () => {
+			createChangelog(`# Changelog
+
+## [3.0.0] (2026-01-20)
+
+### ⚠ BREAKING CHANGES
+
+* Migration required ([#500](https://github.com/wp-graphql/wp-graphql/pull/500))
+`);
+
+			createReadme(`=== Test Plugin ===
+Stable tag: 2.0.0
+
+== Upgrade Notice ==
+
+Existing intro: upgraded from = 2.0.0 = to a newer release.
+
+== Changelog ==
+
+= 2.0.0 =
+* Initial.
+`);
+
+			const result = runScript('3.0.0');
+			assert(result.success, `Script should succeed. Output: ${result.output}`);
+
+			const readme = readReadme();
+			assert(
+				readme.includes('Added new upgrade notice for version 3.0.0') ||
+					result.output.includes('Added new upgrade notice'),
+				'Should take the "Added new" branch, not "Updated existing"'
+			);
+			// The prose mention of "= 2.0.0 =" must be intact.
+			assert(
+				readme.includes('upgraded from = 2.0.0 = to a newer release'),
+				'Must preserve the prose mention of an older version verbatim'
+			);
+			// New 3.0.0 notice was prepended.
+			assert(
+				readme.includes('= 3.0.0 ='),
+				'Should prepend the new 3.0.0 notice'
+			);
+			assert(
+				readme.includes('Migration required'),
+				'Should include the new breaking change'
+			);
+			// Changelog section must be intact.
+			assert(
+				readme.includes('== Changelog =='),
+				'Must preserve the Changelog section heading'
+			);
 		}),
 
 	// Test 8: Scoped breaking changes (e.g., **resolver:**)

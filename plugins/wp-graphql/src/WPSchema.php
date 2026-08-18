@@ -47,6 +47,7 @@ class WPSchema extends Schema {
 		 * @param \GraphQL\Type\SchemaConfig       $config        The config for the Schema.
 		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL type registry.
 		 *
+		 * @hookGroup schema-registration
 		 * @since 0.0.9
 		 */
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config, $type_registry );

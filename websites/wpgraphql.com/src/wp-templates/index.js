@@ -6,7 +6,7 @@ import singleCodeSnippet from "./single-code-snippet"
 import singular from "./singular"
 import ArchivePost from "./archive-post"
 import FrontPage from "./front-page"
-import SingleDeveloperReference from "./single-developer-reference";
+import SingleDeveloperReference from "./single-developer-reference"
 
 const templates = {
   category,

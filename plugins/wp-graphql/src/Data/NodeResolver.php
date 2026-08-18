@@ -119,6 +119,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext $content The app context.
 		 * @param \WP $wp WP object.
 		 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -148,11 +151,14 @@ class NodeResolver {
 		$uri = $this->parse_request( $uri, $extra_query_vars );
 
 		/**
-		 * If the URI is '/', we can resolve it now.
+		 * If the URI is the home page, we can resolve it now.
 		 *
-		 * We don't rely on $this->parse_request(), since the home page doesn't get a rewrite rule.
+		 * The home page doesn't get a rewrite rule, so a bare '/' is resolved directly.
+		 * We also detect the home page from the parsed request so the full home URL
+		 * resolves when WordPress is installed in a subdirectory (e.g. `/blog/`), where
+		 * parse_request() strips the home path and leaves an empty request (#3775).
 		 */
-		if ( '/' === $uri ) {
+		if ( '/' === $uri || $this->is_home_request() ) {
 			return $this->resolve_home_page();
 		}
 
@@ -166,6 +172,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext      $content The app context.
 		 * @param \WP                        $wp WP object.
 		 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$query_class = apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -234,6 +243,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext                         $content          The app context.
 		 * @param \WP                                           $wp               WP object.
 		 * @param array<string,mixed>|string                    $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$node = apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 
@@ -265,8 +277,21 @@ class NodeResolver {
 				return null;
 			}
 
-			if ( empty( $extra_query_vars ) && isset( $this->wp->query_vars['error'] ) && '404' === $this->wp->query_vars['error'] ) {
-				return null;
+			// A 404 from parse_request() means the requested path did not match a
+			// registered rewrite rule, so the queried object (if any) is an unrelated
+			// post that WP_Query returned because a pre-seeded `post_type` query var
+			// turned the request into an unbounded query. Bail in that case so typed
+			// `idType: URI` fields stay consistent with nodeByUri, which returns null
+			// for partial or wrong-hierarchy URIs (#3042).
+			//
+			// The exception is an explicit slug lookup (idType: SLUG), which passes a
+			// `name` and intentionally resolves by post_name without requiring the
+			// full path to match a rewrite rule.
+			if ( isset( $this->wp->query_vars['error'] ) && '404' === $this->wp->query_vars['error'] ) {
+				$is_slug_lookup = is_array( $extra_query_vars ) && ! empty( $extra_query_vars['name'] );
+				if ( ! $is_slug_lookup ) {
+					return null;
+				}
 			}
 
 			$post_id = $queried_object->ID;
@@ -332,6 +357,9 @@ class NodeResolver {
 		 * @param \WPGraphQL\AppContext                         $content          The app context.
 		 * @param \WP                                           $wp               WP object.
 		 * @param array<string,mixed>|string                    $extra_query_vars Any extra query vars to consider.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 	}
@@ -381,6 +409,7 @@ class NodeResolver {
 			 *
 			 * @param string[] $allowed_hosts Hostnames permitted when comparing the parsed URI host.
 			 *
+			 * @hookGroup request-lifecycle
 			 * @since 2.12.0
 			 */
 			$allowed_hosts = apply_filters( 'graphql_allowed_hosts', $default_allowed_hosts );
@@ -687,6 +716,65 @@ class NodeResolver {
 	 */
 	protected function is_valid_node_type( string $node_type ): bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;
+	}
+
+	/**
+	 * Determines whether the parsed request is for the site's home page.
+	 *
+	 * After parse_request() strips the home path, a request for the home page has an
+	 * empty `$wp->request`. This is how the home URL is recognized when WordPress is
+	 * installed in a subdirectory and the full home URL (e.g. `/blog/`) is requested,
+	 * rather than relying on a literal '/' uri (#3775).
+	 *
+	 * We require that permalink parsing actually ran (`did_permalink`) so plain
+	 * permalink installs keep relying on the literal '/' check, and we bail if any
+	 * query var that identifies a specific node or archive is present.
+	 */
+	protected function is_home_request(): bool {
+		// Only infer the home page from the parsed request when permalink parsing ran.
+		if ( empty( $this->wp->did_permalink ) ) {
+			return false;
+		}
+
+		// A home request has no remaining path after the home path is stripped.
+		if ( ! empty( $this->wp->request ) ) {
+			return false;
+		}
+
+		// Bail if a query var that identifies specific content or an archive is set
+		// (for example a query-string request like `/subdir/?p=5` or `/subdir/?cat=2`).
+		$content_query_vars = [
+			'p',
+			'page_id',
+			'name',
+			'pagename',
+			'attachment',
+			'attachment_id',
+			'cat',
+			'category_name',
+			'tag',
+			'tag_id',
+			'author',
+			'author_name',
+			'year',
+			'monthnum',
+			'day',
+			'hour',
+			'minute',
+			'second',
+			'm',
+			'w',
+			's',
+			'feed',
+		];
+
+		foreach ( $content_query_vars as $var ) {
+			if ( ! empty( $this->wp->query_vars[ $var ] ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

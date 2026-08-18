@@ -54,7 +54,16 @@ class WPGraphQLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testFilters() {
 
 		global $wp_filter;
-		graphql_init();
+		$instance = graphql_init();
+
+		// The singleton is constructed during plugin bootstrap, before tests run,
+		// so re-run the hook registration here to exercise and assert the wiring.
+		// Hooks are backed up and restored between tests, so the re-registration
+		// does not leak into other tests.
+		$filters = new ReflectionMethod( $instance, 'filters' );
+		$filters->setAccessible( true );
+		$filters->invoke( $instance );
+
 		$this->assertTrue( isset( $wp_filter['graphql_get_type']->callbacks ) );
 	}
 

@@ -269,6 +269,33 @@ class AdminUI {
 	}
 
 	/**
+	 * Adds Docs and Support row-meta links to the plugin listing on the Plugins screen.
+	 *
+	 * @param array<int, string> $links The existing row-meta links.
+	 * @param string             $file  The plugin file path being filtered.
+	 * @return array<int, string> The modified row-meta links.
+	 */
+	public static function add_plugin_row_meta( array $links, string $file ): array {
+		if ( plugin_basename( WPGRAPHQL_IDE_PLUGIN_FILE ) !== $file ) {
+			return $links;
+		}
+
+		$links[] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+			esc_url( 'https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-ide/docs' ),
+			esc_html__( 'Docs', 'wpgraphql-ide' )
+		);
+
+		$links[] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+			esc_url( 'https://github.com/wp-graphql/wp-graphql/issues' ),
+			esc_html__( 'Support', 'wpgraphql-ide' )
+		);
+
+		return $links;
+	}
+
+	/**
 	 * Returns the WPGraphQL elephant mark, used by the admin bar entry's
 	 * `:before` mask. The mask renders the SVG's alpha shape — fills are
 	 * ignored — so we can use core wp-graphql's `wpgraphql-elephant.svg`

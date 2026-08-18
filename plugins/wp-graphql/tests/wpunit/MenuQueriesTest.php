@@ -151,6 +151,24 @@ class MenuQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( WPEnumType::get_safe_name( array_search( $this->menu_id, $locations, true ) ), $actual['data']['menu']['locations'][0] );
 	}
 
+	public function testMenuQueryByLocationEnumName() {
+		set_theme_mod( 'nav_menu_locations', [ $this->location_name => $this->menu_id ] );
+
+		$query = $this->get_query();
+
+		// The schema exposes menu locations as MenuLocationEnum names (e.g.
+		// TEST_LOCATION for a location registered as test-location), so the
+		// enum-style name must resolve the same menu as the raw location key.
+		$variables = [
+			'id'     => WPEnumType::get_safe_name( $this->location_name ),
+			'idType' => 'LOCATION',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->menu_id, $actual['data']['menu']['databaseId'] );
+	}
+
 	public function testUnicodeSlugsAreDecoded() {
 		$unicode_slug = 'חדשות';
 		$menu_id      = wp_create_nav_menu( $unicode_slug );

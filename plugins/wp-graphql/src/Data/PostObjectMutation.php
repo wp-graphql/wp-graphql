@@ -108,6 +108,9 @@ class PostObjectMutation {
 		 * @param array<string,mixed> $input            The data that was entered as input for the mutation
 		 * @param \WP_Post_Type       $post_type_object The post_type_object that the mutation is affecting
 		 * @param string              $mutation_type    The type of mutation being performed (create, edit, etc)
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		$insert_post_args = apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
 
@@ -189,6 +192,9 @@ class PostObjectMutation {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info                 The ResolveInfo passed down to all resolvers
 		 * @param ?string                              $intended_post_status The intended post_status the post should have according to the mutation input
 		 * @param ?string                              $default_post_status  The default status posts should use if an intended status wasn't set
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
@@ -237,6 +243,9 @@ class PostObjectMutation {
 		 * @param array<string,mixed> $input            The input for the mutation
 		 * @param \WP_Post_Type       $post_type_object The Post Type Object for the type of post being mutated
 		 * @param string              $mutation_name    The name of the mutation (ex: create, update, delete)
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $post_type_object, $mutation_name );
 
@@ -278,6 +287,9 @@ class PostObjectMutation {
 					 *
 					 * @param bool         $allow_term_creation Whether new terms should be created during the post object mutation
 					 * @param \WP_Taxonomy $tax_object          The Taxonomy object for the term being added to the Post Object
+					 *
+					 * @hookGroup models
+					 * @since 0.0.5
 					 */
 					$allow_term_creation = apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
 
@@ -317,10 +329,20 @@ class PostObjectMutation {
 								if ( isset( $term_exists->term_id ) ) {
 									$terms_to_connect[] = $term_exists->term_id;
 								}
+
 								/**
-								 * If the input for the term isn't an existing term, check to make sure
-								 * we're allowed to create new terms during a Post Object mutation
+								 * Finally, handle the input for name if there wasn't an ID or slug input.
+								 *
+								 * Matching by name lets users assign existing terms (e.g. a standard
+								 * post format like "video") without needing the `edit_terms` capability
+								 * that creating a new term requires.
 								 */
+							} elseif ( ! empty( $node['name'] ) ) {
+								$sanitized_name = sanitize_text_field( $node['name'] );
+								$term_exists    = get_term_by( 'name', $sanitized_name, $tax_object->name );
+								if ( isset( $term_exists->term_id ) ) {
+									$terms_to_connect[] = $term_exists->term_id;
+								}
 							}
 
 							/**
@@ -331,10 +353,14 @@ class PostObjectMutation {
 							if ( ! $term_exists && true === $allow_term_creation ) {
 
 								/**
-								 * If the current user cannot edit terms, don't create terms to connect
+								 * If the current user cannot edit terms, don't create a term to connect.
+								 *
+								 * Skip just this node rather than aborting the whole taxonomy, so that
+								 * any existing terms the user matched (and is allowed to assign) are still
+								 * connected below.
 								 */
 								if ( ! isset( $tax_object->cap->edit_terms ) || ! current_user_can( $tax_object->cap->edit_terms ) ) {
-									return;
+									continue;
 								}
 
 								$created_term = self::create_term_to_connect( $node, $tax_object->name );
@@ -347,10 +373,13 @@ class PostObjectMutation {
 					}
 
 					/**
-					 * If the current user cannot edit terms, don't create terms to connect
+					 * If the current user cannot assign terms of this taxonomy, skip it
+					 * without connecting any of its terms, but keep processing the
+					 * remaining taxonomies rather than aborting the whole mutation's
+					 * term assignment.
 					 */
 					if ( ! isset( $tax_object->cap->assign_terms ) || ! current_user_can( $tax_object->cap->assign_terms ) ) {
-						return;
+						continue;
 					}
 
 					if ( $append && 'category' === $tax_object->name ) {

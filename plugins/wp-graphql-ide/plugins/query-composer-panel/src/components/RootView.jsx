@@ -221,6 +221,8 @@ class RootView extends React.PureComponent {
 									availableFragments={
 										this.props.availableFragments
 									}
+									opKey={this.props.opKey}
+									pathSegments={[]}
 								/>
 							))}
 					</div>

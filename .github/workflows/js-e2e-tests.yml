@@ -21,6 +21,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # ===========================================
   # CHANGE DETECTION
@@ -44,12 +47,14 @@ jobs:
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check if release-please PR
         id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
             echo "is-release-pr=true" >> $GITHUB_OUTPUT
             echo "🔔 Detected Release PR - will run e2e tests for all plugins with e2e tests"
           else
@@ -58,7 +63,7 @@ jobs:
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files_yaml: |
             wp-graphql:
@@ -74,6 +79,9 @@ jobs:
               - package-lock.json
               - .wp-env.json
               - bin/**
+              # The jobs run on the Node version pinned here, so a Node bump
+              # must re-run the suites.
+              - .nvmrc
             wp-graphql-ide:
               - .github/workflows/js-e2e-tests-reusable.yml
               - .github/workflows/js-e2e-tests.yml
@@ -87,6 +95,7 @@ jobs:
               - package-lock.json
               - .wp-env.json
               - bin/**
+              - .nvmrc
             wp-graphql-acf:
               - .github/workflows/js-e2e-tests-reusable.yml
               - .github/workflows/js-e2e-tests.yml
@@ -100,6 +109,7 @@ jobs:
               - package-lock.json
               - .wp-env.json
               - bin/**
+              - .nvmrc
             # Add additional plugins here:
             # WPGraphQL Smart Cache doesn't currently ship any
             # JS so it doesn't have JS tests, but this is an example
@@ -229,30 +239,28 @@ jobs:
     steps:
       - name: Check JS E2E test results
         run: |
-          # Check if any required jobs failed (excluding skipped)
-          if [ "${{ needs.wp-graphql.result }}" == "failure" ]; then
-            echo "❌ wp-graphql JS E2E tests failed"
+          # If change detection itself didn't succeed, downstream jobs were
+          # skipped for the wrong reason — green would be meaningless.
+          if [ "${{ needs.detect-changes.result }}" != "success" ]; then
+            echo "❌ Change detection did not succeed (${{ needs.detect-changes.result }})"
             exit 1
           fi
-          if [ "${{ needs.wp-graphql-ide.result }}" == "failure" ]; then
-            echo "❌ wp-graphql-ide JS E2E tests failed"
-            exit 1
-          fi
-          if [ "${{ needs.wp-graphql-acf.result }}" == "failure" ]; then
-            echo "❌ wp-graphql-acf JS E2E tests failed"
-            exit 1
-          fi
-          # Allow skipped jobs (expected when files don't change)
-          if [ "${{ needs.wp-graphql.result }}" == "skipped" ]; then
-            echo "ℹ️ wp-graphql JS E2E tests skipped (no changes detected)"
-          fi
-          if [ "${{ needs.wp-graphql-ide.result }}" == "skipped" ]; then
-            echo "ℹ️ wp-graphql-ide JS E2E tests skipped (no changes detected)"
-          fi
-          if [ "${{ needs.wp-graphql-acf.result }}" == "skipped" ]; then
-            echo "ℹ️ wp-graphql-acf JS E2E tests skipped (no changes detected)"
-          fi
-          echo "✅ All required JS E2E tests passed"
+          # Allowlist outcomes: only success and an expected skip pass.
+          # Anything else (failure, cancelled, timed out) fails the check.
+          check() {
+            local name="$1" result="$2"
+            if [ "$result" == "skipped" ]; then
+              echo "ℹ️ $name JS E2E tests skipped (no changes detected, or the job is disabled in CI)"
+            elif [ "$result" != "success" ]; then
+              echo "❌ $name JS E2E tests did not succeed ($result)"
+              exit 1
+            else
+              echo "✅ $name JS E2E tests passed"
+            fi
+          }
+          check "wp-graphql" "${{ needs.wp-graphql.result }}"
+          check "wp-graphql-ide" "${{ needs.wp-graphql-ide.result }}"
+          check "wp-graphql-acf" "${{ needs.wp-graphql-acf.result }}"
 
   # ===========================================
   # ADDITIONAL PLUGINS

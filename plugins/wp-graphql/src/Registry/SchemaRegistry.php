@@ -76,7 +76,11 @@ class SchemaRegistry {
 		 *
 		 * @param \WPGraphQL\WPSchema $schema The generated Schema
 		 * @param \WPGraphQL\Registry\SchemaRegistry $registry The Schema Registry Instance
+		 * @hookGroup schema-registration
+		 * @since 0.0.16
 		 */
-		return apply_filters( 'graphql_schema', $schema, $this );
+		$schema = apply_filters( 'graphql_schema', $schema, $this );
+
+		return $schema;
 	}
 }

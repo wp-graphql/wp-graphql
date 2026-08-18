@@ -27,6 +27,9 @@ class RequireAuthentication extends QuerySecurityRule {
 		 * than null will skip the default restrict checks.
 		 *
 		 * @param bool|null $restrict_endpoint Whether to restrict the endpoint. Defaults to null
+		 *
+		 * @hookGroup authentication
+		 * @since 0.0.5
 		 */
 		$restrict_endpoint = apply_filters( 'graphql_pre_restrict_endpoint', $restrict_endpoint );
 
@@ -67,6 +70,9 @@ class RequireAuthentication extends QuerySecurityRule {
 		 *
 		 * @param string[]                                    $allowed_root_fields The Root fields allowed to be requested without authentication
 		 * @param \GraphQL\Validator\QueryValidationContext  $context The Validation context of the field being executed.
+		 *
+		 * @hookGroup authentication
+		 * @since 0.0.5
 		 */
 		$allowed_root_fields = apply_filters( 'graphql_require_authentication_allowed_fields', $allowed_root_fields, $context );
 

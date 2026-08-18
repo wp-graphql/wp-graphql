@@ -11,8 +11,13 @@ class WPGraphQLContentBlocks {
 	 */
 	public function init(): void {
 
-		// If WPGraphQL Content Blocks is not active, bail
-		if ( ! defined( 'WPGRAPHQL_CONTENT_BLOCKS_DIR' ) ) {
+		// If WPGraphQL Content Blocks is not active, bail.
+		//
+		// WPGraphQL Content Blocks renamed its directory constant from
+		// WPGRAPHQL_CONTENT_BLOCKS_DIR to WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_DIR. We check
+		// the current constant, and fall back to the plugin's bootstrap class so a future
+		// constant rename doesn't silently disable this integration again.
+		if ( ! defined( 'WPGRAPHQL_CONTENT_BLOCKS_PLUGIN_DIR' ) && ! class_exists( '\WPGraphQLContentBlocks' ) ) {
 			return;
 		}
 

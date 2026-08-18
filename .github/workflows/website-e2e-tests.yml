@@ -11,22 +11,24 @@ on:
       - '.github/workflows/website-e2e-tests.yml'
       - 'package.json'
       - 'package-lock.json'
+  # No `paths` filter on pull_request: the `Website E2E Tests` status-check job
+  # is a required check, so it must report on every PR. Change detection happens
+  # in the detect-changes job below; PRs without website changes skip the e2e
+  # job and the status check passes.
   pull_request:
     branches:
       - main
       - release/*
       - next
-    paths:
-      - 'websites/wpgraphql.com/**'
-      - '.github/workflows/website-e2e-tests.yml'
-      - 'package.json'
-      - 'package-lock.json'
   workflow_dispatch:
 
 # Cancel previous workflow run groups that have not completed.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   detect-changes:
@@ -39,12 +41,14 @@ jobs:
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check if release-please PR
         id: check-release-pr
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "$HEAD_REF" =~ ^release-please-- ]]; then
             echo "is-release-pr=true" >> $GITHUB_OUTPUT
             echo "🔔 Detected Release PR - will run e2e tests for all websites"
           else
@@ -53,7 +57,7 @@ jobs:
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files_yaml: |
             wpgraphql-com:
@@ -78,16 +82,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'
 
       - name: Install dependencies
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -147,7 +151,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-report-wpgraphql-com
           path: websites/wpgraphql.com/playwright-report/
@@ -155,7 +159,7 @@ jobs:
 
       - name: Upload test artifacts
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-artifacts-wpgraphql-com
           path: websites/wpgraphql.com/test-results/
@@ -169,13 +173,22 @@ jobs:
     steps:
       - name: Check website e2e test results
         run: |
-          # Check if any required jobs failed (excluding skipped)
-          if [ "${{ needs.wpgraphql-com.result }}" == "failure" ]; then
-            echo "❌ wpgraphql.com e2e tests failed"
+          # Allowlist the outcomes that mean success. Anything else (failure,
+          # cancelled, or a broken detect-changes job) must fail this required
+          # check rather than silently passing.
+          if [ "${{ needs.detect-changes.result }}" != "success" ]; then
+            echo "❌ Change detection did not succeed (${{ needs.detect-changes.result }})"
             exit 1
           fi
-          # Allow skipped jobs (expected when files don't change)
-          if [ "${{ needs.wpgraphql-com.result }}" == "skipped" ]; then
-            echo "ℹ️ wpgraphql.com e2e tests skipped (no changes detected)"
-          fi
-          echo "✅ All required website e2e tests passed"
+          case "${{ needs.wpgraphql-com.result }}" in
+            success)
+              echo "✅ wpgraphql.com e2e tests passed"
+              ;;
+            skipped)
+              echo "ℹ️ wpgraphql.com e2e tests skipped (no changes detected)"
+              ;;
+            *)
+              echo "❌ wpgraphql.com e2e tests did not succeed (${{ needs.wpgraphql-com.result }})"
+              exit 1
+              ;;
+          esac

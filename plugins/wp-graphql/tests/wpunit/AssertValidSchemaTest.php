@@ -536,4 +536,93 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 	}
+
+	/**
+	 * Enforce the GraphQL spec rule that an implementation field may only be deprecated
+	 * if the corresponding interface field is also deprecated (graphql/graphql-spec#1053).
+	 *
+	 * graphql-php v15's assertValid() does not enforce this rule, but client tooling built
+	 * on graphql-js (graphql-codegen, buildClientSchema, strict introspection) does, so a
+	 * schema that violates it is broken for those consumers even though assertValid() passes.
+	 *
+	 * This is a schema-wide guard (not specific to any one type) so the whole class of bug
+	 * is caught regardless of which connection/type introduces it.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3979
+	 */
+	public function testNoInterfaceImplementationDeprecationMismatch() {
+		// Walk the schema as rendered to an introspection query, because that is exactly
+		// what graphql-js based tooling consumes. WPGraphQL only materializes
+		// `deprecationReason` callables during an introspection request, so the deprecation
+		// state only exists on the introspected schema, not on a bare WPGraphQL::get_schema().
+		$introspection = $this->graphql(
+			[
+				'query' => '
+				{
+					__schema {
+						types {
+							name
+							interfaces { name }
+							fields(includeDeprecated: true) { name isDeprecated }
+						}
+					}
+				}
+				',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $introspection );
+
+		$types = $introspection['data']['__schema']['types'];
+
+		// Build a map of type name => [ field name => isDeprecated ].
+		$field_deprecation = [];
+		foreach ( $types as $type ) {
+			if ( empty( $type['fields'] ) ) {
+				continue;
+			}
+			foreach ( $type['fields'] as $field ) {
+				$field_deprecation[ $type['name'] ][ $field['name'] ] = (bool) $field['isDeprecated'];
+			}
+		}
+
+		// For every implementing type, a deprecated field is only valid if the same field
+		// on each implemented interface is also deprecated (graphql/graphql-spec#1053).
+		$violations = [];
+		foreach ( $types as $type ) {
+			if ( empty( $type['interfaces'] ) || empty( $type['fields'] ) ) {
+				continue;
+			}
+
+			foreach ( $type['fields'] as $field ) {
+				if ( ! $field['isDeprecated'] ) {
+					continue;
+				}
+
+				foreach ( $type['interfaces'] as $interface ) {
+					$interface_name = $interface['name'];
+
+					// Only compare fields the interface actually declares.
+					if ( ! isset( $field_deprecation[ $interface_name ][ $field['name'] ] ) ) {
+						continue;
+					}
+
+					if ( false === $field_deprecation[ $interface_name ][ $field['name'] ] ) {
+						$violations[] = sprintf(
+							'%1$s.%2$s is deprecated, but interface field %3$s.%2$s is not.',
+							$type['name'],
+							$field['name'],
+							$interface_name
+						);
+					}
+				}
+			}
+		}
+
+		$this->assertSame(
+			[],
+			$violations,
+			"Found interface/implementation deprecation mismatches that break graphql-js based tooling (graphql-codegen, buildClientSchema):\n" . implode( "\n", $violations )
+		);
+	}
 }

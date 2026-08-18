@@ -353,6 +353,9 @@ class Tracing {
 		 * Filter whether the logs can be seen in the request results or not
 		 *
 		 * @param bool $can_see Whether the requester can see the logs or not
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_user_can_see_trace_data', $can_see );
 	}
@@ -380,6 +383,9 @@ class Tracing {
 		 *
 		 * @param Trace                    $trace     The trace to return
 		 * @param \WPGraphQL\Utils\Tracing $instance The Tracing class instance
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}

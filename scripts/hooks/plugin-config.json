@@ -1,0 +1,12 @@
+{
+	"wp-graphql": {
+		"pluginDir": "plugins/wp-graphql",
+		"sourcePaths": [
+			"src",
+			"access-functions.php",
+			"wp-graphql.php"
+		],
+		"docsDir": "plugins/wp-graphql/docs",
+		"snippetsDir": "plugins/wp-graphql/docs/snippets"
+	}
+}

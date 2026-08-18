@@ -1686,6 +1686,116 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( in_array( $src, $sources, true ) );
 	}
 
+	/**
+	 * Test that enqueued scripts can be filtered by handle.
+	 */
+	public function testEnqueuedScriptsCanBeFilteredByHandle() {
+		$included_handle = 'test-filtered-script';
+		$excluded_handle = 'test-unfiltered-script';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $included_handle, $excluded_handle ) {
+				wp_enqueue_script( $included_handle, 'test-filtered-script.js', [], '1.0.0', false );
+				wp_enqueue_script( $excluded_handle, 'test-unfiltered-script.js', [], '1.0.0', false );
+			}
+		);
+
+		$query = '
+		query PageById( $id: ID! ) {
+			page( id: $id, idType: DATABASE_ID ) {
+				enqueuedScripts( where: { handlesIn: ["' . $included_handle . '", "missing-script"] } ) {
+					nodes {
+						handle
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $this->page_id,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[ $included_handle ],
+			wp_list_pluck( $actual['data']['page']['enqueuedScripts']['nodes'], 'handle' )
+		);
+	}
+
+	/**
+	 * Test that an explicit empty handlesIn list matches no assets, while the
+	 * connection is unfiltered when the argument is omitted.
+	 */
+	public function testEnqueuedScriptsEmptyHandlesInMatchesNothing() {
+		$handle = 'test-empty-filter-script';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle ) {
+				wp_enqueue_script( $handle, 'test-empty-filter-script.js', [], '1.0.0', false );
+			}
+		);
+
+		$query = '
+		query PageById( $id: ID! ) {
+			page( id: $id, idType: DATABASE_ID ) {
+				enqueuedScripts( where: { handlesIn: [] } ) {
+					nodes {
+						handle
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $this->page_id,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( [], $actual['data']['page']['enqueuedScripts']['nodes'] );
+	}
+
+	/**
+	 * Test that the registeredScripts connection supports the same handlesIn
+	 * filter as the enqueued asset connections.
+	 */
+	public function testRegisteredScriptsCanBeFilteredByHandle() {
+		$handle = 'test-registered-only-script';
+
+		wp_register_script( $handle, 'test-registered-only-script.js', [], '1.0.0', false );
+
+		$query = '
+		query RegisteredScripts {
+			registeredScripts( where: { handlesIn: ["' . $handle . '", "missing-script"] } ) {
+				nodes {
+					handle
+				}
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[ $handle ],
+			wp_list_pluck( $actual['data']['registeredScripts']['nodes'], 'handle' )
+		);
+	}
+
 		/**
 		 * Verifies that output from wp_print_inline_script_tag during wp_enqueue_scripts
 		 * does not break the GraphQL JSON response, due to Router-level output buffering.

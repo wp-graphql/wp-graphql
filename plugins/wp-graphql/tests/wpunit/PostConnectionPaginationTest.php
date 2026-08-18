@@ -597,6 +597,168 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		}
 	}
 
+	/**
+	 * Creates posts where search relevance order differs from date order:
+	 * title matches are older, content-only matches are newer. WP_Query orders
+	 * search results by relevance (title matches first), so a date-based cursor
+	 * silently drops the newer content matches.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1818
+	 *
+	 * @param string $search_string The term to embed.
+	 *
+	 * @return int[]
+	 */
+	public function create_relevance_inversion_posts( $search_string ) {
+		$created_posts = [];
+
+		// 3 older posts that match in the TITLE (higher relevance).
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$created_posts[] = $this->factory()->post->create(
+				[
+					'post_type'    => 'post',
+					'post_status'  => 'publish',
+					'post_author'  => $this->admin,
+					'post_title'   => "{$search_string} study part {$i}",
+					'post_content' => "Older research article number {$i}",
+					'post_date'    => date( 'Y-m-d H:i:s', strtotime( "-10 day -{$i} minutes" ) ),
+				]
+			);
+		}
+
+		// 3 newer posts that match only in the CONTENT (lower relevance).
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$created_posts[] = $this->factory()->post->create(
+				[
+					'post_type'    => 'post',
+					'post_status'  => 'publish',
+					'post_author'  => $this->admin,
+					'post_title'   => "Recent news {$i}",
+					'post_content' => "This article is all about the {$search_string}, item {$i}",
+					'post_date'    => date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) ),
+				]
+			);
+		}
+
+		return $created_posts;
+	}
+
+	public function testForwardPaginationWithSearchWhenRelevanceAndDateOrderDiffer() {
+		$search_string = 'zebracursor';
+		$created_posts = $this->create_relevance_inversion_posts( $search_string );
+
+		// Set the variables to use in the GraphQL query.
+		$graphql_args = [
+			'first' => 2,
+			'where' => [
+				'search' => $search_string,
+			],
+		];
+
+		// Set the variables to use in the WP query. No orderby, so WP_Query
+		// applies its native search (relevance) ordering, same as the resolver.
+		$query_args = [
+			'posts_per_page' => 2,
+			'offset'         => 0,
+			's'              => $search_string,
+		];
+
+		$this->forwardPagination( $graphql_args, $query_args );
+
+		foreach ( $created_posts as $id ) {
+			wp_delete_post( $id, true );
+		}
+	}
+
+	public function testForwardPaginationWithMultiTermSearchWhenRelevanceAndDateOrderDiffer() {
+		$search_string = 'quagga unicorn';
+		$created_posts = $this->create_relevance_inversion_posts( $search_string );
+
+		$graphql_args = [
+			'first' => 2,
+			'where' => [
+				'search' => $search_string,
+			],
+		];
+
+		$query_args = [
+			'posts_per_page' => 2,
+			'offset'         => 0,
+			's'              => $search_string,
+		];
+
+		$this->forwardPagination( $graphql_args, $query_args );
+
+		foreach ( $created_posts as $id ) {
+			wp_delete_post( $id, true );
+		}
+	}
+
+	public function testBackwardPaginationWithSearchWhenRelevanceAndDateOrderDiffer() {
+		$search_string = 'zebracursor';
+		$created_posts = $this->create_relevance_inversion_posts( $search_string );
+
+		// The full result set in display (relevance) order.
+		$forward = ( new WP_Query() )->query(
+			[
+				'posts_per_page' => -1,
+				's'              => $search_string,
+				'fields'         => 'ids',
+			]
+		);
+
+		$this->assertCount( 6, $forward, 'Fixture should produce exactly 6 matching posts' );
+
+		$query = $this->getQuery();
+
+		// last:2 should return the final two results of the display order.
+		$variables = [
+			'last'  => 2,
+			'where' => [
+				'search' => $search_string,
+			],
+		];
+
+		$page_1 = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $page_1 );
+		$this->assertSame(
+			[ $forward[4], $forward[5] ],
+			array_column( $page_1['data']['posts']['nodes'], 'databaseId' ),
+			'last:2 should return the final two results of the relevance-ordered set'
+		);
+		$this->assertEquals( true, $page_1['data']['posts']['pageInfo']['hasPreviousPage'] );
+
+		// Page backward.
+		$variables['before'] = $page_1['data']['posts']['pageInfo']['startCursor'];
+
+		$page_2 = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $page_2 );
+		$this->assertSame(
+			[ $forward[2], $forward[3] ],
+			array_column( $page_2['data']['posts']['nodes'], 'databaseId' ),
+			'paging backward should return the middle two results'
+		);
+		$this->assertEquals( true, $page_2['data']['posts']['pageInfo']['hasPreviousPage'] );
+
+		$variables['before'] = $page_2['data']['posts']['pageInfo']['startCursor'];
+
+		$page_3 = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $page_3 );
+		$this->assertSame(
+			[ $forward[0], $forward[1] ],
+			array_column( $page_3['data']['posts']['nodes'], 'databaseId' ),
+			'paging backward should end with the first two results'
+		);
+		$this->assertEquals( false, $page_3['data']['posts']['pageInfo']['hasPreviousPage'] );
+
+		foreach ( $created_posts as $id ) {
+			wp_delete_post( $id, true );
+		}
+	}
+
 	public function testQueryWithFirstAndLast() {
 		wp_set_current_user( $this->admin );
 

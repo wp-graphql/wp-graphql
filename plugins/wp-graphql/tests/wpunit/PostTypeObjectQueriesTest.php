@@ -185,7 +185,7 @@ class PostTypeObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase 
 									'featuredImage'       => $post_type_object->labels->featured_image,
 									'setFeaturedImage'    => 'Set featured image',
 									'removeFeaturedImage' => 'Remove featured image',
-									'useFeaturedImage'    => null,
+									'useFeaturedImage'    => $post_type_object->labels->use_featured_image,
 									'menuName'            => 'Posts',
 									'filterItemsList'     => 'Filter posts list',
 									'itemsListNavigation' => 'Posts list navigation',
