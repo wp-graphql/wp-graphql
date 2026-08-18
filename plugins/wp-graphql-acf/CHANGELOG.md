@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2-rc](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.1...wp-graphql-acf/v2.7.2-rc) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4198](https://github.com/wp-graphql/wp-graphql/issues/4198)) ([f471e99](https://github.com/wp-graphql/wp-graphql/commit/f471e9936574d1ebbb777e005081ed51fd281e4b))
+
 ## [2.7.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.0...wp-graphql-acf/v2.7.1) (2026-08-18)
 
 
