@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql-smart-cache",
-	"version": "2.3.1",
+	"version": "2.3.2-rc",
 	"private": true,
 	"description": "Smart Caching & Cache Invalidation for WPGraphQL",
 	"repository": {
