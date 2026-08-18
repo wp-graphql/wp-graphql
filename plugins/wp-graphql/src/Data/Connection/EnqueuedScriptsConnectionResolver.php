@@ -30,15 +30,21 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	protected function prepare_query_args( array $args ): array {
-		// If any args are added to filter/sort the connection
-		return [];
+		return $args;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected function query( array $query_args ) {
-		return $this->source->enqueuedScriptsQueue ? $this->source->enqueuedScriptsQueue : [];
+		$queue   = $this->source->enqueuedScriptsQueue ? $this->source->enqueuedScriptsQueue : [];
+		$handles = $query_args['where']['handlesIn'] ?? null;
+
+		if ( ! is_array( $handles ) ) {
+			return $queue;
+		}
+
+		return array_values( array_intersect( $queue, $handles ) );
 	}
 
 	/**

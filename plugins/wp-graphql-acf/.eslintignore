@@ -1,8 +1,0 @@
-# Generated / output dirs
-tests/_output/
-build/
-coverage/
-
-# Dependencies
-node_modules/
-vendor/

@@ -2,12 +2,14 @@
 /**
  * Tests for the IDE's GraphQL authorization filters.
  *
- * Two filters together enforce per-user isolation on Smart Cache's
+ * A single filter enforces per-user isolation on Smart Cache's
  * `graphql_document` post type (the IDE's canonical document owner as
- * of 5.0):
- *   - scope_graphql_connections (list-level — filters connection args)
- *   - restrict_post_visibility  (single-node level — marks foreign
- *     records private at the Model layer)
+ * of 5.0): restrict_post_visibility marks foreign records private at
+ * the Model layer, which drops them from connections and nulls them in
+ * single-node lookups alike. (5.0.1–5.4.x also author-scoped connection
+ * query args, but that filter over-matched `post_type: 'any'`
+ * connections and was removed — see issue #4117 and
+ * ConnectionAuthorScopingTest in the wpunit-integration suite.)
  *
  * These tests are the load-bearing security guarantee. If any go red,
  * a user holding `manage_graphql_ide` can read another user's saved
@@ -70,7 +72,8 @@ class AuthorizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	// ---------------------------------------------------------------
-	// Connection scoping — scope_graphql_connections
+	// Connection isolation — restrict_post_visibility drops foreign
+	// documents from connection results
 	// ---------------------------------------------------------------
 
 	public function test_connection_returns_only_current_users_documents() {
@@ -94,7 +97,8 @@ class AuthorizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		wp_set_current_user( 0 );
 		$response = $this->graphql( [ 'query' => '{ graphqlDocuments { nodes { title } } }' ] );
 
-		// Anonymous → author = 0, which matches no posts.
+		// Anonymous → every document is foreign, so the model layer marks
+		// each one private and the connection drops them all.
 		$this->assertEmpty( $response['data']['graphqlDocuments']['nodes'] );
 	}
 

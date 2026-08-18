@@ -1,15 +1,16 @@
 <?php
 /**
  * Plugin Name:       WPGraphQL IDE
+ * Plugin URI:        https://wordpress.org/plugins/wpgraphql-ide/
  * Description:       A next-gen query editor for WPGraphQL.
- * Author:            WPGraphQL, Joseph Fusco
- * Author URI:        https://github.com/josephfusco
- * GitHub Plugin URI: https://github.com/wp-graphql/wpgraphql-ide
+ * Author:            WPGraphQL
+ * Author URI:        https://www.wpgraphql.com
+ * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
  * License:           GPL-3
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       wpgraphql-ide
  * Domain Path:       /languages
- * Version:           4.5.0
+ * Version:           5.4.2
  * Requires at least: 6.1
  * Tested up to:      7.0
  * Requires PHP:      7.4
@@ -28,7 +29,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
-define( 'WPGRAPHQL_IDE_VERSION', '4.5.0' );
+define( 'WPGRAPHQL_IDE_VERSION', '5.4.2' );
 define( 'WPGRAPHQL_IDE_ROOT_ELEMENT_ID', 'wpgraphql-ide-root' );
 define( 'WPGRAPHQL_IDE_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPGRAPHQL_IDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -128,6 +129,7 @@ function initialize_plugin() {
 	add_filter( 'graphql_setting_field_config', [ \WPGraphQLIDE\SettingsPage::class, 'rewrite_legacy_graphiql_link' ], 10, 3 );
 	add_filter( 'graphql_get_setting_section_field_value', [ \WPGraphQLIDE\SettingsPage::class, 'force_legacy_graphiql_off' ], 10, 5 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ \WPGraphQLIDE\AdminUI::class, 'add_settings_link' ] );
+	add_filter( 'plugin_row_meta', [ \WPGraphQLIDE\AdminUI::class, 'add_plugin_row_meta' ], 10, 2 );
 
 	// Scope REST queries to the current user's own documents.
 	// `graphql_document` is Smart Cache's saved-document post type — the
@@ -149,14 +151,18 @@ function initialize_plugin() {
 	// Custom REST routes.
 	add_action( 'rest_api_init', [ \WPGraphQLIDE\Rest::class, 'register' ] );
 
-	// GraphQL: scope Smart Cache `graphqlDocument` connections to the
-	// current user so the IDE's data is queryable from GraphQL but
-	// isolated per user — same contract as the REST endpoints. The
-	// `graphql_data_is_private` filter closes the single-node lookup
-	// hole left by the connection-only filter: without it,
-	// `node(id: "...")` could resolve another user's document if the
-	// requester knew its global ID.
-	add_filter( 'graphql_connection_query_args', [ \WPGraphQLIDE\Access::class, 'scope_graphql_connections' ], 10, 2 );
+	// GraphQL: per-user isolation of Smart Cache `graphqlDocument` data is
+	// enforced at the model layer — another user's document resolves as
+	// private everywhere a model is built (connections, `node(id: "...")`,
+	// nested fields), matching the REST endpoints' contract. The IDE's own
+	// document list additionally passes an `author` where arg client-side
+	// (see `src/api/documents.js`) so its pagination stays correct without
+	// any connection-level scoping. Do not reintroduce author scoping via
+	// `graphql_connection_query_args`: with Smart Cache active,
+	// `graphql_document` is part of every `post_type: 'any'` connection
+	// (core `contentNodes`, ACF relationship fields), and scoping those
+	// query args blanked unrelated authenticated queries.
+	// See https://github.com/wp-graphql/wp-graphql/issues/4117.
 	add_filter( 'graphql_data_is_private', [ \WPGraphQLIDE\Access::class, 'restrict_post_visibility' ], 10, 6 );
 
 	// Strip a deleted document's id from its owner's personal collections.
@@ -228,7 +234,7 @@ function add_custom_capabilities(): void {
 /**
  * Whether every role already holds each of its declared capabilities.
  *
- * @since x-release-please-version
+ * @since 5.0.1
  *
  * @param array<string,string[]> $capabilities Map of capability => role slugs.
  * @return bool True only if all roles exist and already have their caps.

@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.3.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.0...wp-graphql-smart-cache/v2.3.1) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.6.0 to 2.18.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group across 1 directory ([#4134](https://github.com/wp-graphql/wp-graphql/issues/4134)) ([cabf4b2](https://github.com/wp-graphql/wp-graphql/commit/cabf4b2207085a6170396111b7ce36a78a84d6b6))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.3 in /plugins/wp-graphql-smart-cache ([#4176](https://github.com/wp-graphql/wp-graphql/issues/4176)) ([ec42130](https://github.com/wp-graphql/wp-graphql/commit/ec421308ef97a8a4b92230b60a0d229dfbd4ca9c))
+* **deps-dev:** bump squizlabs/php_codesniffer from 3.13.5 to 3.13.6 in /plugins/wp-graphql-smart-cache ([#4178](https://github.com/wp-graphql/wp-graphql/issues/4178)) ([a01c6fe](https://github.com/wp-graphql/wp-graphql/commit/a01c6fea2e0a2a092900e0cb70f1e7d1db9a4f52))
+* **wp-graphql-smart-cache:** save admin-authored documents with the content-hash slug ([#4017](https://github.com/wp-graphql/wp-graphql/issues/4017)) ([5ee38af](https://github.com/wp-graphql/wp-graphql/commit/5ee38af9cd9b4854282166005872ba4db49f0a87))
+
+## [2.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.2...wp-graphql-smart-cache/v2.3.0) (2026-07-23)
+
+
+### New Features
+
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049)) ([b78d6dc](https://github.com/wp-graphql/wp-graphql/commit/b78d6dcc1c223daa73fea36528ef028ee8427fae))
+* **smart-cache:** invalidate settings-group caches on option updates ([#4095](https://github.com/wp-graphql/wp-graphql/issues/4095)) ([edbc733](https://github.com/wp-graphql/wp-graphql/commit/edbc733a73a47bdf25ace793c5f552efd36148f3))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql-smart-cache ([#4100](https://github.com/wp-graphql/wp-graphql/issues/4100)) ([60a2fa0](https://github.com/wp-graphql/wp-graphql/commit/60a2fa01899eb8d6702f4460c96c91eefc76e636))
+
+## [2.2.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.1...wp-graphql-smart-cache/v2.2.2) (2026-06-29)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-smart-cache ([#3985](https://github.com/wp-graphql/wp-graphql/issues/3985)) ([6699b8f](https://github.com/wp-graphql/wp-graphql/commit/6699b8ffd317de212d67076408be466684b4167d))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-smart-cache ([#3987](https://github.com/wp-graphql/wp-graphql/issues/3987)) ([cb57143](https://github.com/wp-graphql/wp-graphql/commit/cb571436ffebd933fb86bb91ad31c36d0d37f486))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.8.0 to 2.11.0 in /plugins/wp-graphql-smart-cache ([#3927](https://github.com/wp-graphql/wp-graphql/issues/3927)) ([f21d46f](https://github.com/wp-graphql/wp-graphql/commit/f21d46fe516cfd63d58dd2febc47012d292819ce))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960)) ([391e7d3](https://github.com/wp-graphql/wp-graphql/commit/391e7d3fa02085f1905e87c2091bb025885dc6b6))
+
 ## [2.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.0...wp-graphql-smart-cache/v2.2.1) (2026-06-04)
 
 

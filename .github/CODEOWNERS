@@ -1,0 +1,15 @@
+# Each line is a file pattern followed by one or more owners.
+# Code owners are auto-requested as reviewers on matching PRs.
+# Whether their review is required to merge is controlled by
+# the "Require review from Code Owners" toggle in the `main`
+# ruleset, not by this file. Order matters — the last matching
+# pattern takes precedence.
+
+# Default owner for everything in the repo. Unless a later
+# pattern matches, @jasonbahl is requested for review when
+# someone opens a pull request.
+*                           @jasonbahl
+
+# WPGraphQL IDE — @josephfusco is requested for review on any
+# change inside the plugin directory.
+/plugins/wp-graphql-ide/    @josephfusco

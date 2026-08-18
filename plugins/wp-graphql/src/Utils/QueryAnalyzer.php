@@ -3,6 +3,7 @@
 namespace WPGraphQL\Utils;
 
 use GraphQL\Error\SyntaxError;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Server\OperationParams;
@@ -126,6 +127,14 @@ class QueryAnalyzer {
 	protected $is_enabled_for_query;
 
 	/**
+	 * Cache of parsed query ASTs for the current request, keyed by query string.
+	 * Avoids re-parsing the same document multiple times within a single request.
+	 *
+	 * @var array<string,?\GraphQL\Language\AST\DocumentNode>
+	 */
+	protected array $parsed_asts = [];
+
+	/**
 	 * @param \WPGraphQL\Request $request The GraphQL request being executed
 	 */
 	public function __construct( Request $request ) {
@@ -157,6 +166,8 @@ class QueryAnalyzer {
 		 * Filters whether to analyze queries for all GraphQL requests.
 		 *
 		 * @param bool $should_track_types Whether to analyze queries or not. Defaults to `true` if GraphQL Debugging is enabled, otherwise `false`.
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_should_analyze_queries', $query_analyzer_enabled );
 	}
@@ -195,7 +206,9 @@ class QueryAnalyzer {
 			 * Filters whether to analyze queries or for a specific GraphQL request.
 			 *
 			 * @param bool          $should_analyze_queries Whether to analyze queries for the current request. Defaults to the value of `graphql_query_analyzer_enabled` filter.
-			 * @param \WPGraphQL\Request $request               The GraphQL request being executed
+		 * @param \WPGraphQL\Request $request               The GraphQL request being executed.
+		 * @hookGroup debugging
+		 * @since 1.11.0
 			 */
 			$should_analyze_queries = apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request() );
 
@@ -237,6 +250,8 @@ class QueryAnalyzer {
 		 * (i.e. https://github.com/wp-graphql/wp-graphql/issues/2535#issuecomment-1262499064) then you might want to increase this so that keys are not truncated.
 		 *
 		 * @param int $header_length_limit The max limit in (binary) bytes headers should be. Anything longer will be truncated.
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 4000 );
 
@@ -292,8 +307,12 @@ class QueryAnalyzer {
 		$this->models        = $this->set_query_models( $this->get_schema(), $query );
 
 		/**
+		 * Fires after QueryAnalyzer has calculated list/query/model keys for a request.
+		 *
 		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The instance of the query analyzer
 		 * @param string                         $query          The query string being executed
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		do_action( 'graphql_determine_graphql_keys', $this, $query );
 	}
@@ -324,7 +343,11 @@ class QueryAnalyzer {
 	 */
 	public function get_runtime_nodes(): array {
 		/**
+		 * Filters runtime node identifiers captured while resolving a GraphQL request.
+		 *
 		 * @param string[]|int[] $runtime_nodes Nodes that were resolved during execution
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		$runtime_nodes = apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
 
@@ -351,12 +374,13 @@ class QueryAnalyzer {
 				return null;
 			}
 
-			try {
-				$ast            = Parser::parse( $this->request->params->query );
-				$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
-			} catch ( SyntaxError $error ) {
+			$ast = $this->get_parsed_ast( $this->request->params->query );
+
+			if ( null === $ast ) {
 				return null;
 			}
+
+			$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
 		}
 
 		return ! empty( $operation_name ) ? 'operation:' . $operation_name : null;
@@ -424,6 +448,30 @@ class QueryAnalyzer {
 	}
 
 	/**
+	 * Parse a query string into a DocumentNode, memoizing the result for the
+	 * lifetime of the request. Returns null if the query is empty or invalid,
+	 * letting each caller preserve its pre-memoization behavior: the set_*
+	 * methods return [] and get_operation_name() returns null.
+	 *
+	 * @param ?string $query The GraphQL query string.
+	 */
+	protected function get_parsed_ast( ?string $query ): ?DocumentNode {
+		if ( empty( $query ) ) {
+			return null;
+		}
+
+		if ( ! array_key_exists( $query, $this->parsed_asts ) ) {
+			try {
+				$this->parsed_asts[ $query ] = Parser::parse( $query );
+			} catch ( SyntaxError $error ) {
+				$this->parsed_asts[ $query ] = null;
+			}
+		}
+
+		return $this->parsed_asts[ $query ];
+	}
+
+	/**
 	 * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
 	 * by the query.
 	 *
@@ -435,25 +483,28 @@ class QueryAnalyzer {
 	 */
 	public function set_list_types( ?Schema $schema, ?string $query ): array {
 
+		$null = null;
 		/**
-		 * @param string[]|null         $null   Default value for the filter
-		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request
-		 * @param ?string               $query  The query string being requested
+		 * Filters list types before QueryAnalyzer derives them from the AST.
+		 *
+		 * @param string[]|null         $null   Default value for the filter.
+		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request.
+		 * @param ?string               $query  The query string being requested.
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
-		$null               = null;
 		$pre_get_list_types = apply_filters( 'graphql_pre_query_analyzer_get_list_types', $null, $schema, $query );
 
 		if ( null !== $pre_get_list_types ) {
 			return $pre_get_list_types;
 		}
 
-		if ( empty( $query ) || null === $schema ) {
+		if ( null === $schema ) {
 			return [];
 		}
 
-		try {
-			$ast = Parser::parse( $query );
-		} catch ( SyntaxError $error ) {
+		$ast = $this->get_parsed_ast( $query );
+		if ( null === $ast ) {
 			return [];
 		}
 
@@ -524,6 +575,16 @@ class QueryAnalyzer {
 
 		$map = array_values( array_unique( $type_map ) );
 
+		/**
+		 * Filters list type cache keys derived by QueryAnalyzer.
+		 *
+		 * @param string[]                    $map       List-type cache keys.
+		 * @param ?\GraphQL\Type\Schema       $schema    The WPGraphQL Schema for the current request.
+		 * @param ?string                     $query     The query string being requested.
+		 * @param \GraphQL\Utils\TypeInfo     $type_info Type metadata gathered while traversing the AST.
+		 * @hookGroup debugging
+		 * @since 1.11.0
+		 */
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}
 
@@ -539,24 +600,28 @@ class QueryAnalyzer {
 	 */
 	public function set_query_types( ?Schema $schema, ?string $query ): array {
 
+		$null = null;
 		/**
-		 * @param string[]|null         $null   Default value for the filter
-		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request
-		 * @param ?string               $query  The query string being requested
+		 * Filters query types before QueryAnalyzer derives them from the AST.
+		 *
+		 * @param string[]|null         $null   Default value for the filter.
+		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request.
+		 * @param ?string               $query  The query string being requested.
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
-		$null                = null;
 		$pre_get_query_types = apply_filters( 'graphql_pre_query_analyzer_get_query_types', $null, $schema, $query );
 
 		if ( null !== $pre_get_query_types ) {
 			return $pre_get_query_types;
 		}
 
-		if ( empty( $query ) || null === $schema ) {
+		if ( null === $schema ) {
 			return [];
 		}
-		try {
-			$ast = Parser::parse( $query );
-		} catch ( SyntaxError $error ) {
+
+		$ast = $this->get_parsed_ast( $query );
+		if ( null === $ast ) {
 			return [];
 		}
 		$type_map  = [];
@@ -607,6 +672,16 @@ class QueryAnalyzer {
 		);
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
+		/**
+		 * Filters query type cache keys derived by QueryAnalyzer.
+		 *
+		 * @param string[]                $map       Query-type cache keys.
+		 * @param ?\GraphQL\Type\Schema   $schema    The WPGraphQL Schema for the current request.
+		 * @param ?string                 $query     The query string being requested.
+		 * @param \GraphQL\Utils\TypeInfo $type_info Type metadata gathered while traversing the AST.
+		 * @hookGroup debugging
+		 * @since 1.11.0
+		 */
 		return apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
 	}
 
@@ -622,24 +697,28 @@ class QueryAnalyzer {
 	 */
 	public function set_query_models( ?Schema $schema, ?string $query ): array {
 
+		$null = null;
 		/**
-		 * @param string[]|null         $null   Default value for the filter
-		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request
-		 * @param ?string               $query  The query string being requested
+		 * Filters model identifiers before QueryAnalyzer derives them from the AST.
+		 *
+		 * @param string[]|null         $null   Default value for the filter.
+		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request.
+		 * @param ?string               $query  The query string being requested.
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
-		$null           = null;
 		$pre_get_models = apply_filters( 'graphql_pre_query_analyzer_get_models', $null, $schema, $query );
 
 		if ( null !== $pre_get_models ) {
 			return $pre_get_models;
 		}
 
-		if ( empty( $query ) || null === $schema ) {
+		if ( null === $schema ) {
 			return [];
 		}
-		try {
-			$ast = Parser::parse( $query );
-		} catch ( SyntaxError $error ) {
+
+		$ast = $this->get_parsed_ast( $query );
+		if ( null === $ast ) {
 			return [];
 		}
 
@@ -695,6 +774,16 @@ class QueryAnalyzer {
 		/** @var string[] $map */
 		$map = array_values( $unique );
 
+		/**
+		 * Filters query model cache keys derived by QueryAnalyzer.
+		 *
+		 * @param string[]                $map       Query model cache keys.
+		 * @param ?\GraphQL\Type\Schema   $schema    The WPGraphQL Schema for the current request.
+		 * @param ?string                 $query     The query string being requested.
+		 * @param \GraphQL\Utils\TypeInfo $type_info Type metadata gathered while traversing the AST.
+		 * @hookGroup debugging
+		 * @since 1.11.0
+		 */
 		return apply_filters( 'graphql_cache_collection_get_query_models', $map, $schema, $query, $type_info );
 	}
 
@@ -719,6 +808,8 @@ class QueryAnalyzer {
 			 * @param int             $model_id      The ID of the model (node) being returned
 			 * @param object          $model         The Model object being returned
 			 * @param string[]|int[]  $runtime_nodes The runtimes nodes already collected
+			 * @hookGroup debugging
+			 * @since 1.11.0
 			 */
 			$node_id = apply_filters( 'graphql_query_analyzer_runtime_node', $model->id, $model, $this->runtime_nodes );
 
@@ -814,11 +905,15 @@ class QueryAnalyzer {
 		}
 
 		/**
+		 * Filters the assembled query analyzer keys before they are returned.
+		 *
 		 * @param AnalyzedGraphQLKeys $graphql_keys       Information about the keys and skipped keys returned by the Query Analyzer
 		 * @param string              $return_keys        The keys returned to the X-GraphQL-Keys header
 		 * @param string              $skipped_keys       The Keys that were skipped (truncated due to size limit) from the X-GraphQL-Keys header
 		 * @param string[]            $return_keys_array  The keys returned to the X-GraphQL-Keys header, in array instead of string
 		 * @param string[]            $skipped_keys_array The keys skipped, in array instead of string
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		$this->graphql_keys = apply_filters(
 			'graphql_query_analyzer_graphql_keys',
@@ -856,8 +951,12 @@ class QueryAnalyzer {
 		}
 
 		/**
+		 * Filters GraphQL response headers after query analyzer headers are appended.
+		 *
 		 * @param array<string,string>           $headers The array of headers being returned
 		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The instance of the query analyzer
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
 	}
@@ -877,12 +976,16 @@ class QueryAnalyzer {
 		$should = $this->is_enabled_for_query() && WPGraphQL::debug();
 
 		/**
+		 * Filters whether query analyzer details should be included in response extensions.
+		 *
 		 * @param bool                              $should         Whether the query analyzer output should be displayed in the Extensions output. Defaults to true if the query analyzer is enabled for the request and WPGraphQL Debugging is enabled.
 		 * @param  mixed|array<string,mixed>|object $response       The response of the WPGraphQL Request being executed
 		 * @param \WPGraphQL\WPSchema               $schema         The WPGraphQL Schema
 		 * @param string|null                       $operation_name The operation name being executed
 		 * @param string|null                       $request        The GraphQL Request being made
 		 * @param array<string,mixed>|null          $variables      The variables sent with the request
+		 * @hookGroup debugging
+		 * @since 1.11.0
 		 */
 		$should_show_query_analyzer_in_extensions = apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
 

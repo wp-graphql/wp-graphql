@@ -146,34 +146,56 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 
 	upgradeNotice += '\nPlease review these changes before upgrading.\n';
 
-	// Find the Upgrade Notice section
+	// Find the Upgrade Notice body. The outer regex bounds the slice at
+	// the next `\n==` heading (or EOF); inner mutations operate on
+	// `sectionBody` and are spliced back, so they cannot escape the section.
 	const upgradeNoticeMatch = content.match(
 		/(== Upgrade Notice ==\n\n?)([\s\S]*?)(?=\n==|$)/
 	);
 	const escapedVersion = escapeRegExp(version);
 
 	if (upgradeNoticeMatch) {
-		// Check if this version's notice already exists
-		const versionNoticeRegex = new RegExp(`= ${escapedVersion} =`);
-		const hasVersionNotice = versionNoticeRegex.test(upgradeNoticeMatch[2]);
+		const sectionPrefix = upgradeNoticeMatch[1];
+		let sectionBody = upgradeNoticeMatch[2];
+
+		// Anchor `= X.Y.Z =` to a line start so prose mentions don't
+		// false-positive into the replace branch.
+		const versionNoticeRegex = new RegExp(
+			`(^|\\n)= ${escapedVersion} =`
+		);
+		const hasVersionNotice = versionNoticeRegex.test(sectionBody);
 
 		if (hasVersionNotice) {
-			// Replace existing notice for this version
+			// Replace within the body slice only. `$` is end-of-slice
+			// (the outer regex bounded the section).
 			const existingNoticeRegex = new RegExp(
-				`(= ${escapedVersion} =[\\s\\S]*?)(?=\\n= \\d|$)`
+				`(^|\\n)= ${escapedVersion} =[\\s\\S]*?(?=\\n= \\d|$)`
 			);
-			content = content.replace(existingNoticeRegex, upgradeNotice);
+			sectionBody = sectionBody.replace(
+				existingNoticeRegex,
+				(match) => {
+					const leadingNewline = match.startsWith('\n') ? '\n' : '';
+					return `${leadingNewline}${upgradeNotice}`;
+				}
+			);
 			console.log(
 				`Updated existing upgrade notice for version ${version}`
 			);
 		} else {
-			// Add new notice at the top of the section
-			content = content.replace(
-				/(== Upgrade Notice ==\n\n?)/,
-				`$1${upgradeNotice}\n`
-			);
+			// Prepend a fresh notice at the top of the body.
+			sectionBody = `${upgradeNotice}\n${sectionBody.replace(/^\n+/, '')}`;
 			console.log(`Added new upgrade notice for version ${version}`);
 		}
+
+		// Splice the modified body back, leaving everything before/after the
+		// section untouched.
+		const sectionStart = upgradeNoticeMatch.index;
+		const sectionEnd = sectionStart + upgradeNoticeMatch[0].length;
+		content =
+			content.slice(0, sectionStart) +
+			sectionPrefix +
+			sectionBody +
+			content.slice(sectionEnd);
 	} else {
 		// Add Upgrade Notice section before Changelog
 		const changelogMatch = content.match(/\n== Changelog ==/);

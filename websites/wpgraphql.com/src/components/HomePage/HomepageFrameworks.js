@@ -3,7 +3,7 @@ import Image from "next/image"
 const frameworks = [
   { name: "Gatsby", src: "/logos/logo-gatsby.png" },
   { name: "Next.js", src: "/logos/logo-nextjs.png" },
-  { name: "Vue",    src: "/logos/logo-vue.png" },
+  { name: "Vue", src: "/logos/logo-vue.png" },
   { name: "Svelte", src: "/logos/logo-svelte.png" },
 ]
 

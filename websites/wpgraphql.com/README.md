@@ -11,11 +11,13 @@ This repository contains the Next.js code to source data from WordPress and crea
 ### Setup
 
 1. Install dependencies from the monorepo root:
+
    ```bash
    npm install
    ```
 
 2. Copy the example environment file:
+
    ```bash
    cp .env.local.example .env.local
    ```
@@ -30,6 +32,7 @@ This repository contains the Next.js code to source data from WordPress and crea
 ### Building
 
 To build the website:
+
 ```bash
 npm run build -w @wpgraphql/wpgraphql-com
 ```
@@ -43,6 +46,7 @@ npm run test:build-without-possibletypes -w @wpgraphql/wpgraphql-com
 ```
 
 This script will:
+
 1. Backup the existing `possibleTypes.json` file (if it exists)
 2. Delete the file to simulate the Vercel scenario
 3. Run the build without the prebuild hook

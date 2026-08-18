@@ -77,6 +77,87 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * When WordPress is installed in a subdirectory, the full home URL (e.g.
+	 * `/blog/`) must resolve to the home page, not return null. Previously only a
+	 * literal `/` resolved the home page; the full home URL was left unresolved
+	 * because parse_request() strips the home path, leaving an empty request that
+	 * the resolver did not recognize as the home page.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3775
+	 */
+	public function testHomePageResolvesByFullUrlInSubdirectoryInstall(): void {
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Subdir Front Page',
+			]
+		);
+		update_option( 'page_on_front', $page_id );
+		update_option( 'show_on_front', 'page' );
+
+		$child = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'About',
+				'post_name'   => 'about',
+			]
+		);
+
+		// The detection must not be coupled to any particular subdirectory name, so
+		// exercise several arbitrary names including a nested path.
+		foreach ( [ 'blog', 'wp-in-subdirectory', 'cms/site' ] as $subdir ) {
+			$this->assertSubdirectoryHomeResolves( $subdir, $page_id, $child );
+		}
+	}
+
+	/**
+	 * Asserts that, with WordPress simulated as installed under the given
+	 * subdirectory, the full home URL resolves to the front page and a real page
+	 * below the home still resolves normally.
+	 *
+	 * @param string $subdir   The subdirectory the install is simulated under (no surrounding slashes).
+	 * @param int    $page_id  The page set as the static front page.
+	 * @param int    $child_id A non-home page used to confirm normal resolution still works.
+	 */
+	protected function assertSubdirectoryHomeResolves( string $subdir, int $page_id, int $child_id ): void {
+		$subdir_home = home_url() . '/' . $subdir;
+		$home_filter = static function () use ( $subdir_home ) {
+			return $subdir_home;
+		};
+		add_filter( 'home_url', $home_filter );
+		add_filter( 'option_home', $home_filter );
+
+		$GLOBALS['wp_rewrite']->init();
+		flush_rewrite_rules( true );
+
+		$query = $this->getQuery();
+
+		// The full subdirectory home URL must resolve the front page, with and
+		// without a trailing slash.
+		foreach ( [ "/{$subdir}", "/{$subdir}/" ] as $uri ) {
+			$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'uri' => $uri ] ] );
+
+			$this->assertArrayNotHasKey( 'errors', $actual, "Errors for uri {$uri}" );
+			$this->assertNotNull( $actual['data']['nodeByUri'], "Expected the home page to resolve for uri {$uri}" );
+			$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'], "Wrong typename for uri {$uri}" );
+			$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'], "Wrong node for uri {$uri}" );
+			$this->assertTrue( $actual['data']['nodeByUri']['isFrontPage'], "Expected isFrontPage for uri {$uri}" );
+		}
+
+		// A real page below the subdirectory home must still resolve normally
+		// (the home detection must not swallow non-home requests).
+		$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'uri' => "/{$subdir}/about/" ] ] );
+		$this->assertArrayNotHasKey( 'errors', $actual, "Errors resolving child for subdir {$subdir}" );
+		$this->assertSame( $child_id, $actual['data']['nodeByUri']['databaseId'], "Child page should resolve under subdir {$subdir}" );
+		$this->assertFalse( $actual['data']['nodeByUri']['isFrontPage'], "Child page should not be the front page under subdir {$subdir}" );
+
+		remove_filter( 'home_url', $home_filter );
+		remove_filter( 'option_home', $home_filter );
+	}
+
+	/**
 	 * Test Comment URIs
 	 */
 	public function testCommentByUri(): void {

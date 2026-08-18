@@ -311,8 +311,12 @@ class UpdateChecker {
 		 * @param string $new_version     The new WPGraphQL version number.
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
+		 * @hookGroup settings
+		 * @since 2.0.0
 		 */
-		return apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
+		$should_allow = apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
+
+		return (bool) $should_allow;
 	}
 
 	/**
@@ -333,8 +337,12 @@ class UpdateChecker {
 		 * @param string $new_version     The new WPGraphQL version number.
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
+		 * @hookGroup settings
+		 * @since 2.0.0
 		 */
-		return apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
+		$should_allow = apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
+
+		return (bool) $should_allow;
 	}
 
 	/**
@@ -348,6 +356,8 @@ class UpdateChecker {
 		 * This is used to prevent autoupdates when a plugin is untested with the specified channel. I.e. major > minor > patch > prerelease.
 		 *
 		 * @param 'major'|'minor'|'patch'|'prerelease' $release_type The release type to use when checking for untested plugins. Defaults to 'major'.
+		 * @hookGroup settings
+		 * @since 2.0.0
 		 */
 		$release_type = (string) apply_filters( 'wpgraphql_untested_release_type', 'major' );
 
@@ -384,6 +394,9 @@ class UpdateChecker {
 		 *
 		 * @param array<string,array<string,mixed>> $plugins The array of plugins that use WPGraphQL as a dependency.
 		 * @param array<string,array<string,mixed>> $all_plugins The array of all plugins.
+		 *
+		 * @hookGroup settings
+		 * @since 2.0.0
 		 */
 		$this->dependents = apply_filters( 'graphql_get_dependents', $plugins, $all_plugins );
 
@@ -424,6 +437,9 @@ class UpdateChecker {
 		 *
 		 * @param array<string,array<string,mixed>> $plugins The array of plugins that maybe use WPGraphQL as a dependency.
 		 * @param array<string,array<string,mixed>> $all_plugins The array of all plugins.
+		 *
+		 * @hookGroup settings
+		 * @since 2.0.0
 		 */
 		$this->possible_dependents = apply_filters( 'graphql_get_possible_dependents', $plugins, $all_plugins );
 

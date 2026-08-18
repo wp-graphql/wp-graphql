@@ -108,6 +108,9 @@ final class ExperimentRegistry {
 		 * Filters the capability required to turn experimental features on and off.
 		 *
 		 * @param string $capability The capability required to turn experimental features on and off. Defaults to `manage_options`.
+		 *
+		 * @hookGroup settings
+		 * @since 2.3.8
 		 */
 		return apply_filters( 'graphql_experimental_features_cap', 'manage_options' );
 	}
@@ -287,6 +290,9 @@ final class ExperimentRegistry {
 		 * ```
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
+		 *
+		 * @hookGroup settings
+		 * @since 2.3.8
 		 */
 		$this->registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
 
@@ -294,6 +300,9 @@ final class ExperimentRegistry {
 		 * Fires after the experiment classes have been registered.
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
+		 *
+		 * @hookGroup settings
+		 * @since 2.3.8
 		 */
 		do_action( 'graphql_experiments_registered', $this->registry );
 	}
@@ -322,6 +331,9 @@ final class ExperimentRegistry {
 		 *
 		 * @param array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>|null          $experiments The list of loaded experiment classes, keyed by experiment slug.
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
+		 *
+		 * @hookGroup settings
+		 * @since 2.3.8
 		 */
 		do_action( 'graphql_experiments_loaded', $this->experiments, $this->get_experiment_registry() );
 	}

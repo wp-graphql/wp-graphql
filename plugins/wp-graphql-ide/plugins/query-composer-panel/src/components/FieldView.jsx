@@ -180,6 +180,14 @@ class FieldView extends React.PureComponent {
 			className += ' graphiql-explorer-deprecated';
 		}
 
+		// Path used to match against the editor cursor's AST position. The
+		// pipe delimiter is safe because it's not valid in GraphQL identifiers.
+		const pathSegments = this.props.pathSegments || [];
+		const myPath = [...pathSegments, field.name];
+		const dataFieldPath = this.props.opKey
+			? `${this.props.opKey}|${myPath.join('|')}`
+			: null;
+
 		const applicableFragments =
 			isObjectType(type) || isInterfaceType(type) || isUnionType(type)
 				? this.props.availableFragments &&
@@ -200,6 +208,7 @@ class FieldView extends React.PureComponent {
 						className="graphiql-explorer-row"
 						data-field-name={field.name}
 						data-field-type={type.name}
+						data-field-path={dataFieldPath}
 						onClick={this._handleUpdateSelections}
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
@@ -418,6 +427,8 @@ class FieldView extends React.PureComponent {
 									availableFragments={
 										this.props.availableFragments
 									}
+									opKey={this.props.opKey}
+									pathSegments={myPath}
 								/>
 							))}
 						{isInterfaceType(type) || isUnionType(type)

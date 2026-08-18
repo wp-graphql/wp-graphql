@@ -26,21 +26,15 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	}
 
 	/**
-	 * Method for testing whether a user can query settings
-	 * if they don't have the 'manage_options' capability
-	 *
-	 * They should not be able to query for the admin email
-	 * so we should receive an error back
+	 * Restricted settings return null when queried without manage_options.
 	 *
 	 * @return void
 	 */
 	public function testAllSettingsQueryAsEditor() {
-		/**
-		 * Set the editor user
-		 * Set the query
-		 * Make the request
-		 * Validate the request has errors
-		 */
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The admin_email setting is not registered on multisite.' );
+		}
+
 		wp_set_current_user( $this->editor );
 		$query  = '
 			query {
@@ -51,7 +45,8 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 		';
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual, isset( $actual['errors'] ) ? wp_json_encode( $actual['errors'] ) : '' );
+		$this->assertNull( $actual['data']['allSettings']['generalSettingsEmail'] );
 	}
 
 	/**
@@ -187,10 +182,103 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	}
 
 	/**
+	 * The `home` option ("Site Address") should be queryable via generalSettings.homeUrl.
+	 *
+	 * WordPress core registers `siteurl` ("WordPress Address") for the REST API, which is
+	 * exposed as `generalSettings.url`, but core does not register `home`. WPGraphQL
+	 * registers `homeUrl` for GraphQL so headless sites can read the canonical front-end URL,
+	 * which can differ from the WordPress Address.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2520
+	 * @throws \Exception
+	 */
+	public function testGeneralSettingsHomeUrlIsExposed() {
+		wp_set_current_user( $this->admin );
+
+		// Set the Site Address (home) to a value distinct from the WordPress Address (siteurl).
+		update_option( 'home', 'https://frontend.example.com' );
+		update_option( 'siteurl', 'https://wp.example.com' );
+
+		$query = '
+		{
+			generalSettings {
+				url
+				homeUrl
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// The `homeUrl` field should exist and resolve on every install. Without the
+		// registration the field would not exist on the GeneralSettings type and the
+		// query above would error, so this guards the registration itself.
+		$this->assertArrayHasKey( 'homeUrl', $actual['data']['generalSettings'] );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['homeUrl'] );
+
+		// On multisite, update_option() for siteurl/home does not round-trip through
+		// GraphQL to the set value (mirrors the guarded assertion in testAllSettingsQuery),
+		// so only assert the exact values on single-site installs.
+		if ( ! is_multisite() ) {
+			$this->assertEquals( 'https://wp.example.com', $actual['data']['generalSettings']['url'] );
+			$this->assertEquals( 'https://frontend.example.com', $actual['data']['generalSettings']['homeUrl'] );
+		}
+
+		// The field is registered directly on the type rather than through the settings
+		// registry, so it must not be writable: the updateSettings mutation input should
+		// have no corresponding field.
+		$introspection = graphql(
+			[
+				'query' => '
+				{
+					__type(name: "UpdateSettingsInput") {
+						inputFields {
+							name
+						}
+					}
+				}
+				',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $introspection );
+		$input_field_names = wp_list_pluck( $introspection['data']['__type']['inputFields'], 'name' );
+		$this->assertNotContains( 'generalSettingsHomeUrl', $input_field_names );
+		$this->assertNotContains( 'generalSettingsHome', $input_field_names );
+	}
+
+	/**
 	 * Ensure RootQuery does not expose allSettings when no settings are available.
 	 *
 	 * @return void
 	 */
+	/**
+	 * The timezone fallback (deriving the value from `gmt_offset` when
+	 * `timezone_string` is empty) must apply on the flat allSettings surface,
+	 * not just the grouped generalSettings surface.
+	 */
+	public function testFlatTimezoneSettingFallsBackToUtcOffset() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', '2' );
+
+		$query = '
+		query {
+			allSettings {
+				generalSettingsTimezone
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( '+02:00', $actual['data']['allSettings']['generalSettingsTimezone'] );
+	}
+
 	public function testAllSettingsFieldIsHiddenWhenNoSettingsAreExposed() {
 		$filter = static function () {
 			return [];

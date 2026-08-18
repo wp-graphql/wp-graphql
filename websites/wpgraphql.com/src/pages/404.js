@@ -55,9 +55,15 @@ export default function NotFound({ menu }) {
           <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-muted-foreground">
             Popular pages
           </h2>
-          <ul role="list" className="mt-4 divide-y divide-border border-y border-border">
+          <ul
+            role="list"
+            className="mt-4 divide-y divide-border border-y border-border"
+          >
             {links.map((link) => (
-              <li key={link.path} className="relative flex items-start gap-4 py-5">
+              <li
+                key={link.path}
+                className="relative flex items-start gap-4 py-5"
+              >
                 <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md border border-border bg-muted text-primary">
                   <DynamicHeroIcon
                     icon={getIconNameFromMenuItem(link)}
@@ -74,7 +80,9 @@ export default function NotFound({ menu }) {
                       </a>
                     </Link>
                   </h3>
-                  <p className="text-sm text-muted-foreground">{link.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {link.description}
+                  </p>
                 </div>
                 <ChevronRightIcon
                   className="h-5 w-5 flex-shrink-0 self-center text-muted-foreground"

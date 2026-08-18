@@ -88,6 +88,8 @@ abstract class AbstractExperiment {
 		 * Fires after the experiment is loaded.
 		 *
 		 * @param \WPGraphQL\Experimental\Experiment\AbstractExperiment $instance The experiment instance.
+		 * @hookGroup settings
+		 * @since 2.5.0
 		 */
 		do_action( 'wp_graphql_experiment_' . $this->get_slug() . '_loaded', $this );
 	}
@@ -278,6 +280,17 @@ abstract class AbstractExperiment {
 			}
 		} else {
 			// Constant not defined, apply filter to allow programmatic control
+			/**
+			 * Filters global experimental feature overrides.
+			 *
+			 * Return `false` to disable all experiments, or return an associative array keyed by
+			 * experiment slug to selectively enable/disable experiments.
+			 *
+			 * @param array<string,bool>|false|null $experimental_features The experimental feature override map, false, or null.
+			 *
+			 * @hookGroup settings
+			 * @since 2.3.8
+			 */
 			$experimental_features = apply_filters( 'graphql_experimental_features_override', null );
 
 			if ( null !== $experimental_features ) {
@@ -304,14 +317,20 @@ abstract class AbstractExperiment {
 			$setting_value = get_graphql_setting( $setting_key, 'off', Admin::$option_group );
 			$is_active     = 'on' === $setting_value;
 
+			$slug = static::get_slug();
 			/**
 			 * Filters whether the experiment is active.
 			 *
 			 * @param bool   $is_active Whether the experiment is active.
 			 * @param string $slug      The experiment's slug.
+			 *
+			 * @hookGroup settings
+			 * @since 2.3.8
 			 */
-			$is_active = apply_filters( 'wp_graphql_experiment_enabled', $is_active, static::get_slug() );
-			$is_active = apply_filters( 'wp_graphql_experiment_' . static::get_slug() . '_enabled', $is_active );
+			$is_active = apply_filters( 'wp_graphql_experiment_enabled', $is_active, $slug );
+
+			$enabled_hook = 'wp_graphql_experiment_' . $slug . '_enabled';
+			$is_active    = apply_filters( $enabled_hook, $is_active );
 		}
 
 		$this->is_active = $is_active;
@@ -350,10 +369,14 @@ abstract class AbstractExperiment {
 		 * Filters the experiment configuration.
 		 *
 		 * @param array{title:string,description:string} $config The experiment configuration.
-		 * @param string              $slug   The experiment's slug.
+		 * @param string                               $slug   The experiment's slug.
+		 * @hookGroup settings
+		 * @since 2.5.0
 		 */
 		$config = apply_filters( 'wp_graphql_experiment_config', $config, $slug );
-		$config = apply_filters( 'wp_graphql_experiment_' . $slug . '_config', $config );
+
+		$config_hook = 'wp_graphql_experiment_' . $slug . '_config';
+		$config      = apply_filters( $config_hook, $config );
 
 		// Validate the config.
 		$this->validate_config( $config );

@@ -28,7 +28,9 @@ const CHECK_ICON_SVG = `
 
 function detectLang(codeEl) {
   if (!codeEl) return ""
-  const cls = Array.from(codeEl.classList).find((c) => c.startsWith("language-"))
+  const cls = Array.from(codeEl.classList).find((c) =>
+    c.startsWith("language-")
+  )
   if (!cls) return ""
   return cls.replace(/^language-/, "")
 }
@@ -63,7 +65,10 @@ function enhancePre(pre) {
 
   const copyBtn = header.querySelector(".code-block-copy")
   copyBtn.addEventListener("click", async () => {
-    const text = (codeEl?.textContent ?? pre.textContent ?? "").replace(/\n$/, "")
+    const text = (codeEl?.textContent ?? pre.textContent ?? "").replace(
+      /\n$/,
+      ""
+    )
     try {
       await navigator.clipboard.writeText(text)
       copyBtn.classList.add("is-copied")

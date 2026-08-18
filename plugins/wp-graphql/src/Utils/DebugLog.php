@@ -38,6 +38,9 @@ class DebugLog {
 		 *
 		 * @param bool $enabled Whether logs are enabled or not
 		 * @param \WPGraphQL\Utils\DebugLog $debug_log The DebugLog class instance
+		 *
+		 * @hookGroup debugging
+		 * @since 0.0.5
 		 */
 		$this->logs_enabled = apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
 	}
@@ -97,6 +100,9 @@ class DebugLog {
 			 *
 			 * @param array<string,mixed> $log    The log entry
 			 * @param array<string,mixed> $config The config passed in with the log entry
+		 *
+		 * @hookGroup debugging
+		 * @since 0.0.5
 			 */
 			return apply_filters( 'graphql_debug_log_entry', $log_entry, $config );
 		}
@@ -115,6 +121,9 @@ class DebugLog {
 		 * Init the debug logger
 		 *
 		 * @param \WPGraphQL\Utils\DebugLog $instance The DebugLog instance
+		 *
+		 * @hookGroup debugging
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_get_debug_log', $this );
 
@@ -133,6 +142,9 @@ class DebugLog {
 		 *
 		 * @param array<string,mixed>[]     $logs     The logs to be output with the request
 		 * @param \WPGraphQL\Utils\DebugLog $instance The Debug Log class
+		 *
+		 * @hookGroup debugging
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_debug_log', array_values( $this->logs ), $this );
 	}

@@ -4540,6 +4540,16 @@ input.wpgraphql-ide-tab-input:focus {
 	overflow-y: auto;
 }
 
+/* A type detail view rendered inside the scrolling body reuses the panel
+   class but must grow with its content — `height: 100%` would cap the
+   sticky elements' containing block at one viewport, un-pinning the type
+   header and section headings once the user scrolls past it. */
+.wpgraphql-ide-docs-body > .wpgraphql-ide-docs-panel {
+	display: block;
+	height: auto;
+	min-height: 100%;
+}
+
 .wpgraphql-ide-docs-empty {
 	color: var(--wpgraphql-ide-text-muted, #646970);
 	font-size: var(--wpgraphql-ide-text-13, 13px);
@@ -4561,20 +4571,36 @@ input.wpgraphql-ide-tab-input:focus {
 	color: var(--wpgraphql-ide-accent);
 }
 
-/* Sticky header for the type detail view — pins Back + name + description
-   to the top of the panel's scroll container so the user can always see
-   *what type they're looking at* while scrolling its (often long) field list.
-   The negative top/horizontal offsets and matching padding cancel out the
-   16px padding `.wpgraphql-ide-plugin` applies, so the sticky surface spans
-   the panel's full width and reaches all the way to the top edge. */
+/* Sticky header for the type detail view — pins Back + name to the top of
+   the panel's scroll container so the user can always see *what type they're
+   looking at* while scrolling its (often long) field list. The description
+   is rendered outside the header and scrolls away with the content.
+   The negative top offset and matching top padding cancel out the 16px
+   padding `.wpgraphql-ide-plugin` applies, so the sticky surface reaches
+   the top edge. Horizontally it spans the content width only, for the same
+   reason the section titles below do: that 16px side padding sits OUTSIDE
+   the docs-body scroll container, so nothing ever scrolls through the
+   gutter, and negative side margins would just overhang the scrollport and
+   scroll the whole panel sideways.
+   Its measured height is written to `--wpgraphql-ide-docs-header-h` (see
+   `TypeView`) so section titles can stick directly below it. */
 .wpgraphql-ide-docs-type-header {
 	position: sticky;
 	top: -16px;
-	margin: -16px -16px 12px;
-	padding: 16px 16px 8px;
+	margin: -16px 0 12px;
+	padding: 16px 0 8px;
 	background: var(--wp-components-color-background, #fff);
 	border-bottom: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
-	z-index: 1;
+	z-index: 2;
+}
+
+/* Type description in the type detail view — in normal flow (not sticky),
+   below the pinned header. Generous bottom margin so the first section
+   heading doesn't crowd it. Compound selector: the base
+   `.wpgraphql-ide-docs-description` rule below sets `margin: 0` and
+   would otherwise win on source order. */
+.wpgraphql-ide-docs-description.wpgraphql-ide-docs-type-description {
+	margin: 0 0 24px;
 }
 
 /* Type detail heading */
@@ -4602,7 +4628,82 @@ input.wpgraphql-ide-tab-input:focus {
 	margin-bottom: 16px;
 }
 
-.wpgraphql-ide-docs-section-title {
+/* Section heading — a collapse/expand toggle that also sticks just below
+   the type header (offset by the header's measured height) so the user
+   always knows which section the rows under the cursor belong to.
+   Gutenberg PanelBody idiom: 13px medium title at the left (flush with the
+   section content below it), muted count, trailing up/down chevron at the
+   right edge. Spans the content width only — the panel's 16px side padding
+   lives OUTSIDE the docs-body scroll container, so full-bleed negative
+   margins would just get clipped by the scrollport (they were, cutting off
+   the chevron). Content width is all a pinned heading needs to cover
+   scrolling rows. Kept opaque with a persistent bottom border so rows slide
+   cleanly beneath it while stuck.
+
+   Scoped to `button` because the root view's heading uses the plain
+   `-root-title` rule below instead. */
+button.wpgraphql-ide-docs-section-title {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 36px;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 0;
+	border-bottom: 1px solid var(--wpgraphql-ide-border-subtle, #e0e0e0);
+	background: var(--wp-components-color-background, #fff);
+	cursor: pointer;
+	text-align: left;
+	position: sticky;
+	top: calc(var(--wpgraphql-ide-docs-header-h, 56px) - 16px);
+	z-index: 1;
+	font-family: inherit;
+}
+
+button.wpgraphql-ide-docs-section-title:hover {
+	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
+}
+
+button.wpgraphql-ide-docs-section-title:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
+}
+
+.wpgraphql-ide-docs-section-chevron {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: auto;
+	flex-shrink: 0;
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-docs-section-chevron svg {
+	display: block;
+	fill: currentColor;
+}
+
+.wpgraphql-ide-docs-section-label {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: var(--wpgraphql-ide-weight-medium, 500);
+	color: var(--wp-components-color-foreground, #1e1e1e);
+}
+
+.wpgraphql-ide-docs-section-count {
+	margin-left: 6px;
+	flex-shrink: 0;
+	font-size: var(--wpgraphql-ide-text-13, 13px);
+	font-weight: 400;
+	color: #757575;
+}
+
+/* Root view heading ("Root Types") — a static label rather than a section
+   toggle, so it keeps the older muted-caps treatment and never sticks. */
+.wpgraphql-ide-docs-root-title {
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	font-weight: var(--wpgraphql-ide-weight-medium, 500);
 	text-transform: uppercase;
@@ -4697,18 +4798,35 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 }
 
-/* Root type entries (query, mutation, subscription) */
+/* Type entry rows — root entry points (query, mutation, subscription),
+   Implements / Implementations lists, union members, and search results.
+   The whole row is the button, so the full-width hover band and the pointer
+   are honest: anywhere in the row navigates. */
 .wpgraphql-ide-docs-type-entry {
 	display: flex;
 	align-items: center;
 	gap: var(--wpgraphql-ide-space-8, 8px);
+	width: 100%;
+	/* This sheet has no global border-box reset, so 100% + padding would
+	   make the row wider than the list it sits in. */
+	box-sizing: border-box;
+	margin: 0;
 	padding: 8px;
+	border: 0;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
+	background: none;
 	cursor: pointer;
+	text-align: left;
+	font-family: inherit;
 }
 
 .wpgraphql-ide-docs-type-entry:hover {
 	background: var(--wp-components-color-gray-100, #f0f0f1);
+}
+
+.wpgraphql-ide-docs-type-entry:focus-visible {
+	outline: 2px solid var(--wpgraphql-ide-accent);
+	outline-offset: -2px;
 }
 
 .wpgraphql-ide-docs-type-label {
@@ -4718,17 +4836,14 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 }
 
 .wpgraphql-ide-docs-type-link {
-	background: none;
-	border: none;
-	padding: 0;
 	color: var(--gql-color-type);
-	cursor: pointer;
 	font-family: monospace;
 	font-size: var(--wpgraphql-ide-text-13, 13px);
-	text-align: left;
 }
 
-.wpgraphql-ide-docs-type-link:hover {
+/* Underline the name on row hover — the row is the target, so the cue
+   belongs to the row, not to the name it happens to sit under. */
+.wpgraphql-ide-docs-type-entry:hover .wpgraphql-ide-docs-type-link {
 	text-decoration: underline;
 }
 
@@ -4739,9 +4854,14 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	text-transform: lowercase;
 }
 
-/* Type badge — inline pill for return types and arg types */
+/* Type badge — inline pill for return types and arg types. Connection type
+   names get long (`ContentNodeToEnqueuedStylesheetConnection`), and as a
+   flex item the badge won't shrink below its content, so it has to be
+   allowed to wrap or it pushes the whole panel sideways. */
 .wpgraphql-ide-docs-type-badge {
 	display: inline;
+	min-width: 0;
+	max-width: 100%;
 	background: var(--wp-components-color-gray-100, #f0f0f1);
 	border: none;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -4751,7 +4871,8 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	font-family: monospace;
 	font-size: var(--wpgraphql-ide-text-11, 11px);
 	line-height: var(--wpgraphql-ide-leading-normal, 1.5);
-	white-space: nowrap;
+	overflow-wrap: anywhere;
+	text-align: left;
 }
 
 .wpgraphql-ide-docs-type-badge:hover {
@@ -4765,7 +4886,10 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 	padding: 0 4px;
 }
 
-/* Field list items */
+/* Field list items — deliberately no hover treatment. A field row has
+   nowhere to navigate to; only the type badge and the args toggle inside it
+   are interactive, and they carry their own affordances. Tinting the row
+   would advertise a click target that isn't there. */
 .wpgraphql-ide-docs-field {
 	padding: 8px;
 	border-radius: var(--wpgraphql-ide-radius-sm, 2px);
@@ -4773,10 +4897,6 @@ input.wpgraphql-ide-docs-search[type="text"]:focus {
 
 .wpgraphql-ide-docs-field + .wpgraphql-ide-docs-field {
 	border-top: 1px solid var(--wp-components-color-gray-100, #f0f0f1);
-}
-
-.wpgraphql-ide-docs-field:hover {
-	background: var(--wpgraphql-ide-surface-soft, #f6f7f7);
 }
 
 /* Field that was cmd-clicked from the editor — give it a steady tint so the

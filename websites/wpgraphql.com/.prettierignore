@@ -5,3 +5,11 @@ WordPress
 .yarn
 .next
 possibleTypes.json
+
+# Ephemeral test output
+test-results
+playwright-report
+
+# Generated / tool-owned assets (not hand-formatted)
+src/generated
+*.webmanifest

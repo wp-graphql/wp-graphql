@@ -44,7 +44,11 @@ function pickPostType(node) {
   if (node.__typename === "ContentType") {
     return node.graphqlSingleName ?? node.name ?? null
   }
-  return node.contentType?.node?.graphqlSingleName ?? node.contentType?.node?.name ?? null
+  return (
+    node.contentType?.node?.graphqlSingleName ??
+    node.contentType?.node?.name ??
+    null
+  )
 }
 
 function isHomeUri(uri) {
@@ -54,7 +58,8 @@ function isHomeUri(uri) {
 
 export function normalizeSeed(response, uri) {
   const node = response?.data?.node ?? response?.node ?? null
-  const generalSettings = response?.data?.generalSettings ?? response?.generalSettings ?? null
+  const generalSettings =
+    response?.data?.generalSettings ?? response?.generalSettings ?? null
 
   const typename = node?.__typename ?? null
   const slug = node?.slug ?? null

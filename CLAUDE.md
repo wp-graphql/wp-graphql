@@ -56,6 +56,38 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 | Smart Cache | `@wpgraphql/wp-graphql-smart-cache` |
 | ACF | `@wpgraphql/wp-graphql-acf` |
 
+### Workflow logic lives in `scripts/`, not inlined in YAML
+
+Non-trivial logic a GitHub Actions workflow needs belongs in a committed script (`scripts/*.js`) that the workflow *calls*, not in an inline `run:` block or a `node - <<'NODE'` heredoc. A one-line `sed`/`grep` or a straight tool invocation is fine inline; anything with branching, parsing, or JSON manipulation goes in a script. This keeps the logic testable, reviewable, and runnable locally.
+
+This is the target for new and changed workflow logic; a few steps predate it (e.g. the component-detection bash in `release-please.yml`, which stays inline because its jobs run without a checkout). Extract non-trivial inline logic — a `run:` block or `node` heredoc doing branching, parsing, or JSON work — to a tested script when you next touch it, rather than adding to it.
+
+The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcile-release-manifest.js`):
+
+- `#!/usr/bin/env node` shebang and a JSDoc header with a `Usage:` line.
+- CLI args as `--key=value`, parsed by a small `parseArgs()`.
+- Pure, exported functions for the core logic; a `main()` that does the IO, guarded by `if (require.main === module)`.
+- A sibling `scripts/<name>.test.js` using Node's built-in `assert` (no test runner), added to the `test:scripts` npm script so it runs in the **Test Release Scripts** workflow. Prefer flags that let the test drive the script without a live git remote/network (e.g. `--main-manifest=<path>` to stand in for a `git show` read).
+
+**Write them defensively.** These are the points review keeps raising on these scripts — get them right up front:
+
+- **Take untrusted input through the environment, not the command line.** PR titles, branch names, and any user- or PR-controlled string should reach the script via an env var it reads (`process.env.X`), so the workflow never interpolates them into a shell command. When a script *or its test* shells out (to `git`, or to invoke another script), use `execFileSync(cmd, [args])` — never `execSync` with an interpolated string.
+- **Fail loud or skip quiet — match the step's criticality, and say which in a comment.** If the step must succeed for correctness, exit non-zero on an unexpected failure so it can't go green while leaving things broken (e.g. main's manifest is unreadable). If it's best-effort and must never block the pipeline, log and `exit 0` (e.g. a missing value for an optional placeholder fill). Pick deliberately; don't default to whichever is easier.
+- **Give distinct no-ops distinct messages.** A "nothing to do / already done" log must not also fire when the real cause is "couldn't find the target" (usually a mis-parsed arg). Return a `reason` and log each case, so a malformed input is visible instead of silently skipped.
+- **When extracting existing logic, preserve its edge-case behavior — and prove it.** Reproduce the fallbacks and fail-fast semantics of the code you're replacing (a `sed` that returns the whole branch on no match is safer than an empty string that resolves to `plugins/`); don't "tidy" an edge case into different behavior. Back the parity claim with a test or a side-by-side check, and flag any intentional divergence.
+- **Small correctness traps:** parse `--key=value` by splitting on the *first* `=` only (values can contain `=`); build dynamic string replacements with `split(x).join(v)` or a replacer function, not `String.replace(/x/g, v)` (a `$&`/`$1` in `v` would be interpreted).
+
+### Hook conventions
+
+- Prefer canonical `graphql_*` hook names for new actions/filters.
+- Do not introduce new hooks with `wpgraphql_*` or `wp_graphql_*` prefixes.
+- Every `do_action()` / `apply_filters()` call site needs a complete docblock: a description, a typed `@param` (with a description) for each passed arg, `@since x-release-please-version` (for a genuinely new hook), and `@hookGroup <group>` using `scripts/hooks/groups.json`. This is the contract the hook linter checks.
+- For hook migrations, keep backward compatibility with:
+  - `do_action_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+  - `apply_filters_deprecated( 'legacy_hook', $args, 'x-release-please-version', 'graphql_new_hook' )`
+- If deprecated hooks are intentionally fired in tests, assert expected deprecations instead of treating them as failures.
+- You don't regenerate or commit the generated hook docs yourself — the release-please flow (`update-release-pr.yml`) regenerates them when a release PR is cut, which is also when `x-release-please-version` placeholders resolve. Your job is a complete, correct docblock at the call site.
+
 ## Development Workflow
 
 - **Every bug fix ships with a regression test.** A fix is not done until a test that fails before the fix and passes after it is committed alongside the change. No fix-only commits for reproducible bugs.
@@ -63,6 +95,29 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 - **TDD preferred**: For bug fixes, write the failing test(s) first, confirm they fail, implement the fix, confirm they pass.
 - **Conventional Commits**: PR titles must follow the format (`feat:`, `fix:`, `perf:`, `docs:`, `chore:`, etc.). PRs are squash-merged, so the title becomes the commit message. The `!` suffix (e.g., `feat!:`) signals a breaking change.
 - **CI matrix**: Tests run across WordPress 6.1–trunk, PHP 7.4–8.4, block and classic themes, single and multisite.
+
+### Adversarial self-review before opening a PR
+
+Copilot reviews every PR in this repo, and its valid findings have followed the same few patterns — all catchable before the PR exists. Before opening **or updating** a PR, re-read the complete diff in a skeptical-reviewer mindset and make these passes explicitly. The bar: an automated review of the PR should surface nothing valid.
+
+1. **Docs-vs-behavior pass.** Every claim in a comment, docblock, or description in the diff must be true for *every* caller, consumer, and edge — not just the main path you were focused on. If a docblock summarizes behavior across call sites ("callers return `[]` on error"), verify each call site actually behaves that way before writing it down.
+2. **Failure-mode pass.** For each conditional, guard, or state comparison, walk the unhappy paths: error, cancelled, timed out, empty, null, missing. Prefer allowlisting the outcomes that mean success over denylisting the ones you know mean failure — a status check that fails only on `result == "failure"` silently passes on `cancelled`.
+3. **Completeness pass.** For anything list-shaped — CI change-detection filters, trigger paths, ignore lists, required-check aggregations, test matrices — derive what belongs on the list from first principles ("every input that changes this job's outcome"), then check each item. Don't copy an existing list and assume it was complete; the list you're copying may have the same gap (and if it does, flag it for a follow-up rather than silently inheriting it).
+
+When a pass finds something, fix it and re-run the passes against the amended diff. These passes complement (not replace) the mechanical gates — tests, PHPStan, PHPCS, lint — which don't check whether prose is true or whether a list is complete.
+
+### Issue tracker conventions
+
+These apply when **we (the maintainers) open an issue**. Community-filed issues get triaged and labeled afterward, so don't hold them to this.
+
+- **Issue titles are plain descriptions, not Conventional Commits.** Describe the problem or request (e.g. "WPGraphQL IDE enables the block editor for the graphql_document post type"). The `fix:` / `feat:` / `chore:` prefixes are for **PR** titles, not issues — don't prefix an issue title.
+- **Label accurately at creation.** When we open the issue we already understand its scope, so apply the right labels up front rather than leaving it for triage:
+  - a `type:` label (`type: bug`, `type: enhancement`, …),
+  - `effort:` (`low` ≈ a day or less, `med` < a week, `high` > a week),
+  - `impact:` (`low` / `med` / `high` — `high` is reserved for major bugs or newly-unblocked use cases),
+  - and any area label that fits (e.g. `graphiql ide`, `regression`).
+  - Calibrate `effort` / `impact` against existing labeled issues rather than in the abstract.
+- **Link the fix back.** Reference the issue from the PR (`Fixes #1234`) so the squash-merge closes it.
 
 ## Shared Coding Conventions
 
@@ -72,3 +127,9 @@ These apply across the PHP plugins; see each plugin's `CLAUDE.md` for its specif
 - **JavaScript**: `@wordpress/scripts` (ESLint + Prettier).
 - **Version placeholders**: Use `@since x-release-please-version` in PHPDoc `@since` tags; release-please rewrites them on release.
 - **Deprecation**: `_deprecated_argument( __METHOD__, 'x-release-please-version', 'Message.' );`
+- **Hooks are supported API.** A filter or action we ship is part of the public contract. Document a new hook like any other (purpose, `@param`s, `@since`) and don't hedge it with "experimental" or "may change" disclaimers to leave room for a future refactor. If a hook later has to change or go away, retire it through the normal deprecation path above, don't stamp new hooks as throwaway. We deliberately have **no** experimental/unstable hook tier, and we won't add one via a name prefix (`__experimental`-style) either: Gutenberg ran that experiment at scale and [walked it back](https://developer.wordpress.org/block-editor/contributors/code/coding-guidelines/), because the markers never stopped adoption and the hooks ended up under the back-compat policy anyway. A PHP hook can't truly be made private (anything can `add_filter()` once you `apply_filters()`), so we don't pretend otherwise. Formal experimental *features* have a home in `WPGraphQL\Experimental`.
+- **`@internal` means "private, don't depend on this," not "unstable."** The one narrow carve-out from "hooks are public" is a hook that exists purely as plumbing behind a public function, where the function is the intended seam. Example: `graphql_wp_connection_{$type}_from_field_name` is an implementation detail of the public `rename_graphql_field()` function (authors call the function, they don't hook that filter). Tag those `@internal` (also recognized by PHPStan), alongside genuinely private symbols like admin/updater internals. `@internal` documents intent, it does not enforce anything, so keep the bar high: default to public-and-supported, and never use `@internal` to pre-excuse a change to a hook you're actually offering as an extension seam.
+- **Schema descriptions (and naming) are self-describing and backend-agnostic.** The schema is the public API contract, and a developer introspecting it should be able to understand it with no prior WordPress knowledge, the backend could be WordPress, Supabase, or a spreadsheet. There should be no expectation that the reader knows WordPress. Two levels:
+  - **Never leak implementation plumbing** in `description` strings: no post meta keys (`_wp_page_template`, `_thumbnail_id`), WP class properties (`WP_Post->guid`), DB tables/columns (the `post_objects` table, the `post_mime_type` column), function names (`wp_*`, `WP_Query`), or query-var names. Describe what the user provides (a template file name, a slug, an ID), not where it is stored.
+  - **Prefer declarative, domain language over WordPress-specific vocabulary.** WPGraphQL deliberately abstracts its vocabulary, a `ContentNode` rather than a "post," a `ContentType` rather than a "post type", and descriptions should follow suit: describe the *thing* and what it does, not its WordPress name. Reach for a WordPress-specific term only when there is genuinely no clearer general word, and even then describe what it is rather than assuming the reader knows it.
+  Code comments and developer-facing deprecation messages may still reference internals, this applies to the user-facing `description` strings (and type/field naming) only.

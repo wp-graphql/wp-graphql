@@ -332,6 +332,63 @@ export function defaultArgs(getDefaultScalarArgValue, makeDefaultArg, field) {
 	return args;
 }
 
+// Stable key for an operation/fragment so user-toggled collapse state survives
+// re-parses (the AST node object identity changes on every keystroke).
+export function operationKey(operation, index) {
+	const name = operation && operation.name && operation.name.value;
+	const kind =
+		operation.kind === 'FragmentDefinition'
+			? 'fragment'
+			: operation.operation || 'query';
+	return name ? `${kind}:${name}` : `${kind}:_${index}`;
+}
+
+// Walk the operations to find the deepest Field whose loc spans the cursor.
+// Returns `{ opKey, fieldPath }` where fieldPath is the chain of field names
+// from operation root → leaf (empty when the cursor is inside an operation
+// but not on a field). Returns null when the cursor is outside every
+// operation, locations are absent, or the offset is not a number.
+//
+// Aliases are ignored: matching is by `field.name.value` to stay consistent
+// with how FieldView resolves selections. Fragment spreads and inline
+// fragments are not descended into in v1 — the path stops at the nearest
+// containing field.
+export function findCursorPath(operations, cursorOffset) {
+	if (typeof cursorOffset !== 'number') {
+		return null;
+	}
+	for (let i = 0; i < operations.length; i++) {
+		const op = operations[i];
+		if (
+			!op.loc ||
+			cursorOffset < op.loc.start ||
+			cursorOffset > op.loc.end
+		) {
+			continue;
+		}
+		const fieldPath = [];
+		let selectionSet = op.selectionSet;
+		// Descend through Field selections until no child Field's loc spans
+		// the cursor. The deepest match wins.
+		while (selectionSet && Array.isArray(selectionSet.selections)) {
+			const match = selectionSet.selections.find(
+				(sel) =>
+					sel.kind === 'Field' &&
+					sel.loc &&
+					cursorOffset >= sel.loc.start &&
+					cursorOffset <= sel.loc.end
+			);
+			if (!match) {
+				break;
+			}
+			fieldPath.push(match.name.value);
+			selectionSet = match.selectionSet;
+		}
+		return { opKey: operationKey(op, i), fieldPath };
+	}
+	return null;
+}
+
 export function parseQuery(text) {
 	try {
 		if (!text.trim()) {

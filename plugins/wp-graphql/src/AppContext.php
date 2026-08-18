@@ -10,6 +10,7 @@ use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\PostTypeLoader;
+use WPGraphQL\Data\Loader\SettingGroupLoader;
 use WPGraphQL\Data\Loader\TaxonomyLoader;
 use WPGraphQL\Data\Loader\TermObjectLoader;
 use WPGraphQL\Data\Loader\ThemeLoader;
@@ -42,6 +43,7 @@ class AppContext {
 		'nav_menu_item'       => PostObjectLoader::class,
 		'post'                => PostObjectLoader::class,
 		'post_type'           => PostTypeLoader::class,
+		'setting_group'       => SettingGroupLoader::class,
 		'taxonomy'            => TaxonomyLoader::class,
 		'term'                => TermObjectLoader::class,
 		'theme'               => ThemeLoader::class,
@@ -172,6 +174,9 @@ class AppContext {
 		 * throughout the resolution of a GraphQL request.
 		 *
 		 * @param mixed[] $config The config array of the AppContext object
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
 	}
@@ -193,6 +198,9 @@ class AppContext {
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>> $loader_classes The loader classes accessible in the AppContext
 		 * @param \WPGraphQL\AppContext                                                $context        The AppContext
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$this->loader_classes = apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
 
@@ -291,8 +299,8 @@ class AppContext {
 		// Warn about accessing the loaders property directly.
 		_doing_it_wrong(
 			__METHOD__,
-			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ), //phpcs:ignore PHPCS.Functions.VersionParameter.InvalidVersion -- @todo Fix this smell.
-			'2.3.2' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
+			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ),
+			'2.3.2'
 		);
 
 		// Return the actual loaders array.

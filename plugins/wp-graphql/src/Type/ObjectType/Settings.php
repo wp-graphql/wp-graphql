@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -62,27 +61,22 @@ class Settings {
 					continue;
 				}
 
-				/**
-				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name.
-				 * Then, sanitize the field name to be camelcase
-				 */
-				if ( ! empty( $setting_field['show_in_rest']['name'] ) ) {
-					$field_key = $setting_field['show_in_rest']['name'];
-				} else {
-					$field_key = $key;
+				// The flat field name is prefixed with the group, so entries without a group can't be exposed here.
+				if ( ! isset( $setting_field['group'] ) || empty( $setting_field['group'] ) ) {
+					continue;
 				}
 
-				$group = DataSource::format_group_name( $setting_field['group'] );
+				/**
+				 * The flat (group-prefixed) GraphQL field name is derived once in the
+				 * normalized settings map (DataSource::get_normalized_settings) so every
+				 * read and write surface uses the same name.
+				 */
+				$field_key = isset( $setting_field['graphql_settings_field_name'] ) ? (string) $setting_field['graphql_settings_field_name'] : '';
 
-				$field_key = lcfirst( graphql_format_name( $field_key, ' ', '/[^a-zA-Z0-9 -]/' ) );
-				$field_key = lcfirst( str_replace( '_', ' ', ucwords( $field_key, '_' ) ) );
-				$field_key = lcfirst( str_replace( '-', ' ', ucwords( $field_key, '_' ) ) );
-				$field_key = lcfirst( str_replace( ' ', '', ucwords( $field_key, ' ' ) ) );
+				if ( ! empty( $key ) && ! empty( $field_key ) ) {
 
-				$field_key = $group . 'Settings' . ucfirst( $field_key );
-
-				if ( ! empty( $key ) ) {
+					// The formatted group name, passed to the setting's `graphql_resolve` callback.
+					$group = DataSource::format_group_name( (string) $setting_field['group'] );
 
 					/**
 					 * Dynamically build the individual setting and it's fields
@@ -93,35 +87,46 @@ class Settings {
 						// translators: %s is the name of the setting group.
 						'description' => static function () use ( $setting_field ) {
 							// translators: %s is the name of the setting group.
-							return sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
+							return sprintf( __( 'Settings of the %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
 						},
-						'resolve'     => static function () use ( $setting_field, $key ) {
+						'resolve'     => static function ( $root, array $args, \WPGraphQL\AppContext $context ) use ( $setting_field, $group, $field_key ) {
 							/**
-							 * Check to see if the user querying the email field has the 'manage_options' capability
-							 * All other options should be public by default
+							 * Pre-check the setting's declared `graphql_capability` at this
+							 * surface so the debug message names the flat field. The Model
+							 * enforces the same capability for the grouped surface.
 							 */
-							if ( 'admin_email' === $key && ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+							if ( ! empty( $setting_field['graphql_capability'] ) && ! current_user_can( (string) $setting_field['graphql_capability'] ) ) {
+								$field_name = 'Settings.' . $field_key;
+								graphql_debug(
+									// translators: 1: GraphQL field name, 2: required WordPress capability.
+									sprintf( __( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ), $field_name, (string) $setting_field['graphql_capability'] ),
+									[
+										'type'  => 'RESTRICTED_FIELD',
+										'field' => $field_name,
+										'required_capability' => (string) $setting_field['graphql_capability'],
+									]
+								);
+
+								return null;
 							}
 
-							$option = get_option( (string) $key );
+							/**
+							 * The flat surface reads the value from the owning group's
+							 * Model, so both read surfaces resolve a setting through the
+							 * same path (option read, type cast, `graphql_resolve`, the
+							 * `graphql_setting_field_value` filter).
+							 */
+							$grouped_field_name = isset( $setting_field['graphql_field_name'] ) ? (string) $setting_field['graphql_field_name'] : '';
 
-							switch ( $setting_field['type'] ) {
-								case 'integer':
-									$option = absint( $option );
-									break;
-								case 'string':
-									$option = ! empty( $option ) ? (string) $option : '';
-									break;
-								case 'boolean':
-									$option = (bool) $option;
-									break;
-								case 'number':
-									$option = (float) $option;
-									break;
-							}
+							return $context->get_loader( 'setting_group' )->load_deferred( $group )->then(
+								static function ( $setting_group ) use ( $grouped_field_name ) {
+									if ( ! $setting_group instanceof \WPGraphQL\Model\SettingGroup || empty( $grouped_field_name ) ) {
+										return null;
+									}
 
-							return isset( $option ) ? $option : null;
+									return $setting_group->{$grouped_field_name};
+								}
+							);
 						},
 					];
 				}

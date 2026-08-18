@@ -14,7 +14,7 @@
    ============================================================ */
 @theme {
   /* ── Navy scale ── */
-  --color-navy-50:  hsl(220 35% 95%);
+  --color-navy-50: hsl(220 35% 95%);
   --color-navy-100: hsl(219 30% 86%);
   --color-navy-200: hsl(219 23% 73%);
   --color-navy-300: hsl(219 26% 57%);
@@ -27,22 +27,24 @@
   --color-navy-950: hsl(222 47% 8%);
 
   /* ── Orange (WPG accent) — prefixed to avoid colliding with Tailwind's built-in orange ── */
-  --color-orange-wpg-50:  hsl(35 100% 93%);
+  --color-orange-wpg-50: hsl(35 100% 93%);
   --color-orange-wpg-100: hsl(33 100% 80%);
   --color-orange-wpg-200: hsl(31 100% 65%);
-  --color-orange-wpg-300: hsl(30 100% 55%);   /* PRIMARY ACCENT — #FF8C1A */
+  --color-orange-wpg-300: hsl(30 100% 55%); /* PRIMARY ACCENT — #FF8C1A */
   --color-orange-wpg-400: hsl(28 100% 47%);
   --color-orange-wpg-500: hsl(27 100% 44%);
   --color-orange-wpg-600: hsl(26 100% 38%);
 
   /* ── Violet (WPGraphQL IDE sibling-brand accent) — shared navy foundation, violet accent.
      Values from the IDE brand guide (ide-theme/family-globals.css); -800/-900 extrapolated. ── */
-  --color-violet-50:  hsl(267 87% 95%);
+  --color-violet-50: hsl(267 87% 95%);
   --color-violet-100: hsl(267 69% 85%);
   --color-violet-200: hsl(267 83% 76%);
-  --color-violet-300: hsl(267 89% 65%);   /* IDE PRIMARY ACCENT (dark mode) — #A78BFA */
+  --color-violet-300: hsl(
+    267 89% 65%
+  ); /* IDE PRIMARY ACCENT (dark mode) — #A78BFA */
   --color-violet-400: hsl(268 82% 58%);
-  --color-violet-500: hsl(268 65% 47%);   /* IDE PRIMARY ACCENT (light mode) */
+  --color-violet-500: hsl(268 65% 47%); /* IDE PRIMARY ACCENT (light mode) */
   --color-violet-600: hsl(268 63% 37%);
   --color-violet-700: hsl(268 61% 26%);
   --color-violet-800: hsl(268 58% 19%);
@@ -50,11 +52,13 @@
 
   /* ── Emerald (WPGraphQL for ACF sibling-brand accent) — shared navy foundation, emerald accent.
      Values from the ACF brand guide (acf-theme/family-globals.css); -800/-900 extrapolated. ── */
-  --color-emerald-50:  hsl(151 81% 94%);
+  --color-emerald-50: hsl(151 81% 94%);
   --color-emerald-100: hsl(152 76% 68%);
   --color-emerald-200: hsl(156 72% 53%);
-  --color-emerald-300: hsl(160 84% 39%);   /* ACF PRIMARY ACCENT (dark mode) — #10B981 */
-  --color-emerald-400: hsl(158 64% 32%);   /* ACF PRIMARY ACCENT (light mode) */
+  --color-emerald-300: hsl(
+    160 84% 39%
+  ); /* ACF PRIMARY ACCENT (dark mode) — #10B981 */
+  --color-emerald-400: hsl(158 64% 32%); /* ACF PRIMARY ACCENT (light mode) */
   --color-emerald-500: hsl(160 84% 25%);
   --color-emerald-600: hsl(162 88% 19%);
   --color-emerald-700: hsl(162 91% 17%);
@@ -63,11 +67,15 @@
 
   /* ── Rose (WPGraphQL Smart Cache sibling-brand accent) — shared navy foundation, rose accent.
      Values from the Smart Cache brand guide (sc-theme/family-globals.css); 50/100/800/900 extrapolated. ── */
-  --color-rose-50:  hsl(344 100% 97%);
+  --color-rose-50: hsl(344 100% 97%);
   --color-rose-100: hsl(343 100% 90%);
   --color-rose-200: hsl(343 97% 73%);
-  --color-rose-300: hsl(343 90% 60%);   /* SMART CACHE PRIMARY ACCENT (dark mode) — #F43F5E */
-  --color-rose-400: hsl(343 80% 50%);   /* SMART CACHE PRIMARY ACCENT (light mode) */
+  --color-rose-300: hsl(
+    343 90% 60%
+  ); /* SMART CACHE PRIMARY ACCENT (dark mode) — #F43F5E */
+  --color-rose-400: hsl(
+    343 80% 50%
+  ); /* SMART CACHE PRIMARY ACCENT (light mode) */
   --color-rose-500: hsl(343 82% 42%);
   --color-rose-600: hsl(343 80% 35%);
   --color-rose-700: hsl(343 74% 30%);
@@ -77,9 +85,12 @@
   /* ── Typography — fonts ──
      `--font-bricolage` and `--font-dm-mono` are injected onto <html> by next/font/google
      in src/lib/fonts.js. We provide system fallbacks here. */
-  --font-sans:    var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
-  --font-mono:    var(--font-dm-mono), "DM Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans:
+    var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-mono:
+    var(--font-dm-mono), "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display:
+    var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
 
   /* ── Typography — display sizes ── */
   --text-display-xl: 4.5rem;
@@ -112,11 +123,14 @@
      .theme-ide can re-tint every shadow-glow-* utility without new classes.
      Default --glow is the WPGraphQL orange accent (see :root below). ── */
   --shadow-glow-sm: 0 0 12px -2px hsl(var(--glow) / 0.25);
-  --shadow-glow-md: 0 0 24px -4px hsl(var(--glow) / 0.30);
+  --shadow-glow-md: 0 0 24px -4px hsl(var(--glow) / 0.3);
   --shadow-glow-lg: 0 0 40px -8px hsl(var(--glow) / 0.35);
-  --shadow-elev-sm: 0 1px 3px 0 hsl(222 47% 4% / 0.4), 0 1px 2px -1px hsl(222 47% 4% / 0.4);
-  --shadow-elev-md: 0 4px 12px -2px hsl(222 47% 4% / 0.5), 0 2px 4px -2px hsl(222 47% 4% / 0.3);
-  --shadow-elev-lg: 0 12px 32px -4px hsl(222 47% 4% / 0.6), 0 4px 8px -4px hsl(222 47% 4% / 0.3);
+  --shadow-elev-sm:
+    0 1px 3px 0 hsl(222 47% 4% / 0.4), 0 1px 2px -1px hsl(222 47% 4% / 0.4);
+  --shadow-elev-md:
+    0 4px 12px -2px hsl(222 47% 4% / 0.5), 0 2px 4px -2px hsl(222 47% 4% / 0.3);
+  --shadow-elev-lg:
+    0 12px 32px -4px hsl(222 47% 4% / 0.6), 0 4px 8px -4px hsl(222 47% 4% / 0.3);
 
   /* ── Spacing extensions ── */
   --spacing-18: 4.5rem;
@@ -134,98 +148,119 @@
   --radius-pill: 9999px;
 
   /* ── Animations ── */
-  --animate-fade-in:        fade-in 0.2s ease-out;
-  --animate-fade-out:       fade-out 0.15s ease-in;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-fade-out: fade-out 0.15s ease-in;
   --animate-slide-in-right: slide-in-right 0.25s ease-out;
-  --animate-glow-pulse:     glow-pulse 2.5s ease-in-out infinite;
+  --animate-glow-pulse: glow-pulse 2.5s ease-in-out infinite;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes fade-out {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(4px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
 }
 @keyframes slide-in-right {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 12px -2px hsl(var(--glow) / 0.2); }
-  50%      { box-shadow: 0 0 24px -2px hsl(var(--glow) / 0.5); }
+  0%,
+  100% {
+    box-shadow: 0 0 12px -2px hsl(var(--glow) / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 24px -2px hsl(var(--glow) / 0.5);
+  }
 }
 
 /* ============================================================
    SEMANTIC TOKENS — runtime swap between dark (default) and light
    ============================================================ */
 @theme inline {
-  --color-background:        hsl(var(--background));
-  --color-foreground:        hsl(var(--foreground));
-  --color-card:              hsl(var(--card));
-  --color-card-foreground:   hsl(var(--card-foreground));
-  --color-popover:           hsl(var(--popover));
-  --color-popover-foreground:hsl(var(--popover-foreground));
-  --color-primary:           hsl(var(--primary));
-  --color-primary-foreground:hsl(var(--primary-foreground));
-  --color-secondary:         hsl(var(--secondary));
-  --color-secondary-foreground:hsl(var(--secondary-foreground));
-  --color-muted:             hsl(var(--muted));
-  --color-muted-foreground:  hsl(var(--muted-foreground));
-  --color-accent:            hsl(var(--accent));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive:       hsl(var(--destructive));
-  --color-destructive-foreground:hsl(var(--destructive-foreground));
-  --color-border:            hsl(var(--border));
-  --color-input:             hsl(var(--input));
-  --color-ring:              hsl(var(--ring));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
 
-  --radius-lg:  var(--radius);
-  --radius-md:  calc(var(--radius) - 2px);
-  --radius-sm:  calc(var(--radius) - 4px);
-  --radius-xl:  calc(var(--radius) + 4px);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
 }
 
 :root {
   /* DARK is the default — applied at :root so body/html use it before next-themes hydrates */
-  --background:             222 47% 8%;
-  --foreground:             220 60% 97%;
+  --background: 222 47% 8%;
+  --foreground: 220 60% 97%;
 
-  --card:                   222 45% 10%;
-  --card-foreground:        220 60% 97%;
+  --card: 222 45% 10%;
+  --card-foreground: 220 60% 97%;
 
-  --popover:                222 45% 10%;
-  --popover-foreground:     220 60% 97%;
+  --popover: 222 45% 10%;
+  --popover-foreground: 220 60% 97%;
 
-  --primary:                30 100% 55%;
-  --primary-foreground:     222 47% 8%;
+  --primary: 30 100% 55%;
+  --primary-foreground: 222 47% 8%;
 
-  --secondary:              224 43% 21%;
-  --secondary-foreground:   220 60% 97%;
+  --secondary: 224 43% 21%;
+  --secondary-foreground: 220 60% 97%;
 
-  --muted:                  222 42% 15%;
-  --muted-foreground:       219 26% 57%;
+  --muted: 222 42% 15%;
+  --muted-foreground: 219 26% 57%;
 
-  --accent:                 224 43% 21%;
-  --accent-foreground:      220 60% 97%;
+  --accent: 224 43% 21%;
+  --accent-foreground: 220 60% 97%;
 
-  --destructive:            0 84% 60%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 220 60% 97%;
 
-  --border:                 224 43% 21%;
-  --input:                  224 43% 21%;
-  --ring:                   30 100% 55%;
+  --border: 224 43% 21%;
+  --input: 224 43% 21%;
+  --ring: 30 100% 55%;
 
   /* Accent glow color (HSL triple) consumed by --shadow-glow-* and glow-pulse.
      Default = WPGraphQL orange; scoped themes (.theme-ide) override it.
      Light mode intentionally inherits this value, matching prior behavior. */
-  --glow:                   30 100% 55%;
+  --glow: 30 100% 55%;
 
   /* Body-text tier — softer than --foreground for long-form copy.
      navy-200 (#A3B4CC) on dark bg = brand "text-secondary". */
-  --body-text:              219 23% 73%;
+  --body-text: 219 23% 73%;
 
   --radius: 0.5rem;
 
@@ -240,37 +275,37 @@
 }
 
 .light {
-  --background:             220 35% 95%;
-  --foreground:             222 47% 8%;
+  --background: 220 35% 95%;
+  --foreground: 222 47% 8%;
 
-  --card:                   220 60% 99%;
-  --card-foreground:        222 47% 8%;
+  --card: 220 60% 99%;
+  --card-foreground: 222 47% 8%;
 
-  --popover:                220 60% 99%;
-  --popover-foreground:     222 47% 8%;
+  --popover: 220 60% 99%;
+  --popover-foreground: 222 47% 8%;
 
-  --primary:                28 100% 47%;
-  --primary-foreground:     220 60% 99%;
+  --primary: 28 100% 47%;
+  --primary-foreground: 220 60% 99%;
 
-  --secondary:              219 30% 86%;
-  --secondary-foreground:   222 42% 15%;
+  --secondary: 219 30% 86%;
+  --secondary-foreground: 222 42% 15%;
 
-  --muted:                  219 30% 86%;
-  --muted-foreground:       220 31% 42%;
+  --muted: 219 30% 86%;
+  --muted-foreground: 220 31% 42%;
 
-  --accent:                 219 30% 86%;
-  --accent-foreground:      222 42% 15%;
+  --accent: 219 30% 86%;
+  --accent-foreground: 222 42% 15%;
 
-  --destructive:            0 72% 51%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 220 60% 99%;
 
-  --border:                 219 23% 73%;
-  --input:                  219 23% 73%;
-  --ring:                   28 100% 47%;
+  --border: 219 23% 73%;
+  --input: 219 23% 73%;
+  --ring: 28 100% 47%;
 
   /* Body-text tier in light mode — navy-700 (#1E2D50). Dark enough to
      read against the navy-50 background but softer than --foreground. */
-  --body-text:              224 43% 21%;
+  --body-text: 224 43% 21%;
 }
 
 /* ============================================================
@@ -288,45 +323,47 @@
    (.theme-acf, Smart Cache) add their own block here.
    ============================================================ */
 .theme-ide {
-  --primary:        267 89% 65%;  /* violet-300 */
-  --ring:           267 89% 65%;
-  --glow:           267 89% 65%;
-  --ide-status-bar: 268 65% 47%;  /* violet-500 */
+  --primary: 267 89% 65%; /* violet-300 */
+  --ring: 267 89% 65%;
+  --glow: 267 89% 65%;
+  --ide-status-bar: 268 65% 47%; /* violet-500 */
 }
 .light .theme-ide {
-  --primary:        268 65% 47%;  /* violet-500 */
-  --ring:           268 65% 47%;
-  --glow:           268 65% 47%;
-  --ide-status-bar: 268 63% 37%;  /* violet-600 */
+  --primary: 268 65% 47%; /* violet-500 */
+  --ring: 268 65% 47%;
+  --glow: 268 65% 47%;
+  --ide-status-bar: 268 63% 37%; /* violet-600 */
 }
 
 .theme-acf {
-  --primary:        160 84% 39%;  /* emerald-300 */
-  --ring:           160 84% 39%;
-  --glow:           160 84% 39%;
+  --primary: 160 84% 39%; /* emerald-300 */
+  --ring: 160 84% 39%;
+  --glow: 160 84% 39%;
 }
 .light .theme-acf {
-  --primary:        158 64% 32%;  /* emerald-400 */
-  --ring:           158 64% 32%;
-  --glow:           158 64% 32%;
+  --primary: 158 64% 32%; /* emerald-400 */
+  --ring: 158 64% 32%;
+  --glow: 158 64% 32%;
 }
 
 .theme-smart-cache {
-  --primary:        343 90% 60%;  /* rose-300 */
-  --ring:           343 90% 60%;
-  --glow:           343 90% 60%;
+  --primary: 343 90% 60%; /* rose-300 */
+  --ring: 343 90% 60%;
+  --glow: 343 90% 60%;
 }
 .light .theme-smart-cache {
-  --primary:        343 80% 50%;  /* rose-400 */
-  --ring:           343 80% 50%;
-  --glow:           343 80% 50%;
+  --primary: 343 80% 50%; /* rose-400 */
+  --ring: 343 80% 50%;
+  --glow: 343 80% 50%;
 }
 
 /* ============================================================
    BASE
    ============================================================ */
 @layer base {
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     border-color: hsl(var(--border));
   }
 
@@ -343,7 +380,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  code, kbd, pre, samp, .font-mono {
+  code,
+  kbd,
+  pre,
+  samp,
+  .font-mono {
     font-family: var(--font-mono);
   }
 }
@@ -391,7 +432,7 @@
   }
 
   /* Adjacent buttons spacing — preserved from legacy */
-  [class*='btn-'] + [class*='btn-'] {
+  [class*="btn-"] + [class*="btn-"] {
     @apply ml-4;
   }
 }
@@ -418,38 +459,38 @@
 */
 .prose,
 .prose.prose {
-  --tw-prose-body:          hsl(var(--body-text));
-  --tw-prose-headings:      hsl(var(--foreground));
-  --tw-prose-lead:          hsl(var(--muted-foreground));
-  --tw-prose-links:         hsl(var(--primary));
-  --tw-prose-bold:          hsl(var(--foreground));
-  --tw-prose-counters:      hsl(var(--muted-foreground));
-  --tw-prose-bullets:       hsl(var(--muted-foreground));
-  --tw-prose-hr:            hsl(var(--border));
-  --tw-prose-quotes:        hsl(var(--foreground));
+  --tw-prose-body: hsl(var(--body-text));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--muted-foreground));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
   --tw-prose-quote-borders: hsl(var(--primary));
-  --tw-prose-captions:      hsl(var(--muted-foreground));
-  --tw-prose-code:          hsl(var(--primary));
-  --tw-prose-pre-code:      hsl(var(--card-foreground));
-  --tw-prose-pre-bg:        hsl(var(--card));
-  --tw-prose-th-borders:    hsl(var(--border));
-  --tw-prose-td-borders:    hsl(var(--border));
-  --tw-prose-invert-body:          hsl(var(--body-text));
-  --tw-prose-invert-headings:      hsl(var(--foreground));
-  --tw-prose-invert-lead:          hsl(var(--muted-foreground));
-  --tw-prose-invert-links:         hsl(var(--primary));
-  --tw-prose-invert-bold:          hsl(var(--foreground));
-  --tw-prose-invert-counters:      hsl(var(--muted-foreground));
-  --tw-prose-invert-bullets:       hsl(var(--muted-foreground));
-  --tw-prose-invert-hr:            hsl(var(--border));
-  --tw-prose-invert-quotes:        hsl(var(--foreground));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--primary));
+  --tw-prose-pre-code: hsl(var(--card-foreground));
+  --tw-prose-pre-bg: hsl(var(--card));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+  --tw-prose-invert-body: hsl(var(--body-text));
+  --tw-prose-invert-headings: hsl(var(--foreground));
+  --tw-prose-invert-lead: hsl(var(--muted-foreground));
+  --tw-prose-invert-links: hsl(var(--primary));
+  --tw-prose-invert-bold: hsl(var(--foreground));
+  --tw-prose-invert-counters: hsl(var(--muted-foreground));
+  --tw-prose-invert-bullets: hsl(var(--muted-foreground));
+  --tw-prose-invert-hr: hsl(var(--border));
+  --tw-prose-invert-quotes: hsl(var(--foreground));
   --tw-prose-invert-quote-borders: hsl(var(--primary));
-  --tw-prose-invert-captions:      hsl(var(--muted-foreground));
-  --tw-prose-invert-code:          hsl(var(--primary));
-  --tw-prose-invert-pre-code:      hsl(var(--card-foreground));
-  --tw-prose-invert-pre-bg:        hsl(var(--card));
-  --tw-prose-invert-th-borders:    hsl(var(--border));
-  --tw-prose-invert-td-borders:    hsl(var(--border));
+  --tw-prose-invert-captions: hsl(var(--muted-foreground));
+  --tw-prose-invert-code: hsl(var(--primary));
+  --tw-prose-invert-pre-code: hsl(var(--card-foreground));
+  --tw-prose-invert-pre-bg: hsl(var(--card));
+  --tw-prose-invert-th-borders: hsl(var(--border));
+  --tw-prose-invert-td-borders: hsl(var(--border));
   color: hsl(var(--body-text));
   max-width: none;
 }
@@ -469,7 +510,8 @@
   }
 
   /* Mono <small> tags inside headings (used in API reference) */
-  .prose :where(h2 small, h3 small, h4 small):not(:where([class~="not-prose"] *)) {
+  .prose
+    :where(h2 small, h3 small, h4 small):not(:where([class~="not-prose"] *)) {
     font-family: var(--font-mono);
     color: hsl(var(--muted-foreground));
     font-weight: 500;
@@ -483,7 +525,9 @@
     text-decoration-color: hsl(var(--primary) / 0.4);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    transition: color .15s ease, text-decoration-color .15s ease;
+    transition:
+      color 0.15s ease,
+      text-decoration-color 0.15s ease;
   }
   .prose :where(a:hover):not(:where([class~="not-prose"] *)) {
     color: hsl(31 100% 65%); /* orange-wpg-200 */
@@ -493,7 +537,10 @@
     color: inherit;
     font-weight: inherit;
   }
-  .prose :where(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a):not(:where([class~="not-prose"] *)) {
+  .prose
+    :where(h1 a, h2 a, h3 a, h4 a, h5 a, h6 a):not(
+      :where([class~="not-prose"] *)
+    ) {
     text-decoration: none;
     color: inherit;
   }
@@ -557,11 +604,11 @@
 
 /* ── Light mode: light code surface ───────────────────────────────── */
 .light .code-block-wrap {
-  background: hsl(220 35% 98%);                /* near-white, a hair off navy-50 */
-  color: hsl(222 47% 8%);                       /* navy-950 */
+  background: hsl(220 35% 98%); /* near-white, a hair off navy-50 */
+  color: hsl(222 47% 8%); /* navy-950 */
   border-color: hsl(219 23% 80%);
   box-shadow:
-    0 8px 20px -10px hsl(222 47% 4% / 0.10),
+    0 8px 20px -10px hsl(222 47% 4% / 0.1),
     0 2px 6px -2px hsl(222 47% 4% / 0.06);
 }
 
@@ -604,34 +651,50 @@
 .light .code-block-wrap .token.comment,
 .light .code-block-wrap .token.prolog,
 .light .code-block-wrap .token.doctype,
-.light .code-block-wrap .token.cdata        { color: #6a737d; }
-.light .code-block-wrap .token.punctuation  { color: #24292e; }
+.light .code-block-wrap .token.cdata {
+  color: #6a737d;
+}
+.light .code-block-wrap .token.punctuation {
+  color: #24292e;
+}
 .light .code-block-wrap .token.property,
 .light .code-block-wrap .token.tag,
 .light .code-block-wrap .token.boolean,
 .light .code-block-wrap .token.number,
 .light .code-block-wrap .token.constant,
 .light .code-block-wrap .token.symbol,
-.light .code-block-wrap .token.deleted      { color: #005cc5; }
+.light .code-block-wrap .token.deleted {
+  color: #005cc5;
+}
 .light .code-block-wrap .token.selector,
 .light .code-block-wrap .token.attr-name,
 .light .code-block-wrap .token.string,
 .light .code-block-wrap .token.char,
 .light .code-block-wrap .token.builtin,
-.light .code-block-wrap .token.inserted     { color: #032f62; }
+.light .code-block-wrap .token.inserted {
+  color: #032f62;
+}
 .light .code-block-wrap .token.operator,
 .light .code-block-wrap .token.entity,
 .light .code-block-wrap .token.url,
 .light .code-block-wrap .language-css .token.string,
-.light .code-block-wrap .style .token.string{ color: #d73a49; }
+.light .code-block-wrap .style .token.string {
+  color: #d73a49;
+}
 .light .code-block-wrap .token.atrule,
 .light .code-block-wrap .token.attr-value,
-.light .code-block-wrap .token.keyword      { color: #d73a49; }
+.light .code-block-wrap .token.keyword {
+  color: #d73a49;
+}
 .light .code-block-wrap .token.function,
-.light .code-block-wrap .token.class-name   { color: #6f42c1; }
+.light .code-block-wrap .token.class-name {
+  color: #6f42c1;
+}
 .light .code-block-wrap .token.regex,
 .light .code-block-wrap .token.important,
-.light .code-block-wrap .token.variable     { color: #e36209; }
+.light .code-block-wrap .token.variable {
+  color: #e36209;
+}
 
 .code-block-wrap pre {
   margin: 0 !important;
@@ -693,7 +756,10 @@
   letter-spacing: 0.04em;
   color: hsl(219 26% 57%); /* navy-300 */
   cursor: pointer;
-  transition: color .15s ease, border-color .15s ease, background .15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .code-block-copy:hover {
@@ -737,43 +803,70 @@
    syntax token colours per mode.
    ============================================================ */
 :root {
-  --ide-bg:            222 45% 10%; /* navy-900 */
-  --ide-header-bg:     222 42% 15%; /* navy-800 */
-  --ide-pane-bg:       222 47% 9%;  /* navy-950-ish */
-  --ide-border:        224 43% 21%; /* navy-700 */
-  --ide-text:          220 60% 97%;
-  --ide-muted:         219 26% 57%; /* navy-300 */
-  --ide-tok-key:       216 100% 75%; /* #82AAFF light blue */
-  --ide-tok-str:       35 70% 73%;   /* #ECC48D warm tan */
-  --ide-tok-num:       18 90% 70%;
-  --ide-tok-kw:        271 65% 75%;  /* purple */
-  --ide-tok-punc:      215 16% 47%;  /* muted slate */
+  --ide-bg: 222 45% 10%; /* navy-900 */
+  --ide-header-bg: 222 42% 15%; /* navy-800 */
+  --ide-pane-bg: 222 47% 9%; /* navy-950-ish */
+  --ide-border: 224 43% 21%; /* navy-700 */
+  --ide-text: 220 60% 97%;
+  --ide-muted: 219 26% 57%; /* navy-300 */
+  --ide-tok-key: 216 100% 75%; /* #82AAFF light blue */
+  --ide-tok-str: 35 70% 73%; /* #ECC48D warm tan */
+  --ide-tok-num: 18 90% 70%;
+  --ide-tok-kw: 271 65% 75%; /* purple */
+  --ide-tok-punc: 215 16% 47%; /* muted slate */
 }
 
 .light {
-  --ide-bg:            220 35% 98%;
-  --ide-header-bg:     220 30% 94%;
-  --ide-pane-bg:       220 30% 97%;
-  --ide-border:        219 23% 82%;
-  --ide-text:          222 47% 8%;
-  --ide-muted:         220 31% 42%;
-  --ide-tok-key:       212 100% 35%; /* GitHub blue */
-  --ide-tok-str:       222 90% 25%;  /* GitHub deep blue (strings) */
-  --ide-tok-num:       19 90% 35%;
-  --ide-tok-kw:        271 65% 35%;
-  --ide-tok-punc:      215 16% 35%;
+  --ide-bg: 220 35% 98%;
+  --ide-header-bg: 220 30% 94%;
+  --ide-pane-bg: 220 30% 97%;
+  --ide-border: 219 23% 82%;
+  --ide-text: 222 47% 8%;
+  --ide-muted: 220 31% 42%;
+  --ide-tok-key: 212 100% 35%; /* GitHub blue */
+  --ide-tok-str: 222 90% 25%; /* GitHub deep blue (strings) */
+  --ide-tok-num: 19 90% 35%;
+  --ide-tok-kw: 271 65% 35%;
+  --ide-tok-punc: 215 16% 35%;
 }
 
-.ide-bg            { background-color: hsl(var(--ide-bg)); }
-.ide-header-bg     { background-color: hsl(var(--ide-header-bg)); }
-.ide-pane-bg       { background-color: hsl(var(--ide-pane-bg)); }
-.ide-border        { border-color: hsl(var(--ide-border)); }
-.ide-divide > * + * { border-color: hsl(var(--ide-border)); }
-.ide-text          { color: hsl(var(--ide-text)); }
-.ide-muted         { color: hsl(var(--ide-muted)); }
-.ide-tok-key       { color: hsl(var(--ide-tok-key)); }
-.ide-tok-str       { color: hsl(var(--ide-tok-str)); }
-.ide-tok-num       { color: hsl(var(--ide-tok-num)); }
-.ide-tok-kw        { color: hsl(var(--ide-tok-kw)); }
-.ide-tok-punc      { color: hsl(var(--ide-tok-punc)); }
-.ide-tok-cmt       { color: hsl(var(--ide-muted)); font-style: italic; }
+.ide-bg {
+  background-color: hsl(var(--ide-bg));
+}
+.ide-header-bg {
+  background-color: hsl(var(--ide-header-bg));
+}
+.ide-pane-bg {
+  background-color: hsl(var(--ide-pane-bg));
+}
+.ide-border {
+  border-color: hsl(var(--ide-border));
+}
+.ide-divide > * + * {
+  border-color: hsl(var(--ide-border));
+}
+.ide-text {
+  color: hsl(var(--ide-text));
+}
+.ide-muted {
+  color: hsl(var(--ide-muted));
+}
+.ide-tok-key {
+  color: hsl(var(--ide-tok-key));
+}
+.ide-tok-str {
+  color: hsl(var(--ide-tok-str));
+}
+.ide-tok-num {
+  color: hsl(var(--ide-tok-num));
+}
+.ide-tok-kw {
+  color: hsl(var(--ide-tok-kw));
+}
+.ide-tok-punc {
+  color: hsl(var(--ide-tok-punc));
+}
+.ide-tok-cmt {
+  color: hsl(var(--ide-muted));
+  font-style: italic;
+}
