@@ -42,7 +42,7 @@ No description available.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Deprecated.php:165`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L165)
+- [`plugins/wp-graphql/src/Deprecated.php:164`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L164)
 
 ```php
 apply_filters_deprecated(
@@ -63,4 +63,4 @@ apply_filters_deprecated(
 
 ## Related
 
-- `Deprecated::menu_item_connected_object()` in [`plugins/wp-graphql/src/Deprecated.php:165`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L165)
+- `Deprecated::menu_item_connected_object()` in [`plugins/wp-graphql/src/Deprecated.php:164`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Deprecated.php#L164)
