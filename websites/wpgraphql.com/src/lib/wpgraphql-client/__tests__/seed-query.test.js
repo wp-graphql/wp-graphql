@@ -12,7 +12,9 @@ describe("SEED_QUERY", () => {
   it("declares a $uri: String! variable", () => {
     const doc = parse(SEED_QUERY)
     const op = doc.definitions[0]
-    const v = op.variableDefinitions.find((v) => v.variable.name.value === "uri")
+    const v = op.variableDefinitions.find(
+      (v) => v.variable.name.value === "uri"
+    )
     assert.ok(v, "expected $uri variable")
     assert.equal(v.type.kind, "NonNullType")
     assert.equal(v.type.type.name.value, "String")

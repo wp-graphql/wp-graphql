@@ -105,7 +105,10 @@ class CommentMutation {
 		 *
 		 * @param array<string,mixed> $output_args   The array of $input_post_args that will be passed to wp_new_comment
 		 * @param array<string,mixed> $input         The data that was entered as input for the mutation
-		 * @param string              $mutation_type The type of mutation being performed ( create, edit, etc )
+		 * @param string              $mutation_name The type of mutation being performed ( create, edit, etc )
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		$output_args = apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutation_name );
 
@@ -131,6 +134,20 @@ class CommentMutation {
 		$intended_comment_status = 0;
 		$default_comment_status  = 0;
 
+		/**
+		 * Fires after additional comment mutation data has been updated.
+		 *
+		 * @param int                                  $comment_id              The ID of the comment being mutated.
+		 * @param array<string,mixed>                  $input                   The input for the mutation.
+		 * @param string                               $mutation_name           The name of the mutation (for example: create, update, delete).
+		 * @param \WPGraphQL\AppContext                $context                 The AppContext passed down to all resolvers.
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info                    The ResolveInfo passed down to all resolvers.
+		 * @param int                                  $intended_comment_status The status requested by mutation input.
+		 * @param int                                  $default_comment_status  The fallback status when no explicit status is provided.
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
+		 */
 		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
 	}
 

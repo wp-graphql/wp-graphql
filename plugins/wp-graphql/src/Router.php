@@ -151,6 +151,8 @@ class Router {
 		 * default checks.
 		 *
 		 * @param ?bool $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$pre_is_graphql_http_request = apply_filters( 'graphql_pre_is_graphql_http_request', null );
 
@@ -201,6 +203,8 @@ class Router {
 		 * is a GraphQL request.
 		 *
 		 * @param bool $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
 	}
@@ -300,6 +304,8 @@ class Router {
 		 * Filtered list of access control headers.
 		 *
 		 * @param string[] $access_control_headers Array of headers to allow.
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$access_control_allow_headers = apply_filters(
 			'graphql_access_control_allow_headers',
@@ -336,8 +342,15 @@ class Router {
 			$headers['X-hacker'] = __( 'If you\'re reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!', 'wp-graphql' );
 		}
 
+		$request          = self::get_request();
+		$is_authenticated = $request instanceof Request
+			&& $request->app_context->viewer instanceof WP_User
+			&& $request->app_context->viewer->exists();
+		if ( ! $is_authenticated ) {
+			$is_authenticated = is_user_logged_in();
+		}
 		/**
-		 * Send nocache headers on authenticated requests.
+		 * Filters whether no-cache headers should be sent on the GraphQL HTTP response.
 		 *
 		 * Prefer the current request's viewer when available (after execution) so we
 		 * send no-cache for the request that was actually authenticated, regardless
@@ -346,17 +359,10 @@ class Router {
 		 *
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/3340
 		 *
-		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
-		 *
+		 * @param bool $send_no_cache_headers Whether to send no-cache headers.
+		 * @hookGroup request-lifecycle
 		 * @since 0.0.5
 		 */
-		$request          = self::get_request();
-		$is_authenticated = $request instanceof Request
-			&& $request->app_context->viewer instanceof WP_User
-			&& $request->app_context->viewer->exists();
-		if ( ! $is_authenticated ) {
-			$is_authenticated = is_user_logged_in();
-		}
 		$send_no_cache_headers = apply_filters( 'graphql_send_nocache_headers', $is_authenticated );
 		if ( $send_no_cache_headers ) {
 			foreach ( wp_get_nocache_headers() as $no_cache_header_key => $no_cache_header_value ) {
@@ -368,6 +374,8 @@ class Router {
 		 * Filter the $headers to send
 		 *
 		 * @param array<string,string> $headers The headers to send
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		$headers = apply_filters( 'graphql_response_headers_to_send', $headers );
 
@@ -406,6 +414,8 @@ class Router {
 			 * Fire an action when the headers are set
 			 *
 			 * @param array<string,string> $headers The headers sent in the response
+			 * @hookGroup request-lifecycle
+			 * @since 0.0.5
 			 */
 			do_action( 'graphql_response_set_headers', $headers );
 		}
@@ -480,6 +490,7 @@ class Router {
 			 *
 			 * @param int       $status_code The HTTP status code. Default 403.
 			 * @param \WP_Error $auth_error  The authentication error.
+			 * @hookGroup authentication
 			 */
 			self::$http_status_code = apply_filters( 'graphql_authentication_error_status_code', 403, $auth_error );
 			self::set_headers();
@@ -498,6 +509,7 @@ class Router {
 		 * This action can be hooked to to enable various debug tools,
 		 * such as enableValidation from the GraphQL Config.
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 0.0.4
 		 */
 		do_action( 'graphql_process_http_request' );
@@ -559,6 +571,8 @@ class Router {
 			 * @param SerializableError[] $errors  The errors array to be sent in the response.
 			 * @param \Throwable          $error   Thrown error object.
 			 * @param \WPGraphQL\Request  $request WPGraphQL Request object.
+			 * @hookGroup request-lifecycle
+			 * @since 0.0.4
 			 */
 			$response['errors'] = apply_filters(
 				'graphql_http_request_response_errors',
@@ -587,6 +601,7 @@ class Router {
 		 * @param ?array<string,mixed> $variables      Variables to passed to your GraphQL query
 		 * @param int|string           $status_code    The status code for the response
 		 *
+		 * @hookGroup request-lifecycle
 		 * @since 0.0.5
 		 */
 		do_action( 'graphql_process_http_request_response', $response, $response, $operation_name, $query, $variables, self::$http_status_code );
@@ -621,6 +636,8 @@ class Router {
 		 * @param string                                    $operation_name The operation name of the GraphQL Request
 		 * @param ?array<string,mixed>                      $variables      The variables applied to the GraphQL Request
 		 * @param ?\WP_User                                 $user           The current user object
+		 * @hookGroup request-lifecycle
+		 * @since 0.0.5
 		 */
 		self::$http_status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $_deprecated, $response, $query, $operation_name, $variables, $user );
 
@@ -720,6 +737,7 @@ class Router {
 		 *
 		 * @param bool $require_nonce Whether to require a nonce for cookie auth. Default true.
 		 * @param null $request       The Request instance (null in Router context).
+		 * @hookGroup authentication
 		 */
 		$require_nonce = apply_filters( 'graphql_cookie_auth_require_nonce', true, null );
 
@@ -739,6 +757,8 @@ class Router {
 			 *
 			 * @param bool|null                $authentication_errors Null to allow default behavior, false to preserve auth.
 			 * @param \WPGraphQL\Request|null  $request               The Request instance (null in Router context).
+		 * @hookGroup authentication
+		 * @since 0.0.5
 			 */
 			$filtered = apply_filters( 'graphql_authentication_errors', null, self::get_request() );
 

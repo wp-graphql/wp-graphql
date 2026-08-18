@@ -64,7 +64,10 @@ class InstrumentSchema {
 			 * Filter the field definition
 			 *
 			 * @param \GraphQL\Type\Definition\FieldDefinition $field The field definition
-			 * @param string          $type_name The name of the Type the field belongs to
+			 * @param string                                  $type_name The name of the type the field belongs to.
+			 *
+			 * @hookGroup debugging
+			 * @since 0.0.1
 			 */
 			$field = apply_filters( 'graphql_field_definition', $field, $type_name );
 
@@ -111,6 +114,9 @@ class InstrumentSchema {
 				 * @param string                                   $type_name      The name of the type the fields belong to
 				 * @param string                                   $field_key      The name of the field
 				 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
+				 *
+				 * @hookGroup debugging
+				 * @since 0.0.1
 				 */
 				do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
 
@@ -135,6 +141,9 @@ class InstrumentSchema {
 				 * @param string                                   $field_key      The name of the field
 				 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
 				 * @param ?callable                                $field_resolver The default field resolver
+				 *
+				 * @hookGroup debugging
+				 * @since 0.0.1
 				 */
 				$result = apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 
@@ -165,6 +174,9 @@ class InstrumentSchema {
 				 * @param string                                   $field_key       The name of the field
 				 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
 				 * @param ?callable                                $field_resolver  The default field resolver
+				 *
+				 * @hookGroup debugging
+				 * @since 0.0.1
 				 */
 				$result = apply_filters( 'graphql_resolve_field', $result, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 
@@ -180,6 +192,9 @@ class InstrumentSchema {
 				 * @param string                                   $field_key      The name of the field
 				 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
 				 * @param mixed                                    $result         The result of the field resolver
+				 *
+				 * @hookGroup debugging
+				 * @since 0.0.1
 				 */
 				do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
 
@@ -216,10 +231,16 @@ class InstrumentSchema {
 			return;
 		}
 
-		/**
-		 * Set the default auth error message
-		 */
 		$default_auth_error_message = __( 'You do not have permission to view this', 'wp-graphql' );
+		/**
+		 * Filters the default authorization error message for field resolvers.
+		 *
+		 * @param string                                        $default_auth_error_message The default authorization error message.
+		 * @param \GraphQL\Type\Definition\FieldDefinition      $field                      The field definition being resolved.
+		 *
+		 * @hookGroup authentication
+		 * @since 0.0.1
+		 */
 		$default_auth_error_message = apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
 
 		/**

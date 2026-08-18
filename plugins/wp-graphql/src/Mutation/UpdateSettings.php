@@ -3,6 +3,7 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
+use WPGraphQL\AppContext;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Utils\Utils;
@@ -34,8 +35,14 @@ class UpdateSettings {
 			[
 				'inputFields'         => $input_fields,
 				'outputFields'        => $output_fields,
-				'mutateAndGetPayload' => static function ( $input ) use ( $type_registry ) {
-					return self::mutate_and_get_payload( $input, $type_registry );
+				'mutateAndGetPayload' => static function ( $input, AppContext $context ) use ( $type_registry ) {
+					$payload = self::mutate_and_get_payload( $input, $type_registry );
+
+					// Options were just written; drop any setting-group models loaded
+					// earlier in this request so payload fields resolve fresh values.
+					$context->get_loader( 'setting_group' )->clear_all();
+
+					return $payload;
 				},
 			]
 		);
@@ -59,32 +66,33 @@ class UpdateSettings {
 			 * Loop through the $allowed_settings and build fields
 			 * for the individual settings
 			 */
-			foreach ( $allowed_settings as $key => $setting ) {
+			foreach ( $allowed_settings as $setting ) {
 				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
 					continue;
 				}
 
 				/**
-				 * Determine if the individual setting already has a
-				 * REST API name, if not use the option name.
-				 * Sanitize the field name to be camelcase
+				 * Readonly settings are not writable, so they are not added to the
+				 * mutation input, UNLESS they carry a `graphql_deprecated_input` reason.
+				 * In that case the input field is kept (marked deprecated) so existing
+				 * schemas that already exposed it don't break; it still rejects the write
+				 * at runtime in mutate_and_get_payload().
 				 */
-				if ( ! empty( $setting['show_in_rest']['name'] ) ) {
-					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
-				} else {
-					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
+				$deprecation_reason = ! empty( $setting['graphql_deprecated_input'] ) ? (string) $setting['graphql_deprecated_input'] : null;
+
+				if ( ! empty( $setting['graphql_readonly'] ) && null === $deprecation_reason ) {
+					continue;
 				}
 
-				$replaced_setting_key = graphql_format_name( $individual_setting_key, ' ', '/[^a-zA-Z0-9 -]/' );
+				/**
+				 * The flat (group-prefixed) input field name is derived once in the
+				 * normalized settings map so the input and payload surfaces agree.
+				 */
+				$individual_setting_key = isset( $setting['graphql_settings_field_name'] ) ? (string) $setting['graphql_settings_field_name'] : '';
 
-				if ( ! empty( $replaced_setting_key ) ) {
-					$individual_setting_key = $replaced_setting_key;
+				if ( empty( $individual_setting_key ) ) {
+					continue;
 				}
-
-				$individual_setting_key = lcfirst( $individual_setting_key );
-				$individual_setting_key = lcfirst( str_replace( '_', ' ', ucwords( $individual_setting_key, '_' ) ) );
-				$individual_setting_key = lcfirst( str_replace( '-', ' ', ucwords( $individual_setting_key, '_' ) ) );
-				$individual_setting_key = lcfirst( str_replace( ' ', '', ucwords( $individual_setting_key, ' ' ) ) );
 
 				/**
 				 * Dynamically build the individual setting,
@@ -92,8 +100,12 @@ class UpdateSettings {
 				 */
 				$input_fields[ $individual_setting_key ] = [
 					'type'        => $setting['type'],
-					'description' => $setting['description'],
+					'description' => $setting['description'] ?? null,
 				];
+
+				if ( null !== $deprecation_reason ) {
+					$input_fields[ $individual_setting_key ]['deprecationReason'] = $deprecation_reason;
+				}
 			}
 		}
 
@@ -131,8 +143,8 @@ class UpdateSettings {
 
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
-				$setting_type      = DataSource::format_group_name( $group );
-				$setting_type_name = Utils::format_type_name( $setting_type . 'Settings' );
+				$group_key         = DataSource::format_group_name( $group );
+				$setting_type_name = Utils::format_type_name( $group_key . 'Settings' );
 
 				$output_fields[ Utils::format_field_name( $setting_type_name ) ] = [
 					'type'        => $setting_type_name,
@@ -141,8 +153,8 @@ class UpdateSettings {
 						// translators: %s is the setting type name
 						return sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name );
 					},
-					'resolve'     => static function () use ( $setting_type_name ) {
-						return $setting_type_name;
+					'resolve'     => static function ( $root, array $args, AppContext $context ) use ( $group_key ) {
+						return $context->get_loader( 'setting_group' )->load_deferred( $group_key );
 					},
 				];
 			}
@@ -156,7 +168,7 @@ class UpdateSettings {
 	 * @param array<string,mixed>              $input The mutation input
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array<string,array<string,string>>
+	 * @return array<string,array<string,mixed>>
 	 *
 	 * @throws \GraphQL\Error\UserError
 	 */
@@ -182,14 +194,13 @@ class UpdateSettings {
 		foreach ( $allowed_settings as $key => $setting ) {
 
 			/**
-			 * Determine if the individual setting already has a
-			 * REST API name, if not use the option name.
-			 * Sanitize the field name to be camelcase
+			 * The flat input field name is derived once in the normalized settings
+			 * map, so this matches the name registered on the input type.
 			 */
-			if ( isset( $setting['show_in_rest']['name'] ) && ! empty( $setting['show_in_rest']['name'] ) ) {
-				$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $setting['show_in_rest']['name'], '_' ) ) );
-			} else {
-				$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
+			$individual_setting_key = isset( $setting['graphql_settings_field_name'] ) ? (string) $setting['graphql_settings_field_name'] : '';
+
+			if ( empty( $individual_setting_key ) ) {
+				continue;
 			}
 
 			/**
@@ -197,28 +208,36 @@ class UpdateSettings {
 			 * then add it to $updatable_settings_options
 			 */
 			$updatable_settings_options[ Utils::format_field_name( $individual_setting_key ) ] = [
-				'option' => $key,
-				'group'  => $setting['group'],
+				'option'   => $key,
+				'group'    => $setting['group'],
+				'readonly' => ! empty( $setting['graphql_readonly'] ),
 			];
 		}
 
 		foreach ( $input as $key => $value ) {
 			/**
-			 * Throw an error if the input field is the site url,
-			 * as we do not want users changing it and breaking all
-			 * the things
-			 */
-			if ( 'generalSettingsUrl' === $key ) {
-				throw new UserError( esc_html__( 'Sorry, that is not allowed, speak with your site administrator to change the site URL.', 'wp-graphql' ) );
-			}
-
-			/**
 			 * Check to see that the input field exists in settings, if so grab the option
 			 * name and update the option
 			 */
-			if ( array_key_exists( $key, $updatable_settings_options ) ) {
-				update_option( $updatable_settings_options[ $key ]['option'], $value );
+			if ( ! array_key_exists( $key, $updatable_settings_options ) ) {
+				continue;
 			}
+
+			/**
+			 * Throw an error if the setting is readonly, e.g. the site url,
+			 * as we do not want users changing it and breaking all the things
+			 */
+			if ( ! empty( $updatable_settings_options[ $key ]['readonly'] ) ) {
+				throw new UserError(
+					sprintf(
+						/* translators: %s is the name of the readonly settings input field. */
+						esc_html__( 'Sorry, the %s setting cannot be changed with this mutation, speak with your site administrator to change it.', 'wp-graphql' ),
+						esc_html( $key )
+					)
+				);
+			}
+
+			update_option( $updatable_settings_options[ $key ]['option'], $value );
 		}
 
 		return $updatable_settings_options;

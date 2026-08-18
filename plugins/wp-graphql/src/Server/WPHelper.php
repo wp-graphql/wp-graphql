@@ -37,23 +37,18 @@ class WPHelper extends Helper {
 			'body_params'  => ! empty( $parsed_body_params ) ? $parsed_body_params : null,
 		];
 
-		/**
-		 * Allow the request data to be filtered. Previously this filter was only
-		 * applied to non-HTTP requests. Since 0.2.0, we will apply it to all
-		 * requests.
-		 *
-		 * This is a great place to hook if you are interested in implementing
-		 * persisted queries (and ends up being a bit more flexible than
-		 * graphql-php's built-in persistentQueryLoader).
-		 *
-		 * @param mixed[] $data            An array containing the pieces of the data of the GraphQL request
-		 * @param array{
-		 *  method: string,
-		 *  query_params: array<string,mixed>|null,
-		 *  body_params: array<string,mixed>|null,
-		 * } $request_context An array containing the both body and query params
-		 */
 		if ( 'GET' === $method ) {
+			/**
+			 * Filters normalized GraphQL request data before GET requests are parsed.
+			 *
+			 * This hook can be used for persisted-query workflows and other request preprocessing.
+			 *
+			 * @param mixed[]            $data            The normalized GraphQL request data.
+			 * @param array<string,mixed> $request_context The request context containing request method and parsed params.
+			 *
+			 * @hookGroup request-lifecycle
+			 * @since 0.2.0
+			 */
 			$parsed_query_params = apply_filters( 'graphql_request_data', $parsed_query_params, $request_context );
 			// In GET requests there cannot be any body params so it's empty.
 			return parent::parseRequestParams( $method, [], $parsed_query_params );
@@ -62,6 +57,17 @@ class WPHelper extends Helper {
 		// In POST requests the query params are ignored by default but users can
 		// merge them into the body params manually using the $request_context if
 		// needed.
+		/**
+		 * Filters normalized GraphQL request data before POST requests are parsed.
+		 *
+		 * This hook can be used for persisted-query workflows and other request preprocessing.
+		 *
+		 * @param mixed[]            $data            The normalized GraphQL request data.
+		 * @param array<string,mixed> $request_context The request context containing request method and parsed params.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since 0.2.0
+		 */
 		$parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params, $request_context );
 		return parent::parseRequestParams( $method, $parsed_body_params, [] );
 	}

@@ -161,6 +161,9 @@ class TermObjectUpdate {
 			 * @param string                               $mutation_name The name of the mutation being performed (create, update, delete, etc)
 			 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
 
@@ -172,6 +175,9 @@ class TermObjectUpdate {
 			 * @param string                               $mutation_name The name of the mutation being performed (create, update, delete, etc)
 			 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 *
+			 * @hookGroup models
+			 * @since 0.0.5
 			 */
 			do_action( "graphql_update_{$taxonomy->name}", $existing_term->term_id, $args, $mutation_name, $context, $info );
 

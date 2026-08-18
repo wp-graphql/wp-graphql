@@ -1,7 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill"
 
 import { Feed } from "feed"
-import type { Category } from "feed/lib/typings"
+import type { Category } from "feed"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
 

@@ -86,6 +86,9 @@ class QueryLog {
 		 * Filter whether the logs can be seen in the request results or not
 		 *
 		 * @param bool $can_see Whether the requester can see the logs or not
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_user_can_see_query_logs', $can_see );
 	}
@@ -160,6 +163,9 @@ class QueryLog {
 		 *
 		 * @param mixed[]                   $trace     The trace to return
 		 * @param \WPGraphQL\Utils\QueryLog $instance  The QueryLog class instance
+		 *
+		 * @hookGroup debugging
+		 * @since 0.2.0
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}
@@ -198,6 +204,9 @@ class QueryLog {
 		 * @param mixed                                           $query     Raw row from `$wpdb->queries`.
 		 * @param int                                             $index     Index of this query in the log.
 		 * @param \WPGraphQL\Utils\QueryLog                       $query_log The QueryLog instance.
+		 *
+		 * @hookGroup debugging
+		 * @since 2.12.0
 		 */
 		$filtered = apply_filters( 'graphql_query_log_entry', $defaults, $query, $index, $this );
 

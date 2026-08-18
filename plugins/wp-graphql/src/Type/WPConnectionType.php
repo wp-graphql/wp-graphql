@@ -144,6 +144,9 @@ class WPConnectionType {
 		 *
 		 * @param array<string,mixed>              $config             Array of configuration options passed to the WPConnectionType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 *
+		 * @hookGroup schema-registration
+		 * @since 1.13.0
 		 */
 		$config = apply_filters( 'graphql_wp_connection_type_config', $config, $this );
 
@@ -159,6 +162,9 @@ class WPConnectionType {
 		 * @internal This filter is internal and used by rename_graphql_field(). It is not intended for use by external code.
 		 *
 		 * @param string $from_field_name The name of the field the connection will be exposed as.
+		 *
+		 * @hookGroup schema-registration
+		 * @since 1.13.0
 		 */
 		$this->from_field_name = apply_filters( "graphql_wp_connection_{$this->from_type}_from_field_name", $config['fromFieldName'] );
 
@@ -191,6 +197,7 @@ class WPConnectionType {
 		 * @param array<string,mixed>              $config             Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPConnectionType $wp_connection_type The instance of the WPConnectionType class
 		 *
+		 * @hookGroup schema-registration
 		 * @since 1.13.0
 		 */
 		do_action( 'graphql_wp_connection_type', $config, $this );

@@ -5,7 +5,11 @@ export function printQuery(documentOrString) {
   if (documentOrString && documentOrString.kind === "Document") {
     return print(documentOrString)
   }
-  if (documentOrString && documentOrString.loc && typeof documentOrString.loc.source?.body === "string") {
+  if (
+    documentOrString &&
+    documentOrString.loc &&
+    typeof documentOrString.loc.source?.body === "string"
+  ) {
     return print(documentOrString)
   }
   throw new TypeError("printQuery: expected a GraphQL DocumentNode or string")

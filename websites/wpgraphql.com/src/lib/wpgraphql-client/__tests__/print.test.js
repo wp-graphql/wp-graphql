@@ -27,7 +27,10 @@ describe("printQuery", () => {
   })
 
   it("throws on non-document non-string input", () => {
-    assert.throws(() => printQuery({ random: "object" }), /DocumentNode or string/)
+    assert.throws(
+      () => printQuery({ random: "object" }),
+      /DocumentNode or string/
+    )
   })
 })
 

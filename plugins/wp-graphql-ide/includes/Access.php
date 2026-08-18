@@ -29,52 +29,24 @@ class Access {
 	}
 
 	/**
-	 * Scope GraphQL connections on Smart Cache's `graphql_document` to
-	 * the current user.
-	 *
-	 * Without scoping, anyone holding `manage_graphql_ide` would see
-	 * every other IDE user's saved documents through the
-	 * `graphqlDocuments` connection — wider than the REST endpoint
-	 * already enforces. Mirror the REST behavior here so the per-user
-	 * isolation is the same on both surfaces.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param array<string, mixed> $query_args  Connection query args (forwarded to WP_Query).
-	 * @param mixed                $source      The parent (root) source for the connection.
-	 * @return array<string, mixed>
-	 */
-	public static function scope_graphql_connections( $query_args, $source ): array {
-		unset( $source ); // Source is unused — scoping is global per current user.
-
-		$post_type = isset( $query_args['post_type'] ) ? $query_args['post_type'] : null;
-
-		// `graphql_document` is Smart Cache's saved-document post type and
-		// only exists when Smart Cache is active.
-		$matches_ide_pt = false;
-		if ( is_string( $post_type ) ) {
-			$matches_ide_pt = 'graphql_document' === $post_type;
-		} elseif ( is_array( $post_type ) ) {
-			$matches_ide_pt = in_array( 'graphql_document', $post_type, true );
-		}
-
-		if ( ! $matches_ide_pt ) {
-			return $query_args;
-		}
-
-		$query_args['author'] = get_current_user_id();
-
-		return $query_args;
-	}
-
-	/**
 	 * Mark Smart Cache `graphql_document` posts as private when the
-	 * current user isn't the author. The connection-level filter
-	 * already scopes list queries, but `node(id: "...")` resolves a
-	 * model directly from the global ID and bypasses connection args
-	 * entirely. Without this filter, a user holding `manage_graphql_ide`
-	 * could read another user's saved Smart Cache document just by
-	 * guessing or sharing its global ID.
+	 * current user isn't the author. This is the GraphQL-side enforcement
+	 * point for per-user document isolation: it covers connections
+	 * (private models are dropped from the results), `node(id: "...")`
+	 * lookups, and any nested field that resolves a document model.
+	 * Without this filter, a user holding `manage_graphql_ide` could read
+	 * another user's saved Smart Cache document just by guessing or
+	 * sharing its global ID.
+	 *
+	 * Historical note: 5.0.1 through 5.4.x also author-scoped connection
+	 * query args via `graphql_connection_query_args`. That filter matched
+	 * any connection whose `post_type` list contained `graphql_document`,
+	 * which — with Smart Cache active — includes every `post_type: 'any'`
+	 * connection (core `contentNodes`, ACF relationship fields), so
+	 * authenticated queries silently lost other authors' posts
+	 * (https://github.com/wp-graphql/wp-graphql/issues/4117). The IDE's
+	 * document list now scopes itself with an `author` where arg
+	 * client-side instead (see `src/api/documents.js`).
 	 *
 	 * Visibility is decided in the WPGraphQL Model layer: returning true
 	 * here marks the data private so the model's restricted fields (id,

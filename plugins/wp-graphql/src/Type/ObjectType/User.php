@@ -8,6 +8,7 @@ use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\User as UserModel;
+use WPGraphQL\Type\Connection\EnqueuedAssets;
 use WPGraphQL\Type\Connection\PostObjects;
 
 /**
@@ -33,16 +34,18 @@ class User {
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
 				'connections' => [
 					'enqueuedScripts'     => [
-						'toType'  => 'EnqueuedScript',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedScript',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
 						},
 					],
 					'enqueuedStylesheets' => [
-						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedStylesheet',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();

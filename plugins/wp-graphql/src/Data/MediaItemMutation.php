@@ -99,6 +99,9 @@ class MediaItemMutation {
 		 * @param array<string,mixed> $input            The data that was entered as input for the mutation
 		 * @param \WP_Post_Type       $post_type_object The post_type_object that the mutation is affecting
 		 * @param string              $mutation_type    The type of mutation being performed (create, update, delete)
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		$insert_post_args = apply_filters( 'graphql_media_item_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
 
@@ -137,6 +140,9 @@ class MediaItemMutation {
 		 * @param string                               $mutation_name    The name of the mutation (ex: create, update, delete)
 		 * @param \WPGraphQL\AppContext                $context The AppContext that is passed down the resolve tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo that is passed down the resolve tree
+		 *
+		 * @hookGroup models
+		 * @since 0.0.5
 		 */
 		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
 	}

@@ -54,6 +54,9 @@ class CursorBuilder {
 		 * @param array<string,mixed>                  $field          The field key, value, type and order
 		 * @param \WPGraphQL\Data\Cursor\CursorBuilder $cursor_builder The CursorBuilder class
 		 * @param ?object                              $object_cursor  The Cursor class
+		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',

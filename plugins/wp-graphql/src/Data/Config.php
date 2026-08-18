@@ -186,6 +186,8 @@ class Config {
 		 * @param \WP_Query   $query       The WP_Query instance (passed by reference).
 		 *
 		 * @return string|null
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
@@ -283,6 +285,8 @@ class Config {
 		 * @param \WP_Query  $query     The WP_Query instance (passed by reference).
 		 *
 		 * @return string|null
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -335,6 +339,8 @@ class Config {
 		 * @param \WP_User_Query  $query       The WP_User_Query instance (passed by reference).
 		 *
 		 * @return string|null
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
@@ -386,6 +392,8 @@ class Config {
 		 * @param \WP_User_Query $query     The WP_Query instance (passed by reference).
 		 *
 		 * @return string|null
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -438,6 +446,9 @@ class Config {
 		 * @param array<string,mixed>  $pieces     Terms query SQL clauses.
 		 * @param string[]             $taxonomies An array of taxonomies.
 		 * @param array<string,mixed>  $args       An array of terms query arguments.
+		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
 		if ( null !== $pre_pieces ) {
@@ -520,6 +531,9 @@ class Config {
 		 * @param ?array<string,mixed> $pre_pieces The pre-filtered comment query clauses.
 		 * @param array<string,mixed>  $pieces     A compacted array of comment query clauses.
 		 * @param \WP_Comment_Query    $query      Current instance of WP_Comment_Query, passed by reference.
+		 *
+		 * @hookGroup connections
+		 * @since 0.0.5
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
 		if ( null !== $pre_pieces ) {

@@ -72,6 +72,45 @@ This could now be queried like so:
 
 > \*\*NOTE: \*\*If a setting is registered without a group defined it will appear under `generalSettings`.
 
+## Exposing Options WordPress Doesn't Register
+
+Some options are never registered through `register_setting()`, for example values a plugin saved with `update_option()`, or core options that WordPress simply doesn't register. WPGraphQL can't see those by default.
+
+Rather than calling `register_setting()` yourself (which mutates global state for the rest of the request, affecting internal `graphql()` calls, block render callbacks, cron, and WP-CLI), use the `graphql_normalized_settings` filter to add an entry to WPGraphQL's own settings map, in memory:
+
+```php
+add_filter( 'graphql_normalized_settings', function ( array $settings ) {
+    // Expose an option that was saved via update_option() but never
+    // registered with register_setting(), so WPGraphQL can't see it by default.
+    $settings['my_legacy_option'] = [
+        'group'            => 'general',
+        'type'             => 'string',
+        'description'      => __( 'A value stored by a legacy plugin.', 'my-textdomain' ),
+        'graphql_readonly' => true,
+    ];
+
+    return $settings;
+} );
+```
+
+The entry follows the `register_setting()` args shape (`group`, `type`, `description`, …) plus the WPGraphQL-specific config in the next section. It then surfaces on both read surfaces like any registered setting, in this example as `generalSettings { myLegacyOption }` and `allSettings { generalSettingsMyLegacyOption }`.
+
+> **NOTE:** Entries are keyed by the **option name**, which is globally unique in WordPress, there is a single row per option in the options table regardless of which group registered it, so the group is never part of the key. The `group` is metadata that places the field under the matching setting-group type. Because this filter runs *after* registered settings are collected, assigning an entry whose key matches an existing option name **overrides** that entry, so use a fresh option name unless you specifically intend to modify an existing setting's configuration.
+
+WPGraphQL uses this same mechanism to expose a few common options core doesn't register: the **Site Address** (`generalSettings { homeUrl }`, also on the flat type as `generalSettingsHomeUrl`) and the **permalink** options under a `permalinkSettings` group (`structure`, `categoryBase`, `tagBase`). On multisite it also shims `siteurl` (core only registers it on single-site), so `generalSettings { url }` and `generalSettingsUrl` are available on multisite too. These are read-only.
+
+## Per-Setting Configuration
+
+Beyond the standard `register_setting()` args, WPGraphQL reads the following per-setting config keys. These apply whether the setting is registered with `register_setting()` (via its `$args`) or seeded through the `graphql_normalized_settings` filter above:
+
+| Field                | Type     | Required | Description                                                                                                                                                                                                             |
+| -------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `graphql_capability` | string   | No       | A capability required to read the setting. For users without the capability the field resolves to `null` on both read surfaces, and a debug message naming the field and the required capability is included when debugging is enabled. Used by core to restrict the administrator email to users who can manage options. |
+| `graphql_purge_all`  | boolean  | No       | Marks a setting whose change has schema-wide impact rather than affecting only its own settings group. Read by cache-invalidation consumers such as WPGraphQL Smart Cache: a change to a setting carrying this flag invalidates all cached queries, not just those that read the setting's group. Core sets it on the permalink options (which drive every `uri` field); set it on your own broadly-impactful settings. Default (omitted) scopes invalidation to the setting's group. |
+| `graphql_field_name` | string   | No       | An explicit field name for the setting. Overrides the default name (which is derived from the `show_in_rest` name or the option key). The value is run through WPGraphQL's standard field-name formatter, the same one applied to every field, so `graphql_field_name => 'homeUrl'` exposes the field as `homeUrl`.                            |
+| `graphql_readonly`   | boolean  | No       | If true, the setting is exposed for reading but cannot be changed through the `updateSettings` mutation. Use for values that must not be writable through the API, such as the site address.                            |
+| `graphql_resolve`    | callable | No       | A resolver for the setting's value, given the first pass before the value is returned. Receives the stored value and returns the value to expose. Use to normalize or derive a value, such as deriving a timezone from a UTC offset when no named zone is set. |
+
 ## Querying Settings
 
 ### All Settings
@@ -162,6 +201,45 @@ And that will return data similar to:
     }
   }
 }
+```
+
+### Settings Groups are Nodes
+
+Each settings group implements the `Node` interface and exposes a globally unique `id`, so a group can be fetched like any other node:
+
+```graphql
+{
+  generalSettings {
+    id
+    title
+  }
+}
+```
+
+The `id` can be passed back to the `node` field to re-fetch the group:
+
+```graphql
+query GetSettingGroupNode($id: ID!) {
+  node(id: $id) {
+    ... on GeneralSettings {
+      id
+      title
+    }
+  }
+}
+```
+
+The global ID encodes the `setting_group` type and the group's key (e.g. `general`, `permalink`), and clients can treat it as an opaque cache identifier. The flat `allSettings` field is a convenience view across every group and does not implement `Node`.
+
+Setting groups resolve through WPGraphQL's model layer, so the standard model filters apply. For example, a whole group can be made private (resolving to `null` for the current user) with the `graphql_data_is_private` filter, where the model name is the group's type name (e.g. `GeneralSettings`):
+
+```php
+add_filter( 'graphql_data_is_private', function ( $is_private, $model_name ) {
+	if ( 'GeneralSettings' === $model_name && ! current_user_can( 'manage_options' ) ) {
+		return true;
+	}
+	return $is_private;
+}, 10, 2 );
 ```
 
 ## Mutations
