@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.0...wp-graphql-smart-cache/v2.3.1) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.6.0 to 2.18.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group across 1 directory ([#4134](https://github.com/wp-graphql/wp-graphql/issues/4134)) ([cabf4b2](https://github.com/wp-graphql/wp-graphql/commit/cabf4b2207085a6170396111b7ce36a78a84d6b6))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.3 in /plugins/wp-graphql-smart-cache ([#4176](https://github.com/wp-graphql/wp-graphql/issues/4176)) ([ec42130](https://github.com/wp-graphql/wp-graphql/commit/ec421308ef97a8a4b92230b60a0d229dfbd4ca9c))
+* **deps-dev:** bump squizlabs/php_codesniffer from 3.13.5 to 3.13.6 in /plugins/wp-graphql-smart-cache ([#4178](https://github.com/wp-graphql/wp-graphql/issues/4178)) ([a01c6fe](https://github.com/wp-graphql/wp-graphql/commit/a01c6fea2e0a2a092900e0cb70f1e7d1db9a4f52))
+* **wp-graphql-smart-cache:** save admin-authored documents with the content-hash slug ([#4017](https://github.com/wp-graphql/wp-graphql/issues/4017)) ([5ee38af](https://github.com/wp-graphql/wp-graphql/commit/5ee38af9cd9b4854282166005872ba4db49f0a87))
+
 ## [2.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.2.2...wp-graphql-smart-cache/v2.3.0) (2026-07-23)
 
 
