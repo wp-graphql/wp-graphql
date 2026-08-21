@@ -1969,6 +1969,81 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Pins the documented nonce contract: the nonce is accepted but not verified today
+	 * (reserved for future link-based preview authorization). Present, absent, or junk
+	 * must behave identically for an authorized viewer, and a valid nonce must grant
+	 * nothing on its own for an unauthorized one. If this test starts failing because
+	 * verification was added, that is a breaking change requiring a major version and
+	 * an announced migration window.
+	 */
+	public function testNonceIsAcceptedButNotVerifiedToday() {
+		wp_set_current_user( $this->admin );
+
+		$query       = 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { isPreview content } }';
+		$variables   = [ 'id' => $this->post ];
+		$valid_nonce = wp_create_nonce( 'post_preview_' . $this->post );
+
+		$without_nonce = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$with_valid_nonce = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'nonce'      => $valid_nonce,
+					],
+				],
+			]
+		);
+
+		$with_junk_nonce = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'nonce'      => 'not-a-real-nonce',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $without_nonce );
+		$this->assertTrue( $without_nonce['data']['post']['isPreview'], 'The preview applies without a nonce' );
+		$this->assertSame( $without_nonce['data'], $with_valid_nonce['data'], 'A valid nonce must not change the response' );
+		$this->assertSame( $without_nonce['data'], $with_junk_nonce['data'], 'A junk nonce must not change the response' );
+
+		// A valid nonce is not an authorization path: an unauthenticated request
+		// carrying one still gets only published data.
+		wp_set_current_user( 0 );
+		$anon = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'nonce'      => $valid_nonce,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $anon );
+		$this->assertFalse( $anon['data']['post']['isPreview'], 'A valid nonce must grant nothing without the capability check' );
+		$this->assertStringContainsString( 'Published Content', $anon['data']['post']['content'] );
+	}
+
+	/**
 	 * Negative or malformed ids in the preview context must be rejected, not coerced:
 	 * absint() would silently flip `-{id}` into a different, valid-looking positive id.
 	 * A negative `databaseId` means no preview context at all, and a negative

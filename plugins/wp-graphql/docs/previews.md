@@ -24,7 +24,7 @@ The fields mirror the query parameters WordPress core adds to a front-end previe
 | ---------------------------------------------- | --------------- | ----------------------------------------------------------------------- |
 | `database_id` (`databaseId`)                   | `preview_id`    | The database ID of the published post being previewed.                  |
 | `featured_image_database_id` (`featuredImageDatabaseId`) | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
-| `nonce` (`nonce`)                              | `preview_nonce` | Reserved for forward compatibility. Not currently verified.             |
+| `nonce` (`nonce`)                              | `preview_nonce` | Accepted but not verified today; see [The `nonce` field](#the-nonce-field). |
 
 The header value uses Structured Fields (the HTTP standard for structured header values), so its keys are lowercase `snake_case`; the JSON `extensions` fallback below uses the `camelCase` keys shown in parentheses. The header is included in `Access-Control-Allow-Headers`, so cross-origin clients (a headless app on a different domain) can send it.
 
@@ -120,6 +120,12 @@ If any of these is not met, the request is resolved exactly as if no preview con
 When `GRAPHQL_DEBUG` is enabled, a debug notice is added to the response `extensions` when preview context was provided for a post the current user is not allowed to preview.
 
 Because previews require an authenticated, edit-capable user, preview responses are not cached.
+
+### The `nonce` field
+
+The `nonce` field carries the `preview_nonce` WordPress includes in the preview URL, and is **accepted but not verified today**: sending it, omitting it, or sending a stale value all behave identically, and authorization rests entirely on the capability check above. A valid nonce grants nothing on its own.
+
+It is reserved for one designed future use: authorizing link-based previews the way core does, where the nonce rather than a capability authorizes the view. If that ships, verification becomes part of the contract in a future major version (v3 at the earliest), announced with a migration window. Until then, clients should forward the nonce when they have it, which costs nothing and prepares them for that change, but must not rely on it for any security property.
 
 ### Previewing the featured image
 
