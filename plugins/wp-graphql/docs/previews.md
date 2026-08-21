@@ -79,6 +79,26 @@ A field with neither option resolves from the published post, so forgetting to o
 
 `previewResolve` runs only inside an authorized preview (the request is authenticated and the viewer can edit the post being previewed). It receives the raw `preview` envelope, including client-supplied values, so if your callback exposes anything sensitive beyond what an editor of that post may already see, apply your own checks.
 
+### Detecting the preview state
+
+Whether a preview was actually applied is queryable on the node, so a client (a preview toolbar, for example) can render a truthful preview state by including the fields it cares about:
+
+```graphql
+query Preview($id: ID!) {
+  post(id: $id, idType: DATABASE_ID) {
+    isPreview
+    previewRevisionDatabaseId
+    title
+    content
+  }
+}
+```
+
+- `isPreview` is `true` only when previewed values are actually overlaid on this node in this request: there is an autosave to overlay from, or a previewed featured image. An authorized preview with nothing to overlay resolves `false`, exactly like a request without preview context.
+- `previewRevisionDatabaseId` exposes the overlay source (the autosave the previewed values come from), or `null` when nothing is overlaid.
+
+Because an unauthorized request never applies the overlay, these fields resolve identically to a request without preview context, so they cannot be used to probe for unpublished content.
+
 ### Previewing post meta
 
 Meta keys that WordPress revisions, those registered with `revisions_enabled` (or added via the `wp_post_revision_meta_keys` filter, such as core's `footnotes`), resolve from the revision's own value in a preview, mirroring core. Other meta keys continue to resolve from the published post. The `graphql_resolve_revision_meta_from_parent` filter overrides this per key in either direction: return `false` to resolve a key from the revision, or `true` to force a revisioned key back to the published post.

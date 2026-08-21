@@ -1930,6 +1930,99 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * The preview state is queryable on the node: `isPreview` reports whether previewed
+	 * values are actually overlaid in this request, and `previewRevisionDatabaseId`
+	 * exposes the overlay source. An authorized preview with nothing to overlay, and an
+	 * unauthorized request, must both resolve identically to a request without preview
+	 * context, so the fields cannot be used to probe.
+	 */
+	public function testIsPreviewAndPreviewRevisionFieldsReflectOverlayState() {
+		wp_set_current_user( $this->admin );
+
+		$query = 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { isPreview previewRevisionDatabaseId previewRevisionId content } }';
+		$vars  = [ 'id' => $this->post ];
+
+		// Without preview context, the published node reports no preview state.
+		$published = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $vars,
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $published );
+		$this->assertFalse( $published['data']['post']['isPreview'] );
+
+		// With preview context, the overlaid node reports the preview state and its source.
+		$preview = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $vars,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $preview );
+		$this->assertTrue( $preview['data']['post']['isPreview'], 'The overlaid node reports isPreview: true' );
+		$this->assertEquals( $this->preview, $preview['data']['post']['previewRevisionDatabaseId'], 'previewRevisionDatabaseId exposes the overlay source (the autosave)' );
+		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'post', (string) $this->preview ), $preview['data']['post']['previewRevisionId'] );
+		$this->assertStringContainsString( 'Preview Content', $preview['data']['post']['content'] );
+
+		// An authorized preview with nothing to overlay reports no preview state,
+		// identically to a request without context.
+		$plain = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Plain Post',
+				'post_content' => 'Plain Content',
+				'post_author'  => $this->admin,
+			]
+		);
+
+		$none = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $plain ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $plain ] ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $none );
+		$this->assertFalse( $none['data']['post']['isPreview'], 'An authorized preview with no autosave reports isPreview: false' );
+		$this->assertNull( $none['data']['post']['previewRevisionDatabaseId'] );
+
+		// A featured-image-only preview (no autosave) still counts as a preview state.
+		$image_only = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $plain ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $plain,
+						'featuredImageDatabaseId' => $this->featured_image,
+					],
+				],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $image_only );
+		$this->assertTrue( $image_only['data']['post']['isPreview'], 'A previewed featured image alone is a preview state' );
+		$this->assertNull( $image_only['data']['post']['previewRevisionDatabaseId'], 'No autosave means no overlay source to expose' );
+
+		wp_delete_post( $plain, true );
+
+		// Unauthenticated: identical to a request without preview context (no probe channel).
+		wp_set_current_user( 0 );
+		$anon = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $vars,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $anon );
+		$this->assertFalse( $anon['data']['post']['isPreview'] );
+		$this->assertNull( $anon['data']['post']['previewRevisionDatabaseId'], 'The model capability gate keeps the revision id hidden from anonymous viewers' );
+	}
+
+	/**
 	 * The `previewResolve` field-config key is the extension API for supplying a
 	 * request-derived previewed value. It must run only inside an authorized preview
 	 * targeting the node, and it must receive the request's preview context.
