@@ -59,6 +59,36 @@ This is useful when you want the preview context to travel inside the operation 
 - **Batch requests** (an array of operations in one HTTP request): `extensions.preview` is per-operation, while the preview overlay is request-level, so it is **not supported in a batch**. Send the `X-GraphQL-Preview` header instead; it applies to **every** operation in the batch. A per-operation `extensions.preview` inside a batch is ignored, with a debug notice under `GRAPHQL_DEBUG`.
 - **GET requests**: both transports work. With the query-string form of `extensions`, the preview parameters become part of the URL (and any access logs); the header keeps them out of the URL.
 
+### Sending the preview context from clients and IDEs
+
+- **WPGraphQL IDE** (the standalone plugin): add the header in the Headers panel:
+
+  ```json
+  { "X-GraphQL-Preview": "database_id=123" }
+  ```
+
+  The legacy GraphiQL IDE bundled with WPGraphQL core does not support request headers and is deprecated in favor of the standalone WPGraphQL IDE plugin. If you are still on the bundled IDE, use the `extensions.preview` form, or switch to the standalone IDE.
+
+- **Altair**: use the headers pane, or Altair's built-in Request Extensions editor for the `extensions.preview` form.
+
+- **Postman / Insomnia / Apollo Sandbox**: add `X-GraphQL-Preview` in the request's headers. Pre-request scripts (Postman) and preflight scripts (Apollo Sandbox) can build the value from the preview URL's query parameters.
+
+- **JavaScript clients** (Apollo, urql, plain `fetch`): set the header on the authenticated request. GraphQL clients do not emit RFC 8941 themselves, so serialize the value directly:
+
+  ```js
+  const previewHeader = ({ databaseId, featuredImageDatabaseId, nonce }) =>
+    [
+      `database_id=${databaseId}`,
+      featuredImageDatabaseId != null &&
+        `featured_image_database_id=${featuredImageDatabaseId}`,
+      nonce && `nonce=${JSON.stringify(nonce)}`,
+    ]
+      .filter(Boolean)
+      .join(', ');
+  ```
+
+  `JSON.stringify` double-quotes the nonce and escapes `"` and `\`, which matches the RFC 8941 string syntax for these values.
+
 ### Which fields are previewable
 
 Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, and resolves the featured image from the request's `featuredImageDatabaseId`.
