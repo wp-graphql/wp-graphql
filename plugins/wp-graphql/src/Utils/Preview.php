@@ -11,6 +11,29 @@ use WPGraphQL\Model\Post;
 class Preview {
 
 	/**
+	 * Returns the schema deprecation reason for the `asPreview` argument.
+	 *
+	 * Single-sourced so the schema's guidance cannot drift from the runtime behavior:
+	 * when a request carries preview context, the context is applied and `asPreview`
+	 * is ignored (see resolve_preview_field()).
+	 */
+	public static function get_as_preview_deprecation_reason(): string {
+		return __( 'Use the request-level preview context instead: send the `X-GraphQL-Preview` request header (or a `preview` object in the request `extensions`). When a request carries preview context, the context is applied and `asPreview` is ignored. This argument is planned for removal in a future major version.', 'wp-graphql' );
+	}
+
+	/**
+	 * Adds the debug notice for an `asPreview` argument that was ignored because the
+	 * request carries preview context. Shared by every resolver that accepts the
+	 * deprecated argument so the guidance stays identical everywhere.
+	 */
+	public static function debug_as_preview_ignored(): void {
+		graphql_debug(
+			__( 'The deprecated `asPreview` argument was ignored because the request carries preview context (the `X-GraphQL-Preview` header or `extensions.preview`), which takes precedence. Remove `asPreview` from the query.', 'wp-graphql' ),
+			[ 'type' => 'PREVIEW_ARG_IGNORED' ]
+		);
+	}
+
+	/**
 	 * Overlays previewable fields from a post's revision when the request carries a
 	 * `preview` envelope targeting that post, while preserving the node's published
 	 * identity (id/databaseId and any field not opted in stay published).

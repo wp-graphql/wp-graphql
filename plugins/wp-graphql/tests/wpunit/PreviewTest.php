@@ -1909,20 +1909,28 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$found = false;
+		// Collect every asPreview arg exposed on RootQuery fields (post, page, contentNode, ...),
+		// so the assertions cover all registrations, not just one.
+		$reasons = [];
 		foreach ( $actual['data']['__type']['fields'] as $field ) {
-			if ( 'post' !== $field['name'] ) {
-				continue;
-			}
 			foreach ( $field['args'] as $arg ) {
 				if ( 'asPreview' === $arg['name'] ) {
-					$found = true;
-					$this->assertTrue( $arg['isDeprecated'], 'asPreview should be deprecated' );
-					$this->assertNotEmpty( $arg['deprecationReason'] );
+					$this->assertTrue( $arg['isDeprecated'], sprintf( 'asPreview on "%s" should be deprecated', $field['name'] ) );
+					$this->assertNotEmpty( $arg['deprecationReason'], sprintf( 'asPreview on "%s" should carry a deprecation reason', $field['name'] ) );
+					$reasons[ $field['name'] ] = $arg['deprecationReason'];
 				}
 			}
 		}
 
-		$this->assertTrue( $found, 'The post field should expose a deprecated asPreview argument' );
+		$this->assertNotEmpty( $reasons, 'RootQuery should expose at least one deprecated asPreview argument' );
+
+		// Every registration must share one identical, single-sourced reason.
+		$this->assertCount( 1, array_unique( array_values( $reasons ) ), 'All asPreview deprecation reasons must be identical (single-sourced)' );
+
+		// The reason must describe the actual runtime behavior: preview context is the
+		// replacement, and when present it wins while asPreview is ignored.
+		$reason = reset( $reasons );
+		$this->assertStringContainsString( 'X-GraphQL-Preview', $reason, 'The deprecation reason should point at the header transport' );
+		$this->assertStringContainsString( '`asPreview` is ignored', $reason, 'The deprecation reason must state that preview context wins over asPreview' );
 	}
 }

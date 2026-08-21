@@ -17,6 +17,7 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Type\Connection\EnqueuedAssets;
 use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -248,7 +249,7 @@ class RootQuery {
 										return __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' );
 									},
 									'deprecationReason' => static function () {
-										return __( 'Use the `preview` object in the request `extensions` instead. When provided, an explicit `asPreview` argument still takes precedence. The argument is planned for removal in a future major version.', 'wp-graphql' );
+										return Preview::get_as_preview_deprecation_reason();
 									},
 								],
 							],
@@ -278,10 +279,7 @@ class RootQuery {
 
 								if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
 									if ( is_array( $context->preview ) ) {
-										graphql_debug(
-											__( 'The deprecated `asPreview` argument was ignored because preview context was provided. Use the `X-GraphQL-Preview` header instead.', 'wp-graphql' ),
-											[ 'type' => 'PREVIEW_ARG_IGNORED' ]
-										);
+										Preview::debug_as_preview_ignored();
 									} else {
 										$post_id = Utils::get_post_preview_id( $post_id );
 									}
@@ -820,7 +818,7 @@ class RootQuery {
 								return __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' );
 							},
 							'deprecationReason' => static function () {
-								return __( 'Use the `preview` object in the request `extensions` instead. When provided, an explicit `asPreview` argument still takes precedence. The argument is planned for removal in a future major version.', 'wp-graphql' );
+								return Preview::get_as_preview_deprecation_reason();
 							},
 						],
 					],
@@ -871,10 +869,7 @@ class RootQuery {
 
 						if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
 							if ( is_array( $context->preview ) ) {
-								graphql_debug(
-									__( 'The deprecated `asPreview` argument was ignored because a `preview` request extension was provided. Use `extensions.preview` instead.', 'wp-graphql' ),
-									[ 'type' => 'PREVIEW_ARG_IGNORED' ]
-								);
+								Preview::debug_as_preview_ignored();
 							} else {
 								$post_id = Utils::get_post_preview_id( $post_id );
 							}
