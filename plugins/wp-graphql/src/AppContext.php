@@ -86,8 +86,8 @@ class AppContext {
 
 	/**
 	 * Stores the normalized preview context for the request, parsed from the
-	 * `preview` envelope in the request `extensions`. Null when the request is not
-	 * a preview request.
+	 * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
+	 * Null when the request does not carry preview context.
 	 *
 	 * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */

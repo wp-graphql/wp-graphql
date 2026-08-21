@@ -48,8 +48,8 @@ class Preview {
 	}
 
 	/**
-	 * Overlays previewable fields from a post's revision when the request carries a
-	 * `preview` envelope targeting that post, while preserving the node's published
+	 * Overlays previewable fields from a post's revision when the request carries
+	 * preview context targeting that post, while preserving the node's published
 	 * identity (id/databaseId and any field not opted in stay published).
 	 *
 	 * Opt-in is per field via field config:

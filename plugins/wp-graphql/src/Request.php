@@ -305,10 +305,11 @@ class Request {
 		$this->app_context->viewer = wp_get_current_user();
 
 		/**
-		 * Set the preview context for the request from the `preview` envelope in the
-		 * request `extensions`, if present. This carries the request-scoped preview
-		 * params (the post being previewed, and the previewed featured image), mirroring
-		 * the query params WordPress core uses for front-end previews.
+		 * Set the preview context for the request, if provided (the `X-GraphQL-Preview`
+		 * header, or the `preview` object in the request `extensions`). This carries the
+		 * request-scoped preview params (the post being previewed, and the previewed
+		 * featured image), mirroring the query params WordPress core uses for front-end
+		 * previews.
 		 */
 		$this->app_context->preview = $this->get_preview_context();
 
@@ -320,7 +321,7 @@ class Request {
 		if ( is_array( $this->app_context->preview ) && ! Preview::viewer_can_preview( (int) $this->app_context->preview['databaseId'] ) ) {
 			graphql_debug(
 				__( 'Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
-				[ 'type' => 'PREVIEW_EXTENSION_IGNORED' ]
+				[ 'type' => 'PREVIEW_CONTEXT_IGNORED' ]
 			);
 		}
 

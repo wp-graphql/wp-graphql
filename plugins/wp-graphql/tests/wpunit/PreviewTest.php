@@ -1308,7 +1308,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * A `preview` envelope in the request `extensions` carrying a `featuredImageDatabaseId` should
+	 * A `preview` object in the request `extensions` carrying a `featuredImageDatabaseId` should
 	 * override the featured image when previewing, mirroring how core reads the previewed
 	 * featured image from the `_thumbnail_id` request parameter.
 	 *
@@ -1420,11 +1420,11 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * A valid `preview` envelope overlays the previewable fields (e.g. content) from the
+	 * Valid preview context overlays the previewable fields (e.g. content) from the
 	 * revision while preserving the node's published identity (databaseId is unchanged),
 	 * for an authenticated user who can edit the post, without needing `asPreview`.
 	 */
-	public function testPreviewEnvelopeOverlaysContentAndPreservesIdentity() {
+	public function testPreviewContextOverlaysContentAndPreservesIdentity() {
 		wp_set_current_user( $this->admin );
 
 		$query = '
@@ -1438,11 +1438,11 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$variables = [ 'id' => $this->post ];
 
-		// Without the envelope, the published content is returned.
+		// Without the preview context, the published content is returned.
 		$published = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertStringContainsString( 'Published Content', $published['data']['post']['content'] );
 
-		// With the envelope, the content overlays from the revision, but the identity
+		// With the preview context, the content overlays from the revision, but the identity
 		// (databaseId) remains the published post's.
 		$preview = $this->graphql(
 			[
@@ -1861,7 +1861,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * The overlay also applies to a previewed post appearing inside a connection: only the
 	 * targeted node overlays, and it keeps its published identity.
 	 */
-	public function testPreviewEnvelopeOverlaysContentForNodeInConnection() {
+	public function testPreviewContextOverlaysContentForNodeInConnection() {
 		wp_set_current_user( $this->admin );
 
 		// A second published post that is NOT the preview target.
@@ -1908,11 +1908,11 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * A preview envelope from an unauthenticated request must be ignored: the published
-	 * node is returned, identical to a request with no envelope. This prevents the
-	 * envelope from being used to read unpublished content.
+	 * Preview context from an unauthenticated request must be ignored: the published
+	 * node is returned, identical to a request with no preview context. This prevents
+	 * preview context from being used to read unpublished content.
 	 */
-	public function testPreviewEnvelopeIgnoredForUnauthenticatedRequest() {
+	public function testPreviewContextIgnoredForUnauthenticatedRequest() {
 		wp_set_current_user( 0 );
 
 		$query = '
@@ -1932,19 +1932,19 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'An unauthenticated request must never see preview content via the envelope' );
+		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'An unauthenticated request must never see preview content via the preview context' );
 
 		// A debug-only notice explains why the preview was ignored (GRAPHQL_DEBUG is on in tests).
 		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
-		$this->assertContains( 'PREVIEW_EXTENSION_IGNORED', $debug_types, 'A debug notice should explain the ignored preview' );
+		$this->assertContains( 'PREVIEW_CONTEXT_IGNORED', $debug_types, 'A debug notice should explain the ignored preview' );
 	}
 
 	/**
-	 * An invalid preview id in the envelope (a post that does not exist, or one the
-	 * viewer cannot edit) must be treated as if no envelope were provided. No error is
-	 * thrown, so the envelope cannot be used to enumerate inaccessible content.
+	 * An invalid preview id in the preview context (a post that does not exist, or one the
+	 * viewer cannot edit) must be treated as if no preview context were provided. No error is
+	 * thrown, so preview context cannot be used to enumerate inaccessible content.
 	 */
-	public function testInvalidPreviewEnvelopeIdIsSilentlyIgnored() {
+	public function testInvalidPreviewContextIdIsSilentlyIgnored() {
 		wp_set_current_user( $this->admin );
 
 		$query = '
@@ -1965,7 +1965,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual, 'Invalid preview input must not throw' );
-		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'An envelope whose id does not match the queried post must be ignored' );
+		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'Preview context whose id does not match the queried post must be ignored' );
 	}
 
 	/**
@@ -2216,7 +2216,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	/**
 	 * The `asPreview` argument should be marked deprecated in the schema in favor of the
-	 * preview envelope.
+	 * preview context.
 	 */
 	public function testAsPreviewArgumentIsDeprecatedInSchema() {
 		$query = '

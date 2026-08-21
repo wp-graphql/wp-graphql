@@ -419,8 +419,8 @@ final class WPGraphQL {
 			4
 		);
 
-		// Overlay previewable fields from the revision when a `preview` request extension
-		// is provided, preserving the node's published identity.
+		// Overlay previewable fields from the revision when the request carries preview
+		// context, preserving the node's published identity.
 		add_filter(
 			'graphql_pre_resolve_field',
 			[

@@ -67,11 +67,11 @@ register_graphql_field( 'Post', 'myDraftField', [
     'isPreviewable' => true,
 ] );
 
-// Or supply a request-derived previewed value (e.g. from the preview envelope).
+// Or supply a request-derived previewed value (e.g. from the preview context).
 register_graphql_field( 'Post', 'myComputedField', [
     'type'           => 'String',
     'previewResolve' => static function ( $source, $args, $context, $info, $preview ) {
-        // $preview is the normalized `preview` envelope for the request.
+        // $preview is the normalized preview context for the request.
         return '...';
     },
 ] );
@@ -79,7 +79,7 @@ register_graphql_field( 'Post', 'myComputedField', [
 
 A field with neither option resolves from the published post, so forgetting to opt in is safe (the value is current, never broken).
 
-`previewResolve` runs only inside an authorized preview (the request is authenticated and the viewer can edit the post being previewed). It receives the raw `preview` envelope, including client-supplied values, so if your callback exposes anything sensitive beyond what an editor of that post may already see, apply your own checks.
+`previewResolve` runs only inside an authorized preview (the request is authenticated and the viewer can edit the post being previewed). It receives the raw preview context, including client-supplied values, so if your callback exposes anything sensitive beyond what an editor of that post may already see, apply your own checks.
 
 ### Detecting the preview state
 
@@ -113,17 +113,17 @@ A preview is only resolved when **all** of the following are true:
 
 - The request is authenticated.
 - The authenticated user can edit the post (`current_user_can( 'edit_post', id )`).
-- The `databaseId` in the envelope matches the post being resolved.
+- The `databaseId` in the preview context matches the post being resolved.
 
-If any of these is not met, the request is resolved exactly as if no `preview` envelope had been provided: the published node (or `null`, per the usual access rules) is returned, and **no error is thrown**. This is intentional: an invalid or unauthorized envelope produces a response identical to a request without one, so it cannot be used to probe for posts a user cannot access.
+If any of these is not met, the request is resolved exactly as if no preview context had been provided: the published node (or `null`, per the usual access rules) is returned, and **no error is thrown**. This is intentional: invalid or unauthorized preview context produces a response identical to a request without one, so it cannot be used to probe for posts a user cannot access.
 
-When `GRAPHQL_DEBUG` is enabled, a debug notice is added to the response `extensions` when a `preview` envelope was provided for a post the current user is not allowed to preview.
+When `GRAPHQL_DEBUG` is enabled, a debug notice is added to the response `extensions` when preview context was provided for a post the current user is not allowed to preview.
 
 Because previews require an authenticated, edit-capable user, preview responses are not cached.
 
 ### Previewing the featured image
 
-WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `featuredImageDatabaseId` in the envelope. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `featuredImageDatabaseId` instead of the published featured image. The value must identify an existing image: a `featuredImageDatabaseId` that does not match an existing attachment resolves as no featured image (it is never echoed back as if it were one), and `0` explicitly means the featured image was removed in the preview.
+WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `featuredImageDatabaseId` in the preview context. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `featuredImageDatabaseId` instead of the published featured image. The value must identify an existing image: a `featuredImageDatabaseId` that does not match an existing attachment resolves as no featured image (it is never echoed back as if it were one), and `0` explicitly means the featured image was removed in the preview.
 
 ```graphql
 query Preview($id: ID!) {
