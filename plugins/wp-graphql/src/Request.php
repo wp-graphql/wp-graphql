@@ -413,15 +413,15 @@ class Request {
 		}
 
 		// Resolve the revision to overlay from, mirroring how WordPress core previews a
-		// post (`_set_preview()`): the current user's autosave holds the in-progress,
-		// unsaved edits the "Preview" button shows. This is the current user's own autosave
-		// (autosaves are per-user), not the latest revision by any author. Only look it up
-		// when the current user can preview the post, which avoids the query for
-		// unauthorized requests and is a defense-in-depth complement to the capability
-		// checks at the point of overlay.
+		// post (`_set_preview()`): the post's newest autosave holds the in-progress,
+		// unsaved edits the "Preview" button shows. As in core, the newest autosave is
+		// used regardless of author, so a preview link shared with another user who can
+		// edit the post shows the same preview. Only look it up when the current user can
+		// preview the post, which avoids the query for unauthorized requests and is a
+		// defense-in-depth complement to the capability checks at the point of overlay.
 		$revision_database_id = 0;
 		if ( Preview::viewer_can_preview( $database_id ) ) {
-			$autosave             = wp_get_post_autosave( $database_id, get_current_user_id() );
+			$autosave             = wp_get_post_autosave( $database_id );
 			$revision_database_id = $autosave instanceof \WP_Post ? (int) $autosave->ID : 0;
 		}
 

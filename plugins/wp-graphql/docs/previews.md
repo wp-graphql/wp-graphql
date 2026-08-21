@@ -28,9 +28,11 @@ The fields mirror the query parameters WordPress core adds to a front-end previe
 
 The header value uses Structured Fields (the HTTP standard for structured header values), so its keys are lowercase `snake_case`; the JSON `extensions` fallback below uses the `camelCase` keys shown in parentheses. The header is included in `Access-Control-Allow-Headers`, so cross-origin clients (a headless app on a different domain) can send it.
 
-When the request resolves the post identified by `database_id`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from **the current user's autosave**, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content comes from the autosave.
+When the request resolves the post identified by `database_id`, it **overlays the previewable fields** (for example `title`, `content`, `excerpt`, and the featured image) from **the post's autosave**, while **preserving the node's published identity**. The `id` and `databaseId` stay the published post's, and any field that is not previewable still resolves from the published post. This mirrors how WordPress core previews a post: the URL is `?preview_id=43`, the post is still `postid-43`, but the content comes from the autosave.
 
-The overlay source is the current user's autosave (the `{id}-autosave-v1` revision WordPress saves while editing), resolved with `wp_get_post_autosave()`, exactly as core's preview does. Autosaves are per user, so a request only ever previews the authenticated user's own in-progress edits, never another editor's. If the user has no autosave for the post (for example a draft saved directly), nothing is overlaid and the post's own values are returned.
+The overlay source is the post's newest autosave (the `{id}-autosave-v1` revision WordPress saves while editing), resolved with `wp_get_post_autosave()` exactly as core's preview (`_set_preview()`) does, regardless of who authored it. That is what makes a shared preview link work: any user who can edit the post sees the same preview. If the post has no autosave (for example a draft saved directly), nothing is overlaid and the post's own values are returned (see [Detecting the preview state](#detecting-the-preview-state)).
+
+The one deliberate divergence from core's flow is authorization. Core authorizes a front-end preview with the `preview_nonce` URL parameter; WPGraphQL authorizes with a capability check instead (the request must be authenticated as a user who can edit the post, see below). Nonces are cookie-bound and cannot cross domains, while a capability check works with any authentication method a headless client uses.
 
 Because identity is preserved, the overlay also works for a previewed post that appears **inside a connection** (for example previewing how your edits look in a list of posts), and the node keeps its real `databaseId` and cursor.
 
@@ -161,9 +163,9 @@ The headless equivalent:
 
    (`database_id` comes from `preview_id`; `featured_image_database_id` is optional, see below. The same context may instead go in `extensions.preview` as a JSON object.)
 
-4. WPGraphQL resolves the authenticated user's autosave for post `43` and overlays the previewable fields. The page renders in a preview state, with the post's identity (`databaseId`, `uri`, and so on) preserved.
+4. WPGraphQL resolves the newest autosave for post `43` and overlays the previewable fields. The page renders in a preview state, with the post's identity (`databaseId`, `uri`, and so on) preserved.
 
-The request must be authenticated as the same user who made the edits (via cookie or a token), because the autosave is per user and the capability check requires an editor of the post.
+The request must be authenticated as a user who can edit the post (via cookie or a token). As in core, the newest autosave is previewed regardless of who authored it, so a preview link opened by another user who can edit the post shows the same preview.
 
 The featured image is a special case. WordPress does not store the previewed featured image on the autosave (the block editor sends it as `featured_media`, not as revisioned meta), and it is not included in the preview URL for the block editor. If you want the previewed featured image to appear, the headless framework can read it from the editor state and pass it as `featuredImageDatabaseId` in the preview context.
 

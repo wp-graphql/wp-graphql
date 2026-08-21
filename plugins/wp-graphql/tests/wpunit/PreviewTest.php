@@ -46,10 +46,11 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->featured_image = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $this->post, '_thumbnail_id', $this->featured_image );
 
-		// The preview record is the admin's autosave (named `{parent}-autosave-v1`), which
-		// is what WordPress core resolves a preview from (`wp_get_post_autosave`). The
-		// extension-overlay tests authenticate as admin, so the autosave is authored by
-		// admin. Author/identity fields still resolve from the parent post.
+		// The preview record is an autosave (named `{parent}-autosave-v1`), which is what
+		// WordPress core resolves a preview from (`wp_get_post_autosave`). As in core, the
+		// newest autosave is previewed regardless of author (the cross-user test relies on
+		// this being authored by admin). Author/identity fields still resolve from the
+		// parent post.
 		$this->preview = $this->factory()->post->create(
 			[
 				'post_status'  => 'inherit',
@@ -1457,11 +1458,11 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * The overlay must use the current user's autosave (what WordPress core previews from),
-	 * not simply the latest revision. A regular revision saved after the autosave must not
+	 * The overlay must use the post's autosave (what WordPress core previews from), not
+	 * simply the latest revision. A regular revision saved after the autosave must not
 	 * be used as the preview source.
 	 */
-	public function testOverlayUsesCurrentUsersAutosaveNotLatestRevision() {
+	public function testOverlayUsesAutosaveNotLatestRevision() {
 		wp_set_current_user( $this->admin );
 
 		// Create a regular revision AFTER the autosave (from setUp). It is newer than the
@@ -1489,6 +1490,30 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'The overlay uses the autosave' );
 		$this->assertStringNotContainsString( 'Newer Saved Revision Content', $actual['data']['post']['content'], 'The overlay must not use a newer regular revision' );
+	}
+
+	/**
+	 * Matching WordPress core: `_set_preview()` resolves `wp_get_post_autosave( $id )`
+	 * with no user filter, which is what makes shared preview links work. A different
+	 * user who can edit the post must see the newest autosave even though another user
+	 * authored it.
+	 */
+	public function testOverlayUsesNewestAutosaveRegardlessOfAuthor() {
+		// The autosave from setUp is authored by admin; authenticate as a different
+		// user (an editor, who can edit_others_posts).
+		wp_set_current_user( $this->editor );
+
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { isPreview content } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['post']['isPreview'], 'The overlay applies for any user who can edit the post' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A shared preview shows the newest autosave even when another user authored it (core parity)' );
 	}
 
 	/**
