@@ -395,8 +395,9 @@ class Request {
 	 *
 	 * The presence of a valid `databaseId` marks the request as a preview of that post.
 	 * Authorization is enforced where the context is consumed (capability checks relative to
-	 * the post), not here. The `nonce` is accepted for forward compatibility but is not yet
-	 * verified.
+	 * the post), not here. The `nonce` is accepted but not verified: it is reserved for
+	 * link-based preview authorization in a future major version (see the nonce contract
+	 * in docs/previews.md, pinned by PreviewTest::testNonceIsAcceptedButNotVerifiedToday).
 	 *
 	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */
@@ -429,7 +430,7 @@ class Request {
 
 		return [
 			'databaseId'              => $database_id,
-			// The current user's autosave (a revision) to overlay previewable fields from.
+			// The post's newest autosave (a revision) to overlay previewable fields from.
 			'revisionDatabaseId'      => $revision_database_id,
 			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
 			// in the preview), so only an absent or invalid value means "no override".

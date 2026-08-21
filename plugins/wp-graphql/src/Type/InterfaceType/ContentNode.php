@@ -218,7 +218,7 @@ class ContentNode {
 						'previewRevisionId'         => [
 							'type'           => 'ID',
 							'description'    => static function () {
-								return __( 'Whether the object is a node in the preview state', 'wp-graphql' );
+								return __( 'The globally unique ID of the preview node', 'wp-graphql' );
 							},
 							'previewResolve' => static function ( $source, $args, $context, $info, array $preview ) {
 								return ! empty( $preview['revisionDatabaseId'] ) ? Relay::toGlobalId( 'post', (string) $preview['revisionDatabaseId'] ) : null;
