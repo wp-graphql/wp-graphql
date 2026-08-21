@@ -404,7 +404,7 @@ class Request {
 			return null;
 		}
 
-		$database_id = isset( $preview['databaseId'] ) ? absint( $preview['databaseId'] ) : 0;
+		$database_id = $this->get_positive_int_input( $preview['databaseId'] ?? null );
 
 		// Without a post id there is nothing to preview.
 		if ( empty( $database_id ) ) {
@@ -429,10 +429,52 @@ class Request {
 			// The current user's autosave (a revision) to overlay previewable fields from.
 			'revisionDatabaseId'      => $revision_database_id,
 			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
-			// in the preview), so only treat an absent key as "no override".
-			'featuredImageDatabaseId' => isset( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null,
+			// in the preview), so only an absent or invalid value means "no override".
+			'featuredImageDatabaseId' => $this->get_non_negative_int_input( $preview['featuredImageDatabaseId'] ?? null ),
 			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
 		];
+	}
+
+	/**
+	 * Normalizes a client-supplied ID to a positive integer, rejecting invalid input
+	 * rather than coercing it. `absint()` would silently flip a negative ID into a
+	 * different, valid-looking positive ID, so a negative or malformed value must be
+	 * treated as absent instead.
+	 *
+	 * @param mixed $value The raw client-supplied value.
+	 *
+	 * @return int The positive integer, or 0 when the value is absent or invalid.
+	 */
+	private function get_positive_int_input( $value ): int {
+		if ( is_int( $value ) && $value > 0 ) {
+			return $value;
+		}
+
+		if ( is_string( $value ) && ctype_digit( $value ) && (int) $value > 0 ) {
+			return (int) $value;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Like get_positive_int_input(), but 0 is a meaningful value (the previewed
+	 * featured image was removed), so it is preserved rather than rejected.
+	 *
+	 * @param mixed $value The raw client-supplied value.
+	 *
+	 * @return ?int The non-negative integer, or null when the value is absent or invalid.
+	 */
+	private function get_non_negative_int_input( $value ): ?int {
+		if ( is_int( $value ) && $value >= 0 ) {
+			return $value;
+		}
+
+		if ( is_string( $value ) && ctype_digit( $value ) ) {
+			return (int) $value;
+		}
+
+		return null;
 	}
 
 	/**

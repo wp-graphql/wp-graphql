@@ -1886,6 +1886,50 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Negative or malformed ids in the preview context must be rejected, not coerced:
+	 * absint() would silently flip `-{id}` into a different, valid-looking positive id.
+	 * A negative `databaseId` means no preview context at all, and a negative
+	 * `featuredImageDatabaseId` means no featured-image override.
+	 */
+	public function testNegativePreviewIdsAreRejectedNotCoerced() {
+		wp_set_current_user( $this->admin );
+
+		// A negative databaseId must not be flipped into a valid preview target.
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => -1 * $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'A negative databaseId must be treated as no preview context, not coerced to a positive id' );
+
+		// A negative featuredImageDatabaseId must not be flipped into a valid attachment id.
+		$filename  = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$new_image = $this->factory()->attachment->create_upload_object( $filename );
+
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { featuredImageDatabaseId } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => -1 * $new_image,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->featured_image, $actual['data']['post']['featuredImageDatabaseId'], 'A negative featuredImageDatabaseId must be ignored, keeping the stored featured image' );
+
+		wp_delete_attachment( $new_image, true );
+	}
+
+	/**
 	 * The `asPreview` argument should be marked deprecated in the schema in favor of the
 	 * preview envelope.
 	 */
