@@ -34,6 +34,20 @@ class Preview {
 	}
 
 	/**
+	 * Whether the current user is allowed to preview the given post.
+	 *
+	 * This is the single authorization rule for the preview overlay, mirroring how
+	 * WordPress core gates previews: the viewer must be authenticated and able to
+	 * edit the post being previewed. Every consumer of preview context routes
+	 * through this helper so the rule cannot drift between call sites.
+	 *
+	 * @param int $post_id The database ID of the post being previewed.
+	 */
+	public static function viewer_can_preview( int $post_id ): bool {
+		return is_user_logged_in() && current_user_can( 'edit_post', $post_id );
+	}
+
+	/**
 	 * Overlays previewable fields from a post's revision when the request carries a
 	 * `preview` envelope targeting that post, while preserving the node's published
 	 * identity (id/databaseId and any field not opted in stay published).
@@ -73,7 +87,7 @@ class Preview {
 		$preview = $context->preview;
 
 		// Only authenticated users who can edit (preview) the post may see previewed data.
-		if ( ! is_user_logged_in() || ! current_user_can( 'edit_post', (int) $preview['databaseId'] ) ) {
+		if ( ! self::viewer_can_preview( (int) $preview['databaseId'] ) ) {
 			return $nil;
 		}
 

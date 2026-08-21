@@ -7,6 +7,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Utils\Preview;
 
 class NodeWithFeaturedImage {
 
@@ -37,8 +38,7 @@ class NodeWithFeaturedImage {
 			is_array( $preview )
 			&& isset( $preview['featuredImageDatabaseId'] )
 			&& (int) $post->databaseId === (int) $preview['databaseId']
-			&& is_user_logged_in()
-			&& current_user_can( 'edit_post', (int) $preview['databaseId'] )
+			&& Preview::viewer_can_preview( (int) $preview['databaseId'] )
 		) {
 			return ! empty( $preview['featuredImageDatabaseId'] ) ? absint( $preview['featuredImageDatabaseId'] ) : null;
 		}

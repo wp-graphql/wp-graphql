@@ -13,6 +13,7 @@ use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
+use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\QueryAnalyzer;
 
 /**
@@ -315,7 +316,7 @@ class Request {
 		 * surface a debug-only notice (visible under GRAPHQL_DEBUG). The request still
 		 * resolves the published data, so this never exposes unpublished content.
 		 */
-		if ( is_array( $this->app_context->preview ) && ! current_user_can( 'edit_post', $this->app_context->preview['databaseId'] ) ) {
+		if ( is_array( $this->app_context->preview ) && ! Preview::viewer_can_preview( (int) $this->app_context->preview['databaseId'] ) ) {
 			graphql_debug(
 				__( 'Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
 				[ 'type' => 'PREVIEW_EXTENSION_IGNORED' ]
@@ -419,7 +420,7 @@ class Request {
 		// unauthorized requests and is a defense-in-depth complement to the capability
 		// checks at the point of overlay.
 		$revision_database_id = 0;
-		if ( current_user_can( 'edit_post', $database_id ) ) {
+		if ( Preview::viewer_can_preview( $database_id ) ) {
 			$autosave             = wp_get_post_autosave( $database_id, get_current_user_id() );
 			$revision_database_id = $autosave instanceof \WP_Post ? (int) $autosave->ID : 0;
 		}
