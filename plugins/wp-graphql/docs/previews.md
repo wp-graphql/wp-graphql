@@ -124,7 +124,7 @@ If any of these is not met, the request is resolved exactly as if no preview con
 
 When `GRAPHQL_DEBUG` is enabled, a debug notice is added to the response `extensions` when preview context was provided for a post the current user is not allowed to preview.
 
-Because previews require an authenticated, edit-capable user, preview responses are not cached.
+Preview responses are sent with `Cache-Control: no-store, private`, and every GraphQL response includes `Vary: X-GraphQL-Preview`, so a compliant cache never stores a previewed response and never mixes previewed and published responses under one cache key. If a CDN or reverse proxy in front of `/graphql` uses a custom cache key or ignores `Vary`, configure it to honor these headers or to bypass caching for requests carrying `X-GraphQL-Preview`.
 
 ### The `nonce` field
 
