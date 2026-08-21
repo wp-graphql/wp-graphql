@@ -1555,6 +1555,64 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * The header is parsed as a real RFC 8941 dictionary: unknown keys, parameters,
+	 * inner lists, booleans, and quoted strings containing commas must not confuse
+	 * the recognized profile keys.
+	 */
+	public function testHeaderParsingHandlesFullStructuredFieldSyntax() {
+		wp_set_current_user( $this->admin );
+
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf(
+			'unknown=?1, database_id=%d;param="x,y", nonce="has,comma", list=(1 2)',
+			$this->post
+		);
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
+					'variables' => [ 'id' => $this->post ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->post, $actual['data']['post']['databaseId'] );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'database_id must be recognized amid unknown keys, parameters, commas inside strings, and inner lists' );
+	}
+
+	/**
+	 * As RFC 8941 requires, a header value that fails to parse is discarded in its
+	 * entirety; no partial reading is allowed, and the `extensions.preview` fallback
+	 * then applies.
+	 */
+	public function testMalformedHeaderIsDiscardedEntirelyAndFallbackApplies() {
+		wp_set_current_user( $this->admin );
+
+		// A trailing comma is a parse error: the bogus database_id before it must NOT
+		// be read (a partial reading would beat the valid extensions fallback under
+		// header precedence).
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'database_id=99999999,';
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A malformed header must be ignored entirely, letting the extensions.preview fallback apply' );
+	}
+
+	/**
 	 * The `X-GraphQL-Preview` header takes precedence over the `extensions.preview` object
 	 * when both are present (the header is the primary source).
 	 */

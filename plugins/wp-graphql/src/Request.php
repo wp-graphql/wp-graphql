@@ -15,6 +15,7 @@ use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
 use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\QueryAnalyzer;
+use WPGraphQL\Utils\StructuredFields;
 
 /**
  * Class Request
@@ -513,12 +514,16 @@ class Request {
 	/**
 	 * Parses the `X-GraphQL-Preview` header as an RFC 8941 Structured Field dictionary.
 	 *
-	 * The dictionary is a comma-separated list of `key=value` members, with lowercase keys.
-	 * Only the keys this feature defines are recognized; values are integers (bare) or strings
-	 * (double-quoted). The recognized keys are mapped to the same shape as the JSON
+	 * Example: `database_id=123, featured_image_database_id=456, nonce="abc"`.
+	 *
+	 * The full dictionary syntax is parsed (see Utils\StructuredFields), and the preview
+	 * profile is applied on top: only the keys this feature defines are recognized, and
+	 * their members must be Integers or Strings; members of any other type, and unknown
+	 * keys, are ignored. The recognized keys are mapped to the same shape as the JSON
 	 * `extensions.preview` object so both transports normalize identically.
 	 *
-	 *     database_id=123, featured_image_database_id=456, nonce="abc"
+	 * As RFC 8941 requires, a value that fails to parse is discarded in its entirety,
+	 * in which case (as with an empty parse) the `extensions.preview` fallback applies.
 	 *
 	 * @param string $header The raw header value.
 	 *
@@ -532,36 +537,25 @@ class Request {
 			'nonce'                      => 'nonce',
 		];
 
+		$dictionary = StructuredFields::parse_dictionary( $header );
+
+		if ( empty( $dictionary ) ) {
+			return [];
+		}
+
 		$parsed = [];
 
-		// Dictionary members are comma-separated.
-		foreach ( explode( ',', $header ) as $member ) {
-			if ( false === strpos( $member, '=' ) ) {
-				continue;
-			}
-
-			list( $key, $value ) = explode( '=', $member, 2 );
-
-			$key = trim( $key );
-
+		foreach ( $dictionary as $key => $member ) {
 			if ( ! isset( $key_map[ $key ] ) ) {
 				continue;
 			}
 
-			$value = trim( $value );
-
-			// Drop any structured-field parameters (e.g. `value;param=x`); unused here.
-			$param_pos = strpos( $value, ';' );
-			if ( false !== $param_pos ) {
-				$value = trim( substr( $value, 0, $param_pos ) );
+			// The preview profile accepts Integer and String members only.
+			if ( ! in_array( $member['type'], [ 'integer', 'string' ], true ) ) {
+				continue;
 			}
 
-			// Structured-field strings are double-quoted; integers are bare.
-			if ( strlen( $value ) >= 2 && '"' === $value[0] && '"' === $value[ strlen( $value ) - 1 ] ) {
-				$value = stripslashes( substr( $value, 1, -1 ) );
-			}
-
-			$parsed[ $key_map[ $key ] ] = $value;
+			$parsed[ $key_map[ $key ] ] = $member['value'];
 		}
 
 		return $parsed;

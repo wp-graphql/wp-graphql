@@ -12,7 +12,7 @@ There are two ways to request a preview:
 
 ## The `X-GraphQL-Preview` header
 
-Send the preview context as an `X-GraphQL-Preview` request header. The value is an [RFC 8941 Structured Field](https://www.rfc-editor.org/rfc/rfc8941) dictionary: comma-separated `key=value` members with lowercase keys, integer values bare and string values double-quoted.
+Send the preview context as an `X-GraphQL-Preview` request header. The value is an [RFC 8941 Structured Field](https://www.rfc-editor.org/rfc/rfc8941) dictionary: comma-separated `key=value` members with lowercase keys, integer values bare and string values double-quoted. The full dictionary syntax is parsed (any compliant serializer's output works); the keys defined below take Integer or String values, and members of any other type, like unknown keys, are ignored. As the RFC requires, a value that fails to parse is discarded in its entirety, in which case the `extensions.preview` fallback (if present) applies.
 
 ```http
 X-GraphQL-Preview: database_id=123, featured_image_database_id=456, nonce="45d5b05f1b"
