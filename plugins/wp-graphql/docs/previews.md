@@ -101,7 +101,7 @@ Because previews require an authenticated, edit-capable user, preview responses 
 
 ### Previewing the featured image
 
-WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `featuredImageDatabaseId` in the envelope. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `featuredImageDatabaseId` instead of the published featured image.
+WordPress core never stores the previewed featured image on the revision; it passes it as a request parameter on the preview URL. A headless client should forward that value as `featuredImageDatabaseId` in the envelope. When previewing, WPGraphQL then resolves `featuredImage`, `featuredImageId`, and `featuredImageDatabaseId` from `featuredImageDatabaseId` instead of the published featured image. The value must identify an existing image: a `featuredImageDatabaseId` that does not match an existing attachment resolves as no featured image (it is never echoed back as if it were one), and `0` explicitly means the featured image was removed in the preview.
 
 ```graphql
 query Preview($id: ID!) {

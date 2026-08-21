@@ -1930,6 +1930,115 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * The `previewResolve` field-config key is the extension API for supplying a
+	 * request-derived previewed value. It must run only inside an authorized preview
+	 * targeting the node, and it must receive the request's preview context.
+	 */
+	public function testPreviewResolveFieldConfigSuppliesRequestDerivedValue() {
+		WPGraphQL::clear_schema();
+
+		register_graphql_field(
+			'Post',
+			'previewResolveProbe',
+			[
+				'type'           => 'String',
+				'resolve'        => static function () {
+					return 'published value';
+				},
+				'previewResolve' => static function ( $source, $args, $context, $info, $preview ) {
+					return 'previewed value for ' . $preview['databaseId'];
+				},
+			]
+		);
+
+		$request = [
+			'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { previewResolveProbe } }',
+			'variables'  => [ 'id' => $this->post ],
+			'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+		];
+
+		// Unauthenticated: previewResolve must not run; the normal resolver answers.
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( $request );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'published value', $actual['data']['post']['previewResolveProbe'], 'previewResolve must not run for an unauthorized request' );
+
+		// Without preview context: the normal resolver answers even for an editor.
+		wp_set_current_user( $this->admin );
+		$actual = $this->graphql( array_diff_key( $request, [ 'extensions' => true ] ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'published value', $actual['data']['post']['previewResolveProbe'], 'previewResolve must not run without preview context' );
+
+		// Authorized preview: previewResolve runs and receives the preview context.
+		$actual = $this->graphql( $request );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'previewed value for ' . $this->post, $actual['data']['post']['previewResolveProbe'], 'previewResolve should run with the preview context for an authorized preview' );
+
+		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * A previewed `featuredImageDatabaseId` that is not an existing attachment must
+	 * resolve as no image on all three fields, rather than echoing a fabricated id
+	 * (or minting a global ID for a node that does not exist).
+	 */
+	public function testPreviewedFeaturedImageMustBeAnExistingAttachment() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query Preview( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				featuredImageDatabaseId
+				featuredImageId
+				featuredImage {
+					node {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		// A post id that exists but is not an attachment.
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => $this->post,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post']['featuredImageDatabaseId'], 'A non-attachment id must not be echoed as the featured image' );
+		$this->assertNull( $actual['data']['post']['featuredImageId'], 'No global ID may be minted for a non-attachment id' );
+		$this->assertNull( $actual['data']['post']['featuredImage'], 'The featured image connection must be empty for a non-attachment id' );
+
+		// An id that does not exist at all.
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => 99999997,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post']['featuredImageDatabaseId'], 'A nonexistent id must not be echoed as the featured image' );
+		$this->assertNull( $actual['data']['post']['featuredImageId'], 'No global ID may be minted for a nonexistent attachment' );
+		$this->assertNull( $actual['data']['post']['featuredImage'], 'The featured image connection must be empty for a nonexistent attachment' );
+	}
+
+	/**
 	 * The `asPreview` argument should be marked deprecated in the schema in favor of the
 	 * preview envelope.
 	 */
