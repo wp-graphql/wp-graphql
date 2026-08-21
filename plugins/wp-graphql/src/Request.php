@@ -509,6 +509,22 @@ class Request {
 			}
 		}
 
+		// Batch requests: `extensions.preview` is per-operation, while the preview
+		// overlay is request-level, so it is not supported in a batch; only the header
+		// (which applies to every operation in the batch) carries preview context.
+		// Surface a debug notice rather than ignoring it silently.
+		if ( is_array( $this->params ) ) {
+			foreach ( $this->params as $operation ) {
+				if ( $operation instanceof OperationParams && is_array( $operation->extensions ) && ! empty( $operation->extensions['preview'] ) ) {
+					graphql_debug(
+						__( 'The `extensions.preview` object is not supported in batch requests and was ignored. Send the `X-GraphQL-Preview` header instead; it applies to every operation in the batch.', 'wp-graphql' ),
+						[ 'type' => 'PREVIEW_CONTEXT_IGNORED' ]
+					);
+					break;
+				}
+			}
+		}
+
 		return null;
 	}
 

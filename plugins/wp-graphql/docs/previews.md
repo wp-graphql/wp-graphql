@@ -54,6 +54,11 @@ The same object may instead be sent as a `preview` entry in the request `extensi
 
 This is useful when you want the preview context to travel inside the operation body rather than the transport (for example to keep it with a logged or replayed operation). The `X-GraphQL-Preview` header takes precedence when both are present. You can also send both for resilience against an intermediary that drops one of them.
 
+### Batch and GET requests
+
+- **Batch requests** (an array of operations in one HTTP request): `extensions.preview` is per-operation, while the preview overlay is request-level, so it is **not supported in a batch**. Send the `X-GraphQL-Preview` header instead; it applies to **every** operation in the batch. A per-operation `extensions.preview` inside a batch is ignored, with a debug notice under `GRAPHQL_DEBUG`.
+- **GET requests**: both transports work. With the query-string form of `extensions`, the preview parameters become part of the URL (and any access logs); the header keeps them out of the URL.
+
 ### Which fields are previewable
 
 Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, and resolves the featured image from the request's `featuredImageDatabaseId`.
