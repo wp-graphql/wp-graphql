@@ -160,7 +160,7 @@ Preview responses are sent with `Cache-Control: no-store, private`, and every Gr
 
 The `nonce` field carries the `preview_nonce` WordPress includes in the preview URL, and is **accepted but not verified today**: sending it, omitting it, or sending a stale value all behave identically, and authorization rests entirely on the capability check above. A valid nonce grants nothing on its own.
 
-It is reserved for one designed future use: authorizing link-based previews the way core does, where the nonce rather than a capability authorizes the view. If that ships, verification becomes part of the contract in a future major version (v3 at the earliest), announced with a migration window. Until then, clients should forward the nonce when they have it, which costs nothing and prepares them for that change, but must not rely on it for any security property.
+It exists so a client can forward the query parameters from core's preview URL wholesale, without filtering them. No verification is planned: a WordPress nonce is bound to the session of the user who created it, so it cannot authorize a different viewer, cross-domain or not, and it is therefore the wrong primitive for link-based previews. If WPGraphQL ever offers previews for viewers without accounts, that would be a purpose-built, signed, expiring token under its own key, designed in its own RFC. Clients may send the nonce or omit it; it must not be relied on for any security property.
 
 ### Previewing the featured image
 

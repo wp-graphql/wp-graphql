@@ -1969,12 +1969,13 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Pins the documented nonce contract: the nonce is accepted but not verified today
-	 * (reserved for future link-based preview authorization). Present, absent, or junk
-	 * must behave identically for an authorized viewer, and a valid nonce must grant
-	 * nothing on its own for an unauthorized one. If this test starts failing because
-	 * verification was added, that is a breaking change requiring a major version and
-	 * an announced migration window.
+	 * Pins the documented nonce contract: the nonce is accepted but not verified, and
+	 * no verification is planned (a nonce is session-bound and cannot authorize a
+	 * different viewer; link-based previews would use a purpose-built token instead).
+	 * Present, absent, or junk must behave identically for an authorized viewer, and a
+	 * valid nonce must grant nothing on its own for an unauthorized one. If this test
+	 * starts failing because verification was added, that is a breaking change to a
+	 * documented contract and needs a major version.
 	 */
 	public function testNonceIsAcceptedButNotVerifiedToday() {
 		wp_set_current_user( $this->admin );

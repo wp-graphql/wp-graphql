@@ -395,9 +395,11 @@ class Request {
 	 *
 	 * The presence of a valid `databaseId` marks the request as a preview of that post.
 	 * Authorization is enforced where the context is consumed (capability checks relative to
-	 * the post), not here. The `nonce` is accepted but not verified: it is reserved for
-	 * link-based preview authorization in a future major version (see the nonce contract
-	 * in docs/previews.md, pinned by PreviewTest::testNonceIsAcceptedButNotVerifiedToday).
+	 * the post), not here. The `nonce` is accepted but not verified, so clients can
+	 * forward core's preview URL params wholesale; no verification is planned, since a
+	 * nonce is session-bound and cannot authorize a different viewer. See the nonce
+	 * contract in docs/previews.md, pinned by
+	 * PreviewTest::testNonceIsAcceptedButNotVerifiedToday.
 	 *
 	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
 	 */
