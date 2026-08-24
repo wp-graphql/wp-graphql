@@ -211,6 +211,26 @@ class PreviewContextTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Block editor with the ACF Block Editor Datastore enabled (ACF PRO 6.8.1+):
+	 * field values are saved to autosaves through the editor's REST flow, so
+	 * previews resolve them from the revision. Simulated by enabling the setting
+	 * and seeding the autosave meta the way the datastore stores it.
+	 */
+	public function testBlockEditorWithDatastoreResolvesAutosaveValues() {
+		add_filter( 'acf/settings/enable_datastore', '__return_true' );
+		wp_set_current_user( $this->admin );
+
+		$preview = graphql( $this->get_preview_request() );
+
+		remove_filter( 'acf/settings/enable_datastore', '__return_true' );
+
+		codecept_debug( $preview );
+
+		$this->assertArrayNotHasKey( 'errors', $preview );
+		$this->assertSame( 'previewed value', $preview['data']['post']['previewContextFields']['previewText'], 'With the datastore, block editor previews resolve the autosave ACF values' );
+	}
+
+	/**
 	 * An unauthenticated request carrying preview context must resolve only
 	 * published ACF values, identically to a request without context.
 	 */
