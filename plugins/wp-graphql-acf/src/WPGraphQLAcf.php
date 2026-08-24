@@ -224,6 +224,17 @@ class WPGraphQLAcf {
 			return false;
 		}
 
+		// The datastore shipped in ACF PRO 6.8.1. On older or free ACF the
+		// `acf/settings/enable_datastore` filter is inert for ACF itself, so honoring it
+		// here would resolve previews against autosaves that never receive field values
+		// (returning empty values instead of the published fallback).
+		// @phpstan-ignore-next-line -- the ACF stubs type acf_get_setting() as void, but it returns the setting value (filtered by `acf/settings/{name}`).
+		$version = acf_get_setting( 'version' );
+
+		if ( ! function_exists( 'acf_is_pro' ) || ! acf_is_pro() || ! is_string( $version ) || version_compare( $version, '6.8.1', '<' ) ) {
+			return false;
+		}
+
 		// @phpstan-ignore-next-line -- the ACF stubs type acf_get_setting() as void, but it returns the setting value (filtered by `acf/settings/{name}`).
 		return (bool) acf_get_setting( 'enable_datastore' );
 	}

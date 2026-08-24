@@ -217,6 +217,10 @@ class PreviewContextTest extends \Codeception\TestCase\WPTestCase {
 	 * and seeding the autosave meta the way the datastore stores it.
 	 */
 	public function testBlockEditorWithDatastoreResolvesAutosaveValues() {
+		if ( ! function_exists( 'acf_is_pro' ) || ! acf_is_pro() || ! is_string( acf_get_setting( 'version' ) ) || version_compare( acf_get_setting( 'version' ), '6.8.1', '<' ) ) {
+			$this->markTestSkipped( 'The ACF Block Editor Datastore requires ACF PRO 6.8.1+.' );
+		}
+
 		add_filter( 'acf/settings/enable_datastore', '__return_true' );
 		wp_set_current_user( $this->admin );
 
