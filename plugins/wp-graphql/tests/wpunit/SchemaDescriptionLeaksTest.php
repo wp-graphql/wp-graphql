@@ -16,7 +16,10 @@ class SchemaDescriptionLeaksTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		// Public introspection is required so the same query used to reproduce the
 		// issue (as an unauthenticated consumer would run it) resolves descriptions.
-		$settings                                 = get_option( 'graphql_general_settings' );
+		$settings = get_option( 'graphql_general_settings', [] );
+		if ( ! is_array( $settings ) ) {
+			$settings = [];
+		}
 		$settings['public_introspection_enabled'] = 'on';
 		update_option( 'graphql_general_settings', $settings );
 		$this->clearSchema();
