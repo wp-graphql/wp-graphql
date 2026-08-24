@@ -147,7 +147,7 @@ class ContentNode {
 						'slug'                      => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The url friendly identifier for the content node. This field is equivalent to the human-readable slug used to reference the node in its permalink.', 'wp-graphql' );
+								return __( 'The URL-friendly, human-readable identifier for the content node, used in its permalink.', 'wp-graphql' );
 							},
 						],
 						'modified'                  => [
