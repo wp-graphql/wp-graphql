@@ -168,7 +168,7 @@ class PostObjectCreate {
 			$fields['mimeType'] = [
 				'type'        => 'MimeTypeEnum',
 				'description' => static function () {
-					return __( 'If the content node is a media item, this field carries the corresponding MIME type of the underlying file (for example, image/jpeg or application/pdf).', 'wp-graphql' );
+					return __( 'The MIME type of the file for the media item (for example, image/jpeg or application/pdf).', 'wp-graphql' );
 				},
 			];
 		}
