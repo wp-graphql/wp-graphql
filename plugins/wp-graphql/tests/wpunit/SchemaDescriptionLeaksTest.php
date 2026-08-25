@@ -71,10 +71,11 @@ class SchemaDescriptionLeaksTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	}
 
 	/**
-	 * Schema-wide guard: walk every type's field and input-field descriptions as an
-	 * introspection consumer sees them, and assert none of them leak WordPress
-	 * internals. This catches the whole class of regression, not just the two fields
-	 * named in the issue.
+	 * Schema-wide guard: walk every object, interface, and input field description in
+	 * the schema as an introspection consumer sees them, and assert none of them leak
+	 * WordPress internals. This covers field and input-field descriptions across every
+	 * type, far broader than the two fields named in the issue, but it does not yet
+	 * check type-level or enum-value descriptions.
 	 */
 	public function testNoFieldDescriptionLeaksWordPressInternals() {
 		$introspection = $this->graphql(
