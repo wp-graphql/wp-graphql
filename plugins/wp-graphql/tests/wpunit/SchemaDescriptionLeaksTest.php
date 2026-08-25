@@ -101,13 +101,10 @@ class SchemaDescriptionLeaksTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertArrayNotHasKey( 'errors', $introspection );
 
-		// Substrings that only make sense to someone reading WordPress source: class
-		// property accessors and references to raw storage (tables/columns).
+		// Substrings that only make sense to someone reading WordPress source: any WP_*
+		// class reference and references to raw storage (tables/columns).
 		$leak_markers = [
-			'WP_Post->',
-			'WP_Term->',
-			'WP_User->',
-			'WP_Comment->',
+			'WP_',
 			'database table',
 			'column in SQL',
 			'post_objects',
