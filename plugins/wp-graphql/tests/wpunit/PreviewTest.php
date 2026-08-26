@@ -1727,6 +1727,63 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * The graphql_resolve_revision_meta_from_parent filter works in both documented
+	 * directions: the computed default resolves a revisioned key from the revision, and
+	 * a callback returning true forces even a revisioned key back to the parent.
+	 */
+	public function testFilterCanForceRevisionedMetaBackToParent() {
+		if ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) ) {
+			$this->markTestSkipped( 'Revisioned post meta (revisions_enabled / wp_post_revision_meta_keys) requires WordPress 6.4+.' );
+		}
+
+		WPGraphQL::clear_schema();
+
+		register_post_meta(
+			'post',
+			'revisionedMetaKey',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true,
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'revisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'revisionedMetaKey', true );
+				},
+			]
+		);
+
+		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
+		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+
+		wp_set_current_user( $this->admin );
+
+		add_filter( 'graphql_resolve_revision_meta_from_parent', '__return_true' );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { revisionedMetaKey } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		remove_filter( 'graphql_resolve_revision_meta_from_parent', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'published value', $actual['data']['post']['revisionedMetaKey'], 'A filter returning true must force even a revisioned key to resolve from the parent, as documented' );
+
+		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		WPGraphQL::clear_schema();
+	}
+
+	/**
 	 * The same revisioned-meta resolution applies when querying a revision directly through
 	 * the `revisions` connection, not only through the preview flow. The revision node must
 	 * resolve a revisioned meta key from its own value.
