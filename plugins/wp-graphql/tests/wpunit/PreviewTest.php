@@ -1610,6 +1610,40 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A malformed header must be ignored entirely, letting the extensions.preview fallback apply' );
+
+		// The discard must be diagnosable: a debug notice explains why the header was ignored.
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_MALFORMED', $debug_types, 'Discarding a malformed header must surface a debug notice' );
+	}
+
+	/**
+	 * A header that parses as a valid dictionary but carries none of the recognized
+	 * keys (the classic mistake: camelCase-looking or wrong key names) is ignored with
+	 * a debug notice, and the extensions.preview fallback still applies.
+	 */
+	public function testHeaderWithNoRecognizedKeysSurfacesDebugNotice() {
+		wp_set_current_user( $this->admin );
+
+		// `post_id` is a valid dictionary key, but not one the preview profile defines.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'post_id=' . $this->post;
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A key-less header must not block the extensions.preview fallback' );
+
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_UNRECOGNIZED', $debug_types, 'A header with no recognized keys must surface a debug notice' );
 	}
 
 	/**

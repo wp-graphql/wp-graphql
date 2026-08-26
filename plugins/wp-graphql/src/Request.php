@@ -544,6 +544,8 @@ class Request {
 	 *
 	 * As RFC 8941 requires, a value that fails to parse is discarded in its entirety,
 	 * in which case (as with an empty parse) the `extensions.preview` fallback applies.
+	 * A discarded or key-less header surfaces a debug notice under GRAPHQL_DEBUG, so
+	 * the silent fallback is still diagnosable.
 	 *
 	 * @param string $header The raw header value.
 	 *
@@ -558,6 +560,16 @@ class Request {
 		];
 
 		$dictionary = StructuredFields::parse_dictionary( $header );
+
+		// As RFC 8941 requires, a value that fails to parse is discarded in its
+		// entirety. Surface why under GRAPHQL_DEBUG rather than discarding silently.
+		if ( null === $dictionary ) {
+			graphql_debug(
+				__( 'The `X-GraphQL-Preview` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase, e.g. `database_id`, not `databaseId`). The `extensions.preview` fallback applies if present.', 'wp-graphql' ),
+				[ 'type' => 'PREVIEW_CONTEXT_MALFORMED' ]
+			);
+			return [];
+		}
 
 		if ( empty( $dictionary ) ) {
 			return [];
@@ -576,6 +588,15 @@ class Request {
 			}
 
 			$parsed[ $key_map[ $key ] ] = $member['value'];
+		}
+
+		// A parseable header that carries none of the recognized keys is almost always
+		// a key-name mistake; say so instead of ignoring it silently.
+		if ( empty( $parsed ) ) {
+			graphql_debug(
+				__( 'The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present.', 'wp-graphql' ),
+				[ 'type' => 'PREVIEW_CONTEXT_UNRECOGNIZED' ]
+			);
 		}
 
 		return $parsed;
