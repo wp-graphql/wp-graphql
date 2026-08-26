@@ -23,11 +23,12 @@ class NodeWithExcerpt {
 				'fields'      => static function () {
 					return [
 						'excerpt' => [
-							'type'        => 'String',
-							'description' => static function () {
+							'type'          => 'String',
+							'isPreviewable' => true,
+							'description'   => static function () {
 								return __( 'The excerpt of the post.', 'wp-graphql' );
 							},
-							'args'        => [
+							'args'          => [
 								'format' => [
 									'type'        => 'PostObjectFieldFormatEnum',
 									'description' => static function () {
@@ -35,7 +36,7 @@ class NodeWithExcerpt {
 									},
 								],
 							],
-							'resolve'     => static function ( $source, $args ) {
+							'resolve'       => static function ( $source, $args ) {
 								if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 									// @codingStandardsIgnoreLine.
 									return $source->excerptRaw;

@@ -46,6 +46,11 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->featured_image = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $this->post, '_thumbnail_id', $this->featured_image );
 
+		// The preview record is an autosave (named `{parent}-autosave-v1`), which is what
+		// WordPress core resolves a preview from (`wp_get_post_autosave`). As in core, the
+		// newest autosave is previewed regardless of author (the cross-user test relies on
+		// this being authored by admin). Author/identity fields still resolve from the
+		// parent post.
 		$this->preview = $this->factory()->post->create(
 			[
 				'post_status'  => 'inherit',
@@ -53,7 +58,8 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'post_content' => 'Preview Content',
 				'post_type'    => 'revision',
 				'post_parent'  => $this->post,
-				'post_author'  => $this->editor,
+				'post_name'    => $this->post . '-autosave-v1',
+				'post_author'  => $this->admin,
 				'post_date'    => date( 'Y-m-d H:i:s', strtotime( 'now' ) ),
 			]
 		);
@@ -1299,5 +1305,1128 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * A `preview` object in the request `extensions` carrying a `featuredImageDatabaseId` should
+	 * override the featured image when previewing, mirroring how core reads the previewed
+	 * featured image from the `_thumbnail_id` request parameter.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2664
+	 */
+	public function testPreviewThumbnailIdExtensionOverridesFeaturedImage() {
+		wp_set_current_user( $this->admin );
+
+		// A different image than the published post's featured image ($this->featured_image),
+		// representing the in-progress (previewed) featured image change.
+		$filename  = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$new_image = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query Preview( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				featuredImageDatabaseId
+				featuredImageId
+				featuredImage {
+					node {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => $new_image,
+					],
+				],
+			]
+		);
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				// Identity is preserved: the node is still the published post.
+				$this->expectedField( 'post.databaseId', $this->post ),
+				// The featured image is overlaid from the previewed featuredImageDatabaseId.
+				$this->expectedField( 'post.featuredImageDatabaseId', $new_image ),
+				$this->expectedField( 'post.featuredImageId', \GraphQLRelay\Relay::toGlobalId( 'post', (string) $new_image ) ),
+				$this->expectedField( 'post.featuredImage.node.databaseId', $new_image ),
+			]
+		);
+
+		$this->assertNotEquals(
+			$this->featured_image,
+			$actual['data']['post']['featuredImageDatabaseId'],
+			'The preview should reflect the previewed featuredImageDatabaseId, not the published featured image'
+		);
+
+		wp_delete_attachment( $new_image, true );
+	}
+
+	/**
+	 * The previewed `featuredImageDatabaseId` must only be honored for a viewer who can edit the post
+	 * being previewed. A viewer without edit caps should never have the featured image
+	 * overridden by a client-supplied thumbnail id.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2664
+	 */
+	public function testPreviewThumbnailIdExtensionIgnoredWithoutEditCapability() {
+		$subscriber = $this->factory()->user->create( [ 'role' => 'subscriber' ] );
+		wp_set_current_user( $subscriber );
+
+		$filename  = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$new_image = $this->factory()->attachment->create_upload_object( $filename );
+
+		// Query the published post (not asPreview, since a subscriber can't access the
+		// preview node anyway) and try to force the featured image via the extension.
+		$query = '
+		query Published( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				featuredImageDatabaseId
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => $new_image,
+					],
+				],
+			]
+		);
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.featuredImageDatabaseId', $this->featured_image ),
+			]
+		);
+
+		wp_delete_attachment( $new_image, true );
+		wp_delete_user( $subscriber );
+	}
+
+	/**
+	 * Valid preview context overlays the previewable fields (e.g. content) from the
+	 * revision while preserving the node's published identity (databaseId is unchanged),
+	 * for an authenticated user who can edit the post, without needing `asPreview`.
+	 */
+	public function testPreviewContextOverlaysContentAndPreservesIdentity() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query Post( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				content
+			}
+		}
+		';
+
+		$variables = [ 'id' => $this->post ];
+
+		// Without the preview context, the published content is returned.
+		$published = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertStringContainsString( 'Published Content', $published['data']['post']['content'] );
+
+		// With the preview context, the content overlays from the revision, but the identity
+		// (databaseId) remains the published post's.
+		$preview = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $preview );
+		$this->assertEquals( $this->post, $preview['data']['post']['databaseId'], 'The node keeps its published databaseId (identity is preserved)' );
+		$this->assertStringContainsString( 'Preview Content', $preview['data']['post']['content'], 'The content overlays from the revision' );
+	}
+
+	/**
+	 * The overlay must use the post's autosave (what WordPress core previews from), not
+	 * simply the latest revision. A regular revision saved after the autosave must not
+	 * be used as the preview source.
+	 */
+	public function testOverlayUsesAutosaveNotLatestRevision() {
+		wp_set_current_user( $this->admin );
+
+		// Create a regular revision AFTER the autosave (from setUp). It is newer than the
+		// autosave, so a "latest revision" lookup would incorrectly pick it.
+		$this->factory()->post->create(
+			[
+				'post_type'    => 'revision',
+				'post_status'  => 'inherit',
+				'post_parent'  => $this->post,
+				'post_name'    => $this->post . '-revision-v1',
+				'post_content' => 'Newer Saved Revision Content',
+				'post_author'  => $this->admin,
+				'post_date'    => date( 'Y-m-d H:i:s', strtotime( '+1 hour' ) ),
+			]
+		);
+
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'The overlay uses the autosave' );
+		$this->assertStringNotContainsString( 'Newer Saved Revision Content', $actual['data']['post']['content'], 'The overlay must not use a newer regular revision' );
+	}
+
+	/**
+	 * Matching WordPress core: `_set_preview()` resolves `wp_get_post_autosave( $id )`
+	 * with no user filter, which is what makes shared preview links work. A different
+	 * user who can edit the post must see the newest autosave even though another user
+	 * authored it.
+	 */
+	public function testOverlayUsesNewestAutosaveRegardlessOfAuthor() {
+		// The autosave from setUp is authored by admin; authenticate as a different
+		// user (an editor, who can edit_others_posts).
+		wp_set_current_user( $this->editor );
+
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { isPreview content } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['post']['isPreview'], 'The overlay applies for any user who can edit the post' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A shared preview shows the newest autosave even when another user authored it (core parity)' );
+	}
+
+	/**
+	 * The preview context is supplied via the `X-GraphQL-Preview` header as an RFC 8941
+	 * structured-field dictionary (the primary transport). This exercises multi-member
+	 * parsing (an integer and a string member) and both the content overlay and the
+	 * featured-image override.
+	 */
+	public function testPreviewContextFromStructuredFieldHeader() {
+		wp_set_current_user( $this->admin );
+
+		$filename  = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$new_image = $this->factory()->attachment->create_upload_object( $filename );
+
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf(
+			'database_id=%d, featured_image_database_id=%d, nonce="abc123"',
+			$this->post,
+			$new_image
+		);
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content featuredImageDatabaseId } }',
+					'variables' => [ 'id' => $this->post ],
+					// Deliberately no `extensions.preview`; the header is the only source.
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->post, $actual['data']['post']['databaseId'], 'Identity is preserved via the header path' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'The header overlays the autosave content' );
+		$this->assertEquals( $new_image, $actual['data']['post']['featuredImageDatabaseId'], 'The header overrides the featured image' );
+
+		wp_delete_attachment( $new_image, true );
+	}
+
+	/**
+	 * The header is parsed as a real RFC 8941 dictionary: unknown keys, parameters,
+	 * inner lists, booleans, and quoted strings containing commas must not confuse
+	 * the recognized profile keys.
+	 */
+	public function testHeaderParsingHandlesFullStructuredFieldSyntax() {
+		wp_set_current_user( $this->admin );
+
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf(
+			'unknown=?1, database_id=%d;param="x,y", nonce="has,comma", list=(1 2)',
+			$this->post
+		);
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
+					'variables' => [ 'id' => $this->post ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->post, $actual['data']['post']['databaseId'] );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'database_id must be recognized amid unknown keys, parameters, commas inside strings, and inner lists' );
+	}
+
+	/**
+	 * As RFC 8941 requires, a header value that fails to parse is discarded in its
+	 * entirety; no partial reading is allowed, and the `extensions.preview` fallback
+	 * then applies.
+	 */
+	public function testMalformedHeaderIsDiscardedEntirelyAndFallbackApplies() {
+		wp_set_current_user( $this->admin );
+
+		// A trailing comma is a parse error: the bogus database_id before it must NOT
+		// be read (a partial reading would beat the valid extensions fallback under
+		// header precedence).
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'database_id=99999999,';
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A malformed header must be ignored entirely, letting the extensions.preview fallback apply' );
+
+		// The discard must be diagnosable: a debug notice explains why the header was ignored.
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_MALFORMED', $debug_types, 'Discarding a malformed header must surface a debug notice' );
+	}
+
+	/**
+	 * A header that parses as a valid dictionary but carries none of the recognized
+	 * keys (the classic mistake: camelCase-looking or wrong key names) is ignored with
+	 * a debug notice, and the extensions.preview fallback still applies.
+	 */
+	public function testHeaderWithNoRecognizedKeysSurfacesDebugNotice() {
+		wp_set_current_user( $this->admin );
+
+		// `post_id` is a valid dictionary key, but not one the preview profile defines.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'post_id=' . $this->post;
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'A key-less header must not block the extensions.preview fallback' );
+
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_UNRECOGNIZED', $debug_types, 'A header with no recognized keys must surface a debug notice' );
+	}
+
+	/**
+	 * The `X-GraphQL-Preview` header takes precedence over the `extensions.preview` object
+	 * when both are present (the header is the primary source).
+	 */
+	public function testHeaderTakesPrecedenceOverExtensionsPreview() {
+		wp_set_current_user( $this->admin );
+
+		// Extensions points at a bogus post; the header points at the real one. The header
+		// wins, so the overlay applies to the real post.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'database_id=' . $this->post;
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [ 'preview' => [ 'databaseId' => 99999999 ] ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'], 'the header is used over extensions.preview' );
+	}
+
+	/**
+	 * Meta keys that WordPress revisions (registered with `revisions_enabled`, e.g. core's
+	 * `footnotes`) must resolve from the revision's own value in a preview, not from the
+	 * parent. Previously the blanket parent-fallback overwrote the revision's value. A key
+	 * that is NOT revisioned must still fall back to the parent, so the resolution stays
+	 * scoped to the keys WordPress actually revisions.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
+	 */
+	public function testRevisionedMetaResolvesFromRevisionInPreview() {
+		if ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) ) {
+			$this->markTestSkipped( 'Revisioned post meta (revisions_enabled / wp_post_revision_meta_keys) requires WordPress 6.4+.' );
+		}
+
+		WPGraphQL::clear_schema();
+
+		// A meta key WordPress revisions (stored on the revision itself).
+		register_post_meta(
+			'post',
+			'revisionedMetaKey',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true,
+			]
+		);
+
+		// A meta key WordPress does NOT revision. During a preview it must keep falling
+		// back to the parent, so the revisioned-meta resolution stays scoped and does not
+		// leak the revision's value for arbitrary keys.
+		register_post_meta(
+			'post',
+			'nonRevisionedMetaKey',
+			[
+				'type'         => 'string',
+				'single'       => true,
+				'show_in_rest' => true,
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'revisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'revisionedMetaKey', true );
+				},
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'nonRevisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'nonRevisionedMetaKey', true );
+				},
+			]
+		);
+
+		// Different values on the published post and on the revision, for both keys.
+		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
+		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+		update_post_meta( $this->post, 'nonRevisionedMetaKey', 'published only' );
+		update_metadata( 'post', $this->preview, 'nonRevisionedMetaKey', 'revision only' );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { revisionedMetaKey nonRevisionedMetaKey } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'revised value', $actual['data']['post']['revisionedMetaKey'], '#3260: a revisioned meta key resolves from the revision, not the parent' );
+		$this->assertSame( 'published only', $actual['data']['post']['nonRevisionedMetaKey'], '#3260: a non-revisioned meta key still falls back to the parent during a preview' );
+
+		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		unregister_post_meta( 'post', 'nonRevisionedMetaKey' );
+		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * The graphql_resolve_revision_meta_from_parent filter works in both documented
+	 * directions: the computed default resolves a revisioned key from the revision, and
+	 * a callback returning true forces even a revisioned key back to the parent.
+	 */
+	public function testFilterCanForceRevisionedMetaBackToParent() {
+		if ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) ) {
+			$this->markTestSkipped( 'Revisioned post meta (revisions_enabled / wp_post_revision_meta_keys) requires WordPress 6.4+.' );
+		}
+
+		WPGraphQL::clear_schema();
+
+		register_post_meta(
+			'post',
+			'revisionedMetaKey',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true,
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'revisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'revisionedMetaKey', true );
+				},
+			]
+		);
+
+		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
+		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+
+		wp_set_current_user( $this->admin );
+
+		add_filter( 'graphql_resolve_revision_meta_from_parent', '__return_true' );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { revisionedMetaKey } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		remove_filter( 'graphql_resolve_revision_meta_from_parent', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'published value', $actual['data']['post']['revisionedMetaKey'], 'A filter returning true must force even a revisioned key to resolve from the parent, as documented' );
+
+		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * The same revisioned-meta resolution applies when querying a revision directly through
+	 * the `revisions` connection, not only through the preview flow. The revision node must
+	 * resolve a revisioned meta key from its own value.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3260
+	 */
+	public function testRevisionedMetaResolvesFromRevisionInRevisionsConnection() {
+		if ( version_compare( get_bloginfo( 'version' ), '6.4', '<' ) ) {
+			$this->markTestSkipped( 'Revisioned post meta (revisions_enabled / wp_post_revision_meta_keys) requires WordPress 6.4+.' );
+		}
+
+		WPGraphQL::clear_schema();
+
+		register_post_meta(
+			'post',
+			'revisionedMetaKey',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true,
+			]
+		);
+
+		register_graphql_field(
+			'Post',
+			'revisionedMetaKey',
+			[
+				'type'    => 'String',
+				'resolve' => static function ( $post ) {
+					return get_post_meta( $post->ID, 'revisionedMetaKey', true );
+				},
+			]
+		);
+
+		update_post_meta( $this->post, 'revisionedMetaKey', 'published value' );
+		update_metadata( 'post', $this->preview, 'revisionedMetaKey', 'revised value' );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { revisions { nodes { databaseId revisionedMetaKey } } } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$revision_node = null;
+		foreach ( $actual['data']['post']['revisions']['nodes'] as $node ) {
+			if ( (int) $node['databaseId'] === (int) $this->preview ) {
+				$revision_node = $node;
+			}
+		}
+
+		$this->assertNotNull( $revision_node, 'The revision should appear in the revisions connection' );
+		$this->assertSame( 'revised value', $revision_node['revisionedMetaKey'], '#3260: a revisioned meta key resolves from the revision in the revisions connection too' );
+
+		unregister_post_meta( 'post', 'revisionedMetaKey' );
+		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * With the preview extension, a previewed (non-hierarchical) post keeps its published
+	 * databaseId, so a client can identify the published post directly while still showing
+	 * the draft content. This is the capability requested in #2876, which the legacy
+	 * `asPreview` swap could not provide because it returned the revision's id.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2876
+	 */
+	public function testPreviewExtensionExposesPublishedIdForNonHierarchicalPost() {
+		wp_set_current_user( $this->admin );
+
+		// The legacy `asPreview: true` swap returns the REVISION's databaseId (the #2876 problem).
+		$legacy = $this->graphql(
+			[
+				'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID, asPreview: true ) { databaseId } }',
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $legacy );
+		$this->assertNotEquals( $this->post, $legacy['data']['post']['databaseId'], 'Legacy asPreview returns the revision id, not the published post id' );
+
+		// The extension preserves the published databaseId while overlaying the draft content.
+		$extension = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $extension );
+		$this->assertEquals( $this->post, $extension['data']['post']['databaseId'], '#2876: the published post id is exposed directly via databaseId' );
+		$this->assertStringContainsString( 'Preview Content', $extension['data']['post']['content'], 'The draft content is still overlaid' );
+	}
+
+	/**
+	 * When both the deprecated `asPreview: true` argument and a `preview` extension are
+	 * provided, the extension wins (the node keeps its published identity and overlays),
+	 * and the `asPreview` argument is ignored rather than swapping to the revision node.
+	 */
+	public function testExtensionWinsOverDeprecatedAsPreviewArg() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query Post( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID, asPreview: true ) {
+				databaseId
+				content
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// asPreview:true would have swapped to the revision id; the extension keeps identity.
+		$this->assertEquals( $this->post, $actual['data']['post']['databaseId'], 'The extension preserves identity; the asPreview swap is ignored' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['post']['content'] );
+	}
+
+	/**
+	 * The overlay also applies to a previewed post appearing inside a connection: only the
+	 * targeted node overlays, and it keeps its published identity.
+	 */
+	public function testPreviewContextOverlaysContentForNodeInConnection() {
+		wp_set_current_user( $this->admin );
+
+		// A second published post that is NOT the preview target.
+		$other = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Other Published Post',
+				'post_content' => 'Other Published Content',
+				'post_author'  => $this->admin,
+			]
+		);
+
+		$query = '
+		query Posts {
+			posts( first: 50 ) {
+				nodes {
+					databaseId
+					content
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$by_id = [];
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
+			$by_id[ $node['databaseId'] ] = $node['content'];
+		}
+
+		$this->assertArrayHasKey( $this->post, $by_id, 'The previewed post keeps its published identity in the connection' );
+		$this->assertStringContainsString( 'Preview Content', $by_id[ $this->post ], 'The previewed node overlays its content' );
+		$this->assertStringContainsString( 'Other Published Content', $by_id[ $other ], 'Non-targeted nodes are unaffected' );
+
+		wp_delete_post( $other, true );
+	}
+
+	/**
+	 * Preview context from an unauthenticated request must be ignored: the published
+	 * node is returned, identical to a request with no preview context. This prevents
+	 * preview context from being used to read unpublished content.
+	 */
+	public function testPreviewContextIgnoredForUnauthenticatedRequest() {
+		wp_set_current_user( 0 );
+
+		$query = '
+		query Post( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				content
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'An unauthenticated request must never see preview content via the preview context' );
+
+		// A debug-only notice explains why the preview was ignored (GRAPHQL_DEBUG is on in tests).
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_IGNORED', $debug_types, 'A debug notice should explain the ignored preview' );
+	}
+
+	/**
+	 * An invalid preview id in the preview context (a post that does not exist, or one the
+	 * viewer cannot edit) must be treated as if no preview context were provided. No error is
+	 * thrown, so preview context cannot be used to enumerate inaccessible content.
+	 */
+	public function testInvalidPreviewContextIdIsSilentlyIgnored() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query Post( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				content
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				// A preview id that targets a different, non-existent post.
+				'extensions' => [ 'preview' => [ 'databaseId' => 99999999 ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'Invalid preview input must not throw' );
+		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'Preview context whose id does not match the queried post must be ignored' );
+	}
+
+	/**
+	 * Pins the documented nonce contract: the nonce is accepted but not verified, and
+	 * no verification is planned (a nonce is session-bound and cannot authorize a
+	 * different viewer; link-based previews would use a purpose-built token instead).
+	 * Present, absent, or junk must behave identically for an authorized viewer, and a
+	 * valid nonce must grant nothing on its own for an unauthorized one. If this test
+	 * starts failing because verification was added, that is a breaking change to a
+	 * documented contract and needs a major version.
+	 */
+	public function testNonceIsAcceptedButNotVerifiedToday() {
+		wp_set_current_user( $this->admin );
+
+		$query       = 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { isPreview content } }';
+		$variables   = [ 'id' => $this->post ];
+		$valid_nonce = wp_create_nonce( 'post_preview_' . $this->post );
+
+		$without_nonce = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+
+		$with_valid_nonce = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'nonce'      => $valid_nonce,
+					],
+				],
+			]
+		);
+
+		$with_junk_nonce = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'nonce'      => 'not-a-real-nonce',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $without_nonce );
+		$this->assertTrue( $without_nonce['data']['post']['isPreview'], 'The preview applies without a nonce' );
+		$this->assertSame( $without_nonce['data'], $with_valid_nonce['data'], 'A valid nonce must not change the response' );
+		$this->assertSame( $without_nonce['data'], $with_junk_nonce['data'], 'A junk nonce must not change the response' );
+
+		// A valid nonce is not an authorization path: an unauthenticated request
+		// carrying one still gets only published data.
+		wp_set_current_user( 0 );
+		$anon = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $variables,
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'nonce'      => $valid_nonce,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $anon );
+		$this->assertFalse( $anon['data']['post']['isPreview'], 'A valid nonce must grant nothing without the capability check' );
+		$this->assertStringContainsString( 'Published Content', $anon['data']['post']['content'] );
+	}
+
+	/**
+	 * Negative or malformed ids in the preview context must be rejected, not coerced:
+	 * absint() would silently flip `-{id}` into a different, valid-looking positive id.
+	 * A negative `databaseId` means no preview context at all, and a negative
+	 * `featuredImageDatabaseId` means no featured-image override.
+	 */
+	public function testNegativePreviewIdsAreRejectedNotCoerced() {
+		wp_set_current_user( $this->admin );
+
+		// A negative databaseId must not be flipped into a valid preview target.
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [ 'preview' => [ 'databaseId' => -1 * $this->post ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Published Content', $actual['data']['post']['content'], 'A negative databaseId must be treated as no preview context, not coerced to a positive id' );
+
+		// A negative featuredImageDatabaseId must not be flipped into a valid attachment id.
+		$filename  = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$new_image = $this->factory()->attachment->create_upload_object( $filename );
+
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { featuredImageDatabaseId } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => -1 * $new_image,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->featured_image, $actual['data']['post']['featuredImageDatabaseId'], 'A negative featuredImageDatabaseId must be ignored, keeping the stored featured image' );
+
+		wp_delete_attachment( $new_image, true );
+	}
+
+	/**
+	 * The preview state is queryable on the node: `isPreview` reports whether previewed
+	 * values are actually overlaid in this request, and `previewRevisionDatabaseId`
+	 * exposes the overlay source. An authorized preview with nothing to overlay, and an
+	 * unauthorized request, must both resolve identically to a request without preview
+	 * context, so the fields cannot be used to probe.
+	 */
+	public function testIsPreviewAndPreviewRevisionFieldsReflectOverlayState() {
+		wp_set_current_user( $this->admin );
+
+		$query = 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { isPreview previewRevisionDatabaseId previewRevisionId content } }';
+		$vars  = [ 'id' => $this->post ];
+
+		// Without preview context, the published node reports no preview state.
+		$published = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $vars,
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $published );
+		$this->assertFalse( $published['data']['post']['isPreview'] );
+
+		// With preview context, the overlaid node reports the preview state and its source.
+		$preview = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $vars,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $preview );
+		$this->assertTrue( $preview['data']['post']['isPreview'], 'The overlaid node reports isPreview: true' );
+		$this->assertEquals( $this->preview, $preview['data']['post']['previewRevisionDatabaseId'], 'previewRevisionDatabaseId exposes the overlay source (the autosave)' );
+		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'post', (string) $this->preview ), $preview['data']['post']['previewRevisionId'] );
+		$this->assertStringContainsString( 'Preview Content', $preview['data']['post']['content'] );
+
+		// An authorized preview with nothing to overlay reports no preview state,
+		// identically to a request without context.
+		$plain = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Plain Post',
+				'post_content' => 'Plain Content',
+				'post_author'  => $this->admin,
+			]
+		);
+
+		$none = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $plain ],
+				'extensions' => [ 'preview' => [ 'databaseId' => $plain ] ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $none );
+		$this->assertFalse( $none['data']['post']['isPreview'], 'An authorized preview with no autosave reports isPreview: false' );
+		$this->assertNull( $none['data']['post']['previewRevisionDatabaseId'] );
+
+		// A featured-image-only preview (no autosave) still counts as a preview state.
+		$image_only = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $plain ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $plain,
+						'featuredImageDatabaseId' => $this->featured_image,
+					],
+				],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $image_only );
+		$this->assertTrue( $image_only['data']['post']['isPreview'], 'A previewed featured image alone is a preview state' );
+		$this->assertNull( $image_only['data']['post']['previewRevisionDatabaseId'], 'No autosave means no overlay source to expose' );
+
+		wp_delete_post( $plain, true );
+
+		// Unauthenticated: identical to a request without preview context (no probe channel).
+		wp_set_current_user( 0 );
+		$anon = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => $vars,
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $anon );
+		$this->assertFalse( $anon['data']['post']['isPreview'] );
+		$this->assertNull( $anon['data']['post']['previewRevisionDatabaseId'], 'The model capability gate keeps the revision id hidden from anonymous viewers' );
+	}
+
+	/**
+	 * The `previewResolve` field-config key is the extension API for supplying a
+	 * request-derived previewed value. It must run only inside an authorized preview
+	 * targeting the node, and it must receive the request's preview context.
+	 */
+	public function testPreviewResolveFieldConfigSuppliesRequestDerivedValue() {
+		WPGraphQL::clear_schema();
+
+		register_graphql_field(
+			'Post',
+			'previewResolveProbe',
+			[
+				'type'           => 'String',
+				'resolve'        => static function () {
+					return 'published value';
+				},
+				'previewResolve' => static function ( $source, $args, $context, $info, $preview ) {
+					return 'previewed value for ' . $preview['databaseId'];
+				},
+			]
+		);
+
+		$request = [
+			'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { previewResolveProbe } }',
+			'variables'  => [ 'id' => $this->post ],
+			'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+		];
+
+		// Unauthenticated: previewResolve must not run; the normal resolver answers.
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( $request );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'published value', $actual['data']['post']['previewResolveProbe'], 'previewResolve must not run for an unauthorized request' );
+
+		// Without preview context: the normal resolver answers even for an editor.
+		wp_set_current_user( $this->admin );
+		$actual = $this->graphql( array_diff_key( $request, [ 'extensions' => true ] ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'published value', $actual['data']['post']['previewResolveProbe'], 'previewResolve must not run without preview context' );
+
+		// Authorized preview: previewResolve runs and receives the preview context.
+		$actual = $this->graphql( $request );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'previewed value for ' . $this->post, $actual['data']['post']['previewResolveProbe'], 'previewResolve should run with the preview context for an authorized preview' );
+
+		WPGraphQL::clear_schema();
+	}
+
+	/**
+	 * A previewed `featuredImageDatabaseId` that is not an existing attachment must
+	 * resolve as no image on all three fields, rather than echoing a fabricated id
+	 * (or minting a global ID for a node that does not exist).
+	 */
+	public function testPreviewedFeaturedImageMustBeAnExistingAttachment() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query Preview( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				featuredImageDatabaseId
+				featuredImageId
+				featuredImage {
+					node {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		// A post id that exists but is not an attachment.
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => $this->post,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post']['featuredImageDatabaseId'], 'A non-attachment id must not be echoed as the featured image' );
+		$this->assertNull( $actual['data']['post']['featuredImageId'], 'No global ID may be minted for a non-attachment id' );
+		$this->assertNull( $actual['data']['post']['featuredImage'], 'The featured image connection must be empty for a non-attachment id' );
+
+		// An id that does not exist at all.
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'              => $this->post,
+						'featuredImageDatabaseId' => 99999997,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post']['featuredImageDatabaseId'], 'A nonexistent id must not be echoed as the featured image' );
+		$this->assertNull( $actual['data']['post']['featuredImageId'], 'No global ID may be minted for a nonexistent attachment' );
+		$this->assertNull( $actual['data']['post']['featuredImage'], 'The featured image connection must be empty for a nonexistent attachment' );
+	}
+
+	/**
+	 * The `asPreview` argument should be marked deprecated in the schema in favor of the
+	 * preview context.
+	 */
+	public function testAsPreviewArgumentIsDeprecatedInSchema() {
+		$query = '
+		query {
+			__type( name: "RootQuery" ) {
+				fields {
+					name
+					args( includeDeprecated: true ) {
+						name
+						isDeprecated
+						deprecationReason
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Collect every asPreview arg exposed on RootQuery fields (post, page, contentNode, ...),
+		// so the assertions cover all registrations, not just one.
+		$reasons = [];
+		foreach ( $actual['data']['__type']['fields'] as $field ) {
+			foreach ( $field['args'] as $arg ) {
+				if ( 'asPreview' === $arg['name'] ) {
+					$this->assertTrue( $arg['isDeprecated'], sprintf( 'asPreview on "%s" should be deprecated', $field['name'] ) );
+					$this->assertNotEmpty( $arg['deprecationReason'], sprintf( 'asPreview on "%s" should carry a deprecation reason', $field['name'] ) );
+					$reasons[ $field['name'] ] = $arg['deprecationReason'];
+				}
+			}
+		}
+
+		$this->assertNotEmpty( $reasons, 'RootQuery should expose at least one deprecated asPreview argument' );
+
+		// Every registration must share one identical, single-sourced reason.
+		$this->assertCount( 1, array_unique( array_values( $reasons ) ), 'All asPreview deprecation reasons must be identical (single-sourced)' );
+
+		// The reason must describe the actual runtime behavior: preview context is the
+		// replacement, and when present it wins while asPreview is ignored.
+		$reason = reset( $reasons );
+		$this->assertStringContainsString( 'X-GraphQL-Preview', $reason, 'The deprecation reason should point at the header transport' );
+		$this->assertStringContainsString( '`asPreview` is ignored', $reason, 'The deprecation reason must state that preview context wins over asPreview' );
 	}
 }

@@ -22,11 +22,12 @@ class NodeWithContentEditor {
 				'fields'      => static function () {
 					return [
 						'content' => [
-							'type'        => 'String',
-							'description' => static function () {
+							'type'          => 'String',
+							'isPreviewable' => true,
+							'description'   => static function () {
 								return __( 'The content of the post.', 'wp-graphql' );
 							},
-							'args'        => [
+							'args'          => [
 								'format' => [
 									'type'        => 'PostObjectFieldFormatEnum',
 									'description' => static function () {
@@ -34,7 +35,7 @@ class NodeWithContentEditor {
 									},
 								],
 							],
-							'resolve'     => static function ( $source, $args ) {
+							'resolve'       => static function ( $source, $args ) {
 								if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 									// @codingStandardsIgnoreLine.
 									return $source->contentRaw;
