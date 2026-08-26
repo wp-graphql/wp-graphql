@@ -827,10 +827,17 @@ class Registry {
 							'description'     => sprintf( __( 'Provides access to fields of the "%1$s" ACF Field Group via the "%2$s" field', 'wpgraphql-acf' ), $type_name, $field_name ),
 							'fields'          => [
 								$field_name => [
-									'type'        => $type_name,
+									'type'          => $type_name,
 									// translators: %s is the name of the ACF Field Group
-									'description' => sprintf( __( 'Fields of the %s ACF Field Group', 'wpgraphql-acf' ), $type_name ),
-									'resolve'     => static function ( $node ) use ( $acf_field_group ) {
+									'description'   => sprintf( __( 'Fields of the %s ACF Field Group', 'wpgraphql-acf' ), $type_name ),
+									// Opt into WPGraphQL's per-field preview overlay: when a request
+									// carries preview context targeting the node, this resolver runs
+									// against the preview revision instead, so every field in the
+									// group resolves its value from the revision (the same data flow
+									// the legacy asPreview node swap produced). On WPGraphQL versions
+									// without the overlay this key is inert.
+									'isPreviewable' => true,
+									'resolve'       => static function ( $node ) use ( $acf_field_group ) {
 
 										// Pass the $root node and the $acf_field_group down
 										// to the resolving field
