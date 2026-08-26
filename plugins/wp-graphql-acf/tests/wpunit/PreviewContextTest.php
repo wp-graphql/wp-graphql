@@ -235,6 +235,34 @@ class PreviewContextTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The datastore setting must only be honored on ACF versions that ship the
+	 * datastore (PRO 6.8.1+). On older ACF the enable filter is inert for ACF itself,
+	 * so honoring it would resolve previews against autosaves that never receive
+	 * field values; the gate must stay closed and previews must resolve the
+	 * published values instead.
+	 */
+	public function testDatastoreSettingIgnoredOnAcfVersionsWithoutTheDatastore() {
+		wp_set_current_user( $this->admin );
+
+		// Enable the datastore setting while reporting an ACF version that predates it.
+		$version_filter = static function () {
+			return '6.7.0';
+		};
+		add_filter( 'acf/settings/enable_datastore', '__return_true' );
+		add_filter( 'acf/settings/version', $version_filter );
+
+		$preview = graphql( $this->get_preview_request() );
+
+		remove_filter( 'acf/settings/enable_datastore', '__return_true' );
+		remove_filter( 'acf/settings/version', $version_filter );
+
+		codecept_debug( $preview );
+
+		$this->assertArrayNotHasKey( 'errors', $preview );
+		$this->assertSame( 'published value', $preview['data']['post']['previewContextFields']['previewText'], 'The datastore setting must be ignored on ACF versions that do not ship the datastore' );
+	}
+
+	/**
 	 * An unauthenticated request carrying preview context must resolve only
 	 * published ACF values, identically to a request without context.
 	 */
