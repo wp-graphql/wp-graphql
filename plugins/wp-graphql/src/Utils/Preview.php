@@ -154,11 +154,34 @@ class Preview {
 			return $default_value;
 		}
 
+		$post = get_post( $object_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			return $default_value;
+		}
+
+		$parent   = 'revision' === $post->post_type ? get_post( $post->post_parent ) : null;
+		$meta_key = ! empty( $meta_key ) ? $meta_key : '';
+
+		// Meta keys that WordPress revisions (registered with `revisions_enabled`, or
+		// added via the `wp_post_revision_meta_keys` filter) are stored on the revision
+		// itself, so those default to resolving from the revision rather than the parent,
+		// mirroring core's `_wp_preview_meta_filter`. The computed default is passed
+		// through the filter below, which can override it in either direction.
+		// (`wp_post_revision_meta_keys()` was added in WordPress 6.4.)
+		$resolve_from_parent_default = true;
+		if ( '' !== $meta_key && $parent instanceof \WP_Post && function_exists( 'wp_post_revision_meta_keys' ) ) {
+			$revisioned_meta_keys = wp_post_revision_meta_keys( $parent->post_type );
+
+			if ( is_array( $revisioned_meta_keys ) && in_array( $meta_key, $revisioned_meta_keys, true ) ) {
+				$resolve_from_parent_default = false;
+			}
+		}
+
 		/**
-		 * Filters whether to resolve revision metadata from the parent node
-		 * by default.
+		 * Filters whether to resolve revision metadata from the parent node.
 		 *
-		 * @param bool    $should    Whether to resolve using the parent object. Default true.
+		 * @param bool    $should    Whether to resolve using the parent object. Defaults to true, except for meta keys WordPress stores on revisions (registered with `revisions_enabled`, or added via the `wp_post_revision_meta_keys` filter), which default to false so they resolve from the revision's own value. Return false to resolve a key from the revision, or true to force resolution from the parent.
 		 * @param int     $object_id The ID of the object to resolve meta for
 		 * @param ?string $meta_key  The key for the meta to resolve
 		 * @param ?bool   $single    Whether a single value should be returned
@@ -166,36 +189,14 @@ class Preview {
 		 * @hookGroup models
 		 * @since 0.0.5
 		 */
-		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
+		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', $resolve_from_parent_default, $object_id, $meta_key, $single );
 
 		if ( false === $resolve_revision_meta_from_parent ) {
 			return $default_value;
 		}
 
-		$post = get_post( $object_id );
-
-		if ( ! $post instanceof \WP_Post ) {
-			return $default_value;
-		}
-
-		if ( 'revision' === $post->post_type ) {
-			$parent   = get_post( $post->post_parent );
-			$meta_key = ! empty( $meta_key ) ? $meta_key : '';
-
-			// Meta keys that WordPress revisions (registered with `revisions_enabled`, or
-			// added via the `wp_post_revision_meta_keys` filter) are stored on the revision
-			// itself, so resolve those from the revision rather than the parent. This
-			// mirrors core's `_wp_preview_meta_filter`. (`wp_post_revision_meta_keys()` was
-			// added in WordPress 6.4.)
-			if ( '' !== $meta_key && $parent instanceof \WP_Post && function_exists( 'wp_post_revision_meta_keys' ) ) {
-				$revisioned_meta_keys = wp_post_revision_meta_keys( $parent->post_type );
-
-				if ( is_array( $revisioned_meta_keys ) && in_array( $meta_key, $revisioned_meta_keys, true ) ) {
-					return $default_value;
-				}
-			}
-
-			$parent_meta = isset( $parent->ID ) && absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, (bool) $single ) : $default_value;
+		if ( $parent instanceof \WP_Post ) {
+			$parent_meta = absint( $parent->ID ) ? get_post_meta( $parent->ID, $meta_key, (bool) $single ) : $default_value;
 
 			// Wrap in array in case of single as get_post_metadata filter returns first value from array when single.
 			// Ref: https://github.com/WordPress/wordpress-develop/blob/2fe26ceb7a1f3fb57ec8726fc5f425d00a12ace9/src/wp-includes/meta.php#L666
