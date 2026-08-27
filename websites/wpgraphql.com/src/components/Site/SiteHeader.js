@@ -18,6 +18,7 @@ import {
 import { useLayoutData } from "lib/wpgraphql-client"
 import { socialHeaderLinks } from "../../data/social"
 import { featuredExtensions } from "../../data/extensions"
+import { docsPortalProducts } from "../../data/docs-portal"
 import { SearchButton } from "./SearchButton"
 import Constellation from "@/components/extensions/Constellation"
 import { cn } from "@/lib/utils"
@@ -158,6 +159,145 @@ function ExtensionsMobile({
   )
 }
 
+// The WP-sourced "Docs" nav item, enhanced the same way as "Extensions": an
+// editor keeps a top-level "Docs" item (linking to /docs) in the WP "Primary
+// Nav" menu, and this code takes over its render with the docs portal's
+// product family — the header-level mirror of the docs product switcher.
+function isDocsItem(item) {
+  const label = item?.label?.toLowerCase()
+  const path = item?.path?.replace(/\/$/, "")
+  return label === "docs" || path === "/docs"
+}
+
+// Branded "Docs" dropdown: one row per enabled docs product, using each
+// product's brand mark and theme scope, linking into its docs base path.
+function DocsMenu({ label = "Docs", viewAllHref = "/docs" }) {
+  return (
+    <Popover className="relative">
+      {({ open }) => (
+        <>
+          <Popover.Button
+            className={cn(
+              "group inline-flex items-center gap-1 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              open
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <span>{label}</span>
+            <ChevronDownIcon
+              className={cn(
+                "h-4 w-4 transition-transform",
+                open && "rotate-180"
+              )}
+              aria-hidden="true"
+            />
+          </Popover.Button>
+
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-200"
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-150"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-1"
+          >
+            <Popover.Panel className="absolute z-50 -ml-4 mt-3 w-screen max-w-md transform lg:left-1/2 lg:ml-0 lg:-translate-x-1/2">
+              <div className="overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-elev-lg">
+                <p className="px-6 pb-2 pt-5 font-mono text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                  Documentation
+                </p>
+                <div className="grid gap-2 px-4 pb-4 sm:px-6">
+                  {docsPortalProducts().map(
+                    ({
+                      key,
+                      label: name,
+                      basePath,
+                      description,
+                      theme,
+                      Mark,
+                    }) => (
+                      <Link key={key} href={basePath} legacyBehavior>
+                        <a
+                          className={`${theme} group relative -m-2 flex items-start gap-4 overflow-hidden rounded-lg p-3 transition-colors hover:bg-accent`}
+                        >
+                          {Mark && (
+                            <Mark
+                              size={40}
+                              className="relative h-10 w-10 flex-shrink-0 rounded-md"
+                            />
+                          )}
+                          <div className="relative">
+                            <p className="text-sm font-semibold text-foreground">
+                              {name}
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {description}
+                            </p>
+                          </div>
+                        </a>
+                      </Link>
+                    )
+                  )}
+                </div>
+                <Link href={viewAllHref} legacyBehavior>
+                  <a className="flex items-center justify-between border-t border-border bg-muted/40 px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent">
+                    <span>All Documentation</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </Link>
+              </div>
+            </Popover.Panel>
+          </Transition>
+        </>
+      )}
+    </Popover>
+  )
+}
+
+// Mobile equivalent of the branded Docs dropdown.
+function DocsMobile({ label = "Docs", viewAllHref = "/docs" }) {
+  return (
+    <div className="mt-2 border-t border-border pt-4">
+      <div className="flex items-center justify-between px-3">
+        <p className="font-mono text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          {label}
+        </p>
+        <Link href={viewAllHref} legacyBehavior>
+          <a className="text-xs font-medium text-primary hover:underline">
+            All Documentation →
+          </a>
+        </Link>
+      </div>
+      <div className="mt-2 grid grid-cols-1 gap-2">
+        {docsPortalProducts().map(
+          ({ key, label: name, basePath, description, Mark }) => (
+            <Link key={key} href={basePath} legacyBehavior>
+              <a className="flex items-center gap-4 rounded-lg p-3 transition-colors hover:bg-accent">
+                {Mark && (
+                  <Mark
+                    size={40}
+                    className="h-10 w-10 flex-shrink-0 rounded-md"
+                  />
+                )}
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {description}
+                  </p>
+                </div>
+              </a>
+            </Link>
+          )
+        )}
+      </div>
+    </div>
+  )
+}
+
 export const NavMenuFragment = gql`
   fragment NavMenu on RootQuery {
     menu(id: "Primary Nav", idType: NAME) {
@@ -243,6 +383,15 @@ export default function SiteHeader() {
         <Popover.Group as="nav" className="hidden md:flex items-center gap-8">
           {menuItems &&
             menuItems.map((item) => {
+              if (isDocsItem(item)) {
+                return (
+                  <DocsMenu
+                    key={item.id}
+                    label={item.label}
+                    viewAllHref={item.path || "/docs"}
+                  />
+                )
+              }
               if (isExtensionsItem(item)) {
                 return (
                   <ExtensionsMenu
@@ -395,6 +544,15 @@ export default function SiteHeader() {
               </div>
               <nav className="mt-6 grid grid-cols-1 gap-2">
                 {menuItems.map((menuItem) => {
+                  if (isDocsItem(menuItem)) {
+                    return (
+                      <DocsMobile
+                        key={menuItem.id}
+                        label={menuItem.label}
+                        viewAllHref={menuItem.path || "/docs"}
+                      />
+                    )
+                  }
                   if (isExtensionsItem(menuItem)) {
                     return (
                       <ExtensionsMobile

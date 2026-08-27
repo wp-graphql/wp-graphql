@@ -1,5 +1,6 @@
 import { MDXRemote } from "next-mdx-remote"
 
+import DocsHub from "components/Docs/DocsHub"
 import DocsLayout from "components/Docs/DocsLayout"
 import PrevNext from "components/Docs/PrevNext"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
@@ -62,8 +63,19 @@ export default function Doc({
   hasMarkdownH1,
   nav,
   productKey,
+  isHub,
 }) {
   const product = DOCS_PRODUCTS[productKey] ?? DOCS_PRODUCTS[CORE_PRODUCT_KEY]
+
+  if (isHub) {
+    return (
+      <LayoutProvider value={layoutData}>
+        <DocsLayout docsNavData={docsNavData} product={product}>
+          <DocsHub />
+        </DocsLayout>
+      </LayoutProvider>
+    )
+  }
 
   return (
     <LayoutProvider value={layoutData}>
@@ -98,14 +110,31 @@ export async function getStaticProps({ params }) {
   const docSlug = restParts.join("/")
   const isCore = product.key === CORE_PRODUCT_KEY
 
+  // Bare /docs renders the family hub: the ecosystem layer above the
+  // product hubs, listing every enabled product's documentation.
+  if (isCore && !docSlug) {
+    try {
+      const docsNavData = normalizeDocsNav(product, await getDocsNav(product))
+      const layoutData = await getLayoutData()
+      return {
+        props: {
+          isHub: true,
+          docsNavData,
+          layoutData,
+          productKey: product.key,
+        },
+        revalidate: 30,
+      }
+    } catch (e) {
+      console.error("docs hub failed to render", e)
+      return { notFound: true, revalidate: 30 }
+    }
+  }
+
   // Developer Reference subtrees (actions/filters/functions/recipes) have
   // dedicated top-level routes for core; send /docs/<root>/... to the
   // canonical URL. Extensions keep those roots as regular doc subpages.
   if (isCore) {
-    if (!docSlug) {
-      return { notFound: true }
-    }
-
     const requestedUri = `/docs/${docSlug}`
     if (isDeveloperReferenceDocUri(requestedUri)) {
       return {
@@ -183,7 +212,7 @@ export async function getStaticPaths() {
   // product's docs folder, not from the WordPress Primary Nav menu. The menu
   // only references ~4 docs out of ~50, and any drift between menu URIs and
   // real files produced permanent static 404s for the menu-linked docs.
-  const paths = []
+  const paths = [{ params: { slug: [] } }]
   for (const product of enabledProducts()) {
     try {
       const uris = await getAllDocUri(product)
