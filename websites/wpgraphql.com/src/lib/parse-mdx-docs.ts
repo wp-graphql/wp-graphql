@@ -197,6 +197,20 @@ export async function getAllDocMeta(product: DocsProduct = CORE_PRODUCT) {
   }
 }
 
+/**
+ * Map a doc file slug (path relative to the docs folder, extension stripped)
+ * onto the URI slug it serves: an index file serves its parent directory's
+ * URI ("field-types/index" → "field-types"), matching getDocContent's
+ * `<slug>/index.md` fallback. A root-level index maps to the product's base
+ * path (empty slug).
+ */
+function uriSlugFromDocFileSlug(fileSlug: string): string {
+  if (fileSlug === "index") {
+    return ""
+  }
+  return fileSlug.replace(/\/index$/, "")
+}
+
 async function getLocalDocUris(
   product: DocsProduct = CORE_PRODUCT
 ): Promise<string[]> {
@@ -225,8 +239,8 @@ async function getLocalDocUris(
         continue
       }
 
-      const slug = nextRelative.replace(/\.md$/, "")
-      uris.push(`${product.basePath}/${slug}`)
+      const slug = uriSlugFromDocFileSlug(nextRelative.replace(/\.md$/, ""))
+      uris.push(slug ? `${product.basePath}/${slug}` : product.basePath)
     }
   }
 
@@ -317,7 +331,9 @@ export async function getAllDocUri(
   try {
     const localUris = await getLocalDocUris(product)
     if (localUris.length > 0) {
-      return localUris.sort((a, b) => a.localeCompare(b))
+      // Dedupe: a directory that has both `<name>.md` and `<name>/index.md`
+      // maps to a single URI.
+      return [...new Set(localUris)].sort((a, b) => a.localeCompare(b))
     }
   } catch (_error) {
     // Fallback to GitHub API listing.
@@ -337,7 +353,8 @@ export async function getAllDocUri(
       // the regex captures everything after the product docs folder.
       const match = file.path.match(docsExtReg)
       if (match && match.groups?.slug) {
-        acc.push(`${product.basePath}/${match.groups.slug}`)
+        const slug = uriSlugFromDocFileSlug(match.groups.slug)
+        acc.push(slug ? `${product.basePath}/${slug}` : product.basePath)
       }
     }
 
@@ -349,28 +366,47 @@ export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
   // Normalize and validate the incoming slug before constructing the URL
   const safeSlug = normalizeSlug(slug)
 
-  try {
-    return await fs.readFile(localDocPathFromSlug(safeSlug, product), "utf8")
-  } catch (_error) {
-    // Fallback to remote source when local docs are unavailable.
+  // A directory's landing page is stored as its index file (e.g. the ACF
+  // field-types overview lives at field-types/index.md but is served at
+  // /docs/acf/field-types), so each source tries `<slug>.md` first and
+  // `<slug>/index.md` second.
+  const candidates = [safeSlug, `${safeSlug}/index`]
+
+  for (const candidate of candidates) {
+    try {
+      return await fs.readFile(localDocPathFromSlug(candidate, product), "utf8")
+    } catch (_error) {
+      // Fall through to the next candidate, then the remote source.
+    }
   }
 
-  const resp = await fetch(docUrlFromSlug(safeSlug, product))
+  for (const candidate of candidates) {
+    const resp = await fetch(docUrlFromSlug(candidate, product))
 
-  if (!resp.ok) {
-    if (resp.status >= 400 && resp.status < 500) {
-      throw { notFound: true }
+    if (resp.ok) {
+      return resp.text()
     }
 
-    throw new Error(resp.statusText)
+    // 4xx means this candidate doesn't exist — try the next; anything else
+    // (5xx, network-level) is a real failure worth surfacing.
+    if (resp.status < 400 || resp.status >= 500) {
+      throw new Error(resp.statusText)
+    }
   }
 
-  return resp.text()
+  throw { notFound: true }
 }
 
 export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
   const content = await getDocContent(url, product)
   const normalizedContent = sanitizeMarkdownForMdx(content)
+
+  // An empty markdown file (e.g. a placeholder committed before the content
+  // was ported) would render a blank page; treat it as missing content.
+  if (normalizedContent.trim().length === 0) {
+    throw { notFound: true }
+  }
+
   const hasMarkdownH1 = hasTopLevelHeading(normalizedContent)
 
   const [source, toc] = await Promise.all([
