@@ -1,5 +1,6 @@
 import { MDXRemote } from "next-mdx-remote"
 
+import Breadcrumbs from "components/Docs/Breadcrumbs"
 import DocsHub from "components/Docs/DocsHub"
 import DocsLayout from "components/Docs/DocsLayout"
 import PrevNext from "components/Docs/PrevNext"
@@ -55,6 +56,70 @@ function toSlugParams(uri) {
   return { params: { slug: slug.split("/") } }
 }
 
+/**
+ * Find the sidebar-nav entry (and its section heading) for a doc URI.
+ */
+function findNavEntry(docsNavData, uri) {
+  for (const [section, group] of Object.entries(docsNavData ?? {})) {
+    if (!Array.isArray(group)) {
+      continue
+    }
+    const item = group.find((entry) => entry?.href === uri)
+    if (item) {
+      return { section, item }
+    }
+  }
+  return null
+}
+
+/**
+ * Build the breadcrumb trail for a doc page. Now that the portal serves
+ * multiple products' doc trees, the trail orients the reader in both
+ * dimensions: which product's docs they are in (linked back through the
+ * family hub) and where this page sits in that product's nav.
+ *
+ * Core: "Docs / <Section> / <Page>". Extensions: "Docs / <Product> /
+ * <Section> / <Page>". Pages not in the nav (e.g. an individual field type)
+ * link through their nearest ancestor that is.
+ */
+function buildDocBreadcrumbs({
+  product,
+  docsNavData,
+  requestedUri,
+  pageTitle,
+}) {
+  const items = [{ label: "Docs", href: "/docs" }]
+
+  if (product.key !== CORE_PRODUCT_KEY) {
+    items.push({ label: product.label, href: product.basePath })
+  }
+
+  const fallbackLabel = requestedUri.split("/").pop()
+
+  const direct = findNavEntry(docsNavData, requestedUri)
+  if (direct) {
+    items.push({ label: direct.section })
+    items.push({ label: direct.item.title ?? pageTitle ?? fallbackLabel })
+    return items
+  }
+
+  const parentUri = requestedUri.replace(/\/[^/]+$/, "")
+  const parent =
+    parentUri.length > product.basePath.length
+      ? findNavEntry(docsNavData, parentUri)
+      : null
+  if (parent) {
+    items.push({ label: parent.section })
+    items.push({
+      label: parent.item.title ?? parentUri.split("/").pop(),
+      href: parentUri,
+    })
+  }
+
+  items.push({ label: pageTitle ?? fallbackLabel })
+  return items
+}
+
 export default function Doc({
   source,
   toc,
@@ -64,6 +129,7 @@ export default function Doc({
   nav,
   productKey,
   isHub,
+  breadcrumbs,
 }) {
   const product = DOCS_PRODUCTS[productKey] ?? DOCS_PRODUCTS[CORE_PRODUCT_KEY]
 
@@ -80,9 +146,10 @@ export default function Doc({
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData} product={product}>
-        <div id="content-wrapper" className="relative z-20 mt-8 prose">
+        <div id="content-wrapper" className="relative z-20 prose">
+          <Breadcrumbs items={breadcrumbs} />
           {source?.frontmatter?.title && !hasMarkdownH1 && (
-            <header className="relative z-20 -mt-8">
+            <header className="relative z-20">
               <h1>{source.frontmatter.title}</h1>
             </header>
           )}
@@ -177,6 +244,13 @@ export async function getStaticProps({ params }) {
     const requestedUri = `${product.basePath}/${docSlug}`
     const nav = orderedSiblings(flattenDocsNav(docsNavData), requestedUri)
 
+    const breadcrumbs = buildDocBreadcrumbs({
+      product,
+      docsNavData,
+      requestedUri,
+      pageTitle: source?.frontmatter?.title ?? null,
+    })
+
     return {
       props: {
         toc,
@@ -186,6 +260,7 @@ export async function getStaticProps({ params }) {
         layoutData,
         nav,
         productKey: product.key,
+        breadcrumbs,
       },
       revalidate: 30,
     }
