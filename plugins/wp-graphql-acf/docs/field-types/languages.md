@@ -1,24 +1,38 @@
 ---
-uri: "/field-types/text/"
-title: "Text"
+uri: "/field-types/languages/"
+title: "Languages"
 ---
 
-`text`
+`acfe_languages`
 
-The Text field type is native to ACF (free) and provides users with a text input field.
+The Languages field is a custom ACF Field Type made available by the Advanced Custom Fields Extended PRO plugin and provides a Language selector as radio, checkbox or select field type.
 
 ## Resolve Type
 
-Fields of the "text" field type resolve to "String" in the GraphQL Schema
+Fields of the `acfe_langauges` field type resolve to a "List of ACFE\_Language" in the GraphQL Schema. This supports singular and multiple selections as a list can be either one or more than one values.
+
+## Types Added to the Schema
+
+To support the Languages field type in the GraphQL Schema, additional GraphQL Object Types are added to the Schema.
+
+-   **ACFE\_Language** (object type): The Object Type representing a Language with fields such as "name", "locale", "code" and more.
 
 ## Field Settings
 
 | Setting | Description | Impact on WPGraphQL |
 | --- | --- | --- |
-| `maxlength` | Leave blank for no limit | The Character Limit field validates the input when users input data, but does not impact how WPGraphQL resolves the field. If longer values were input before the limit was restricted, WPGraphQL will not apply the limit when the field is resolved. |
+| `Allow Languages` |  |  |
+| `Stylised UI` |  |  |
+| `Select Multiple Values` |  |  |
+| `Group by Continents` |  |  |
+| `Display Flags` |  |  |
+| `Display Format` | The format displayed when editing a post | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `placeholder` | Appears within the input | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `acfe_field_group_condition` | Enable Global Conditional Logic for a specific field, which can then be used in an another Field Group as condition, both as Field Group Condition and Field Condition. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
+| `ajax` | Trigger ajax event on click. [See documentation](https://www.acf-extended.com/features/fields/button) | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `width` | HTML elements applied to the wrapper of the field in the WordPress admin. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
+| `allow_custom` | Allow 'custom' values to be added | This setting modifies editorial behavior in the admin and does not impact the GraphQL Schema or GraphQL resolvers. |
+| `return_format` | Specify the returned value on front end | The Return Value / Return Format setting does not impact WPGraphQL resolution. WPGraphQL will return as rich of objects as possible, and the client can chose which fields should be asked for. For example, an Image Field can return an ID, an Object or an Array, but in WPGraphQL the image field will always return a connection to a MediaItem and the client can chose to ask for just the ID or any other properties. |
 | `graphql_non_null` | Whether the field should be Non-Null in the GraphQL Schema. Use with caution. Only check this if you can guarantee there will be data stored for this field on all objects that have this field. i.e. the field should be required and should have data entered for all previous entries with this field. Unchecking this, if already checked, is considered a breaking change to the GraphQL Schema. | Checking this field will set the field as a NonNull field in the WPGraphQL Schema. Changing a field from nullable to NonNull is a non-breaking change to the Schema. BUT, changing a field from NonNull to nullable IS a breaking change to the schema, so be careful with this option. Also, because of the dynamic nature of ACF, it’s difficult to guarantee a value will exist for the field. For example, you might already have 100 posts published with no value for the field, so setting the field to “Non-Null” in GraphQL will lead to errors for those posts that have no value to return. It’s recommended to only use this setting if the field has been marked as “required” the entire time the field has been available. |
 | `show_in_graphql` | Whether the field should be queryable via GraphQL. NOTE: Changing this to false for existing field can cause a breaking change to the GraphQL Schema. Proceed with caution. | Checking this will expose the field to the GraphQL Schema. NOTE: If a field is added to the GraphQL Schema, then later removed from the Schema, this is considered a breaking change as client applications that were querying for the field would be breaking once it’s been removed from the Schema. |
 | `graphql_description` | The description of the field, shown in the GraphQL Schema. Should not include any special characters. | The description of the field that is returned when using Schema Introspection queries, used by tools such as the GraphiQL IDE. |
@@ -27,46 +41,60 @@ Fields of the "text" field type resolve to "String" in the GraphQL Schema
 | `label` | This is the name which will appear on the EDIT page. | This field is presentational for the WordPress admin and will not impact the GraphQL Schema. |
 | `default_value` | Appears when creating a new post | This value should be returned as the GraphQL field value if no value has been set for the field. |
 | `required` | Whether the field should be required when inputting new data | The “required” setting on an ACF Field does not directly impact the WPGraphQL Schema. While it might seem like setting an ACF Field to “required” should enforce the field to be a “Non Null” field in the GraphQL Schema, we believe this would be a mistake. Setting a field in the GraphQL Schema as “NonNull” will return errors if no data is present to be returned. Since the “required” setting can be toggled “on” on an ACF Field long after content already exists with no data for the field, this would cause errors to be returned for older content, and we believe this to be unexpected behavior. Instead of tying “GraphQL Non Null” to the ACF “Required” setting, we’ve provided a “GraphQL: NonNull” setting where you can explicitly opt-in to a field being “Non Null” in the Schema. |
+| `allow_null` | Allow the field to have no selection | This setting modifies editorial behavior in the admin and does not impact the GraphQL Schema or GraphQL resolvers. |
 | `instructions` | Instructions for authors. Shown when submitting data | This field is used to tell people in the WordPress admin how to use the field. If a “GraphQL Description” is not provided for a field, the “instructions” will be used as a fallback in GraphQL Introspection queries, used in tools such as the GraphiQL IDE. |
 | `conditional_logic` | Allow the field to be displayed conditionally in the Admin based on dynamic conditions. | Conditional Logic should not impact the GraphQL Schema. Fields that are conditionally available in the admin should _always_ be available in the Schema. The data that is resolved for a field might be impacted by conditional logic. |
+| `field_type` | Select the appearance of this field | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 
 
-## Field Configuration
+## Querying the Languages field
 
-An example of registering a field group with a `text` field in PHP (the same can be configured in the ACF admin UI, or via ACF JSON):
+```graphql
+query LanguagesField($uri: String! = "kitchen-sink") {
+  nodeByUri(uri: $uri) {
+    id
+    uri
+    ...WithAcfAcfExtendedProKitchenSink
+  }
+}
 
-```php
-<?php
-add_action( 'acf/include_fields', function() {
-	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
-		return;
-	}
-	acf_add_local_field_group( [
-		'key'                              => 'my_field_group_text',
-		'title'                            => 'My Field Group with text',
-		'show_in_graphql'                  => 1,
-		'graphql_field_name'               => 'myFieldGroupWithText',
-		'map_graphql_types_from_location_rules' => 0,
-		'graphql_types'                    => [ 'Page' ],
-		'fields'                           => [
-			[
-				'key'                => 'my_field_text',
-				'label'              => 'My Field',
-				'name'               => 'my_field',
-				'type'               => 'text',
-				'show_in_graphql'    => 1,
-				'graphql_field_name' => 'myFieldWithText',
-			],
-		],
-		'location'                         => [
-			[
-				[
-					'param'    => 'post_type',
-					'operator' => '==',
-					'value'    => 'page',
-				],
-			],
-		],
-	] );
-} );
+fragment WithAcfAcfExtendedProKitchenSink on WithAcfAcfExtendedProKitchenSink {
+  acfExtendedProKitchenSink {
+    acfLanguages {
+      ...ACFE_Language
+    }
+  }
+}
+
+fragment ACFE_Language on ACFE_Language {
+  __typename
+  name
+  code
+  locale
+  alt
+}
+```
+
+**Example response:**
+
+```json
+{
+  "data": {
+    "nodeByUri": {
+      "id": "cG9zdDozNTI=",
+      "uri": "/kitchen-sink/",
+      "acfExtendedProKitchenSink": {
+        "acfLanguages": [
+          {
+            "__typename": "ACFE_Language",
+            "name": "English",
+            "code": "en",
+            "locale": "en_US",
+            "alt": "en_US"
+          }
+        ]
+      }
+    }
+  }
+}
 ```
