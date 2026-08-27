@@ -362,7 +362,15 @@ export async function getAllDocUri(
   }, [])
 }
 
-export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
+/**
+ * Fetch a doc's markdown along with the file slug it actually resolved to
+ * (which differs from the requested slug when the content lives in a
+ * directory index file). The file slug anchors relative-link resolution.
+ */
+async function getDocContentWithFileSlug(
+  slug,
+  product: DocsProduct = CORE_PRODUCT
+): Promise<{ content: string; fileSlug: string }> {
   // Normalize and validate the incoming slug before constructing the URL
   const safeSlug = normalizeSlug(slug)
 
@@ -374,7 +382,11 @@ export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
 
   for (const candidate of candidates) {
     try {
-      return await fs.readFile(localDocPathFromSlug(candidate, product), "utf8")
+      const content = await fs.readFile(
+        localDocPathFromSlug(candidate, product),
+        "utf8"
+      )
+      return { content, fileSlug: candidate }
     } catch (_error) {
       // Fall through to the next candidate, then the remote source.
     }
@@ -384,7 +396,7 @@ export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
     const resp = await fetch(docUrlFromSlug(candidate, product))
 
     if (resp.ok) {
-      return resp.text()
+      return { content: await resp.text(), fileSlug: candidate }
     }
 
     // 4xx means this candidate doesn't exist — try the next; anything else
@@ -397,8 +409,13 @@ export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
   throw { notFound: true }
 }
 
+export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
+  const { content } = await getDocContentWithFileSlug(slug, product)
+  return content
+}
+
 export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
-  const content = await getDocContent(url, product)
+  const { content, fileSlug } = await getDocContentWithFileSlug(url, product)
   const normalizedContent = sanitizeMarkdownForMdx(content)
 
   // An empty markdown file (e.g. a placeholder committed before the content
@@ -410,7 +427,7 @@ export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
   const hasMarkdownH1 = hasTopLevelHeading(normalizedContent)
 
   const [source, toc] = await Promise.all([
-    getSourceFromMd(normalizedContent, product),
+    getSourceFromMd(normalizedContent, product, fileSlug),
     getTOCFromMd(normalizedContent),
   ])
 
@@ -450,13 +467,96 @@ function rehypeRewriteRelativeImageSrc(options: { product: DocsProduct }) {
   }
 }
 
-async function getSourceFromMd(mdContent, product: DocsProduct = CORE_PRODUCT) {
+/**
+ * Rewrite relative `<a href>` links that point at markdown files (the shape
+ * the docs use to cross-link on GitHub, e.g. "./network-cache.md" or
+ * "../previews.md#nonces") onto their site URLs. Left alone, these render as
+ * literal hrefs the site can't serve — the docs route rejects the ".md"
+ * extension — so every such cross-link 404s.
+ *
+ * Resolution is anchored on the source file's directory (fileSlug), not the
+ * page URL: a page served from a directory index (field-types/index.md at
+ * /docs/acf/field-types) has links relative to the directory, which browser
+ * URL semantics would resolve against the wrong base. Index targets collapse
+ * onto their directory URL, matching how the docs route serves them.
+ * Fragments are preserved. Non-markdown relative links (images have their
+ * own rewrite in rehypeRewriteRelativeImageSrc, plain extensionless paths
+ * already resolve) and absolute/root-relative/fragment links pass through
+ * untouched.
+ */
+function rehypeRewriteRelativeDocLinks(options: {
+  product: DocsProduct
+  fileSlug: string
+}) {
+  const { product, fileSlug } = options
+  const fileDir = fileSlug.includes("/")
+    ? fileSlug.slice(0, fileSlug.lastIndexOf("/"))
+    : ""
+
+  return (tree) => {
+    visit(tree, "element", (node: any) => {
+      if (node.tagName !== "a") {
+        return
+      }
+
+      const href = node.properties?.href
+      if (typeof href !== "string" || href.length === 0) {
+        return
+      }
+
+      // Only relative links: skip absolute URLs, protocol links (mailto:),
+      // root-relative paths, and in-page fragments.
+      if (/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(href)) {
+        return
+      }
+
+      const [pathPart, ...fragmentParts] = href.split("#")
+      if (!/\.mdx?$/i.test(pathPart)) {
+        return
+      }
+
+      // Resolve ./ and ../ segments against the source file's directory.
+      const segments: string[] = []
+      for (const segment of `${fileDir}/${pathPart}`.split("/")) {
+        if (segment === "" || segment === ".") {
+          continue
+        }
+        if (segment === "..") {
+          if (segments.length === 0) {
+            // Escapes the docs folder (e.g. a link into the plugin source);
+            // no site URL exists for it, so leave the href as-is.
+            return
+          }
+          segments.pop()
+          continue
+        }
+        segments.push(segment)
+      }
+
+      let slug = segments.join("/").replace(/\.mdx?$/i, "")
+      slug = slug === "index" ? "" : slug.replace(/\/index$/, "")
+
+      const fragment =
+        fragmentParts.length > 0 ? `#${fragmentParts.join("#")}` : ""
+      node.properties.href = `${
+        slug ? `${product.basePath}/${slug}` : product.basePath
+      }${fragment}`
+    })
+  }
+}
+
+async function getSourceFromMd(
+  mdContent,
+  product: DocsProduct = CORE_PRODUCT,
+  fileSlug = ""
+) {
   return serialize(mdContent, {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [[remarkGfm, { singleTilde: false }], withSmartQuotes],
       rehypePlugins: [
         [rehypeRewriteRelativeImageSrc, { product }],
+        [rehypeRewriteRelativeDocLinks, { product, fileSlug }],
         [
           rehypeExternalLinks,
           { target: "_blank", rel: ["noopener", "noreferrer"] },
