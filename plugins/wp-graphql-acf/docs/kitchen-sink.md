@@ -5,7 +5,7 @@ title: "Kitchen Sink"
 
 The saying “Everything but the Kitchen Sink” is a [phrase that originated in the early 1900s](https://www.theidioms.com/everything-but-the-kitchen-sink/) to describe “almost everything that one can think of”.  
   
-This page is configured to have just about every [ACF field type](/field-types/) associated with it, and data saved to those fields, so that we can execute GraphQL queries against this page to demonstrate functionality of the WPGraphQL for ACF plugin.
+The "Kitchen Sink" field groups below include just about every [ACF field type](/field-types/), so a page with these field groups assigned (and data saved to the fields) can be used to execute GraphQL queries that demonstrate the functionality of the WPGraphQL for ACF plugin.
 
 ## “Kitchen Sink” Field Groups
 
@@ -26,7 +26,7 @@ This page has the following ACF Field Groups associated with it:
 
 ## Using the Field Groups in your own environment
 
-The [Field Type documentation](/field-types/) throughout the site will demonstrate using GraphQL queries that query this this page as an example of how to use GraphQL to query ACF Fields of various field types.
+The [Field Type documentation](/field-types/) demonstrates GraphQL queries against a page with these field groups assigned, as an example of how to use GraphQL to query ACF Fields of various field types.
 
 If you want to setup the same ACF Field Groups in your environment, you can download the JSON exports above and import them to your WordPress install using the Advanced Custom Fields importer under the “ACF > Tools” menu.
 
