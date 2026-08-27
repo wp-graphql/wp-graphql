@@ -1,4 +1,7 @@
-# Previewing ACF Field Values
+---
+uri: "/previews/"
+title: "Previewing ACF Field Values"
+---
 
 WPGraphQL for ACF supports WPGraphQL's post previews: a headless front end can render the in-progress, unsaved version of a post's ACF field values, the way clicking **Preview** in wp-admin shows unsaved edits.
 
