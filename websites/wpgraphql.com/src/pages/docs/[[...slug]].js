@@ -103,17 +103,18 @@ function buildDocBreadcrumbs({
     return items
   }
 
-  const parentUri = requestedUri.replace(/\/[^/]+$/, "")
-  const parent =
-    parentUri.length > product.basePath.length
-      ? findNavEntry(docsNavData, parentUri)
-      : null
-  if (parent) {
-    items.push({ label: parent.section })
-    items.push({
-      label: parent.item.title ?? parentUri.split("/").pop(),
-      href: parentUri,
-    })
+  let ancestorUri = requestedUri.replace(/\/[^/]+$/, "")
+  while (ancestorUri.length > product.basePath.length) {
+    const ancestor = findNavEntry(docsNavData, ancestorUri)
+    if (ancestor) {
+      items.push({ label: ancestor.section })
+      items.push({
+        label: ancestor.item.title ?? ancestorUri.split("/").pop(),
+        href: ancestorUri,
+      })
+      break
+    }
+    ancestorUri = ancestorUri.replace(/\/[^/]+$/, "")
   }
 
   items.push({ label: pageTitle ?? fallbackLabel })
