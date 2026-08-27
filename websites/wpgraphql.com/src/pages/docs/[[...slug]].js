@@ -161,17 +161,20 @@ export async function getStaticProps({ params }) {
       revalidate: 30,
     }
   } catch (e) {
-    if (e.notFound) {
-      // Literal first argument so route-controlled params can't be
-      // interpreted as console format directives.
-      console.error("doc not found", { params }, e)
-      // Include revalidate so a transient build-time fetch failure can't
-      // permanently cache a 404 — without this, ISR never retries the page
-      // even after the underlying .md file becomes reachable again.
-      return { notFound: true, revalidate: 30 }
-    }
-
-    throw e
+    // Literal first argument so route-controlled params can't be
+    // interpreted as console format directives.
+    console.error(
+      e.notFound ? "doc not found" : "doc failed to render",
+      { params },
+      e
+    )
+    // Every failure returns a revalidating 404 rather than throwing: a
+    // throw during prerender fails the ENTIRE site build, which would let a
+    // single MDX-hostile character in any product's markdown take the whole
+    // site down (observed: raw { } or <text,text> in prose). A 404 with
+    // revalidate isolates the bad page, keeps the error in the logs, and
+    // self-heals once the content (or a transient fetch failure) is fixed.
+    return { notFound: true, revalidate: 30 }
   }
 }
 
