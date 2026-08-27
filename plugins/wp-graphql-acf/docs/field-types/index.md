@@ -7,59 +7,59 @@ WPGraphQL for ACF provides GraphQL Schema support for the field types of ACF, AC
 
 ## ACF
 
-- [Button Group](/field-types/button-group)
-- [Checkbox](/field-types/checkbox)
-- [Color Picker](/field-types/color-picker)
-- [Date Picker](/field-types/date-picker)
-- [DateTimePicker](/field-types/datetimepicker)
-- [Email](/field-types/email)
-- [File](/field-types/file)
-- [Google Map](/field-types/google-map)
-- [Group](/field-types/group)
-- [Image](/field-types/image)
-- [Link](/field-types/link)
-- [Number](/field-types/number) *(docs needed)*
-- [Oembed](/field-types/oembed) *(docs needed)*
-- [PageLink](/field-types/pagelink) *(docs needed)*
-- [Password](/field-types/password) *(docs needed)*
-- [Post Object](/field-types/post-object) *(docs needed)*
-- [Radio Button](/field-types/radio-button)
-- [Range](/field-types/range)
-- [Relationship](/field-types/relationship) *(docs needed)*
-- [Select](/field-types/select) *(docs needed)*
-- [Taxonomy](/field-types/taxonomy) *(docs needed)*
-- [Text](/field-types/text)
-- [Text Area](/field-types/text-area)
-- [Time Picker](/field-types/time-picker)
-- [True / False](/field-types/true-false)
-- [Url](/field-types/url)
-- [User](/field-types/user)
-- [WYSIWYG](/field-types/wysiwyg)
+- [Button Group](./button-group.md)
+- [Checkbox](./checkbox.md)
+- [Color Picker](./color-picker.md)
+- [Date Picker](./date-picker.md)
+- [DateTimePicker](./datetimepicker.md)
+- [Email](./email.md)
+- [File](./file.md)
+- [Google Map](./google-map.md)
+- [Group](./group.md)
+- [Image](./image.md)
+- [Link](./link.md)
+- [Number](./number.md) *(docs needed)*
+- [Oembed](./oembed.md) *(docs needed)*
+- [PageLink](./pagelink.md) *(docs needed)*
+- [Password](./password.md) *(docs needed)*
+- [Post Object](./post-object.md) *(docs needed)*
+- [Radio Button](./radio-button.md)
+- [Range](./range.md)
+- [Relationship](./relationship.md) *(docs needed)*
+- [Select](./select.md) *(docs needed)*
+- [Taxonomy](./taxonomy.md) *(docs needed)*
+- [Text](./text.md)
+- [Text Area](./text-area.md)
+- [Time Picker](./time-picker.md)
+- [True / False](./true-false.md)
+- [Url](./url.md)
+- [User](./user.md)
+- [WYSIWYG](./wysiwyg.md)
 
 ## ACF Pro
 
-- [Clone Field](/field-types/clone-field) *(docs needed)*
-- [Flexible Content](/field-types/flexible-content) *(docs needed)*
-- [Gallery](/field-types/gallery)
-- [Repeater](/field-types/repeater) *(docs needed)*
+- [Clone Field](./clone-field.md) *(docs needed)*
+- [Flexible Content](./flexible-content.md) *(docs needed)*
+- [Gallery](./gallery.md)
+- [Repeater](./repeater.md) *(docs needed)*
 
 ## ACF Extended
 
-- [Advanced Link](/field-types/advanced-link)
-- [Button](/field-types/button)
-- [Code Editor](/field-types/code-editor)
-- [Taxonomies](/field-types/taxonomies)
-- [Taxonomy Terms](/field-types/taxonomy-terms)
-- [User Roles](/field-types/user-roles)
+- [Advanced Link](./advanced-link.md)
+- [Button](./button.md)
+- [Code Editor](./code-editor.md)
+- [Taxonomies](./taxonomies.md)
+- [Taxonomy Terms](./taxonomy-terms.md)
+- [User Roles](./user-roles.md)
 
 ## ACF Extended Pro
 
-- [Countries](/field-types/countries)
-- [Currencies](/field-types/currencies)
-- [Date Range Picker](/field-types/date-range-picker)
-- [Image Selector](/field-types/image-selector)
-- [Image Sizes](/field-types/image-sizes)
-- [Languages](/field-types/languages)
-- [Menu Locations](/field-types/menu-locations) *(docs needed)*
-- [Menus](/field-types/menus) *(docs needed)*
-- [Phone Number](/field-types/phone-number) *(docs needed)*
+- [Countries](./countries.md)
+- [Currencies](./currencies.md)
+- [Date Range Picker](./date-range-picker.md)
+- [Image Selector](./image-selector.md)
+- [Image Sizes](./image-sizes.md)
+- [Languages](./languages.md)
+- [Menu Locations](./menu-locations.md) *(docs needed)*
+- [Menus](./menus.md) *(docs needed)*
+- [Phone Number](./phone-number.md) *(docs needed)*

@@ -7,7 +7,7 @@ Once you have created ACF Field Groups and configured them to show in GraphQL, i
   
 In this document, we’ll cover how ACF Field Groups are mapped to the Schema, how you can use tools like the GraphiQL IDE to understand how you can access the data stored in your ACF Fields using GraphQL Queries and Fragments.
 
-For consistency, we will be showing examples and referencing the ACF Field Groups documented on the “[Kitchen Sink”](/kitchen-sink/) page. You should be able to translate that and apply the knowledge to your own ACF Field Groups and Fields.
+For consistency, we will be showing examples and referencing the ACF Field Groups documented on the “[Kitchen Sink”](./kitchen-sink.md) page. You should be able to translate that and apply the knowledge to your own ACF Field Groups and Fields.
 
 ## Understanding how ACF Field Groups map to the GraphQL Schema
 

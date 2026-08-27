@@ -5,7 +5,7 @@ title: "Installation and Activation"
 
 In this guide, we will show how to get started using WPGraphQL for Advanced Custom Fields.
 
-_If you are upgrading from another version, we recommend heading over to the [Upgrade Guide](/upgrade-guide/)._
+_If you are upgrading from another version, we recommend heading over to the [Upgrade Guide](./upgrade-guide.md)._
 
 In order to use [WPGraphQL for ACF,](https://wordpress.org/plugins/wpgraphql-acf/) you will need a supported version of [WPGraphQL](https://www.wpgraphql.com/docs/quick-start#install) and [Advanced Custom Fields](https://www.advancedcustomfields.com/resources/getting-started-with-acf/) installed and activated.
 

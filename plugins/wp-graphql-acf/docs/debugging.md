@@ -5,7 +5,7 @@ title: "Debugging"
 
 On this page you will find information to help debug when things are not working as you might expect when using WPGraphQL for ACF v2.0+.
 
-If, after trying suggestions documented on this page, you are still having problems, check out our [various channels for support](/support/).
+If, after trying suggestions documented on this page, you are still having problems, check out our [various channels for support](./support.md).
 
 ## General WPGraphQL Debugging
 
@@ -59,7 +59,7 @@ Is your ACF Field Group active?
 
 If your ACF Field Group is set to `active:false` this does not mean that the ACF Field Group will be excluded from the GraphQL Schema.
 
-Inactive ACF Field Groups that are set to “Show in GraphQL” will not have a direct field added to the schema to access it, _but_ they will have a GraphQL Object Type registered to the Schema and can be referenced via [Clone](/field-types/clone-field/) fields.
+Inactive ACF Field Groups that are set to “Show in GraphQL” will not have a direct field added to the schema to access it, _but_ they will have a GraphQL Object Type registered to the Schema and can be referenced via [Clone](./field-types/clone-field.md) fields.
 
 #### Show in GraphQL
 
@@ -99,10 +99,10 @@ Is the field set to show in graphql? By default, if a field group is set to show
 
 ### Supported Field Types
 
-Is the ACF Field Type a [supported field type](/field-types/)?
+Is the ACF Field Type a [supported field type](./field-types/index.md)?
 
-If you’re using a 3rd party ACF Extension that adds a custom ACF Field Type, it won’t be shown in the GraphQL Schema unless [support is added for the custom ACF Field type](/adding-support-for-3rd-party-acf-field-type/).
+If you’re using a 3rd party ACF Extension that adds a custom ACF Field Type, it won’t be shown in the GraphQL Schema unless [support is added for the custom ACF Field type](./adding-support-for-3rd-party-acf-field-type.md).
 
 ## Next Steps
 
-This guide covers the some common steps for debugging WPGraphQL for ACF v2.0+. If you’re still encountering issues after following these steps, please refer to our [support page](/support/) for further assistance.
+This guide covers the some common steps for debugging WPGraphQL for ACF v2.0+. If you’re still encountering issues after following these steps, please refer to our [support page](./support.md) for further assistance.

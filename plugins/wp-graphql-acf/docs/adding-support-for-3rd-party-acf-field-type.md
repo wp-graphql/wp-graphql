@@ -7,7 +7,7 @@ This guide provides developers with information on how to add support for custom
 
 ## Initial Setup
 
-1.  **Plugin Installation**: Ensure WPGraphQL and WPGraphQL for ACF are active in your WordPress environment. For detailed installation and activation instructions, visit the [Installation and Activation guide](/installation-and-activation/).
+1.  **Plugin Installation**: Ensure WPGraphQL and WPGraphQL for ACF are active in your WordPress environment. For detailed installation and activation instructions, visit the [Installation and Activation guide](./installation-and-activation.md).
 
 ## Registering Custom ACF Field Types
 
@@ -49,7 +49,7 @@ This guide provides developers with information on how to add support for custom
 ## Verifying and Debugging
 
 5.  **Verification**: After registering a custom ACF Field Type, verify its functionality by creating a new field group or adding it to an existing group, then use the GraphiQL IDE to ensure the field appears in the schema and returns data correctly.
-6.  **Debugging**: If issues arise, consult the debugging guides at [WPGraphQL for ACF Debugging](/debugging/) and [WPGraphQL Debugging](https://www.wpgraphql.com/docs/debugging).
+6.  **Debugging**: If issues arise, consult the debugging guides at [WPGraphQL for ACF Debugging](./debugging.md) and [WPGraphQL Debugging](https://www.wpgraphql.com/docs/debugging).
 
 ## Best Practices and Security
 
