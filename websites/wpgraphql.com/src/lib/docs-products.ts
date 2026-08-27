@@ -58,9 +58,7 @@ export const DOCS_PRODUCTS: Record<string, DocsProduct> = {
     basePath: "/docs/smart-cache",
     docsFolder: "plugins/wp-graphql-smart-cache/docs",
     themeClass: "theme-smart-cache",
-    // The Smart Cache docs corpus exists but has no docs_nav.json yet; flip
-    // this on when the nav lands in plugins/wp-graphql-smart-cache/docs/.
-    enabled: false,
+    enabled: true,
   },
   ide: {
     key: "ide",
