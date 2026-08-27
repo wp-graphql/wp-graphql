@@ -16,6 +16,10 @@
 		"href": "/previews"
 	},
 	{
+		"title": "ACF Field Types",
+		"href": "/field-types"
+	},
+	{
 		"title": "Adding ACF Post Types and Taxonomies to the GraphQL Schema",
 		"href": "/adding-acf-post-types-and-taxonomies-to-the-graphql-schema"
 	},

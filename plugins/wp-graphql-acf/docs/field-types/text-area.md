@@ -1,20 +1,23 @@
 ---
-uri: "/field-types/text/"
-title: "Text"
+uri: "/field-types/text-area/"
+title: "Text Area"
 ---
 
-`text`
+`text_area`
 
-The Text field type is native to ACF (free) and provides users with a text input field.
+The Text Area field is native to ACF (free) and provides users with a text area field to enter text.
 
 ## Resolve Type
 
-Fields of the "text" field type resolve to "String" in the GraphQL Schema
+The "text\_area" field type resolves as a "String" in the GraphQL Schema
 
 ## Field Settings
 
 | Setting | Description | Impact on WPGraphQL |
 | --- | --- | --- |
+| `New Lines` |  |  |
+| `Code Mode` |  |  |
+| `rows` | Sets the textarea height |  |
 | `maxlength` | Leave blank for no limit | The Character Limit field validates the input when users input data, but does not impact how WPGraphQL resolves the field. If longer values were input before the limit was restricted, WPGraphQL will not apply the limit when the field is resolved. |
 | `placeholder` | Appears within the input | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `acfe_field_group_condition` | Enable Global Conditional Logic for a specific field, which can then be used in an another Field Group as condition, both as Field Group Condition and Field Condition. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
@@ -33,7 +36,7 @@ Fields of the "text" field type resolve to "String" in the GraphQL Schema
 
 ## Field Configuration
 
-An example of registering a field group with a `text` field in PHP (the same can be configured in the ACF admin UI, or via ACF JSON):
+An example of registering a field group with a `textarea` field in PHP (the same can be configured in the ACF admin UI, or via ACF JSON):
 
 ```php
 <?php
@@ -42,20 +45,20 @@ add_action( 'acf/include_fields', function() {
 		return;
 	}
 	acf_add_local_field_group( [
-		'key'                              => 'my_field_group_text',
-		'title'                            => 'My Field Group with text',
+		'key'                              => 'my_field_group_textarea',
+		'title'                            => 'My Field Group with textarea',
 		'show_in_graphql'                  => 1,
-		'graphql_field_name'               => 'myFieldGroupWithText',
+		'graphql_field_name'               => 'myFieldGroupWithTextarea',
 		'map_graphql_types_from_location_rules' => 0,
 		'graphql_types'                    => [ 'Page' ],
 		'fields'                           => [
 			[
-				'key'                => 'my_field_text',
+				'key'                => 'my_field_textarea',
 				'label'              => 'My Field',
 				'name'               => 'my_field',
-				'type'               => 'text',
+				'type'               => 'textarea',
 				'show_in_graphql'    => 1,
-				'graphql_field_name' => 'myFieldWithText',
+				'graphql_field_name' => 'myFieldWithTextarea',
 			],
 		],
 		'location'                         => [
@@ -69,4 +72,38 @@ add_action( 'acf/include_fields', function() {
 		],
 	] );
 } );
+```
+
+## Querying the Text Area field
+
+```graphql
+query TextAreaField($uri: String! = "kitchen-sink") {
+  nodeByUri(uri: $uri) {
+    id
+    uri
+    ...WithAcfFreeKitchenSink
+  }
+}
+
+fragment WithAcfFreeKitchenSink on WithAcfAcfFreeKitchenSink {
+  acfFreeKitchenSink {
+    textArea
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "data": {
+    "nodeByUri": {
+      "id": "cG9zdDozNTI=",
+      "uri": "/kitchen-sink/",
+      "acfFreeKitchenSink": {
+        "textArea": "This is a text area field."
+      }
+    }
+  }
+}
 ```
