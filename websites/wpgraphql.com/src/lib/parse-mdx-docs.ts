@@ -8,6 +8,8 @@ import path from "node:path"
 
 import fetch from "cross-fetch"
 
+import { CORE_PRODUCT, type DocsProduct } from "./docs-products"
+
 // remark/rehype markdown plugins
 import remarkGfm from "remark-gfm"
 import remarkRehype from "remark-rehype"
@@ -33,15 +35,32 @@ const DOCS_REPO = "wp-graphql"
 const DOCS_OWNER = "wp-graphql"
 // Using main branch now that docs are in monorepo
 const DOCS_BRANCH = "main"
-// Docs are now in plugins/wp-graphql/docs/ in the monorepo
-const DOCS_FOLDER = "plugins/wp-graphql/docs"
-const DOCS_EXT_REG = new RegExp(`${DOCS_FOLDER}/(?<slug>.*)\\.md(x?)$`, "i")
 const IMG_PATH_REG = /^(\.\/)?(?<slug>.+)$/i
 
-const DOCS_PATH = `https://raw.githubusercontent.com/${DOCS_OWNER}/${DOCS_REPO}/${DOCS_BRANCH}/${DOCS_FOLDER}`
+// The docs pipeline serves every product in the portal registry; all
+// per-product paths derive from the product's monorepo docs folder. Every
+// exported function takes an optional product and defaults to core, so
+// existing callers (recipes, actions/filters/functions, sitemaps) are
+// unchanged.
+function docsFolderFor(product: DocsProduct): string {
+  return product.docsFolder
+}
 
-const DOCS_NAV_CONFIG_URL = `${DOCS_PATH}/docs_nav.json`
-const LOCAL_DOCS_DIR = path.resolve(process.cwd(), "..", "..", DOCS_FOLDER)
+function docsExtRegFor(product: DocsProduct): RegExp {
+  return new RegExp(`${docsFolderFor(product)}/(?<slug>.*)\\.md(x?)$`, "i")
+}
+
+function docsPathFor(product: DocsProduct): string {
+  return `https://raw.githubusercontent.com/${DOCS_OWNER}/${DOCS_REPO}/${DOCS_BRANCH}/${docsFolderFor(product)}`
+}
+
+function docsNavConfigUrlFor(product: DocsProduct): string {
+  return `${docsPathFor(product)}/docs_nav.json`
+}
+
+function localDocsDirFor(product: DocsProduct): string {
+  return path.resolve(process.cwd(), "..", "..", docsFolderFor(product))
+}
 
 // Doc subtrees that have dedicated top-level routes (the Developer
 // Reference). Their markdown lives under plugins/wp-graphql/docs/<root>/ but
@@ -109,37 +128,41 @@ function normalizeSlug(rawSlug: unknown): string {
   return slug
 }
 
-function docUrlFromSlug(slug: string) {
-  return `${DOCS_PATH}/${slug}.md`
+function docUrlFromSlug(slug: string, product: DocsProduct) {
+  return `${docsPathFor(product)}/${slug}.md`
 }
 
-function localDocPathFromSlug(slug: string) {
-  const localPath = path.resolve(LOCAL_DOCS_DIR, `${slug}.md`)
+function localDocPathFromSlug(slug: string, product: DocsProduct) {
+  const localDocsDir = localDocsDirFor(product)
+  const localPath = path.resolve(localDocsDir, `${slug}.md`)
 
-  if (!localPath.startsWith(LOCAL_DOCS_DIR)) {
+  if (!localPath.startsWith(localDocsDir)) {
     throw { notFound: true }
   }
 
   return localPath
 }
 
-function localDocsNavPath() {
-  return path.resolve(LOCAL_DOCS_DIR, "docs_nav.json")
+function localDocsNavPath(product: DocsProduct) {
+  return path.resolve(localDocsDirFor(product), "docs_nav.json")
 }
 
-function imgUrlFromPath(path) {
-  return `${DOCS_PATH}/${path}`
+function imgUrlFromPath(path, product: DocsProduct) {
+  return `${docsPathFor(product)}/${path}`
 }
 
-export function getRemoteImgUrl(localPath) {
-  return imgUrlFromPath(localPath.match(IMG_PATH_REG).groups.slug)
+export function getRemoteImgUrl(
+  localPath,
+  product: DocsProduct = CORE_PRODUCT
+) {
+  return imgUrlFromPath(localPath.match(IMG_PATH_REG).groups.slug, product)
 }
 
-export async function getAllDocMeta() {
+export async function getAllDocMeta(product: DocsProduct = CORE_PRODUCT) {
   const requestOptions = {
     owner: DOCS_OWNER,
     repo: DOCS_REPO,
-    path: DOCS_FOLDER,
+    path: docsFolderFor(product),
     ref: DOCS_BRANCH, // This makes it so only released features show up in the docs.
   }
 
@@ -174,8 +197,25 @@ export async function getAllDocMeta() {
   }
 }
 
-async function getLocalDocUris(): Promise<string[]> {
+/**
+ * Map a doc file slug (path relative to the docs folder, extension stripped)
+ * onto the URI slug it serves: an index file serves its parent directory's
+ * URI ("field-types/index" → "field-types"), matching getDocContent's
+ * `<slug>/index.md` fallback. A root-level index maps to the product's base
+ * path (empty slug).
+ */
+function uriSlugFromDocFileSlug(fileSlug: string): string {
+  if (fileSlug === "index") {
+    return ""
+  }
+  return fileSlug.replace(/\/index$/, "")
+}
+
+async function getLocalDocUris(
+  product: DocsProduct = CORE_PRODUCT
+): Promise<string[]> {
   const uris = []
+  const localDocsDir = localDocsDirFor(product)
 
   const walk = async (currentDir: string, relativePrefix = "") => {
     const entries = await fs.readdir(currentDir, { withFileTypes: true })
@@ -199,18 +239,18 @@ async function getLocalDocUris(): Promise<string[]> {
         continue
       }
 
-      const slug = nextRelative.replace(/\.md$/, "")
-      uris.push(`/docs/${slug}`)
+      const slug = uriSlugFromDocFileSlug(nextRelative.replace(/\.md$/, ""))
+      uris.push(slug ? `${product.basePath}/${slug}` : product.basePath)
     }
   }
 
   if (
     await fs
-      .stat(LOCAL_DOCS_DIR)
+      .stat(localDocsDir)
       .then(() => true)
       .catch(() => false)
   ) {
-    await walk(LOCAL_DOCS_DIR)
+    await walk(localDocsDir)
   }
 
   return uris
@@ -221,8 +261,11 @@ async function getLocalDocUris(): Promise<string[]> {
  * excluding the generated index. Used to build prev/next navigation. Returns
  * an empty array when the local docs aren't available.
  */
-export async function listDocSlugs(subdir: string): Promise<string[]> {
-  const dir = path.join(LOCAL_DOCS_DIR, subdir)
+export async function listDocSlugs(
+  subdir: string,
+  product: DocsProduct = CORE_PRODUCT
+): Promise<string[]> {
+  const dir = path.join(localDocsDirFor(product), subdir)
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     return entries
@@ -238,15 +281,15 @@ export async function listDocSlugs(subdir: string): Promise<string[]> {
   }
 }
 
-export async function getDocsNav() {
+export async function getDocsNav(product: DocsProduct = CORE_PRODUCT) {
   try {
-    const nav = await fs.readFile(localDocsNavPath(), "utf8")
+    const nav = await fs.readFile(localDocsNavPath(product), "utf8")
     return JSON.parse(nav)
   } catch (_error) {
     // Fallback to remote docs nav.
   }
 
-  const resp = await fetch(DOCS_NAV_CONFIG_URL)
+  const resp = await fetch(docsNavConfigUrlFor(product))
 
   if (!resp.ok) {
     throw Error(resp.statusText)
@@ -282,30 +325,36 @@ export function flattenDocsNav(
   return items
 }
 
-export async function getAllDocUri(): Promise<string[]> {
+export async function getAllDocUri(
+  product: DocsProduct = CORE_PRODUCT
+): Promise<string[]> {
   try {
-    const localUris = await getLocalDocUris()
+    const localUris = await getLocalDocUris(product)
     if (localUris.length > 0) {
-      return localUris.sort((a, b) => a.localeCompare(b))
+      // Dedupe: a directory that has both `<name>.md` and `<name>/index.md`
+      // maps to a single URI.
+      return [...new Set(localUris)].sort((a, b) => a.localeCompare(b))
     }
   } catch (_error) {
     // Fallback to GitHub API listing.
   }
 
-  const data = await getAllDocMeta()
+  const data = await getAllDocMeta(product)
 
   if (!Array.isArray(data)) {
     console.error(data)
     throw new Error("GitHub response should be an array")
   }
 
+  const docsExtReg = docsExtRegFor(product)
   return data.reduce((acc, file) => {
-    if (DOCS_EXT_REG.test(file.path)) {
-      // Extract slug from path like "plugins/wp-graphql/docs/introduction.md"
-      // The regex captures everything after the docs folder
-      const match = file.path.match(DOCS_EXT_REG)
+    if (docsExtReg.test(file.path)) {
+      // Extract slug from a path like "plugins/wp-graphql/docs/introduction.md";
+      // the regex captures everything after the product docs folder.
+      const match = file.path.match(docsExtReg)
       if (match && match.groups?.slug) {
-        acc.push(`/docs/${match.groups.slug}`)
+        const slug = uriSlugFromDocFileSlug(match.groups.slug)
+        acc.push(slug ? `${product.basePath}/${slug}` : product.basePath)
       }
     }
 
@@ -313,36 +362,55 @@ export async function getAllDocUri(): Promise<string[]> {
   }, [])
 }
 
-export async function getDocContent(slug) {
+export async function getDocContent(slug, product: DocsProduct = CORE_PRODUCT) {
   // Normalize and validate the incoming slug before constructing the URL
   const safeSlug = normalizeSlug(slug)
 
-  try {
-    return await fs.readFile(localDocPathFromSlug(safeSlug), "utf8")
-  } catch (_error) {
-    // Fallback to remote source when local docs are unavailable.
+  // A directory's landing page is stored as its index file (e.g. the ACF
+  // field-types overview lives at field-types/index.md but is served at
+  // /docs/acf/field-types), so each source tries `<slug>.md` first and
+  // `<slug>/index.md` second.
+  const candidates = [safeSlug, `${safeSlug}/index`]
+
+  for (const candidate of candidates) {
+    try {
+      return await fs.readFile(localDocPathFromSlug(candidate, product), "utf8")
+    } catch (_error) {
+      // Fall through to the next candidate, then the remote source.
+    }
   }
 
-  const resp = await fetch(docUrlFromSlug(safeSlug))
+  for (const candidate of candidates) {
+    const resp = await fetch(docUrlFromSlug(candidate, product))
 
-  if (!resp.ok) {
-    if (resp.status >= 400 && resp.status < 500) {
-      throw { notFound: true }
+    if (resp.ok) {
+      return resp.text()
     }
 
-    throw new Error(resp.statusText)
+    // 4xx means this candidate doesn't exist — try the next; anything else
+    // (5xx, network-level) is a real failure worth surfacing.
+    if (resp.status < 400 || resp.status >= 500) {
+      throw new Error(resp.statusText)
+    }
   }
 
-  return resp.text()
+  throw { notFound: true }
 }
 
-export async function getParsedDoc(url) {
-  const content = await getDocContent(url)
+export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
+  const content = await getDocContent(url, product)
   const normalizedContent = sanitizeMarkdownForMdx(content)
+
+  // An empty markdown file (e.g. a placeholder committed before the content
+  // was ported) would render a blank page; treat it as missing content.
+  if (normalizedContent.trim().length === 0) {
+    throw { notFound: true }
+  }
+
   const hasMarkdownH1 = hasTopLevelHeading(normalizedContent)
 
   const [source, toc] = await Promise.all([
-    getSourceFromMd(normalizedContent),
+    getSourceFromMd(normalizedContent, product),
     getTOCFromMd(normalizedContent),
   ])
 
@@ -360,7 +428,8 @@ export async function getParsedDoc(url) {
  * which is already a direct dependency. Behavior matches the previous
  * `selectors: ["img[src]"]` / `inspectEach` configuration exactly.
  */
-function rehypeRewriteRelativeImageSrc() {
+function rehypeRewriteRelativeImageSrc(options: { product: DocsProduct }) {
+  const { product } = options
   return (tree) => {
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "img") {
@@ -376,18 +445,18 @@ function rehypeRewriteRelativeImageSrc() {
         return
       }
 
-      node.properties.src = getRemoteImgUrl(src)
+      node.properties.src = getRemoteImgUrl(src, product)
     })
   }
 }
 
-async function getSourceFromMd(mdContent) {
+async function getSourceFromMd(mdContent, product: DocsProduct = CORE_PRODUCT) {
   return serialize(mdContent, {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [[remarkGfm, { singleTilde: false }], withSmartQuotes],
       rehypePlugins: [
-        rehypeRewriteRelativeImageSrc,
+        [rehypeRewriteRelativeImageSrc, { product }],
         [
           rehypeExternalLinks,
           { target: "_blank", rel: ["noopener", "noreferrer"] },
