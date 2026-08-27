@@ -132,7 +132,7 @@ Use these steps to run a network cache (varnish) to similate the caching behavio
 
 The varnish app starts and listens at http://localhost:8081/ for requests.
 
-Test a graphql query to load post #1 "Hello World" at this 'http://localhost:8081/graphql?query={ post(id: "1", idType: DATABASE_ID) { title } }'
+Test a graphql query to load post #1 "Hello World" at this url: `http://localhost:8081/graphql?query={ post(id: "1", idType: DATABASE_ID) { title } }`
 
 ### Cache Requests
 

@@ -93,7 +93,7 @@ This significantly reduces the load on your WordPress server, and significantly 
 
 ### GET Requests In Action
 
-Visit the following URL in your browser: [https://content.wpgraphql.com/graphql?query={posts{nodes{id,title}}}](https://content.wpgraphql.com/graphql?query={posts{nodes{id,title}}})
+Visit the following URL in your browser: `https://content.wpgraphql.com/graphql?query={posts{nodes{id,title}}}`
 
 If you inspect the "Network" tab in your browser's developer tools, you should see either an `X-Cache: MISS` header or a `X-Cache: Hit #` header, showing the number of times this query has been served from cache.
 

@@ -63,7 +63,7 @@ Some Location Rules are easily mapped to the GraphQL Schema, but some are not. I
 
 Take the following Location Rules as an example:
 
--   “Post Author is equal to ${Name of Author}”
+-   “Post Author is equal to `${Name of Author}`”
 
 In the WordPress admin, this rule will conditionally hide/show the ACF Field Group if the author of a post is not a specific author.  
   
@@ -73,7 +73,7 @@ The GraphQL Schema needs to represent the ACF Field Group in association with a 
 
 Or consider another rule such as:
 
--   “Taxonomy Term Slug is equal to ${term-slug}”  
+-   “Taxonomy Term Slug is equal to `${term-slug}`”  
       
     Again, this rule requires context that is available in the WordPress admin and the field group can show/hide, but it’s not available when the GraphQL Schema is generated. What type of term? Category? Tag? This would be another rule that would require manual assigning of “graphql\_types” the ACF Field Group should show on.
 
