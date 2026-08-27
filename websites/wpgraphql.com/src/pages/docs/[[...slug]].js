@@ -1,5 +1,7 @@
 import { MDXRemote } from "next-mdx-remote"
 
+import Breadcrumbs from "components/Docs/Breadcrumbs"
+import DocsHub from "components/Docs/DocsHub"
 import DocsLayout from "components/Docs/DocsLayout"
 import PrevNext from "components/Docs/PrevNext"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
@@ -54,6 +56,71 @@ function toSlugParams(uri) {
   return { params: { slug: slug.split("/") } }
 }
 
+/**
+ * Find the sidebar-nav entry (and its section heading) for a doc URI.
+ */
+function findNavEntry(docsNavData, uri) {
+  for (const [section, group] of Object.entries(docsNavData ?? {})) {
+    if (!Array.isArray(group)) {
+      continue
+    }
+    const item = group.find((entry) => entry?.href === uri)
+    if (item) {
+      return { section, item }
+    }
+  }
+  return null
+}
+
+/**
+ * Build the breadcrumb trail for a doc page. Now that the portal serves
+ * multiple products' doc trees, the trail orients the reader in both
+ * dimensions: which product's docs they are in (linked back through the
+ * family hub) and where this page sits in that product's nav.
+ *
+ * Core: "Docs / <Section> / <Page>". Extensions: "Docs / <Product> /
+ * <Section> / <Page>". Pages not in the nav (e.g. an individual field type)
+ * link through their nearest ancestor that is.
+ */
+function buildDocBreadcrumbs({
+  product,
+  docsNavData,
+  requestedUri,
+  pageTitle,
+}) {
+  const items = [{ label: "Docs", href: "/docs" }]
+
+  if (product.key !== CORE_PRODUCT_KEY) {
+    items.push({ label: product.label, href: product.basePath })
+  }
+
+  const fallbackLabel = requestedUri.split("/").pop()
+
+  const direct = findNavEntry(docsNavData, requestedUri)
+  if (direct) {
+    items.push({ label: direct.section })
+    items.push({ label: direct.item.title ?? pageTitle ?? fallbackLabel })
+    return items
+  }
+
+  let ancestorUri = requestedUri.replace(/\/[^/]+$/, "")
+  while (ancestorUri.length > product.basePath.length) {
+    const ancestor = findNavEntry(docsNavData, ancestorUri)
+    if (ancestor) {
+      items.push({ label: ancestor.section })
+      items.push({
+        label: ancestor.item.title ?? ancestorUri.split("/").pop(),
+        href: ancestorUri,
+      })
+      break
+    }
+    ancestorUri = ancestorUri.replace(/\/[^/]+$/, "")
+  }
+
+  items.push({ label: pageTitle ?? fallbackLabel })
+  return items
+}
+
 export default function Doc({
   source,
   toc,
@@ -62,15 +129,28 @@ export default function Doc({
   hasMarkdownH1,
   nav,
   productKey,
+  isHub,
+  breadcrumbs,
 }) {
   const product = DOCS_PRODUCTS[productKey] ?? DOCS_PRODUCTS[CORE_PRODUCT_KEY]
+
+  if (isHub) {
+    return (
+      <LayoutProvider value={layoutData}>
+        <DocsLayout docsNavData={docsNavData} product={product}>
+          <DocsHub />
+        </DocsLayout>
+      </LayoutProvider>
+    )
+  }
 
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData} product={product}>
-        <div id="content-wrapper" className="relative z-20 mt-8 prose">
+        <div id="content-wrapper" className="relative z-20 prose">
+          <Breadcrumbs items={breadcrumbs} />
           {source?.frontmatter?.title && !hasMarkdownH1 && (
-            <header className="relative z-20 -mt-8">
+            <header className="relative z-20">
               <h1>{source.frontmatter.title}</h1>
             </header>
           )}
@@ -98,14 +178,31 @@ export async function getStaticProps({ params }) {
   const docSlug = restParts.join("/")
   const isCore = product.key === CORE_PRODUCT_KEY
 
+  // Bare /docs renders the family hub: the ecosystem layer above the
+  // product hubs, listing every enabled product's documentation.
+  if (isCore && !docSlug) {
+    try {
+      const docsNavData = normalizeDocsNav(product, await getDocsNav(product))
+      const layoutData = await getLayoutData()
+      return {
+        props: {
+          isHub: true,
+          docsNavData,
+          layoutData,
+          productKey: product.key,
+        },
+        revalidate: 30,
+      }
+    } catch (e) {
+      console.error("docs hub failed to render", e)
+      return { notFound: true, revalidate: 30 }
+    }
+  }
+
   // Developer Reference subtrees (actions/filters/functions/recipes) have
   // dedicated top-level routes for core; send /docs/<root>/... to the
   // canonical URL. Extensions keep those roots as regular doc subpages.
   if (isCore) {
-    if (!docSlug) {
-      return { notFound: true }
-    }
-
     const requestedUri = `/docs/${docSlug}`
     if (isDeveloperReferenceDocUri(requestedUri)) {
       return {
@@ -148,6 +245,13 @@ export async function getStaticProps({ params }) {
     const requestedUri = `${product.basePath}/${docSlug}`
     const nav = orderedSiblings(flattenDocsNav(docsNavData), requestedUri)
 
+    const breadcrumbs = buildDocBreadcrumbs({
+      product,
+      docsNavData,
+      requestedUri,
+      pageTitle: source?.frontmatter?.title ?? null,
+    })
+
     return {
       props: {
         toc,
@@ -157,6 +261,7 @@ export async function getStaticProps({ params }) {
         layoutData,
         nav,
         productKey: product.key,
+        breadcrumbs,
       },
       revalidate: 30,
     }
@@ -183,7 +288,7 @@ export async function getStaticPaths() {
   // product's docs folder, not from the WordPress Primary Nav menu. The menu
   // only references ~4 docs out of ~50, and any drift between menu URIs and
   // real files produced permanent static 404s for the menu-linked docs.
-  const paths = []
+  const paths = [{ params: { slug: [] } }]
   for (const product of enabledProducts()) {
     try {
       const uris = await getAllDocUri(product)
