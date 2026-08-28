@@ -1,0 +1,44 @@
+{
+	"Getting Started": [
+		{
+			"title": "Installation and Activation",
+			"href": "/installation"
+		}
+	],
+	"Using WPGraphQL Smart Cache": [
+		{
+			"title": "Network Cache",
+			"href": "/network-cache"
+		},
+		{
+			"title": "Object Cache",
+			"href": "/object-cache"
+		},
+		{
+			"title": "Cache Invalidation",
+			"href": "/cache-invalidation"
+		},
+		{
+			"title": "Persisted Queries",
+			"href": "/persisted-queries"
+		},
+		{
+			"title": "On-Demand Revalidation",
+			"href": "/on-demand-revalidation"
+		}
+	],
+	"Reference": [
+		{
+			"title": "Extending and Customizing",
+			"href": "/extending"
+		},
+		{
+			"title": "Development",
+			"href": "/development"
+		},
+		{
+			"title": "FAQ",
+			"href": "/faq"
+		}
+	]
+}
