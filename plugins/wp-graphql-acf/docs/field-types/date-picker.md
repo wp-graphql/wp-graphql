@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/date-picker/"
 title: "Date Picker"
+provider: "ACF"
 ---
 
 `date_picker`

@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/button/"
 title: "Button"
+provider: "ACF Extended"
 ---
 
 `acfe_button`

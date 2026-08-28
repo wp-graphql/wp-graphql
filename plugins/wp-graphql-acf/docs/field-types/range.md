@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/range/"
 title: "Range"
+provider: "ACF"
 ---
 
 `range`

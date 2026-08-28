@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/text/"
 title: "Text"
+provider: "ACF"
 ---
 
 `text`

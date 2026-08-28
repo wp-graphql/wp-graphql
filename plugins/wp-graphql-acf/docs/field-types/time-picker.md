@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/time-picker/"
 title: "Time Picker"
+provider: "ACF"
 ---
 
 `time_picker`

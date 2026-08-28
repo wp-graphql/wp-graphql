@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/wysiwyg/"
 title: "WYSIWYG"
+provider: "ACF"
 ---
 
 `wysiwyg`

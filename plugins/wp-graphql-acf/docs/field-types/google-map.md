@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/google-map/"
 title: "Google Map"
+provider: "ACF"
 ---
 
 `google_map`

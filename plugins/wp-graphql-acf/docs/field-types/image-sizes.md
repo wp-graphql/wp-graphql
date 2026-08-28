@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/image-sizes/"
 title: "Image Sizes"
+provider: "ACF Extended Pro"
 ---
 
 `acfe_image_sizes`

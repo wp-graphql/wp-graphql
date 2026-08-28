@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/group/"
 title: "Group"
+provider: "ACF"
 ---
 
 `group`

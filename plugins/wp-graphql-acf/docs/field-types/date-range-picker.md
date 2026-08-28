@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/date-range-picker/"
 title: "Date Range Picker"
+provider: "ACF Extended Pro"
 ---
 
 `date_range_picker`

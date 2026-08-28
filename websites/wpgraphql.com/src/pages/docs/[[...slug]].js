@@ -57,16 +57,37 @@ function toSlugParams(uri) {
 }
 
 /**
- * Find the sidebar-nav entry (and its section heading) for a doc URI.
+ * Find the sidebar-nav entry (and its section heading) for a doc URI,
+ * searching nested subtrees. `parents` is the chain of nav entries above a
+ * nested hit (e.g. "ACF Field Types" above an individual field type), used
+ * to render them as linked crumbs.
  */
 function findNavEntry(docsNavData, uri) {
+  const search = (entries, parents) => {
+    for (const entry of entries) {
+      if (!entry || typeof entry !== "object") {
+        continue
+      }
+      if (entry.href === uri) {
+        return { item: entry, parents }
+      }
+      if (Array.isArray(entry.items)) {
+        const nested = search(entry.items, [...parents, entry])
+        if (nested) {
+          return nested
+        }
+      }
+    }
+    return null
+  }
+
   for (const [section, group] of Object.entries(docsNavData ?? {})) {
     if (!Array.isArray(group)) {
       continue
     }
-    const item = group.find((entry) => entry?.href === uri)
-    if (item) {
-      return { section, item }
+    const found = search(group, [])
+    if (found) {
+      return { section, ...found }
     }
   }
   return null
@@ -99,6 +120,15 @@ function buildDocBreadcrumbs({
   const direct = findNavEntry(docsNavData, requestedUri)
   if (direct) {
     items.push({ label: direct.section })
+    for (const parent of direct.parents) {
+      if (typeof parent.title !== "string") {
+        continue
+      }
+      items.push({
+        label: parent.title,
+        ...(typeof parent.href === "string" ? { href: parent.href } : {}),
+      })
+    }
     items.push({ label: direct.item.title ?? pageTitle ?? fallbackLabel })
     return items
   }
@@ -153,6 +183,15 @@ export default function Doc({
             <header className="relative z-20">
               <h1>{source.frontmatter.title}</h1>
             </header>
+          )}
+          {/* Which plugin provides the documented feature (e.g. an ACF
+              field type from ACF Pro or ACF Extended), from frontmatter. */}
+          {typeof source?.frontmatter?.provider === "string" && (
+            <p className="not-prose -mt-4 mb-8">
+              <span className="inline-block rounded-full border border-primary/35 bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary">
+                {source.frontmatter.provider}
+              </span>
+            </p>
           )}
           <MDXRemote {...source} components={components} />
           <PrevNext prev={nav?.prev} next={nav?.next} />

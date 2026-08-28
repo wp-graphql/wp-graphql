@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/email/"
 title: "Email"
+provider: "ACF"
 ---
 
 `email`

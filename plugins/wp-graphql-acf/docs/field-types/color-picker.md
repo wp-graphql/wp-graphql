@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/color-picker/"
 title: "Color Picker"
+provider: "ACF"
 ---
 
 `color_picker`

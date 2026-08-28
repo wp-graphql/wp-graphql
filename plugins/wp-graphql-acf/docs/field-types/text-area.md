@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/text-area/"
 title: "Text Area"
+provider: "ACF"
 ---
 
 `text_area`

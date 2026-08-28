@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/taxonomy-terms/"
 title: "Taxonomy Terms"
+provider: "ACF Extended"
 ---
 
 `acfe_taxonomy_terms`

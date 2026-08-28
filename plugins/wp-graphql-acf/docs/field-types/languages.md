@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/languages/"
 title: "Languages"
+provider: "ACF Extended Pro"
 ---
 
 `acfe_languages`

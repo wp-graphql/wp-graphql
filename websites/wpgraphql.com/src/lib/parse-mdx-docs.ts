@@ -305,22 +305,34 @@ export async function getDocsNav(product: DocsProduct = CORE_PRODUCT) {
  * prev/next footer on docs pages.
  */
 export function flattenDocsNav(
-  nav: Record<string, Array<{ title?: string; href?: string }>>
+  nav: Record<
+    string,
+    Array<{ title?: string; href?: string; items?: unknown[] }>
+  >
 ): Array<{ href: string; label: string }> {
   if (!nav || typeof nav !== "object") {
     return []
   }
 
   const items: Array<{ href: string; label: string }> = []
+  const push = (item: any) => {
+    if (!item || typeof item !== "object") {
+      return
+    }
+    if (typeof item.href === "string") {
+      items.push({ href: item.href, label: item.title ?? item.href })
+    }
+    // Nested children follow their parent, so prev/next walks into and out
+    // of a subtree (e.g. the ACF field types) in reading order.
+    if (Array.isArray(item.items)) {
+      item.items.forEach(push)
+    }
+  }
   for (const group of Object.values(nav)) {
     if (!Array.isArray(group)) {
       continue
     }
-    for (const item of group) {
-      if (item && typeof item.href === "string") {
-        items.push({ href: item.href, label: item.title ?? item.href })
-      }
-    }
+    group.forEach(push)
   }
   return items
 }
