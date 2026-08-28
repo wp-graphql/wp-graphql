@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/user/"
 title: "User"
+provider: "ACF"
 ---
 
 `user`

@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/file/"
 title: "File"
+provider: "ACF"
 ---
 
 `file`

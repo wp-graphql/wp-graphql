@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/code-editor/"
 title: "Code Editor"
+provider: "ACF Extended"
 ---
 
 `acfe_code_editor`

@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/user-roles/"
 title: "User Roles"
+provider: "ACF Extended"
 ---
 
 The User Roles Field Type is a custom ACF Field Type made available by the Advanced Custom Fields Extended plugin.

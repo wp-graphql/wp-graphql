@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/taxonomies/"
 title: "Taxonomies"
+provider: "ACF Extended"
 ---
 
 `acfe_taxonomies`

@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/currencies/"
 title: "Currencies"
+provider: "ACF Extended Pro"
 ---
 
 `acfe_currencies`

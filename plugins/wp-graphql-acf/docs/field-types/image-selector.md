@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/image-selector/"
 title: "Image Selector"
+provider: "ACF Extended Pro"
 ---
 
 `acfe_image_selector`

@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/gallery/"
 title: "Gallery"
+provider: "ACF Pro"
 ---
 
 `gallery`

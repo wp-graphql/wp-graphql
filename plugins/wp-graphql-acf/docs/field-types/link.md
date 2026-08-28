@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/link/"
 title: "Link"
+provider: "ACF"
 ---
 
 `link`

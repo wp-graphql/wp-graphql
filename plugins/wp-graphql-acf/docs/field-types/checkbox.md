@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/checkbox/"
 title: "Checkbox"
+provider: "ACF"
 ---
 
 `checkbox`

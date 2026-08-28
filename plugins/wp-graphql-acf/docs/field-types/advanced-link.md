@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/advanced-link/"
 title: "Advanced Link"
+provider: "ACF Extended"
 ---
 
 `acfe_advanced_link`

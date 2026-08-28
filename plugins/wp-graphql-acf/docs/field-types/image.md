@@ -1,6 +1,7 @@
 ---
 uri: "/field-types/image/"
 title: "Image"
+provider: "ACF"
 ---
 
 `image`
