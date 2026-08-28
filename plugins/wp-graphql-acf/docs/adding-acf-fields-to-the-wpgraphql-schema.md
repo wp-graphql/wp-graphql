@@ -5,7 +5,7 @@ title: "Adding ACF Fields to the WPGraphQL Schema"
 
 On this page, you will find documentation about how to add ACF Fields to the WPGraphQL Schema.
 
-In order to follow along with the documentation below, you should have the latest versions of each of the following plugins [installed and activated](/installation-and-activation/):
+In order to follow along with the documentation below, you should have the latest versions of each of the following plugins [installed and activated](./installation-and-activation.md):
 
 -   WPGraphQL for ACF
 -   WPGraphQL
@@ -32,7 +32,7 @@ With WPGraphQL for ACF active, each ACF Field Group will have a “GraphQL” se
 Within this tab are the following settings that impact how the field group is added (or not added) to the GraphQL Schema:
 
 -   **Show in GraphQL (show\_in\_graphql):** Checked (`true`), if the field group should be shown in the GraphQL Schema. Unchecked (`false`) if the field group should not be shown in the GraphQL Schema.
-    -   **NOTE**: Field Groups that are “inactive” but set to Show in GraphQL will be exposed to the Schema. i.e. inactive field groups that are then used to “[clone](/field-types/clone-field/)” onto other field groups.
+    -   **NOTE**: Field Groups that are “inactive” but set to Show in GraphQL will be exposed to the Schema. i.e. inactive field groups that are then used to “[clone](./field-types/clone-field.md)” onto other field groups.
 -   **GraphQL Type Name** (**graphql\_type\_name):** The Type name that should be used in the GraphQL Schema to represent the field group. This must be unique across the entire GraphQL Schema. The Type cannot be already be present in the GraphQL Schema. It’s recommended to use Pascal casing to name the type (i.e. MyFieldGroupTypeName). This will also serve as the field name (with a lowercase first letter) to access the fields from.
 -   **Manually Set GraphQL Types for Field Group (map\_graphql\_types\_from\_location\_rules**): Checked (true) to use the “graphql\_types” value to add the field group to the Schema. Unchecked (false) to let WPGraphQL for ACF map the Field Group to the Schema based on the Location Rules (read more about how [location rules](#location-rules) work below)
 -   **GraphQL Types (graphql\_types):** Array of Type Names the ACF Field Group should be accessible from in the Schema.
@@ -46,7 +46,7 @@ Each ACF Field has its own “GraphQL” settings tab.
 
 ![](images/CleanShot-2023-11-22-at-15.10.23-1024x449.png)
 
-Each [field type](/field-types/) might have different settings, but the most common GraphQL Settings for each field type are:
+Each [field type](./field-types/index.md) might have different settings, but the most common GraphQL Settings for each field type are:
 
 -   **Show in GraphQL (show\_in\_graphql)**: Whether the field should show in the GraphQL Schema. If the Field Group is not shown in the GraphQL Schema, the individual fields will also not be. If the Field Group is shown in the GraphQL Schema, fields are default to “true” and will be shown in the schema unless disabled.
 -   **GraphQL Description (graphql\_description):** This is how the field is documented in the Schema and will show in tools such as the GraphiQL IDE.

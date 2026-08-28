@@ -71,7 +71,7 @@ One of the biggest pain points with the previous versions of WPGraphQL for ACF w
 
 In the old WPGraphQL for ACF, ACF Field Groups would be mapped to the Schema with a Type Name that was prefixed with its parent location.
 
-For example, if we use the [ACF Free Kitchen Sink Field Group](field-groups/kitchen-sink-acf-free.json) ([learn more about the kitchen sink field groups](/kitchen-sink/)), which is assigned to the following ACF Locations:
+For example, if we use the [ACF Free Kitchen Sink Field Group](field-groups/kitchen-sink-acf-free.json) ([learn more about the kitchen sink field groups](./kitchen-sink.md)), which is assigned to the following ACF Locations:
 
 -   Post Type is equal to Page
 -   Taxonomy is equal to Category
@@ -175,7 +175,7 @@ To learn how to update your code to be compatible with WPGraphQL for ACF 2.0+, p
 
 Relationship fields have changed to be represented in the Schema as a GraphQL Connection. This means the shape of data to be queried has changed and your queries will need to be updated to reflect.
 
-For ACF fields of the “[relationship](/field-types/relationship/)“, “[post\_object](/field-types/post-object/)” and “[page\_link](/field-types/pagelink/)” field type, there are some general changes that apply to each of these field types.
+For ACF fields of the “[relationship](./field-types/relationship.md)“, “[post\_object](./field-types/post-object.md)” and “[page\_link](./field-types/pagelink.md)” field type, there are some general changes that apply to each of these field types.
 
 **Before:**
 
