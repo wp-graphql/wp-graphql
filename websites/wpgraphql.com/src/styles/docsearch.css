@@ -456,3 +456,52 @@
   color: hsl(var(--primary));
   font-weight: 600;
 }
+
+/* ------------------------------------------------------------
+   Product filter chips (injected below the search bar by
+   SearchButton.js) — filter results to one product's docs
+   ------------------------------------------------------------ */
+
+.DocSearch-ProductFilter {
+  flex: none;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.DocSearch-ProductFilter-Chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.DocSearch-ProductFilter-Chip {
+  border: 1px solid hsl(var(--border));
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.DocSearch-ProductFilter-Chip:hover {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.DocSearch-ProductFilter-Chip:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+
+.DocSearch-ProductFilter-Chip--active {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.4);
+  background: hsl(var(--primary) / 0.1);
+}
