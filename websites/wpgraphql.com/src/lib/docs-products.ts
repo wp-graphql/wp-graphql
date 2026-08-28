@@ -19,6 +19,8 @@ export type DocsProduct = {
   key: string
   /** Full product name, used in the switcher and page chrome. */
   label: string
+  /** Compact name for tight chrome (search filter chips). */
+  shortLabel: string
   /** Site base path for the product's docs. */
   basePath: string
   /** Monorepo folder holding the product's markdown + docs_nav.json. */
@@ -39,6 +41,7 @@ export const DOCS_PRODUCTS: Record<string, DocsProduct> = {
   [CORE_PRODUCT_KEY]: {
     key: CORE_PRODUCT_KEY,
     label: "WPGraphQL",
+    shortLabel: "WPGraphQL",
     basePath: "/docs",
     docsFolder: "plugins/wp-graphql/docs",
     themeClass: null,
@@ -47,6 +50,7 @@ export const DOCS_PRODUCTS: Record<string, DocsProduct> = {
   acf: {
     key: "acf",
     label: "WPGraphQL for ACF",
+    shortLabel: "ACF",
     basePath: "/docs/acf",
     docsFolder: "plugins/wp-graphql-acf/docs",
     themeClass: "theme-acf",
@@ -55,6 +59,7 @@ export const DOCS_PRODUCTS: Record<string, DocsProduct> = {
   "smart-cache": {
     key: "smart-cache",
     label: "WPGraphQL Smart Cache",
+    shortLabel: "Smart Cache",
     basePath: "/docs/smart-cache",
     docsFolder: "plugins/wp-graphql-smart-cache/docs",
     themeClass: "theme-smart-cache",
@@ -63,6 +68,7 @@ export const DOCS_PRODUCTS: Record<string, DocsProduct> = {
   ide: {
     key: "ide",
     label: "WPGraphQL IDE",
+    shortLabel: "IDE",
     basePath: "/docs/ide",
     docsFolder: "plugins/wp-graphql-ide/docs",
     themeClass: "theme-ide",

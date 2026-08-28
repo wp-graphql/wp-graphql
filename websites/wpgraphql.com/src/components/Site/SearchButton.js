@@ -13,10 +13,36 @@ import { DocSearchModal } from "@docsearch/react"
 import clsx from "clsx"
 import Link from "next/link"
 import useActionKey from "../../hooks/useActionKey"
+import { CORE_PRODUCT_KEY, enabledProducts } from "lib/docs-products"
 
 const INDEX_NAME = "wpgraphql"
 const API_KEY = "0c11d662dad18e8a18d20c969b25c65f"
 const APP_ID = "HB50HVJDY8"
+
+// Paths whose search records carry the core product attribute: the core docs
+// plus the developer reference (which renders in the docs chrome).
+const CORE_SEARCH_SECTIONS =
+  /^\/(docs|actions|filters|functions|recipes|developer-reference)(\/|$)/
+
+/**
+ * Which product's docs the given URL path is inside, for preseeding the
+ * search modal's product filter. Outside the docs area there is no preseed
+ * (family-wide search).
+ */
+function productKeyFromPath(path) {
+  const withoutQuery = path.split(/[?#]/)[0]
+  const docsMatch = withoutQuery.match(/^\/docs\/([^/]+)/)
+  if (
+    docsMatch &&
+    enabledProducts().some(
+      (product) =>
+        product.key !== CORE_PRODUCT_KEY && product.key === docsMatch[1]
+    )
+  ) {
+    return docsMatch[1]
+  }
+  return CORE_SEARCH_SECTIONS.test(withoutQuery) ? CORE_PRODUCT_KEY : null
+}
 
 const SearchContext = createContext()
 
@@ -24,10 +50,15 @@ export function SearchProvider({ children }) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [initialQuery, setInitialQuery] = useState(null)
+  // null = family-wide (no facet filter); otherwise a product key. Preseeded
+  // from the section the reader opened search from, switchable via the chip
+  // row in the modal.
+  const [productFilter, setProductFilter] = useState(null)
 
   const onOpen = useCallback(() => {
+    setProductFilter(productKeyFromPath(router.asPath))
     setIsOpen(true)
-  }, [setIsOpen])
+  }, [setIsOpen, router.asPath])
 
   const onClose = useCallback(() => {
     setIsOpen(false)
@@ -35,10 +66,22 @@ export function SearchProvider({ children }) {
 
   const onInput = useCallback(
     (e) => {
+      setProductFilter(productKeyFromPath(router.asPath))
       setIsOpen(true)
       setInitialQuery(e.key)
     },
-    [setIsOpen, setInitialQuery]
+    [setIsOpen, setInitialQuery, router.asPath]
+  )
+
+  // Switching product mid-search remounts the modal (the filter is baked
+  // into its search client), so carry the typed query over.
+  const onFilterChange = useCallback(
+    (key) => {
+      const query = document.querySelector(".DocSearch-Input")?.value ?? ""
+      setInitialQuery(query)
+      setProductFilter(key)
+    },
+    [setInitialQuery, setProductFilter]
   )
 
   useDocSearchKeyboardEvents({
@@ -61,11 +104,18 @@ export function SearchProvider({ children }) {
       </SearchContext.Provider>
       {isOpen &&
         createPortal(
+          // Keyed by the product filter: the filter is baked into the modal's
+          // search parameters at mount, so switching products remounts it
+          // (initialQuery carries the typed query across).
           <DocSearchModal
+            key={productFilter ?? "all"}
             initialQuery={initialQuery}
             initialScrollY={window.scrollY}
             searchParameters={{
               distinct: 1,
+              ...(productFilter
+                ? { facetFilters: [`product:${productFilter}`] }
+                : {}),
             }}
             onClose={onClose}
             indexName={INDEX_NAME}
@@ -82,7 +132,83 @@ export function SearchProvider({ children }) {
           />,
           document.body
         )}
+      {isOpen && (
+        <ProductFilterChips
+          key={`chips-${productFilter ?? "all"}`}
+          value={productFilter}
+          onChange={onFilterChange}
+        />
+      )}
     </>
+  )
+}
+
+/**
+ * The product filter chips, injected into the DocSearch modal below its
+ * search bar. DocSearch has no slot for filter UI, so this renders into a
+ * container inserted after the modal's search bar; it mounts alongside each
+ * modal instance (both are keyed by the active filter).
+ */
+function ProductFilterChips({ value, onChange }) {
+  // The container is created up front (this only renders client-side, with
+  // the modal open) and attached into the modal's DOM after mount, so the
+  // effect only synchronizes with the external DOM — no state involved.
+  const [container] = useState(() => {
+    const el = document.createElement("div")
+    el.className = "DocSearch-ProductFilter"
+    return el
+  })
+
+  useEffect(() => {
+    const searchBar = document.querySelector(
+      ".DocSearch-Modal .DocSearch-SearchBar"
+    )
+    if (!searchBar) {
+      return undefined
+    }
+    searchBar.insertAdjacentElement("afterend", container)
+    return () => {
+      container.remove()
+    }
+  }, [container])
+
+  const options = [
+    { key: null, shortLabel: "All", themeClass: null },
+    ...enabledProducts().map(({ key, shortLabel, themeClass }) => ({
+      key,
+      shortLabel,
+      themeClass,
+    })),
+  ]
+
+  return createPortal(
+    <div
+      role="group"
+      aria-label="Filter results by product"
+      className="DocSearch-ProductFilter-Chips"
+    >
+      {options.map((option) => (
+        <button
+          key={option.key ?? "all"}
+          type="button"
+          aria-pressed={value === option.key}
+          // Each chip is scoped with its product's sibling-brand theme class
+          // (the modal portals outside the docs theme scopes), so the
+          // hover/active primary hue below is that product's accent.
+          className={clsx("DocSearch-ProductFilter-Chip", option.themeClass, {
+            "DocSearch-ProductFilter-Chip--active": value === option.key,
+          })}
+          onClick={() => {
+            if (value !== option.key) {
+              onChange(option.key)
+            }
+          }}
+        >
+          {option.shortLabel}
+        </button>
+      ))}
+    </div>,
+    container
   )
 }
 
