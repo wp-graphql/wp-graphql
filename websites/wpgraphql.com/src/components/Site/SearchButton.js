@@ -13,7 +13,11 @@ import { DocSearchModal } from "@docsearch/react"
 import clsx from "clsx"
 import Link from "next/link"
 import useActionKey from "../../hooks/useActionKey"
-import { CORE_PRODUCT_KEY, enabledProducts } from "lib/docs-products"
+import {
+  CORE_PRODUCT_KEY,
+  DOCS_PRODUCTS,
+  enabledProducts,
+} from "lib/docs-products"
 
 const INDEX_NAME = "wpgraphql"
 const API_KEY = "0c11d662dad18e8a18d20c969b25c65f"
@@ -132,6 +136,24 @@ export function SearchProvider({ children }) {
             initialScrollY={window.scrollY}
             searchParameters={{
               distinct: 1,
+              // DocSearch replaces its default retrieve list when one is
+              // provided, so this is its default plus the corpus attributes
+              // (product, tags) the per-hit badge renders from.
+              attributesToRetrieve: [
+                "hierarchy.lvl0",
+                "hierarchy.lvl1",
+                "hierarchy.lvl2",
+                "hierarchy.lvl3",
+                "hierarchy.lvl4",
+                "hierarchy.lvl5",
+                "hierarchy.lvl6",
+                "content",
+                "type",
+                "url",
+                "anchor",
+                "product",
+                "tags",
+              ],
               ...(productFilter
                 ? { facetFilters: [facetFilterFor(productFilter)] }
                 : {}),
@@ -232,19 +254,54 @@ function ProductFilterChips({ value, onChange }) {
   )
 }
 
+/**
+ * Which corpus a search record belongs to, for the per-hit badge: the
+ * product attribute (extracted from the docsearch:product meta by the
+ * crawler) maps through the product registry for its display name and
+ * sibling-brand accent; blog records are identified by their tags.
+ * Records with neither (e.g. extension marketing pages) get no badge.
+ */
+function hitBadge(hit) {
+  const product = typeof hit.product === "string" ? hit.product : null
+  if (product && DOCS_PRODUCTS[product]) {
+    const { shortLabel, themeClass } = DOCS_PRODUCTS[product]
+    return { label: shortLabel, themeClass }
+  }
+  if (Array.isArray(hit.tags) && hit.tags.includes("blog")) {
+    return { label: "Blog", themeClass: null }
+  }
+  return null
+}
+
 function Hit({ hit, children }) {
+  const badge = hitBadge(hit)
+  // Child rows sit indented under their page's row; badging every child
+  // would be noise, the page-level row carries the context.
+  const showBadge = Boolean(badge) && !hit.__is_child?.()
+
   return (
     <Link href={hit.url} legacyBehavior>
       <a
-        className={clsx({
-          "DocSearch-Hit--Result": hit.__is_result?.(),
-          "DocSearch-Hit--Parent": hit.__is_parent?.(),
-          "DocSearch-Hit--FirstChild": hit.__is_first?.(),
-          "DocSearch-Hit--LastChild": hit.__is_last?.(),
-          "DocSearch-Hit--Child": hit.__is_child?.(),
-        })}
+        className={clsx(
+          {
+            "DocSearch-Hit--Result": hit.__is_result?.(),
+            "DocSearch-Hit--Parent": hit.__is_parent?.(),
+            "DocSearch-Hit--FirstChild": hit.__is_first?.(),
+            "DocSearch-Hit--LastChild": hit.__is_last?.(),
+            "DocSearch-Hit--Child": hit.__is_child?.(),
+          },
+          showBadge && "DocSearch-Hit--withBadge"
+        )}
       >
         {children}
+        {showBadge && (
+          <span
+            aria-hidden="true"
+            className={clsx("DocSearch-Hit-ProductBadge", badge.themeClass)}
+          >
+            {badge.label}
+          </span>
+        )}
       </a>
     </Link>
   )
