@@ -145,31 +145,51 @@ export function normalizeNavHref(product: DocsProduct, href: string): string {
   return slug ? `${product.basePath}/${slug}` : product.basePath
 }
 
+/** A docs sidebar entry; `items` nests child pages under a parent entry. */
+export type DocsNavItem = {
+  title?: string
+  href?: string
+  items?: DocsNavItem[]
+}
+
+function normalizeNavItem(
+  product: DocsProduct,
+  item: DocsNavItem
+): DocsNavItem {
+  if (!item || typeof item !== "object") {
+    return item
+  }
+  const normalized: DocsNavItem = { ...item }
+  if (typeof normalized.href === "string") {
+    normalized.href = normalizeNavHref(product, normalized.href)
+  }
+  if (Array.isArray(normalized.items)) {
+    normalized.items = normalized.items.map((child) =>
+      normalizeNavItem(product, child)
+    )
+  }
+  return normalized
+}
+
 /**
- * Normalize a whole grouped docs nav ({ section: [{ title, href }] }) for a
- * product, returning the same shape with site-ready hrefs.
+ * Normalize a whole grouped docs nav ({ section: [{ title, href, items? }] })
+ * for a product, returning the same shape with site-ready hrefs (nested
+ * items included).
  */
 export function normalizeDocsNav(
   product: DocsProduct,
-  nav: Record<string, Array<{ title?: string; href?: string }>>
-): Record<string, Array<{ title?: string; href?: string }>> {
+  nav: Record<string, DocsNavItem[]>
+): Record<string, DocsNavItem[]> {
   if (!nav || typeof nav !== "object") {
     return nav
   }
 
-  const normalized: Record<
-    string,
-    Array<{ title?: string; href?: string }>
-  > = {}
+  const normalized: Record<string, DocsNavItem[]> = {}
   for (const [section, items] of Object.entries(nav)) {
     if (!Array.isArray(items)) {
       continue
     }
-    normalized[section] = items.map((item) =>
-      item && typeof item.href === "string"
-        ? { ...item, href: normalizeNavHref(product, item.href) }
-        : item
-    )
+    normalized[section] = items.map((item) => normalizeNavItem(product, item))
   }
   return normalized
 }

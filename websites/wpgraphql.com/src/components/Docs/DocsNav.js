@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
+import { ChevronRightIcon } from "@heroicons/react/20/solid"
 import { cn } from "@/lib/utils"
 
 function normalizePath(path) {
@@ -18,17 +19,97 @@ function findScrollParent(el) {
   return null
 }
 
+/** Whether the current path is this item's page or inside its subtree. */
+function containsPath(item, currentPath) {
+  if (!item) return false
+  const itemPath = normalizePath(item.href)
+  if (itemPath && itemPath === currentPath) return true
+  return Array.isArray(item.items)
+    ? item.items.some((child) => containsPath(child, currentPath))
+    : false
+}
+
+function NavLink({ item, currentPath, className }) {
+  const itemPath = normalizePath(item.href)
+  const isActive = itemPath && itemPath === currentPath
+  return (
+    <Link href={item.href} legacyBehavior>
+      <a
+        aria-current={isActive ? "page" : undefined}
+        className={cn(
+          "-ml-px block border-l py-1 pl-4 text-sm transition-colors",
+          isActive
+            ? "border-primary text-primary"
+            : "border-transparent text-muted-foreground hover:border-primary/50 hover:text-foreground",
+          className
+        )}
+      >
+        {item.title}
+      </a>
+    </Link>
+  )
+}
+
+/**
+ * A nav entry with nested children (e.g. the ACF field types under "ACF
+ * Field Types"): the entry itself stays a link, with a disclosure toggle
+ * beside it. The subtree starts open when the reader is inside it and
+ * re-opens if they navigate into it.
+ */
+function NavGroup({ item, currentPath }) {
+  const isWithin = containsPath(item, currentPath)
+  const [open, setOpen] = useState(isWithin)
+
+  useEffect(() => {
+    if (isWithin) {
+      setOpen(true)
+    }
+  }, [isWithin, currentPath])
+
+  return (
+    <>
+      <div className="flex items-center">
+        <div className="min-w-0 flex-1">
+          <NavLink item={item} currentPath={currentPath} />
+        </div>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-label={`${open ? "Collapse" : "Expand"} ${item.title}`}
+          onClick={() => setOpen((value) => !value)}
+          className="flex h-6 w-6 flex-none items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <ChevronRightIcon
+            aria-hidden="true"
+            className={cn("h-4 w-4 transition-transform", open && "rotate-90")}
+          />
+        </button>
+      </div>
+      {open && (
+        <ul className="ml-4 border-l border-border">
+          {item.items.map((child) => (
+            <li key={child.href}>
+              <NavLink item={child} currentPath={currentPath} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  )
+}
+
 export default function DocsNav({ docsNavData }) {
   const { asPath } = useRouter()
   const currentPath = normalizePath(asPath)
 
   // Which section (Getting Started / Beginner Guides / ...) contains the
-  // current page. We scroll this section to the top of the nav so the
-  // section header is always visible above the active link.
+  // current page (nested subtrees included). We scroll this section to the
+  // top of the nav so the section header is always visible above the
+  // active link.
   const activeSectionKey = useMemo(() => {
     if (!docsNavData) return null
     for (const [key, children] of Object.entries(docsNavData)) {
-      if (children?.some((c) => normalizePath(c.href) === currentPath)) {
+      if (children?.some((c) => containsPath(c, currentPath))) {
         return key
       }
     }
@@ -75,27 +156,15 @@ export default function DocsNav({ docsNavData }) {
               {key}
             </h3>
             <ul className="border-l border-border space-y-1">
-              {children.map((child) => {
-                const childPath = normalizePath(child.href)
-                const isActive = childPath && childPath === currentPath
-                return (
-                  <li key={child.href}>
-                    <Link href={child.href} legacyBehavior>
-                      <a
-                        aria-current={isActive ? "page" : undefined}
-                        className={cn(
-                          "-ml-px block border-l py-1 pl-4 text-sm transition-colors",
-                          isActive
-                            ? "border-primary text-primary"
-                            : "border-transparent text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                        )}
-                      >
-                        {child.title}
-                      </a>
-                    </Link>
-                  </li>
-                )
-              })}
+              {children.map((child) => (
+                <li key={child.href ?? child.title}>
+                  {Array.isArray(child.items) && child.items.length > 0 ? (
+                    <NavGroup item={child} currentPath={currentPath} />
+                  ) : (
+                    <NavLink item={child} currentPath={currentPath} />
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
         )
