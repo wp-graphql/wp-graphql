@@ -24,12 +24,28 @@ const APP_ID = "HB50HVJDY8"
 const CORE_SEARCH_SECTIONS =
   /^\/(docs|actions|filters|functions|recipes|developer-reference)(\/|$)/
 
+// The blog: /blog plus the dated permalinks posts live at.
+const BLOG_SECTIONS = /^\/(blog(\/|$)|\d{4}\/)/
+
+// The Blog chip's filter key. Blog posts are cross-product content, so they
+// filter on the crawler's existing tags attribute rather than a product.
+const BLOG_FILTER_KEY = "blog"
+
 /**
- * Which product's docs the given URL path is inside, for preseeding the
- * search modal's product filter. Outside the docs area there is no preseed
- * (family-wide search).
+ * The Algolia facet filter for a chip key: products filter on the product
+ * attribute extracted from the docsearch:product meta tag; the blog filters
+ * on the crawler's tags attribute, which already marks blog records.
  */
-function productKeyFromPath(path) {
+function facetFilterFor(key) {
+  return key === BLOG_FILTER_KEY ? "tags:blog" : `product:${key}`
+}
+
+/**
+ * Which section of the site the given URL path is inside (a product's docs,
+ * or the blog), for preseeding the search modal's filter. Anywhere else
+ * there is no preseed (family-wide search).
+ */
+function filterKeyFromPath(path) {
   const withoutQuery = path.split(/[?#]/)[0]
   const docsMatch = withoutQuery.match(/^\/docs\/([^/]+)/)
   if (
@@ -41,7 +57,10 @@ function productKeyFromPath(path) {
   ) {
     return docsMatch[1]
   }
-  return CORE_SEARCH_SECTIONS.test(withoutQuery) ? CORE_PRODUCT_KEY : null
+  if (CORE_SEARCH_SECTIONS.test(withoutQuery)) {
+    return CORE_PRODUCT_KEY
+  }
+  return BLOG_SECTIONS.test(withoutQuery) ? BLOG_FILTER_KEY : null
 }
 
 const SearchContext = createContext()
@@ -56,7 +75,7 @@ export function SearchProvider({ children }) {
   const [productFilter, setProductFilter] = useState(null)
 
   const onOpen = useCallback(() => {
-    setProductFilter(productKeyFromPath(router.asPath))
+    setProductFilter(filterKeyFromPath(router.asPath))
     setIsOpen(true)
   }, [setIsOpen, router.asPath])
 
@@ -66,7 +85,7 @@ export function SearchProvider({ children }) {
 
   const onInput = useCallback(
     (e) => {
-      setProductFilter(productKeyFromPath(router.asPath))
+      setProductFilter(filterKeyFromPath(router.asPath))
       setIsOpen(true)
       setInitialQuery(e.key)
     },
@@ -114,7 +133,7 @@ export function SearchProvider({ children }) {
             searchParameters={{
               distinct: 1,
               ...(productFilter
-                ? { facetFilters: [`product:${productFilter}`] }
+                ? { facetFilters: [facetFilterFor(productFilter)] }
                 : {}),
             }}
             onClose={onClose}
@@ -179,6 +198,7 @@ function ProductFilterChips({ value, onChange }) {
       shortLabel,
       themeClass,
     })),
+    { key: BLOG_FILTER_KEY, shortLabel: "Blog", themeClass: null },
   ]
 
   return createPortal(
