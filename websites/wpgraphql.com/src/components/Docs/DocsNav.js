@@ -58,13 +58,18 @@ function NavLink({ item, currentPath, className }) {
  */
 function NavGroup({ item, currentPath }) {
   const isWithin = containsPath(item, currentPath)
-  const [open, setOpen] = useState(isWithin)
-
-  useEffect(() => {
-    if (isWithin) {
-      setOpen(true)
-    }
-  }, [isWithin, currentPath])
+  // The route decides the default (open when the reader is inside the
+  // subtree); a manual toggle overrides it until the next navigation.
+  // The override resets via state-adjustment-during-render rather than an
+  // effect (react.dev/learn/you-might-not-need-an-effect).
+  const [override, setOverride] = useState(null)
+  const [lastPath, setLastPath] = useState(currentPath)
+  if (lastPath !== currentPath) {
+    setLastPath(currentPath)
+    setOverride(null)
+  }
+  const open = override ?? isWithin
+  const setOpen = (next) => setOverride(next)
 
   return (
     <>
@@ -76,7 +81,7 @@ function NavGroup({ item, currentPath }) {
           type="button"
           aria-expanded={open}
           aria-label={`${open ? "Collapse" : "Expand"} ${item.title}`}
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => setOpen(!open)}
           className="flex h-6 w-6 flex-none items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ChevronRightIcon
