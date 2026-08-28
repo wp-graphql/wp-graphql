@@ -1,8 +1,11 @@
+import Head from "next/head"
+
 import DocsNav from "./DocsNav"
 import ProductSwitcher from "./ProductSwitcher"
 import SiteLayout from "components/Site/SiteLayout"
 import TableOfContents from "components/Docs/TableOfContents"
 import DocsSidebar from "./DocsNavSideBar"
+import { CORE_PRODUCT_KEY } from "lib/docs-products"
 
 export default function DocsLayout({ children, toc, docsNavData, product }) {
   // Sibling-brand theme scope: each product's docs section re-tints the
@@ -10,8 +13,17 @@ export default function DocsLayout({ children, toc, docsNavData, product }) {
   // IDE); core renders the default orange with no scope class.
   const themeClass = product?.themeClass ?? ""
 
+  // Which product's docs this page belongs to, for the Algolia crawler: the
+  // crawler extracts this meta tag onto each search record as its `product`
+  // attribute, which the search modal facets on. Pages rendered without a
+  // product (the core developer reference) are core docs.
+  const searchProduct = product?.key ?? CORE_PRODUCT_KEY
+
   return (
     <SiteLayout>
+      <Head>
+        <meta name="docsearch:product" content={searchProduct} />
+      </Head>
       <div className={themeClass}>
         {/* Mobile: floating button + slide-over panel */}
         <aside className="z-20 lg:hidden">
