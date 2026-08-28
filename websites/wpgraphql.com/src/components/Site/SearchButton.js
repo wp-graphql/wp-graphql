@@ -173,8 +173,12 @@ function ProductFilterChips({ value, onChange }) {
   }, [container])
 
   const options = [
-    { key: null, shortLabel: "All" },
-    ...enabledProducts().map(({ key, shortLabel }) => ({ key, shortLabel })),
+    { key: null, shortLabel: "All", themeClass: null },
+    ...enabledProducts().map(({ key, shortLabel, themeClass }) => ({
+      key,
+      shortLabel,
+      themeClass,
+    })),
   ]
 
   return createPortal(
@@ -188,7 +192,10 @@ function ProductFilterChips({ value, onChange }) {
           key={option.key ?? "all"}
           type="button"
           aria-pressed={value === option.key}
-          className={clsx("DocSearch-ProductFilter-Chip", {
+          // Each chip is scoped with its product's sibling-brand theme class
+          // (the modal portals outside the docs theme scopes), so the
+          // hover/active primary hue below is that product's accent.
+          className={clsx("DocSearch-ProductFilter-Chip", option.themeClass, {
             "DocSearch-ProductFilter-Chip--active": value === option.key,
           })}
           onClick={() => {
