@@ -29,7 +29,7 @@ Filter whether to require a nonce for cookie-based authentication. By default, W
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:739`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L739)
+- [`plugins/wp-graphql/src/Router.php:763`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L763)
 
 ```php
 apply_filters( 'graphql_cookie_auth_require_nonce', true, null );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_cookie_auth_require_nonce', true, null );
 
 ## Related
 
-- `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:739`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L739)
+- `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:763`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L763)

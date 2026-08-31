@@ -29,7 +29,7 @@ Allow plugins to prevent the downgrade via the graphql_authentication_errors fil
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:760`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L760)
+- [`plugins/wp-graphql/src/Router.php:784`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L784)
 
 ```php
 apply_filters( 'graphql_authentication_errors', null, self::get_request() );
@@ -37,5 +37,5 @@ apply_filters( 'graphql_authentication_errors', null, self::get_request() );
 
 ## Related
 
-- `Request::filtered_authentication_errors()` in [`plugins/wp-graphql/src/Request.php:395`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L395)
-- `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:760`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L760)
+- `Request::filtered_authentication_errors()` in [`plugins/wp-graphql/src/Request.php:646`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L646)
+- `Router::validate_http_request_authentication()` in [`plugins/wp-graphql/src/Router.php:784`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L784)

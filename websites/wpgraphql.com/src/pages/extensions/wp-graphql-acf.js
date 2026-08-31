@@ -23,7 +23,7 @@ const GITHUB_URL = "https://github.com/wp-graphql/wp-graphql"
 // The ACF plugin's own directory in the monorepo — the "source" / "View on GitHub" target.
 const GITHUB_ACF_URL =
   "https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-acf"
-const DOCS_URL = "https://acf.wpgraphql.com"
+const DOCS_URL = "/docs/acf"
 
 // ACF sections use the field-group-table glyph in the eyebrow.
 function SectionHeading(props) {
@@ -378,9 +378,7 @@ function OpenSource() {
         </p>
         <div className="mt-10">
           <Button asChild variant="outline">
-            <a href={DOCS_URL} target="_blank" rel="noreferrer">
-              Read the docs
-            </a>
+            <a href={DOCS_URL}>Read the docs</a>
           </Button>
         </div>
       </div>
@@ -418,7 +416,7 @@ function Faq() {
     {
       question: "Do I have to use Faust.js?",
       answer:
-        "No. While wpgraphql.com and acf.wpgraphql.com are built with Faust.js and Next.js, you can use WPGraphQL for ACF with any GraphQL client — Apollo, Relay, urql, and more.",
+        "No. You can use WPGraphQL for ACF with any GraphQL client — Apollo, Relay, urql, Faust.js, and more.",
     },
   ]
 

@@ -62,7 +62,7 @@ class Taxonomy {
 						'name'                => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The display name of the taxonomy. This field is equivalent to WP_Taxonomy->label', 'wp-graphql' );
+								return __( 'The display name of the taxonomy.', 'wp-graphql' );
 							},
 						],
 						'label'               => [
@@ -75,7 +75,7 @@ class Taxonomy {
 						'description'         => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Description of the taxonomy. This field is equivalent to WP_Taxonomy->description', 'wp-graphql' );
+								return __( 'Description of the taxonomy.', 'wp-graphql' );
 							},
 						],
 						'public'              => [
@@ -117,7 +117,7 @@ class Taxonomy {
 						'showCloud'           => [
 							'type'        => 'Boolean',
 							'description' => static function () {
-								return __( 'Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud', 'wp-graphql' );
+								return __( 'Whether to show the taxonomy as part of a tag cloud widget.', 'wp-graphql' );
 							},
 						],
 						'showInQuickEdit'     => [

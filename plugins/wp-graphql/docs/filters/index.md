@@ -396,7 +396,7 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
 - [`graphql_resolve_revision_meta_from_parent`](/filters/graphql_resolve_revision_meta_from_parent)
 
-  Filters whether to resolve revision metadata from the parent node by default.
+  Filters whether to resolve revision metadata from the parent node.
 
 - [`graphql_restricted_data_cap`](/filters/graphql_restricted_data_cap)
 

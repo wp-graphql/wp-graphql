@@ -30,7 +30,7 @@ Filter thrown GraphQL errors
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:574`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L574)
+- [`plugins/wp-graphql/src/Router.php:598`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L598)
 
 ```php
 apply_filters(
@@ -43,4 +43,4 @@ apply_filters(
 
 ## Related
 
-- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:574`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L574)
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:598`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L598)
