@@ -419,6 +419,18 @@ final class WPGraphQL {
 			4
 		);
 
+		// Overlay previewable fields from the revision when the request carries preview
+		// context, preserving the node's published identity.
+		add_filter(
+			'graphql_pre_resolve_field',
+			[
+				Preview::class,
+				'resolve_preview_field',
+			],
+			10,
+			9
+		);
+
 		/**
 		 * Prevent WPML from redirecting within WPGraphQL requests
 		 *
@@ -999,7 +1011,7 @@ final class WPGraphQL {
 			return null;
 		}
 
-		$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );
+		$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- reads a bundled plugin file, not a remote URL
 
 		return ! empty( $schema ) ? $schema : null;
 	}

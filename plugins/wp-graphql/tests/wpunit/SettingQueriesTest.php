@@ -30,32 +30,50 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Method for testing whether a user can query settings
-	 * if they don't have the 'manage_options' capability
+	 * Restricted settings should resolve to null without affecting public sibling fields.
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function testSettingQueryAsEditor() {
-		/**
-		 * Set the editor user
-		 * Set the query
-		 * Make the request
-		 * Validate the request has errors
-		 */
+	public function testRestrictedSettingsReturnNullWithoutAffectingSiblingFields() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The admin_email setting is not registered on multisite.' );
+		}
+
 		wp_set_current_user( $this->editor );
+		update_option( 'blogname', 'Public site title' );
+		add_filter( 'graphql_debug_enabled', '__return_true' );
 
 		$query = '
 			query {
 				generalSettings {
-						email
-					}
+					email
+					title
 				}
-			';
+				allSettings {
+					generalSettingsEmail
+					generalSettingsTitle
+				}
+			}
+		';
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertArrayHasKey( 'errors', $actual );
+		remove_filter( 'graphql_debug_enabled', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['generalSettings']['email'] );
+		$this->assertSame( 'Public site title', $actual['data']['generalSettings']['title'] );
+		$this->assertNull( $actual['data']['allSettings']['generalSettingsEmail'] );
+		$this->assertSame( 'Public site title', $actual['data']['allSettings']['generalSettingsTitle'] );
+
+		$restricted_fields = array_column( $actual['extensions']['debug'], 'field' );
+		$this->assertContains( 'GeneralSettings.email', $restricted_fields );
+		$this->assertContains( 'Settings.generalSettingsEmail', $restricted_fields );
+		$this->assertSame(
+			[ 'manage_options' ],
+			array_values( array_unique( array_column( $actual['extensions']['debug'], 'required_capability' ) ) )
+		);
 	}
 
 	/**
@@ -1059,5 +1077,134 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Cleanup.
 		delete_option( 'site_icon' );
 		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * The `home` (Site Address) option is seeded as an in-memory shim: exposed as
+	 * `homeUrl` on GeneralSettings and `generalSettingsHomeUrl` on the flat Settings
+	 * type, resolving via get_home_url().
+	 *
+	 * @return void
+	 */
+	public function testHomeUrlShimResolvesOnBothSurfaces() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			{
+				generalSettings { homeUrl }
+				allSettings { generalSettingsHomeUrl }
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( get_home_url(), $actual['data']['generalSettings']['homeUrl'] );
+		$this->assertEquals( get_home_url(), $actual['data']['allSettings']['generalSettingsHomeUrl'] );
+	}
+
+	/**
+	 * The permalink options are seeded as in-memory shims under a new `permalink`
+	 * group, exposed on PermalinkSettings and on the flat Settings type.
+	 *
+	 * @return void
+	 */
+	public function testPermalinkSettingsShimResolvesOnBothSurfaces() {
+		wp_set_current_user( $this->admin );
+
+		update_option( 'permalink_structure', '/%postname%/' );
+		update_option( 'category_base', 'topics' );
+		update_option( 'tag_base', 'labels' );
+
+		$query = '
+			{
+				permalinkSettings { structure categoryBase tagBase }
+				allSettings {
+					permalinkSettingsStructure
+					permalinkSettingsCategoryBase
+					permalinkSettingsTagBase
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		delete_option( 'permalink_structure' );
+		delete_option( 'category_base' );
+		delete_option( 'tag_base' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( '/%postname%/', $actual['data']['permalinkSettings']['structure'] );
+		$this->assertEquals( 'topics', $actual['data']['permalinkSettings']['categoryBase'] );
+		$this->assertEquals( 'labels', $actual['data']['permalinkSettings']['tagBase'] );
+		$this->assertEquals( '/%postname%/', $actual['data']['allSettings']['permalinkSettingsStructure'] );
+		$this->assertEquals( 'topics', $actual['data']['allSettings']['permalinkSettingsCategoryBase'] );
+		$this->assertEquals( 'labels', $actual['data']['allSettings']['permalinkSettingsTagBase'] );
+	}
+
+	/**
+	 * `graphql_field_name` is authoritative: a setting seeded via the
+	 * graphql_normalized_settings filter appears under that exact name (no
+	 * camelCasing) on both the grouped and flat surfaces.
+	 *
+	 * @return void
+	 */
+	public function testGraphqlFieldNameOverrideIsAuthoritative() {
+		$filter = static function ( array $settings ) {
+			$settings['my_shim_option'] = [
+				'group'              => 'general',
+				'type'               => 'string',
+				'description'        => 'A test shim option.',
+				'graphql_field_name' => 'myShimFieldName',
+			];
+			return $settings;
+		};
+
+		add_filter( 'graphql_normalized_settings', $filter );
+		WPGraphQL::clear_schema();
+
+		update_option( 'my_shim_option', 'shim-value' );
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			{
+				generalSettings { myShimFieldName }
+				allSettings { generalSettingsMyShimFieldName }
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		remove_filter( 'graphql_normalized_settings', $filter );
+		delete_option( 'my_shim_option' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'shim-value', $actual['data']['generalSettings']['myShimFieldName'] );
+		$this->assertEquals( 'shim-value', $actual['data']['allSettings']['generalSettingsMyShimFieldName'] );
+	}
+
+	/**
+	 * The `url` field (siteurl) resolves on both the grouped and flat surfaces. On
+	 * single-site it comes from the registered `siteurl` setting; on multisite it
+	 * comes from the seeded shim (which replaced the former register_field polyfill
+	 * and adds the flat `generalSettingsUrl` field multisite previously lacked).
+	 *
+	 * @return void
+	 */
+	public function testSiteUrlResolvesOnBothSurfaces() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			{
+				generalSettings { url }
+				allSettings { generalSettingsUrl }
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['url'] );
+		$this->assertEquals( $actual['data']['generalSettings']['url'], $actual['data']['allSettings']['generalSettingsUrl'] );
 	}
 }

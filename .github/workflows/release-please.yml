@@ -88,6 +88,17 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+      # NOTE (future us): this detection logic — and the "Detect components
+      # for deployment" step in the next job — is intentionally left as inline
+      # bash, unlike the release helpers under scripts/. Both jobs run WITHOUT
+      # an actions/checkout step (they only transform release-please's output
+      # JSON, so they never needed the repo on disk). Moving this to a tested
+      # scripts/*.js helper would mean adding a checkout to a checkout-less
+      # job on the deploy path, a bigger change than the extraction is worth
+      # today. If this logic grows, do both: add the checkout AND extract.
+      # The transform is pure and was parity-verified once: take the output
+      # keys ending in `--release_created` whose value is "true", strip the
+      # `plugins/` prefix, sorted the way `jq keys` sorts (lexicographically).
       - name: Detect components with releases
         id: components
         env:
@@ -325,7 +336,7 @@ jobs:
           echo "Tag: $TAG"
 
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || 'main' }}
           fetch-depth: 0
@@ -338,7 +349,7 @@ jobs:
           tools: composer
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -624,7 +635,7 @@ jobs:
       - name: Upload artifact to release
         # Upload for both new releases and re-deployments
         # For re-deployments, this updates the existing release asset with the corrected version
-        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ steps.plugin_info.outputs.tag_name }}
           files: plugin-build/${{ matrix.component }}.zip

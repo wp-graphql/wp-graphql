@@ -10,6 +10,7 @@ use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\PostTypeLoader;
+use WPGraphQL\Data\Loader\SettingGroupLoader;
 use WPGraphQL\Data\Loader\TaxonomyLoader;
 use WPGraphQL\Data\Loader\TermObjectLoader;
 use WPGraphQL\Data\Loader\ThemeLoader;
@@ -42,6 +43,7 @@ class AppContext {
 		'nav_menu_item'       => PostObjectLoader::class,
 		'post'                => PostObjectLoader::class,
 		'post_type'           => PostTypeLoader::class,
+		'setting_group'       => SettingGroupLoader::class,
 		'taxonomy'            => TaxonomyLoader::class,
 		'term'                => TermObjectLoader::class,
 		'theme'               => ThemeLoader::class,
@@ -81,6 +83,15 @@ class AppContext {
 	 * @var mixed $request
 	 */
 	public $request;
+
+	/**
+	 * Stores the normalized preview context for the request, parsed from the
+	 * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
+	 * Null when the request does not carry preview context.
+	 *
+	 * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 */
+	public $preview = null;
 
 	/**
 	 * Stores additional $config properties

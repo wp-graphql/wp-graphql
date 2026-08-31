@@ -29,7 +29,7 @@ Filter to change the data loader classes. This allows for additional loaders to 
 
 ## Source
 
-- [`plugins/wp-graphql/src/AppContext.php:203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L203)
+- [`plugins/wp-graphql/src/AppContext.php:205`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L205)
 
 ```php
 apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
 
 ## Related
 
-- `AppContext::prepare_data_loaders()` in [`plugins/wp-graphql/src/AppContext.php:203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L203)
+- `AppContext::prepare_data_loaders()` in [`plugins/wp-graphql/src/AppContext.php:205`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/AppContext.php#L205)

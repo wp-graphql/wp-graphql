@@ -76,8 +76,7 @@ Registered in `SmartCacheBridge::register_ide_graphql_fields_on_smart_cache_docu
 
 | Filter | Hook | Purpose |
 | --- | --- | --- |
-| `scope_graphql_connections` | `graphql_connection_query_args` | Adds `author = current_user_id()` to `graphqlDocument` connections so users only see their own. |
-| `restrict_post_visibility` | `graphql_data_is_private` | Marks `graphql_document` posts private when the current user isn't the author. Gates `node(id)` / `graphqlDocument(id)`. |
+| `restrict_post_visibility` | `graphql_data_is_private` | Marks `graphql_document` posts private when the current user isn't the author. Gates connections (private models are dropped from results), `node(id)`, and `graphqlDocument(id)` alike. The IDE's document list also passes an `author` where arg client-side (`src/api/documents.js`) to keep pagination correct; connection-level author scoping in PHP was removed because it over-matched `post_type: 'any'` connections ([#4117](https://github.com/wp-graphql/wp-graphql/issues/4117)). |
 
 ### Client callsites
 
@@ -163,7 +162,7 @@ Registered in `includes/UserMeta.php`. All keys are `show_in_rest` with an `auth
 | `wpgraphql_ide_theme` | string (`'' \| 'light' \| 'dark'`) | `''` | GraphiQL theme override. Empty string defers to system / GraphiQL default. |
 | `wpgraphql_ide_persist_headers` | boolean | `false` | Whether HTTP headers persist between sessions / across docs. |
 | `wpgraphql_ide_collection_order` | integer[] | `[]` | Manual ordering of the saved-queries panel — array of collection term IDs. |
-| `wpgraphql_ide_collection_sort_modes` | object<string,enum> | `{}` | Per-collection sort mode. Values: `'manual' \| 'title_asc' \| 'modified_desc' \| 'status'`. |
+| `wpgraphql_ide_collection_sort_modes` | `object<string,enum>` | `{}` | Per-collection sort mode. Values: `'manual' \| 'title_asc' \| 'modified_desc' \| 'status'`. |
 | `wpgraphql_ide_section_states` | string (JSON-encoded object) | `'{}'` | Per-user UI state for collapsible sections (collections + Documents bucket + Unsaved + personal collections). Stored as a JSON string so we can add per-section fields client-side without server releases; UI owns the shape. |
 | `wpgraphql_ide_seen_shared_collections` | string[] | `[]` | IDs of shared personal collections the user has already been notified about (suppresses the "X shared a collection with you" snackbar on subsequent loads). |
 | `wpgraphql_ide_collapsed_notices` | string[] | `[]` | IDs of document notices the user has collapsed. Notices not present here render expanded. |

@@ -168,11 +168,15 @@ class WPGraphQLAcf {
 			return (bool) $should;
 		}
 
-		// If the block editor is being used for the post, bail early as the Block Editor doesn't
-		// properly support revisions of post meta
+		// If the block editor is being used for the post, revisions of field values are only
+		// available when ACF's Block Editor Datastore is enabled (ACF PRO 6.8.1+, WordPress
+		// 6.7+): it saves field values through the editor's REST flow with revision and
+		// autosave support. Without it, the block editor's separate metabox save never
+		// stores field values on autosaves, so there is nothing on the revision to resolve.
+		// see: https://www.advancedcustomfields.com/resources/using-the-acf-datastore/
 		// see: https://github.com/WordPress/gutenberg/issues/16006#issuecomment-657965028
-		if ( \use_block_editor_for_post( $preview_post ) ) {
-			graphql_debug( __( 'The post you are querying as a preview uses the Block Editor and saving & previewing meta is not fully supported by the block editor. This is a WordPress block editor bug. See: https://github.com/WordPress/gutenberg/issues/16006#issuecomment-657965028', 'wpgraphql-acf' ) );
+		if ( \use_block_editor_for_post( $preview_post ) && ! $this->is_acf_datastore_enabled() ) {
+			graphql_debug( __( 'The post you are querying as a preview uses the Block Editor, where ACF field values are only saved to autosaves/revisions when ACF\'s Block Editor Datastore is enabled (ACF PRO 6.8.1+, WordPress 6.7+, via the acf/settings/enable_datastore filter). Without it, previews resolve the published field values. See: https://www.advancedcustomfields.com/resources/using-the-acf-datastore/', 'wpgraphql-acf' ) );
 			return (bool) $should;
 		}
 
@@ -205,6 +209,34 @@ class WPGraphQLAcf {
 		}
 
 		return $should;
+	}
+
+	/**
+	 * Whether ACF's Block Editor Datastore is enabled (ACF PRO 6.8.1+, WordPress 6.7+).
+	 *
+	 * When enabled (via the `acf/settings/enable_datastore` filter), ACF saves block
+	 * editor field values through the editor's REST flow with revision and autosave
+	 * support, so previewed values exist on the autosave for the preview flow to
+	 * resolve. On older ACF versions the setting is unknown and resolves false.
+	 */
+	protected function is_acf_datastore_enabled(): bool {
+		if ( ! function_exists( 'acf_get_setting' ) ) {
+			return false;
+		}
+
+		// The datastore shipped in ACF PRO 6.8.1. On older or free ACF the
+		// `acf/settings/enable_datastore` filter is inert for ACF itself, so honoring it
+		// here would resolve previews against autosaves that never receive field values
+		// (returning empty values instead of the published fallback).
+		// @phpstan-ignore-next-line -- the ACF stubs type acf_get_setting() as void, but it returns the setting value (filtered by `acf/settings/{name}`).
+		$version = acf_get_setting( 'version' );
+
+		if ( ! function_exists( 'acf_is_pro' ) || ! acf_is_pro() || ! is_string( $version ) || version_compare( $version, '6.8.1', '<' ) ) {
+			return false;
+		}
+
+		// @phpstan-ignore-next-line -- the ACF stubs type acf_get_setting() as void, but it returns the setting value (filtered by `acf/settings/{name}`).
+		return (bool) acf_get_setting( 'enable_datastore' );
 	}
 
 	/**

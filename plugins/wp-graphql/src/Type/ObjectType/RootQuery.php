@@ -15,7 +15,9 @@ use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Type\Connection\EnqueuedAssets;
 use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -102,8 +104,9 @@ class RootQuery {
 						},
 					],
 					'registeredScripts'     => [
-						'toType'  => 'EnqueuedScript',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedScript',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 
 							// The connection resolver expects the source to include
 							// enqueuedScriptsQueue
@@ -118,8 +121,9 @@ class RootQuery {
 						},
 					],
 					'registeredStylesheets' => [
-						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedStylesheet',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 
 							// The connection resolver expects the source to include
 							// enqueuedStylesheetsQueue
@@ -240,9 +244,12 @@ class RootQuery {
 									},
 								],
 								'asPreview'   => [
-									'type'        => 'Boolean',
-									'description' => static function () {
+									'type'              => 'Boolean',
+									'description'       => static function () {
 										return __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' );
+									},
+									'deprecationReason' => static function () {
+										return Preview::get_as_preview_deprecation_reason();
 									},
 								],
 							],
@@ -271,7 +278,11 @@ class RootQuery {
 								}
 
 								if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-									$post_id = Utils::get_post_preview_id( $post_id );
+									if ( is_array( $context->preview ) ) {
+										Preview::debug_as_preview_ignored();
+									} else {
+										$post_id = Utils::get_post_preview_id( $post_id );
+									}
 								}
 
 								$allowed_post_types   = \WPGraphQL::get_allowed_post_types();
@@ -319,7 +330,11 @@ class RootQuery {
 								$id = null;
 								switch ( $id_type ) {
 									case 'name':
-										$id = $args['id'];
+										// The `id` arg is an ID scalar, so no enum coercion
+										// happens, but the schema's vocabulary for content types
+										// is the ContentTypeEnum name (e.g. POST for the type
+										// registered as post). Accept either form.
+										$id = Utils::map_enum_name_to_value( 'ContentTypeEnum', (string) $args['id'] ) ?? $args['id'];
 										break;
 									case 'id':
 									default:
@@ -357,7 +372,12 @@ class RootQuery {
 								$id = null;
 								switch ( $id_type ) {
 									case 'name':
-										$id = $args['id'];
+										// The `id` arg is an ID scalar, so no enum coercion
+										// happens, but the schema's vocabulary for taxonomies is
+										// the TaxonomyEnum name, which derives from a taxonomy's
+										// graphql_single_name (e.g. TAG for the taxonomy
+										// registered as post_tag). Accept either form.
+										$id = Utils::map_enum_name_to_value( 'TaxonomyEnum', (string) $args['id'] ) ?? $args['id'];
 										break;
 									case 'id':
 									default:
@@ -435,11 +455,17 @@ class RootQuery {
 									case 'location':
 										$locations = get_nav_menu_locations();
 
-										if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
+										// The `id` arg is an ID scalar, so no enum coercion
+										// happens, but the schema's vocabulary for menu locations
+										// is the MenuLocationEnum name (e.g. MY_LOCATION for a
+										// location registered as my-location). Accept either form.
+										$location = Utils::map_enum_name_to_value( 'MenuLocationEnum', (string) $args['id'] ) ?? (string) $args['id'];
+
+										if ( ! isset( $locations[ $location ] ) || ! absint( $locations[ $location ] ) ) {
 											throw new UserError( esc_html__( 'No menu set for the provided location', 'wp-graphql' ) );
 										}
 
-										$id = absint( $locations[ $args['id'] ] );
+										$id = absint( $locations[ $location ] );
 										break;
 									case 'name':
 										$menu = new \WP_Term_Query(
@@ -787,9 +813,12 @@ class RootQuery {
 							},
 						],
 						'asPreview' => [
-							'type'        => 'Boolean',
-							'description' => static function () {
+							'type'              => 'Boolean',
+							'description'       => static function () {
 								return __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' );
+							},
+							'deprecationReason' => static function () {
+								return Preview::get_as_preview_deprecation_reason();
 							},
 						],
 					],
@@ -839,7 +868,11 @@ class RootQuery {
 						}
 
 						if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-							$post_id = Utils::get_post_preview_id( $post_id );
+							if ( is_array( $context->preview ) ) {
+								Preview::debug_as_preview_ignored();
+							} else {
+								$post_id = Utils::get_post_preview_id( $post_id );
+							}
 						}
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(

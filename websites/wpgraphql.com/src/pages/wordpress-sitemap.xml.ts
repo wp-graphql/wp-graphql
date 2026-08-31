@@ -3,6 +3,8 @@ import { getServerSideSitemapLegacy } from "next-sitemap"
 
 import { request } from "lib/wpgraphql-client"
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
+
 const SITEMAP_QUERY = /* GraphQL */ `
   query SitemapQuery($after: String) {
     contentNodes(
@@ -57,9 +59,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   const allRoutes = nodes.reduce((acc: any[], node: any) => {
     if (!node.uri) return acc
+
+    // Sitemap <loc> values must be absolute URLs; the WP-relative uri broke
+    // every consumer that honors the spec (notably the Algolia crawler,
+    // which failed on each entry and blocked its crawls).
+    //
+    // WordPress URIs carry a trailing slash, but the site's canonical URLs
+    // don't (Next redirects the slash variants), so the slash is stripped to
+    // keep crawlers from bouncing through a redirect per entry.
+    const uri = node.uri === "/" ? node.uri : node.uri.replace(/\/+$/, "")
+    const lastmod = node.modifiedGmt ? new Date(node.modifiedGmt) : null
     acc.push({
-      loc: node.uri,
-      lastmod: new Date(node.modifiedGmt).toISOString(),
+      loc: `${SITE_URL}${uri}`,
+      ...(lastmod && !Number.isNaN(lastmod.getTime())
+        ? { lastmod: lastmod.toISOString() }
+        : {}),
     })
     return acc
   }, [])

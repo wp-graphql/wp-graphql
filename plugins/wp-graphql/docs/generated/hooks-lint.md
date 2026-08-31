@@ -93,11 +93,11 @@ Do not edit manually.
 - **Hook:** `init_graphql_type_registry`
   - Severity: warning
   - Message: deprecated_prefix: Hook name uses deprecated prefix "init_graphql_".
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 289)
+  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 291)
 - **Hook:** `init_graphql_type_registry`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
-  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 289)
+  - Source: `plugins/wp-graphql/src/Registry/TypeRegistry.php` (line 291)
 - **Hook:** `init_graphql_request`
   - Severity: warning
   - Message: deprecated_prefix: Hook name uses deprecated prefix "init_graphql_".

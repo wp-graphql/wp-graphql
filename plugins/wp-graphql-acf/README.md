@@ -8,7 +8,7 @@ The plugin is [now available on WordPress.org!](https://wordpress.org/plugins/wp
 
 Development of this plugin has been made possible by [WP Engine Atlas](https://wpengine.com/atlas)
 
-Learn more at [https://acf.wpgraphql.com](https://acf.wpgraphql.com)
+Learn more at [wpgraphql.com/docs/acf](https://www.wpgraphql.com/docs/acf)
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Learn more at [https://acf.wpgraphql.com](https://acf.wpgraphql.com)
 
 ## Upgrade Notice
 
-If you are updating from WPGraphQL for ACF v0.6.* or older, check out the [Upgrade Guide](https://acf.wpgraphql.com/upgrade-guide).
+If you are updating from WPGraphQL for ACF v0.6.* or older, check out the [Upgrade Guide](https://www.wpgraphql.com/docs/acf/upgrade-guide).
 
 ## Plugin Overview
 
@@ -56,7 +56,7 @@ default logic.
 
 ## Installation and Activation
 
-See our [Installation and Activation](https://acf.wpgraphql.com/installation-and-activation/) guide.
+See our [Installation and Activation](https://www.wpgraphql.com/docs/acf/installation-and-activation) guide.
 
 ## Testing
 
@@ -154,7 +154,7 @@ Yes! WPGraphQL for ACF works great with ACF Free and Pro. The Pro version of ACF
 
 ### Do I have to use Faust.js to use WPGraphQL for ACF?
 
-No! While [wpgraphql.com](https://www.wpgraphql.com) and [acf.wpgraphql.com](https://acf.wpgraphql.com) are built using [Faust.js](https://faustjs.org/) and Next.js, you can use WPGraphQL for ACF with any GraphQL client, including Apollo, Relay, Urql, etc.
+No! You can use WPGraphQL for ACF with any GraphQL client, including Apollo, Relay, Urql, [Faust.js](https://faustjs.org/), etc.
 
 ### I have an ACF Extension that adds a new field type, will it work with WPGraphQL for ACF?
 

@@ -395,4 +395,63 @@ class Utils {
 
 		return is_object( $post_id ) ? (int) $post_id->ID : (int) $post_id;
 	}
+
+	/**
+	 * Given the name of a registered Enum Type and an input string, return the enum's
+	 * underlying value the input identifies.
+	 *
+	 * The input may be either the enum's underlying value (returned unchanged) or the
+	 * enum's name as exposed in the schema (mapped back to its value). This is useful
+	 * for fields that accept an identifier as an ID scalar, where no enum coercion
+	 * happens, but the value space is also modeled as an Enum Type elsewhere in the
+	 * schema. Enum names cannot always be re-derived from the value, TaxonomyEnum for
+	 * example derives its names from a taxonomy's graphql_single_name, so the mapping
+	 * must come from the registered Enum Type itself.
+	 *
+	 * @param string $enum_type_name The name of the registered Enum Type to map against, e.g. "ContentTypeEnum".
+	 * @param string $input          The input to map. Either an enum name (e.g. "POST") or an underlying enum value (e.g. "post").
+	 *
+	 * @return ?string The underlying enum value, or null if the input matches neither an enum name nor an enum value, or the type is not a registered Enum Type.
+	 *
+	 * @since 2.20.0
+	 */
+	public static function map_enum_name_to_value( string $enum_type_name, string $input ): ?string {
+		try {
+			$type_registry = \WPGraphQL::get_type_registry();
+			$enum_type     = $type_registry->get_type( $enum_type_name );
+
+			// The registry is populated during schema generation, so make sure
+			// that has happened before concluding the type doesn't exist.
+			if ( null === $enum_type ) {
+				\WPGraphQL::get_schema();
+				$enum_type = $type_registry->get_type( $enum_type_name );
+			}
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+
+		if ( ! $enum_type instanceof \GraphQL\Type\Definition\EnumType ) {
+			return null;
+		}
+
+		$named_match = null;
+
+		foreach ( $enum_type->getValues() as $enum_value ) {
+			if ( ! is_string( $enum_value->value ) ) {
+				continue;
+			}
+
+			// A raw underlying value wins over a name match, so input that is
+			// already a valid value always passes through unchanged.
+			if ( $enum_value->value === $input ) {
+				return $input;
+			}
+
+			if ( $enum_value->name === $input ) {
+				$named_match = $enum_value->value;
+			}
+		}
+
+		return $named_match;
+	}
 }

@@ -172,6 +172,52 @@ class RouterTest extends WPTestCase {
 	}
 
 	/**
+	 * Every response varies on X-GraphQL-Preview, so caches key previewed and published
+	 * responses separately, and a request carrying preview context is marked no-store,
+	 * so no cache may hold a previewed response at all.
+	 */
+	public function testPreviewContextCacheHeaders() {
+		$router_ref   = new \ReflectionClass( \WPGraphQL\Router::class );
+		$request_prop = $router_ref->getProperty( 'request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$request_prop->setAccessible( true );
+		}
+		$get_headers = $router_ref->getMethod( 'get_response_headers' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_headers->setAccessible( true );
+		}
+
+		// Without preview context: the Vary axis is always announced; no-store is not forced.
+		$request_prop->setValue( null, null );
+		$headers = $get_headers->invoke( null );
+
+		$this->assertArrayHasKey( 'Vary', $headers );
+		$this->assertStringContainsString( 'X-GraphQL-Preview', $headers['Vary'] );
+		$this->assertTrue(
+			! isset( $headers['Cache-Control'] ) || false === strpos( $headers['Cache-Control'], 'no-store' ),
+			'A request without preview context must not be forced to no-store'
+		);
+
+		// With preview context on the request: the response must be no-store.
+		$request                       = new \WPGraphQL\Request();
+		$request->app_context->preview = [
+			'databaseId'              => 1,
+			'revisionDatabaseId'      => 0,
+			'featuredImageDatabaseId' => null,
+			'nonce'                   => null,
+		];
+		$request_prop->setValue( null, $request );
+
+		$headers = $get_headers->invoke( null );
+
+		$request_prop->setValue( null, null );
+
+		$this->assertStringContainsString( 'X-GraphQL-Preview', $headers['Vary'] );
+		$this->assertArrayHasKey( 'Cache-Control', $headers );
+		$this->assertSame( 'no-store, private', $headers['Cache-Control'], 'A response to a request carrying preview context must never be stored by any cache' );
+	}
+
+	/**
 	 * Test that content rendering still works correctly with Router-level output buffering
 	 */
 	public function testContentRenderingWorksWithRouterOutputBuffering() {

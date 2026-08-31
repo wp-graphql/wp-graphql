@@ -79,7 +79,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 * @param array<string,mixed>  $unfiltered_args       Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @hookGroup connections
-		 * @since x-release-please-version
+		 * @since 2.18.0
 		 */
 		$restrict_to_locations = $has_explicit_location || apply_filters( 'graphql_menu_item_connection_restrict_to_locations', true, $locations, $args, $this->get_unfiltered_args() );
 

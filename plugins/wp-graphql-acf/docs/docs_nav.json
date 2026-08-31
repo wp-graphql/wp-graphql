@@ -1,0 +1,242 @@
+{
+	"Getting Started": [
+		{
+			"title": "Installation and Activation",
+			"href": "/installation-and-activation"
+		},
+		{
+			"title": "Adding ACF Fields to the WPGraphQL Schema",
+			"href": "/adding-acf-fields-to-the-wpgraphql-schema"
+		}
+	],
+	"Using WPGraphQL for ACF": [
+		{
+			"title": "Querying ACF Fields with GraphQL",
+			"href": "/querying-acf-fields-with-graphql"
+		},
+		{
+			"title": "Previews",
+			"href": "/previews"
+		},
+		{
+			"title": "ACF Field Types",
+			"href": "/field-types",
+			"items": [
+				{
+					"title": "Advanced Link",
+					"href": "/field-types/advanced-link"
+				},
+				{
+					"title": "Button",
+					"href": "/field-types/button"
+				},
+				{
+					"title": "Button Group",
+					"href": "/field-types/button-group"
+				},
+				{
+					"title": "Checkbox",
+					"href": "/field-types/checkbox"
+				},
+				{
+					"title": "Clone Field",
+					"href": "/field-types/clone-field"
+				},
+				{
+					"title": "Code Editor",
+					"href": "/field-types/code-editor"
+				},
+				{
+					"title": "Color Picker",
+					"href": "/field-types/color-picker"
+				},
+				{
+					"title": "Countries",
+					"href": "/field-types/countries"
+				},
+				{
+					"title": "Currencies",
+					"href": "/field-types/currencies"
+				},
+				{
+					"title": "Date Picker",
+					"href": "/field-types/date-picker"
+				},
+				{
+					"title": "Date Range Picker",
+					"href": "/field-types/date-range-picker"
+				},
+				{
+					"title": "DateTimePicker",
+					"href": "/field-types/datetimepicker"
+				},
+				{
+					"title": "Email",
+					"href": "/field-types/email"
+				},
+				{
+					"title": "File",
+					"href": "/field-types/file"
+				},
+				{
+					"title": "Flexible Content",
+					"href": "/field-types/flexible-content"
+				},
+				{
+					"title": "Gallery",
+					"href": "/field-types/gallery"
+				},
+				{
+					"title": "Google Map",
+					"href": "/field-types/google-map"
+				},
+				{
+					"title": "Group",
+					"href": "/field-types/group"
+				},
+				{
+					"title": "Image",
+					"href": "/field-types/image"
+				},
+				{
+					"title": "Image Selector",
+					"href": "/field-types/image-selector"
+				},
+				{
+					"title": "Image Sizes",
+					"href": "/field-types/image-sizes"
+				},
+				{
+					"title": "Languages",
+					"href": "/field-types/languages"
+				},
+				{
+					"title": "Link",
+					"href": "/field-types/link"
+				},
+				{
+					"title": "Menu Locations",
+					"href": "/field-types/menu-locations"
+				},
+				{
+					"title": "Menus",
+					"href": "/field-types/menus"
+				},
+				{
+					"title": "Number",
+					"href": "/field-types/number"
+				},
+				{
+					"title": "Oembed",
+					"href": "/field-types/oembed"
+				},
+				{
+					"title": "PageLink",
+					"href": "/field-types/pagelink"
+				},
+				{
+					"title": "Password",
+					"href": "/field-types/password"
+				},
+				{
+					"title": "Phone Number",
+					"href": "/field-types/phone-number"
+				},
+				{
+					"title": "Post Object",
+					"href": "/field-types/post-object"
+				},
+				{
+					"title": "Radio Button",
+					"href": "/field-types/radio-button"
+				},
+				{
+					"title": "Range",
+					"href": "/field-types/range"
+				},
+				{
+					"title": "Relationship",
+					"href": "/field-types/relationship"
+				},
+				{
+					"title": "Repeater",
+					"href": "/field-types/repeater"
+				},
+				{
+					"title": "Select",
+					"href": "/field-types/select"
+				},
+				{
+					"title": "Taxonomies",
+					"href": "/field-types/taxonomies"
+				},
+				{
+					"title": "Taxonomy",
+					"href": "/field-types/taxonomy"
+				},
+				{
+					"title": "Taxonomy Terms",
+					"href": "/field-types/taxonomy-terms"
+				},
+				{
+					"title": "Text",
+					"href": "/field-types/text"
+				},
+				{
+					"title": "Text Area",
+					"href": "/field-types/text-area"
+				},
+				{
+					"title": "Time Picker",
+					"href": "/field-types/time-picker"
+				},
+				{
+					"title": "True / False",
+					"href": "/field-types/true-false"
+				},
+				{
+					"title": "Url",
+					"href": "/field-types/url"
+				},
+				{
+					"title": "User",
+					"href": "/field-types/user"
+				},
+				{
+					"title": "User Roles",
+					"href": "/field-types/user-roles"
+				},
+				{
+					"title": "WYSIWYG",
+					"href": "/field-types/wysiwyg"
+				}
+			]
+		},
+		{
+			"title": "Adding ACF Post Types and Taxonomies to the GraphQL Schema",
+			"href": "/adding-acf-post-types-and-taxonomies-to-the-graphql-schema"
+		},
+		{
+			"title": "Adding Support for 3rd Party ACF Field Type",
+			"href": "/adding-support-for-3rd-party-acf-field-type"
+		}
+	],
+	"Reference": [
+		{
+			"title": "Kitchen Sink",
+			"href": "/kitchen-sink"
+		},
+		{
+			"title": "Debugging",
+			"href": "/debugging"
+		},
+		{
+			"title": "Upgrade Guide",
+			"href": "/upgrade-guide"
+		},
+		{
+			"title": "Support",
+			"href": "/support"
+		}
+	]
+}

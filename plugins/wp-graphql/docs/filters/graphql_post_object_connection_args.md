@@ -30,7 +30,7 @@ Filters the GraphQL args before they are used in get_query_args().
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:661`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L661)
+- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:699`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L699)
 
 ```php
 apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->get_unfiltered_args() );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->get_u
 
 ## Related
 
-- `PostObjectConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:661`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L661)
+- `PostObjectConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:699`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L699)

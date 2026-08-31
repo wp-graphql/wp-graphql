@@ -1351,4 +1351,152 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertCount( 1, $actual['data']['createPost']['post']['categories']['nodes'] );
 
 	}
+
+	/**
+	 * An Author (who holds `assign_terms` / `edit_posts` but not `edit_terms` /
+	 * `manage_categories`) should be able to assign an existing term by name.
+	 *
+	 * Post formats are the canonical case: the input matched only by id/slug, so
+	 * a `name` input fell through to the term-creation branch, which bailed on the
+	 * `edit_terms` gate and aborted all term assignment for the taxonomy.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3135
+	 */
+	public function testAuthorCanAssignExistingPostFormatByName() {
+		// Ensure the standard `video` post format term exists (the realistic case;
+		// native set_post_format() would otherwise create it).
+		if ( ! get_term_by( 'slug', 'post-format-video', 'post_format' ) ) {
+			wp_insert_term( 'video', 'post_format', [ 'slug' => 'post-format-video' ] );
+		}
+
+		wp_set_current_user( $this->author );
+
+		$query = '
+		mutation createPost( $input: CreatePostInput! ) {
+			createPost( input: $input ) {
+				post {
+					databaseId
+					postFormats {
+						nodes {
+							name
+							slug
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'title'       => 'Author post with a post format',
+				'status'      => 'DRAFT',
+				'postFormats' => [
+					'append' => false,
+					'nodes'  => [
+						[ 'name' => 'video' ],
+					],
+				],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$slugs = wp_list_pluck( $actual['data']['createPost']['post']['postFormats']['nodes'], 'slug' );
+		$this->assertContains( 'post-format-video', $slugs, 'An Author should be able to assign an existing post format by name.' );
+	}
+
+	/**
+	 * A failed `assign_terms` check for one taxonomy must not abort term
+	 * assignment for the remaining taxonomies in the same mutation.
+	 *
+	 * Registers two taxonomies: one whose `assign_terms` the Author lacks
+	 * (registered first, so it is processed first) and one they hold. The
+	 * restricted taxonomy's terms must be skipped while the open taxonomy's
+	 * terms are still connected.
+	 */
+	public function testFailedAssignTermsCheckOnlySkipsThatTaxonomy() {
+		register_taxonomy(
+			'restricted_tax',
+			'post',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'restrictedTerm',
+				'graphql_plural_name' => 'restrictedTerms',
+				'capabilities'        => [
+					'manage_terms' => 'manage_options',
+					'edit_terms'   => 'manage_options',
+					'delete_terms' => 'manage_options',
+					'assign_terms' => 'manage_options',
+				],
+			]
+		);
+
+		register_taxonomy(
+			'open_tax',
+			'post',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'openTerm',
+				'graphql_plural_name' => 'openTerms',
+			]
+		);
+
+		WPGraphQL::clear_schema();
+
+		try {
+			$restricted_term = wp_insert_term( 'Restricted One', 'restricted_tax' );
+			$open_term       = wp_insert_term( 'Open One', 'open_tax' );
+
+			$this->assertNotWPError( $restricted_term );
+			$this->assertNotWPError( $open_term );
+
+			wp_set_current_user( $this->author );
+
+			$query = '
+			mutation createPost( $input: CreatePostInput! ) {
+				createPost( input: $input ) {
+					post {
+						databaseId
+					}
+				}
+			}
+			';
+
+			$variables = [
+				'input' => [
+					'title'           => 'Author post with mixed taxonomy caps',
+					'status'          => 'DRAFT',
+					'restrictedTerms' => [
+						'nodes' => [
+							[ 'slug' => 'restricted-one' ],
+						],
+					],
+					'openTerms'       => [
+						'nodes' => [
+							[ 'slug' => 'open-one' ],
+						],
+					],
+				],
+			];
+
+			$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+
+			$post_id = $actual['data']['createPost']['post']['databaseId'];
+
+			$restricted_slugs = wp_list_pluck( wp_get_object_terms( $post_id, 'restricted_tax' ), 'slug' );
+			$open_slugs       = wp_list_pluck( wp_get_object_terms( $post_id, 'open_tax' ), 'slug' );
+
+			$this->assertNotContains( 'restricted-one', $restricted_slugs, 'An Author without assign_terms for the taxonomy should not connect its terms.' );
+			$this->assertContains( 'open-one', $open_slugs, 'A failed assign_terms check on an earlier taxonomy should not prevent later taxonomies from connecting terms.' );
+		} finally {
+			unregister_taxonomy( 'restricted_tax' );
+			unregister_taxonomy( 'open_tax' );
+			WPGraphQL::clear_schema();
+		}
+	}
 }

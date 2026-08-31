@@ -185,24 +185,44 @@ function buildMutationInput(doc) {
 }
 
 /**
- * Fetch all saved-query documents visible to the current user.
+ * Fetch the current user's saved-query documents.
  *
- * Per-user scoping is enforced server-side by Smart Cache's auth model
- * + the IDE's connection filter — no author arg is needed.
+ * The client states its own scope: the `author` where arg pins the list
+ * to the viewer (`WPGRAPHQL_IDE_DATA.context.currentUserId`). Privacy is
+ * enforced server-side at the model layer (`graphql_data_is_private`
+ * hides other users' documents regardless of what this query asks for);
+ * the author arg is what keeps the list complete and pagination sane —
+ * without it, other users' documents would occupy `first: 100` slots
+ * before being dropped. Don't remove it in favor of server-side
+ * connection scoping: filtering shared connection query args by author
+ * is what broke unrelated `post_type: any` queries in
+ * https://github.com/wp-graphql/wp-graphql/issues/4117.
+ *
+ * A logged-out viewer (public-endpoint mode) sends `author: null`, which
+ * WP_Query ignores; the model layer hides every document for them anyway.
  *
  * @return {Promise<Object[]>}
  */
 export async function getDocuments() {
-	const data = await gql(`
-		query GetSavedDocuments {
+	const currentUserId =
+		Number(
+			typeof window !== 'undefined'
+				? window.WPGRAPHQL_IDE_DATA?.context?.currentUserId
+				: 0
+		) || 0;
+	const data = await gql(
+		`
+		query GetSavedDocuments($author: Int) {
 			graphqlDocuments(
 				first: 100
-				where: { stati: [PUBLISH, DRAFT], orderby: { field: MENU_ORDER, order: ASC } }
+				where: { author: $author, stati: [PUBLISH, DRAFT], orderby: { field: MENU_ORDER, order: ASC } }
 			) {
 				nodes { ${DOCUMENT_FIELDS} }
 			}
 		}
-	`);
+	`,
+		{ author: currentUserId > 0 ? currentUserId : null }
+	);
 	return (data?.graphqlDocuments?.nodes ?? []).map(adaptDocument);
 }
 

@@ -312,6 +312,10 @@ class Router {
 			[
 				'Authorization',
 				'Content-Type',
+				// Allows cross-origin clients to send request-level preview context via the
+				// `X-GraphQL-Preview` header, the primary preview transport (`extensions.preview`
+				// in the request body is the fallback). See WPGraphQL\Request::get_preview_input().
+				'X-GraphQL-Preview',
 			]
 		);
 
@@ -365,6 +369,26 @@ class Router {
 			foreach ( wp_get_nocache_headers() as $no_cache_header_key => $no_cache_header_value ) {
 				$headers[ $no_cache_header_key ] = $no_cache_header_value;
 			}
+		}
+
+		/**
+		 * Responses vary on the preview context header: a cache that keys responses
+		 * without it could otherwise serve a previewed response in place of the
+		 * published one, or vice versa. Sent unconditionally so caches learn the axis
+		 * before ever storing a response.
+		 */
+		$headers['Vary'] = isset( $headers['Vary'] ) && '' !== $headers['Vary']
+			? $headers['Vary'] . ', X-GraphQL-Preview'
+			: 'X-GraphQL-Preview';
+
+		/**
+		 * A request carrying preview context may expose draft content to the authorized
+		 * viewer, so no cache may store the response at all. This is deliberately
+		 * stronger than the authenticated no-cache headers above: `no-cache` only
+		 * requires revalidation before reuse, while `no-store` forbids storage.
+		 */
+		if ( $request instanceof Request && is_array( $request->app_context->preview ) ) {
+			$headers['Cache-Control'] = 'no-store, private';
 		}
 
 		/**

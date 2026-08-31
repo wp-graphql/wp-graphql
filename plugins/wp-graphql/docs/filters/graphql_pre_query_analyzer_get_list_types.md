@@ -30,7 +30,7 @@ Filters list types before QueryAnalyzer derives them from the AST.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:462`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L462)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:496`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L496)
 
 ```php
 apply_filters( 'graphql_pre_query_analyzer_get_list_types', $null, $schema, $query );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_pre_query_analyzer_get_list_types', $null, $schema, $que
 
 ## Related
 
-- `QueryAnalyzer::set_list_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:462`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L462)
+- `QueryAnalyzer::set_list_types()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:496`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L496)

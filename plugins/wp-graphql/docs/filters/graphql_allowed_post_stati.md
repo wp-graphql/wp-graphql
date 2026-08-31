@@ -31,7 +31,7 @@ Filters the post statuses the current user is allowed to query in this connectio
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:547`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L547)
+- [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:585`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L585)
 
 ```php
 apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post_type_objects, $this );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_allowed_post_stati', $allowed_statuses, $statuses, $post
 
 ## Related
 
-- `PostObjectConnectionResolver::sanitize_post_stati()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:547`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L547)
+- `PostObjectConnectionResolver::sanitize_post_stati()` in [`plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php:585`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/PostObjectConnectionResolver.php#L585)

@@ -210,6 +210,71 @@
   display: none;
 }
 
+/* DocSearch v4 search-bar actions: a "Clear" text button (hidden until a
+   query is typed) and an X close button, grouped right of the input. */
+.DocSearch-Actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.DocSearch-Clear {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.DocSearch-Clear:hover {
+  color: hsl(var(--foreground));
+}
+.DocSearch-Clear:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+/* Keep the [hidden] attribute effective (it hides Clear while the query is
+   empty); a display value here would override it. */
+.DocSearch-Clear[hidden] {
+  display: none;
+}
+
+.DocSearch-Close {
+  appearance: none;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.DocSearch-Close:hover {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--primary) / 0.5);
+}
+.DocSearch-Close:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+.DocSearch-Close svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
 .DocSearch-Cancel {
   appearance: none;
   flex: none;
@@ -455,4 +520,79 @@
 .DocSearch-NoResults-Prefill-List + .DocSearch-Help a {
   color: hsl(var(--primary));
   font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   Product filter chips (injected below the search bar by
+   SearchButton.js) — filter results to one product's docs
+   ------------------------------------------------------------ */
+
+.DocSearch-ProductFilter {
+  flex: none;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.DocSearch-ProductFilter-Chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.DocSearch-ProductFilter-Chip {
+  border: 1px solid hsl(var(--border));
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.DocSearch-ProductFilter-Chip:hover {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.DocSearch-ProductFilter-Chip:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+
+.DocSearch-ProductFilter-Chip--active {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.4);
+  background: hsl(var(--primary) / 0.1);
+}
+
+/* ------------------------------------------------------------
+   Per-hit product badge (rendered by SearchButton's Hit) — names
+   which corpus a result belongs to, in that product's accent
+   ------------------------------------------------------------ */
+
+a.DocSearch-Hit--withBadge {
+  padding-right: 7rem;
+}
+
+.DocSearch-Hit-ProductBadge {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid hsl(var(--primary) / 0.35);
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  pointer-events: none;
+  white-space: nowrap;
 }

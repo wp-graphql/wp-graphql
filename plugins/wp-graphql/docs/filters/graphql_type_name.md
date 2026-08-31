@@ -38,7 +38,7 @@ apply_filters( 'graphql_type_name', $name, $config, $this );
 
 ## Related
 
-- `WPEnumType::__construct()` in [`plugins/wp-graphql/src/Type/WPEnumType.php:54`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L54)
+- `WPEnumType::__construct()` in [`plugins/wp-graphql/src/Type/WPEnumType.php:62`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPEnumType.php#L62)
 - `WPInputObjectType::__construct()` in [`plugins/wp-graphql/src/Type/WPInputObjectType.php:45`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInputObjectType.php#L45)
 - `WPInterfaceType::__construct()` in [`plugins/wp-graphql/src/Type/WPInterfaceType.php:60`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPInterfaceType.php#L60)
 - `WPObjectType::__construct()` in [`plugins/wp-graphql/src/Type/WPObjectType.php:95`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Type/WPObjectType.php#L95)

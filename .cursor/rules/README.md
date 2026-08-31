@@ -13,8 +13,7 @@ File patterns in the rules are relative to the repository root. For example, `pl
 
 ## Rule Files
 
-- **wpgraphql.json**: The main rule file that contains information about the WPGraphQL monorepo, including frameworks, key concepts, file patterns, dependencies, development workflows, and more.
-- **php_files.json**: PHP-specific coding standards and conventions that apply to all plugins in the monorepo.
+- **wpgraphql.mdc**: The repository-wide Cursor rule that references `CLAUDE.md`, the canonical source for repository guidance.
 
 ## How These Rules Help
 
@@ -36,7 +35,7 @@ The rules apply to all plugins in the monorepo, providing consistent guidance wh
 
 ## Updating Rules
 
-If you need to update these rules, please modify the appropriate JSON file in this directory. Make sure to follow the existing structure and format. Remember that file patterns should be relative to the repository root (e.g., `plugins/wp-graphql/src/**/*.php`).
+Update the applicable `CLAUDE.md` instead of duplicating repository or plugin guidance here. Keep only Cursor-specific behavior in `wpgraphql.mdc`.
 
 ## Learn More
 

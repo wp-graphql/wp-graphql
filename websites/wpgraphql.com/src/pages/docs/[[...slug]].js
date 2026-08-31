@@ -1,5 +1,7 @@
 import { MDXRemote } from "next-mdx-remote"
 
+import Breadcrumbs from "components/Docs/Breadcrumbs"
+import DocsHub from "components/Docs/DocsHub"
 import DocsLayout from "components/Docs/DocsLayout"
 import PrevNext from "components/Docs/PrevNext"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
@@ -13,20 +15,27 @@ import {
   isDeveloperReferenceDocUri,
   toCanonicalDocUri,
 } from "lib/parse-mdx-docs"
+import {
+  CORE_PRODUCT_KEY,
+  DOCS_PRODUCTS,
+  enabledProducts,
+  normalizeDocsNav,
+  productFromSlugParts,
+} from "lib/docs-products"
 import { orderedSiblings } from "lib/sibling-nav"
 
 import components from "components/Docs/MdxComponents"
 
-function toDocSlug(slugParam) {
+function toSlugParts(slugParam) {
   if (Array.isArray(slugParam)) {
-    return slugParam.join("/")
-  }
-
-  if (typeof slugParam === "string") {
     return slugParam
   }
 
-  return null
+  if (typeof slugParam === "string") {
+    return [slugParam]
+  }
+
+  return []
 }
 
 function toSlugParams(uri) {
@@ -47,6 +56,101 @@ function toSlugParams(uri) {
   return { params: { slug: slug.split("/") } }
 }
 
+/**
+ * Find the sidebar-nav entry (and its section heading) for a doc URI,
+ * searching nested subtrees. `parents` is the chain of nav entries above a
+ * nested hit (e.g. "ACF Field Types" above an individual field type), used
+ * to render them as linked crumbs.
+ */
+function findNavEntry(docsNavData, uri) {
+  const search = (entries, parents) => {
+    for (const entry of entries) {
+      if (!entry || typeof entry !== "object") {
+        continue
+      }
+      if (entry.href === uri) {
+        return { item: entry, parents }
+      }
+      if (Array.isArray(entry.items)) {
+        const nested = search(entry.items, [...parents, entry])
+        if (nested) {
+          return nested
+        }
+      }
+    }
+    return null
+  }
+
+  for (const [section, group] of Object.entries(docsNavData ?? {})) {
+    if (!Array.isArray(group)) {
+      continue
+    }
+    const found = search(group, [])
+    if (found) {
+      return { section, ...found }
+    }
+  }
+  return null
+}
+
+/**
+ * Build the breadcrumb trail for a doc page. Now that the portal serves
+ * multiple products' doc trees, the trail orients the reader in both
+ * dimensions: which product's docs they are in (linked back through the
+ * family hub) and where this page sits in that product's nav.
+ *
+ * Core: "Docs / <Section> / <Page>". Extensions: "Docs / <Product> /
+ * <Section> / <Page>". Pages not in the nav (e.g. an individual field type)
+ * link through their nearest ancestor that is.
+ */
+function buildDocBreadcrumbs({
+  product,
+  docsNavData,
+  requestedUri,
+  pageTitle,
+}) {
+  const items = [{ label: "Docs", href: "/docs" }]
+
+  if (product.key !== CORE_PRODUCT_KEY) {
+    items.push({ label: product.label, href: product.basePath })
+  }
+
+  const fallbackLabel = requestedUri.split("/").pop()
+
+  const direct = findNavEntry(docsNavData, requestedUri)
+  if (direct) {
+    items.push({ label: direct.section })
+    for (const parent of direct.parents) {
+      if (typeof parent.title !== "string") {
+        continue
+      }
+      items.push({
+        label: parent.title,
+        ...(typeof parent.href === "string" ? { href: parent.href } : {}),
+      })
+    }
+    items.push({ label: direct.item.title ?? pageTitle ?? fallbackLabel })
+    return items
+  }
+
+  let ancestorUri = requestedUri.replace(/\/[^/]+$/, "")
+  while (ancestorUri.length > product.basePath.length) {
+    const ancestor = findNavEntry(docsNavData, ancestorUri)
+    if (ancestor) {
+      items.push({ label: ancestor.section })
+      items.push({
+        label: ancestor.item.title ?? ancestorUri.split("/").pop(),
+        href: ancestorUri,
+      })
+      break
+    }
+    ancestorUri = ancestorUri.replace(/\/[^/]+$/, "")
+  }
+
+  items.push({ label: pageTitle ?? fallbackLabel })
+  return items
+}
+
 export default function Doc({
   source,
   toc,
@@ -54,15 +158,40 @@ export default function Doc({
   layoutData,
   hasMarkdownH1,
   nav,
+  productKey,
+  isHub,
+  breadcrumbs,
 }) {
+  const product = DOCS_PRODUCTS[productKey] ?? DOCS_PRODUCTS[CORE_PRODUCT_KEY]
+
+  if (isHub) {
+    return (
+      <LayoutProvider value={layoutData}>
+        <DocsLayout docsNavData={docsNavData} product={product}>
+          <DocsHub />
+        </DocsLayout>
+      </LayoutProvider>
+    )
+  }
+
   return (
     <LayoutProvider value={layoutData}>
-      <DocsLayout toc={toc} docsNavData={docsNavData}>
-        <div id="content-wrapper" className="relative z-20 mt-8 prose">
+      <DocsLayout toc={toc} docsNavData={docsNavData} product={product}>
+        <div id="content-wrapper" className="relative z-20 prose">
+          <Breadcrumbs items={breadcrumbs} />
           {source?.frontmatter?.title && !hasMarkdownH1 && (
-            <header className="relative z-20 -mt-8">
+            <header className="relative z-20">
               <h1>{source.frontmatter.title}</h1>
             </header>
+          )}
+          {/* Which plugin provides the documented feature (e.g. an ACF
+              field type from ACF Pro or ACF Extended), from frontmatter. */}
+          {typeof source?.frontmatter?.provider === "string" && (
+            <p className="not-prose -mt-4 mb-8">
+              <span className="inline-block rounded-full border border-primary/35 bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary">
+                {source.frontmatter.provider}
+              </span>
+            </p>
           )}
           <MDXRemote {...source} components={components} />
           <PrevNext prev={nav?.prev} next={nav?.next} />
@@ -73,32 +202,94 @@ export default function Doc({
 }
 
 export async function getStaticProps({ params }) {
-  const docSlug = toDocSlug(params?.slug)
+  const slugParts = toSlugParts(params?.slug)
 
-  if (!docSlug) {
-    return { notFound: true }
+  // Resolve which product in the portal this request belongs to. Reserved
+  // first segments (acf, smart-cache, ide) route to that product's docs;
+  // everything else is a core doc slug. Disabled products 404 rather than
+  // falling through, so a core doc can never shadow a product key.
+  const resolved = productFromSlugParts(slugParts)
+  if (!resolved) {
+    return { notFound: true, revalidate: 30 }
   }
 
-  // Developer Reference subtrees (actions/filters/functions/recipes) have
-  // dedicated top-level routes; send /docs/<root>/... to the canonical URL.
-  const requestedUri = `/docs/${docSlug}`
-  if (isDeveloperReferenceDocUri(requestedUri)) {
-    return {
-      redirect: {
-        destination: toCanonicalDocUri(requestedUri),
-        permanent: true,
-      },
+  const { product, restParts } = resolved
+  const docSlug = restParts.join("/")
+  const isCore = product.key === CORE_PRODUCT_KEY
+
+  // Bare /docs renders the family hub: the ecosystem layer above the
+  // product hubs, listing every enabled product's documentation.
+  if (isCore && !docSlug) {
+    try {
+      const docsNavData = normalizeDocsNav(product, await getDocsNav(product))
+      const layoutData = await getLayoutData()
+      return {
+        props: {
+          isHub: true,
+          docsNavData,
+          layoutData,
+          productKey: product.key,
+        },
+        revalidate: 30,
+      }
+    } catch (e) {
+      console.error("docs hub failed to render", e)
+      return { notFound: true, revalidate: 30 }
     }
   }
 
+  // Developer Reference subtrees (actions/filters/functions/recipes) have
+  // dedicated top-level routes for core; send /docs/<root>/... to the
+  // canonical URL. Extensions keep those roots as regular doc subpages.
+  if (isCore) {
+    const requestedUri = `/docs/${docSlug}`
+    if (isDeveloperReferenceDocUri(requestedUri)) {
+      return {
+        redirect: {
+          destination: toCanonicalDocUri(requestedUri),
+          permanent: true,
+        },
+      }
+    }
+  }
+
+  // A product whose nav can't be fetched (e.g. its docs aren't on main yet)
+  // is a 404 that self-heals via ISR once the content lands — not a 500.
+  let docsNavData
   try {
-    const { source, toc, hasMarkdownH1 } = await getParsedDoc(docSlug)
-    const docsNavData = await getDocsNav()
+    docsNavData = normalizeDocsNav(product, await getDocsNav(product))
+  } catch (e) {
+    console.error("docs nav unavailable", { product: product.key }, e)
+    return { notFound: true, revalidate: 30 }
+  }
+
+  try {
+    // A product's bare base path (e.g. /docs/acf) lands on its first nav
+    // item until product hub pages exist.
+    if (!docSlug) {
+      const first = flattenDocsNav(docsNavData)[0]
+      if (!first?.href) {
+        return { notFound: true, revalidate: 30 }
+      }
+      return {
+        redirect: { destination: first.href, permanent: false },
+      }
+    }
+
+    const { source, toc, hasMarkdownH1 } = await getParsedDoc(docSlug, product)
     const layoutData = await getLayoutData()
 
     // Prev/next follows the sidebar nav's front-to-back reading order rather
     // than an alphabetical sort — the docs are meant to be read in sequence.
+    const requestedUri = `${product.basePath}/${docSlug}`
     const nav = orderedSiblings(flattenDocsNav(docsNavData), requestedUri)
+
+    const breadcrumbs = buildDocBreadcrumbs({
+      product,
+      docsNavData,
+      requestedUri,
+      pageTitle: source?.frontmatter?.title ?? null,
+    })
 
     return {
       props: {
@@ -108,38 +299,60 @@ export async function getStaticProps({ params }) {
         hasMarkdownH1,
         layoutData,
         nav,
+        productKey: product.key,
+        breadcrumbs,
       },
       revalidate: 30,
     }
   } catch (e) {
-    if (e.notFound) {
-      // Literal first argument so route-controlled params can't be
-      // interpreted as console format directives.
-      console.error("doc not found", { params }, e)
-      // Include revalidate so a transient build-time fetch failure can't
-      // permanently cache a 404 — without this, ISR never retries the page
-      // even after the underlying .md file becomes reachable again.
-      return { notFound: true, revalidate: 30 }
-    }
-
-    throw e
+    // Literal first argument so route-controlled params can't be
+    // interpreted as console format directives.
+    console.error(
+      e.notFound ? "doc not found" : "doc failed to render",
+      { params },
+      e
+    )
+    // Every failure returns a revalidating 404 rather than throwing: a
+    // throw during prerender fails the ENTIRE site build, which would let a
+    // single MDX-hostile character in any product's markdown take the whole
+    // site down (observed: raw { } or <text,text> in prose). A 404 with
+    // revalidate isolates the bad page, keeps the error in the logs, and
+    // self-heals once the content (or a transient fetch failure) is fixed.
+    return { notFound: true, revalidate: 30 }
   }
 }
 
 export async function getStaticPaths() {
-  // Pre-render paths sourced from the actual .md files in the docs folder,
-  // not from the WordPress Primary Nav menu. The menu only references ~4 docs
-  // out of ~50, and any drift between menu URIs and real files produced
-  // permanent static 404s for the menu-linked docs.
-  let paths = []
-  try {
-    const uris = await getAllDocUri()
-    paths = uris
-      .filter((uri) => !isDeveloperReferenceDocUri(uri))
-      .map((uri) => toSlugParams(uri))
-      .filter(Boolean)
-  } catch (e) {
-    console.error("getStaticPaths: failed to enumerate docs from GitHub", e)
+  // Pre-render paths sourced from the actual .md files in each enabled
+  // product's docs folder, not from the WordPress Primary Nav menu. The menu
+  // only references ~4 docs out of ~50, and any drift between menu URIs and
+  // real files produced permanent static 404s for the menu-linked docs.
+  const paths = [{ params: { slug: [] } }]
+  for (const product of enabledProducts()) {
+    try {
+      const uris = await getAllDocUri(product)
+      for (const uri of uris) {
+        if (
+          product.key === CORE_PRODUCT_KEY &&
+          isDeveloperReferenceDocUri(uri)
+        ) {
+          continue
+        }
+        const params = toSlugParams(uri)
+        if (params) {
+          paths.push(params)
+        }
+      }
+    } catch (e) {
+      // A product whose docs can't be enumerated (e.g. content not yet on
+      // main) prerenders nothing; fallback: "blocking" serves it once the
+      // content lands.
+      console.error(
+        "getStaticPaths: failed to enumerate docs",
+        { product: product.key },
+        e
+      )
+    }
   }
 
   return {

@@ -67,7 +67,6 @@ class AllowDenyQueryDocument extends ValidationRule {
 						$context->reportError(
 							new Error(
 								self::deniedDocumentMessage(),
-								/** @phpstan-ignore-next-line argument.type */
 								$node
 							)
 						);
@@ -79,7 +78,6 @@ class AllowDenyQueryDocument extends ValidationRule {
 						$context->reportError(
 							new Error(
 								self::notFoundDocumentMessage(),
-								/** @phpstan-ignore-next-line argument.type */
 								$node
 							)
 						);
@@ -87,7 +85,6 @@ class AllowDenyQueryDocument extends ValidationRule {
 						$context->reportError(
 							new Error(
 								self::deniedDocumentMessage(),
-								/** @phpstan-ignore-next-line argument.type */
 								$node
 							)
 						);

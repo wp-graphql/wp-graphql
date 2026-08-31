@@ -6,6 +6,7 @@ use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\Connection\EnqueuedAssets;
 
 class TermNode {
 
@@ -24,16 +25,18 @@ class TermNode {
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
 				'connections' => [
 					'enqueuedScripts'     => [
-						'toType'  => 'EnqueuedScript',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedScript',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
 						},
 					],
 					'enqueuedStylesheets' => [
-						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => static function ( $source, $args, $context, $info ) {
+						'toType'         => 'EnqueuedStylesheet',
+						'connectionArgs' => EnqueuedAssets::get_connection_args(),
+						'resolve'        => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 							return $resolver->get_connection();
 						},

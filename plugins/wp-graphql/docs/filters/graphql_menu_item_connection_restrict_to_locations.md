@@ -19,7 +19,7 @@ Filter whether the menu item connection should be restricted to items assigned t
 
 - **Type:** filter
 - **Group:** Connections
-- **Since:** x-release-please-version
+- **Since:** 2.18.0
 - **Source File:** `plugins/wp-graphql/src/Data/Connection/MenuItemConnectionResolver.php`
 
 ## Parameters

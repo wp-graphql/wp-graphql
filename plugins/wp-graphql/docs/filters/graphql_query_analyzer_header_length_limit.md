@@ -28,7 +28,7 @@ Many clients have an 8k (8192 characters) header length cap. This is the total f
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:247`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L247)
+- [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:256`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L256)
 
 ```php
 apply_filters( 'graphql_query_analyzer_header_length_limit', 4000 );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_query_analyzer_header_length_limit', 4000 );
 
 ## Related
 
-- `QueryAnalyzer::init()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:247`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L247)
+- `QueryAnalyzer::init()` in [`plugins/wp-graphql/src/Utils/QueryAnalyzer.php:256`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/QueryAnalyzer.php#L256)

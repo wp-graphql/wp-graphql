@@ -75,6 +75,64 @@ describe('documents api — content format', () => {
 	});
 });
 
+// The saved-documents list is scoped to the current user by the client:
+// `getDocuments` sends an `author` where arg with the viewer's user ID
+// (from `WPGRAPHQL_IDE_DATA.context.currentUserId`). Server-side, per-user
+// privacy is enforced at the model layer (`graphql_data_is_private`); the
+// author arg is what keeps pagination correct (without it, other users'
+// docs would occupy `first: 100` slots and get dropped post-query). The
+// IDE must NOT rely on any server-side connection-level author scoping —
+// that approach author-scoped unrelated `post_type: any` connections too
+// (https://github.com/wp-graphql/wp-graphql/issues/4117).
+describe('documents api — per-user author scoping on the wire', () => {
+	const ENDPOINT = 'http://example.test/graphql';
+
+	beforeEach(() => {
+		window.WPGRAPHQL_IDE_DATA = {
+			graphqlEndpoint: ENDPOINT,
+			nonce: 'test-nonce',
+			context: { currentUserId: 7 },
+		};
+		global.fetch = jest.fn();
+	});
+
+	afterEach(() => {
+		delete global.fetch;
+		delete window.WPGRAPHQL_IDE_DATA;
+	});
+
+	function mockOk(json) {
+		global.fetch.mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve(json),
+		});
+	}
+
+	function lastSentBody() {
+		const lastCall = global.fetch.mock.calls.at(-1);
+		return JSON.parse(lastCall[1].body);
+	}
+
+	it('getDocuments filters by the current user as author', async () => {
+		mockOk({ data: { graphqlDocuments: { nodes: [] } } });
+		await getDocuments();
+		const body = lastSentBody();
+		expect(body.query).toMatch(/author:\s*\$author/);
+		expect(body.variables.author).toBe(7);
+	});
+
+	it('getDocuments sends a null author when there is no logged-in user', async () => {
+		// Public-endpoint mode with a logged-out visitor: no user to scope
+		// to. A null variable reaches WP_Query as an empty author arg,
+		// which it ignores; the model layer hides every document anyway.
+		window.WPGRAPHQL_IDE_DATA.context = { currentUserId: 0 };
+		mockOk({ data: { graphqlDocuments: { nodes: [] } } });
+		await getDocuments();
+		expect(lastSentBody().variables.author).toBeNull();
+	});
+});
+
 // WPGraphQL's `PostStatusEnum` is uppercase (DRAFT / PUBLISH / …) — the
 // IDE stores the post_status string lowercase internally to match what
 // the read side returns. `buildMutationInput` upcases at the wire; this
