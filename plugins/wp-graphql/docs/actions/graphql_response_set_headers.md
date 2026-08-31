@@ -28,7 +28,7 @@ Fire an action when the headers are set
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:417`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L417)
+- [`plugins/wp-graphql/src/Router.php:441`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L441)
 
 ```php
 do_action( 'graphql_response_set_headers', $headers );
@@ -36,4 +36,4 @@ do_action( 'graphql_response_set_headers', $headers );
 
 ## Related
 
-- `Router::set_headers()` in [`plugins/wp-graphql/src/Router.php:417`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L417)
+- `Router::set_headers()` in [`plugins/wp-graphql/src/Router.php:441`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L441)

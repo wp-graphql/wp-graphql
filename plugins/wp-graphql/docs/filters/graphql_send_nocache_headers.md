@@ -28,7 +28,7 @@ Filters whether no-cache headers should be sent on the GraphQL HTTP response. Pr
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:363`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L363)
+- [`plugins/wp-graphql/src/Router.php:367`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L367)
 
 ```php
 apply_filters( 'graphql_send_nocache_headers', $is_authenticated );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_send_nocache_headers', $is_authenticated );
 
 ## Related
 
-- `Router::get_response_headers()` in [`plugins/wp-graphql/src/Router.php:363`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L363)
+- `Router::get_response_headers()` in [`plugins/wp-graphql/src/Router.php:367`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L367)
