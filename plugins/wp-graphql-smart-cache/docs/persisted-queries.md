@@ -51,7 +51,7 @@ From this screen you can add/update the following properties of a GraphQL Docume
 
 One feature enabled by "Persisted Queries" is the ability to query documents by ID instead of by full query string.
 
-When a GraphQL Document has been saved, it's assigned a unique ID that can be used to execute the query wihtout uploading the full document.
+When a GraphQL Document has been saved, it's assigned a unique ID that can be used to execute the query without uploading the full document.
 
 If the same query comes through with different formatting, a new ID is associated with the existing query.
 

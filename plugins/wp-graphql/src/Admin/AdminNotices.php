@@ -78,7 +78,7 @@ class AdminNotices {
 			'wpgraphql-acf-announcement',
 			[
 				'type'           => 'info',
-				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
+				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://www.wpgraphql.com/docs/acf" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
 				'is_dismissable' => true,
 				'conditions'     => static function () {
 					if ( ! class_exists( 'ACF' ) ) {

@@ -29,7 +29,7 @@ Filter the HTTP status code returned for authentication errors. By default, inva
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:492`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L492)
+- [`plugins/wp-graphql/src/Router.php:516`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L516)
 
 ```php
 apply_filters( 'graphql_authentication_error_status_code', 403, $auth_error );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_authentication_error_status_code', 403, $auth_error );
 
 ## Related
 
-- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:492`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L492)
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:516`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L516)

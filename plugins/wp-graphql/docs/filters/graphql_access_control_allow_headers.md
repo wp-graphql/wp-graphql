@@ -12,7 +12,7 @@ plugin: wp-graphql
 # graphql_access_control_allow_headers
 
 ```php
-apply_filters( 'graphql_access_control_allow_headers', [ 'Authorization', 'Content-Type', ] );
+apply_filters( 'graphql_access_control_allow_headers', [ 'Authorization', 'Content-Type', // Allows cross-origin clients to send request-level preview context via the // `X-GraphQL-Preview` header, the primary preview transport (`extensions.preview` // in the request body is the fallback). See WPGraphQL\Request::get_preview_input(). 'X-GraphQL-Preview', ] );
 ```
 
 Filtered list of access control headers.
@@ -36,6 +36,10 @@ apply_filters(
 			[
 				'Authorization',
 				'Content-Type',
+				// Allows cross-origin clients to send request-level preview context via the
+				// `X-GraphQL-Preview` header, the primary preview transport (`extensions.preview`
+				// in the request body is the fallback). See WPGraphQL\Request::get_preview_input().
+				'X-GraphQL-Preview',
 			]
 		);
 ```

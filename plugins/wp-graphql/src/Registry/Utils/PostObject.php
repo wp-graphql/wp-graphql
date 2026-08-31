@@ -340,7 +340,7 @@ class PostObject {
 					return __( 'Deprecated in favor of the databaseId field', 'wp-graphql' );
 				},
 				'description'       => static function () {
-					return __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' );
+					return __( 'The unique numeric identifier for the content node.', 'wp-graphql' );
 				},
 				'resolve'           => static function ( Post $post ) {
 					return absint( $post->databaseId );

@@ -34,7 +34,7 @@ Filter the $status_code before setting the headers
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:639`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L639)
+- [`plugins/wp-graphql/src/Router.php:663`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L663)
 
 ```php
 apply_filters( 'graphql_response_status_code', self::$http_status_code, $_deprecated, $response, $query, $operation_name, $variables, $user );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_response_status_code', self::$http_status_code, $_deprec
 
 ## Related
 
-- `Router::prepare_headers()` in [`plugins/wp-graphql/src/Router.php:639`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L639)
+- `Router::prepare_headers()` in [`plugins/wp-graphql/src/Router.php:663`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L663)
