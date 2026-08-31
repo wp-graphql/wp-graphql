@@ -319,7 +319,7 @@ class TermObject {
 					return __( 'Deprecated in favor of databaseId', 'wp-graphql' );
 				},
 				'description'       => static function () {
-					return __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' );
+					return __( 'The unique numeric identifier for the term.', 'wp-graphql' );
 				},
 				'resolve'           => static function ( Term $term ) {
 					return absint( $term->databaseId );

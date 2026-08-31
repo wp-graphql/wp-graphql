@@ -29,7 +29,7 @@ Return the validation rules to use in the request
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:222`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L222)
+- [`plugins/wp-graphql/src/Request.php:224`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L224)
 
 ```php
 apply_filters( 'graphql_validation_rules', $validation_rules, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_validation_rules', $validation_rules, $this );
 
 ## Related
 
-- `Request::get_validation_rules()` in [`plugins/wp-graphql/src/Request.php:222`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L222)
+- `Request::get_validation_rules()` in [`plugins/wp-graphql/src/Request.php:224`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L224)
