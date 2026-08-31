@@ -28,7 +28,7 @@ WPGraphQL for ACF provides support for most built-in field types of ACF (free & 
 
 == Updating ==
 
-If you are updating from WPGraphQL for ACF v0.6.* or older, check out the [Upgrade Guide](https://acf.wpgraphql.com/upgrade-guide)
+If you are updating from WPGraphQL for ACF v0.6.* or older, check out the [Upgrade Guide](https://www.wpgraphql.com/docs/acf/upgrade-guide)
 
 For non-major version updates, automatic updates usually should work smoothly, but we still recommend you back up your site and test on a staging site.
 
@@ -71,7 +71,7 @@ Yes! WPGraphQL for ACF works great with ACF Free and Pro. The Pro version of ACF
 
 **Do I have to use Faust.js to use WPGraphQL for ACF?**
 
-No! While [wpgraphql.com](https://www.wpgraphql.com) and [acf.wpgraphql.com](https://acf.wpgraphql.com) are built using [Faust.js](https://faustjs.org/) and Next.js, you can use WPGraphQL for ACF with any GraphQL client, including Apollo, Relay, Urql, etc.
+No! You can use WPGraphQL for ACF with any GraphQL client, including Apollo, Relay, Urql, [Faust.js](https://faustjs.org/), etc.
 
 **I have an ACF Extension that adds a new field type, will it work with WPGraphQL for ACF?**
 
@@ -124,7 +124,7 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 
 = 2.0.0 =
 
-This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://acf.wpgraphql.com/upgrade-guide/) before upgrading.
+This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://www.wpgraphql.com/docs/acf/upgrade-guide) before upgrading.
 
 == Changelog ==
 
