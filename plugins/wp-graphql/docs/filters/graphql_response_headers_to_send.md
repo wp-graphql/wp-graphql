@@ -28,7 +28,7 @@ Filter the $headers to send
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:377`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L377)
+- [`plugins/wp-graphql/src/Router.php:401`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L401)
 
 ```php
 apply_filters( 'graphql_response_headers_to_send', $headers );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_response_headers_to_send', $headers );
 
 ## Related
 
-- `Router::get_response_headers()` in [`plugins/wp-graphql/src/Router.php:377`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L377)
+- `Router::get_response_headers()` in [`plugins/wp-graphql/src/Router.php:401`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L401)
