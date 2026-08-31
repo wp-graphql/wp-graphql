@@ -46,7 +46,7 @@ class Comment {
 							'ipAddress' => [
 								'type'        => 'String',
 								'description' => static function () {
-									return __( 'IP address of the author at the time of making this comment. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' );
+									return __( 'IP address of the author at the time of making this comment.', 'wp-graphql' );
 								},
 								'resolve'     => static function ( $edge ) {
 									return $edge['source']->authorIp ?: null;
@@ -97,13 +97,13 @@ class Comment {
 						'agent'            => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the "comment_agent" column in SQL.', 'wp-graphql' );
+								return __( 'User agent (browser or client) used to post the comment.', 'wp-graphql' );
 							},
 						],
 						'approved'         => [
 							'type'              => 'Boolean',
 							'description'       => static function () {
-								return __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' );
+								return __( 'The approval status of the comment.', 'wp-graphql' );
 							},
 							'deprecationReason' => __( 'Deprecated in favor of the `status` field', 'wp-graphql' ),
 							'resolve'           => static function ( $comment ) {
@@ -114,7 +114,7 @@ class Comment {
 							'type'              => 'String',
 							'deprecationReason' => __( 'Use the ipAddress field on the edge between the comment and author', 'wp-graphql' ),
 							'description'       => static function () {
-								return __( 'IP address for the author at the time of commenting. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' );
+								return __( 'IP address for the author at the time of commenting.', 'wp-graphql' );
 							},
 						],
 						'commentId'        => [
@@ -129,7 +129,7 @@ class Comment {
 						'content'          => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Content of the comment. This field is equivalent to WP_Comment->comment_content and the value matching the "comment_content" column in SQL.', 'wp-graphql' );
+								return __( 'Content of the comment.', 'wp-graphql' );
 							},
 							'args'        => [
 								'format' => [
@@ -150,13 +150,13 @@ class Comment {
 						'date'             => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the "date" column in SQL.', 'wp-graphql' );
+								return __( 'Date the comment was posted in local time.', 'wp-graphql' );
 							},
 						],
 						'dateGmt'          => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the "date_gmt" column in SQL.', 'wp-graphql' );
+								return __( 'Date the comment was posted in GMT.', 'wp-graphql' );
 							},
 						],
 						'id'               => [
@@ -173,7 +173,7 @@ class Comment {
 						'karma'            => [
 							'type'        => 'Int',
 							'description' => static function () {
-								return __( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the "comment_karma" column in SQL.', 'wp-graphql' );
+								return __( 'Karma value for the comment.', 'wp-graphql' );
 							},
 						],
 						'link'             => [
@@ -197,13 +197,13 @@ class Comment {
 						'status'           => [
 							'type'        => 'CommentStatusEnum',
 							'description' => static function () {
-								return __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' );
+								return __( 'The approval status of the comment.', 'wp-graphql' );
 							},
 						],
 						'type'             => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the "comment_type" column in SQL.', 'wp-graphql' );
+								return __( 'Type of comment.', 'wp-graphql' );
 							},
 						],
 					];

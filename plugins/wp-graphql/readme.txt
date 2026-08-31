@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.20.0
+Stable tag: 2.21.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -310,6 +310,28 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 2.21.0 =
+
+**New Features**
+
+* add request-level preview context (X-GraphQL-Preview header / extensions.preview) ([#3969](https://github.com/wp-graphql/wp-graphql/issues/3969))
+* **deps:** bump @wordpress/components from 34.0.0 to 37.0.0 ([#4204](https://github.com/wp-graphql/wp-graphql/issues/4204))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#4202](https://github.com/wp-graphql/wp-graphql/issues/4202))
+* **deps:** bump the npm-prod-minor-patch group with 7 updates ([#4218](https://github.com/wp-graphql/wp-graphql/issues/4218))
+* preview ACF field values under the request-level preview context ([#4222](https://github.com/wp-graphql/wp-graphql/issues/4222))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @typescript-eslint/eslint-plugin from 6.21.0 to 8.65.0 ([#4220](https://github.com/wp-graphql/wp-graphql/issues/4220))
+* **deps-dev:** bump lint-staged from 16.4.0 to 17.2.0 ([#4221](https://github.com/wp-graphql/wp-graphql/issues/4221))
+* **deps-dev:** bump phpstan/phpstan from 2.2.7 to 2.2.8 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4199](https://github.com/wp-graphql/wp-graphql/issues/4199))
+* **deps-dev:** bump sort-package-json from 3.7.1 to 4.0.0 ([#4219](https://github.com/wp-graphql/wp-graphql/issues/4219))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 12 updates ([#4226](https://github.com/wp-graphql/wp-graphql/issues/4226))
+* **deps-dev:** bump the npm-dev-minor-patch group with 5 updates ([#4200](https://github.com/wp-graphql/wp-graphql/issues/4200))
+* **deps:** bump webonyx/graphql-php from 15.37.1 to 15.37.2 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4215](https://github.com/wp-graphql/wp-graphql/issues/4215))
+* point acf.wpgraphql.com links at the wpgraphql.com docs portal ([#4251](https://github.com/wp-graphql/wp-graphql/issues/4251))
+* remove WordPress internals from schema field descriptions ([#4161](https://github.com/wp-graphql/wp-graphql/issues/4161))
+
 = 2.20.0 =
 
 **New Features**
@@ -586,7 +608,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.20.0
+* replace x-release-please-version placeholders with 2.21.0
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =
