@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.20.0\n"
+"Project-Id-Version: WPGraphQL 2.21.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-14T18:43:56+00:00\n"
+"POT-Creation-Date: 2026-08-31T18:01:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -81,13 +81,13 @@ msgstr ""
 #. translators: %s is the class name
 #: deprecated/Types.php:26
 #: deprecated/Types.php:45
-#: src/Router.php:659
+#: src/Router.php:683
 #, php-format
 msgid "This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead."
 msgstr ""
 
 #: src/Admin/AdminNotices.php:81
-msgid "You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href=\"https://acf.wpgraphql.com/\" target=\"_blank\" rel=\"nofollow\">WPGraphQL for ACF</a>?"
+msgid "You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href=\"https://www.wpgraphql.com/docs/acf\" target=\"_blank\" rel=\"nofollow\">WPGraphQL for ACF</a>?"
 msgstr ""
 
 #: src/Admin/AdminNotices.php:196
@@ -380,28 +380,28 @@ msgstr ""
 msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
 msgstr ""
 
-#: src/AppContext.php:232
+#: src/AppContext.php:241
 msgid "The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated."
 msgstr ""
 
 #. translators: %s is the key of the loader that was not found.
-#: src/AppContext.php:267
+#: src/AppContext.php:276
 #, php-format
 msgid "No loader assigned to the key %s"
 msgstr ""
 
 #. translators: %s is the key of the loader that failed to instantiate.
-#: src/AppContext.php:276
+#: src/AppContext.php:285
 #, php-format
 msgid "Failed to instantiate %1$s: %2$s"
 msgstr ""
 
-#: src/AppContext.php:302
+#: src/AppContext.php:311
 msgid "Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead."
 msgstr ""
 
 #. translators: %s is the name of the property being set.
-#: src/AppContext.php:368
+#: src/AppContext.php:377
 #, php-format
 msgid "Setting dynamic properties on AppContext is deprecated. Use AppContext::set() instead. Attempted to set property: %s"
 msgstr ""
@@ -1138,6 +1138,8 @@ msgid "The \"%1$s\" field requires the \"%2$s\" capability and resolved to null.
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:38
+#: src/Type/ObjectType/Comment.php:106
+#: src/Type/ObjectType/Comment.php:200
 msgid "The approval status of the comment."
 msgstr ""
 
@@ -1162,6 +1164,7 @@ msgid "The database ID of the post object the comment belongs to."
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:71
+#: src/Type/ObjectType/Comment.php:132
 msgid "Content of the comment."
 msgstr ""
 
@@ -1178,6 +1181,7 @@ msgid "The approval status of the comment"
 msgstr ""
 
 #: src/Mutation/CommentCreate.php:95
+#: src/Type/ObjectType/Comment.php:206
 msgid "Type of comment."
 msgstr ""
 
@@ -1534,7 +1538,7 @@ msgid "URLs queued to be pinged."
 msgstr ""
 
 #: src/Mutation/PostObjectCreate.php:171
-msgid "If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the \"post_objects\" database table."
+msgid "The MIME type of the file for the media item (for example, image/jpeg or application/pdf)."
 msgstr ""
 
 #. translators: %1$s is the post type GraphQL name, %2$s is the taxonomy GraphQL name.
@@ -2135,8 +2139,7 @@ msgid "Deprecated in favor of the databaseId field"
 msgstr ""
 
 #: src/Registry/Utils/PostObject.php:343
-#: src/Registry/Utils/TermObject.php:322
-msgid "The id field matches the WP_Post->ID field."
+msgid "The unique numeric identifier for the content node."
 msgstr ""
 
 #. translators: %s: custom post-type name.
@@ -2175,9 +2178,9 @@ msgstr ""
 
 #: src/Registry/Utils/PostObject.php:439
 #: src/Registry/Utils/PostObject.php:530
-#: src/Type/InterfaceType/NodeWithContentEditor.php:33
-#: src/Type/InterfaceType/NodeWithExcerpt.php:34
-#: src/Type/InterfaceType/NodeWithTitle.php:34
+#: src/Type/InterfaceType/NodeWithContentEditor.php:34
+#: src/Type/InterfaceType/NodeWithExcerpt.php:35
+#: src/Type/InterfaceType/NodeWithTitle.php:35
 #: src/Type/ObjectType/Comment.php:138
 msgid "Format of the field output"
 msgstr ""
@@ -2267,36 +2270,56 @@ msgstr ""
 msgid "Deprecated in favor of databaseId"
 msgstr ""
 
-#: src/Request.php:313
+#: src/Registry/Utils/TermObject.php:322
+msgid "The unique numeric identifier for the term."
+msgstr ""
+
+#: src/Request.php:323
+msgid "Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead."
+msgstr ""
+
+#: src/Request.php:336
 msgid "Batch Queries are not supported"
 msgstr ""
 
 #. translators: First placeholder is the max number of batch operations allowed in a GraphQL request. The 2nd placeholder is the number of operations requested in the current request.
-#: src/Request.php:323
+#: src/Request.php:346
 #, php-format
 msgid "Batch requests are limited to %1$d operations. This request contained %2$d"
 msgstr ""
 
-#: src/Request.php:651
-#: src/Request.php:755
+#: src/Request.php:523
+msgid "The `extensions.preview` object is not supported in batch requests and was ignored. Send the `X-GraphQL-Preview` header instead; it applies to every operation in the batch."
+msgstr ""
+
+#: src/Request.php:568
+msgid "The `X-GraphQL-Preview` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase, e.g. `database_id`, not `databaseId`). The `extensions.preview` fallback applies if present."
+msgstr ""
+
+#: src/Request.php:597
+msgid "The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present."
+msgstr ""
+
+#: src/Request.php:902
+#: src/Request.php:1006
 msgid "Authentication Error"
 msgstr ""
 
-#: src/Request.php:716
+#: src/Request.php:967
 msgid "The GraphQL request returned an invalid response"
 msgstr ""
 
 #. translators: %s is the content type header value that was received
-#: src/Request.php:865
+#: src/Request.php:1116
 #, php-format
 msgid "HTTP POST requests must have Content-Type: application/json header. Received: %s"
 msgstr ""
 
-#: src/Router.php:339
+#: src/Router.php:343
 msgid "If you're reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!"
 msgstr ""
 
-#: src/Router.php:781
+#: src/Router.php:805
 msgid "Cookie nonce is invalid"
 msgstr ""
 
@@ -2440,12 +2463,12 @@ msgid "Limit results to assets whose handle is in the provided list. Handles tha
 msgstr ""
 
 #: src/Type/Connection/MenuItems.php:104
-#: src/Type/ObjectType/RootQuery.php:56
+#: src/Type/ObjectType/RootQuery.php:57
 msgid "The database ID of the object"
 msgstr ""
 
 #: src/Type/Connection/MenuItems.php:110
-#: src/Type/ObjectType/RootQuery.php:62
+#: src/Type/ObjectType/RootQuery.php:63
 msgid "The menu location for the menu being queried"
 msgstr ""
 
@@ -3589,63 +3612,63 @@ msgstr ""
 msgid "A list of connected nodes"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:32
+#: src/Type/InterfaceType/ContentNode.php:33
 msgid "Base interface for content objects like posts, pages, and media items. Provides common fields available across these content types."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:106
+#: src/Type/InterfaceType/ContentNode.php:107
 msgid "The name of the Content Type the node belongs to"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:115
+#: src/Type/InterfaceType/ContentNode.php:116
 msgid "The template assigned to a node of content"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:123
+#: src/Type/InterfaceType/ContentNode.php:124
 msgid "The ID of the node in the database."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:129
+#: src/Type/InterfaceType/ContentNode.php:130
 msgid "Post publishing date."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:135
+#: src/Type/InterfaceType/ContentNode.php:136
 msgid "The publishing date set in GMT."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:141
+#: src/Type/InterfaceType/ContentNode.php:142
 msgid "The RSS enclosure for the object"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:147
+#: src/Type/InterfaceType/ContentNode.php:148
 msgid "The current status of the object"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:153
-msgid "The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the \"post_objects\" table."
+#: src/Type/InterfaceType/ContentNode.php:154
+msgid "The URL-friendly, human-readable identifier for the content node, used in its permalink."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:159
+#: src/Type/InterfaceType/ContentNode.php:160
 msgid "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:165
+#: src/Type/InterfaceType/ContentNode.php:166
 msgid "The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:171
-msgid "The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the \"post_objects\" database table."
+#: src/Type/InterfaceType/ContentNode.php:172
+msgid "The global unique identifier for this content node. This is a stable, unique identifier for the node that does not change even if the node is moved or its url changes."
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:177
+#: src/Type/InterfaceType/ContentNode.php:178
 msgid "The desired slug of the post"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:183
+#: src/Type/InterfaceType/ContentNode.php:184
 msgid "The permalink of the post"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:189
+#: src/Type/InterfaceType/ContentNode.php:190
 #: src/Type/InterfaceType/TermNode.php:125
 #: src/Type/ObjectType/Avatar.php:87
 #: src/Type/ObjectType/Comment.php:170
@@ -3661,16 +3684,19 @@ msgstr ""
 msgid "Whether the object is restricted from the current viewer"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:195
-#: src/Type/InterfaceType/ContentNode.php:207
+#: src/Type/InterfaceType/ContentNode.php:196
 #: src/Type/InterfaceType/Previewable.php:29
 #: src/Type/InterfaceType/Previewable.php:41
 msgid "Whether the object is a node in the preview state"
 msgstr ""
 
-#: src/Type/InterfaceType/ContentNode.php:201
+#: src/Type/InterfaceType/ContentNode.php:210
 #: src/Type/InterfaceType/Previewable.php:35
 msgid "The database id of the preview node"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:221
+msgid "The globally unique ID of the preview node"
 msgstr ""
 
 #: src/Type/InterfaceType/ContentTemplate.php:19
@@ -3836,7 +3862,7 @@ msgstr ""
 msgid "Content that has a main body field which can contain formatted text and media. Provides access to both raw (with appropriate permissions) and rendered versions of the content."
 msgstr ""
 
-#: src/Type/InterfaceType/NodeWithContentEditor.php:27
+#: src/Type/InterfaceType/NodeWithContentEditor.php:28
 msgid "The content of the post."
 msgstr ""
 
@@ -3844,19 +3870,19 @@ msgstr ""
 msgid "A node which provides an excerpt field, which is a condensed summary of the main content. Excerpts can be manually created or automatically generated and are often used in content listings and search results."
 msgstr ""
 
-#: src/Type/InterfaceType/NodeWithExcerpt.php:28
+#: src/Type/InterfaceType/NodeWithExcerpt.php:29
 msgid "The excerpt of the post."
 msgstr ""
 
-#: src/Type/InterfaceType/NodeWithFeaturedImage.php:25
+#: src/Type/InterfaceType/NodeWithFeaturedImage.php:87
 msgid "Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer."
 msgstr ""
 
-#: src/Type/InterfaceType/NodeWithFeaturedImage.php:49
+#: src/Type/InterfaceType/NodeWithFeaturedImage.php:113
 msgid "Globally unique ID of the featured image assigned to the node"
 msgstr ""
 
-#: src/Type/InterfaceType/NodeWithFeaturedImage.php:55
+#: src/Type/InterfaceType/NodeWithFeaturedImage.php:124
 msgid "The database identifier for the featured image node assigned to the content node"
 msgstr ""
 
@@ -3880,7 +3906,7 @@ msgstr ""
 msgid "Content with a dedicated title field. The title typically serves as the main heading and identifier for the content."
 msgstr ""
 
-#: src/Type/InterfaceType/NodeWithTitle.php:28
+#: src/Type/InterfaceType/NodeWithTitle.php:29
 msgid "The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made."
 msgstr ""
 
@@ -4042,7 +4068,7 @@ msgid "Email address representing the author for this particular comment"
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:49
-msgid "IP address of the author at the time of making this comment. This field is equivalent to WP_Comment->comment_author_IP and the value matching the \"comment_author_IP\" column in SQL."
+msgid "IP address of the author at the time of making this comment."
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:58
@@ -4054,12 +4080,7 @@ msgid "The url entered for the comment author on this particular comment"
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:100
-msgid "User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the \"comment_agent\" column in SQL."
-msgstr ""
-
-#: src/Type/ObjectType/Comment.php:106
-#: src/Type/ObjectType/Comment.php:200
-msgid "The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the \"comment_approved\" column in SQL."
+msgid "User agent (browser or client) used to post the comment."
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:108
@@ -4071,23 +4092,19 @@ msgid "Use the ipAddress field on the edge between the comment and author"
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:117
-msgid "IP address for the author at the time of commenting. This field is equivalent to WP_Comment->comment_author_IP and the value matching the \"comment_author_IP\" column in SQL."
+msgid "IP address for the author at the time of commenting."
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:123
 msgid "ID for the comment, unique among comments."
 msgstr ""
 
-#: src/Type/ObjectType/Comment.php:132
-msgid "Content of the comment. This field is equivalent to WP_Comment->comment_content and the value matching the \"comment_content\" column in SQL."
-msgstr ""
-
 #: src/Type/ObjectType/Comment.php:153
-msgid "Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the \"date\" column in SQL."
+msgid "Date the comment was posted in local time."
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:159
-msgid "Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the \"date_gmt\" column in SQL."
+msgid "Date the comment was posted in GMT."
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:164
@@ -4095,7 +4112,7 @@ msgid "The globally unique identifier for the comment object"
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:176
-msgid "Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the \"comment_karma\" column in SQL."
+msgid "Karma value for the comment."
 msgstr ""
 
 #: src/Type/ObjectType/Comment.php:182
@@ -4108,10 +4125,6 @@ msgstr ""
 
 #: src/Type/ObjectType/Comment.php:194
 msgid "The database id of the parent comment node or null if it is the root comment"
-msgstr ""
-
-#: src/Type/ObjectType/Comment.php:206
-msgid "Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the \"comment_type\" column in SQL."
 msgstr ""
 
 #: src/Type/ObjectType/CommentAuthor.php:19
@@ -4452,11 +4465,11 @@ msgid "WP ID of the nav menu."
 msgstr ""
 
 #: src/Type/ObjectType/Menu.php:48
-msgid "Display name of the menu. Equivalent to WP_Term->name."
+msgid "Display name of the menu."
 msgstr ""
 
 #: src/Type/ObjectType/Menu.php:54
-msgid "The url friendly name of the menu. Equivalent to WP_Term->slug"
+msgid "The url friendly name of the menu."
 msgstr ""
 
 #: src/Type/ObjectType/Menu.php:68
@@ -4687,230 +4700,230 @@ msgstr ""
 msgid "The count to increase"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:39
+#: src/Type/ObjectType/RootQuery.php:40
 msgid "The root entry point into the Graph"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:68
+#: src/Type/ObjectType/RootQuery.php:69
 msgid "The slug of the menu to query items for"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:85
+#: src/Type/ObjectType/RootQuery.php:86
 msgid "Show plugin based on a keyword search."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:91
+#: src/Type/ObjectType/RootQuery.php:92
 msgid "Show plugins with a specific status."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:97
+#: src/Type/ObjectType/RootQuery.php:98
 msgid "Retrieve plugins where plugin status is in an array."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:172
+#: src/Type/ObjectType/RootQuery.php:173
 msgid "Entry point to get all settings for the site"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:181
+#: src/Type/ObjectType/RootQuery.php:182
 msgid "Returns a Comment"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:189
+#: src/Type/ObjectType/RootQuery.php:190
 msgid "Unique identifier for the comment node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:195
+#: src/Type/ObjectType/RootQuery.php:196
 msgid "Type of unique identifier to fetch a comment by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:209
-#: src/Type/ObjectType/RootQuery.php:489
-#: src/Type/ObjectType/RootQuery.php:530
-#: src/Type/ObjectType/RootQuery.php:626
-#: src/Type/ObjectType/RootQuery.php:954
+#: src/Type/ObjectType/RootQuery.php:210
+#: src/Type/ObjectType/RootQuery.php:497
+#: src/Type/ObjectType/RootQuery.php:538
+#: src/Type/ObjectType/RootQuery.php:634
+#: src/Type/ObjectType/RootQuery.php:969
 msgid "The ID input is invalid"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:222
+#: src/Type/ObjectType/RootQuery.php:223
 msgid "A node used to manage content"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:230
+#: src/Type/ObjectType/RootQuery.php:231
 msgid "Unique identifier for the content node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:236
+#: src/Type/ObjectType/RootQuery.php:237
 msgid "Type of unique identifier to fetch a content node by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:242
+#: src/Type/ObjectType/RootQuery.php:243
 msgid "The content type the node is used for. Required when idType is set to \"name\" or \"slug\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:248
-#: src/Type/ObjectType/RootQuery.php:810
+#: src/Type/ObjectType/RootQuery.php:249
+#: src/Type/ObjectType/RootQuery.php:818
 msgid "Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn't have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the \"asPreview\" argument is not explicitly provided as an argument."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:270
-#: src/Type/ObjectType/RootQuery.php:853
+#: src/Type/ObjectType/RootQuery.php:274
+#: src/Type/ObjectType/RootQuery.php:864
 msgid "The ID input is invalid. Make sure you set the proper idType for your input."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:303
+#: src/Type/ObjectType/RootQuery.php:311
 msgid "Fetch a Content Type node by unique Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:309
+#: src/Type/ObjectType/RootQuery.php:317
 msgid "Unique Identifier for the Content Type node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:315
+#: src/Type/ObjectType/RootQuery.php:323
 msgid "Type of unique identifier to fetch a content type by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:345
+#: src/Type/ObjectType/RootQuery.php:353
 msgid "Fetch a Taxonomy node by unique Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:351
+#: src/Type/ObjectType/RootQuery.php:359
 msgid "Unique Identifier for the Taxonomy node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:357
+#: src/Type/ObjectType/RootQuery.php:365
 msgid "Type of unique identifier to fetch a taxonomy by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:388
+#: src/Type/ObjectType/RootQuery.php:396
 msgid "Fetches an object given its ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:394
+#: src/Type/ObjectType/RootQuery.php:402
 msgid "The unique identifier of the node"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:405
+#: src/Type/ObjectType/RootQuery.php:413
 msgid "Fetches an object given its Unique Resource Identifier"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:411
+#: src/Type/ObjectType/RootQuery.php:419
 msgid "Unique Resource Identifier in the form of a path or permalink for a node. Ex: \"/hello-world\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:422
+#: src/Type/ObjectType/RootQuery.php:430
 msgid "A WordPress navigation menu"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:430
+#: src/Type/ObjectType/RootQuery.php:438
 msgid "The globally unique identifier of the menu."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:436
+#: src/Type/ObjectType/RootQuery.php:444
 msgid "Type of unique identifier to fetch a menu by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:457
+#: src/Type/ObjectType/RootQuery.php:465
 msgid "No menu set for the provided location"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:502
+#: src/Type/ObjectType/RootQuery.php:510
 msgid "A WordPress navigation menu item"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:510
+#: src/Type/ObjectType/RootQuery.php:518
 msgid "The globally unique identifier of the menu item."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:516
+#: src/Type/ObjectType/RootQuery.php:524
 msgid "Type of unique identifier to fetch a menu item by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:543
+#: src/Type/ObjectType/RootQuery.php:551
 msgid "A WordPress plugin"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:551
+#: src/Type/ObjectType/RootQuery.php:559
 msgid "The globally unique identifier of the plugin."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:564
+#: src/Type/ObjectType/RootQuery.php:572
 msgid "A node in a taxonomy used to group and relate content nodes"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:572
+#: src/Type/ObjectType/RootQuery.php:580
 msgid "Unique identifier for the term node."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:578
+#: src/Type/ObjectType/RootQuery.php:586
 msgid "Type of unique identifier to fetch a term node by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:584
+#: src/Type/ObjectType/RootQuery.php:592
 msgid "The taxonomy of the tern node. Required when idType is set to \"name\" or \"slug\""
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:605
+#: src/Type/ObjectType/RootQuery.php:613
 msgid "When fetching a Term Node by \"slug\" or \"name\", the \"taxonomy\" also needs to be set as an input."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:638
+#: src/Type/ObjectType/RootQuery.php:646
 msgid "A Theme object"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:646
+#: src/Type/ObjectType/RootQuery.php:654
 msgid "The globally unique identifier of the theme."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:659
+#: src/Type/ObjectType/RootQuery.php:667
 msgid "Returns a user"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:667
+#: src/Type/ObjectType/RootQuery.php:675
 msgid "The globally unique identifier of the user."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:673
+#: src/Type/ObjectType/RootQuery.php:681
 msgid "Type of unique identifier to fetch a user by. Default is Global ID"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:695
+#: src/Type/ObjectType/RootQuery.php:703
 msgid "You do not have permission to request a User by Username"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:706
+#: src/Type/ObjectType/RootQuery.php:714
 msgid "You do not have permission to request a User by Email"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:730
+#: src/Type/ObjectType/RootQuery.php:738
 msgid "Returns a user role"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:738
+#: src/Type/ObjectType/RootQuery.php:746
 msgid "The globally unique identifier of the user object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:751
+#: src/Type/ObjectType/RootQuery.php:759
 msgid "Returns the current user"
 msgstr ""
 
 #. translators: %1$s is the post type GraphQL name, %2$s is the post type description
-#: src/Type/ObjectType/RootQuery.php:787
+#: src/Type/ObjectType/RootQuery.php:795
 #, php-format
 msgid "An object of the %1$s Type. %2$s"
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:798
-#: src/Type/ObjectType/RootQuery.php:918
+#: src/Type/ObjectType/RootQuery.php:806
+#: src/Type/ObjectType/RootQuery.php:933
 msgid "The globally unique identifier of the object."
 msgstr ""
 
-#: src/Type/ObjectType/RootQuery.php:804
-#: src/Type/ObjectType/RootQuery.php:924
+#: src/Type/ObjectType/RootQuery.php:812
+#: src/Type/ObjectType/RootQuery.php:939
 msgid "Type of unique identifier to fetch by. Default is Global ID"
 msgstr ""
 
 #. translators: %s is the taxonomys' GraphQL name.
-#: src/Type/ObjectType/RootQuery.php:908
+#: src/Type/ObjectType/RootQuery.php:923
 msgid "A % object"
 msgstr ""
 
@@ -4957,7 +4970,7 @@ msgid "The globally unique identifier of the taxonomy object."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:65
-msgid "The display name of the taxonomy. This field is equivalent to WP_Taxonomy->label"
+msgid "The display name of the taxonomy."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:71
@@ -4965,7 +4978,7 @@ msgid "Name of the taxonomy shown in the menu. Usually plural."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:78
-msgid "Description of the taxonomy. This field is equivalent to WP_Taxonomy->description"
+msgid "Description of the taxonomy."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:84
@@ -4989,7 +5002,7 @@ msgid "Whether the taxonomy is available for selection in navigation menus."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:120
-msgid "Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud"
+msgid "Whether to show the taxonomy as part of a tag cloud widget."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:126
@@ -5025,39 +5038,39 @@ msgid "The globally unique identifier of the theme object."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:38
-msgid "The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme. This field is equivalent to WP_Theme->get_stylesheet()."
+msgid "The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:44
-msgid "Display name of the theme. This field is equivalent to WP_Theme->get( \"Name\" )."
+msgid "Display name of the theme."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:50
-msgid "The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like. This field is equivalent to WP_Theme->get_screenshot()."
+msgid "The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:56
-msgid "A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( \"ThemeURI\" )."
+msgid "A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:62
-msgid "The description of the theme. This field is equivalent to WP_Theme->get( \"Description\" )."
+msgid "The description of the theme."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:68
-msgid "Name of the theme author(s), could also be a company name. This field is equivalent to WP_Theme->get( \"Author\" )."
+msgid "Name of the theme author(s), could also be a company name."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:74
-msgid "URI for the author/company website. This field is equivalent to WP_Theme->get( \"AuthorURI\" )."
+msgid "URI for the author/company website."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:82
-msgid "URI for the author/company website. This field is equivalent to WP_Theme->get( \"Tags\" )."
+msgid "A list of tags associated with the theme, typically describing its features (e.g. custom-logo, accessibility-ready, full-site-editing)."
 msgstr ""
 
 #: src/Type/ObjectType/Theme.php:88
-msgid "The current version of the theme. This field is equivalent to WP_Theme->get( \"Version\" )."
+msgid "The current version of the theme."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:31
@@ -5085,27 +5098,27 @@ msgid "Description of the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:124
-msgid "Email address of the user. This is equivalent to the WP_User->user_email property."
+msgid "Email address of the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:132
-msgid "A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps."
+msgid "A complete list of capabilities including capabilities inherited from a role."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:138
-msgid "First name of the user. This is equivalent to the WP_User->user_first_name property."
+msgid "First name of the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:144
-msgid "Last name of the user. This is equivalent to the WP_User->user_last_name property."
+msgid "Last name of the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:151
-msgid "Username for the user. This field is equivalent to WP_User->user_login."
+msgid "Username for the user. This is the unique identifier the user provides to log in."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:157
-msgid "Display name of the user. This is equivalent to the WP_User->display_name property."
+msgid "Display name of the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:163
@@ -5121,11 +5134,11 @@ msgid "A website url that is associated with the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:181
-msgid "The slug for the user. This field is equivalent to WP_User->user_nicename"
+msgid "The url friendly identifier for the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:187
-msgid "The nicename for the user. This field is equivalent to WP_User->user_nicename"
+msgid "The url friendly name for the user, used to reference the user in a public url."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:193
@@ -5133,7 +5146,7 @@ msgid "The preferred language locale set for the user. Value derived from get_us
 msgstr ""
 
 #: src/Type/ObjectType/User.php:199
-msgid "The Id of the user. Equivalent to WP_User->ID"
+msgid "The unique numeric identifier for the user."
 msgstr ""
 
 #: src/Type/ObjectType/User.php:214
@@ -5375,6 +5388,14 @@ msgstr ""
 msgid "You do not have permission to view this"
 msgstr ""
 
+#: src/Utils/Preview.php:21
+msgid "Use the request-level preview context instead: send the `X-GraphQL-Preview` request header (or a `preview` object in the request `extensions`). When a request carries preview context, the context is applied and `asPreview` is ignored. This argument is planned for removal in a future major version."
+msgstr ""
+
+#: src/Utils/Preview.php:31
+msgid "The deprecated `asPreview` argument was ignored because the request carries preview context (the `X-GraphQL-Preview` header or `extensions.preview`), which takes precedence. Remove `asPreview` from the query."
+msgstr ""
+
 #. translators: %s is the value of the SAVEQUERIES constant
 #: src/Utils/QueryLog.php:138
 #, php-format
@@ -5399,38 +5420,38 @@ msgstr ""
 msgid "The server's current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s"
 msgstr ""
 
-#: src/WPGraphQL.php:555
+#: src/WPGraphQL.php:567
 msgid "Represents uploaded media, including images, videos, documents, and audio files."
 msgstr ""
 
-#: src/WPGraphQL.php:560
+#: src/WPGraphQL.php:572
 msgid "A standalone content entry generally used for static, non-chronological content such as \"About Us\" or \"Contact\" pages."
 msgstr ""
 
-#: src/WPGraphQL.php:565
+#: src/WPGraphQL.php:577
 msgid "A chronological content entry typically used for blog posts, news articles, or similar date-based content."
 msgstr ""
 
-#: src/WPGraphQL.php:586
+#: src/WPGraphQL.php:598
 msgid "A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure."
 msgstr ""
 
-#: src/WPGraphQL.php:591
+#: src/WPGraphQL.php:603
 msgid "A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications."
 msgstr ""
 
-#: src/WPGraphQL.php:596
+#: src/WPGraphQL.php:608
 msgid "A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as \"standard\", \"gallery\", \"video\", etc."
 msgstr ""
 
 #. translators: %s will replaced with the registered type
-#: src/WPGraphQL.php:766
+#: src/WPGraphQL.php:778
 #, php-format
 msgid "The \"%s\" post_type isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
 
 #. translators: %s will replaced with the registered taxonomy
-#: src/WPGraphQL.php:851
+#: src/WPGraphQL.php:863
 #, php-format
 msgid "The \"%s\" taxonomy isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
