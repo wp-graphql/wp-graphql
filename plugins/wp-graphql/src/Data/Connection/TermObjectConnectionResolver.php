@@ -159,7 +159,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$queried = isset( $this->query ) ? $this->query : $this->get_query();
 
-		/** @var string[] $ids */
+		/** @var array<int, int> $ids */
 		$ids = ! empty( $queried->get_terms() ) ? $queried->get_terms() : [];
 
 		// If we're going backwards, we need to reverse the array.

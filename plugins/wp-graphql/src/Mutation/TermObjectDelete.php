@@ -133,7 +133,15 @@ class TermObjectDelete {
 			/**
 			 * Delete the term and get the response
 			 */
-			$deleted = wp_delete_term( $term_id, $taxonomy->name );
+			$taxonomy_name = $term_object->taxonomy;
+
+			// A term always belongs to a taxonomy; this guards the unreachable empty
+			// case so the taxonomy name is provably non-empty.
+			if ( '' === $taxonomy_name ) {
+				throw new UserError( esc_html__( 'The ID passed is invalid', 'wp-graphql' ) );
+			}
+
+			$deleted = wp_delete_term( $term_id, $taxonomy_name );
 
 			/**
 			 * If there was an error deleting the term, get the error message and return it

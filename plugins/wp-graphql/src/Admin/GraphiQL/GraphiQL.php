@@ -361,7 +361,7 @@ class GraphiQL {
 	 * and contain the list of wp-* dependencies the script needs, plus a content
 	 * hash for cache busting.
 	 *
-	 * @param string              $handle The WordPress script/style handle.
+	 * @param non-empty-string    $handle The WordPress script/style handle.
 	 * @param array<string,mixed> $config The asset configuration from CORE_ASSETS or EXTENSION_ASSETS.
 	 */
 	protected function enqueue_asset( string $handle, array $config ): void {

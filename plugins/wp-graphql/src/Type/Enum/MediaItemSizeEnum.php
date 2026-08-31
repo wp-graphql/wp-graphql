@@ -10,7 +10,7 @@ class MediaItemSizeEnum {
 	 * Get information about available image sizes
 	 *
 	 * @param string $size Optional. The size to get information for.
-	 * @return array<string, array{width: int, height: int, crop: bool}>|null
+	 * @return ($size is '' ? array<string, array{width: int, height: int, crop: bool}> : array{width: int, height: int, crop: bool}|null)
 	 *
 	 * @since 2.3.0
 	 */
@@ -24,14 +24,15 @@ class MediaItemSizeEnum {
 		// Create the full array with sizes and crop info
 		foreach ( $get_intermediate_image_sizes as $_size ) {
 			if ( in_array( $_size, [ 'thumbnail', 'medium', 'medium_large', 'large', 'full' ], true ) ) {
-				$sizes[ $_size ]['width']  = \get_option( $_size . '_size_w' );
-				$sizes[ $_size ]['height'] = \get_option( $_size . '_size_h' );
+				$sizes[ $_size ]['width']  = (int) \get_option( $_size . '_size_w' );
+				$sizes[ $_size ]['height'] = (int) \get_option( $_size . '_size_h' );
 				$sizes[ $_size ]['crop']   = (bool) \get_option( $_size . '_crop' );
 			} elseif ( isset( $wp_additional_image_sizes[ $_size ] ) ) {
 				$sizes[ $_size ] = [
 					'width'  => $wp_additional_image_sizes[ $_size ]['width'],
 					'height' => $wp_additional_image_sizes[ $_size ]['height'],
-					'crop'   => $wp_additional_image_sizes[ $_size ]['crop'],
+					// Cropping positions (an array like [ 'center', 'top' ]) still mean the size is cropped.
+					'crop'   => (bool) $wp_additional_image_sizes[ $_size ]['crop'],
 				];
 			}
 		}
@@ -63,8 +64,8 @@ class MediaItemSizeEnum {
 					];
 				} else {
 					// Get dimensions from WordPress options for standard sizes
-					$sizes[ $fallback_size ]['width']  = \get_option( $fallback_size . '_size_w' );
-					$sizes[ $fallback_size ]['height'] = \get_option( $fallback_size . '_size_h' );
+					$sizes[ $fallback_size ]['width']  = (int) \get_option( $fallback_size . '_size_w' );
+					$sizes[ $fallback_size ]['height'] = (int) \get_option( $fallback_size . '_size_h' );
 					$sizes[ $fallback_size ]['crop']   = (bool) \get_option( $fallback_size . '_crop' );
 				}
 			}
