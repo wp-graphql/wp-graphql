@@ -1,12 +1,100 @@
 [
   {
+    "source": "/style-guide",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/docs/acf",
+    "permanent": true
+  },
+  {
+    "source": "/block-style-guide",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/docs/acf",
+    "permanent": true
+  },
+  {
+    "source": "/preview",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/docs/acf",
+    "permanent": true
+  },
+  {
+    "source": "/sitemap.xml",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/sitemap.xml",
+    "permanent": true
+  },
+  {
+    "source": "/wordpress-sitemap.xml",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/sitemap.xml",
+    "permanent": true
+  },
+  {
+    "source": "/robots.txt",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/robots.txt",
+    "permanent": true
+  },
+  {
+    "source": "/",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/docs/acf",
+    "permanent": true
+  },
+  {
+    "source": "/:path*",
+    "has": [
+      {
+        "type": "host",
+        "value": "acf.wpgraphql.com"
+      }
+    ],
+    "destination": "https://www.wpgraphql.com/docs/acf/:path*",
+    "permanent": true
+  },
+  {
     "source": "/discord",
     "destination": "https://discord.gg/AGVBqqyaUY",
     "permanent": true
   },
   {
     "source": "/acf",
-    "destination": "https://acf.wpgraphql.com",
+    "destination": "/docs/acf",
     "permanent": true
   },
   {
