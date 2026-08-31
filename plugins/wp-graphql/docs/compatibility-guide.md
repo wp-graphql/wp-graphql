@@ -24,7 +24,7 @@ WPGraphQL works with both Classic Editor and Block Editor (Gutenberg) installati
 
 - **Block Editor Content**: Block content is exposed in the GraphQL Schema as HTML returned as a String when querying the `content` field. It is the rendered version of the content and not the raw JSON data. Some plugins such as [WPGraphQL Content Blocks](https://github.com/wp-graphql/wp-graphql-content-blocks) provide support for returning Block content in more structured format.
 - **Classic Editor Content**: Content is exposed as HTML returned as a String when querying the `content` field.
-- **Custom Fields**: Custom Fields can be added to the schema using the `register_graphql_field` function. Advanced Custom Fields users can use the [WPGraphQL for ACF](https://acf.wpgraphql.com/) extension to manage how their ACF fields relate to the GraphQL Schema.
+- **Custom Fields**: Custom Fields can be added to the schema using the `register_graphql_field` function. Advanced Custom Fields users can use the [WPGraphQL for ACF](https://www.wpgraphql.com/docs/acf) extension to manage how their ACF fields relate to the GraphQL Schema.
 - **Post Types**: Built-in post types (posts, pages, media) are supported out of the box. Custom Post Types can be added to the schema by registering or filtering them to show in graphql. See the [Custom Post Types](/docs/custom-post-types/) documentation for more information.
 
 ### Multisite Compatibility
@@ -140,7 +140,7 @@ If your application uses custom database tables:
 WPGraphQL is compatible with many WordPress plugins through official and community extensions:
 
 1. **Official Extensions**
-   - [WPGraphQL for Advanced Custom Fields](https://acf.wpgraphql.com)
+   - [WPGraphQL for Advanced Custom Fields](https://www.wpgraphql.com/docs/acf)
    - [WPGraphQL for WooCommerce](https://github.com/wp-graphql/wp-graphql-woocommerce)
    - [WPGraphQL JWT Authentication](https://github.com/wp-graphql/wp-graphql-jwt-authentication)
    - [WPGraphQL Content Blocks](https://github.com/wp-graphql/wp-graphql-content-blocks)

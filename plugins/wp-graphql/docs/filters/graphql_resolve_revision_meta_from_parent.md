@@ -12,10 +12,10 @@ plugin: wp-graphql
 # graphql_resolve_revision_meta_from_parent
 
 ```php
-apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
+apply_filters( 'graphql_resolve_revision_meta_from_parent', $resolve_from_parent_default, $object_id, $meta_key, $single );
 ```
 
-Filters whether to resolve revision metadata from the parent node by default.
+Filters whether to resolve revision metadata from the parent node.
 
 - **Type:** filter
 - **Group:** Model Layer
@@ -24,19 +24,19 @@ Filters whether to resolve revision metadata from the parent node by default.
 
 ## Parameters
 
-- `$should` (`bool`): Whether to resolve using the parent object. Default true.
+- `$should` (`bool`): Whether to resolve using the parent object. Defaults to true, except for meta keys WordPress stores on revisions (registered with `revisions_enabled`, or added via the `wp_post_revision_meta_keys` filter), which default to false so they resolve from the revision's own value. Return false to resolve a key from the revision, or true to force resolution from the parent.
 - `$object_id` (`int`): The ID of the object to resolve meta for
 - `$meta_key` (`?string`): The key for the meta to resolve
 - `$single` (`?bool`): Whether a single value should be returned
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/Preview.php:40`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Preview.php#L40)
+- [`plugins/wp-graphql/src/Utils/Preview.php:192`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Preview.php#L192)
 
 ```php
-apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
+apply_filters( 'graphql_resolve_revision_meta_from_parent', $resolve_from_parent_default, $object_id, $meta_key, $single );
 ```
 
 ## Related
 
-- `Preview::filter_post_meta_for_previews()` in [`plugins/wp-graphql/src/Utils/Preview.php:40`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Preview.php#L40)
+- `Preview::filter_post_meta_for_previews()` in [`plugins/wp-graphql/src/Utils/Preview.php:192`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/Preview.php#L192)

@@ -33,7 +33,7 @@ Run an action after the HTTP Response is ready to be sent back. This might be a 
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:604`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L604)
+- [`plugins/wp-graphql/src/Router.php:628`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L628)
 
 ```php
 do_action( 'graphql_process_http_request_response', $response, $response, $operation_name, $query, $variables, self::$http_status_code );
@@ -41,4 +41,4 @@ do_action( 'graphql_process_http_request_response', $response, $response, $opera
 
 ## Related
 
-- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:604`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L604)
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:628`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L628)

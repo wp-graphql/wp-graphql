@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-08-14T18:43:56.456Z",
+  "generatedAt": "2026-08-31T18:01:03.753Z",
   "stats": {
     "totalHooks": 279,
     "actions": 62,
@@ -229,63 +229,63 @@
         "type": "naming_convention",
         "hook": "init_graphql_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 161,
+        "line": 163,
         "message": "deprecated_prefix: Hook name uses deprecated prefix \"init_graphql_\"."
       },
       {
         "type": "naming_convention",
         "hook": "init_graphql_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 161,
+        "line": 163,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "graphql_execute",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 512,
+        "line": 763,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
         "type": "naming_convention",
         "hook": "do_graphql_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 596,
+        "line": 847,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "pre_graphql_execute_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 672,
+        "line": 923,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "pre_graphql_execute_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 779,
+        "line": 1030,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "register_graphql_post_type_args",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 628,
+        "line": 640,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "register_graphql_taxonomy_args",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 659,
+        "line": 671,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "graphql_schema",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 914,
+        "line": 926,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
@@ -526,7 +526,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::before_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 338,
+      "line": 361,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -657,7 +657,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::do_action()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 596,
+      "line": 847,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action for each request.",
@@ -702,7 +702,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 596,
+          "line": 847,
           "symbol": "Request::do_action()",
           "emitter": "do_action"
         }
@@ -1114,7 +1114,7 @@
       "hookGroup": "request-lifecycle",
       "isDynamic": false,
       "rawExpression": "'graphql_access_control_allow_headers'",
-      "sourceCall": "apply_filters(\n\t\t\t'graphql_access_control_allow_headers',\n\t\t\t[\n\t\t\t\t'Authorization',\n\t\t\t\t'Content-Type',\n\t\t\t]\n\t\t);",
+      "sourceCall": "apply_filters(\n\t\t\t'graphql_access_control_allow_headers',\n\t\t\t[\n\t\t\t\t'Authorization',\n\t\t\t\t'Content-Type',\n\t\t\t\t// Allows cross-origin clients to send request-level preview context via the\n\t\t\t\t// `X-GraphQL-Preview` header, the primary preview transport (`extensions.preview`\n\t\t\t\t// in the request body is the fallback). See WPGraphQL\\Request::get_preview_input().\n\t\t\t\t'X-GraphQL-Preview',\n\t\t\t]\n\t\t);",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "active",
@@ -1415,7 +1415,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::after_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 461,
+      "line": 712,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action after GraphQL Execution",
@@ -1450,7 +1450,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 461,
+          "line": 712,
           "symbol": "Request::after_execute()",
           "emitter": "do_action"
         }
@@ -1841,7 +1841,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AppContext::__construct()",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 181,
+      "line": 190,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "This filters the config for the AppContext. This can be used to store additional context config, which is available to resolvers throughout the resolution of a GraphQL request.",
@@ -1871,7 +1871,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/AppContext.php",
-          "line": 181,
+          "line": 190,
           "symbol": "AppContext::__construct()",
           "emitter": "apply_filters"
         }
@@ -1889,7 +1889,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::process_http_request()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 492,
+      "line": 516,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the HTTP status code returned for authentication errors. By default, invalid nonce errors return 403 Forbidden. Some clients may expect 200 with a GraphQL error response instead.",
@@ -1924,7 +1924,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 492,
+          "line": 516,
           "symbol": "Router::process_http_request()",
           "emitter": "apply_filters"
         }
@@ -1942,7 +1942,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::filtered_authentication_errors()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 395,
+      "line": 646,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If false, there are no authentication errors. If true, execution of the GraphQL request will be prevented and an error will be thrown.",
@@ -1977,13 +1977,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 395,
+          "line": 646,
           "symbol": "Request::filtered_authentication_errors()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 760,
+          "line": 784,
           "symbol": "Router::validate_http_request_authentication()",
           "emitter": "apply_filters"
         }
@@ -2001,7 +2001,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::validate_http_request_authentication()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 760,
+      "line": 784,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Allow plugins to prevent the downgrade via the graphql_authentication_errors filter.",
@@ -2036,13 +2036,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 395,
+          "line": 646,
           "symbol": "Request::filtered_authentication_errors()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 760,
+          "line": 784,
           "symbol": "Router::validate_http_request_authentication()",
           "emitter": "apply_filters"
         }
@@ -2060,7 +2060,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::before_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 351,
+      "line": 374,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "This action runs before execution of a GraphQL request (regardless if it's a single or batch request)",
@@ -2090,7 +2090,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 351,
+          "line": 374,
           "symbol": "Request::before_execute()",
           "emitter": "do_action"
         }
@@ -3613,7 +3613,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::validate_http_request_authentication()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 739,
+      "line": 763,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter whether to require a nonce for cookie-based authentication. By default, WPGraphQL requires a nonce (X-WP-Nonce header or _wpnonce parameter) for cookie-authenticated requests to prevent CSRF attacks.",
@@ -3648,7 +3648,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 739,
+          "line": 763,
           "symbol": "Router::validate_http_request_authentication()",
           "emitter": "apply_filters"
         }
@@ -3867,7 +3867,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AppContext::prepare_data_loaders()",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 205,
+      "line": 214,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to change the data loader classes. This allows for additional loaders to be added to the AppContext or replaced as needed.",
@@ -3902,7 +3902,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/AppContext.php",
-          "line": 205,
+          "line": 214,
           "symbol": "AppContext::prepare_data_loaders()",
           "emitter": "apply_filters"
         }
@@ -3920,7 +3920,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "AppContext::prepare_data_loaders()",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 227,
+      "line": 236,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -3955,7 +3955,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/AppContext.php",
-          "line": 227,
+          "line": 236,
           "symbol": "AppContext::prepare_data_loaders()",
           "emitter": "apply_filters_deprecated"
         }
@@ -4225,7 +4225,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::debug()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 950,
+      "line": 962,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether GraphQL debug mode is enabled.",
@@ -4255,7 +4255,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 950,
+          "line": 962,
           "symbol": "WPGraphQL::debug()",
           "emitter": "apply_filters"
         }
@@ -4485,7 +4485,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "WPGraphQL::run_update_routines()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 502,
+      "line": 514,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires the update routine.",
@@ -4520,7 +4520,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 502,
+          "line": 514,
           "symbol": "WPGraphQL::run_update_routines()",
           "emitter": "do_action"
         }
@@ -4925,7 +4925,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 512,
+      "line": 763,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action. This is a good place for debug tools to hook in to log things, etc.",
@@ -4980,7 +4980,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 512,
+          "line": 763,
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action"
         }
@@ -4998,7 +4998,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::before_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 333,
+      "line": 356,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Execute batch queries",
@@ -5028,7 +5028,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 333,
+          "line": 356,
           "symbol": "Request::before_execute()",
           "emitter": "do_action"
         }
@@ -5046,7 +5046,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 688,
+      "line": 939,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.",
@@ -5081,7 +5081,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 688,
+          "line": 939,
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         }
@@ -5652,7 +5652,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "WPGraphQL::get_schema()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 924,
+      "line": 936,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action when the Schema is returned",
@@ -5682,7 +5682,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 924,
+          "line": 936,
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "do_action"
         }
@@ -5879,7 +5879,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "WPGraphQL::get_type_registry()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 984,
+      "line": 996,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action when the Type Registry is returned",
@@ -5909,7 +5909,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 984,
+          "line": 996,
           "symbol": "WPGraphQL::get_type_registry()",
           "emitter": "do_action"
         }
@@ -5990,7 +5990,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::process_http_request()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 574,
+      "line": 598,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter thrown GraphQL errors",
@@ -6030,7 +6030,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 574,
+          "line": 598,
           "symbol": "Router::process_http_request()",
           "emitter": "apply_filters"
         }
@@ -6614,7 +6614,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::get_invalid_content_type_response()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 850,
+      "line": 1101,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the status code to return when the content type is invalid",
@@ -6649,7 +6649,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 850,
+          "line": 1101,
           "symbol": "Request::get_invalid_content_type_response()",
           "emitter": "apply_filters"
         }
@@ -6667,7 +6667,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::is_batch_queries_enabled()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 916,
+      "line": 1167,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter whether batch queries are supported or not",
@@ -6702,7 +6702,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 916,
+          "line": 1167,
           "symbol": "Request::is_batch_queries_enabled()",
           "emitter": "apply_filters"
         }
@@ -6768,7 +6768,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::is_valid_http_content_type()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 816,
+      "line": 1067,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Allow graphql to validate custom content types for HTTP POST requests",
@@ -6803,7 +6803,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 816,
+          "line": 1067,
           "symbol": "Request::is_valid_http_content_type()",
           "emitter": "apply_filters"
         }
@@ -8071,7 +8071,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_allowed_post_types()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 749,
+      "line": 761,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Pass through a filter to allow the post_types to be modified. For example if a certain post_type should not be exposed to the GraphQL API.",
@@ -8106,7 +8106,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 749,
+          "line": 761,
           "symbol": "WPGraphQL::get_allowed_post_types()",
           "emitter": "apply_filters"
         }
@@ -10189,7 +10189,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Router::process_http_request()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 512,
+      "line": 536,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "This action can be hooked to to enable various debug tools, such as enableValidation from the GraphQL Config.",
@@ -10213,7 +10213,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 512,
+          "line": 536,
           "symbol": "Router::process_http_request()",
           "emitter": "do_action"
         }
@@ -10231,7 +10231,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Router::process_http_request()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 604,
+      "line": 628,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action after the HTTP Response is ready to be sent back. This might be a good place for tools to hook in to track metrics, such as how long the process took from `graphql_process_http_request` to here, etc.",
@@ -10286,7 +10286,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 604,
+          "line": 628,
           "symbol": "Router::process_http_request()",
           "emitter": "do_action"
         }
@@ -11270,7 +11270,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 551,
+      "line": 802,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the $response of the GraphQL execution. This allows for the response to be filtered before it's returned, allowing granular control over the response at the latest point. POSSIBLE USAGE EXAMPLES: This could be used to ensure that certain fields never make it to the response if they match certain criteria, etc. For example, this filter could be used to check if a current user is allowed to see certain things, and if they are not, the $response could be filtered to remove the data they should not be allowed to see. Or, perhaps some systems want the response to always include some additional piece of data in every response, regardless of the request that was sent to it, this could allow for that to be hooked in and included in the $response.",
@@ -11330,7 +11330,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 551,
+          "line": 802,
           "symbol": "Request::after_execute_actions()",
           "emitter": "apply_filters"
         }
@@ -11650,15 +11650,15 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Preview::filter_post_meta_for_previews()",
       "file": "plugins/wp-graphql/src/Utils/Preview.php",
-      "line": 40,
+      "line": 192,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
-      "description": "Filters whether to resolve revision metadata from the parent node by default.",
+      "description": "Filters whether to resolve revision metadata from the parent node.",
       "params": [
         {
           "type": "bool",
           "name": "$should",
-          "description": "Whether to resolve using the parent object. Default true."
+          "description": "Whether to resolve using the parent object. Defaults to true, except for meta keys WordPress stores on revisions (registered with `revisions_enabled`, or added via the `wp_post_revision_meta_keys` filter), which default to false so they resolve from the revision's own value. Return false to resolve a key from the revision, or true to force resolution from the parent."
         },
         {
           "type": "int",
@@ -11682,7 +11682,7 @@
       "hookGroup": "models",
       "isDynamic": false,
       "rawExpression": "'graphql_resolve_revision_meta_from_parent'",
-      "sourceCall": "apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );",
+      "sourceCall": "apply_filters( 'graphql_resolve_revision_meta_from_parent', $resolve_from_parent_default, $object_id, $meta_key, $single );",
       "relatedSnippets": [],
       "lifecycle": {
         "status": "active",
@@ -11695,7 +11695,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/Preview.php",
-          "line": 40,
+          "line": 192,
           "symbol": "Preview::filter_post_meta_for_previews()",
           "emitter": "apply_filters"
         }
@@ -11859,7 +11859,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::get_response_headers()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 377,
+      "line": 401,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the $headers to send",
@@ -11889,7 +11889,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 377,
+          "line": 401,
           "symbol": "Router::get_response_headers()",
           "emitter": "apply_filters"
         }
@@ -11907,7 +11907,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Router::set_headers()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 417,
+      "line": 441,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action when the headers are set",
@@ -11937,7 +11937,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 417,
+          "line": 441,
           "symbol": "Router::set_headers()",
           "emitter": "do_action"
         }
@@ -11955,7 +11955,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::prepare_headers()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 639,
+      "line": 663,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the $status_code before setting the headers",
@@ -12015,7 +12015,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 639,
+          "line": 663,
           "symbol": "Router::prepare_headers()",
           "emitter": "apply_filters"
         }
@@ -12252,7 +12252,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 568,
+      "line": 819,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action after the response has been filtered, as the response is being returned. This is a good place for debug tools to hook in to log things, etc.",
@@ -12317,7 +12317,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 568,
+          "line": 819,
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action"
         }
@@ -12335,7 +12335,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::get_root_value()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 244,
+      "line": 246,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Return the filtered root value",
@@ -12370,7 +12370,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 244,
+          "line": 246,
           "symbol": "Request::get_root_value()",
           "emitter": "apply_filters"
         }
@@ -12429,7 +12429,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 914,
+          "line": 926,
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters"
         }
@@ -12447,7 +12447,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_schema()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 914,
+      "line": 926,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Generate & Filter the schema.",
@@ -12488,7 +12488,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 914,
+          "line": 926,
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters"
         }
@@ -12559,7 +12559,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Router::get_response_headers()",
       "file": "plugins/wp-graphql/src/Router.php",
-      "line": 363,
+      "line": 367,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether no-cache headers should be sent on the GraphQL HTTP response. Prefer the current request's viewer when available (after execution) so we send no-cache for the request that was actually authenticated, regardless of global user timing. Fall back to is_user_logged_in() for paths that run before the Request exists (e.g. 403 auth error, OPTIONS).",
@@ -12589,7 +12589,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Router.php",
-          "line": 363,
+          "line": 367,
           "symbol": "Router::get_response_headers()",
           "emitter": "apply_filters"
         }
@@ -12607,7 +12607,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::get_server()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 952,
+      "line": 1203,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action when the server config is created. The config can be acted upon directly to override default values or implement new features, e.g., $config->setValidationRules().",
@@ -12642,7 +12642,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 952,
+          "line": 1203,
           "symbol": "Request::get_server()",
           "emitter": "do_action"
         }
@@ -13334,7 +13334,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_allowed_taxonomies()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 835,
+      "line": 847,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Pass through a filter to allow the taxonomies to be modified. For example if a certain taxonomy should not be exposed to the GraphQL API.",
@@ -13369,7 +13369,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 835,
+          "line": 847,
           "symbol": "WPGraphQL::get_allowed_taxonomies()",
           "emitter": "apply_filters"
         }
@@ -14299,7 +14299,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_type_registry()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 974,
+      "line": 986,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Generate & Filter the schema.",
@@ -14334,7 +14334,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 974,
+          "line": 986,
           "symbol": "WPGraphQL::get_type_registry()",
           "emitter": "apply_filters"
         }
@@ -14872,7 +14872,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::get_validation_rules()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 222,
+      "line": 224,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Return the validation rules to use in the request",
@@ -14907,7 +14907,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 222,
+          "line": 224,
           "symbol": "Request::get_validation_rules()",
           "emitter": "apply_filters"
         }
@@ -15473,7 +15473,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 161,
+          "line": 163,
           "symbol": "Request::__construct()",
           "emitter": "do_action"
         }
@@ -15491,7 +15491,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::__construct()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 161,
+      "line": 163,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Action – intentionally with no context – to indicate a GraphQL Request has started.",
@@ -15521,7 +15521,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 161,
+          "line": 163,
           "symbol": "Request::__construct()",
           "emitter": "do_action"
         }
@@ -15587,7 +15587,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 672,
+      "line": 923,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter this to be anything other than null to short-circuit the request.",
@@ -15622,13 +15622,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 672,
+          "line": 923,
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 779,
+          "line": 1030,
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters"
         }
@@ -15646,7 +15646,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::execute_http()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 779,
+      "line": 1030,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter this to be anything other than null to short-circuit HTTP execution.",
@@ -15681,13 +15681,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 672,
+          "line": 923,
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 779,
+          "line": 1030,
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters"
         }
@@ -15753,7 +15753,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::register_graphql_post_type_args()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 628,
+      "line": 640,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the graphql args set on a post type",
@@ -15788,7 +15788,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 628,
+          "line": 640,
           "symbol": "WPGraphQL::register_graphql_post_type_args()",
           "emitter": "apply_filters"
         }
@@ -15806,7 +15806,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::register_graphql_taxonomy_args()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 659,
+      "line": 671,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the graphql args set on a taxonomy",
@@ -15841,7 +15841,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 659,
+          "line": 671,
           "symbol": "WPGraphQL::register_graphql_taxonomy_args()",
           "emitter": "apply_filters"
         }
@@ -16260,13 +16260,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16344,13 +16344,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16428,13 +16428,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16512,13 +16512,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16596,13 +16596,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16680,13 +16680,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16704,7 +16704,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "RootQuery::register_type()",
       "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-      "line": 115,
+      "line": 116,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16764,13 +16764,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }
@@ -16788,7 +16788,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "RootQuery::register_type()",
       "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-      "line": 132,
+      "line": 133,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16848,13 +16848,13 @@
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 115,
+          "line": 116,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Type/ObjectType/RootQuery.php",
-          "line": 132,
+          "line": 133,
           "symbol": "RootQuery::register_type()",
           "emitter": "do_action"
         }

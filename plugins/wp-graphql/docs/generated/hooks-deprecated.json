@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-08-14T18:43:56.456Z",
+  "generatedAt": "2026-08-31T18:01:03.753Z",
   "count": 4,
   "hooks": [
     {
@@ -14,7 +14,7 @@
       "emitter": "apply_filters_deprecated",
       "enclosingSymbol": "AppContext::prepare_data_loaders()",
       "file": "plugins/wp-graphql/src/AppContext.php",
-      "line": 227,
+      "line": 236,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -49,7 +49,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/AppContext.php",
-          "line": 227,
+          "line": 236,
           "symbol": "AppContext::prepare_data_loaders()",
           "emitter": "apply_filters_deprecated"
         }
@@ -58,7 +58,7 @@
       "sourceLocations": [
         {
           "file": "plugins/wp-graphql/src/AppContext.php",
-          "line": 227
+          "line": 236
         }
       ],
       "occurrences": 1
