@@ -29,7 +29,7 @@ Filter this to be anything other than null to short-circuit HTTP execution.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:779`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L779)
+- [`plugins/wp-graphql/src/Request.php:1030`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L1030)
 
 ```php
 apply_filters( 'pre_graphql_execute_request', null, $this );
@@ -37,5 +37,5 @@ apply_filters( 'pre_graphql_execute_request', null, $this );
 
 ## Related
 
-- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:672`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L672)
-- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:779`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L779)
+- `Request::execute()` in [`plugins/wp-graphql/src/Request.php:923`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L923)
+- `Request::execute_http()` in [`plugins/wp-graphql/src/Request.php:1030`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L1030)

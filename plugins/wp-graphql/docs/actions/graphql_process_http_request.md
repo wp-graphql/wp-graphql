@@ -24,7 +24,7 @@ This action can be hooked to to enable various debug tools, such as enableValida
 
 ## Source
 
-- [`plugins/wp-graphql/src/Router.php:512`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L512)
+- [`plugins/wp-graphql/src/Router.php:536`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L536)
 
 ```php
 do_action( 'graphql_process_http_request' );
@@ -32,4 +32,4 @@ do_action( 'graphql_process_http_request' );
 
 ## Related
 
-- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:512`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L512)
+- `Router::process_http_request()` in [`plugins/wp-graphql/src/Router.php:536`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php#L536)

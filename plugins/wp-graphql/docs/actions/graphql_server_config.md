@@ -29,7 +29,7 @@ Run an action when the server config is created. The config can be acted upon di
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:952`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L952)
+- [`plugins/wp-graphql/src/Request.php:1203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L1203)
 
 ```php
 do_action( 'graphql_server_config', $config, $this->params );
@@ -37,7 +37,7 @@ do_action( 'graphql_server_config', $config, $this->params );
 
 ## Related
 
-- `Request::get_server()` in [`plugins/wp-graphql/src/Request.php:952`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L952)
+- `Request::get_server()` in [`plugins/wp-graphql/src/Request.php:1203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L1203)
 
 ## Recipes
 

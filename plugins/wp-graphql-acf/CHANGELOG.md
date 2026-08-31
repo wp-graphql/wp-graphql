@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.1...wp-graphql-acf/v2.8.0) (2026-08-31)
+
+
+### New Features
+
+* preview ACF field values under the request-level preview context ([#4222](https://github.com/wp-graphql/wp-graphql/issues/4222)) ([e88d5c2](https://github.com/wp-graphql/wp-graphql/commit/e88d5c273fe33a299c18e591656e6446df43440f))
+* **wpgraphql.com:** field types in the ACF docs nav with provider badges ([#4237](https://github.com/wp-graphql/wp-graphql/issues/4237)) ([1ec5e98](https://github.com/wp-graphql/wp-graphql/commit/1ec5e989a68a540f8e0198355f528bede978bb66))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4198](https://github.com/wp-graphql/wp-graphql/issues/4198)) ([f471e99](https://github.com/wp-graphql/wp-graphql/commit/f471e9936574d1ebbb777e005081ed51fd281e4b))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 12 updates ([#4226](https://github.com/wp-graphql/wp-graphql/issues/4226)) ([cd537dd](https://github.com/wp-graphql/wp-graphql/commit/cd537dda3e696deaf7262cdecc31bae05d929166))
+* point acf.wpgraphql.com links at the wpgraphql.com docs portal ([#4251](https://github.com/wp-graphql/wp-graphql/issues/4251)) ([cc12aed](https://github.com/wp-graphql/wp-graphql/commit/cc12aed380414545a005048bfcebe4ba50e9c8f9))
+* **wpgraphql.com:** make docs cross-links resolve on the site ([#4230](https://github.com/wp-graphql/wp-graphql/issues/4230)) ([e04ab21](https://github.com/wp-graphql/wp-graphql/commit/e04ab215cb4b65c9b490857dea9d303e5f93e959))
+
 ## [2.7.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.0...wp-graphql-acf/v2.7.1) (2026-08-18)
 
 
