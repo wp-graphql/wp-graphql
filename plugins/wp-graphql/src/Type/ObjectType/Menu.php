@@ -45,13 +45,13 @@ class Menu {
 						'name'         => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Display name of the menu. Equivalent to WP_Term->name.', 'wp-graphql' );
+								return __( 'Display name of the menu.', 'wp-graphql' );
 							},
 						],
 						'slug'         => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The url friendly name of the menu. Equivalent to WP_Term->slug', 'wp-graphql' );
+								return __( 'The url friendly name of the menu.', 'wp-graphql' );
 							},
 						],
 						'isRestricted' => [
