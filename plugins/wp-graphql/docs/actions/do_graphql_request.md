@@ -31,7 +31,7 @@ Run an action for each request.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:596`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L596)
+- [`plugins/wp-graphql/src/Request.php:847`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L847)
 
 ```php
 do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
@@ -39,7 +39,7 @@ do_action( 'do_graphql_request', $params->query, $params->operation, $params->va
 
 ## Related
 
-- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:596`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L596)
+- `Request::do_action()` in [`plugins/wp-graphql/src/Request.php:847`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L847)
 
 ## Recipes
 
