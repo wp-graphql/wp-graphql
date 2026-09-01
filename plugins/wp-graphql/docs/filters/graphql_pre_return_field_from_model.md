@@ -34,7 +34,7 @@ Filter to short circuit the callback for any field on a type. Returning anything
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:363`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L363)
+- [`plugins/wp-graphql/src/Model/Model.php:367`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L367)
 
 ```php
 apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_mod
 
 ## Related
 
-- `Model::wrap_fields()` in [`plugins/wp-graphql/src/Model/Model.php:363`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L363)
+- `Model::wrap_fields()` in [`plugins/wp-graphql/src/Model/Model.php:367`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L367)

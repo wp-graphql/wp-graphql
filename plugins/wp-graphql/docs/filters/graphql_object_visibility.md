@@ -32,7 +32,7 @@ Filter the visibility name to be returned
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L284)
+- [`plugins/wp-graphql/src/Model/Model.php:288`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L288)
 
 ```php
 apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
@@ -40,7 +40,7 @@ apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_
 
 ## Related
 
-- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:284`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L284)
+- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:288`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L288)
 
 ## Recipes
 

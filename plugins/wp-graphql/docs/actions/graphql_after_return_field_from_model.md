@@ -34,7 +34,7 @@ Hook that fires after the data is returned for the field
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:385`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L385)
+- [`plugins/wp-graphql/src/Model/Model.php:389`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L389)
 
 ```php
 do_action( 'graphql_after_return_field_from_model', $result, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -42,4 +42,4 @@ do_action( 'graphql_after_return_field_from_model', $result, $key, $this->get_mo
 
 ## Related
 
-- `Model::wrap_fields()` in [`plugins/wp-graphql/src/Model/Model.php:385`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L385)
+- `Model::wrap_fields()` in [`plugins/wp-graphql/src/Model/Model.php:389`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L389)

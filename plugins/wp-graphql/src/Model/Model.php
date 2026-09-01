@@ -142,8 +142,12 @@ abstract class Model {
 			return null;
 		}
 
-		// If the property is a callable, we need to process it.
-		if ( is_callable( $this->fields[ $key ] ) ) {
+		// Unresolved fields are closures (see wrap_fields()); resolve and memoize them.
+		// Anything else is already-resolved data, including strings that happen to
+		// collide with a defined function name ("Max" vs max()), which is_callable()
+		// would match case-insensitively and invoke the builtin instead of returning
+		// the value.
+		if ( $this->fields[ $key ] instanceof \Closure ) {
 			$data       = call_user_func( $this->fields[ $key ] );
 			$this->$key = $data;
 

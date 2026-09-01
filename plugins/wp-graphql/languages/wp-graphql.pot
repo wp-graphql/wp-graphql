@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.21.0\n"
+"Project-Id-Version: WPGraphQL 2.21.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-31T18:01:04+00:00\n"
+"POT-Creation-Date: 2026-09-01T20:36:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1131,7 +1131,7 @@ msgstr ""
 
 #. translators: 1: model + field name, 2: required WordPress capability.
 #. translators: 1: GraphQL field name, 2: required WordPress capability.
-#: src/Model/Model.php:482
+#: src/Model/Model.php:486
 #: src/Type/ObjectType/Settings.php:102
 #, php-format
 msgid "The \"%1$s\" field requires the \"%2$s\" capability and resolved to null."
@@ -1835,6 +1835,7 @@ msgid "The ID for the %1$s was not valid"
 msgstr ""
 
 #: src/Mutation/TermObjectDelete.php:114
+#: src/Mutation/TermObjectDelete.php:141
 msgid "The ID passed is invalid"
 msgstr ""
 
@@ -1852,7 +1853,7 @@ msgid "You do not have permission to delete %1$s"
 msgstr ""
 
 #. Translators: The placeholder is the name of the taxonomy for the term being deleted
-#: src/Mutation/TermObjectDelete.php:147
+#: src/Mutation/TermObjectDelete.php:155
 #, php-format
 msgid "The %1$s failed to delete but no error was provided"
 msgstr ""
@@ -2977,40 +2978,40 @@ msgstr ""
 msgid "The name of the content type."
 msgstr ""
 
-#: src/Type/Enum/MediaItemSizeEnum.php:117
+#: src/Type/Enum/MediaItemSizeEnum.php:118
 msgid "Predefined image size variations. Represents the standard image dimensions available for media assets."
 msgstr ""
 
 #. translators: %1$s is the width of the image, %2$s is the height of the image
-#: src/Type/Enum/MediaItemSizeEnum.php:138
+#: src/Type/Enum/MediaItemSizeEnum.php:139
 #, php-format
 msgid "Small image preview suitable for thumbnails and listings. (%1$sx%2$s)"
 msgstr ""
 
 #. translators: %1$s is the width of the image, %2$s is the height of the image
-#: src/Type/Enum/MediaItemSizeEnum.php:146
+#: src/Type/Enum/MediaItemSizeEnum.php:147
 #, php-format
 msgid "Medium image preview typically suitable for listings and detail views. (%1$sx%2$s)"
 msgstr ""
 
 #. translators: %1$s is the width of the image, %2$s is the height of the image
-#: src/Type/Enum/MediaItemSizeEnum.php:154
+#: src/Type/Enum/MediaItemSizeEnum.php:155
 #, php-format
 msgid "Medium-to-large image preview suitable for listings and detail views. (%1$sx%2$s)"
 msgstr ""
 
 #. translators: %1$s is the width of the image, %2$s is the height of the image
-#: src/Type/Enum/MediaItemSizeEnum.php:162
+#: src/Type/Enum/MediaItemSizeEnum.php:163
 #, php-format
 msgid "Large image preview suitable for detail views. (%1$sx%2$s)"
 msgstr ""
 
-#: src/Type/Enum/MediaItemSizeEnum.php:168
+#: src/Type/Enum/MediaItemSizeEnum.php:169
 msgid "Full-size image."
 msgstr ""
 
 #. translators: %1$s is the width of the image, %2$s is the height of the image
-#: src/Type/Enum/MediaItemSizeEnum.php:173
+#: src/Type/Enum/MediaItemSizeEnum.php:174
 #, php-format
 msgid "Custom Image Size. (%1$sx%2$s)"
 msgstr ""
