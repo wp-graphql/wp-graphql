@@ -137,6 +137,18 @@ updates:
       # @wordpress/scripts ships a typescript-eslint v8+ tree.
       - dependency-name: 'eslint'
         update-types: ['version-update:semver-major']
+      # @babel/preset-env v8 must move as part of a coordinated Babel 8
+      # migration, not in isolation. Babel 8 makes every preset require
+      # @babel/core ^8 as a peer, but the build toolchain is Babel 7
+      # (@wordpress/scripts -> @wordpress/babel-preset-default pins @babel/core
+      # ^7 and @babel/preset-env ^7), so an isolated bump trips npm ERESOLVE.
+      # The direct devDep is also not referenced by any babel config, so
+      # bumping it changes no build output. Babel 8 also raises the Node floor
+      # to ^22.18.0 || >=24.11.0, above our engines.node ">=22". Drop this
+      # ignore when @wordpress/scripts / @wordpress/babel-preset-default move to
+      # Babel 8, and raise engines.node at the same time.
+      - dependency-name: '@babel/preset-env'
+        update-types: ['version-update:semver-major']
     groups:
       npm-dev-minor-patch:
         dependency-type: 'development'
