@@ -111,6 +111,14 @@ updates:
       - dependency-name: 'graphiql'
       - dependency-name: 'use-query-params'
       - dependency-name: 'query-string'
+      # decode-uri-component is query-string's transitive dep. Dependabot keys
+      # security updates off the vulnerable package's name, so ignoring only
+      # query-string does not stop them: the security PR bumps
+      # decode-uri-component and drags query-string past v7 with it, which
+      # breaks the bundled IDE at runtime (use-query-params v1 needs
+      # query-string's CJS API, removed in v8). The advisory (ReDoS) only
+      # reaches the admin-only bundled IDE decoding its own URL params.
+      - dependency-name: 'decode-uri-component'
       # graphql v17 is a coordinated migration we'll do deliberately, after the
       # legacy bundled GraphiQL is retired: graphiql 1.x and @apollo/client 3.x
       # peer-depend on graphql ^15 || ^16, so an isolated major bump ships two
