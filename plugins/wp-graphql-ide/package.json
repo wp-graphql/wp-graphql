@@ -88,7 +88,7 @@
 		"vaul": "^1.1.2"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.29.7",
+		"@babel/preset-env": "^8.0.2",
 		"@babel/preset-react": "^8.0.1",
 		"@playwright/test": "^1.62.1",
 		"@testing-library/jest-dom": "^7.0.1",
