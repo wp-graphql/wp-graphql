@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-08-31T18:01:03.753Z",
+  "generatedAt": "2026-09-01T20:36:58.304Z",
   "stats": {
     "totalHooks": 279,
     "actions": 62,
@@ -1556,7 +1556,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Model::wrap_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 385,
+      "line": 389,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Hook that fires after the data is returned for the field",
@@ -1616,7 +1616,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 385,
+          "line": 389,
           "symbol": "Model::wrap_fields()",
           "emitter": "do_action"
         }
@@ -3777,7 +3777,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 258,
+      "line": 262,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to determine if the data should be considered private or not",
@@ -3832,7 +3832,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 258,
+          "line": 262,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -5927,7 +5927,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::html_entity_decode()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 564,
+      "line": 568,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Determine whether html_entity_decode should be applied to the string",
@@ -5972,7 +5972,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 564,
+          "line": 568,
           "symbol": "Model::html_entity_decode()",
           "emitter": "apply_filters"
         }
@@ -7443,7 +7443,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::current_user_can_access_field()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 466,
+      "line": 470,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Capability to check required for the field",
@@ -7503,7 +7503,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 466,
+          "line": 470,
           "symbol": "Model::current_user_can_access_field()",
           "emitter": "apply_filters"
         }
@@ -7521,7 +7521,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::prepare_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 537,
+      "line": 541,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the array of fields for the Model before the object is hydrated with it",
@@ -7576,7 +7576,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 537,
+          "line": 541,
           "symbol": "Model::prepare_fields()",
           "emitter": "apply_filters"
         }
@@ -7987,7 +7987,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 284,
+      "line": 288,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the visibility name to be returned",
@@ -8037,7 +8037,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 284,
+          "line": 288,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -8982,7 +8982,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 234,
+      "line": 238,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to short circuit default is_private check for the model. This is expensive in some cases so this filter lets you prevent this from running by returning a true or false value.",
@@ -9037,7 +9037,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 234,
+          "line": 238,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -9642,7 +9642,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::wrap_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 363,
+      "line": 367,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to short circuit the callback for any field on a type. Returning anything other than null will stop the callback for the field from executing, and will return your data or execute your callback instead.",
@@ -9702,7 +9702,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 363,
+          "line": 367,
           "symbol": "Model::wrap_fields()",
           "emitter": "apply_filters"
         }
@@ -12033,7 +12033,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 217,
+      "line": 221,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter for the capability to check against for restricted data",
@@ -12088,7 +12088,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 217,
+          "line": 221,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -12106,7 +12106,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::prepare_field()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 434,
+      "line": 438,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the data returned by the default callback for the field",
@@ -12166,7 +12166,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 434,
+          "line": 438,
           "symbol": "Model::prepare_field()",
           "emitter": "apply_filters"
         }

@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.21.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.21.0...wp-graphql/v2.21.1) (2026-09-01)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @testing-library/jest-dom from 6.9.1 to 7.0.0 ([#4250](https://github.com/wp-graphql/wp-graphql/issues/4250)) ([aff9c9d](https://github.com/wp-graphql/wp-graphql/commit/aff9c9db9157419757a636fb2860acd59fde8a47))
+* **deps-dev:** bump @wordpress/jest-preset-default from 12.51.0 to 13.0.0 ([#4249](https://github.com/wp-graphql/wp-graphql/issues/4249)) ([e17a27a](https://github.com/wp-graphql/wp-graphql/commit/e17a27add61a23ea74913cf3cc119c1bf511b21a))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4242](https://github.com/wp-graphql/wp-graphql/issues/4242)) ([97ea85e](https://github.com/wp-graphql/wp-graphql/commit/97ea85ef11cf4d6e9eaf46afe81bad56ebe26397))
+* return memoized model field values as data instead of re-invoking them ([#4252](https://github.com/wp-graphql/wp-graphql/issues/4252)) ([0d44f7c](https://github.com/wp-graphql/wp-graphql/commit/0d44f7c0454c41b22716b4cd0fec03c5ec870373))
+
 ## [2.21.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.20.0...wp-graphql/v2.21.0) (2026-08-31)
 
 
