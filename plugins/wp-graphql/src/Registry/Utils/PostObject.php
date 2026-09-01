@@ -634,7 +634,7 @@ class PostObject {
 							// Get the metadata which contains size information
 							$metadata = wp_get_attachment_metadata( $source->databaseId );
 
-							if ( ! empty( $metadata['sizes'][ $size ]['file'] ) ) {
+							if ( ! empty( $metadata['file'] ) && ! empty( $metadata['sizes'][ $size ]['file'] ) ) {
 								$file_path = $metadata['file'];
 								return path_join( $relative_upload_path, dirname( $file_path ) . '/' . $metadata['sizes'][ $size ]['file'] );
 							}

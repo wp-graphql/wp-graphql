@@ -160,7 +160,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$queried  = isset( $this->query ) ? $this->query : $this->get_query();
 		$comments = $queried->get_comments();
 
-		/** @var int[] $ids */
+		/** @var array<int<0, max>> $ids */
 		$ids = ! empty( $comments ) ? $comments : [];
 
 		// If we're going backwards, we need to reverse the array.
