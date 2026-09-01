@@ -33,7 +33,7 @@ Filter to short circuit default is_private check for the model. This is expensiv
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:234`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L234)
+- [`plugins/wp-graphql/src/Model/Model.php:238`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L238)
 
 ```php
 apply_filters( 'graphql_pre_model_data_is_private', null, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -41,4 +41,4 @@ apply_filters( 'graphql_pre_model_data_is_private', null, $this->get_model_name(
 
 ## Related
 
-- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:234`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L234)
+- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:238`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L238)

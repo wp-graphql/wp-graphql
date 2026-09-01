@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.21.0
+Stable tag: 2.21.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -309,6 +309,15 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.21.1 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump @testing-library/jest-dom from 6.9.1 to 7.0.0 ([#4250](https://github.com/wp-graphql/wp-graphql/issues/4250))
+* **deps-dev:** bump @wordpress/jest-preset-default from 12.51.0 to 13.0.0 ([#4249](https://github.com/wp-graphql/wp-graphql/issues/4249))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4242](https://github.com/wp-graphql/wp-graphql/issues/4242))
+* return memoized model field values as data instead of re-invoking them ([#4252](https://github.com/wp-graphql/wp-graphql/issues/4252))
 
 = 2.21.0 =
 

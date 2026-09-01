@@ -33,7 +33,7 @@ Filter for the capability to check against for restricted data
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:217`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L217)
+- [`plugins/wp-graphql/src/Model/Model.php:221`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L221)
 
 ```php
 apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -41,4 +41,4 @@ apply_filters( 'graphql_restricted_data_cap', $this->restricted_cap, $this->get_
 
 ## Related
 
-- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:217`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L217)
+- `Model::get_visibility()` in [`plugins/wp-graphql/src/Model/Model.php:221`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L221)
