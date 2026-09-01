@@ -309,7 +309,7 @@ class MediaItemCreate {
 			/**
 			 * Handle the error from wp_handle_sideload if it occurs
 			 */
-			if ( ! empty( $file['error'] ) ) {
+			if ( ! empty( $file['error'] ) || ! isset( $file['file'] ) ) {
 				throw new UserError( esc_html__( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
 			}
 
@@ -318,7 +318,7 @@ class MediaItemCreate {
 			// WP_REST_Attachments_Controller::create_item_permissions_check()
 			// (added in WP 6.8). The wp_prevent_unsupported_mime_type_uploads
 			// filter mirrors core, so site owners can opt out the same way.
-			$detected_type = isset( $file['type'] ) && is_string( $file['type'] ) ? $file['type'] : '';
+			$detected_type = $file['type'];
 			if (
 				apply_filters( 'wp_prevent_unsupported_mime_type_uploads', true, $detected_type )
 				&& 0 === strpos( $detected_type, 'image/' )
