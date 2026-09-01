@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql",
-	"version": "2.20.0",
+	"version": "2.21.0",
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -79,7 +79,7 @@
 		"@typescript-eslint/parser": "^8.66.0",
 		"@wordpress/babel-preset-default": "^8.53.0",
 		"@wordpress/env": "^11.13.0",
-		"@wordpress/jest-preset-default": "^12.51.0",
+		"@wordpress/jest-preset-default": "^13.0.0",
 		"@wordpress/scripts": "^27.9.0",
 		"babel-jest": "^30.4.1",
 		"babel-plugin-inline-json-import": "^0.3.2",

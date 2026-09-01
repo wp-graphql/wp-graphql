@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.21.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.20.0...wp-graphql/v2.21.0) (2026-08-31)
+
+
+### New Features
+
+* add request-level preview context (X-GraphQL-Preview header / extensions.preview) ([#3969](https://github.com/wp-graphql/wp-graphql/issues/3969)) ([bfb6ac8](https://github.com/wp-graphql/wp-graphql/commit/bfb6ac8686fe70e53ab313b27eb6b586b703402e))
+* **deps:** bump @wordpress/components from 34.0.0 to 37.0.0 ([#4204](https://github.com/wp-graphql/wp-graphql/issues/4204)) ([eaba6c0](https://github.com/wp-graphql/wp-graphql/commit/eaba6c075944bf87501c339aaf558275355fbeb9))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#4202](https://github.com/wp-graphql/wp-graphql/issues/4202)) ([28d11b4](https://github.com/wp-graphql/wp-graphql/commit/28d11b4374d751c48973f94b9212054f4d4fa96e))
+* **deps:** bump the npm-prod-minor-patch group with 7 updates ([#4218](https://github.com/wp-graphql/wp-graphql/issues/4218)) ([8891251](https://github.com/wp-graphql/wp-graphql/commit/88912519181ed89998a69739ea53315f13178f78))
+* preview ACF field values under the request-level preview context ([#4222](https://github.com/wp-graphql/wp-graphql/issues/4222)) ([e88d5c2](https://github.com/wp-graphql/wp-graphql/commit/e88d5c273fe33a299c18e591656e6446df43440f))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @typescript-eslint/eslint-plugin from 6.21.0 to 8.65.0 ([#4220](https://github.com/wp-graphql/wp-graphql/issues/4220)) ([7b2cf6a](https://github.com/wp-graphql/wp-graphql/commit/7b2cf6a3f9f914a4380f1ed4b0b2303f1a5b8238))
+* **deps-dev:** bump lint-staged from 16.4.0 to 17.2.0 ([#4221](https://github.com/wp-graphql/wp-graphql/issues/4221)) ([d2633f0](https://github.com/wp-graphql/wp-graphql/commit/d2633f0f9e598e4ff1f300b9ed836f9859531576))
+* **deps-dev:** bump phpstan/phpstan from 2.2.7 to 2.2.8 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4199](https://github.com/wp-graphql/wp-graphql/issues/4199)) ([2975241](https://github.com/wp-graphql/wp-graphql/commit/2975241dcc4495e7ef52737a04d096b7f4a4d80c))
+* **deps-dev:** bump sort-package-json from 3.7.1 to 4.0.0 ([#4219](https://github.com/wp-graphql/wp-graphql/issues/4219)) ([4c36a70](https://github.com/wp-graphql/wp-graphql/commit/4c36a70b986e3ffb04befa637075f48674351152))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 12 updates ([#4226](https://github.com/wp-graphql/wp-graphql/issues/4226)) ([cd537dd](https://github.com/wp-graphql/wp-graphql/commit/cd537dda3e696deaf7262cdecc31bae05d929166))
+* **deps-dev:** bump the npm-dev-minor-patch group with 5 updates ([#4200](https://github.com/wp-graphql/wp-graphql/issues/4200)) ([47136c8](https://github.com/wp-graphql/wp-graphql/commit/47136c8fd9c510df9948647822ecb9685fe9f4ce))
+* **deps:** bump webonyx/graphql-php from 15.37.1 to 15.37.2 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4215](https://github.com/wp-graphql/wp-graphql/issues/4215)) ([9d6fe19](https://github.com/wp-graphql/wp-graphql/commit/9d6fe1910871ee5378d88b59989713ab58e1e846))
+* point acf.wpgraphql.com links at the wpgraphql.com docs portal ([#4251](https://github.com/wp-graphql/wp-graphql/issues/4251)) ([cc12aed](https://github.com/wp-graphql/wp-graphql/commit/cc12aed380414545a005048bfcebe4ba50e9c8f9))
+* remove WordPress internals from schema field descriptions ([#4161](https://github.com/wp-graphql/wp-graphql/issues/4161)) ([e8f6543](https://github.com/wp-graphql/wp-graphql/commit/e8f654302fd4a37e612a70a22efc0b092ce365f1))
+
 ## [2.20.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.19.0...wp-graphql/v2.20.0) (2026-08-14)
 
 

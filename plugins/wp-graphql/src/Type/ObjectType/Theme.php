@@ -35,43 +35,43 @@ class Theme {
 						'slug'         => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme. This field is equivalent to WP_Theme->get_stylesheet().', 'wp-graphql' );
+								return __( 'The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme.', 'wp-graphql' );
 							},
 						],
 						'name'         => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Display name of the theme. This field is equivalent to WP_Theme->get( "Name" ).', 'wp-graphql' );
+								return __( 'Display name of the theme.', 'wp-graphql' );
 							},
 						],
 						'screenshot'   => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like. This field is equivalent to WP_Theme->get_screenshot().', 'wp-graphql' );
+								return __( 'The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like.', 'wp-graphql' );
 							},
 						],
 						'themeUri'     => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( "ThemeURI" ).', 'wp-graphql' );
+								return __( 'A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc.', 'wp-graphql' );
 							},
 						],
 						'description'  => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The description of the theme. This field is equivalent to WP_Theme->get( "Description" ).', 'wp-graphql' );
+								return __( 'The description of the theme.', 'wp-graphql' );
 							},
 						],
 						'author'       => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Name of the theme author(s), could also be a company name. This field is equivalent to WP_Theme->get( "Author" ).', 'wp-graphql' );
+								return __( 'Name of the theme author(s), could also be a company name.', 'wp-graphql' );
 							},
 						],
 						'authorUri'    => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "AuthorURI" ).', 'wp-graphql' );
+								return __( 'URI for the author/company website.', 'wp-graphql' );
 							},
 						],
 						'tags'         => [
@@ -79,13 +79,13 @@ class Theme {
 								'list_of' => 'String',
 							],
 							'description' => static function () {
-								return __( 'URI for the author/company website. This field is equivalent to WP_Theme->get( "Tags" ).', 'wp-graphql' );
+								return __( 'A list of tags associated with the theme, typically describing its features (e.g. custom-logo, accessibility-ready, full-site-editing).', 'wp-graphql' );
 							},
 						],
 						'version'      => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The current version of the theme. This field is equivalent to WP_Theme->get( "Version" ).', 'wp-graphql' );
+								return __( 'The current version of the theme.', 'wp-graphql' );
 							},
 						],
 						'isRestricted' => [
