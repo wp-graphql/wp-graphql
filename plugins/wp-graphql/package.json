@@ -53,7 +53,7 @@
 		"@apollo/client": "3.14.1",
 		"@wordpress/api-fetch": "^7.53.0",
 		"@wordpress/components": "^38.0.0",
-		"@wordpress/compose": "^8.5.0",
+		"@wordpress/compose": "^8.6.0",
 		"@wordpress/element": "^6.37.0",
 		"@wordpress/hooks": "^4.44.0",
 		"@wordpress/i18n": "^6.21.0",
