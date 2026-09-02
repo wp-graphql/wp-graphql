@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.22.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.21.1...wp-graphql/v2.22.0) (2026-09-02)
+
+
+### New Features
+
+* **deps:** bump @wordpress/components from 37.0.0 to 38.0.0 ([#4260](https://github.com/wp-graphql/wp-graphql/issues/4260)) ([ef0e075](https://github.com/wp-graphql/wp-graphql/commit/ef0e0758d66499bcff5b32efad8a1823e0434f36))
+* **deps:** bump @wordpress/compose from 7.46.0 to 8.5.0 ([#4262](https://github.com/wp-graphql/wp-graphql/issues/4262)) ([cc28fae](https://github.com/wp-graphql/wp-graphql/commit/cc28faee9482dff134f35a1474c886a79fe675e0))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#4267](https://github.com/wp-graphql/wp-graphql/issues/4267)) ([5a3005b](https://github.com/wp-graphql/wp-graphql/commit/5a3005bb9843bdc8318c0faf78c94b97aea48d10))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the npm-dev-minor-patch group with 5 updates ([#4257](https://github.com/wp-graphql/wp-graphql/issues/4257)) ([5b27466](https://github.com/wp-graphql/wp-graphql/commit/5b274662c809653e5ec096043b8cd37e184b3102))
+
 ## [2.21.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.21.0...wp-graphql/v2.21.1) (2026-09-01)
 
 
