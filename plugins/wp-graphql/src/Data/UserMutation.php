@@ -145,11 +145,12 @@ class UserMutation {
 	 *
 	 * @param array<string,mixed> $input         Data coming from the GraphQL mutation query input
 	 * @param string              $mutation_name Name of the mutation being performed
+	 * @param int                 $user_id       The ID of the user being updated, or 0 when creating a new user. Used to validate role assignments against the current user's capabilities.
 	 *
 	 * @return array<string,mixed>
-	 * @throws \GraphQL\Error\UserError If the passed email address is invalid.
+	 * @throws \GraphQL\Error\UserError If the passed email address is invalid, or the current user is not allowed to assign one of the requested roles.
 	 */
-	public static function prepare_user_object( $input, $mutation_name ) {
+	public static function prepare_user_object( $input, $mutation_name, $user_id = 0 ) {
 		$insert_user_args = [];
 
 		/**
@@ -218,16 +219,40 @@ class UserMutation {
 		}
 
 		if ( ! empty( $input['roles'] ) ) {
+			$roles = is_array( $input['roles'] ) ? $input['roles'] : [ $input['roles'] ];
+
+			// Validate every requested role before any of them is written to the database.
+			//
+			// wp_insert_user()/wp_update_user() apply the `role` argument immediately and
+			// unconditionally, without consulting the current user's editable roles. If we
+			// only validated afterward (in add_user_roles()), a privileged role placed first
+			// in the array would already be persisted even though the mutation then errors.
+			// Validating here ensures an unauthorized role never reaches the database.
+			foreach ( $roles as $role ) {
+				$verified = self::verify_user_role( $role, $user_id );
+
+				if ( is_wp_error( $verified ) ) {
+					throw new UserError( esc_html( $verified->get_error_message() ) );
+				} elseif ( true !== $verified ) {
+					// Translators: The placeholder is the name of the user role.
+					throw new UserError( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
+				}
+			}
+
 			/**
 			 * Pluck the first role out of the array since the insert and update functions only
 			 * allow one role to be set at a time. We will add all of the roles passed to the
 			 * mutation later on after the initial object has been created or updated.
 			 */
-			$insert_user_args['role'] = $input['roles'][0];
+			$insert_user_args['role'] = $roles[0];
 		}
 
 		/**
-		 * Filters the mappings for input to arguments
+		 * Filters the mappings for input to arguments.
+		 *
+		 * This is a trusted server-side extension point and runs after the role
+		 * validation above. A callback that sets `role` bypasses that validation by
+		 * design; it is not reachable from the GraphQL input surface.
 		 *
 		 * @param array<string,mixed> $insert_user_args The arguments to ultimately be passed to the WordPress function
 		 * @param array<string,mixed> $input            Input data from the GraphQL mutation

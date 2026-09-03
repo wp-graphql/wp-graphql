@@ -820,6 +820,177 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertContains( $error_message, $valid_messages, "Unexpected error message: {$error_message}" );
 	}
 
+	/**
+	 * A caller who can edit users but is not permitted to grant the administrator role
+	 * (its editable_roles are constrained, e.g. by multisite or a role-management plugin)
+	 * must not be able to escalate an existing user to administrator by placing that role
+	 * first in the roles array.
+	 *
+	 * The `role` shortcut in UserMutation::prepare_user_object() feeds roles[0] straight to
+	 * wp_update_user(), which applies it before verify_user_role() runs, so the privileged
+	 * role would persist even though the mutation then reports an error. Regression for
+	 * GHSA-66rg.
+	 */
+	public function testUpdateUserCannotEscalateRoleThroughFirstRoleShortcut() {
+
+		$query = '
+		mutation updateUser( $input:UpdateUserInput! ) {
+			updateUser( input: $input ) {
+				user {
+					id
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'user', $this->subscriber ),
+				'roles' => [
+					'administrator',
+				],
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+
+		// Constrain the current user so they are not allowed to assign the administrator
+		// role. This is the canonical WordPress mechanism (used by multisite and role
+		// plugins) for limiting which roles a user may grant.
+		$remove_admin_role = static function ( $roles ) {
+			unset( $roles['administrator'] );
+			return $roles;
+		};
+		add_filter( 'editable_roles', $remove_admin_role );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		remove_filter( 'editable_roles', $remove_admin_role );
+
+		codecept_debug( $actual );
+
+		// The mutation must reject the disallowed role.
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// And critically, the target user must NOT have been escalated to administrator.
+		$updated = get_userdata( $this->subscriber );
+		$this->assertNotContains(
+			'administrator',
+			(array) $updated->roles,
+			'A user must not be escalated to administrator via the roles[0] shortcut when the caller cannot grant that role.'
+		);
+	}
+
+	/**
+	 * The same escalation must be impossible through createUser: a caller who cannot grant
+	 * the administrator role must not be able to create an administrator by placing that role
+	 * first in the roles array. Regression for GHSA-66rg.
+	 */
+	public function testCreateUserCannotEscalateRoleThroughFirstRoleShortcut() {
+
+		$query = '
+		mutation createUser( $input:CreateUserInput! ) {
+			createUser( input: $input ) {
+				user {
+					id
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'username' => 'privesc_create',
+				'email'    => 'privesc_create@test.com',
+				'roles'    => [
+					'administrator',
+				],
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+
+		$remove_admin_role = static function ( $roles ) {
+			unset( $roles['administrator'] );
+			return $roles;
+		};
+		add_filter( 'editable_roles', $remove_admin_role );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		remove_filter( 'editable_roles', $remove_admin_role );
+
+		codecept_debug( $actual );
+
+		// The mutation must reject the disallowed role.
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// And no administrator may have been created as a side effect.
+		$created  = get_user_by( 'login', 'privesc_create' );
+		$is_admin = $created && in_array( 'administrator', (array) $created->roles, true );
+		$this->assertFalse(
+			$is_admin,
+			'createUser must not persist an administrator role the caller is not allowed to grant.'
+		);
+	}
+
+	/**
+	 * Role validation must be atomic across the whole roles array: if any requested role is
+	 * disallowed, none of them may be applied, even a role earlier in the array that the caller
+	 * is allowed to grant. This proves the up-front, whole-array rejection rather than the
+	 * previous behavior where roles[0] was written before the later roles were validated.
+	 * Regression for GHSA-66rg.
+	 */
+	public function testUpdateUserRoleValidationIsAtomicAcrossTheArray() {
+
+		$query = '
+		mutation updateUser( $input:UpdateUserInput! ) {
+			updateUser( input: $input ) {
+				user {
+					id
+				}
+			}
+		}
+		';
+
+		// The subscriber starts with the "subscriber" role. We request "editor" (which the
+		// caller IS allowed to grant) followed by "administrator" (which they are NOT). Because
+		// one role is disallowed, neither may be applied.
+		$variables = [
+			'input' => [
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'user', $this->subscriber ),
+				'roles' => [
+					'editor',
+					'administrator',
+				],
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+
+		$remove_admin_role = static function ( $roles ) {
+			unset( $roles['administrator'] );
+			return $roles;
+		};
+		add_filter( 'editable_roles', $remove_admin_role );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		remove_filter( 'editable_roles', $remove_admin_role );
+
+		codecept_debug( $actual );
+
+		// The mutation must reject the disallowed role.
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Neither the disallowed role NOR the allowed-but-not-applied role may have landed:
+		// the user must be left with only their original role.
+		$updated = get_userdata( $this->subscriber );
+		$this->assertNotContains( 'administrator', (array) $updated->roles, 'The disallowed role must not be applied.' );
+		$this->assertNotContains( 'editor', (array) $updated->roles, 'A grantable role earlier in the array must not be applied when a later role is rejected.' );
+		$this->assertContains( 'subscriber', (array) $updated->roles, 'The user must retain their original role when the update is rejected.' );
+	}
+
 	public function registerUserMutation( $args ) {
 
 		$query = '

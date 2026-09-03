@@ -87,7 +87,7 @@ class UserUpdate {
 				throw new UserError( esc_html__( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
 			}
 
-			$user_args       = UserMutation::prepare_user_object( $input, 'updateUser' );
+			$user_args       = UserMutation::prepare_user_object( $input, 'updateUser', $user_id );
 			$user_args['ID'] = $user_id;
 
 			/**
