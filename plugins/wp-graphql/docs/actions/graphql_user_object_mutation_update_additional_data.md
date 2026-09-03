@@ -32,7 +32,7 @@ Run an action after the additional data has been updated. This is a great spot t
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/UserMutation.php:275`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L275)
+- [`plugins/wp-graphql/src/Data/UserMutation.php:300`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L300)
 
 ```php
 do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
@@ -40,4 +40,4 @@ do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $inp
 
 ## Related
 
-- `UserMutation::update_additional_user_object_data()` in [`plugins/wp-graphql/src/Data/UserMutation.php:275`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L275)
+- `UserMutation::update_additional_user_object_data()` in [`plugins/wp-graphql/src/Data/UserMutation.php:300`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L300)

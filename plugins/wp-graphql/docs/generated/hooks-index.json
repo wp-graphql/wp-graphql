@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-09-02T18:23:25.916Z",
+  "generatedAt": "2026-09-03T16:42:52.962Z",
   "stats": {
     "totalHooks": 279,
     "actions": 62,
@@ -14698,10 +14698,10 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "UserMutation::prepare_user_object()",
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 239,
+      "line": 264,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
-      "description": "Filters the mappings for input to arguments",
+      "description": "Filters the mappings for input to arguments. This is a trusted server-side extension point and runs after the role validation above. A callback that sets `role` bypasses that validation by design; it is not reachable from the GraphQL input surface.",
       "params": [
         {
           "type": "array<string,mixed>",
@@ -14738,7 +14738,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-          "line": 239,
+          "line": 264,
           "symbol": "UserMutation::prepare_user_object()",
           "emitter": "apply_filters"
         }
@@ -14804,7 +14804,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "UserMutation::update_additional_user_object_data()",
       "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-      "line": 275,
+      "line": 300,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action after the additional data has been updated. This is a great spot to hook into to update additional data related to users, such as setting relationships, updating additional usermeta, or sending emails to Kevin... whatever you need to do with the userObject.",
@@ -14854,7 +14854,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/UserMutation.php",
-          "line": 275,
+          "line": 300,
           "symbol": "UserMutation::update_additional_user_object_data()",
           "emitter": "do_action"
         }

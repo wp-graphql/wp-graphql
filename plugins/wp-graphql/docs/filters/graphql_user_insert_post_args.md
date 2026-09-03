@@ -15,7 +15,7 @@ plugin: wp-graphql
 apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 ```
 
-Filters the mappings for input to arguments
+Filters the mappings for input to arguments. This is a trusted server-side extension point and runs after the role validation above. A callback that sets `role` bypasses that validation by design; it is not reachable from the GraphQL input surface.
 
 - **Type:** filter
 - **Group:** Model Layer
@@ -30,7 +30,7 @@ Filters the mappings for input to arguments
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/UserMutation.php:239`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L239)
+- [`plugins/wp-graphql/src/Data/UserMutation.php:264`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L264)
 
 ```php
 apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $muta
 
 ## Related
 
-- `UserMutation::prepare_user_object()` in [`plugins/wp-graphql/src/Data/UserMutation.php:239`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L239)
+- `UserMutation::prepare_user_object()` in [`plugins/wp-graphql/src/Data/UserMutation.php:264`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/UserMutation.php#L264)

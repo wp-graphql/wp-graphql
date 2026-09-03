@@ -412,7 +412,7 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
 - [`graphql_user_insert_post_args`](/filters/graphql_user_insert_post_args)
 
-  Filters the mappings for input to arguments
+  Filters the mappings for input to arguments.
 
 - [`graphql_user_mutation_input_fields`](/filters/graphql_user_mutation_input_fields)
 
