@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.22.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.0...wp-graphql/v2.22.1) (2026-09-03)
+
+
+### Bug Fixes
+
+* validate user roles before assignment in user mutations (GHSA-66rg) ([2d6d576](https://github.com/wp-graphql/wp-graphql/commit/2d6d57622b8699abd9fac1accc43efd1c85dec44))
+
 ## [2.22.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.21.1...wp-graphql/v2.22.0) (2026-09-02)
 
 
