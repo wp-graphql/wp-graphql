@@ -960,6 +960,153 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $page_id, $actual['data']['updatePage']['page']['databaseId'] );
 	}
 
+	/**
+	 * A Contributor lacks `publish_posts`, so updatePost must not let them push their
+	 * own draft to a public status. Regression for GHSA-5mmc-8pc9-wggg. The REST API
+	 * rejects the equivalent operation.
+	 */
+	public function testContributorCannotPublishOwnDraftViaUpdatePost() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'draft',
+				'post_author' => $this->contributor,
+				'post_title'  => 'Contributor draft',
+			]
+		);
+
+		$query = '
+		mutation updatePost( $input:UpdatePostInput! ) {
+			updatePost( input:$input ) {
+				post { databaseId status }
+			}
+		}';
+
+		$variables = [
+			'input' => [
+				'id'     => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'status' => 'PUBLISH',
+			],
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual, 'A Contributor must not be able to publish via updatePost.' );
+		$this->assertEquals( 'draft', get_post_status( $post_id ), 'The post must remain a draft after the rejected publish.' );
+	}
+
+	/**
+	 * A Contributor lacks `edit_published_posts`, so updatePost must not let them edit
+	 * their own post after it has been published. Regression for GHSA-5mmc-8pc9-wggg.
+	 * The REST API returns 403 rest_cannot_edit for this.
+	 */
+	public function testContributorCannotEditOwnPublishedPostViaUpdatePost() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->contributor,
+				'post_title'  => 'Editorially approved title',
+			]
+		);
+
+		$query = '
+		mutation updatePost( $input:UpdatePostInput! ) {
+			updatePost( input:$input ) {
+				post { databaseId title }
+			}
+		}';
+
+		$variables = [
+			'input' => [
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'title' => 'Unauthorized change after approval',
+			],
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual, 'A Contributor must not be able to edit their own published post via updatePost.' );
+		$this->assertEquals( 'Editorially approved title', get_post( $post_id )->post_title, 'The published post title must be unchanged.' );
+	}
+
+	/**
+	 * Guardrail: the GHSA-5mmc fix must not break the legitimate case. A Contributor
+	 * may still update their own draft (without changing it to a public status).
+	 */
+	public function testContributorCanUpdateOwnDraftViaUpdatePost() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'draft',
+				'post_author' => $this->contributor,
+				'post_title'  => 'Original draft title',
+			]
+		);
+
+		$query = '
+		mutation updatePost( $input:UpdatePostInput! ) {
+			updatePost( input:$input ) {
+				post { databaseId title status }
+			}
+		}';
+
+		$variables = [
+			'input' => [
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'title' => 'Revised draft title',
+			],
+		];
+
+		wp_set_current_user( $this->contributor );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'A Contributor must still be able to update their own draft.' );
+		$this->assertEquals( apply_filters( 'the_title', 'Revised draft title' ), $actual['data']['updatePost']['post']['title'] );
+		$this->assertEquals( 'draft', get_post_status( $post_id ) );
+	}
+
+	/**
+	 * Guardrail: an Author has `publish_posts`, so updatePost must still let them publish
+	 * their own draft. Ensures the GHSA-5mmc fix does not over-restrict.
+	 */
+	public function testAuthorCanPublishOwnDraftViaUpdatePost() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'draft',
+				'post_author' => $this->author,
+				'post_title'  => 'Author draft',
+			]
+		);
+
+		$query = '
+		mutation updatePost( $input:UpdatePostInput! ) {
+			updatePost( input:$input ) {
+				post { databaseId status }
+			}
+		}';
+
+		$variables = [
+			'input' => [
+				'id'     => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'status' => 'PUBLISH',
+			],
+		];
+
+		wp_set_current_user( $this->author );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'An Author must still be able to publish their own draft.' );
+		$this->assertEquals( 'publish', get_post_status( $post_id ) );
+	}
+
 	public function testUpdatePostWithInvalidId() {
 
 		$query = '
