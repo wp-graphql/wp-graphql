@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.22.1\n"
+"Project-Id-Version: WPGraphQL 2.22.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-03T16:42:53+00:00\n"
+"POT-Creation-Date: 2026-09-04T17:43:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1133,7 +1133,7 @@ msgstr ""
 
 #. translators: 1: model + field name, 2: required WordPress capability.
 #. translators: 1: GraphQL field name, 2: required WordPress capability.
-#: src/Model/Model.php:486
+#: src/Model/Model.php:491
 #: src/Type/ObjectType/Settings.php:102
 #, php-format
 msgid "The \"%1$s\" field requires the \"%2$s\" capability and resolved to null."
@@ -1652,23 +1652,35 @@ msgstr ""
 msgid "Sorry, you are not allowed to update another author's %1$s"
 msgstr ""
 
+#. translators: the placeholder is the singular name of the post type being mutated
+#: src/Mutation/PostObjectUpdate.php:126
+#, php-format
+msgid "Sorry, you are not allowed to update this %1$s"
+msgstr ""
+
 #. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-#: src/Mutation/PostObjectUpdate.php:136
+#: src/Mutation/PostObjectUpdate.php:148
 #, php-format
 msgid "Sorry, you are not allowed to update %1$s as this user."
 msgstr ""
 
 #. translators: %s: User's display name.
-#: src/Mutation/PostObjectUpdate.php:145
+#: src/Mutation/PostObjectUpdate.php:157
 #, php-format
 msgid "You cannot update this item. %s is currently editing."
 msgstr ""
 
-#: src/Mutation/PostObjectUpdate.php:167
+#. translators: the placeholder is the singular name of the post type being mutated
+#: src/Mutation/PostObjectUpdate.php:188
+#, php-format
+msgid "Sorry, you are not allowed to publish this %1$s"
+msgstr ""
+
+#: src/Mutation/PostObjectUpdate.php:194
 msgid "The object failed to update."
 msgstr ""
 
-#: src/Mutation/PostObjectUpdate.php:184
+#: src/Mutation/PostObjectUpdate.php:211
 #: src/Mutation/TermObjectCreate.php:176
 msgid "The object failed to update but no error was provided"
 msgstr ""

@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-09-03T16:42:52.962Z",
+  "generatedAt": "2026-09-04T17:43:16.877Z",
   "stats": {
     "totalHooks": 279,
     "actions": 62,
@@ -5927,7 +5927,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::html_entity_decode()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 568,
+      "line": 573,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Determine whether html_entity_decode should be applied to the string",
@@ -5972,7 +5972,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 568,
+          "line": 573,
           "symbol": "Model::html_entity_decode()",
           "emitter": "apply_filters"
         }
@@ -6207,7 +6207,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "PostObjectUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectUpdate.php",
-      "line": 214,
+      "line": 241,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after a single term is created or updated via a GraphQL mutation The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated",
@@ -6319,7 +6319,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "PostObjectUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectUpdate.php",
-      "line": 200,
+      "line": 227,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after a single term is created or updated via a GraphQL mutation The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated",
@@ -6364,7 +6364,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/PostObjectUpdate.php",
-          "line": 200,
+          "line": 227,
           "symbol": "PostObjectUpdate::mutate_and_get_payload()",
           "emitter": "do_action"
         }
@@ -7443,7 +7443,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::current_user_can_access_field()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 470,
+      "line": 475,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Capability to check required for the field",
@@ -7503,7 +7503,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 470,
+          "line": 475,
           "symbol": "Model::current_user_can_access_field()",
           "emitter": "apply_filters"
         }
@@ -7521,7 +7521,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::prepare_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 541,
+      "line": 546,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the array of fields for the Model before the object is hydrated with it",
@@ -7576,7 +7576,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 541,
+          "line": 546,
           "symbol": "Model::prepare_fields()",
           "emitter": "apply_filters"
         }
@@ -12106,7 +12106,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::prepare_field()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 438,
+      "line": 443,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the data returned by the default callback for the field",
@@ -12166,7 +12166,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 438,
+          "line": 443,
           "symbol": "Model::prepare_field()",
           "emitter": "apply_filters"
         }

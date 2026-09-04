@@ -31,7 +31,7 @@ Determine whether html_entity_decode should be applied to the string
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:568`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L568)
+- [`plugins/wp-graphql/src/Model/Model.php:573`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L573)
 
 ```php
 apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $str, $field_name, $this );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $str, $field_na
 
 ## Related
 
-- `Model::html_entity_decode()` in [`plugins/wp-graphql/src/Model/Model.php:568`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L568)
+- `Model::html_entity_decode()` in [`plugins/wp-graphql/src/Model/Model.php:573`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L573)

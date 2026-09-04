@@ -33,7 +33,7 @@ Filter the array of fields for the Model before the object is hydrated with it
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:541`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L541)
+- [`plugins/wp-graphql/src/Model/Model.php:546`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L546)
 
 ```php
 apply_filters( 'graphql_model_prepare_fields', $this->fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -41,4 +41,4 @@ apply_filters( 'graphql_model_prepare_fields', $this->fields, $this->get_model_n
 
 ## Related
 
-- `Model::prepare_fields()` in [`plugins/wp-graphql/src/Model/Model.php:541`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L541)
+- `Model::prepare_fields()` in [`plugins/wp-graphql/src/Model/Model.php:546`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L546)
