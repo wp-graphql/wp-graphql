@@ -170,6 +170,23 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.5.0...wp-graphql-ide/v5.6.0) (2026-09-04)
+
+
+### New Features
+
+* **deps:** bump @wordpress/components from 37.0.0 to 38.0.0 ([#4260](https://github.com/wp-graphql/wp-graphql/issues/4260)) ([ef0e075](https://github.com/wp-graphql/wp-graphql/commit/ef0e0758d66499bcff5b32efad8a1823e0434f36))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#4267](https://github.com/wp-graphql/wp-graphql/issues/4267)) ([5a3005b](https://github.com/wp-graphql/wp-graphql/commit/5a3005bb9843bdc8318c0faf78c94b97aea48d10))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @testing-library/jest-dom from 6.9.1 to 7.0.0 ([#4250](https://github.com/wp-graphql/wp-graphql/issues/4250)) ([aff9c9d](https://github.com/wp-graphql/wp-graphql/commit/aff9c9db9157419757a636fb2860acd59fde8a47))
+* **deps-dev:** bump chalk from 5.6.2 to 6.0.0 ([#4248](https://github.com/wp-graphql/wp-graphql/issues/4248)) ([811fe7c](https://github.com/wp-graphql/wp-graphql/commit/811fe7c68fa17858c1a8e01ad7b94938d3f51fd1))
+* **deps-dev:** bump the npm-dev-minor-patch group with 5 updates ([#4257](https://github.com/wp-graphql/wp-graphql/issues/4257)) ([5b27466](https://github.com/wp-graphql/wp-graphql/commit/5b274662c809653e5ec096043b8cd37e184b3102))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group in /plugins/wp-graphql-ide with 3 updates ([#4243](https://github.com/wp-graphql/wp-graphql/issues/4243)) ([705a0a8](https://github.com/wp-graphql/wp-graphql/commit/705a0a893de6485da7ab9e234abfd0f20d473b8c))
+* validate user roles before assignment in user mutations (GHSA-66rg) ([2d6d576](https://github.com/wp-graphql/wp-graphql/commit/2d6d57622b8699abd9fac1accc43efd1c85dec44))
+
 ## [5.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.4.2...wp-graphql-ide/v5.5.0) (2026-08-31)
 
 
