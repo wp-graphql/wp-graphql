@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.1...wp-graphql-smart-cache/v2.4.0) (2026-09-04)
+
+
+### New Features
+
+* **wpgraphql.com:** Smart Cache docs in the portal ([#4231](https://github.com/wp-graphql/wp-graphql/issues/4231)) ([7a5d9e0](https://github.com/wp-graphql/wp-graphql/commit/7a5d9e03ab31c0bb7f4b8ac2ccf54c7a280d1e78))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4197](https://github.com/wp-graphql/wp-graphql/issues/4197)) ([b62cf1b](https://github.com/wp-graphql/wp-graphql/commit/b62cf1b54a0151806c347ff29144e59fb0051ddf))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4241](https://github.com/wp-graphql/wp-graphql/issues/4241)) ([d85beb4](https://github.com/wp-graphql/wp-graphql/commit/d85beb4c2076c72330a0dbf4ca8a0d7bb77a0772))
+* validate user roles before assignment in user mutations (GHSA-66rg) ([2d6d576](https://github.com/wp-graphql/wp-graphql/commit/2d6d57622b8699abd9fac1accc43efd1c85dec44))
+
 ## [2.3.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.0...wp-graphql-smart-cache/v2.3.1) (2026-08-18)
 
 
