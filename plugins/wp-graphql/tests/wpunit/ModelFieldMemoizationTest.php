@@ -198,4 +198,102 @@ class ModelFieldMemoizationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	public static function resolve_callback_array_field(): string {
 		return 'resolved-via-callback-array';
 	}
+
+	/**
+	 * Flips when ghsa_7922_rce_marker() is actually invoked. Lets the test below
+	 * distinguish "the memoized string was executed" from "it was returned as data."
+	 *
+	 * @var bool
+	 */
+	public static $rce_marker_invoked = false;
+
+	/**
+	 * Zero-argument function with an observable side effect, standing in for the
+	 * arbitrary zero-arg callables (phpinfo, session_destroy, ...) the report abuses.
+	 */
+	public static function ghsa_7922_rce_marker(): string {
+		self::$rce_marker_invoked = true;
+		return 'MARKER_EXECUTED';
+	}
+
+	/**
+	 * Direct reproduction of the reported RCE (CVE-2026-18944 / GHSA-7922). When a
+	 * field resolves to a string that names a real PHP callable (an attacker-controlled
+	 * value such as a display name of "phpinfo"), re-reading the field via a GraphQL
+	 * alias must return the string as data, never invoke it. Unlike the "Max"/"Time"
+	 * tests (which rely on a builtin fataling on a zero-arg call), this uses a callable
+	 * with an observable side effect, so mere invocation, not just is_callable() matching,
+	 * is caught. If Model::__get() ever invokes the memoized string again, the marker
+	 * flips and this fails.
+	 */
+	public function testMemoizedCallableStringIsNeverInvokedOnReRead() {
+		self::$rce_marker_invoked = false;
+
+		$author_id = $this->create_max_time_user();
+		wp_set_current_user( $author_id );
+
+		$callable_name = self::class . '::ghsa_7922_rce_marker';
+
+		add_filter(
+			'graphql_model_prepare_fields',
+			static function ( $fields, $model_name ) use ( $callable_name ) {
+				if ( 'UserObject' !== $model_name ) {
+					return $fields;
+				}
+				// The resolver returns a STRING naming a real callable, mimicking an
+				// attacker-controlled value read from the database.
+				$fields['attackerControlledField'] = static function () use ( $callable_name ) {
+					return $callable_name;
+				};
+				return $fields;
+			},
+			10,
+			2
+		);
+
+		$model = new \WPGraphQL\Model\User( get_user_by( 'id', $author_id ) );
+
+		// First read resolves and memoizes the string.
+		$this->assertSame( $callable_name, $model->attackerControlledField );
+		// Second read (what a GraphQL alias triggers) must return the string as data.
+		$this->assertSame( $callable_name, $model->attackerControlledField );
+		// And the callable must never have executed.
+		$this->assertFalse( self::$rce_marker_invoked, 'A memoized callable string must never be invoked on re-read (RCE guard).' );
+	}
+
+	/**
+	 * Defense in depth for CVE-2026-18944 / GHSA-7922 at the prepare_field() site.
+	 * A field defined as a bare callable string must be returned as data, never
+	 * invoked. WPGraphQL resolvers are Closures or callable arrays, so a string field
+	 * definition can only be data (for example a value matching a PHP function name).
+	 * Callable arrays still resolve, see testNonClosureCallbackFieldsResolveAndMemoize.
+	 */
+	public function testCallableStringFieldDefinitionIsReturnedAsData() {
+		self::$rce_marker_invoked = false;
+
+		$author_id = $this->create_max_time_user();
+		wp_set_current_user( $author_id );
+
+		$callable_name = self::class . '::ghsa_7922_rce_marker';
+
+		add_filter(
+			'graphql_model_prepare_fields',
+			static function ( $fields, $model_name ) use ( $callable_name ) {
+				if ( 'UserObject' !== $model_name ) {
+					return $fields;
+				}
+				// A bare callable string as the field definition (not a Closure or a
+				// callable array), standing in for attacker-controlled data.
+				$fields['stringCallableField'] = $callable_name;
+				return $fields;
+			},
+			10,
+			2
+		);
+
+		$model = new \WPGraphQL\Model\User( get_user_by( 'id', $author_id ) );
+
+		$this->assertSame( $callable_name, $model->stringCallableField );
+		$this->assertFalse( self::$rce_marker_invoked, 'A bare callable-string field definition must never be invoked (prepare_field guard).' );
+	}
 }

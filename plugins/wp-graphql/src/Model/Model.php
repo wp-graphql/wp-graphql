@@ -416,7 +416,12 @@ abstract class Model {
 			$field = null;
 		}
 
-		if ( is_callable( $field ) ) {
+		// Invoke Closures and callable arrays (the resolver shapes WPGraphQL installs),
+		// but never a bare callable string. A field definition that is a string is data,
+		// not a resolver we registered (for example a value that happens to match a PHP
+		// function name), so it must be returned rather than invoked. This mirrors the
+		// Closure gate in __get(). Defense in depth for GHSA-7922 / CVE-2026-18944.
+		if ( is_callable( $field ) && ! is_string( $field ) ) {
 			$this->setup();
 			$field = call_user_func( $field );
 			$this->tear_down();

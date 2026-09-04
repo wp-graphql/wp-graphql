@@ -114,6 +114,18 @@ class PostObjectUpdate {
 				throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to update another author\'s %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) ) );
 			}
 
+			/**
+			 * Enforce the object-level edit capability for this specific post. WordPress maps
+			 * the `edit_post` meta capability to `edit_published_posts` once a post is
+			 * published, so a user who can create and edit drafts (e.g. a Contributor) cannot
+			 * edit a post after it has been published. This mirrors the WordPress REST API,
+			 * which returns `rest_cannot_edit` for the same request.
+			 */
+			if ( ! isset( $post_type_object->cap->edit_post ) || ! current_user_can( $post_type_object->cap->edit_post, $post_id ) ) {
+				// translators: the placeholder is the singular name of the post type being mutated
+				throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to update this %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) ) );
+			}
+
 			$author_id = absint( $existing_post->post_author );
 
 			/**
@@ -160,6 +172,21 @@ class PostObjectUpdate {
 			 */
 			$post_args       = PostObjectMutation::prepare_post_object( $input, $post_type_object, $mutation_name );
 			$post_args['ID'] = $post_id;
+
+			/**
+			 * If the update requests a status that requires publishing capability (anything
+			 * other than draft or pending) and the current user cannot publish, reject the
+			 * request rather than silently changing the post's visibility. This mirrors the
+			 * WordPress REST API, which returns `rest_cannot_publish` for the same request.
+			 */
+			if (
+				isset( $post_args['post_status'] ) &&
+				! in_array( $post_args['post_status'], [ 'draft', 'pending' ], true ) &&
+				( ! isset( $post_type_object->cap->publish_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) )
+			) {
+				// translators: the placeholder is the singular name of the post type being mutated
+				throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to publish this %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) ) );
+			}
 
 			$clean_args = wp_slash( (array) $post_args );
 
