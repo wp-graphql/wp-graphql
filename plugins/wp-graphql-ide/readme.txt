@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.5.0
+Stable tag: 5.6.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,21 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.6.0 =
+
+**New Features**
+
+* **deps:** bump @wordpress/components from 37.0.0 to 38.0.0 ([#4260](https://github.com/wp-graphql/wp-graphql/issues/4260))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 5 updates ([#4267](https://github.com/wp-graphql/wp-graphql/issues/4267))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @testing-library/jest-dom from 6.9.1 to 7.0.0 ([#4250](https://github.com/wp-graphql/wp-graphql/issues/4250))
+* **deps-dev:** bump chalk from 5.6.2 to 6.0.0 ([#4248](https://github.com/wp-graphql/wp-graphql/issues/4248))
+* **deps-dev:** bump the npm-dev-minor-patch group with 5 updates ([#4257](https://github.com/wp-graphql/wp-graphql/issues/4257))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group in /plugins/wp-graphql-ide with 3 updates ([#4243](https://github.com/wp-graphql/wp-graphql/issues/4243))
+* validate user roles before assignment in user mutations (GHSA-66rg)
 
 = 5.5.0 =
 
