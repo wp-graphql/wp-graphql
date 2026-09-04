@@ -1,5 +1,16 @@
 <?php
 /**
+ * Activation routines for WPGraphQL.
+ *
+ * @package WPGraphQL
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Runs when WPGraphQL is activated
  */
 function graphql_activation_callback(): void {

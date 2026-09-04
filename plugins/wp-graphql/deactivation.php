@@ -1,5 +1,16 @@
 <?php
 /**
+ * Deactivation routines for WPGraphQL.
+ *
+ * @package WPGraphQL
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Runs when WPGraphQL is de-activated
  *
  * This cleans up data that WPGraphQL stores
