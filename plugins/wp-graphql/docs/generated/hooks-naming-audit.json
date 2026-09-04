@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-09-04T17:43:16.877Z",
+  "generatedAt": "2026-09-04T22:19:54.246Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -370,7 +370,7 @@
         "hook": "graphql_endpoint",
         "kind": "filter",
         "file": "plugins/wp-graphql/access-functions.php",
-        "line": 934,
+        "line": 939,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",

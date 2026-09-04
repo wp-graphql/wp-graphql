@@ -29,7 +29,7 @@ Whether a GraphQL HTTP request is in action or not. This is determined by checki
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:711`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L711)
+- [`plugins/wp-graphql/access-functions.php:716`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L716)
 
 ```php
 function is_graphql_http_request(): bool {
