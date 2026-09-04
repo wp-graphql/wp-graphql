@@ -12,6 +12,11 @@ use WPGraphQL\Request;
 use WPGraphQL\Router;
 use WPGraphQL\Utils\Utils;
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Formats a string for use as a GraphQL name.
  *

@@ -1,5 +1,16 @@
 <?php
 /**
+ * Constant definitions for WPGraphQL.
+ *
+ * @package WPGraphQL
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Sets up constants for use throughout the plugin and by other extending plugins.
  *
  * This is in its own file so that it can be used via the autoloaded classes, but also
