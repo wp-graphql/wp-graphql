@@ -315,6 +315,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 **Bug Fixes**
 
 * **security:** do not invoke bare callable-string field definitions in Model ([#4270](https://github.com/wp-graphql/wp-graphql/issues/4270))
+* **security:** enforce object-level and publish capabilities in updatePost (GHSA-5mmc)
 
 = 2.22.1 =
 

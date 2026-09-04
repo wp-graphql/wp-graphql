@@ -6,6 +6,7 @@
 ### Bug Fixes
 
 * **security:** do not invoke bare callable-string field definitions in Model ([#4270](https://github.com/wp-graphql/wp-graphql/issues/4270)) ([5544166](https://github.com/wp-graphql/wp-graphql/commit/55441663eaa33c3f2e05de038c8286c845916461))
+* **security:** enforce object-level and publish capabilities in updatePost (GHSA-5mmc) ([5544166](https://github.com/wp-graphql/wp-graphql/commit/55441663eaa33c3f2e05de038c8286c845916461))
 
 ## [2.22.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.0...wp-graphql/v2.22.1) (2026-09-03)
 
