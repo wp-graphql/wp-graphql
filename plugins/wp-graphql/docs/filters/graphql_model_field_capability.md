@@ -34,7 +34,7 @@ Capability to check required for the field
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:470`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L470)
+- [`plugins/wp-graphql/src/Model/Model.php:475`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L475)
 
 ```php
 apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this
 
 ## Related
 
-- `Model::current_user_can_access_field()` in [`plugins/wp-graphql/src/Model/Model.php:470`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L470)
+- `Model::current_user_can_access_field()` in [`plugins/wp-graphql/src/Model/Model.php:475`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L475)
