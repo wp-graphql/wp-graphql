@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.1
+Stable tag: 2.4.0
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -117,6 +117,18 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.4.0 =
+
+**New Features**
+
+* **wpgraphql.com:** Smart Cache docs in the portal ([#4231](https://github.com/wp-graphql/wp-graphql/issues/4231))
+
+**Bug Fixes**
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4197](https://github.com/wp-graphql/wp-graphql/issues/4197))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4241](https://github.com/wp-graphql/wp-graphql/issues/4241))
+* validate user roles before assignment in user mutations (GHSA-66rg)
 
 = 2.3.1 =
 
