@@ -26,7 +26,7 @@ Registers a GraphQL Settings Field
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:779`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L779)
+- [`plugins/wp-graphql/access-functions.php:784`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L784)
 
 ```php
 function register_graphql_settings_field( string $group, array $config ): void {

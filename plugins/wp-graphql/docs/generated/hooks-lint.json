@@ -208,7 +208,7 @@
       "type": "naming_convention",
       "hook": "graphql_endpoint",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 934,
+      "line": 939,
       "message": "low_specificity: Hook name has too few semantic segments after prefix."
     },
     {

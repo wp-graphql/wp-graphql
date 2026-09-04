@@ -31,7 +31,7 @@ Formats a string for use as a GraphQL name. Per the GraphQL spec, characters in 
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:31`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L31)
+- [`plugins/wp-graphql/access-functions.php:36`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L36)
 
 ```php
 function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {

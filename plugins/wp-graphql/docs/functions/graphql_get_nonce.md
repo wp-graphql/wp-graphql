@@ -25,7 +25,7 @@ Generate a WPGraphQL nonce for cookie-based authentication. This nonce is requir
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:750`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L750)
+- [`plugins/wp-graphql/access-functions.php:755`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L755)
 
 ```php
 function graphql_get_nonce(): string {
