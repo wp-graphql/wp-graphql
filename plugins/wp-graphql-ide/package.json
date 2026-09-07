@@ -76,7 +76,7 @@
 		"@wpgraphql-ide/help-panel": "file:plugins/help-panel",
 		"@wpgraphql-ide/query-composer-panel": "file:plugins/query-composer-panel",
 		"@wpgraphql-ide/smart-cache-panel": "file:plugins/smart-cache-panel",
-		"cm6-graphql": "^0.2.1",
+		"cm6-graphql": "^0.2.2",
 		"codemirror": "^6.0.0",
 		"copy-to-clipboard": "^4.0.2",
 		"graphql": "^16.14.2",
