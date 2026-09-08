@@ -217,6 +217,10 @@
 			"href": "/adding-acf-post-types-and-taxonomies-to-the-graphql-schema"
 		},
 		{
+			"title": "ACF Options Pages",
+			"href": "/acf-options-pages"
+		},
+		{
 			"title": "Adding Support for 3rd Party ACF Field Type",
 			"href": "/adding-support-for-3rd-party-acf-field-type"
 		}
