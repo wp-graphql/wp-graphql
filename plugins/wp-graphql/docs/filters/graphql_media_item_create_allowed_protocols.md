@@ -32,7 +32,7 @@ Filter the allowed protocols for the mutation
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/MediaItemCreate.php:233`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/MediaItemCreate.php#L233)
+- [`plugins/wp-graphql/src/Mutation/MediaItemCreate.php:234`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/MediaItemCreate.php#L234)
 
 ```php
 apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
@@ -40,4 +40,4 @@ apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols
 
 ## Related
 
-- `MediaItemCreate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/MediaItemCreate.php:233`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/MediaItemCreate.php#L233)
+- `MediaItemCreate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/MediaItemCreate.php:234`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/MediaItemCreate.php#L234)

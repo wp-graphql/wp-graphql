@@ -26,7 +26,7 @@ Given a config array for a custom Scalar, this registers a Scalar for use in the
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:577`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L577)
+- [`plugins/wp-graphql/access-functions.php:582`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L582)
 
 ```php
 function register_graphql_scalar( string $type_name, array $config ): void {

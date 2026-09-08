@@ -25,7 +25,7 @@ Given a Connection Name, this removes the connection from the Schema
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:652`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L652)
+- [`plugins/wp-graphql/access-functions.php:657`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L657)
 
 ```php
 function deregister_graphql_connection( string $connection_name ): void {

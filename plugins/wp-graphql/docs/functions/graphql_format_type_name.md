@@ -29,7 +29,7 @@ Formats the name of a Type so that it plays nice with GraphiQL
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L71)
+- [`plugins/wp-graphql/access-functions.php:76`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L76)
 
 ```php
 function graphql_format_type_name( $type_name ): string {

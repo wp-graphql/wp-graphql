@@ -28,7 +28,7 @@ Adds an input field to the Connection Where Args between the provided 'From' Typ
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:415`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L415)
+- [`plugins/wp-graphql/access-functions.php:420`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L420)
 
 ```php
 function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ): void {
