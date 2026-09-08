@@ -201,14 +201,15 @@ class MediaItemCreate {
 			// Check that the filetype is allowed
 			$check_file = wp_check_filetype( $sanitized_file_path );
 
-			// wp_http_validate_url() rejects 127/10/0/172.16-31/192.168 but not
-			// RFC 3927 link-local (169.254/16), which exposes cloud instance
-			// metadata (169.254.169.254). Reject those explicitly.
-			$host          = wp_parse_url( $uploaded_file_url, PHP_URL_HOST );
-			$is_link_local = is_string( $host ) && 0 === strpos( $host, '169.254.' );
+			// wp_http_validate_url() blocks 127/10/0/172.16-31/192.168 by the
+			// resolved IP but not RFC 3927 link-local (169.254/16), which
+			// exposes cloud instance metadata (169.254.169.254). Resolve the
+			// host and reject any request that lands on a non-public address, so
+			// a DNS name (or a decimal/octal/hex encoding of an address) that
+			// maps to an internal host cannot be used to reach it.
 
 			// if the file doesn't pass the check, throw an error
-			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) || $is_link_local ) {
+			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) || ! self::is_safe_remote_url( $uploaded_file_url ) ) {
 				// translators: %s is the file path.
 				throw new UserError( esc_html( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) ) );
 			}
@@ -264,7 +265,23 @@ class MediaItemCreate {
 			 */
 			$timeout_seconds = 300;
 
-			$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
+			// download_url() follows redirects. wp_safe_remote_get() re-validates
+			// each hop, but only through wp_http_validate_url(), which does not
+			// cover every range is_safe_remote_url() rejects. Re-validate every
+			// redirect target with the same guard so a public URL cannot be used
+			// to redirect the server onto an internal address.
+			add_action( 'requests-requests.before_redirect', [ self::class, 'reject_unsafe_redirect' ] );
+
+			// finally guarantees the guard is removed on every exit path,
+			// including the WP < 6.2 case where reject_unsafe_redirect() throws a
+			// fatal Error (the Requests\Exception class does not exist) rather
+			// than a WP_Error, which would otherwise leave the guard registered
+			// on the worker for the rest of the process.
+			try {
+				$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
+			} finally {
+				remove_action( 'requests-requests.before_redirect', [ self::class, 'reject_unsafe_redirect' ] );
+			}
 
 			/**
 			 * Handle the error from download_url if it occurs
@@ -446,5 +463,185 @@ class MediaItemCreate {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Rejects a redirect whose target is not safe for the server to fetch.
+	 *
+	 * Registered on the Requests before_redirect hook while a media file is
+	 * downloaded, so every hop of a redirect chain is validated with the same
+	 * host resolution as the initial URL. Throwing aborts the request; WP_Http
+	 * converts the exception into a WP_Error, which download_url() returns and
+	 * the caller surfaces as an invalid filePath.
+	 *
+	 * Public because WordPress must be able to invoke it as a hook callback; it
+	 * is not part of the extension API.
+	 *
+	 * @internal
+	 *
+	 * @param mixed $location The URL the response is redirecting to.
+	 *
+	 * @return void
+	 * @throws \WpOrg\Requests\Exception When the redirect target is not publicly routable.
+	 */
+	public static function reject_unsafe_redirect( $location ) {
+		if ( ! is_string( $location ) || self::is_safe_remote_url( $location ) ) {
+			return;
+		}
+
+		// Abort the redirect. On WP 6.2+ WP_Http catches WpOrg\Requests\Exception
+		// and turns it into a WP_Error, so download_url() cleans up and returns
+		// that error. On WP < 6.2 the class is unavailable and this surfaces as a
+		// hard failure, which still fails closed: the upload is aborted before
+		// the server can be redirected onto an internal address.
+		throw new \WpOrg\Requests\Exception(
+			esc_html__( 'A redirect to a non-public address was blocked.', 'wp-graphql' ),
+			'wpgraphql_media_item_unsafe_redirect'
+		);
+	}
+
+	/**
+	 * Determines whether a remote URL is safe for the server to fetch.
+	 *
+	 * Resolves the host and returns false when the host does not resolve or any
+	 * resolved address is not publicly routable (loopback, private, link-local,
+	 * or otherwise reserved). Because the check runs against the resolved
+	 * address rather than the host text, a DNS name, or a decimal/octal/hex
+	 * encoding of an address, that maps to an internal host such as the
+	 * 169.254.169.254 cloud-metadata endpoint is rejected.
+	 *
+	 * Both IPv4 (A) and IPv6 (AAAA) records are resolved and every address is
+	 * validated. download_url() delegates to curl, which may connect over IPv6
+	 * even when a host also advertises a public IPv4 address, so validating the
+	 * IPv4 result alone would let a dual-stack host with a public A record and
+	 * an internal AAAA record (e.g. an IPv6 cloud-metadata endpoint) through.
+	 *
+	 * @param string $url The URL whose host should be validated.
+	 */
+	private static function is_safe_remote_url( string $url ): bool {
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		if ( ! is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		// Unwrap an IPv6 literal, e.g. "[::1]" becomes "::1".
+		$host = trim( $host, '[]' );
+
+		// IP literals are checked directly. Anything else is resolved, which
+		// also normalizes numeric host encodings (e.g. "2852039166") to a
+		// dotted-quad address.
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			$addresses = [ $host ];
+		} else {
+			$addresses = self::resolve_host_addresses( $host );
+		}
+
+		if ( empty( $addresses ) ) {
+			return false;
+		}
+
+		foreach ( $addresses as $address ) {
+			if ( ! self::is_public_ip( $address ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Resolves a host name to every IPv4 and IPv6 address it advertises.
+	 *
+	 * The gethostbynamel() built-in returns A (IPv4) records only. AAAA (IPv6)
+	 * records are resolved separately via dns_get_record() so a dual-stack host
+	 * cannot hide an internal IPv6 address behind a public IPv4 address. A failed
+	 * lookup returns no records and yields no addresses, which is fail-closed:
+	 * is_safe_remote_url() rejects a host that resolves to nothing.
+	 *
+	 * @param string $host The host name to resolve.
+	 *
+	 * @return string[] The resolved IPv4 and IPv6 addresses, empty if none.
+	 */
+	private static function resolve_host_addresses( string $host ): array {
+		$addresses = [];
+
+		$ipv4 = gethostbynamel( $host );
+		if ( is_array( $ipv4 ) ) {
+			$addresses = $ipv4;
+		}
+
+		if ( function_exists( 'dns_get_record' ) ) {
+			$records = dns_get_record( $host, DNS_AAAA );
+			if ( is_array( $records ) ) {
+				foreach ( $records as $record ) {
+					if ( isset( $record['ipv6'] ) && is_string( $record['ipv6'] ) ) {
+						$addresses[] = $record['ipv6'];
+					}
+				}
+			}
+		}
+
+		return $addresses;
+	}
+
+	/**
+	 * Determines whether an IP address is publicly routable.
+	 *
+	 * Rejects private, reserved, loopback, and link-local ranges for both IPv4
+	 * and IPv6. IPv4-mapped IPv6 addresses (::ffff:a.b.c.d) are unwrapped so the
+	 * embedded IPv4 range is evaluated rather than trusted.
+	 *
+	 * @param string $ip The IP address to check.
+	 */
+	private static function is_public_ip( string $ip ): bool {
+		// Unwrap an IPv4-mapped IPv6 address so ::ffff:169.254.169.254 is judged
+		// as the link-local 169.254/16 range it actually targets.
+		if ( 0 === stripos( $ip, '::ffff:' ) ) {
+			$mapped = substr( $ip, strlen( '::ffff:' ) );
+			if ( filter_var( $mapped, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				$ip = $mapped;
+			}
+		}
+
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			return false;
+		}
+
+		// FILTER_FLAG_NO_RES_RANGE misses several IPv4 blocks that are not
+		// publicly routable and can front internal services, so reject them
+		// explicitly: 100.64.0.0/10 (carrier-grade NAT, RFC 6598, used for EKS
+		// pod IPs and some metadata proxies), 192.0.0.0/24 (IETF protocol
+		// assignments), and 198.18.0.0/15 (benchmarking, RFC 2544).
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			foreach ( [ '100.64.0.0/10', '192.0.0.0/24', '198.18.0.0/15' ] as $cidr ) {
+				if ( self::ipv4_in_cidr( $ip, $cidr ) ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines whether an IPv4 address falls within a CIDR block.
+	 *
+	 * @param string $ip   A validated IPv4 address.
+	 * @param string $cidr A CIDR block in "network/prefix" form.
+	 */
+	private static function ipv4_in_cidr( string $ip, string $cidr ): bool {
+		[ $subnet, $prefix ] = explode( '/', $cidr );
+
+		$ip_long     = ip2long( $ip );
+		$subnet_long = ip2long( $subnet );
+
+		if ( false === $ip_long || false === $subnet_long ) {
+			return false;
+		}
+
+		$mask = -1 << ( 32 - (int) $prefix );
+
+		return ( $ip_long & $mask ) === ( $subnet_long & $mask );
 	}
 }

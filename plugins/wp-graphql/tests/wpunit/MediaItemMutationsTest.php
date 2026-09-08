@@ -1532,6 +1532,266 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * Regression for GHSA-p8rh-c2gc-j42m. The cloud-metadata address
+	 * 169.254.169.254 can be written as its 32-bit decimal integer
+	 * (2852039166); the host text does not begin with "169.254." but the
+	 * resolver still maps it to the link-local address. A guard that inspects
+	 * the host string instead of the resolved address lets this through. The
+	 * URL must be rejected before any HTTP request is attempted.
+	 */
+	public function testCannotInputDecimalEncodedLinkLocalIp() {
+		$this->assertSsrfTargetRejected(
+			'http://2852039166/latest/meta-data/instance-id.jpg',
+			'Decimal-encoded link-local (2852039166 = 169.254.169.254)'
+		);
+	}
+
+	/**
+	 * Regression for GHSA-p8rh-c2gc-j42m. Same bypass as the decimal form,
+	 * using dotted-octal octets (0251.0376.0251.0376 = 169.254.169.254). The
+	 * resolver normalizes it to the link-local address, so it must be rejected
+	 * before any HTTP request is attempted.
+	 */
+	public function testCannotInputOctalEncodedLinkLocalIp() {
+		$this->assertSsrfTargetRejected(
+			'http://0251.0376.0251.0376/latest/meta-data/instance-id.jpg',
+			'Octal-encoded link-local (0251.0376.0251.0376 = 169.254.169.254)'
+		);
+	}
+
+	/**
+	 * Hardening for GHSA-p8rh-c2gc-j42m. FILTER_FLAG_NO_RES_RANGE treats
+	 * CGNAT space (100.64.0.0/10, RFC 6598) as publicly routable, but it is
+	 * used for internal networks such as EKS pod IPs and some metadata
+	 * proxies. The guard's explicit denylist must reject it before any HTTP
+	 * request is attempted.
+	 */
+	public function testCannotInputCarrierGradeNatIp() {
+		$this->assertSsrfTargetRejected(
+			'http://100.64.0.1/test.jpg',
+			'Carrier-grade NAT (100.64.0.0/10)'
+		);
+	}
+
+	/**
+	 * Hardening for GHSA-p8rh-c2gc-j42m. 192.0.0.0/24 (IETF protocol
+	 * assignments) is not publicly routable but passes FILTER_FLAG_NO_RES_RANGE.
+	 * The guard's explicit denylist must reject it.
+	 */
+	public function testCannotInputIetfProtocolAssignmentIp() {
+		$this->assertSsrfTargetRejected(
+			'http://192.0.0.1/test.jpg',
+			'IETF protocol assignments (192.0.0.0/24)'
+		);
+	}
+
+	/**
+	 * Hardening for GHSA-p8rh-c2gc-j42m. 198.18.0.0/15 (benchmarking, RFC
+	 * 2544) is not publicly routable but passes FILTER_FLAG_NO_RES_RANGE. The
+	 * guard's explicit denylist must reject it.
+	 */
+	public function testCannotInputBenchmarkingIp() {
+		$this->assertSsrfTargetRejected(
+			'http://198.18.0.1/test.jpg',
+			'Benchmarking range (198.18.0.0/15)'
+		);
+	}
+
+	/**
+	 * Hardening for GHSA-p8rh-c2gc-j42m. download_url() follows redirects, so a
+	 * public filePath can 302 to an internal address. The before_redirect guard
+	 * must reject a redirect whose target resolves to a non-public address,
+	 * including the numeric-encoded forms the initial-URL guard also covers.
+	 */
+	public function testRejectUnsafeRedirectBlocksInternalTargets() {
+		if ( ! class_exists( \WpOrg\Requests\Exception::class ) ) {
+			$this->markTestSkipped( 'Redirect-chain guard requires Requests 2.x (WP 6.2+).' );
+		}
+
+		$blocked = [
+			'http://169.254.169.254/latest/meta-data/', // cloud metadata (literal)
+			'http://2852039166/latest/meta-data/',       // decimal-encoded 169.254.169.254
+			'http://10.0.0.1/x.jpg',                      // RFC1918 private
+			'http://127.0.0.1/x.jpg',                     // loopback
+		];
+
+		foreach ( $blocked as $url ) {
+			$threw = false;
+			try {
+				\WPGraphQL\Mutation\MediaItemCreate::reject_unsafe_redirect( $url );
+			} catch ( \Throwable $e ) {
+				$threw = true;
+			}
+			$this->assertTrue( $threw, "Redirect to {$url} should be blocked" );
+		}
+	}
+
+	/**
+	 * The before_redirect guard must not interfere with a redirect to a public
+	 * host, and must ignore a non-string location.
+	 */
+	public function testRejectUnsafeRedirectAllowsPublicTargets() {
+		// $this->filePath is a public raw.githubusercontent.com URL.
+		$this->assertNull( \WPGraphQL\Mutation\MediaItemCreate::reject_unsafe_redirect( $this->filePath ) );
+		$this->assertNull( \WPGraphQL\Mutation\MediaItemCreate::reject_unsafe_redirect( null ) );
+	}
+
+	/**
+	 * Locks the exact Requests action name the guard is registered on. WP_Http
+	 * dispatches the Requests before_redirect hook as this WordPress action, so
+	 * firing it with an internal target must reach the guard and abort. A typo
+	 * in the hook name would silently disable the protection while the direct
+	 * unit tests still passed.
+	 */
+	public function testBeforeRedirectActionInvokesGuard() {
+		if ( ! class_exists( \WpOrg\Requests\Exception::class ) ) {
+			$this->markTestSkipped( 'Redirect-chain guard requires Requests 2.x (WP 6.2+).' );
+		}
+
+		$callback = [ \WPGraphQL\Mutation\MediaItemCreate::class, 'reject_unsafe_redirect' ];
+		add_action( 'requests-requests.before_redirect', $callback );
+
+		$threw = false;
+		try {
+			do_action( 'requests-requests.before_redirect', 'http://169.254.169.254/latest/meta-data/' );
+		} catch ( \Throwable $e ) {
+			$threw = true;
+		}
+
+		remove_action( 'requests-requests.before_redirect', $callback );
+
+		$this->assertTrue( $threw, 'Firing the before_redirect action with an internal target must abort via the guard' );
+	}
+
+	/**
+	 * Hardening for GHSA-p8rh-c2gc-j42m. The dual-stack SSRF vector lands on an
+	 * internal IPv6 target, e.g. the IPv6 cloud-metadata endpoint fd00:ec2::254
+	 * (unique-local, fc00::/7). The redirect guard leans only on
+	 * is_safe_remote_url(), so this locks that an internal IPv6 literal is
+	 * rejected there rather than relying on wp_http_validate_url().
+	 */
+	public function testRejectUnsafeRedirectBlocksInternalIpv6Target() {
+		if ( ! class_exists( \WpOrg\Requests\Exception::class ) ) {
+			$this->markTestSkipped( 'Redirect-chain guard requires Requests 2.x (WP 6.2+).' );
+		}
+
+		$threw = false;
+		try {
+			\WPGraphQL\Mutation\MediaItemCreate::reject_unsafe_redirect( 'http://[fd00:ec2::254]/latest/meta-data/' );
+		} catch ( \Throwable $e ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, 'Redirect to an internal IPv6 (unique-local) target should be blocked' );
+	}
+
+	/**
+	 * Network-dependent smoke test (no teeth by design) for the dual-stack AAAA
+	 * resolution added for GHSA-p8rh-c2gc-j42m. gethostbynamel() returns A
+	 * records only, so an IPv4-only guard would miss an internal AAAA on a
+	 * dual-stack host; resolve_host_addresses() also resolves AAAA so
+	 * is_public_ip() can reject it. Where outbound AAAA resolution exists this
+	 * confirms the resolver surfaces IPv6 addresses; it skips where none are.
+	 *
+	 * This is deliberately not a hermetic teeth test. The only way to feed
+	 * resolve_host_addresses() a controlled dual-stack result would be a filter
+	 * over its resolved addresses, and an override on the SSRF guard's own
+	 * resolution is a bypass primitive we will not add to a security control. The
+	 * security consequence (an internal IPv6 in the resolved set is rejected) is
+	 * covered with teeth by testRejectUnsafeRedirectBlocksInternalIpv6Target and
+	 * the is_public_ip() IPv6 handling. This entire URL-fetch path is slated for
+	 * removal in favor of the Upload scalar (v3.0).
+	 */
+	public function testHostResolutionIncludesIpv6Addresses() {
+		if ( ! function_exists( 'dns_get_record' ) ) {
+			$this->markTestSkipped( 'dns_get_record() is unavailable.' );
+		}
+
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'resolve_host_addresses' );
+		$method->setAccessible( true );
+
+		// one.one.one.one is a stable dual-stack host (1.1.1.1 / 2606:4700:4700::1111).
+		$addresses = $method->invoke( null, 'one.one.one.one' );
+
+		$has_ipv6 = false;
+		foreach ( (array) $addresses as $address ) {
+			if ( filter_var( $address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+				$has_ipv6 = true;
+				break;
+			}
+		}
+
+		if ( ! $has_ipv6 ) {
+			$this->markTestSkipped( 'No outbound AAAA resolution in this environment.' );
+		}
+
+		$this->assertTrue( $has_ipv6, 'Host resolution must include IPv6 (AAAA) addresses' );
+	}
+
+	/**
+	 * The mutation registers the before_redirect guard only for the duration of
+	 * the download and removes it afterward, so it does not leak onto unrelated
+	 * HTTP requests later in the same process.
+	 */
+	public function testCreateMediaItemRemovesRedirectGuardHook() {
+		wp_set_current_user( $this->admin );
+
+		$this->createMediaItemMutation();
+
+		$this->assertFalse(
+			has_action(
+				'requests-requests.before_redirect',
+				[ \WPGraphQL\Mutation\MediaItemCreate::class, 'reject_unsafe_redirect' ]
+			),
+			'createMediaItem must remove its before_redirect guard after the download'
+		);
+	}
+
+	/**
+	 * Teeth for the try/finally around download_url(): the before_redirect guard
+	 * must be removed even when the download throws mid-flight, not only on the
+	 * happy path (testCreateMediaItemRemovesRedirectGuardHook covers the happy
+	 * path, which removes the guard with or without the finally).
+	 *
+	 * A public IP-literal filePath passes host validation without a DNS lookup,
+	 * so the mutation reaches download_url(); a pre_http_request filter then
+	 * throws from inside the guarded block, standing in for the WP < 6.2
+	 * class-not-found fatal the finally exists to survive. Without the finally
+	 * the guard would leak onto the worker for the rest of the process.
+	 */
+	public function testRedirectGuardRemovedWhenDownloadThrows() {
+		wp_set_current_user( $this->admin );
+
+		$hook     = 'requests-requests.before_redirect';
+		$callback = [ \WPGraphQL\Mutation\MediaItemCreate::class, 'reject_unsafe_redirect' ];
+
+		$this->create_variables['input']['filePath'] = 'http://1.1.1.1/throw-sentinel.gif';
+
+		$thrower = static function ( $preempt, $args, $url ) {
+			if ( false !== strpos( (string) $url, 'throw-sentinel' ) ) {
+				throw new \RuntimeException( 'simulated download failure' );
+			}
+			return $preempt;
+		};
+		add_filter( 'pre_http_request', $thrower, 1, 3 );
+
+		try {
+			$this->createMediaItemMutation();
+		} catch ( \Throwable $e ) {
+			// The throw may surface out of the executor; either way the guard
+			// must have been removed by the finally during unwinding.
+			unset( $e );
+		} finally {
+			remove_filter( 'pre_http_request', $thrower, 1 );
+		}
+
+		$this->assertFalse(
+			has_action( $hook, $callback ),
+			'The before_redirect guard must be removed even when download_url() throws.'
+		);
+	}
+
+	/**
 	 * REST parity: createMediaItem must reject `attachment` post type as
 	 * parent. Mirrors WP_REST_Attachments_Controller::create_item(), which
 	 * rejects revision/attachment parents to prevent invalid nesting.
