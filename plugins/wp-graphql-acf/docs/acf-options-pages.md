@@ -30,17 +30,9 @@ acf_add_options_page( [
 ] );
 ```
 
-**NOTE:** Options Pages registered with PHP are treated as `show_in_graphql => true` unless you explicitly set `show_in_graphql => false`. This differs from UI-registered pages, which default to off. If you register an Options Page in PHP and do not want it in the schema, opt it out explicitly:
+**NOTE:** Options Pages are an explicit opt-in. A page is only added to the schema when it is registered with `show_in_graphql => true`, whether registered in PHP or via the UI. Pages that don't declare the setting are excluded, and with `GRAPHQL_DEBUG` enabled the response includes a debug message identifying pages that were excluded because they didn't opt in. (Prior to v3.0, PHP-registered pages were included by default; see the [Upgrade Guide](/upgrade-guide/).)
 
-```php
-acf_add_options_page( [
-	'page_title'      => 'Internal Settings',
-	'menu_slug'       => 'internal-settings',
-	'show_in_graphql' => false,
-] );
-```
-
-The default for pages that don't declare a value can also be controlled with the `wpgraphql/acf/options_page/show_in_graphql` filter.
+The default for pages that don't declare a value can be controlled with the `wpgraphql/acf/options_page/show_in_graphql` filter.
 
 ## How Options Pages map to the Schema
 
@@ -102,10 +94,10 @@ The `capability` argument on `acf_add_options_page()` controls who can see the a
 
 ### Do not expose sensitive data
 
-Be aware that the defaults are permissive: Options Pages registered in PHP and field groups (registered in PHP or via the UI) are included in the schema unless explicitly opted out. If an Options Page holds data that should not be public (API keys, credentials, internal configuration), do not show it in GraphQL:
+Note the difference in defaults: Options Pages require an explicit `show_in_graphql => true` to enter the schema, while field groups are included unless explicitly opted out. If an Options Page holds data that should not be public (API keys, credentials, internal configuration), do not show it in GraphQL:
 
-- Leave **Show in GraphQL** off (UI), or set `show_in_graphql => false` (PHP) on the Options Page.
-- Alternatively, keep the page in the schema but exclude a sensitive field group (`show_in_graphql => false` on the field group) or an individual field (`show_in_graphql => false` on the field).
+- Don't register the Options Page with `show_in_graphql => true` (pages that don't opt in are excluded).
+- If the page must be in the schema, exclude a sensitive field group (`show_in_graphql => false` on the field group) or an individual field (`show_in_graphql => false` on the field).
 
 More granular, capability-based access control for fields, field groups, and Options Pages (a `graphql_capability` setting, enforced when values resolve) is being designed in [wp-graphql/wp-graphql#4275](https://github.com/wp-graphql/wp-graphql/issues/4275).
 

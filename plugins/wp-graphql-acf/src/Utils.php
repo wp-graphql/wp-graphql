@@ -136,14 +136,25 @@ class Utils {
 			return $options_pages;
 		}
 
-		// For programmatically registered options pages, ACF may not preserve show_in_graphql.
-		// Allow it to be filtered to restore the value if it was set during registration.
+		// Options Pages are an explicit opt-in: only pages registered with
+		// `show_in_graphql => true` are added to the GraphQL Schema, matching the
+		// default of the ACF UI registration screen. Pages that don't declare a
+		// value are excluded. The default for undeclared pages can be changed
+		// with the `wpgraphql/acf/options_page/show_in_graphql` filter.
 		$acf_options_pages = array_map(
 			static function ( $option_page ) {
-				// If show_in_graphql is not set, allow it to be filtered to restore the value
-				// This allows tests and programmatic registrations to set show_in_graphql => false
 				if ( ! isset( $option_page['show_in_graphql'] ) ) {
-					$option_page['show_in_graphql'] = apply_filters( 'wpgraphql/acf/options_page/show_in_graphql', true, $option_page );
+					$option_page['show_in_graphql'] = apply_filters( 'wpgraphql/acf/options_page/show_in_graphql', false, $option_page );
+
+					if ( false === $option_page['show_in_graphql'] && function_exists( 'graphql_debug' ) && ! empty( $option_page['menu_slug'] ) ) {
+						graphql_debug(
+							sprintf(
+								// translators: %s is the menu_slug of the ACF Options Page.
+								__( 'The ACF Options Page "%s" is not in the GraphQL Schema because it was registered without `show_in_graphql => true`.', 'wpgraphql-acf' ),
+								$option_page['menu_slug']
+							)
+						);
+					}
 				}
 				return $option_page;
 			},
@@ -274,26 +285,18 @@ class Utils {
 	/**
 	 * Whether the ACF Field Group should show in the GraphQL Schema
 	 *
+	 * Field groups, fields, and options pages are shown in GraphQL unless
+	 * explicitly configured with `show_in_graphql => false`. The `show_in_rest`
+	 * setting has no effect on GraphQL visibility.
+	 *
 	 * @param array<mixed> $acf_field_group
 	 */
 	public static function should_field_group_show_in_graphql( array $acf_field_group ): bool {
 		$should = true;
 
-		$show_in_rest = $acf_field_group['show_in_rest'] ?? false;
-
-
-		// if the field group was configured with no "show_in_graphql" value, default to the "show_in_rest" value
-		// to determine if the group should be available in an API
-		if (
-			( isset( $acf_field_group['is_options_page'] ) && false === $acf_field_group['is_options_page'] ) &&
-			! isset( $acf_field_group['show_in_graphql'] ) ) {
-			$acf_field_group['show_in_graphql'] = $show_in_rest;
-		}
-
 		if ( isset( $acf_field_group['show_in_graphql'] ) && false === (bool) $acf_field_group['show_in_graphql'] ) {
 			$should = false;
 		}
-
 
 		return (bool) apply_filters( 'wpgraphql/acf/should_field_group_show_in_graphql', $should, $acf_field_group );
 	}

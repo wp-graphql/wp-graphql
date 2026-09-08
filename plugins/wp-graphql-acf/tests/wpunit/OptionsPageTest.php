@@ -28,8 +28,8 @@ class OptionsPageTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 				'menu_title' => __( 'My Options Page' ),
 				'menu_slug'  => 'my-options-page',
 				'capability' => 'edit_posts',
-				// options pages will show in the Schema unless set to false
-				//          'show_in_graphql'   => false,
+				// options pages must opt in to be shown in the Schema
+				'show_in_graphql' => true,
 			], $config )
 		);
 	}
@@ -107,28 +107,15 @@ class OptionsPageTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 	 * @throws Exception
 	 */
 	public function testOptionsPageNotInSchemaIfShowInGraphqlIsFalse() {
-		$this->markTestSkipped( 'ACF does not preserve show_in_graphql for programmatically registered options pages. Needs investigation into how to properly filter this behavior.' );
-
 		$this->registerOptionsPage(
 			[
 				'page_title' => 'ShowInGraphQLFalse',
 				'menu_title' => __( 'Show in GraphQL False' ),
 				'menu_slug'  => 'show-in-graphql-false',
 				'capability' => 'edit_posts',
-				// options pages will show in the Schema unless set to false
 				'show_in_graphql'   => false,
 			]
 		);
-
-		// ACF doesn't preserve show_in_graphql for programmatically registered options pages,
-		// so we need to restore it via filter. The filter is applied in Utils::get_acf_options_pages()
-		// but only when show_in_graphql is not set. We need to ensure it's checked for our specific page.
-		add_filter( 'wpgraphql/acf/should_field_group_show_in_graphql', function( $should, $field_group ) {
-			if ( isset( $field_group['menu_slug'] ) && 'show-in-graphql-false' === $field_group['menu_slug'] ) {
-				return false;
-			}
-			return $should;
-		}, 10, 2 );
 
 		$options_pages = acf_get_options_pages();
 
@@ -183,7 +170,9 @@ class OptionsPageTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 			]
 		]);
 
-		$this->assertQueryError( $actual, [
+		// Introspecting a type that is not in the schema returns a successful
+		// response with a null __type, not an error.
+		$this->assertQuerySuccessful( $actual, [
 			$this->expectedField( '__type', self::IS_NULL )
 		]);
 
@@ -199,7 +188,6 @@ class OptionsPageTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 				'menu_slug'  => 'custom-graphql-name',
 				'capability' => 'edit_posts',
 				'post_id'   => 'custom-graphql-name',
-				// options pages will show in the Schema unless set to false
 				'graphql_type_name'   => 'MyCustomOptionsName',
 			]
 		);

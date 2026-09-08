@@ -3,6 +3,32 @@ uri: "/upgrade-guide/"
 title: "Upgrade Guide"
 ---
 
+## Upgrading to v3.0
+
+WPGraphQL for ACF v3.0 changes ACF Options Pages to be an **explicit opt-in** to the GraphQL Schema.
+
+Previously, Options Pages registered with `acf_add_options_page()` were added to the schema (and made publicly queryable) by default, unless registered with `show_in_graphql => false`. This was inconsistent with the ACF UI registration screen, where "Show in GraphQL" defaults to off, and it meant Options Page data could be exposed without anyone choosing to expose it.
+
+As of v3.0, an Options Page is only added to the schema when it is registered with `show_in_graphql => true`:
+
+```php
+acf_add_options_page( [
+	'page_title'      => 'Site Settings',
+	'menu_slug'       => 'site-settings',
+	'show_in_graphql' => true,
+] );
+```
+
+**To upgrade:** add `show_in_graphql => true` to each Options Page you want in the schema. Pages that don't declare the setting will no longer appear, and any queries against them will return errors until the page is opted in. With `GRAPHQL_DEBUG` enabled, the response includes a debug message identifying Options Pages that were excluded because they didn't opt in.
+
+To restore the old behavior globally (not recommended), filter the default for pages that don't declare a value:
+
+```php
+add_filter( 'wpgraphql/acf/options_page/show_in_graphql', '__return_true' );
+```
+
+## Upgrading from v0.6 to v2.0
+
 This guide is intended to help users using [WPGraphQL for ACF ~v0.6.\*](https://github.com/wp-graphql/wp-graphql-acf/releases/) that want to update their site(s) to use [WPGraphQL for ACF v2.0+](https://github.com/wp-graphql/wp-graphql/releases) (yes, we skipped v1.0 altogether).
 
 In this guide you will find details about breaking changes between versions and how we recommend you update your sites to work with the new version.
