@@ -61,30 +61,6 @@ class OptionsPageRegistrationTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLA
 		$this->assertFalse( $result['show_in_graphql'] );
 	}
 
-	public function test_preserve_show_in_graphql_returns_empty_unchanged(): void {
-		$options_pages = [];
-		$result = apply_filters( 'acf_get_options_pages', $options_pages );
-		$this->assertSame( [], $result );
-	}
-
-	public function test_preserve_show_in_graphql_sets_default_when_not_set(): void {
-		$options_pages = [
-			[ 'page_title' => 'General', 'menu_slug' => 'general' ],
-		];
-		$result = apply_filters( 'acf_get_options_pages', $options_pages );
-		$this->assertCount( 1, $result );
-		$this->assertArrayHasKey( 'show_in_graphql', $result[0] );
-		$this->assertTrue( $result[0]['show_in_graphql'] );
-	}
-
-	public function test_preserve_show_in_graphql_leaves_existing_show_in_graphql(): void {
-		$options_pages = [
-			[ 'page_title' => 'Hidden', 'menu_slug' => 'hidden', 'show_in_graphql' => false ],
-		];
-		$result = apply_filters( 'acf_get_options_pages', $options_pages );
-		$this->assertFalse( $result[0]['show_in_graphql'] );
-	}
-
 	public function test_render_graphql_columns_early_return_when_no_options_page(): void {
 		$post_id = 0;
 		ob_start();

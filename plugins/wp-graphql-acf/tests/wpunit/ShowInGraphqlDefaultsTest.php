@@ -3,14 +3,17 @@
 use WPGraphQL\Acf\Utils;
 
 /**
- * Characterization tests for the `show_in_graphql` visibility contract.
+ * Tests for the `show_in_graphql` visibility contract.
  *
- * The contract: field groups, fields, and options pages are shown in GraphQL
- * unless explicitly configured with `show_in_graphql => false`. In particular,
- * `show_in_rest` has no effect on GraphQL visibility, and options pages are
- * shown regardless of their `post_id` (see the custom post_id regression below).
+ * The contract:
+ * - Field groups and fields are shown in GraphQL unless explicitly configured
+ *   with `show_in_graphql => false`. `show_in_rest` has no effect.
+ * - Options Pages are an explicit opt-in: only pages registered with
+ *   `show_in_graphql => true` are added to the schema, matching the default of
+ *   the ACF UI registration screen.
  *
- * Explicit `show_in_graphql => true/false` handling is covered in RegistryTest.
+ * Explicit `show_in_graphql => true/false` handling for field groups is covered
+ * in RegistryTest.
  */
 class ShowInGraphqlDefaultsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 
@@ -58,45 +61,103 @@ class ShowInGraphqlDefaultsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcf
 		);
 	}
 
-	public function testOptionsPageConfigWithNoShowInGraphqlIsShownByDefault(): void {
-		// As Registry::register_options_pages() sees it (is_options_page flag applied).
-		$this->assertTrue(
-			Utils::should_field_group_show_in_graphql(
-				[
-					'page_title'      => 'Default Options Page',
-					'menu_slug'       => 'default-options-page',
-					'post_id'         => 'options',
-					'is_options_page' => true,
-				]
-			)
+	public function testOptionsPageWithNoShowInGraphqlIsExcludedByDefault(): void {
+		if ( ! function_exists( 'acf_add_options_page' ) ) {
+			$this->markTestSkipped( 'ACF Options Pages are not available in this test environment' );
+		}
+
+		acf_add_options_page(
+			[
+				'page_title' => 'Default Unset Page',
+				'menu_slug'  => 'default-unset-page',
+			]
 		);
+
+		$this->assertArrayNotHasKey( 'default-unset-page', Utils::get_acf_options_pages() );
 	}
 
-	public function testOptionsPageWithCustomPostIdIsShownByDefault(): void {
-		// Regression guard: options pages registered with a custom post_id were
-		// once hidden by a show_in_rest fallback keyed off `'options' !== post_id`.
-		$this->assertTrue(
-			Utils::should_field_group_show_in_graphql(
-				[
-					'page_title'      => 'Custom PostId Options Page',
-					'menu_slug'       => 'custom-post-id-options-page',
-					'post_id'         => 'custom_settings',
-					'is_options_page' => true,
-				]
-			)
+	public function testOptionsPageWithShowInGraphqlTrueIsIncluded(): void {
+		if ( ! function_exists( 'acf_add_options_page' ) ) {
+			$this->markTestSkipped( 'ACF Options Pages are not available in this test environment' );
+		}
+
+		acf_add_options_page(
+			[
+				'page_title'      => 'Opted In Page',
+				'menu_slug'       => 'opted-in-page',
+				'show_in_graphql' => true,
+			]
 		);
 
-		// The raw config as acf_get_options_pages() returns it, before the
-		// is_options_page flag is applied.
-		$this->assertTrue(
-			Utils::should_field_group_show_in_graphql(
-				[
-					'page_title' => 'Custom PostId Options Page',
-					'menu_slug'  => 'custom-post-id-options-page',
-					'post_id'    => 'custom_settings',
-				]
-			)
+		// Regression guard: options pages registered with a custom post_id were
+		// once hidden by a show_in_rest fallback keyed off `'options' !== post_id`.
+		acf_add_options_page(
+			[
+				'page_title'      => 'Opted In Custom PostId Page',
+				'menu_slug'       => 'opted-in-custom-post-id-page',
+				'post_id'         => 'custom_settings',
+				'show_in_graphql' => true,
+			]
 		);
+
+		$graphql_pages = Utils::get_acf_options_pages();
+
+		$this->assertArrayHasKey( 'opted-in-page', $graphql_pages );
+		$this->assertArrayHasKey( 'opted-in-custom-post-id-page', $graphql_pages );
+	}
+
+	public function testAcfPreservesShowInGraphqlOnProgrammaticOptionsPages(): void {
+		if ( ! function_exists( 'acf_add_options_page' ) ) {
+			$this->markTestSkipped( 'ACF Options Pages are not available in this test environment' );
+		}
+
+		// Calls acf_get_options_pages() directly (not Utils::get_acf_options_pages())
+		// to observe what ACF itself preserves from the registration args.
+		acf_add_options_page(
+			[
+				'page_title'      => 'Probe False',
+				'menu_slug'       => 'probe-false',
+				'show_in_graphql' => false,
+			]
+		);
+
+		acf_add_options_page(
+			[
+				'page_title'      => 'Probe True',
+				'menu_slug'       => 'probe-true',
+				'show_in_graphql' => true,
+			]
+		);
+
+		$pages = acf_get_options_pages();
+
+		codecept_debug( $pages['probe-false'] ?? 'probe-false missing' );
+
+		$this->assertArrayHasKey( 'probe-false', $pages );
+		$this->assertArrayHasKey( 'show_in_graphql', $pages['probe-false'] );
+		$this->assertFalse( (bool) $pages['probe-false']['show_in_graphql'] );
+
+		$this->assertArrayHasKey( 'probe-true', $pages );
+		$this->assertArrayHasKey( 'show_in_graphql', $pages['probe-true'] );
+		$this->assertTrue( (bool) $pages['probe-true']['show_in_graphql'] );
+	}
+
+	public function testOptionsPageWithShowInGraphqlFalseIsExcluded(): void {
+		if ( ! function_exists( 'acf_add_options_page' ) ) {
+			$this->markTestSkipped( 'ACF Options Pages are not available in this test environment' );
+		}
+
+		acf_add_options_page(
+			[
+				'page_title'      => 'Opted Out Page',
+				'menu_slug'       => 'opted-out-page',
+				'show_in_graphql' => false,
+			]
+		);
+
+		$graphql_pages = Utils::get_acf_options_pages();
+
+		$this->assertArrayNotHasKey( 'opted-out-page', $graphql_pages );
 	}
 
 	public function testFieldGroupWithNoShowInGraphqlIsQueryable(): void {
