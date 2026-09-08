@@ -146,7 +146,6 @@ This release is a complete re-architecture of WPGraphQL for ACF, introducing bre
 
 * **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280))
 * **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4244](https://github.com/wp-graphql/wp-graphql/issues/4244))
-* validate user roles before assignment in user mutations (GHSA-66rg)
 
 = 2.8.0 =
 

@@ -11,7 +11,6 @@
 
 * **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280)) ([a96934f](https://github.com/wp-graphql/wp-graphql/commit/a96934f6949403e06bc306f7bccd602f7128a55e))
 * **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4244](https://github.com/wp-graphql/wp-graphql/issues/4244)) ([afe34c4](https://github.com/wp-graphql/wp-graphql/commit/afe34c4bbd43c14d5aa0547039f3cd780795cbf6))
-* validate user roles before assignment in user mutations (GHSA-66rg) ([2d6d576](https://github.com/wp-graphql/wp-graphql/commit/2d6d57622b8699abd9fac1accc43efd1c85dec44))
 
 ## [2.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.1...wp-graphql-acf/v2.8.0) (2026-08-31)
 
