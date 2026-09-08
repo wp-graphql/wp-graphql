@@ -26,7 +26,7 @@ Given a Type Name and a $config array, this adds an InputType to the TypeRegistr
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:268`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L268)
+- [`plugins/wp-graphql/access-functions.php:273`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L273)
 
 ```php
 function register_graphql_input_type( string $type_name, array $config ): void {

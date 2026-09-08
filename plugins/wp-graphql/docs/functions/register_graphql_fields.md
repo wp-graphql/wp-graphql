@@ -30,7 +30,7 @@ Given a Type Name and an array of field configs, this adds the fields to the reg
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:352`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L352)
+- [`plugins/wp-graphql/access-functions.php:357`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L357)
 
 ```php
 function register_graphql_fields( string $type_name, array $fields ): void {

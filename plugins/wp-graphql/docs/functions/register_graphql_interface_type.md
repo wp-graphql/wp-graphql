@@ -26,7 +26,7 @@ Given a Type Name and a $config array, this adds an Interface Type to the TypeRe
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:237`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L237)
+- [`plugins/wp-graphql/access-functions.php:242`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L242)
 
 ```php
 function register_graphql_interface_type( string $type_name, $config ): void {

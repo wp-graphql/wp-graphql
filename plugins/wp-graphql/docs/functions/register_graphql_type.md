@@ -26,7 +26,7 @@ Given a Type Name and a $config array, this adds a Type to the TypeRegistry
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:219`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L219)
+- [`plugins/wp-graphql/access-functions.php:224`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L224)
 
 ```php
 function register_graphql_type( string $type_name, array $config ): void {

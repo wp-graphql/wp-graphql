@@ -30,7 +30,7 @@ Renames a GraphQL Type in the Schema.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:498`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L498)
+- [`plugins/wp-graphql/access-functions.php:503`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L503)
 
 ```php
 function rename_graphql_type( string $type_name, string $new_type_name ): void {

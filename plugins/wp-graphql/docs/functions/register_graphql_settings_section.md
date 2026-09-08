@@ -26,7 +26,7 @@ Registers a GraphQL Settings Section
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:762`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L762)
+- [`plugins/wp-graphql/access-functions.php:767`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L767)
 
 ```php
 function register_graphql_settings_section( string $slug, array $config ): void {

@@ -28,7 +28,7 @@ Filter the relative endpoint path where GraphQL can be accessed.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:934`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L934)
+- [`plugins/wp-graphql/access-functions.php:939`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L939)
 
 ```php
 apply_filters( 'graphql_endpoint', $endpoint );
@@ -36,7 +36,7 @@ apply_filters( 'graphql_endpoint', $endpoint );
 
 ## Related
 
-- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:934`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L934)
+- `graphql_get_endpoint()` in [`plugins/wp-graphql/access-functions.php:939`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L939)
 - `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:119`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L119)
 
 ## Recipes

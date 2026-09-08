@@ -25,7 +25,7 @@ Given a Mutation Name, this removes the mutation from the Schema
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:669`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L669)
+- [`plugins/wp-graphql/access-functions.php:674`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L674)
 
 ```php
 function deregister_graphql_mutation( string $mutation_name ): void {
