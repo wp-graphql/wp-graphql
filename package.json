@@ -33,14 +33,16 @@
 		"wp-env:start": "wp-env start",
 		"wp-env:stop": "wp-env stop",
 		"wp-env:destroy": "wp-env destroy",
+		"postinstall": "patch-package",
 		"prepare": "husky install"
 	},
 	"devDependencies": {
-		"@wordpress/env": "^11.13.0",
+		"@wordpress/env": "11.14.0",
 		"@wordpress/prettier-config": "^4.53.0",
 		"@wordpress/scripts": "^27.9.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^17.3.0",
+		"patch-package": "8.0.1",
 		"turbo": "^2.10.12",
 		"turndown": "^7.2.4"
 	}

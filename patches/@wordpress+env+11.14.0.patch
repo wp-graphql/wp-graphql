@@ -1,0 +1,29 @@
+diff --git a/node_modules/@wordpress/env/lib/runtime/docker/docker-config.js b/node_modules/@wordpress/env/lib/runtime/docker/docker-config.js
+index a6c0f30..633ad8f 100644
+--- a/node_modules/@wordpress/env/lib/runtime/docker/docker-config.js
++++ b/node_modules/@wordpress/env/lib/runtime/docker/docker-config.js
+@@ -95,6 +95,13 @@ RUN sed -i 's|deb.debian.org/debian buster|archive.debian.org/debian buster|g' /
+ RUN sed -i 's|security.debian.org/debian-security buster/updates|archive.debian.org/debian-security buster/updates|g' /etc/apt/sources.list
+ RUN sed -i '/buster-updates/d' /etc/apt/sources.list
+ 
++# bullseye (https://www.debian.org/News/2026/20260831)
++# The security suite is not on archive.debian.org yet, so it is dropped rather
++# than rewritten.
++RUN sed -i 's|deb.debian.org/debian bullseye|archive.debian.org/debian bullseye|g' /etc/apt/sources.list
++RUN sed -i '/bullseye-security/d' /etc/apt/sources.list
++RUN sed -i '/bullseye-updates/d' /etc/apt/sources.list
++
+ # Create the host's user so that we can match ownership in the container.
+ ARG HOST_USERNAME
+ ARG HOST_UID
+@@ -223,7 +230,9 @@ RUN rm /tmp/composer-setup.php`;
+ 	dockerFileContent += `
+ USER $HOST_UID:$HOST_GID
+ ENV PATH="\${PATH}:/home/$HOST_USERNAME/.composer/vendor/bin"
+-RUN composer global require --dev phpunit/phpunit:"^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0"
++# NOTE(wp-graphql): the global phpunit install is removed. This repo's tests run
++# each plugin's own vendor/bin/codecept (which bundles phpunit), and the install's
++# GitHub zipball downloads were a recurring CI flake (wp-graphql/wp-graphql#4268).
+ USER root`;
+ 
+ 	return dockerFileContent;
