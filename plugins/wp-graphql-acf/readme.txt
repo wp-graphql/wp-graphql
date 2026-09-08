@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 2.8.0
+Stable tag: 3.0.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -112,6 +112,14 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 == Upgrade Notice ==
 
+= 3.0.0 =
+
+**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
+
+* **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280))
+
+Please review these changes before upgrading.
+
 = 2.3.0 =
 
 This release refactored some internals regarding how Clone fields and Group fields behave. There was no intentional breaking changes to the Schema, but if you are using Clone and Group fields there is a chance that if you were benefiting from a "bug as a feature" there might be some changes that could impact your Schema and/or resolvers, we recommend testing this update on a staging site to ensure things are still working for you as expected. Should you run into any problems, please [open a new issue](https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose) and provide as much detail as possible to help us reproduce the scenario. Thanks! 🙏
@@ -127,6 +135,17 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://www.wpgraphql.com/docs/acf/upgrade-guide) before upgrading.
 
 == Changelog ==
+
+= 3.0.0 =
+
+**⚠ BREAKING CHANGES**
+
+* **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280))
+
+**Bug Fixes**
+
+* **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4244](https://github.com/wp-graphql/wp-graphql/issues/4244))
 
 = 2.8.0 =
 
