@@ -6,6 +6,7 @@
 ### Bug Fixes
 
 * **security:** guard root plugin files against direct file access ([#4272](https://github.com/wp-graphql/wp-graphql/issues/4272)) ([49d48e5](https://github.com/wp-graphql/wp-graphql/commit/49d48e511bddde19df433b22a9e9341707176a94))
+* **security:** validate createMediaItem filePath against the resolved host address (GHSA-p8rh) ([b6d9464](https://github.com/wp-graphql/wp-graphql/commit/b6d946459689764b24df1f9bf8a8eaf505bc4ae6))
 
 ## [2.22.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.1...wp-graphql/v2.22.2) (2026-09-04)
 

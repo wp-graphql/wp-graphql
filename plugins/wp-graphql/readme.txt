@@ -315,6 +315,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 **Bug Fixes**
 
 * **security:** guard root plugin files against direct file access ([#4272](https://github.com/wp-graphql/wp-graphql/issues/4272))
+* **security:** validate createMediaItem filePath against the resolved host address (GHSA-p8rh)
 
 = 2.22.2 =
 
