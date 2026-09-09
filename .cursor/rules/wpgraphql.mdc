@@ -3,5 +3,5 @@ description: Follow the canonical WPGraphQL repository guidance
 globs: ["**/*"]
 ---
 
-Follow @CLAUDE.md. When working inside a plugin, also follow its closest
-`CLAUDE.md` for plugin-specific guidance.
+Follow @AGENTS.md. When working inside a plugin, also follow its closest
+`AGENTS.md` for plugin-specific guidance.

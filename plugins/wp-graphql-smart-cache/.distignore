@@ -50,6 +50,8 @@ phpunit.xml
 phpunit.xml.dist
 /plugin-build
 README.md
+CLAUDE.md
+AGENTS.md
 tests
 Thumbs.db
 webpack.config.js
