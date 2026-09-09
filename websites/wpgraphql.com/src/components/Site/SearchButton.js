@@ -134,32 +134,39 @@ export function SearchProvider({ children }) {
             key={productFilter ?? "all"}
             initialQuery={initialQuery}
             initialScrollY={window.scrollY}
-            searchParameters={{
-              distinct: 1,
-              // DocSearch replaces its default retrieve list when one is
-              // provided, so this is its default plus the corpus attributes
-              // (product, tags) the per-hit badge renders from.
-              attributesToRetrieve: [
-                "hierarchy.lvl0",
-                "hierarchy.lvl1",
-                "hierarchy.lvl2",
-                "hierarchy.lvl3",
-                "hierarchy.lvl4",
-                "hierarchy.lvl5",
-                "hierarchy.lvl6",
-                "content",
-                "type",
-                "url",
-                "anchor",
-                "product",
-                "tags",
-              ],
-              ...(productFilter
-                ? { facetFilters: [facetFilterFor(productFilter)] }
-                : {}),
-            }}
+            // DocSearch v5 replaced the single indexName/searchParameters
+            // props with a list of indices, each carrying its own
+            // searchParameters.
+            indices={[
+              {
+                name: INDEX_NAME,
+                searchParameters: {
+                  distinct: 1,
+                  // DocSearch replaces its default retrieve list when one is
+                  // provided, so this is its default plus the corpus attributes
+                  // (product, tags) the per-hit badge renders from.
+                  attributesToRetrieve: [
+                    "hierarchy.lvl0",
+                    "hierarchy.lvl1",
+                    "hierarchy.lvl2",
+                    "hierarchy.lvl3",
+                    "hierarchy.lvl4",
+                    "hierarchy.lvl5",
+                    "hierarchy.lvl6",
+                    "content",
+                    "type",
+                    "url",
+                    "anchor",
+                    "product",
+                    "tags",
+                  ],
+                  ...(productFilter
+                    ? { facetFilters: [facetFilterFor(productFilter)] }
+                    : {}),
+                },
+              },
+            ]}
             onClose={onClose}
-            indexName={INDEX_NAME}
             apiKey={API_KEY}
             appId={APP_ID}
             placeholder="Search..."
