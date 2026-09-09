@@ -13,7 +13,7 @@ File patterns in the rules are relative to the repository root. For example, `pl
 
 ## Rule Files
 
-- **wpgraphql.mdc**: The repository-wide Cursor rule that references `CLAUDE.md`, the canonical source for repository guidance.
+- **wpgraphql.mdc**: The repository-wide Cursor rule that references `AGENTS.md`, the canonical source for repository guidance.
 
 ## How These Rules Help
 
@@ -35,7 +35,7 @@ The rules apply to all plugins in the monorepo, providing consistent guidance wh
 
 ## Updating Rules
 
-Update the applicable `CLAUDE.md` instead of duplicating repository or plugin guidance here. Keep only Cursor-specific behavior in `wpgraphql.mdc`.
+Update the applicable `AGENTS.md` instead of duplicating repository or plugin guidance here. Keep only Cursor-specific behavior in `wpgraphql.mdc`.
 
 ## Learn More
 

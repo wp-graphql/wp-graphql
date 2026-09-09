@@ -55,4 +55,5 @@ phpunit.xml.dist
 README.md
 CONTRIBUTING.md
 CLAUDE.md
+AGENTS.md
 schema.graphql

@@ -43,6 +43,8 @@ phpcs.xml
 phpstan.neon.dist
 phpunit.xml.dist
 README.md
+CLAUDE.md
+AGENTS.md
 schema.graphql
 webpack.config.js
 phpcs.xml.dist

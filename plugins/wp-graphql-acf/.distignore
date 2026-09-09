@@ -29,6 +29,8 @@
 /plugin-build
 Gruntfile.js
 README.md
+CLAUDE.md
+AGENTS.md
 Thumbs.db
 behat.yml
 bin

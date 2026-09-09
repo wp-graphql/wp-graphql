@@ -149,7 +149,7 @@ REST route prefix gating in `Access::enforce_rest_permissions` uses `strpos` wit
 
 ## When you receive a task
 
-1. **Orient first.** Read the relevant CLAUDE.md (repo root + the workspace you'll touch), grep for existing patterns, check recent git log for related commits. The IDE plugin has its own CLAUDE.md at `plugins/wp-graphql-ide/CLAUDE.md`.
+1. **Orient first.** Read the relevant AGENTS.md (repo root + the workspace you'll touch), grep for existing patterns, check recent git log for related commits. The IDE plugin has its own AGENTS.md at `plugins/wp-graphql-ide/AGENTS.md`.
 2. **Plan in your head; don't pad the response.** State the change in one paragraph, then make it.
 3. **Edit deliberately.** Match the surrounding code's idioms, comment density, and naming. Don't reformat tangential code.
 4. **Verify locally.** Lint + PHPStan + Jest where applicable. Skip Codeception (can't run locally). Build the bundle to confirm webpack picks up new entries.
