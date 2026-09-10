@@ -1,3 +1,25 @@
+/*
+ * Lay the cards out in columns. WordPress core styles `.plugin-card` widths
+ * (50% / 33% / 25% by viewport) but, since WordPress 7.0, only makes the
+ * container a flex row on its own plugin-install screen
+ * (`.plugin-install-php #the-list`). Mirror that here for our wrapper so the
+ * cards do not stack in a single column.
+ */
+.plugin-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.plugin-cards .plugin-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Older WordPress versions float the card with a right/bottom margin; the gap handles spacing here. */
+    float: none;
+    margin: 0;
+}
+
 .plugin-card .name, .plugin-card .desc, /* For WP <6.5 versions */
 .plugin-card .desc > p {
     margin-left: 0;
