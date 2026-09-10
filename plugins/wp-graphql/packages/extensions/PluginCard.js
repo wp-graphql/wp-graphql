@@ -12,7 +12,11 @@ const PluginCard = ({ plugin }) => {
 		error,
 		installPlugin,
 		activatePlugin,
-	} = useInstallPlugin(plugin.plugin_url, plugin.plugin_path);
+	} = useInstallPlugin(
+		plugin.plugin_url,
+		plugin.plugin_path,
+		plugin.plugin_file
+	);
 	const [isInstalled, setIsInstalled] = useState(plugin.installed);
 	const [isActive, setIsActive] = useState(plugin.active);
 	const [isErrorVisible, setIsErrorVisible] = useState(true);

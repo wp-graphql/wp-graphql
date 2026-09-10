@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
-const useInstallPlugin = (pluginUrl, pluginPath) => {
+const useInstallPlugin = (pluginUrl, pluginPath, pluginFile) => {
 	const [installing, setInstalling] = useState(false);
 	const [activating, setActivating] = useState(false);
 	const [status, setStatus] = useState('');
@@ -33,7 +33,8 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
 				.split('/')
 				.filter(Boolean)
 				.pop();
-			path = `${slug}/${slug}.php`;
+			// Prefer the declared main file: the directory slug and the file name differ for some plugins.
+			path = `${slug}/${pluginFile || `${slug}.php`}`;
 		}
 
 		try {
@@ -97,7 +98,13 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
 				throw new Error(__('Installation failed', 'wp-graphql'));
 			}
 
-			await activatePlugin(pluginPath);
+			// The REST response names the installed plugin ("dir/file" without the .php suffix),
+			// which is more reliable than guessing the path from the slug.
+			const installedPath = installResult.plugin
+				? `${installResult.plugin}.php`
+				: pluginPath;
+
+			await activatePlugin(installedPath);
 		} catch (err) {
 			if (err.message.includes('destination folder already exists')) {
 				await activatePlugin(pluginPath);

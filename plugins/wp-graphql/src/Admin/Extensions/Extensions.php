@@ -21,6 +21,8 @@ use WP_REST_Response;
  *   support_url: non-empty-string,
  *   documentation_url: non-empty-string,
  *   repo_url?: string,
+ *   plugin_file?: string,
+ *   plugin_path?: string,
  *   author: ExtensionAuthor,
  *   installed: bool,
  *   active: bool,
@@ -210,6 +212,8 @@ final class Extensions {
 	 *
 	 * @return array<string,array{
 	 *  is_active: bool,
+	 *  file: string,
+	 *  path: string,
 	 *  name: string,
 	 *  description: string,
 	 *  author: string,
@@ -229,6 +233,8 @@ final class Extensions {
 
 			$installed_plugins[ $slug ] = [
 				'is_active'   => in_array( $plugin_path, $active_plugins, true ),
+				'file'        => basename( $plugin_path ),
+				'path'        => $plugin_path,
 				'name'        => $plugin_info['Name'],
 				'description' => $plugin_info['Description'],
 				'author'      => $plugin_info['Author'],
@@ -249,6 +255,7 @@ final class Extensions {
 	 *  support_url: string|null,
 	 *  documentation_url: string|null,
 	 *  repo_url: string|null,
+	 *  plugin_file: string|null,
 	 *  author: array{
 	 *    name: string|null,
 	 *    homepage: string|null,
@@ -263,6 +270,7 @@ final class Extensions {
 			'support_url'       => ! empty( $extension['support_url'] ) ? esc_url_raw( $extension['support_url'] ) : null,
 			'documentation_url' => ! empty( $extension['documentation_url'] ) ? esc_url_raw( $extension['documentation_url'] ) : null,
 			'repo_url'          => ! empty( $extension['repo_url'] ) ? esc_url_raw( $extension['repo_url'] ) : null,
+			'plugin_file'       => ! empty( $extension['plugin_file'] ) && is_string( $extension['plugin_file'] ) ? sanitize_file_name( basename( $extension['plugin_file'] ) ) : null,
 			'author'            => [
 				'name'     => ! empty( $extension['author']['name'] ) ? sanitize_text_field( $extension['author']['name'] ) : null,
 				'homepage' => ! empty( $extension['author']['homepage'] ) ? esc_url_raw( $extension['author']['homepage'] ) : null,
@@ -331,17 +339,19 @@ final class Extensions {
 		$populated_extensions = [];
 
 		foreach ( $extensions as $extension ) {
-			$slug                   = basename( rtrim( $extension['plugin_url'], '/' ) );
 			$extension['installed'] = false;
 			$extension['active']    = false;
 
-			// If the plugin is installed, populate the installation data.
-			if ( isset( $installed_plugins[ $slug ] ) ) {
-				$extension['installed'] = true;
-				$extension['active']    = $installed_plugins[ $slug ]['is_active'];
+			$installed_plugin = $this->find_installed_plugin( $extension, $installed_plugins );
 
-				if ( ! empty( $installed_plugins[ $slug ]['author'] ) ) {
-					$extension['author']['name'] = $installed_plugins[ $slug ]['author'];
+			// If the plugin is installed, populate the installation data.
+			if ( null !== $installed_plugin ) {
+				$extension['installed']   = true;
+				$extension['active']      = $installed_plugin['is_active'];
+				$extension['plugin_path'] = $installed_plugin['path'];
+
+				if ( ! empty( $installed_plugin['author'] ) ) {
+					$extension['author']['name'] = $installed_plugin['author'];
 				}
 			}
 
@@ -380,6 +390,36 @@ final class Extensions {
 		);
 
 		return $populated_extensions;
+	}
+
+	/**
+	 * Finds the installed plugin that corresponds to an extension.
+	 *
+	 * When the extension declares a `plugin_file`, the match is made on the plugin's main file name,
+	 * which is stable across install methods. Otherwise the last segment of `plugin_url` is compared
+	 * with the plugin's directory name, which only holds when the plugin was installed from
+	 * WordPress.org under that exact slug.
+	 *
+	 * @param array<string,mixed>                                                                                      $extension         The (sanitized) extension.
+	 * @param array<string,array{is_active:bool,file:string,path:string,name:string,description:string,author:string}> $installed_plugins Installed plugins, keyed by directory.
+	 *
+	 * @return array{is_active:bool,file:string,path:string,name:string,description:string,author:string}|null The installed plugin, or null if not installed.
+	 */
+	private function find_installed_plugin( array $extension, array $installed_plugins ): ?array {
+		if ( ! empty( $extension['plugin_file'] ) && is_string( $extension['plugin_file'] ) ) {
+			foreach ( $installed_plugins as $installed_plugin ) {
+				if ( $installed_plugin['file'] === $extension['plugin_file'] ) {
+					return $installed_plugin;
+				}
+			}
+
+			return null;
+		}
+
+		$plugin_url = isset( $extension['plugin_url'] ) && is_string( $extension['plugin_url'] ) ? $extension['plugin_url'] : '';
+		$slug       = basename( rtrim( $plugin_url, '/' ) );
+
+		return '' !== $slug && isset( $installed_plugins[ $slug ] ) ? $installed_plugins[ $slug ] : null;
 	}
 
 	/**
