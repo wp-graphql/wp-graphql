@@ -165,7 +165,6 @@ class MaxAge {
 	 * @return bool
 	 */
 	public function valid( $value ) {
-		// TODO: terms won't save 0, as considers that empty and removes the term. Consider 'zero' or 'stale' or greater than zero.
 		return ( is_numeric( $value ) && $value >= 0 );
 	}
 
@@ -182,7 +181,9 @@ class MaxAge {
 			throw new RequestError( sprintf( __( 'Invalid max age header value "%s". Must be greater than or equal to zero', 'wp-graphql-smart-cache' ), $value ) );
 		}
 
-		return wp_set_post_terms( $post_id, $value, self::TAXONOMY_NAME );
+		// Pass the term as an array. wp_set_post_terms() treats a scalar "0" as
+		// empty and would remove the term instead of storing a max-age of zero.
+		return wp_set_post_terms( $post_id, [ (string) $value ], self::TAXONOMY_NAME );
 	}
 
 	/**
@@ -227,8 +228,9 @@ class MaxAge {
 			if ( $post ) {
 				// If this saved query has a specified max-age, use it. Make sure to keep the smallest value.
 				$value = $this->get( $post->ID );
-				if ( $value ) {
-					$age = ( null === $age ) ? $value : min( $age, $value );
+				if ( is_string( $value ) && $this->valid( $value ) ) {
+					$value = intval( $value );
+					$age   = ( null === $age ) ? $value : min( $age, $value );
 				}
 			}
 		}
@@ -241,10 +243,11 @@ class MaxAge {
 		// Cache-Control max-age directive should be a positive integer, no decimals.
 		// A value of zero indicates that caching should be disabled.
 		if ( $this->valid( $age ) ) {
+			$age = intval( $age );
 			if ( 0 === $age ) {
 				$headers['Cache-Control'] = 'no-store';
 			} else {
-				$headers['Cache-Control'] = sprintf( 'max-age=%1$s, s-maxage=%1$s, must-revalidate', intval( $age ) );
+				$headers['Cache-Control'] = sprintf( 'max-age=%1$s, s-maxage=%1$s, must-revalidate', $age );
 			}
 		}
 
