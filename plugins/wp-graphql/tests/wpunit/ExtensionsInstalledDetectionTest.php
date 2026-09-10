@@ -7,15 +7,60 @@ use WPGraphQL\Admin\Extensions\Registry;
  * Tests that the Extensions admin page detects installed and active extensions
  * regardless of the directory the plugin was installed into.
  *
- * In the test environment WPGraphQL itself is installed as
- * `wp-graphql/wp-graphql.php` and is active, so it doubles as the "installed extension".
+ * The installed plugin list is seeded into the `plugins` cache that get_plugins()
+ * reads from, so the assertions do not depend on which plugins happen to be
+ * mounted in the test environment. Two fixtures cover both lookup paths:
+ *
+ * - Smart Cache lives in a directory (`wp-graphql-smart-cache`) that does NOT
+ *   match its WordPress.org slug (`wpgraphql-smart-cache`), and is active.
+ * - The IDE lives in a directory that matches its slug, and is inactive.
  */
 class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+
+	private const SMART_CACHE_PATH = 'wp-graphql-smart-cache/wp-graphql-smart-cache.php';
+	private const IDE_PATH         = 'wpgraphql-ide/wpgraphql-ide.php';
 
 	/**
 	 * @var callable|null
 	 */
 	private $filter;
+
+	/**
+	 * @var mixed The active_plugins option before the test seeded it.
+	 */
+	private $original_active_plugins;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->original_active_plugins = get_option( 'active_plugins' );
+
+		// get_plugins() returns the cached list (keyed by plugin folder, '' = the plugins root)
+		// when one is present, so seeding it makes the installed list deterministic.
+		wp_cache_set(
+			'plugins',
+			[
+				'' => [
+					self::SMART_CACHE_PATH => [
+						'Name'        => 'WPGraphQL Smart Cache',
+						'Description' => 'Caching for WPGraphQL.',
+						'Author'      => 'WPGraphQL',
+					],
+					self::IDE_PATH         => [
+						'Name'        => 'WPGraphQL IDE',
+						'Description' => 'An IDE for WPGraphQL.',
+						'Author'      => 'WPGraphQL',
+					],
+				],
+			],
+			'plugins'
+		);
+
+		update_option( 'active_plugins', [ self::SMART_CACHE_PATH ] );
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -25,6 +70,10 @@ class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			remove_filter( 'graphql_get_extensions', $this->filter );
 			$this->filter = null;
 		}
+
+		wp_cache_delete( 'plugins', 'plugins' );
+		update_option( 'active_plugins', $this->original_active_plugins );
+
 		parent::tearDown();
 	}
 
@@ -72,17 +121,17 @@ class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			array_merge(
 				$this->base_extension(),
 				[
-					// The slug in the URL does NOT match the installed directory (wp-graphql).
-					'plugin_url'  => 'https://wordpress.org/plugins/some-other-slug/',
-					'plugin_file' => 'wp-graphql.php',
+					// The WordPress.org slug does NOT match the installed directory (wp-graphql-smart-cache).
+					'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
+					'plugin_file' => 'wp-graphql-smart-cache.php',
 				]
 			)
 		);
 
 		$this->assertTrue( $extension['installed'] );
 		$this->assertTrue( $extension['active'] );
-		$this->assertSame( 'wp-graphql/wp-graphql.php', $extension['plugin_path'] );
-		$this->assertSame( 'wp-graphql.php', $extension['plugin_file'] );
+		$this->assertSame( self::SMART_CACHE_PATH, $extension['plugin_path'] );
+		$this->assertSame( 'wp-graphql-smart-cache.php', $extension['plugin_file'] );
 	}
 
 	/**
@@ -93,25 +142,28 @@ class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			array_merge(
 				$this->base_extension(),
 				[
-					'plugin_url' => 'https://wordpress.org/plugins/wp-graphql/',
+					'plugin_url' => 'https://wordpress.org/plugins/wpgraphql-ide/',
 				]
 			)
 		);
 
 		$this->assertTrue( $extension['installed'] );
-		$this->assertTrue( $extension['active'] );
-		$this->assertSame( 'wp-graphql/wp-graphql.php', $extension['plugin_path'] );
+		$this->assertFalse( $extension['active'] );
+		$this->assertSame( self::IDE_PATH, $extension['plugin_path'] );
 	}
 
 	/**
 	 * Without plugin_file, a slug that is not the directory name is reported as not installed.
+	 *
+	 * This is the original bug: Smart Cache is installed and active, but its
+	 * WordPress.org slug is not its directory name, so the slug fallback misses it.
 	 */
 	public function testSlugMismatchWithoutPluginFileIsReportedAsNotInstalled(): void {
 		$extension = $this->get_populated_extension(
 			array_merge(
 				$this->base_extension(),
 				[
-					'plugin_url' => 'https://wordpress.org/plugins/some-other-slug/',
+					'plugin_url' => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
 				]
 			)
 		);
@@ -129,7 +181,7 @@ class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			array_merge(
 				$this->base_extension(),
 				[
-					'plugin_url'  => 'https://wordpress.org/plugins/wp-graphql/',
+					'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-ide/',
 					'plugin_file' => 'definitely-not-installed.php',
 				]
 			)
@@ -148,13 +200,13 @@ class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			array_merge(
 				$this->base_extension(),
 				[
-					'plugin_url'  => 'https://wordpress.org/plugins/some-other-slug/',
-					'plugin_file' => '../../wp-graphql/wp-graphql.php',
+					'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
+					'plugin_file' => '../../wp-graphql-smart-cache/wp-graphql-smart-cache.php',
 				]
 			)
 		);
 
-		$this->assertSame( 'wp-graphql.php', $extension['plugin_file'] );
+		$this->assertSame( 'wp-graphql-smart-cache.php', $extension['plugin_file'] );
 		$this->assertTrue( $extension['installed'] );
 	}
 
