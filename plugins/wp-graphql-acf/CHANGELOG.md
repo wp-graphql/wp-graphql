@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.0.0...wp-graphql-acf/v3.0.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql-acf ([#4281](https://github.com/wp-graphql/wp-graphql/issues/4281)) ([cae29d0](https://github.com/wp-graphql/wp-graphql/commit/cae29d0f0cec12ae3e2a522ce17d46fe46db8712))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290)) ([d21aca0](https://github.com/wp-graphql/wp-graphql/commit/d21aca07636defbfded795eb3705d6f5355f4eb3))
+
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.8.0...wp-graphql-acf/v3.0.0) (2026-09-08)
 
 
