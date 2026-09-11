@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.22.3\n"
+"Project-Id-Version: WPGraphQL 2.23.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T17:37:24+00:00\n"
+"POT-Creation-Date: 2026-09-11T16:58:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -110,27 +110,27 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:64
+#: src/Admin/Extensions/Extensions.php:66
 msgid "WPGraphQL Extensions"
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:65
+#: src/Admin/Extensions/Extensions.php:67
 msgid "Extensions"
 msgstr ""
 
 #. translators: 1: npm ci command, 2: npm run build command, 3: releases URL
-#: src/Admin/Extensions/Extensions.php:85
+#: src/Admin/Extensions/Extensions.php:87
 #, php-format
 msgid "The Extensions page requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
 msgstr ""
 
 #. translators: First placeholder is the extension name. Second placeholder is the property that is missing from the extension.
-#: src/Admin/Extensions/Extensions.php:287
+#: src/Admin/Extensions/Extensions.php:295
 #, php-format
 msgid "Invalid extension %1$s is missing a valid value for %2$s."
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:291
+#: src/Admin/Extensions/Extensions.php:299
 msgid "Invalid extension. All extensions must have a `name`."
 msgstr ""
 
