@@ -11,6 +11,19 @@ body:
         Please remember, a bug report is _not the place to ask questions_. You can
         use [Slack](https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA) for that, or start a topic in [GitHub
         Discussions](https://github.com/wp-graphql/wp-graphql/discussions).
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Which plugin?
+      description: The plugin this report is about. Pick "Not sure" if you don't know.
+      options:
+        - WPGraphQL (core)
+        - WPGraphQL Smart Cache
+        - WPGraphQL for ACF
+        - WPGraphQL IDE
+        - Not sure
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Description

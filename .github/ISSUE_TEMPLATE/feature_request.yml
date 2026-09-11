@@ -10,6 +10,19 @@ body:
         Please make sure to search the repo for [existing feature
         requests](https://github.com/wp-graphql/wp-graphql/issues)
         before creating a new one.
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Which plugin?
+      description: The plugin this report is about. Pick "Not sure" if you don't know.
+      options:
+        - WPGraphQL (core)
+        - WPGraphQL Smart Cache
+        - WPGraphQL for ACF
+        - WPGraphQL IDE
+        - Not sure
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: What problem does this address?
