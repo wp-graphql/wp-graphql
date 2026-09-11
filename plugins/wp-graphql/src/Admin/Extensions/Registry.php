@@ -25,6 +25,7 @@ namespace WPGraphQL\Admin\Extensions;
  *  support_url: non-empty-string,
  *  documentation_url: non-empty-string,
  *  repo_url?: string,
+ *  plugin_file?: string,
  *  author: ExtensionAuthor,
  * }
  * phpcs:enable
@@ -40,6 +41,7 @@ final class Registry {
 	 * - description: Required. A description of the extension.
 	 * - plugin_url: Required. The URL to the plugin.
 	 * - repo_url: Optional. The URL to the repository for the plugin.
+	 * - plugin_file: Optional. The file name of the plugin's main file (e.g. `wp-graphql-smart-cache.php`). When set, the extension is detected as installed/active by this file regardless of the directory it was installed into (WordPress.org installs and git checkouts often differ). Without it, detection falls back to matching the directory name against the last segment of `plugin_url`.
 	 * - support_url: Required. The URL to the support page for the plugin.
 	 * - documentation_url: Required. The URL to the documentation for the plugin.
 	 * - author: Required. An array with the following fields:
@@ -57,6 +59,7 @@ final class Registry {
 				'description'       => 'GraphQL IDE for WPGraphQL',
 				'documentation_url' => 'https://github.com/wp-graphql/wpgraphql-ide',
 				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-ide/',
+				'plugin_file'       => 'wpgraphql-ide.php',
 				'support_url'       => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose',
 				'author'            => [
 					'name'     => 'WPGraphQL',
@@ -67,7 +70,8 @@ final class Registry {
 				'name'              => 'WPGraphQL Smart Cache',
 				'description'       => 'A smart cache for WPGraphQL that caches only the data you need.',
 				'documentation_url' => 'https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache',
-				'plugin_url'        => 'https://wordpress.org/plugins/wp-graphql-smart-cache/',
+				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
+				'plugin_file'       => 'wp-graphql-smart-cache.php',
 				'support_url'       => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
 				'author'            => [
 					'name'     => 'WPGraphQL',
@@ -79,6 +83,7 @@ final class Registry {
 				'description'       => 'WPGraphQL for ACF is a FREE, open source WordPress plugin that exposes ACF Field Groups and Fields to the WPGraphQL Schema, enabling powerful decoupled solutions with modern frontends.',
 				'documentation_url' => 'https://www.wpgraphql.com/docs/acf',
 				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-acf/',
+				'plugin_file'       => 'wpgraphql-acf.php',
 				'support_url'       => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose',
 				'author'            => [
 					'name'     => 'WPGraphQL',

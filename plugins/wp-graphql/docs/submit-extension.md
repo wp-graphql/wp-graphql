@@ -54,6 +54,7 @@ public static function get_extensions(): array {
 			'description' => 'This is a new extension that I created.', // Required: Brief description (limit: 150 characters)
 			'plugin_url' => 'https://example.com/my-new-extension', // Required: URL to the plugin repository or download
 			'repo_url' => 'https://wordpress.org/plugins/my-new-extension', // Optional: URL to the plugin's source repository
+			'plugin_file' => 'my-new-extension.php', // Optional but recommended: the plugin's main file name, so the Extensions page can tell the plugin is installed and active no matter which directory it was installed into
 			'support_url' => 'https://example.com/my-new-extension/support', // Required: URL for user support
 			'documentation_url' => 'https://example.com/my-new-extension/docs', // Required: URL to the plugin's documentation
 			'author' => [
