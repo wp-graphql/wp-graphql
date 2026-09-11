@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.23.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.3...wp-graphql/v2.23.0) (2026-09-11)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 11 updates ([#4294](https://github.com/wp-graphql/wp-graphql/issues/4294)) ([8914700](https://github.com/wp-graphql/wp-graphql/commit/89147006c2414064babe4b3cb6fc516a156b410f))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql ([#4282](https://github.com/wp-graphql/wp-graphql/issues/4282)) ([318af34](https://github.com/wp-graphql/wp-graphql/commit/318af345c706abbcd22f211484867369a36f3bc8))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290)) ([d21aca0](https://github.com/wp-graphql/wp-graphql/commit/d21aca07636defbfded795eb3705d6f5355f4eb3))
+* extensions page detects installed plugins by file and restores the card grid on WordPress 7 ([#4302](https://github.com/wp-graphql/wp-graphql/issues/4302)) ([417378d](https://github.com/wp-graphql/wp-graphql/commit/417378dc59c70069fdc98950e2547fc200e753ab))
+
 ## [2.22.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.2...wp-graphql/v2.22.3) (2026-09-08)
 
 
