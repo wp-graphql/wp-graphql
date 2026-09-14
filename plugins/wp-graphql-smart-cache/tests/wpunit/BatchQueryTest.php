@@ -25,7 +25,9 @@ class BatchQueryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query_string = sprintf( "query %s { posts { nodes { id title } } }", $this->query_alias );
 
 		$saved_query = new Document();
-		$this->created_post_ids[] = $saved_query->save( $this->query_alias, $query_string );
+		$post_id     = $saved_query->save( hash( 'sha256', $query_string ), $query_string );
+		wp_add_object_terms( $post_id, $this->query_alias, Document::ALIAS_TAXONOMY_NAME );
+		$this->created_post_ids[] = $post_id;
 		codecept_debug( "$this->query_alias, $query_string" );
 	}
 
@@ -95,7 +97,8 @@ class BatchQueryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Set the max age for a saved query
 		$query_alias_1 = uniqid( "query_posts_", false );
 		$query_string = sprintf( "query %s { posts { nodes { id title } } }", $query_alias_1 );
-		$query_post_id = $saved_query->save( $query_alias_1, $query_string );
+		$query_post_id = $saved_query->save( hash( 'sha256', $query_string ), $query_string );
+		wp_add_object_terms( $query_post_id, $query_alias_1, Document::ALIAS_TAXONOMY_NAME );
 		$max_age = new MaxAge();
 		$max_age->save( $query_post_id, '10' );
 		$this->created_post_ids[] = $query_post_id;
@@ -104,7 +107,8 @@ class BatchQueryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Set the max age for a saved query
 		$query_alias_2 = uniqid( "query_posts_", false );
 		$query_string_2 = sprintf( "query %s { posts { nodes { id title } } }", $query_alias_2 );
-		$query_post_id = $saved_query->save( $query_alias_2, $query_string_2 );
+		$query_post_id = $saved_query->save( hash( 'sha256', $query_string_2 ), $query_string_2 );
+		wp_add_object_terms( $query_post_id, $query_alias_2, Document::ALIAS_TAXONOMY_NAME );
 		$max_age = new MaxAge();
 		$max_age->save( $query_post_id, '12' );
 		$this->created_post_ids[] = $query_post_id;

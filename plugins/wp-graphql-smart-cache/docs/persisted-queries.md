@@ -97,6 +97,8 @@ Then I could use that Alias Name as the value of the `queryId` and execute the s
 
 ![Screenshot showing a query using a custom Alias Name](./images/query-custom-alias.png)
 
+Custom Alias Names are assigned by authorized users only: through the GraphQL Document editor in the admin, or through the `createGraphqlDocument` and `updateGraphqlDocument` mutations. A request that sends a `query` together with a `queryId` can only register the document when the `queryId` is the SHA-256 hash of that query (of the raw string as sent, or of the normalized document). Any other `queryId` is rejected and nothing is stored, unless an authorized user already assigned it to that exact document, in which case the document executes as usual. Documents are also only stored after they pass validation, so a document the "Allow only specific queries" mode refuses to execute is never saved.
+
 **NOTE:** Alias names must be unique across all GraphQL Documents. You cannot have 2 GraphQL Documents with the same alias name (manually entered or automatically generated).
 
 ### GraphQL Variables
@@ -146,3 +148,18 @@ For example, currently queries for "Settings" are not invalidating when settings
 - [Network Cache](./network-cache.md)
 - [Object Cache](./object-cache.md)
 - [Cache Invalidation](./cache-invalidation.md)
+
+### Auditing automatically registered documents
+
+Documents registered by the automatic persisted query flow are marked as such (ones stored by earlier versions are recognised by having no author). The "Saved Queries" settings tab shows how many such documents exist, how many of them carry an alias name that was not derived from the document hash, and a button to delete the automatically registered ones. Documents you have granted, denied, or placed in a group are kept.
+
+Deleting automatically registered documents is safe: a client that still uses one receives a `PersistedQueryNotFound` error, re-sends the full query, and the document is registered again under its verified hash.
+
+The GraphQL Documents list (linked from the settings tab, and shown in the admin menu when "Display saved query documents in admin editor" is on) has "Automatic" and "Unverified alias" views for reviewing documents one by one, and marks unverified alias names in the Alias Names column.
+
+The same audit is available from WP-CLI:
+
+```
+wp graphql smart-cache documents audit [--unverified] [--format=table|json|csv|ids|count]
+wp graphql smart-cache documents purge [--include-curated] [--dry-run] [--yes]
+```

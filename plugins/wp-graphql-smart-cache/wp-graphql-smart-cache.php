@@ -31,6 +31,7 @@ use WPGraphQL\SmartCache\Admin\Settings;
 use WPGraphQL\SmartCache\Document\Description;
 use WPGraphQL\SmartCache\Document\Grant;
 use WPGraphQL\SmartCache\Document\Group;
+use WPGraphQL\SmartCache\Document\Audit;
 use WPGraphQL\SmartCache\Document\MaxAge;
 use WPGraphQL\SmartCache\Document\Loader;
 use WPGraphQL\SmartCache\Document\GarbageCollection;
@@ -140,6 +141,9 @@ add_action(
 
 		$doc_group = new Group();
 		$doc_group->init();
+
+		$audit = new Audit();
+		$audit->init();
 
 		$errors = new AdminErrors();
 		$errors->init();

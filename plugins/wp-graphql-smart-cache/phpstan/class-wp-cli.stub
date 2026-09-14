@@ -1,0 +1,32 @@
+<?php
+/**
+ * Minimal WP-CLI declarations so the documents command can be analysed
+ * without pulling wp-cli/wp-cli into the plugin's dependencies.
+ */
+
+namespace {
+	class WP_CLI_Command {}
+
+	class WP_CLI {
+		/**
+		 * @param callable|class-string $callable
+		 * @param array<string,mixed>   $args
+		 */
+		public static function add_command( string $name, $callable, array $args = [] ): bool {}
+		public static function line( string $message = '' ): void {}
+		public static function log( string $message ): void {}
+		public static function success( string $message ): void {}
+		/** @param bool|int $exit */
+		public static function error( string $message, $exit = true ): void {}
+		/** @param array<string,mixed> $assoc_args */
+		public static function confirm( string $question, array $assoc_args = [] ): void {}
+	}
+}
+
+namespace WP_CLI\Utils {
+	/**
+	 * @param array<int,array<string,mixed>> $items
+	 * @param string[]|string                $fields
+	 */
+	function format_items( string $format, array $items, $fields ): void {}
+}
