@@ -3,6 +3,7 @@
 	"packages": {
 		"plugins/wp-graphql": {
 			"release-type": "simple",
+			"exclude-paths": ["plugins/wp-graphql/docs"],
 			"component": "wp-graphql",
 			"package-name": "wp-graphql",
 			"constantMap": {
@@ -84,6 +85,7 @@
 		},
 		"plugins/wp-graphql-smart-cache": {
 			"release-type": "simple",
+			"exclude-paths": ["plugins/wp-graphql-smart-cache/docs"],
 			"component": "wp-graphql-smart-cache",
 			"package-name": "wp-graphql-smart-cache",
 			"wp_org_slug": "wpgraphql-smart-cache",
@@ -151,6 +153,7 @@
 		},
 		"plugins/wp-graphql-ide": {
 			"release-type": "simple",
+			"exclude-paths": ["plugins/wp-graphql-ide/docs"],
 			"component": "wp-graphql-ide",
 			"package-name": "wp-graphql-ide",
 			"wp_org_slug": "wpgraphql-ide",
@@ -213,6 +216,7 @@
 		},
 		"plugins/wp-graphql-acf": {
 			"release-type": "simple",
+			"exclude-paths": ["plugins/wp-graphql-acf/docs"],
 			"component": "wp-graphql-acf",
 			"package-name": "wp-graphql-acf",
 			"wp_org_slug": "wpgraphql-acf",
