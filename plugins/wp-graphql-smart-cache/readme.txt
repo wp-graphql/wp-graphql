@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -124,6 +124,16 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.3.2 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4197](https://github.com/wp-graphql/wp-graphql/issues/4197))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4241](https://github.com/wp-graphql/wp-graphql/issues/4241))
+* **smart-cache:** allow a max-age of 0 on saved documents ([#4319](https://github.com/wp-graphql/wp-graphql/issues/4319))
+* **smart-cache:** prevent a fatal error on option updates when WPGraphQL core is older than 2.18.0 ([#4333](https://github.com/wp-graphql/wp-graphql/issues/4333))
+* **smart-cache:** require persisted query ids to match the query hash and add an audit of stored documents (GHSA-r844-6gqh-59qj) ([#4332](https://github.com/wp-graphql/wp-graphql/issues/4332))
 
 = 2.3.1 =
 
