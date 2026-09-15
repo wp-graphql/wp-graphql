@@ -86,6 +86,7 @@
 		"plugins/wp-graphql-smart-cache": {
 			"release-type": "simple",
 			"exclude-paths": ["plugins/wp-graphql-smart-cache/docs"],
+			"release-as": "2.3.2",
 			"component": "wp-graphql-smart-cache",
 			"package-name": "wp-graphql-smart-cache",
 			"wp_org_slug": "wpgraphql-smart-cache",
