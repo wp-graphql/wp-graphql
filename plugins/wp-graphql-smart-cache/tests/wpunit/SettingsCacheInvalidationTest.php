@@ -227,4 +227,98 @@ class SettingsCacheInvalidationTest extends WPGraphQLSmartCacheTestCaseWithSeedD
 
 		$this->assertEmpty( $this->getNonEvictedCaches() );
 	}
+
+	/**
+	 * Regression for #4297. WPGraphQL core releases before 2.18.0 declare
+	 * get_allowed_settings_by_group() with a required TypeRegistry argument. The
+	 * listener called it without one, so every option write, including the ones
+	 * wp-cron and recovery mode make, threw ArgumentCountError and took the whole
+	 * site down. Against such a core the listener must degrade to a no-op.
+	 */
+	public function testSettingsMapRequiringTypeRegistryDegradesToNoOp() {
+
+		$this->assertEmpty( $this->getEvictedCaches() );
+
+		$invalidation = $this->invalidation_with_settings_source( SmartCacheTestSettingsSourceRequiringTypeRegistry::class );
+		$invalidation->on_updated_option_cb( 'blogname', 'Old Title', 'New Title' );
+
+		// No purge, and above all no error: the fixture maps blogname, so a purge here
+		// would mean the map was read by some other route than the no-argument call.
+		$this->assertEmpty( $this->getEvictedCaches() );
+
+		$this->assertFalse( Invalidation::can_read_settings_map_without_schema( SmartCacheTestSettingsSourceRequiringTypeRegistry::class ) );
+	}
+
+	/**
+	 * Reading the settings map runs on every option write, so a failure while
+	 * reading it must never escape the listener.
+	 */
+	public function testSettingsMapThatThrowsDegradesToNoOp() {
+
+		$this->assertEmpty( $this->getEvictedCaches() );
+
+		$this->assertTrue( Invalidation::can_read_settings_map_without_schema( SmartCacheTestSettingsSourceThatThrows::class ) );
+
+		$invalidation = $this->invalidation_with_settings_source( SmartCacheTestSettingsSourceThatThrows::class );
+		$invalidation->on_updated_option_cb( 'blogname', 'Old Title', 'New Title' );
+
+		$this->assertEmpty( $this->getEvictedCaches() );
+	}
+
+	/**
+	 * The bundled core exposes the settings map without a schema, so settings
+	 * invalidation stays active against it.
+	 */
+	public function testBundledCoreSettingsMapIsReadableWithoutSchema() {
+		$this->assertTrue( Invalidation::can_read_settings_map_without_schema( \WPGraphQL\Data\DataSource::class ) );
+		$this->assertFalse( Invalidation::can_read_settings_map_without_schema( 'WPGraphQL\\Data\\ClassThatDoesNotExist' ) );
+	}
+
+	/**
+	 * An Invalidation instance that reads the settings map from the given class.
+	 *
+	 * @param string $source Fully qualified class name.
+	 *
+	 * @return Invalidation
+	 */
+	private function invalidation_with_settings_source( string $source ): Invalidation {
+		return new class( $this->collection, $source ) extends Invalidation {
+			/**
+			 * @var string
+			 */
+			private $settings_source;
+
+			public function __construct( $collection, string $settings_source ) {
+				parent::__construct( $collection );
+				$this->settings_source = $settings_source;
+			}
+
+			protected function get_settings_map_source(): string {
+				return $this->settings_source;
+			}
+		};
+	}
+}
+
+/**
+ * Stands in for WPGraphQL core before 2.18.0, where the settings map requires a
+ * built type registry.
+ */
+class SmartCacheTestSettingsSourceRequiringTypeRegistry {
+	public static function get_allowed_settings_by_group( \WPGraphQL\Registry\TypeRegistry $type_registry ) {
+		return [
+			'general' => [
+				'blogname' => [],
+			],
+		];
+	}
+}
+
+/**
+ * A settings map source that fails while being read.
+ */
+class SmartCacheTestSettingsSourceThatThrows {
+	public static function get_allowed_settings_by_group( $type_registry = null ) {
+		throw new \RuntimeException( 'The settings map is unavailable.' );
+	}
 }

@@ -53,7 +53,7 @@ if ( ! defined( 'WPGRAPHQL_SMART_CACHE_VERSION' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
-	define( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION', '1.12.0' );
+	define( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION', '2.0.0' );
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_PLUGIN_DIR' ) ) {
@@ -102,6 +102,13 @@ function can_load_plugin() {
 add_action(
 	'graphql_server_config',
 	function ( \GraphQL\Server\ServerConfig $config ) {
+		// When the plugin can't load, its documents are never registered, so leave
+		// graphql-php's default in place: clients get "persisted queries are not
+		// supported" instead of a misleading "not found" for every persisted query.
+		if ( false === can_load_plugin() ) {
+			return;
+		}
+
 		$config->setPersistedQueryLoader(
 			function ( string $queryId, \GraphQL\Server\OperationParams $params ) {
 				return Loader::by_query_id( $queryId, (array) $params );
