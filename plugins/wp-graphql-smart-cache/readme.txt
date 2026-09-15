@@ -77,6 +77,13 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.3.2 =
+
+**Security Fix**
+This release closes an issue where a request carrying both a query and a queryId could store the query as a GraphQL Document and claim the queryId as an alias name without authorization. The automatic persisted query flow now only accepts a queryId that is the SHA-256 hash of the query it accompanies, and documents are validated before they are stored.
+
+After updating, open "GraphQL > Settings > Saved Queries". A new panel shows how many automatically registered documents exist and how many carry an alias name that was not derived from the document hash, with a button to delete the automatically registered ones. Deleting them is safe: clients that still use one re-send the full query on their next request. Documents you have granted, denied, or grouped are kept. The same audit is available as `wp graphql smart-cache documents audit` and `wp graphql smart-cache documents purge`.
+
 = 2.0.1 =
 
 This release fixes an issue where authenticated user data (such as draft posts) could be incorrectly cached and served to public users when using the Object Cache feature. Users with Object Cache enabled should update immediately.
