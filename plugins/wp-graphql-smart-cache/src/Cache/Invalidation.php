@@ -1243,7 +1243,12 @@ class Invalidation {
 	 * GraphQL request (admin saves, REST, WP-CLI, cron), and forcing a schema build
 	 * on the option-write hot path would be a real performance regression.
 	 *
-	 * Degrades to an empty map (everything a no-op) on core without the settings map.
+	 * Degrades to an empty map, so settings changes purge nothing, when core can't
+	 * provide the map without a built schema: core releases before 2.18.0 declare
+	 * `get_allowed_settings_by_group( TypeRegistry $type_registry )` with a required
+	 * argument, and calling it without one throws on every option write. Reading the
+	 * map is also never allowed to throw out of this method, because `updated_option`
+	 * runs on every option write, including the ones wp-cron and recovery mode make.
 	 *
 	 * @return array<string,array{group:string,purge_all:bool}>
 	 */
@@ -1252,15 +1257,25 @@ class Invalidation {
 			return $this->setting_option_group_map;
 		}
 
-		$map = [];
+		$map    = [];
+		$source = $this->get_settings_map_source();
 
-		if ( class_exists( '\WPGraphQL\Data\DataSource' ) && method_exists( '\WPGraphQL\Data\DataSource', 'get_allowed_settings_by_group' ) ) {
-			foreach ( \WPGraphQL\Data\DataSource::get_allowed_settings_by_group() as $group_key => $settings ) {
-				foreach ( $settings as $option_key => $setting ) {
-					$map[ (string) $option_key ] = [
-						'group'     => (string) $group_key,
-						'purge_all' => ! empty( $setting['graphql_purge_all'] ),
-					];
+		if ( self::can_read_settings_map_without_schema( $source ) ) {
+			try {
+				$read_map = [ $source, 'get_allowed_settings_by_group' ];
+				$groups   = is_callable( $read_map ) ? call_user_func( $read_map ) : [];
+				foreach ( is_array( $groups ) ? $groups : [] as $group_key => $settings ) {
+					foreach ( is_array( $settings ) ? $settings : [] as $option_key => $setting ) {
+						$map[ (string) $option_key ] = [
+							'group'     => (string) $group_key,
+							'purge_all' => is_array( $setting ) && ! empty( $setting['graphql_purge_all'] ),
+						];
+					}
+				}
+			} catch ( \Throwable $e ) {
+				$map = [];
+				if ( function_exists( 'graphql_debug' ) ) {
+					graphql_debug( sprintf( 'Smart Cache could not read the settings map for settings invalidation: %s', $e->getMessage() ) );
 				}
 			}
 		}
@@ -1268,5 +1283,38 @@ class Invalidation {
 		$this->setting_option_group_map = $map;
 
 		return $map;
+	}
+
+	/**
+	 * The class that provides core's normalized settings map.
+	 *
+	 * @return string
+	 */
+	protected function get_settings_map_source(): string {
+		return \WPGraphQL\Data\DataSource::class;
+	}
+
+	/**
+	 * Whether a class exposes the normalized settings map in a form that can be
+	 * read without a built schema: a public static `get_allowed_settings_by_group()`
+	 * that requires no arguments. Core 2.18.0 made its TypeRegistry argument
+	 * optional; earlier releases require it.
+	 *
+	 * @param string $source Fully qualified class name.
+	 *
+	 * @return bool
+	 */
+	public static function can_read_settings_map_without_schema( string $source ): bool {
+		if ( ! class_exists( $source ) || ! method_exists( $source, 'get_allowed_settings_by_group' ) ) {
+			return false;
+		}
+
+		try {
+			$method = new \ReflectionMethod( $source, 'get_allowed_settings_by_group' );
+		} catch ( \ReflectionException $e ) {
+			return false;
+		}
+
+		return $method->isPublic() && $method->isStatic() && 0 === $method->getNumberOfRequiredParameters();
 	}
 }

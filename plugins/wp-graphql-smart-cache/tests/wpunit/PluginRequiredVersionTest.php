@@ -8,13 +8,15 @@
 namespace WPGraphQL\SmartCache;
 
 /**
- * Regression test for wp-graphql/wp-graphql#4297.
+ * The minimum WPGraphQL version is declared twice: in the "Requires WPGraphQL"
+ * plugin header, which WordPress reads for its dependency checks, and in the
+ * WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION constant that
+ * can_load_plugin() uses at runtime. The header said 2.0.0 while the constant had
+ * drifted to 1.12.0, so can_load_plugin() let WPGraphQL 1.x through without the
+ * admin notice.
  *
- * The plugin header and readme.txt declare "Requires WPGraphQL: 2.0.0", but the runtime
- * compatibility gate (WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION) had drifted and
- * stayed hardcoded at an older floor. A site running a WPGraphQL core version between the two
- * numbers passed can_load_plugin() and never saw the "please update WPGraphQL" admin notice,
- * so the plugin fully initialized against a core it wasn't actually compatible with and fataled.
+ * The fatal reported in wp-graphql/wp-graphql#4297 is covered separately by
+ * SettingsCacheInvalidationTest.
  */
 class PluginRequiredVersionTest extends \Codeception\TestCase\WPTestCase {
 
@@ -26,14 +28,14 @@ class PluginRequiredVersionTest extends \Codeception\TestCase\WPTestCase {
 		$plugin_file = WPGRAPHQL_SMART_CACHE_PLUGIN_DIR . 'wp-graphql-smart-cache.php';
 		$this->assertFileExists( $plugin_file );
 
-		$contents = (string) file_get_contents( $plugin_file );
-		$matched  = preg_match( '/Requires WPGraphQL:\s*([0-9.]+)/', $contents, $matches );
-		$this->assertSame( 1, $matched, 'Plugin file must declare a "Requires WPGraphQL" header.' );
+		// Parse the header the same way WordPress does when it checks plugin dependencies.
+		$headers = get_file_data( $plugin_file, [ 'RequiresWPGraphQL' => 'Requires WPGraphQL' ] );
+		$this->assertNotEmpty( $headers['RequiresWPGraphQL'], 'Plugin file must declare a "Requires WPGraphQL" header.' );
 
 		$this->assertSame(
-			$matches[1],
+			$headers['RequiresWPGraphQL'],
 			WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION,
-			'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION must match the "Requires WPGraphQL" header (wp-graphql/wp-graphql#4297).'
+			'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION must match the "Requires WPGraphQL" header.'
 		);
 	}
 
