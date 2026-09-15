@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.23.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.3...wp-graphql/v2.23.0) (2026-09-15)
+
+
+### New Features
+
+* **deps:** bump @wordpress/components from 38.0.0 to 39.0.0 ([#4330](https://github.com/wp-graphql/wp-graphql/issues/4330)) ([2aaa199](https://github.com/wp-graphql/wp-graphql/commit/2aaa199983b0f488463e2efb300375bedb2da2c2))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 11 updates ([#4294](https://github.com/wp-graphql/wp-graphql/issues/4294)) ([8914700](https://github.com/wp-graphql/wp-graphql/commit/89147006c2414064babe4b3cb6fc516a156b410f))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/jest-preset-default from 13.0.0 to 14.0.0 ([#4328](https://github.com/wp-graphql/wp-graphql/issues/4328)) ([985165e](https://github.com/wp-graphql/wp-graphql/commit/985165e0c154f4f081d57d2e9c52a68865ae356c))
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql ([#4282](https://github.com/wp-graphql/wp-graphql/issues/4282)) ([318af34](https://github.com/wp-graphql/wp-graphql/commit/318af345c706abbcd22f211484867369a36f3bc8))
+* **deps-dev:** bump phpstan/phpstan from 2.2.10 to 2.2.13 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4323](https://github.com/wp-graphql/wp-graphql/issues/4323)) ([a27785a](https://github.com/wp-graphql/wp-graphql/commit/a27785a31b3c8a7b981c3705ebea6bef923d9df4))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290)) ([d21aca0](https://github.com/wp-graphql/wp-graphql/commit/d21aca07636defbfded795eb3705d6f5355f4eb3))
+* **deps-dev:** bump the npm-dev-minor-patch group with 4 updates ([#4326](https://github.com/wp-graphql/wp-graphql/issues/4326)) ([ff11f87](https://github.com/wp-graphql/wp-graphql/commit/ff11f87c90539a915500387fa5027a6276700782))
+* extensions page detects installed plugins by file and restores the card grid on WordPress 7 ([#4302](https://github.com/wp-graphql/wp-graphql/issues/4302)) ([417378d](https://github.com/wp-graphql/wp-graphql/commit/417378dc59c70069fdc98950e2547fc200e753ab))
+
 ## [2.22.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.2...wp-graphql/v2.22.3) (2026-09-08)
 
 
