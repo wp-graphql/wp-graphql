@@ -211,11 +211,75 @@ class UtilsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'post_content' => 'Updated Content for Revision',
 			]
 		);
-		$revision_id = wp_save_post_revision( $post_id );
 
-		if ( is_int( $revision_id ) ) {
-			$this->assertSame( $revision_id, \WPGraphQL\Utils\Utils::get_post_preview_id( $post_id ) );
-			$this->assertSame( $revision_id, \WPGraphQL\Utils\Utils::get_post_preview_id( get_post( $post_id ) ) );
-		}
+		$preview_id = \WPGraphQL\Utils\Utils::get_post_preview_id( $post_id );
+		$this->assertNotSame( $post_id, $preview_id );
+		$this->assertSame( $post_id, wp_is_post_revision( $preview_id ) );
+		$this->assertSame( $preview_id, \WPGraphQL\Utils\Utils::get_post_preview_id( get_post( $post_id ) ) );
+	}
+
+	/**
+	 * Tests get_database_id_from_id resolves database ID from numeric IDs and Relay global IDs.
+	 */
+	public function testGetDatabaseIdFromId() {
+		// Numeric integers return as integers.
+		$this->assertSame( 123, \WPGraphQL\Utils\Utils::get_database_id_from_id( 123 ) );
+
+		// Numeric string returns as integer.
+		$this->assertSame( 456, \WPGraphQL\Utils\Utils::get_database_id_from_id( '456' ) );
+
+		// Relay global ID returns the decoded database ID.
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', 789 );
+		$this->assertSame( 789, \WPGraphQL\Utils\Utils::get_database_id_from_id( $global_id ) );
+
+		// Invalid Relay global ID returns false.
+		$this->assertFalse( \WPGraphQL\Utils\Utils::get_database_id_from_id( 'invalid_global_id' ) );
+
+		// Relay global ID with non-numeric ID returns false.
+		$non_numeric_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', 'not-a-number' );
+		$this->assertFalse( \WPGraphQL\Utils\Utils::get_database_id_from_id( $non_numeric_global_id ) );
+	}
+
+	/**
+	 * Tests map_input maps input argument keys, handles skip lists, and sanitizes strings.
+	 */
+	public function testMapInput() {
+		// Non-array input returns an empty array.
+		$this->assertSame( [], \WPGraphQL\Utils\Utils::map_input( 'not-an-array', [] ) );
+		$this->assertSame( [], \WPGraphQL\Utils\Utils::map_input( [], 'not-an-array' ) );
+
+		// Maps keys according to the mapping array.
+		$args     = [
+			'author'   => 1,
+			'category' => 'news',
+			'tag'      => 'featured',
+		];
+		$map      = [
+			'author'   => 'author_id',
+			'category' => 'category_name',
+		];
+		$expected = [
+			'author_id'     => 1,
+			'category_name' => 'news',
+			'tag'           => 'featured',
+		];
+		$this->assertSame( $expected, \WPGraphQL\Utils\Utils::map_input( $args, $map ) );
+
+		// Skips keys specified in the $skip parameter.
+		$skip               = [ 'tag' ];
+		$expected_with_skip = [
+			'author_id'     => 1,
+			'category_name' => 'news',
+		];
+		$this->assertSame( $expected_with_skip, \WPGraphQL\Utils\Utils::map_input( $args, $map, $skip ) );
+
+		// Sanitizes string values and array of string values via sanitize_text_field.
+		$dirty_args = [
+			'title' => 'Hello <b>World</b>',
+			'tags'  => [ 'tag1<script>', 'tag2 ' ],
+		];
+		$sanitized  = \WPGraphQL\Utils\Utils::map_input( $dirty_args, [] );
+		$this->assertSame( 'Hello World', $sanitized['title'] );
+		$this->assertSame( [ 'tag1', 'tag2' ], $sanitized['tags'] );
 	}
 }
