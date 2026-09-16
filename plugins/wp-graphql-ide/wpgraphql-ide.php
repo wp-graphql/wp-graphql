@@ -122,7 +122,6 @@ function initialize_plugin() {
 
 	add_action( 'graphql_register_settings', [ \WPGraphQLIDE\SettingsPage::class, 'register' ] );
 	add_action( 'graphql_admin_notices_render_notices', [ \WPGraphQLIDE\AdminUI::class, 'graphql_admin_notices_render_notices' ], 10, 1 );
-	add_action( 'graphql_admin_notices_render_notice', [ \WPGraphQLIDE\AdminUI::class, 'graphql_admin_notices_render_notice' ], 10, 4 );
 
 	add_filter( 'graphql_admin_notices_is_allowed_admin_page', [ \WPGraphQLIDE\AdminUI::class, 'graphql_admin_notices_is_allowed_admin_page' ], 10, 3 );
 	add_filter( 'script_loader_tag', [ \WPGraphQLIDE\AssetEnqueue::class, 'defer_script_attribute' ], 10, 2 );
