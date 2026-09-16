@@ -13,7 +13,7 @@
  * WPGraphQL Tested Up To: 2.0.0
  * Text Domain: wp-graphql-smart-cache
  * Domain Path: /languages
- * Version: 2.3.1
+ * Version: 2.3.2
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -31,6 +31,7 @@ use WPGraphQL\SmartCache\Admin\Settings;
 use WPGraphQL\SmartCache\Document\Description;
 use WPGraphQL\SmartCache\Document\Grant;
 use WPGraphQL\SmartCache\Document\Group;
+use WPGraphQL\SmartCache\Document\Audit;
 use WPGraphQL\SmartCache\Document\MaxAge;
 use WPGraphQL\SmartCache\Document\Loader;
 use WPGraphQL\SmartCache\Document\GarbageCollection;
@@ -48,11 +49,11 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_VERSION' ) ) {
-	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.3.1' );
+	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.3.2' );
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
-	define( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION', '1.12.0' );
+	define( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION', '2.0.0' );
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_PLUGIN_DIR' ) ) {
@@ -101,6 +102,13 @@ function can_load_plugin() {
 add_action(
 	'graphql_server_config',
 	function ( \GraphQL\Server\ServerConfig $config ) {
+		// When the plugin can't load, its documents are never registered, so leave
+		// graphql-php's default in place: clients get "persisted queries are not
+		// supported" instead of a misleading "not found" for every persisted query.
+		if ( false === can_load_plugin() ) {
+			return;
+		}
+
 		$config->setPersistedQueryLoader(
 			function ( string $queryId, \GraphQL\Server\OperationParams $params ) {
 				return Loader::by_query_id( $queryId, (array) $params );
@@ -140,6 +148,9 @@ add_action(
 
 		$doc_group = new Group();
 		$doc_group->init();
+
+		$audit = new Audit();
+		$audit->init();
 
 		$errors = new AdminErrors();
 		$errors->init();

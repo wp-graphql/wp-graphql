@@ -141,7 +141,8 @@ class CachedQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		// Create/save persisted query for the query and query id
 		$saved_query = new Document();
-		$saved_query->save( $query_id, $query );
+		$post_id     = $saved_query->save( hash( 'sha256', $query ), $query );
+		wp_add_object_terms( $post_id, $query_id, Document::ALIAS_TAXONOMY_NAME );
 
 		$results_object = new Results();
 		$key = $results_object->the_results_key( $query_id, null );

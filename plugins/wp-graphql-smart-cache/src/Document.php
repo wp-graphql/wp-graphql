@@ -19,11 +19,32 @@ class Document {
 	const GRAPHQL_NAME        = 'graphqlDocument';
 
 	/**
+	 * Meta key recording how a document came to be stored. Documents registered by
+	 * the automatic persisted query request path carry SOURCE_AUTOMATIC so they can
+	 * be told apart from documents an authorized user created deliberately.
+	 */
+	const SOURCE_META_KEY  = '_graphql_document_source';
+	const SOURCE_AUTOMATIC = 'automatic';
+
+	/**
+	 * Documents verified on the current request that are waiting to be persisted.
+	 *
+	 * The automatic persisted query path verifies the queryId against the query
+	 * before execution, serves the document from this buffer while the request
+	 * executes, and only writes it to the database after the request passed
+	 * validation. Keyed by queryId.
+	 *
+	 * @var array<string,array{raw:string,normalized:string,normalized_hash:string}>
+	 */
+	private static $pending_documents = [];
+
+	/**
 	 * @return void
 	 */
 	public function init() {
 		add_filter( 'graphql_request_data', [ $this, 'graphql_query_contains_query_id_cb' ], 10, 2 );
 		add_filter( 'graphql_execute_query_params', [ $this, 'graphql_execute_query_params_cb' ], 10, 2 );
+		add_action( 'graphql_return_response', [ $this, 'persist_pending_document_cb' ], 10, 8 );
 
 		add_action( 'post_updated', [ $this, 'after_updated_cb' ], 10, 3 );
 
@@ -49,7 +70,10 @@ class Document {
 				],
 				'public'              => false,
 				'publicly_queryable'  => false,
-				'show_ui'             => Settings::show_in_admin(),
+				// The list screen is always reachable by direct link so the audit panel and
+				// notice can point at it; the menu entry stays behind the display setting.
+				'show_ui'             => true,
+				'show_in_menu'        => Settings::show_in_admin(),
 				'taxonomies'          => [
 					self::ALIAS_TAXONOMY_NAME,
 				],
@@ -210,7 +234,11 @@ class Document {
 
 	/**
 	 * Process request looking for when queryid and query are present.
-	 * Save the query and remove it from the request.
+	 *
+	 * The queryId must be the hash of the query it accompanies. A matching pair is
+	 * buffered and served to the persisted query loader for this request; it is
+	 * written to the database by persist_pending_document_cb() only after the
+	 * request passed validation. Alias names are never claimed on this path.
 	 *
 	 * @param  array $parsed_body_params Request parameters.
 	 * @param  array $request_context An array containing both body and query params.
@@ -219,17 +247,34 @@ class Document {
 	 * @throws RequestError
 	 */
 	public function graphql_query_contains_query_id_cb( $parsed_body_params, $request_context ) {
+		// This filter runs once per HTTP request; never carry a buffered document across requests.
+		self::$pending_documents = [];
 
 		// Normalize keys to handle both `queryId` and `queryid`.
 		$query_id_key = isset( $parsed_body_params['queryId'] ) ? 'queryId' : ( isset( $parsed_body_params['queryid'] ) ? 'queryid' : null );
 
 		// If both query and queryId/queryid are set
 		if ( ! empty( $parsed_body_params['query'] ) && ! empty( $query_id_key ) ) {
-			// Save the query
-			$this->save( $parsed_body_params[ $query_id_key ], $parsed_body_params['query'] );
+			$query_id = $parsed_body_params[ $query_id_key ];
+			$query    = $parsed_body_params['query'];
 
-			// Remove it from processed body params so graphql-php operation proceeds without conflict.
-			unset( $parsed_body_params['query'] );
+			if ( is_string( $query_id ) && is_string( $query ) ) {
+				// Throws when the queryId is neither a hash of this query nor an alias
+				// an authorized user assigned to this exact document.
+				$resolved = $this->resolve_query_id( $query_id, $query );
+
+				if ( ! $resolved['post'] ) {
+					// Serve the verified document for this request; persist after validation.
+					self::$pending_documents[ $query_id ] = [
+						'raw'             => $query,
+						'normalized'      => $resolved['normalized'],
+						'normalized_hash' => $resolved['normalized_hash'],
+					];
+				}
+
+				// Remove it from processed body params so graphql-php operation proceeds without conflict.
+				unset( $parsed_body_params['query'] );
+			}
 		}
 
 		// If the query is empty, but queryId/queryid is set
@@ -243,6 +288,118 @@ class Document {
 		}
 
 		return $parsed_body_params;
+	}
+
+	/**
+	 * Persist a document buffered by graphql_query_contains_query_id_cb() once the
+	 * request that carried it has executed, and only when it passed validation.
+	 *
+	 * A response without a `data` member means graphql-php stopped at parsing or
+	 * validation (including the allow/deny document rule), so nothing is stored.
+	 * Resolver-level errors leave `data` in place and do not block persistence:
+	 * the document is bound to its hash, so storing it grants nothing.
+	 *
+	 * @param mixed                            $filtered_response The filtered response for the GraphQL request.
+	 * @param mixed                            $response          The response for the GraphQL request.
+	 * @param \WPGraphQL\WPSchema              $schema            The schema object for the root request.
+	 * @param ?string                          $operation         The name of the operation.
+	 * @param ?string                          $query             The query that GraphQL executed.
+	 * @param ?array<string,mixed>             $variables         Variables passed to the GraphQL query.
+	 * @param \WPGraphQL\Request               $request           Instance of the Request.
+	 * @param ?string                          $query_id          The query id that GraphQL executed.
+	 *
+	 * @return void
+	 */
+	public function persist_pending_document_cb( $filtered_response, $response, $schema, $operation, $query, $variables, $request, $query_id ) {
+		if ( empty( self::$pending_documents ) ) {
+			return;
+		}
+
+		// The request may reach this point either by queryId (graphql-php loaded the
+		// document) or with the buffered document re-inserted as the query string, so
+		// match on whichever of the two identifies the pending entry.
+		$query_hash = is_string( $query ) && '' !== $query ? Utils::getHashFromFormattedString( $query ) : null;
+		$matched_id = null;
+		foreach ( self::$pending_documents as $pending_id => $pending ) {
+			if ( $pending_id === $query_id || $pending['normalized_hash'] === $query_hash ) {
+				$matched_id = $pending_id;
+				break;
+			}
+		}
+
+		if ( null === $matched_id ) {
+			return;
+		}
+
+		$pending = self::$pending_documents[ $matched_id ];
+		unset( self::$pending_documents[ $matched_id ] );
+
+		if ( is_array( $response ) ) {
+			$passed_validation = array_key_exists( 'data', $response );
+		} elseif ( is_object( $response ) ) {
+			$passed_validation = isset( $response->data );
+		} else {
+			$passed_validation = false;
+		}
+
+		if ( ! $passed_validation ) {
+			return;
+		}
+
+		try {
+			$this->save( $matched_id, $pending['raw'] );
+		} catch ( \Throwable $e ) {
+			// The request already executed; a failed write must not turn a successful response into an error.
+			graphql_debug( sprintf( 'Persisted query document could not be saved: %s', $e->getMessage() ), [ 'queryId' => $matched_id ] );
+		}
+	}
+
+	/**
+	 * Resolve what a queryId means for the query that accompanies it.
+	 *
+	 * Accepted: the SHA-256 hash of the raw query string (how Apollo-style clients
+	 * derive it), the SHA-256 hash of the normalized document, or an alias an
+	 * authorized user already assigned to this exact document.
+	 *
+	 * @param string $query_id The queryId sent with the request.
+	 * @param string $query    The raw query string.
+	 *
+	 * @return array{ast: \GraphQL\Language\AST\DocumentNode, normalized: string, normalized_hash: string, is_hash: bool, post: \WP_Post|false}
+	 * @throws RequestError When the queryId is not a hash of the query and not an existing alias for this document.
+	 * @throws \GraphQL\Error\SyntaxError When the query cannot be parsed.
+	 */
+	private function resolve_query_id( $query_id, $query ) {
+		$ast             = \GraphQL\Language\Parser::parse( $query );
+		$normalized      = \GraphQL\Language\Printer::doPrint( $ast );
+		$normalized_hash = Utils::getHashFromFormattedString( $normalized );
+		$raw_hash        = Utils::getHashFromFormattedString( $query );
+		$is_hash         = in_array( $query_id, [ $normalized_hash, $raw_hash ], true );
+
+		// If queryId alias name is already in the system and doesn't match the query hash
+		$post = Utils::getPostByTermName( $query_id, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
+		if ( $post && $post->post_name !== $normalized_hash ) {
+			// translators: existing query title
+			throw new RequestError( sprintf( __( 'This queryId has already been associated with another query "%s"', 'wp-graphql-smart-cache' ), $post->post_title ) );
+		}
+
+		if ( ! $is_hash && ! $post ) {
+			throw new RequestError( self::queryIdMismatchMessage() );
+		}
+
+		return [
+			'ast'             => $ast,
+			'normalized'      => $normalized,
+			'normalized_hash' => $normalized_hash,
+			'is_hash'         => $is_hash,
+			'post'            => $post,
+		];
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function queryIdMismatchMessage() {
+		return __( 'The provided queryId does not match the query hash. Alias names for saved GraphQL Documents can only be assigned by an authorized user.', 'wp-graphql-smart-cache' );
 	}
 
 	/**
@@ -417,6 +574,11 @@ class Document {
 	 * @return string|null
 	 */
 	public function get( $query_id ) {
+		if ( isset( self::$pending_documents[ $query_id ] ) ) {
+			// Verified on this request, not yet written. Return it in stored (normalized) form.
+			return self::$pending_documents[ $query_id ]['normalized'];
+		}
+
 		$post = Utils::getPostByTermName( $query_id, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
 		if ( false === $post || empty( $post->post_content ) ) {
 			return null;
@@ -426,27 +588,30 @@ class Document {
 	}
 
 	/**
-	 * Save a query by query ID (hash) or alias/alternate name
+	 * Save a query document identified by the hash of its query string.
 	 *
-	 * @param string $query_id Query string str256 hash
+	 * The query ID must be the SHA-256 hash of the query, either of the raw string
+	 * or of the normalized document. Alias names cannot be claimed here; they are
+	 * assigned by authorized users through the admin editor or the graphqlDocument
+	 * mutations. Passing an alias that such a user already assigned to this exact
+	 * document returns that document without writing anything.
+	 *
+	 * @param string $query_id Query string sha256 hash
 	 * @param string $query  The graphql query string.
 	 *
-	 * @throws RequestError
+	 * @throws RequestError When the query ID is not a hash of the query, or is bound to a different document.
 	 *
 	 * @return int post id
 	 */
 	public function save( $query_id, $query ) {
-		// Get post using the normalized hash of the query string
-		$ast             = \GraphQL\Language\Parser::parse( $query );
-		$query           = \GraphQL\Language\Printer::doPrint( $ast );
-		$normalized_hash = Utils::getHashFromFormattedString( $query );
-
-		// If queryId alias name is already in the system and doesn't match the query hash
-		$post = Utils::getPostByTermName( $query_id, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
-		if ( $post && $post->post_name !== $normalized_hash ) {
-			// translators: existing query title
-			throw new RequestError( sprintf( __( 'This queryId has already been associated with another query "%s"', 'wp-graphql-smart-cache' ), $post->post_title ) );
+		$resolved = $this->resolve_query_id( $query_id, $query );
+		if ( $resolved['post'] ) {
+			return $resolved['post']->ID;
 		}
+
+		$ast             = $resolved['ast'];
+		$query           = $resolved['normalized'];
+		$normalized_hash = $resolved['normalized_hash'];
 
 		// If the normalized query is associated with a saved document
 		$post = Utils::getPostByTermName( $normalized_hash, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
@@ -475,6 +640,10 @@ class Document {
 			if ( is_wp_error( $post_id ) ) {
 				throw new RequestError( sprintf( __( 'Error save the document data for "%s"', 'wp-graphql-smart-cache' ), $normalized_hash ) );
 			}
+
+			// Record that the automatic path created this document, so it can be audited
+			// apart from documents an authorized user created deliberately.
+			update_post_meta( $post_id, self::SOURCE_META_KEY, self::SOURCE_AUTOMATIC );
 		} elseif ( $query !== $post->post_content ) {
 			// If the hash for the query string loads a post with a different query string,
 			// This means this hash was previously used as an alias for a query

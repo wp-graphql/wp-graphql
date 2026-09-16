@@ -16,7 +16,7 @@ class DocumentCest {
 		$I->wantTo( 'Save a graphql query containing a where clause and double quotes' );
 
 		$query = "{ posts(where: {tag: \"bees\"}) { nodes { id title uri content } } }";
-		$query_alias = 'test-save-query-alias';
+		$query_alias = hash( 'sha256', $query );
 
 		$I->dontSeeTermInDatabase( [ 'name' => 'graphql_query_alias' ] );
 		$I->haveHttpHeader( 'Content-Type', 'application/json' );
@@ -76,33 +76,6 @@ class DocumentCest {
 		$I->seePageNotFound();
 	}
 
-	public function saveQueryWithAliasNameSavesTest( FunctionalTester $I ) {
-		$I->wantTo( 'Save a graphql query with a query id/hash that does not match, saves as alias' );
-
-		$query = "{\n  __typename\n}\n";
-
-		// Make sure query hash we use doesn't match
-		$query_hash = hash( 'sha256', $query );
-		$query_alias = 'test-save-query-creates-alias';
-
-		$I->dontSeeTermInDatabase( [ 'name' => 'graphql_query_alias' ] );
-		$I->haveHttpHeader( 'Content-Type', 'application/json' );
-		$I->sendPost('graphql', json_encode( [
-			'query' => $query,
-			'queryId' => $query_alias
-		] ) );
-		$I->seeResponseContainsJson([
-			'data' => [
-				'__typename' => 'RootQuery'
-			]
-		]);
-		$I->seePostInDatabase( [
-			'post_name' => $query_hash,
-		] );
-		$I->seeTermInDatabase( [ 'name' => $query_hash ] );
-		$I->seeTermInDatabase( [ 'name' => $query_alias ] );
-	}
-
 	public function saveQueryWithInvalidIdFailsTest( FunctionalTester $I ) {
 		$I->wantTo( 'Save a graphql query that is invalid, should return error' );
 
@@ -129,110 +102,49 @@ class DocumentCest {
 	}
 
 	public function saveQueryWithExistingTermForHashTest( FunctionalTester $I ) {
-		$I->wantTo( 'Save a graphql query where the hash for the query exists as a term already' );
+		$I->wantTo( 'Refuse to save a graphql query under a hash that already identifies a different query' );
 
 		$query = "{\n  __typename\n}\n";
 		$query_hash = hash( 'sha256', $query );
 
-		// Save this query with an hash for another valid query as alias
-		$query_for_posts = "
-		{
-			posts {
-			  nodes {
-				id
-			  }
-			}
-		  }
-		";
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
+			'query' => $query,
+			'queryId' => $query_hash
+		] ) );
+		$I->seeResponseContainsJson([
+			'data' => [
+				'__typename' => 'RootQuery'
+			]
+		]);
+		$I->seeTermInDatabase( [ 'name' => $query_hash ] );
+
+		// A different query sent with that hash as its id is refused; the id is not the hash of this query.
+		$query_for_posts = "{ posts { nodes { id } } }";
 		$I->haveHttpHeader( 'Content-Type', 'application/json' );
 		$I->sendPost('graphql', json_encode( [
 			'query' => $query_for_posts,
 			'queryId' => $query_hash
 		] ) );
 		$I->seeResponseContainsJson([
-			'data' => [
-				'posts' => [
-					'nodes' => []
-				]
+			'errors' => [
+				0 => [
+					'message' => 'This queryId has already been associated with another query "A Persisted Query"',
+				],
 			]
 		]);
-		$I->seeTermInDatabase( [ 'name' => $query_hash ] );
+		$I->dontSeePostInDatabase( [
+			'post_type' => 'graphql_document',
+			'post_name' => hash( 'sha256', "{\n  posts {\n    nodes {\n      id\n    }\n  }\n}\n" ),
+		] );
 
-		// Query with this persisted hash works, but not with the query hash we expected.
+		// The original document still executes by its hash.
 		$I->sendGet( 'graphql', [ 'queryId' => $query_hash ] );
 		$I->seeResponseContainsJson( [
 			'data' => [
-				'posts' => [
-					'nodes' => []
-				]
+				'__typename' => 'RootQuery'
 			]
 		]);
-
-		$I->haveHttpHeader( 'Content-Type', 'application/json' );
-		$I->sendPost('graphql', json_encode( [
-			'query' => $query,
-			'queryId' => $query_hash
-		] ) );
-		$I->seeResponseContainsJson([
-			'errors' => [
-				0 => [
-					'message' => 'This queryId has already been associated with another query "A Persisted Query"',
-				],
-			]
-		]);
-	}
-
-	public function saveQueryUsingExistingAliasTest( FunctionalTester $I ) {
-		$I->wantTo( 'Error when save a graphql query using existing query alias' );
-
-		// Set up some content
-		$I->havePostInDatabase( [
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_title'   => 'foo',
-			'post_content' => 'foo bar. biz bang.',
-			'post_name'    => 'foo-slug',
-		] );
-
-		// Save a query with an alias
-		$query = "{ posts { nodes { __typename content } } }";
-		$query_alias = 'query_posts_with_content';
-
-		$I->haveHttpHeader( 'Content-Type', 'application/json' );
-		$I->sendPost('graphql', json_encode( [
-			'query' => $query,
-			'queryId' => $query_alias
-		] ) );
-		$I->seeResponseContainsJson( [
-			'data' => [
-				'posts' => [
-					'nodes' => [
-							'__typename' => 'Post',
-							'content' => "<p>foo bar. biz bang.</p>\n",
-					]
-				]
-			]
-		]);
-		$I->seeTermInDatabase( [ 'name' => $query_alias ] );
-
-		// Save a different query using an alias for the first query with content
-		$query = "{ posts { nodes { slug uri } } }";
-
-		$I->haveHttpHeader( 'Content-Type', 'application/json' );
-		$I->sendPost('graphql', json_encode( [
-			'query' => $query,
-			'queryId' => $query_alias
-		] ) );
-		$I->seeResponseContainsJson([
-			'errors' => [
-				0 => [
-					'message' => 'This queryId has already been associated with another query "A Persisted Query"',
-				],
-			]
-		]);
-
-		// clean up
-		$I->dontHavePostInDatabase( [ 'post_title' => 'foo' ] );
 	}
 
 }

@@ -51,7 +51,9 @@ class MaxAgeZeroTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	private function save_document( string $alias ): int {
 		$document = new Document();
-		$post_id  = $document->save( $alias, sprintf( 'query %s { posts { nodes { id title } } }', $alias ) );
+		$query    = sprintf( 'query %s { posts { nodes { id title } } }', $alias );
+		$post_id  = $document->save( hash( 'sha256', $query ), $query );
+		wp_add_object_terms( $post_id, $alias, Document::ALIAS_TAXONOMY_NAME );
 
 		$this->created_post_ids[] = $post_id;
 

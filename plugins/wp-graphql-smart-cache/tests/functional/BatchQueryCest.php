@@ -9,11 +9,13 @@ class BatchQueryCest {
 		// The uniqid manes it's different between test runs, in case something fails and is stuck in database.
 		$this->query_alias = uniqid( "savedquery_posts_" );
 		$query_string = sprintf( "query %s { posts { nodes { id title } } }", $this->query_alias );
+		// Automatic persisted query registration only accepts the hash of the query as its id.
+		$this->query_id = hash( 'sha256', $query_string );
 
 		$I->haveHttpHeader( 'Content-Type', 'application/json' );
 		$I->sendPost('graphql', json_encode( [
 			'query' => $query_string,
-			'queryId' =>$this->query_alias
+			'queryId' => $this->query_id
 		] ) );
 
 		// Create a published post for our queries
@@ -47,7 +49,7 @@ class BatchQueryCest {
 
 		// Initial queries should not come from cache.
 		// Use individual queries here as an example that they are the same as when batched.
-		$I->sendGet('graphql', [ 'queryId' => $this->query_alias ] );
+		$I->sendGet('graphql', [ 'queryId' => $this->query_id ] );
 		$I->seeResponseContainsJson( [
 			'extensions' => [
 				'graphqlSmartCache' => [
@@ -67,7 +69,7 @@ class BatchQueryCest {
 		// Batch queries, reusing query id to prove caching works
 		$query = 
 			[
-				[	"queryId" => $this->query_alias ],
+				[	"queryId" => $this->query_id ],
 				[	"query" => $query_string ],
 			]
 		;

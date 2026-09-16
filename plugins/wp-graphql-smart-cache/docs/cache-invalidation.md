@@ -111,6 +111,10 @@ touched it.
   (`wp option update`), and the `updateSettings` GraphQL mutation alike.
 - **Unmapped options and transients are ignored.** Only options that map to an
   exposed setting are tracked; transient writes never purge.
+- **Requires WPGraphQL 2.18.0 or later.** Earlier WPGraphQL releases can't list
+  the exposed settings without building the whole schema, which would be too slow
+  to do on every option write. On those versions a settings change purges nothing,
+  and cached queries that read settings expire on their normal schedule.
 
 Sites can escalate additional raw option keys to a full purge (for options that
 are not registered settings, such as `gmt_offset`) with the

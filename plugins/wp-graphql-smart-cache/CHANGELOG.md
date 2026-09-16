@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.3.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.1...wp-graphql-smart-cache/v2.3.2) (2026-09-15)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4197](https://github.com/wp-graphql/wp-graphql/issues/4197)) ([b62cf1b](https://github.com/wp-graphql/wp-graphql/commit/b62cf1b54a0151806c347ff29144e59fb0051ddf))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4241](https://github.com/wp-graphql/wp-graphql/issues/4241)) ([d85beb4](https://github.com/wp-graphql/wp-graphql/commit/d85beb4c2076c72330a0dbf4ca8a0d7bb77a0772))
+* **smart-cache:** allow a max-age of 0 on saved documents ([#4319](https://github.com/wp-graphql/wp-graphql/issues/4319)) ([99bfefa](https://github.com/wp-graphql/wp-graphql/commit/99bfefa4f74cdc603d06a6bc2f37c7347dda8eaa))
+* **smart-cache:** prevent a fatal error on option updates when WPGraphQL core is older than 2.18.0 ([#4333](https://github.com/wp-graphql/wp-graphql/issues/4333)) ([e6c32ef](https://github.com/wp-graphql/wp-graphql/commit/e6c32efdfe4e941297ffb90adb99033a0918bec7))
+* **smart-cache:** require persisted query ids to match the query hash and add an audit of stored documents (GHSA-r844-6gqh-59qj) ([#4332](https://github.com/wp-graphql/wp-graphql/issues/4332)) ([2a21127](https://github.com/wp-graphql/wp-graphql/commit/2a21127b4d4097123f2e72038368d6b7aa370b93))
+
 ## [2.3.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.0...wp-graphql-smart-cache/v2.3.1) (2026-08-18)
 
 
