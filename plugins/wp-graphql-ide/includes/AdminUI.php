@@ -186,22 +186,45 @@ class AdminUI {
 	}
 
 	/**
-	 * Adds styles to hide generic admin notices on the GraphQL IDE page.
+	 * Adds styles that show WPGraphQL admin notices above the IDE on the dedicated IDE page.
+	 *
+	 * The page becomes a column: notices keep their natural height and the IDE fills the rest of
+	 * the screen, so notices of any length never cover the IDE.
 	 *
 	 * @param array<int, mixed> $notices The array of notices to render.
 	 */
 	public static function graphql_admin_notices_render_notices( array $notices ): void {
+		unset( $notices );
+
 		$custom_css = '
-			body.graphql_page_graphql-ide #wpbody .wpgraphql-admin-notice {
-				display: block;
-				position: absolute;
-				top: 0;
-				right: 0;
-				z-index: 1;
-				min-width: 40%;
+			body.graphql_page_graphql-ide #wpbody-content {
+				display: flex;
+				flex-direction: column;
+				height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+				overflow: hidden;
 			}
-			body.graphql_page_graphql-ide #wpgraphql-ide-root {
-				height: calc(100vh - var(--wp-admin--admin-bar--height) - ' . count( $notices ) * 45 . 'px);
+			body.graphql_page_graphql-ide #wpbody #wpbody-content .wpgraphql-admin-notice {
+				display: block;
+				flex: none;
+			}
+			body.graphql_page_graphql-ide #wpbody-content #wpgraphql-ide-root {
+				display: flex;
+				flex: 1;
+				flex-direction: column;
+				min-height: 0;
+				height: auto;
+			}
+			body.graphql_page_graphql-ide #wpbody-content .wpgraphql-ide-shell {
+				display: flex;
+				flex: 1;
+				flex-direction: column;
+				min-height: 0;
+				height: auto;
+			}
+			body.graphql_page_graphql-ide #wpbody-content #wpgraphql-ide-app {
+				flex: 1;
+				min-height: 0;
+				height: auto;
 			}
 		';
 
@@ -209,29 +232,6 @@ class AdminUI {
 		wp_register_style( 'wpgraphql-ide-admin-notices', false );
 		wp_enqueue_style( 'wpgraphql-ide-admin-notices' );
 		wp_add_inline_style( 'wpgraphql-ide-admin-notices', wp_kses_post( $custom_css ) );
-	}
-
-	/**
-	 * Adds styles to apply top margin to notices added via register_graphql_admin_notice.
-	 *
-	 * @param string               $notice_slug    The slug of the notice.
-	 * @param array<string, mixed> $notice         The notice data.
-	 * @param bool                 $is_dismissable Whether the notice is dismissable.
-	 * @param int                  $count          The count of notices.
-	 */
-	public static function graphql_admin_notices_render_notice( string $notice_slug, array $notice, bool $is_dismissable, int $count ): void {
-		unset( $notice, $is_dismissable );
-
-		$custom_css = '
-			body.graphql_page_graphql-ide #wpbody #wpgraphql-admin-notice-' . esc_attr( $notice_slug ) . ' {
-				top: ' . esc_attr( ( $count * 45 ) . 'px' ) . ';
-			}
-		';
-
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-		wp_register_style( 'wpgraphql-ide-admin-notice', false );
-		wp_enqueue_style( 'wpgraphql-ide-admin-notice' );
-		wp_add_inline_style( 'wpgraphql-ide-admin-notice', $custom_css );
 	}
 
 	/**
