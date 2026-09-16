@@ -87,4 +87,34 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$notices = $adminNotices->get_admin_notices();
 		$this->assertArrayNotHasKey( $slug, $notices );
 	}
+
+	/**
+	 * Test which admin screens display notices.
+	 */
+	public function testNoticesDisplayOnWpgraphqlScreens(): void {
+		$admin_notices = AdminNotices::get_instance();
+		$admin_notices->add_admin_notice( 'test-screen-notice', [ 'message' => 'Test screen notice' ] );
+
+		$screens = [
+			'plugins'                           => true,
+			'graphql_page_graphql-settings'     => true,
+			'toplevel_page_graphql-settings'    => true,
+			'graphql_page_wpgraphql-extensions' => true,
+			'dashboard'                         => false,
+		];
+
+		foreach ( $screens as $screen_id => $should_display ) {
+			set_current_screen( $screen_id );
+
+			ob_start();
+			$admin_notices->maybe_display_notices();
+			$output = (string) ob_get_clean();
+
+			$is_displayed = false !== strpos( $output, 'Test screen notice' );
+			$this->assertSame( $should_display, $is_displayed, $screen_id );
+		}
+
+		$admin_notices->remove_admin_notice( 'test-screen-notice' );
+		set_current_screen( 'front' );
+	}
 }
