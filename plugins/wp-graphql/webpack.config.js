@@ -65,6 +65,11 @@ module.exports = {
 			'packages/extensions',
 			'index.js'
 		),
+		setupWizard: path.resolve(
+			process.cwd(),
+			'packages/setup-wizard',
+			'index.js'
+		),
 		updates: path.resolve(process.cwd(), 'packages/updates', 'index.scss'),
 	},
 	plugins: [

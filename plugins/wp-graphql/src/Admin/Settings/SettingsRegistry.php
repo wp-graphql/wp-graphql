@@ -60,6 +60,46 @@ class SettingsRegistry {
 	}
 
 	/**
+	 * Returns the fields that only apply while a checkbox field in the same section is on.
+	 *
+	 * A field declares this with the `depends_on` key of its config, set to the name of the checkbox
+	 * field. Declarations that don't name a checkbox field in the same section are left out.
+	 *
+	 * @return array<int,array{section:string,name:string,dependsOn:string}>
+	 */
+	public function get_field_dependencies(): array {
+		$dependencies = [];
+
+		foreach ( $this->settings_fields as $section => $fields ) {
+			$checkbox_names = [];
+
+			foreach ( $fields as $field ) {
+				if ( isset( $field['type'], $field['name'] ) && 'checkbox' === $field['type'] ) {
+					$checkbox_names[] = $field['name'];
+				}
+			}
+
+			foreach ( $fields as $field ) {
+				if ( empty( $field['depends_on'] ) || ! is_string( $field['depends_on'] ) || ! isset( $field['name'] ) ) {
+					continue;
+				}
+
+				if ( $field['depends_on'] === $field['name'] || ! in_array( $field['depends_on'], $checkbox_names, true ) ) {
+					continue;
+				}
+
+				$dependencies[] = [
+					'section'   => (string) $section,
+					'name'      => (string) $field['name'],
+					'dependsOn' => $field['depends_on'],
+				];
+			}
+		}
+
+		return $dependencies;
+	}
+
+	/**
 	 * Enqueue scripts and styles
 	 *
 	 * @param string $hook_suffix The current admin page.
@@ -774,6 +814,25 @@ class SettingsRegistry {
 			jQuery(document).ready(function ($) {
 				// Initiate Color Picker
 				$('.wp-color-picker-field').wpColorPicker();
+
+				// Show fields that depend on a checkbox only while that checkbox is checked. Hidden fields
+				// stay in the form, so their saved values are kept.
+				var fieldDependencies = <?php echo wp_json_encode( $this->get_field_dependencies(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
+				$.each(fieldDependencies, function (index, dependency) {
+					var $checkbox = $('input[type="checkbox"][name="' + dependency.section + '[' + dependency.dependsOn + ']"]');
+					var $row = $('[name="' + dependency.section + '[' + dependency.name + ']"]').first().closest('tr');
+
+					if (!$checkbox.length || !$row.length) {
+						return;
+					}
+
+					var toggleRow = function () {
+						$row.toggle($checkbox.is(':checked'));
+					};
+
+					$checkbox.on('change', toggleRow);
+					toggleRow();
+				});
 
 				// Switches option sections
 				$('.group').hide();

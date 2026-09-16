@@ -301,6 +301,73 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that field dependencies only name checkbox fields in the same section
+	 */
+	public function testFieldDependenciesOnlyNameCheckboxesInTheSameSection() {
+		$this->settings->register_settings();
+
+		$registry = $this->settings->settings_api;
+		$registry->register_section( 'graphql_dependency_test_settings', [ 'title' => 'Dependency Test' ] );
+		$registry->register_fields(
+			'graphql_dependency_test_settings',
+			[
+				[
+					'name' => 'parent_toggle',
+					'type' => 'checkbox',
+				],
+				[
+					'name'       => 'child_number',
+					'type'       => 'number',
+					'depends_on' => 'parent_toggle',
+				],
+				[
+					'name' => 'parent_text',
+					'type' => 'text',
+				],
+				[
+					'name'       => 'depends_on_text',
+					'type'       => 'text',
+					'depends_on' => 'parent_text',
+				],
+				[
+					'name'       => 'depends_on_other_section',
+					'type'       => 'text',
+					'depends_on' => 'query_depth_enabled',
+				],
+				[
+					'name'       => 'depends_on_itself',
+					'type'       => 'checkbox',
+					'depends_on' => 'depends_on_itself',
+				],
+			]
+		);
+
+		$dependencies = $registry->get_field_dependencies();
+
+		$this->assertContains(
+			[
+				'section'   => 'graphql_dependency_test_settings',
+				'name'      => 'child_number',
+				'dependsOn' => 'parent_toggle',
+			],
+			$dependencies
+		);
+		$this->assertContains(
+			[
+				'section'   => 'graphql_general_settings',
+				'name'      => 'query_depth_max',
+				'dependsOn' => 'query_depth_enabled',
+			],
+			$dependencies
+		);
+
+		$names = wp_list_pluck( $dependencies, 'name' );
+		$this->assertNotContains( 'depends_on_text', $names );
+		$this->assertNotContains( 'depends_on_other_section', $names );
+		$this->assertNotContains( 'depends_on_itself', $names );
+	}
+
+	/**
 	 * Test that init sets settings_api and wp_environment
 	 */
 	public function testInitSetsSettingsApiAndWpEnvironment() {

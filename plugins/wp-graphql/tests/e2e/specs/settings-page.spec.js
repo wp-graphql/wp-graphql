@@ -124,6 +124,29 @@ describe('Settings Page', () => {
 		await expect(page.locator(selectors.checkboxB)).toBeChecked();
 	});
 
+	test('Fields that depend on a checkbox are hidden while it is unchecked', async ({
+		page,
+	}) => {
+		await visitAdminFacingPage(
+			page,
+			wpAdminUrl + '/admin.php?page=graphql-settings'
+		);
+		await page.waitForTimeout(500);
+
+		const depthCheckbox = page.locator(
+			'#wpuf-graphql_general_settings\\[query_depth_enabled\\]'
+		);
+		const maxDepthRow = page
+			.locator('input[name="graphql_general_settings[query_depth_max]"]')
+			.locator('xpath=ancestor::tr');
+
+		await depthCheckbox.uncheck();
+		await expect(maxDepthRow).toBeHidden();
+
+		await depthCheckbox.check();
+		await expect(maxDepthRow).toBeVisible();
+	});
+
 	test('Verify localStorage retains last active tab', async ({ page }) => {
 		await visitAdminFacingPage(
 			page,

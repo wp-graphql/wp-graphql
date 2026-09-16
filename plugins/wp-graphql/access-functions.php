@@ -776,6 +776,16 @@ function register_graphql_settings_section( string $slug, array $config ): void 
 /**
  * Registers a GraphQL Settings Field
  *
+ * Set `depends_on` to the name of a checkbox field in the same section when this field only applies
+ * while that checkbox is on. The field is then hidden while the checkbox is off, on the settings page
+ * and, when both fields are in it, in the setup wizard. Its saved value is kept.
+ *
+ * To show the field in the setup wizard, add a `setup_wizard` key to the config: `true`, or an array
+ * with any of `step` (the slug of a step registered with register_graphql_setup_wizard_step()),
+ * `label`, `description`, `benefits` and `costs` (lists of strings describing what turning the
+ * setting on gains and costs) and `order`. The setup wizard supports the checkbox, number, select,
+ * radio, user_role_select, text, url and textarea field types.
+ *
  * @param string              $group  The name of the group to register a setting field to
  * @param array<string,mixed> $config The config for the settings field being registered
  *
@@ -786,6 +796,36 @@ function register_graphql_settings_field( string $group, array $config ): void {
 		'graphql_init_settings',
 		static function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ): void {
 			$registry->register_field( $group, $config );
+		}
+	);
+}
+
+/**
+ * Registers a step in the WPGraphQL setup wizard.
+ *
+ * The setup wizard walks site administrators through settings and explains the tradeoffs of each.
+ * Settings are added to a step with the `setup_wizard` key of the config passed to
+ * register_graphql_settings_field(). A setting whose `setup_wizard` config doesn't name a registered
+ * step is shown in a step for its settings section.
+ *
+ * Core registers the `access` (order 10), `request-limits` (order 20) and `diagnostics` (order 30) steps.
+ *
+ * @param string              $slug   A unique slug for the step.
+ * @param array<string,mixed> $config The step config: `title` (required), `description` and `order` (steps are shown in ascending order, default 100).
+ *
+ * @phpstan-param array{
+ *  title: string,
+ *  description?: string,
+ *  order?: int,
+ * } $config
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_setup_wizard_step( string $slug, array $config ): void {
+	add_action(
+		'graphql_setup_wizard_init',
+		static function ( \WPGraphQL\Admin\SetupWizard\SetupWizard $setup_wizard ) use ( $slug, $config ): void {
+			$setup_wizard->register_step( $slug, $config );
 		}
 	);
 }
