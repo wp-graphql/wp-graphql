@@ -237,6 +237,27 @@ class QueryDepthRuleTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $response );
 	}
 
+	public function testFilterReturningANegativeNumberRemovesTheLimit(): void {
+		add_filter(
+			'graphql_query_depth_max',
+			static function () {
+				return -1;
+			}
+		);
+
+		$response = $this->graphql( [ 'query' => self::DEEP_QUERY ] );
+
+		$this->assertFalse( $this->has_depth_error( $response ) );
+	}
+
+	public function testFilterReturningANonNumericValueKeepsTheConfiguredLimit(): void {
+		add_filter( 'graphql_query_depth_max', '__return_null' );
+
+		$response = $this->graphql( [ 'query' => self::DEEP_QUERY ] );
+
+		$this->assertTrue( $this->has_depth_error( $response ) );
+	}
+
 	public function testFilterCanRaiseTheLimitForTrustedUsers(): void {
 		add_filter(
 			'graphql_query_depth_max',
@@ -284,7 +305,7 @@ class QueryDepthRuleTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		update_option(
 			'graphql_general_settings',
 			[
-				'query_depth_enabled'    => 'off',
+				'query_depth_enabled'          => 'off',
 				'public_introspection_enabled' => 'on',
 			]
 		);

@@ -465,8 +465,9 @@ final class WPGraphQL {
 		$version = get_option( 'wp_graphql_version', null );
 
 		// If the version is not set, this is a fresh install, not an update.
-		// set the version and return.
+		// Apply the new-install defaults, set the version and return.
 		if ( ! $version ) {
+			$this->set_new_install_default_settings();
 			update_option( 'wp_graphql_version', WPGRAPHQL_VERSION );
 			return;
 		}
@@ -476,6 +477,33 @@ final class WPGraphQL {
 			$this->run_update_routines( $version );
 			update_option( 'wp_graphql_version', WPGRAPHQL_VERSION );
 		}
+	}
+
+	/**
+	 * Saves the default settings for new installs.
+	 *
+	 * Some protective settings are on by default for new installs only. The defaults in code keep
+	 * these settings off, so sites that already had WPGraphQL installed keep their current behavior,
+	 * and only new installs get these values saved. A value that is already saved is never replaced.
+	 *
+	 * @since x-release-please-version
+	 */
+	private function set_new_install_default_settings(): void {
+		$settings = get_option( 'graphql_general_settings', [] );
+		$settings = is_array( $settings ) ? $settings : [];
+
+		$defaults = [
+			'query_depth_enabled' => 'on',
+			'query_depth_max'     => \WPGraphQL\Server\ValidationRules\QueryDepth::DEFAULT_MAX_QUERY_DEPTH,
+		];
+
+		$missing_defaults = array_diff_key( $defaults, $settings );
+
+		if ( empty( $missing_defaults ) ) {
+			return;
+		}
+
+		update_option( 'graphql_general_settings', array_merge( $settings, $missing_defaults ) );
 	}
 
 	/**
