@@ -538,4 +538,40 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$wizard->maybe_remove_admin_notice();
 		$this->assertArrayNotHasKey( SetupWizard::NOTICE_SLUG, get_graphql_admin_notices() );
 	}
+
+	public function testMenuItemShowsOnlyWhileSettingsNeedReview(): void {
+		global $submenu;
+
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$original_submenu = $submenu;
+		wp_set_current_user( $this->admin );
+
+		// Nothing reviewed yet: the wizard has a GraphQL menu item.
+		$submenu = [];
+		$wizard  = $this->get_wizard();
+		$wizard->register_admin_page();
+
+		$this->assertTrue( $wizard->shows_in_menu() );
+		$this->assertContains( SetupWizard::PAGE_SLUG, wp_list_pluck( $submenu['graphiql-ide'] ?? [], 2 ) );
+
+		// Every setting reviewed: the page is still registered, but not in the GraphQL menu.
+		update_option(
+			SetupWizard::STATE_OPTION,
+			[
+				'status'   => 'skipped',
+				'reviewed' => array_keys( $wizard->get_fields() ),
+			]
+		);
+
+		$submenu = [];
+		$wizard  = $this->get_wizard();
+		$wizard->register_admin_page();
+
+		$this->assertFalse( $wizard->shows_in_menu() );
+		$this->assertNotContains( SetupWizard::PAGE_SLUG, wp_list_pluck( $submenu['graphiql-ide'] ?? [], 2 ) );
+		$this->assertNotEmpty( get_plugin_page_hookname( SetupWizard::PAGE_SLUG, '' ) );
+
+		$submenu = $original_submenu;
+	}
 }

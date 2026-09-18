@@ -49,21 +49,12 @@ test.describe('Setup wizard', () => {
 	test('walks through the steps and saves the chosen settings', async ({
 		page,
 	}) => {
-		// The wizard has no menu item of its own. It's reached from the Settings page.
+		// The Settings page links to the wizard.
 		await page.goto(settingsUrl, { waitUntil: 'networkidle' });
-		await expect(
-			page.locator('#adminmenu a[href$="page=graphql-setup-wizard"]')
-		).toHaveCount(0);
-
 		await page.getByRole('link', { name: 'Run the setup wizard' }).click();
 		await page.waitForLoadState('networkidle');
 		await expect(page).toHaveURL(wizardUrl);
 		await expect(page).toHaveTitle(/WPGraphQL Setup Wizard/);
-
-		// While the wizard is open, GraphQL > Settings is highlighted in the menu.
-		await expect(
-			page.locator('#adminmenu .current a[href$="page=graphql-settings"]')
-		).toHaveCount(1);
 
 		await expect(
 			page.getByRole('heading', {
@@ -118,5 +109,18 @@ test.describe('Setup wizard', () => {
 		const saved = await readDepthSettings(page);
 		expect(saved.enabled).toBe(true);
 		expect(saved.max).toBe('23');
+
+		// Once the wizard is saved it has no GraphQL menu item of its own.
+		await expect(
+			page.locator('#adminmenu a[href$="page=graphql-setup-wizard"]')
+		).toHaveCount(0);
+
+		// Opened again from the Settings page, GraphQL > Settings is highlighted in the menu.
+		await page.getByRole('link', { name: 'Run the setup wizard' }).click();
+		await page.waitForLoadState('networkidle');
+		await expect(page).toHaveURL(wizardUrl);
+		await expect(
+			page.locator('#adminmenu .current a[href$="page=graphql-settings"]')
+		).toHaveCount(1);
 	});
 });

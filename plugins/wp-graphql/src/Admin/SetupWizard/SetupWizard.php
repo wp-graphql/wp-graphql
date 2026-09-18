@@ -139,6 +139,11 @@ final class SetupWizard {
 	private ?string $hook_suffix = null;
 
 	/**
+	 * Whether the wizard has an item in the GraphQL menu for the current request.
+	 */
+	private bool $shows_in_menu = false;
+
+	/**
 	 * SetupWizard constructor.
 	 *
 	 * @param \WPGraphQL\Admin\Settings\SettingsRegistry $registry The settings registry.
@@ -560,15 +565,20 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Registers the wizard admin page without a menu item.
+	 * Registers the wizard admin page.
 	 *
-	 * The wizard is reached from the Settings page and the invitation notice, so it doesn't get its
-	 * own entry in the GraphQL menu. While it's open, GraphQL > Settings is highlighted.
+	 * The page has an item in the GraphQL menu while there are settings to review, the same rule as
+	 * the invitation notice. Once the wizard is completed or skipped, the menu item is hidden and the
+	 * wizard is reached from the Settings page, which stays highlighted in the menu while it's open.
 	 */
 	public function register_admin_page(): void {
-		// An empty parent registers the page (URL, capability check, title) without a menu item.
+		$this->shows_in_menu = $this->should_invite();
+
+		// An empty parent registers the page (URL, capability check) without a menu item.
+		$parent_slug = $this->shows_in_menu ? self::get_menu_parent_slug() : '';
+
 		$hook_suffix = add_submenu_page(
-			'',
+			$parent_slug,
 			__( 'WPGraphQL Setup Wizard', 'wp-graphql' ),
 			__( 'Setup Wizard', 'wp-graphql' ),
 			self::CAPABILITY,
@@ -586,7 +596,7 @@ final class SetupWizard {
 	/**
 	 * Sets the browser tab title for the wizard page.
 	 *
-	 * WordPress takes the title from the admin menu, and the wizard has no menu item.
+	 * WordPress takes the title from the admin menu, and the wizard may not have a menu item.
 	 */
 	public function set_page_title(): void {
 		global $title;
@@ -612,25 +622,43 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Highlights the GraphQL menu while the wizard is open.
-	 *
-	 * @param string|null $parent_file The parent menu slug to highlight.
+	 * Returns the slug of the GraphQL menu the wizard belongs to.
 	 */
-	public function highlight_parent_menu( $parent_file ): ?string {
-		if ( ! $this->is_wizard_page() ) {
-			return $parent_file;
-		}
-
+	private static function get_menu_parent_slug(): string {
 		return 'off' === get_graphql_setting( 'graphiql_enabled' ) ? 'graphql-settings' : 'graphiql-ide';
 	}
 
 	/**
-	 * Highlights GraphQL > Settings while the wizard is open.
+	 * Whether the wizard has an item in the GraphQL menu for the current request.
+	 */
+	public function shows_in_menu(): bool {
+		return $this->shows_in_menu;
+	}
+
+	/**
+	 * Highlights the GraphQL menu while the wizard is open without a menu item of its own.
+	 *
+	 * @param string|null $parent_file The parent menu slug to highlight.
+	 */
+	public function highlight_parent_menu( $parent_file ): ?string {
+		if ( $this->shows_in_menu || ! $this->is_wizard_page() ) {
+			return $parent_file;
+		}
+
+		return self::get_menu_parent_slug();
+	}
+
+	/**
+	 * Highlights GraphQL > Settings while the wizard is open without a menu item of its own.
 	 *
 	 * @param string|null $submenu_file The submenu slug to highlight.
 	 */
 	public function highlight_settings_submenu( $submenu_file ): ?string {
-		return $this->is_wizard_page() ? 'graphql-settings' : $submenu_file;
+		if ( $this->shows_in_menu || ! $this->is_wizard_page() ) {
+			return $submenu_file;
+		}
+
+		return 'graphql-settings';
 	}
 
 	/**
