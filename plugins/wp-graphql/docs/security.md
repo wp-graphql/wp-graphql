@@ -25,7 +25,7 @@ add_filter( 'graphql_settings_review_show_invitation', '__return_false' );
 
 ### Adding settings to the settings review
 
-Plugins can add their own settings to the review. Add a `settings_review` key to the config passed to `register_graphql_settings_field()`:
+Plugins can add their own settings to the review. Add a `settings_review` key to the config passed to `register_graphql_settings_field()`, and describe the setting's tradeoffs with `tradeoffs`:
 
 ```php
 add_action( 'graphql_register_settings', function () {
@@ -37,14 +37,16 @@ add_action( 'graphql_register_settings', function () {
 	register_graphql_settings_field(
 		'my_plugin_settings',
 		[
-			'name'         => 'public_widgets_enabled',
-			'label'        => __( 'Show widgets to logged-out visitors', 'my-plugin' ),
-			'type'         => 'checkbox',
-			'default'      => 'off',
-			'settings_review' => [
-				'step'     => 'access',
+			'name'            => 'public_widgets_enabled',
+			'label'           => __( 'Show widgets to logged-out visitors', 'my-plugin' ),
+			'type'            => 'checkbox',
+			'default'         => 'off',
+			'tradeoffs'       => [
 				'benefits' => [ __( 'Public front ends can query widgets.', 'my-plugin' ) ],
 				'costs'    => [ __( 'Widget content is readable by anyone.', 'my-plugin' ) ],
+			],
+			'settings_review' => [
+				'step' => 'access',
 			],
 		]
 	);
@@ -54,9 +56,12 @@ add_action( 'graphql_register_settings', function () {
 `settings_review` can be `true`, or an array with any of these keys:
 
 - `step`: the step to show the setting in. Core registers `access`, `request-limits` and `diagnostics`. A setting without a registered step is shown in a step named after its settings section.
-- `label` and `description`: override the label and description from the settings page.
-- `benefits` and `costs`: lists of what turning the setting on gains and costs.
+- `description`: a short plain-text description to use instead of the settings page description.
 - `order`: the setting's position in the review.
+
+The review always shows the setting's own `label`, so each setting has one name everywhere.
+
+`tradeoffs` belongs to the setting rather than the review: it's an array with `benefits` and `costs`, each a list of what turning the setting on gains and costs. The settings page shows it in a collapsible "What you gain and what it costs" section under the setting, and the review shows it next to the setting.
 
 The review supports the `checkbox`, `number`, `select`, `radio`, `user_role_select`, `text`, `url` and `textarea` field types. A `disabled` field is shown but can't be changed.
 

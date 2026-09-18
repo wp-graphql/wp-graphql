@@ -780,11 +780,15 @@ function register_graphql_settings_section( string $slug, array $config ): void 
  * while that checkbox is on. The field is then hidden while the checkbox is off, on the settings page
  * and, when both fields are in it, in the settings review. Its saved value is kept.
  *
+ * Set `tradeoffs` to describe what turning the setting on gains and costs, as
+ * `[ 'benefits' => string[], 'costs' => string[] ]`. The settings page shows them in a collapsible
+ * section under the setting, and the settings review shows them next to it.
+ *
  * To show the field in the settings review, add a `settings_review` key to the config: `true`, or an array
  * with any of `step` (the slug of a step registered with register_graphql_settings_review_step()),
- * `label`, `description`, `benefits` and `costs` (lists of strings describing what turning the
- * setting on gains and costs) and `order`. The settings review supports the checkbox, number, select,
- * radio, user_role_select, text, url and textarea field types.
+ * `description` (a short plain-text description to use instead of `desc`) and `order`. The settings
+ * review always uses the field's `label`. It supports the checkbox, number, select, radio,
+ * user_role_select, text, url and textarea field types.
  *
  * @param string              $group  The name of the group to register a setting field to
  * @param array<string,mixed> $config The config for the settings field being registered

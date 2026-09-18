@@ -147,6 +147,33 @@ describe('Settings Page', () => {
 		await expect(maxDepthRow).toBeVisible();
 	});
 
+	test('Settings show their tradeoffs in a collapsed section', async ({
+		page,
+	}) => {
+		await visitAdminFacingPage(
+			page,
+			wpAdminUrl + '/admin.php?page=graphql-settings'
+		);
+
+		const depthRow = page
+			.locator('#wpuf-graphql_general_settings\\[query_depth_enabled\\]')
+			.locator('xpath=ancestor::tr');
+		const tradeoffs = depthRow.locator(
+			'details.wpgraphql-setting-tradeoffs'
+		);
+
+		await expect(tradeoffs).toBeVisible();
+		await expect(tradeoffs).not.toHaveAttribute('open', '');
+		await expect(
+			tradeoffs.getByText('What it costs', { exact: true })
+		).toBeHidden();
+
+		await tradeoffs.locator('summary').click();
+		await expect(
+			tradeoffs.getByText('What it costs', { exact: true })
+		).toBeVisible();
+	});
+
 	test('Verify localStorage retains last active tab', async ({ page }) => {
 		await visitAdminFacingPage(
 			page,

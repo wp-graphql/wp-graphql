@@ -438,7 +438,11 @@ final class SettingsReview {
 			$step = sanitize_key( $section );
 		}
 
-		$label       = isset( $config['label'] ) && is_string( $config['label'] ) ? $config['label'] : ( isset( $field['label'] ) && is_string( $field['label'] ) ? $field['label'] : $name );
+		// Tradeoffs belong to the setting, not the review, so other settings screens can show them too.
+		$tradeoffs = isset( $field['tradeoffs'] ) && is_array( $field['tradeoffs'] ) ? $field['tradeoffs'] : [];
+
+		// The review always uses the setting's own label, so each setting has one name everywhere.
+		$label       = isset( $field['label'] ) && is_string( $field['label'] ) ? $field['label'] : $name;
 		$description = isset( $config['description'] ) && is_string( $config['description'] ) ? $config['description'] : ( isset( $field['desc'] ) && is_string( $field['desc'] ) ? wp_strip_all_tags( $field['desc'] ) : '' );
 
 		return [
@@ -455,8 +459,8 @@ final class SettingsReview {
 			'max'         => isset( $field['max'] ) && is_numeric( $field['max'] ) ? $field['max'] + 0 : null,
 			'inputStep'   => isset( $field['step'] ) && is_numeric( $field['step'] ) ? $field['step'] + 0 : null,
 			'default'     => $field['default'] ?? '',
-			'benefits'    => self::string_list( $config['benefits'] ?? [] ),
-			'costs'       => self::string_list( $config['costs'] ?? [] ),
+			'benefits'    => self::string_list( $tradeoffs['benefits'] ?? [] ),
+			'costs'       => self::string_list( $tradeoffs['costs'] ?? [] ),
 			'dependsOn'   => isset( $field['depends_on'] ) && is_string( $field['depends_on'] ) && '' !== $field['depends_on'] ? $section . '.' . $field['depends_on'] : null,
 			'locked'      => ! empty( $field['disabled'] ),
 		];

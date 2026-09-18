@@ -627,4 +627,35 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( [], $settings_review->get_unreviewed_field_keys() );
 		$this->assertFalse( get_option( 'graphql_general_settings' ) );
 	}
+
+	public function testTradeoffsComeFromTheSettingAndTheLabelIsNeverOverridden(): void {
+		$settings_review = $this->get_settings_review(
+			static function ( $registry ) {
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
+				$registry->register_field(
+					'graphql_review_test_settings',
+					[
+						'name'            => 'test_toggle',
+						'label'           => 'Test toggle',
+						'type'            => 'checkbox',
+						'tradeoffs'       => [
+							'benefits' => [ 'A benefit.' ],
+							'costs'    => [ 'A cost.', '' ],
+						],
+						'settings_review' => [
+							'label'       => 'A different name',
+							'description' => 'A short description.',
+						],
+					]
+				);
+			}
+		);
+
+		$field = $settings_review->get_fields()['graphql_review_test_settings.test_toggle'];
+
+		$this->assertSame( 'Test toggle', $field['label'] );
+		$this->assertSame( 'A short description.', $field['description'] );
+		$this->assertSame( [ 'A benefit.' ], $field['benefits'] );
+		$this->assertSame( [ 'A cost.' ], $field['costs'] );
+	}
 }

@@ -368,6 +368,31 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that a setting's tradeoffs render as an escaped, collapsible section
+	 */
+	public function testFieldTradeoffsRenderAsACollapsibleSection() {
+		ob_start();
+		$this->settings->settings_api->render_field_tradeoffs(
+			[
+				'benefits' => [ 'Faster <script>alert(1)</script> apps.' ],
+				'costs'    => [ 'More work.', '', 42 ],
+			]
+		);
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( '<details class="wpgraphql-setting-tradeoffs">', $html );
+		$this->assertStringContainsString( 'What you gain', $html );
+		$this->assertStringContainsString( 'What it costs', $html );
+		$this->assertStringContainsString( '<li>More work.</li>', $html );
+		$this->assertStringNotContainsString( '<script>', $html );
+		$this->assertSame( 2, substr_count( $html, '<li>' ) );
+
+		ob_start();
+		$this->settings->settings_api->render_field_tradeoffs( [ 'benefits' => [ '' ] ] );
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
 	 * Test that init sets settings_api and wp_environment
 	 */
 	public function testInitSetsSettingsApiAndWpEnvironment() {

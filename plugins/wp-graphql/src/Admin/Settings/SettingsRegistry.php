@@ -327,9 +327,77 @@ class SettingsRegistry {
 					'value'             => isset( $option['value'] ) ? $option['value'] : null,
 				];
 
+				// Show the setting's tradeoffs after its control, for every field type.
+				if ( ! empty( $option['tradeoffs'] ) && is_array( $option['tradeoffs'] ) ) {
+					$render_field = $callback;
+					$tradeoffs    = $option['tradeoffs'];
+					$callback     = function ( $field_args ) use ( $render_field, $tradeoffs ) {
+						call_user_func( $render_field, $field_args );
+						$this->render_field_tradeoffs( $tradeoffs );
+					};
+				}
+
 				add_settings_field( "{$section}[{$name}]", $label, $callback, $section, $section, $args );
 			}
 		}
+	}
+
+	/**
+	 * Renders a setting's tradeoffs as a collapsible "What you gain / What it costs" section.
+	 *
+	 * @param array<string,mixed> $tradeoffs The field's `tradeoffs` config, with `benefits` and `costs` lists.
+	 *
+	 * @return void
+	 */
+	public function render_field_tradeoffs( array $tradeoffs ) {
+		$lists = [
+			'benefits' => __( 'What you gain', 'wp-graphql' ),
+			'costs'    => __( 'What it costs', 'wp-graphql' ),
+		];
+
+		$columns = '';
+
+		foreach ( $lists as $key => $heading ) {
+			$items = isset( $tradeoffs[ $key ] ) && is_array( $tradeoffs[ $key ] ) ? array_filter( $tradeoffs[ $key ], 'is_string' ) : [];
+			$items = array_filter(
+				$items,
+				static function ( $item ) {
+					return '' !== $item;
+				}
+			);
+
+			if ( empty( $items ) ) {
+				continue;
+			}
+
+			$columns .= '<div><p><strong>' . esc_html( $heading ) . '</strong></p><ul>';
+			foreach ( $items as $item ) {
+				$columns .= '<li>' . esc_html( $item ) . '</li>';
+			}
+			$columns .= '</ul></div>';
+		}
+
+		if ( '' === $columns ) {
+			return;
+		}
+
+		$html  = '<details class="wpgraphql-setting-tradeoffs">';
+		$html .= '<summary>' . esc_html__( 'What you gain and what it costs', 'wp-graphql' ) . '</summary>';
+		$html .= '<div class="wpgraphql-setting-tradeoffs__columns">' . $columns . '</div>';
+		$html .= '</details>';
+
+		echo wp_kses(
+			$html,
+			[
+				'details' => [ 'class' => [] ],
+				'summary' => [],
+				'div'     => [ 'class' => [] ],
+				'p'       => [],
+				'strong'  => [],
+				'ul'      => [],
+				'li'      => [],
+			]
+		);
 	}
 
 	/**
@@ -919,6 +987,33 @@ class SettingsRegistry {
 	 */
 	public function _style_fix() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		global $wp_version;
+
+		?>
+		<style type="text/css">
+			.wpgraphql-setting-tradeoffs {
+				margin-top: 8px;
+				max-width: 720px;
+			}
+			.wpgraphql-setting-tradeoffs summary {
+				cursor: pointer;
+				color: #2271b1;
+			}
+			.wpgraphql-setting-tradeoffs__columns {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 16px;
+				margin-top: 8px;
+			}
+			.wpgraphql-setting-tradeoffs__columns p {
+				margin: 0 0 4px;
+			}
+			.wpgraphql-setting-tradeoffs__columns ul {
+				margin: 0;
+				padding-left: 18px;
+				list-style: disc;
+			}
+		</style>
+		<?php
 
 		if ( version_compare( $wp_version, '3.8', '<=' ) ) :
 			?>
