@@ -162,7 +162,7 @@ final class SetupWizard {
 				'message'        => sprintf(
 					/* translators: %s: URL of the setup wizard admin page */
 					__( '<strong>Review your WPGraphQL setup.</strong> A short wizard explains the tradeoffs of settings for access, request limits and debugging. <a href="%s">Start the setup wizard</a>', 'wp-graphql' ),
-					esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) )
+					esc_url( self::get_page_url() )
 				),
 				'is_dismissable' => false,
 				'conditions'     => static function () {
@@ -179,6 +179,8 @@ final class SetupWizard {
 		// After the settings registry is populated (priority 11).
 		add_action( 'init', [ $this, 'maybe_remove_admin_notice' ], 20 );
 		add_action( 'admin_menu', [ $this, 'register_admin_page' ] );
+		add_filter( 'parent_file', [ $this, 'highlight_parent_menu' ] );
+		add_filter( 'submenu_file', [ $this, 'highlight_settings_submenu' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 	}
@@ -558,13 +560,15 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Registers the wizard admin page under the GraphQL menu.
+	 * Registers the wizard admin page without a menu item.
+	 *
+	 * The wizard is reached from the Settings page and the invitation notice, so it doesn't get its
+	 * own entry in the GraphQL menu. While it's open, GraphQL > Settings is highlighted.
 	 */
 	public function register_admin_page(): void {
-		$parent_slug = 'off' === get_graphql_setting( 'graphiql_enabled' ) ? 'graphql-settings' : 'graphiql-ide';
-
+		// An empty parent registers the page (URL, capability check, title) without a menu item.
 		$hook_suffix = add_submenu_page(
-			$parent_slug,
+			'',
 			__( 'WPGraphQL Setup Wizard', 'wp-graphql' ),
 			__( 'Setup Wizard', 'wp-graphql' ),
 			self::CAPABILITY,
@@ -573,6 +577,60 @@ final class SetupWizard {
 		);
 
 		$this->hook_suffix = is_string( $hook_suffix ) ? $hook_suffix : null;
+
+		if ( null !== $this->hook_suffix ) {
+			add_action( 'load-' . $this->hook_suffix, [ $this, 'set_page_title' ] );
+		}
+	}
+
+	/**
+	 * Sets the browser tab title for the wizard page.
+	 *
+	 * WordPress takes the title from the admin menu, and the wizard has no menu item.
+	 */
+	public function set_page_title(): void {
+		global $title;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress reads the admin page title from this global.
+		$title = __( 'WPGraphQL Setup Wizard', 'wp-graphql' );
+	}
+
+	/**
+	 * Returns the URL of the wizard admin page.
+	 */
+	public static function get_page_url(): string {
+		return admin_url( 'admin.php?page=' . self::PAGE_SLUG );
+	}
+
+	/**
+	 * Whether the current admin page is the wizard.
+	 */
+	private function is_wizard_page(): bool {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		return null !== $this->hook_suffix && $screen instanceof \WP_Screen && $this->hook_suffix === $screen->id;
+	}
+
+	/**
+	 * Highlights the GraphQL menu while the wizard is open.
+	 *
+	 * @param string|null $parent_file The parent menu slug to highlight.
+	 */
+	public function highlight_parent_menu( $parent_file ): ?string {
+		if ( ! $this->is_wizard_page() ) {
+			return $parent_file;
+		}
+
+		return 'off' === get_graphql_setting( 'graphiql_enabled' ) ? 'graphql-settings' : 'graphiql-ide';
+	}
+
+	/**
+	 * Highlights GraphQL > Settings while the wizard is open.
+	 *
+	 * @param string|null $submenu_file The submenu slug to highlight.
+	 */
+	public function highlight_settings_submenu( $submenu_file ): ?string {
+		return $this->is_wizard_page() ? 'graphql-settings' : $submenu_file;
 	}
 
 	/**
@@ -580,7 +638,7 @@ final class SetupWizard {
 	 */
 	public function render_admin_page(): void {
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
+		echo '<h1>' . esc_html__( 'WPGraphQL Setup Wizard', 'wp-graphql' ) . '</h1>';
 
 		if ( ! file_exists( WPGRAPHQL_PLUGIN_DIR . 'build/setupWizard.asset.php' ) ) {
 			$message = sprintf(

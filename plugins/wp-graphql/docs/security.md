@@ -11,7 +11,7 @@ If you believe you've discovered a security vulnerability, please email info@wpg
 
 ## Setup Wizard
 
-The setup wizard walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Open it from **GraphQL > Setup Wizard**.
+The setup wizard walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Open it with the **Run the setup wizard** link at the top of **GraphQL > Settings**, or from the notice that invites you to run it.
 
 Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Skipping the wizard changes no settings.
 

@@ -471,6 +471,19 @@ class Settings {
 		<div class="wrap">
 			<?php
 			settings_errors();
+			?>
+			<p class="wpgraphql-settings-setup-wizard">
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: %s: URL of the setup wizard admin page */
+						__( 'Not sure which settings fit your site? <a href="%s">Run the setup wizard</a> to review the settings for access, request limits and debugging, with the tradeoffs of each.', 'wp-graphql' ),
+						esc_url( \WPGraphQL\Admin\SetupWizard\SetupWizard::get_page_url() )
+					)
+				);
+				?>
+			</p>
+			<?php
 			$this->settings_api->show_navigation();
 			$this->settings_api->show_forms();
 			?>
