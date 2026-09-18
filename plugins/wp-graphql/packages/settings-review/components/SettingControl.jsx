@@ -1,10 +1,10 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
+	CheckboxControl,
 	RadioControl,
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	ToggleControl,
 } from '@wordpress/components';
 
 import { store } from '../store';
@@ -45,8 +45,9 @@ export function SettingControl({ settingKey }) {
 
 	switch (field.type) {
 		case 'checkbox':
+			// A checkbox, not a toggle: changes apply when the review is saved, not right away.
 			return (
-				<ToggleControl
+				<CheckboxControl
 					__nextHasNoMarginBottom
 					{...commonProps}
 					checked={'on' === value}

@@ -14,7 +14,7 @@ export function getBootstrapData() {
  *
  * @param {Object}                args
  * @param {'completed'|'skipped'} args.status     Whether the review was completed or skipped.
- * @param {Object}                [args.settings] The settings grouped by section, `{ section: { name: value } }`. Required when completed.
+ * @param {Object}                [args.settings] The changed settings, grouped by section as `{ section: { name: value } }`. Only sent when completed.
  *
  * @return {Promise<{state: Object, values: Object}>} The saved review state and current values.
  */

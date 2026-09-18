@@ -2,16 +2,22 @@ import { __ } from '@wordpress/i18n';
 import { saveSettingsReview } from '../api/settings-review';
 
 /**
- * Groups the chosen values by settings section, leaving out locked settings.
+ * Groups the settings the administrator changed by settings section, leaving out locked settings.
  *
- * @param {Object[]} fields The review settings.
- * @param {Object}   values The chosen values, keyed by "{section}.{name}".
+ * Only changed settings are sent, so settings that weren't changed keep their current stored value.
  *
- * @return {Object<string,Object>} The values as `{ section: { name: value } }`.
+ * @param {Object[]} fields      The settings in the review.
+ * @param {Object}   values      The chosen values, keyed by "{section}.{name}".
+ * @param {Object}   savedValues The saved values, keyed by "{section}.{name}".
+ *
+ * @return {Object<string,Object>} The changed values as `{ section: { name: value } }`.
  */
-export function groupValuesBySection(fields, values) {
+export function groupChangedValuesBySection(fields, values, savedValues) {
 	return fields.reduce((grouped, field) => {
-		if (field.locked) {
+		if (
+			field.locked ||
+			String(values[field.key]) === String(savedValues[field.key])
+		) {
 			return grouped;
 		}
 
@@ -88,7 +94,11 @@ const actions = {
 			await dispatch(
 				save(
 					'completed',
-					groupValuesBySection(select.getFields(), select.getValues())
+					groupChangedValuesBySection(
+						select.getFields(),
+						select.getValues(),
+						select.getSavedValues()
+					)
 				)
 			);
 		},

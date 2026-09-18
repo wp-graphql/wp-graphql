@@ -138,6 +138,8 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 
 		$this->assertSame( 'request-limits', $fields['graphql_general_settings.query_depth_enabled']['step'] );
+		// The review uses the setting's own label, so it matches the Settings page.
+		$this->assertSame( 'Limit query depth', $fields['graphql_general_settings.query_depth_enabled']['label'] );
 		$this->assertSame( 'graphql_general_settings.query_depth_enabled', $fields['graphql_general_settings.query_depth_max']['dependsOn'] );
 		$this->assertArrayNotHasKey( 'recommended', $fields['graphql_general_settings.query_depth_enabled'] );
 		$this->assertNotEmpty( $fields['graphql_general_settings.query_depth_enabled']['benefits'] );
@@ -413,22 +415,39 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( [], SettingsReview::get_state() );
 	}
 
-	public function testEverySettingMustBeSubmittedToComplete(): void {
+	public function testOnlySubmittedSettingsAreSaved(): void {
 		wp_set_current_user( $this->admin );
-
-		$settings = $this->core_settings();
-		unset( $settings['graphql_general_settings']['batch_limit'] );
 
 		$response = $this->save(
 			[
 				'status'   => 'completed',
-				'settings' => $settings,
+				'settings' => [
+					'graphql_general_settings' => [ 'query_depth_max' => 20 ],
+				],
 			]
 		);
 
-		$this->assertWPError( $response );
-		$this->assertArrayHasKey( 'graphql_general_settings.batch_limit', $response->get_error_data()['errors'] );
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+
+		// Settings that weren't changed keep no stored value, so their defaults still apply.
+		$this->assertSame( [ 'query_depth_max' => 20 ], get_option( 'graphql_general_settings' ) );
+
+		// Every setting in the review is still recorded as reviewed.
+		$state = SettingsReview::get_state();
+		$this->assertSame( 'completed', $state['status'] );
+		foreach ( self::CORE_KEYS as $key ) {
+			$this->assertContains( $key, $state['reviewed'] );
+		}
+	}
+
+	public function testCompletingWithoutChangesSavesNoSettings(): void {
+		wp_set_current_user( $this->admin );
+
+		$response = $this->save( [ 'status' => 'completed' ] );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
 		$this->assertFalse( get_option( 'graphql_general_settings' ) );
+		$this->assertSame( 'completed', SettingsReview::get_state()['status'] );
 	}
 
 	public function testSkippingTheReviewChangesNoSettings(): void {
@@ -573,5 +592,39 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotEmpty( get_plugin_page_hookname( SettingsReview::PAGE_SLUG, '' ) );
 
 		$submenu = $original_submenu;
+	}
+
+	public function testInvitationIsDismissibleAndCanBeTurnedOff(): void {
+		wp_set_current_user( $this->subscriber );
+		$this->assertFalse( SettingsReview::should_show_invitation() );
+
+		wp_set_current_user( $this->admin );
+		$this->assertTrue( SettingsReview::should_show_invitation() );
+
+		add_filter( 'graphql_settings_review_show_invitation', '__return_false' );
+		$this->assertFalse( SettingsReview::should_show_invitation() );
+		remove_filter( 'graphql_settings_review_show_invitation', '__return_false' );
+
+		$notices = \WPGraphQL\Admin\AdminNotices::get_instance();
+
+		SettingsReview::register_admin_notice();
+		do_action( 'graphql_admin_notices_init', $notices );
+
+		$notice = get_graphql_admin_notices()[ SettingsReview::NOTICE_SLUG ] ?? null;
+		$this->assertIsArray( $notice );
+		$this->assertTrue( $notices->is_notice_dismissable( $notice ) );
+
+		$notices->remove_admin_notice( SettingsReview::NOTICE_SLUG );
+	}
+
+	public function testRecordReviewMarksEverySettingAsReviewed(): void {
+		$settings_review = $this->get_settings_review();
+
+		$state = $settings_review->record_review( 'skipped' );
+
+		$this->assertSame( 'skipped', $state['status'] );
+		$this->assertSame( array_keys( $settings_review->get_fields() ), $state['reviewed'] );
+		$this->assertSame( [], $settings_review->get_unreviewed_field_keys() );
+		$this->assertFalse( get_option( 'graphql_general_settings' ) );
 	}
 }

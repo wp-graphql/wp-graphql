@@ -11,11 +11,17 @@ If you believe you've discovered a security vulnerability, please email info@wpg
 
 ## Settings Review
 
-The settings review walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Until you've run it, it's in the GraphQL menu as **Settings Review**. After that, open it with the **Run the settings review** link at the top of **GraphQL > Settings**.
+The settings review walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Until you've run it, it's in the GraphQL menu as **Review Settings**. After that, open it with the **Review your settings** link at the top of **GraphQL > Settings**.
 
-Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Skipping the review changes no settings.
+Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Only the settings you change are saved, so settings you leave alone keep using their defaults. Skipping the review changes no settings.
 
-Administrators are invited to run the review, with a notice on WPGraphQL screens and the Plugins screen, until they complete or skip it. When an update adds a setting to the review, the invitation shows again and the new setting is marked as new.
+Administrators are invited to run the review, with a notice on WPGraphQL screens and the Plugins screen, until they complete or skip it. Each administrator can also dismiss the notice. When an update adds a setting to the review, the invitation shows again and the new setting is marked as new.
+
+On sites whose settings are managed in code, turn the notice off with the `graphql_settings_review_show_invitation` filter, or record the review as done with [`wp graphql settings-review skip`](/docs/wp-cli#wp-graphql-settings-review):
+
+```php
+add_filter( 'graphql_settings_review_show_invitation', '__return_false' );
+```
 
 ### Adding settings to the settings review
 
@@ -98,8 +104,8 @@ GraphQL lets a client nest fields inside fields, for example posts, then each po
 
 WPGraphQL can reject queries that are nested deeper than a limit you choose. On the GraphQL > Settings page:
 
-- **Enable Query Depth Limiting** turns the limit on.
-- **Max Depth to allow for GraphQL Queries** sets how many levels are allowed. The default is 15.
+- **Limit query depth** turns the limit on.
+- **Maximum query depth** sets how many levels are allowed. The default is 15.
 
 A query deeper than the limit is rejected before it runs, with an error like `The server administrator has limited the max query depth to 15, but the requested query has 18 levels.`
 

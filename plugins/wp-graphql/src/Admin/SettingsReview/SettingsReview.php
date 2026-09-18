@@ -169,12 +169,39 @@ final class SettingsReview {
 					__( '<strong>Review your WPGraphQL settings.</strong> A short review explains the tradeoffs of settings for access, request limits and debugging. <a href="%s">Start the review</a>', 'wp-graphql' ),
 					esc_url( self::get_page_url() )
 				),
-				'is_dismissable' => false,
-				'conditions'     => static function () {
-					return current_user_can( self::CAPABILITY );
-				},
+				// Each user can dismiss the invitation. The Review Settings menu item stays until the review is done.
+				'is_dismissable' => true,
+				'conditions'     => [ self::class, 'should_show_invitation' ],
 			]
 		);
+	}
+
+	/**
+	 * Whether the invitation notice should show for the current user.
+	 *
+	 * The notice is also removed once every setting is reviewed (see maybe_remove_admin_notice()),
+	 * and each user can dismiss it.
+	 */
+	public static function should_show_invitation(): bool {
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether administrators are invited to the settings review with an admin notice.
+		 *
+		 * The notice shows until the settings review is completed or skipped, or until each user
+		 * dismisses it. Return false to never show it, for example on sites whose settings are
+		 * managed in code. The Review Settings menu item and the link on the Settings page are not
+		 * affected. To record the review as done without visiting it, run
+		 * `wp graphql settings-review skip`.
+		 *
+		 * @param bool $show_invitation Whether to show the invitation notice. Default true.
+		 *
+		 * @hookGroup settings
+		 * @since x-release-please-version
+		 */
+		return (bool) apply_filters( 'graphql_settings_review_show_invitation', true );
 	}
 
 	/**
@@ -209,7 +236,7 @@ final class SettingsReview {
 	/**
 	 * Registers a step.
 	 *
-	 * @param string                $slug   The step slug.
+	 * @param string                   $slug   The step slug.
 	 * @param SettingsReviewStepConfig $config The step config.
 	 */
 	public function register_step( string $slug, array $config ): void {
@@ -784,8 +811,11 @@ final class SettingsReview {
 	/**
 	 * Saves the review.
 	 *
-	 * Completing the review saves every setting in it. Skipping it changes no settings. Either way,
-	 * the settings currently in the review are recorded as reviewed.
+	 * Completing the review saves the settings that were submitted, which are the ones the
+	 * administrator changed. Settings that weren't changed keep their current stored value, or no
+	 * stored value, so defaults that depend on the environment or change in a later version still
+	 * apply to them. Skipping the review changes no settings. Either way, every setting currently in
+	 * the review is recorded as reviewed.
 	 *
 	 * @param \WP_REST_Request<array{status:string,settings?:array<string,mixed>}> $request The REST request.
 	 *
@@ -796,14 +826,7 @@ final class SettingsReview {
 
 		if ( 'completed' === $status ) {
 			$settings = $request->get_param( 'settings' );
-
-			if ( ! is_array( $settings ) ) {
-				return new WP_Error(
-					'graphql_settings_review_missing_settings',
-					__( 'Settings are required to complete the settings review.', 'wp-graphql' ),
-					[ 'status' => 400 ]
-				);
-			}
+			$settings = is_array( $settings ) ? $settings : [];
 
 			$prepared = $this->prepare_settings( $settings );
 
@@ -820,13 +843,7 @@ final class SettingsReview {
 			}
 		}
 
-		$state = [
-			'status'     => $status,
-			'reviewed'   => array_keys( $this->get_fields() ),
-			'updated_at' => time(),
-		];
-
-		update_option( self::STATE_OPTION, $state, false );
+		$state = $this->record_review( $status );
 
 		return new WP_REST_Response(
 			[
@@ -838,11 +855,29 @@ final class SettingsReview {
 	}
 
 	/**
+	 * Records that every setting currently in the review has been reviewed.
+	 *
+	 * @param string $status 'completed' or 'skipped'.
+	 *
+	 * @return SettingsReviewState The saved state.
+	 */
+	public function record_review( string $status ): array {
+		$state = [
+			'status'     => $status,
+			'reviewed'   => array_keys( $this->get_fields() ),
+			'updated_at' => time(),
+		];
+
+		update_option( self::STATE_OPTION, $state, false );
+
+		return $state;
+	}
+
+	/**
 	 * Validates the submitted settings and groups them by settings section.
 	 *
-	 * Every setting in the review that isn't locked must be submitted, as
-	 * `{ section: { name: value } }`. Settings that aren't in the review are rejected, and locked
-	 * settings are left as they are.
+	 * Settings are submitted as `{ section: { name: value } }` and only the submitted settings are
+	 * saved. Settings that aren't in the review are rejected, and locked settings are left as they are.
 	 *
 	 * @param array<string,mixed> $settings The submitted settings.
 	 *
@@ -871,8 +906,8 @@ final class SettingsReview {
 				continue;
 			}
 
+			// Settings that weren't submitted are left as they are.
 			if ( ! isset( $settings[ $field['section'] ] ) || ! is_array( $settings[ $field['section'] ] ) || ! array_key_exists( $field['name'], $settings[ $field['section'] ] ) ) {
-				$errors[ $key ] = __( 'A value is required.', 'wp-graphql' );
 				continue;
 			}
 
@@ -903,7 +938,7 @@ final class SettingsReview {
 	/**
 	 * Checks that a submitted value fits its field and converts it to the stored format.
 	 *
-	 * @param mixed            $value The submitted value.
+	 * @param mixed               $value The submitted value.
 	 * @param SettingsReviewField $field The field.
 	 *
 	 * @return mixed The value to store, or null if the value is not valid.

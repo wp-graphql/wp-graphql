@@ -51,9 +51,7 @@ test.describe('Settings review', () => {
 	}) => {
 		// The Settings page links to the review.
 		await page.goto(settingsUrl, { waitUntil: 'networkidle' });
-		await page
-			.getByRole('link', { name: 'Run the settings review' })
-			.click();
+		await page.getByRole('link', { name: 'Review your settings' }).click();
 		await page.waitForLoadState('networkidle');
 		await expect(page).toHaveURL(reviewUrl);
 		await expect(page).toHaveTitle(/Review WPGraphQL Settings/);
@@ -100,7 +98,21 @@ test.describe('Settings review', () => {
 		});
 		await expect(maxDepthRow).toContainText('23');
 
+		// Only the changed setting is sent, so unchanged settings keep their current stored value.
+		const saveRequest = page.waitForRequest(
+			(request) =>
+				request.method() === 'POST' &&
+				request.url().includes('settings-review')
+		);
 		await page.getByRole('button', { name: 'Save settings' }).click();
+		const sent = (await saveRequest).postDataJSON();
+		expect(sent.status).toBe('completed');
+		expect(Object.keys(sent.settings.graphql_general_settings)).toContain(
+			'query_depth_max'
+		);
+		expect(sent.settings.graphql_general_settings).not.toHaveProperty(
+			'batch_limit'
+		);
 		// The notice text is also announced in a screen reader live region, so check the visible notice.
 		await expect(
 			page
@@ -118,9 +130,7 @@ test.describe('Settings review', () => {
 		).toHaveCount(0);
 
 		// Opened again from the Settings page, GraphQL > Settings is highlighted in the menu.
-		await page
-			.getByRole('link', { name: 'Run the settings review' })
-			.click();
+		await page.getByRole('link', { name: 'Review your settings' }).click();
 		await page.waitForLoadState('networkidle');
 		await expect(page).toHaveURL(reviewUrl);
 		await expect(
