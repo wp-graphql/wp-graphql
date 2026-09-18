@@ -382,7 +382,7 @@ class SettingsRegistry {
 		}
 
 		$html  = '<details class="wpgraphql-setting-tradeoffs">';
-		$html .= '<summary>' . esc_html__( 'What you gain and what it costs', 'wp-graphql' ) . '</summary>';
+		$html .= '<summary>' . esc_html__( 'Tradeoffs', 'wp-graphql' ) . '</summary>';
 		$html .= '<div class="wpgraphql-setting-tradeoffs__columns">' . $columns . '</div>';
 		$html .= '</details>';
 

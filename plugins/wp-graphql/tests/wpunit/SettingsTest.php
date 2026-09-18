@@ -381,6 +381,7 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$html = (string) ob_get_clean();
 
 		$this->assertStringContainsString( '<details class="wpgraphql-setting-tradeoffs">', $html );
+		$this->assertStringContainsString( '<summary>Tradeoffs</summary>', $html );
 		$this->assertStringContainsString( 'What you gain', $html );
 		$this->assertStringContainsString( 'What it costs', $html );
 		$this->assertStringContainsString( '<li>More work.</li>', $html );

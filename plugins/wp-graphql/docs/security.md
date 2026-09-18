@@ -61,7 +61,7 @@ add_action( 'graphql_register_settings', function () {
 
 The review always shows the setting's own `label`, so each setting has one name everywhere.
 
-`tradeoffs` belongs to the setting rather than the review: it's an array with `benefits` and `costs`, each a list of what turning the setting on gains and costs. The settings page shows it in a collapsible "What you gain and what it costs" section under the setting, and the review shows it next to the setting.
+`tradeoffs` belongs to the setting rather than the review: it's an array with `benefits` and `costs`, each a list of what turning the setting on gains and costs. The settings page shows it in a collapsible "Tradeoffs" section under the setting, and the review shows it next to the setting.
 
 The review supports the `checkbox`, `number`, `select`, `radio`, `user_role_select`, `text`, `url` and `textarea` field types. A `disabled` field is shown but can't be changed.
 

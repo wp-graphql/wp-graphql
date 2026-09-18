@@ -168,6 +168,7 @@ describe('Settings Page', () => {
 			tradeoffs.getByText('What it costs', { exact: true })
 		).toBeHidden();
 
+		await expect(tradeoffs.locator('summary')).toHaveText('Tradeoffs');
 		await tradeoffs.locator('summary').click();
 		await expect(
 			tradeoffs.getByText('What it costs', { exact: true })
