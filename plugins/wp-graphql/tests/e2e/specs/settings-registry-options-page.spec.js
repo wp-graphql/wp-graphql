@@ -33,7 +33,14 @@ describe('Settings Registry Options Page', () => {
 		const graphqlExperimentsInput = page.locator(
 			'input[name="graphql_experiments_settings"]'
 		);
-		if ((await graphqlExperimentsInput.count()) > 0) {
+		// options.php only lets you edit options stored as a string. Once an option holds an array
+		// (for example after the settings are saved, or on a new install that saves defaults),
+		// WordPress shows it as read-only serialized data, so there's nothing to submit.
+		// SettingsRegistryTest::testSanitizeOptionsHandlesNonArrayValues covers the string case directly.
+		if (
+			(await graphqlExperimentsInput.count()) > 0 &&
+			(await graphqlExperimentsInput.isEditable())
+		) {
 			await graphqlExperimentsInput.fill('');
 
 			// Submit the form
@@ -63,7 +70,14 @@ describe('Settings Registry Options Page', () => {
 		const graphqlGeneralInput = page.locator(
 			'input[name="graphql_general_settings"]'
 		);
-		if ((await graphqlGeneralInput.count()) > 0) {
+		// options.php only lets you edit options stored as a string. Once an option holds an array
+		// (for example after the settings are saved, or on a new install that saves defaults),
+		// WordPress shows it as read-only serialized data, so there's nothing to submit.
+		// SettingsRegistryTest::testSanitizeOptionsHandlesNonArrayValues covers the string case directly.
+		if (
+			(await graphqlGeneralInput.count()) > 0 &&
+			(await graphqlGeneralInput.isEditable())
+		) {
 			await graphqlGeneralInput.fill('');
 
 			// Submit the form
