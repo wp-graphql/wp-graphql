@@ -2,13 +2,13 @@ import { test, expect } from '@playwright/test';
 import { loginToWordPressAdmin, wpAdminUrl } from '../utils.js';
 
 /**
- * @file setup-wizard.spec.js
- * @description Walks through the setup wizard, saves a change, and checks that the settings page
+ * @file settings-review.spec.js
+ * @description Walks through the settings review, saves a change, and checks that the settings page
  * reflects it. The original values are restored afterwards.
  */
 
 const settingsUrl = `${wpAdminUrl}/admin.php?page=graphql-settings`;
-const wizardUrl = `${wpAdminUrl}/admin.php?page=graphql-setup-wizard`;
+const reviewUrl = `${wpAdminUrl}/admin.php?page=graphql-settings-review`;
 
 const selectors = {
 	depthEnabled: '#wpuf-graphql_general_settings\\[query_depth_enabled\\]',
@@ -29,7 +29,7 @@ async function readDepthSettings(page) {
 	};
 }
 
-test.describe('Setup wizard', () => {
+test.describe('Settings review', () => {
 	let original;
 
 	test.beforeEach(async ({ page }) => {
@@ -49,12 +49,14 @@ test.describe('Setup wizard', () => {
 	test('walks through the steps and saves the chosen settings', async ({
 		page,
 	}) => {
-		// The Settings page links to the wizard.
+		// The Settings page links to the review.
 		await page.goto(settingsUrl, { waitUntil: 'networkidle' });
-		await page.getByRole('link', { name: 'Run the setup wizard' }).click();
+		await page
+			.getByRole('link', { name: 'Run the settings review' })
+			.click();
 		await page.waitForLoadState('networkidle');
-		await expect(page).toHaveURL(wizardUrl);
-		await expect(page).toHaveTitle(/WPGraphQL Setup Wizard/);
+		await expect(page).toHaveURL(reviewUrl);
+		await expect(page).toHaveTitle(/Review WPGraphQL Settings/);
 
 		await expect(
 			page.getByRole('heading', {
@@ -110,15 +112,17 @@ test.describe('Setup wizard', () => {
 		expect(saved.enabled).toBe(true);
 		expect(saved.max).toBe('23');
 
-		// Once the wizard is saved it has no GraphQL menu item of its own.
+		// Once the review is saved it has no GraphQL menu item of its own.
 		await expect(
-			page.locator('#adminmenu a[href$="page=graphql-setup-wizard"]')
+			page.locator('#adminmenu a[href$="page=graphql-settings-review"]')
 		).toHaveCount(0);
 
 		// Opened again from the Settings page, GraphQL > Settings is highlighted in the menu.
-		await page.getByRole('link', { name: 'Run the setup wizard' }).click();
+		await page
+			.getByRole('link', { name: 'Run the settings review' })
+			.click();
 		await page.waitForLoadState('networkidle');
-		await expect(page).toHaveURL(wizardUrl);
+		await expect(page).toHaveURL(reviewUrl);
 		await expect(
 			page.locator('#adminmenu .current a[href$="page=graphql-settings"]')
 		).toHaveCount(1);

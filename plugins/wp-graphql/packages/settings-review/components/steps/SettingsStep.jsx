@@ -17,10 +17,10 @@ import { SettingGroup } from '../SettingGroup';
 export function SettingsStep({ slug }) {
 	const { step, fields } = useSelect(
 		(select) => {
-			const wizard = select(store);
+			const review = select(store);
 			return {
-				step: wizard.getRegisteredStep(slug),
-				fields: wizard.getFields(),
+				step: review.getRegisteredStep(slug),
+				fields: review.getFields(),
 			};
 		},
 		[slug]
@@ -42,10 +42,10 @@ export function SettingsStep({ slug }) {
 	}
 
 	return (
-		<div className="wpgraphql-setup-wizard__step">
+		<div className="wpgraphql-settings-review__step">
 			<h2>{step.title}</h2>
 			{step.description && <p>{step.description}</p>}
-			<div className="wpgraphql-setup-wizard__settings">
+			<div className="wpgraphql-settings-review__settings">
 				{topLevelKeys.map((key) => (
 					<SettingGroup key={key} settingKey={key} />
 				))}

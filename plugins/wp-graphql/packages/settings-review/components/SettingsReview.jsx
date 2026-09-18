@@ -11,7 +11,10 @@ import {
 } from '@wordpress/components';
 
 import { store } from '../store';
-import { INTRO_STEP, SUMMARY_STEP } from '../store/setup-wizard-store-reducer';
+import {
+	INTRO_STEP,
+	SUMMARY_STEP,
+} from '../store/settings-review-store-reducer';
 import { IntroStep } from './steps/IntroStep';
 import { SettingsStep } from './steps/SettingsStep';
 import { SummaryStep } from './steps/SummaryStep';
@@ -49,9 +52,9 @@ function getStepTitle(slug, registeredSteps) {
  */
 function StepList({ stepSlugs, registeredSteps, currentIndex }) {
 	return (
-		<ol className="wpgraphql-setup-wizard__steps">
+		<ol className="wpgraphql-settings-review__steps">
 			{stepSlugs.map((slug, index) => {
-				let className = 'wpgraphql-setup-wizard__steps-item';
+				let className = 'wpgraphql-settings-review__steps-item';
 				if (index === currentIndex) {
 					className += ' is-current';
 				} else if (index < currentIndex) {
@@ -93,11 +96,11 @@ function StepContent({ slug }) {
 }
 
 /**
- * The setup wizard app.
+ * The settings review app.
  *
- * @return {JSX.Element} The wizard.
+ * @return {JSX.Element} The review.
  */
-export function SetupWizard() {
+export function SettingsReview() {
 	const {
 		stepSlugs,
 		registeredSteps,
@@ -107,15 +110,15 @@ export function SetupWizard() {
 		error,
 		finishedStatus,
 	} = useSelect((select) => {
-		const wizard = select(store);
+		const review = select(store);
 		return {
-			stepSlugs: wizard.getStepSlugs(),
-			registeredSteps: wizard.getRegisteredSteps(),
-			stepIndex: wizard.getStepIndex(),
-			currentSlug: wizard.getCurrentStepSlug(),
-			isSaving: wizard.isSaving(),
-			error: wizard.getError(),
-			finishedStatus: wizard.getFinishedStatus(),
+			stepSlugs: review.getStepSlugs(),
+			registeredSteps: review.getRegisteredSteps(),
+			stepIndex: review.getStepIndex(),
+			currentSlug: review.getCurrentStepSlug(),
+			isSaving: review.isSaving(),
+			error: review.getError(),
+			finishedStatus: review.getFinishedStatus(),
 		};
 	}, []);
 	const { nextStep, previousStep, complete, skip } = useDispatch(store);
@@ -137,7 +140,7 @@ export function SetupWizard() {
 	const isLastStep = stepSlugs.length - 1 === stepIndex;
 
 	return (
-		<Card className="wpgraphql-setup-wizard__card">
+		<Card className="wpgraphql-settings-review__card">
 			<CardHeader>
 				<StepList
 					stepSlugs={stepSlugs}
@@ -147,7 +150,7 @@ export function SetupWizard() {
 			</CardHeader>
 			<CardBody>
 				<p
-					className="wpgraphql-setup-wizard__progress"
+					className="wpgraphql-settings-review__progress"
 					ref={headingRef}
 					tabIndex={-1}
 				>
@@ -165,7 +168,7 @@ export function SetupWizard() {
 				)}
 				<StepContent slug={currentSlug} />
 			</CardBody>
-			<CardFooter className="wpgraphql-setup-wizard__footer">
+			<CardFooter className="wpgraphql-settings-review__footer">
 				<div>
 					{isFirstStep ? (
 						<Button

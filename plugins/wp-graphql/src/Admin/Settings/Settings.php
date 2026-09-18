@@ -151,7 +151,7 @@ class Settings {
 			[
 				[
 					'name'         => 'restrict_endpoint_to_logged_in_users',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'access',
 						'label'       => __( 'Only allow logged-in users', 'wp-graphql' ),
 						'description' => __( 'When on, requests from visitors who are not logged in are rejected with an error, even for content that is public on your site.', 'wp-graphql' ),
@@ -171,7 +171,7 @@ class Settings {
 				],
 				[
 					'name'         => 'batch_queries_enabled',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'request-limits',
 						'label'       => __( 'Allow batch requests', 'wp-graphql' ),
 						'description' => __( 'A batch request sends several GraphQL operations in a single HTTP request.', 'wp-graphql' ),
@@ -190,7 +190,7 @@ class Settings {
 				[
 					'name'              => 'batch_limit',
 					'depends_on'        => 'batch_queries_enabled',
-					'setup_wizard'      => [
+					'settings_review'      => [
 						'step'        => 'request-limits',
 						'label'       => __( 'Maximum operations per batch request', 'wp-graphql' ),
 						'description' => __( 'Batch requests with more operations than this are rejected before any of them run.', 'wp-graphql' ),
@@ -209,7 +209,7 @@ class Settings {
 				],
 				[
 					'name'         => 'query_depth_enabled',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'request-limits',
 						'label'       => __( 'Limit query depth', 'wp-graphql' ),
 						'description' => __( 'Rejects queries that are nested deeper than the maximum depth, before they run. Queries that only read the schema are not limited.', 'wp-graphql' ),
@@ -229,7 +229,7 @@ class Settings {
 				[
 					'name'              => 'query_depth_max',
 					'depends_on'        => 'query_depth_enabled',
-					'setup_wizard'      => [
+					'settings_review'      => [
 						'step'        => 'request-limits',
 						'label'       => __( 'Maximum query depth', 'wp-graphql' ),
 						'description' => __( 'The number of nested levels a query may have.', 'wp-graphql' ),
@@ -281,7 +281,7 @@ class Settings {
 				],
 				[
 					'name'         => 'debug_mode_enabled',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'diagnostics',
 						'label'       => __( 'Debug mode', 'wp-graphql' ),
 						'description' => defined( 'GRAPHQL_DEBUG' )
@@ -306,7 +306,7 @@ class Settings {
 				],
 				[
 					'name'         => 'tracing_enabled',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'diagnostics',
 						'label'       => __( 'Tracing', 'wp-graphql' ),
 						'description' => __( 'Adds timing information for each field to the response.', 'wp-graphql' ),
@@ -325,7 +325,7 @@ class Settings {
 				[
 					'name'              => 'tracing_user_role',
 					'depends_on'        => 'tracing_enabled',
-					'setup_wizard'      => [
+					'settings_review'      => [
 						'step'        => 'diagnostics',
 						'label'       => __( 'Who can see tracing', 'wp-graphql' ),
 						'description' => __( 'Tracing is only added for users with this role. "Any user" includes logged-out visitors.', 'wp-graphql' ),
@@ -353,7 +353,7 @@ class Settings {
 				],
 				[
 					'name'         => 'query_logs_enabled',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'diagnostics',
 						'label'       => __( 'Query logs', 'wp-graphql' ),
 						'description' => __( 'Adds the database queries that ran for a request to the response.', 'wp-graphql' ),
@@ -373,7 +373,7 @@ class Settings {
 				[
 					'name'              => 'query_log_user_role',
 					'depends_on'        => 'query_logs_enabled',
-					'setup_wizard'      => [
+					'settings_review'      => [
 						'step'        => 'diagnostics',
 						'label'       => __( 'Who can see query logs', 'wp-graphql' ),
 						'description' => __( 'Query logs are only added for users with this role. "Any user" includes logged-out visitors.', 'wp-graphql' ),
@@ -401,7 +401,7 @@ class Settings {
 				],
 				[
 					'name'         => 'public_introspection_enabled',
-					'setup_wizard' => [
+					'settings_review' => [
 						'step'        => 'access',
 						'label'       => __( 'Let logged-out visitors read the schema (introspection)', 'wp-graphql' ),
 						'description' => true === \WPGraphQL::debug()
@@ -472,13 +472,13 @@ class Settings {
 			<?php
 			settings_errors();
 			?>
-			<p class="wpgraphql-settings-setup-wizard">
+			<p class="wpgraphql-settings-review-link">
 				<?php
 				echo wp_kses_post(
 					sprintf(
-						/* translators: %s: URL of the setup wizard admin page */
-						__( 'Not sure which settings fit your site? <a href="%s">Run the setup wizard</a> to review the settings for access, request limits and debugging, with the tradeoffs of each.', 'wp-graphql' ),
-						esc_url( \WPGraphQL\Admin\SetupWizard\SetupWizard::get_page_url() )
+						/* translators: %s: URL of the settings review admin page */
+						__( 'Not sure which settings fit your site? <a href="%s">Review your settings</a> to see the tradeoffs of the settings for access, request limits and debugging.', 'wp-graphql' ),
+						esc_url( \WPGraphQL\Admin\SettingsReview\SettingsReview::get_page_url() )
 					)
 				);
 				?>

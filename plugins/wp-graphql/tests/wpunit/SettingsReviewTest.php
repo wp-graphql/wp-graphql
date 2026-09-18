@@ -1,15 +1,15 @@
 <?php
 
 use WPGraphQL\Admin\Settings\Settings;
-use WPGraphQL\Admin\SetupWizard\SetupWizard;
+use WPGraphQL\Admin\SettingsReview\SettingsReview;
 
 /**
- * Tests for the setup wizard: which settings it shows, when it invites administrators, and saving.
+ * Tests for the settings review: which settings it shows, when it invites administrators, and saving.
  */
-class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	/**
-	 * The settings manager the wizard under test reads from.
+	 * The settings manager the review under test reads from.
 	 *
 	 * @var \WPGraphQL\Admin\Settings\Settings
 	 */
@@ -26,7 +26,7 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	private $subscriber;
 
 	/**
-	 * The core settings the wizard reviews.
+	 * The core settings in the review.
 	 */
 	private const CORE_KEYS = [
 		'graphql_general_settings.restrict_endpoint_to_logged_in_users',
@@ -48,9 +48,9 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->admin      = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->subscriber = $this->factory()->user->create( [ 'role' => 'subscriber' ] );
 
-		delete_option( SetupWizard::STATE_OPTION );
+		delete_option( SettingsReview::STATE_OPTION );
 		delete_option( 'graphql_general_settings' );
-		delete_option( 'graphql_wizard_test_settings' );
+		delete_option( 'graphql_review_test_settings' );
 
 		$this->settings = new Settings();
 		$this->settings->init();
@@ -58,31 +58,31 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function tearDown(): void {
-		delete_option( SetupWizard::STATE_OPTION );
+		delete_option( SettingsReview::STATE_OPTION );
 		delete_option( 'graphql_general_settings' );
-		delete_option( 'graphql_wizard_test_settings' );
+		delete_option( 'graphql_review_test_settings' );
 		wp_set_current_user( 0 );
 
 		parent::tearDown();
 	}
 
 	/**
-	 * Returns a wizard reading from the test settings registry, after any extra registration.
+	 * Returns a review reading from the test settings registry, after any extra registration.
 	 *
 	 * @param callable|null $register Registers extra sections and fields on the registry.
 	 */
-	private function get_wizard( ?callable $register = null ): SetupWizard {
+	private function get_settings_review( ?callable $register = null ): SettingsReview {
 		if ( null !== $register ) {
 			$register( $this->settings->settings_api );
 		}
 
 		$this->settings->settings_api->init_registry();
 
-		return new SetupWizard( $this->settings->settings_api );
+		return new SettingsReview( $this->settings->settings_api );
 	}
 
 	/**
-	 * Returns a value for every core setting in the wizard.
+	 * Returns a value for every core setting in the review.
 	 *
 	 * @param array<string,mixed> $overrides Values to use instead of the defaults.
 	 *
@@ -110,7 +110,7 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Saves the wizard the way its REST API route does.
+	 * Saves the review the way its REST API route does.
 	 *
 	 * The tests call the route's callback directly rather than dispatching a REST request, because
 	 * starting the REST server leaves state behind that breaks later tests in the suite.
@@ -120,18 +120,18 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	private function save( array $params ) {
-		$request = new \WP_REST_Request( 'POST', '/' . SetupWizard::REST_NAMESPACE . SetupWizard::REST_ROUTE );
+		$request = new \WP_REST_Request( 'POST', '/' . SettingsReview::REST_NAMESPACE . SettingsReview::REST_ROUTE );
 
 		foreach ( $params as $key => $value ) {
 			$request->set_param( $key, $value );
 		}
 
-		return $this->get_wizard()->save( $request );
+		return $this->get_settings_review()->save( $request );
 	}
 
 	public function testCoreSettingsAreShownInTheirSteps(): void {
-		$wizard = $this->get_wizard();
-		$fields = $wizard->get_fields();
+		$settings_review = $this->get_settings_review();
+		$fields = $settings_review->get_fields();
 
 		foreach ( self::CORE_KEYS as $key ) {
 			$this->assertArrayHasKey( $key, $fields );
@@ -143,89 +143,89 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotEmpty( $fields['graphql_general_settings.query_depth_enabled']['benefits'] );
 		$this->assertNotEmpty( $fields['graphql_general_settings.query_depth_enabled']['costs'] );
 
-		// Settings that aren't opted in stay out of the wizard.
+		// Settings that aren't opted in stay out of the review.
 		$this->assertArrayNotHasKey( 'graphql_general_settings.graphql_endpoint', $fields );
 
-		$steps = wp_list_pluck( $wizard->get_steps(), 'slug' );
+		$steps = wp_list_pluck( $settings_review->get_steps(), 'slug' );
 		$this->assertSame( [ 'access', 'request-limits', 'diagnostics' ], $steps );
 	}
 
 	public function testSettingWithoutARegisteredStepIsShownInAStepForItsSection(): void {
-		$wizard = $this->get_wizard(
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'         => 'test_toggle',
 						'label'        => 'Test toggle',
 						'type'         => 'checkbox',
 						'default'      => 'off',
-						'setup_wizard' => true,
+						'settings_review' => true,
 					]
 				);
 			}
 		);
 
-		$steps = $wizard->get_steps();
+		$steps = $settings_review->get_steps();
 		$last  = end( $steps );
 
-		$this->assertSame( 'graphql_wizard_test_settings', $last['slug'] );
-		$this->assertSame( 'Wizard Test Settings', $last['title'] );
-		$this->assertSame( [ 'graphql_wizard_test_settings.test_toggle' ], $last['fields'] );
+		$this->assertSame( 'graphql_review_test_settings', $last['slug'] );
+		$this->assertSame( 'Review Test Settings', $last['title'] );
+		$this->assertSame( [ 'graphql_review_test_settings.test_toggle' ], $last['fields'] );
 	}
 
 	public function testPluginsCanRegisterSteps(): void {
-		register_graphql_setup_wizard_step(
-			'wizard-test',
+		register_graphql_settings_review_step(
+			'review-test',
 			[
-				'title'       => 'Wizard test step',
+				'title'       => 'Review test step',
 				'description' => 'A step registered by a plugin.',
 				'order'       => 5,
 			]
 		);
 
-		$wizard = $this->get_wizard(
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'         => 'test_toggle',
 						'label'        => 'Test toggle',
 						'type'         => 'checkbox',
-						'setup_wizard' => [ 'step' => 'wizard-test' ],
+						'settings_review' => [ 'step' => 'review-test' ],
 					]
 				);
 			}
 		);
 
-		$steps = $wizard->get_steps();
+		$steps = $settings_review->get_steps();
 
-		$this->assertSame( 'wizard-test', $steps[0]['slug'] );
-		$this->assertSame( 'Wizard test step', $steps[0]['title'] );
-		$this->assertSame( [ 'graphql_wizard_test_settings.test_toggle' ], $steps[0]['fields'] );
+		$this->assertSame( 'review-test', $steps[0]['slug'] );
+		$this->assertSame( 'Review test step', $steps[0]['title'] );
+		$this->assertSame( [ 'graphql_review_test_settings.test_toggle' ], $steps[0]['fields'] );
 	}
 
 	public function testUnsupportedFieldTypesAreLeftOut(): void {
 		$this->setExpectedIncorrectUsage( 'register_graphql_settings_field' );
 
-		$wizard = $this->get_wizard(
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'         => 'test_color',
 						'label'        => 'Test color',
 						'type'         => 'color',
-						'setup_wizard' => true,
+						'settings_review' => true,
 					]
 				);
 			}
 		);
 
-		$this->assertArrayNotHasKey( 'graphql_wizard_test_settings.test_color', $wizard->get_fields() );
+		$this->assertArrayNotHasKey( 'graphql_review_test_settings.test_color', $settings_review->get_fields() );
 	}
 
 	public function testValuesComeFromSavedSettingsOrDefaults(): void {
@@ -237,7 +237,7 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$values = $this->get_wizard()->get_values();
+		$values = $this->get_settings_review()->get_values();
 
 		$this->assertSame( 'on', $values['graphql_general_settings.query_depth_enabled'] );
 		$this->assertSame( 12, $values['graphql_general_settings.query_depth_max'] );
@@ -246,44 +246,44 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testAdministratorsAreInvitedUntilEverySettingIsReviewed(): void {
-		$wizard = $this->get_wizard();
+		$settings_review = $this->get_settings_review();
 
 		wp_set_current_user( $this->subscriber );
-		$this->assertFalse( $wizard->should_invite() );
+		$this->assertFalse( $settings_review->should_invite() );
 
 		wp_set_current_user( $this->admin );
-		$this->assertTrue( $wizard->should_invite() );
+		$this->assertTrue( $settings_review->should_invite() );
 
 		update_option(
-			SetupWizard::STATE_OPTION,
+			SettingsReview::STATE_OPTION,
 			[
 				'status'   => 'skipped',
-				'reviewed' => array_keys( $wizard->get_fields() ),
+				'reviewed' => array_keys( $settings_review->get_fields() ),
 			]
 		);
 
-		$this->assertFalse( $wizard->should_invite() );
+		$this->assertFalse( $settings_review->should_invite() );
 	}
 
 	public function testANewSettingInvitesAdministratorsAgain(): void {
 		update_option(
-			SetupWizard::STATE_OPTION,
+			SettingsReview::STATE_OPTION,
 			[
 				'status'   => 'completed',
 				'reviewed' => self::CORE_KEYS,
 			]
 		);
 
-		$wizard = $this->get_wizard(
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'         => 'test_toggle',
 						'label'        => 'Test toggle',
 						'type'         => 'checkbox',
-						'setup_wizard' => true,
+						'settings_review' => true,
 					]
 				);
 			}
@@ -291,24 +291,24 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$this->assertTrue( $wizard->should_invite() );
-		$this->assertSame( [ 'graphql_wizard_test_settings.test_toggle' ], $wizard->get_unreviewed_field_keys() );
+		$this->assertTrue( $settings_review->should_invite() );
+		$this->assertSame( [ 'graphql_review_test_settings.test_toggle' ], $settings_review->get_unreviewed_field_keys() );
 	}
 
 	public function testSavingRequiresPermissionToManageOptions(): void {
-		$wizard = $this->get_wizard();
+		$settings_review = $this->get_settings_review();
 
 		wp_set_current_user( 0 );
-		$this->assertFalse( $wizard->can_save() );
+		$this->assertFalse( $settings_review->can_save() );
 
 		wp_set_current_user( $this->subscriber );
-		$this->assertFalse( $wizard->can_save() );
+		$this->assertFalse( $settings_review->can_save() );
 
 		wp_set_current_user( $this->admin );
-		$this->assertTrue( $wizard->can_save() );
+		$this->assertTrue( $settings_review->can_save() );
 	}
 
-	public function testCompletingTheWizardSavesTheSettings(): void {
+	public function testCompletingTheReviewSavesTheSettings(): void {
 		wp_set_current_user( $this->admin );
 
 		update_option( 'graphql_general_settings', [ 'graphql_endpoint' => 'graphql' ] );
@@ -333,10 +333,10 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 20, $saved['query_depth_max'] );
 		$this->assertSame( 'editor', $saved['tracing_user_role'] );
 
-		// Settings outside the wizard are kept.
+		// Settings outside the review are kept.
 		$this->assertSame( 'graphql', $saved['graphql_endpoint'] );
 
-		$state = SetupWizard::get_state();
+		$state = SettingsReview::get_state();
 		$this->assertSame( 'completed', $state['status'] );
 		foreach ( self::CORE_KEYS as $key ) {
 			$this->assertContains( $key, $state['reviewed'] );
@@ -350,35 +350,35 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testTheSaveResponseReportsTheNewValueOfSettingsWithADeclaredValue(): void {
 		wp_set_current_user( $this->admin );
 
-		// Like debug mode, this setting declares a `value` for the settings page, computed before the wizard saves.
-		$wizard = $this->get_wizard(
+		// Like debug mode, this setting declares a `value` for the settings page, computed before the review saves.
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'         => 'declared_toggle',
 						'label'        => 'Declared toggle',
 						'type'         => 'checkbox',
 						'default'      => 'off',
 						'value'        => 'off',
-						'setup_wizard' => true,
+						'settings_review' => true,
 					]
 				);
 			}
 		);
 
 		$settings                                 = $this->core_settings();
-		$settings['graphql_wizard_test_settings'] = [ 'declared_toggle' => 'on' ];
+		$settings['graphql_review_test_settings'] = [ 'declared_toggle' => 'on' ];
 
-		$request = new \WP_REST_Request( 'POST', '/' . SetupWizard::REST_NAMESPACE . SetupWizard::REST_ROUTE );
+		$request = new \WP_REST_Request( 'POST', '/' . SettingsReview::REST_NAMESPACE . SettingsReview::REST_ROUTE );
 		$request->set_param( 'status', 'completed' );
 		$request->set_param( 'settings', $settings );
 
-		$response = $wizard->save( $request );
+		$response = $settings_review->save( $request );
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
-		$this->assertSame( 'on', $response->get_data()['values']->{'graphql_wizard_test_settings.declared_toggle'} );
+		$this->assertSame( 'on', $response->get_data()['values']->{'graphql_review_test_settings.declared_toggle'} );
 	}
 
 	public function testInvalidValuesAreRejectedAndNothingIsSaved(): void {
@@ -410,7 +410,7 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey( 'graphql_general_settings.graphql_endpoint', $errors );
 
 		$this->assertFalse( get_option( 'graphql_general_settings' ) );
-		$this->assertSame( [], SetupWizard::get_state() );
+		$this->assertSame( [], SettingsReview::get_state() );
 	}
 
 	public function testEverySettingMustBeSubmittedToComplete(): void {
@@ -431,7 +431,7 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertFalse( get_option( 'graphql_general_settings' ) );
 	}
 
-	public function testSkippingTheWizardChangesNoSettings(): void {
+	public function testSkippingTheReviewChangesNoSettings(): void {
 		wp_set_current_user( $this->admin );
 
 		update_option( 'graphql_general_settings', [ 'query_depth_enabled' => 'off' ] );
@@ -446,7 +446,7 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
 		$this->assertSame( [ 'query_depth_enabled' => 'off' ], get_option( 'graphql_general_settings' ) );
 
-		$state = SetupWizard::get_state();
+		$state = SettingsReview::get_state();
 		$this->assertSame( 'skipped', $state['status'] );
 		$this->assertContains( 'graphql_general_settings.query_depth_enabled', $state['reviewed'] );
 	}
@@ -454,89 +454,89 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testLockedSettingsAreNotSaved(): void {
 		wp_set_current_user( $this->admin );
 
-		$wizard = $this->get_wizard(
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'         => 'locked_toggle',
 						'label'        => 'Locked toggle',
 						'type'         => 'checkbox',
 						'default'      => 'off',
 						'disabled'     => true,
-						'setup_wizard' => true,
+						'settings_review' => true,
 					]
 				);
 			}
 		);
 
-		$this->assertTrue( $wizard->get_fields()['graphql_wizard_test_settings.locked_toggle']['locked'] );
+		$this->assertTrue( $settings_review->get_fields()['graphql_review_test_settings.locked_toggle']['locked'] );
 
 		$settings                                 = $this->core_settings();
-		$settings['graphql_wizard_test_settings'] = [ 'locked_toggle' => 'on' ];
+		$settings['graphql_review_test_settings'] = [ 'locked_toggle' => 'on' ];
 
-		$request = new \WP_REST_Request( 'POST', '/' . SetupWizard::REST_NAMESPACE . SetupWizard::REST_ROUTE );
+		$request = new \WP_REST_Request( 'POST', '/' . SettingsReview::REST_NAMESPACE . SettingsReview::REST_ROUTE );
 		$request->set_param( 'status', 'completed' );
 		$request->set_param( 'settings', $settings );
 
-		$response = $wizard->save( $request );
+		$response = $settings_review->save( $request );
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
-		$this->assertFalse( get_option( 'graphql_wizard_test_settings' ) );
+		$this->assertFalse( get_option( 'graphql_review_test_settings' ) );
 	}
 
 	public function testSavedValuesRunThroughTheSettingSanitizeCallback(): void {
 		wp_set_current_user( $this->admin );
 
-		$wizard = $this->get_wizard(
+		$settings_review = $this->get_settings_review(
 			static function ( $registry ) {
-				$registry->register_section( 'graphql_wizard_test_settings', [ 'title' => 'Wizard Test Settings' ] );
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
 				$registry->register_field(
-					'graphql_wizard_test_settings',
+					'graphql_review_test_settings',
 					[
 						'name'              => 'shouting_text',
 						'label'             => 'Shouting text',
 						'type'              => 'text',
 						'sanitize_callback' => 'strtoupper',
-						'setup_wizard'      => true,
+						'settings_review'      => true,
 					]
 				);
 			}
 		);
 
 		$settings                                 = $this->core_settings();
-		$settings['graphql_wizard_test_settings'] = [ 'shouting_text' => 'quiet' ];
+		$settings['graphql_review_test_settings'] = [ 'shouting_text' => 'quiet' ];
 
-		$request = new \WP_REST_Request( 'POST', '/' . SetupWizard::REST_NAMESPACE . SetupWizard::REST_ROUTE );
+		$request = new \WP_REST_Request( 'POST', '/' . SettingsReview::REST_NAMESPACE . SettingsReview::REST_ROUTE );
 		$request->set_param( 'status', 'completed' );
 		$request->set_param( 'settings', $settings );
 
-		$wizard->save( $request );
+		$settings_review->save( $request );
 
-		$this->assertSame( [ 'shouting_text' => 'QUIET' ], get_option( 'graphql_wizard_test_settings' ) );
+		$this->assertSame( [ 'shouting_text' => 'QUIET' ], get_option( 'graphql_review_test_settings' ) );
 	}
 
 	public function testNoticeIsRemovedWhenEverySettingIsReviewed(): void {
 		wp_set_current_user( $this->admin );
 
-		$wizard = $this->get_wizard();
+		$settings_review = $this->get_settings_review();
 
-		\WPGraphQL\Admin\AdminNotices::get_instance()->add_admin_notice( SetupWizard::NOTICE_SLUG, [ 'message' => 'Test' ] );
+		\WPGraphQL\Admin\AdminNotices::get_instance()->add_admin_notice( SettingsReview::NOTICE_SLUG, [ 'message' => 'Test' ] );
 
-		$wizard->maybe_remove_admin_notice();
-		$this->assertArrayHasKey( SetupWizard::NOTICE_SLUG, get_graphql_admin_notices() );
+		$settings_review->maybe_remove_admin_notice();
+		$this->assertArrayHasKey( SettingsReview::NOTICE_SLUG, get_graphql_admin_notices() );
 
 		update_option(
-			SetupWizard::STATE_OPTION,
+			SettingsReview::STATE_OPTION,
 			[
 				'status'   => 'completed',
-				'reviewed' => array_keys( $wizard->get_fields() ),
+				'reviewed' => array_keys( $settings_review->get_fields() ),
 			]
 		);
 
-		$wizard->maybe_remove_admin_notice();
-		$this->assertArrayNotHasKey( SetupWizard::NOTICE_SLUG, get_graphql_admin_notices() );
+		$settings_review->maybe_remove_admin_notice();
+		$this->assertArrayNotHasKey( SettingsReview::NOTICE_SLUG, get_graphql_admin_notices() );
 	}
 
 	public function testMenuItemShowsOnlyWhileSettingsNeedReview(): void {
@@ -547,30 +547,30 @@ class SetupWizardTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$original_submenu = $submenu;
 		wp_set_current_user( $this->admin );
 
-		// Nothing reviewed yet: the wizard has a GraphQL menu item.
+		// Nothing reviewed yet: the review has a GraphQL menu item.
 		$submenu = [];
-		$wizard  = $this->get_wizard();
-		$wizard->register_admin_page();
+		$settings_review  = $this->get_settings_review();
+		$settings_review->register_admin_page();
 
-		$this->assertTrue( $wizard->shows_in_menu() );
-		$this->assertContains( SetupWizard::PAGE_SLUG, wp_list_pluck( $submenu['graphiql-ide'] ?? [], 2 ) );
+		$this->assertTrue( $settings_review->shows_in_menu() );
+		$this->assertContains( SettingsReview::PAGE_SLUG, wp_list_pluck( $submenu['graphiql-ide'] ?? [], 2 ) );
 
 		// Every setting reviewed: the page is still registered, but not in the GraphQL menu.
 		update_option(
-			SetupWizard::STATE_OPTION,
+			SettingsReview::STATE_OPTION,
 			[
 				'status'   => 'skipped',
-				'reviewed' => array_keys( $wizard->get_fields() ),
+				'reviewed' => array_keys( $settings_review->get_fields() ),
 			]
 		);
 
 		$submenu = [];
-		$wizard  = $this->get_wizard();
-		$wizard->register_admin_page();
+		$settings_review  = $this->get_settings_review();
+		$settings_review->register_admin_page();
 
-		$this->assertFalse( $wizard->shows_in_menu() );
-		$this->assertNotContains( SetupWizard::PAGE_SLUG, wp_list_pluck( $submenu['graphiql-ide'] ?? [], 2 ) );
-		$this->assertNotEmpty( get_plugin_page_hookname( SetupWizard::PAGE_SLUG, '' ) );
+		$this->assertFalse( $settings_review->shows_in_menu() );
+		$this->assertNotContains( SettingsReview::PAGE_SLUG, wp_list_pluck( $submenu['graphiql-ide'] ?? [], 2 ) );
+		$this->assertNotEmpty( get_plugin_page_hookname( SettingsReview::PAGE_SLUG, '' ) );
 
 		$submenu = $original_submenu;
 	}

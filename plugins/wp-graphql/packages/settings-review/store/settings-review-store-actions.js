@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
-import { saveSetupWizard } from '../api/setup-wizard';
+import { saveSettingsReview } from '../api/settings-review';
 
 /**
  * Groups the chosen values by settings section, leaving out locked settings.
  *
- * @param {Object[]} fields The wizard settings.
+ * @param {Object[]} fields The review settings.
  * @param {Object}   values The chosen values, keyed by "{section}.{name}".
  *
  * @return {Object<string,Object>} The values as `{ section: { name: value } }`.
@@ -26,9 +26,9 @@ export function groupValuesBySection(fields, values) {
 }
 
 /**
- * Saves the wizard with the given status and records the result.
+ * Saves the review with the given status and records the result.
  *
- * @param {'completed'|'skipped'} status     Whether the wizard was completed or skipped.
+ * @param {'completed'|'skipped'} status     Whether the review was completed or skipped.
  * @param {Object}                [settings] The settings grouped by section. Required when completed.
  *
  * @return {Function} The thunk.
@@ -39,12 +39,12 @@ const save =
 		dispatch({ type: 'SAVE_START' });
 
 		try {
-			const response = await saveSetupWizard({ status, settings });
+			const response = await saveSettingsReview({ status, settings });
 
 			dispatch({
 				type: 'SAVE_SUCCESS',
 				status,
-				wizardState: response.state,
+				reviewState: response.state,
 				unreviewedKeys: response.unreviewedKeys || [],
 				values: response.values,
 			});
@@ -53,14 +53,14 @@ const save =
 				type: 'SAVE_ERROR',
 				error:
 					error?.message ||
-					__('The setup wizard could not be saved.', 'wp-graphql'),
+					__('The settings review could not be saved.', 'wp-graphql'),
 				fieldErrors: error?.data?.errors || {},
 			});
 		}
 	};
 
 /**
- * Actions for the setup wizard store.
+ * Actions for the settings review store.
  *
  * @type {Object}
  */

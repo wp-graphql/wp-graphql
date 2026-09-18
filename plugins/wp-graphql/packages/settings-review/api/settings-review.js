@@ -1,24 +1,24 @@
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Returns the bootstrap data localized for the setup wizard.
+ * Returns the bootstrap data localized for the settings review.
  *
  * @return {Object} The bootstrap data.
  */
 export function getBootstrapData() {
-	return window.wpgraphqlSetupWizard || {};
+	return window.wpgraphqlSettingsReview || {};
 }
 
 /**
- * Saves the setup wizard.
+ * Saves the settings review.
  *
  * @param {Object}                args
- * @param {'completed'|'skipped'} args.status     Whether the wizard was completed or skipped.
+ * @param {'completed'|'skipped'} args.status     Whether the review was completed or skipped.
  * @param {Object}                [args.settings] The settings grouped by section, `{ section: { name: value } }`. Required when completed.
  *
- * @return {Promise<{state: Object, values: Object}>} The saved wizard state and current values.
+ * @return {Promise<{state: Object, values: Object}>} The saved review state and current values.
  */
-export function saveSetupWizard({ status, settings }) {
+export function saveSettingsReview({ status, settings }) {
 	const { restPath } = getBootstrapData();
 
 	return apiFetch({

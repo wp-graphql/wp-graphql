@@ -1,4 +1,4 @@
-import { getBootstrapData } from '../api/setup-wizard';
+import { getBootstrapData } from '../api/settings-review';
 
 /**
  * The step shown before the registered steps.
@@ -39,9 +39,9 @@ function getInitialState() {
 		values: { ...values },
 		// The values as last saved, used to show what saving will change.
 		savedValues: { ...values },
-		// Settings added since the wizard was last completed or skipped.
+		// Settings added since the review was last completed or skipped.
 		unreviewedKeys: data.unreviewedKeys || [],
-		wizardState: data.state || {},
+		reviewState: data.state || {},
 		isSaving: false,
 		// 'completed' | 'skipped' | null, set after a successful save in this session.
 		finishedStatus: null,
@@ -51,7 +51,7 @@ function getInitialState() {
 }
 
 /**
- * The reducer for the setup wizard store.
+ * The reducer for the settings review store.
  *
  * @param {Object} state  The current state.
  * @param {Object} action The dispatched action.
@@ -81,7 +81,7 @@ const reducer = (state = getInitialState(), action) => {
 				...state,
 				isSaving: false,
 				finishedStatus: action.status,
-				wizardState: action.wizardState,
+				reviewState: action.reviewState,
 				unreviewedKeys: action.unreviewedKeys,
 				values: { ...action.values },
 				savedValues: { ...action.values },

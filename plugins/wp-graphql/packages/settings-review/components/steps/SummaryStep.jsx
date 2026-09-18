@@ -25,18 +25,18 @@ function getWarningsWhenTurnedOn() {
 }
 
 /**
- * Renders the last step: every setting in the wizard with its saved and chosen value.
+ * Renders the last step: every setting in the review with its saved and chosen value.
  *
  * @return {JSX.Element} The step.
  */
 export function SummaryStep() {
 	const { fields, values, savedValues, fieldErrors } = useSelect((select) => {
-		const wizard = select(store);
+		const review = select(store);
 		return {
-			fields: wizard.getFields(),
-			values: wizard.getValues(),
-			savedValues: wizard.getSavedValues(),
-			fieldErrors: wizard.getFieldErrors(),
+			fields: review.getFields(),
+			values: review.getValues(),
+			savedValues: review.getSavedValues(),
+			fieldErrors: review.getFieldErrors(),
 		};
 	}, []);
 	const changedKeys = useMemo(
@@ -49,7 +49,7 @@ export function SummaryStep() {
 	);
 
 	return (
-		<div className="wpgraphql-setup-wizard__step">
+		<div className="wpgraphql-settings-review__step">
 			<h2>{__('Review and save', 'wp-graphql')}</h2>
 			<p>
 				{0 === changedKeys.length
@@ -69,7 +69,7 @@ export function SummaryStep() {
 				</Notice>
 			))}
 
-			<table className="widefat striped wpgraphql-setup-wizard__summary">
+			<table className="widefat striped wpgraphql-settings-review__summary">
 				<thead>
 					<tr>
 						<th scope="col">{__('Setting', 'wp-graphql')}</th>
@@ -94,12 +94,12 @@ export function SummaryStep() {
 								<td>
 									{formatValue(field, values[field.key])}
 									{isChanged && (
-										<span className="wpgraphql-setup-wizard__badge">
+										<span className="wpgraphql-settings-review__badge">
 											{__('Changed', 'wp-graphql')}
 										</span>
 									)}
 									{fieldErrors[field.key] && (
-										<p className="wpgraphql-setup-wizard__field-error">
+										<p className="wpgraphql-settings-review__field-error">
 											{fieldErrors[field.key]}
 										</p>
 									)}

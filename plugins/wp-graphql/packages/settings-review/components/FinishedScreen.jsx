@@ -9,10 +9,10 @@ import {
 } from '@wordpress/components';
 
 import { store } from '../store';
-import { getBootstrapData } from '../api/setup-wizard';
+import { getBootstrapData } from '../api/settings-review';
 
 /**
- * Renders the screen shown after the wizard is completed or skipped.
+ * Renders the screen shown after the review is completed or skipped.
  *
  * @return {JSX.Element} The screen.
  */
@@ -25,26 +25,26 @@ export function FinishedScreen() {
 	const { settingsUrl } = getBootstrapData();
 
 	return (
-		<Card className="wpgraphql-setup-wizard__card">
+		<Card className="wpgraphql-settings-review__card">
 			<CardBody>
 				<Notice status="success" isDismissible={false}>
 					{'completed' === finishedStatus
 						? __('Your settings are saved.', 'wp-graphql')
 						: __(
-								'The setup wizard was skipped. Your settings were not changed.',
+								'The review was skipped. Your settings were not changed.',
 								'wp-graphql'
 							)}
 				</Notice>
 				<p>
 					{__(
-						'You can run the setup wizard again at any time from the GraphQL menu, or change individual settings on the Settings page.',
+						'You can review your settings again at any time from the Settings page, where you can also change individual settings.',
 						'wp-graphql'
 					)}
 				</p>
 			</CardBody>
 			<CardFooter>
 				<Button variant="secondary" onClick={restart}>
-					{__('Run the setup wizard again', 'wp-graphql')}
+					{__('Review again', 'wp-graphql')}
 				</Button>
 				{settingsUrl && (
 					<Button variant="primary" href={settingsUrl}>

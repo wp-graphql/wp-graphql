@@ -1,25 +1,25 @@
-.wpgraphql-setup-wizard__card {
+.wpgraphql-settings-review__card {
 	max-width: 880px;
 	margin-top: 20px;
 }
 
-.wpgraphql-setup-wizard__steps {
+.wpgraphql-settings-review__steps {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px 24px;
 	margin: 0;
 	padding: 0;
 	list-style: none;
-	counter-reset: wpgraphql-setup-wizard-step;
+	counter-reset: wpgraphql-settings-review-step;
 }
 
-.wpgraphql-setup-wizard__steps-item {
+.wpgraphql-settings-review__steps-item {
 	margin: 0;
 	color: #646970;
-	counter-increment: wpgraphql-setup-wizard-step;
+	counter-increment: wpgraphql-settings-review-step;
 
 	&::before {
-		content: counter(wpgraphql-setup-wizard-step) ". ";
+		content: counter(wpgraphql-settings-review-step) ". ";
 	}
 
 	&.is-current {
@@ -32,7 +32,7 @@
 	}
 }
 
-.wpgraphql-setup-wizard__progress {
+.wpgraphql-settings-review__progress {
 	margin-top: 0;
 	color: #646970;
 
@@ -41,7 +41,7 @@
 	}
 }
 
-.wpgraphql-setup-wizard__step {
+.wpgraphql-settings-review__step {
 	h2 {
 		margin-top: 0;
 	}
@@ -55,29 +55,29 @@
 	}
 }
 
-.wpgraphql-setup-wizard__settings {
+.wpgraphql-settings-review__settings {
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
 }
 
-.wpgraphql-setup-wizard__setting-header {
+.wpgraphql-settings-review__setting-header {
 	align-items: flex-start;
 	gap: 16px;
 }
 
-.wpgraphql-setup-wizard__setting-body {
+.wpgraphql-settings-review__setting-body {
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
 }
 
-.wpgraphql-setup-wizard__meta {
+.wpgraphql-settings-review__meta {
 	margin: 0;
 	color: #646970;
 }
 
-.wpgraphql-setup-wizard__dependents {
+.wpgraphql-settings-review__dependents {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
@@ -86,7 +86,7 @@
 	border-left: 3px solid #dcdcde;
 }
 
-.wpgraphql-setup-wizard__tradeoffs {
+.wpgraphql-settings-review__tradeoffs {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: 24px;
@@ -106,7 +106,7 @@
 	}
 }
 
-.wpgraphql-setup-wizard__summary {
+.wpgraphql-settings-review__summary {
 	margin-top: 16px;
 
 	th,
@@ -120,7 +120,7 @@
 	}
 }
 
-.wpgraphql-setup-wizard__badge {
+.wpgraphql-settings-review__badge {
 	flex-shrink: 0;
 	margin-left: 8px;
 	padding: 2px 8px;
@@ -132,12 +132,12 @@
 	line-height: 1.6;
 }
 
-.wpgraphql-setup-wizard__field-error {
+.wpgraphql-settings-review__field-error {
 	margin: 4px 0 0;
 	color: #d63638;
 }
 
-.wpgraphql-setup-wizard__footer {
+.wpgraphql-settings-review__footer {
 	display: flex;
 	justify-content: space-between;
 }

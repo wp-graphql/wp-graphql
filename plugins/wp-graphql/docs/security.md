@@ -9,17 +9,17 @@ WPGraphQL has been developed with security in mind. Below, are details on some o
 
 If you believe you've discovered a security vulnerability, please email info@wpgraphql.com with details and steps to reproduce.
 
-## Setup Wizard
+## Settings Review
 
-The setup wizard walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Until you've run it, it's in the GraphQL menu as **Setup Wizard**. After that, open it with the **Run the setup wizard** link at the top of **GraphQL > Settings**.
+The settings review walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Until you've run it, it's in the GraphQL menu as **Settings Review**. After that, open it with the **Run the settings review** link at the top of **GraphQL > Settings**.
 
-Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Skipping the wizard changes no settings.
+Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Skipping the review changes no settings.
 
-Administrators are invited to run the wizard, with a notice on WPGraphQL screens and the Plugins screen, until they complete or skip it. When an update adds a setting to the wizard, the invitation shows again and the new setting is marked as new.
+Administrators are invited to run the review, with a notice on WPGraphQL screens and the Plugins screen, until they complete or skip it. When an update adds a setting to the review, the invitation shows again and the new setting is marked as new.
 
-### Adding settings to the setup wizard
+### Adding settings to the settings review
 
-Plugins can add their own settings to the wizard. Add a `setup_wizard` key to the config passed to `register_graphql_settings_field()`:
+Plugins can add their own settings to the review. Add a `settings_review` key to the config passed to `register_graphql_settings_field()`:
 
 ```php
 add_action( 'graphql_register_settings', function () {
@@ -35,7 +35,7 @@ add_action( 'graphql_register_settings', function () {
 			'label'        => __( 'Show widgets to logged-out visitors', 'my-plugin' ),
 			'type'         => 'checkbox',
 			'default'      => 'off',
-			'setup_wizard' => [
+			'settings_review' => [
 				'step'     => 'access',
 				'benefits' => [ __( 'Public front ends can query widgets.', 'my-plugin' ) ],
 				'costs'    => [ __( 'Widget content is readable by anyone.', 'my-plugin' ) ],
@@ -45,19 +45,19 @@ add_action( 'graphql_register_settings', function () {
 } );
 ```
 
-`setup_wizard` can be `true`, or an array with any of these keys:
+`settings_review` can be `true`, or an array with any of these keys:
 
 - `step`: the step to show the setting in. Core registers `access`, `request-limits` and `diagnostics`. A setting without a registered step is shown in a step named after its settings section.
 - `label` and `description`: override the label and description from the settings page.
 - `benefits` and `costs`: lists of what turning the setting on gains and costs.
-- `order`: the setting's position in the wizard.
+- `order`: the setting's position in the review.
 
-The wizard supports the `checkbox`, `number`, `select`, `radio`, `user_role_select`, `text`, `url` and `textarea` field types. A `disabled` field is shown but can't be changed.
+The review supports the `checkbox`, `number`, `select`, `radio`, `user_role_select`, `text`, `url` and `textarea` field types. A `disabled` field is shown but can't be changed.
 
-To register a step of your own, use `register_graphql_setup_wizard_step()`. Steps are shown in ascending `order`, and core's steps use 10, 20 and 30:
+To register a step of your own, use `register_graphql_settings_review_step()`. Steps are shown in ascending `order`, and core's steps use 10, 20 and 30:
 
 ```php
-register_graphql_setup_wizard_step(
+register_graphql_settings_review_step(
 	'my-plugin',
 	[
 		'title'       => __( 'My Plugin', 'my-plugin' ),
@@ -69,7 +69,7 @@ register_graphql_setup_wizard_step(
 
 ### Settings that depend on another setting
 
-When a setting only applies while a checkbox is on, set `depends_on` to the name of that checkbox field in the same section. The setting is hidden while the checkbox is off, on the settings page and (when both settings are in it) in the setup wizard. Its saved value is kept:
+When a setting only applies while a checkbox is on, set `depends_on` to the name of that checkbox field in the same section. The setting is hidden while the checkbox is off, on the settings page and (when both settings are in it) in the settings review. Its saved value is kept:
 
 ```php
 register_graphql_settings_field(

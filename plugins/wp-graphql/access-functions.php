@@ -778,12 +778,12 @@ function register_graphql_settings_section( string $slug, array $config ): void 
  *
  * Set `depends_on` to the name of a checkbox field in the same section when this field only applies
  * while that checkbox is on. The field is then hidden while the checkbox is off, on the settings page
- * and, when both fields are in it, in the setup wizard. Its saved value is kept.
+ * and, when both fields are in it, in the settings review. Its saved value is kept.
  *
- * To show the field in the setup wizard, add a `setup_wizard` key to the config: `true`, or an array
- * with any of `step` (the slug of a step registered with register_graphql_setup_wizard_step()),
+ * To show the field in the settings review, add a `settings_review` key to the config: `true`, or an array
+ * with any of `step` (the slug of a step registered with register_graphql_settings_review_step()),
  * `label`, `description`, `benefits` and `costs` (lists of strings describing what turning the
- * setting on gains and costs) and `order`. The setup wizard supports the checkbox, number, select,
+ * setting on gains and costs) and `order`. The settings review supports the checkbox, number, select,
  * radio, user_role_select, text, url and textarea field types.
  *
  * @param string              $group  The name of the group to register a setting field to
@@ -801,11 +801,11 @@ function register_graphql_settings_field( string $group, array $config ): void {
 }
 
 /**
- * Registers a step in the WPGraphQL setup wizard.
+ * Registers a step in the WPGraphQL settings review.
  *
- * The setup wizard walks site administrators through settings and explains the tradeoffs of each.
- * Settings are added to a step with the `setup_wizard` key of the config passed to
- * register_graphql_settings_field(). A setting whose `setup_wizard` config doesn't name a registered
+ * The settings review walks site administrators through settings and explains the tradeoffs of each.
+ * Settings are added to a step with the `settings_review` key of the config passed to
+ * register_graphql_settings_field(). A setting whose `settings_review` config doesn't name a registered
  * step is shown in a step for its settings section.
  *
  * Core registers the `access` (order 10), `request-limits` (order 20) and `diagnostics` (order 30) steps.
@@ -821,11 +821,11 @@ function register_graphql_settings_field( string $group, array $config ): void {
  *
  * @since x-release-please-version
  */
-function register_graphql_setup_wizard_step( string $slug, array $config ): void {
+function register_graphql_settings_review_step( string $slug, array $config ): void {
 	add_action(
-		'graphql_setup_wizard_init',
-		static function ( \WPGraphQL\Admin\SetupWizard\SetupWizard $setup_wizard ) use ( $slug, $config ): void {
-			$setup_wizard->register_step( $slug, $config );
+		'graphql_settings_review_init',
+		static function ( \WPGraphQL\Admin\SettingsReview\SettingsReview $settings_review ) use ( $slug, $config ): void {
+			$settings_review->register_step( $slug, $config );
 		}
 	);
 }

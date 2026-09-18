@@ -2,11 +2,11 @@ import { createRoot, render } from '@wordpress/element';
 import { register } from '@wordpress/data';
 
 import { store } from './store';
-import { SetupWizard } from './components/SetupWizard';
+import { SettingsReview } from './components/SettingsReview';
 import './index.scss';
 
 document.addEventListener('DOMContentLoaded', () => {
-	const container = document.getElementById('wpgraphql-setup-wizard');
+	const container = document.getElementById('wpgraphql-settings-review');
 
 	if (!container) {
 		return;
@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	 * Once that version is the minimum required, this check can be removed.
 	 */
 	if (createRoot) {
-		createRoot(container).render(<SetupWizard />);
+		createRoot(container).render(<SettingsReview />);
 	} else {
-		render(<SetupWizard />, container);
+		render(<SettingsReview />, container);
 	}
 });

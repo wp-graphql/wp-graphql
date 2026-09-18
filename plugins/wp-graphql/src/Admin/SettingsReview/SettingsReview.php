@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Admin\SetupWizard;
+namespace WPGraphQL\Admin\SettingsReview;
 
 use WPGraphQL\Admin\AdminNotices;
 use WPGraphQL\Admin\Settings\SettingsRegistry;
@@ -9,44 +9,44 @@ use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Class SetupWizard
+ * Class SettingsReview
  *
  * A guided walkthrough of WPGraphQL settings that explains the tradeoffs of each choice.
  *
- * Settings opt in by adding a `setup_wizard` key to the config passed to
- * register_graphql_settings_field(). Steps are registered with register_graphql_setup_wizard_step(),
+ * Settings opt in by adding a `settings_review` key to the config passed to
+ * register_graphql_settings_field(). Steps are registered with register_graphql_settings_review_step(),
  * and a setting that doesn't name a registered step is shown in a step for its settings section.
  *
- * Site administrators are invited to the wizard until every setting in it has been reviewed, by
- * completing the wizard (which saves the settings) or skipping it (which changes nothing). When a
- * plugin update adds a setting to the wizard, administrators are invited again.
+ * Site administrators are invited to the review until every setting in it has been reviewed, by
+ * completing the review (which saves the settings) or skipping it (which changes nothing). When a
+ * plugin update adds a setting to the review, administrators are invited again.
  *
- * @package WPGraphQL\Admin\SetupWizard
+ * @package WPGraphQL\Admin\SettingsReview
  *
  * phpcs:disable -- For phpstan type hinting
- * @phpstan-type SetupWizardStepConfig array{
+ * @phpstan-type SettingsReviewStepConfig array{
  *   title: string,
  *   description?: string,
  *   order?: int,
  * }
- * @phpstan-type SetupWizardStep array{
+ * @phpstan-type SettingsReviewStep array{
  *   slug: string,
  *   title: string,
  *   description: string,
  *   order: int,
  * }
- * @phpstan-type SetupWizardStepWithFields array{
+ * @phpstan-type SettingsReviewStepWithFields array{
  *   slug: string,
  *   title: string,
  *   description: string,
  *   order: int,
  *   fields: string[],
  * }
- * @phpstan-type SetupWizardOption array{
+ * @phpstan-type SettingsReviewOption array{
  *   value: string,
  *   label: string,
  * }
- * @phpstan-type SetupWizardField array{
+ * @phpstan-type SettingsReviewField array{
  *   key: string,
  *   section: string,
  *   name: string,
@@ -55,7 +55,7 @@ use WP_REST_Response;
  *   order: int,
  *   label: string,
  *   description: string,
- *   options: SetupWizardOption[],
+ *   options: SettingsReviewOption[],
  *   min: int|float|null,
  *   max: int|float|null,
  *   inputStep: int|float|null,
@@ -65,29 +65,29 @@ use WP_REST_Response;
  *   dependsOn: string|null,
  *   locked: bool,
  * }
- * @phpstan-type SetupWizardState array{
+ * @phpstan-type SettingsReviewState array{
  *   status?: string,
  *   reviewed?: string[],
  *   updated_at?: int,
  * }
  * phpcs:enable
  */
-final class SetupWizard {
+final class SettingsReview {
 
 	/**
-	 * The option that stores whether the wizard was completed or skipped, and which settings were reviewed.
+	 * The option that stores whether the review was completed or skipped, and which settings were reviewed.
 	 */
-	public const STATE_OPTION = 'graphql_setup_wizard';
+	public const STATE_OPTION = 'graphql_settings_review';
 
 	/**
 	 * The admin page slug.
 	 */
-	public const PAGE_SLUG = 'graphql-setup-wizard';
+	public const PAGE_SLUG = 'graphql-settings-review';
 
 	/**
-	 * The slug of the admin notice that invites administrators to the wizard.
+	 * The slug of the admin notice that invites administrators to the review.
 	 */
-	public const NOTICE_SLUG = 'wpgraphql-setup-wizard';
+	public const NOTICE_SLUG = 'wpgraphql-settings-review';
 
 	/**
 	 * The REST API namespace.
@@ -97,27 +97,27 @@ final class SetupWizard {
 	/**
 	 * The REST API route.
 	 */
-	public const REST_ROUTE = '/setup-wizard';
+	public const REST_ROUTE = '/settings-review';
 
 	/**
-	 * The capability required to use the wizard. Matches the WPGraphQL settings page.
+	 * The capability required to use the review. Matches the WPGraphQL settings page.
 	 */
 	public const CAPABILITY = 'manage_options';
 
 	/**
-	 * The settings field types the wizard can display.
+	 * The settings field types the review can display.
 	 */
 	public const SUPPORTED_FIELD_TYPES = [ 'checkbox', 'number', 'select', 'radio', 'user_role_select', 'text', 'url', 'textarea' ];
 
 	/**
-	 * The settings registry the wizard reads settings from.
+	 * The settings registry the review reads settings from.
 	 */
 	private SettingsRegistry $registry;
 
 	/**
 	 * The registered steps, keyed by slug.
 	 *
-	 * @var array<string,SetupWizardStep>
+	 * @var array<string,SettingsReviewStep>
 	 */
 	private array $steps = [];
 
@@ -127,9 +127,9 @@ final class SetupWizard {
 	private bool $steps_initialized = false;
 
 	/**
-	 * The prepared wizard settings, once the settings registry is fully populated.
+	 * The prepared review settings, once the settings registry is fully populated.
 	 *
-	 * @var array<string,SetupWizardField>|null
+	 * @var array<string,SettingsReviewField>|null
 	 */
 	private ?array $fields = null;
 
@@ -139,12 +139,12 @@ final class SetupWizard {
 	private ?string $hook_suffix = null;
 
 	/**
-	 * Whether the wizard has an item in the GraphQL menu for the current request.
+	 * Whether the review has an item in the GraphQL menu for the current request.
 	 */
 	private bool $shows_in_menu = false;
 
 	/**
-	 * SetupWizard constructor.
+	 * SettingsReview constructor.
 	 *
 	 * @param \WPGraphQL\Admin\Settings\SettingsRegistry $registry The settings registry.
 	 */
@@ -153,7 +153,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Registers the admin notice inviting administrators to the wizard.
+	 * Registers the admin notice inviting administrators to the review.
 	 *
 	 * Must run before the admin notices are initialized. Settings aren't registered yet at that
 	 * point, so the notice is removed later by maybe_remove_admin_notice() when there's nothing
@@ -165,8 +165,8 @@ final class SetupWizard {
 			[
 				'type'           => 'info',
 				'message'        => sprintf(
-					/* translators: %s: URL of the setup wizard admin page */
-					__( '<strong>Review your WPGraphQL setup.</strong> A short wizard explains the tradeoffs of settings for access, request limits and debugging. <a href="%s">Start the setup wizard</a>', 'wp-graphql' ),
+					/* translators: %s: URL of the settings review admin page */
+					__( '<strong>Review your WPGraphQL settings.</strong> A short review explains the tradeoffs of settings for access, request limits and debugging. <a href="%s">Start the review</a>', 'wp-graphql' ),
 					esc_url( self::get_page_url() )
 				),
 				'is_dismissable' => false,
@@ -178,7 +178,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Initializes the wizard's admin page, assets and REST API route.
+	 * Initializes the review's admin page, assets and REST API route.
 	 */
 	public function init(): void {
 		// After the settings registry is populated (priority 11).
@@ -191,7 +191,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Removes the invitation notice when every setting in the wizard has been reviewed.
+	 * Removes the invitation notice when every setting in the review has been reviewed.
 	 */
 	public function maybe_remove_admin_notice(): void {
 		if ( ! $this->should_invite() ) {
@@ -200,7 +200,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Whether the current user should be invited to the wizard.
+	 * Whether the current user should be invited to the review.
 	 */
 	public function should_invite(): bool {
 		return current_user_can( self::CAPABILITY ) && ! empty( $this->get_unreviewed_field_keys() );
@@ -210,13 +210,13 @@ final class SetupWizard {
 	 * Registers a step.
 	 *
 	 * @param string                $slug   The step slug.
-	 * @param SetupWizardStepConfig $config The step config.
+	 * @param SettingsReviewStepConfig $config The step config.
 	 */
 	public function register_step( string $slug, array $config ): void {
 		$slug = sanitize_key( $slug );
 
 		if ( '' === $slug || empty( $config['title'] ) || ! is_string( $config['title'] ) ) {
-			_doing_it_wrong( 'register_graphql_setup_wizard_step', esc_html__( 'A setup wizard step needs a slug and a title.', 'wp-graphql' ), 'x-release-please-version' );
+			_doing_it_wrong( 'register_graphql_settings_review_step', esc_html__( 'A settings review step needs a slug and a title.', 'wp-graphql' ), 'x-release-please-version' );
 			return;
 		}
 
@@ -266,24 +266,24 @@ final class SetupWizard {
 		);
 
 		/**
-		 * Fires when the setup wizard registers its steps.
+		 * Fires when the settings review registers its steps.
 		 *
-		 * Use register_graphql_setup_wizard_step() rather than hooking this action directly.
+		 * Use register_graphql_settings_review_step() rather than hooking this action directly.
 		 *
-		 * @param \WPGraphQL\Admin\SetupWizard\SetupWizard $setup_wizard The setup wizard instance.
+		 * @param \WPGraphQL\Admin\SettingsReview\SettingsReview $settings_review The settings review instance.
 		 *
 		 * @hookGroup settings
 		 * @since x-release-please-version
 		 */
-		do_action( 'graphql_setup_wizard_init', $this );
+		do_action( 'graphql_settings_review_init', $this );
 	}
 
 	/**
 	 * Returns the steps that have settings to review, in display order.
 	 *
-	 * Includes a step for each settings section whose wizard settings don't name a registered step.
+	 * Includes a step for each settings section whose review settings don't name a registered step.
 	 *
-	 * @return array<int,SetupWizardStepWithFields>
+	 * @return array<int,SettingsReviewStepWithFields>
 	 */
 	public function get_steps(): array {
 		$this->init_steps();
@@ -320,9 +320,9 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Returns the settings shown in the wizard, keyed by "{section}.{name}".
+	 * Returns the settings shown in the review, keyed by "{section}.{name}".
 	 *
-	 * @return array<string,SetupWizardField>
+	 * @return array<string,SettingsReviewField>
 	 */
 	public function get_fields(): array {
 		if ( null !== $this->fields ) {
@@ -346,7 +346,7 @@ final class SetupWizard {
 			}
 		}
 
-		// Drop dependencies on settings that aren't in the wizard.
+		// Drop dependencies on settings that aren't in the review.
 		foreach ( $fields as $key => $field ) {
 			if ( null !== $field['dependsOn'] && ! isset( $fields[ $field['dependsOn'] ] ) ) {
 				$fields[ $key ]['dependsOn'] = null;
@@ -369,16 +369,16 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Prepares a registered settings field for the wizard.
+	 * Prepares a registered settings field for the review.
 	 *
 	 * @param string              $section The settings section the field is registered to.
 	 * @param array<string,mixed> $field   The registered field config.
 	 * @param int                 $index   The position the field was registered in.
 	 *
-	 * @return SetupWizardField|null The prepared field, or null if the field isn't shown in the wizard.
+	 * @return SettingsReviewField|null The prepared field, or null if the field isn't shown in the review.
 	 */
 	private function prepare_field( string $section, array $field, int $index ): ?array {
-		$config = $field['setup_wizard'] ?? false;
+		$config = $field['settings_review'] ?? false;
 
 		if ( true === $config ) {
 			$config = [];
@@ -395,7 +395,7 @@ final class SetupWizard {
 				'register_graphql_settings_field',
 				sprintf(
 					/* translators: 1: settings field name, 2: settings field type */
-					esc_html__( 'The "%1$s" setting can\'t be shown in the setup wizard because the setup wizard doesn\'t support the "%2$s" field type.', 'wp-graphql' ),
+					esc_html__( 'The "%1$s" setting can\'t be shown in the settings review because the settings review doesn\'t support the "%2$s" field type.', 'wp-graphql' ),
 					esc_html( $field['name'] ),
 					esc_html( $type )
 				),
@@ -441,7 +441,7 @@ final class SetupWizard {
 	 * @param string              $type  The field type.
 	 * @param array<string,mixed> $field The registered field config.
 	 *
-	 * @return SetupWizardOption[]
+	 * @return SettingsReviewOption[]
 	 */
 	private function get_field_options( string $type, array $field ): array {
 		if ( 'user_role_select' === $type ) {
@@ -501,9 +501,9 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Returns the saved wizard state.
+	 * Returns the saved review state.
 	 *
-	 * @return SetupWizardState
+	 * @return SettingsReviewState
 	 */
 	public static function get_state(): array {
 		$state = get_option( self::STATE_OPTION, [] );
@@ -512,7 +512,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Returns the keys of the settings in the wizard that haven't been reviewed.
+	 * Returns the keys of the settings in the review that haven't been reviewed.
 	 *
 	 * @return string[]
 	 */
@@ -524,7 +524,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Returns the current value of each setting in the wizard, keyed by "{section}.{name}".
+	 * Returns the current value of each setting in the review, keyed by "{section}.{name}".
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -549,7 +549,7 @@ final class SetupWizard {
 
 			// A locked field can declare the value that applies, for example when a constant decides it.
 			// Only locked fields use it: for other fields it was computed when settings were registered and
-			// can be out of date after the wizard saves.
+			// can be out of date after the review saves.
 			if ( $field['locked'] && array_key_exists( 'value', $registered[ $key ] ?? [] ) ) {
 				$value = $registered[ $key ]['value'];
 			}
@@ -565,11 +565,11 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Registers the wizard admin page.
+	 * Registers the review admin page.
 	 *
 	 * The page has an item in the GraphQL menu while there are settings to review, the same rule as
-	 * the invitation notice. Once the wizard is completed or skipped, the menu item is hidden and the
-	 * wizard is reached from the Settings page, which stays highlighted in the menu while it's open.
+	 * the invitation notice. Once the review is completed or skipped, the menu item is hidden and the
+	 * review is reached from the Settings page, which stays highlighted in the menu while it's open.
 	 */
 	public function register_admin_page(): void {
 		$this->shows_in_menu = $this->should_invite();
@@ -579,8 +579,8 @@ final class SetupWizard {
 
 		$hook_suffix = add_submenu_page(
 			$parent_slug,
-			__( 'WPGraphQL Setup Wizard', 'wp-graphql' ),
-			__( 'Setup Wizard', 'wp-graphql' ),
+			__( 'Review WPGraphQL Settings', 'wp-graphql' ),
+			__( 'Review Settings', 'wp-graphql' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			[ $this, 'render_admin_page' ]
@@ -594,54 +594,54 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Sets the browser tab title for the wizard page.
+	 * Sets the browser tab title for the review page.
 	 *
-	 * WordPress takes the title from the admin menu, and the wizard may not have a menu item.
+	 * WordPress takes the title from the admin menu, and the review may not have a menu item.
 	 */
 	public function set_page_title(): void {
 		global $title;
 
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress reads the admin page title from this global.
-		$title = __( 'WPGraphQL Setup Wizard', 'wp-graphql' );
+		$title = __( 'Review WPGraphQL Settings', 'wp-graphql' );
 	}
 
 	/**
-	 * Returns the URL of the wizard admin page.
+	 * Returns the URL of the review admin page.
 	 */
 	public static function get_page_url(): string {
 		return admin_url( 'admin.php?page=' . self::PAGE_SLUG );
 	}
 
 	/**
-	 * Whether the current admin page is the wizard.
+	 * Whether the current admin page is the review.
 	 */
-	private function is_wizard_page(): bool {
+	private function is_review_page(): bool {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		return null !== $this->hook_suffix && $screen instanceof \WP_Screen && $this->hook_suffix === $screen->id;
 	}
 
 	/**
-	 * Returns the slug of the GraphQL menu the wizard belongs to.
+	 * Returns the slug of the GraphQL menu the review belongs to.
 	 */
 	private static function get_menu_parent_slug(): string {
 		return 'off' === get_graphql_setting( 'graphiql_enabled' ) ? 'graphql-settings' : 'graphiql-ide';
 	}
 
 	/**
-	 * Whether the wizard has an item in the GraphQL menu for the current request.
+	 * Whether the review has an item in the GraphQL menu for the current request.
 	 */
 	public function shows_in_menu(): bool {
 		return $this->shows_in_menu;
 	}
 
 	/**
-	 * Highlights the GraphQL menu while the wizard is open without a menu item of its own.
+	 * Highlights the GraphQL menu while the review is open without a menu item of its own.
 	 *
 	 * @param string|null $parent_file The parent menu slug to highlight.
 	 */
 	public function highlight_parent_menu( $parent_file ): ?string {
-		if ( $this->shows_in_menu || ! $this->is_wizard_page() ) {
+		if ( $this->shows_in_menu || ! $this->is_review_page() ) {
 			return $parent_file;
 		}
 
@@ -649,12 +649,12 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Highlights GraphQL > Settings while the wizard is open without a menu item of its own.
+	 * Highlights GraphQL > Settings while the review is open without a menu item of its own.
 	 *
 	 * @param string|null $submenu_file The submenu slug to highlight.
 	 */
 	public function highlight_settings_submenu( $submenu_file ): ?string {
-		if ( $this->shows_in_menu || ! $this->is_wizard_page() ) {
+		if ( $this->shows_in_menu || ! $this->is_review_page() ) {
 			return $submenu_file;
 		}
 
@@ -662,30 +662,30 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Renders the element the wizard app mounts into.
+	 * Renders the element the review app mounts into.
 	 */
 	public function render_admin_page(): void {
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'WPGraphQL Setup Wizard', 'wp-graphql' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Review WPGraphQL Settings', 'wp-graphql' ) . '</h1>';
 
-		if ( ! file_exists( WPGRAPHQL_PLUGIN_DIR . 'build/setupWizard.asset.php' ) ) {
+		if ( ! file_exists( WPGRAPHQL_PLUGIN_DIR . 'build/settingsReview.asset.php' ) ) {
 			$message = sprintf(
 				/* translators: 1: npm ci command, 2: npm run build command, 3: releases URL */
-				__( 'The Setup Wizard requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href="%3$s" target="_blank">download a release</a> that includes pre-built assets.', 'wp-graphql' ),
+				__( 'The settings review requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href="%3$s" target="_blank">download a release</a> that includes pre-built assets.', 'wp-graphql' ),
 				'<code>npm ci</code>',
 				'<code>npm run build</code>',
 				'https://github.com/wp-graphql/wp-graphql/releases'
 			);
 			echo '<div class="notice notice-warning inline" style="margin-top: 20px;"><p>' . wp_kses_post( $message ) . '</p></div>';
 		} else {
-			echo '<div id="wpgraphql-setup-wizard"></div>';
+			echo '<div id="wpgraphql-settings-review"></div>';
 		}
 
 		echo '</div>';
 	}
 
 	/**
-	 * Returns the data the wizard app starts with.
+	 * Returns the data the review app starts with.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -705,7 +705,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Enqueues the wizard app on its admin page.
+	 * Enqueues the review app on its admin page.
 	 *
 	 * @param string $hook_suffix The current admin page.
 	 */
@@ -714,7 +714,7 @@ final class SetupWizard {
 			return;
 		}
 
-		$asset_path = WPGRAPHQL_PLUGIN_DIR . 'build/setupWizard.asset.php';
+		$asset_path = WPGRAPHQL_PLUGIN_DIR . 'build/settingsReview.asset.php';
 
 		// Bail if build assets don't exist (e.g., dev install without running npm build).
 		if ( ! file_exists( $asset_path ) ) {
@@ -725,23 +725,23 @@ final class SetupWizard {
 		$asset_file = include $asset_path;
 
 		wp_enqueue_script(
-			'wpgraphql-setup-wizard',
-			WPGRAPHQL_PLUGIN_URL . 'build/setupWizard.js',
+			'wpgraphql-settings-review',
+			WPGRAPHQL_PLUGIN_URL . 'build/settingsReview.js',
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true
 		);
 
-		wp_set_script_translations( 'wpgraphql-setup-wizard', 'wp-graphql', WPGRAPHQL_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'wpgraphql-settings-review', 'wp-graphql', WPGRAPHQL_PLUGIN_DIR . 'languages' );
 
-		wp_localize_script( 'wpgraphql-setup-wizard', 'wpgraphqlSetupWizard', $this->get_bootstrap_data() );
+		wp_localize_script( 'wpgraphql-settings-review', 'wpgraphqlSettingsReview', $this->get_bootstrap_data() );
 
 		wp_enqueue_style( 'wp-components' );
 
-		if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'build/setupWizard.css' ) ) {
+		if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'build/settingsReview.css' ) ) {
 			wp_enqueue_style(
-				'wpgraphql-setup-wizard',
-				WPGRAPHQL_PLUGIN_URL . 'build/setupWizard.css',
+				'wpgraphql-settings-review',
+				WPGRAPHQL_PLUGIN_URL . 'build/settingsReview.css',
 				[ 'wp-components' ],
 				$asset_file['version']
 			);
@@ -749,7 +749,7 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Registers the REST API route the wizard saves through.
+	 * Registers the REST API route the review saves through.
 	 */
 	public function register_rest_routes(): void {
 		register_rest_route(
@@ -775,17 +775,17 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Whether the current user can save the wizard.
+	 * Whether the current user can save the review.
 	 */
 	public function can_save(): bool {
 		return current_user_can( self::CAPABILITY );
 	}
 
 	/**
-	 * Saves the wizard.
+	 * Saves the review.
 	 *
-	 * Completing the wizard saves every setting in it. Skipping it changes no settings. Either way,
-	 * the settings currently in the wizard are recorded as reviewed.
+	 * Completing the review saves every setting in it. Skipping it changes no settings. Either way,
+	 * the settings currently in the review are recorded as reviewed.
 	 *
 	 * @param \WP_REST_Request<array{status:string,settings?:array<string,mixed>}> $request The REST request.
 	 *
@@ -799,8 +799,8 @@ final class SetupWizard {
 
 			if ( ! is_array( $settings ) ) {
 				return new WP_Error(
-					'graphql_setup_wizard_missing_settings',
-					__( 'Settings are required to complete the setup wizard.', 'wp-graphql' ),
+					'graphql_settings_review_missing_settings',
+					__( 'Settings are required to complete the settings review.', 'wp-graphql' ),
 					[ 'status' => 400 ]
 				);
 			}
@@ -840,8 +840,8 @@ final class SetupWizard {
 	/**
 	 * Validates the submitted settings and groups them by settings section.
 	 *
-	 * Every setting in the wizard that isn't locked must be submitted, as
-	 * `{ section: { name: value } }`. Settings that aren't in the wizard are rejected, and locked
+	 * Every setting in the review that isn't locked must be submitted, as
+	 * `{ section: { name: value } }`. Settings that aren't in the review are rejected, and locked
 	 * settings are left as they are.
 	 *
 	 * @param array<string,mixed> $settings The submitted settings.
@@ -861,7 +861,7 @@ final class SetupWizard {
 
 			foreach ( array_keys( $values ) as $name ) {
 				if ( ! isset( $fields[ $section . '.' . $name ] ) ) {
-					$errors[ $section . '.' . $name ] = __( 'This setting is not part of the setup wizard.', 'wp-graphql' );
+					$errors[ $section . '.' . $name ] = __( 'This setting is not part of the settings review.', 'wp-graphql' );
 				}
 			}
 		}
@@ -888,7 +888,7 @@ final class SetupWizard {
 
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
-				'graphql_setup_wizard_invalid_settings',
+				'graphql_settings_review_invalid_settings',
 				__( 'Some settings have invalid values.', 'wp-graphql' ),
 				[
 					'status' => 400,
@@ -904,7 +904,7 @@ final class SetupWizard {
 	 * Checks that a submitted value fits its field and converts it to the stored format.
 	 *
 	 * @param mixed            $value The submitted value.
-	 * @param SetupWizardField $field The field.
+	 * @param SettingsReviewField $field The field.
 	 *
 	 * @return mixed The value to store, or null if the value is not valid.
 	 */

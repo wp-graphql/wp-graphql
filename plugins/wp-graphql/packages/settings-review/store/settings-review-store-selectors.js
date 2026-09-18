@@ -1,5 +1,5 @@
 /**
- * Selectors for the setup wizard store.
+ * Selectors for the settings review store.
  *
  * Settings are identified by their key, "{section}.{name}".
  *
@@ -20,7 +20,7 @@ const selectors = {
 	getSavedValues: (state) => state.savedValues,
 	getSavedValue: (state, key) => state.savedValues[key],
 	getUnreviewedKeys: (state) => state.unreviewedKeys,
-	getWizardState: (state) => state.wizardState,
+	getReviewState: (state) => state.reviewState,
 	isSaving: (state) => state.isSaving,
 	getFinishedStatus: (state) => state.finishedStatus,
 	getError: (state) => state.error,

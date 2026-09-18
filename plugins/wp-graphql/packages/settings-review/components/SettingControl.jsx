@@ -20,11 +20,11 @@ import { store } from '../store';
 export function SettingControl({ settingKey }) {
 	const { field, value, fieldError } = useSelect(
 		(select) => {
-			const wizard = select(store);
+			const review = select(store);
 			return {
-				field: wizard.getField(settingKey),
-				value: wizard.getValue(settingKey),
-				fieldError: wizard.getFieldError(settingKey),
+				field: review.getField(settingKey),
+				value: review.getValue(settingKey),
+				fieldError: review.getFieldError(settingKey),
 			};
 		},
 		[settingKey]

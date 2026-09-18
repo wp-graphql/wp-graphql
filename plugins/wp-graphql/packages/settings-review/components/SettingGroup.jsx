@@ -21,15 +21,15 @@ import { formatValue } from './format-value';
 export function SettingGroup({ settingKey }) {
 	const { field, fields, value, savedValue, isNew } = useSelect(
 		(select) => {
-			const wizard = select(store);
+			const review = select(store);
 			return {
-				field: wizard.getField(settingKey),
-				fields: wizard.getFields(),
-				value: wizard.getValue(settingKey),
-				savedValue: wizard.getSavedValue(settingKey),
+				field: review.getField(settingKey),
+				fields: review.getFields(),
+				value: review.getValue(settingKey),
+				savedValue: review.getSavedValue(settingKey),
 				isNew:
-					!!wizard.getWizardState()?.status &&
-					wizard.getUnreviewedKeys().includes(settingKey),
+					!!review.getReviewState()?.status &&
+					review.getUnreviewedKeys().includes(settingKey),
 			};
 		},
 		[settingKey]
@@ -48,17 +48,17 @@ export function SettingGroup({ settingKey }) {
 	const hasTradeoffs = field.benefits.length > 0 || field.costs.length > 0;
 
 	return (
-		<Card className="wpgraphql-setup-wizard__setting" size="medium">
-			<CardHeader className="wpgraphql-setup-wizard__setting-header">
+		<Card className="wpgraphql-settings-review__setting" size="medium">
+			<CardHeader className="wpgraphql-settings-review__setting-header">
 				<SettingControl settingKey={settingKey} />
 				{isNew && (
-					<span className="wpgraphql-setup-wizard__badge">
+					<span className="wpgraphql-settings-review__badge">
 						{__('New', 'wp-graphql')}
 					</span>
 				)}
 			</CardHeader>
-			<CardBody className="wpgraphql-setup-wizard__setting-body">
-				<p className="wpgraphql-setup-wizard__meta">
+			<CardBody className="wpgraphql-settings-review__setting-body">
+				<p className="wpgraphql-settings-review__meta">
 					{sprintf(
 						/* translators: %s: the setting's saved value, e.g. "On" */
 						__('Currently saved: %s', 'wp-graphql'),
@@ -67,7 +67,7 @@ export function SettingGroup({ settingKey }) {
 				</p>
 
 				{showDependents && dependents.length > 0 && (
-					<div className="wpgraphql-setup-wizard__dependents">
+					<div className="wpgraphql-settings-review__dependents">
 						{dependents.map((dependent) => (
 							<SettingControl
 								key={dependent.key}
@@ -78,7 +78,7 @@ export function SettingGroup({ settingKey }) {
 				)}
 
 				{hasTradeoffs && (
-					<div className="wpgraphql-setup-wizard__tradeoffs">
+					<div className="wpgraphql-settings-review__tradeoffs">
 						{field.benefits.length > 0 && (
 							<div>
 								<h4>{__('What you gain', 'wp-graphql')}</h4>
