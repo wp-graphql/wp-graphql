@@ -408,7 +408,7 @@ class Settings {
 							__( 'Tools such as GraphiQL, code generators and some frameworks can read the schema without credentials.', 'wp-graphql' ),
 						],
 						'costs'    => [
-							__( 'Anyone can see the full shape of your API, including fields added by other plugins, which makes it easier to look for weak spots.', 'wp-graphql' ),
+							__( 'Anyone can see the names and descriptions of every type, field and argument your API offers, including ones added by other plugins. What each field returns is still decided by who is asking.', 'wp-graphql' ),
 						],
 					],
 					'settings_review' => [
