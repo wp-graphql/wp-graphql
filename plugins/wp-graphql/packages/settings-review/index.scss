@@ -1,0 +1,143 @@
+.wpgraphql-settings-review__card {
+	max-width: 880px;
+	margin-top: 20px;
+}
+
+.wpgraphql-settings-review__steps {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: wpgraphql-settings-review-step;
+}
+
+.wpgraphql-settings-review__steps-item {
+	margin: 0;
+	color: #646970;
+	counter-increment: wpgraphql-settings-review-step;
+
+	&::before {
+		content: counter(wpgraphql-settings-review-step) ". ";
+	}
+
+	&.is-current {
+		color: #1d2327;
+		font-weight: 600;
+	}
+
+	&.is-done {
+		color: #2c3338;
+	}
+}
+
+.wpgraphql-settings-review__progress {
+	margin-top: 0;
+	color: #646970;
+
+	&:focus {
+		outline: none;
+	}
+}
+
+.wpgraphql-settings-review__step {
+	h2 {
+		margin-top: 0;
+	}
+
+	> p {
+		margin-bottom: 20px;
+	}
+
+	.components-notice {
+		margin: 0 0 16px;
+	}
+}
+
+.wpgraphql-settings-review__settings {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.wpgraphql-settings-review__setting-header {
+	align-items: flex-start;
+	gap: 16px;
+}
+
+.wpgraphql-settings-review__setting-body {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.wpgraphql-settings-review__meta {
+	margin: 0;
+	color: #646970;
+}
+
+.wpgraphql-settings-review__dependents {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	max-width: 360px;
+	padding-left: 16px;
+	border-left: 3px solid #dcdcde;
+}
+
+.wpgraphql-settings-review__tradeoffs {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 24px;
+
+	h4 {
+		margin: 0 0 8px;
+	}
+
+	ul {
+		margin: 0;
+		padding-left: 18px;
+		list-style: disc;
+	}
+
+	li {
+		margin-bottom: 6px;
+	}
+}
+
+.wpgraphql-settings-review__summary {
+	margin-top: 16px;
+
+	th,
+	td {
+		padding: 10px 12px;
+	}
+
+	.is-changed th,
+	.is-changed td {
+		background: #fcf9e8;
+	}
+}
+
+.wpgraphql-settings-review__badge {
+	flex-shrink: 0;
+	margin-left: 8px;
+	padding: 2px 8px;
+	border-radius: 2px;
+	background: #f0c33c;
+	color: #1d2327;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.6;
+}
+
+.wpgraphql-settings-review__field-error {
+	margin: 4px 0 0;
+	color: #d63638;
+}
+
+.wpgraphql-settings-review__footer {
+	display: flex;
+	justify-content: space-between;
+}

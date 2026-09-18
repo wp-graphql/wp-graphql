@@ -776,6 +776,20 @@ function register_graphql_settings_section( string $slug, array $config ): void 
 /**
  * Registers a GraphQL Settings Field
  *
+ * Set `depends_on` to the name of a checkbox field in the same section when this field only applies
+ * while that checkbox is on. The field is then hidden while the checkbox is off, on the settings page
+ * and, when both fields are in it, in the settings review. Its saved value is kept.
+ *
+ * Set `tradeoffs` to describe what turning the setting on gains and costs, as
+ * `[ 'benefits' => string[], 'costs' => string[] ]`. The settings page shows them in a collapsible
+ * section under the setting, and the settings review shows them next to it.
+ *
+ * To show the field in the settings review, add a `settings_review` key to the config: `true`, or an array
+ * with any of `step` (the slug of a step registered with register_graphql_settings_review_step()),
+ * `description` (a short plain-text description to use instead of `desc`) and `order`. The settings
+ * review always uses the field's `label`. It supports the checkbox, number, select, radio,
+ * user_role_select, text, url and textarea field types.
+ *
  * @param string              $group  The name of the group to register a setting field to
  * @param array<string,mixed> $config The config for the settings field being registered
  *
@@ -786,6 +800,36 @@ function register_graphql_settings_field( string $group, array $config ): void {
 		'graphql_init_settings',
 		static function ( \WPGraphQL\Admin\Settings\SettingsRegistry $registry ) use ( $group, $config ): void {
 			$registry->register_field( $group, $config );
+		}
+	);
+}
+
+/**
+ * Registers a step in the WPGraphQL settings review.
+ *
+ * The settings review walks site administrators through settings and explains the tradeoffs of each.
+ * Settings are added to a step with the `settings_review` key of the config passed to
+ * register_graphql_settings_field(). A setting whose `settings_review` config doesn't name a registered
+ * step is shown in a step for its settings section.
+ *
+ * Core registers the `access` (order 10), `request-limits` (order 20) and `diagnostics` (order 30) steps.
+ *
+ * @param string              $slug   A unique slug for the step.
+ * @param array<string,mixed> $config The step config: `title` (required), `description` and `order` (steps are shown in ascending order, default 100).
+ *
+ * @phpstan-param array{
+ *  title: string,
+ *  description?: string,
+ *  order?: int,
+ * } $config
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_settings_review_step( string $slug, array $config ): void {
+	add_action(
+		'graphql_settings_review_init',
+		static function ( \WPGraphQL\Admin\SettingsReview\SettingsReview $settings_review ) use ( $slug, $config ): void {
+			$settings_review->register_step( $slug, $config );
 		}
 	);
 }

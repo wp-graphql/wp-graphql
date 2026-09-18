@@ -5,6 +5,7 @@ namespace WPGraphQL\Admin;
 use WPGraphQL\Admin\Extensions\Extensions;
 use WPGraphQL\Admin\GraphiQL\GraphiQL;
 use WPGraphQL\Admin\Settings\Settings;
+use WPGraphQL\Admin\SettingsReview\SettingsReview;
 
 /**
  * Class Admin
@@ -38,6 +39,11 @@ class Admin {
 	protected $extensions;
 
 	/**
+	 * @var \WPGraphQL\Admin\SettingsReview\SettingsReview
+	 */
+	protected $settings_review;
+
+	/**
 	 * Initialize Admin functionality for WPGraphQL
 	 *
 	 * @return void
@@ -62,6 +68,12 @@ class Admin {
 		 * @since 0.13.0
 		 */
 		$this->graphiql_enabled = apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled', true ) );
+
+		// The settings review invitation must be registered before the admin notices initialize.
+		// There's nowhere to send administrators when the admin pages are disabled.
+		if ( false !== $this->admin_enabled ) {
+			SettingsReview::register_admin_notice();
+		}
 
 		AdminNotices::get_instance();
 
@@ -91,5 +103,8 @@ class Admin {
 
 		$this->extensions = new Extensions();
 		$this->extensions->init();
+
+		$this->settings_review = new SettingsReview( $this->settings->settings_api );
+		$this->settings_review->init();
 	}
 }

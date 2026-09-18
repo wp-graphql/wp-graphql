@@ -65,6 +65,11 @@ module.exports = {
 			'packages/extensions',
 			'index.js'
 		),
+		settingsReview: path.resolve(
+			process.cwd(),
+			'packages/settings-review',
+			'index.js'
+		),
 		updates: path.resolve(process.cwd(), 'packages/updates', 'index.scss'),
 	},
 	plugins: [

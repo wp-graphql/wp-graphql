@@ -60,6 +60,46 @@ class SettingsRegistry {
 	}
 
 	/**
+	 * Returns the fields that only apply while a checkbox field in the same section is on.
+	 *
+	 * A field declares this with the `depends_on` key of its config, set to the name of the checkbox
+	 * field. Declarations that don't name a checkbox field in the same section are left out.
+	 *
+	 * @return array<int,array{section:string,name:string,dependsOn:string}>
+	 */
+	public function get_field_dependencies(): array {
+		$dependencies = [];
+
+		foreach ( $this->settings_fields as $section => $fields ) {
+			$checkbox_names = [];
+
+			foreach ( $fields as $field ) {
+				if ( isset( $field['type'], $field['name'] ) && 'checkbox' === $field['type'] ) {
+					$checkbox_names[] = $field['name'];
+				}
+			}
+
+			foreach ( $fields as $field ) {
+				if ( empty( $field['depends_on'] ) || ! is_string( $field['depends_on'] ) || ! isset( $field['name'] ) ) {
+					continue;
+				}
+
+				if ( $field['depends_on'] === $field['name'] || ! in_array( $field['depends_on'], $checkbox_names, true ) ) {
+					continue;
+				}
+
+				$dependencies[] = [
+					'section'   => (string) $section,
+					'name'      => (string) $field['name'],
+					'dependsOn' => $field['depends_on'],
+				];
+			}
+		}
+
+		return $dependencies;
+	}
+
+	/**
 	 * Enqueue scripts and styles
 	 *
 	 * @param string $hook_suffix The current admin page.
@@ -287,9 +327,77 @@ class SettingsRegistry {
 					'value'             => isset( $option['value'] ) ? $option['value'] : null,
 				];
 
+				// Show the setting's tradeoffs after its control, for every field type.
+				if ( ! empty( $option['tradeoffs'] ) && is_array( $option['tradeoffs'] ) ) {
+					$render_field = $callback;
+					$tradeoffs    = $option['tradeoffs'];
+					$callback     = function ( $field_args ) use ( $render_field, $tradeoffs ) {
+						call_user_func( $render_field, $field_args );
+						$this->render_field_tradeoffs( $tradeoffs );
+					};
+				}
+
 				add_settings_field( "{$section}[{$name}]", $label, $callback, $section, $section, $args );
 			}
 		}
+	}
+
+	/**
+	 * Renders a setting's tradeoffs as a collapsible "What you gain / What it costs" section.
+	 *
+	 * @param array<string,mixed> $tradeoffs The field's `tradeoffs` config, with `benefits` and `costs` lists.
+	 *
+	 * @return void
+	 */
+	public function render_field_tradeoffs( array $tradeoffs ) {
+		$lists = [
+			'benefits' => __( 'What you gain', 'wp-graphql' ),
+			'costs'    => __( 'What it costs', 'wp-graphql' ),
+		];
+
+		$columns = '';
+
+		foreach ( $lists as $key => $heading ) {
+			$items = isset( $tradeoffs[ $key ] ) && is_array( $tradeoffs[ $key ] ) ? array_filter( $tradeoffs[ $key ], 'is_string' ) : [];
+			$items = array_filter(
+				$items,
+				static function ( $item ) {
+					return '' !== $item;
+				}
+			);
+
+			if ( empty( $items ) ) {
+				continue;
+			}
+
+			$columns .= '<div><p><strong>' . esc_html( $heading ) . '</strong></p><ul>';
+			foreach ( $items as $item ) {
+				$columns .= '<li>' . esc_html( $item ) . '</li>';
+			}
+			$columns .= '</ul></div>';
+		}
+
+		if ( '' === $columns ) {
+			return;
+		}
+
+		$html  = '<details class="wpgraphql-setting-tradeoffs">';
+		$html .= '<summary>' . esc_html__( 'Tradeoffs', 'wp-graphql' ) . '</summary>';
+		$html .= '<div class="wpgraphql-setting-tradeoffs__columns">' . $columns . '</div>';
+		$html .= '</details>';
+
+		echo wp_kses(
+			$html,
+			[
+				'details' => [ 'class' => [] ],
+				'summary' => [],
+				'div'     => [ 'class' => [] ],
+				'p'       => [],
+				'strong'  => [],
+				'ul'      => [],
+				'li'      => [],
+			]
+		);
 	}
 
 	/**
@@ -775,6 +883,25 @@ class SettingsRegistry {
 				// Initiate Color Picker
 				$('.wp-color-picker-field').wpColorPicker();
 
+				// Show fields that depend on a checkbox only while that checkbox is checked. Hidden fields
+				// stay in the form, so their saved values are kept.
+				var fieldDependencies = <?php echo wp_json_encode( $this->get_field_dependencies(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
+				$.each(fieldDependencies, function (index, dependency) {
+					var $checkbox = $('input[type="checkbox"][name="' + dependency.section + '[' + dependency.dependsOn + ']"]');
+					var $row = $('[name="' + dependency.section + '[' + dependency.name + ']"]').first().closest('tr');
+
+					if (!$checkbox.length || !$row.length) {
+						return;
+					}
+
+					var toggleRow = function () {
+						$row.toggle($checkbox.is(':checked'));
+					};
+
+					$checkbox.on('change', toggleRow);
+					toggleRow();
+				});
+
 				// Switches option sections
 				$('.group').hide();
 				var activetab = '';
@@ -860,6 +987,33 @@ class SettingsRegistry {
 	 */
 	public function _style_fix() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		global $wp_version;
+
+		?>
+		<style type="text/css">
+			.wpgraphql-setting-tradeoffs {
+				margin-top: 8px;
+				max-width: 720px;
+			}
+			.wpgraphql-setting-tradeoffs summary {
+				cursor: pointer;
+				color: #2271b1;
+			}
+			.wpgraphql-setting-tradeoffs__columns {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 16px;
+				margin-top: 8px;
+			}
+			.wpgraphql-setting-tradeoffs__columns p {
+				margin: 0 0 4px;
+			}
+			.wpgraphql-setting-tradeoffs__columns ul {
+				margin: 0;
+				padding-left: 18px;
+				list-style: disc;
+			}
+		</style>
+		<?php
 
 		if ( version_compare( $wp_version, '3.8', '<=' ) ) :
 			?>

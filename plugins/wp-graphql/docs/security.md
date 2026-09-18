@@ -9,6 +9,92 @@ WPGraphQL has been developed with security in mind. Below, are details on some o
 
 If you believe you've discovered a security vulnerability, please email info@wpgraphql.com with details and steps to reproduce.
 
+## Settings Review
+
+The settings review walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Until you've run it, it's in the GraphQL menu as **Review Settings**. After that, open it with the **Review your settings** link at the top of **GraphQL > Settings**.
+
+Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Only the settings you change are saved, so settings you leave alone keep using their defaults. Skipping the review changes no settings.
+
+Administrators are invited to run the review, with a notice on WPGraphQL screens and the Plugins screen, until they complete or skip it. Each administrator can also dismiss the notice. When an update adds a setting to the review, the invitation shows again and the new setting is marked as new.
+
+On sites whose settings are managed in code, turn the notice off with the `graphql_settings_review_show_invitation` filter, or record the review as done with [`wp graphql settings-review skip`](/docs/wp-cli#wp-graphql-settings-review):
+
+```php
+add_filter( 'graphql_settings_review_show_invitation', '__return_false' );
+```
+
+### Adding settings to the settings review
+
+Plugins can add their own settings to the review. Add a `settings_review` key to the config passed to `register_graphql_settings_field()`, and describe the setting's tradeoffs with `tradeoffs`:
+
+```php
+add_action( 'graphql_register_settings', function () {
+	register_graphql_settings_section(
+		'my_plugin_settings',
+		[ 'title' => __( 'My Plugin', 'my-plugin' ) ]
+	);
+
+	register_graphql_settings_field(
+		'my_plugin_settings',
+		[
+			'name'            => 'public_widgets_enabled',
+			'label'           => __( 'Show widgets to logged-out visitors', 'my-plugin' ),
+			'type'            => 'checkbox',
+			'default'         => 'off',
+			'tradeoffs'       => [
+				'benefits' => [ __( 'Public front ends can query widgets.', 'my-plugin' ) ],
+				'costs'    => [ __( 'Widget content is readable by anyone.', 'my-plugin' ) ],
+			],
+			'settings_review' => [
+				'step' => 'access',
+			],
+		]
+	);
+} );
+```
+
+`settings_review` can be `true`, or an array with any of these keys:
+
+- `step`: the step to show the setting in. Core registers `access`, `request-limits` and `diagnostics`. A setting without a registered step is shown in a step named after its settings section.
+- `description`: a short plain-text description to use instead of the settings page description.
+- `order`: the setting's position in the review.
+
+The review always shows the setting's own `label`, so each setting has one name everywhere.
+
+`tradeoffs` belongs to the setting rather than the review: it's an array with `benefits` and `costs`, each a list of what turning the setting on gains and costs. The settings page shows it in a collapsible "Tradeoffs" section under the setting, and the review shows it next to the setting.
+
+The review supports the `checkbox`, `number`, `select`, `radio`, `user_role_select`, `text`, `url` and `textarea` field types. A `disabled` field is shown but can't be changed.
+
+To register a step of your own, use `register_graphql_settings_review_step()`. Steps are shown in ascending `order`, and core's steps use 10, 20 and 30:
+
+```php
+register_graphql_settings_review_step(
+	'my-plugin',
+	[
+		'title'       => __( 'My Plugin', 'my-plugin' ),
+		'description' => __( 'Choose how My Plugin exposes data.', 'my-plugin' ),
+		'order'       => 40,
+	]
+);
+```
+
+### Settings that depend on another setting
+
+When a setting only applies while a checkbox is on, set `depends_on` to the name of that checkbox field in the same section. The setting is hidden while the checkbox is off, on the settings page and (when both settings are in it) in the settings review. Its saved value is kept:
+
+```php
+register_graphql_settings_field(
+	'my_plugin_settings',
+	[
+		'name'       => 'public_widgets_limit',
+		'label'      => __( 'Maximum widgets per request', 'my-plugin' ),
+		'type'       => 'number',
+		'default'    => 10,
+		'depends_on' => 'public_widgets_enabled',
+	]
+);
+```
+
 ## Introspection Disabled by Default
 
 One feature of GraphQL is Schema Introspection, which means the GraphQL Schema itself can be queried. This is a feature used by tools such as GraphiQL and others.
@@ -23,8 +109,8 @@ GraphQL lets a client nest fields inside fields, for example posts, then each po
 
 WPGraphQL can reject queries that are nested deeper than a limit you choose. On the GraphQL > Settings page:
 
-- **Enable Query Depth Limiting** turns the limit on.
-- **Max Depth to allow for GraphQL Queries** sets how many levels are allowed. The default is 15.
+- **Limit query depth** turns the limit on.
+- **Maximum query depth** sets how many levels are allowed. The default is 15.
 
 A query deeper than the limit is rejected before it runs, with an error like `The server administrator has limited the max query depth to 15, but the requested query has 18 levels.`
 

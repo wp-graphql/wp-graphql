@@ -21,8 +21,8 @@ class Commands extends \WP_CLI_Command {
 	/**
 	 * Generate a static schema.
 	 *
-	 * Defaults to creating a schema.graphql file in the IDL format at the root
-	 * of the plugin.
+	 * Writes the schema in the GraphQL Schema Definition Language. Without --output, the schema is
+	 * written to schema.graphql in the server's temporary directory.
 	 *
 	 * [--output=<output>]
 	 * : The file path to save the schema to.
@@ -101,5 +101,73 @@ class Commands extends \WP_CLI_Command {
 		 * All done!
 		 */
 		\WP_CLI::success( sprintf( 'All done. Schema output to %s.', $file_path ) );
+	}
+
+	/**
+	 * Show or record the status of the WPGraphQL settings review.
+	 *
+	 * The settings review walks administrators through settings for access, request limits and
+	 * debugging, and they're invited to it until it's completed or skipped. `skip` records every
+	 * setting currently in the review as reviewed without changing any settings, for example on
+	 * sites whose settings are managed in code. On multisite, it applies to the site given by `--url`.
+	 *
+	 * <action>
+	 * : What to do.
+	 * ---
+	 * options:
+	 *   - status
+	 *   - skip
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Show whether the settings review has been completed or skipped
+	 *     $ wp graphql settings-review status
+	 *
+	 *     # Record the settings review as skipped, without changing any settings
+	 *     $ wp graphql settings-review skip
+	 *
+	 * @subcommand settings-review
+	 *
+	 * @param array<string>        $args       Positional arguments.
+	 * @param array<string, mixed> $assoc_args Associative arguments.
+	 */
+	public function settings_review( $args, $assoc_args ): void {
+		unset( $assoc_args );
+
+		$settings = new \WPGraphQL\Admin\Settings\Settings();
+		$settings->init();
+		$settings->register_settings();
+		$settings->settings_api->init_registry();
+
+		$settings_review = new \WPGraphQL\Admin\SettingsReview\SettingsReview( $settings->settings_api );
+		$action          = $args[0] ?? 'status';
+
+		if ( 'skip' === $action ) {
+			$settings_review->record_review( 'skipped' );
+			\WP_CLI::success( 'Recorded the settings review as skipped. No settings were changed.' );
+			return;
+		}
+
+		$state      = \WPGraphQL\Admin\SettingsReview\SettingsReview::get_state();
+		$unreviewed = $settings_review->get_unreviewed_field_keys();
+
+		if ( empty( $state['status'] ) ) {
+			\WP_CLI::log( 'The settings review has not been completed or skipped.' );
+		} else {
+			\WP_CLI::log(
+				sprintf(
+					'The settings review was %1$s on %2$s.',
+					$state['status'],
+					isset( $state['updated_at'] ) ? gmdate( 'Y-m-d H:i:s', (int) $state['updated_at'] ) . ' UTC' : 'an unknown date'
+				)
+			);
+		}
+
+		\WP_CLI::log( sprintf( 'Settings waiting to be reviewed: %d', count( $unreviewed ) ) );
+
+		foreach ( $unreviewed as $key ) {
+			\WP_CLI::log( '  ' . $key );
+		}
 	}
 }
