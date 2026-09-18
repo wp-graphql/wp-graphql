@@ -154,7 +154,7 @@ class Settings {
 					'tradeoffs'       => [
 						'benefits' => [
 							__( 'Nothing can be read through the API without an account.', 'wp-graphql' ),
-							__( 'Anonymous visitors can no longer run queries against your site.', 'wp-graphql' ),
+							__( 'Requests without an account are rejected before any query runs, so bots and scrapers can\'t make your server do query work.', 'wp-graphql' ),
 						],
 						'costs'    => [
 							__( 'Public front ends and static site builds that query without credentials stop working.', 'wp-graphql' ),
@@ -178,6 +178,7 @@ class Settings {
 						],
 						'costs'    => [
 							__( 'A single request can ask the server to do the work of many requests.', 'wp-graphql' ),
+							__( 'Batch requests are sent with POST, so a network cache in front of your site usually can\'t serve them.', 'wp-graphql' ),
 						],
 					],
 					'settings_review' => [
@@ -287,7 +288,7 @@ class Settings {
 							__( 'Makes problems easier to find while building an app.', 'wp-graphql' ),
 						],
 						'costs'    => [
-							__( 'Error details can reveal how your site is built to anyone who sends a request.', 'wp-graphql' ),
+							__( 'Errors include internal messages meant for developers, for anyone who sends a request. Logged-in users also get stack traces with file paths.', 'wp-graphql' ),
 						],
 					],
 					'settings_review' => [
@@ -313,7 +314,7 @@ class Settings {
 							__( 'Helps find slow parts of a query.', 'wp-graphql' ),
 						],
 						'costs'    => [
-							__( 'Adds work to every traced request, and shows how long parts of your site take to whoever can see it.', 'wp-graphql' ),
+							__( 'Adds work to every traced request and makes responses larger.', 'wp-graphql' ),
 						],
 					],
 					'settings_review' => [
@@ -360,7 +361,7 @@ class Settings {
 							__( 'Helps find expensive or repeated database queries.', 'wp-graphql' ),
 						],
 						'costs'    => [
-							__( 'Shows database queries, including table names and values, to whoever can see the logs.', 'wp-graphql' ),
+							__( 'Responses include the SQL for every database query, with table names and the values used, for whoever can see the logs.', 'wp-graphql' ),
 							__( 'Slows down every logged request.', 'wp-graphql' ),
 						],
 					],
@@ -409,13 +410,14 @@ class Settings {
 						],
 						'costs'    => [
 							__( 'Anyone can see the names and descriptions of every type, field and argument your API offers, including ones added by other plugins. What each field returns is still decided by who is asking.', 'wp-graphql' ),
+							__( 'If no public app needs the schema, turning this on shares details of how your site is built without any benefit.', 'wp-graphql' ),
 						],
 					],
 					'settings_review' => [
 						'step'        => 'access',
 						'description' => true === \WPGraphQL::debug()
 							? __( 'This is always on while debug mode is on.', 'wp-graphql' )
-							: __( 'Introspection lets a client ask for the full schema: every type, field and argument the API offers. Logged-in users can always use it.', 'wp-graphql' ),
+							: __( 'Introspection lets a client ask for the full schema: every type, field and argument the API offers. Logged-in users can always use it. If nothing public uses your API, "Only allow logged-in users" turns off public access entirely.', 'wp-graphql' ),
 					],
 					'label'           => __( 'Let logged-out visitors read the schema (introspection)', 'wp-graphql' ),
 					'desc'            => sprintf(
