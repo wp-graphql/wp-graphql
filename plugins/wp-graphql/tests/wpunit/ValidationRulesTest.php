@@ -7,11 +7,44 @@ use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	/**
+	 * Saved original REQUEST_URI server superglobal.
+	 *
+	 * @var string|null
+	 */
+	protected $orig_request_uri;
+
+	/**
+	 * Saved original HTTP_HOST server superglobal.
+	 *
+	 * @var string|null
+	 */
+	protected $orig_http_host;
+
+	/**
+	 * Set up before each test to capture original server globals.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$this->orig_request_uri = $_SERVER['REQUEST_URI'] ?? null;
+		$this->orig_http_host   = $_SERVER['HTTP_HOST'] ?? null;
+	}
+
+	/**
 	 * Tear down after each test to restore isolated state.
 	 */
 	public function tearDown(): void {
-		$_SERVER['REQUEST_URI'] = '';
-		$_SERVER['HTTP_HOST']   = 'localhost';
+		if ( null !== $this->orig_request_uri ) {
+			$_SERVER['REQUEST_URI'] = $this->orig_request_uri;
+		} else {
+			unset( $_SERVER['REQUEST_URI'] );
+		}
+
+		if ( null !== $this->orig_http_host ) {
+			$_SERVER['HTTP_HOST'] = $this->orig_http_host;
+		} else {
+			unset( $_SERVER['HTTP_HOST'] );
+		}
+
 		remove_all_filters( 'graphql_debug_enabled' );
 		remove_all_filters( 'graphql_pre_restrict_endpoint' );
 		remove_all_filters( 'graphql_require_authentication_allowed_fields' );
@@ -137,12 +170,12 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testQueryDepthCustomSettingFromDatabase() {
 		$settings                    = get_option( 'graphql_general_settings', [] );
-		$settings['query_depth_max'] = 15;
+		$settings['query_depth_max'] = 7;
 		update_option( 'graphql_general_settings', $settings );
 
 		$rule = new QueryDepth();
 
-		$this->assertSame( 15, $rule->getMaxQueryDepth() );
+		$this->assertSame( 7, $rule->getMaxQueryDepth() );
 	}
 
 	/**
