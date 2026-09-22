@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.23.0\n"
+"Project-Id-Version: WPGraphQL 2.23.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-15T18:55:04+00:00\n"
+"POT-Creation-Date: 2026-09-22T18:11:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1388,6 +1388,7 @@ msgid "The web server cannot generate responsive image sizes for this image. Con
 msgstr ""
 
 #: src/Mutation/MediaItemCreate.php:370
+#: src/Mutation/MediaItemUpdate.php:141
 msgid "The parent of the Media Item is of an invalid type"
 msgstr ""
 
@@ -1476,15 +1477,27 @@ msgstr ""
 msgid "Sorry, you are not allowed to update mediaItems"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:125
+#: src/Mutation/MediaItemUpdate.php:118
+msgid "Sorry, you are not allowed to update another user's mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:126
+msgid "Sorry, you are not allowed to update this mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:145
+msgid "Sorry, you are not allowed to assign mediaItems to this parent node"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:169
 msgid "Sorry, you are not allowed to update mediaItems as this user."
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:137
+#: src/Mutation/MediaItemUpdate.php:181
 msgid "The media item failed to update"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:154
+#: src/Mutation/MediaItemUpdate.php:198
 msgid "The media item failed to update but no error was provided"
 msgstr ""
 
