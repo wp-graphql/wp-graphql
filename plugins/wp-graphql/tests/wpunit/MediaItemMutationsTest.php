@@ -1918,4 +1918,67 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['createMediaItem']['mediaItem'] ?? null );
 	}
+
+	/**
+	 * Users who can edit their own posts can't take over another user's media item by setting
+	 * themselves as its author.
+	 */
+	public function testUpdateMediaItemCannotTakeOverAnotherUsersMediaItem() {
+		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
+
+		foreach ( [ 'author' => $this->author, 'contributor' => $contributor ] as $role => $user_id ) {
+			wp_set_current_user( $user_id );
+
+			$this->update_variables['input']['authorId'] = $user_id;
+			$actual                                      = $this->updateMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, $role );
+			$this->assertSame( $this->admin, (int) get_post( $this->attachment_id )->post_author, $role );
+		}
+	}
+
+	/**
+	 * After a refused takeover, the media item still can't be deleted by that user.
+	 */
+	public function testDeleteMediaItemIsDeniedAfterATakeoverAttempt() {
+		wp_set_current_user( $this->author );
+
+		$this->update_variables['input']['authorId'] = $this->author;
+		$this->updateMediaItemMutation();
+
+		$actual = $this->deleteMediaItemMutation();
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertInstanceOf( \WP_Post::class, get_post( $this->attachment_id ) );
+	}
+
+	/**
+	 * Moving a media item to another parent requires permission to edit that parent, the same as
+	 * when creating a media item.
+	 */
+	public function testUpdateMediaItemParentRequiresPermissionToEditTheParent() {
+		$own_attachment = $this->factory()->attachment->create(
+			[
+				'post_mime_type' => 'image/gif',
+				'post_author'    => $this->author,
+			]
+		);
+		$admin_post     = $this->factory()->post->create( [ 'post_author' => $this->admin ] );
+		$own_post       = $this->factory()->post->create( [ 'post_author' => $this->author ] );
+
+		wp_set_current_user( $this->author );
+
+		$this->update_variables['input']['id']       = \GraphQLRelay\Relay::toGlobalId( 'post', $own_attachment );
+		$this->update_variables['input']['parentId'] = $admin_post;
+		$actual                                      = $this->updateMediaItemMutation();
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertSame( 0, (int) get_post( $own_attachment )->post_parent );
+
+		$this->update_variables['input']['parentId'] = $own_post;
+		$actual                                      = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $own_post, (int) get_post( $own_attachment )->post_parent );
+	}
 }

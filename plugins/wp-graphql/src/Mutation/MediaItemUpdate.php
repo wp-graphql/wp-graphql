@@ -104,6 +104,44 @@ class MediaItemUpdate {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
 
+			/**
+			 * If the existing mediaItem belongs to another user, the current user needs to be able to
+			 * edit others' posts. This is checked against the existing author, before any change of
+			 * author in the input is considered.
+			 */
+			if ( get_current_user_id() !== absint( $existing_media_item->post_author ) && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to update another user\'s mediaItem', 'wp-graphql' ) );
+			}
+
+			/**
+			 * Enforce the object-level edit capability for this specific mediaItem, the same as the
+			 * updatePost mutation and the WordPress REST API.
+			 */
+			if ( ! isset( $post_type_object->cap->edit_post ) || ! current_user_can( $post_type_object->cap->edit_post, $media_item_id ) ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this mediaItem', 'wp-graphql' ) );
+			}
+
+			/**
+			 * If the mediaItem is being attached to a different parent, the current user needs to be
+			 * able to edit that parent, the same as when creating a mediaItem.
+			 */
+			if ( ! empty( $input['parentId'] ) ) {
+				$parent_id = Utils::get_database_id_from_id( $input['parentId'] );
+				$parent    = ! empty( $parent_id ) ? get_post( $parent_id ) : null;
+
+				if ( $parent instanceof \WP_Post ) {
+					$parent_type = get_post_type_object( $parent->post_type );
+
+					if ( empty( $parent_type ) ) {
+						throw new UserError( esc_html__( 'The parent of the Media Item is of an invalid type', 'wp-graphql' ) );
+					}
+
+					if ( 'attachment' !== $parent_type->name && ( ! isset( $parent_type->cap->edit_post ) || ! current_user_can( $parent_type->cap->edit_post, $parent->ID ) ) ) {
+						throw new UserError( esc_html__( 'Sorry, you are not allowed to assign mediaItems to this parent node', 'wp-graphql' ) );
+					}
+				}
+			}
+
 			$author_id = absint( $existing_media_item->post_author );
 
 			/**
@@ -118,8 +156,9 @@ class MediaItemUpdate {
 			}
 
 			/**
-			 * Check to see if the existing_media_item author matches the current user,
-			 * if not they need to be able to edit others posts to proceed
+			 * If the mediaItem will belong to a user other than the current user after this update
+			 * (because of the authorId input or its existing author), the current user needs to be
+			 * able to edit others' posts.
 			 */
 			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
