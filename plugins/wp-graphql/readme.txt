@@ -78,6 +78,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.23.1 =
+
+**Security release.** Fixes an authorization issue in the `updateMediaItem` mutation that let users with the Author or Contributor role take over, and then delete, media items owned by other users. Updating is recommended. See GHSA-4h2c-85f8-g3jh.
+
 = 2.15.1 =
 
 **Security release.** Fixes a user-enumeration issue in the `sendPasswordResetEmail` mutation via the deprecated `user` payload field. Updating is recommended. See GHSA-jhh7-832h-f8hv.
@@ -312,9 +316,9 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 = 2.23.1 =
 
-**Bug Fixes**
+**Security**
 
-* tighten media item update authorization (GHSA-4h2c-85f8-g3jh) ([#4353](https://github.com/wp-graphql/wp-graphql/issues/4353))
+* tighten media item update authorization: `updateMediaItem` now verifies that the requesting user can edit the targeted media item, and its new parent, before applying changes. Previously, users with the Author or Contributor role could reassign, and then delete, media items owned by other users. See [GHSA-4h2c-85f8-g3jh](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-4h2c-85f8-g3jh) ([#4353](https://github.com/wp-graphql/wp-graphql/issues/4353))
 
 = 2.23.0 =
 

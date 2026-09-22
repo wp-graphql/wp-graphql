@@ -3,9 +3,9 @@
 ## [2.23.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.0...wp-graphql/v2.23.1) (2026-09-22)
 
 
-### Bug Fixes
+### Security
 
-* tighten media item update authorization (GHSA-4h2c-85f8-g3jh) ([#4353](https://github.com/wp-graphql/wp-graphql/issues/4353)) ([7a017eb](https://github.com/wp-graphql/wp-graphql/commit/7a017eb9ba3bf98e1b14ba752c734199fa476f80))
+* tighten media item update authorization: `updateMediaItem` now verifies that the requesting user can edit the targeted media item, and its new parent, before applying changes. Previously, users with the Author or Contributor role could reassign, and then delete, media items owned by other users. See [GHSA-4h2c-85f8-g3jh](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-4h2c-85f8-g3jh) ([#4353](https://github.com/wp-graphql/wp-graphql/issues/4353)) ([7a017eb](https://github.com/wp-graphql/wp-graphql/commit/7a017eb9ba3bf98e1b14ba752c734199fa476f80))
 
 ## [2.23.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.3...wp-graphql/v2.23.0) (2026-09-15)
 
