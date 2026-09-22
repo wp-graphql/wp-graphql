@@ -108,6 +108,11 @@ class MediaItemUpdate {
 			 * If the existing mediaItem belongs to another user, the current user needs to be able to
 			 * edit others' posts. This is checked against the existing author, before any change of
 			 * author in the input is considered.
+			 *
+			 * Checking the requested author instead of the existing one previously let a user who can
+			 * edit their own posts take ownership of any mediaItem.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-4h2c-85f8-g3jh
 			 */
 			if ( get_current_user_id() !== absint( $existing_media_item->post_author ) && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update another user\'s mediaItem', 'wp-graphql' ) );
