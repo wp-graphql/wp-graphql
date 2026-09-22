@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.23.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.0...wp-graphql/v2.23.1) (2026-09-22)
+
+
+### Bug Fixes
+
+* tighten media item update authorization (GHSA-4h2c-85f8-g3jh) ([#4353](https://github.com/wp-graphql/wp-graphql/issues/4353)) ([7a017eb](https://github.com/wp-graphql/wp-graphql/commit/7a017eb9ba3bf98e1b14ba752c734199fa476f80))
+
 ## [2.23.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.22.3...wp-graphql/v2.23.0) (2026-09-15)
 
 
