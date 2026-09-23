@@ -28,6 +28,6 @@ add_action( 'graphql_register_types', function() {
 
 This could then be queried like so:
 
-![Screenshot of a GraphQL Query for posts with their editLink](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-01-at-8.02.58-AM-1024x409.png)
+![Screenshot of a GraphQL Query for posts with their editLink](./images/Screen-Shot-2020-12-01-at-8.02.58-AM-1024x409.png)
 
 Screenshot of a GraphQL Query for posts with their editLink

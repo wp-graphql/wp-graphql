@@ -448,17 +448,31 @@ export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
 
 /**
  * Rewrite relative `<img src>` paths to their raw GitHub URL. Relative image
- * paths are stored alongside the markdown; absolute URLs (e.g. recipe
- * screenshots hosted on content.wpgraphql.com) and data URIs are already
- * resolvable, so rewriting them would prepend the docs path and break them.
+ * paths are stored alongside the markdown; absolute URLs and data URIs are
+ * already resolvable, so rewriting them would prepend the docs path and break
+ * them.
+ *
+ * Resolution is anchored on the source file's directory (fileSlug), matching
+ * `rehypeRewriteRelativeDocLinks` below and matching how GitHub renders the
+ * same markdown. Anchoring on the docs root instead would send `./images/x.png`
+ * in `recipes/foo.md` to `<docs>/images/x.png` rather than
+ * `<docs>/recipes/images/x.png`, so an image could not be written once and
+ * render correctly both on the site and on GitHub. Root-level docs are
+ * unaffected: their fileDir is empty, so the resolved path is unchanged.
  *
  * Replaces the unmaintained `@jsdevtools/rehype-url-inspector` (last released
  * 2021) with an equivalent local rehype plugin built on `unist-util-visit`,
  * which is already a direct dependency. Behavior matches the previous
  * `selectors: ["img[src]"]` / `inspectEach` configuration exactly.
  */
-function rehypeRewriteRelativeImageSrc(options: { product: DocsProduct }) {
-  const { product } = options
+function rehypeRewriteRelativeImageSrc(options: {
+  product: DocsProduct
+  fileSlug: string
+}) {
+  const { product, fileSlug } = options
+  const fileDir = fileSlug.includes("/")
+    ? fileSlug.slice(0, fileSlug.lastIndexOf("/"))
+    : ""
   return (tree) => {
     visit(tree, "element", (node: any) => {
       if (node.tagName !== "img") {
@@ -474,7 +488,12 @@ function rehypeRewriteRelativeImageSrc(options: { product: DocsProduct }) {
         return
       }
 
-      node.properties.src = getRemoteImgUrl(src, product)
+      const withoutDotSlash = src.replace(/^\.\//, "")
+      const resolved = fileDir
+        ? `${fileDir}/${withoutDotSlash}`
+        : withoutDotSlash
+
+      node.properties.src = getRemoteImgUrl(resolved, product)
     })
   }
 }
@@ -567,7 +586,7 @@ async function getSourceFromMd(
     mdxOptions: {
       remarkPlugins: [[remarkGfm, { singleTilde: false }], withSmartQuotes],
       rehypePlugins: [
-        [rehypeRewriteRelativeImageSrc, { product }],
+        [rehypeRewriteRelativeImageSrc, { product, fileSlug }],
         [rehypeRewriteRelativeDocLinks, { product, fileSlug }],
         [
           rehypeExternalLinks,

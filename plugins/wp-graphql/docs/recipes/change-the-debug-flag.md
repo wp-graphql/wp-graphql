@@ -26,7 +26,7 @@ add_action( 'graphql_server_config', function( \GraphQL\Server\ServerConfig $con
 
 There is no callstack trace with the error.
 
-![](https://content.wpgraphql.com/wp-content/uploads/2020/11/Screen-Shot-2020-11-12-at-11.32.41-PM-1024x444.png)
+![](./images/Screen-Shot-2020-11-12-at-11.32.41-PM-1024x444.png)
 
 **Example of the Error Trace when the debug flag is set to 2**
 
@@ -38,4 +38,4 @@ add_action( 'graphql_server_config', function( \GraphQL\Server\ServerConfig $con
 
 There is a callstack trace included with the error.
 
-![](https://content.wpgraphql.com/wp-content/uploads/2020/11/Screen-Shot-2020-11-12-at-11.31.42-PM-1024x490.png)
+![](./images/Screen-Shot-2020-11-12-at-11.31.42-PM-1024x490.png)

@@ -40,8 +40,8 @@ add_filter( 'graphql_request_results', function( $response ) {
 
 ## Before
 
-![](https://content.wpgraphql.com/wp-content/uploads/2021/07/Screen-Shot-2021-07-13-at-10.44.00-AM.png)
+![](./images/Screen-Shot-2021-07-13-at-10.44.00-AM.png)
 
 ## After
 
-![](https://content.wpgraphql.com/wp-content/uploads/2021/07/Screen-Shot-2021-07-13-at-10.44.30-AM.png)
+![](./images/Screen-Shot-2021-07-13-at-10.44.30-AM.png)
