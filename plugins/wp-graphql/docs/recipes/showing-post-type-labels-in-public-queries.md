@@ -18,7 +18,7 @@ Take the Post Type Label field, for example.
 
 Querying for the label of a Post Type as a public user returns a `null` value by default:
 
-![Screenshot of a query for ContentTypes and their label, showing null value for the label.](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-08-at-6.10.35-AM-1024x335.png)
+![Screenshot of a query for ContentTypes and their label, showing null value for the label.](./images/Screen-Shot-2020-12-08-at-6.10.35-AM-1024x335.png)
 
 With the following snippet, you can expose the `label` field to public users:
 
@@ -36,4 +36,4 @@ add_filter( 'graphql_allowed_fields_on_restricted_type', function( $allowed_rest
 
 And below we can see the same query, showing the value of the labels to public users.
 
-![Screenshot of a query for ContentTypes and their label, showing the label's value for the label.](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-08-at-6.10.22-AM-1-1024x333.png)
+![Screenshot of a query for ContentTypes and their label, showing the label's value for the label.](./images/Screen-Shot-2020-12-08-at-6.10.22-AM-1-1024x333.png)

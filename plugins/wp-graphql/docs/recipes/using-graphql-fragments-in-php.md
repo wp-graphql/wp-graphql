@@ -39,7 +39,7 @@ add_action( 'init', function() {
 
 Executing this code leads to the following output:
 
-![PHP output of executing Graphql](https://content.wpgraphql.com/wp-content/uploads/2020/10/GraphqlFragmentPHPoutput.png)
+![PHP output of executing Graphql](./images/GraphqlFragmentPHPoutput.png)
 
 Additionally, if you were to define your fragment in another file, such as the file that is rendering the data, you can define fragments as variables and concatenate them like so:
 

@@ -47,4 +47,4 @@ You can then query this field using:
 }
 ```
 
-![Querying the allUrls field in GraphiQL](https://content.wpgraphql.com/wp-content/uploads/2020/10/AllUrlsField-1024x273.jpg)
+![Querying the allUrls field in GraphiQL](./images/AllUrlsField-1024x273.jpg)

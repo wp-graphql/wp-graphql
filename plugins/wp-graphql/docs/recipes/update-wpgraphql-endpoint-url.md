@@ -24,4 +24,4 @@ This will change the graphql endpoint url from `/graphql` to `/cutepuppies`
 
 This also updates the WPGraphQL settings page:
 
-![WPGraphQL Settings page with updated endpoint url](https://content.wpgraphql.com/wp-content/uploads/2020/10/WPGraphQLEndpoint-1024x196.jpg)
+![WPGraphQL Settings page with updated endpoint url](./images/WPGraphQLEndpoint-1024x196.jpg)

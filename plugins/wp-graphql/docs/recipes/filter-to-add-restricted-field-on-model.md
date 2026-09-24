@@ -29,10 +29,10 @@ add_filter( 'graphql_allowed_fields_on_restricted_type', function( $fields, $mod
 
 Before adding the filter:
 
-![Restricted field before adding filter](https://content.wpgraphql.com/wp-content/uploads/2020/10/RestrictedFieldsBefore.png)
+![Restricted field before adding filter](./images/RestrictedFieldsBefore.png)
 
 After adding the filter:
 
-![Restricted field after adding filter](https://content.wpgraphql.com/wp-content/uploads/2020/10/RestrictedFieldsAfter.png)
+![Restricted field after adding filter](./images/RestrictedFieldsAfter.png)
 
 Github Issue: [https://github.com/wp-graphql/wp-graphql/issues/1304#issuecomment-626836656](https://github.com/wp-graphql/wp-graphql/issues/1304#issuecomment-626836656)
