@@ -2,6 +2,7 @@ import gql from "graphql-tag"
 import PostPreview, {
   PostPreviewFragment,
 } from "components/Preview/PostPreview"
+import Seo, { SeoCategoryFragment } from "components/Seo/Seo"
 import SiteLayout from "components/Site/SiteLayout"
 
 export default function Category({ data }) {
@@ -17,6 +18,7 @@ export default function Category({ data }) {
 
   return (
     <SiteLayout>
+      <Seo node={category} />
       <main className="content px-6 max-w-lg mx-auto md:max-w-5xl mb-10">
         <div className="space-y-2 pt-6 pb-8 md:space-y-5">
           <h1 className="text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
@@ -46,6 +48,7 @@ Category.queries = {
     query: gql`
       query Category_Node($id: ID!) {
         category(id: $id, idType: URI) {
+          ...SeoCategory
           name
           description
           posts {
@@ -56,6 +59,7 @@ Category.queries = {
         }
       }
       ${PostPreviewFragment}
+      ${SeoCategoryFragment}
     `,
     variables: ({ seed }) => ({ id: seed?.uri }),
   },
