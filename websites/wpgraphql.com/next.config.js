@@ -35,10 +35,14 @@ function getWpRemotePattern() {
  *   https://i0.wp.com/contentwpgraphql.wpcomstaging.com/wp-content/uploads/...
  *
  * getWpRemotePattern() only knows the origin hostname, so it can't match these
- * on its own. The backend currently emits `i0` for every attachment, but `i0`,
- * `i1` and `i2` are interchangeable (all three serve the same bytes for the
- * same path), so all three are allowlisted rather than betting on the shard
- * Jetpack happens to pick.
+ * on its own.
+ *
+ * All three of `i0`, `i1` and `i2` are allowlisted rather than just the shard
+ * the backend happens to use today. Every attachment in the media library
+ * currently resolves to `i0`, but post content carries hardcoded `i1` URLs
+ * inherited from a much older host, so the other shards are not hypothetical.
+ * They are interchangeable anyway: all three return byte-identical responses
+ * for the same path.
  *
  * These are inert for a backend that isn't behind Site Accelerator — a local
  * install, or one with the feature switched off — which serves media from the
