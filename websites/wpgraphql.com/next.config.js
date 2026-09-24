@@ -4,7 +4,8 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 function getWpRemotePattern() {
   const url =
-    process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://wp.wpgraphql.com"
+    process.env.NEXT_PUBLIC_WORDPRESS_URL ||
+    "https://contentwpgraphql.wpcomstaging.com"
   try {
     const parsed = new URL(url)
     return {
@@ -12,7 +13,10 @@ function getWpRemotePattern() {
       hostname: parsed.hostname,
     }
   } catch {
-    return { protocol: "https", hostname: "wp.wpgraphql.com" }
+    return {
+      protocol: "https",
+      hostname: "contentwpgraphql.wpcomstaging.com",
+    }
   }
 }
 
