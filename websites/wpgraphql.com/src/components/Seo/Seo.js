@@ -116,44 +116,38 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/+$/, "")
  * The WordPress origin baked into Yoast's JSON-LD, so we can swap it for the
  * public origin on the way out.
  *
- * Derived from the payload itself where possible: Yoast builds the page's `@id`
- * as `<wp-origin><uri>`, so finding the node's own uri inside the graph pins the
- * origin exactly. That keeps this correct even if NEXT_PUBLIC_WORDPRESS_URL is
- * unset or points at a caching proxy rather than the origin.
+ * NEXT_PUBLIC_WORDPRESS_URL is the source of truth, because it is the only
+ * thing that states the answer unambiguously. It must be the WordPress origin,
+ * not a caching proxy in front of the GraphQL endpoint.
  *
- * Falls back to NEXT_PUBLIC_WORDPRESS_URL when the uri isn't present, which
- * happens for nodes Yoast renders without a self-referencing @id.
+ * The payload is only a fallback, and a narrow one. Yoast builds the page @id
+ * as `<origin><uri>`, so locating the node's own uri pins an origin, but once
+ * home_url() is filtered to the public site that @id is ALREADY the public
+ * origin. Deriving from it then "succeeds" and rewrites the public origin to
+ * itself, a silent no-op that leaves the real CMS URLs in place elsewhere in
+ * the graph (Yoast's breadcrumb home, an author's sameAs). So a derived origin
+ * matching SITE_URL is rejected rather than used.
+ *
+ * Deliberately does not guess at unknown hosts. An author's `sameAs` can point
+ * at a genuinely external site, and rewriting that to our own domain would be
+ * worse than leaving a CMS URL in place.
  */
 function wpOrigin(raw, uri) {
+  try {
+    const configured = new URL(process.env.NEXT_PUBLIC_WORDPRESS_URL).origin
+    if (configured && configured !== SITE_URL) return configured
+  } catch {
+    // falls through to the payload
+  }
+
   if (raw && uri) {
     const escaped = uri.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     const match = raw.match(
       new RegExp(`https?://[a-z0-9.-]+(?=${escaped})`, "i")
     )
-    if (match) return match[0]
+    if (match && match[0] !== SITE_URL) return match[0]
   }
-  try {
-    return new URL(process.env.NEXT_PUBLIC_WORDPRESS_URL).origin
-  } catch {
-    return null
-  }
-}
 
-/**
- * First value that is actually present.
- *
- * Yoast returns absent fields as empty strings rather than null, so `??` does
- * not fall through them: `"" ?? x` is `""`. Every fallback chain below has to
- * treat an empty string as missing or the first empty field wins and the tag is
- * dropped entirely.
- */
-function firstNonEmpty(...values) {
-  for (const value of values) {
-    if (typeof value === "string" && value.trim() !== "") return value
-    if (value !== null && value !== undefined && typeof value !== "string") {
-      return value
-    }
-  }
   return null
 }
 
