@@ -151,6 +151,24 @@ function wpOrigin(raw, uri) {
   return null
 }
 
+/**
+ * First value that is actually present.
+ *
+ * Yoast returns absent fields as empty strings rather than null, so `??` does
+ * not fall through them: `"" ?? x` is `""`. Every fallback chain below has to
+ * treat an empty string as missing or the first empty field wins and the tag is
+ * dropped entirely.
+ */
+function firstNonEmpty(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim() !== "") return value
+    if (value !== null && value !== undefined && typeof value !== "string") {
+      return value
+    }
+  }
+  return null
+}
+
 /** Absolute front-end URL for a WordPress uri. */
 export function absoluteUrl(uri) {
   if (!uri) return SITE_URL || null
