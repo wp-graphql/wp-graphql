@@ -139,6 +139,24 @@ function wpOrigin(raw, uri) {
   }
 }
 
+/**
+ * First value that is actually present.
+ *
+ * Yoast returns absent fields as empty strings rather than null, so `??` does
+ * not fall through them: `"" ?? x` is `""`. Every fallback chain below has to
+ * treat an empty string as missing or the first empty field wins and the tag is
+ * dropped entirely.
+ */
+function firstNonEmpty(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim() !== "") return value
+    if (value !== null && value !== undefined && typeof value !== "string") {
+      return value
+    }
+  }
+  return null
+}
+
 /** Absolute front-end URL for a WordPress uri. */
 export function absoluteUrl(uri) {
   if (!uri) return SITE_URL || null
@@ -171,12 +189,15 @@ export default function Seo({
 }) {
   const seo = node?.seo ?? {}
 
-  const resolvedTitle = title ?? seo.opengraphTitle ?? seo.title
+  const resolvedTitle = firstNonEmpty(title, seo.opengraphTitle, seo.title)
   // Yoast leaves metaDesc empty unless an editor fills it in, but it always
   // generates an opengraph description from the excerpt, so prefer whichever
   // is present rather than shipping a page with no description at all.
-  const resolvedDescription =
-    description ?? seo.metaDesc ?? seo.opengraphDescription ?? null
+  const resolvedDescription = firstNonEmpty(
+    description,
+    seo.metaDesc,
+    seo.opengraphDescription
+  )
 
   const canonical = absoluteUrl(uri ?? node?.uri)
   const ogImage = seo.opengraphImage?.sourceUrl
@@ -250,18 +271,18 @@ export default function Seo({
         name="twitter:card"
         content={twitterImage ? "summary_large_image" : "summary"}
       />
-      {(seo.twitterTitle || resolvedTitle) && (
+      {firstNonEmpty(seo.twitterTitle, resolvedTitle) && (
         <meta
           key="twitter:title"
           name="twitter:title"
-          content={seo.twitterTitle || resolvedTitle}
+          content={firstNonEmpty(seo.twitterTitle, resolvedTitle)}
         />
       )}
-      {(seo.twitterDescription || resolvedDescription) && (
+      {firstNonEmpty(seo.twitterDescription, resolvedDescription) && (
         <meta
           key="twitter:description"
           name="twitter:description"
-          content={seo.twitterDescription || resolvedDescription}
+          content={firstNonEmpty(seo.twitterDescription, resolvedDescription)}
         />
       )}
       {twitterImage && (
