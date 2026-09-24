@@ -1,6 +1,7 @@
 import gql from "graphql-tag"
 
 import SiteLayout from "components/Site/SiteLayout"
+import Seo from "components/Seo/Seo"
 import PreviewCard from "components/Preview/PreviewCard"
 import DocsLayout from "components/Docs/DocsLayout"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
@@ -69,9 +70,23 @@ function normalizeUri(uri) {
     .toLowerCase()
 }
 
-export default function Archive({ data }) {
+export default function Archive({ data, uri }) {
   const { archive } = data
   const nodes = archive?.contentNodes?.nodes ?? []
+  // Archives resolve to a ContentType or a term, neither of which carries the
+  // ContentNode `seo` field, so the title is built from the label/name the
+  // query already selects.
+  const seoTitle = `${archive?.label || archive?.name || "Archive"} - WPGraphQL`
+  const seoDescription = archive?.description
+    ? toPlainText(archive.description)
+    : null
+  const seo = (
+    <Seo
+      title={seoTitle}
+      description={seoDescription}
+      uri={uri || archive?.uri}
+    />
+  )
   // A recipe-tag term archive resolves to the concrete `CodeSnippetTag`
   // type — `TermNode` is an interface and is never a `__typename` value, so
   // matching on it would make this branch dead.
@@ -129,6 +144,7 @@ export default function Archive({ data }) {
 
     return (
       <DocsLayout docsNavData={docsNavData} toc={toc}>
+        {seo}
         <Breadcrumbs
           items={[
             { label: "Developer Reference", href: "/developer-reference" },
@@ -187,6 +203,7 @@ export default function Archive({ data }) {
   if (nodes.some((node) => node.__typename === "ExtensionPlugin")) {
     return (
       <SiteLayout>
+        {seo}
         <ExtensionsArchive nodes={nodes} />
       </SiteLayout>
     )
@@ -194,6 +211,7 @@ export default function Archive({ data }) {
 
   return (
     <SiteLayout>
+      {seo}
       <div className="mx-auto max-w-5xl px-6 pb-24 pt-16 sm:pt-20">
         <header className="mx-auto max-w-3xl text-center">
           <h1 className="text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">
