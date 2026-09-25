@@ -214,6 +214,63 @@ class PersistedQueryRegistrationCest {
 		$I->seePostInDatabase( [ 'ID' => $post_id, 'post_content' => self::NORMALIZED_QUERY ] );
 	}
 
+	/**
+	 * Two requests registering the same brand-new query at the same moment could
+	 * both write a document, the second under the slug WordPress made unique. Once
+	 * that row was the newest holder of the hash, every later registration of the
+	 * query was refused, because the slug was taken to be the document's identity.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4355
+	 */
+	public function registrationSucceedsWhenADuplicateDocumentHoldsTheHashTest( FunctionalTester $I ) {
+		$I->wantTo( 'Register a query whose hash is held by a duplicate document a concurrent registration left behind' );
+
+		$normalized_hash = hash( 'sha256', self::NORMALIZED_QUERY );
+
+		// The state the race left behind: two documents holding the same query, the
+		// newer one stored under the uniquified slug, both aliased by the hash.
+		[ , $term_taxonomy_id ] = $I->haveTermInDatabase( $normalized_hash, 'graphql_query_alias' );
+
+		$first_id = $I->havePostInDatabase( [
+			'post_type'    => 'graphql_document',
+			'post_status'  => 'publish',
+			'post_title'   => 'RaceProbe',
+			'post_name'    => $normalized_hash,
+			'post_content' => self::NORMALIZED_QUERY,
+			'post_date'    => '2026-01-01 00:00:00',
+		] );
+		$duplicate_id = $I->havePostInDatabase( [
+			'post_type'    => 'graphql_document',
+			'post_status'  => 'publish',
+			'post_title'   => 'RaceProbe',
+			'post_name'    => $normalized_hash . '-2',
+			'post_content' => self::NORMALIZED_QUERY,
+			'post_date'    => '2026-01-01 00:00:01',
+		] );
+
+		$I->haveTermRelationshipInDatabase( $first_id, $term_taxonomy_id );
+		$I->haveTermRelationshipInDatabase( $duplicate_id, $term_taxonomy_id );
+
+		// Registering the same query again resolves to the stored document instead of
+		// being refused, and adds no further document.
+		$I->sendPost( 'graphql', json_encode( [
+			'query'      => self::RAW_QUERY,
+			'extensions' => [
+				'persistedQuery' => [
+					'version'    => 1,
+					'sha256Hash' => $normalized_hash,
+				],
+			],
+		] ) );
+		$I->seeResponseContainsJson( [ 'data' => [ 'posts' => [ 'nodes' => [] ] ] ] );
+		$I->dontSeeResponseContainsJson( [ 'errors' => [ [ 'message' => 'This queryId has already been associated with another query "RaceProbe"' ] ] ] );
+		$I->assertEquals( 2, $I->grabNumRecords( $I->grabPostsTableName(), [ 'post_type' => 'graphql_document' ] ) );
+
+		// And the hash still executes the stored document.
+		$I->sendGet( 'graphql', [ 'queryId' => $normalized_hash ] );
+		$I->seeResponseContainsJson( [ 'data' => [ 'posts' => [ 'nodes' => [] ] ] ] );
+	}
+
 	public function poisonedAliasCannotBeExecutedLaterTest( FunctionalTester $I ) {
 		$I->wantTo( 'Prevent an anonymous request from storing a mutation under an alias a later request would execute' );
 
