@@ -9,7 +9,28 @@ import {
 } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
-import { DocSearchModal } from "@docsearch/react"
+import dynamic from "next/dynamic"
+
+/**
+ * Loaded client-side only.
+ *
+ * @docsearch/react is ESM-only: its exports map has no `require` condition, so
+ * a static import lands in the serverless bundle and the runtime dies with
+ * `SyntaxError: Cannot use import statement outside a module` when it tries to
+ * require() it. That happens during ANY on-demand render of a page using
+ * SiteLayout, which means every WordPress-backed route. Next then keeps serving
+ * the last page it managed to build, so revalidation silently stops working and
+ * content freezes, which is exactly what happened to the blog.
+ *
+ * `next.config.js` lists this in transpilePackages to bundle it instead, but
+ * that is not taking effect. The modal only ever renders client-side behind an
+ * `isOpen` check inside a portal, so keeping it out of the server bundle
+ * entirely is both the fix and the honest description of how it is used.
+ */
+const DocSearchModal = dynamic(
+  () => import("@docsearch/react").then((mod) => mod.DocSearchModal),
+  { ssr: false }
+)
 import clsx from "clsx"
 import Link from "next/link"
 import useActionKey from "../../hooks/useActionKey"
