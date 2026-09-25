@@ -161,5 +161,15 @@
     "source": "/docs/recipes/:path*",
     "destination": "/recipes/:path*",
     "permanent": true
+  },
+  {
+    "source": "/docs/getting-started",
+    "destination": "/docs/quick-start",
+    "permanent": true
+  },
+  {
+    "source": "/docs/extensions",
+    "destination": "/extensions",
+    "permanent": true
   }
 ]
