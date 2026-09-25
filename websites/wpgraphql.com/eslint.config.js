@@ -50,4 +50,21 @@ module.exports = [
       "react-hooks/set-state-in-effect": "warn",
     },
   },
+  {
+    // Catch references to things that do not exist. Next's config leaves
+    // `no-undef` off because TypeScript covers it, but most of this app is
+    // plain .js, where nothing else does: a call to a function that was
+    // renamed or deleted passes tsc, prettier and eslint, then fails at
+    // prerender. That happened (`ReferenceError: firstNonEmpty is not
+    // defined`), and CI was the first thing to catch it, because `next build`
+    // does not currently run locally.
+    //
+    // The environment is already set up for this: eslint-config-next declares
+    // ~1170 browser and node globals, so only genuinely unknown identifiers
+    // are reported.
+    files: ["**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    rules: {
+      "no-undef": "error",
+    },
+  },
 ]
