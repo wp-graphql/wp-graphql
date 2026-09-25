@@ -292,12 +292,12 @@ class SettingsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$result = $this->settings->settings_api->sanitize_options( [
 			'query_depth_max' => 0,
 		] );
-		$this->assertSame( 10, $result['query_depth_max'] );
+		$this->assertSame( 15, $result['query_depth_max'] );
 
 		$result = $this->settings->settings_api->sanitize_options( [
 			'query_depth_max' => 'invalid',
 		] );
-		$this->assertSame( 10, $result['query_depth_max'] );
+		$this->assertSame( 15, $result['query_depth_max'] );
 	}
 
 	/**

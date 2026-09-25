@@ -454,4 +454,91 @@ class Utils {
 
 		return $named_match;
 	}
+
+	/**
+	 * Whether an operation only asks for introspection.
+	 *
+	 * Returns true when the operation is a query and every field at its root, including
+	 * fields reached through root-level fragment spreads and inline fragments, is `__schema`,
+	 * `__type` or `__typename`, with at least one `__schema` or `__type` field.
+	 *
+	 * This differs from WPGraphQL::is_introspection_query(), which is true when `__schema` or
+	 * `__type` appears anywhere in the request. Use this method when the answer decides whether a
+	 * limit applies, so a content query can't skip the limit by adding an introspection field.
+	 *
+	 * @param \GraphQL\Language\AST\OperationDefinitionNode              $operation The operation to check.
+	 * @param array<string,\GraphQL\Language\AST\FragmentDefinitionNode> $fragments The fragments in the document, keyed by name.
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function is_introspection_only_operation( \GraphQL\Language\AST\OperationDefinitionNode $operation, array $fragments = [] ): bool {
+		if ( 'query' !== $operation->operation ) {
+			return false;
+		}
+
+		$has_introspection_field = false;
+		$visited_fragments       = [];
+
+		$is_introspection_only = self::selections_are_introspection_only( $operation->selectionSet, $fragments, $visited_fragments, $has_introspection_field );
+
+		return $is_introspection_only && $has_introspection_field;
+	}
+
+	/**
+	 * Whether every root selection in a selection set is an introspection field.
+	 *
+	 * @param \GraphQL\Language\AST\SelectionSetNode                     $selection_set           The selection set to check.
+	 * @param array<string,\GraphQL\Language\AST\FragmentDefinitionNode> $fragments               The fragments in the document, keyed by name.
+	 * @param array<string,bool>                                         $visited_fragments       Fragments already checked, to avoid cycles.
+	 * @param bool                                                       $has_introspection_field Set to true when a `__schema` or `__type` field is found.
+	 */
+	private static function selections_are_introspection_only( \GraphQL\Language\AST\SelectionSetNode $selection_set, array $fragments, array &$visited_fragments, bool &$has_introspection_field ): bool {
+		foreach ( $selection_set->selections as $selection ) {
+			if ( $selection instanceof \GraphQL\Language\AST\FieldNode ) {
+				$name = $selection->name->value;
+
+				if ( '__schema' === $name || '__type' === $name ) {
+					$has_introspection_field = true;
+					continue;
+				}
+
+				if ( '__typename' === $name ) {
+					continue;
+				}
+
+				return false;
+			}
+
+			if ( $selection instanceof \GraphQL\Language\AST\InlineFragmentNode ) {
+				if ( ! self::selections_are_introspection_only( $selection->selectionSet, $fragments, $visited_fragments, $has_introspection_field ) ) {
+					return false;
+				}
+				continue;
+			}
+
+			if ( $selection instanceof \GraphQL\Language\AST\FragmentSpreadNode ) {
+				$fragment_name = $selection->name->value;
+
+				// An unknown fragment is reported by the standard validation rules. Don't treat it as introspection.
+				if ( ! isset( $fragments[ $fragment_name ] ) ) {
+					return false;
+				}
+
+				if ( isset( $visited_fragments[ $fragment_name ] ) ) {
+					continue;
+				}
+
+				$visited_fragments[ $fragment_name ] = true;
+
+				if ( ! self::selections_are_introspection_only( $fragments[ $fragment_name ]->selectionSet, $fragments, $visited_fragments, $has_introspection_field ) ) {
+					return false;
+				}
+				continue;
+			}
+
+			return false;
+		}
+
+		return true;
+	}
 }
