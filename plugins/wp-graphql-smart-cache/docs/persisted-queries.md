@@ -101,6 +101,8 @@ Custom Alias Names are assigned by authorized users only: through the GraphQL Do
 
 **NOTE:** Alias names must be unique across all GraphQL Documents. You cannot have 2 GraphQL Documents with the same alias name (manually entered or automatically generated).
 
+**NOTE:** A GraphQL Document's slug is the SHA-256 hash of the document it holds, so the same document is always stored under the same slug however it was saved, and `graphqlDocument(id: "<hash>", idType: SLUG)` resolves it. Documents are named with alias names instead. If you save a document with a slug of your own, in the editor or as the `slug` input of the `createGraphqlDocument` and `updateGraphqlDocument` mutations, that name is added as an alias name, so it still works as a `queryId`. A name another document already holds is never taken from it.
+
 ### GraphQL Variables
 
 Persisted queries support GraphQL variables which can passed in the query string, e.g. `?queryId=getPostById&variables={"id":"yourId"}`
