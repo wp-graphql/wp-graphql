@@ -170,6 +170,13 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.6.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.6.0...wp-graphql-ide/v5.6.1) (2026-09-29)
+
+
+### Bug Fixes
+
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374)) ([2e47c4d](https://github.com/wp-graphql/wp-graphql/commit/2e47c4d7dc7c57a39ade8280c6735b290883283b))
+
 ## [5.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.5.0...wp-graphql-ide/v5.6.0) (2026-09-15)
 
 
