@@ -8,6 +8,13 @@ use WPGraphQL\AppContext;
 class FieldConfig {
 
 	/**
+	 * The key a row's stored (unformatted) values are passed down under, alongside its formatted values.
+	 *
+	 * @var string
+	 */
+	protected static $raw_row_key = '__wpgraphql_acf_raw_row';
+
+	/**
 	 * @var array<mixed>
 	 */
 	protected $acf_field;
@@ -329,6 +336,87 @@ class FieldConfig {
 	}
 
 	/**
+	 * Determine if a field nested in a row (of a repeater, flexible content or group field)
+	 * should resolve from the row's stored (unformatted) value instead of its formatted value.
+	 *
+	 * These fields resolve connections by ID. Depending on the field's return format, ACF formats
+	 * their value as a URL (and always does for page_link), which can't be resolved back to a node.
+	 * Top-level fields of these types are already read unformatted.
+	 *
+	 * @param string $field_type The ACF Field Type of field being resolved
+	 */
+	protected function should_resolve_raw_row_value( string $field_type ): bool {
+		$types_to_resolve_raw = [
+			'page_link',
+			'post_object',
+			'relationship',
+			'image',
+			'file',
+			'gallery',
+			'taxonomy',
+			'user',
+		];
+
+		return in_array( $field_type, $types_to_resolve_raw, true );
+	}
+
+	/**
+	 * Get the stored (unformatted) values of the row being resolved, if they were passed down.
+	 *
+	 * @param mixed $root The row passed down the resolve tree
+	 *
+	 * @return array<mixed>|null
+	 */
+	protected function get_raw_row( $root ): ?array {
+		if ( ! is_array( $root ) || ! isset( $root[ self::$raw_row_key ] ) || ! is_array( $root[ self::$raw_row_key ] ) ) {
+			return null;
+		}
+
+		return $root[ self::$raw_row_key ];
+	}
+
+	/**
+	 * Pass the stored (unformatted) values of a repeater, flexible content or group field down
+	 * alongside its formatted rows, so nested fields can resolve from the stored value.
+	 *
+	 * @see self::should_resolve_raw_row_value()
+	 *
+	 * @param mixed        $value        The formatted value of the field
+	 * @param mixed        $raw_value    The stored (unformatted) value of the field
+	 * @param array<mixed> $field_config The ACF Field Config for the field being resolved
+	 *
+	 * @return mixed
+	 */
+	protected function attach_raw_rows( $value, $raw_value, array $field_config ) {
+		if ( ! is_array( $value ) || ! is_array( $raw_value ) || empty( $field_config['type'] ) ) {
+			return $value;
+		}
+
+		switch ( $field_config['type'] ) {
+			case 'group':
+				$value[ self::$raw_row_key ] = $raw_value;
+				break;
+			case 'repeater':
+			case 'flexible_content':
+				foreach ( $value as $index => $row ) {
+					if ( ! is_array( $row ) || ! isset( $raw_value[ $index ] ) || ! is_array( $raw_value[ $index ] ) ) {
+						continue;
+					}
+
+					// Only pair rows that describe the same flexible content layout
+					if ( ( $row['acf_fc_layout'] ?? null ) !== ( $raw_value[ $index ]['acf_fc_layout'] ?? null ) ) {
+						continue;
+					}
+
+					$value[ $index ][ self::$raw_row_key ] = $raw_value[ $index ];
+				}
+				break;
+		}
+
+		return $value;
+	}
+
+	/**
 	 * @param string          $selector
 	 * @param string|null     $parent_field_name
 	 * @param string|int|null $post_id
@@ -398,25 +486,37 @@ class FieldConfig {
 		// if the field_config is empty or not an array, set it as an empty array as a fallback
 		$field_config = ! empty( $field_config ) ? $field_config : [];
 
+		// Rows of repeater and flexible content fields are passed down formatted, but may carry
+		// their stored values too. Fields that resolve by ID use the stored value, like top-level fields do.
+		$raw_row       = $this->get_raw_row( $root );
+		$raw_row_value = null;
+		if ( null !== $raw_row && isset( $field_config['key'] ) && isset( $raw_row[ $field_config['key'] ] ) ) {
+			$raw_row_value = $raw_row[ $field_config['key'] ];
+		}
+
+		if ( ! empty( $raw_row_value ) && ! empty( $field_config['type'] ) && $this->should_resolve_raw_row_value( $field_config['type'] ) ) {
+			return $this->prepare_acf_field_value( $raw_row_value, $node, $node_id, $field_config );
+		}
+
 		// If the root being passed down already has a value
 		// for the field key, let's use it to resolve
 		if ( isset( $field_config['key'] ) && ! empty( $root[ $field_config['key'] ] ) ) {
-			return $this->prepare_acf_field_value( $root[ $field_config['key'] ], $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Check if the cloned field key is being used to pass values down
 		if ( isset( $field_config['__key'] ) && ! empty( $root[ $field_config['__key'] ] ) ) {
-			return $this->prepare_acf_field_value( $root[ $field_config['__key'] ], $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['__key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
 		if ( isset( $field_config['name'] ) && ! empty( $root[ '_' . $field_config['name'] ] ) ) {
-			return $this->prepare_acf_field_value( $root[ '_' . $field_config['name'] ], $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ '_' . $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
 		if ( isset( $field_config['name'] ) && ! empty( $root[ $field_config['name'] ] ) ) {
-			return $this->prepare_acf_field_value( $root[ $field_config['name'] ], $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		/**
@@ -460,6 +560,9 @@ class FieldConfig {
 			acf_setup_meta( $block['data'] ?? [], $block_id, true );
 
 			$return_value = $this->get_field( $field_config['name'], $parent_field_name, $block_id, $should_format_value );
+			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
+				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_config['name'], $parent_field_name, $block_id, false ), $field_config );
+			}
 			acf_reset_meta( $block_id );
 
 			if ( empty( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
@@ -481,6 +584,9 @@ class FieldConfig {
 		// if a value hasn't been set yet, use the get_field() function to get the value
 		if ( empty( $return_value ) ) {
 			$return_value = $this->get_field( $field_key, $parent_field_name, $node_id, $should_format_value );
+			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
+				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_key, $parent_field_name, $node_id, false ), $field_config );
+			}
 		}
 
 		// Prepare the value for response
