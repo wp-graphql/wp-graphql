@@ -231,6 +231,130 @@ class NestedConnectionFieldsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAc
 		);
 	}
 
+	/**
+	 * @see https://github.com/wp-graphql/wpgraphql-acf/issues/240
+	 */
+	public function testImageWithUrlReturnFormatInRepeaterInRepeaterResolves(): void {
+		$repeater_key = $this->register_repeater(
+			'repeater_with_repeater',
+			[
+				[
+					'key'                => 'field_nested_inner_repeater',
+					'name'               => 'products',
+					'type'               => 'repeater',
+					'show_in_graphql'    => 1,
+					'graphql_field_name' => 'products',
+					'sub_fields'         => [
+						[
+							'key'                => 'field_nested_inner_image',
+							'name'               => 'product_image',
+							'type'               => 'image',
+							'show_in_graphql'    => 1,
+							'graphql_field_name' => 'productImage',
+							'return_format'      => 'url',
+						],
+					],
+				],
+			]
+		);
+
+		update_field(
+			$repeater_key,
+			[
+				[
+					'field_nested_inner_repeater' => [
+						[ 'field_nested_inner_image' => $this->imageId ],
+						[ 'field_nested_inner_image' => $this->imageId_2 ],
+					],
+				],
+			],
+			$this->published_post->ID
+		);
+
+		$actual = $this->query_post( 'repeaterWithRepeater { products { productImage { node { databaseId } } } }' );
+
+		codecept_debug( $actual );
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.acfTestGroup.repeaterWithRepeater.0.products.0.productImage.node.databaseId', $this->imageId ),
+				$this->expectedField( 'post.acfTestGroup.repeaterWithRepeater.0.products.1.productImage.node.databaseId', $this->imageId_2 ),
+			]
+		);
+	}
+
+	public function testFileWithUrlReturnFormatInRepeaterResolves(): void {
+		$repeater_key = $this->register_repeater(
+			'repeater_with_url_file',
+			[
+				[
+					'key'                => 'field_nested_url_file',
+					'name'               => 'file',
+					'type'               => 'file',
+					'show_in_graphql'    => 1,
+					'graphql_field_name' => 'file',
+					'return_format'      => 'url',
+				],
+			]
+		);
+
+		update_field(
+			$repeater_key,
+			[
+				[ 'field_nested_url_file' => $this->imageId ],
+			],
+			$this->published_post->ID
+		);
+
+		$actual = $this->query_post( 'repeaterWithUrlFile { file { node { databaseId } } }' );
+
+		codecept_debug( $actual );
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.acfTestGroup.repeaterWithUrlFile.0.file.node.databaseId', $this->imageId ),
+			]
+		);
+	}
+
+	public function testGalleryWithUrlReturnFormatInRepeaterResolves(): void {
+		$repeater_key = $this->register_repeater(
+			'repeater_with_url_gallery',
+			[
+				[
+					'key'                => 'field_nested_url_gallery',
+					'name'               => 'gallery',
+					'type'               => 'gallery',
+					'show_in_graphql'    => 1,
+					'graphql_field_name' => 'gallery',
+					'return_format'      => 'url',
+				],
+			]
+		);
+
+		update_field(
+			$repeater_key,
+			[
+				[ 'field_nested_url_gallery' => [ $this->imageId, $this->imageId_2 ] ],
+			],
+			$this->published_post->ID
+		);
+
+		$actual = $this->query_post( 'repeaterWithUrlGallery { gallery { nodes { databaseId } } }' );
+
+		codecept_debug( $actual );
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode( 'post.acfTestGroup.repeaterWithUrlGallery.0.gallery.nodes', [ 'databaseId' => $this->imageId ] ),
+				$this->expectedNode( 'post.acfTestGroup.repeaterWithUrlGallery.0.gallery.nodes', [ 'databaseId' => $this->imageId_2 ] ),
+			]
+		);
+	}
+
 	public function testPageLinkInFlexibleContentResolves(): void {
 		$this->register_acf_field(
 			[
