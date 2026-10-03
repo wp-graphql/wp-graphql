@@ -86,6 +86,30 @@ class Query {
 			'user'      => $user_id,
 		];
 
+		/**
+		 * Filters the parts that are hashed into the cache key for a GraphQL query.
+		 *
+		 * The key is a hash of these parts alone, so any request context that changes the
+		 * response but is not represented above -- a locale, a currency, a feature flag, a
+		 * capability -- is invisible to the cache, and two requests that differ only by that
+		 * context resolve to the same key and can be served each other's stored response.
+		 * Add such a dimension to `$parts` to keep those responses in separate entries.
+		 *
+		 * @param array<string,mixed>  $parts   The parts that will be hashed into the cache key.
+		 * @param \WPGraphQL\Request|null $request The current GraphQL request, or null when unavailable.
+		 *
+		 * @since x-release-please-version
+		 *
+		 * @hookGroup uncategorized
+		 */
+		$filtered_parts = apply_filters( 'graphql_cache_query_key_parts', $parts, $this->request );
+
+		// A filter that does not return an array must not break caching for every request,
+		// so the unfiltered parts are used in that case.
+		if ( is_array( $filtered_parts ) ) {
+			$parts = $filtered_parts;
+		}
+
 		$parts_string = wp_json_encode( $parts );
 
 		if ( false === $parts_string ) {
