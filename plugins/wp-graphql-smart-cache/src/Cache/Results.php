@@ -244,6 +244,78 @@ class Results extends Query {
 	}
 
 	/**
+	 * Determine whether a GraphQL response carries errors.
+	 *
+	 * Two decisions depend on this answer and they have to agree: whether the response
+	 * may be written to the object cache, and whether it may be advertised to HTTP
+	 * caches with a max-age. If either side disagreed, an error response would still
+	 * outlive a purge. So there is one implementation and both callers use it.
+	 *
+	 * Handles a single result object, a single result that a `graphql_request_results`
+	 * filter reshaped into an array, and a batch (an array of either).
+	 *
+	 * @param mixed $response The response being returned to the client. An array of
+	 *                        results for a batch request, a single result otherwise.
+	 *
+	 * @return bool True when at least one operation in the response carries errors.
+	 */
+	public static function response_carries_errors( $response ) {
+		if ( is_object( $response ) ) {
+			// get_object_vars() rather than property_exists() + access: a response of an
+			// unknown shape may hold a non-public `errors`, and reading that from outside
+			// its class is a fatal error. Only public properties come back here.
+			$properties = get_object_vars( $response );
+
+			if ( isset( $properties['errors'] ) ) {
+				return ! empty( $properties['errors'] );
+			}
+
+			// Nothing public to read. A response that exposes `errors` through a magic
+			// accessor still has to count as errored, because missing them would
+			// re-advertise the failure - the bug this change exists to fix. Reporting
+			// errors we cannot read as present costs one extra `no-store`.
+			//
+			// isset() is not enough for this: it consults __isset(), which a response
+			// need not define. Direct access is safe precisely because __get is defined
+			// - that is what sends the read to the magic accessor instead of fataling
+			// on an inaccessible property.
+			if ( ! method_exists( $response, '__get' ) ) {
+				return false;
+			}
+
+			// Read through the magic accessor, then test what came back. Testing the
+			// property with `empty()` instead would consult __isset() first, which a
+			// response need not define, and would report "no errors" without ever
+			// reaching __get() -- the miss this branch exists to prevent.
+			// @phpstan-ignore-next-line - `errors` is reached through __get(), which PHPStan cannot see.
+			$magic_errors = $response->errors;
+
+			return ! empty( $magic_errors );
+		}
+
+		if ( ! is_array( $response ) ) {
+			return false;
+		}
+
+		// A single result in array shape.
+		if ( array_key_exists( 'errors', $response ) ) {
+			return ! empty( $response['errors'] );
+		}
+
+		// A batch. One `Cache-Control` header covers the whole response, so a single
+		// failing operation is enough to make all of it unsafe to store.
+		foreach ( $response as $single_response ) {
+			if ( is_array( $single_response ) || is_object( $single_response ) ) {
+				if ( self::response_carries_errors( $single_response ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * When a query response is being returned to the client, build map for each item and this query/queryId
 	 * That way we will know what to invalidate on data change.
 	 *
@@ -271,15 +343,23 @@ class Results extends Query {
 		$query_id
 	) {
 
-		// if caching is NOT enabled
-		// or the request is authenticated
-		// or the request is a GET request
-		// bail early
-		// right now we're not supporting GraphQL cache for authenticated requests,
-		// and we're recommending caching clients (varnish, etc) handle GET request caching
+		// if caching is NOT enabled, or the request is authenticated, bail early
+		// right now we're not supporting GraphQL cache for authenticated requests.
 		//
 		// Possibly in the future we'll have solutions for authenticated request caching
+		//
+		// There is no request-method check here: a GET request is cached in the object
+		// cache like any other query. HTTP caching for GET is a separate layer, driven
+		// by the Cache-Control directives that WPGraphQL\SmartCache\Document\MaxAge
+		// adds - that is what caching clients such as Varnish or a CDN act on.
 		if ( ! $this->is_object_cache_enabled() ) {
+			return;
+		}
+
+		// A response carrying errors describes a failed execution, not a result.
+		// Serving it back from cache would replay the failure for the full TTL, and an
+		// error response carries no cache keys, so there is nothing to purge it by.
+		if ( self::response_carries_errors( $filtered_response ) ) {
 			return;
 		}
 

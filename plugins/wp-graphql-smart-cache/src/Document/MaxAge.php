@@ -8,6 +8,7 @@
 namespace WPGraphQL\SmartCache\Document;
 
 use WPGraphQL\SmartCache\Admin\Settings;
+use WPGraphQL\SmartCache\Cache\Results;
 use WPGraphQL\SmartCache\Document;
 use WPGraphQL\SmartCache\Utils;
 use GraphQL\Server\RequestError;
@@ -21,6 +22,28 @@ class MaxAge {
 	 * @var array
 	 */
 	public $query_ids = [];
+
+	/**
+	 * Whether any operation in the response currently being returned carries errors.
+	 *
+	 * Filled by {@see MaxAge::capture_response_errors_cb()} and read, then cleared,
+	 * by {@see MaxAge::http_headers_cb()}. It accumulates rather than assigns because
+	 * a batch request fires `graphql_return_response` once per operation, and one
+	 * `Cache-Control` header is sent for the whole batch.
+	 *
+	 * @var bool
+	 */
+	protected $response_has_errors = false;
+
+	/**
+	 * The Request the error verdict above was gathered from.
+	 *
+	 * Null until a response has been captured, and cleared alongside
+	 * {@see MaxAge::$response_has_errors} once the verdict has been consumed.
+	 *
+	 * @var \WPGraphQL\Request|null
+	 */
+	protected $response_request = null;
 
 	/**
 	 * @return void
@@ -74,6 +97,11 @@ class MaxAge {
 		// From WPGraphql Router
 		add_filter( 'graphql_response_headers_to_send', [ $this, 'http_headers_cb' ], 10, 1 );
 		add_filter( 'pre_graphql_execute_request', [ $this, 'peek_at_executing_query_cb' ], 10, 2 );
+
+		// `graphql_response_headers_to_send` only receives the headers, so the response
+		// has to be inspected while we still have it. This runs before the headers are
+		// built for every executed response.
+		add_action( 'graphql_return_response', [ $this, 'capture_response_errors_cb' ], 10, 7 );
 
 		add_filter( 'graphql_mutation_input', [ $this, 'graphql_mutation_filter' ], 10, 4 );
 		add_action( 'graphql_mutation_response', [ $this, 'graphql_mutation_insert' ], 10, 6 );
@@ -215,10 +243,104 @@ class MaxAge {
 	}
 
 	/**
+	 * Record whether the response being returned to the client carries errors.
+	 *
+	 * `graphql_response_headers_to_send` hands us the headers and nothing else, so the
+	 * response has to be inspected here, while the request still has it. Without this,
+	 * an error response is advertised to shared caches with the configured max-age: it
+	 * carries no `X-GraphQL-Keys` to purge, so a single failure (a
+	 * `PersistedQueryNotFound` handshake error, a partial response, a resolver blowing
+	 * up) is replayed to every other client until the TTL expires.
+	 *
+	 * Called once per operation: a batch request fires this action once for each
+	 * operation in the batch, so the verdict is accumulated rather than replaced.
+	 * {@see MaxAge::http_headers_cb()} consumes it, once, for the whole response.
+	 *
+	 * @param mixed|array<string,mixed>|object $filtered_response The filtered response for the GraphQL operation.
+	 * @param mixed|array<string,mixed>|object $response          The raw response for the GraphQL operation.
+	 * @param \WPGraphQL\WPSchema $schema                         The WPGraphQL schema.
+	 * @param ?string $operation_name                              The name of the operation.
+	 * @param ?string $query                                       The query that GraphQL executed.
+	 * @param ?array<string,mixed> $variables                      The variables passed to the operation.
+	 * @param \WPGraphQL\Request|null $request                     The request being executed.
+	 *
+	 * @return void
+	 */
+	public function capture_response_errors_cb(
+		$filtered_response,
+		$response = null,
+		$schema = null,
+		$operation_name = null,
+		$query = null,
+		$variables = null,
+		$request = null
+	) {
+		if ( Results::response_carries_errors( $filtered_response ) ) {
+			$this->response_has_errors = true;
+		}
+
+		$this->response_request = $request instanceof \WPGraphQL\Request ? $request : null;
+	}
+
+	/**
+	 * Add the Cache-Control directive for this request's response.
+	 *
+	 * A response carrying errors is never advertised as cacheable: `no-store` is sent
+	 * and the saved-document and global max-age lookup is skipped, so a configured
+	 * max-age cannot override it. Any other response gets the max-age for its saved
+	 * document, or the global one. Hosts that want error responses back to the previous
+	 * behavior can restore it with the `graphql_cache_error_responses` filter.
+	 *
 	 * @param array $headers
 	 * @return array
 	 */
 	public function http_headers_cb( $headers ) {
+		// Consume the verdict gathered from `graphql_return_response`, then clear it.
+		// Every executed response runs that action before headers are built, so the
+		// flag is always current here. Clearing it now means a path that sends an
+		// error response without ever running that action - the Router's 403 auth error
+		// and OPTIONS early exits, and the 500 it sends when execution throws - cannot
+		// inherit the verdict of an earlier request in the same process. Those keep
+		// whatever Cache-Control the max-age lookup below produces, as they did before.
+		$response_has_errors = $this->response_has_errors;
+		$response_request    = $this->response_request;
+
+		$this->response_has_errors = false;
+		$this->response_request    = null;
+
+		if ( $response_has_errors ) {
+			/**
+			 * Filters whether a response that carries errors is still advertised as
+			 * cacheable with the configured max-age.
+			 *
+			 * By default an error response is sent with `Cache-Control: no-store`, so no
+			 * cache stores it. That is the safe default: an error response carries no
+			 * cache keys to invalidate, so a cached one can only be cleared by waiting out
+			 * its TTL, and a transient failure - a `PersistedQueryNotFound` handshake
+			 * error, a partially resolved response, a resolver error - is then replayed
+			 * to every other client until then.
+			 *
+			 * Return true to send the configured max-age for error responses instead,
+			 * which restores the behavior from before this filter existed. Anything
+			 * falsy - including null, which is what a filter that ignores its input
+			 * returns - keeps the safe default.
+			 *
+			 * @param bool                    $cache_error_responses Whether an error response should still be advertised as cacheable. Default false, meaning `Cache-Control: no-store` is sent.
+			 * @param \WPGraphQL\Request|null $request              The request the errored response was produced for. Null when the response was captured from a `graphql_return_response` call that carried no request. On the Router's early exits the response is never observed, so this filter is not applied there at all.
+			 *
+			 * @return bool
+			 *
+			 * @hookGroup uncategorized
+			 * @since x-release-please-version
+			 */
+			//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			$cache_error_responses = (bool) apply_filters( 'graphql_cache_error_responses', false, $response_request );
+
+			if ( ! $cache_error_responses ) {
+				return $this->forbid_storing( $headers );
+			}
+		}
+
 		$age = null;
 
 		// Look up this specific request query. If found and has an individual max-age setting, use it.
@@ -250,6 +372,35 @@ class MaxAge {
 				$headers['Cache-Control'] = sprintf( 'max-age=%1$s, s-maxage=%1$s, must-revalidate', $age );
 			}
 		}
+
+		return $headers;
+	}
+
+	/**
+	 * Make sure no cache may store the response.
+	 *
+	 * An existing `Cache-Control` that already forbids storage is left as-is: whatever
+	 * else is on it - the `private` the Router adds for preview-context requests, for
+	 * instance - only narrows the audience further, so replacing the value would throw
+	 * away a stronger directive. Any other value is replaced outright rather than
+	 * merged, because `no-store` and a `max-age` in one header contradict each other and
+	 * a shared cache only gets to act on the header as a whole.
+	 *
+	 * @param array $headers
+	 * @return array
+	 */
+	protected function forbid_storing( $headers ) {
+		$existing = isset( $headers['Cache-Control'] ) && is_string( $headers['Cache-Control'] )
+			? $headers['Cache-Control']
+			: '';
+
+		// `no-store` is the only Cache-Control directive with this substring, so a
+		// substring test is an exact test for the directive.
+		if ( '' !== $existing && false !== stripos( $existing, 'no-store' ) ) {
+			return $headers;
+		}
+
+		$headers['Cache-Control'] = 'no-store';
 
 		return $headers;
 	}
