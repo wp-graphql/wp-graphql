@@ -29,6 +29,21 @@ class Access {
 	}
 
 	/**
+	 * Run a request the IDE flagged `X-WPGraphQL-IDE-Public` as a guest,
+	 * because behind HTTP Basic Auth the `Authorization` header makes
+	 * WPGraphQL keep the cookie user even without a nonce.
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function force_public_request(): void {
+		if ( empty( $_SERVER['HTTP_X_WPGRAPHQL_IDE_PUBLIC'] ) ) {
+			return;
+		}
+
+		wp_set_current_user( 0 );
+	}
+
+	/**
 	 * Mark Smart Cache `graphql_document` posts as private when the
 	 * current user isn't the author. This is the GraphQL-side enforcement
 	 * point for per-user document isolation: it covers connections

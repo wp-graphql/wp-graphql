@@ -1,12 +1,7 @@
 <?php
 /**
- * Tests for the IDE's "send as public visitor" guard.
- *
- * On a site behind HTTP Basic Auth the IDE can't omit credentials for
- * a public request (the web server would reject it), so it sends them
- * along with an `X-WPGraphQL-IDE-Public` header. The regression to
- * guard against: such a request executing as the logged-in user while
- * the IDE reports it as public.
+ * Guards against a request the IDE sent as public running as the
+ * logged-in user on a site behind HTTP Basic Auth.
  *
  * @package WPGraphQLIDE
  */

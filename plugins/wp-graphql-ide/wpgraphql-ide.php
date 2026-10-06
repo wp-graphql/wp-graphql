@@ -148,6 +148,9 @@ function initialize_plugin() {
 	// `wp_insert_post` callers.
 	add_filter( 'wp_insert_post_data', [ \WPGraphQLIDE\Access::class, 'cap_document_title_length' ], 10, 2 );
 
+	// Run requests the IDE flags as public as a guest.
+	add_action( 'graphql_process_http_request', [ \WPGraphQLIDE\Access::class, 'force_public_request' ] );
+
 	// Custom REST routes.
 	add_action( 'rest_api_init', [ \WPGraphQLIDE\Rest::class, 'register' ] );
 

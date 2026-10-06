@@ -91,11 +91,9 @@ test.describe('Auth toggle', () => {
 	test('public mode stays public on a site behind HTTP Basic Auth', async ({
 		page,
 	}) => {
-		// Stand in for a web server guarding the site with `.htpasswd`:
-		// a request sent without credentials is rejected before it
-		// reaches WordPress, and one sent with credentials arrives with
-		// the browser's Basic Auth header attached. The IDE flags the
-		// credentialed retry, which is what tells the two apart here.
+		// Stand in for `.htpasswd`: reject requests sent without
+		// credentials, and add the browser's Basic Auth header to the
+		// IDE's flagged retry.
 		await page.route(/graphql/, async (route) => {
 			const request = route.request();
 			const headers = request.headers();
