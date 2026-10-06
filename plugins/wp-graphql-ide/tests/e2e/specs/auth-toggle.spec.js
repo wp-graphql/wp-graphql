@@ -87,4 +87,74 @@ test.describe('Auth toggle', () => {
 		const headers = await request.allHeaders();
 		expect(headers['x-wp-nonce']).toBeFalsy();
 	});
+
+	test('public mode stays public on a site behind HTTP Basic Auth', async ({
+		page,
+	}) => {
+		// Stand in for a web server guarding the site with `.htpasswd`:
+		// a request sent without credentials is rejected before it
+		// reaches WordPress, and one sent with credentials arrives with
+		// the browser's Basic Auth header attached. The IDE flags the
+		// credentialed retry, which is what tells the two apart here.
+		await page.route(/graphql/, async (route) => {
+			const request = route.request();
+			const headers = request.headers();
+			if (request.method() !== 'POST' || headers['x-wp-nonce']) {
+				await route.continue();
+				return;
+			}
+			if (!headers['x-wpgraphql-ide-public']) {
+				await route.fulfill({
+					status: 401,
+					headers: { 'WWW-Authenticate': 'Basic realm="Restricted"' },
+					contentType: 'text/html',
+					body: '401 Unauthorized',
+				});
+				return;
+			}
+			await route.continue({
+				headers: {
+					...headers,
+					authorization: `Basic ${btoa('staging:secret')}`,
+				},
+			});
+		});
+
+		await page
+			.getByRole('button', {
+				name: /Send as authenticated user/i,
+			})
+			.click();
+		await expect(
+			page.getByRole('button', {
+				name: /Send as public visitor/i,
+			})
+		).toBeVisible();
+
+		const editorContent = page
+			.locator('.wpgraphql-ide-graphql-editor .cm-content')
+			.first();
+		await editorContent.click();
+		await page.keyboard.press(
+			process.platform === 'darwin' ? 'Meta+a' : 'Control+a'
+		);
+		await page.keyboard.press('Backspace');
+		await page.keyboard.type('{ viewer { name } }');
+
+		const [response] = await Promise.all([
+			page.waitForResponse(
+				(res) =>
+					res.request().headers()['x-wpgraphql-ide-public'] === '1'
+			),
+			page.keyboard.press(
+				process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter'
+			),
+		]);
+
+		// The request got through, and ran logged-out even though the
+		// admin's cookie and an Authorization header rode along.
+		expect(response.status()).toBe(200);
+		const body = await response.json();
+		expect(body.data.viewer).toBeNull();
+	});
 });
