@@ -330,7 +330,7 @@ class MaxAge {
 			 *
 			 * @return bool
 			 *
-			 * @hookGroup uncategorized
+			 * @hookGroup caching
 			 * @since x-release-please-version
 			 */
 			$cache_error_responses = (bool) apply_filters( 'graphql_cache_error_responses', false, $response_request );
