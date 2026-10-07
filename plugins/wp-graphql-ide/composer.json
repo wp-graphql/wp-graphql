@@ -19,11 +19,6 @@
 			"WPGraphQLIDE\\": "includes/"
 		}
 	},
-	"autoload-dev": {
-		"files": [
-			"tests/_data/config.php"
-		]
-	},
 	"require-dev": {
 		"behat/gherkin": "<4.9",
 		"wp-graphql/wp-graphql-testcase": "*",

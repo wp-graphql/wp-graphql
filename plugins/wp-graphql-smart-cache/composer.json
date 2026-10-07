@@ -9,9 +9,6 @@
 		}
 	},
 	"autoload-dev": {
-		"files": [
-			"tests/_data/config.php"
-		],
 		"psr-4": {
 			"TestCase\\WPGraphQLSmartCache\\": "tests/_support/"
 		}
