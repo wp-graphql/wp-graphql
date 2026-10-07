@@ -9,7 +9,6 @@ namespace WPGraphQL\SmartCache\Admin;
 
 use WPGraphQL\SmartCache\AdminErrors;
 use WPGraphQL\SmartCache\Document;
-use WPGraphQL\SmartCache\Utils;
 use WPGraphQL\SmartCache\Document\Grant;
 use WPGraphQL\SmartCache\Document\MaxAge;
 use GraphQL\Error\SyntaxError;
@@ -91,15 +90,12 @@ class Editor {
 
 			// Keep the slug in sync with the normalized content hash so an
 			// admin-authored document is resolvable via graphqlDocument(idType: SLUG)
-			// by its persisted-query hash, matching documents saved programmatically
-			// (Document::save() sets post_name to the same hash). Without this, WordPress
-			// derives post_name from the title and the hash lookup returns null.
-			// The hash is computed from the unslashed normalized string — the
-			// exact bytes that end up in the database.
+			// by its persisted-query hash, matching documents saved every other way.
+			// Without this, WordPress derives post_name from the title and the hash
+			// lookup returns null. A slug typed into the editor is kept as an alias
+			// instead of as the slug.
 			// See https://github.com/wp-graphql/wp-graphql/issues/3837.
-			if ( ! empty( $normalized ) ) {
-				$data['post_name'] = Utils::getHashFromFormattedString( $normalized );
-			}
+			$data = $document->apply_content_hash_slug( $data, $post, $normalized );
 		} catch ( RequestError $e ) {
 			AdminErrors::add_message( $e->getMessage() );
 

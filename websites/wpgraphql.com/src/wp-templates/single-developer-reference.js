@@ -1,6 +1,7 @@
 import gql from "graphql-tag"
 
 import SiteLayout from "components/Site/SiteLayout"
+import Seo, { SeoFragment } from "components/Seo/Seo"
 
 export default function SingleDeveloperReference({ data }) {
   const { post } = data
@@ -10,6 +11,7 @@ export default function SingleDeveloperReference({ data }) {
 
   return (
     <SiteLayout>
+      <Seo node={post} />
       <div className="overflow-hidden">
         <div className="mx-auto mt-10 px-4 pb-6 sm:mt-16 sm:px-6 md:px-8 xl:px-12 xl:max-w-6xl">
           <main className="content">
@@ -41,6 +43,7 @@ SingleDeveloperReference.queries = {
     query: gql`
       query SingleDeveloperReference_Post($uri: ID!) {
         post(id: $uri, idType: URI) {
+          ...Seo
           id
           title
           uri

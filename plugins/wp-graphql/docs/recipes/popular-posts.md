@@ -62,4 +62,4 @@ You can query for the popular posts using this GraphQL query:
 }
 ```
 
-![](https://content.wpgraphql.com/wp-content/uploads/2021/11/Screen-Shot-2021-11-11-at-9.09.22-AM-1024x638.png)
+![](./images/Screen-Shot-2021-11-11-at-9.09.22-AM-1024x638.png)

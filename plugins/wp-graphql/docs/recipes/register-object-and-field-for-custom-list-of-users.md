@@ -80,4 +80,4 @@ You can now query for these stuntPerformers with the following GraphQL:
 }
 ```
 
-![Stunt Performers query in GraphiQL](https://content.wpgraphql.com/wp-content/uploads/2020/10/StuntPerformersGraphiql-1024x366.jpg)
+![Stunt Performers query in GraphiQL](./images/StuntPerformersGraphiql-1024x366.jpg)

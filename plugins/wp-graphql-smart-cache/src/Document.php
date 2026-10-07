@@ -39,6 +39,33 @@ class Document {
 	private static $pending_documents = [];
 
 	/**
+	 * The hash of the document Document::save() is currently writing, or null.
+	 *
+	 * Having parsed and normalized the document already, and attaching its alias
+	 * terms itself, save() asks the guards on wp_insert_post_data and save_post to
+	 * stand aside while it writes. The save_post guard in particular runs once the
+	 * row is already in the table, so when a concurrent request stored the same
+	 * query in between it would abort the write half done, leaving a document
+	 * behind that holds no alias and can never be resolved.
+	 *
+	 * @var string|null
+	 */
+	private static $saving_document_hash = null;
+
+	/**
+	 * A name the caller asked to store the document under, waiting to be recorded
+	 * as an alias, or null.
+	 *
+	 * A document's slug is the hash of the query it holds, so a slug a caller
+	 * passes cannot be kept as the slug. Naming a document is what the alias
+	 * taxonomy is for, so the requested name is picked up on the
+	 * wp_insert_post_data filter and attached as an alias once the row is written.
+	 *
+	 * @var string|null
+	 */
+	private static $requested_alias = null;
+
+	/**
 	 * @return void
 	 */
 	public function init() {
@@ -167,15 +194,37 @@ class Document {
 			return $input;
 		}
 
-		if ( ! isset( $input['alias'] ) ) {
+		// The document this mutation writes to, when it is updating one. Used to tell
+		// a name the document already holds apart from one another document holds.
+		$post = null;
+		if ( 'updateGraphqlDocument' === $mutation_name && ! empty( $input['id'] ) ) {
+			$id_parts = \GraphQLRelay\Relay::fromGlobalId( $input['id'] );
+			$post     = isset( $id_parts['id'] ) ? get_post( (int) $id_parts['id'] ) : null;
+			$post     = $post instanceof \WP_Post ? $post : null;
+		}
+
+		$sets_aliases = isset( $input['alias'] ) && is_array( $input['alias'] );
+		$aliases      = $sets_aliases ? $input['alias'] : [];
+
+		// A document is stored under the hash of the query it holds, so a slug cannot
+		// name it. Take the name the caller asked for as an alias instead, which is
+		// what names a document and works as a queryId too.
+		$names_by_slug = isset( $input['slug'] ) && is_string( $input['slug'] ) && '' !== $input['slug'];
+		if ( $names_by_slug && ! in_array( $input['slug'], $aliases, true ) ) {
+			$aliases[] = $input['slug'];
+		}
+
+		if ( ! $sets_aliases && ! $names_by_slug ) {
 			return $input;
 		}
 
-		// If the create/update a document, see if any of these aliases already exist
-		$existing_post = Utils::getPostByTermName( $input['alias'], self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
+		// See whether any of these names is already in use by a different document.
+		// An empty list claims nothing, and still goes on to carry the content hash,
+		// so a caller clearing a document's names does not clear the hash with them.
+		$existing_post = ! empty( $aliases ) ? $this->find_document_using_alias( $aliases, $post ) : false;
 		if ( $existing_post ) {
 			// Translators: The placeholders are the input aliases and the existing post containing a matching alias
-			throw new RequestError( sprintf( __( 'Alias "%1$s" already in use by another query "%2$s"', 'wp-graphql-smart-cache' ), join( ', ', $input['alias'] ), $existing_post->post_title ) );
+			throw new RequestError( sprintf( __( 'Alias "%1$s" already in use by another query "%2$s"', 'wp-graphql-smart-cache' ), join( ', ', $aliases ), $existing_post->post_title ) );
 		}
 
 		// Make sure the normalized hash for the query string isset.
@@ -184,19 +233,59 @@ class Document {
 		// a settings panel). Fall back to the post's existing content so the
 		// hash regeneration doesn't crash on a null/missing `content` input.
 		$content = $input['content'] ?? null;
-		if ( ! is_string( $content ) && 'updateGraphqlDocument' === $mutation_name && ! empty( $input['id'] ) ) {
-			$id_parts = \GraphQLRelay\Relay::fromGlobalId( $input['id'] );
-			$post     = isset( $id_parts['id'] ) ? get_post( (int) $id_parts['id'] ) : null;
-			if ( $post instanceof \WP_Post ) {
-				$content = $post->post_content;
-			}
+		if ( ! is_string( $content ) && null !== $post ) {
+			$content = $post->post_content;
 		}
 
 		if ( is_string( $content ) && '' !== $content ) {
-			$input['alias'][] = Utils::generateHash( $content );
+			$aliases[] = Utils::generateHash( $content );
 		}
 
+		$input['alias'] = $aliases;
+
 		return $input;
+	}
+
+	/**
+	 * Find a document, other than the one being written to, already using one of
+	 * these aliases.
+	 *
+	 * An alias is how a queryId resolves to a document, so one document must never
+	 * take an alias another holds. A document holding the alias already is not a
+	 * conflict, which is what lets a caller send a document's own name back on an
+	 * update.
+	 *
+	 * @param string[]      $aliases The alias names being claimed.
+	 * @param \WP_Post|null $post    The document being written to, when updating one.
+	 *
+	 * @return \WP_Post|false The document already using one of the aliases, or false.
+	 */
+	private function find_document_using_alias( array $aliases, $post = null ) {
+		$query = new \WP_Query(
+			[
+				'post_type'      => self::TYPE_NAME,
+				'post_status'    => 'any',
+				'posts_per_page' => 10,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				'tax_query'      => [
+					[
+						'taxonomy' => self::ALIAS_TAXONOMY_NAME,
+						'field'    => 'name',
+						'terms'    => $aliases,
+					],
+				],
+			]
+		);
+
+		$writing_to = $post instanceof \WP_Post ? (int) $post->ID : 0;
+
+		foreach ( $query->get_posts() as $found ) {
+			if ( $found instanceof \WP_Post && (int) $found->ID !== $writing_to ) {
+				return $found;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -224,8 +313,7 @@ class Document {
 		$terms = wp_get_post_terms( $post_object['postObjectId'], self::ALIAS_TAXONOMY_NAME );
 		if ( $terms && ! is_wp_error( $terms ) ) {
 			foreach ( $terms as $term ) {
-				wp_remove_object_terms( $post_object['postObjectId'], $term->term_id, self::ALIAS_TAXONOMY_NAME );
-				wp_delete_term( $term->term_id, self::ALIAS_TAXONOMY_NAME );
+				$this->remove_alias_term( (int) $post_object['postObjectId'], (int) $term->term_id );
 			}
 		}
 
@@ -375,9 +463,9 @@ class Document {
 		$raw_hash        = Utils::getHashFromFormattedString( $query );
 		$is_hash         = in_array( $query_id, [ $normalized_hash, $raw_hash ], true );
 
-		// If queryId alias name is already in the system and doesn't match the query hash
+		// If the queryId is already in the system against some other query, refuse it.
 		$post = Utils::getPostByTermName( $query_id, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
-		if ( $post && $post->post_name !== $normalized_hash ) {
+		if ( $post && ! self::document_holds_query( $post, $normalized, $normalized_hash ) ) {
 			// translators: existing query title
 			throw new RequestError( sprintf( __( 'This queryId has already been associated with another query "%s"', 'wp-graphql-smart-cache' ), $post->post_title ) );
 		}
@@ -393,6 +481,36 @@ class Document {
 			'is_hash'         => $is_hash,
 			'post'            => $post,
 		];
+	}
+
+	/**
+	 * Whether a stored document holds the given query.
+	 *
+	 * A document is identified by the query it holds, not by its slug. Two documents
+	 * can hold the same query when two requests registered it at the same moment,
+	 * and the row written second was given a slug WordPress made unique
+	 * (`<hash>-2`). That row still holds this query, so the queryId still resolves.
+	 *
+	 * Documents are stored normalized, so comparing the stored string answers this
+	 * for anything the plugin wrote. Content stored in some other shape is parsed and
+	 * hashed, so the same query written differently is still recognized.
+	 *
+	 * @param \WP_Post $post            The stored document.
+	 * @param string   $normalized      The normalized query string.
+	 * @param string   $normalized_hash The hash of the normalized query string.
+	 *
+	 * @return bool
+	 */
+	private static function document_holds_query( \WP_Post $post, $normalized, $normalized_hash ) {
+		if ( $post->post_content === $normalized ) {
+			return true;
+		}
+
+		try {
+			return Utils::generateHash( $post->post_content ) === $normalized_hash;
+		} catch ( SyntaxError $e ) {
+			return false;
+		}
 	}
 
 	/**
@@ -446,16 +564,123 @@ class Document {
 			return $data;
 		}
 
+		if ( null !== self::$saving_document_hash ) {
+			// Document::save() passes content it has already parsed and normalized, so
+			// there is nothing to validate here. Restore the slug it asked for:
+			// wp_unique_post_slug() ran before this filter, and when another request
+			// stored the same query a moment earlier it turned the slug into
+			// `<hash>-2`. The slug is how the two rows find each other afterwards, so
+			// it has to stay the hash of the document.
+			$data['post_name'] = self::$saving_document_hash;
+
+			return $data;
+		}
+
 		if ( array_key_exists( 'post_content', $post ) ) {
 			// Change the shape of the data. This is a slashed-data context
 			// (WordPress unslashes the filtered data before persisting it), so
 			// unslash the incoming content for validation and re-slash the
 			// normalized result so escape sequences inside GraphQL string
 			// arguments survive the save intact.
-			$data['post_content'] = wp_slash( $this->valid_or_throw( wp_unslash( $post['post_content'] ), $post['ID'] ) );
+			$normalized           = $this->valid_or_throw( wp_unslash( $post['post_content'] ), $post['ID'] );
+			$data['post_content'] = wp_slash( $normalized );
+			$data                 = $this->apply_content_hash_slug( $data, $post, $normalized );
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Store a document under the hash of the query it holds, and remember any name
+	 * the caller asked for so it can be recorded as an alias instead.
+	 *
+	 * A document that holds a query is addressed by its content: the slug is the hash
+	 * of the normalized query, whichever way the document was written (the admin
+	 * editor, the graphqlDocument mutations, the automatic persisted query path, or
+	 * code calling wp_insert_post()). That is what lets a document be fetched by the
+	 * same hash a client sends as its queryId. A document holding no query, an empty
+	 * draft, keeps the slug WordPress gave it.
+	 *
+	 * A name a caller passes as the slug is not thrown away. It is held here and
+	 * attached as an alias by save_document_cb(), which is the supported way to
+	 * give a document a name and makes the name work as a queryId as well.
+	 *
+	 * Expects a slashed-data context, the one wp_insert_post_data runs in.
+	 *
+	 * @param array<string,mixed> $data       The post data being saved.
+	 * @param array<string,mixed> $postarr    The post data as the caller passed it.
+	 * @param string              $normalized The normalized query the document holds.
+	 *
+	 * @return array<string,mixed> The post data, with the slug set to the content hash.
+	 */
+	public function apply_content_hash_slug( $data, $postarr, $normalized ) {
+		self::$requested_alias = null;
+
+		if ( '' === $normalized ) {
+			return $data;
+		}
+
+		// The hash is taken from the unslashed normalized string, the exact bytes
+		// that end up in the database.
+		$hash = Utils::getHashFromFormattedString( $normalized );
+
+		$requested = isset( $postarr['post_name'] ) && is_string( $postarr['post_name'] ) ? $postarr['post_name'] : '';
+		if ( '' !== $requested && ! self::is_content_hash( $requested ) ) {
+			self::$requested_alias = $requested;
+		}
+
+		$data['post_name'] = $hash;
+
+		return $data;
+	}
+
+	/**
+	 * Whether a string is shaped like one of our content hashes.
+	 *
+	 * Used to tell a slug this plugin assigned, which may be the hash of content
+	 * that has since been edited, apart from a name a person chose.
+	 *
+	 * @param string $value
+	 *
+	 * @return bool
+	 */
+	private static function is_content_hash( $value ) {
+		return 1 === preg_match( '/^[a-f0-9]{64}$/', $value );
+	}
+
+	/**
+	 * Record a name the caller asked to store the document under as an alias.
+	 *
+	 * A name already held by another document is left alone: aliases are how a
+	 * queryId resolves to a document, so one document must never take another's.
+	 *
+	 * @param int $post_id The document to name.
+	 *
+	 * @return void
+	 */
+	private function record_requested_alias( $post_id ) {
+		$alias                 = self::$requested_alias;
+		self::$requested_alias = null;
+
+		if ( null === $alias || '' === $alias ) {
+			return;
+		}
+
+		$existing = Utils::getPostByTermName( $alias, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
+		if ( $existing && (int) $existing->ID !== (int) $post_id ) {
+			graphql_debug(
+				sprintf(
+					/* translators: 1: the requested name, 2: the title of the document already using it */
+					__( 'The name "%1$s" is already in use by the saved GraphQL document "%2$s", so it was not added to this document. Documents are stored under the hash of the query they hold.', 'wp-graphql-smart-cache' ),
+					$alias,
+					$existing->post_title
+				)
+			);
+
+			return;
+		}
+
+		wp_add_object_terms( $post_id, $alias, self::ALIAS_TAXONOMY_NAME );
 	}
 
 	/**
@@ -514,6 +739,13 @@ class Document {
 			return;
 		}
 
+		if ( null !== self::$saving_document_hash ) {
+			// Document::save() attaches the alias terms itself once the row is
+			// written. Re-running the duplicate check here would throw after the row
+			// is already in the table, leaving a document behind with no alias.
+			return;
+		}
+
 		$post->post_content = $this->valid_or_throw( $post->post_content, $post->ID );
 
 		// Get the query id for the new query and save as a term
@@ -524,6 +756,8 @@ class Document {
 
 		// Set terms using wp_add_object_terms instead of wp_insert_post because the user my not have permissions to set terms
 		wp_add_object_terms( $post_ID, $query_id, self::ALIAS_TAXONOMY_NAME );
+
+		$this->record_requested_alias( $post_ID );
 	}
 
 	/**
@@ -560,8 +794,7 @@ class Document {
 		if ( $terms && ! is_wp_error( $terms ) ) {
 			foreach ( $terms as $term ) {
 				if ( $old_query_id === $term->name ) {
-					wp_remove_object_terms( $post_ID, $term->term_id, self::ALIAS_TAXONOMY_NAME );
-					wp_delete_term( $term->term_id, self::ALIAS_TAXONOMY_NAME );
+					$this->remove_alias_term( (int) $post_ID, (int) $term->term_id );
 				}
 			}
 		}
@@ -633,17 +866,7 @@ class Document {
 				'post_type'    => self::TYPE_NAME,
 			];
 
-			// The post ID on success. The value 0 or WP_Error on failure.
-			// wp_insert_post() expects slashed data; slash so escape sequences
-			// inside GraphQL string arguments survive the save intact.
-			$post_id = wp_insert_post( wp_slash( $data ), true );
-			if ( is_wp_error( $post_id ) ) {
-				throw new RequestError( sprintf( __( 'Error save the document data for "%s"', 'wp-graphql-smart-cache' ), $normalized_hash ) );
-			}
-
-			// Record that the automatic path created this document, so it can be audited
-			// apart from documents an authorized user created deliberately.
-			update_post_meta( $post_id, self::SOURCE_META_KEY, self::SOURCE_AUTOMATIC );
+			$post_id = $this->insert_document( $data, $normalized_hash );
 		} elseif ( $query !== $post->post_content ) {
 			// If the hash for the query string loads a post with a different query string,
 			// This means this hash was previously used as an alias for a query
@@ -668,6 +891,120 @@ class Document {
 	}
 
 	/**
+	 * Write a document row for a query the site has not stored yet.
+	 *
+	 * The lookup in save() and this insert are not one atomic step, so two requests
+	 * carrying the same brand-new query can both get here and both write a row. Both
+	 * store the document under the hash of its content as the slug, so the row the
+	 * other request wrote is found here and the row this request added is dropped in
+	 * favour of it. The oldest row wins, which is a choice both requests in a race
+	 * make the same way, so they converge on one document per query.
+	 *
+	 * On the automatic persisted query path, registration is finished off after the
+	 * response has been built, so a request that loses the race and hands back the
+	 * other request's document has still served the query it came in with.
+	 *
+	 * @param array<string,mixed> $data            The document data to insert.
+	 * @param string              $normalized_hash The hash of the normalized document.
+	 *
+	 * @return int The post id of the stored document.
+	 * @throws RequestError When the document could not be written.
+	 */
+	private function insert_document( array $data, $normalized_hash ) {
+		$outer_hash                 = self::$saving_document_hash;
+		self::$saving_document_hash = $normalized_hash;
+
+		try {
+			// The post ID on success. The value 0 or WP_Error on failure.
+			// wp_insert_post() expects slashed data; slash so escape sequences
+			// inside GraphQL string arguments survive the save intact.
+			$post_id = wp_insert_post( wp_slash( $data ), true );
+		} finally {
+			self::$saving_document_hash = $outer_hash;
+		}
+
+		if ( is_wp_error( $post_id ) ) {
+			throw new RequestError( sprintf( __( 'Error save the document data for "%s"', 'wp-graphql-smart-cache' ), $normalized_hash ) );
+		}
+
+		$post_id = (int) $post_id;
+
+		// Record that the automatic path created this document, so it can be audited
+		// apart from documents an authorized user created deliberately.
+		update_post_meta( $post_id, self::SOURCE_META_KEY, self::SOURCE_AUTOMATIC );
+
+		$stored_id = $this->find_earlier_document( $normalized_hash, $post_id, $data['post_content'] );
+		if ( $stored_id ) {
+			$this->delete_duplicate_document( $post_id );
+
+			return $stored_id;
+		}
+
+		return $post_id;
+	}
+
+	/**
+	 * Find a document written before $post_id that holds the same query.
+	 *
+	 * Candidates are looked up by the slug documents for this query are stored under
+	 * and then compared on the query they hold, so a row that happens to carry this
+	 * slug for some other query is never adopted.
+	 *
+	 * @param string $slug    The slug documents for this query are stored under (the content hash).
+	 * @param int    $post_id The document this request wrote.
+	 * @param string $content The normalized query the document holds.
+	 *
+	 * @return int The post id of the earlier document, or 0 when there is none.
+	 */
+	private function find_earlier_document( $slug, $post_id, $content ) {
+		$query = new \WP_Query(
+			[
+				'post_type'      => self::TYPE_NAME,
+				'post_status'    => 'any',
+				'name'           => $slug,
+				'posts_per_page' => 10,
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+			]
+		);
+
+		foreach ( $query->get_posts() as $candidate ) {
+			if ( ! $candidate instanceof \WP_Post ) {
+				continue;
+			}
+
+			if ( (int) $candidate->ID >= $post_id ) {
+				continue;
+			}
+
+			if ( $candidate->post_content === $content ) {
+				return (int) $candidate->ID;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Drop a document row this request added for a query another request had already
+	 * stored.
+	 *
+	 * @param int $post_id The document to delete.
+	 *
+	 * @return void
+	 */
+	private function delete_duplicate_document( $post_id ) {
+		$term_ids = wp_get_object_terms( $post_id, self::ALIAS_TAXONOMY_NAME, [ 'fields' => 'ids' ] );
+		if ( is_array( $term_ids ) && ! empty( $term_ids ) ) {
+			// Aliases are shared terms. Detach them before deleting the row so the
+			// document that keeps them is left alone.
+			wp_remove_object_terms( $post_id, $term_ids, self::ALIAS_TAXONOMY_NAME );
+		}
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
 	 * When a saved query post type is deleted, also delete the data for the other information.
 	 *
 	 * @param int $post_id the Post Object Id
@@ -689,8 +1026,33 @@ class Document {
 		$terms = wp_get_object_terms( $post_id, self::ALIAS_TAXONOMY_NAME );
 		if ( $terms && ! is_wp_error( $terms ) ) {
 			foreach ( $terms as $term ) {
-				wp_delete_term( $term->term_id, self::ALIAS_TAXONOMY_NAME );
+				$this->remove_alias_term( (int) $post_id, (int) $term->term_id );
 			}
 		}
+	}
+
+	/**
+	 * Take an alias off a document, and delete the alias itself only when no other
+	 * document holds it.
+	 *
+	 * Aliases are terms, and a term is shared by every document it is attached to.
+	 * Two documents hold the same alias when the same query was stored twice, so
+	 * deleting the term outright would take the alias away from the document that
+	 * remains and leave it unresolvable.
+	 *
+	 * @param int $post_id The document to take the alias off of.
+	 * @param int $term_id The alias term.
+	 *
+	 * @return void
+	 */
+	private function remove_alias_term( $post_id, $term_id ) {
+		wp_remove_object_terms( $post_id, $term_id, self::ALIAS_TAXONOMY_NAME );
+
+		$object_ids = get_objects_in_term( $term_id, self::ALIAS_TAXONOMY_NAME );
+		if ( is_wp_error( $object_ids ) || ! empty( $object_ids ) ) {
+			return;
+		}
+
+		wp_delete_term( $term_id, self::ALIAS_TAXONOMY_NAME );
 	}
 }

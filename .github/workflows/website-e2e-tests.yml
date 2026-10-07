@@ -105,8 +105,16 @@ jobs:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
           # Public GraphQL endpoint default so fork PRs (which can't read repo
           # secrets) still prerender against live data instead of throwing.
-          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL || 'https://content.wpgraphql.com/graphql' }}
-          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
+          #
+          # Kept in sync with the WPGRAPHQL_URL secret so fork PRs and internal
+          # PRs build against the same CMS. Both point at the origin rather than
+          # the RadiQL proxy: these tests exercise the website, and going direct
+          # keeps CI's ~182 page builds out of the proxy's cache and analytics.
+          # NOTE: this is a WordPress.com staging hostname — it changes if a
+          # custom domain is mapped, and this default must be updated with the
+          # secret when it does.
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL || 'https://contentwpgraphql.wpcomstaging.com/graphql' }}
+          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL || 'https://contentwpgraphql.wpcomstaging.com' }}
           FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
 
       - name: Start production server
@@ -129,8 +137,8 @@ jobs:
           exit 1
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://www.wpgraphql.com' }}
-          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL || 'https://content.wpgraphql.com/graphql' }}
-          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL }}
+          WPGRAPHQL_URL: ${{ secrets.WPGRAPHQL_URL || 'https://contentwpgraphql.wpcomstaging.com/graphql' }}
+          NEXT_PUBLIC_WORDPRESS_URL: ${{ secrets.NEXT_PUBLIC_WORDPRESS_URL || 'https://contentwpgraphql.wpcomstaging.com' }}
           FAUSTWP_SECRET_KEY: ${{ secrets.FAUSTWP_SECRET_KEY }}
 
       - name: Run Playwright tests

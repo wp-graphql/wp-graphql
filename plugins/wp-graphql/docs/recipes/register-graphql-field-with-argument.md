@@ -82,4 +82,4 @@ query MyQuery($myArg:String) {
 
 And then you can pass variables to the request. Here’s an example of using a variable in GraphiQL:
 
-![Custom field with an argument and variable in GraphiQL](https://content.wpgraphql.com/wp-content/uploads/2020/10/FieldWithArgumentAndVariable-1024x380.png)
+![Custom field with an argument and variable in GraphiQL](./images/FieldWithArgumentAndVariable-1024x380.png)
