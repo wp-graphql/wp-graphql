@@ -20,7 +20,7 @@ There are two ways to enable GraphQL Debug Mode:
 - Visit the GraphQL Settings page from the WordPress Admin Menu.
 - Check the box labeled "Debug mode" and save the settings.
 
-![Screenshot of the setting to enable GraphiQL IDE](./images/debugging-setting-enable-graphql.png)
+![Screenshot of the WPGraphQL "Debug mode" setting](./images/debugging-setting-debug-mode.png)
 
 GraphQL requests will now execute in Debug Mode.
 
