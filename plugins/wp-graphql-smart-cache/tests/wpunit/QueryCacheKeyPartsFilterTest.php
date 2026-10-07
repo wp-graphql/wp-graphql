@@ -48,7 +48,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 		return $query_cache->build_key( null, $query, $variables, $operation );
 	}
 
-	public function testDefaultKeyIsUnchangedTest() {
+	public function testDefaultKeyIsUnchanged() {
 		$this->assertSame(
 			self::DEFAULT_KEY,
 			$this->build_key(),
@@ -56,7 +56,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function testDefaultKeyWithVariablesIsUnchangedTest() {
+	public function testDefaultKeyWithVariablesIsUnchanged() {
 		$this->assertSame(
 			self::DEFAULT_KEY_WITH_VARS,
 			$this->build_key( 'query GetPost($id: ID!) { post(id: $id) { title } }', [ 'id' => 42 ], 'GetPost' ),
@@ -64,7 +64,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function testDefaultKeyIsDeterministicTest() {
+	public function testDefaultKeyIsDeterministic() {
 		$this->assertSame(
 			$this->build_key(),
 			$this->build_key(),
@@ -72,7 +72,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function testFilterChangesTheKeyTest() {
+	public function testFilterChangesTheKey() {
 		$unfiltered = $this->build_key();
 
 		add_filter(
@@ -91,7 +91,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function testDifferentFilterValuesProduceDifferentKeysTest() {
+	public function testDifferentFilterValuesProduceDifferentKeys() {
 		add_filter(
 			self::FILTER,
 			function ( $parts ) {
@@ -121,7 +121,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function testIdenticalFilterValuesProduceIdenticalKeysTest() {
+	public function testIdenticalFilterValuesProduceIdenticalKeys() {
 		$callback = function ( $parts ) {
 			$parts['locale'] = 'fr_FR';
 
@@ -151,7 +151,7 @@ class QueryCacheKeyPartsFilterTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @param mixed $return_value A filter return value that is not an array.
 	 */
-	public function testNonArrayFilterReturnIsIgnoredTest( $return_value ) {
+	public function testNonArrayFilterReturnIsIgnored( $return_value ) {
 		add_filter(
 			self::FILTER,
 			function () use ( $return_value ) {
