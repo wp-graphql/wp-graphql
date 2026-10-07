@@ -333,7 +333,6 @@ class MaxAge {
 			 * @hookGroup uncategorized
 			 * @since x-release-please-version
 			 */
-			//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 			$cache_error_responses = (bool) apply_filters( 'graphql_cache_error_responses', false, $response_request );
 
 			if ( ! $cache_error_responses ) {
