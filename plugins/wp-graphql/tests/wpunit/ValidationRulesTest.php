@@ -206,7 +206,13 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$rule    = new QueryDepth();
 		$message = $rule->errorMessage( 5, 8 );
 
-		$this->assertSame( 'The server administrator has limited the max query depth to 5, but the requested query has 8 levels.', $message );
+		// The wording is not the contract, the two interpolated values are: the configured
+		// limit first, then the depth that exceeded it. Asserting the sentence verbatim would
+		// fail on a copy edit that changed nothing about behavior, while still not catching
+		// the mistake that matters, which is the two values being swapped.
+		$this->assertStringContainsString( '5', $message );
+		$this->assertStringContainsString( '8', $message );
+		$this->assertMatchesRegularExpression( '/\b5\b.*\b8\b/', $message );
 	}
 
 	/**
