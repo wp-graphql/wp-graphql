@@ -64,6 +64,9 @@ async function postJson(endpoint, body) {
   }
   const res = await _fetch(endpoint, {
     method: "POST",
+    // See the note in getJson: the framework's fetch cache must not sit
+    // between this client and the GraphQL endpoint.
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -83,6 +86,20 @@ async function getJson(url) {
   const res = await _fetch(url, {
     method: "GET",
     headers: { Accept: "application/json", ...originHostHeaders() },
+    // Never let the framework cache this response.
+    //
+    // `_fetch` is whatever `globalThis.fetch` was at module load, which in a
+    // Next server runtime is Next's patched fetch, not the platform one. Left
+    // to its own devices it can store the response in the Data Cache, which
+    // outlives the request, survives deployments, and is invisible to every
+    // purge in the system: RadiQL invalidates its entry, ISR regenerates the
+    // page, and the render still gets the stale body from a cache two layers
+    // above the one that was purged.
+    //
+    // Caching is already handled deliberately elsewhere: RadiQL caches by
+    // tag and is purged by Smart Cache, and ISR caches the rendered page.
+    // This layer should always go to the network.
+    cache: "no-store",
   })
   return res.json()
 }

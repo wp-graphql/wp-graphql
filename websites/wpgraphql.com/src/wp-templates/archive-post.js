@@ -3,12 +3,18 @@ import SiteLayout from "components/Site/SiteLayout"
 import PostPreview, {
   PostPreviewFragment,
 } from "components/Preview/PostPreview"
+import Seo from "components/Seo/Seo"
 
-export default function ArchivePost({ data }) {
+export default function ArchivePost({ data, uri }) {
   const posts = data?.posts?.nodes
 
   return (
     <SiteLayout>
+      <Seo
+        title="Blog - WPGraphQL"
+        description="Read the latest posts from the WPGraphQL team"
+        uri={uri}
+      />
       <main className="content px-6 max-w-lg mx-auto md:max-w-5xl mb-10">
         <div className="space-y-2 pt-6 pb-8 md:space-y-5">
           <h1 className="text-display-md font-extrabold tracking-tight text-foreground sm:text-display-lg">

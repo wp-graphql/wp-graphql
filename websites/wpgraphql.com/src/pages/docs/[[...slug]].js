@@ -3,6 +3,7 @@ import { MDXRemote } from "next-mdx-remote"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
 import DocsHub from "components/Docs/DocsHub"
 import DocsLayout from "components/Docs/DocsLayout"
+import Seo from "components/Seo/Seo"
 import PrevNext from "components/Docs/PrevNext"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
@@ -161,13 +162,32 @@ export default function Doc({
   productKey,
   isHub,
   breadcrumbs,
+  uri,
 }) {
   const product = DOCS_PRODUCTS[productKey] ?? DOCS_PRODUCTS[CORE_PRODUCT_KEY]
+
+  // Docs are markdown from the monorepo, not WordPress nodes, so there is no
+  // `seo` field here. Title and description come from the file's frontmatter,
+  // scoped by product so ACF and Smart Cache pages do not collide with core
+  // pages of the same name.
+  const docTitle = source?.frontmatter?.title
+  const seo = (
+    <Seo
+      title={
+        docTitle
+          ? `${docTitle} - ${product.label} Docs`
+          : `${product.label} Docs`
+      }
+      description={source?.frontmatter?.description ?? null}
+      uri={uri ?? product.basePath}
+    />
+  )
 
   if (isHub) {
     return (
       <LayoutProvider value={layoutData}>
         <DocsLayout docsNavData={docsNavData} product={product}>
+          {seo}
           <DocsHub />
         </DocsLayout>
       </LayoutProvider>
@@ -177,6 +197,7 @@ export default function Doc({
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData} product={product}>
+        {seo}
         <div id="content-wrapper" className="relative z-20 prose">
           <Breadcrumbs items={breadcrumbs} />
           {source?.frontmatter?.title && !hasMarkdownH1 && (
@@ -301,6 +322,7 @@ export async function getStaticProps({ params }) {
         nav,
         productKey: product.key,
         breadcrumbs,
+        uri: requestedUri,
       },
       revalidate: 30,
     }

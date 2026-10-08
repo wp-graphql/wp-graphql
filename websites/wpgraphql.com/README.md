@@ -16,15 +16,10 @@ This repository contains the Next.js code to source data from WordPress and crea
    npm install
    ```
 
-2. Copy the example environment file:
+2. Create `websites/wpgraphql.com/.env.local` and fill in the environment
+   variables listed under [Environment Variables](#environment-variables).
 
-   ```bash
-   cp .env.local.example .env.local
-   ```
-
-3. Update `.env.local` with your environment variables (see below)
-
-4. Run the development server:
+3. Run the development server:
    ```bash
    npm run dev -w @wpgraphql/wpgraphql-com
    ```
@@ -54,15 +49,38 @@ This script will:
 
 If the build succeeds, the fix is working correctly.
 
-### Required Environment Variables
+### Environment Variables
 
-Copy `.env.local.example` to `.env.local` and fill in the values:
+Set these in `websites/wpgraphql.com/.env.local` for local development, and in
+the hosting environment for deployed builds.
 
-- `NEXT_PUBLIC_SITE_URL` - The public URL of the site
-- `WPGRAPHQL_URL` - The GraphQL endpoint URL
-- `NEXT_PUBLIC_WORDPRESS_URL` - The WordPress URL (used for previews and data fetching)
-- `FAUSTWP_SECRET_KEY` - Secret key for FaustWP previews
-- `GITHUB_TOKEN` - GitHub token for API calls (optional)
+Required:
+
+- `NEXT_PUBLIC_SITE_URL` - The public URL of this site. Used for the feeds and
+  their `<link rel="alternate">` tags, the WordPress sitemap route, and the
+  `X-RadiQL-Origin-Host` header the GraphQL client sends so server-side
+  requests are attributed to this app.
+- `WPGRAPHQL_URL` - The GraphQL endpoint to source content from, including the
+  `/graphql` path. `NEXT_PUBLIC_WPGRAPHQL_URL` takes precedence if both are set.
+- `NEXT_PUBLIC_WORDPRESS_URL` - The WordPress backend's **site** URL (for
+  example `https://contentwpgraphql.wpcomstaging.com`), not the `/graphql`
+  endpoint and not a caching proxy sitting in front of it. `next.config.js`
+  reads it for one purpose: allowlisting that hostname for `next/image`. Note
+  that a backend behind Jetpack's Site Accelerator serves media from
+  `i0.wp.com` rather than its own hostname, which `next.config.js` allowlists
+  separately.
+- `WPGRAPHQL_REVALIDATE_SECRET` - Shared secret for the on-demand ISR endpoint
+  at `/api/revalidate`. The endpoint rejects every request when this is unset.
+
+Optional:
+
+- `GITHUB_TOKEN` - Raises the GitHub API rate limit when docs are fetched from
+  the monorepo at build time.
+- `NEXT_PUBLIC_GA_ID` - Google Analytics measurement ID. Note that `_app.js`
+  loads the analytics scripts unconditionally, so leaving this unset does not
+  disable them, it reports against an `undefined` ID.
+- `WPGRAPHQL_CLIENT_DEBUG` - Set to `1` to force GraphQL client debug logging
+  on, or `0` to force it off. Defaults to on outside production.
 
 ## Branding & design system
 

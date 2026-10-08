@@ -146,7 +146,9 @@ class ImportExport {
 		];
 		// Publishes are content-addressed at the slug layer so direct
 		// REST reads / Smart Cache's get-by-queryId machinery resolve
-		// without a taxonomy lookup. Drafts keep WP's title-derived slug.
+		// without a taxonomy lookup. Drafts are left to WordPress here;
+		// Smart Cache content-addresses those too when it is active, and
+		// without it they keep WP's title-derived slug.
 		if ( 'publish' === $status ) {
 			$postarr['post_name'] = $slug;
 		}

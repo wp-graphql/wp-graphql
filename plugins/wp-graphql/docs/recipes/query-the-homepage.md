@@ -32,16 +32,16 @@ This query allows you to query the homepage, and specify what data you want in r
 
 If the homepage were set to a Page, like so:
 
-![](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-16-at-1.36.18-PM.png)
+![](./images/Screen-Shot-2020-12-16-at-1.36.18-PM.png)
 
 Then a Page would be returned in the Query Results, like so:
 
-![](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-16-at-1.36.28-PM.png)
+![](./images/Screen-Shot-2020-12-16-at-1.36.28-PM.png)
 
 But if the homepage were set to be the Posts page:
 
-![](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-16-at-1.35.11-PM.png)
+![](./images/Screen-Shot-2020-12-16-at-1.35.11-PM.png)
 
 Then the results would return a ContentType node, like so:
 
-![](https://content.wpgraphql.com/wp-content/uploads/2020/12/Screen-Shot-2020-12-16-at-1.35.49-PM-1024x593.png)
+![](./images/Screen-Shot-2020-12-16-at-1.35.49-PM-1024x593.png)

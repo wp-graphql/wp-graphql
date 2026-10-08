@@ -52,7 +52,7 @@ One of the easiest ways to test a WPGraphQL server is to make a `fetch` request 
 You can open up Chrome Dev Tools and paste the following into your console to fetch data from WPGraphQL. (**Of course, change the URL to the API you want to fetch from.**)
 
 ```js
-fetch('https://content.wpgraphql.com/graphql', {
+fetch('https://yoursite.com/graphql', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ Many WordPress hosts allow users to password protect their WordPress install usi
 We can use the same code as in the above `fetch` example, but add an `Authorization` header with a base64 encoded username/password.
 
 ```js
-fetch('https://content.wpgraphql.com/graphql', {
+fetch('https://yoursite.com/graphql', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

@@ -44,6 +44,6 @@ add_filter( 'graphql_object_fields', function( $fields, $type_name, $wp_object_t
 
 After using this snippet, we can verify in the WPGraphQL Schema Docs that the field is indeed deprecated:
 
-![](https://content.wpgraphql.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-11.02.58-AM.png)
+![](./images/Screen-Shot-2022-01-19-at-11.02.58-AM.png)
 
 Screenshot of the excerpt field showing deprecated in the GraphiQL IDE Schema Docs

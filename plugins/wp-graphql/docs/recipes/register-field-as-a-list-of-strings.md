@@ -36,4 +36,4 @@ This field can now be queried:
 }
 ```
 
-![ListOfStrings field results displayed in GraphiQL](https://content.wpgraphql.com/wp-content/uploads/2020/10/ListOfStringsField-1024x278.jpg)
+![ListOfStrings field results displayed in GraphiQL](./images/ListOfStringsField-1024x278.jpg)

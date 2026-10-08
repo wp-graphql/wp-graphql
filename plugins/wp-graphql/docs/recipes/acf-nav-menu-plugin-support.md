@@ -43,4 +43,4 @@ You can query for this:
 }
 ```
 
-![ACF Nav Menu Plugin query in GraphiQL](https://content.wpgraphql.com/wp-content/uploads/2020/10/ACFNavMenu.png)
+![ACF Nav Menu Plugin query in GraphiQL](./images/ACFNavMenu.png)
