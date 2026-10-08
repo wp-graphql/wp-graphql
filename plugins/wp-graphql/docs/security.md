@@ -17,6 +17,49 @@ It's possible that exposing the Schema publicly (in some cases) can leak informa
 
 WPGraphQL disables public Schema Introspection by default, but for users that want to enable it, it can be enabled with one-click from the GraphQL > Settings page in the WordPress dashboard.
 
+## Limiting Query Depth
+
+GraphQL lets a client nest fields inside fields, for example posts, then each post's author, then each author's posts, and so on. Every level adds work for the server, so a deeply nested query sent to a public endpoint can use a lot of memory and CPU.
+
+WPGraphQL can reject queries that are nested deeper than a limit you choose. On the GraphQL > Settings page:
+
+- **Enable Query Depth Limiting** turns the limit on.
+- **Max Depth to allow for GraphQL Queries** sets how many levels are allowed. The default is 15.
+
+A query deeper than the limit is rejected before it runs, with an error like `The server administrator has limited the max query depth to 15, but the requested query has 18 levels.`
+
+### Defaults
+
+New installs have query depth limiting turned on with a max depth of 15. Sites that installed WPGraphQL before this default was added keep the setting they already had, which is off unless someone turned it on. If your site is one of those, we recommend turning it on. A limit of 15 leaves room for typical queries. If a query your site depends on is deeper, raise the Max Depth setting or use the filter below.
+
+### Introspection queries
+
+Queries that only ask for the schema (`__schema` or `__type`) are not limited. Tools such as the GraphiQL IDE and code generators rely on the standard introspection query, which is deeper than most content queries, and its shape is fixed by the GraphQL spec. Whether the public can run introspection is controlled by its own setting (see above).
+
+This only applies when every field at the root of the operation is `__schema`, `__type` or `__typename`. A query that asks for content next to an introspection field is limited like any other query.
+
+### Changing the limit in code
+
+The `graphql_query_depth_max` filter sets the max depth for the current request. It receives the value from the settings, the Max Depth when limiting is enabled or `0` when it's disabled. Return `0` to allow any depth, or a positive number to set a limit. A positive number applies a limit even when the setting is disabled.
+
+For example, to allow deeper queries for administrators while keeping the configured limit for everyone else:
+
+```php
+add_filter( 'graphql_query_depth_max', function ( $max_depth ) {
+	if ( current_user_can( 'manage_options' ) ) {
+		return 30;
+	}
+
+	return $max_depth;
+} );
+```
+
+Base the decision on a capability, as above, rather than only on whether the user is logged in. On sites that allow anyone to register, a logged-in user isn't necessarily a trusted one.
+
+### What depth limiting does not cover
+
+Depth limiting caps how deeply a query is nested, not how wide it is. A query within the limit can still ask for many items at each level or repeat a field many times using aliases. WPGraphQL also caps how many items a connection returns per page (100 for most connections, adjustable with the `graphql_connection_max_query_amount` filter) and lets you limit or disable batch queries on the GraphQL > Settings page. Cost-based query complexity limiting is tracked in [#3922](https://github.com/wp-graphql/wp-graphql/issues/3922).
+
 ## CSRF Protection
 
 WPGraphQL implements multiple layers of protection against Cross-Site Request Forgery (CSRF) attacks:
