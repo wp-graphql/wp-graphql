@@ -11,6 +11,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Validator\Rules\QuerySecurityRule;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class QueryDepth
@@ -20,17 +21,26 @@ use GraphQL\Validator\Rules\QuerySecurityRule;
 class QueryDepth extends QuerySecurityRule {
 
 	/**
+	 * The max query depth used when none has been saved.
+	 */
+	public const DEFAULT_MAX_QUERY_DEPTH = 15;
+
+	/**
 	 * The max query depth allowed.
 	 */
 	private int $maxQueryDepth;
 
 	/**
+	 * The max query depth for this request after filtering. 0 means no limit.
+	 */
+	private ?int $effectiveMaxQueryDepth = null;
+
+	/**
 	 * QueryDepth constructor.
 	 */
 	public function __construct() {
-		$max_query_depth = get_graphql_setting( 'query_depth_max', 10 );
-		$max_query_depth = absint( $max_query_depth ) ?? 10;
-		$this->setMaxQueryDepth( $max_query_depth );
+		$max_query_depth = absint( get_graphql_setting( 'query_depth_max', self::DEFAULT_MAX_QUERY_DEPTH ) );
+		$this->setMaxQueryDepth( $max_query_depth > 0 ? $max_query_depth : self::DEFAULT_MAX_QUERY_DEPTH );
 	}
 
 	/**
@@ -46,14 +56,21 @@ class QueryDepth extends QuerySecurityRule {
 							return;
 						}
 
-						$maxDepth = $this->fieldDepth( $node );
+						// Introspection has a fixed shape defined by the GraphQL spec, and access to it is
+						// controlled separately, so operations that only ask for introspection aren't limited.
+						if ( Utils::is_introspection_only_operation( $node, $this->getFragments() ) ) {
+							return;
+						}
 
-						if ( $maxDepth <= $this->getMaxQueryDepth() ) {
+						$maxDepth        = $this->fieldDepth( $node );
+						$allowedMaxDepth = $this->get_effective_max_query_depth();
+
+						if ( $maxDepth <= $allowedMaxDepth ) {
 							return;
 						}
 
 						$context->reportError(
-							new Error( $this->errorMessage( $this->getMaxQueryDepth(), $maxDepth ) )
+							new Error( $this->errorMessage( $allowedMaxDepth, $maxDepth ) )
 						);
 					},
 				],
@@ -134,7 +151,8 @@ class QueryDepth extends QuerySecurityRule {
 	public function setMaxQueryDepth( int $maxQueryDepth ) {
 		$this->checkIfGreaterOrEqualToZero( 'maxQueryDepth', $maxQueryDepth );
 
-		$this->maxQueryDepth = $maxQueryDepth;
+		$this->maxQueryDepth          = $maxQueryDepth;
+		$this->effectiveMaxQueryDepth = null;
 	}
 
 	/**
@@ -150,17 +168,51 @@ class QueryDepth extends QuerySecurityRule {
 	}
 
 	/**
+	 * Returns the max query depth for the current request.
+	 *
+	 * Starts from the saved settings (the Max Depth setting when Query Depth Limiting is
+	 * enabled, 0 when it's not) and applies the `graphql_query_depth_max` filter.
+	 *
+	 * @return int The max query depth. 0 means no limit.
+	 */
+	protected function get_effective_max_query_depth(): int {
+		if ( null !== $this->effectiveMaxQueryDepth ) {
+			return $this->effectiveMaxQueryDepth;
+		}
+
+		$enabled   = get_graphql_setting( 'query_depth_enabled', 'off' );
+		$max_depth = 'on' === $enabled ? $this->getMaxQueryDepth() : 0;
+
+		/**
+		 * Filters the max query depth allowed for the current request.
+		 *
+		 * The value passed in comes from the settings: the Max Depth setting when Query Depth
+		 * Limiting is enabled, or 0 when it's disabled. Return 0 to allow any depth, or a positive
+		 * integer to limit it, which also applies the limit when the setting is disabled. A
+		 * non-numeric return value is ignored and the value from the settings is used.
+		 * Operations that only query introspection (`__schema`, `__type`) are never limited.
+		 *
+		 * Use this to give trusted users a different limit than everyone else. Base that decision on a
+		 * capability (for example `current_user_can( 'manage_options' )`), not only on whether the
+		 * user is logged in, since sites with open registration let anyone create an account.
+		 *
+		 * @param int $max_depth The max query depth. 0 means no limit.
+		 *
+		 * @hookGroup request-lifecycle
+		 * @since x-release-please-version
+		 */
+		$filtered_max_depth = apply_filters( 'graphql_query_depth_max', $max_depth );
+
+		// A non-numeric value keeps the configured limit. Zero or a negative number means no limit.
+		$this->effectiveMaxQueryDepth = is_numeric( $filtered_max_depth ) ? max( 0, (int) $filtered_max_depth ) : $max_depth;
+
+		return $this->effectiveMaxQueryDepth;
+	}
+
+	/**
 	 * Determine whether the rule should be enabled
 	 */
 	protected function isEnabled(): bool {
-		$is_enabled = false;
-
-		$enabled = get_graphql_setting( 'query_depth_enabled', 'off' );
-
-		if ( 'on' === $enabled && absint( $this->getMaxQueryDepth() ) && 1 <= $this->getMaxQueryDepth() ) {
-			$is_enabled = true;
-		}
-
-		return $is_enabled;
+		return 1 <= $this->get_effective_max_query_depth();
 	}
 }
