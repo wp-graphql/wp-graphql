@@ -187,13 +187,13 @@ class Settings {
 				[
 					'name'              => 'query_depth_max',
 					'label'             => __( 'Max Depth to allow for GraphQL Queries', 'wp-graphql' ),
-					'desc'              => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10.', 'wp-graphql' ),
+					'desc'              => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Queries that only request the schema (introspection) are not limited. Must be a positive integer value. Default 15.', 'wp-graphql' ),
 					'type'              => 'number',
-					'default'           => 10,
+					'default'           => \WPGraphQL\Server\ValidationRules\QueryDepth::DEFAULT_MAX_QUERY_DEPTH,
 					'sanitize_callback' => static function ( $value ) {
-						// if the entered value is not a positive integer, default to 10
+						// if the entered value is not a positive integer, use the default
 						if ( ! absint( $value ) ) {
-							$value = 10;
+							$value = \WPGraphQL\Server\ValidationRules\QueryDepth::DEFAULT_MAX_QUERY_DEPTH;
 						}
 						return absint( $value );
 					},
