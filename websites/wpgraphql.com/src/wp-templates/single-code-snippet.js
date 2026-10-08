@@ -1,6 +1,7 @@
 import gql from "graphql-tag"
 import DocsLayout from "components/Docs/DocsLayout"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
+import Seo, { SeoFragment } from "components/Seo/Seo"
 import Link from "next/link"
 import getDeveloperReferenceNav from "lib/developer-reference-nav"
 import recipesIndex from "generated/recipes-index.json"
@@ -114,6 +115,7 @@ export default function SingleRecipe({ data }) {
 
   return (
     <DocsLayout docsNavData={docsNavData} toc={pageToc}>
+      <Seo node={node} />
       <Breadcrumbs
         items={[
           { label: "Developer Reference", href: "/developer-reference" },
@@ -201,6 +203,7 @@ SingleRecipe.queries = {
     query: gql`
       query SingleCodeSnippet_Node($uri: ID!) {
         node: contentNode(id: $uri, idType: URI) {
+          ...Seo
           id
           ... on NodeWithTitle {
             title
@@ -220,6 +223,7 @@ SingleRecipe.queries = {
           }
         }
       }
+      ${SeoFragment}
     `,
     variables: ({ seed }) => ({ uri: seed?.uri }),
   },

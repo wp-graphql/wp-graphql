@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.23.0
+Stable tag: 2.23.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -77,6 +77,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
 
 == Upgrade Notice ==
+
+= 2.23.1 =
+
+**Security release.** Fixes an authorization issue in the `updateMediaItem` mutation that let users with the Author or Contributor role take over, and then delete, media items owned by other users. Updating is recommended. See GHSA-4h2c-85f8-g3jh.
 
 = 2.15.1 =
 
@@ -309,6 +313,12 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.23.1 =
+
+**Security**
+
+* tighten media item update authorization: `updateMediaItem` now verifies that the requesting user can edit the targeted media item, and its new parent, before applying changes. Previously, users with the Author or Contributor role could reassign, and then delete, media items owned by other users. See [GHSA-4h2c-85f8-g3jh](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-4h2c-85f8-g3jh) ([#4353](https://github.com/wp-graphql/wp-graphql/issues/4353))
 
 = 2.23.0 =
 
@@ -665,7 +675,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.23.0
+* replace x-release-please-version placeholders with 2.23.1
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =

@@ -41,7 +41,7 @@ You can query now query for this field:
 }
 ```
 
-![Unencoded Content query in GraphiQL](https://content.wpgraphql.com/wp-content/uploads/2020/10/UnencodedContent-1024x335.png)
+![Unencoded Content query in GraphiQL](./images/UnencodedContent-1024x335.png)
 
 ## Related Links
 

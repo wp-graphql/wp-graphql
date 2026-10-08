@@ -2,12 +2,16 @@ import gql from "graphql-tag"
 import PostPreview, {
   PostPreviewFragment,
 } from "components/Preview/PostPreview"
+import Seo, { SeoUserFragment } from "components/Seo/Seo"
 import SiteLayout from "components/Site/SiteLayout"
 import Image from "next/image"
 
 export default function Author({ data }) {
+  const { user } = data
+
   return (
     <SiteLayout>
+      <Seo node={user} />
       <div className="overflow-hidden">
         <div className="mx-auto px-4 pb-28  sm:px-6 md:px-8 xl:px-12 xl:max-w-6xl">
           <main className="content space-y-6 divide-y divide-border">
@@ -63,6 +67,7 @@ Author.queries = {
     query: gql`
       query Author_User($id: ID!) {
         user(id: $id, idType: URI) {
+          ...SeoUser
           id
           name
           description
@@ -77,6 +82,7 @@ Author.queries = {
         }
       }
       ${PostPreviewFragment}
+      ${SeoUserFragment}
     `,
     variables: ({ seed }) => ({ id: seed?.uri }),
   },

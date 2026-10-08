@@ -83,8 +83,14 @@ export default async function HandleRevalidate(
     }
   }
 
+  // Log the paths, not just the counts. `res.revalidate()` resolves without
+  // error for a path that rebuilds nothing, such as the trailing-slash variant
+  // of a route that only 308s, so a healthy count is not evidence that the
+  // intended pages were rebuilt. When content is stale the first question is
+  // which paths the CMS actually sent, and a count cannot answer it.
   console.log(
-    `[revalidate] revalidated=${revalidated.length} failed=${failed.length}`
+    `[revalidate] revalidated=${revalidated.length} failed=${failed.length}` +
+      (revalidated.length > 0 ? ` paths=${revalidated.join(" ")}` : "")
   )
 
   return res.status(StatusCodes.OK).json({ revalidated, failed })

@@ -66,6 +66,15 @@
 		]
 	},
 	{
+		"id": "caching",
+		"label": "Caching and Invalidation",
+		"kind": "both",
+		"match": [
+			"^graphql_cache_",
+			"^graphql_purge"
+		]
+	},
+	{
 		"id": "uncategorized",
 		"label": "Uncategorized",
 		"kind": "both",
