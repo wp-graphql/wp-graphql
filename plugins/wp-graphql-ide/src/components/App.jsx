@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { parse, visit } from 'graphql';
 import { IDELayout } from './IDELayout';
+import { fetchAsPublic } from '../api/public-fetch';
 import './ide-layout.css';
 
 export function App() {
@@ -60,10 +61,8 @@ export function App() {
 				headers['X-WP-Nonce'] = nonce;
 			}
 
-			let credentials = 'omit';
-			if (isIntrospectionQuery || isAuthenticated) {
-				credentials = 'include';
-			}
+			// `fetchAsPublic` sets the credentials mode for public requests.
+			const sendAsPublic = !isIntrospectionQuery && !isAuthenticated;
 
 			const method = options?.method || 'POST';
 
@@ -84,7 +83,7 @@ export function App() {
 				fetchOptions = {
 					method: 'GET',
 					headers: { ...headers },
-					credentials,
+					credentials: 'include',
 				};
 				// Remove Content-Type for GET requests.
 				delete fetchOptions.headers['Content-Type'];
@@ -95,7 +94,7 @@ export function App() {
 					method: 'POST',
 					headers,
 					body: JSON.stringify(graphQLParams),
-					credentials,
+					credentials: 'include',
 				};
 			}
 
@@ -103,7 +102,9 @@ export function App() {
 				fetchOptions.signal = options.signal;
 			}
 
-			const response = await fetch(url, fetchOptions);
+			const response = sendAsPublic
+				? await fetchAsPublic(url, fetchOptions)
+				: await fetch(url, fetchOptions);
 
 			// Collect response headers as a plain object so they can be
 			// displayed in the IDE's Headers tab.
