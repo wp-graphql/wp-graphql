@@ -151,6 +151,11 @@ function initialize_plugin() {
 	// Run requests the IDE flags as public as a guest.
 	add_action( 'graphql_process_http_request', [ \WPGraphQLIDE\Access::class, 'force_public_request' ] );
 
+	// Let cross-origin clients send the public-request header, and tell caches
+	// the response depends on it.
+	add_filter( 'graphql_access_control_allow_headers', [ \WPGraphQLIDE\Access::class, 'allow_public_request_header' ] );
+	add_filter( 'graphql_response_headers_to_send', [ \WPGraphQLIDE\Access::class, 'vary_on_public_request_header' ] );
+
 	// Custom REST routes.
 	add_action( 'rest_api_init', [ \WPGraphQLIDE\Rest::class, 'register' ] );
 

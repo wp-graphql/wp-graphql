@@ -18,6 +18,14 @@ namespace WPGraphQLIDE;
 class Access {
 
 	/**
+	 * Request header the IDE sets to have a request run as a guest.
+	 *
+	 * Mirrored client-side as `PUBLIC_REQUEST_HEADER` in
+	 * `src/api/public-fetch.js`; keep the two in step.
+	 */
+	public const PUBLIC_REQUEST_HEADER = 'X-WPGraphQL-IDE-Public';
+
+	/**
 	 * Scope REST API queries for IDE documents to the current user.
 	 *
 	 * @param array<string, mixed> $args WP_Query arguments.
@@ -36,11 +44,73 @@ class Access {
 	 * @since x-release-please-version
 	 */
 	public static function force_public_request(): void {
-		if ( empty( $_SERVER['HTTP_X_WPGRAPHQL_IDE_PUBLIC'] ) ) {
+		$server_key = 'HTTP_' . strtoupper( str_replace( '-', '_', self::PUBLIC_REQUEST_HEADER ) );
+
+		if ( empty( $_SERVER[ $server_key ] ) ) {
 			return;
 		}
 
 		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Allow cross-origin clients to send the public-request header.
+	 *
+	 * It is a custom header, so a cross-origin request carrying it fails
+	 * preflight and never reaches the endpoint unless the endpoint names it.
+	 * The bundled IDE is same-origin and so unaffected, this keeps the
+	 * header usable from any client that is not, the same reason core
+	 * allow-lists `X-GraphQL-Preview`.
+	 *
+	 * @since x-release-please-version
+	 *
+	 * @param string[] $headers Headers the endpoint accepts.
+	 * @return string[]
+	 */
+	public static function allow_public_request_header( $headers ): array {
+		$headers = is_array( $headers ) ? $headers : [];
+
+		foreach ( $headers as $name ) {
+			if ( is_string( $name ) && 0 === strcasecmp( $name, self::PUBLIC_REQUEST_HEADER ) ) {
+				return $headers;
+			}
+		}
+
+		$headers[] = self::PUBLIC_REQUEST_HEADER;
+
+		return $headers;
+	}
+
+	/**
+	 * Add the public-request header to the response's `Vary` list.
+	 *
+	 * The header changes who the request resolves as, so it changes the
+	 * response. A shared cache that keys without it could store a response
+	 * produced for one viewer and serve it to the other. Sent on every
+	 * response, not just flagged ones, so a cache learns the axis before it
+	 * ever stores anything.
+	 *
+	 * @since x-release-please-version
+	 *
+	 * @param array<string,string> $headers Headers the endpoint will send.
+	 * @return array<string,string>
+	 */
+	public static function vary_on_public_request_header( $headers ): array {
+		$headers = is_array( $headers ) ? $headers : [];
+
+		$vary = isset( $headers['Vary'] ) ? (string) $headers['Vary'] : '';
+		$sent = array_filter( array_map( 'trim', explode( ',', $vary ) ) );
+
+		foreach ( $sent as $name ) {
+			if ( 0 === strcasecmp( $name, self::PUBLIC_REQUEST_HEADER ) ) {
+				return $headers;
+			}
+		}
+
+		$sent[]          = self::PUBLIC_REQUEST_HEADER;
+		$headers['Vary'] = implode( ', ', $sent );
+
+		return $headers;
 	}
 
 	/**

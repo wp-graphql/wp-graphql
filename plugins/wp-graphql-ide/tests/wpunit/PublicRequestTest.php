@@ -60,4 +60,79 @@ class PublicRequestTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( $this->admin, get_current_user_id() );
 	}
+
+	/**
+	 * The header decides who the request runs as, so a cache that keys
+	 * without it could serve one viewer's response to the other.
+	 */
+	public function test_endpoint_varies_on_the_public_request_header(): void {
+		$headers = $this->sent_headers();
+
+		$this->assertArrayHasKey( 'Vary', $headers );
+
+		$vary = array_map( 'trim', explode( ',', $headers['Vary'] ) );
+
+		$this->assertContains( Access::PUBLIC_REQUEST_HEADER, $vary );
+
+		// Core varies on its own preview header; ours is added, not swapped in.
+		$this->assertContains( 'X-GraphQL-Preview', $vary );
+	}
+
+	/**
+	 * A custom header missing from the allow-list fails preflight, so a
+	 * cross-origin client could not send it at all.
+	 */
+	public function test_endpoint_accepts_the_public_request_header_cross_origin(): void {
+		$headers = $this->sent_headers();
+
+		$this->assertArrayHasKey( 'Access-Control-Allow-Headers', $headers );
+
+		$allowed = array_map( 'trim', explode( ',', $headers['Access-Control-Allow-Headers'] ) );
+
+		$this->assertContains( Access::PUBLIC_REQUEST_HEADER, $allowed );
+	}
+
+	public function test_vary_is_not_duplicated_when_the_filter_runs_twice(): void {
+		$once  = Access::vary_on_public_request_header( [ 'Vary' => 'X-GraphQL-Preview' ] );
+		$twice = Access::vary_on_public_request_header( $once );
+
+		$this->assertSame( $once['Vary'], $twice['Vary'] );
+		$this->assertSame(
+			1,
+			substr_count( $twice['Vary'], Access::PUBLIC_REQUEST_HEADER )
+		);
+	}
+
+	public function test_allow_list_is_not_duplicated_when_the_filter_runs_twice(): void {
+		$once  = Access::allow_public_request_header( [ 'Authorization' ] );
+		$twice = Access::allow_public_request_header( $once );
+
+		$this->assertSame( $once, $twice );
+	}
+
+	public function test_vary_is_set_when_no_other_header_claimed_it(): void {
+		$headers = Access::vary_on_public_request_header( [] );
+
+		$this->assertSame( Access::PUBLIC_REQUEST_HEADER, $headers['Vary'] );
+	}
+
+	/**
+	 * The headers core actually sends, captured from `set_headers()` so the
+	 * assertions cover the registered filters and not just the callbacks.
+	 *
+	 * @return array<string,string>
+	 */
+	private function sent_headers(): array {
+		$captured = [];
+
+		$capture = static function ( $headers ) use ( &$captured ) {
+			$captured = is_array( $headers ) ? $headers : [];
+		};
+
+		add_action( 'graphql_response_set_headers', $capture );
+		\WPGraphQL\Router::set_headers();
+		remove_action( 'graphql_response_set_headers', $capture );
+
+		return $captured;
+	}
 }
