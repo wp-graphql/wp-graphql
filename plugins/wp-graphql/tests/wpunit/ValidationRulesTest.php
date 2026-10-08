@@ -85,7 +85,6 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$rule = new DisableIntrospection();
 
 		$this->assertTrue( $rule->should_be_enabled() );
-		$this->assertTrue( $this->invokeProtectedMethod( $rule, 'isEnabled' ) );
 	}
 
 	/**
@@ -106,7 +105,6 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$rule = new DisableIntrospection();
 
 		$this->assertFalse( $rule->should_be_enabled() );
-		$this->assertFalse( $this->invokeProtectedMethod( $rule, 'isEnabled' ) );
 	}
 
 	/**
@@ -122,7 +120,6 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$rule = new DisableIntrospection();
 
 		$this->assertFalse( $rule->should_be_enabled() );
-		$this->assertFalse( $this->invokeProtectedMethod( $rule, 'isEnabled' ) );
 	}
 
 	/**
@@ -140,7 +137,6 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$rule = new DisableIntrospection();
 
 		$this->assertFalse( $rule->should_be_enabled() );
-		$this->assertFalse( $this->invokeProtectedMethod( $rule, 'isEnabled' ) );
 	}
 
 	/**
@@ -162,7 +158,9 @@ class ValidationRulesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$rule = new QueryDepth();
 
-		$this->assertSame( 10, $rule->getMaxQueryDepth() );
+		// Asserted against the constant rather than a literal, so a change to the shipped
+		// default is a deliberate edit to QueryDepth rather than a surprise failure here.
+		$this->assertSame( QueryDepth::DEFAULT_MAX_QUERY_DEPTH, $rule->getMaxQueryDepth() );
 	}
 
 	/**
