@@ -142,7 +142,7 @@ export const TracingExtensionTab = ({ data }) => {
 		return (
 			<p className="wpgraphql-ide-extensions-empty">
 				{__(
-					'No tracing data in the last response. Enable GraphQL Tracing in WPGraphQL settings to see field-level timing here.',
+					'No tracing data in the last response. Turn on Tracing in WPGraphQL settings to see field-level timing here.',
 					'wpgraphql-ide'
 				)}
 			</p>
