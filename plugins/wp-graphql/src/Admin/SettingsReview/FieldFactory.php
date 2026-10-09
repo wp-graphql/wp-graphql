@@ -81,10 +81,13 @@ final class FieldFactory {
 			}
 		}
 
+		// Tie-broken on key: `order` defaults to registration position, so ties only happen when two
+		// settings declare the same order, and sorting is only stable as of PHP 8.0 while this plugin
+		// supports 7.4.
 		uasort(
 			$fields,
 			static function ( $a, $b ) {
-				return $a['order'] <=> $b['order'];
+				return [ $a['order'], $a['key'] ] <=> [ $b['order'], $b['key'] ];
 			}
 		);
 

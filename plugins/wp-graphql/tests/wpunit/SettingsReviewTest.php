@@ -51,6 +51,7 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		delete_option( SettingsReview::STATE_OPTION );
 		delete_option( 'graphql_general_settings' );
 		delete_option( 'graphql_review_test_settings' );
+		delete_option( 'graphql_review_test_b_settings' );
 
 		$this->settings = new Settings();
 		$this->settings->init();
@@ -61,6 +62,7 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		delete_option( SettingsReview::STATE_OPTION );
 		delete_option( 'graphql_general_settings' );
 		delete_option( 'graphql_review_test_settings' );
+		delete_option( 'graphql_review_test_b_settings' );
 		wp_set_current_user( 0 );
 
 		parent::tearDown();
@@ -175,6 +177,83 @@ class SettingsReviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'graphql_review_test_settings', $last['slug'] );
 		$this->assertSame( 'Review Test Settings', $last['title'] );
 		$this->assertSame( [ 'graphql_review_test_settings.test_toggle' ], $last['fields'] );
+	}
+
+	public function testStepsBuiltForSectionsAreOrderedDeterministically(): void {
+		// Every step built for a settings section gets the same default order, so two extensions'
+		// steps tie. Sorting is only stable as of PHP 8.0 and this plugin supports 7.4, so the order
+		// has to come from a tiebreak rather than from the sort.
+		$settings_review = $this->get_settings_review(
+			static function ( $registry ) {
+				// Registered in the order that is NOT the expected result, so a sort that merely
+				// preserves insertion order fails this test.
+				foreach ( [ 'graphql_review_test_settings', 'graphql_review_test_b_settings' ] as $section ) {
+					$registry->register_section( $section, [ 'title' => $section ] );
+					$registry->register_field(
+						$section,
+						[
+							'name'            => 'test_toggle',
+							'label'           => 'Test toggle',
+							'type'            => 'checkbox',
+							'default'         => 'off',
+							'settings_review' => true,
+						]
+					);
+				}
+			}
+		);
+
+		$slugs = wp_list_pluck( $settings_review->get_steps(), 'slug' );
+		$tail  = array_slice( $slugs, -2 );
+
+		$this->assertSame(
+			[ 'graphql_review_test_b_settings', 'graphql_review_test_settings' ],
+			$tail
+		);
+
+		// The same review built again returns the same order.
+		$again = wp_list_pluck( $this->get_settings_review()->get_steps(), 'slug' );
+		$this->assertSame( $slugs, $again );
+	}
+
+	public function testSettingsThatDeclareTheSameOrderAreOrderedDeterministically(): void {
+		$settings_review = $this->get_settings_review(
+			static function ( $registry ) {
+				$registry->register_section( 'graphql_review_test_settings', [ 'title' => 'Review Test Settings' ] );
+
+				// Registered z-then-a, both claiming the same order.
+				foreach ( [ 'zeta_toggle', 'alpha_toggle' ] as $name ) {
+					$registry->register_field(
+						'graphql_review_test_settings',
+						[
+							'name'            => $name,
+							'label'           => $name,
+							'type'            => 'checkbox',
+							'default'         => 'off',
+							'settings_review' => [ 'order' => 50 ],
+						]
+					);
+				}
+			}
+		);
+
+		$fields = $settings_review->get_fields();
+		$keys   = array_values(
+			array_filter(
+				array_keys( $fields ),
+				static function ( $key ) {
+					return 0 === strpos( $key, 'graphql_review_test_settings.' );
+				}
+			)
+		);
+
+		$this->assertSame(
+			[
+				'graphql_review_test_settings.alpha_toggle',
+				'graphql_review_test_settings.zeta_toggle',
+			],
+			$keys
+		);
 	}
 
 	public function testPluginsCanRegisterSteps(): void {

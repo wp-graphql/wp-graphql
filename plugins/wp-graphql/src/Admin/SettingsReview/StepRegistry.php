@@ -136,10 +136,13 @@ final class StepRegistry {
 			$steps[ $slug ]['fields'][] = $key;
 		}
 
+		// Tie-broken on slug because every step built for a settings section gets DEFAULT_ORDER,
+		// so two extensions' steps routinely share an order. Sorting is only stable as of PHP 8.0
+		// and this plugin supports 7.4, so without a tiebreak their order is left to the sort.
 		uasort(
 			$steps,
 			static function ( $a, $b ) {
-				return $a['order'] <=> $b['order'];
+				return [ $a['order'], $a['slug'] ] <=> [ $b['order'], $b['slug'] ];
 			}
 		);
 

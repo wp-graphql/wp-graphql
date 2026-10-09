@@ -449,6 +449,9 @@ final class SettingsReview {
 		 *
 		 * @param \WPGraphQL\Admin\SettingsReview\SettingsReview $settings_review The settings review instance.
 		 *
+		 * @internal This is plumbing behind register_graphql_settings_review_step(), which is the
+		 *           supported way to add a step. It is not part of the public hook contract.
+		 *
 		 * @hookGroup settings
 		 * @since x-release-please-version
 		 */
