@@ -13,9 +13,21 @@ If you believe you've discovered a security vulnerability, please email info@wpg
 
 The settings review walks through the WPGraphQL settings that affect who can use your GraphQL API, how much work a single request can ask for, and what debugging information responses include. For each setting it explains what you gain and what it costs, so you can choose what fits your site. Until you've run it, it's in the GraphQL menu as **Review Settings**. After that, open it with the **Review your settings** link at the top of **GraphQL > Settings**.
 
+![Screenshot of the first step of the WPGraphQL settings review](./images/settings-review-intro.png)
+
+Each setting shows what it does, the value your site currently uses, and the tradeoffs of turning it on:
+
+![Screenshot of the "Request limits" step of the WPGraphQL settings review, showing what each setting gains and costs](./images/settings-review-request-limits-step.png)
+
 Every setting starts at the value your site uses today, and nothing changes until you save on the last step. Only the settings you change are saved, so settings you leave alone keep using their defaults. Skipping the review changes no settings.
 
+The last step lists every setting with its current value next to the value that will be saved:
+
+![Screenshot of the final step of the WPGraphQL settings review, comparing each setting's currently saved value with the value after saving](./images/settings-review-summary.png)
+
 Administrators are invited to run the review, with a notice on WPGraphQL screens and the Plugins screen, until they complete or skip it. Each administrator can also dismiss the notice. When an update adds a setting to the review, the invitation shows again and the new setting is marked as new.
+
+![Screenshot of the admin notice inviting administrators to review their WPGraphQL settings](./images/settings-review-invitation.png)
 
 On sites whose settings are managed in code, turn the notice off with the `graphql_settings_review_show_invitation` filter, or record the review as done with [`wp graphql settings-review skip`](/docs/wp-cli#wp-graphql-settings-review):
 
