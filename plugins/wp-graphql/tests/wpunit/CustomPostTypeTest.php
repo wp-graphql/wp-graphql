@@ -1815,4 +1815,58 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		unregister_post_type( 'test_events' );
 	}
+
+	/**
+	 * A post type registered with `public => false` must report `public: false`,
+	 * not `null`.
+	 */
+	public function testNonPublicPostTypeReportsPublicFalse() {
+		register_post_type(
+			'non_public_cpt',
+			[
+				'public'              => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NonPublicCpt',
+				'graphql_plural_name' => 'NonPublicCpts',
+			]
+		);
+
+		$this->clearSchema();
+
+		try {
+			wp_set_current_user( $this->admin );
+
+			$query = '
+			query GetContentType( $id: ID! ) {
+				contentType( id: $id, idType: NAME ) {
+					name
+					public
+				}
+			}
+			';
+
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id' => 'non_public_cpt',
+					],
+				]
+			);
+
+			$this->assertQuerySuccessful(
+				$actual,
+				[
+					$this->expectedField( 'contentType.name', 'non_public_cpt' ),
+					$this->expectedField( 'contentType.public', false ),
+				]
+			);
+
+			// Strict check: a null response must not pass as false.
+			$this->assertFalse( $actual['data']['contentType']['public'] );
+		} finally {
+			unregister_post_type( 'non_public_cpt' );
+			$this->clearSchema();
+		}
+	}
 }
