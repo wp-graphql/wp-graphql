@@ -170,6 +170,15 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.6.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.6.0...wp-graphql-ide/v5.6.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **ide:** keep public requests working behind HTTP Basic Auth ([#4396](https://github.com/wp-graphql/wp-graphql/issues/4396)) ([07089cc](https://github.com/wp-graphql/wp-graphql/commit/07089ccb89eeb2f77b9394fcd00b81d380673393))
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340)) ([585ad8a](https://github.com/wp-graphql/wp-graphql/commit/585ad8adc1be848e9adce8a015aea8c4abd81917))
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374)) ([2e47c4d](https://github.com/wp-graphql/wp-graphql/commit/2e47c4d7dc7c57a39ade8280c6735b290883283b))
+
 ## [5.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.5.0...wp-graphql-ide/v5.6.0) (2026-09-15)
 
 

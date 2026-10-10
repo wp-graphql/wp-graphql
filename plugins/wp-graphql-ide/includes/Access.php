@@ -41,7 +41,7 @@ class Access {
 	 * because behind HTTP Basic Auth the `Authorization` header makes
 	 * WPGraphQL keep the cookie user even without a nonce.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.6.1
 	 */
 	public static function force_public_request(): void {
 		$server_key = 'HTTP_' . strtoupper( str_replace( '-', '_', self::PUBLIC_REQUEST_HEADER ) );
@@ -62,7 +62,7 @@ class Access {
 	 * header usable from any client that is not, the same reason core
 	 * allow-lists `X-GraphQL-Preview`.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.6.1
 	 *
 	 * @param string[] $headers Headers the endpoint accepts.
 	 * @return string[]
@@ -90,7 +90,7 @@ class Access {
 	 * response, not just flagged ones, so a cache learns the axis before it
 	 * ever stores anything.
 	 *
-	 * @since x-release-please-version
+	 * @since 5.6.1
 	 *
 	 * @param array<string,string> $headers Headers the endpoint will send.
 	 * @return array<string,string>
