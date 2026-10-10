@@ -1280,6 +1280,94 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * @throws Exception
 	 */
+	/**
+	 * A taxonomy registered with `public => false` must report `public: false`.
+	 *
+	 * The resolver used to fall back to `true` whenever the registered value was
+	 * falsy, so the one case the field exists to describe was the one case it got
+	 * wrong. Queried as an administrator because `Taxonomy::is_private()` restricts
+	 * a non-public taxonomy from users without `edit_terms`, and a restricted model
+	 * resolves the field to null rather than running this resolver at all.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4413
+	 */
+	public function testNonPublicTaxonomyReportsPublicAsFalse() {
+		register_taxonomy(
+			'not_public_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NotPublicTerm',
+				'graphql_plural_name' => 'NotPublicTerms',
+			]
+		);
+
+		$this->clearSchema();
+		wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$actual = $this->graphql(
+			[
+				'query' => '
+					query NonPublicTaxonomy( $id: ID! ) {
+						taxonomy( id: $id, idType: NAME ) {
+							name
+							public
+						}
+					}
+				',
+				'variables' => [ 'id' => 'not_public_tax' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'not_public_tax', $actual['data']['taxonomy']['name'] );
+		$this->assertFalse( $actual['data']['taxonomy']['public'] );
+
+		unregister_taxonomy( 'not_public_tax' );
+	}
+
+	/**
+	 * The counterpart, so a fix that simply inverted the value would not pass.
+	 *
+	 * Also queried as an administrator: `public` is not in the Taxonomy model's
+	 * allowed restricted fields, so it resolves to null for any viewer without
+	 * `edit_terms`, whatever the taxonomy is registered as.
+	 */
+	public function testPublicTaxonomyReportsPublicAsTrue() {
+		register_taxonomy(
+			'is_public_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'IsPublicTerm',
+				'graphql_plural_name' => 'IsPublicTerms',
+			]
+		);
+
+		$this->clearSchema();
+		wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$actual = $this->graphql(
+			[
+				'query' => '
+					query PublicTaxonomy( $id: ID! ) {
+						taxonomy( id: $id, idType: NAME ) {
+							public
+						}
+					}
+				',
+				'variables' => [ 'id' => 'is_public_tax' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['taxonomy']['public'] );
+
+		unregister_taxonomy( 'is_public_tax' );
+	}
+
 	public function testRegisterTaxonomyWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
 
 		register_taxonomy(

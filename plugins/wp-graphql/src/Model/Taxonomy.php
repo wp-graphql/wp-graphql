@@ -106,8 +106,10 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
 				},
 				'public'              => function () {
-					// @todo this is a bug
-					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
+					// Mirrors the registered value. The previous `! empty( ... ) ? ... : true`
+					// returned true for a taxonomy registered `public => false`, which is the
+					// one case the field exists to describe.
+					return (bool) $this->data->public;
 				},
 				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
