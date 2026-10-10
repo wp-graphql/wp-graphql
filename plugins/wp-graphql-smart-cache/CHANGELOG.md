@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.2...wp-graphql-smart-cache/v2.3.3) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4322](https://github.com/wp-graphql/wp-graphql/issues/4322)) ([40074f2](https://github.com/wp-graphql/wp-graphql/commit/40074f261d8f841fc47d337d60bdc0597a3d20d7))
+* **smart-cache:** allow filtering the GraphQL query cache key ([#4389](https://github.com/wp-graphql/wp-graphql/issues/4389)) ([a25b6c1](https://github.com/wp-graphql/wp-graphql/commit/a25b6c1ebf1adc5270d5a512c6e0c33793b03ac4))
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374)) ([2e47c4d](https://github.com/wp-graphql/wp-graphql/commit/2e47c4d7dc7c57a39ade8280c6735b290883283b))
+* **smart-cache:** never advertise an error response as cacheable ([#4390](https://github.com/wp-graphql/wp-graphql/issues/4390)) ([87ee76f](https://github.com/wp-graphql/wp-graphql/commit/87ee76f78daf2844471b8d186e80283ff1864faa))
+
 ## [2.3.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.1...wp-graphql-smart-cache/v2.3.2) (2026-09-15)
 
 
