@@ -28,7 +28,7 @@ Fires after core WPGraphQL settings have been registered.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Settings/Settings.php:329`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L329)
+- [`plugins/wp-graphql/src/Admin/Settings/Settings.php:443`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L443)
 
 ```php
 do_action( 'graphql_register_settings', $this );
@@ -36,4 +36,4 @@ do_action( 'graphql_register_settings', $this );
 
 ## Related
 
-- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:329`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L329)
+- `Settings::register_settings()` in [`plugins/wp-graphql/src/Admin/Settings/Settings.php:443`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/Settings.php#L443)

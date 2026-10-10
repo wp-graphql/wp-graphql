@@ -1,10 +1,10 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-09-22T18:21:07.598Z",
+  "generatedAt": "2026-10-10T04:25:46.767Z",
   "stats": {
-    "totalHooks": 279,
-    "actions": 62,
-    "filters": 217,
+    "totalHooks": 282,
+    "actions": 63,
+    "filters": 219,
     "dynamic": 16,
     "snippets": 0
   },
@@ -73,6 +73,15 @@
       "match": [
         "^graphql_auth_",
         "^graphql_allowed_"
+      ]
+    },
+    {
+      "id": "caching",
+      "label": "Caching and Invalidation",
+      "kind": "both",
+      "match": [
+        "^graphql_cache_",
+        "^graphql_purge"
       ]
     },
     {
@@ -271,28 +280,28 @@
         "type": "naming_convention",
         "hook": "register_graphql_post_type_args",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 640,
+        "line": 668,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "register_graphql_taxonomy_args",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 671,
+        "line": 699,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "graphql_schema",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 926,
+        "line": 954,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
         "type": "naming_convention",
         "hook": "graphql_endpoint",
         "file": "plugins/wp-graphql/access-functions.php",
-        "line": 939,
+        "line": 983,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
@@ -308,7 +317,7 @@
     "flaggedHooks": 31,
     "warnings": 31,
     "errors": 0,
-    "wpgraphqlHooks": 259,
+    "wpgraphqlHooks": 262,
     "coreHooks": 20
   },
   "hooks": [
@@ -1246,7 +1255,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AdminNotices::is_plugin_scoped_page()",
       "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 399,
+      "line": 416,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to determine if the current admin page is within the scope of the plugin's own pages. This filter can be used to add additional pages to the list of allowed pages. The filter receives the following arguments:",
@@ -1286,7 +1295,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-          "line": 399,
+          "line": 416,
           "symbol": "AdminNotices::is_plugin_scoped_page()",
           "emitter": "apply_filters"
         }
@@ -1304,7 +1313,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "AdminNotices::render_notices()",
       "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 358,
+      "line": 372,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires for each admin notice that is rendered.",
@@ -1349,7 +1358,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-          "line": 358,
+          "line": 372,
           "symbol": "AdminNotices::render_notices()",
           "emitter": "do_action"
         }
@@ -1367,7 +1376,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "AdminNotices::render_notices()",
       "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-      "line": 318,
+      "line": 337,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires before the admin notices are rendered.",
@@ -1397,7 +1406,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/AdminNotices.php",
-          "line": 318,
+          "line": 337,
           "symbol": "AdminNotices::render_notices()",
           "emitter": "do_action"
         }
@@ -4225,7 +4234,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::debug()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 962,
+      "line": 990,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether GraphQL debug mode is enabled.",
@@ -4255,7 +4264,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 962,
+          "line": 990,
           "symbol": "WPGraphQL::debug()",
           "emitter": "apply_filters"
         }
@@ -4485,7 +4494,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "WPGraphQL::run_update_routines()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 514,
+      "line": 542,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires the update routine.",
@@ -4520,7 +4529,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 514,
+          "line": 542,
           "symbol": "WPGraphQL::run_update_routines()",
           "emitter": "do_action"
         }
@@ -4538,7 +4547,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Admin::init()",
       "file": "plugins/wp-graphql/src/Admin/Admin.php",
-      "line": 64,
+      "line": 70,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether the embedded GraphiQL IDE should be enabled.",
@@ -4568,7 +4577,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Admin.php",
-          "line": 64,
+          "line": 70,
           "symbol": "Admin::init()",
           "emitter": "apply_filters"
         }
@@ -4586,7 +4595,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "graphql_get_endpoint()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 939,
+      "line": 983,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the relative endpoint path where GraphQL can be accessed.",
@@ -4616,7 +4625,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 939,
+          "line": 983,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters"
         },
@@ -4687,7 +4696,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 939,
+          "line": 983,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters"
         },
@@ -5652,7 +5661,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "WPGraphQL::get_schema()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 936,
+      "line": 964,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action when the Schema is returned",
@@ -5682,7 +5691,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 936,
+          "line": 964,
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "do_action"
         }
@@ -5700,7 +5709,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "get_graphql_setting()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 917,
+      "line": 961,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the value before returning it",
@@ -5750,7 +5759,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 917,
+          "line": 961,
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
@@ -5768,7 +5777,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "get_graphql_setting()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 895,
+      "line": 939,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the section fields",
@@ -5808,7 +5817,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 895,
+          "line": 939,
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
@@ -5879,7 +5888,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "WPGraphQL::get_type_registry()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 996,
+      "line": 1024,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action when the Type Registry is returned",
@@ -5909,7 +5918,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 996,
+          "line": 1024,
           "symbol": "WPGraphQL::get_type_registry()",
           "emitter": "do_action"
         }
@@ -6096,7 +6105,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::init_registry()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 191,
+      "line": 231,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires before WPGraphQL settings sections and fields are registered.",
@@ -6126,7 +6135,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 191,
+          "line": 231,
           "symbol": "SettingsRegistry::init_registry()",
           "emitter": "do_action"
         }
@@ -8071,7 +8080,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_allowed_post_types()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 761,
+      "line": 789,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Pass through a filter to allow the post_types to be modified. For example if a certain post_type should not be exposed to the GraphQL API.",
@@ -8106,7 +8115,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 761,
+          "line": 789,
           "symbol": "WPGraphQL::get_allowed_post_types()",
           "emitter": "apply_filters"
         }
@@ -10570,6 +10579,54 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_query_depth_max",
+      "kind": "filter",
+      "group": "request-lifecycle",
+      "groupLabel": "Request Lifecycle",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "QueryDepth::get_effective_max_query_depth()",
+      "file": "plugins/wp-graphql/src/Server/ValidationRules/QueryDepth.php",
+      "line": 204,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters the max query depth allowed for the current request. The value passed in comes from the settings: the Max Depth setting when Query Depth Limiting is enabled, or 0 when it's disabled. Return 0 to allow any depth, or a positive integer to limit it, which also applies the limit when the setting is disabled. A non-numeric return value is ignored and the value from the settings is used. Operations that only query introspection (`__schema`, `__type`) are never limited. Use this to give trusted users a different limit than everyone else. Base that decision on a capability (for example `current_user_can( 'manage_options' )`), not only on whether the user is logged in, since sites with open registration let anyone create an account.",
+      "params": [
+        {
+          "type": "int",
+          "name": "$max_depth",
+          "description": "The max query depth. 0 means no limit."
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "2.24.0",
+      "hookGroup": "request-lifecycle",
+      "isDynamic": false,
+      "rawExpression": "'graphql_query_depth_max'",
+      "sourceCall": "apply_filters( 'graphql_query_depth_max', $max_depth );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Server/ValidationRules/QueryDepth.php",
+          "line": 204,
+          "symbol": "QueryDepth::get_effective_max_query_depth()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_query_id_hash_algorithm",
       "kind": "filter",
       "group": "request-lifecycle",
@@ -10738,7 +10795,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Settings::register_settings()",
       "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-      "line": 329,
+      "line": 443,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after core WPGraphQL settings have been registered.",
@@ -10768,7 +10825,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/Settings.php",
-          "line": 329,
+          "line": 443,
           "symbol": "Settings::register_settings()",
           "emitter": "do_action"
         }
@@ -12429,7 +12486,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 926,
+          "line": 954,
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters"
         }
@@ -12447,7 +12504,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_schema()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 926,
+      "line": 954,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Generate & Filter the schema.",
@@ -12488,7 +12545,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 926,
+          "line": 954,
           "symbol": "WPGraphQL::get_schema()",
           "emitter": "apply_filters"
         }
@@ -12677,7 +12734,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "SettingsRegistry::register_field()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 154,
+      "line": 194,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the setting field config",
@@ -12717,7 +12774,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 154,
+          "line": 194,
           "symbol": "SettingsRegistry::register_field()",
           "emitter": "apply_filters"
         }
@@ -12793,7 +12850,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::admin_enqueue_scripts()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 87,
+      "line": 127,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires when WPGraphQL settings assets should be enqueued.",
@@ -12817,7 +12874,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 87,
+          "line": 127,
           "symbol": "SettingsRegistry::admin_enqueue_scripts()",
           "emitter": "do_action"
         }
@@ -12835,7 +12892,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::show_forms()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 749,
+      "line": 857,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after rendering a WPGraphQL settings form section.",
@@ -12865,7 +12922,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 749,
+          "line": 857,
           "symbol": "SettingsRegistry::show_forms()",
           "emitter": "do_action"
         }
@@ -12883,7 +12940,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "SettingsRegistry::show_forms()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 739,
+      "line": 847,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires before rendering a WPGraphQL settings form section.",
@@ -12913,9 +12970,105 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 739,
+          "line": 847,
           "symbol": "SettingsRegistry::show_forms()",
           "emitter": "do_action"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_settings_review_init",
+      "kind": "action",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "do_action",
+      "enclosingSymbol": "SettingsReview::init_steps()",
+      "file": "plugins/wp-graphql/src/Admin/SettingsReview/SettingsReview.php",
+      "line": 458,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Fires when the settings review registers its steps. Use register_graphql_settings_review_step() rather than hooking this action directly.",
+      "params": [
+        {
+          "type": "\\WPGraphQL\\Admin\\SettingsReview\\SettingsReview",
+          "name": "$settings_review",
+          "description": "The settings review instance."
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "2.24.0",
+      "hookGroup": "settings",
+      "isDynamic": false,
+      "rawExpression": "'graphql_settings_review_init'",
+      "sourceCall": "do_action( 'graphql_settings_review_init', $this );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/SettingsReview/SettingsReview.php",
+          "line": 458,
+          "symbol": "SettingsReview::init_steps()",
+          "emitter": "do_action"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_settings_review_show_invitation",
+      "kind": "filter",
+      "group": "settings",
+      "groupLabel": "Settings and Admin",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "SettingsReview::should_show_invitation()",
+      "file": "plugins/wp-graphql/src/Admin/SettingsReview/SettingsReview.php",
+      "line": 212,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters whether administrators are invited to the settings review with an admin notice. The notice shows until the settings review is completed or skipped, or until each user dismisses it. Return false to never show it, for example on sites whose settings are managed in code. The Review Settings menu item and the link on the Settings page are not affected. To record the review as done without visiting it, run `wp graphql settings-review skip`.",
+      "params": [
+        {
+          "type": "bool",
+          "name": "$show_invitation",
+          "description": "Whether to show the invitation notice. Default true."
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "2.24.0",
+      "hookGroup": "settings",
+      "isDynamic": false,
+      "rawExpression": "'graphql_settings_review_show_invitation'",
+      "sourceCall": "apply_filters( 'graphql_settings_review_show_invitation', true );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Admin/SettingsReview/SettingsReview.php",
+          "line": 212,
+          "symbol": "SettingsReview::should_show_invitation()",
+          "emitter": "apply_filters"
         }
       ],
       "relatedRecipes": []
@@ -12931,7 +13084,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "SettingsRegistry::init_registry()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 200,
+      "line": 240,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the WPGraphQL settings sections.",
@@ -12961,13 +13114,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 200,
+          "line": 240,
           "symbol": "SettingsRegistry::init_registry()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 235,
+          "line": 275,
           "symbol": "SettingsRegistry::admin_init()",
           "emitter": "apply_filters"
         }
@@ -12985,7 +13138,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "SettingsRegistry::admin_init()",
       "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-      "line": 235,
+      "line": 275,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the WPGraphQL settings sections.",
@@ -13015,13 +13168,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 200,
+          "line": 240,
           "symbol": "SettingsRegistry::init_registry()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php",
-          "line": 235,
+          "line": 275,
           "symbol": "SettingsRegistry::admin_init()",
           "emitter": "apply_filters"
         }
@@ -13286,7 +13439,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Admin::init()",
       "file": "plugins/wp-graphql/src/Admin/Admin.php",
-      "line": 56,
+      "line": 62,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether WPGraphQL admin pages should be visible.",
@@ -13316,7 +13469,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Admin.php",
-          "line": 56,
+          "line": 62,
           "symbol": "Admin::init()",
           "emitter": "apply_filters"
         }
@@ -13334,7 +13487,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_allowed_taxonomies()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 847,
+      "line": 875,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Pass through a filter to allow the taxonomies to be modified. For example if a certain taxonomy should not be exposed to the GraphQL API.",
@@ -13369,7 +13522,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 847,
+          "line": 875,
           "symbol": "WPGraphQL::get_allowed_taxonomies()",
           "emitter": "apply_filters"
         }
@@ -14299,7 +14452,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::get_type_registry()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 986,
+      "line": 1014,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Generate & Filter the schema.",
@@ -14334,7 +14487,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 986,
+          "line": 1014,
           "symbol": "WPGraphQL::get_type_registry()",
           "emitter": "apply_filters"
         }
@@ -15753,7 +15906,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::register_graphql_post_type_args()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 640,
+      "line": 668,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the graphql args set on a post type",
@@ -15788,7 +15941,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 640,
+          "line": 668,
           "symbol": "WPGraphQL::register_graphql_post_type_args()",
           "emitter": "apply_filters"
         }
@@ -15806,7 +15959,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "WPGraphQL::register_graphql_taxonomy_args()",
       "file": "plugins/wp-graphql/src/WPGraphQL.php",
-      "line": 671,
+      "line": 699,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the graphql args set on a taxonomy",
@@ -15841,7 +15994,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/WPGraphQL.php",
-          "line": 671,
+          "line": 699,
           "symbol": "WPGraphQL::register_graphql_taxonomy_args()",
           "emitter": "apply_filters"
         }

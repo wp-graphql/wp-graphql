@@ -25,7 +25,7 @@ Get the endpoint route for the WPGraphQL API
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:927`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L927)
+- [`plugins/wp-graphql/access-functions.php:971`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L971)
 
 ```php
 function graphql_get_endpoint(): string {

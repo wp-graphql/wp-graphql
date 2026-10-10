@@ -823,7 +823,7 @@ function register_graphql_settings_field( string $group, array $config ): void {
  *  order?: int,
  * } $config
  *
- * @since x-release-please-version
+ * @since 2.24.0
  */
 function register_graphql_settings_review_step( string $slug, array $config ): void {
 	add_action(

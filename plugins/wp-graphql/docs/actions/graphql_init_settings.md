@@ -28,7 +28,7 @@ Fires before WPGraphQL settings sections and fields are registered.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:191`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L191)
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:231`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L231)
 
 ```php
 do_action( 'graphql_init_settings', $this );
@@ -36,4 +36,4 @@ do_action( 'graphql_init_settings', $this );
 
 ## Related
 
-- `SettingsRegistry::init_registry()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:191`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L191)
+- `SettingsRegistry::init_registry()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:231`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L231)
