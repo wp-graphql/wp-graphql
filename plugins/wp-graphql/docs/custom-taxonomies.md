@@ -71,7 +71,33 @@ The taxonomy itself, meaning the object describing the taxonomy rather than the 
 
 This differs from post types, where `publicly_queryable => false` does keep entries from anonymous callers. See [Public vs Private Data](/docs/custom-post-types/#public-vs-private-data) on the Custom Post Types page for how that works.
 
-If terms in a taxonomy should not be readable by everyone, do not add that taxonomy to the schema. `show_in_graphql` is the decision that exposes it.
+### Restricting terms yourself
+
+If terms in a taxonomy should not be readable by everyone, you have two options.
+
+The simplest is not to add the taxonomy to the schema at all. `show_in_graphql` is the decision that exposes it, so leaving it off keeps the terms out entirely.
+
+If you want the taxonomy in the schema but its terms restricted, filter the model. `graphql_data_is_private` runs for every model WPGraphQL builds, and returning true for a term removes it:
+
+```php
+add_filter( 'graphql_data_is_private', function ( $is_private, $model_name, $data ) {
+
+    if ( 'TermObject' !== $model_name ) {
+        return $is_private;
+    }
+
+    if ( isset( $data->taxonomy ) && 'my_taxonomy' === $data->taxonomy ) {
+        return ! current_user_can( 'edit_posts' );
+    }
+
+    return $is_private;
+
+}, 10, 3 );
+```
+
+Terms you mark private are dropped from connections, and looking one up directly returns null.
+
+One thing to know before relying on this: `pageInfo` is calculated from the underlying query, before models are built, so `hasNextPage` can still report true when every term on the page was filtered out. The terms themselves stay hidden, but a caller can tell that something is there. If the existence of the terms is itself sensitive, keep the taxonomy out of the schema instead.
 
 ### `public` describes intent, it does not restrict
 
