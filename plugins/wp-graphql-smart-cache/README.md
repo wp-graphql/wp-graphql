@@ -100,7 +100,7 @@ While testing, you can enable "WPGraphQL Tracing" to see data about how long (in
 
 To enable WPGraphQL Tracing, navigate to the "WPGraphQL > Settings" page and select the "WPGraphQL General Settings" tab.
 
-Check the "Enable GraphQL Tracing" option, and set the "Tracing Role" to "Any". This will let us see the trace data in public requests as we test the caching functionality.
+Check the "Tracing" option, and set "Who can see tracing" to "Any". This will let us see the trace data in public requests as we test the caching functionality.
 
 ![Screenshot of enabling Tracing in WPGraphQL Settings](./docs/images/enable-graphql-tracing.png)
 
