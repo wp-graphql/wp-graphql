@@ -124,6 +124,57 @@ describe('Settings Page', () => {
 		await expect(page.locator(selectors.checkboxB)).toBeChecked();
 	});
 
+	test('Fields that depend on a checkbox are hidden while it is unchecked', async ({
+		page,
+	}) => {
+		await visitAdminFacingPage(
+			page,
+			wpAdminUrl + '/admin.php?page=graphql-settings'
+		);
+		await page.waitForTimeout(500);
+
+		const depthCheckbox = page.locator(
+			'#wpuf-graphql_general_settings\\[query_depth_enabled\\]'
+		);
+		const maxDepthRow = page
+			.locator('input[name="graphql_general_settings[query_depth_max]"]')
+			.locator('xpath=ancestor::tr');
+
+		await depthCheckbox.uncheck();
+		await expect(maxDepthRow).toBeHidden();
+
+		await depthCheckbox.check();
+		await expect(maxDepthRow).toBeVisible();
+	});
+
+	test('Settings show their tradeoffs in a collapsed section', async ({
+		page,
+	}) => {
+		await visitAdminFacingPage(
+			page,
+			wpAdminUrl + '/admin.php?page=graphql-settings'
+		);
+
+		const depthRow = page
+			.locator('#wpuf-graphql_general_settings\\[query_depth_enabled\\]')
+			.locator('xpath=ancestor::tr');
+		const tradeoffs = depthRow.locator(
+			'details.wpgraphql-setting-tradeoffs'
+		);
+
+		await expect(tradeoffs).toBeVisible();
+		await expect(tradeoffs).not.toHaveAttribute('open', '');
+		await expect(
+			tradeoffs.getByText('What it costs', { exact: true })
+		).toBeHidden();
+
+		await expect(tradeoffs.locator('summary')).toHaveText('Tradeoffs');
+		await tradeoffs.locator('summary').click();
+		await expect(
+			tradeoffs.getByText('What it costs', { exact: true })
+		).toBeVisible();
+	});
+
 	test('Verify localStorage retains last active tab', async ({ page }) => {
 		await visitAdminFacingPage(
 			page,

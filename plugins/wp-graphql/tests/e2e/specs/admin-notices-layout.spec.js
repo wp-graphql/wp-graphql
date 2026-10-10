@@ -36,6 +36,20 @@ async function setPluginActive(page, pluginFile, active) {
 	).toBeVisible();
 }
 
+/**
+ * The notices registered by this spec's own test plugin.
+ *
+ * Matching on the test plugin's slug prefix rather than the shared
+ * `.wpgraphql-admin-notice` class keeps the count assertion independent of any
+ * notice the product itself registers.
+ *
+ * @param {import('@playwright/test').Page} page The Playwright page object.
+ * @return {import('@playwright/test').Locator} The spec's own notices.
+ */
+function specNotices(page) {
+	return page.locator('[id^="wpgraphql-admin-notice-wpgraphql-e2e-notice-"]');
+}
+
 test.describe('Admin notices on the GraphiQL IDE page', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
@@ -57,7 +71,10 @@ test.describe('Admin notices on the GraphiQL IDE page', () => {
 		const notices = page.locator('.wpgraphql-admin-notice');
 		const ide = page.locator('[data-testid="wp-graphiql-wrapper"]');
 
-		await expect(notices).toHaveCount(3);
+		// Scoped to the notices this spec's own plugin registers, so the count does not
+		// break when the product gains another notice. The layout assertions below still
+		// run against every notice on the page, which is the property under test.
+		await expect(specNotices(page)).toHaveCount(3);
 		await expect(ide).toBeVisible();
 
 		const lastNotice = await notices.last().boundingBox();
