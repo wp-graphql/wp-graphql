@@ -61,6 +61,36 @@ add_filter( 'register_taxonomy_args', function( $args, $taxonomy ) {
 }, 10, 2 );
 ```
 
+## Public vs Private Data
+
+Terms behave differently from post entries here, so it is worth being explicit.
+
+**Terms are served to everyone.** If a taxonomy is in the schema, which it is only because it was registered with `show_in_graphql`, its terms are returned to anonymous callers. `public` and `publicly_queryable` do not change that. A taxonomy registered `public => false` still has all of its terms readable through GraphQL.
+
+The taxonomy itself, meaning the object describing the taxonomy rather than the terms in it, follows the same rule. It is returned to anyone, and individual fields on it that describe how the taxonomy is configured are returned only to users who can edit its terms.
+
+This differs from post types, where `publicly_queryable => false` does keep entries from anonymous callers. See [Public vs Private Data](/docs/custom-post-types/#public-vs-private-data) on the Custom Post Types page for how that works.
+
+If terms in a taxonomy should not be readable by everyone, do not add that taxonomy to the schema. `show_in_graphql` is the decision that exposes it.
+
+### `public` describes intent, it does not restrict
+
+`public` is a shorthand WordPress uses to fill in the defaults for `publicly_queryable`, `show_ui`, `show_in_nav_menus` and others. Once those are set, it has no further effect. Setting `public => false` says "this is not a normal, user facing taxonomy," not "keep these terms private."
+
+Both values are readable in the schema, so a client can use them to decide how to render:
+
+```graphql
+{
+  taxonomy(id: "documentTag", idType: NAME) {
+    name
+    public             # the broad statement of intent
+    publiclyQueryable  # whether terms are reachable on the front end
+  }
+}
+```
+
+`publiclyQueryable` is the useful one for a front end deciding whether to build archive routes for a taxonomy's terms.
+
 ## Querying Custom Taxonomies
 
 Querying terms of Custom Taxonomies is nearly identical to querying Categories and Tags. The difference being the name assigned by `graphql_single_name` and `graphql_plural_name`.
