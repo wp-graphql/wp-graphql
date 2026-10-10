@@ -486,7 +486,7 @@ final class WPGraphQL {
 	 * these settings off, so sites that already had WPGraphQL installed keep their current behavior,
 	 * and only new installs get these values saved. A value that is already saved is never replaced.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.24.0
 	 */
 	private function set_new_install_default_settings(): void {
 		$settings = get_option( 'graphql_general_settings', [] );

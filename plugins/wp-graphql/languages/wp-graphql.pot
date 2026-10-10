@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.23.1\n"
+"Project-Id-Version: WPGraphQL 2.24.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-22T18:21:07+00:00\n"
+"POT-Creation-Date: 2026-10-10T04:25:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -106,7 +106,7 @@ msgstr ""
 msgid "is_dismissable should be a boolean"
 msgstr ""
 
-#: src/Admin/AdminNotices.php:342
+#: src/Admin/AdminNotices.php:356
 msgid "Dismiss"
 msgstr ""
 
@@ -179,143 +179,369 @@ msgstr ""
 msgid "The \"GraphQL Endpoint\" field is required and cannot be blank. The default endpoint is \"graphql\""
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:154
-msgid "Restrict Endpoint to Authenticated Users"
+#: src/Admin/Settings/Settings.php:156
+msgid "Nothing can be read through the API without an account."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:155
-msgid "Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error."
+#: src/Admin/Settings/Settings.php:157
+msgid "Requests without an account are rejected before any query runs, so bots and scrapers can't make your server do query work."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:160
+msgid "Public front ends and static site builds that query without credentials stop working."
 msgstr ""
 
 #: src/Admin/Settings/Settings.php:161
-msgid "Enable Batch Queries"
+msgid "Every app that uses the API needs a way to authenticate, such as application passwords."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:162
-msgid "WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default."
+#: src/Admin/Settings/Settings.php:166
+msgid "When on, requests from visitors who are not logged in are rejected with an error, even for content that is public on your site."
 msgstr ""
 
 #: src/Admin/Settings/Settings.php:168
-msgid "Batch Query Limit"
+msgid "Only allow logged-in users"
 msgstr ""
 
 #: src/Admin/Settings/Settings.php:169
-msgid "If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution."
+msgid "Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:182
-msgid "Enable Query Depth Limiting"
+#: src/Admin/Settings/Settings.php:177
+msgid "Apps can combine operations and make fewer round trips to the server."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:183
-msgid "Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting."
+#: src/Admin/Settings/Settings.php:180
+msgid "A single request can ask the server to do the work of many requests."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:181
+msgid "Batch requests are sent with POST, so a network cache in front of your site usually can't serve them."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:186
+msgid "A batch request sends several GraphQL operations in a single HTTP request."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:188
+msgid "Allow batch requests"
 msgstr ""
 
 #: src/Admin/Settings/Settings.php:189
-msgid "Max Depth to allow for GraphQL Queries"
+msgid "WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:190
-msgid "If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10."
+#: src/Admin/Settings/Settings.php:198
+msgid "Batch requests with more operations than this are rejected before any of them run."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:203
+#: src/Admin/Settings/Settings.php:200
+msgid "Maximum operations per batch request"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:201
+msgid "If batch requests are allowed, this value sets the max number of operations to allow per batch request. Requests containing more batch operations than allowed will be rejected before execution."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:216
+msgid "Stops deeply nested queries, such as posts, then their authors, then those authors' posts, over and over, which can use a lot of memory and CPU."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:219
+msgid "Apps that send queries deeper than the limit get errors instead of data. Check the queries your apps send before turning this on."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:220
+msgid "It limits how deep a query goes, not how wide. Page size limits and batch limits cover other kinds of expensive requests."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:225
+msgid "Rejects queries that are nested deeper than the maximum depth, before they run. Queries that only read the schema are not limited."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:227
+msgid "Limit query depth"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:228
+msgid "Limits the depth of queries WPGraphQL will execute, using the value of the Maximum query depth setting."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:237
+msgid "The number of nested levels a query may have."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:239
+msgid "Maximum query depth"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:240
+msgid "If query depth is limited, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Queries that only request the schema (introspection) are not limited. Must be a positive integer value. Default 15."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:253
 msgid "Enable GraphQL Type Tracking"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about force enabling.
-#: src/Admin/Settings/Settings.php:206
+#: src/Admin/Settings/Settings.php:256
 #, php-format
 msgid "When enabled, WPGraphQL will track the Types, Models, and Nodes used in the request, and return those values in the headers for use in debugging or header-based cache invalidation. %s"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:207
-#: src/Admin/Settings/Settings.php:312
+#: src/Admin/Settings/Settings.php:257
+#: src/Admin/Settings/Settings.php:426
 msgid "NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. "
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:215
+#: src/Admin/Settings/Settings.php:265
 msgid "Enable GraphiQL IDE"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:216
+#: src/Admin/Settings/Settings.php:266
 msgid "GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:222
+#: src/Admin/Settings/Settings.php:272
 msgid "GraphiQL IDE Admin Bar Link"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:223
+#: src/Admin/Settings/Settings.php:273
 msgid "Show GraphiQL IDE Link in the WordPress Admin Bar"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:229
+#: src/Admin/Settings/Settings.php:279
 msgid "Delete Data on Deactivation"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:230
+#: src/Admin/Settings/Settings.php:280
 msgid "Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:236
-msgid "Enable GraphQL Debug Mode"
+#: src/Admin/Settings/Settings.php:288
+msgid "Makes problems easier to find while building an app."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:291
+msgid "Errors include internal messages meant for developers, for anyone who sends a request. Logged-in users also get stack traces with file paths."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:297
+msgid "Debug mode is set in code with the GRAPHQL_DEBUG constant, so it can only be changed there."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:298
+msgid "Adds detailed information to errors and responses, and lets logged-out visitors read the schema."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:300
+msgid "Debug mode"
 msgstr ""
 
 #. translators: %s is the value of the GRAPHQL_DEBUG constant
-#: src/Admin/Settings/Settings.php:239
+#: src/Admin/Settings/Settings.php:303
 #, php-format
 msgid "This setting is disabled. \"GRAPHQL_DEBUG\" has been set to \"%s\" with code"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:240
+#: src/Admin/Settings/Settings.php:304
 msgid "Whether GraphQL requests should execute in \"debug\" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:248
-msgid "Enable GraphQL Tracing"
+#: src/Admin/Settings/Settings.php:314
+msgid "Helps find slow parts of a query."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:249
+#: src/Admin/Settings/Settings.php:317
+msgid "Adds work to every traced request and makes responses larger."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:322
+msgid "Adds timing information for each field to the response."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:324
+msgid "Tracing"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:325
 msgid "Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:255
-msgid "Tracing Role"
+#: src/Admin/Settings/Settings.php:334
+msgid "Tracing is only added for users with this role. \"Any user\" includes logged-out visitors."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:256
-msgid "If Tracing is enabled, this limits it to requests from users with the specified User Role."
+#: src/Admin/Settings/Settings.php:336
+msgid "Who can see tracing"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:278
-msgid "Enable GraphQL Query Logs"
+#: src/Admin/Settings/Settings.php:337
+msgid "If tracing is on, this limits it to requests from users with the specified role."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:279
+#: src/Admin/Settings/Settings.php:361
+msgid "Helps find expensive or repeated database queries."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:364
+msgid "Responses include the SQL for every database query, with table names and the values used, for whoever can see the logs."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:365
+msgid "Slows down every logged request."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:370
+msgid "Adds the database queries that ran for a request to the response."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:372
+msgid "Query logs"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:373
 msgid "Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:285
-msgid "Query Log Role"
+#: src/Admin/Settings/Settings.php:382
+msgid "Query logs are only added for users with this role. \"Any user\" includes logged-out visitors."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:286
-msgid "If Query Logs are enabled, this limits them to requests from users with the specified User Role."
+#: src/Admin/Settings/Settings.php:384
+msgid "Who can see query logs"
 msgstr ""
 
-#: src/Admin/Settings/Settings.php:308
-msgid "Enable Public Introspection"
+#: src/Admin/Settings/Settings.php:385
+msgid "If query logs are on, this limits them to requests from users with the specified role."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:409
+msgid "Tools such as GraphiQL, code generators and some frameworks can read the schema without credentials."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:412
+msgid "Anyone can see the names and descriptions of every type, field and argument your API offers, including ones added by other plugins. What each field returns is still decided by who is asking."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:413
+msgid "If no public app needs the schema, turning this on shares details of how your site is built without any benefit."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:419
+msgid "This is always on while debug mode is on."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:420
+msgid "Introspection lets a client ask for the full schema: every type, field and argument the API offers. Logged-in users can always use it. If nothing public uses your API, \"Only allow logged-in users\" turns off public access entirely."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:422
+msgid "Let logged-out visitors read the schema (introspection)"
 msgstr ""
 
 #. translators: %s is either empty or a string with a note about debug mode.
-#: src/Admin/Settings/Settings.php:311
+#: src/Admin/Settings/Settings.php:425
 #, php-format
 msgid "GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s "
 msgstr ""
 
-#: src/Admin/Settings/SettingsRegistry.php:521
+#. translators: %s: URL of the settings review admin page
+#: src/Admin/Settings/Settings.php:485
+#, php-format
+msgid "Not sure which settings fit your site? <a href=\"%s\">Review your settings</a> to see the tradeoffs of the settings for access, request limits and debugging."
+msgstr ""
+
+#: src/Admin/Settings/SettingsRegistry.php:354
+msgid "What you gain"
+msgstr ""
+
+#: src/Admin/Settings/SettingsRegistry.php:355
+msgid "What it costs"
+msgstr ""
+
+#: src/Admin/Settings/SettingsRegistry.php:385
+msgid "Tradeoffs"
+msgstr ""
+
+#: src/Admin/Settings/SettingsRegistry.php:629
 msgid "Choose File"
+msgstr ""
+
+#: src/Admin/SettingsReview/AdminPage.php:61
+#: src/Admin/SettingsReview/AdminPage.php:84
+#: src/Admin/SettingsReview/AdminPage.php:125
+msgid "Review WPGraphQL Settings"
+msgstr ""
+
+#: src/Admin/SettingsReview/AdminPage.php:62
+msgid "Review Settings"
+msgstr ""
+
+#. translators: 1: npm ci command, 2: npm run build command, 3: releases URL
+#: src/Admin/SettingsReview/AdminPage.php:130
+#, php-format
+msgid "The settings review requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
+msgstr ""
+
+#. translators: 1: settings field name, 2: settings field type
+#: src/Admin/SettingsReview/FieldFactory.php:170
+#, php-format
+msgid "The \"%1$s\" setting can't be shown in the settings review because the settings review doesn't support the \"%2$s\" field type."
+msgstr ""
+
+#: src/Admin/SettingsReview/FieldFactory.php:227
+msgid "Any user, including logged-out visitors"
+msgstr ""
+
+#: src/Admin/SettingsReview/RestController.php:135
+msgid "Settings must be grouped by settings section."
+msgstr ""
+
+#: src/Admin/SettingsReview/RestController.php:141
+msgid "This setting is not part of the settings review."
+msgstr ""
+
+#: src/Admin/SettingsReview/RestController.php:159
+msgid "The value is not valid for this setting."
+msgstr ""
+
+#: src/Admin/SettingsReview/RestController.php:169
+msgid "Some settings have invalid values."
+msgstr ""
+
+#. translators: %s: URL of the settings review admin page
+#: src/Admin/SettingsReview/SettingsReview.php:177
+#, php-format
+msgid "<strong>Review your WPGraphQL settings.</strong> A short review explains the tradeoffs of settings for access, request limits and debugging. <a href=\"%s\">Start the review</a>"
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:47
+msgid "A settings review step needs a slug and a title."
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:66
+msgid "Access"
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:67
+msgid "Choose who can use the GraphQL API and who can read its schema."
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:75
+msgid "Request limits"
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:76
+msgid "Choose how much work a single request can ask for."
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:84
+msgid "Diagnostics"
+msgstr ""
+
+#: src/Admin/SettingsReview/StepRegistry.php:85
+msgid "Choose which debugging information is added to responses, and who can see it."
 msgstr ""
 
 #: src/Admin/Updates/PluginsScreenLoader.php:84
@@ -3709,7 +3935,7 @@ msgstr ""
 #: src/Type/ObjectType/Menu.php:60
 #: src/Type/ObjectType/MenuItem.php:193
 #: src/Type/ObjectType/Plugin.php:74
-#: src/Type/ObjectType/Taxonomy.php:90
+#: src/Type/ObjectType/Taxonomy.php:96
 #: src/Type/ObjectType/Theme.php:94
 #: src/Type/ObjectType/User.php:208
 #: src/Type/ObjectType/UserRole.php:53
@@ -4275,12 +4501,12 @@ msgid "Whether the content type is associated with a route under the the REST AP
 msgstr ""
 
 #: src/Type/ObjectType/ContentType.php:143
-#: src/Type/ObjectType/Taxonomy.php:144
+#: src/Type/ObjectType/Taxonomy.php:150
 msgid "Name of content type to display in REST API \"wp/v2\" namespace."
 msgstr ""
 
 #: src/Type/ObjectType/ContentType.php:149
-#: src/Type/ObjectType/Taxonomy.php:150
+#: src/Type/ObjectType/Taxonomy.php:156
 msgid "The REST Controller class assigned to handling this content type."
 msgstr ""
 
@@ -5014,50 +5240,54 @@ msgid "Description of the taxonomy."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:84
-msgid "Whether the taxonomy is publicly queryable"
+msgid "Whether the taxonomy is intended for public use. This is a broad statement of intent rather than a behavior of its own: the more specific settings, such as publiclyQueryable, showUi and showInNavMenus, follow it unless they are given their own value."
 msgstr ""
 
-#: src/Type/ObjectType/Taxonomy.php:96
-msgid "Whether the taxonomy is hierarchical"
+#: src/Type/ObjectType/Taxonomy.php:90
+msgid "Whether terms in this taxonomy can be queried from the front end of the site."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:102
-msgid "Whether to generate and allow a UI for managing terms in this taxonomy in the admin"
+msgid "Whether the taxonomy is hierarchical"
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:108
-msgid "Whether to show the taxonomy in the admin menu"
+msgid "Whether to generate and allow a UI for managing terms in this taxonomy in the admin"
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:114
-msgid "Whether the taxonomy is available for selection in navigation menus."
+msgid "Whether to show the taxonomy in the admin menu"
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:120
-msgid "Whether to show the taxonomy as part of a tag cloud widget."
+msgid "Whether the taxonomy is available for selection in navigation menus."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:126
-msgid "Whether to show the taxonomy in the quick/bulk edit panel."
+msgid "Whether to show the taxonomy as part of a tag cloud widget."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:132
-msgid "Whether to display a column for the taxonomy on its post type listing screens."
+msgid "Whether to show the taxonomy in the quick/bulk edit panel."
 msgstr ""
 
 #: src/Type/ObjectType/Taxonomy.php:138
+msgid "Whether to display a column for the taxonomy on its post type listing screens."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:144
 msgid "Whether to add the post type route in the REST API \"wp/v2\" namespace."
 msgstr ""
 
-#: src/Type/ObjectType/Taxonomy.php:156
+#: src/Type/ObjectType/Taxonomy.php:162
 msgid "Whether to add the post type to the GraphQL Schema."
 msgstr ""
 
-#: src/Type/ObjectType/Taxonomy.php:162
+#: src/Type/ObjectType/Taxonomy.php:168
 msgid "The singular name of the post type within the GraphQL Schema."
 msgstr ""
 
-#: src/Type/ObjectType/Taxonomy.php:168
+#: src/Type/ObjectType/Taxonomy.php:174
 msgid "The plural name of the post type within the GraphQL Schema."
 msgstr ""
 
@@ -5452,38 +5682,38 @@ msgstr ""
 msgid "The server's current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s"
 msgstr ""
 
-#: src/WPGraphQL.php:567
+#: src/WPGraphQL.php:595
 msgid "Represents uploaded media, including images, videos, documents, and audio files."
 msgstr ""
 
-#: src/WPGraphQL.php:572
+#: src/WPGraphQL.php:600
 msgid "A standalone content entry generally used for static, non-chronological content such as \"About Us\" or \"Contact\" pages."
 msgstr ""
 
-#: src/WPGraphQL.php:577
+#: src/WPGraphQL.php:605
 msgid "A chronological content entry typically used for blog posts, news articles, or similar date-based content."
 msgstr ""
 
-#: src/WPGraphQL.php:598
+#: src/WPGraphQL.php:626
 msgid "A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure."
 msgstr ""
 
-#: src/WPGraphQL.php:603
+#: src/WPGraphQL.php:631
 msgid "A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications."
 msgstr ""
 
-#: src/WPGraphQL.php:608
+#: src/WPGraphQL.php:636
 msgid "A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as \"standard\", \"gallery\", \"video\", etc."
 msgstr ""
 
 #. translators: %s will replaced with the registered type
-#: src/WPGraphQL.php:778
+#: src/WPGraphQL.php:806
 #, php-format
 msgid "The \"%s\" post_type isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
 
 #. translators: %s will replaced with the registered taxonomy
-#: src/WPGraphQL.php:863
+#: src/WPGraphQL.php:891
 #, php-format
 msgid "The \"%s\" taxonomy isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""

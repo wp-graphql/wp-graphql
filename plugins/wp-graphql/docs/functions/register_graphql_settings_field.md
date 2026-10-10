@@ -14,7 +14,7 @@ plugin: wp-graphql
 register_graphql_settings_field( string $group, array $config ): void;
 ```
 
-Registers a GraphQL Settings Field
+Registers a GraphQL Settings Field Set `depends_on` to the name of a checkbox field in the same section when this field only applies while that checkbox is on. The field is then hidden while the checkbox is off, on the settings page and, when both fields are in it, in the settings review. Its saved value is kept. Set `tradeoffs` to describe what turning the setting on gains and costs, as `[ 'benefits' => string[], 'costs' => string[] ]`. The settings page shows them in a collapsible section under the setting, and the settings review shows them next to it. To show the field in the settings review, add a `settings_review` key to the config: `true`, or an array with any of `step` (the slug of a step registered with register_graphql_settings_review_step()), `description` (a short plain-text description to use instead of `desc`) and `order`. The settings review always uses the field's `label`. It supports the checkbox, number, select, radio, user_role_select, text, url and textarea field types.
 
 - **Since:** 0.13.0
 - **Source File:** `plugins/wp-graphql/access-functions.php`
@@ -26,7 +26,7 @@ Registers a GraphQL Settings Field
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:784`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L784)
+- [`plugins/wp-graphql/access-functions.php:798`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L798)
 
 ```php
 function register_graphql_settings_field( string $group, array $config ): void {

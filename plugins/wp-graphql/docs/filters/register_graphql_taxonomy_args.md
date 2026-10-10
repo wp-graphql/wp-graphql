@@ -29,7 +29,7 @@ Filters the graphql args set on a taxonomy
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:671`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L671)
+- [`plugins/wp-graphql/src/WPGraphQL.php:699`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L699)
 
 ```php
 apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
@@ -37,4 +37,4 @@ apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name )
 
 ## Related
 
-- `WPGraphQL::register_graphql_taxonomy_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:671`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L671)
+- `WPGraphQL::register_graphql_taxonomy_args()` in [`plugins/wp-graphql/src/WPGraphQL.php:699`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L699)

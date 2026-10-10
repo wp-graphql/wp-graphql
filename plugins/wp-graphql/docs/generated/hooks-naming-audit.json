@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-09-22T18:21:07.598Z",
+  "generatedAt": "2026-10-10T04:25:46.767Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,11 +31,11 @@
       ]
     },
     "summary": {
-      "totalHooks": 279,
-      "wpgraphqlHooks": 259,
-      "activeWpgraphqlHooks": 255,
+      "totalHooks": 282,
+      "wpgraphqlHooks": 262,
+      "activeWpgraphqlHooks": 258,
       "coreHooks": 20,
-      "staticHooks": 242,
+      "staticHooks": 245,
       "dynamicHooks": 13,
       "flaggedHooks": 31,
       "warnings": 31,
@@ -44,7 +44,7 @@
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 227
+        "count": 230
       },
       {
         "prefix": "wpgraphql_",
@@ -340,7 +340,7 @@
         "hook": "register_graphql_post_type_args",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 640,
+        "line": 668,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -350,7 +350,7 @@
         "hook": "register_graphql_taxonomy_args",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 671,
+        "line": 699,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -360,7 +360,7 @@
         "hook": "graphql_schema",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/WPGraphQL.php",
-        "line": 926,
+        "line": 954,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
@@ -370,7 +370,7 @@
         "hook": "graphql_endpoint",
         "kind": "filter",
         "file": "plugins/wp-graphql/access-functions.php",
-        "line": 939,
+        "line": 983,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",

@@ -207,7 +207,7 @@ final class SettingsReview {
 		 * @param bool $show_invitation Whether to show the invitation notice. Default true.
 		 *
 		 * @hookGroup settings
-		 * @since x-release-please-version
+		 * @since 2.24.0
 		 */
 		return (bool) apply_filters( 'graphql_settings_review_show_invitation', true );
 	}
@@ -453,7 +453,7 @@ final class SettingsReview {
 		 *           supported way to add a step. It is not part of the public hook contract.
 		 *
 		 * @hookGroup settings
-		 * @since x-release-please-version
+		 * @since 2.24.0
 		 */
 		do_action( 'graphql_settings_review_init', $this );
 	}

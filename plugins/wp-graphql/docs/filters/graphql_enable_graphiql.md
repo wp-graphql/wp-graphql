@@ -28,7 +28,7 @@ Filters whether the embedded GraphiQL IDE should be enabled.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Admin.php:64`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L64)
+- [`plugins/wp-graphql/src/Admin/Admin.php:70`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L70)
 
 ```php
 apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled', true ) );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled
 
 ## Related
 
-- `Admin::init()` in [`plugins/wp-graphql/src/Admin/Admin.php:64`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L64)
+- `Admin::init()` in [`plugins/wp-graphql/src/Admin/Admin.php:70`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L70)

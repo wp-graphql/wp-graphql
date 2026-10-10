@@ -28,7 +28,7 @@ Fires before the admin notices are rendered.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/AdminNotices.php:318`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L318)
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:337`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L337)
 
 ```php
 do_action( 'graphql_admin_notices_render_notices', $notices );
@@ -36,4 +36,4 @@ do_action( 'graphql_admin_notices_render_notices', $notices );
 
 ## Related
 
-- `AdminNotices::render_notices()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:318`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L318)
+- `AdminNotices::render_notices()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:337`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L337)

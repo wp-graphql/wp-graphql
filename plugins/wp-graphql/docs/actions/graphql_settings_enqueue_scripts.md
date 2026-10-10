@@ -24,7 +24,7 @@ Fires when WPGraphQL settings assets should be enqueued.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:87`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L87)
+- [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:127`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L127)
 
 ```php
 do_action( 'graphql_settings_enqueue_scripts' );
@@ -32,4 +32,4 @@ do_action( 'graphql_settings_enqueue_scripts' );
 
 ## Related
 
-- `SettingsRegistry::admin_enqueue_scripts()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:87`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L87)
+- `SettingsRegistry::admin_enqueue_scripts()` in [`plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php:127`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Settings/SettingsRegistry.php#L127)
