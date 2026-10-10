@@ -165,7 +165,6 @@ class Invalidation {
 			'apple_news_notice',
 		];
 
-		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$ignored_meta_keys = apply_filters( 'graphql_cache_ignored_meta_keys', $ignored_meta_keys );
 
 		// make sure the filter returns an array
@@ -198,7 +197,6 @@ class Invalidation {
 		 * @param mixed     $meta_value Metadata value. Serialized if non-scalar.
 		 * @param mixed     $object The object the meta is being updated for.
 		 */
-		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$should_track = apply_filters( 'graphql_cache_should_track_meta_key', null, $meta_key, $meta_value, $object );
 
 		// If the filter has been applied return it
@@ -772,7 +770,6 @@ class Invalidation {
 		}
 
 		// if the meta key isn't tracked, ignore it
-		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		if ( false === $this->should_track_meta( $meta_key, $meta_value, $post ) ) {
 			return;
 		}
@@ -1003,7 +1000,6 @@ class Invalidation {
 		}
 
 		// if the meta key isn't tracked, ignore it
-		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		if ( false === $this->should_track_meta( $meta_key, $meta_value, $post ) ) {
 			return;
 		}
@@ -1146,7 +1142,6 @@ class Invalidation {
 		// A broad-impact setting escalates to a full purge, using the same
 		// primitive as the admin "Purge Cache Now" action.
 		if ( 'all' === $target['scope'] ) {
-			//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 			do_action( 'wpgraphql_cache_purge_all' );
 			return;
 		}
@@ -1191,7 +1186,6 @@ class Invalidation {
 		 *
 		 * @since 2.3.0
 		 */
-		//phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$purge_all_option_keys = apply_filters( 'graphql_cache_purge_all_option_keys', [] );
 
 		if ( is_array( $purge_all_option_keys ) && in_array( $option, $purge_all_option_keys, true ) ) {
