@@ -18,9 +18,9 @@ There are two ways to enable GraphQL Debug Mode:
 ### Enable GraphQL Debug Mode from the settings page
 
 - Visit the GraphQL Settings page from the WordPress Admin Menu.
-- Check the box labeled "Enable Debug Mode" and save the settings.
+- Check the box labeled "Debug mode" and save the settings.
 
-![Screenshot of the setting to enable GraphiQL IDE](./images/debugging-setting-enable-graphql.png)
+![Screenshot of the WPGraphQL "Debug mode" setting](./images/debugging-setting-debug-mode.png)
 
 GraphQL requests will now execute in Debug Mode.
 
@@ -42,7 +42,7 @@ It should be added to the wp-config.php file, above the line that says:
 
 This force-enables debug mode, and the setting on the settings page will now be disabled and show that it's been enabled with code.
 
-![Screenshot of the WPGraphQL Setting to "Enable GraphQL Debug Mode"](./images/debugging-output-graphql-debug.png)
+![Screenshot of the WPGraphQL "Debug mode" setting, disabled because GRAPHQL_DEBUG is set in code](./images/debugging-setting-debug-mode-set-in-code.png)
 
 ## graphql\_debug()
 
@@ -116,9 +116,9 @@ WPGraphQL allows you to enable GraphQL Tracing. Tracing tracks how long each res
 
 ### Enable Tracing
 
-From the WPGraphQL Settings page, check the box labeled "Enable GraphQL Tracing".
+From the WPGraphQL Settings page, check the box labeled "Tracing".
 
-![Screenshot of the WPGraphQL Setting to Enable GraphQL Tracing](./images/debugging-setting-graphql-enable-tracing.png)
+![Screenshot of the WPGraphQL "Tracing" setting](./images/debugging-setting-graphql-enable-tracing.png)
 
 ### Trace Data
 
@@ -264,9 +264,9 @@ In any case, seeing the raw SQL queries and the path to the code that called it 
 
 ### Enabling GraphQL Query Logs
 
-From the WPGraphQL Settings page, check the box labeled "Enable GraphQL Query Logs".
+From the WPGraphQL Settings page, check the box labeled "Query logs".
 
-![Screenshot of the setting to enable GraphQL Query Logs](./images/debugging-setting-enable-graphql-query-logs.png)
+![Screenshot of the WPGraphQL "Query logs" setting](./images/debugging-setting-enable-graphql-query-logs.png)
 
 ### Query Log Data
 
