@@ -77,6 +77,9 @@ Registered in `SmartCacheBridge::register_ide_graphql_fields_on_smart_cache_docu
 | Filter | Hook | Purpose |
 | --- | --- | --- |
 | `restrict_post_visibility` | `graphql_data_is_private` | Marks `graphql_document` posts private when the current user isn't the author. Gates connections (private models are dropped from results), `node(id)`, and `graphqlDocument(id)` alike. The IDE's document list also passes an `author` where arg client-side (`src/api/documents.js`) to keep pagination correct; connection-level author scoping in PHP was removed because it over-matched `post_type: 'any'` connections ([#4117](https://github.com/wp-graphql/wp-graphql/issues/4117)). |
+| `force_public_request` | `graphql_process_http_request` | Runs a request carrying `X-WPGraphQL-IDE-Public: 1` as a guest, which `src/api/public-fetch.js` sends when a site behind HTTP Basic Auth forces the public-visitor mode to include credentials ([#2312](https://github.com/wp-graphql/wp-graphql/issues/2312)). |
+| `allow_public_request_header` | `graphql_access_control_allow_headers` | Adds `X-WPGraphQL-IDE-Public` to the endpoint's CORS allow-list, so a browser will send it from an IDE served on a different origin than the endpoint. |
+| `vary_on_public_request_header` | `graphql_response_headers_to_send` | Appends `X-WPGraphQL-IDE-Public` to the response's `Vary` list, alongside core's `X-GraphQL-Preview`, so a shared cache keys on the header that decides who the request runs as. |
 
 ### Client callsites
 
@@ -84,6 +87,7 @@ Registered in `SmartCacheBridge::register_ide_graphql_fields_on_smart_cache_docu
 | --- | --- |
 | User search (Share dialog) | `src/components/dialogs/ShareCollectionDialog.jsx` |
 | GraphQL fetch wrapper | `src/api/graphql-client.js` |
+| Public-visitor fetch (IDE executions) | `src/api/public-fetch.js` |
 
 ## REST
 
