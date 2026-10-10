@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.6.0
+Stable tag: 5.6.1
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,14 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.6.1 =
+
+**Bug Fixes**
+
+* **ide:** keep public requests working behind HTTP Basic Auth ([#4396](https://github.com/wp-graphql/wp-graphql/issues/4396))
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340))
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374))
 
 = 5.6.0 =
 
