@@ -61,6 +61,62 @@ add_filter( 'register_taxonomy_args', function( $args, $taxonomy ) {
 }, 10, 2 );
 ```
 
+## Public vs Private Data
+
+Terms behave differently from post entries here, so it is worth being explicit.
+
+**Terms are served to everyone.** If a taxonomy is in the schema, which it is only because it was registered with `show_in_graphql`, its terms are returned to anonymous callers. `public` and `publicly_queryable` do not change that. A taxonomy registered `public => false` still has all of its terms readable through GraphQL.
+
+The taxonomy itself, meaning the object describing the taxonomy rather than the terms in it, follows the same rule. It is returned to anyone, and individual fields on it that describe how the taxonomy is configured are returned only to users who can edit its terms.
+
+This differs from post types, where `publicly_queryable => false` does keep entries from anonymous callers. See [Public vs Private Data](/docs/custom-post-types/#public-vs-private-data) on the Custom Post Types page for how that works.
+
+### Restricting terms yourself
+
+If terms in a taxonomy should not be readable by everyone, you have two options.
+
+The simplest is not to add the taxonomy to the schema at all. `show_in_graphql` is the decision that exposes it, so leaving it off keeps the terms out entirely.
+
+If you want the taxonomy in the schema but its terms restricted, filter the model. `graphql_data_is_private` runs for every model WPGraphQL builds, and returning true for a term removes it:
+
+```php
+add_filter( 'graphql_data_is_private', function ( $is_private, $model_name, $data ) {
+
+    if ( 'TermObject' !== $model_name ) {
+        return $is_private;
+    }
+
+    if ( isset( $data->taxonomy ) && 'my_taxonomy' === $data->taxonomy ) {
+        return ! current_user_can( 'edit_posts' );
+    }
+
+    return $is_private;
+
+}, 10, 3 );
+```
+
+Terms you mark private are dropped from connections, and looking one up directly returns null.
+
+One thing to know before relying on this: `pageInfo` is calculated from the underlying query, before models are built, so a page can come back with fewer nodes than you asked for, or none at all, while `hasNextPage` still reports true. This is how any model level filtering behaves, private posts included. Clients should page until `hasNextPage` is false rather than stopping at the first page that looks empty.
+
+### `public` describes intent, it does not restrict
+
+`public` is a shorthand WordPress uses to fill in the defaults for `publicly_queryable`, `show_ui`, `show_in_nav_menus` and others. Once those are set, it has no further effect. Setting `public => false` says "this is not a normal, user facing taxonomy," not "keep these terms private."
+
+Both values are readable in the schema, so a client can use them to decide how to render:
+
+```graphql
+{
+  taxonomy(id: "documentTag", idType: NAME) {
+    name
+    public             # the broad statement of intent
+    publiclyQueryable  # whether terms are reachable on the front end
+  }
+}
+```
+
+`publiclyQueryable` is the useful one for a front end deciding whether to build archive routes for a taxonomy's terms.
+
 ## Querying Custom Taxonomies
 
 Querying terms of Custom Taxonomies is nearly identical to querying Categories and Tags. The difference being the name assigned by `graphql_single_name` and `graphql_plural_name`.

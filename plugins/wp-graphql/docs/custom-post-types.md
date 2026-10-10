@@ -42,8 +42,8 @@ add_action( 'init', function() {
       'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
       'graphql_single_name' => 'document',
       'graphql_plural_name' => 'documents', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
-      'public' => true, # set to false if entries of the post_type should not have public URIs per entry
-      'publicly_queryable' => true, # Set to false if entries should only be queryable in WPGraphQL by authenticated requests
+      'public' => true, # shorthand that fills in the defaults for publicly_queryable, show_ui and others. Not an access control setting, see "Public vs Private Data" below
+      'publicly_queryable' => true, # this is the one WPGraphQL reads: set to false and entries are returned only to users who can edit them
    ] );
 } );
 ```
@@ -74,7 +74,50 @@ Custom Post Type UI is a popular WordPress plugin that enables users to register
 
 ## Public vs Private Data
 
-WPGraphQL respects WordPress access control policies. If a Post Type is registered as `publicly_queryable => true` then WPGraphQL will expose posts of that post type to public queries. If the post type is registered as `publicly_queryable => false` the posts of that post type will be exposed only to authenticated users who have the capability required to access it.
+WordPress treats being visible on the web and being available through an API as two separate decisions.
+
+- `publicly_queryable` decides whether entries are reachable on the **front end of your site**, at a URL.
+- `show_in_rest` decides whether they are available through the **REST API**.
+- `show_in_graphql` decides whether they are available through the **GraphQL API**.
+
+**WPGraphQL is deliberately stricter than WordPress here.** We require the front end door to be open before we serve entries publicly through GraphQL:
+
+Published entries are returned to an anonymous request when the post type is registered `public => true` **or** `publicly_queryable => true`. If both are false, entries are returned only to users with the capability to edit them.
+
+| `public` | `publicly_queryable` | Anonymous GraphQL request |
+| --- | --- | --- |
+| `true` | `true` | entries are returned |
+| `true` | `false` | entries are returned (this is how core registers `page`) |
+| `false` | `true` | entries are returned |
+| `false` | not set | **nothing is returned**, because it inherits `false` from `public` |
+
+WordPress itself does not work this way. Its REST API gates on `show_in_rest` alone and returns any published entry, so a post type can be hidden from the front end and still readable through REST by anyone.
+
+We take the stricter line on purpose. Plugins register post types all the time without considering whether their entries should be readable by anonymous API callers, and a GraphQL endpoint is often the most public surface a site has. Defaulting to closed means an extension has to opt in before its data is served to everyone, rather than opting out after the fact.
+
+### If your post type has no front end
+
+This is the normal case for headless sites, where WordPress serves no pages at all. Set `publicly_queryable` explicitly:
+
+```php
+register_post_type( 'docs', [
+    'public'              => false, # no URLs, no admin UI
+    'publicly_queryable'  => true,  # but do serve entries through the API
+    'show_in_graphql'     => true,
+    'graphql_single_name' => 'document',
+    'graphql_plural_name' => 'documents',
+] );
+```
+
+Without that second line, `publicly_queryable` inherits whatever `public` is, so `public => false` silently closes the API to anonymous callers too, and queries come back empty with no error to explain why.
+
+### `public` is not an access control setting
+
+It is a shorthand. WordPress uses it to fill in the defaults for `publicly_queryable`, `show_ui`, `show_in_nav_menus`, `exclude_from_search` and `embeddable`, and then never consults it again. Each of those can be set on its own, and once set, `public` has no further say.
+
+So `public => false` means "this is not a normal, user facing content type." It does not mean the entries are secret. WordPress registers several of its own post types this way, including the one that stores your navigation menus, whose content appears on every page of the site.
+
+When WPGraphQL decides whether to serve entries to an anonymous caller it checks both flags, so setting either one is enough. The case that catches people out is leaving `publicly_queryable` unset, because then it quietly takes its value from `public`.
 
 ## Querying Custom Post Types
 
