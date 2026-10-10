@@ -66,12 +66,19 @@ class Taxonomy extends Model {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * A taxonomy is never private. It is in the schema only because it was
+	 * registered with `show_in_graphql`, and the terms it describes are served to
+	 * everyone already, since the Term model has no privacy rule of its own.
+	 * Hiding the taxonomy while serving its terms described nothing and protected
+	 * nothing.
+	 *
+	 * Field-level restriction still applies through the capability passed to the
+	 * parent constructor: a viewer without `edit_terms` gets this model's allowed
+	 * fields and null for the rest, exactly as they already did for a taxonomy
+	 * registered `public => true`.
 	 */
 	protected function is_private() {
-		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_terms ) || ! current_user_can( $this->data->cap->edit_terms ) ) ) {
-			return true;
-		}
-
 		return false;
 	}
 
