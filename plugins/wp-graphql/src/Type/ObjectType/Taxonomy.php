@@ -81,7 +81,13 @@ class Taxonomy {
 						'public'              => [
 							'type'        => 'Boolean',
 							'description' => static function () {
-								return __( 'Whether the taxonomy is publicly queryable', 'wp-graphql' );
+								return __( 'Whether the taxonomy is intended for public use. This is a broad statement of intent rather than a behavior of its own: the more specific settings, such as publiclyQueryable, showUi and showInNavMenus, follow it unless they are given their own value.', 'wp-graphql' );
+							},
+						],
+						'publiclyQueryable'   => [
+							'type'        => 'Boolean',
+							'description' => static function () {
+								return __( 'Whether terms in this taxonomy can be queried from the front end of the site.', 'wp-graphql' );
 							},
 						],
 						'isRestricted'        => [
