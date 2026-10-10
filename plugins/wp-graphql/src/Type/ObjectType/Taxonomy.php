@@ -81,7 +81,13 @@ class Taxonomy {
 						'public'              => [
 							'type'        => 'Boolean',
 							'description' => static function () {
-								return __( 'Whether the taxonomy is publicly queryable', 'wp-graphql' );
+								return __( 'Whether the taxonomy is intended for use publicly either via the admin interface or by front-end users. The default settings of publicly_queryable, show_ui and show_in_nav_menus are inherited from public, but each controls a specific intention and does not rely on this relationship.', 'wp-graphql' );
+							},
+						],
+						'publiclyQueryable'   => [
+							'type'        => 'Boolean',
+							'description' => static function () {
+								return __( 'Whether terms in this taxonomy can be queried from the front end of the site.', 'wp-graphql' );
 							},
 						],
 						'isRestricted'        => [

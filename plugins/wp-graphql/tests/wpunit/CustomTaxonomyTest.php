@@ -1280,6 +1280,64 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * @throws Exception
 	 */
+	/**
+	 * `publiclyQueryable` mirrors the registered value, as it already does on
+	 * ContentType. It is the flag that actually governs whether terms are
+	 * reachable from the front end, so a client deciding whether to build archive
+	 * routes needs it, and it was the one member of the visibility set missing
+	 * from Taxonomy.
+	 *
+	 * Queried as an administrator because the Taxonomy model restricts fields
+	 * outside its allow list for viewers without `edit_terms`.
+	 *
+	 * @dataProvider dataProviderPubliclyQueryable
+	 */
+	public function testTaxonomyReportsPubliclyQueryable( bool $registered, bool $expected ) {
+		register_taxonomy(
+			'pq_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => false,
+				'publicly_queryable'  => $registered,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'PqTerm',
+				'graphql_plural_name' => 'PqTerms',
+			]
+		);
+
+		$this->clearSchema();
+		wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+					query PubliclyQueryable( $id: ID! ) {
+						taxonomy( id: $id, idType: NAME ) {
+							publiclyQueryable
+						}
+					}
+				',
+				'variables' => [ 'id' => 'pq_tax' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['taxonomy']['publiclyQueryable'] );
+
+		unregister_taxonomy( 'pq_tax' );
+	}
+
+	/**
+	 * @return array<string,array{bool,bool}>
+	 */
+	public function dataProviderPubliclyQueryable(): array {
+		return [
+			// Registered explicitly, so it does not inherit the `public => false` above.
+			'publicly queryable'     => [ true, true ],
+			'not publicly queryable' => [ false, false ],
+		];
+	}
+
 	public function testRegisterTaxonomyWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
 
 		register_taxonomy(

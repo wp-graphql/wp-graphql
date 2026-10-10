@@ -109,6 +109,9 @@ class Taxonomy extends Model {
 					// @todo this is a bug
 					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
 				},
+				'publiclyQueryable'   => function () {
+					return (bool) $this->data->publicly_queryable;
+				},
 				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
 				},
