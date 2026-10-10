@@ -72,7 +72,7 @@ class LocationRules {
 	 * @param string $graphql_type_name The name of the GraphQL Type
 	 */
 	public function unset_graphql_type( string $field_group_name, string $graphql_type_name ): void {
-		$this->unset_types[ Utils::format_field_name( $field_group_name, true ) ][] = ucfirst( Utils::format_field_name( $graphql_type_name, true ) );
+		$this->unset_types[ strtolower( Utils::format_field_name( $field_group_name, true ) ) ][] = ucfirst( Utils::format_field_name( $graphql_type_name, true ) );
 	}
 
 	/**
@@ -95,14 +95,14 @@ class LocationRules {
 		 */
 		foreach ( $this->unset_types as $field_group => $types ) {
 
-			// If there are no mapped field groups for the rule being unset, return the mapped groups as is
+			// If there are no mapped types for the field group being unset, there is nothing to remove
 			if ( ! isset( $this->mapped_field_groups[ $field_group ] ) ) {
-				return $this->mapped_field_groups;
+				continue;
 			}
 
-			// If the types to unset are empty or not an array, return the mapped field groups as is
+			// If the types to unset are empty or not an array, there is nothing to remove
 			if ( empty( $types ) || ! is_array( $types ) ) {
-				return $this->mapped_field_groups;
+				continue;
 			}
 
 			// Loop over the types to unset, find the key of the type in the array, then unset it
