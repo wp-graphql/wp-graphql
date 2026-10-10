@@ -1307,4 +1307,59 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 
 	}
+
+	/**
+	 * A taxonomy registered with `public => false` must report `public: false`,
+	 * not fall back to `true`.
+	 */
+	public function testNonPublicTaxonomyReportsPublicFalse() {
+		register_taxonomy(
+			'non_public_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NonPublicTax',
+				'graphql_plural_name' => 'NonPublicTaxes',
+			]
+		);
+
+		$this->clearSchema();
+
+		try {
+			wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+			$query = '
+			query GetTaxonomy( $id: ID! ) {
+				taxonomy( id: $id, idType: NAME ) {
+					name
+					public
+				}
+			}
+			';
+
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id' => 'non_public_tax',
+					],
+				]
+			);
+
+			$this->assertQuerySuccessful(
+				$actual,
+				[
+					$this->expectedField( 'taxonomy.name', 'non_public_tax' ),
+					$this->expectedField( 'taxonomy.public', false ),
+				]
+			);
+
+			// Strict check: a null response must not pass as false.
+			$this->assertFalse( $actual['data']['taxonomy']['public'] );
+		} finally {
+			unregister_taxonomy( 'non_public_tax' );
+			$this->clearSchema();
+		}
+	}
 }

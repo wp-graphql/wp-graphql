@@ -106,8 +106,7 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
 				},
 				'public'              => function () {
-					// @todo this is a bug
-					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
+					return (bool) $this->data->public;
 				},
 				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
