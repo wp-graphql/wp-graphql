@@ -97,7 +97,7 @@ add_filter( 'graphql_data_is_private', function ( $is_private, $model_name, $dat
 
 Terms you mark private are dropped from connections, and looking one up directly returns null.
 
-One thing to know before relying on this: `pageInfo` is calculated from the underlying query, before models are built, so `hasNextPage` can still report true when every term on the page was filtered out. The terms themselves stay hidden, but a caller can tell that something is there. If the existence of the terms is itself sensitive, keep the taxonomy out of the schema instead.
+One thing to know before relying on this: `pageInfo` is calculated from the underlying query, before models are built, so a page can come back with fewer nodes than you asked for, or none at all, while `hasNextPage` still reports true. This is how any model level filtering behaves, private posts included. Clients should page until `hasNextPage` is false rather than stopping at the first page that looks empty.
 
 ### `public` describes intent, it does not restrict
 
