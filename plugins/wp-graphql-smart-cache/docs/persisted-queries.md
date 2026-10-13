@@ -151,6 +151,57 @@ For example, currently queries for "Settings" are not invalidating when settings
 - [Object Cache](./object-cache.md)
 - [Cache Invalidation](./cache-invalidation.md)
 
+### Who can register documents automatically, and how many are kept
+
+Automatic Persisted Queries are reachable by whoever can reach the endpoint, which
+is how the protocol is meant to work: a client sends a query once and uses its ID
+afterwards. Two settings on the "Saved Queries" tab control it.
+
+**Who can save a new query automatically** defaults to anyone, including logged out
+visitors, which is how this has always behaved. The alternatives are logged in users
+only, or nobody. Reading an already saved document is never affected, only saving a
+new one.
+
+On WPGraphQL core 2.5.4 and later, a request carrying only a login cookie is treated
+as logged out unless it also sends a nonce, so "logged in users only" in practice
+means clients authenticating with a token, such as a JWT or an application password,
+or sending an `X-WP-Nonce` header. A browser session on its own will not save
+documents.
+
+For anything the setting cannot express, such as an API key belonging to a known
+first-party client, use the filter:
+
+```php
+add_filter( 'graphql_smart_cache_can_auto_persist_document', function ( $allowed, $mode ) {
+    // Let a trusted client through whatever the setting says.
+    if ( isset( $_SERVER['HTTP_X_MY_APP_KEY'] ) && hash_equals( MY_APP_KEY, $_SERVER['HTTP_X_MY_APP_KEY'] ) ) {
+        return true;
+    }
+    return $allowed;
+}, 10, 2 );
+```
+
+**Limit on automatically saved queries** bounds how many are kept. Past the limit the
+oldest are removed as new ones arrive, so the table cannot grow without end. This
+applies whatever the mode is, because the default mode allows anyone to save.
+
+Removing one is safe: a client that sends an ID the server no longer knows re-sends
+the full query, and it is registered again under its verified hash. That fallback is
+part of the protocol. Documents you have granted, denied, or placed in a Group are
+curated rather than automatic, and are never removed by the limit.
+
+Change the limit with the filter:
+
+```php
+add_filter( 'graphql_smart_cache_automatic_document_limit', function ( $limit ) {
+    return 20000;
+} );
+```
+
+> **Changed in 2.3.3**: previously nothing bounded automatically saved documents.
+> Garbage collection is opt-in, defaults to off and prunes by age only, so on a
+> default install anonymous traffic could grow the table indefinitely.
+
 ### Auditing automatically registered documents
 
 Documents registered by the automatic persisted query flow are marked as such (ones stored by earlier versions are recognised by having no author). The "Saved Queries" settings tab shows how many such documents exist, how many of them carry an alias name that was not derived from the document hash, and a button to delete the automatically registered ones. Documents you have granted, denied, or placed in a group are kept.
