@@ -131,6 +131,36 @@ If this query is executed now, an error will be returned.
 
 ![Screenshot showing the error when a query marked as "Deny" is executed](./images/denied-query-error.png)
 
+##### Who the allow/deny rules apply to
+
+The rules apply to **every request**, whether the caller is logged in or not, with one
+exception: users who can `manage_options`, normally administrators, are exempt so they
+can still run ad-hoc queries in the IDE.
+
+If you have granted IDE access to non-administrators, those users are subject to the
+allow list too, and ad-hoc queries in the IDE will be blocked for them. Exempt them by
+filtering the capability to the one your IDE access is gated on.
+
+Change which capability exempts a user with the
+`graphql_smart_cache_grant_exempt_capability` filter:
+
+```php
+add_filter( 'graphql_smart_cache_grant_exempt_capability', function ( $capability, $grant_mode, $request ) {
+    // Let anyone who can edit posts run queries outside the allow list.
+    return 'edit_posts';
+}, 10, 3 );
+```
+
+> **Changed in 2.3.3**: the rules previously applied only to logged-out requests, so an
+> authenticated caller could execute queries the allow list was meant to block, including
+> documents marked Deny. You were affected if your clients authenticate with an
+> `Authorization` header, such as a JWT or an application password, or send an
+> `X-WP-Nonce` header alongside a cookie. Requests carrying only a cookie have been
+> treated as logged out since WPGraphQL 2.5.4, so those were already covered. If your
+> application relies on authenticated clients running queries outside the allow list,
+> either add those documents to the allow list, or use the filter above to exempt a
+> capability those clients hold.
+
 #### Custom Max Age / Expiration Per Query
 
 When creating / editing GraphQL Documents, you can set a custom max-age per document.
