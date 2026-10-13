@@ -119,6 +119,28 @@ So `public => false` means "this is not a normal, user facing content type." It 
 
 When WPGraphQL decides whether to serve entries to an anonymous caller it checks both flags, so setting either one is enough. The case that catches people out is leaving `publicly_queryable` unset, because then it quietly takes its value from `public`.
 
+### Querying the content type itself
+
+Separate from its entries, the schema exposes a post type's registration data as a `ContentType`:
+
+```graphql
+{
+  contentType(id: "docs", idType: NAME) {
+    name
+    description
+    publiclyQueryable
+  }
+}
+```
+
+Two rules decide what comes back.
+
+**A content type is exactly as visible as its entries.** If an anonymous caller cannot read entries of the type, `contentType` returns `null` for them too. Describing a type whose content is withheld would only advertise that it exists. This follows the same stricter line as the table above, and it is one place we differ from the REST API, which serves the type object to anyone.
+
+**Configuration fields require the capability to edit the type's entries.** Without it, `public`, `publiclyQueryable`, `showUi`, `labels` and similar fields return `null`, while a smaller set always resolves: `name`, `description`, `hierarchical`, `label`, `taxonomies`, `uri`, `graphqlSingleName`, `graphqlPluralName` and `showInGraphql`. The `isRestricted` field tells you which case you are in. The REST API draws the same line, reserving `capabilities`, `labels`, `supports`, `viewable` and `visibility` for requests made with `context=edit`.
+
+So a `null` from `public` does not mean the post type was registered `public => false`. It usually means the caller is not allowed to see that setting. Read `isRestricted` before reading anything into it.
+
 ## Querying Custom Post Types
 
 Querying content in a Custom Post type is similar to querying [Posts & Pages](/docs/posts-and-pages/). The difference being that the `graphql_single_name` and `graphql_plural_name` will be shown in the Schema.

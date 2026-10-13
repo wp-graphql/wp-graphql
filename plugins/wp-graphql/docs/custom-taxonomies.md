@@ -117,6 +117,28 @@ Both values are readable in the schema, so a client can use them to decide how t
 
 `publiclyQueryable` is the useful one for a front end deciding whether to build archive routes for a taxonomy's terms.
 
+### Querying the taxonomy itself
+
+Separate from its terms, the schema exposes a taxonomy's registration data:
+
+```graphql
+{
+  taxonomy(id: "genre", idType: NAME) {
+    name
+    description
+    publiclyQueryable
+  }
+}
+```
+
+**A taxonomy is always returned**, whatever `public` is set to, because the terms it describes are served to everyone already. Hiding the taxonomy while serving its terms would describe nothing and protect nothing. This is the opposite of how content types behave, and the reason is the same in both cases: the registration data is exactly as visible as the nodes it describes.
+
+**Configuration fields require `edit_terms`.** Without that capability, `public`, `publiclyQueryable`, `showUi` and similar fields return `null`, while a smaller set always resolves: `id`, `name`, `description`, `hierarchical`, `restBase`, `graphqlSingleName`, `graphqlPluralName` and `showInGraphql`. The `isRestricted` field tells you which case you are in.
+
+Note that `label` is not in that set for a taxonomy, though it is for a content type. If you need a human readable name for an anonymous visitor, use `name` or supply your own.
+
+So a `null` from `public` does not mean the taxonomy was registered `public => false`. It usually means the caller is not allowed to see that setting.
+
 ## Querying Custom Taxonomies
 
 Querying terms of Custom Taxonomies is nearly identical to querying Categories and Tags. The difference being the name assigned by `graphql_single_name` and `graphql_plural_name`.
