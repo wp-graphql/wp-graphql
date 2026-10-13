@@ -14,6 +14,7 @@
   "env": {
     "development": {
       "config": {
+        "GRAPHQL_DEBUG": true,
         "WP_DEBUG_LOG": "/var/www/html/wp-content/plugins/wp-graphql/tests/_output/debug.log",
         "WP_DEBUG_DISPLAY": false,
         "WP_DEVELOPMENT_MODE": "plugin"
