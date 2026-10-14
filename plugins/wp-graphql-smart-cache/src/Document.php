@@ -16,7 +16,16 @@ class Document {
 
 	const TYPE_NAME           = 'graphql_document';
 	const ALIAS_TAXONOMY_NAME = 'graphql_query_alias';
-	const GRAPHQL_NAME        = 'graphqlDocument';
+
+	// Who may save a new query document through Automatic Persisted Queries.
+	const AUTO_PERSIST_PUBLIC        = 'public';
+	const AUTO_PERSIST_AUTHENTICATED = 'authenticated';
+	const AUTO_PERSIST_OFF           = 'off';
+	const AUTO_PERSIST_DEFAULT_MODE  = self::AUTO_PERSIST_PUBLIC;
+
+	// The most automatically saved documents to keep from logged out visitors.
+	const AUTO_PERSIST_DEFAULT_LIMIT = 5000;
+	const GRAPHQL_NAME               = 'graphqlDocument';
 
 	/**
 	 * Meta key recording how a document came to be stored. Documents registered by
@@ -379,6 +388,117 @@ class Document {
 	}
 
 	/**
+	 * Whether the current request may save a new query document automatically.
+	 *
+	 * Automatic Persisted Queries exist so a client can send a query once and use
+	 * its ID afterwards, which means the write path is reachable by whoever can
+	 * reach the endpoint. That is how the protocol is meant to work, and it stays
+	 * the default, but a site can narrow it.
+	 *
+	 * @return bool
+	 */
+	public static function can_auto_persist_document(): bool {
+		$mode = function_exists( 'get_graphql_setting' )
+			? \get_graphql_setting( 'apq_auto_persist_mode', self::AUTO_PERSIST_DEFAULT_MODE, 'graphql_persisted_queries_section' )
+			: self::AUTO_PERSIST_DEFAULT_MODE;
+
+		switch ( $mode ) {
+			case self::AUTO_PERSIST_OFF:
+				$allowed = false;
+				break;
+			case self::AUTO_PERSIST_AUTHENTICATED:
+				$allowed = is_user_logged_in();
+				break;
+			default:
+				$allowed = true;
+				break;
+		}
+
+		/**
+		 * Filters whether the current request may save a new query document through
+		 * Automatic Persisted Queries. Use this to key the decision on something the
+		 * setting cannot express, such as an API key header belonging to a known
+		 * first-party client.
+		 *
+		 * @param bool   $allowed Whether the write is allowed. Default follows the setting.
+		 * @param string $mode    The configured mode ('public', 'authenticated' or 'off').
+		 *
+		 * @since 2.3.3
+		 * @hookGroup authentication
+		 */
+		return (bool) apply_filters( 'graphql_smart_cache_can_auto_persist_document', $allowed, $mode );
+	}
+
+	/**
+	 * Keep the number of automatically registered documents under the configured
+	 * limit, removing the oldest first.
+	 *
+	 * Without this, traffic grows `wp_posts` without end: garbage collection is
+	 * opt-in, defaults to off, and prunes by age only, so nothing bounds the table
+	 * on a default install.
+	 *
+	 * Uses the same definition of "automatic" as the document audit, so documents
+	 * carrying the source meta are included as well as the older ones recognised by
+	 * having no author. Curated documents, meaning anything granted, denied or
+	 * placed in a group, are never removed here.
+	 *
+	 * Removing an automatically registered document is safe: a client that still
+	 * uses one re-sends the full query on its next request and it is registered
+	 * again under its verified hash.
+	 *
+	 * @return int The number of documents removed.
+	 */
+	public static function enforce_automatic_document_limit(): int {
+		$limit = function_exists( 'get_graphql_setting' )
+			? \get_graphql_setting( 'apq_automatic_document_limit', self::AUTO_PERSIST_DEFAULT_LIMIT, 'graphql_persisted_queries_section' )
+			: self::AUTO_PERSIST_DEFAULT_LIMIT;
+
+		$limit = is_numeric( $limit ) ? (int) $limit : self::AUTO_PERSIST_DEFAULT_LIMIT;
+
+		if ( 1 > $limit ) {
+			$limit = self::AUTO_PERSIST_DEFAULT_LIMIT;
+		}
+
+		/**
+		 * Filters the most automatically registered documents to keep. Past this,
+		 * the oldest are removed as new ones arrive.
+		 *
+		 * @param int $limit The limit. Default from the Saved Queries settings.
+		 *
+		 * @since 2.3.3
+		 * @hookGroup settings
+		 */
+		$limit = (int) apply_filters( 'graphql_smart_cache_automatic_document_limit', $limit );
+
+		if ( 1 > $limit ) {
+			return 0;
+		}
+
+		// Ask for one batch more than we keep, so a single request does bounded work
+		// and successive requests converge if the table starts far over the limit.
+		$ids = Document\Audit::get_automatic_document_ids( false, $limit + Document\Audit::BATCH_SIZE );
+
+		if ( count( $ids ) <= $limit ) {
+			return 0;
+		}
+
+		// Oldest first, so the excess is at the front.
+		$excess  = array_slice( $ids, 0, count( $ids ) - $limit );
+		$removed = 0;
+
+		foreach ( $excess as $post_id ) {
+			if ( Document\Audit::is_curated( $post_id ) ) {
+				continue;
+			}
+			if ( wp_delete_post( $post_id, true ) ) {
+				++$removed;
+			}
+		}
+
+		return $removed;
+	}
+
+	/**
 	 * Persist a document buffered by graphql_query_contains_query_id_cb() once the
 	 * request that carried it has executed, and only when it passed validation.
 	 *
@@ -434,8 +554,13 @@ class Document {
 			return;
 		}
 
+		if ( ! self::can_auto_persist_document() ) {
+			return;
+		}
+
 		try {
 			$this->save( $matched_id, $pending['raw'] );
+			self::enforce_automatic_document_limit();
 		} catch ( \Throwable $e ) {
 			// The request already executed; a failed write must not turn a successful response into an error.
 			graphql_debug( sprintf( 'Persisted query document could not be saved: %s', $e->getMessage() ), [ 'queryId' => $matched_id ] );
